@@ -27,7 +27,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
     super.initState();
     _titleController = TextEditingController(text: widget.book.title);
     _publisherController = TextEditingController(text: widget.book.publisher);
-    _yearController = TextEditingController(text: widget.book.publicationYear?.toString());
+    _yearController = TextEditingController(
+      text: widget.book.publicationYear?.toString(),
+    );
     _isbnController = TextEditingController(text: widget.book.isbn);
     _summaryController = TextEditingController(text: widget.book.summary);
   }
@@ -63,9 +65,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error updating book: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error updating book: $e')));
         setState(() => _isSaving = false);
       }
     }
@@ -74,9 +76,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Edit Book'),
-      ),
+      appBar: AppBar(title: const Text('Edit Book')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -86,8 +86,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
               TextFormField(
                 controller: _titleController,
                 decoration: const InputDecoration(labelText: 'Title'),
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'Please enter a title' : null,
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Please enter a title'
+                    : null,
               ),
               TextFormField(
                 controller: _publisherController,
@@ -95,7 +96,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
               ),
               TextFormField(
                 controller: _yearController,
-                decoration: const InputDecoration(labelText: 'Publication Year'),
+                decoration: const InputDecoration(
+                  labelText: 'Publication Year',
+                ),
                 keyboardType: TextInputType.number,
               ),
               TextFormField(

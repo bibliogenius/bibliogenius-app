@@ -5,32 +5,28 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Bibliotech Test',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const HomePage(),
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const HomePage(title: 'Bibliotech - Test'),
     );
   }
 }
 
 class HomePage extends StatelessWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({super.key, required this.title});
+
+  final String title;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Bibliotech - Test'),
-      ),
-      body: const Center(
-        child: Text('Hello World!'),
-      ),
+      appBar: AppBar(title: Text(title)),
+      body: const Center(child: Text('Hello World!')),
     );
   }
 }

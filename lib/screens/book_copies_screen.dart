@@ -62,9 +62,9 @@ class _BookCopiesScreenState extends State<BookCopiesScreen> {
         _fetchCopies(); // Refresh list
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error adding copy: $e')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Error adding copy: $e')));
         }
       }
     }
@@ -96,9 +96,9 @@ class _BookCopiesScreenState extends State<BookCopiesScreen> {
         _fetchCopies(); // Refresh list
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error deleting copy: $e')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Error deleting copy: $e')));
         }
       }
     }
@@ -107,37 +107,35 @@ class _BookCopiesScreenState extends State<BookCopiesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Copies of "${widget.bookTitle}"'),
-      ),
+      appBar: AppBar(title: Text('Copies of "${widget.bookTitle}"')),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _copies.isEmpty
-              ? const Center(child: Text('No copies yet'))
-              : ListView.builder(
-                  itemCount: _copies.length,
-                  itemBuilder: (context, index) {
-                    final copy = _copies[index];
-                    return ListTile(
-                      leading: Icon(
-                        copy.isTemporary ? Icons.schedule : Icons.book,
-                        color: copy.isTemporary ? Colors.orange : null,
-                      ),
-                      title: Row(
-                        children: [
-                          Text('Copy #${copy.id}'),
-                          const SizedBox(width: 8),
-                          _StatusBadge(status: copy.status),
-                        ],
-                      ),
-                      subtitle: Text(copy.notes ?? 'No notes'),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.delete),
-                        onPressed: () => _deleteCopy(copy.id!),
-                      ),
-                    );
-                  },
-                ),
+          ? const Center(child: Text('No copies yet'))
+          : ListView.builder(
+              itemCount: _copies.length,
+              itemBuilder: (context, index) {
+                final copy = _copies[index];
+                return ListTile(
+                  leading: Icon(
+                    copy.isTemporary ? Icons.schedule : Icons.book,
+                    color: copy.isTemporary ? Colors.orange : null,
+                  ),
+                  title: Row(
+                    children: [
+                      Text('Copy #${copy.id}'),
+                      const SizedBox(width: 8),
+                      _StatusBadge(status: copy.status),
+                    ],
+                  ),
+                  subtitle: Text(copy.notes ?? 'No notes'),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed: () => _deleteCopy(copy.id!),
+                  ),
+                );
+              },
+            ),
       floatingActionButton: FloatingActionButton(
         onPressed: _addCopy,
         child: const Icon(Icons.add),
@@ -174,7 +172,7 @@ class _AddCopyDialogState extends State<_AddCopyDialog> {
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
-              value: _selectedStatus,
+              initialValue: _selectedStatus,
               decoration: const InputDecoration(labelText: 'Status'),
               items: const [
                 DropdownMenuItem(value: 'available', child: Text('Available')),
@@ -217,7 +215,9 @@ class _AddCopyDialogState extends State<_AddCopyDialog> {
               'acquisition_date': _dateController.text.isEmpty
                   ? null
                   : _dateController.text,
-              'notes': _notesController.text.isEmpty ? null : _notesController.text,
+              'notes': _notesController.text.isEmpty
+                  ? null
+                  : _notesController.text,
               'status': _selectedStatus,
               'is_temporary': _isTemporary,
             });
@@ -265,7 +265,7 @@ class _StatusBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
+        color: color.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: color),
       ),

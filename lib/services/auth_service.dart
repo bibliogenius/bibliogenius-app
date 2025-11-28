@@ -16,7 +16,7 @@ class AuthService {
   Future<void> saveUsername(String username) async {
     await _storage.write(key: _usernameKey, value: username);
   }
-  
+
   Future<String?> getUsername() async {
     return await _storage.read(key: _usernameKey);
   }

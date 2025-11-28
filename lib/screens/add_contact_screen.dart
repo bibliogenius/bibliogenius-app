@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import '../models/contact.dart';
 import '../services/api_service.dart';
 
 class AddContactScreen extends StatefulWidget {
@@ -13,14 +12,14 @@ class AddContactScreen extends StatefulWidget {
 
 class _AddContactScreenState extends State<AddContactScreen> {
   final _formKey = GlobalKey<FormState>();
-  
+
   String _type = 'borrower';
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _notesController = TextEditingController();
-  
+
   bool _isSaving = false;
 
   @override
@@ -45,7 +44,9 @@ class _AddContactScreenState extends State<AddContactScreen> {
         'name': _nameController.text,
         'email': _emailController.text.isEmpty ? null : _emailController.text,
         'phone': _phoneController.text.isEmpty ? null : _phoneController.text,
-        'address': _addressController.text.isEmpty ? null : _addressController.text,
+        'address': _addressController.text.isEmpty
+            ? null
+            : _addressController.text,
         'notes': _notesController.text.isEmpty ? null : _notesController.text,
         'library_owner_id': 1, // TODO: Get from auth context
         'is_active': true,
@@ -62,9 +63,9 @@ class _AddContactScreenState extends State<AddContactScreen> {
     } catch (e) {
       setState(() => _isSaving = false);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error creating contact: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error creating contact: $e')));
       }
     }
   }
@@ -72,16 +73,14 @@ class _AddContactScreenState extends State<AddContactScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Add Contact'),
-      ),
+      appBar: AppBar(title: const Text('Add Contact')),
       body: Form(
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
             DropdownButtonFormField<String>(
-              value: _type,
+              initialValue: _type,
               decoration: const InputDecoration(
                 labelText: 'Type',
                 border: OutlineInputBorder(),

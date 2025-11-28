@@ -13,6 +13,9 @@ import 'screens/add_contact_screen.dart';
 import 'screens/contact_details_screen.dart';
 import 'models/book.dart';
 import 'models/contact.dart';
+import 'screens/scan_screen.dart';
+import 'screens/p2p_screen.dart';
+import 'screens/profile_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -54,14 +57,17 @@ class AppRouter extends StatelessWidget {
           routes: [
             GoRoute(
               path: 'add',
-              builder: (context, state) => const AddBookScreen(),
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>?;
+                final isbn = extra?['isbn'] as String?;
+                return AddBookScreen(isbn: isbn);
+              },
             ),
             GoRoute(
               path: ':id/edit',
               builder: (context, state) {
-                final id = int.parse(state.pathParameters['id']!);
                 final book = state.extra as Book;
-                return EditBookScreen(bookId: id, book: book);
+                return EditBookScreen(book: book);
               },
             ),
             GoRoute(
@@ -93,15 +99,18 @@ class AppRouter extends StatelessWidget {
             ),
           ],
         ),
+        GoRoute(path: '/scan', builder: (context, state) => const ScanScreen()),
+        GoRoute(path: '/p2p', builder: (context, state) => const P2PScreen()),
+        GoRoute(
+          path: '/profile',
+          builder: (context, state) => const ProfileScreen(),
+        ),
       ],
     );
 
     return MaterialApp.router(
       title: 'Bibliotech',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        useMaterial3: true,
-      ),
+      theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
       routerConfig: router,
     );
   }

@@ -40,6 +40,10 @@ dependencies:
   provider: ^6.1.5+1
   go_router: ^17.0.0
   path_provider: ^2.1.5
+  mobile_scanner: ^5.2.3
+  network_info_plus: ^7.0.0
+  qr_flutter: ^4.1.0
+  share_plus: ^10.0.0
 
 dependency_overrides:
   characters: ^1.4.1

@@ -5,7 +5,8 @@ import '../services/api_service.dart';
 import '../models/book.dart';
 
 class AddBookScreen extends StatefulWidget {
-  const AddBookScreen({super.key});
+  final String? isbn;
+  const AddBookScreen({super.key, this.isbn});
 
   @override
   State<AddBookScreen> createState() => _AddBookScreenState();
@@ -16,6 +17,14 @@ class _AddBookScreenState extends State<AddBookScreen> {
   final _publisherController = TextEditingController();
   final _publicationYearController = TextEditingController();
   final _isbnController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.isbn != null) {
+      _isbnController.text = widget.isbn!;
+    }
+  }
 
   Future<void> _saveBook() async {
     final apiService = Provider.of<ApiService>(context, listen: false);
@@ -33,9 +42,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error saving book: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error saving book: $e')));
       }
     }
   }

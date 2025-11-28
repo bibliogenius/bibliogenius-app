@@ -29,7 +29,9 @@ class ContactDetailsScreen extends StatelessWidget {
           Center(
             child: CircleAvatar(
               radius: 50,
-              backgroundColor: contact.type == 'borrower' ? Colors.blue : Colors.purple,
+              backgroundColor: contact.type == 'borrower'
+                  ? Colors.blue
+                  : Colors.purple,
               child: Icon(
                 contact.type == 'borrower' ? Icons.person : Icons.library_books,
                 size: 50,
@@ -42,7 +44,8 @@ class ContactDetailsScreen extends StatelessWidget {
           _buildInfoCard('Name', contact.name),
           if (contact.email != null) _buildInfoCard('Email', contact.email!),
           if (contact.phone != null) _buildInfoCard('Phone', contact.phone!),
-          if (contact.address != null) _buildInfoCard('Address', contact.address!),
+          if (contact.address != null)
+            _buildInfoCard('Address', contact.address!),
           if (contact.notes != null) _buildInfoCard('Notes', contact.notes!),
           _buildInfoCard(
             'Status',
@@ -71,13 +74,7 @@ class ContactDetailsScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 4),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 16,
-                color: valueColor,
-              ),
-            ),
+            Text(value, style: TextStyle(fontSize: 16, color: valueColor)),
           ],
         ),
       ),
