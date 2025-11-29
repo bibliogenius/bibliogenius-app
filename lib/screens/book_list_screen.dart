@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../services/api_service.dart';
+import '../services/sync_service.dart';
 import '../models/book.dart';
 import '../widgets/bookshelf_view.dart';
 
@@ -15,13 +16,18 @@ class BookListScreen extends StatefulWidget {
 class _BookListScreenState extends State<BookListScreen> {
   List<Book> _books = [];
   bool _isLoading = true;
-  bool _isShelfView = false;
+  bool _isShelfView = true;
 
   @override
   void initState() {
     super.initState();
     _fetchBooks();
+    // Trigger background sync
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<SyncService>(context, listen: false).syncAllPeers();
+    });
   }
+
 
   Future<void> _fetchBooks() async {
     final apiService = Provider.of<ApiService>(context, listen: false);
@@ -82,8 +88,29 @@ class _BookListScreenState extends State<BookListScreen> {
               itemBuilder: (context, index) {
                 final book = _books[index];
                 return ListTile(
-                  title: Text(book.title),
-                  subtitle: Text(book.publisher ?? 'Unknown Publisher'),
+                  title: Text(
+                    book.title,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(book.publisher ?? 'Unknown Publisher'),
+                      const SizedBox(height: 4),
+                      if (book.readingStatus != null)
+                        Chip(
+                          label: Text(
+                            book.readingStatus!.replaceAll('_', ' ').toUpperCase(),
+                            style: const TextStyle(fontSize: 10),
+                          ),
+                          visualDensity: VisualDensity.compact,
+                          padding: EdgeInsets.zero,
+                        ),
+                    ],
+                  ),
                   leading: GestureDetector(
                     onTap: () => _navigateToEditBook(book),
                     child: const Icon(Icons.edit),
@@ -104,8 +131,8 @@ class _BookListScreenState extends State<BookListScreen> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(color: Colors.blue),
+            DrawerHeader(
+              decoration: BoxDecoration(color: Theme.of(context).primaryColor),
               child: Text(
                 'BiblioGenius',
                 style: TextStyle(color: Colors.white, fontSize: 24),
@@ -132,6 +159,22 @@ class _BookListScreenState extends State<BookListScreen> {
               onTap: () {
                 Navigator.pop(context);
                 context.push('/p2p');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.cloud_sync),
+              title: const Text('Network Libraries'),
+              onTap: () {
+                Navigator.pop(context);
+                context.push('/peers');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.swap_horiz),
+              title: const Text('Borrow Requests'),
+              onTap: () {
+                Navigator.pop(context);
+                context.push('/requests');
               },
             ),
             ListTile(

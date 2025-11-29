@@ -3,8 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:file_picker/file_picker.dart';
 import '../services/api_service.dart';
+import '../services/auth_service.dart';
 import '../widgets/status_badge.dart';
+import '../providers/theme_provider.dart';
+import 'package:go_router/go_router.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -161,6 +165,134 @@ class _ProfileScreenState extends State<ProfileScreen> {
             icon: const Icon(Icons.download),
             label: const Text('Export Library Backup'),
             style: ElevatedButton.styleFrom(
+              minimumSize: const Size(double.infinity, 50),
+            ),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton.icon(
+            onPressed: () async {
+              try {
+                final result = await FilePicker.platform.pickFiles(
+                  type: FileType.custom,
+                  allowedExtensions: ['csv', 'txt'],
+                );
+
+                if (result != null && result.files.single.path != null) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Importing books...')),
+                    );
+                  }
+
+                  final apiService = Provider.of<ApiService>(
+                    context,
+                    listen: false,
+                  );
+                  final response = await apiService.importBooks(
+                    result.files.single.path!,
+                  );
+
+                  if (context.mounted) {
+                    if (response.statusCode == 200) {
+                      final imported = response.data['imported'];
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Successfully imported $imported books!',
+                          ),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Import failed: ${response.data['error']}',
+                          ),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  }
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Error picking file: $e'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              }
+            },
+            icon: const Icon(Icons.upload_file),
+            label: const Text('Import CSV (Goodreads, LibraryThing, Babelio)'),
+            style: ElevatedButton.styleFrom(
+              minimumSize: const Size(double.infinity, 50),
+            ),
+          ),
+          const SizedBox(height: 32),
+
+          // App Settings
+          Text(
+            'App Settings',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 16),
+          OutlinedButton.icon(
+            onPressed: () async {
+              final confirmed = await showDialog<bool>(
+                context: context,
+                builder:
+                    (context) => AlertDialog(
+                      title: const Text('Reinstall App?'),
+                      content: const Text(
+                        'This will reset your theme and show the setup screen again. Your data will be safe.',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: const Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: const Text('Reinstall'),
+                        ),
+                      ],
+                    ),
+              );
+
+              if (confirmed == true && mounted) {
+                final themeProvider = Provider.of<ThemeProvider>(
+                  context,
+                  listen: false,
+                );
+                await themeProvider.resetSetup();
+                if (mounted) {
+                  context.go('/setup');
+                }
+              }
+            },
+            icon: const Icon(Icons.refresh),
+            label: const Text('Reinstall App (Reset Setup)'),
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size(double.infinity, 50),
+              foregroundColor: Colors.red,
+            ),
+          ),
+          const SizedBox(height: 16),
+          OutlinedButton.icon(
+            onPressed: () async {
+              final authService = Provider.of<AuthService>(context, listen: false);
+              await authService.logout();
+              if (mounted) {
+                context.go('/login');
+              }
+            },
+            icon: const Icon(Icons.logout),
+            label: const Text('Logout'),
+            style: OutlinedButton.styleFrom(
               minimumSize: const Size(double.infinity, 50),
             ),
           ),

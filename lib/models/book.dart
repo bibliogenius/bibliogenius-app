@@ -5,6 +5,8 @@ class Book {
   final String? summary;
   final String? publisher;
   final int? publicationYear;
+  final String? readingStatus;
+  final String? author;
 
   Book({
     this.id,
@@ -13,6 +15,8 @@ class Book {
     this.summary,
     this.publisher,
     this.publicationYear,
+    this.readingStatus,
+    this.author,
   });
 
   factory Book.fromJson(Map<String, dynamic> json) {
@@ -23,6 +27,8 @@ class Book {
       summary: json['summary'],
       publisher: json['publisher'],
       publicationYear: json['publication_year'],
+      readingStatus: json['reading_status'],
+      author: json['author'],
     );
   }
 
@@ -34,6 +40,8 @@ class Book {
       'summary': summary,
       'publisher': publisher,
       'publication_year': publicationYear,
+      'reading_status': readingStatus,
+      'author': author,
       'created_at': now,
       'updated_at': now,
     };

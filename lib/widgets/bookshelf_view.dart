@@ -29,8 +29,8 @@ class BookshelfView extends StatelessWidget {
                 child: BookSpine(
                   book: book,
                   height:
-                      140 + ((book.id ?? 0) % 4) * 10.0, // Vary height slightly
-                  width: 35 + ((book.id ?? 0) % 3) * 5.0, // Vary width slightly
+                      220 + ((book.id ?? 0) % 4) * 12.0, // Vary height slightly
+                  width: 60 + ((book.id ?? 0) % 3) * 6.0, // Vary width slightly
                 ),
               );
             }).toList(),

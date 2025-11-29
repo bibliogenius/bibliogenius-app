@@ -40,7 +40,7 @@ class BookSpine extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
+            color: Colors.black.withOpacity(0.3),
             offset: const Offset(1, 1),
             blurRadius: 2,
           ),
@@ -49,9 +49,9 @@ class BookSpine extends StatelessWidget {
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
           colors: [
-            _getColorFromId(book.id ?? 0).withValues(alpha: 0.8),
+            _getColorFromId(book.id ?? 0).withOpacity(0.8),
             _getColorFromId(book.id ?? 0),
-            _getColorFromId(book.id ?? 0).withValues(alpha: 0.9),
+            _getColorFromId(book.id ?? 0).withOpacity(0.9),
           ],
           stops: const [0.0, 0.2, 0.9],
         ),
@@ -71,7 +71,7 @@ class BookSpine extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.7),
+                    color: Colors.white.withOpacity(0.7),
                     fontSize: 10,
                   ),
                 ),
@@ -82,7 +82,7 @@ class BookSpine extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.5),
+                      color: Colors.white.withOpacity(0.5),
                       fontSize: 8,
                     ),
                   ),

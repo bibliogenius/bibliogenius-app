@@ -17,6 +17,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
   final _publisherController = TextEditingController();
   final _publicationYearController = TextEditingController();
   final _isbnController = TextEditingController();
+  String _readingStatus = 'to_read';
 
   @override
   void initState() {
@@ -33,6 +34,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
       publisher: _publisherController.text,
       publicationYear: int.tryParse(_publicationYearController.text),
       isbn: _isbnController.text,
+      readingStatus: _readingStatus,
     );
 
     try {
@@ -76,6 +78,22 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 labelText: 'ISBN',
                 hintText: 'Scanner coming soon!',
               ),
+            ),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<String>(
+              value: _readingStatus,
+              decoration: const InputDecoration(labelText: 'Status'),
+              items: const [
+                DropdownMenuItem(value: 'to_read', child: Text('To Read')),
+                DropdownMenuItem(value: 'reading', child: Text('Reading')),
+                DropdownMenuItem(value: 'read', child: Text('Read')),
+                DropdownMenuItem(value: 'wanted', child: Text('Wanted')),
+              ],
+              onChanged: (value) {
+                setState(() {
+                  _readingStatus = value!;
+                });
+              },
             ),
             const SizedBox(height: 24),
             ElevatedButton(

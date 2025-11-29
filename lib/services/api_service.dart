@@ -7,10 +7,10 @@ class ApiService {
   // Use localhost for Web/Desktop
   // Use 10.0.2.2 for Android Emulator
   // Use your machine's IP for real device
-  static const String baseUrl = 'http://localhost:8001';
+  static const String defaultBaseUrl = 'http://localhost:8001';
 
-  ApiService(this._authService) {
-    _dio.options.baseUrl = baseUrl;
+  ApiService(this._authService, {String? baseUrl}) {
+    _dio.options.baseUrl = baseUrl ?? defaultBaseUrl;
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
@@ -22,6 +22,12 @@ class ApiService {
         },
       ),
     );
+  }
+
+  String get baseUrl => _dio.options.baseUrl;
+
+  void setBaseUrl(String url) {
+    _dio.options.baseUrl = url;
   }
 
   Future<Response> login(String username, String password) async {
@@ -41,6 +47,10 @@ class ApiService {
 
   Future<Response> updateBook(int id, Map<String, dynamic> bookData) async {
     return await _dio.put('/api/books/$id', data: bookData);
+  }
+
+  Future<Response> deleteBook(int id) async {
+    return await _dio.delete('/api/books/$id');
   }
 
   // Copy management
@@ -110,5 +120,56 @@ class ApiService {
       '/api/export',
       options: Options(responseType: ResponseType.bytes),
     );
+  }
+
+  Future<Response> importBooks(String filePath) async {
+    String fileName = filePath.split('/').last;
+    FormData formData = FormData.fromMap({
+      "file": await MultipartFile.fromFile(filePath, filename: fileName),
+    });
+    return await _dio.post('/api/import/file', data: formData);
+  }
+
+  // P2P Advanced
+  Future<Response> getPeers() async {
+    return await _dio.get('/api/peers');
+  }
+
+  Future<Response> syncPeer(int peerId) async {
+    return await _dio.post('/api/peers/$peerId/sync');
+  }
+
+  Future<Response> getPeerBooks(int peerId) async {
+    return await _dio.get('/api/peers/$peerId/books');
+  }
+
+  Future<Response> requestBook(int peerId, String isbn, String title) async {
+    return await _dio.post(
+      '/api/peers/$peerId/request',
+      data: {'book_isbn': isbn, 'book_title': title},
+    );
+  }
+
+  Future<Response> getIncomingRequests() async {
+    return await _dio.get('/api/peers/requests');
+  }
+
+  Future<Response> getOutgoingRequests() async {
+    return await _dio.get('/api/peers/requests/outgoing');
+  }
+
+  Future<Response> updateRequestStatus(String requestId, String status) async {
+    return await _dio.put(
+      '/api/peers/requests/$requestId',
+      data: {'status': status},
+    );
+  }
+  Future<Response> setup() async {
+    return await _dio.post('/api/setup', data: {
+      "profile_type": "individual",
+      "library_name": "My Library",
+      "theme": "default",
+      "share_location": false
+    });
   }
 }

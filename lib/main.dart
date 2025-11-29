@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'services/auth_service.dart';
 import 'services/api_service.dart';
+import 'services/sync_service.dart';
+import 'providers/theme_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/book_list_screen.dart';
 import 'screens/add_book_screen.dart';
@@ -16,23 +19,39 @@ import 'models/contact.dart';
 import 'screens/scan_screen.dart';
 import 'screens/p2p_screen.dart';
 import 'screens/profile_screen.dart';
+import 'screens/setup_screen.dart';
+import 'screens/borrow_requests_screen.dart';
+import 'screens/peer_list_screen.dart';
+import 'screens/peer_book_list_screen.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final themeProvider = ThemeProvider();
+  await themeProvider.loadSettings();
+
+  runApp(MyApp(themeProvider: themeProvider));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final ThemeProvider themeProvider;
+
+  const MyApp({super.key, required this.themeProvider});
 
   @override
   Widget build(BuildContext context) {
     final authService = AuthService();
-    final apiService = ApiService(authService);
+    const baseUrl = String.fromEnvironment(
+      'API_BASE_URL',
+      defaultValue: 'http://localhost:8001',
+    );
+    final apiService = ApiService(authService, baseUrl: baseUrl);
 
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider<ThemeProvider>.value(value: themeProvider),
         Provider<AuthService>.value(value: authService),
         Provider<ApiService>.value(value: apiService),
+        Provider<SyncService>(create: (_) => SyncService(apiService)),
       ],
       child: const AppRouter(),
     );
@@ -44,9 +63,25 @@ class AppRouter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     final router = GoRouter(
-      initialLocation: '/login',
+      initialLocation: '/books', // Default, but redirect will override
+      refreshListenable: themeProvider,
+      redirect: (context, state) {
+        final isSetup = themeProvider.isSetupComplete;
+        final isSetupRoute = state.uri.path == '/setup';
+
+        if (!isSetup && !isSetupRoute) return '/setup';
+        if (isSetup && isSetupRoute) return '/login';
+
+        return null;
+      },
       routes: [
+        GoRoute(
+          path: '/setup',
+          builder: (context, state) => const SetupScreen(),
+        ),
         GoRoute(
           path: '/login',
           builder: (context, state) => const LoginScreen(),
@@ -105,12 +140,45 @@ class AppRouter extends StatelessWidget {
           path: '/profile',
           builder: (context, state) => const ProfileScreen(),
         ),
+        GoRoute(
+          path: '/requests',
+          builder: (context, state) => const BorrowRequestsScreen(),
+        ),
+        GoRoute(
+          path: '/peers',
+          builder: (context, state) => const PeerListScreen(),
+          routes: [
+            GoRoute(
+              path: ':id/books',
+              builder: (context, state) {
+                final peer = state.extra as Map<String, dynamic>;
+                return PeerBookListScreen(
+                  peerId: peer['id'],
+                  peerName: peer['name'],
+                );
+              },
+            ),
+          ],
+        ),
       ],
     );
 
+
     return MaterialApp.router(
       title: 'Bibliotech',
-      theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
+      theme: themeProvider.themeData,
+      locale: themeProvider.locale,
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('en'), // English
+        Locale('fr'), // French
+        Locale('es'), // Spanish
+        Locale('de'), // German
+      ],
       routerConfig: router,
     );
   }

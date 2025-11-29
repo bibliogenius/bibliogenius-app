@@ -20,6 +20,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
   late TextEditingController _yearController;
   late TextEditingController _isbnController;
   late TextEditingController _summaryController;
+  String _readingStatus = 'to_read';
   bool _isSaving = false;
 
   @override
@@ -32,6 +33,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
     );
     _isbnController = TextEditingController(text: widget.book.isbn);
     _summaryController = TextEditingController(text: widget.book.summary);
+    _readingStatus = widget.book.readingStatus ?? 'to_read';
   }
 
   @override
@@ -56,6 +58,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
       'publication_year': int.tryParse(_yearController.text),
       'isbn': _isbnController.text,
       'summary': _summaryController.text,
+      'reading_status': _readingStatus,
     };
 
     try {
@@ -68,6 +71,45 @@ class _EditBookScreenState extends State<EditBookScreen> {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Error updating book: $e')));
+        setState(() => _isSaving = false);
+      }
+    }
+  }
+
+  Future<void> _deleteBook() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Book'),
+        content: const Text('Are you sure you want to delete this book?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    setState(() => _isSaving = true);
+
+    final apiService = Provider.of<ApiService>(context, listen: false);
+    try {
+      await apiService.deleteBook(widget.book.id!);
+      if (mounted) {
+        context.pop(true); // Return true to indicate success (and refresh list)
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error deleting book: $e')),
+        );
         setState(() => _isSaving = false);
       }
     }
@@ -110,12 +152,37 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 decoration: const InputDecoration(labelText: 'Summary'),
                 maxLines: 3,
               ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                value: _readingStatus,
+                decoration: const InputDecoration(labelText: 'Status'),
+                items: const [
+                  DropdownMenuItem(value: 'to_read', child: Text('To Read')),
+                  DropdownMenuItem(value: 'reading', child: Text('Reading')),
+                  DropdownMenuItem(value: 'read', child: Text('Read')),
+                  DropdownMenuItem(value: 'wanted', child: Text('Wanted')),
+                ],
+                onChanged: (value) {
+                  setState(() {
+                    _readingStatus = value!;
+                  });
+                },
+              ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _isSaving ? null : _saveBook,
                 child: _isSaving
                     ? const CircularProgressIndicator()
                     : const Text('Save Changes'),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                ),
+                onPressed: _isSaving ? null : _deleteBook,
+                child: const Text('Delete Book'),
               ),
             ],
           ),
