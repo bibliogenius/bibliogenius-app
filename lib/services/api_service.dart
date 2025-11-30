@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'auth_service.dart';
 
 class ApiService {
@@ -8,6 +9,7 @@ class ApiService {
   // Use 10.0.2.2 for Android Emulator
   // Use your machine's IP for real device
   static const String defaultBaseUrl = 'http://localhost:8001';
+  static const String hubUrl = 'http://localhost:8081';
 
   ApiService(this._authService, {String? baseUrl}) {
     _dio.options.baseUrl = baseUrl ?? defaultBaseUrl;
@@ -66,6 +68,11 @@ class ApiService {
     return await _dio.put('/api/copies/$id', data: copyData);
   }
 
+  // Loan methods
+  Future<Response> createLoan(Map<String, dynamic> loanData) async {
+    return await _dio.post('/api/loans', data: loanData);
+  }
+
   // Contact methods
   Future<Response> getContacts({int? libraryId, String? type}) async {
     Map<String, dynamic> params = {};
@@ -100,7 +107,7 @@ class ApiService {
   // Peer methods
   Future<Response> connectPeer(String name, String url) async {
     return await _dio.post(
-      '/api/peers/connect',
+      '$hubUrl/api/peers/connect',
       data: {'name': name, 'url': url},
     );
   }
@@ -132,15 +139,19 @@ class ApiService {
 
   // P2P Advanced
   Future<Response> getPeers() async {
-    return await _dio.get('/api/peers');
+    return await _dio.get('$hubUrl/api/peers');
   }
 
-  Future<Response> syncPeer(int peerId) async {
-    return await _dio.post('/api/peers/$peerId/sync');
+  Future<Response> syncPeer(String peerUrl) async {
+    return await _dio.post('/api/peers/sync_by_url', data: {'url': peerUrl});
   }
 
   Future<Response> getPeerBooks(int peerId) async {
     return await _dio.get('/api/peers/$peerId/books');
+  }
+
+  Future<Response> getPeerBooksByUrl(String peerUrl) async {
+    return await _dio.post('/api/peers/books_by_url', data: {'url': peerUrl});
   }
 
   Future<Response> requestBook(int peerId, String isbn, String title) async {
@@ -164,12 +175,119 @@ class ApiService {
       data: {'status': status},
     );
   }
-  Future<Response> setup() async {
-    return await _dio.post('/api/setup', data: {
-      "profile_type": "individual",
-      "library_name": "My Library",
-      "theme": "default",
-      "share_location": false
+
+  Future<Response> deleteRequest(String requestId) async {
+    return await _dio.delete('/api/peers/requests/$requestId');
+  }
+
+  Future<Response> deleteOutgoingRequest(String requestId) async {
+    return await _dio.delete('/api/peers/requests/outgoing/$requestId');
+  }
+
+  // P2P Connection Requests (Hub)
+  Future<Response> getPendingPeers() async {
+    return await _dio.get('$hubUrl/api/peers/requests');
+  }
+
+  Future<Response> updatePeerStatus(int id, String status) async {
+    return await _dio.put(
+      '$hubUrl/api/peers/$id/status',
+      data: {'status': status},
+    );
+  }
+
+  Future<Response> deletePeer(int id) async {
+    return await _dio.delete('$hubUrl/api/peers/$id');
+  }
+
+  Future<Response> updateLibraryConfig({
+    required String name,
+    String? description,
+    List<String>? tags,
+    bool? shareLocation,
+    bool? showBorrowedBooks,
+  }) async {
+    return await _dio.post('/api/library/config', data: {
+      'name': name,
+      'description': description,
+      'tags': tags,
+      'share_location': shareLocation ?? false,
+      'show_borrowed_books': showBorrowedBooks ?? false,
     });
+  }
+
+  Future<Response> setup({
+    required String libraryName,
+    String? libraryDescription,
+    required String profileType,
+    String? theme,
+    double? latitude,
+    double? longitude,
+    bool? shareLocation,
+  }) async {
+    return await _dio.post('/api/setup', data: {
+      'library_name': libraryName,
+      'library_description': libraryDescription,
+      'profile_type': profileType,
+      'theme': theme,
+      'latitude': latitude,
+      'longitude': longitude,
+      'share_location': shareLocation,
+    });
+  }
+
+  Future<Response> searchOpenLibrary({String? title, String? author, String? subject}) async {
+    final queryParams = <String, dynamic>{};
+    if (title != null && title.isNotEmpty) queryParams['title'] = title;
+    if (author != null && author.isNotEmpty) queryParams['author'] = author;
+    if (subject != null && subject.isNotEmpty) queryParams['subject'] = subject;
+    
+    return await _dio.get('/api/integrations/openlibrary/search', queryParameters: queryParams);
+  }
+
+  Future<Response> updateProfile({
+    required String profileType,
+    Map<String, dynamic>? avatarConfig,
+  }) async {
+    final Map<String, dynamic> data = {
+      'profile_type': profileType,
+    };
+    if (avatarConfig != null) {
+      data['avatar_config'] = avatarConfig;
+    }
+    return await _dio.put('/api/profile', data: data);
+  }
+
+  Future<Map<String, dynamic>?> fetchOpenLibraryBook(String isbn) async {
+    try {
+      final dio = Dio(); // New instance for external call
+      final response = await dio.get(
+        'https://openlibrary.org/api/books',
+        queryParameters: {
+          'bibkeys': 'ISBN:$isbn',
+          'jscmd': 'data',
+          'format': 'json',
+        },
+      );
+
+      if (response.statusCode == 200 && response.data != null) {
+        final data = response.data as Map<String, dynamic>;
+        final key = 'ISBN:$isbn';
+        if (data.containsKey(key)) {
+          final book = data[key];
+          return {
+            'title': book['title'],
+            'author': book['authors'] != null ? (book['authors'] as List).map((a) => a['name']).join(', ') : null,
+            'publisher': book['publishers'] != null ? (book['publishers'] as List).first['name'] : null,
+            'year': book['publish_date'] != null ? int.tryParse(book['publish_date'].toString().split(' ').last) : null,
+            'summary': book['subtitle'] ?? (book['notes'] is String ? book['notes'] : null), // OpenLibrary structure varies
+            'cover_url': book['cover'] != null ? book['cover']['large'] : null,
+          };
+        }
+      }
+    } catch (e) {
+      debugPrint('OpenLibrary API Error: $e');
+    }
+    return null;
   }
 }

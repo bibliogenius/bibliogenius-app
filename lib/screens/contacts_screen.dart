@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/genie_app_bar.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../models/contact.dart';
@@ -87,8 +88,8 @@ class _ContactsScreenState extends State<ContactsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Contacts'),
+      appBar: GenieAppBar(
+        title: 'Contacts',
         actions: [
           PopupMenuButton<String>(
             initialValue: _filterType,
@@ -136,10 +137,14 @@ class _ContactsScreenState extends State<ContactsScreen> {
                     key: Key('contact-${contact.id}'),
                     direction: DismissDirection.endToStart,
                     background: Container(
-                      color: Colors.red,
+                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.red.shade100,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                       alignment: Alignment.centerRight,
-                      padding: const EdgeInsets.only(right: 16),
-                      child: const Icon(Icons.delete, color: Colors.white),
+                      padding: const EdgeInsets.only(right: 24),
+                      child: const Icon(Icons.delete, color: Colors.red),
                     ),
                     confirmDismiss: (direction) async {
                       return await showDialog<bool>(
@@ -164,29 +169,89 @@ class _ContactsScreenState extends State<ContactsScreen> {
                       );
                     },
                     onDismissed: (direction) => _deleteContact(contact.id!),
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: contact.type == 'borrower'
-                            ? Colors.blue
-                            : Colors.purple,
-                        child: Icon(
-                          contact.type == 'borrower'
-                              ? Icons.person
-                              : Icons.library_books,
-                          color: Colors.white,
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                        border: Border.all(
+                          color: Theme.of(context).dividerColor.withOpacity(0.1),
                         ),
                       ),
-                      title: Text(contact.name),
-                      subtitle: Text(
-                        contact.email ?? contact.phone ?? 'No contact info',
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.all(16),
+                        leading: CircleAvatar(
+                          radius: 24,
+                          backgroundColor: contact.type == 'borrower'
+                              ? Colors.blue.withOpacity(0.1)
+                              : Colors.purple.withOpacity(0.1),
+                          child: Icon(
+                            contact.type == 'borrower'
+                                ? Icons.person
+                                : Icons.library_books,
+                            color: contact.type == 'borrower'
+                                ? Colors.blue
+                                : Colors.purple,
+                          ),
+                        ),
+                        title: Text(
+                          contact.name,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 4),
+                            Text(
+                              contact.email ?? contact.phone ?? 'No contact info',
+                              style: TextStyle(
+                                color: Theme.of(context).textTheme.bodySmall?.color,
+                              ),
+                            ),
+                          ],
+                        ),
+                        trailing: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: contact.isActive
+                                ? Colors.green.withOpacity(0.1)
+                                : Colors.grey.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                contact.isActive ? Icons.check_circle : Icons.cancel,
+                                size: 14,
+                                color: contact.isActive ? Colors.green : Colors.grey,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                contact.isActive ? 'Active' : 'Inactive',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: contact.isActive ? Colors.green : Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        onTap: () {
+                          context.push('/contacts/${contact.id}', extra: contact);
+                        },
                       ),
-                      trailing: Icon(
-                        contact.isActive ? Icons.check_circle : Icons.cancel,
-                        color: contact.isActive ? Colors.green : Colors.grey,
-                      ),
-                      onTap: () {
-                        context.push('/contacts/${contact.id}', extra: contact);
-                      },
                     ),
                   );
                 },

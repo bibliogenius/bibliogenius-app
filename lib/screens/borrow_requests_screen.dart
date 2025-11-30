@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/genie_app_bar.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
 import '../services/api_service.dart';
@@ -13,11 +14,16 @@ class BorrowRequestsScreen extends StatefulWidget {
 class _BorrowRequestsScreenState extends State<BorrowRequestsScreen>
     with SingleTickerProviderStateMixin {
   Timer? _refreshTimer;
+  late TabController _tabController;
+  bool _isLoading = false;
+  List<dynamic> _incomingRequests = [];
+  List<dynamic> _outgoingRequests = [];
+  List<dynamic> _connectionRequests = [];
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _fetchRequests();
     // Auto-refresh every 30 seconds
     _refreshTimer = Timer.periodic(const Duration(seconds: 30), (_) {
@@ -38,10 +44,12 @@ class _BorrowRequestsScreenState extends State<BorrowRequestsScreen>
     try {
       final inRes = await api.getIncomingRequests();
       final outRes = await api.getOutgoingRequests();
+      final connRes = await api.getPendingPeers();
       if (mounted) {
         setState(() {
           _incomingRequests = inRes.data;
           _outgoingRequests = outRes.data;
+          _connectionRequests = connRes.data['requests'] ?? [];
         });
       }
     } catch (e) {
@@ -71,7 +79,26 @@ class _BorrowRequestsScreenState extends State<BorrowRequestsScreen>
     }
   }
 
-  Future<void> _deleteRequest(String id) async {
+  Future<void> _updatePeerStatus(int id, String status) async {
+    final api = Provider.of<ApiService>(context, listen: false);
+    try {
+      await api.updatePeerStatus(id, status);
+      _fetchRequests();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Connection $status")),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error updating peer status: $e")),
+        );
+      }
+    }
+  }
+
+  Future<void> _deleteRequest(String id, {bool isOutgoing = false}) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -94,7 +121,11 @@ class _BorrowRequestsScreenState extends State<BorrowRequestsScreen>
 
     final api = Provider.of<ApiService>(context, listen: false);
     try {
-      await api.deleteRequest(id);
+      if (isOutgoing) {
+        await api.deleteOutgoingRequest(id);
+      } else {
+        await api.deleteRequest(id);
+      }
       _fetchRequests(); // Refresh
     } catch (e) {
       if (mounted) {
@@ -108,11 +139,18 @@ class _BorrowRequestsScreenState extends State<BorrowRequestsScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Borrow Requests"),
+      appBar: GenieAppBar(
+        title: 'Borrow Requests',
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [Tab(text: "Incoming"), Tab(text: "Outgoing")],
+          labelColor: Theme.of(context).appBarTheme.foregroundColor,
+          unselectedLabelColor: Theme.of(context).appBarTheme.foregroundColor?.withValues(alpha: 0.7),
+          indicatorColor: Theme.of(context).appBarTheme.foregroundColor,
+          tabs: const [
+            Tab(icon: Icon(Icons.move_to_inbox), text: "Incoming"),
+            Tab(icon: Icon(Icons.outbox), text: "Outgoing"),
+            Tab(icon: Icon(Icons.link), text: "Connections"),
+          ],
         ),
         actions: [
           IconButton(
@@ -134,6 +172,10 @@ class _BorrowRequestsScreenState extends State<BorrowRequestsScreen>
                   onRefresh: _fetchRequests,
                   child: _buildOutgoingList(),
                 ),
+                RefreshIndicator(
+                  onRefresh: _fetchRequests,
+                  child: _buildConnectionList(),
+                ),
               ],
             ),
     );
@@ -141,22 +183,146 @@ class _BorrowRequestsScreenState extends State<BorrowRequestsScreen>
 
   Widget _buildIncomingList() {
     if (_incomingRequests.isEmpty) {
-      return const Center(child: Text("No incoming requests"));
+      return _buildEmptyState("No incoming requests");
     }
     return ListView.builder(
       itemCount: _incomingRequests.length,
       itemBuilder: (context, index) {
         final req = _incomingRequests[index];
-        return Card(
-          child: ListTile(
-            title: Text(req['book_title']),
-            subtitle: Text("From: ${req['peer_name']}\nStatus: ${req['status']}"),
-            trailing: _buildActionButtons(req, isIncoming: true),
-          ),
+        return _buildRequestTile(req, isIncoming: true);
+      },
+    );
+  }
+
+  Widget _buildOutgoingList() {
+    if (_outgoingRequests.isEmpty) {
+      return _buildEmptyState("No outgoing requests");
+    }
+    return ListView.builder(
+      itemCount: _outgoingRequests.length,
+      itemBuilder: (context, index) {
+        final req = _outgoingRequests[index];
+        return _buildRequestTile(req, isIncoming: false);
+      },
+    );
+  }
+
+  Widget _buildConnectionList() {
+    if (_connectionRequests.isEmpty) {
+      return _buildEmptyState("No pending connection requests");
+    }
+    return ListView.builder(
+      itemCount: _connectionRequests.length,
+      itemBuilder: (context, index) {
+        final req = _connectionRequests[index];
+        return Column(
+          children: [
+            ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              leading: CircleAvatar(
+                backgroundColor: Colors.purple.withOpacity(0.1),
+                child: const Icon(Icons.link, color: Colors.purple),
+              ),
+              title: Text(
+                req['name'] ?? 'Unknown Library',
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+              subtitle: Text(req['url'] ?? ''),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                    ),
+                    onPressed: () => _updatePeerStatus(req['id'], 'active'),
+                    child: const Text('Accept'),
+                  ),
+                  const SizedBox(width: 8),
+                  OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.red,
+                      side: const BorderSide(color: Colors.red),
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                    ),
+                    onPressed: () => _updatePeerStatus(req['id'], 'rejected'),
+                    child: const Text('Reject'),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1, indent: 72),
+          ],
         );
       },
     );
   }
+
+  Widget _buildEmptyState(String message) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.inbox, size: 64, color: Colors.grey[400]),
+          const SizedBox(height: 16),
+          Text(
+            message,
+            style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRequestTile(Map<String, dynamic> req, {required bool isIncoming}) {
+    return Column(
+      children: [
+        ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          leading: CircleAvatar(
+            backgroundColor: isIncoming ? Colors.orange.withOpacity(0.1) : Colors.blue.withOpacity(0.1),
+            child: Icon(
+              isIncoming ? Icons.download : Icons.upload,
+              color: isIncoming ? Colors.orange : Colors.blue,
+              size: 20,
+            ),
+          ),
+          title: Text(
+            req['book_title'] ?? 'Unknown Book',
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(isIncoming ? "From: ${req['peer_name']}" : "To: ${req['peer_name']}"),
+              const SizedBox(height: 4),
+              _buildStatusText(req['status']),
+            ],
+          ),
+          trailing: _buildActionButtons(req, isIncoming: isIncoming),
+        ),
+        const Divider(height: 1, indent: 72),
+      ],
+    );
+  }
+
+  Widget _buildStatusText(String status) {
+    Color color;
+    switch (status) {
+      case 'pending': color = Colors.orange; break;
+      case 'accepted': color = Colors.green; break;
+      case 'rejected': color = Colors.red; break;
+      case 'returned': color = Colors.blue; break;
+      default: color = Colors.grey;
+    }
+    return Text(
+      status.toUpperCase(),
+      style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 12),
+    );
+  }
+
 
   Widget _buildActionButtons(Map<String, dynamic> req, {required bool isIncoming}) {
     final status = req['status'];
@@ -167,62 +333,56 @@ class _BorrowRequestsScreenState extends State<BorrowRequestsScreen>
         return Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            IconButton(
-              icon: const Icon(Icons.check, color: Colors.green),
+            ElevatedButton.icon(
+              icon: const Icon(Icons.check, size: 16),
+              label: const Text("Accept"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                foregroundColor: Colors.white,
+              ),
               onPressed: () => _updateStatus(id, 'accepted'),
-              tooltip: 'Accept',
             ),
-            IconButton(
-              icon: const Icon(Icons.close, color: Colors.red),
+            const SizedBox(width: 8),
+            OutlinedButton.icon(
+              icon: const Icon(Icons.close, size: 16),
+              label: const Text("Reject"),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.red,
+                side: const BorderSide(color: Colors.red),
+              ),
               onPressed: () => _updateStatus(id, 'rejected'),
-              tooltip: 'Reject',
             ),
           ],
         );
       } else if (status == 'accepted') {
-        return ElevatedButton(
+        return ElevatedButton.icon(
+          icon: const Icon(Icons.assignment_return, size: 16),
+          label: const Text("Mark Returned"),
           onPressed: () => _updateStatus(id, 'returned'),
-          child: const Text("Mark Returned"),
         );
       }
     } else {
       // Outgoing
       if (status == 'pending') {
-        return TextButton(
-          onPressed: () => _deleteRequest(id),
-          child: const Text("Cancel", style: TextStyle(color: Colors.red)),
+        return OutlinedButton.icon(
+          icon: const Icon(Icons.cancel, size: 16),
+          label: const Text("Cancel Request"),
+          style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
+          onPressed: () => _deleteRequest(id, isOutgoing: true),
         );
       }
     }
 
     // Allow deleting finished/rejected requests to clean up list
     if (['rejected', 'returned', 'cancelled'].contains(status)) {
-       return IconButton(
-        icon: const Icon(Icons.delete_outline, color: Colors.grey),
-        onPressed: () => _deleteRequest(id),
-        tooltip: 'Remove from list',
+       return TextButton.icon(
+        icon: const Icon(Icons.delete_outline, size: 16),
+        label: const Text("Remove"),
+        style: TextButton.styleFrom(foregroundColor: Colors.grey),
+        onPressed: () => _deleteRequest(id, isOutgoing: !isIncoming),
       );
     }
 
     return const SizedBox.shrink();
-  }
-
-  Widget _buildOutgoingList() {
-    if (_outgoingRequests.isEmpty) {
-      return const Center(child: Text("No outgoing requests"));
-    }
-    return ListView.builder(
-      itemCount: _outgoingRequests.length,
-      itemBuilder: (context, index) {
-        final req = _outgoingRequests[index];
-        return Card(
-          child: ListTile(
-            title: Text(req['book_title']),
-            subtitle: Text("To: ${req['peer_name']}\nStatus: ${req['status']}"),
-            trailing: _buildActionButtons(req, isIncoming: false),
-          ),
-        );
-      },
-    );
   }
 }

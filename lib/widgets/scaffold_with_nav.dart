@@ -1,0 +1,134 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import '../services/translation_service.dart';
+
+class ScaffoldWithNav extends StatelessWidget {
+  final Widget child;
+
+  const ScaffoldWithNav({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final bool useRail = width > 600;
+
+    return Scaffold(
+      body: Row(
+        children: [
+          if (useRail)
+            NavigationRail(
+              selectedIndex: _calculateSelectedIndex(context),
+              onDestinationSelected: (int index) => _onItemTapped(index, context),
+              labelType: NavigationRailLabelType.all,
+              destinations: [
+                NavigationRailDestination(
+                  icon: Icon(Icons.dashboard),
+                  label: Text(TranslationService.translate(context, 'dashboard')),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.book),
+                  label: Text(TranslationService.translate(context, 'library')),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.contacts),
+                  label: Text(TranslationService.translate(context, 'contacts')),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.link),
+                  label: Text(TranslationService.translate(context, 'p2p')),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.cloud_sync),
+                  label: Text(TranslationService.translate(context, 'network')),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.swap_horiz),
+                  label: Text(TranslationService.translate(context, 'requests')),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.person),
+                  label: Text(TranslationService.translate(context, 'profile')),
+                ),
+              ],
+            ),
+          if (useRail) const VerticalDivider(thickness: 1, width: 1),
+          Expanded(child: child),
+        ],
+      ),
+      bottomNavigationBar: useRail
+          ? null
+          : NavigationBar(
+              selectedIndex: _calculateSelectedIndex(context),
+              onDestinationSelected: (int index) => _onItemTapped(index, context),
+              destinations: [
+                NavigationDestination(
+                  icon: Icon(Icons.dashboard),
+                  label: TranslationService.translate(context, 'home'),
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.book),
+                  label: TranslationService.translate(context, 'library'),
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.contacts),
+                  label: TranslationService.translate(context, 'contacts'),
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.link),
+                  label: TranslationService.translate(context, 'p2p'),
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.cloud_sync),
+                  label: TranslationService.translate(context, 'network'),
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.swap_horiz),
+                  label: TranslationService.translate(context, 'requests'),
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.person),
+                  label: TranslationService.translate(context, 'profile'),
+                ),
+              ],
+            ),
+    );
+  }
+
+  static int _calculateSelectedIndex(BuildContext context) {
+    final String location = GoRouterState.of(context).uri.path;
+    if (location.startsWith('/dashboard')) return 0;
+    if (location.startsWith('/books')) return 1;
+    if (location.startsWith('/contacts')) return 2;
+    if (location.startsWith('/p2p')) return 3;
+    if (location.startsWith('/peers')) return 4;
+    if (location.startsWith('/requests')) return 5;
+    if (location.startsWith('/profile')) return 6;
+    return 0;
+  }
+
+  void _onItemTapped(int index, BuildContext context) {
+    switch (index) {
+      case 0:
+        context.go('/dashboard');
+        break;
+      case 1:
+        context.go('/books');
+        break;
+      case 2:
+        context.go('/contacts');
+        break;
+      case 3:
+        context.go('/p2p');
+        break;
+      case 4:
+        context.go('/peers');
+        break;
+      case 5:
+        context.go('/requests');
+        break;
+      case 6:
+        context.go('/profile');
+        break;
+    }
+  }
+}

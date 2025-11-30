@@ -20,14 +20,25 @@ import 'screens/scan_screen.dart';
 import 'screens/p2p_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/setup_screen.dart';
+import 'screens/external_search_screen.dart';
 import 'screens/borrow_requests_screen.dart';
 import 'screens/peer_list_screen.dart';
 import 'screens/peer_book_list_screen.dart';
+import 'screens/dashboard_screen.dart';
+import 'screens/statistics_screen.dart';
+import 'widgets/scaffold_with_nav.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final themeProvider = ThemeProvider();
-  await themeProvider.loadSettings();
+  
+  try {
+    await themeProvider.loadSettings();
+  } catch (e, stackTrace) {
+    debugPrint('Error loading settings: $e');
+    debugPrint(stackTrace.toString());
+    // Continue with default settings
+  }
 
   runApp(MyApp(themeProvider: themeProvider));
 }
@@ -66,14 +77,14 @@ class AppRouter extends StatelessWidget {
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     final router = GoRouter(
-      initialLocation: '/books', // Default, but redirect will override
+      initialLocation: '/dashboard',
       refreshListenable: themeProvider,
       redirect: (context, state) {
         final isSetup = themeProvider.isSetupComplete;
         final isSetupRoute = state.uri.path == '/setup';
 
         if (!isSetup && !isSetupRoute) return '/setup';
-        if (isSetup && isSetupRoute) return '/login';
+        if (isSetup && isSetupRoute) return '/dashboard';
 
         return null;
       },
@@ -83,92 +94,117 @@ class AppRouter extends StatelessWidget {
           builder: (context, state) => const SetupScreen(),
         ),
         GoRoute(
+          path: '/search/external',
+          builder: (context, state) => const ExternalSearchScreen(),
+        ),
+        GoRoute(
           path: '/login',
           builder: (context, state) => const LoginScreen(),
         ),
-        GoRoute(
-          path: '/books',
-          builder: (context, state) => const BookListScreen(),
+        ShellRoute(
+          builder: (context, state, child) {
+            return ScaffoldWithNav(child: child);
+          },
           routes: [
             GoRoute(
-              path: 'add',
-              builder: (context, state) {
-                final extra = state.extra as Map<String, dynamic>?;
-                final isbn = extra?['isbn'] as String?;
-                return AddBookScreen(isbn: isbn);
-              },
+              path: '/dashboard',
+              builder: (context, state) => const DashboardScreen(),
             ),
             GoRoute(
-              path: ':id/edit',
-              builder: (context, state) {
-                final book = state.extra as Book;
-                return EditBookScreen(book: book);
-              },
+              path: '/books',
+              builder: (context, state) => const BookListScreen(),
+              routes: [
+                GoRoute(
+                  path: 'add',
+                  builder: (context, state) {
+                    final extra = state.extra as Map<String, dynamic>?;
+                    final isbn = extra?['isbn'] as String?;
+                    return AddBookScreen(isbn: isbn);
+                  },
+                ),
+                GoRoute(
+                  path: ':id/edit',
+                  builder: (context, state) {
+                    final book = state.extra as Book;
+                    return EditBookScreen(book: book);
+                  },
+                ),
+                GoRoute(
+                  path: ':id/copies',
+                  builder: (context, state) {
+                    final extra = state.extra as Map<String, dynamic>;
+                    return BookCopiesScreen(
+                      bookId: extra['bookId'],
+                      bookTitle: extra['bookTitle'],
+                    );
+                  },
+                ),
+              ],
             ),
             GoRoute(
-              path: ':id/copies',
-              builder: (context, state) {
-                final extra = state.extra as Map<String, dynamic>;
-                return BookCopiesScreen(
-                  bookId: extra['bookId'],
-                  bookTitle: extra['bookTitle'],
-                );
-              },
-            ),
-          ],
-        ),
-        GoRoute(
-          path: '/contacts',
-          builder: (context, state) => const ContactsScreen(),
-          routes: [
-            GoRoute(
-              path: 'add',
-              builder: (context, state) => const AddContactScreen(),
+              path: '/contacts',
+              builder: (context, state) => const ContactsScreen(),
+              routes: [
+                GoRoute(
+                  path: 'add',
+                  builder: (context, state) => const AddContactScreen(),
+                ),
+                GoRoute(
+                  path: ':id',
+                  builder: (context, state) {
+                    final contact = state.extra as Contact;
+                    return ContactDetailsScreen(contact: contact);
+                  },
+                ),
+              ],
             ),
             GoRoute(
-              path: ':id',
-              builder: (context, state) {
-                final contact = state.extra as Contact;
-                return ContactDetailsScreen(contact: contact);
-              },
+              path: '/scan',
+              builder: (context, state) => const ScanScreen(),
             ),
-          ],
-        ),
-        GoRoute(path: '/scan', builder: (context, state) => const ScanScreen()),
-        GoRoute(path: '/p2p', builder: (context, state) => const P2PScreen()),
-        GoRoute(
-          path: '/profile',
-          builder: (context, state) => const ProfileScreen(),
-        ),
-        GoRoute(
-          path: '/requests',
-          builder: (context, state) => const BorrowRequestsScreen(),
-        ),
-        GoRoute(
-          path: '/peers',
-          builder: (context, state) => const PeerListScreen(),
-          routes: [
             GoRoute(
-              path: ':id/books',
-              builder: (context, state) {
-                final peer = state.extra as Map<String, dynamic>;
-                return PeerBookListScreen(
-                  peerId: peer['id'],
-                  peerName: peer['name'],
-                );
-              },
+              path: '/p2p',
+              builder: (context, state) => const P2PScreen(),
+            ),
+            GoRoute(
+              path: '/requests',
+              builder: (context, state) => const BorrowRequestsScreen(),
+            ),
+            GoRoute(
+              path: '/profile',
+              builder: (context, state) => const ProfileScreen(),
+            ),
+            GoRoute(
+              path: '/peers',
+              builder: (context, state) => const PeerListScreen(),
+              routes: [
+                GoRoute(
+                  path: ':id/books',
+                  builder: (context, state) {
+                    final peer = state.extra as Map<String, dynamic>;
+                    return PeerBookListScreen(
+                      peerId: peer['id'],
+                      peerName: peer['name'],
+                      peerUrl: peer['url'],
+                    );
+                  },
+                ),
+              ],
+            ),
+            GoRoute(
+              path: '/statistics',
+              builder: (context, state) => const StatisticsScreen(),
             ),
           ],
         ),
       ],
     );
 
-
     return MaterialApp.router(
       title: 'Bibliotech',
       theme: themeProvider.themeData,
       locale: themeProvider.locale,
-      localizationsDelegates: [
+      localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,

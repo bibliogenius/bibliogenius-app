@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../services/api_service.dart';
+import '../providers/theme_provider.dart';
+import '../utils/book_status.dart';
+import '../services/open_library_service.dart';
 import '../models/book.dart';
+import '../models/contact.dart';
+import '../widgets/loan_dialog.dart';
 
 class EditBookScreen extends StatefulWidget {
   final Book book;
@@ -15,30 +20,88 @@ class EditBookScreen extends StatefulWidget {
 
 class _EditBookScreenState extends State<EditBookScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _openLibraryService = OpenLibraryService();
   late TextEditingController _titleController;
+  late TextEditingController _authorController;
   late TextEditingController _publisherController;
   late TextEditingController _yearController;
   late TextEditingController _isbnController;
   late TextEditingController _summaryController;
   String _readingStatus = 'to_read';
+  String? _coverUrl;
+  bool _isEditing = false;
   bool _isSaving = false;
+  bool _isFetchingDetails = false;
 
   @override
   void initState() {
     super.initState();
     _titleController = TextEditingController(text: widget.book.title);
-    _publisherController = TextEditingController(text: widget.book.publisher);
-    _yearController = TextEditingController(
-      text: widget.book.publicationYear?.toString(),
-    );
-    _isbnController = TextEditingController(text: widget.book.isbn);
-    _summaryController = TextEditingController(text: widget.book.summary);
-    _readingStatus = widget.book.readingStatus ?? 'to_read';
+    _authorController = TextEditingController(text: widget.book.author ?? '');
+    _isbnController = TextEditingController(text: widget.book.isbn ?? '');
+    _publisherController = TextEditingController(text: widget.book.publisher ?? '');
+    _yearController = TextEditingController(text: widget.book.publicationYear?.toString() ?? '');
+    _summaryController = TextEditingController(text: widget.book.summary ?? '');
+    _coverUrl = widget.book.coverUrl;
+    
+    // Get profile type from ThemeProvider after first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+      final isLibrarian = themeProvider.isLibrarian;
+      setState(() {
+        _readingStatus = widget.book.readingStatus ?? getDefaultStatus(isLibrarian);
+      });
+    });
+
+    // Add listener for ISBN changes
+    _isbnController.addListener(_onIsbnChanged);
+  }
+
+  void _onIsbnChanged() {
+    final isbn = _isbnController.text.replaceAll(RegExp(r'[^0-9X]'), '');
+    if ((isbn.length == 10 || isbn.length == 13) && !_isFetchingDetails) {
+      _fetchBookDetails(isbn);
+    }
+  }
+
+  Future<void> _fetchBookDetails(String isbn) async {
+    setState(() => _isFetchingDetails = true);
+    try {
+      final api = Provider.of<ApiService>(context, listen: false);
+      // We use a direct Dio call here or add a helper in ApiService.
+      // Since it's external, let's just use Dio directly if possible, 
+      // but ApiService has the dio instance. Let's add a method to ApiService 
+      // or just use a new Dio instance here for simplicity and separation.
+      // Actually, let's use the existing ApiService's dio but we need to point to a different base URL.
+      // Better to just create a temporary Dio for this external request.
+      
+      // We need to import Dio first. It is already imported in api_service.dart but not here.
+      // Let's add a method to ApiService to keep networking logic there.
+      final bookData = await api.fetchOpenLibraryBook(isbn);
+      
+      if (bookData != null && mounted) {
+        setState(() {
+          if (_titleController.text.isEmpty) _titleController.text = bookData['title'] ?? '';
+          if (_publisherController.text.isEmpty) _publisherController.text = bookData['publisher'] ?? '';
+          if (_yearController.text.isEmpty) _yearController.text = bookData['year']?.toString() ?? '';
+          if (_summaryController.text.isEmpty) _summaryController.text = bookData['summary'] ?? '';
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Book details found!')),
+        );
+      }
+    } catch (e) {
+      // Ignore errors or show mild warning
+      debugPrint('Error fetching ISBN: $e');
+    } finally {
+      if (mounted) setState(() => _isFetchingDetails = false);
+    }
   }
 
   @override
   void dispose() {
     _titleController.dispose();
+    _authorController.dispose();
     _publisherController.dispose();
     _yearController.dispose();
     _isbnController.dispose();
@@ -59,12 +122,19 @@ class _EditBookScreenState extends State<EditBookScreen> {
       'isbn': _isbnController.text,
       'summary': _summaryController.text,
       'reading_status': _readingStatus,
+      'cover_url': _coverUrl,
     };
 
     try {
       await apiService.updateBook(widget.book.id!, bookData);
       if (mounted) {
-        context.pop(true); // Return true to indicate success
+        setState(() {
+          _isSaving = false;
+          _isEditing = false; // Return to view mode
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Book updated successfully')),
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -117,77 +187,547 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
   @override
   Widget build(BuildContext context) {
+    return _isEditing ? _buildEditMode() : _buildViewMode();
+  }
+
+  Widget _buildViewMode() {
+    final coverUrl = widget.book.largeCoverUrl;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Edit Book')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              TextFormField(
-                controller: _titleController,
-                decoration: const InputDecoration(labelText: 'Title'),
-                validator: (value) => value == null || value.isEmpty
-                    ? 'Please enter a title'
-                    : null,
-              ),
-              TextFormField(
-                controller: _publisherController,
-                decoration: const InputDecoration(labelText: 'Publisher'),
-              ),
-              TextFormField(
-                controller: _yearController,
-                decoration: const InputDecoration(
-                  labelText: 'Publication Year',
-                ),
-                keyboardType: TextInputType.number,
-              ),
-              TextFormField(
-                controller: _isbnController,
-                decoration: const InputDecoration(labelText: 'ISBN'),
-              ),
-              TextFormField(
-                controller: _summaryController,
-                decoration: const InputDecoration(labelText: 'Summary'),
-                maxLines: 3,
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                value: _readingStatus,
-                decoration: const InputDecoration(labelText: 'Status'),
-                items: const [
-                  DropdownMenuItem(value: 'to_read', child: Text('To Read')),
-                  DropdownMenuItem(value: 'reading', child: Text('Reading')),
-                  DropdownMenuItem(value: 'read', child: Text('Read')),
-                  DropdownMenuItem(value: 'wanted', child: Text('Wanted')),
-                ],
-                onChanged: (value) {
-                  setState(() {
-                    _readingStatus = value!;
-                  });
-                },
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _isSaving ? null : _saveBook,
-                child: _isSaving
-                    ? const CircularProgressIndicator()
-                    : const Text('Save Changes'),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  foregroundColor: Colors.white,
-                ),
-                onPressed: _isSaving ? null : _deleteBook,
-                child: const Text('Delete Book'),
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 200.0,
+            floating: false,
+            pinned: true,
+            flexibleSpace: FlexibleSpaceBar(
+              // Title removed from here to be placed in the body
+              background: coverUrl != null
+                  ? Image.network(
+                      coverUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        color: Colors.grey,
+                        child: const Center(
+                          child: Icon(Icons.book, size: 80, color: Colors.white),
+                        ),
+                      ),
+                    )
+                  : Container(
+                      color: Theme.of(context).primaryColor,
+                      child: const Center(
+                        child: Icon(Icons.book, size: 80, color: Colors.white),
+                      ),
+                    ),
+            ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.edit),
+                onPressed: () => setState(() => _isEditing = true),
               ),
             ],
           ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(20.0), // Increased padding
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.book.title,
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                      fontSize: 28,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  if (widget.book.author != null)
+                    Text(
+                      widget.book.author!,
+                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      if (widget.book.publicationYear != null)
+                        Chip(
+                          label: Text(
+                            widget.book.publicationYear.toString(),
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                          avatar: const Icon(Icons.calendar_today, size: 18),
+                        ),
+                      const SizedBox(width: 8),
+                      if (widget.book.publisher != null)
+                        Expanded(
+                          child: Chip(
+                            label: Text(
+                              widget.book.publisher!,
+                              style: const TextStyle(fontSize: 14),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            avatar: const Icon(Icons.business, size: 18),
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  _buildStatusChip(widget.book.readingStatus),
+                  const SizedBox(height: 30),
+                  Text(
+                    "Summary",
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 22,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    widget.book.summary ?? "No summary available.",
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontSize: 18,
+                      height: 1.6,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+                  if (widget.book.isbn != null)
+                    Text(
+                      "ISBN: ${widget.book.isbn}",
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Colors.grey[600],
+                        fontSize: 14,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: widget.book.readingStatus == 'borrowed' ? null : () => _lendBook(context),
+        backgroundColor: widget.book.readingStatus == 'borrowed' ? Colors.grey : null,
+        label: Text(widget.book.readingStatus == 'borrowed' ? "Borrowed" : "Lend Book"),
+        icon: const Icon(Icons.send),
+      ),
+    );
+  }
+
+  Future<void> _lendBook(BuildContext context) async {
+    final api = Provider.of<ApiService>(context, listen: false);
+    
+    // 1. Check for available copies
+    try {
+      final copiesRes = await api.getBookCopies(widget.book.id!);
+      if (copiesRes.statusCode == 200) {
+        final List<dynamic> copies = copiesRes.data['copies'];
+        var availableCopies = copies.where((c) => c['status'] == 'available').toList();
+
+        if (availableCopies.isEmpty) {
+          // If no copies at all, offer to create one
+          if (copies.isEmpty) {
+             if (!mounted) return;
+             final createConfirm = await showDialog<bool>(
+               context: context,
+               builder: (context) => AlertDialog(
+                 title: const Text('No Copies Found'),
+                 content: const Text('This book has no copies. Create a new copy to lend?'),
+                 actions: [
+                   TextButton(
+                     onPressed: () => Navigator.pop(context, false),
+                     child: const Text('Cancel'),
+                   ),
+                   TextButton(
+                     onPressed: () => Navigator.pop(context, true),
+                     child: const Text('Create & Lend'),
+                   ),
+                 ],
+               ),
+             );
+
+             if (createConfirm == true) {
+               // Create a new copy
+               final newCopyRes = await api.createCopy({
+                 'book_id': widget.book.id,
+                 'status': 'available',
+                 'condition': 'good', // Default
+               });
+               
+               if (newCopyRes.statusCode == 200 || newCopyRes.statusCode == 201) {
+                  // Refresh available copies list with the new one
+                  // The backend usually returns the created object, but let's just use the ID if possible or re-fetch.
+                  // Simpler to just use the data returned or re-fetch.
+                  // Let's re-fetch to be safe and simple.
+                  final refetched = await api.getBookCopies(widget.book.id!);
+                  final refetchedCopies = refetched.data['copies'] as List<dynamic>;
+                  availableCopies = refetchedCopies.where((c) => c['status'] == 'available').toList();
+               } else {
+                 if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Failed to create copy.')),
+                    );
+                 }
+                 return;
+               }
+             } else {
+               return;
+             }
+          } else {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('All copies are currently lent out.')),
+              );
+            }
+            return;
+          }
+        }
+
+        // Double check we have a copy now
+        if (availableCopies.isEmpty) return;
+
+        // 2. Select Contact
+        if (!mounted) return;
+        final Contact? contact = await showDialog<Contact>(
+          context: context,
+          builder: (context) => const LoanDialog(),
+        );
+
+        if (contact == null) return;
+
+        // 3. Create Loan
+        final copyId = availableCopies.first['id']; // Take first available
+        final loanData = {
+          'copy_id': copyId,
+          'contact_id': contact.id,
+          'loan_date': DateTime.now().toIso8601String(),
+          'library_id': 1, // TODO: Get from auth
+          'status': 'active',
+        };
+
+        await api.createLoan(loanData);
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Book lent to ${contact.name}')),
+          );
+          // Refresh book status if needed
+          setState(() {
+             // potentially update local state or re-fetch
+          });
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error lending book: $e')),
+        );
+      }
+    }
+  }
+
+  Widget _buildStatusChip(String? status) {
+    Color color;
+    String label;
+    switch (status) {
+      case 'reading':
+        color = Colors.blue;
+        label = 'Currently Reading';
+        break;
+      case 'read':
+        color = Colors.green;
+        label = 'Read';
+        break;
+      case 'wanted':
+        color = Colors.orange;
+        label = 'Wishlist';
+        break;
+      case 'borrowed':
+        color = Colors.purple;
+        label = 'Borrowed';
+        break;
+      default:
+        color = Colors.grey;
+        label = 'To Read';
+    }
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(color: color, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
+  Widget _buildEditMode() {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Edit Book'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => setState(() => _isEditing = false),
         ),
       ),
+      body: Form(
+        key: _formKey,
+        child: ListView(
+          padding: const EdgeInsets.all(24.0),
+          children: [
+            // Header
+            Row(
+              children: [
+                Icon(Icons.edit_note, size: 32, color: Theme.of(context).primaryColor),
+                const SizedBox(width: 12),
+                Text(
+                  'Edit Book Details',
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
+            ),
+            const Divider(height: 32),
+
+            // Title
+            _buildLabel('Title *'),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                return RawAutocomplete<OpenLibraryBook>(
+                  textEditingController: _titleController,
+                  focusNode: FocusNode(),
+                  optionsBuilder: (TextEditingValue textEditingValue) {
+                    return _openLibraryService.searchBooks(textEditingValue.text);
+                  },
+                  displayStringForOption: (OpenLibraryBook option) => option.title,
+                  onSelected: (OpenLibraryBook selection) {
+                    setState(() {
+                      _authorController.text = selection.author;
+                      if (selection.isbn != null) _isbnController.text = selection.isbn!;
+                      if (selection.publisher != null) _publisherController.text = selection.publisher!;
+                      if (selection.year != null) _yearController.text = selection.year.toString();
+                      if (selection.coverUrl != null) _coverUrl = selection.coverUrl;
+                    });
+                  },
+                  fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
+                    return TextFormField(
+                      controller: textEditingController,
+                      focusNode: focusNode,
+                      decoration: _buildInputDecoration(
+                        hint: 'Enter book title',
+                        suffixIcon: const Icon(Icons.search),
+                      ),
+                      validator: (value) => value == null || value.isEmpty
+                          ? 'Please enter a title'
+                          : null,
+                    );
+                  },
+                  optionsViewBuilder: (context, onSelected, options) {
+                    return Align(
+                      alignment: Alignment.topLeft,
+                      child: Material(
+                        elevation: 4.0,
+                        child: SizedBox(
+                          width: constraints.maxWidth,
+                          child: ListView.builder(
+                            padding: EdgeInsets.zero,
+                            shrinkWrap: true,
+                            itemCount: options.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              final option = options.elementAt(index);
+                              return ListTile(
+                                leading: option.coverUrl != null
+                                    ? Image.network(option.coverUrl!, width: 40, errorBuilder: (_,__,___) => const Icon(Icons.book))
+                                    : const Icon(Icons.book),
+                                title: Text(option.title),
+                                subtitle: Text(option.author),
+                                onTap: () => onSelected(option),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+            const SizedBox(height: 24),
+
+            // ISBN
+            _buildLabel('ISBN'),
+            TextFormField(
+              controller: _isbnController,
+              decoration: _buildInputDecoration(
+                hint: 'Enter ISBN',
+                suffixIcon: _isFetchingDetails
+                    ? const Padding(
+                        padding: EdgeInsets.all(12.0),
+                        child: SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      )
+                    : null,
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Publisher & Year
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildLabel('Publisher'),
+                      TextFormField(
+                        controller: _publisherController,
+                        decoration: _buildInputDecoration(hint: 'Publisher name'),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildLabel('Year'),
+                      TextFormField(
+                        controller: _yearController,
+                        decoration: _buildInputDecoration(hint: 'YYYY'),
+                        keyboardType: TextInputType.number,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+
+            // Summary
+            _buildLabel('Summary'),
+            TextFormField(
+              controller: _summaryController,
+              decoration: _buildInputDecoration(hint: 'Brief summary of the book'),
+              maxLines: 4,
+            ),
+            const SizedBox(height: 24),
+
+            // Status
+            _buildLabel('Status'),
+            Builder(
+              builder: (context) {
+                final themeProvider = Provider.of<ThemeProvider>(context);
+                final isLibrarian = themeProvider.isLibrarian;
+                final statusOptions = getStatusOptions(isLibrarian);
+                
+                return DropdownButtonFormField<String>(
+                  value: _readingStatus,
+                  decoration: _buildInputDecoration(),
+                  items: statusOptions.map((status) {
+                    return DropdownMenuItem<String>(
+                      value: status.value,
+                      child: Row(
+                        children: [
+                          Icon(status.icon, size: 20, color: status.color),
+                          const SizedBox(width: 12),
+                          Text(status.label),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _readingStatus = value!;
+                    });
+                  },
+                );
+              },
+            ),
+            const SizedBox(height: 32),
+
+            // Save Button
+            SizedBox(
+              height: 50,
+              child: ElevatedButton.icon(
+                onPressed: _isSaving ? null : _saveBook,
+                icon: _isSaving
+                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                    : const Icon(Icons.save),
+                label: Text(_isSaving ? 'Saving Changes...' : 'Save Changes'),
+                style: ElevatedButton.styleFrom(
+                  textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Delete Button
+            SizedBox(
+              height: 50,
+              child: OutlinedButton.icon(
+                onPressed: _isSaving ? null : _deleteBook,
+                icon: const Icon(Icons.delete, color: Colors.red),
+                label: const Text('Delete Book', style: TextStyle(color: Colors.red)),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Colors.red),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLabel(String label) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Text(
+        label,
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 14,
+          color: Colors.black87,
+        ),
+      ),
+    );
+  }
+
+  InputDecoration _buildInputDecoration({String? hint, Widget? suffixIcon}) {
+    return InputDecoration(
+      hintText: hint,
+      suffixIcon: suffixIcon,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: Colors.grey.shade300),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: Colors.grey.shade300),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: Theme.of(context).primaryColor, width: 2),
+      ),
+      filled: true,
+      fillColor: Colors.white,
     );
   }
 }

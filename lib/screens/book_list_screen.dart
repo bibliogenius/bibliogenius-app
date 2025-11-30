@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import '../widgets/genie_app_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../services/api_service.dart';
 import '../services/sync_service.dart';
 import '../models/book.dart';
 import '../widgets/bookshelf_view.dart';
+
+import '../widgets/app_drawer.dart';
 
 class BookListScreen extends StatefulWidget {
   const BookListScreen({super.key});
@@ -15,8 +18,11 @@ class BookListScreen extends StatefulWidget {
 
 class _BookListScreenState extends State<BookListScreen> {
   List<Book> _books = [];
+  List<Book> _filteredBooks = [];
   bool _isLoading = true;
   bool _isShelfView = true;
+  final TextEditingController _searchController = TextEditingController();
+  bool _isSearching = false;
 
   @override
   void initState() {
@@ -28,16 +34,47 @@ class _BookListScreenState extends State<BookListScreen> {
     });
   }
 
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _filterBooks(String query) {
+    if (query.isEmpty) {
+      setState(() {
+        _filteredBooks = _books;
+      });
+      return;
+    }
+    setState(() {
+      _filteredBooks = _books.where((book) {
+        final title = book.title.toLowerCase();
+        final author = book.author?.toLowerCase() ?? '';
+        final isbn = book.isbn?.toLowerCase() ?? '';
+        final q = query.toLowerCase();
+        return title.contains(q) || author.contains(q) || isbn.contains(q);
+      }).toList();
+    });
+  }
 
   Future<void> _fetchBooks() async {
     final apiService = Provider.of<ApiService>(context, listen: false);
     try {
-      final response = await apiService.getBooks();
-      if (response.statusCode == 200) {
-        final List<dynamic> data =
-            response.data['books']; // Extract books array
+      final booksRes = await apiService.getBooks();
+      final configRes = await apiService.getLibraryConfig();
+
+      if (booksRes.statusCode == 200 && configRes.statusCode == 200) {
+        final List<dynamic> data = booksRes.data['books'];
+        final config = configRes.data;
+        final showBorrowed = config['show_borrowed_books'] == true;
+
         setState(() {
-          _books = data.map((json) => Book.fromJson(json)).toList();
+          _books = data.map((json) => Book.fromJson(json)).where((book) {
+            if (showBorrowed) return true;
+            return book.readingStatus != 'borrowed';
+          }).toList();
+          _filteredBooks = _books;
           _isLoading = false;
         });
       }
@@ -45,7 +82,7 @@ class _BookListScreenState extends State<BookListScreen> {
       setState(() {
         _isLoading = false;
       });
-      // Handle error (offline mode logic would go here)
+      // Handle error
     }
   }
 
@@ -59,135 +96,151 @@ class _BookListScreenState extends State<BookListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Library'),
+      appBar: GenieAppBar(
+        title: _isSearching ? 'Search Books' : 'My Library',
         actions: [
           IconButton(
-            icon: Icon(_isShelfView ? Icons.list : Icons.grid_view),
+            icon: Icon(_isSearching ? Icons.close : Icons.search),
             onPressed: () {
               setState(() {
-                _isShelfView = !_isShelfView;
+                if (_isSearching) {
+                  _isSearching = false;
+                  _searchController.clear();
+                  _filterBooks('');
+                } else {
+                  _isSearching = true;
+                }
               });
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.camera_alt),
-            onPressed: () {
-              context.push('/scan');
-            },
-          ),
-          IconButton(icon: const Icon(Icons.refresh), onPressed: _fetchBooks),
+          if (!_isSearching) ...[
+            IconButton(
+              icon: Icon(_isShelfView ? Icons.list : Icons.grid_view),
+              onPressed: () {
+                setState(() {
+                  _isShelfView = !_isShelfView;
+                });
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.camera_alt),
+              onPressed: () {
+                context.push('/scan');
+              },
+            ),
+            IconButton(icon: const Icon(Icons.refresh), onPressed: _fetchBooks),
+            IconButton(
+              icon: const Icon(Icons.search_outlined),
+              tooltip: 'Search Online',
+              onPressed: () {
+                context.push('/external-search');
+              },
+            ),
+          ],
         ],
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _isShelfView
-          ? BookshelfView(books: _books, onBookTap: _navigateToEditBook)
-          : ListView.builder(
-              itemCount: _books.length,
+          ? BookshelfView(books: _filteredBooks, onBookTap: _navigateToEditBook)
+          : ListView.separated(
+              itemCount: _filteredBooks.length,
+              separatorBuilder: (context, index) => const Divider(height: 1, indent: 16, endIndent: 16),
               itemBuilder: (context, index) {
-                final book = _books[index];
+                final book = _filteredBooks[index];
                 return ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  leading: Container(
+                    width: 40,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(4),
+                      color: Colors.grey[200],
+                      image: book.coverUrl != null
+                          ? DecorationImage(
+                              image: NetworkImage(book.coverUrl!),
+                              fit: BoxFit.cover,
+                            )
+                          : null,
+                    ),
+                    child: book.coverUrl == null
+                        ? const Icon(Icons.book, color: Colors.grey, size: 20)
+                        : null,
+                  ),
                   title: Text(
                     book.title,
                     style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(book.publisher ?? 'Unknown Publisher'),
                       const SizedBox(height: 4),
-                      if (book.readingStatus != null)
-                        Chip(
-                          label: Text(
-                            book.readingStatus!.replaceAll('_', ' ').toUpperCase(),
-                            style: const TextStyle(fontSize: 10),
-                          ),
-                          visualDensity: VisualDensity.compact,
-                          padding: EdgeInsets.zero,
+                      Text(
+                        book.publisher ?? 'Unknown Publisher',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Theme.of(context).textTheme.bodySmall?.color,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      if (book.readingStatus != null) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          book.readingStatus!.replaceAll('_', ' ').toUpperCase(),
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).primaryColor,
+                          ),
+                        ),
+                      ],
                     ],
                   ),
-                  leading: GestureDetector(
-                    onTap: () => _navigateToEditBook(book),
-                    child: const Icon(Icons.edit),
-                  ),
                   trailing: IconButton(
-                    icon: const Icon(Icons.library_books),
+                    icon: const Icon(Icons.more_vert),
                     onPressed: () {
-                      context.push(
-                        '/books/${book.id}/copies',
-                        extra: {'bookId': book.id, 'bookTitle': book.title},
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (context) => SafeArea(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              ListTile(
+                                leading: const Icon(Icons.edit),
+                                title: const Text('Edit'),
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  _navigateToEditBook(book);
+                                },
+                              ),
+                              ListTile(
+                                leading: const Icon(Icons.library_books),
+                                title: const Text('Manage Copies'),
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  context.push(
+                                    '/books/${book.id}/copies',
+                                    extra: {'bookId': book.id, 'bookTitle': book.title},
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
                       );
                     },
                   ),
+                  onTap: () => _navigateToEditBook(book),
                 );
               },
             ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(color: Theme.of(context).primaryColor),
-              child: Text(
-                'BiblioGenius',
-                style: TextStyle(color: Colors.white, fontSize: 24),
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.book),
-              title: const Text('Books'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.contacts),
-              title: const Text('Contacts'),
-              onTap: () {
-                Navigator.pop(context);
-                context.push('/contacts');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.link),
-              title: const Text('P2P Connection'),
-              onTap: () {
-                Navigator.pop(context);
-                context.push('/p2p');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.cloud_sync),
-              title: const Text('Network Libraries'),
-              onTap: () {
-                Navigator.pop(context);
-                context.push('/peers');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.swap_horiz),
-              title: const Text('Borrow Requests'),
-              onTap: () {
-                Navigator.pop(context);
-                context.push('/requests');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.person),
-              title: const Text('My Profile'),
-              onTap: () {
-                Navigator.pop(context);
-                context.push('/profile');
-              },
-            ),
-          ],
-        ),
-      ),
+
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final result = await context.push('/books/add');

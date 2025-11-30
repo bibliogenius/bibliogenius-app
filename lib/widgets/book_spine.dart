@@ -71,8 +71,9 @@ class BookSpine extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.7),
-                    fontSize: 10,
+                    color: Colors.white.withOpacity(0.9),
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
                 if (book.publisher != null) ...[
@@ -82,8 +83,8 @@ class BookSpine extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.5),
-                      fontSize: 8,
+                      color: Colors.white.withOpacity(0.7),
+                      fontSize: 10,
                     ),
                   ),
                 ],

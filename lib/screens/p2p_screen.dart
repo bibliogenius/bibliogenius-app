@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import '../widgets/genie_app_bar.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:network_info_plus/network_info_plus.dart';
@@ -20,6 +21,7 @@ class _P2PScreenState extends State<P2PScreen>
   String? _libraryName;
   bool _isLoading = true;
   String? _qrData;
+  MobileScannerController cameraController = MobileScannerController();
 
   @override
   void initState() {
@@ -28,34 +30,41 @@ class _P2PScreenState extends State<P2PScreen>
     _initData();
   }
 
+  @override
+  void dispose() {
+    _tabController.dispose();
+    cameraController.dispose();
+    super.dispose();
+  }
+
   Future<void> _initData() async {
     final apiService = Provider.of<ApiService>(context, listen: false);
     final info = NetworkInfo();
 
     try {
       // Get Local IP
-      _localIp = await info.getWifiIP();
+      try {
+        _localIp = await info.getWifiIP();
+      } catch (e) {
+        debugPrint("Error getting IP: $e");
+      }
+      _localIp ??= '127.0.0.1'; // Fallback
 
       // Get Library Config
-      final response = await apiService.getLibraryConfig();
-      if (response.statusCode == 200) {
-        final data = response.data;
-        _libraryName = data['library_name'];
+      try {
+        final response = await apiService.getLibraryConfig();
+        if (response.statusCode == 200) {
+          final data = response.data;
+          _libraryName = data['library_name'];
+        }
+      } catch (e) {
+        debugPrint("Error getting config: $e");
       }
+      _libraryName ??= 'My Library'; // Fallback
 
       if (_localIp != null && _libraryName != null) {
         // Construct QR Data
-        // Assuming backend runs on port 8000 (default for Axum in this project?)
-        // Wait, src/main.rs says config.port. I should probably check config or assume 8000/8080.
-        // For now, I'll assume the port the app uses to talk to backend is the same port external users use.
-        // But ApiService uses localhost:8001. Let's assume 8001 for now or make it configurable.
-        // Actually, let's use the port from the URL the app is connected to, if possible.
-        // But ApiService.baseUrl is static const.
-        // Let's assume 8000 for the Rust backend as per main.rs usually.
-        // Re-checking main.rs: let addr = SocketAddr::from(([0, 0, 0, 0], config.port));
-        // I don't know config.port without checking config.rs or .env.
-        // I'll assume 8000 for now.
-
+        // Assuming backend runs on port 8000
         final data = {"name": _libraryName, "url": "http://$_localIp:8000"};
         _qrData = jsonEncode(data);
       }
@@ -77,10 +86,6 @@ class _P2PScreenState extends State<P2PScreen>
         try {
           final data = jsonDecode(barcode.rawValue!);
           if (data['name'] != null && data['url'] != null) {
-            // Stop scanning to prevent multiple triggers?
-            // MobileScanner doesn't have stop() easily accessible here without controller.
-            // We can show a dialog which pauses interaction.
-
             _connect(data['name'], data['url']);
             break; // Process first valid code
           }
@@ -122,13 +127,17 @@ class _P2PScreenState extends State<P2PScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("P2P Connection"),
+      appBar: GenieAppBar(
+        title: "Connect Library",
         bottom: TabBar(
           controller: _tabController,
+          indicatorColor: Theme.of(context).appBarTheme.foregroundColor,
+          labelColor: Theme.of(context).appBarTheme.foregroundColor,
+          unselectedLabelColor: Theme.of(context).appBarTheme.foregroundColor?.withOpacity(0.7),
+          labelStyle: const TextStyle(fontWeight: FontWeight.bold),
           tabs: const [
-            Tab(text: "Share Code"),
-            Tab(text: "Scan Code"),
+            Tab(text: "Share Code", icon: Icon(Icons.qr_code)),
+            Tab(text: "Scan Code", icon: Icon(Icons.camera_alt)),
           ],
         ),
       ),
@@ -148,31 +157,282 @@ class _P2PScreenState extends State<P2PScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text("Could not generate QR Code."),
-            const SizedBox(height: 10),
-            Text("IP: ${_localIp ?? 'Unknown'}"),
-            Text("Name: ${_libraryName ?? 'Unknown'}"),
-            const SizedBox(height: 20),
+            const Icon(Icons.error_outline, size: 60, color: Colors.grey),
+            const SizedBox(height: 16),
+            const Text("Could not generate QR Code.", style: TextStyle(fontSize: 16)),
+            const SizedBox(height: 8),
+            Text("IP: ${_localIp ?? 'Unknown'}", style: const TextStyle(color: Colors.grey)),
+            Text("Name: ${_libraryName ?? 'Unknown'}", style: const TextStyle(color: Colors.grey)),
+            const SizedBox(height: 24),
             ElevatedButton(onPressed: _initData, child: const Text("Retry")),
           ],
         ),
       );
     }
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          QrImageView(data: _qrData!, version: QrVersions.auto, size: 200.0),
-          const SizedBox(height: 20),
-          Text(_libraryName!, style: Theme.of(context).textTheme.headlineSmall),
-          const SizedBox(height: 10),
-          Text("Scan this code on another device to connect."),
-        ],
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(32),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  QrImageView(
+                    data: _qrData!,
+                    version: QrVersions.auto,
+                    size: 240.0,
+                    backgroundColor: Colors.white,
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    _libraryName!,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    "Scan to connect",
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontSize: 16,
+                      letterSpacing: 1.0,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 40),
+            const Text(
+              "Show this code to another user to let them connect to your library.",
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey, fontSize: 14),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildScanTab() {
-    return MobileScanner(onDetect: _onDetect);
+    return Stack(
+      children: [
+        MobileScanner(
+          controller: cameraController,
+          onDetect: _onDetect,
+        ),
+        // Overlay
+        Container(
+          decoration: ShapeDecoration(
+            shape: QrScannerOverlayShape(
+              borderColor: Theme.of(context).primaryColor,
+              borderRadius: 10,
+              borderLength: 30,
+              borderWidth: 10,
+              cutOutSize: 300,
+            ),
+          ),
+        ),
+        // Controls
+        Positioned(
+          bottom: 40,
+          left: 0,
+          right: 0,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              IconButton(
+                color: Colors.white,
+                icon: const Icon(Icons.flash_on, size: 32),
+                iconSize: 32.0,
+                onPressed: () => cameraController.toggleTorch(),
+              ),
+              const SizedBox(width: 40),
+              IconButton(
+                color: Colors.white,
+                icon: const Icon(Icons.flip_camera_ios, size: 32),
+                iconSize: 32.0,
+                onPressed: () => cameraController.switchCamera(),
+              ),
+            ],
+          ),
+        ),
+        Positioned(
+          top: 40,
+          left: 0,
+          right: 0,
+          child: Center(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.black54,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: const Text(
+                "Align QR code within the frame",
+                style: TextStyle(color: Colors.white, fontSize: 14),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// Helper class for overlay shape (simplified version of what libraries usually provide)
+class QrScannerOverlayShape extends ShapeBorder {
+  final Color borderColor;
+  final double borderWidth;
+  final Color overlayColor;
+  final double borderRadius;
+  final double borderLength;
+  final double cutOutSize;
+
+  const QrScannerOverlayShape({
+    this.borderColor = Colors.red,
+    this.borderWidth = 10.0,
+    this.overlayColor = const Color.fromRGBO(0, 0, 0, 80),
+    this.borderRadius = 0,
+    this.borderLength = 40,
+    this.cutOutSize = 250,
+  });
+
+  @override
+  EdgeInsetsGeometry get dimensions => EdgeInsets.zero;
+
+  @override
+  Path getInnerPath(Rect rect, {TextDirection? textDirection}) {
+    return Path()
+      ..fillType = PathFillType.evenOdd
+      ..addPath(getOuterPath(rect), Offset.zero);
+  }
+
+  @override
+  Path getOuterPath(Rect rect, {TextDirection? textDirection}) {
+    Path getLeftTopPath(Rect rect) {
+      return Path()
+        ..moveTo(rect.left, rect.bottom)
+        ..lineTo(rect.left, rect.top)
+        ..lineTo(rect.right, rect.top);
+    }
+
+    return getLeftTopPath(rect);
+  }
+
+  @override
+  void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {
+    final width = rect.width;
+    final height = rect.height;
+    final borderOffset = borderWidth / 2;
+    final _cutOutSize = cutOutSize;
+    final _borderLength = borderLength;
+    final _borderRadius = borderRadius;
+
+    final backgroundPaint = Paint()
+      ..color = overlayColor
+      ..style = PaintingStyle.fill;
+
+    final borderPaint = Paint()
+      ..color = borderColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = borderWidth;
+
+    final boxPaint = Paint()
+      ..color = borderColor
+      ..style = PaintingStyle.fill;
+
+    final cutOutRect = Rect.fromLTWH(
+      rect.left + width / 2 - _cutOutSize / 2 + borderOffset,
+      rect.top + height / 2 - _cutOutSize / 2 + borderOffset,
+      _cutOutSize - borderOffset * 2,
+      _cutOutSize - borderOffset * 2,
+    );
+
+    canvas
+      ..saveLayer(
+        rect,
+        backgroundPaint,
+      )
+      ..drawRect(
+        rect,
+        backgroundPaint,
+      )
+      ..drawRRect(
+        RRect.fromRectAndRadius(
+          cutOutRect,
+          Radius.circular(_borderRadius),
+        ),
+        Paint()..blendMode = BlendMode.clear,
+      )
+      ..restore();
+
+    final path = Path();
+
+    path.moveTo(cutOutRect.left, cutOutRect.top + _borderLength);
+    path.lineTo(cutOutRect.left, cutOutRect.top + _borderRadius);
+    path.quadraticBezierTo(
+      cutOutRect.left,
+      cutOutRect.top,
+      cutOutRect.left + _borderRadius,
+      cutOutRect.top,
+    );
+    path.lineTo(cutOutRect.left + _borderLength, cutOutRect.top);
+
+    path.moveTo(cutOutRect.right, cutOutRect.top + _borderLength);
+    path.lineTo(cutOutRect.right, cutOutRect.top + _borderRadius);
+    path.quadraticBezierTo(
+      cutOutRect.right,
+      cutOutRect.top,
+      cutOutRect.right - _borderRadius,
+      cutOutRect.top,
+    );
+    path.lineTo(cutOutRect.right - _borderLength, cutOutRect.top);
+
+    path.moveTo(cutOutRect.right, cutOutRect.bottom - _borderLength);
+    path.lineTo(cutOutRect.right, cutOutRect.bottom - _borderRadius);
+    path.quadraticBezierTo(
+      cutOutRect.right,
+      cutOutRect.bottom,
+      cutOutRect.right - _borderRadius,
+      cutOutRect.bottom,
+    );
+    path.lineTo(cutOutRect.right - _borderLength, cutOutRect.bottom);
+
+    path.moveTo(cutOutRect.left, cutOutRect.bottom - _borderLength);
+    path.lineTo(cutOutRect.left, cutOutRect.bottom - _borderRadius);
+    path.quadraticBezierTo(
+      cutOutRect.left,
+      cutOutRect.bottom,
+      cutOutRect.left + _borderRadius,
+      cutOutRect.bottom,
+    );
+    path.lineTo(cutOutRect.left + _borderLength, cutOutRect.bottom);
+
+    canvas.drawPath(path, borderPaint);
+  }
+
+  @override
+  ShapeBorder scale(double t) {
+    return QrScannerOverlayShape(
+      borderColor: borderColor,
+      borderWidth: borderWidth * t,
+      overlayColor: overlayColor,
+    );
   }
 }

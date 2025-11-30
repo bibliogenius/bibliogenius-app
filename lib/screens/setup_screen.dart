@@ -5,6 +5,9 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import '../providers/theme_provider.dart';
 import '../services/auth_service.dart';
 import '../services/api_service.dart';
+import '../utils/avatars.dart';
+import '../models/avatar_config.dart';
+import '../widgets/avatar_customizer.dart';
 
 class SetupScreen extends StatefulWidget {
   const SetupScreen({super.key});
@@ -15,6 +18,8 @@ class SetupScreen extends StatefulWidget {
 
 class _SetupScreenState extends State<SetupScreen> {
   int _currentStep = 0;
+  String _profileType = 'individual';
+  AvatarConfig _avatarConfig = AvatarConfig.defaultConfig;
 
   Map<String, Map<String, String>> get _t => {
         'en': {
@@ -141,7 +146,7 @@ class _SetupScreenState extends State<SetupScreen> {
           body: Stepper(
             currentStep: _currentStep,
             onStepContinue: () {
-              if (_currentStep < 3) {
+              if (_currentStep < 5) {
                 setState(() {
                   _currentStep += 1;
                 });
@@ -169,7 +174,7 @@ class _SetupScreenState extends State<SetupScreen> {
                     ElevatedButton(
                       onPressed: details.onStepContinue,
                       child: Text(
-                        _currentStep == 3
+                        _currentStep == 5
                             ? strings['btn_finish']!
                             : strings['btn_next']!,
                       ),
@@ -205,6 +210,54 @@ class _SetupScreenState extends State<SetupScreen> {
                   ],
                 ),
                 isActive: _currentStep >= 0,
+                state: _currentStep > 0 ? StepState.complete : StepState.indexed,
+              ),
+              Step(
+                title: const Text('Choose Profile Type'),
+                content: Column(
+                  children: [
+                    const Text('How will you use BiblioGenius?'),
+                    const SizedBox(height: 16),
+                    _buildProfileOption(
+                      'librarian',
+                      'Librarian',
+                      'Professional cataloging, lending management, and strict organization.',
+                      Icons.local_library,
+                    ),
+                    _buildProfileOption(
+                      'individual',
+                      'Individual Reader',
+                      'Track your reading, wishlists, and personal collection.',
+                      Icons.person,
+                    ),
+                    _buildProfileOption(
+                      'kid',
+                      'Junior Reader',
+                      'Fun interface, simple tracking, and cool avatars!',
+                      Icons.child_care,
+                    ),
+                  ],
+                ),
+                isActive: _currentStep >= 1,
+                state: _currentStep > 1 ? StepState.complete : StepState.indexed,
+              ),
+              Step(
+                title: const Text('Customize Avatar'),
+                content: SizedBox(
+                  height: 500,
+                  child: AvatarCustomizer(
+                    initialConfig: _avatarConfig,
+                    onConfigChanged: (config) {
+                      setState(() {
+                        _avatarConfig = config;
+                      });
+                      // Update theme based on avatar colors if desired
+                      // For now, we just store the config
+                    },
+                  ),
+                ),
+                isActive: _currentStep >= 2,
+                state: _currentStep > 2 ? StepState.complete : StepState.indexed,
               ),
               Step(
                 title: Text(strings['lang_title']!),
@@ -230,7 +283,8 @@ class _SetupScreenState extends State<SetupScreen> {
                     ),
                   ],
                 ),
-                isActive: _currentStep >= 1,
+                isActive: _currentStep >= 3,
+                state: _currentStep > 3 ? StepState.complete : StepState.indexed,
               ),
               Step(
                 title: Text(strings['theme_title']!),
@@ -238,16 +292,26 @@ class _SetupScreenState extends State<SetupScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(strings['theme_label']!),
-                    const SizedBox(height: 20),
-                    BlockPicker(
-                      pickerColor: themeProvider.bannerColor,
-                      onColorChanged: (color) {
-                        themeProvider.setBannerColor(color);
+                    const SizedBox(height: 10),
+                    // Theme Style Selector
+                    DropdownButton<String>(
+                      value: themeProvider.themeStyle,
+                      isExpanded: true,
+                      items: const [
+                        DropdownMenuItem(value: 'default', child: Text('Default (Colorful)')),
+                        DropdownMenuItem(value: 'minimal', child: Text('Minimal (Clean)')),
+                      ],
+                      onChanged: (String? newValue) {
+                        if (newValue != null) {
+                          themeProvider.setThemeStyle(newValue);
+                        }
                       },
                     ),
+
                   ],
                 ),
-                isActive: _currentStep >= 2,
+                isActive: _currentStep >= 4,
+                state: _currentStep > 4 ? StepState.complete : StepState.indexed,
               ),
               Step(
                 title: Text(strings['finish_title']!),
@@ -265,7 +329,8 @@ class _SetupScreenState extends State<SetupScreen> {
                     Text(strings['finish_body']!),
                   ],
                 ),
-                isActive: _currentStep >= 3,
+                isActive: _currentStep >= 5,
+                state: _currentStep == 5 ? StepState.complete : StepState.indexed,
               ),
             ],
           ),
@@ -278,10 +343,18 @@ class _SetupScreenState extends State<SetupScreen> {
     try {
       // Call backend setup to create admin user
       final apiService = Provider.of<ApiService>(context, listen: false);
-      await apiService.setup();
+      await apiService.setup(
+        libraryName: 'My Library', // Default name, could be added to UI
+        profileType: _profileType,
+        theme: Provider.of<ThemeProvider>(context, listen: false).themeStyle,
+      );
 
       if (context.mounted) {
         final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+        // Pass apiService to ensure sync with backend (although setup endpoint does some of this, 
+        // setAvatarConfig is needed for the avatar)
+        await themeProvider.setProfileType(_profileType, apiService: apiService);
+        await themeProvider.setAvatarConfig(_avatarConfig, apiService: apiService);
         await themeProvider.completeSetup();
         
         // Auto-login after setup
@@ -302,5 +375,54 @@ class _SetupScreenState extends State<SetupScreen> {
         );
       }
     }
+  }
+  Widget _buildProfileOption(String value, String title, String description, IconData icon) {
+    final isSelected = _profileType == value;
+    return GestureDetector(
+      onTap: () => setState(() => _profileType = value),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.blue.withOpacity(0.1) : Colors.white,
+          border: Border.all(
+            color: isSelected ? Colors.blue : Colors.grey.shade300,
+            width: isSelected ? 2 : 1,
+          ),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, size: 32, color: isSelected ? Colors.blue : Colors.grey),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: isSelected ? Colors.blue : Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    description,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (isSelected)
+              const Icon(Icons.check_circle, color: Colors.blue),
+          ],
+        ),
+      ),
+    );
   }
 }
