@@ -24,6 +24,7 @@ import 'screens/external_search_screen.dart';
 import 'screens/borrow_requests_screen.dart';
 import 'screens/peer_list_screen.dart';
 import 'screens/peer_book_list_screen.dart';
+import 'screens/search_peer_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/statistics_screen.dart';
 import 'widgets/scaffold_with_nav.dart';
@@ -53,7 +54,9 @@ class MyApp extends StatelessWidget {
     final authService = AuthService();
     const baseUrl = String.fromEnvironment(
       'API_BASE_URL',
-      defaultValue: 'http://localhost:8001',
+      // REMPLACEZ '192.168.1.XX' PAR VOTRE IP LOCALE (obtenue via ipconfig getifaddr en0)
+      // Gardez le port :8001
+      defaultValue: 'http://192.168.1.35:8001', 
     );
     final apiService = ApiService(authService, baseUrl: baseUrl);
 
@@ -188,6 +191,10 @@ class AppRouter extends StatelessWidget {
                       peerUrl: peer['url'],
                     );
                   },
+                ),
+                GoRoute(
+                  path: 'search',
+                  builder: (context, state) => const SearchPeerScreen(),
                 ),
               ],
             ),

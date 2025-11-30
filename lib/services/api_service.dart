@@ -142,6 +142,10 @@ class ApiService {
     return await _dio.get('$hubUrl/api/peers');
   }
 
+  Future<Response> searchPeers(String query) async {
+    return await _dio.get('$hubUrl/api/peers/search', queryParameters: {'q': query});
+  }
+
   Future<Response> syncPeer(String peerUrl) async {
     return await _dio.post('/api/peers/sync_by_url', data: {'url': peerUrl});
   }

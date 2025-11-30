@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../models/contact.dart';
 import '../services/api_service.dart';
+import '../providers/theme_provider.dart';
 
 class ContactsScreen extends StatefulWidget {
   const ContactsScreen({super.key});
@@ -87,9 +88,17 @@ class _ContactsScreenState extends State<ContactsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isPro = themeProvider.isLibrarian;
+    final title = isPro ? 'Emprunteurs' : 'Mes Contacts';
+    final emptyTitle = isPro ? 'Aucun emprunteur' : 'Vos Contacts';
+    final emptySubtitle = isPro 
+        ? 'Gérez ici les personnes qui empruntent vos livres.'
+        : 'Ajoutez vos contacts pour noter quand vous leur prêtez un livre.';
+
     return Scaffold(
       appBar: GenieAppBar(
-        title: 'Contacts',
+        title: title,
         actions: [
           PopupMenuButton<String>(
             initialValue: _filterType,
@@ -109,26 +118,57 @@ class _ContactsScreenState extends State<ContactsScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _contacts.isEmpty
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.contacts, size: 64, color: Colors.grey[400]),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No contacts yet',
-                    style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(32.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.contacts_outlined,
+                          size: 80,
+                          color: Theme.of(context).primaryColor.withOpacity(0.3),
+                        ),
+                        const SizedBox(height: 24),
+                        Text(
+                          emptyTitle,
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).primaryColor,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          emptySubtitle,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(fontSize: 16, height: 1.5, color: Colors.grey),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          isPro 
+                            ? 'Appuyez sur + pour ajouter un emprunteur.'
+                            : 'Appuyez sur + pour ajouter un contact.',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(fontSize: 14, color: Colors.grey),
+                        ),
+                        const SizedBox(height: 32),
+                        ElevatedButton.icon(
+                          onPressed: () => context.push('/contacts/add'),
+                          icon: const Icon(Icons.person_add),
+                          label: Text(isPro ? 'Ajouter un emprunteur' : 'Ajouter un contact'),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 12,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Tap + to add your first contact',
-                    style: TextStyle(color: Colors.grey[500]),
-                  ),
-                ],
-              ),
-            )
-          : RefreshIndicator(
-              onRefresh: _loadContacts,
+                )
+              : RefreshIndicator(
+                  onRefresh: _loadContacts,
               child: ListView.builder(
                 itemCount: _contacts.length,
                 itemBuilder: (context, index) {

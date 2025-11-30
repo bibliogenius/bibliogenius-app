@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:async';
 import '../services/api_service.dart';
+import '../providers/theme_provider.dart';
+import 'add_peer_dialog.dart';
 
 class PeerListScreen extends StatefulWidget {
   const PeerListScreen({super.key});
@@ -61,12 +63,40 @@ class _PeerListScreenState extends State<PeerListScreen> {
     }
   }
 
+  Future<void> _addToFriends(Map<String, dynamic> peer) async {
+    final api = Provider.of<ApiService>(context, listen: false);
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final isPro = themeProvider.isLibrarian;
+    
+    try {
+      await api.createContact({
+        'name': peer['name'],
+        'type': isPro ? 'library' : 'borrower',
+        'email': null,
+        'phone': null,
+        'notes': 'Ajouté depuis le réseau (URL: ${peer['url']})',
+      });
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${peer['name']} ajouté aux ${isPro ? "emprunteurs" : "contacts"}')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur lors de l\'ajout: $e')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const GenieAppBar(title: "Network Libraries"),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddPeerDialog(context),
+        onPressed: () => context.push('/peers/search'),
         child: const Icon(Icons.add),
       ),
       body: _isLoading
@@ -172,10 +202,15 @@ class _PeerListScreenState extends State<PeerListScreen> {
                                   },
                                 ),
                                 IconButton(
-                                  icon: const Icon(Icons.delete_outline, color: Colors.red),
-                                  tooltip: 'Remove Library',
-                                  onPressed: () => _confirmDeletePeer(peer),
-                                ),
+                                icon: const Icon(Icons.person_add_alt_1, color: Colors.green),
+                                tooltip: 'Ajouter aux contacts',
+                                onPressed: () => _addToFriends(peer),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete_outline, color: Colors.red),
+                                tooltip: 'Remove Library',
+                                onPressed: () => _confirmDeletePeer(peer),
+                              ),
                               ],
                             ),
                       onTap: isPending 

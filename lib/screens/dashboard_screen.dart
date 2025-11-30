@@ -5,6 +5,7 @@ import '../widgets/genie_app_bar.dart';
 import '../services/api_service.dart';
 import '../models/book.dart';
 import '../widgets/app_drawer.dart';
+import '../providers/theme_provider.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -178,7 +179,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Expanded(
                         child: _buildStatCard(
                           context,
-                          'Contacts',
+                          Provider.of<ThemeProvider>(context).isLibrarian ? 'Emprunteurs' : 'Contacts',
                           _contactsCount.toString(),
                           Icons.people,
                         ),
