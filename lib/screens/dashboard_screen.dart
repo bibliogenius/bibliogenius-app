@@ -7,6 +7,7 @@ import '../services/translation_service.dart';
 import '../models/book.dart';
 import '../widgets/app_drawer.dart';
 import '../providers/theme_provider.dart';
+import '../services/wizard_service.dart'; // Add WizardService
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -23,10 +24,31 @@ class _DashboardScreenState extends State<DashboardScreen> {
   List<Book> _recentBooks = [];
   List<Book> _readingListBooks = [];
 
+  final GlobalKey _addKey = GlobalKey();
+  final GlobalKey _searchKey = GlobalKey();
+  final GlobalKey _statsKey = GlobalKey();
+  final GlobalKey _menuKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
     _fetchDashboardData();
+    _checkWizard();
+  }
+
+  void _checkWizard() async {
+    if (!await WizardService.hasSeenDashboardWizard()) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        WizardService.showDashboardWizard(
+          context: context,
+          addKey: _addKey,
+          searchKey: _searchKey,
+          statsKey: _statsKey,
+          menuKey: _menuKey,
+          onFinish: () {},
+        );
+      });
+    }
   }
 
   Future<void> _fetchDashboardData() async {
@@ -134,21 +156,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isKid = themeProvider.isKid;
     
     return Scaffold(
       appBar: GenieAppBar(
         title: TranslationService.translate(context, 'dashboard'),
+        leading: Builder(
+          builder: (context) => IconButton(
+            key: _menuKey,
+            icon: const Icon(Icons.menu),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
         actions: [
           IconButton(
+            key: _searchKey,
             icon: const Icon(Icons.search),
             onPressed: () {
-              // TODO: Implement global search or navigate to search screen
-               context.push('/books'); // Temporary: go to books for search
+               context.push('/books'); 
             },
           ),
         ],
       ),
-
+      drawer: const AppDrawer(),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
@@ -159,8 +190,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Stats Row
+                  // Stats Row (Hidden for Kids to simplify)
+                  if (!isKid)
                   Row(
+                    key: _statsKey,
                     children: [
                       Expanded(
                         child: _buildStatCard(
@@ -183,14 +216,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Expanded(
                         child: _buildStatCard(
                           context,
-                          Provider.of<ThemeProvider>(context).isLibrarian ? TranslationService.translate(context, 'borrowers') : TranslationService.translate(context, 'contacts'),
+                          themeProvider.isLibrarian ? TranslationService.translate(context, 'borrowers') : TranslationService.translate(context, 'contacts'),
                           _contactsCount.toString(),
                           Icons.people,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 32),
+                  if (!isKid) const SizedBox(height: 32),
 
                   if (_totalBooks == 0) ...[
                     // Empty State / Get Started
@@ -231,6 +264,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               alignment: WrapAlignment.center,
                               children: [
                                 ElevatedButton.icon(
+                                  key: _addKey,
                                   onPressed: () => context.push('/books/add'),
                                   icon: const Icon(Icons.add),
                                   label: Text(TranslationService.translate(context, 'btn_add_manually')),
@@ -254,58 +288,112 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ] else ...[
                     // Quick Actions
-                    _buildSectionTitle(context, TranslationService.translate(context, 'quick_actions')),
-                    const SizedBox(height: 16),
-                    Container(
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: theme.cardTheme.color,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: theme.dividerColor.withOpacity(0.1)),
-                        boxShadow: [
-                           BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
+                    if (isKid) ...[
+                       // Kid Friendly Large Actions
+                       Row(
+                         children: [
+                           Expanded(
+                             child: _buildKidActionCard(
+                               context, 
+                               TranslationService.translate(context, 'action_add_book'), 
+                               Icons.add_a_photo, 
+                               Colors.orange,
+                               () => context.push('/books/add'),
+                               key: _addKey,
+                             ),
+                           ),
+                           const SizedBox(width: 16),
+                           Expanded(
+                             child: _buildKidActionCard(
+                               context, 
+                               TranslationService.translate(context, 'search_books'), 
+                               Icons.search, 
+                               Colors.blue,
+                               () => context.push('/books'),
+                             ),
+                           ),
+                         ],
+                       ),
+                       const SizedBox(height: 16),
+                       Row(
+                         children: [
+                           Expanded(
+                             child: _buildKidActionCard(
+                               context, 
+                               TranslationService.translate(context, 'nav_contacts'), // My Friends
+                               Icons.face, 
+                               Colors.green,
+                               () => context.push('/contacts'),
+                             ),
+                           ),
+                           const SizedBox(width: 16),
+                           Expanded(
+                             child: _buildKidActionCard(
+                               context, 
+                               TranslationService.translate(context, 'nav_network'), // Network
+                               Icons.public, 
+                               Colors.purple,
+                               () => context.push('/peers'),
+                             ),
+                           ),
+                         ],
+                       ),
+                       const SizedBox(height: 32),
+                    ] else ...[
+                      _buildSectionTitle(context, TranslationService.translate(context, 'quick_actions')),
+                      const SizedBox(height: 16),
+                      Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: theme.cardTheme.color,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: theme.dividerColor.withOpacity(0.1)),
+                          boxShadow: [
+                             BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                          ]
+                        ),
+                        child: Wrap(
+                          spacing: 16,
+                          runSpacing: 16,
+                          children: [
+                            _buildActionButton(
+                              context,
+                              TranslationService.translate(context, 'action_add_book'),
+                              Icons.add,
+                              () => context.push('/books/add'),
+                              isPrimary: true,
+                              key: _addKey,
                             ),
-                        ]
+                            _buildActionButton(
+                              context,
+                              TranslationService.translate(context, 'action_checkout_book'),
+                              Icons.upload_file, // Icon for checkout/loan
+                              () => context.push('/books'), // Navigate to books to select one
+                              isPrimary: true,
+                            ),
+                            _buildActionButton(
+                              context,
+                              TranslationService.translate(context, 'action_search_remote'),
+                              Icons.search,
+                              () => context.push('/peers'), // Navigate to peers to search
+                              isPrimary: true,
+                            ),
+                            _buildActionButton(
+                              context,
+                              TranslationService.translate(context, 'action_ask_library'),
+                              Icons.chat,
+                              () {}, // Placeholder
+                              isPrimary: true,
+                            ),
+                          ],
+                        ),
                       ),
-                      child: Wrap(
-                        spacing: 16,
-                        runSpacing: 16,
-                        children: [
-                          _buildActionButton(
-                            context,
-                            TranslationService.translate(context, 'action_add_book'),
-                            Icons.add,
-                            () => context.push('/books/add'),
-                            isPrimary: true,
-                          ),
-                          _buildActionButton(
-                            context,
-                            TranslationService.translate(context, 'action_checkout_book'),
-                            Icons.upload_file, // Icon for checkout/loan
-                            () => context.push('/books'), // Navigate to books to select one
-                            isPrimary: true,
-                          ),
-                          _buildActionButton(
-                            context,
-                            TranslationService.translate(context, 'action_search_remote'),
-                            Icons.search,
-                            () => context.push('/peers'), // Navigate to peers to search
-                            isPrimary: true,
-                          ),
-                          _buildActionButton(
-                            context,
-                            TranslationService.translate(context, 'action_ask_library'),
-                            Icons.chat,
-                            () {}, // Placeholder
-                            isPrimary: true,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 32),
+                      const SizedBox(height: 32),
+                    ],
   
                     // Books Sections
                     LayoutBuilder(
@@ -348,7 +436,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ? Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: children,
-                              )
+                               )
                             : Column(
                                 children: children.map((c) {
                                   if (c is Expanded) return c.child;
@@ -359,6 +447,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
 
                     const SizedBox(height: 32),
+                    if (!isKid)
                     Center(
                       child: TextButton.icon(
                         onPressed: () => context.push('/statistics'),
@@ -434,9 +523,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
     IconData icon,
     VoidCallback onPressed, {
     bool isPrimary = false,
+    Key? key,
   }) {
     final theme = Theme.of(context);
     return ElevatedButton.icon(
+      key: key,
       onPressed: onPressed,
       icon: Icon(icon, size: 18),
       label: Text(label),
@@ -694,6 +785,43 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ],
                   ),
                 ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  Widget _buildKidActionCard(
+    BuildContext context,
+    String label,
+    IconData icon,
+    Color color,
+    VoidCallback onTap, {
+    Key? key,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        key: key,
+        height: 120,
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: color.withOpacity(0.3), width: 2),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 48, color: color),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: color,
               ),
             ),
           ],

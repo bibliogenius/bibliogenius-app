@@ -27,6 +27,7 @@ class ThemeProvider with ChangeNotifier {
   String _profileType = 'individual';
   String get profileType => _profileType;
   bool get isLibrarian => _profileType == 'librarian' || _profileType == 'professional';
+  bool get isKid => _profileType == 'kid';
   bool get hasReadingStatus => _profileType == 'individual' || _profileType == 'kid';
 
   ThemeData get themeData {

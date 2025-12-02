@@ -53,6 +53,7 @@ dependencies:
   fl_chart: ^1.1.1
   flutter_dotenv: ^5.1.0
   flutter_svg: ^2.0.17
+  tutorial_coach_mark: ^1.2.9
 
 dev_dependencies:
   flutter_test:

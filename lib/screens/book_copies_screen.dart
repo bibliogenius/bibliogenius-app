@@ -175,11 +175,11 @@ class _AddCopyDialogState extends State<_AddCopyDialog> {
             DropdownButtonFormField<String>(
               initialValue: _selectedStatus,
               decoration: const InputDecoration(labelText: 'Status'),
-              items: const [
+              items: [
                 DropdownMenuItem(value: 'available', child: Text(TranslationService.translate(context, 'status_available'))),
-                DropdownMenuItem(value: 'borrowed', child: Text(TranslationService.translate(context, 'status_checked_out'))),
-                DropdownMenuItem(value: 'wanted', child: Text(TranslationService.translate(context, 'status_wanted'))),
+                DropdownMenuItem(value: 'borrowed', child: Text(TranslationService.translate(context, 'status_borrowed'))),
                 DropdownMenuItem(value: 'lost', child: Text(TranslationService.translate(context, 'status_lost'))),
+                DropdownMenuItem(value: 'damaged', child: Text(TranslationService.translate(context, 'status_damaged'))),
               ],
               onChanged: (value) {
                 setState(() {

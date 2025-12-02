@@ -61,8 +61,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       ScaffoldMessenger.of(
         context,
-      ScaffoldMessenger.of(
-        context,
       ).showSnackBar(SnackBar(content: Text(TranslationService.translate(context, 'preparing_backup'))));
 
       final apiService = Provider.of<ApiService>(context, listen: false);

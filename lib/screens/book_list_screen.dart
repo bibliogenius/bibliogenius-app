@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../services/api_service.dart';
 import '../services/sync_service.dart';
+import '../services/translation_service.dart';
 import '../models/book.dart';
 import '../widgets/bookshelf_view.dart';
 

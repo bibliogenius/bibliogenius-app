@@ -138,9 +138,10 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: _subjectController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
                       labelText: TranslationService.translate(context, 'subject_label'),
-                      prefixIcon: Icon(Icons.category),
+                      prefixIcon: const Icon(Icons.category),
                     ),
                     onFieldSubmitted: (_) => _search(),
                   ),

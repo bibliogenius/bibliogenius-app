@@ -270,7 +270,7 @@ class _SetupScreenState extends State<SetupScreen> {
                     DropdownButton<String>(
                       value: themeProvider.locale.languageCode,
                       isExpanded: true,
-                      items: const [
+                      items: [
                         DropdownMenuItem(value: 'en', child: Text(TranslationService.translate(context, 'lang_en'))),
                         DropdownMenuItem(value: 'fr', child: Text(TranslationService.translate(context, 'lang_fr'))),
                         DropdownMenuItem(value: 'es', child: Text(TranslationService.translate(context, 'lang_es'))),
@@ -298,7 +298,7 @@ class _SetupScreenState extends State<SetupScreen> {
                     DropdownButton<String>(
                       value: themeProvider.themeStyle,
                       isExpanded: true,
-                      items: const [
+                      items: [
                         DropdownMenuItem(value: 'default', child: Text(TranslationService.translate(context, 'theme_default'))),
                         DropdownMenuItem(value: 'minimal', child: Text(TranslationService.translate(context, 'theme_minimal'))),
                       ],

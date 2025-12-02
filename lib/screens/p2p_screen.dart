@@ -7,6 +7,7 @@ import 'package:network_info_plus/network_info_plus.dart';
 import 'package:provider/provider.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
+import '../providers/theme_provider.dart';
 
 class P2PScreen extends StatefulWidget {
   const P2PScreen({super.key});
@@ -127,9 +128,12 @@ class _P2PScreenState extends State<P2PScreen>
 
   @override
   Widget build(BuildContext context) {
+    final isKid = Provider.of<ThemeProvider>(context).isKid;
+    final title = isKid ? 'Friends\' Libraries' : TranslationService.translate(context, 'p2p_title');
+
     return Scaffold(
       appBar: GenieAppBar(
-        title: TranslationService.translate(context, 'p2p_title'),
+        title: title,
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: Theme.of(context).appBarTheme.foregroundColor,

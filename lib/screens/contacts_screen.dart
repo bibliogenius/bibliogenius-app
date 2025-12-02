@@ -53,7 +53,6 @@ class _ContactsScreenState extends State<ContactsScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-      builder: (context) => AlertDialog(
         title: Text(TranslationService.translate(context, 'delete_contact_title')),
         content: Text(TranslationService.translate(context, 'delete_contact_confirm')),
         actions: [
@@ -92,11 +91,30 @@ class _ContactsScreenState extends State<ContactsScreen> {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final isPro = themeProvider.isLibrarian;
-    final title = isPro ? 'Emprunteurs' : 'Mes Contacts';
-    final emptyTitle = isPro ? 'Aucun emprunteur' : 'Vos Contacts';
-    final emptySubtitle = isPro 
+    final isKid = themeProvider.isKid;
+    
+    String title;
+    if (isKid) {
+      title = 'My Friends'; // TODO: Add translation
+    } else {
+      title = isPro ? 'Emprunteurs' : 'Mes Contacts';
+    }
+    
+    String emptyTitle;
+    if (isKid) {
+      emptyTitle = 'Add Friends';
+    } else {
+      emptyTitle = isPro ? 'Aucun emprunteur' : 'Vos Contacts';
+    }
+    
+    String emptySubtitle;
+    if (isKid) {
+      emptySubtitle = 'Add your friends to share books with them!';
+    } else {
+      emptySubtitle = isPro 
         ? 'Gérez ici les personnes qui empruntent vos livres.'
         : 'Ajoutez vos contacts pour noter quand vous leur prêtez un livre.';
+    }
 
     return Scaffold(
       appBar: GenieAppBar(

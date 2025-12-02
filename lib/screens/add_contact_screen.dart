@@ -86,10 +86,9 @@ class _AddContactScreenState extends State<AddContactScreen> {
                 labelText: 'Type',
                 border: OutlineInputBorder(),
               ),
-              items: const [
+              items: [
                 DropdownMenuItem(value: 'borrower', child: Text(TranslationService.translate(context, 'role_borrower'))),
                 DropdownMenuItem(value: 'library', child: Text(TranslationService.translate(context, 'role_library'))),
-                DropdownMenuItem(value: 'user', child: Text(TranslationService.translate(context, 'role_user'))),
               ],
               onChanged: (value) {
                 setState(() => _type = value!);

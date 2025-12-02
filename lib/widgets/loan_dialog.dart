@@ -63,8 +63,8 @@ class _LoanDialogState extends State<LoanDialog> {
                     const SizedBox(height: 16),
                     DropdownButtonFormField<Contact>(
                       value: _selectedContact,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        border: const OutlineInputBorder(),
                         labelText: TranslationService.translate(context, 'filter_borrowers'),
                       ),
                       items: _contacts.map((contact) {
