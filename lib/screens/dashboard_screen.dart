@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../widgets/genie_app_bar.dart';
 import '../services/api_service.dart';
+import '../services/translation_service.dart';
 import '../models/book.dart';
 import '../widgets/app_drawer.dart';
 import '../providers/theme_provider.dart';
@@ -30,6 +31,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> _fetchDashboardData() async {
     final api = Provider.of<ApiService>(context, listen: false);
+    // Background fetch of translations
+    TranslationService.fetchTranslations(context);
+    
     setState(() => _isLoading = true);
     
     try {
@@ -117,7 +121,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     } catch (e) {
        if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading dashboard: $e')),
+          SnackBar(content: Text('${TranslationService.translate(context, 'error_loading_dashboard')}: $e')),
         );
       }
     } finally {
@@ -133,7 +137,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     
     return Scaffold(
       appBar: GenieAppBar(
-        title: 'Dashboard',
+        title: TranslationService.translate(context, 'dashboard'),
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
@@ -161,7 +165,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Expanded(
                         child: _buildStatCard(
                           context,
-                          'Total Books',
+                          TranslationService.translate(context, 'total_books'),
                           _totalBooks.toString(),
                           Icons.book,
                         ),
@@ -170,7 +174,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Expanded(
                         child: _buildStatCard(
                           context,
-                          'Active Loans',
+                          TranslationService.translate(context, 'active_loans'),
                           _activeLoans.toString(),
                           Icons.swap_horiz,
                         ),
@@ -179,7 +183,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Expanded(
                         child: _buildStatCard(
                           context,
-                          Provider.of<ThemeProvider>(context).isLibrarian ? 'Emprunteurs' : 'Contacts',
+                          Provider.of<ThemeProvider>(context).isLibrarian ? TranslationService.translate(context, 'borrowers') : TranslationService.translate(context, 'contacts'),
                           _contactsCount.toString(),
                           Icons.people,
                         ),
@@ -210,13 +214,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             Icon(Icons.library_books, size: 64, color: theme.primaryColor.withOpacity(0.5)),
                             const SizedBox(height: 24),
                             Text(
-                              'Welcome to BiblioGenius!',
+                              TranslationService.translate(context, 'welcome_title'),
                               style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
                               textAlign: TextAlign.center,
                             ),
                             const SizedBox(height: 12),
                             Text(
-                              'Your library is looking a bit empty. Start by adding your first book or searching online.',
+                              TranslationService.translate(context, 'welcome_subtitle'),
                               style: theme.textTheme.bodyLarge?.copyWith(color: theme.textTheme.bodySmall?.color),
                               textAlign: TextAlign.center,
                             ),
@@ -229,7 +233,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 ElevatedButton.icon(
                                   onPressed: () => context.push('/books/add'),
                                   icon: const Icon(Icons.add),
-                                  label: const Text('Add Manually'),
+                                  label: Text(TranslationService.translate(context, 'btn_add_manually')),
                                   style: ElevatedButton.styleFrom(
                                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                                   ),
@@ -237,7 +241,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 OutlinedButton.icon(
                                   onPressed: () => context.push('/search/external'),
                                   icon: const Icon(Icons.public),
-                                  label: const Text('Search Online'),
+                                  label: Text(TranslationService.translate(context, 'btn_search_online')),
                                   style: OutlinedButton.styleFrom(
                                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                                   ),
@@ -250,7 +254,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ] else ...[
                     // Quick Actions
-                    _buildSectionTitle(context, 'Quick Actions'),
+                    _buildSectionTitle(context, TranslationService.translate(context, 'quick_actions')),
                     const SizedBox(height: 16),
                     Container(
                       padding: const EdgeInsets.all(24),
@@ -272,28 +276,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         children: [
                           _buildActionButton(
                             context,
-                            'Add Book',
+                            TranslationService.translate(context, 'action_add_book'),
                             Icons.add,
                             () => context.push('/books/add'),
                             isPrimary: true,
                           ),
                           _buildActionButton(
                             context,
-                            'Checkout Book',
+                            TranslationService.translate(context, 'action_checkout_book'),
                             Icons.upload_file, // Icon for checkout/loan
                             () => context.push('/books'), // Navigate to books to select one
                             isPrimary: true,
                           ),
                           _buildActionButton(
                             context,
-                            'Search Remote',
+                            TranslationService.translate(context, 'action_search_remote'),
                             Icons.search,
                             () => context.push('/peers'), // Navigate to peers to search
                             isPrimary: true,
                           ),
                           _buildActionButton(
                             context,
-                            'Ask Library',
+                            TranslationService.translate(context, 'action_ask_library'),
                             Icons.chat,
                             () {}, // Placeholder
                             isPrimary: true,
@@ -315,11 +319,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                _buildSectionTitle(context, 'Recent Books'),
+                                _buildSectionTitle(context, TranslationService.translate(context, 'recent_books')),
                                 const SizedBox(height: 16),
                                 _recentBooks.length == 1
                                     ? _buildHeroBook(context, _recentBooks.first)
-                                    : _buildBookList(context, _recentBooks, 'No recent books', delay: 0),
+                                    : _buildBookList(context, _recentBooks, TranslationService.translate(context, 'no_recent_books'), delay: 0),
                               ],
                             ),
                           ),
@@ -332,9 +336,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                _buildSectionTitle(context, 'Reading List'),
+                                _buildSectionTitle(context, TranslationService.translate(context, 'reading_list')),
                                 const SizedBox(height: 16),
-                                _buildBookList(context, _readingListBooks, 'No books in reading list', delay: 200),
+                                _buildBookList(context, _readingListBooks, TranslationService.translate(context, 'no_reading_list'), delay: 200),
                               ],
                             ),
                           ),
@@ -359,7 +363,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       child: TextButton.icon(
                         onPressed: () => context.push('/statistics'),
                         icon: const Icon(Icons.insights),
-                        label: const Text("View Library Insights"),
+                        label: Text(TranslationService.translate(context, 'view_insights')),
                         style: TextButton.styleFrom(
                           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                           textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -531,7 +535,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             children: [
                               const SizedBox(height: 4),
                               Text(
-                                book.author ?? 'Unknown Author',
+                                book.author ?? TranslationService.translate(context, 'unknown_author'),
                                 style: TextStyle(
                                   color: theme.textTheme.bodySmall?.color,
                                   fontSize: 14,
@@ -638,7 +642,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    book.author ?? 'Unknown Author',
+                    book.author ?? TranslationService.translate(context, 'unknown_author'),
                     style: theme.textTheme.titleMedium?.copyWith(
                       color: theme.textTheme.bodySmall?.color,
                       fontSize: 16,
@@ -685,7 +689,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           minimumSize: Size.zero,
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         ),
-                        child: const Text('Details'),
+                        child: Text(TranslationService.translate(context, 'btn_details')),
                       ),
                     ],
                   ),

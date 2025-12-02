@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../models/avatar_config.dart';
 import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
+import '../services/translation_service.dart';
 
 class AvatarCustomizer extends StatefulWidget {
   final AvatarConfig initialConfig;
@@ -81,7 +82,7 @@ class _AvatarCustomizerState extends State<AvatarCustomizer> {
             children: [
               // Style Selector (Human vs Genie)
               _buildSection(
-                'Avatar Style',
+                TranslationService.translate(context, 'avatar_style'),
                 AvatarOptions.getAvatarStyles(lang),
                 _config.style,
                 (value) {
@@ -97,7 +98,7 @@ class _AvatarCustomizerState extends State<AvatarCustomizer> {
               
               if (isGenie) ...[
                 _buildColorSection(
-                  'Background Color',
+                  TranslationService.translate(context, 'avatar_bg_color'),
                   AvatarOptions.genieBackgrounds,
                   _config.genieBackground ?? 'fbbf24',
                   (value) => _updateConfig(_config.copyWith(genieBackground: value)),
@@ -106,43 +107,43 @@ class _AvatarCustomizerState extends State<AvatarCustomizer> {
                 // We could add "Expression" if we had multiple images
               ] else if (isHuman) ...[
                 _buildSection(
-                  'Expression',
+                  TranslationService.translate(context, 'avatar_expression'),
                   AvatarOptions.getMouthOptions(lang),
                   _config.mouth ?? 'smile',
                   (value) => _updateConfig(_config.copyWith(mouth: value)),
                 ),
                 _buildSection(
-                  'Cheveux',
+                  TranslationService.translate(context, 'avatar_hair'),
                   AvatarOptions.getHairStyles(lang),
                   _config.hairStyle ?? 'shortFlat',
                   (value) => _updateConfig(_config.copyWith(hairStyle: value)),
                 ),
                 _buildSection(
-                  'Barbe/Moustache',
+                  TranslationService.translate(context, 'avatar_facial_hair'),
                   AvatarOptions.getFacialHairStyles(lang),
                   _config.facialHair ?? 'none',
                   (value) => _updateConfig(_config.copyWith(facialHair: value)),
                 ),
                 _buildColorSection(
-                  'Couleur de peau',
+                  TranslationService.translate(context, 'avatar_skin_color'),
                   AvatarOptions.getSkinColors(lang),
                   _config.skinColor ?? 'ffdbb4',
                   (value) => _updateConfig(_config.copyWith(skinColor: value)),
                 ),
                 _buildColorSection(
-                  'Couleur des cheveux',
+                  TranslationService.translate(context, 'avatar_hair_color'),
                   AvatarOptions.hairColors,
                   _config.hairColor ?? '4a312c',
                   (value) => _updateConfig(_config.copyWith(hairColor: value)),
                 ),
                 _buildSection(
-                  'Accessoires',
+                  TranslationService.translate(context, 'avatar_accessories'),
                   AvatarOptions.getAccessoriesOptions(lang),
                   _config.accessories ?? 'none',
                   (value) => _updateConfig(_config.copyWith(accessories: value)),
                 ),
                 _buildSection(
-                  'Vêtements',
+                  TranslationService.translate(context, 'avatar_clothing'),
                   AvatarOptions.getClothingOptions(lang),
                   _config.clothing ?? 'hoodie',
                   (value) => _updateConfig(_config.copyWith(clothing: value)),

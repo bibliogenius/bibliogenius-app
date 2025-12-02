@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/api_service.dart';
 import '../models/copy.dart';
+import '../services/translation_service.dart';
 
 class BookCopiesScreen extends StatefulWidget {
   final int bookId;
@@ -64,7 +65,7 @@ class _BookCopiesScreenState extends State<BookCopiesScreen> {
         if (mounted) {
           ScaffoldMessenger.of(
             context,
-          ).showSnackBar(SnackBar(content: Text('Error adding copy: $e')));
+          ).showSnackBar(SnackBar(content: Text('${TranslationService.translate(context, 'error_adding_copy')}: $e')));
         }
       }
     }
@@ -74,16 +75,16 @@ class _BookCopiesScreenState extends State<BookCopiesScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Copy'),
-        content: const Text('Are you sure you want to delete this copy?'),
+        title: Text(TranslationService.translate(context, 'delete_copy_title')),
+        content: Text(TranslationService.translate(context, 'delete_copy_confirm')),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(TranslationService.translate(context, 'cancel')),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Delete'),
+            child: Text(TranslationService.translate(context, 'delete_copy_btn')),
           ),
         ],
       ),
@@ -98,7 +99,7 @@ class _BookCopiesScreenState extends State<BookCopiesScreen> {
         if (mounted) {
           ScaffoldMessenger.of(
             context,
-          ).showSnackBar(SnackBar(content: Text('Error deleting copy: $e')));
+          ).showSnackBar(SnackBar(content: Text('${TranslationService.translate(context, 'error_deleting_copy')}: $e')));
         }
       }
     }
@@ -107,11 +108,11 @@ class _BookCopiesScreenState extends State<BookCopiesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Copies of "${widget.bookTitle}"')),
+      appBar: AppBar(title: Text('${TranslationService.translate(context, 'copies_title')} "${widget.bookTitle}"')),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _copies.isEmpty
-          ? const Center(child: Text('No copies yet'))
+          ? Center(child: Text(TranslationService.translate(context, 'no_copies')))
           : ListView.builder(
               itemCount: _copies.length,
               itemBuilder: (context, index) {
@@ -123,7 +124,7 @@ class _BookCopiesScreenState extends State<BookCopiesScreen> {
                   ),
                   title: Row(
                     children: [
-                      Text('Copy #${copy.id}'),
+                      Text('${TranslationService.translate(context, 'copy_number')}${copy.id}'),
                       const SizedBox(width: 8),
                       _StatusBadge(status: copy.status),
                     ],
@@ -158,7 +159,7 @@ class _AddCopyDialogState extends State<_AddCopyDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Add Copy'),
+      title: Text(TranslationService.translate(context, 'add_copy_title')),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -175,10 +176,10 @@ class _AddCopyDialogState extends State<_AddCopyDialog> {
               initialValue: _selectedStatus,
               decoration: const InputDecoration(labelText: 'Status'),
               items: const [
-                DropdownMenuItem(value: 'available', child: Text('Available')),
-                DropdownMenuItem(value: 'borrowed', child: Text('Borrowed')),
-                DropdownMenuItem(value: 'wanted', child: Text('Wanted')),
-                DropdownMenuItem(value: 'lost', child: Text('Lost')),
+                DropdownMenuItem(value: 'available', child: Text(TranslationService.translate(context, 'status_available'))),
+                DropdownMenuItem(value: 'borrowed', child: Text(TranslationService.translate(context, 'status_checked_out'))),
+                DropdownMenuItem(value: 'wanted', child: Text(TranslationService.translate(context, 'status_wanted'))),
+                DropdownMenuItem(value: 'lost', child: Text(TranslationService.translate(context, 'status_lost'))),
               ],
               onChanged: (value) {
                 setState(() {
@@ -188,7 +189,7 @@ class _AddCopyDialogState extends State<_AddCopyDialog> {
             ),
             const SizedBox(height: 16),
             CheckboxListTile(
-              title: const Text('Temporary (borrowed from someone)'),
+              title: Text(TranslationService.translate(context, 'is_temporary_copy')),
               value: _isTemporary,
               onChanged: (value) {
                 setState(() {
@@ -207,7 +208,7 @@ class _AddCopyDialogState extends State<_AddCopyDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: Text(TranslationService.translate(context, 'cancel')),
         ),
         TextButton(
           onPressed: () {
@@ -222,7 +223,7 @@ class _AddCopyDialogState extends State<_AddCopyDialog> {
               'is_temporary': _isTemporary,
             });
           },
-          child: const Text('Add'),
+          child: Text(TranslationService.translate(context, 'add_peer_btn')),
         ),
       ],
     );
@@ -243,19 +244,19 @@ class _StatusBadge extends StatelessWidget {
     switch (status) {
       case 'available':
         color = Colors.green;
-        label = 'Available';
+        label = TranslationService.translate(context, 'status_available');
         break;
       case 'borrowed':
         color = Colors.blue;
-        label = 'Borrowed';
+        label = TranslationService.translate(context, 'status_checked_out');
         break;
       case 'wanted':
         color = Colors.purple;
-        label = 'Wanted';
+        label = TranslationService.translate(context, 'status_wanted');
         break;
       case 'lost':
         color = Colors.red;
-        label = 'Lost';
+        label = TranslationService.translate(context, 'status_lost');
         break;
       default:
         color = Colors.grey;

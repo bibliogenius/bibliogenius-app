@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/contact.dart';
+import '../services/translation_service.dart';
 
 class ContactDetailsScreen extends StatelessWidget {
   final Contact contact;
@@ -10,14 +11,14 @@ class ContactDetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Contact Details'),
+        title: Text(TranslationService.translate(context, 'contact_details_title')),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
             onPressed: () {
               // TODO: Navigate to edit screen
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Edit feature coming soon')),
+                SnackBar(content: Text(TranslationService.translate(context, 'edit_feature_soon'))),
               );
             },
           ),

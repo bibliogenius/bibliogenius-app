@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/translation_service.dart';
 
 class StatusBadge extends StatelessWidget {
   final String level;
@@ -16,18 +17,18 @@ class StatusBadge extends StatelessWidget {
       case 'Pro':
         icon = Icons.workspace_premium;
         color = Colors.purple;
-        label = 'Pro';
+        label = TranslationService.translate(context, 'badge_pro');
         break;
       case 'BiblioGenius':
         icon = Icons.verified;
         color = Colors.amber;
-        label = 'BiblioGenius';
+        label = TranslationService.translate(context, 'badge_bibliogenius');
         break;
       case 'Member':
       default:
         icon = Icons.verified_user_outlined;
         color = Colors.grey;
-        label = 'Member';
+        label = TranslationService.translate(context, 'badge_member');
         break;
     }
 

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../models/contact.dart';
 import '../services/api_service.dart';
+import '../services/translation_service.dart';
 import '../providers/theme_provider.dart';
 
 class ContactsScreen extends StatefulWidget {
@@ -42,7 +43,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Error loading contacts: $e')));
+        ).showSnackBar(SnackBar(content: Text('${TranslationService.translate(context, 'error_loading_contacts')}: $e')));
       }
     }
   }
@@ -52,16 +53,17 @@ class _ContactsScreenState extends State<ContactsScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Contact'),
-        content: const Text('Are you sure you want to delete this contact?'),
+      builder: (context) => AlertDialog(
+        title: Text(TranslationService.translate(context, 'delete_contact_title')),
+        content: Text(TranslationService.translate(context, 'delete_contact_confirm')),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(TranslationService.translate(context, 'cancel')),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            child: Text(TranslationService.translate(context, 'delete_contact_btn'), style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -73,14 +75,14 @@ class _ContactsScreenState extends State<ContactsScreen> {
         _loadContacts();
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Contact deleted successfully')),
+            SnackBar(content: Text(TranslationService.translate(context, 'contact_deleted'))),
           );
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(
             context,
-          ).showSnackBar(SnackBar(content: Text('Error deleting contact: $e')));
+          ).showSnackBar(SnackBar(content: Text('${TranslationService.translate(context, 'error_deleting_contact')}: $e')));
         }
       }
     }
@@ -107,9 +109,9 @@ class _ContactsScreenState extends State<ContactsScreen> {
               _loadContacts();
             },
             itemBuilder: (context) => [
-              const PopupMenuItem(value: 'all', child: Text('All Contacts')),
-              const PopupMenuItem(value: 'borrower', child: Text('Borrowers')),
-              const PopupMenuItem(value: 'library', child: Text('Libraries')),
+              PopupMenuItem(value: 'all', child: Text(TranslationService.translate(context, 'filter_all_contacts'))),
+              PopupMenuItem(value: 'borrower', child: Text(TranslationService.translate(context, 'filter_borrowers'))),
+              PopupMenuItem(value: 'library', child: Text(TranslationService.translate(context, 'filter_libraries'))),
             ],
             icon: const Icon(Icons.filter_list),
           ),
@@ -190,18 +192,18 @@ class _ContactsScreenState extends State<ContactsScreen> {
                       return await showDialog<bool>(
                         context: context,
                         builder: (context) => AlertDialog(
-                          title: const Text('Delete Contact'),
-                          content: Text('Delete ${contact.name}?'),
+                          title: Text(TranslationService.translate(context, 'delete_contact_title')),
+                          content: Text('${TranslationService.translate(context, 'delete_contact_title')} ${contact.name}?'),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(context, false),
-                              child: const Text('Cancel'),
+                              child: Text(TranslationService.translate(context, 'cancel')),
                             ),
                             TextButton(
                               onPressed: () => Navigator.pop(context, true),
-                              child: const Text(
-                                'Delete',
-                                style: TextStyle(color: Colors.red),
+                              child: Text(
+                                TranslationService.translate(context, 'delete_contact_btn'),
+                                style: const TextStyle(color: Colors.red),
                               ),
                             ),
                           ],

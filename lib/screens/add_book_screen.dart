@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../services/api_service.dart';
+import '../services/translation_service.dart';
 import '../providers/theme_provider.dart';
 import '../providers/theme_provider.dart';
 import '../utils/book_status.dart';
@@ -73,7 +74,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
           if (_summaryController.text.isEmpty) _summaryController.text = bookData['summary'] ?? '';
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Book details found!')),
+          SnackBar(content: Text(TranslationService.translate(context, 'book_details_found'))),
         );
       }
     } catch (e) {
@@ -107,7 +108,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error saving book: $e')),
+          SnackBar(content: Text('${TranslationService.translate(context, 'error_saving_book')}: $e')),
         );
         setState(() => _isSaving = false);
       }
@@ -118,12 +119,12 @@ class _AddBookScreenState extends State<AddBookScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Book'),
+        title: Text(TranslationService.translate(context, 'add_book_title')),
         actions: [
           TextButton.icon(
             onPressed: () => context.push('/search/external'),
             icon: const Icon(Icons.search, color: Colors.white),
-            label: const Text('Search Online', style: TextStyle(color: Colors.white)),
+            label: Text(TranslationService.translate(context, 'btn_search_online'), style: const TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -138,7 +139,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 Icon(Icons.library_add, size: 32, color: Theme.of(context).primaryColor),
                 const SizedBox(width: 12),
                 Text(
-                  'Add a New Book',
+                  TranslationService.translate(context, 'add_new_book'),
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Colors.black87,
@@ -149,7 +150,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
             const Divider(height: 32),
 
             // Title
-            _buildLabel('Title *'),
+            _buildLabel(TranslationService.translate(context, 'title_label')),
             LayoutBuilder(
               builder: (context, constraints) {
                 return RawAutocomplete<OpenLibraryBook>(
@@ -173,10 +174,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
                       controller: textEditingController,
                       focusNode: focusNode,
                       decoration: _buildInputDecoration(
-                        hint: 'Enter book title',
+                        hint: TranslationService.translate(context, 'enter_book_title'),
                         suffixIcon: const Icon(Icons.search),
                       ),
-                      validator: (value) => value == null || value.isEmpty ? 'Please enter a title' : null,
+                      validator: (value) => value == null || value.isEmpty ? TranslationService.translate(context, 'enter_title_error') : null,
                     );
                   },
                   optionsViewBuilder: (context, onSelected, options) {
@@ -212,19 +213,19 @@ class _AddBookScreenState extends State<AddBookScreen> {
             const SizedBox(height: 24),
 
             // Author
-            _buildLabel('Author'),
+            _buildLabel(TranslationService.translate(context, 'author_label')),
             TextFormField(
               controller: _authorController,
-              decoration: _buildInputDecoration(hint: 'Author name'),
+              decoration: _buildInputDecoration(hint: TranslationService.translate(context, 'author_hint')),
             ),
             const SizedBox(height: 24),
 
             // ISBN
-            _buildLabel('ISBN'),
+            _buildLabel(TranslationService.translate(context, 'isbn_label')),
             TextFormField(
               controller: _isbnController,
               decoration: _buildInputDecoration(
-                hint: 'Enter ISBN to autofill',
+                hint: TranslationService.translate(context, 'enter_isbn_autofill'),
                 suffixIcon: _isFetchingDetails
                     ? const Padding(
                         padding: EdgeInsets.all(12.0),
@@ -237,7 +238,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                     : IconButton(
                         icon: const Icon(Icons.search),
                         onPressed: () => _fetchBookDetails(_isbnController.text),
-                        tooltip: 'Lookup ISBN',
+                        tooltip: TranslationService.translate(context, 'lookup_isbn'),
                       ),
               ),
               keyboardType: TextInputType.number,
@@ -252,10 +253,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildLabel('Publisher'),
+                      _buildLabel(TranslationService.translate(context, 'publisher_label')),
                       TextFormField(
                         controller: _publisherController,
-                        decoration: _buildInputDecoration(hint: 'Publisher name'),
+                        decoration: _buildInputDecoration(hint: TranslationService.translate(context, 'publisher_hint')),
                       ),
                     ],
                   ),
@@ -265,10 +266,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildLabel('Year'),
+                      _buildLabel(TranslationService.translate(context, 'year_label')),
                       TextFormField(
                         controller: _publicationYearController,
-                        decoration: _buildInputDecoration(hint: 'YYYY'),
+                        decoration: _buildInputDecoration(hint: TranslationService.translate(context, 'year_hint')),
                         keyboardType: TextInputType.number,
                       ),
                     ],
@@ -279,21 +280,21 @@ class _AddBookScreenState extends State<AddBookScreen> {
             const SizedBox(height: 24),
 
             // Summary
-            _buildLabel('Summary'),
+            _buildLabel(TranslationService.translate(context, 'summary_label')),
             TextFormField(
               controller: _summaryController,
-              decoration: _buildInputDecoration(hint: 'Brief summary of the book'),
+              decoration: _buildInputDecoration(hint: TranslationService.translate(context, 'summary_hint')),
               maxLines: 4,
             ),
             const SizedBox(height: 24),
 
             // Status
-            _buildLabel('Status'),
+            _buildLabel(TranslationService.translate(context, 'status_label')),
             Builder(
               builder: (context) {
                 final themeProvider = Provider.of<ThemeProvider>(context);
                 final isLibrarian = themeProvider.isLibrarian;
-                final statusOptions = getStatusOptions(isLibrarian);
+                final statusOptions = getStatusOptions(context, isLibrarian);
                 
                 return DropdownButtonFormField<String>(
                   value: _readingStatus,
@@ -324,7 +325,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 icon: _isSaving 
                   ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                   : const Icon(Icons.save),
-                label: Text(_isSaving ? 'Saving...' : 'Save Book'),
+                label: Text(_isSaving ? TranslationService.translate(context, 'saving') : TranslationService.translate(context, 'save_book')),
                 style: ElevatedButton.styleFrom(
                   textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),

@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'services/auth_service.dart';
 import 'services/api_service.dart';
 import 'services/sync_service.dart';
+import 'services/translation_service.dart';
 import 'providers/theme_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/book_list_screen.dart';
@@ -31,6 +33,8 @@ import 'widgets/scaffold_with_nav.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
+  await TranslationService.loadFromCache();
   final themeProvider = ThemeProvider();
   
   try {
@@ -52,12 +56,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authService = AuthService();
-    const baseUrl = String.fromEnvironment(
-      'API_BASE_URL',
-      // REMPLACEZ '192.168.1.XX' PAR VOTRE IP LOCALE (obtenue via ipconfig getifaddr en0)
-      // Gardez le port :8001
-      defaultValue: 'http://192.168.1.35:8001', 
-    );
+    final baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://localhost:8001';
     final apiService = ApiService(authService, baseUrl: baseUrl);
 
     return MultiProvider(

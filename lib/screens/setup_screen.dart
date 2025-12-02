@@ -5,6 +5,7 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import '../providers/theme_provider.dart';
 import '../services/auth_service.dart';
 import '../services/api_service.dart';
+import '../services/translation_service.dart';
 import '../utils/avatars.dart';
 import '../models/avatar_config.dart';
 import '../widgets/avatar_customizer.dart';
@@ -213,27 +214,27 @@ class _SetupScreenState extends State<SetupScreen> {
                 state: _currentStep > 0 ? StepState.complete : StepState.indexed,
               ),
               Step(
-                title: const Text('Choose Profile Type'),
+                title: Text(TranslationService.translate(context, 'choose_profile_type')),
                 content: Column(
                   children: [
-                    const Text('How will you use BiblioGenius?'),
+                    Text(TranslationService.translate(context, 'profile_usage_question')),
                     const SizedBox(height: 16),
                     _buildProfileOption(
                       'librarian',
-                      'Librarian',
-                      'Professional cataloging, lending management, and strict organization.',
+                      TranslationService.translate(context, 'profile_librarian'),
+                      TranslationService.translate(context, 'profile_librarian_desc'),
                       Icons.local_library,
                     ),
                     _buildProfileOption(
                       'individual',
-                      'Individual Reader',
-                      'Track your reading, wishlists, and personal collection.',
+                      TranslationService.translate(context, 'profile_individual'),
+                      TranslationService.translate(context, 'profile_individual_desc'),
                       Icons.person,
                     ),
                     _buildProfileOption(
                       'kid',
-                      'Junior Reader',
-                      'Fun interface, simple tracking, and cool avatars!',
+                      TranslationService.translate(context, 'profile_kid'),
+                      TranslationService.translate(context, 'profile_kid_desc'),
                       Icons.child_care,
                     ),
                   ],
@@ -242,7 +243,7 @@ class _SetupScreenState extends State<SetupScreen> {
                 state: _currentStep > 1 ? StepState.complete : StepState.indexed,
               ),
               Step(
-                title: const Text('Customize Avatar'),
+                title: Text(TranslationService.translate(context, 'customize_avatar')),
                 content: SizedBox(
                   height: 500,
                   child: AvatarCustomizer(
@@ -270,10 +271,10 @@ class _SetupScreenState extends State<SetupScreen> {
                       value: themeProvider.locale.languageCode,
                       isExpanded: true,
                       items: const [
-                        DropdownMenuItem(value: 'en', child: Text('English')),
-                        DropdownMenuItem(value: 'fr', child: Text('Français')),
-                        DropdownMenuItem(value: 'es', child: Text('Español')),
-                        DropdownMenuItem(value: 'de', child: Text('Deutsch')),
+                        DropdownMenuItem(value: 'en', child: Text(TranslationService.translate(context, 'lang_en'))),
+                        DropdownMenuItem(value: 'fr', child: Text(TranslationService.translate(context, 'lang_fr'))),
+                        DropdownMenuItem(value: 'es', child: Text(TranslationService.translate(context, 'lang_es'))),
+                        DropdownMenuItem(value: 'de', child: Text(TranslationService.translate(context, 'lang_de'))),
                       ],
                       onChanged: (String? newValue) {
                         if (newValue != null) {
@@ -298,8 +299,8 @@ class _SetupScreenState extends State<SetupScreen> {
                       value: themeProvider.themeStyle,
                       isExpanded: true,
                       items: const [
-                        DropdownMenuItem(value: 'default', child: Text('Default (Colorful)')),
-                        DropdownMenuItem(value: 'minimal', child: Text('Minimal (Clean)')),
+                        DropdownMenuItem(value: 'default', child: Text(TranslationService.translate(context, 'theme_default'))),
+                        DropdownMenuItem(value: 'minimal', child: Text(TranslationService.translate(context, 'theme_minimal'))),
                       ],
                       onChanged: (String? newValue) {
                         if (newValue != null) {
@@ -371,7 +372,7 @@ class _SetupScreenState extends State<SetupScreen> {
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Setup failed: $e')),
+          SnackBar(content: Text('${TranslationService.translate(context, 'setup_failed')}: $e')),
         );
       }
     }

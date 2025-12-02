@@ -294,4 +294,8 @@ class ApiService {
     }
     return null;
   }
+
+  Future<Response> getTranslations(String locale) async {
+    return await _dio.get('$hubUrl/api/translations/$locale');
+  }
 }

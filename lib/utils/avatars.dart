@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/translation_service.dart';
 
 class Avatar {
   final String id;
@@ -22,7 +23,7 @@ const List<Avatar> availableAvatars = [
   Avatar(
     id: 'junior_reader',
     assetPath: 'assets/avatars/profile_kid_1764454336588.png',
-    label: 'Junior Reader',
+    label: 'avatar_junior_reader',
     themeColor: Colors.orange,
     profileType: 'kid',
   ),
@@ -34,21 +35,21 @@ const List<Avatar> availableAvatars = [
   Avatar(
     id: 'bookworm',
     assetPath: 'assets/avatars/profile_individual_1764454364353.png',
-    label: 'Bookworm',
+    label: 'avatar_bookworm',
     themeColor: Colors.indigo,
     profileType: 'individual',
   ),
   Avatar(
     id: 'young_girl',
     assetPath: 'assets/avatars/avatar_asian_girl_1764454514931.png',
-    label: 'Young Reader',
+    label: 'avatar_young_reader',
     themeColor: Colors.pinkAccent,
     profileType: 'individual',
   ),
   Avatar(
     id: 'grandmother',
     assetPath: 'assets/avatars/avatar_elderly_woman_1764454487281.png',
-    label: 'Grandmother',
+    label: 'avatar_grandmother',
     themeColor: Colors.brown,
     profileType: 'individual',
   ),
@@ -61,20 +62,26 @@ const List<Avatar> availableAvatars = [
   Avatar(
     id: 'head_librarian',
     assetPath: 'assets/avatars/profile_librarian_1764454351246.png',
-    label: 'Head Librarian',
+    label: 'avatar_head_librarian',
     themeColor: Colors.teal,
     profileType: 'librarian',
   ),
   Avatar(
     id: 'professional',
     assetPath: 'assets/avatars/avatar_muslim_woman_1764454528472.png',
-    label: 'Professional Librarian',
+    label: 'avatar_professional_librarian',
     themeColor: Colors.cyan,
     profileType: 'librarian',
   ),
 ];
 
 // Get avatars filtered by profile type
-List<Avatar> getAvatarsByProfileType(String profileType) {
-  return availableAvatars.where((a) => a.profileType == profileType).toList();
+List<Avatar> getAvatarsByProfileType(BuildContext context, String profileType) {
+  return availableAvatars.where((a) => a.profileType == profileType).map((a) => Avatar(
+    id: a.id,
+    assetPath: a.assetPath,
+    label: TranslationService.translate(context, a.label),
+    themeColor: a.themeColor,
+    profileType: a.profileType,
+  )).toList();
 }

@@ -3,6 +3,7 @@ import '../widgets/genie_app_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:dio/dio.dart';
 import '../services/api_service.dart';
+import '../services/translation_service.dart';
 import '../models/book.dart';
 
 class ExternalSearchScreen extends StatefulWidget {
@@ -35,7 +36,7 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
         _authorController.text.isEmpty && 
         _subjectController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter at least one search term')),
+        SnackBar(content: Text(TranslationService.translate(context, 'enter_search_term'))),
       );
       return;
     }
@@ -62,7 +63,7 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
       }
     } catch (e) {
       setState(() {
-        _error = 'Search failed: $e';
+        _error = '${TranslationService.translate(context, 'search_failed')}: $e';
       });
     } finally {
       if (mounted) {
@@ -91,13 +92,13 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('"${doc['title']}" added to library')),
+          SnackBar(content: Text('"${doc['title']}" ${TranslationService.translate(context, 'added_to_library')}')),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to add book: $e')),
+          SnackBar(content: Text('${TranslationService.translate(context, 'failed_add_book')}: $e')),
         );
       }
     }
@@ -106,8 +107,8 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const GenieAppBar(
-        title: 'External Book Search',
+      appBar: GenieAppBar(
+        title: TranslationService.translate(context, 'external_search_title'),
       ),
       body: Column(
         children: [
@@ -119,18 +120,18 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
                 children: [
                   TextFormField(
                     controller: _titleController,
-                    decoration: const InputDecoration(
-                      labelText: 'Title',
-                      prefixIcon: Icon(Icons.book),
+                    decoration: InputDecoration(
+                      labelText: TranslationService.translate(context, 'title_label'),
+                      prefixIcon: const Icon(Icons.book),
                     ),
                     textInputAction: TextInputAction.next,
                   ),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: _authorController,
-                    decoration: const InputDecoration(
-                      labelText: 'Author',
-                      prefixIcon: Icon(Icons.person),
+                    decoration: InputDecoration(
+                      labelText: TranslationService.translate(context, 'author_label'),
+                      prefixIcon: const Icon(Icons.person),
                     ),
                     textInputAction: TextInputAction.next,
                   ),
@@ -138,7 +139,7 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
                   TextFormField(
                     controller: _subjectController,
                     decoration: const InputDecoration(
-                      labelText: 'Subject',
+                      labelText: TranslationService.translate(context, 'subject_label'),
                       prefixIcon: Icon(Icons.category),
                     ),
                     onFieldSubmitted: (_) => _search(),
@@ -151,7 +152,7 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
                       icon: _isSearching 
                         ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
                         : const Icon(Icons.search),
-                      label: const Text('Search Open Library'),
+                      label: Text(TranslationService.translate(context, 'search_open_library')),
                     ),
                   ),
                 ],
@@ -177,16 +178,16 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
                   leading: coverUrl != null
                       ? Image.network(coverUrl, width: 40, fit: BoxFit.cover)
                       : const Icon(Icons.book),
-                  title: Text(doc['title'] ?? 'Unknown Title'),
+                  title: Text(doc['title'] ?? TranslationService.translate(context, 'unknown_title')),
                   subtitle: Text(
                     doc['author_name'] != null 
                         ? (doc['author_name'] as List).join(', ') 
-                        : 'Unknown Author'
+                        : TranslationService.translate(context, 'unknown_author')
                   ),
                   trailing: IconButton(
                     icon: const Icon(Icons.add_circle_outline),
                     onPressed: () => _addBook(doc),
-                    tooltip: 'Add to Library',
+                    tooltip: TranslationService.translate(context, 'add_to_library_tooltip'),
                   ),
                 );
               },

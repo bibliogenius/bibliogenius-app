@@ -6,6 +6,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:provider/provider.dart';
 import '../services/api_service.dart';
+import '../services/translation_service.dart';
 
 class P2PScreen extends StatefulWidget {
   const P2PScreen({super.key});
@@ -60,7 +61,7 @@ class _P2PScreenState extends State<P2PScreen>
       } catch (e) {
         debugPrint("Error getting config: $e");
       }
-      _libraryName ??= 'My Library'; // Fallback
+      _libraryName ??= TranslationService.translate(context, 'my_library_title'); // Fallback
 
       if (_localIp != null && _libraryName != null) {
         // Construct QR Data
@@ -112,14 +113,14 @@ class _P2PScreenState extends State<P2PScreen>
         Navigator.pop(context); // Pop loading
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text("Connected to $name!")));
+        ).showSnackBar(SnackBar(content: Text("${TranslationService.translate(context, 'connected_to')} $name!")));
       }
     } catch (e) {
       if (mounted) {
         Navigator.pop(context); // Pop loading
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text("Failed to connect: $e")));
+        ).showSnackBar(SnackBar(content: Text("${TranslationService.translate(context, 'connection_failed')}: $e")));
       }
     }
   }
@@ -128,16 +129,16 @@ class _P2PScreenState extends State<P2PScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: GenieAppBar(
-        title: "Connect Library",
+        title: TranslationService.translate(context, 'p2p_title'),
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: Theme.of(context).appBarTheme.foregroundColor,
           labelColor: Theme.of(context).appBarTheme.foregroundColor,
           unselectedLabelColor: Theme.of(context).appBarTheme.foregroundColor?.withOpacity(0.7),
           labelStyle: const TextStyle(fontWeight: FontWeight.bold),
-          tabs: const [
-            Tab(text: "Share Code", icon: Icon(Icons.qr_code)),
-            Tab(text: "Scan Code", icon: Icon(Icons.camera_alt)),
+          tabs: [
+            Tab(text: TranslationService.translate(context, 'tab_share_code'), icon: const Icon(Icons.qr_code)),
+            Tab(text: TranslationService.translate(context, 'tab_scan_code'), icon: const Icon(Icons.camera_alt)),
           ],
         ),
       ),
@@ -159,12 +160,12 @@ class _P2PScreenState extends State<P2PScreen>
           children: [
             const Icon(Icons.error_outline, size: 60, color: Colors.grey),
             const SizedBox(height: 16),
-            const Text("Could not generate QR Code.", style: TextStyle(fontSize: 16)),
+            Text(TranslationService.translate(context, 'qr_error'), style: const TextStyle(fontSize: 16)),
             const SizedBox(height: 8),
             Text("IP: ${_localIp ?? 'Unknown'}", style: const TextStyle(color: Colors.grey)),
             Text("Name: ${_libraryName ?? 'Unknown'}", style: const TextStyle(color: Colors.grey)),
             const SizedBox(height: 24),
-            ElevatedButton(onPressed: _initData, child: const Text("Retry")),
+            ElevatedButton(onPressed: _initData, child: Text(TranslationService.translate(context, 'retry'))),
           ],
         ),
       );
@@ -207,7 +208,7 @@ class _P2PScreenState extends State<P2PScreen>
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    "Scan to connect",
+                    TranslationService.translate(context, 'scan_to_connect'),
                     style: TextStyle(
                       color: Colors.grey[600],
                       fontSize: 16,
@@ -218,10 +219,10 @@ class _P2PScreenState extends State<P2PScreen>
               ),
             ),
             const SizedBox(height: 40),
-            const Text(
-              "Show this code to another user to let them connect to your library.",
+            Text(
+              TranslationService.translate(context, 'share_code_instruction'),
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey, fontSize: 14),
+              style: const TextStyle(color: Colors.grey, fontSize: 14),
             ),
           ],
         ),
@@ -283,9 +284,9 @@ class _P2PScreenState extends State<P2PScreen>
                 color: Colors.black54,
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: const Text(
-                "Align QR code within the frame",
-                style: TextStyle(color: Colors.white, fontSize: 14),
+              child: Text(
+                TranslationService.translate(context, 'scan_instruction'),
+                style: const TextStyle(color: Colors.white, fontSize: 14),
               ),
             ),
           ),

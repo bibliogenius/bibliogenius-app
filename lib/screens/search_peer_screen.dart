@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../services/api_service.dart';
+import '../services/translation_service.dart';
 import '../widgets/genie_app_bar.dart';
 
 class SearchPeerScreen extends StatefulWidget {
@@ -41,7 +42,7 @@ class _SearchPeerScreenState extends State<SearchPeerScreen> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _error = 'Erreur de recherche: $e';
+          _error = '${TranslationService.translate(context, 'connection_error')}: $e';
           _isLoading = false;
         });
       }
@@ -54,14 +55,14 @@ class _SearchPeerScreenState extends State<SearchPeerScreen> {
       await api.connectPeer(peer['name'], peer['url']);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Demande envoyée à ${peer['name']}')),
+          SnackBar(content: Text('${TranslationService.translate(context, 'request_sent_to')} ${peer['name']}')),
         );
         context.pop(true); // Return true to refresh list
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur de connexion: $e')),
+          SnackBar(content: Text('${TranslationService.translate(context, 'connection_error')}: $e')),
         );
       }
     }
@@ -70,7 +71,7 @@ class _SearchPeerScreenState extends State<SearchPeerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const GenieAppBar(title: "Ajouter une bibliothèque"),
+      appBar: GenieAppBar(title: TranslationService.translate(context, 'nav_network')),
       body: Column(
         children: [
           Padding(
@@ -78,8 +79,8 @@ class _SearchPeerScreenState extends State<SearchPeerScreen> {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                labelText: 'Nom de la bibliothèque',
-                hintText: 'Ex: Bibliothèque de Thomas',
+                labelText: TranslationService.translate(context, 'nav_network'),
+                hintText: TranslationService.translate(context, 'peer_search_hint'),
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.arrow_forward),
@@ -109,7 +110,7 @@ class _SearchPeerScreenState extends State<SearchPeerScreen> {
                         Icon(Icons.person_search, size: 64, color: Colors.grey[300]),
                         const SizedBox(height: 16),
                         Text(
-                          'Recherchez une bibliothèque par son nom',
+                          TranslationService.translate(context, 'peer_search_hint'),
                           style: TextStyle(color: Colors.grey[600]),
                         ),
                         const SizedBox(height: 8),
@@ -118,7 +119,7 @@ class _SearchPeerScreenState extends State<SearchPeerScreen> {
                             // TODO: Navigate to QR Scan
                           }, 
                           icon: const Icon(Icons.qr_code_scanner),
-                          label: const Text('Ou scannez un QR Code'),
+                          label: Text(TranslationService.translate(context, 'scan_qr_code')),
                         ),
                       ],
                     ),
@@ -137,10 +138,10 @@ class _SearchPeerScreenState extends State<SearchPeerScreen> {
                         title: Text(peer['name']),
                         subtitle: Text(peer['url']),
                         trailing: isConnected
-                            ? const Chip(label: Text('Déjà connecté'))
+                            ? Chip(label: Text(TranslationService.translate(context, 'already_connected')))
                             : ElevatedButton(
                                 onPressed: () => _connect(peer),
-                                child: const Text('Ajouter'),
+                                child: Text(TranslationService.translate(context, 'add_peer_btn')),
                               ),
                       );
                     },

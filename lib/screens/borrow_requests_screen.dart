@@ -3,6 +3,7 @@ import '../widgets/genie_app_bar.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
 import '../services/api_service.dart';
+import '../services/translation_service.dart';
 
 class BorrowRequestsScreen extends StatefulWidget {
   const BorrowRequestsScreen({super.key});
@@ -55,7 +56,7 @@ class _BorrowRequestsScreenState extends State<BorrowRequestsScreen>
     } catch (e) {
       if (mounted && !silent) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error fetching requests: $e")),
+          SnackBar(content: Text("${TranslationService.translate(context, 'snack_error_fetching')}: $e")),
         );
       }
     } finally {
@@ -73,7 +74,7 @@ class _BorrowRequestsScreenState extends State<BorrowRequestsScreen>
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error updating status: $e")),
+          SnackBar(content: Text("${TranslationService.translate(context, 'snack_error_updating')}: $e")),
         );
       }
     }
@@ -86,7 +87,7 @@ class _BorrowRequestsScreenState extends State<BorrowRequestsScreen>
       _fetchRequests();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Connection $status")),
+          SnackBar(content: Text("${TranslationService.translate(context, 'snack_connection_updated')}: $status")),
         );
       }
     } catch (e) {
@@ -102,16 +103,16 @@ class _BorrowRequestsScreenState extends State<BorrowRequestsScreen>
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Request'),
-        content: const Text('Are you sure you want to delete this request?'),
+        title: Text(TranslationService.translate(context, 'dialog_delete_title')),
+        content: Text(TranslationService.translate(context, 'dialog_delete_body')),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(TranslationService.translate(context, 'cancel')),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            child: Text(TranslationService.translate(context, 'dialog_delete_confirm'), style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -140,16 +141,16 @@ class _BorrowRequestsScreenState extends State<BorrowRequestsScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: GenieAppBar(
-        title: 'Borrow Requests',
+        title: TranslationService.translate(context, 'borrow_requests_title'),
         bottom: TabBar(
           controller: _tabController,
           labelColor: Theme.of(context).appBarTheme.foregroundColor,
           unselectedLabelColor: Theme.of(context).appBarTheme.foregroundColor?.withValues(alpha: 0.7),
           indicatorColor: Theme.of(context).appBarTheme.foregroundColor,
-          tabs: const [
-            Tab(icon: Icon(Icons.move_to_inbox), text: "Incoming"),
-            Tab(icon: Icon(Icons.outbox), text: "Outgoing"),
-            Tab(icon: Icon(Icons.link), text: "Connections"),
+          tabs: [
+            Tab(icon: const Icon(Icons.move_to_inbox), text: TranslationService.translate(context, 'tab_incoming')),
+            Tab(icon: const Icon(Icons.outbox), text: TranslationService.translate(context, 'tab_outgoing')),
+            Tab(icon: const Icon(Icons.link), text: TranslationService.translate(context, 'tab_connections')),
           ],
         ),
         actions: [
@@ -183,7 +184,7 @@ class _BorrowRequestsScreenState extends State<BorrowRequestsScreen>
 
   Widget _buildIncomingList() {
     if (_incomingRequests.isEmpty) {
-      return _buildEmptyState("No incoming requests");
+      return _buildEmptyState(TranslationService.translate(context, 'no_incoming_requests'));
     }
     return ListView.builder(
       itemCount: _incomingRequests.length,
@@ -196,7 +197,7 @@ class _BorrowRequestsScreenState extends State<BorrowRequestsScreen>
 
   Widget _buildOutgoingList() {
     if (_outgoingRequests.isEmpty) {
-      return _buildEmptyState("No outgoing requests");
+      return _buildEmptyState(TranslationService.translate(context, 'no_outgoing_requests'));
     }
     return ListView.builder(
       itemCount: _outgoingRequests.length,
@@ -209,7 +210,7 @@ class _BorrowRequestsScreenState extends State<BorrowRequestsScreen>
 
   Widget _buildConnectionList() {
     if (_connectionRequests.isEmpty) {
-      return _buildEmptyState("No pending connection requests");
+      return _buildEmptyState(TranslationService.translate(context, 'no_pending_connections'));
     }
     return ListView.builder(
       itemCount: _connectionRequests.length,
@@ -224,7 +225,7 @@ class _BorrowRequestsScreenState extends State<BorrowRequestsScreen>
                 child: const Icon(Icons.link, color: Colors.purple),
               ),
               title: Text(
-                req['name'] ?? 'Unknown Library',
+                req['name'] ?? TranslationService.translate(context, 'unknown_library'),
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
               subtitle: Text(req['url'] ?? ''),
@@ -238,7 +239,7 @@ class _BorrowRequestsScreenState extends State<BorrowRequestsScreen>
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                     ),
                     onPressed: () => _updatePeerStatus(req['id'], 'active'),
-                    child: const Text('Accept'),
+                    child: Text(TranslationService.translate(context, 'btn_accept')),
                   ),
                   const SizedBox(width: 8),
                   OutlinedButton(
@@ -248,7 +249,7 @@ class _BorrowRequestsScreenState extends State<BorrowRequestsScreen>
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                     ),
                     onPressed: () => _updatePeerStatus(req['id'], 'rejected'),
-                    child: const Text('Reject'),
+                    child: Text(TranslationService.translate(context, 'btn_reject')),
                   ),
                 ],
               ),
@@ -290,13 +291,13 @@ class _BorrowRequestsScreenState extends State<BorrowRequestsScreen>
             ),
           ),
           title: Text(
-            req['book_title'] ?? 'Unknown Book',
+            req['book_title'] ?? TranslationService.translate(context, 'unknown_book'),
             style: const TextStyle(fontWeight: FontWeight.w600),
           ),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(isIncoming ? "From: ${req['peer_name']}" : "To: ${req['peer_name']}"),
+              Text(isIncoming ? "${TranslationService.translate(context, 'from')}: ${req['peer_name']}" : "${TranslationService.translate(context, 'to')}: ${req['peer_name']}"),
               const SizedBox(height: 4),
               _buildStatusText(req['status']),
             ],
@@ -335,7 +336,7 @@ class _BorrowRequestsScreenState extends State<BorrowRequestsScreen>
           children: [
             ElevatedButton.icon(
               icon: const Icon(Icons.check, size: 16),
-              label: const Text("Accept"),
+              label: Text(TranslationService.translate(context, 'btn_accept')),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
                 foregroundColor: Colors.white,
@@ -345,7 +346,7 @@ class _BorrowRequestsScreenState extends State<BorrowRequestsScreen>
             const SizedBox(width: 8),
             OutlinedButton.icon(
               icon: const Icon(Icons.close, size: 16),
-              label: const Text("Reject"),
+              label: Text(TranslationService.translate(context, 'btn_reject')),
               style: OutlinedButton.styleFrom(
                 foregroundColor: Colors.red,
                 side: const BorderSide(color: Colors.red),
@@ -357,7 +358,7 @@ class _BorrowRequestsScreenState extends State<BorrowRequestsScreen>
       } else if (status == 'accepted') {
         return ElevatedButton.icon(
           icon: const Icon(Icons.assignment_return, size: 16),
-          label: const Text("Mark Returned"),
+          label: Text(TranslationService.translate(context, 'btn_mark_returned')),
           onPressed: () => _updateStatus(id, 'returned'),
         );
       }
@@ -366,7 +367,7 @@ class _BorrowRequestsScreenState extends State<BorrowRequestsScreen>
       if (status == 'pending') {
         return OutlinedButton.icon(
           icon: const Icon(Icons.cancel, size: 16),
-          label: const Text("Cancel Request"),
+          label: Text(TranslationService.translate(context, 'btn_cancel_request')),
           style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
           onPressed: () => _deleteRequest(id, isOutgoing: true),
         );
@@ -377,7 +378,7 @@ class _BorrowRequestsScreenState extends State<BorrowRequestsScreen>
     if (['rejected', 'returned', 'cancelled'].contains(status)) {
        return TextButton.icon(
         icon: const Icon(Icons.delete_outline, size: 16),
-        label: const Text("Remove"),
+        label: Text(TranslationService.translate(context, 'btn_remove')),
         style: TextButton.styleFrom(foregroundColor: Colors.grey),
         onPressed: () => _deleteRequest(id, isOutgoing: !isIncoming),
       );

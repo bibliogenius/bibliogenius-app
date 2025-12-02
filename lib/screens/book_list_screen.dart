@@ -97,7 +97,7 @@ class _BookListScreenState extends State<BookListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: GenieAppBar(
-        title: _isSearching ? 'Search Books' : 'My Library',
+        title: _isSearching ? TranslationService.translate(context, 'search_books') : TranslationService.translate(context, 'my_library_title'),
         actions: [
           IconButton(
             icon: Icon(_isSearching ? Icons.close : Icons.search),
@@ -130,10 +130,10 @@ class _BookListScreenState extends State<BookListScreen> {
             ),
             IconButton(icon: const Icon(Icons.refresh), onPressed: _fetchBooks),
             IconButton(
-              icon: const Icon(Icons.search_outlined),
-              tooltip: 'Search Online',
+              icon: const Icon(Icons.public),
+              tooltip: TranslationService.translate(context, 'btn_search_online'),
               onPressed: () {
-                context.push('/external-search');
+                context.push('/search/external');
               },
             ),
           ],
@@ -213,7 +213,7 @@ class _BookListScreenState extends State<BookListScreen> {
                             children: [
                               ListTile(
                                 leading: const Icon(Icons.edit),
-                                title: const Text('Edit'),
+                                title: Text(TranslationService.translate(context, 'menu_edit')),
                                 onTap: () {
                                   Navigator.pop(context);
                                   _navigateToEditBook(book);
@@ -221,7 +221,7 @@ class _BookListScreenState extends State<BookListScreen> {
                               ),
                               ListTile(
                                 leading: const Icon(Icons.library_books),
-                                title: const Text('Manage Copies'),
+                                title: Text(TranslationService.translate(context, 'menu_manage_copies')),
                                 onTap: () {
                                   Navigator.pop(context);
                                   context.push(

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../services/auth_service.dart';
 import '../services/api_service.dart';
+import '../services/translation_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -61,7 +62,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login'),
+        title: Text(TranslationService.translate(context, 'login_title')),
         leading: IconButton(
           icon: const Icon(Icons.settings),
           tooltip: 'Server Settings',
@@ -146,13 +147,13 @@ class _LoginScreenState extends State<LoginScreen> {
                             style: ElevatedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 16),
                             ),
-                            child: const Text('Login'),
+                            child: Text(TranslationService.translate(context, 'login_btn')),
                           ),
                   ),
                   const SizedBox(height: 16),
                   TextButton(
                     onPressed: () => context.go('/setup'),
-                    child: const Text('New Server? Run Setup'),
+                    child: Text(TranslationService.translate(context, 'new_server_setup')),
                   ),
                 ],
               ),

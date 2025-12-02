@@ -4,8 +4,9 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:async';
 import '../services/api_service.dart';
+import '../services/translation_service.dart';
 import '../providers/theme_provider.dart';
-import 'add_peer_dialog.dart';
+
 
 class PeerListScreen extends StatefulWidget {
   const PeerListScreen({super.key});
@@ -74,18 +75,18 @@ class _PeerListScreenState extends State<PeerListScreen> {
         'type': isPro ? 'library' : 'borrower',
         'email': null,
         'phone': null,
-        'notes': 'Ajouté depuis le réseau (URL: ${peer['url']})',
+        'notes': '${TranslationService.translate(context, 'added_from_network')} (URL: ${peer['url']})',
       });
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${peer['name']} ajouté aux ${isPro ? "emprunteurs" : "contacts"}')),
+          SnackBar(content: Text('${peer['name']} ${isPro ? TranslationService.translate(context, 'added_to_borrowers') : TranslationService.translate(context, 'added_to_contacts')}')),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur lors de l\'ajout: $e')),
+          SnackBar(content: Text('${TranslationService.translate(context, 'error_adding')}: $e')),
         );
       }
     }
@@ -94,7 +95,7 @@ class _PeerListScreenState extends State<PeerListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const GenieAppBar(title: "Network Libraries"),
+      appBar: GenieAppBar(title: TranslationService.translate(context, 'network_libraries_title')),
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.push('/peers/search'),
         child: const Icon(Icons.add),
@@ -158,9 +159,9 @@ class _PeerListScreenState extends State<PeerListScreen> {
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(color: Colors.orange.withOpacity(0.3)),
                               ),
-                              child: const Text(
-                                'En attente',
-                                style: TextStyle(
+                              child: Text(
+                                TranslationService.translate(context, 'status_waiting'),
+                                style: const TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.orange,
@@ -173,7 +174,7 @@ class _PeerListScreenState extends State<PeerListScreen> {
                         padding: const EdgeInsets.only(top: 4),
                         child: Text(
                           isPending 
-                            ? '${peer['url']} • Demande envoyée' 
+                            ? '${peer['url']} • ${TranslationService.translate(context, 'request_sent')}' 
                             : peer['url'],
                           style: TextStyle(
                             color: Colors.grey[600],
@@ -184,7 +185,7 @@ class _PeerListScreenState extends State<PeerListScreen> {
                       trailing: isPending
                           ? IconButton(
                               icon: const Icon(Icons.cancel_outlined, color: Colors.orange),
-                              tooltip: 'Annuler la demande',
+                              tooltip: TranslationService.translate(context, 'tooltip_cancel_request'),
                               onPressed: () => _confirmDeletePeer(peer),
                             )
                           : Row(
@@ -192,23 +193,23 @@ class _PeerListScreenState extends State<PeerListScreen> {
                               children: [
                                 IconButton(
                                   icon: const Icon(Icons.sync, color: Colors.indigo),
-                                  tooltip: 'Sync Library',
+                                  tooltip: TranslationService.translate(context, 'tooltip_sync'),
                                   onPressed: () async {
                                     final api = Provider.of<ApiService>(context, listen: false);
                                     await api.syncPeer(peer['url']);
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Sync started')),
+                                      SnackBar(content: Text(TranslationService.translate(context, 'sync_started'))),
                                     );
                                   },
                                 ),
                                 IconButton(
                                 icon: const Icon(Icons.person_add_alt_1, color: Colors.green),
-                                tooltip: 'Ajouter aux contacts',
+                                tooltip: TranslationService.translate(context, 'tooltip_add_contact'),
                                 onPressed: () => _addToFriends(peer),
                               ),
                               IconButton(
                                 icon: const Icon(Icons.delete_outline, color: Colors.red),
-                                tooltip: 'Remove Library',
+                                tooltip: TranslationService.translate(context, 'tooltip_remove_library'),
                                 onPressed: () => _confirmDeletePeer(peer),
                               ),
                               ],
@@ -216,7 +217,7 @@ class _PeerListScreenState extends State<PeerListScreen> {
                       onTap: isPending 
                         ? () {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Cette bibliothèque n\'a pas encore accepté votre demande')),
+                              SnackBar(content: Text(TranslationService.translate(context, 'library_not_accepted'))),
                             );
                           }
                         : () {
@@ -230,67 +231,22 @@ class _PeerListScreenState extends State<PeerListScreen> {
     );
   }
 
-  void _showAddPeerDialog(BuildContext context) {
-    final nameController = TextEditingController();
-    final urlController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Add Network Library"),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(labelText: "Library Name"),
-            ),
-            TextField(
-              controller: urlController,
-              decoration: const InputDecoration(labelText: "Server URL (e.g. http://bibliogenius-b:8000)"),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel"),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              final api = Provider.of<ApiService>(context, listen: false);
-              try {
-                await api.connectPeer(nameController.text, urlController.text);
-                Navigator.pop(context);
-                _fetchPeers();
-              } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Error: $e')),
-                );
-              }
-            },
-            child: const Text("Add"),
-          ),
-        ],
-      ),
-    );
-  }
 
   Future<void> _confirmDeletePeer(Map<String, dynamic> peer) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Remove Library'),
-        content: Text('Are you sure you want to remove "${peer['name']}" from your network?'),
+        title: Text(TranslationService.translate(context, 'dialog_remove_library_title')),
+        content: Text(TranslationService.translate(context, 'dialog_remove_library_body')),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(TranslationService.translate(context, 'cancel')),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Remove'),
+            child: Text(TranslationService.translate(context, 'btn_remove')),
           ),
         ],
       ),
@@ -302,14 +258,14 @@ class _PeerListScreenState extends State<PeerListScreen> {
         await api.deletePeer(peer['id']);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Library removed successfully')),
+            SnackBar(content: Text(TranslationService.translate(context, 'library_removed'))),
           );
           _fetchPeers(); // Refresh the list
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error removing library: $e')),
+            SnackBar(content: Text('${TranslationService.translate(context, 'error_removing')}: $e')),
           );
         }
       }

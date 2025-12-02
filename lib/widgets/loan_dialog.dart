@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/contact.dart';
 import '../services/api_service.dart';
+import '../services/translation_service.dart';
 
 class LoanDialog extends StatefulWidget {
   const LoanDialog({super.key});
@@ -38,7 +39,7 @@ class _LoanDialogState extends State<LoanDialog> {
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading contacts: $e')),
+          SnackBar(content: Text('${TranslationService.translate(context, 'error_loading_contacts')}: $e')),
         );
       }
     }
@@ -47,24 +48,24 @@ class _LoanDialogState extends State<LoanDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Lend Book'),
+      title: Text(TranslationService.translate(context, 'lend_book_title')),
       content: _isLoading
           ? const SizedBox(
               height: 100,
               child: Center(child: CircularProgressIndicator()),
             )
           : _contacts.isEmpty
-              ? const Text('No borrowers found. Add a contact first.')
+              ? Text(TranslationService.translate(context, 'no_borrowers_found'))
               : Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text('Select a contact to lend this book to:'),
+                    Text(TranslationService.translate(context, 'select_contact_lend')),
                     const SizedBox(height: 16),
                     DropdownButtonFormField<Contact>(
                       value: _selectedContact,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
-                        labelText: 'Borrower',
+                        labelText: TranslationService.translate(context, 'filter_borrowers'),
                       ),
                       items: _contacts.map((contact) {
                         return DropdownMenuItem(
@@ -83,13 +84,13 @@ class _LoanDialogState extends State<LoanDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(TranslationService.translate(context, 'cancel')),
         ),
         ElevatedButton(
           onPressed: _selectedContact == null
               ? null
               : () => Navigator.pop(context, _selectedContact),
-          child: const Text('Lend'),
+          child: Text(TranslationService.translate(context, 'lend_btn')),
         ),
       ],
     );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../services/translation_service.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
@@ -17,24 +18,24 @@ class AppDrawer extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Text(
-                  'BiblioGenius',
-                  style: TextStyle(
+                  TranslationService.translate(context, 'app_title'),
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(
-                  'Smart Library Manager',
-                  style: TextStyle(color: Colors.white70, fontSize: 14),
+                  TranslationService.translate(context, 'app_subtitle'),
+                  style: const TextStyle(color: Colors.white70, fontSize: 14),
                 ),
               ],
             ),
           ),
           ListTile(
             leading: const Icon(Icons.dashboard),
-            title: const Text('Dashboard'),
+            title: Text(TranslationService.translate(context, 'nav_dashboard')),
             onTap: () {
               Navigator.pop(context);
               context.go('/dashboard');
@@ -42,7 +43,7 @@ class AppDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.book),
-            title: const Text('My Library'),
+            title: Text(TranslationService.translate(context, 'nav_my_library')),
             onTap: () {
               Navigator.pop(context);
               context.go('/books');
@@ -50,7 +51,7 @@ class AppDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.contacts),
-            title: const Text('Contacts'),
+            title: Text(TranslationService.translate(context, 'nav_contacts')),
             onTap: () {
               Navigator.pop(context);
               context.go('/contacts');
@@ -59,7 +60,7 @@ class AppDrawer extends StatelessWidget {
           const Divider(),
           ListTile(
             leading: const Icon(Icons.link),
-            title: const Text('P2P Connection'),
+            title: Text(TranslationService.translate(context, 'nav_p2p')),
             onTap: () {
               Navigator.pop(context);
               context.go('/p2p');
@@ -67,7 +68,7 @@ class AppDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.cloud_sync),
-            title: const Text('Network Libraries'),
+            title: Text(TranslationService.translate(context, 'nav_network')),
             onTap: () {
               Navigator.pop(context);
               context.go('/peers');
@@ -75,7 +76,7 @@ class AppDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.swap_horiz),
-            title: const Text('Borrow Requests'),
+            title: Text(TranslationService.translate(context, 'nav_requests')),
             onTap: () {
               Navigator.pop(context);
               context.go('/requests');
@@ -84,7 +85,7 @@ class AppDrawer extends StatelessWidget {
           const Divider(),
           ListTile(
             leading: const Icon(Icons.person),
-            title: const Text('My Profile'),
+            title: Text(TranslationService.translate(context, 'nav_profile')),
             onTap: () {
               Navigator.pop(context);
               context.go('/profile');

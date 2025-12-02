@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../services/api_service.dart';
+import '../services/translation_service.dart';
 import '../providers/theme_provider.dart';
 import '../utils/book_status.dart';
 import '../services/open_library_service.dart';
@@ -87,7 +88,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
           if (_summaryController.text.isEmpty) _summaryController.text = bookData['summary'] ?? '';
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Book details found!')),
+          SnackBar(content: Text(TranslationService.translate(context, 'book_details_found'))),
         );
       }
     } catch (e) {
@@ -133,14 +134,14 @@ class _EditBookScreenState extends State<EditBookScreen> {
           _isEditing = false; // Return to view mode
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Book updated successfully')),
+          SnackBar(content: Text(TranslationService.translate(context, 'book_updated'))),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Error updating book: $e')));
+        ).showSnackBar(SnackBar(content: Text('${TranslationService.translate(context, 'error_updating_book')}: $e')));
         setState(() => _isSaving = false);
       }
     }
@@ -150,16 +151,16 @@ class _EditBookScreenState extends State<EditBookScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Book'),
-        content: const Text('Are you sure you want to delete this book?'),
+        title: Text(TranslationService.translate(context, 'delete_book_title')),
+        content: Text(TranslationService.translate(context, 'delete_book_confirm')),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(TranslationService.translate(context, 'cancel')),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            child: Text(TranslationService.translate(context, 'delete_book_btn'), style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -178,7 +179,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error deleting book: $e')),
+          SnackBar(content: Text('${TranslationService.translate(context, 'error_deleting_book')}: $e')),
         );
         setState(() => _isSaving = false);
       }
@@ -279,7 +280,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   _buildStatusChip(widget.book.readingStatus),
                   const SizedBox(height: 30),
                   Text(
-                    "Summary",
+                    TranslationService.translate(context, 'summary_label'),
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                       fontSize: 22,
@@ -287,7 +288,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    widget.book.summary ?? "No summary available.",
+                    widget.book.summary ?? TranslationService.translate(context, 'no_summary'),
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       fontSize: 18,
                       height: 1.6,
@@ -312,7 +313,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: widget.book.readingStatus == 'borrowed' ? null : () => _lendBook(context),
         backgroundColor: widget.book.readingStatus == 'borrowed' ? Colors.grey : null,
-        label: Text(widget.book.readingStatus == 'borrowed' ? "Borrowed" : "Lend Book"),
+        label: Text(widget.book.readingStatus == 'borrowed' ? TranslationService.translate(context, 'borrowed_label') : TranslationService.translate(context, 'lend_book_label')),
         icon: const Icon(Icons.send),
       ),
     );
@@ -335,16 +336,16 @@ class _EditBookScreenState extends State<EditBookScreen> {
              final createConfirm = await showDialog<bool>(
                context: context,
                builder: (context) => AlertDialog(
-                 title: const Text('No Copies Found'),
-                 content: const Text('This book has no copies. Create a new copy to lend?'),
+                 title: Text(TranslationService.translate(context, 'no_copies_title')),
+                 content: Text(TranslationService.translate(context, 'no_copies_confirm')),
                  actions: [
                    TextButton(
                      onPressed: () => Navigator.pop(context, false),
-                     child: const Text('Cancel'),
+                     child: Text(TranslationService.translate(context, 'cancel')),
                    ),
                    TextButton(
                      onPressed: () => Navigator.pop(context, true),
-                     child: const Text('Create & Lend'),
+                     child: Text(TranslationService.translate(context, 'create_lend_btn')),
                    ),
                  ],
                ),
@@ -369,7 +370,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                } else {
                  if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Failed to create copy.')),
+                      SnackBar(content: Text(TranslationService.translate(context, 'failed_create_copy'))),
                     );
                  }
                  return;
@@ -380,7 +381,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
           } else {
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('All copies are currently lent out.')),
+                SnackBar(content: Text(TranslationService.translate(context, 'all_copies_lent'))),
               );
             }
             return;
@@ -413,7 +414,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
         
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Book lent to ${contact.name}')),
+            SnackBar(content: Text('${TranslationService.translate(context, 'book_lent_to')} ${contact.name}')),
           );
           // Refresh book status if needed
           setState(() {
@@ -424,7 +425,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error lending book: $e')),
+          SnackBar(content: Text('${TranslationService.translate(context, 'error_lending_book')}: $e')),
         );
       }
     }
@@ -436,23 +437,23 @@ class _EditBookScreenState extends State<EditBookScreen> {
     switch (status) {
       case 'reading':
         color = Colors.blue;
-        label = 'Currently Reading';
+        label = TranslationService.translate(context, 'currently_reading');
         break;
       case 'read':
         color = Colors.green;
-        label = 'Read';
+        label = TranslationService.translate(context, 'read_status');
         break;
       case 'wanted':
         color = Colors.orange;
-        label = 'Wishlist';
+        label = TranslationService.translate(context, 'wishlist_status');
         break;
       case 'borrowed':
         color = Colors.purple;
-        label = 'Borrowed';
+        label = TranslationService.translate(context, 'borrowed_label');
         break;
       default:
         color = Colors.grey;
-        label = 'To Read';
+        label = TranslationService.translate(context, 'to_read_status');
     }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -471,7 +472,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
   Widget _buildEditMode() {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Book'),
+        title: Text(TranslationService.translate(context, 'edit_book_title')),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => setState(() => _isEditing = false),
@@ -488,7 +489,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 Icon(Icons.edit_note, size: 32, color: Theme.of(context).primaryColor),
                 const SizedBox(width: 12),
                 Text(
-                  'Edit Book Details',
+                  TranslationService.translate(context, 'edit_book_details'),
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Colors.black87,
@@ -499,7 +500,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
             const Divider(height: 32),
 
             // Title
-            _buildLabel('Title *'),
+            _buildLabel(TranslationService.translate(context, 'title_label')),
             LayoutBuilder(
               builder: (context, constraints) {
                 return RawAutocomplete<OpenLibraryBook>(
@@ -523,11 +524,11 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       controller: textEditingController,
                       focusNode: focusNode,
                       decoration: _buildInputDecoration(
-                        hint: 'Enter book title',
+                        hint: TranslationService.translate(context, 'enter_book_title'),
                         suffixIcon: const Icon(Icons.search),
                       ),
                       validator: (value) => value == null || value.isEmpty
-                          ? 'Please enter a title'
+                          ? TranslationService.translate(context, 'enter_title_error')
                           : null,
                     );
                   },
@@ -564,11 +565,11 @@ class _EditBookScreenState extends State<EditBookScreen> {
             const SizedBox(height: 24),
 
             // ISBN
-            _buildLabel('ISBN'),
+            _buildLabel(TranslationService.translate(context, 'isbn_label')),
             TextFormField(
               controller: _isbnController,
               decoration: _buildInputDecoration(
-                hint: 'Enter ISBN',
+                hint: TranslationService.translate(context, 'enter_isbn'),
                 suffixIcon: _isFetchingDetails
                     ? const Padding(
                         padding: EdgeInsets.all(12.0),
@@ -591,10 +592,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildLabel('Publisher'),
+                      _buildLabel(TranslationService.translate(context, 'publisher_label')),
                       TextFormField(
                         controller: _publisherController,
-                        decoration: _buildInputDecoration(hint: 'Publisher name'),
+                        decoration: _buildInputDecoration(hint: TranslationService.translate(context, 'publisher_hint')),
                       ),
                     ],
                   ),
@@ -604,10 +605,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildLabel('Year'),
+                      _buildLabel(TranslationService.translate(context, 'year_label')),
                       TextFormField(
                         controller: _yearController,
-                        decoration: _buildInputDecoration(hint: 'YYYY'),
+                        decoration: _buildInputDecoration(hint: TranslationService.translate(context, 'year_hint')),
                         keyboardType: TextInputType.number,
                       ),
                     ],
@@ -618,21 +619,21 @@ class _EditBookScreenState extends State<EditBookScreen> {
             const SizedBox(height: 24),
 
             // Summary
-            _buildLabel('Summary'),
+            _buildLabel(TranslationService.translate(context, 'summary_label')),
             TextFormField(
               controller: _summaryController,
-              decoration: _buildInputDecoration(hint: 'Brief summary of the book'),
+              decoration: _buildInputDecoration(hint: TranslationService.translate(context, 'summary_hint')),
               maxLines: 4,
             ),
             const SizedBox(height: 24),
 
             // Status
-            _buildLabel('Status'),
+            _buildLabel(TranslationService.translate(context, 'status_label')),
             Builder(
               builder: (context) {
                 final themeProvider = Provider.of<ThemeProvider>(context);
                 final isLibrarian = themeProvider.isLibrarian;
-                final statusOptions = getStatusOptions(isLibrarian);
+                final statusOptions = getStatusOptions(context, isLibrarian);
                 
                 return DropdownButtonFormField<String>(
                   value: _readingStatus,
@@ -667,7 +668,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 icon: _isSaving
                     ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                     : const Icon(Icons.save),
-                label: Text(_isSaving ? 'Saving Changes...' : 'Save Changes'),
+                label: Text(_isSaving ? TranslationService.translate(context, 'saving_changes') : TranslationService.translate(context, 'save_changes')),
                 style: ElevatedButton.styleFrom(
                   textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -682,7 +683,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
               child: OutlinedButton.icon(
                 onPressed: _isSaving ? null : _deleteBook,
                 icon: const Icon(Icons.delete, color: Colors.red),
-                label: const Text('Delete Book', style: TextStyle(color: Colors.red)),
+                label: Text(TranslationService.translate(context, 'delete_book_btn'), style: const TextStyle(color: Colors.red)),
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: Colors.red),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),

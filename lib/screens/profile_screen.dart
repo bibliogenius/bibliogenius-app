@@ -61,7 +61,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Preparing backup...')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(TranslationService.translate(context, 'preparing_backup'))));
 
       final apiService = Provider.of<ApiService>(context, listen: false);
       final response = await apiService.exportData();
@@ -78,7 +80,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     } catch (e) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Export failed: $e')));
+      ).showSnackBar(SnackBar(content: Text('${TranslationService.translate(context, 'export_fail')}: $e')));
     }
   }
 
@@ -89,13 +91,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-          ? Center(child: Text('Error: $_error'))
+          ? Center(child: Text('${TranslationService.translate(context, 'error')}: $_error'))
           : _buildBody(),
     );
   }
 
   Widget _buildBody() {
-    if (_userStatus == null) return const Center(child: Text('No data'));
+    if (_userStatus == null) return Center(child: Text(TranslationService.translate(context, 'no_data')));
 
     final level = _userStatus!['level'] as String;
     final loansCount = _userStatus!['loans_count'] as int;
@@ -246,13 +248,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         _fetchStatus(); // Refresh to get updated config (including side effects)
                         if (mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Profile type updated')),
+                            SnackBar(content: Text(TranslationService.translate(context, 'profile_updated'))),
                           );
                         }
                       } catch (e) {
                         if (mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Failed to update profile: $e')),
+                            SnackBar(content: Text('${TranslationService.translate(context, 'error_updating_profile')}: $e')),
                           );
                         }
                       }
@@ -278,7 +280,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       } catch (e) {
                         if (mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Failed to update setting: $e')),
+                            SnackBar(content: Text('${TranslationService.translate(context, 'error_updating_setting')}: $e')),
                           );
                         }
                       }
@@ -315,7 +317,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 if (result != null && result.files.single.path != null) {
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Importing books...')),
+                      SnackBar(content: Text(TranslationService.translate(context, 'importing_books'))),
                     );
                   }
 
@@ -342,7 +344,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
-                            'Import failed: ${response.data['error']}',
+                            '${TranslationService.translate(context, 'import_fail')}: ${response.data['error']}',
                           ),
                           backgroundColor: Colors.red,
                         ),
@@ -354,7 +356,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Error picking file: $e'),
+                      content: Text('${TranslationService.translate(context, 'error_picking_file')}: $e'),
                       backgroundColor: Colors.red,
                     ),
                   );
@@ -511,13 +513,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             if (context.mounted) {
                               Navigator.pop(context);
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Avatar updated successfully!')),
+                                SnackBar(content: Text(TranslationService.translate(context, 'avatar_updated'))),
                               );
                             }
                           } catch (e) {
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Error saving avatar: $e')),
+                                SnackBar(content: Text('${TranslationService.translate(context, 'error_saving_avatar')}: $e')),
                               );
                             }
                           }

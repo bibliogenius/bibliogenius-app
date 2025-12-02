@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../services/api_service.dart';
+import '../services/translation_service.dart';
 
 class AddContactScreen extends StatefulWidget {
   const AddContactScreen({super.key});
@@ -56,7 +57,7 @@ class _AddContactScreenState extends State<AddContactScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Contact created successfully')),
+          SnackBar(content: Text(TranslationService.translate(context, 'contact_created'))),
         );
         context.pop();
       }
@@ -65,7 +66,7 @@ class _AddContactScreenState extends State<AddContactScreen> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Error creating contact: $e')));
+        ).showSnackBar(SnackBar(content: Text('${TranslationService.translate(context, 'error_creating_contact')}: $e')));
       }
     }
   }
@@ -73,7 +74,7 @@ class _AddContactScreenState extends State<AddContactScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Add Contact')),
+      appBar: AppBar(title: Text(TranslationService.translate(context, 'add_contact_title'))),
       body: Form(
         key: _formKey,
         child: ListView(
@@ -86,9 +87,9 @@ class _AddContactScreenState extends State<AddContactScreen> {
                 border: OutlineInputBorder(),
               ),
               items: const [
-                DropdownMenuItem(value: 'borrower', child: Text('Borrower')),
-                DropdownMenuItem(value: 'library', child: Text('Library')),
-                DropdownMenuItem(value: 'user', child: Text('User')),
+                DropdownMenuItem(value: 'borrower', child: Text(TranslationService.translate(context, 'role_borrower'))),
+                DropdownMenuItem(value: 'library', child: Text(TranslationService.translate(context, 'role_library'))),
+                DropdownMenuItem(value: 'user', child: Text(TranslationService.translate(context, 'role_user'))),
               ],
               onChanged: (value) {
                 setState(() => _type = value!);
@@ -161,7 +162,7 @@ class _AddContactScreenState extends State<AddContactScreen> {
                       width: 20,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text('Save Contact'),
+                  : Text(TranslationService.translate(context, 'save_contact')),
             ),
           ],
         ),
