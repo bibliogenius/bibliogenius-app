@@ -63,17 +63,6 @@ class AppDrawer extends StatelessWidget {
               context.go('/contacts');
             },
           ),
-          const Divider(),
-          // Hide P2P Setup for kids, they likely just use the network
-          if (!isKid)
-          ListTile(
-            leading: const Icon(Icons.link),
-            title: Text(TranslationService.translate(context, 'nav_p2p')),
-            onTap: () {
-              Navigator.pop(context);
-              context.go('/p2p');
-            },
-          ),
           ListTile(
             leading: const Icon(Icons.cloud_sync),
             title: Text(TranslationService.translate(context, 'nav_network')),
@@ -90,6 +79,16 @@ class AppDrawer extends StatelessWidget {
               context.go('/requests');
             },
           ),
+          // Hide P2P Setup for kids, they likely just use the network
+          if (!isKid)
+          ListTile(
+            leading: const Icon(Icons.link),
+            title: Text(TranslationService.translate(context, 'nav_p2p_connect')),
+            onTap: () {
+              Navigator.pop(context);
+              context.go('/p2p');
+            },
+          ),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.person),
@@ -97,6 +96,14 @@ class AppDrawer extends StatelessWidget {
             onTap: () {
               Navigator.pop(context);
               context.go('/profile');
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.help_outline),
+            title: Text(TranslationService.translate(context, 'nav_help')),
+            onTap: () {
+              Navigator.pop(context);
+              context.go('/help');
             },
           ),
           const Divider(),

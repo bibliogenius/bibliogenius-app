@@ -371,15 +371,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             _buildActionButton(
                               context,
                               TranslationService.translate(context, 'action_checkout_book'),
-                              Icons.upload_file, // Icon for checkout/loan
-                              () => context.push('/books'), // Navigate to books to select one
-                              isPrimary: true,
-                            ),
-                            _buildActionButton(
-                              context,
-                              TranslationService.translate(context, 'action_search_remote'),
-                              Icons.search,
-                              () => context.push('/peers'), // Navigate to peers to search
+                              Icons.upload_file,
+                              () => context.push('/network-search'),
                               isPrimary: true,
                             ),
                             _buildActionButton(

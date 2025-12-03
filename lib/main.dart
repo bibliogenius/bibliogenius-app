@@ -29,6 +29,8 @@ import 'screens/peer_book_list_screen.dart';
 import 'screens/search_peer_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/statistics_screen.dart';
+import 'screens/help_screen.dart';
+import 'screens/network_search_screen.dart';
 import 'widgets/scaffold_with_nav.dart';
 
 void main() async {
@@ -200,6 +202,14 @@ class AppRouter extends StatelessWidget {
             GoRoute(
               path: '/statistics',
               builder: (context, state) => const StatisticsScreen(),
+            ),
+            GoRoute(
+              path: '/help',
+              builder: (context, state) => const HelpScreen(),
+            ),
+            GoRoute(
+              path: '/network-search',
+              builder: (context, state) => const NetworkSearchScreen(),
             ),
           ],
         ),

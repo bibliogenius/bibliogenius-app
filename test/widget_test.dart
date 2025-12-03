@@ -7,6 +7,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'package:app/main.dart';
 import 'package:app/providers/theme_provider.dart';
@@ -23,18 +24,18 @@ class TestHttpOverrides extends HttpOverrides {
 }
 
 void main() {
-  setUpAll(() {
+  setUpAll(() async {
     HttpOverrides.global = TestHttpOverrides();
+    await dotenv.load(fileName: ".env");
   });
 
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
+  testWidgets('App smoke test', (WidgetTester tester) async {
     await mockNetworkImagesFor(() async {
       // Build our app and trigger a frame.
       await tester.pumpWidget(MyApp(themeProvider: ThemeProvider()));
+      await tester.pumpAndSettle();
 
-      // Verify that our counter starts at 0.
-      // Note: The default app template has a counter, but our app might not.
-      // We should check if the app starts successfully instead.
+      // Verify that our app starts
       expect(find.byType(MaterialApp), findsOneWidget);
     });
   });

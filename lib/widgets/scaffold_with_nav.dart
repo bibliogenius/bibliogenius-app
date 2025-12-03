@@ -34,10 +34,6 @@ class ScaffoldWithNav extends StatelessWidget {
                   label: Text(TranslationService.translate(context, 'contacts')),
                 ),
                 NavigationRailDestination(
-                  icon: Icon(Icons.link),
-                  label: Text(TranslationService.translate(context, 'p2p')),
-                ),
-                NavigationRailDestination(
                   icon: Icon(Icons.cloud_sync),
                   label: Text(TranslationService.translate(context, 'network')),
                 ),
@@ -46,8 +42,16 @@ class ScaffoldWithNav extends StatelessWidget {
                   label: Text(TranslationService.translate(context, 'requests')),
                 ),
                 NavigationRailDestination(
+                  icon: Icon(Icons.link),
+                  label: Text(TranslationService.translate(context, 'nav_p2p_connect')),
+                ),
+                NavigationRailDestination(
                   icon: Icon(Icons.person),
                   label: Text(TranslationService.translate(context, 'profile')),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.help_outline),
+                  label: Text(TranslationService.translate(context, 'nav_help')),
                 ),
               ],
             ),
@@ -74,10 +78,6 @@ class ScaffoldWithNav extends StatelessWidget {
                   label: TranslationService.translate(context, 'contacts'),
                 ),
                 NavigationDestination(
-                  icon: Icon(Icons.link),
-                  label: TranslationService.translate(context, 'p2p'),
-                ),
-                NavigationDestination(
                   icon: Icon(Icons.cloud_sync),
                   label: TranslationService.translate(context, 'network'),
                 ),
@@ -86,8 +86,16 @@ class ScaffoldWithNav extends StatelessWidget {
                   label: TranslationService.translate(context, 'requests'),
                 ),
                 NavigationDestination(
+                  icon: Icon(Icons.link),
+                  label: TranslationService.translate(context, 'nav_p2p_connect'),
+                ),
+                NavigationDestination(
                   icon: Icon(Icons.person),
                   label: TranslationService.translate(context, 'profile'),
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.help_outline),
+                  label: TranslationService.translate(context, 'nav_help'),
                 ),
               ],
             ),
@@ -99,10 +107,11 @@ class ScaffoldWithNav extends StatelessWidget {
     if (location.startsWith('/dashboard')) return 0;
     if (location.startsWith('/books')) return 1;
     if (location.startsWith('/contacts')) return 2;
-    if (location.startsWith('/p2p')) return 3;
-    if (location.startsWith('/peers')) return 4;
-    if (location.startsWith('/requests')) return 5;
+    if (location.startsWith('/peers')) return 3;
+    if (location.startsWith('/requests')) return 4;
+    if (location.startsWith('/p2p')) return 5;
     if (location.startsWith('/profile')) return 6;
+    if (location.startsWith('/help')) return 7;
     return 0;
   }
 
@@ -118,16 +127,19 @@ class ScaffoldWithNav extends StatelessWidget {
         context.go('/contacts');
         break;
       case 3:
-        context.go('/p2p');
-        break;
-      case 4:
         context.go('/peers');
         break;
-      case 5:
+      case 4:
         context.go('/requests');
+        break;
+      case 5:
+        context.go('/p2p');
         break;
       case 6:
         context.go('/profile');
+        break;
+      case 7:
+        context.go('/help');
         break;
     }
   }

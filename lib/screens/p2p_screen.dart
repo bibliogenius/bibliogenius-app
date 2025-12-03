@@ -129,7 +129,7 @@ class _P2PScreenState extends State<P2PScreen>
   @override
   Widget build(BuildContext context) {
     final isKid = Provider.of<ThemeProvider>(context).isKid;
-    final title = isKid ? 'Friends\' Libraries' : TranslationService.translate(context, 'p2p_title');
+    final title = isKid ? TranslationService.translate(context, 'friends_libraries_title') : TranslationService.translate(context, 'p2p_title');
 
     return Scaffold(
       appBar: GenieAppBar(

@@ -406,7 +406,6 @@ class _EditBookScreenState extends State<EditBookScreen> {
           'copy_id': copyId,
           'contact_id': contact.id,
           'loan_date': DateTime.now().toIso8601String(),
-          'library_id': 1, // TODO: Get from auth
           'status': 'active',
         };
 

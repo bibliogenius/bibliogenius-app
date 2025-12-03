@@ -82,9 +82,9 @@ class _AddContactScreenState extends State<AddContactScreen> {
           children: [
             DropdownButtonFormField<String>(
               initialValue: _type,
-              decoration: const InputDecoration(
-                labelText: 'Type',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: TranslationService.translate(context, 'contact_type_label'),
+                border: const OutlineInputBorder(),
               ),
               items: [
                 DropdownMenuItem(value: 'borrower', child: Text(TranslationService.translate(context, 'role_borrower'))),
@@ -97,13 +97,13 @@ class _AddContactScreenState extends State<AddContactScreen> {
             const SizedBox(height: 16),
             TextFormField(
               controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Name *',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: TranslationService.translate(context, 'contact_name_label'),
+                border: const OutlineInputBorder(),
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter a name';
+                  return TranslationService.translate(context, 'contact_name_required');
                 }
                 return null;
               },
@@ -111,15 +111,15 @@ class _AddContactScreenState extends State<AddContactScreen> {
             const SizedBox(height: 16),
             TextFormField(
               controller: _emailController,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: TranslationService.translate(context, 'contact_email_label'),
+                border: const OutlineInputBorder(),
               ),
               keyboardType: TextInputType.emailAddress,
               validator: (value) {
                 if (value != null && value.isNotEmpty) {
                   if (!value.contains('@')) {
-                    return 'Please enter a valid email';
+                    return TranslationService.translate(context, 'contact_email_invalid');
                   }
                 }
                 return null;
@@ -128,27 +128,27 @@ class _AddContactScreenState extends State<AddContactScreen> {
             const SizedBox(height: 16),
             TextFormField(
               controller: _phoneController,
-              decoration: const InputDecoration(
-                labelText: 'Phone',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: TranslationService.translate(context, 'contact_phone_label'),
+                border: const OutlineInputBorder(),
               ),
               keyboardType: TextInputType.phone,
             ),
             const SizedBox(height: 16),
             TextFormField(
               controller: _addressController,
-              decoration: const InputDecoration(
-                labelText: 'Address',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: TranslationService.translate(context, 'contact_address_label'),
+                border: const OutlineInputBorder(),
               ),
               maxLines: 2,
             ),
             const SizedBox(height: 16),
             TextFormField(
               controller: _notesController,
-              decoration: const InputDecoration(
-                labelText: 'Notes',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: TranslationService.translate(context, 'contact_notes_label'),
+                border: const OutlineInputBorder(),
               ),
               maxLines: 3,
             ),
