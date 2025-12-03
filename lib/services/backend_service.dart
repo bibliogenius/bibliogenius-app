@@ -110,13 +110,15 @@ class BackendService {
   /// Get the path to the bundled backend binary
   Future<String> _getBackendBinaryPath() async {
     if (Platform.isMacOS) {
-      // In bundled app: BiblioGenius.app/Contents/Resources/backend/bibliogenius
-      // In development: just use docker-compose for now
+      // In bundled app: BiblioGenius.app/Contents/MacOS/BiblioGenius (executable)
+      // Backend is in: BiblioGenius.app/Contents/Resources/backend/bibliogenius
       
-      // TODO: Detect if we're in a bundled app or development
-      // For now, return placeholder path
       final executableDir = File(Platform.resolvedExecutable).parent.path;
-      final backendPath = path.join(executableDir, 'Resources', 'backend', 'bibliogenius');
+      // Go up one level from MacOS to Contents, then down to Resources
+      final backendPath = path.join(executableDir, '..', 'Resources', 'backend', 'bibliogenius');
+      final absoluteBackendPath = path.normalize(backendPath);
+      
+      debugPrint('Resolved backend path: $absoluteBackendPath');
       
       if (!await File(backendPath).exists()) {
         throw Exception(
