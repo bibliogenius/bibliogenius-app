@@ -27,7 +27,8 @@ class BackendService {
       debugPrint('Starting backend from: $backendPath');
 
       // Set environment variables
-      final env = {
+      // Set environment variables
+      final Map<String, String> env = {
         'PORT': '8001', // Preferred port (will auto-detect if taken)
         'DATABASE_URL': await _getDatabasePath(),
         'HUB_URL': 'http://localhost:8081', // Optional Hub
@@ -75,7 +76,105 @@ class BackendService {
     }
   }
 
-  // ... (stop method remains same)
+  /// Stop the backend process gracefully
+  Future<void> stop() async {
+    if (!_isRunning || _process == null) {
+      return;
+    }
+
+    debugPrint('Stopping backend...');
+
+    // Stop health check
+    _healthCheckTimer?.cancel();
+
+    try {
+      // Send SIGTERM for graceful shutdown
+      _process!.kill(ProcessSignal.sigterm);
+
+      // Wait for exit (with timeout)
+      await _process!.exitCode.timeout(
+        const Duration(seconds: 5),
+        onTimeout: () {
+          debugPrint('Backend did not stop gracefully, forcing kill');
+          _process!.kill(ProcessSignal.sigkill);
+          return _process!.exitCode;
+        },
+      );
+
+      debugPrint('Backend stopped');
+    } catch (e) {
+      debugPrint('Error stopping backend: $e');
+    } finally {
+      _process = null;
+      _port = null;
+      _isRunning = false;
+    }
+  }
+
+  /// Restart the backend
+  Future<void> restart() async {
+    await stop();
+    await Future.delayed(const Duration(seconds: 1));
+    await start();
+  }
+
+  /// Get the path to the bundled backend binary
+  Future<String> _getBackendBinaryPath() async {
+    if (Platform.isMacOS) {
+      // In bundled app: BiblioGenius.app/Contents/MacOS/BiblioGenius (executable)
+      // Backend is in: BiblioGenius.app/Contents/Resources/backend/bibliogenius
+      
+      final executableDir = File(Platform.resolvedExecutable).parent.path;
+      // Go up one level from MacOS to Contents, then down to Resources
+      final backendPath = path.join(executableDir, '..', 'Resources', 'backend', 'bibliogenius');
+      final absoluteBackendPath = path.normalize(backendPath);
+      
+      debugPrint('Resolved backend path: $absoluteBackendPath');
+      
+      if (!await File(backendPath).exists()) {
+        throw Exception(
+          'Backend binary not found at $backendPath. '
+          'Make sure to bundle the Rust backend in the app.',
+        );
+      }
+      
+      return backendPath;
+    } else {
+      throw UnsupportedError('Backend bundling only supported on macOS for now');
+    }
+  }
+
+  /// Get the database path
+  Future<String> _getDatabasePath() async {
+    if (Platform.isMacOS) {
+      // ~/Library/Application Support/BiblioGenius/bibliogenius.db
+      final home = Platform.environment['HOME']!;
+      final appSupport = path.join(home, 'Library', 'Application Support', 'BiblioGenius');
+      
+      // Create directory if it doesn't exist
+      await Directory(appSupport).create(recursive: true);
+      
+      return 'sqlite://${path.join(appSupport, 'bibliogenius.db')}?mode=rwc';
+    } else if (Platform.isLinux) {
+      // ~/.local/share/bibliogenius/bibliogenius.db
+      final home = Platform.environment['HOME']!;
+      final dataDir = path.join(home, '.local', 'share', 'bibliogenius');
+      
+      await Directory(dataDir).create(recursive: true);
+      
+      return 'sqlite://${path.join(dataDir, 'bibliogenius.db')}?mode=rwc';
+    } else if (Platform.isWindows) {
+      // %LOCALAPPDATA%\BiblioGenius\bibliogenius.db
+      final appData = Platform.environment['LOCALAPPDATA']!;
+      final dataDir = path.join(appData, 'BiblioGenius');
+      
+      await Directory(dataDir).create(recursive: true);
+      
+      return 'sqlite://${path.join(dataDir, 'bibliogenius.db')}?mode=rwc';
+    } else {
+      throw UnsupportedError('Unsupported platform: ${Platform.operatingSystem}');
+    }
+  }
 
   /// Wait for the backend to write the port file
   Future<void> _waitForPort({int maxAttempts = 100}) async { // Increased to 10s (100 * 100ms)
