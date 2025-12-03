@@ -1,15 +1,15 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'auth_service.dart';
 
 class ApiService {
   final Dio _dio;
   final AuthService _authService;
-  // Use localhost for Web/Desktop
-  // Use 10.0.2.2 for Android Emulator
-  // Use your machine's IP for real device
-  static const String defaultBaseUrl = 'http://localhost:8001';
-  static const String hubUrl = 'http://localhost:8081';
+  
+  // Read from .env with fallback to localhost
+  static String get defaultBaseUrl => dotenv.env['API_BASE_URL'] ?? 'http://localhost:8001';
+  static String get hubUrl => dotenv.env['HUB_URL'] ?? 'http://localhost:8081';
 
   ApiService(this._authService, {String? baseUrl, Dio? dio}) : _dio = dio ?? Dio() {
     _dio.options.baseUrl = baseUrl ?? defaultBaseUrl;
