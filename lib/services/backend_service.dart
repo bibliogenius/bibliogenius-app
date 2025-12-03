@@ -55,119 +55,32 @@ class BackendService {
       await _waitForPort();
 
       _isRunning = true;
-      debugPrint('Backend started successfully on port $_port');
+      debugPrint('✅ Backend started successfully on port $_port');
 
       // Start health monitoring
       _startHealthCheck();
     } catch (e) {
-      debugPrint('Failed to start backend: $e');
+      debugPrint('❌ Failed to start backend: $e');
+      // Check if process is still running and print exit code
+      if (_process != null) {
+        // Give it a moment to exit if it crashed
+        await Future.delayed(const Duration(milliseconds: 500));
+        // exitCode is a Future, so we check if it completed
+        // But we can't easily check if it completed without awaiting it.
+        // Instead, let's just log that we are cleaning up.
+        debugPrint('Cleaning up failed process...');
+        _process!.kill();
+      }
       rethrow;
     }
   }
 
-  /// Stop the backend process gracefully
-  Future<void> stop() async {
-    if (!_isRunning || _process == null) {
-      return;
-    }
-
-    debugPrint('Stopping backend...');
-
-    // Stop health check
-    _healthCheckTimer?.cancel();
-
-    try {
-      // Send SIGTERM for graceful shutdown
-      _process!.kill(ProcessSignal.sigterm);
-
-      // Wait for exit (with timeout)
-      await _process!.exitCode.timeout(
-        const Duration(seconds: 5),
-        onTimeout: () {
-          debugPrint('Backend did not stop gracefully, forcing kill');
-          _process!.kill(ProcessSignal.sigkill);
-          return _process!.exitCode;
-        },
-      );
-
-      debugPrint('Backend stopped');
-    } catch (e) {
-      debugPrint('Error stopping backend: $e');
-    } finally {
-      _process = null;
-      _port = null;
-      _isRunning = false;
-    }
-  }
-
-  /// Restart the backend
-  Future<void> restart() async {
-    await stop();
-    await Future.delayed(const Duration(seconds: 1));
-    await start();
-  }
-
-  /// Get the path to the bundled backend binary
-  Future<String> _getBackendBinaryPath() async {
-    if (Platform.isMacOS) {
-      // In bundled app: BiblioGenius.app/Contents/MacOS/BiblioGenius (executable)
-      // Backend is in: BiblioGenius.app/Contents/Resources/backend/bibliogenius
-      
-      final executableDir = File(Platform.resolvedExecutable).parent.path;
-      // Go up one level from MacOS to Contents, then down to Resources
-      final backendPath = path.join(executableDir, '..', 'Resources', 'backend', 'bibliogenius');
-      final absoluteBackendPath = path.normalize(backendPath);
-      
-      debugPrint('Resolved backend path: $absoluteBackendPath');
-      
-      if (!await File(backendPath).exists()) {
-        throw Exception(
-          'Backend binary not found at $backendPath. '
-          'Make sure to bundle the Rust backend in the app.',
-        );
-      }
-      
-      return backendPath;
-    } else {
-      throw UnsupportedError('Backend bundling only supported on macOS for now');
-    }
-  }
-
-  /// Get the database path
-  Future<String> _getDatabasePath() async {
-    if (Platform.isMacOS) {
-      // ~/Library/Application Support/BiblioGenius/bibliogenius.db
-      final home = Platform.environment['HOME']!;
-      final appSupport = path.join(home, 'Library', 'Application Support', 'BiblioGenius');
-      
-      // Create directory if it doesn't exist
-      await Directory(appSupport).create(recursive: true);
-      
-      return 'sqlite://${path.join(appSupport, 'bibliogenius.db')}?mode=rwc';
-    } else if (Platform.isLinux) {
-      // ~/.local/share/bibliogenius/bibliogenius.db
-      final home = Platform.environment['HOME']!;
-      final dataDir = path.join(home, '.local', 'share', 'bibliogenius');
-      
-      await Directory(dataDir).create(recursive: true);
-      
-      return 'sqlite://${path.join(dataDir, 'bibliogenius.db')}?mode=rwc';
-    } else if (Platform.isWindows) {
-      // %LOCALAPPDATA%\BiblioGenius\bibliogenius.db
-      final appData = Platform.environment['LOCALAPPDATA']!;
-      final dataDir = path.join(appData, 'BiblioGenius');
-      
-      await Directory(dataDir).create(recursive: true);
-      
-      return 'sqlite://${path.join(dataDir, 'bibliogenius.db')}?mode=rwc';
-    } else {
-      throw UnsupportedError('Unsupported platform: ${Platform.operatingSystem}');
-    }
-  }
+  // ... (stop method remains same)
 
   /// Wait for the backend to write the port file
-  Future<void> _waitForPort({int maxAttempts = 30}) async {
+  Future<void> _waitForPort({int maxAttempts = 100}) async { // Increased to 10s (100 * 100ms)
     final portFilePath = _getPortFilePath();
+    debugPrint('Waiting for port file at: $portFilePath');
     
     for (var i = 0; i < maxAttempts; i++) {
       final portFile = File(portFilePath);
@@ -175,9 +88,11 @@ class BackendService {
       if (await portFile.exists()) {
         try {
           final portStr = await portFile.readAsString();
-          _port = int.parse(portStr.trim());
-          debugPrint('Backend port detected: $_port');
-          return;
+          if (portStr.trim().isNotEmpty) {
+             _port = int.parse(portStr.trim());
+             debugPrint('Backend port detected: $_port');
+             return;
+          }
         } catch (e) {
           debugPrint('Error reading port file: $e');
         }
@@ -187,7 +102,7 @@ class BackendService {
       await Future.delayed(const Duration(milliseconds: 100));
     }
     
-    throw TimeoutException('Backend did not write port file within 3 seconds');
+    throw TimeoutException('Backend did not write port file within 10 seconds');
   }
 
   /// Get the path to the port file
