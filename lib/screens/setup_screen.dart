@@ -19,11 +19,22 @@ class SetupScreen extends StatefulWidget {
 }
 
 class _SetupScreenState extends State<SetupScreen> {
-  int _currentStep = 0;
-  String _profileType = 'individual';
-  AvatarConfig _avatarConfig = AvatarConfig.defaultConfig;
-  final TextEditingController _libraryNameController = TextEditingController(text: 'My Library');
-  bool _importDemo = false;
+  final TextEditingController _libraryNameController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    _libraryNameController.text = themeProvider.setupLibraryName;
+    _libraryNameController.text = themeProvider.setupLibraryName;
+    // Removed listener to prevent rebuilds on every keystroke which causes focus loss
+  }
+
+  @override
+  void dispose() {
+    _libraryNameController.dispose();
+    super.dispose();
+  }
 
   Map<String, Map<String, String>> get _t => {
         'en': {
@@ -80,7 +91,6 @@ class _SetupScreenState extends State<SetupScreen> {
           'btn_finish': 'Terminer',
           'setup_progress': 'Configuration en cours...',
         },
-        // ... (other languages kept as is or updated similarly if needed, for brevity assuming EN/FR focus for now)
         'es': {
            'welcome_title': 'Bienvenido',
            'welcome_header': '¡Bienvenido a BiblioGenius!',
@@ -141,6 +151,7 @@ class _SetupScreenState extends State<SetupScreen> {
       builder: (context, themeProvider, child) {
         final lang = themeProvider.locale.languageCode;
         final strings = _t[lang] ?? _t['en']!;
+        final currentStep = themeProvider.setupStep;
 
         return Scaffold(
           appBar: AppBar(
@@ -148,26 +159,24 @@ class _SetupScreenState extends State<SetupScreen> {
             automaticallyImplyLeading: false, // Hide back button
           ),
           body: Stepper(
-            currentStep: _currentStep,
+            currentStep: currentStep,
             onStepContinue: () {
-              if (_currentStep < 5) {
-                setState(() {
-                  _currentStep += 1;
-                });
+              if (currentStep < 5) {
+                if (currentStep == 1) {
+                  // Save library name when leaving step 1
+                  themeProvider.setSetupLibraryName(_libraryNameController.text);
+                }
+                themeProvider.setSetupStep(currentStep + 1);
               } else {
                 _finishSetup(context, strings);
               }
             },
             onStepTapped: (step) {
-              setState(() {
-                _currentStep = step;
-              });
+              themeProvider.setSetupStep(step);
             },
             onStepCancel: () {
-              if (_currentStep > 0) {
-                setState(() {
-                  _currentStep -= 1;
-                });
+              if (currentStep > 0) {
+                themeProvider.setSetupStep(currentStep - 1);
               }
             },
             controlsBuilder: (context, details) {
@@ -178,12 +187,12 @@ class _SetupScreenState extends State<SetupScreen> {
                     ElevatedButton(
                       onPressed: details.onStepContinue,
                       child: Text(
-                        _currentStep == 5
+                        currentStep == 5
                             ? strings['btn_finish']!
                             : strings['btn_next']!,
                       ),
                     ),
-                    if (_currentStep > 0) ...[
+                    if (currentStep > 0) ...[
                       const SizedBox(width: 10),
                       TextButton(
                         onPressed: details.onStepCancel,
@@ -214,8 +223,8 @@ class _SetupScreenState extends State<SetupScreen> {
                     Text(strings['welcome_footer']!),
                   ],
                 ),
-                isActive: _currentStep >= 0,
-                state: _currentStep > 0 ? StepState.complete : StepState.indexed,
+                isActive: currentStep >= 0,
+                state: currentStep > 0 ? StepState.complete : StepState.indexed,
               ),
               // Step 1: Profile & Library Info
               Step(
@@ -239,23 +248,26 @@ class _SetupScreenState extends State<SetupScreen> {
                       TranslationService.translate(context, 'profile_librarian'),
                       TranslationService.translate(context, 'profile_librarian_desc'),
                       Icons.local_library,
+                      themeProvider,
                     ),
                     _buildProfileOption(
                       'individual',
                       TranslationService.translate(context, 'profile_individual'),
                       TranslationService.translate(context, 'profile_individual_desc'),
                       Icons.person,
+                      themeProvider,
                     ),
                     _buildProfileOption(
                       'kid',
                       TranslationService.translate(context, 'profile_kid'),
                       TranslationService.translate(context, 'profile_kid_desc'),
                       Icons.child_care,
+                      themeProvider,
                     ),
                   ],
                 ),
-                isActive: _currentStep >= 1,
-                state: _currentStep > 1 ? StepState.complete : StepState.indexed,
+                isActive: currentStep >= 1,
+                state: currentStep > 1 ? StepState.complete : StepState.indexed,
               ),
               // Step 2: Avatar
               Step(
@@ -263,16 +275,14 @@ class _SetupScreenState extends State<SetupScreen> {
                 content: SizedBox(
                   height: 400,
                   child: AvatarCustomizer(
-                    initialConfig: _avatarConfig,
+                    initialConfig: themeProvider.setupAvatarConfig,
                     onConfigChanged: (config) {
-                      setState(() {
-                        _avatarConfig = config;
-                      });
+                      themeProvider.setSetupAvatarConfig(config);
                     },
                   ),
                 ),
-                isActive: _currentStep >= 2,
-                state: _currentStep > 2 ? StepState.complete : StepState.indexed,
+                isActive: currentStep >= 2,
+                state: currentStep > 2 ? StepState.complete : StepState.indexed,
               ),
               // Step 3: Demo Content
               Step(
@@ -287,21 +297,21 @@ class _SetupScreenState extends State<SetupScreen> {
                     RadioListTile<bool>(
                       title: Text(strings['demo_option_yes']!),
                       value: true,
-                      groupValue: _importDemo,
-                      onChanged: (val) => setState(() => _importDemo = val!),
+                      groupValue: themeProvider.setupImportDemo,
+                      onChanged: (val) => themeProvider.setSetupImportDemo(val!),
                     ),
                     RadioListTile<bool>(
                       title: Text(strings['demo_option_no']!),
                       value: false,
-                      groupValue: _importDemo,
-                      onChanged: (val) => setState(() => _importDemo = val!),
+                      groupValue: themeProvider.setupImportDemo,
+                      onChanged: (val) => themeProvider.setSetupImportDemo(val!),
                     ),
                   ],
                 ),
-                isActive: _currentStep >= 3,
-                state: _currentStep > 3 ? StepState.complete : StepState.indexed,
+                isActive: currentStep >= 3,
+                state: currentStep > 3 ? StepState.complete : StepState.indexed,
               ),
-              // Step 4: Language & Theme (Combined for brevity or keep separate if preferred, keeping separate to match count)
+              // Step 4: Language & Theme
               Step(
                 title: Text(strings['lang_title']!),
                 content: Column(
@@ -344,8 +354,8 @@ class _SetupScreenState extends State<SetupScreen> {
                     ),
                   ],
                 ),
-                isActive: _currentStep >= 4,
-                state: _currentStep > 4 ? StepState.complete : StepState.indexed,
+                isActive: currentStep >= 4,
+                state: currentStep > 4 ? StepState.complete : StepState.indexed,
               ),
               // Step 5: Finish
               Step(
@@ -364,8 +374,8 @@ class _SetupScreenState extends State<SetupScreen> {
                     Text(strings['finish_body']!),
                   ],
                 ),
-                isActive: _currentStep >= 5,
-                state: _currentStep == 5 ? StepState.complete : StepState.indexed,
+                isActive: currentStep >= 5,
+                state: currentStep == 5 ? StepState.complete : StepState.indexed,
               ),
             ],
           ),
@@ -384,23 +394,23 @@ class _SetupScreenState extends State<SetupScreen> {
 
     try {
       final apiService = Provider.of<ApiService>(context, listen: false);
+      final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
       
       // 1. Setup Backend
       await apiService.setup(
-        libraryName: _libraryNameController.text.isNotEmpty ? _libraryNameController.text : 'My Library',
-        profileType: _profileType,
-        theme: Provider.of<ThemeProvider>(context, listen: false).themeStyle,
+        libraryName: themeProvider.setupLibraryName,
+        profileType: themeProvider.setupProfileType,
+        theme: themeProvider.themeStyle,
       );
 
       // 2. Import Demo Data if requested
-      if (_importDemo) {
+      if (themeProvider.setupImportDemo) {
         await DemoService.importDemoBooks(context);
       }
 
       if (context.mounted) {
-        final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
-        await themeProvider.setProfileType(_profileType, apiService: apiService);
-        await themeProvider.setAvatarConfig(_avatarConfig, apiService: apiService);
+        await themeProvider.setProfileType(themeProvider.setupProfileType, apiService: apiService);
+        await themeProvider.setAvatarConfig(themeProvider.setupAvatarConfig, apiService: apiService);
         await themeProvider.completeSetup();
         
         final authService = Provider.of<AuthService>(context, listen: false);
@@ -425,10 +435,10 @@ class _SetupScreenState extends State<SetupScreen> {
     }
   }
 
-  Widget _buildProfileOption(String value, String title, String description, IconData icon) {
-    final isSelected = _profileType == value;
+  Widget _buildProfileOption(String value, String title, String description, IconData icon, ThemeProvider themeProvider) {
+    final isSelected = themeProvider.setupProfileType == value;
     return GestureDetector(
-      onTap: () => setState(() => _profileType = value),
+      onTap: () => themeProvider.setSetupProfileType(value),
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),

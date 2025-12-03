@@ -170,6 +170,13 @@ class ApiService {
     );
   }
 
+  Future<Response> requestBookByUrl(String peerUrl, String isbn, String title) async {
+    return await _dio.post(
+      '/api/peers/request_by_url',
+      data: {'peer_url': peerUrl, 'book_isbn': isbn, 'book_title': title},
+    );
+  }
+
   Future<Response> getIncomingRequests() async {
     return await _dio.get('/api/peers/requests');
   }
@@ -243,6 +250,10 @@ class ApiService {
       'longitude': longitude,
       'share_location': shareLocation,
     });
+  }
+
+  Future<Response> resetApp() async {
+    return await _dio.post('/api/reset');
   }
 
   Future<Response> searchOpenLibrary({String? title, String? author, String? subject}) async {

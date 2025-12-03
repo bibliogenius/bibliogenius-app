@@ -327,9 +327,53 @@ class ThemeProvider with ChangeNotifier {
     _isSetupComplete = false;
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('isSetupComplete');
-    // Optional: Reset color/lang too?
-    // await prefs.remove('bannerColor');
-    // await prefs.remove('languageCode');
+    resetSetupState();
+    notifyListeners();
+  }
+
+  // Setup Wizard State
+  int _setupStep = 0;
+  int get setupStep => _setupStep;
+  String _setupLibraryName = 'My Library';
+  String get setupLibraryName => _setupLibraryName;
+  String _setupProfileType = 'individual';
+  String get setupProfileType => _setupProfileType;
+  AvatarConfig _setupAvatarConfig = AvatarConfig.defaultConfig;
+  AvatarConfig get setupAvatarConfig => _setupAvatarConfig;
+  bool _setupImportDemo = false;
+  bool get setupImportDemo => _setupImportDemo;
+
+  void setSetupStep(int step) {
+    _setupStep = step;
+    notifyListeners();
+  }
+
+  void setSetupLibraryName(String name) {
+    _setupLibraryName = name;
+    notifyListeners();
+  }
+
+  void setSetupProfileType(String type) {
+    _setupProfileType = type;
+    notifyListeners();
+  }
+
+  void setSetupAvatarConfig(AvatarConfig config) {
+    _setupAvatarConfig = config;
+    notifyListeners();
+  }
+
+  void setSetupImportDemo(bool import) {
+    _setupImportDemo = import;
+    notifyListeners();
+  }
+  
+  void resetSetupState() {
+    _setupStep = 0;
+    _setupLibraryName = 'My Library';
+    _setupProfileType = 'individual';
+    _setupAvatarConfig = AvatarConfig.defaultConfig;
+    _setupImportDemo = false;
     notifyListeners();
   }
 }

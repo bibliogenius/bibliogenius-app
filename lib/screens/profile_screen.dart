@@ -230,6 +230,64 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Column(
               children: [
                 ListTile(
+                  title: Text(TranslationService.translate(context, 'library_name')),
+                  subtitle: Text(_config?['library_name'] ?? _config?['name'] ?? 'My Library'),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.edit),
+                    onPressed: () {
+                      final controller = TextEditingController(
+                        text: _config?['library_name'] ?? _config?['name'] ?? '',
+                      );
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: Text(TranslationService.translate(context, 'edit_library_name')),
+                          content: TextField(
+                            controller: controller,
+                            decoration: InputDecoration(
+                              labelText: TranslationService.translate(context, 'library_name'),
+                            ),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: Text(TranslationService.translate(context, 'cancel')),
+                            ),
+                            TextButton(
+                              onPressed: () async {
+                                Navigator.pop(context);
+                                try {
+                                  final api = Provider.of<ApiService>(context, listen: false);
+                                  await api.updateLibraryConfig(
+                                    name: controller.text,
+                                    description: _config?['description'],
+                                    showBorrowedBooks: _config?['show_borrowed_books'],
+                                    shareLocation: _config?['share_location'],
+                                  );
+                                  _fetchStatus();
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text(TranslationService.translate(context, 'library_updated'))),
+                                    );
+                                  }
+                                } catch (e) {
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('${TranslationService.translate(context, 'error_updating_library')}: $e')),
+                                    );
+                                  }
+                                }
+                              },
+                              child: Text(TranslationService.translate(context, 'save')),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const Divider(),
+                ListTile(
                   title: Text(TranslationService.translate(context, 'profile_type')),
                   subtitle: Text(_config?['profile_type'] == 'individual' ? TranslationService.translate(context, 'individual') : TranslationService.translate(context, 'professional')),
                   trailing: DropdownButton<String>(
@@ -270,7 +328,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         final api = Provider.of<ApiService>(context, listen: false);
                         // We need to update the library config
                         await api.updateLibraryConfig(
-                          name: _config!['name'] ?? 'My Library', // Correct key is 'name' not 'library_name'
+                          name: _config!['library_name'] ?? _config!['name'] ?? 'My Library',
                           description: _config!['description'], // Correct key is 'description'
                           showBorrowedBooks: value,
                           shareLocation: _config!['share_location'],
@@ -413,16 +471,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const Divider(),
                 ListTile(
-                  leading: const Icon(Icons.restore),
-                  title: Text(TranslationService.translate(context, 'reset_setup')),
+                  leading: const Icon(Icons.settings),
+                  title: Text(TranslationService.translate(context, 'edit_settings')),
+                  onTap: () {
+                    _showSettingsDialog(context);
+                  },
+                ),
+                const Divider(),
+                ListTile(
+                  leading: const Icon(Icons.delete_forever, color: Colors.red),
+                  title: Text(
+                    TranslationService.translate(context, 'reset_app'),
+                    style: const TextStyle(color: Colors.red),
+                  ),
                   onTap: () async {
                     final confirmed = await showDialog<bool>(
                       context: context,
                       builder:
                           (context) => AlertDialog(
-                            title: Text(TranslationService.translate(context, 'settings_dialog_title')),
+                            title: Text(TranslationService.translate(context, 'reset_app_title')),
                             content: Text(
-                              TranslationService.translate(context, 'settings_dialog_body'),
+                              TranslationService.translate(context, 'reset_app_confirmation'),
                             ),
                             actions: [
                               TextButton(
@@ -431,20 +500,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                               TextButton(
                                 onPressed: () => Navigator.pop(context, true),
-                                child: Text(TranslationService.translate(context, 'edit_settings')),
+                                child: Text(
+                                  TranslationService.translate(context, 'reset_confirm'),
+                                  style: const TextStyle(color: Colors.red),
+                                ),
                               ),
                             ],
                           ),
                     );
 
                     if (confirmed == true && mounted) {
-                      final themeProvider = Provider.of<ThemeProvider>(
-                        context,
-                        listen: false,
-                      );
-                      await themeProvider.resetSetup();
-                      if (mounted) {
-                        context.go('/setup');
+                      try {
+                        // 1. Call backend to wipe data
+                        final api = Provider.of<ApiService>(context, listen: false);
+                        await api.resetApp();
+                        
+                        // 2. Clear local state
+                        final themeProvider = Provider.of<ThemeProvider>(
+                          context,
+                          listen: false,
+                        );
+                        await themeProvider.resetSetup();
+                        
+                        if (mounted) {
+                          context.go('/setup');
+                        }
+                      } catch (e) {
+                         if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Reset failed: $e')),
+                          );
+                        }
                       }
                     }
                   },
@@ -571,6 +657,64 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ],
               ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showSettingsDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Consumer<ThemeProvider>(
+          builder: (context, themeProvider, _) {
+            return AlertDialog(
+              title: Text(TranslationService.translate(context, 'edit_settings')),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(TranslationService.translate(context, 'lang_title') ?? 'Language'),
+                  DropdownButton<String>(
+                    value: themeProvider.locale.languageCode,
+                    isExpanded: true,
+                    items: [
+                      DropdownMenuItem(value: 'en', child: Text(TranslationService.translate(context, 'lang_en'))),
+                      DropdownMenuItem(value: 'fr', child: Text(TranslationService.translate(context, 'lang_fr'))),
+                      DropdownMenuItem(value: 'es', child: Text(TranslationService.translate(context, 'lang_es'))),
+                      DropdownMenuItem(value: 'de', child: Text(TranslationService.translate(context, 'lang_de'))),
+                    ],
+                    onChanged: (String? newValue) {
+                      if (newValue != null) {
+                        themeProvider.setLocale(Locale(newValue));
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  Text(TranslationService.translate(context, 'theme_title') ?? 'Theme'),
+                  DropdownButton<String>(
+                    value: themeProvider.themeStyle,
+                    isExpanded: true,
+                    items: [
+                      DropdownMenuItem(value: 'default', child: Text(TranslationService.translate(context, 'theme_default'))),
+                      DropdownMenuItem(value: 'minimal', child: Text(TranslationService.translate(context, 'theme_minimal'))),
+                    ],
+                    onChanged: (String? newValue) {
+                      if (newValue != null) {
+                        themeProvider.setThemeStyle(newValue);
+                      }
+                    },
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Close'),
+                ),
+              ],
             );
           },
         );

@@ -1,0 +1,153 @@
+Resolving dependencies...
+Downloading packages...
+  characters 1.4.0 (1.4.1 available)
+  file_picker 6.2.1 (10.3.7 available)
+  flutter_dotenv 5.2.1 (6.0.0 available)
+  flutter_secure_storage_linux 1.2.3 (2.0.1 available)
+  flutter_secure_storage_macos 3.1.3 (4.0.0 available)
+  flutter_secure_storage_platform_interface 1.1.2 (2.0.1 available)
+  flutter_secure_storage_web 1.2.1 (2.0.0 available)
+  flutter_secure_storage_windows 3.1.2 (4.0.0 available)
+  js 0.6.7 (0.7.2 available)
+  matcher 0.12.17 (0.12.18 available)
+  material_color_utilities 0.11.1 (0.13.0 available)
+  mobile_scanner 5.2.3 (7.1.3 available)
+  share_plus 10.1.4 (12.0.1 available)
+  share_plus_platform_interface 5.0.2 (6.1.0 available)
+  test_api 0.7.7 (0.7.8 available)
+Got dependencies!
+15 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Analyzing bibliogenius-app...                                   
+
+warning • The '!' will have no effect because the receiver can't be null • lib/models/book.dart:54:39 • unnecessary_non_null_assertion
+warning • The '!' will have no effect because the receiver can't be null • lib/models/book.dart:62:39 • unnecessary_non_null_assertion
+warning • The value of the local variable 'textMuted' isn't used • lib/providers/theme_provider.dart:42:13 • unused_local_variable
+   info • 'background' is deprecated and shouldn't be used. Use surface instead. This feature was deprecated after v3.18.0-0.1.pre • lib/providers/theme_provider.dart:66:11 • deprecated_member_use
+   info • 'onBackground' is deprecated and shouldn't be used. Use onSurface instead. This feature was deprecated after v3.18.0-0.1.pre • lib/providers/theme_provider.dart:68:11 • deprecated_member_use
+   info • 'background' is deprecated and shouldn't be used. Use surface instead. This feature was deprecated after v3.18.0-0.1.pre • lib/providers/theme_provider.dart:151:9 • deprecated_member_use
+   info • 'onBackground' is deprecated and shouldn't be used. Use onSurface instead. This feature was deprecated after v3.18.0-0.1.pre • lib/providers/theme_provider.dart:153:9 • deprecated_member_use
+   info • 'value' is deprecated and shouldn't be used. Use component accessors like .r or .g, or toARGB32 for an explicit conversion • lib/providers/theme_provider.dart:256:45 • deprecated_member_use
+warning • Duplicate import • lib/screens/add_book_screen.dart:7:8 • duplicate_import
+   info • Unnecessary use of multiple underscores • lib/screens/add_book_screen.dart:198:99 • unnecessary_underscores
+   info • Unnecessary use of multiple underscores • lib/screens/add_book_screen.dart:198:102 • unnecessary_underscores
+   info • 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre • lib/screens/add_book_screen.dart:300:19 • deprecated_member_use
+   info • Don't use 'BuildContext's across async gaps • lib/screens/book_copies_screen.dart:56:50 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps • lib/screens/book_copies_screen.dart:94:50 • use_build_context_synchronously
+warning • Unused import: '../widgets/app_drawer.dart' • lib/screens/book_list_screen.dart:11:8 • unused_import
+   info • Don't use 'BuildContext's across async gaps • lib/screens/borrow_requests_screen.dart:123:41 • use_build_context_synchronously
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/borrow_requests_screen.dart:224:48 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/borrow_requests_screen.dart:286:57 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/borrow_requests_screen.dart:286:88 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/contacts_screen.dart:178:65 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/contacts_screen.dart:267:49 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/contacts_screen.dart:273:65 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/contacts_screen.dart:281:45 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/contacts_screen.dart:282:47 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/contacts_screen.dart:315:48 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/contacts_screen.dart:316:47 • deprecated_member_use
+warning • Unused import: '../widgets/app_drawer.dart' • lib/screens/dashboard_screen.dart:8:8 • unused_import
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/dashboard_screen.dart:242:51 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/dashboard_screen.dart:251:91 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/dashboard_screen.dart:354:72 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/dashboard_screen.dart:357:53 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/dashboard_screen.dart:475:54 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/dashboard_screen.dart:478:33 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/dashboard_screen.dart:498:56 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/dashboard_screen.dart:564:54 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/dashboard_screen.dart:567:33 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/dashboard_screen.dart:584:51 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/dashboard_screen.dart:590:55 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/dashboard_screen.dart:642:63 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/dashboard_screen.dart:677:33 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/dashboard_screen.dart:761:55 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/dashboard_screen.dart:806:24 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/dashboard_screen.dart:808:43 • deprecated_member_use
+   info • Don't use 'BuildContext's across async gaps • lib/screens/edit_book_screen.dart:173:48 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check • lib/screens/edit_book_screen.dart:337:16 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check • lib/screens/edit_book_screen.dart:372:42 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check • lib/screens/edit_book_screen.dart:373:75 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check • lib/screens/edit_book_screen.dart:383:36 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check • lib/screens/edit_book_screen.dart:384:69 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check • lib/screens/edit_book_screen.dart:397:11 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check • lib/screens/edit_book_screen.dart:415:32 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check • lib/screens/edit_book_screen.dart:416:68 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check • lib/screens/edit_book_screen.dart:426:30 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check • lib/screens/edit_book_screen.dart:427:66 • use_build_context_synchronously
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/edit_book_screen.dart:460:22 • deprecated_member_use
+   info • Unnecessary use of multiple underscores • lib/screens/edit_book_screen.dart:549:99 • unnecessary_underscores
+   info • Unnecessary use of multiple underscores • lib/screens/edit_book_screen.dart:549:102 • unnecessary_underscores
+   info • 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre • lib/screens/edit_book_screen.dart:638:19 • deprecated_member_use
+warning • Unused import: 'package:dio/dio.dart' • lib/screens/external_search_screen.dart:4:8 • unused_import
+warning • Unused import: '../models/book.dart' • lib/screens/external_search_screen.dart:7:8 • unused_import
+   info • Don't use 'BuildContext's across async gaps • lib/screens/login_screen.dart:92:49 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps • lib/screens/login_screen.dart:93:39 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps • lib/screens/login_screen.dart:94:46 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps • lib/screens/p2p_screen.dart:65:53 • use_build_context_synchronously
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/p2p_screen.dart:141:80 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/p2p_screen.dart:190:41 • deprecated_member_use
+   info • The local variable '_cutOutSize' starts with an underscore • lib/screens/p2p_screen.dart:348:11 • no_leading_underscores_for_local_identifiers
+   info • The local variable '_borderLength' starts with an underscore • lib/screens/p2p_screen.dart:349:11 • no_leading_underscores_for_local_identifiers
+   info • The local variable '_borderRadius' starts with an underscore • lib/screens/p2p_screen.dart:350:11 • no_leading_underscores_for_local_identifiers
+warning • The value of the local variable 'boxPaint' isn't used • lib/screens/p2p_screen.dart:361:11 • unused_local_variable
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/peer_list_screen.dart:121:47 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/peer_list_screen.dart:127:63 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/peer_list_screen.dart:135:45 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/peer_list_screen.dart:136:45 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/peer_list_screen.dart:158:54 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/peer_list_screen.dart:160:73 • deprecated_member_use
+   info • Don't use 'BuildContext's across async gaps • lib/screens/peer_list_screen.dart:200:58 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps • lib/screens/peer_list_screen.dart:201:91 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps • lib/screens/peer_list_screen.dart:257:45 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps • lib/screens/profile_screen.dart:81:9 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps • lib/screens/profile_screen.dart:82:77 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check • lib/screens/profile_screen.dart:318:42 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check • lib/screens/profile_screen.dart:319:75 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check • lib/screens/profile_screen.dart:324:21 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check • lib/screens/profile_screen.dart:334:44 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check • lib/screens/profile_screen.dart:343:44 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check • lib/screens/profile_screen.dart:346:61 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check • lib/screens/profile_screen.dart:356:40 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check • lib/screens/profile_screen.dart:358:69 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check • lib/screens/profile_screen.dart:405:57 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check • lib/screens/profile_screen.dart:407:46 • use_build_context_synchronously
+warning • Unused import: 'package:flutter_colorpicker/flutter_colorpicker.dart' • lib/screens/setup_screen.dart:4:8 • unused_import
+warning • Unused import: '../utils/avatars.dart' • lib/screens/setup_screen.dart:10:8 • unused_import
+   info • 'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre • lib/screens/setup_screen.dart:290:23 • deprecated_member_use
+   info • 'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre • lib/screens/setup_screen.dart:291:23 • deprecated_member_use
+   info • 'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre • lib/screens/setup_screen.dart:296:23 • deprecated_member_use
+   info • 'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre • lib/screens/setup_screen.dart:297:23 • deprecated_member_use
+   info • Don't use 'BuildContext's across async gaps • lib/screens/setup_screen.dart:397:43 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps • lib/screens/setup_screen.dart:406:54 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps • lib/screens/setup_screen.dart:410:22 • use_build_context_synchronously
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/setup_screen.dart:436:43 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/statistics_screen.dart:151:33 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/statistics_screen.dart:214:41 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/statistics_screen.dart:274:41 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/statistics_screen.dart:365:41 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/statistics_screen.dart:405:72 • deprecated_member_use
+warning • Unused import: 'translation_service.dart' • lib/services/demo_service.dart:4:8 • unused_import
+   info • Don't invoke 'print' in production code • lib/services/open_library_service.dart:92:7 • avoid_print
+warning • Two keys in a map literal shouldn't be equal • lib/services/translation_service.dart:174:7 • equal_keys_in_map
+warning • Two keys in a map literal shouldn't be equal • lib/services/translation_service.dart:204:7 • equal_keys_in_map
+warning • Two keys in a map literal shouldn't be equal • lib/services/translation_service.dart:255:7 • equal_keys_in_map
+warning • Two keys in a map literal shouldn't be equal • lib/services/translation_service.dart:293:7 • equal_keys_in_map
+warning • Two keys in a map literal shouldn't be equal • lib/services/translation_service.dart:500:7 • equal_keys_in_map
+warning • Two keys in a map literal shouldn't be equal • lib/services/translation_service.dart:530:7 • equal_keys_in_map
+warning • Two keys in a map literal shouldn't be equal • lib/services/translation_service.dart:581:7 • equal_keys_in_map
+warning • Two keys in a map literal shouldn't be equal • lib/services/translation_service.dart:818:7 • equal_keys_in_map
+warning • Two keys in a map literal shouldn't be equal • lib/services/translation_service.dart:848:7 • equal_keys_in_map
+warning • Two keys in a map literal shouldn't be equal • lib/services/translation_service.dart:937:7 • equal_keys_in_map
+warning • Two keys in a map literal shouldn't be equal • lib/services/translation_service.dart:1186:7 • equal_keys_in_map
+warning • Unused import: 'package:flutter_svg/flutter_svg.dart' • lib/widgets/avatar_customizer.dart:2:8 • unused_import
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/book_spine.dart:43:33 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/book_spine.dart:52:43 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/book_spine.dart:54:43 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/book_spine.dart:74:41 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/book_spine.dart:86:43 • deprecated_member_use
+   info • 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre • lib/widgets/loan_dialog.dart:65:23 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/status_badge.dart:38:22 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/status_badge.dart:40:41 • deprecated_member_use
+warning • Unused import: 'package:flutter_secure_storage/flutter_secure_storage.dart' • test/services/api_service_test.dart:6:8 • unused_import
+warning • Unused import: 'package:shared_preferences/shared_preferences.dart' • test/services/auth_service_test.dart:2:8 • unused_import
+

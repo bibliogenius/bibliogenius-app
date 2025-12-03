@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
 import '../providers/theme_provider.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class P2PScreen extends StatefulWidget {
   const P2PScreen({super.key});
@@ -126,6 +127,46 @@ class _P2PScreenState extends State<P2PScreen>
     }
   }
 
+  void _showManualConnectionDialog() {
+    final nameController = TextEditingController();
+    final urlController = TextEditingController(text: 'http://localhost:8001');
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Debug: Manual Connection'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(labelText: 'Library Name'),
+            ),
+            TextField(
+              controller: urlController,
+              decoration: const InputDecoration(labelText: 'Library URL'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              if (nameController.text.isNotEmpty && urlController.text.isNotEmpty) {
+                Navigator.pop(context);
+                _connect(nameController.text, urlController.text);
+              }
+            },
+            child: const Text('Connect'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isKid = Provider.of<ThemeProvider>(context).isKid;
@@ -134,6 +175,13 @@ class _P2PScreenState extends State<P2PScreen>
     return Scaffold(
       appBar: GenieAppBar(
         title: title,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.keyboard),
+            onPressed: _showManualConnectionDialog,
+            tooltip: 'Manual Connection',
+          ),
+        ],
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: Theme.of(context).appBarTheme.foregroundColor,
@@ -211,12 +259,29 @@ class _P2PScreenState extends State<P2PScreen>
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    TranslationService.translate(context, 'scan_to_connect'),
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 16,
-                      letterSpacing: 1.0,
+                  if (_qrData != null)
+                    Text(
+                      (jsonDecode(_qrData!)['url'] as String).replaceAll('http://', ''),
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 14,
+                        fontFamily: 'Courier',
+                      ),
+                    ),
+                  const SizedBox(height: 8),
+                  const SizedBox(height: 8),
+                  InkWell(
+                    onTap: () {
+                      _tabController.animateTo(1);
+                    },
+                    child: Text(
+                      TranslationService.translate(context, 'scan_qr_code'),
+                      style: TextStyle(
+                        color: Theme.of(context).primaryColor,
+                        fontSize: 16,
+                        letterSpacing: 1.0,
+                        decoration: TextDecoration.underline,
+                      ),
                     ),
                   ),
                 ],

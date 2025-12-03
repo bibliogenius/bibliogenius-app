@@ -76,7 +76,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   Future<void> _requestBorrow(Book book) async {
     final api = Provider.of<ApiService>(context, listen: false);
     try {
-      await api.requestBook(widget.peerId, book.isbn ?? "", book.title);
+      await api.requestBookByUrl(widget.peerUrl, book.isbn ?? "", book.title);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Request sent!")),

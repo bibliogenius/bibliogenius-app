@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
@@ -47,9 +48,9 @@ void main() async {
   await TranslationService.loadFromCache();
   final themeProvider = ThemeProvider();
   
-  // Initialize and start backend service (macOS only for now)
+  // Initialize and start backend service (not on web)
   final backendService = BackendService();
-  if (Platform.isMacOS) {
+  if (!kIsWeb) {
     try {
       await backendService.start();
     } catch (e) {
