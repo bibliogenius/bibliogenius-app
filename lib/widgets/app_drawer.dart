@@ -114,9 +114,12 @@ class AppDrawer extends StatelessWidget {
               Navigator.pop(context);
               await WizardService.resetWizard();
               if (context.mounted) {
-                 // Force reload of dashboard to trigger wizard
-                 context.go('/dashboard');
-                 // Or we could just call a method if we had access to state, but navigation is easier
+                 // Force reload if already on dashboard
+                 if (GoRouterState.of(context).uri.path == '/dashboard') {
+                   context.pushReplacement('/dashboard');
+                 } else {
+                   context.go('/dashboard');
+                 }
               }
             },
           ),

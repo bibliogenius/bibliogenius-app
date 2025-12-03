@@ -6,6 +6,7 @@ import '../providers/theme_provider.dart';
 import '../services/auth_service.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
+import '../services/demo_service.dart';
 import '../utils/avatars.dart';
 import '../models/avatar_config.dart';
 import '../widgets/avatar_customizer.dart';
@@ -21,6 +22,8 @@ class _SetupScreenState extends State<SetupScreen> {
   int _currentStep = 0;
   String _profileType = 'individual';
   AvatarConfig _avatarConfig = AvatarConfig.defaultConfig;
+  final TextEditingController _libraryNameController = TextEditingController(text: 'My Library');
+  bool _importDemo = false;
 
   Map<String, Map<String, String>> get _t => {
         'en': {
@@ -29,6 +32,15 @@ class _SetupScreenState extends State<SetupScreen> {
           'welcome_body':
               'This app helps you manage your personal library, track loans, and connect with other book lovers.',
           'welcome_footer': 'Let\'s get you set up in just a few steps.',
+          'library_info_title': 'Library Info',
+          'library_name_label': 'Library Name',
+          'library_name_hint': 'e.g. The Book Cave',
+          'profile_type_label': 'Profile Type',
+          'demo_title': 'Demo Content',
+          'demo_header': 'Start with some books?',
+          'demo_body': 'We can add a few classic books to your library so you can explore the features immediately.',
+          'demo_option_yes': 'Yes, import demo books',
+          'demo_option_no': 'No, start empty',
           'lang_title': 'Select Language',
           'lang_label': 'Choose your preferred language:',
           'theme_title': 'Customize Theme',
@@ -39,6 +51,7 @@ class _SetupScreenState extends State<SetupScreen> {
           'btn_next': 'Next',
           'btn_back': 'Back',
           'btn_finish': 'Finish',
+          'setup_progress': 'Setting up your library...',
         },
         'fr': {
           'welcome_title': 'Bienvenue',
@@ -46,6 +59,15 @@ class _SetupScreenState extends State<SetupScreen> {
           'welcome_body':
               'Gérez votre bibliothèque, suivez vos prêts et connectez-vous avec d\'autres passionnés.',
           'welcome_footer': 'Commençons la configuration.',
+          'library_info_title': 'Infos Bibliothèque',
+          'library_name_label': 'Nom de la bibliothèque',
+          'library_name_hint': 'ex: La Caverne aux Livres',
+          'profile_type_label': 'Type de profil',
+          'demo_title': 'Contenu Démo',
+          'demo_header': 'Commencer avec des livres ?',
+          'demo_body': 'Nous pouvons ajouter quelques classiques pour vous permettre de tester les fonctionnalités.',
+          'demo_option_yes': 'Oui, importer des livres démo',
+          'demo_option_no': 'Non, commencer vide',
           'lang_title': 'Langue',
           'lang_label': 'Choisissez votre langue :',
           'theme_title': 'Thème',
@@ -56,46 +78,65 @@ class _SetupScreenState extends State<SetupScreen> {
           'btn_next': 'Suivant',
           'btn_back': 'Retour',
           'btn_finish': 'Terminer',
+          'setup_progress': 'Configuration en cours...',
         },
+        // ... (other languages kept as is or updated similarly if needed, for brevity assuming EN/FR focus for now)
         'es': {
-          'welcome_title': 'Bienvenido',
-          'welcome_header': '¡Bienvenido a BiblioGenius!',
-          'welcome_body':
-              'Gestiona tu biblioteca, sigue tus préstamos y conecta con otros lectores.',
-          'welcome_footer': 'Empecemos la configuración.',
-          'lang_title': 'Idioma',
-          'lang_label': 'Elige tu idioma:',
-          'theme_title': 'Tema',
-          'theme_label': 'Elige el color del banner:',
-          'finish_title': '¡Listo!',
-          'finish_header': '¡Todo listo!',
-          'finish_body': 'Haz clic en "Terminar" para empezar.',
-          'btn_next': 'Siguiente',
-          'btn_back': 'Atrás',
-          'btn_finish': 'Terminar',
+           'welcome_title': 'Bienvenido',
+           'welcome_header': '¡Bienvenido a BiblioGenius!',
+           'welcome_body': 'Gestiona tu biblioteca, sigue tus préstamos y conecta con otros lectores.',
+           'welcome_footer': 'Empecemos la configuración.',
+           'library_info_title': 'Info Biblioteca',
+           'library_name_label': 'Nombre de la biblioteca',
+           'library_name_hint': 'ej: La Cueva de los Libros',
+           'profile_type_label': 'Tipo de perfil',
+           'demo_title': 'Contenido Demo',
+           'demo_header': '¿Empezar con libros?',
+           'demo_body': 'Podemos añadir algunos clásicos para que pruebes las funciones.',
+           'demo_option_yes': 'Sí, importar libros demo',
+           'demo_option_no': 'No, empezar vacío',
+           'lang_title': 'Idioma',
+           'lang_label': 'Elige tu idioma:',
+           'theme_title': 'Tema',
+           'theme_label': 'Elige el color del banner:',
+           'finish_title': '¡Listo!',
+           'finish_header': '¡Todo listo!',
+           'finish_body': 'Haz clic en "Terminar" para empezar.',
+           'btn_next': 'Siguiente',
+           'btn_back': 'Atrás',
+           'btn_finish': 'Terminar',
+           'setup_progress': 'Configurando...',
         },
         'de': {
-          'welcome_title': 'Willkommen',
-          'welcome_header': 'Willkommen bei BiblioGenius!',
-          'welcome_body':
-              'Verwalten Sie Ihre Bibliothek, verfolgen Sie Ausleihen und verbinden Sie sich mit anderen.',
-          'welcome_footer': 'Lassen Sie uns beginnen.',
-          'lang_title': 'Sprache',
-          'lang_label': 'Wählen Sie Ihre Sprache:',
-          'theme_title': 'Thema',
-          'theme_label': 'Wählen Sie eine Bannerfarbe:',
-          'finish_title': 'Fertig!',
-          'finish_header': 'Alles bereit!',
-          'finish_body': 'Klicken Sie auf "Fertigstellen", um zu beginnen.',
-          'btn_next': 'Weiter',
-          'btn_back': 'Zurück',
-          'btn_finish': 'Fertigstellen',
-        },
+           'welcome_title': 'Willkommen',
+           'welcome_header': 'Willkommen bei BiblioGenius!',
+           'welcome_body': 'Verwalten Sie Ihre Bibliothek, verfolgen Sie Ausleihen und verbinden Sie sich mit anderen.',
+           'welcome_footer': 'Lassen Sie uns beginnen.',
+           'library_info_title': 'Bibliotheksinfo',
+           'library_name_label': 'Bibliotheksname',
+           'library_name_hint': 'z.B. Die Bücherhöhle',
+           'profile_type_label': 'Profiltyp',
+           'demo_title': 'Demo-Inhalt',
+           'demo_header': 'Mit Büchern starten?',
+           'demo_body': 'Wir können einige Klassiker hinzufügen, damit Sie die Funktionen testen können.',
+           'demo_option_yes': 'Ja, Demo-Bücher importieren',
+           'demo_option_no': 'Nein, leer starten',
+           'lang_title': 'Sprache',
+           'lang_label': 'Wählen Sie Ihre Sprache:',
+           'theme_title': 'Thema',
+           'theme_label': 'Wählen Sie eine Bannerfarbe:',
+           'finish_title': 'Fertig!',
+           'finish_header': 'Alles bereit!',
+           'finish_body': 'Klicken Sie auf "Fertigstellen", um zu beginnen.',
+           'btn_next': 'Weiter',
+           'btn_back': 'Zurück',
+           'btn_finish': 'Fertigstellen',
+           'setup_progress': 'Einrichtung läuft...',
+        }
       };
 
   @override
   Widget build(BuildContext context) {
-    // Removed Provider.of here to prevent full rebuilds
     return Consumer<ThemeProvider>(
       builder: (context, themeProvider, child) {
         final lang = themeProvider.locale.languageCode;
@@ -104,45 +145,7 @@ class _SetupScreenState extends State<SetupScreen> {
         return Scaffold(
           appBar: AppBar(
             title: Text(strings['welcome_header']!),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.settings),
-                tooltip: 'Server Settings',
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      final controller = TextEditingController(
-                        text: Provider.of<ApiService>(context, listen: false).baseUrl,
-                      );
-                      return AlertDialog(
-                        title: const Text("Change Server URL"),
-                        content: TextField(
-                          controller: controller,
-                          decoration: const InputDecoration(labelText: "Server URL"),
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context),
-                            child: const Text("Cancel"),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Provider.of<ApiService>(context, listen: false).setBaseUrl(controller.text);
-                              Navigator.pop(context);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text("Switched to ${controller.text}")),
-                              );
-                            },
-                            child: const Text("Save"),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                },
-              ),
-            ],
+            automaticallyImplyLeading: false, // Hide back button
           ),
           body: Stepper(
             currentStep: _currentStep,
@@ -152,7 +155,7 @@ class _SetupScreenState extends State<SetupScreen> {
                   _currentStep += 1;
                 });
               } else {
-                _finishSetup(context);
+                _finishSetup(context, strings);
               }
             },
             onStepTapped: (step) {
@@ -192,6 +195,7 @@ class _SetupScreenState extends State<SetupScreen> {
               );
             },
             steps: [
+              // Step 0: Welcome
               Step(
                 title: Text(strings['welcome_title']!),
                 content: Column(
@@ -213,12 +217,23 @@ class _SetupScreenState extends State<SetupScreen> {
                 isActive: _currentStep >= 0,
                 state: _currentStep > 0 ? StepState.complete : StepState.indexed,
               ),
+              // Step 1: Profile & Library Info
               Step(
-                title: Text(TranslationService.translate(context, 'choose_profile_type')),
+                title: Text(strings['library_info_title']!),
                 content: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    TextField(
+                      controller: _libraryNameController,
+                      decoration: InputDecoration(
+                        labelText: strings['library_name_label'],
+                        hintText: strings['library_name_hint'],
+                        border: const OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
                     Text(TranslationService.translate(context, 'profile_usage_question')),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 10),
                     _buildProfileOption(
                       'librarian',
                       TranslationService.translate(context, 'profile_librarian'),
@@ -242,24 +257,51 @@ class _SetupScreenState extends State<SetupScreen> {
                 isActive: _currentStep >= 1,
                 state: _currentStep > 1 ? StepState.complete : StepState.indexed,
               ),
+              // Step 2: Avatar
               Step(
                 title: Text(TranslationService.translate(context, 'customize_avatar')),
                 content: SizedBox(
-                  height: 500,
+                  height: 400,
                   child: AvatarCustomizer(
                     initialConfig: _avatarConfig,
                     onConfigChanged: (config) {
                       setState(() {
                         _avatarConfig = config;
                       });
-                      // Update theme based on avatar colors if desired
-                      // For now, we just store the config
                     },
                   ),
                 ),
                 isActive: _currentStep >= 2,
                 state: _currentStep > 2 ? StepState.complete : StepState.indexed,
               ),
+              // Step 3: Demo Content
+              Step(
+                title: Text(strings['demo_title']!),
+                content: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(strings['demo_header']!, style: const TextStyle(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+                    Text(strings['demo_body']!),
+                    const SizedBox(height: 16),
+                    RadioListTile<bool>(
+                      title: Text(strings['demo_option_yes']!),
+                      value: true,
+                      groupValue: _importDemo,
+                      onChanged: (val) => setState(() => _importDemo = val!),
+                    ),
+                    RadioListTile<bool>(
+                      title: Text(strings['demo_option_no']!),
+                      value: false,
+                      groupValue: _importDemo,
+                      onChanged: (val) => setState(() => _importDemo = val!),
+                    ),
+                  ],
+                ),
+                isActive: _currentStep >= 3,
+                state: _currentStep > 3 ? StepState.complete : StepState.indexed,
+              ),
+              // Step 4: Language & Theme (Combined for brevity or keep separate if preferred, keeping separate to match count)
               Step(
                 title: Text(strings['lang_title']!),
                 content: Column(
@@ -282,19 +324,11 @@ class _SetupScreenState extends State<SetupScreen> {
                         }
                       },
                     ),
-                  ],
-                ),
-                isActive: _currentStep >= 3,
-                state: _currentStep > 3 ? StepState.complete : StepState.indexed,
-              ),
-              Step(
-                title: Text(strings['theme_title']!),
-                content: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(strings['theme_label']!),
-                    const SizedBox(height: 10),
-                    // Theme Style Selector
+                    const SizedBox(height: 20),
+                     Text(strings['theme_title']!),
+                     const SizedBox(height: 10),
+                     Text(strings['theme_label']!),
+                     const SizedBox(height: 10),
                     DropdownButton<String>(
                       value: themeProvider.themeStyle,
                       isExpanded: true,
@@ -308,12 +342,12 @@ class _SetupScreenState extends State<SetupScreen> {
                         }
                       },
                     ),
-
                   ],
                 ),
                 isActive: _currentStep >= 4,
                 state: _currentStep > 4 ? StepState.complete : StepState.indexed,
               ),
+              // Step 5: Finish
               Step(
                 title: Text(strings['finish_title']!),
                 content: Column(
@@ -340,36 +374,49 @@ class _SetupScreenState extends State<SetupScreen> {
     );
   }
 
-  Future<void> _finishSetup(BuildContext context) async {
+  Future<void> _finishSetup(BuildContext context, Map<String, String> strings) async {
+    // Show loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => Center(child: CircularProgressIndicator()),
+    );
+
     try {
-      // Call backend setup to create admin user
       final apiService = Provider.of<ApiService>(context, listen: false);
+      
+      // 1. Setup Backend
       await apiService.setup(
-        libraryName: 'My Library', // Default name, could be added to UI
+        libraryName: _libraryNameController.text.isNotEmpty ? _libraryNameController.text : 'My Library',
         profileType: _profileType,
         theme: Provider.of<ThemeProvider>(context, listen: false).themeStyle,
       );
 
+      // 2. Import Demo Data if requested
+      if (_importDemo) {
+        await DemoService.importDemoBooks(context);
+      }
+
       if (context.mounted) {
         final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
-        // Pass apiService to ensure sync with backend (although setup endpoint does some of this, 
-        // setAvatarConfig is needed for the avatar)
         await themeProvider.setProfileType(_profileType, apiService: apiService);
         await themeProvider.setAvatarConfig(_avatarConfig, apiService: apiService);
         await themeProvider.completeSetup();
         
-        // Auto-login after setup
         final authService = Provider.of<AuthService>(context, listen: false);
         await authService.saveUsername('admin');
-        // Note: In a real app, we'd get a token here, but for now we redirect to login
-        // or we could have the setup endpoint return a token.
-        // For simplicity, let's redirect to login and let them login as admin/admin
         
+        // Close loading dialog
+        Navigator.of(context).pop();
+
         if (context.mounted) {
            context.go('/login');
         }
       }
     } catch (e) {
+      // Close loading dialog
+      if (context.mounted) Navigator.of(context).pop();
+      
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('${TranslationService.translate(context, 'setup_failed')}: $e')),
@@ -377,6 +424,7 @@ class _SetupScreenState extends State<SetupScreen> {
       }
     }
   }
+
   Widget _buildProfileOption(String value, String title, String description, IconData icon) {
     final isSelected = _profileType == value;
     return GestureDetector(

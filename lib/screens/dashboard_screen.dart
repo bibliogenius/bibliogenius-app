@@ -159,16 +159,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final isKid = themeProvider.isKid;
     
+    final width = MediaQuery.of(context).size.width;
+    final isWide = width > 600;
+
     return Scaffold(
       appBar: GenieAppBar(
         title: TranslationService.translate(context, 'dashboard'),
-        leading: Builder(
-          builder: (context) => IconButton(
-            key: _menuKey,
-            icon: const Icon(Icons.menu),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-          ),
-        ),
+        leading: isWide 
+          ? null 
+          : IconButton(
+              key: _menuKey,
+              icon: const Icon(Icons.menu),
+              onPressed: () => Scaffold.of(context).openDrawer(),
+            ),
+        automaticallyImplyLeading: false, // Prevent default back button if any
         actions: [
           IconButton(
             key: _searchKey,
@@ -179,7 +183,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ],
       ),
-      drawer: const AppDrawer(),
+      // drawer: const AppDrawer(), // Removed, handled by parent ScaffoldWithNav
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(

@@ -337,6 +337,13 @@ class TranslationService {
       'wizard_search_desc': 'Find books in your library or your friends\' libraries.',
       'wizard_stats_title': 'Quick Stats',
       'wizard_stats_desc': 'See how many books you have and who borrowed them.',
+      'wizard_books_view_desc': 'Switch between grid view (bookshelf) and list view.',
+    
+    // Contacts Wizard
+    'wizard_contacts_add_title': 'Add Contact',
+    'wizard_contacts_add_desc': 'Add friends or borrowers to share books with.',
+    'wizard_contacts_filter_title': 'Filter Contacts',
+    'wizard_contacts_filter_desc': 'Filter by Borrowers (local) or Libraries (P2P).',
       'wizard_skip': 'Skip',
       'no_pub_year_data': 'No publication year data.',
       'nav_p2p_connect': 'Connect',

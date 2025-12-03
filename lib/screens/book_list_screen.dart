@@ -9,6 +9,7 @@ import '../models/book.dart';
 import '../widgets/bookshelf_view.dart';
 
 import '../widgets/app_drawer.dart';
+import '../services/wizard_service.dart';
 
 class BookListScreen extends StatefulWidget {
   const BookListScreen({super.key});
@@ -25,6 +26,12 @@ class _BookListScreenState extends State<BookListScreen> {
   final TextEditingController _searchController = TextEditingController();
   bool _isSearching = false;
 
+  final GlobalKey _addKey = GlobalKey();
+  final GlobalKey _searchKey = GlobalKey();
+  final GlobalKey _viewKey = GlobalKey();
+  final GlobalKey _scanKey = GlobalKey();
+  final GlobalKey _externalSearchKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
@@ -32,7 +39,22 @@ class _BookListScreenState extends State<BookListScreen> {
     // Trigger background sync
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<SyncService>(context, listen: false).syncAllPeers();
+      _checkWizard();
     });
+  }
+
+  Future<void> _checkWizard() async {
+    final hasSeen = await WizardService.hasSeenBooksWizard();
+    if (!hasSeen && mounted) {
+      WizardService.showBooksTutorial(
+        context: context,
+        addKey: _addKey,
+        searchKey: _searchKey,
+        viewKey: _viewKey,
+        scanKey: _scanKey,
+        externalSearchKey: _externalSearchKey,
+      );
+    }
   }
 
   @override
@@ -101,6 +123,7 @@ class _BookListScreenState extends State<BookListScreen> {
         title: _isSearching ? TranslationService.translate(context, 'search_books') : TranslationService.translate(context, 'my_library_title'),
         actions: [
           IconButton(
+            key: _searchKey,
             icon: Icon(_isSearching ? Icons.close : Icons.search),
             onPressed: () {
               setState(() {
@@ -116,6 +139,7 @@ class _BookListScreenState extends State<BookListScreen> {
           ),
           if (!_isSearching) ...[
             IconButton(
+              key: _viewKey,
               icon: Icon(_isShelfView ? Icons.list : Icons.grid_view),
               onPressed: () {
                 setState(() {
@@ -124,6 +148,7 @@ class _BookListScreenState extends State<BookListScreen> {
               },
             ),
             IconButton(
+              key: _scanKey,
               icon: const Icon(Icons.camera_alt),
               onPressed: () {
                 context.push('/scan');
@@ -131,6 +156,7 @@ class _BookListScreenState extends State<BookListScreen> {
             ),
             IconButton(icon: const Icon(Icons.refresh), onPressed: _fetchBooks),
             IconButton(
+              key: _externalSearchKey,
               icon: const Icon(Icons.public),
               tooltip: TranslationService.translate(context, 'btn_search_online'),
               onPressed: () {
@@ -243,6 +269,7 @@ class _BookListScreenState extends State<BookListScreen> {
             ),
 
       floatingActionButton: FloatingActionButton(
+        key: _addKey,
         onPressed: () async {
           final result = await context.push('/books/add');
           if (result == true) {

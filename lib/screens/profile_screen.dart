@@ -14,6 +14,7 @@ import '../utils/avatars.dart';
 import '../widgets/avatar_customizer.dart';
 import '../models/avatar_config.dart';
 import '../services/translation_service.dart';
+import '../services/demo_service.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -369,49 +370,91 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           const SizedBox(height: 32),
 
-          const SizedBox(height: 32),
-          // App Settings button (formerly Reinstall)
-          OutlinedButton.icon(
-            onPressed: () async {
-              final confirmed = await showDialog<bool>(
-                context: context,
-                builder:
-                    (context) => AlertDialog(
-                      title: Text(TranslationService.translate(context, 'settings_dialog_title')),
-                      content: Text(
-                        TranslationService.translate(context, 'settings_dialog_body'),
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, false),
-                          child: Text(TranslationService.translate(context, 'cancel')),
-                        ),
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, true),
-                          child: Text(TranslationService.translate(context, 'edit_settings')),
-                        ),
-                      ],
-                    ),
-              );
-
-              if (confirmed == true && mounted) {
-                final themeProvider = Provider.of<ThemeProvider>(
-                  context,
-                  listen: false,
-                );
-                await themeProvider.resetSetup();
-                if (mounted) {
-                  context.go('/setup');
-                }
-              }
-            },
-            icon: const Icon(Icons.settings),
-            label: Text(TranslationService.translate(context, 'app_settings')),
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size(double.infinity, 50),
-            ),
+          // App Settings
+          Text(
+            TranslationService.translate(context, 'app_settings'),
+            style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 16),
+          Card(
+            child: Column(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.download),
+                  title: const Text('Import Demo Data'), // TODO: Add translation
+                  onTap: () async {
+                    final confirm = await showDialog<bool>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Import Demo Data?'),
+                        content: const Text('This will add sample books to your library.'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, false),
+                            child: Text(TranslationService.translate(context, 'cancel')),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, true),
+                            child: const Text('Import'),
+                          ),
+                        ],
+                      ),
+                    );
+
+                    if (confirm == true && context.mounted) {
+                      await DemoService.importDemoBooks(context);
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Demo data imported!')),
+                        );
+                      }
+                    }
+                  },
+                ),
+                const Divider(),
+                ListTile(
+                  leading: const Icon(Icons.restore),
+                  title: Text(TranslationService.translate(context, 'reset_setup')),
+                  onTap: () async {
+                    final confirmed = await showDialog<bool>(
+                      context: context,
+                      builder:
+                          (context) => AlertDialog(
+                            title: Text(TranslationService.translate(context, 'settings_dialog_title')),
+                            content: Text(
+                              TranslationService.translate(context, 'settings_dialog_body'),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, false),
+                                child: Text(TranslationService.translate(context, 'cancel')),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, true),
+                                child: Text(TranslationService.translate(context, 'edit_settings')),
+                              ),
+                            ],
+                          ),
+                    );
+
+                    if (confirmed == true && mounted) {
+                      final themeProvider = Provider.of<ThemeProvider>(
+                        context,
+                        listen: false,
+                      );
+                      await themeProvider.resetSetup();
+                      if (mounted) {
+                        context.go('/setup');
+                      }
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 32),
+          
+          // Logout Button
           OutlinedButton.icon(
             onPressed: () async {
               final authService = Provider.of<AuthService>(context, listen: false);

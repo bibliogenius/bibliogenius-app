@@ -5,6 +5,7 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
   final List<Widget>? actions;
   final PreferredSizeWidget? bottom;
   final Widget? leading;
+  final bool automaticallyImplyLeading;
 
   const GenieAppBar({
     super.key,
@@ -12,11 +13,13 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.actions,
     this.bottom,
     this.leading,
+    this.automaticallyImplyLeading = true,
   });
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      automaticallyImplyLeading: automaticallyImplyLeading,
       leading: leading,
       title: Row(
         mainAxisSize: MainAxisSize.min,

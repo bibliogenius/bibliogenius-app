@@ -6,6 +6,7 @@ import '../models/contact.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
 import '../providers/theme_provider.dart';
+import '../services/wizard_service.dart';
 
 class ContactsScreen extends StatefulWidget {
   const ContactsScreen({super.key});
@@ -19,10 +20,27 @@ class _ContactsScreenState extends State<ContactsScreen> {
   bool _isLoading = true;
   String _filterType = 'all'; // 'all', 'borrower', 'library'
 
+  final GlobalKey _addKey = GlobalKey();
+  final GlobalKey _filterKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
     _loadContacts();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkWizard();
+    });
+  }
+
+  Future<void> _checkWizard() async {
+    final hasSeen = await WizardService.hasSeenContactsWizard();
+    if (!hasSeen && mounted) {
+      WizardService.showContactsTutorial(
+        context: context,
+        addKey: _addKey,
+        filterKey: _filterKey,
+      );
+    }
   }
 
   Future<void> _loadContacts() async {
@@ -116,11 +134,21 @@ class _ContactsScreenState extends State<ContactsScreen> {
         : 'Ajoutez vos contacts pour noter quand vous leur prêtez un livre.';
     }
 
+    final width = MediaQuery.of(context).size.width;
+    final isWide = width > 600;
+
     return Scaffold(
       appBar: GenieAppBar(
         title: title,
+        leading: isWide 
+          ? null 
+          : IconButton(
+              icon: const Icon(Icons.menu),
+              onPressed: () => Scaffold.of(context).openDrawer(),
+            ),
         actions: [
           PopupMenuButton<String>(
+            key: _filterKey,
             initialValue: _filterType,
             onSelected: (value) {
               setState(() => _filterType = value);
@@ -318,6 +346,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
               ),
             ),
       floatingActionButton: FloatingActionButton(
+        key: _addKey,
         onPressed: () async {
           await context.push('/contacts/add');
           _loadContacts();

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../services/translation_service.dart';
+import 'app_drawer.dart';
 
 class ScaffoldWithNav extends StatelessWidget {
   final Widget child;
@@ -13,6 +14,7 @@ class ScaffoldWithNav extends StatelessWidget {
     final bool useRail = width > 600;
 
     return Scaffold(
+      drawer: useRail ? null : const AppDrawer(), // Drawer for mobile
       body: Row(
         children: [
           if (useRail)
@@ -59,46 +61,7 @@ class ScaffoldWithNav extends StatelessWidget {
           Expanded(child: child),
         ],
       ),
-      bottomNavigationBar: useRail
-          ? null
-          : NavigationBar(
-              selectedIndex: _calculateSelectedIndex(context),
-              onDestinationSelected: (int index) => _onItemTapped(index, context),
-              destinations: [
-                NavigationDestination(
-                  icon: Icon(Icons.dashboard),
-                  label: TranslationService.translate(context, 'home'),
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.book),
-                  label: TranslationService.translate(context, 'library'),
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.contacts),
-                  label: TranslationService.translate(context, 'contacts'),
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.cloud_sync),
-                  label: TranslationService.translate(context, 'network'),
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.swap_horiz),
-                  label: TranslationService.translate(context, 'requests'),
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.link),
-                  label: TranslationService.translate(context, 'nav_p2p_connect'),
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.person),
-                  label: TranslationService.translate(context, 'profile'),
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.help_outline),
-                  label: TranslationService.translate(context, 'nav_help'),
-                ),
-              ],
-            ),
+      // No bottomNavigationBar
     );
   }
 
