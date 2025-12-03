@@ -3,7 +3,9 @@ set -e
 
 # Configuration
 APP_NAME="BiblioGenius"
-BACKEND_DIR="../../bibliogenius"
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# Resolve backend path relative to script location (bibliogenius-app/macos/../../bibliogenius)
+BACKEND_DIR="$SCRIPT_DIR/../../bibliogenius"
 OUTPUT_DIR="Runner/Resources/backend"
 BINARY_NAME="bibliogenius"
 
@@ -46,9 +48,9 @@ echo "🔗 Creating Universal Binary..."
 lipo -create \
     "target/x86_64-apple-darwin/release/$BINARY_NAME" \
     "target/aarch64-apple-darwin/release/$BINARY_NAME" \
-    -output "../../bibliogenius-app/macos/$OUTPUT_DIR/$BINARY_NAME"
+    -output "$SCRIPT_DIR/Runner/Resources/backend/$BINARY_NAME"
 
 # Make executable
-chmod +x "../../bibliogenius-app/macos/$OUTPUT_DIR/$BINARY_NAME"
+chmod +x "$SCRIPT_DIR/Runner/Resources/backend/$BINARY_NAME"
 
 echo "✅ Backend bundled successfully at macos/$OUTPUT_DIR/$BINARY_NAME"
