@@ -39,7 +39,11 @@ import 'widgets/app_lifecycle_observer.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    debugPrint('No .env file found, using default configuration');
+  }
   await TranslationService.loadFromCache();
   final themeProvider = ThemeProvider();
   

@@ -41,7 +41,11 @@ class MockBackendService extends BackendService {
 void main() {
   setUpAll(() async {
     HttpOverrides.global = TestHttpOverrides();
-    await dotenv.load(fileName: ".env");
+    try {
+      await dotenv.load(fileName: ".env");
+    } catch (e) {
+      // Ignore missing .env in tests/CI
+    }
   });
 
   testWidgets('App smoke test', (WidgetTester tester) async {
