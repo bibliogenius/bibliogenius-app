@@ -609,7 +609,6 @@ class TranslationService {
       'avatar_young_reader': 'Jeune Lectrice',
       'avatar_grandmother': 'Grand-mère',
       'avatar_head_librarian': 'Bibliothécaire en Chef',
-      'avatar_head_librarian': 'Bibliothécaire en Chef',
       'avatar_professional_librarian': 'Bibliothécaire Pro',
       // Badges
       'badge_pro': 'Pro',
@@ -966,7 +965,6 @@ class TranslationService {
       'avatar_young_reader': 'Joven Lectora',
       'avatar_grandmother': 'Abuela',
       'avatar_head_librarian': 'Bibliotecario Jefe',
-      'avatar_head_librarian': 'Bibliotecario Jefe',
       'avatar_professional_librarian': 'Bibliotecario Profesional',
       // Badges
       'badge_pro': 'Pro',
@@ -1134,7 +1132,6 @@ class TranslationService {
       'avatar_bookworm': 'Bücherwurm',
       'avatar_young_reader': 'Junge Leserin',
       'avatar_grandmother': 'Großmutter',
-      'avatar_head_librarian': 'Chefbibliothekar',
       'avatar_head_librarian': 'Chefbibliothekar',
       'avatar_professional_librarian': 'Professioneller Bibliothekar',
       // Badges
