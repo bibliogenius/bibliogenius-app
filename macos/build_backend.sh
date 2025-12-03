@@ -12,7 +12,7 @@ BINARY_NAME="bibliogenius"
 echo "🚀 Starting backend build for macOS..."
 
 # Ensure output directory exists
-mkdir -p "$OUTPUT_DIR"
+mkdir -p "$SCRIPT_DIR/$OUTPUT_DIR"
 
 # Source cargo environment if available
 if [ -f "$HOME/.cargo/env" ]; then
