@@ -33,11 +33,26 @@ import 'screens/help_screen.dart';
 import 'screens/network_search_screen.dart';
 import 'widgets/scaffold_with_nav.dart';
 
+import 'dart:io';
+import 'services/backend_service.dart';
+import 'widgets/app_lifecycle_observer.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
   await TranslationService.loadFromCache();
   final themeProvider = ThemeProvider();
+  
+  // Initialize and start backend service (macOS only for now)
+  final backendService = BackendService();
+  if (Platform.isMacOS) {
+    try {
+      await backendService.start();
+    } catch (e) {
+      debugPrint('Failed to start bundled backend: $e');
+      // Continue anyway, maybe user has external backend
+    }
+  }
   
   try {
     await themeProvider.loadSettings();
@@ -47,28 +62,51 @@ void main() async {
     // Continue with default settings
   }
 
-  runApp(MyApp(themeProvider: themeProvider));
+  runApp(MyApp(
+    themeProvider: themeProvider,
+    backendService: backendService,
+  ));
 }
 
 class MyApp extends StatelessWidget {
   final ThemeProvider themeProvider;
+  final BackendService backendService;
 
-  const MyApp({super.key, required this.themeProvider});
+  const MyApp({
+    super.key,
+    required this.themeProvider,
+    required this.backendService,
+  });
 
   @override
   Widget build(BuildContext context) {
     final authService = AuthService();
-    final baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://localhost:8001';
+    
+    // Determine base URL:
+    // 1. If backend service is running, use its port
+    // 2. Else check .env
+    // 3. Fallback to localhost:8001
+    String baseUrl;
+    if (backendService.isRunning && backendService.port != null) {
+      baseUrl = 'http://localhost:${backendService.port}';
+    } else {
+      baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://localhost:8001';
+    }
+    
     final apiService = ApiService(authService, baseUrl: baseUrl);
 
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider<ThemeProvider>.value(value: themeProvider),
-        Provider<AuthService>.value(value: authService),
-        Provider<ApiService>.value(value: apiService),
-        Provider<SyncService>(create: (_) => SyncService(apiService)),
-      ],
-      child: const AppRouter(),
+    return AppLifecycleObserver(
+      backendService: backendService,
+      child: MultiProvider(
+        providers: [
+          ChangeNotifierProvider<ThemeProvider>.value(value: themeProvider),
+          Provider<AuthService>.value(value: authService),
+          Provider<ApiService>.value(value: apiService),
+          Provider<SyncService>(create: (_) => SyncService(apiService)),
+          Provider<BackendService>.value(value: backendService),
+        ],
+        child: const AppRouter(),
+      ),
     );
   }
 }

@@ -26,6 +26,11 @@ class ApiService {
     );
   }
 
+  void updatePort(int port) {
+    _dio.options.baseUrl = 'http://localhost:$port';
+    debugPrint('ApiService updated to use port $port');
+  }
+
   String get baseUrl => _dio.options.baseUrl;
 
   void setBaseUrl(String url) {
