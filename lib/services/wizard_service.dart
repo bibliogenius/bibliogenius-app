@@ -19,6 +19,8 @@ class WizardService {
   static Future<void> resetWizard() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_kHasSeenDashboardWizard);
+    await prefs.remove(_kHasSeenBooksWizard);
+    await prefs.remove(_kHasSeenContactsWizard);
   }
 
   static void showDashboardWizard({
