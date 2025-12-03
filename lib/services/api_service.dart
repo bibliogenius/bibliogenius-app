@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'auth_service.dart';
 
 class ApiService {
-  final Dio _dio = Dio();
+  final Dio _dio;
   final AuthService _authService;
   // Use localhost for Web/Desktop
   // Use 10.0.2.2 for Android Emulator
@@ -11,7 +11,7 @@ class ApiService {
   static const String defaultBaseUrl = 'http://localhost:8001';
   static const String hubUrl = 'http://localhost:8081';
 
-  ApiService(this._authService, {String? baseUrl}) {
+  ApiService(this._authService, {String? baseUrl, Dio? dio}) : _dio = dio ?? Dio() {
     _dio.options.baseUrl = baseUrl ?? defaultBaseUrl;
     _dio.interceptors.add(
       InterceptorsWrapper(
