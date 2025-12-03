@@ -17,6 +17,9 @@ if [ -f "$HOME/.cargo/env" ]; then
     source "$HOME/.cargo/env"
 fi
 
+# Explicitly add cargo bin to PATH (fallback)
+export PATH="$HOME/.cargo/bin:$PATH"
+
 # Check if cargo is installed
 if ! command -v cargo &> /dev/null; then
     echo "❌ Cargo not found. Please install Rust (curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh)"
