@@ -12,9 +12,14 @@ echo "🚀 Starting backend build for macOS..."
 # Ensure output directory exists
 mkdir -p "$OUTPUT_DIR"
 
+# Source cargo environment if available
+if [ -f "$HOME/.cargo/env" ]; then
+    source "$HOME/.cargo/env"
+fi
+
 # Check if cargo is installed
 if ! command -v cargo &> /dev/null; then
-    echo "❌ Cargo not found. Please install Rust."
+    echo "❌ Cargo not found. Please install Rust (curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh)"
     exit 1
 fi
 
