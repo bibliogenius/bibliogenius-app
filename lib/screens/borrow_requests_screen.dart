@@ -209,27 +209,58 @@ class _BorrowRequestsScreenState extends State<BorrowRequestsScreen>
   }
 
   Widget _buildConnectionList() {
+    final incoming = _connectionRequests.where((r) => r['direction'] == 'incoming' || r['direction'] == null).toList();
+    final outgoing = _connectionRequests.where((r) => r['direction'] == 'outgoing').toList();
+
     if (_connectionRequests.isEmpty) {
       return _buildEmptyState(TranslationService.translate(context, 'no_pending_connections'));
     }
-    return ListView.builder(
-      itemCount: _connectionRequests.length,
-      itemBuilder: (context, index) {
-        final req = _connectionRequests[index];
-        return Column(
-          children: [
-            ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              leading: CircleAvatar(
-                backgroundColor: Colors.purple.withOpacity(0.1),
-                child: const Icon(Icons.link, color: Colors.purple),
-              ),
-              title: Text(
-                req['name'] ?? TranslationService.translate(context, 'unknown_library'),
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-              subtitle: Text(req['url'] ?? ''),
-              trailing: Row(
+
+    return ListView(
+      children: [
+        if (incoming.isNotEmpty) ...[
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              TranslationService.translate(context, 'incoming_connections'),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            ),
+          ),
+          ...incoming.map((req) => _buildConnectionTile(req, isIncoming: true)),
+        ],
+        if (outgoing.isNotEmpty) ...[
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              TranslationService.translate(context, 'outgoing_connections'),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            ),
+          ),
+          ...outgoing.map((req) => _buildConnectionTile(req, isIncoming: false)),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildConnectionTile(Map<String, dynamic> req, {required bool isIncoming}) {
+    return Column(
+      children: [
+        ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          leading: CircleAvatar(
+            backgroundColor: isIncoming ? Colors.purple.withOpacity(0.1) : Colors.blueGrey.withOpacity(0.1),
+            child: Icon(
+              isIncoming ? Icons.link : Icons.link_off,
+              color: isIncoming ? Colors.purple : Colors.blueGrey,
+            ),
+          ),
+          title: Text(
+            req['name'] ?? TranslationService.translate(context, 'unknown_library'),
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+          subtitle: Text(req['url'] ?? ''),
+          trailing: isIncoming 
+            ? Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   ElevatedButton(
@@ -252,12 +283,15 @@ class _BorrowRequestsScreenState extends State<BorrowRequestsScreen>
                     child: Text(TranslationService.translate(context, 'btn_reject')),
                   ),
                 ],
+              )
+            : Chip(
+                label: Text(TranslationService.translate(context, 'status_pending')),
+                backgroundColor: Colors.orange.withOpacity(0.1),
+                labelStyle: const TextStyle(color: Colors.orange),
               ),
-            ),
-            const Divider(height: 1, indent: 72),
-          ],
-        );
-      },
+        ),
+        const Divider(height: 1, indent: 72),
+      ],
     );
   }
 

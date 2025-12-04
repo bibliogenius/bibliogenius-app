@@ -113,6 +113,7 @@ class _P2PScreenState extends State<P2PScreen>
 
       if (mounted) {
         Navigator.pop(context); // Pop loading
+        Navigator.pop(context); // Pop P2P screen to return to previous screen
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text("${TranslationService.translate(context, 'connected_to')} $name!")));
@@ -134,24 +135,24 @@ class _P2PScreenState extends State<P2PScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Debug: Manual Connection'),
+        title: Text(TranslationService.translate(context, 'manual_connection_title')),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: nameController,
-              decoration: const InputDecoration(labelText: 'Library Name'),
+              decoration: InputDecoration(labelText: TranslationService.translate(context, 'library_name')),
             ),
             TextField(
               controller: urlController,
-              decoration: const InputDecoration(labelText: 'Library URL'),
+              decoration: InputDecoration(labelText: TranslationService.translate(context, 'library_url')),
             ),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(TranslationService.translate(context, 'cancel')),
           ),
           TextButton(
             onPressed: () {
@@ -160,7 +161,7 @@ class _P2PScreenState extends State<P2PScreen>
                 _connect(nameController.text, urlController.text);
               }
             },
-            child: const Text('Connect'),
+            child: Text(TranslationService.translate(context, 'connect')),
           ),
         ],
       ),
