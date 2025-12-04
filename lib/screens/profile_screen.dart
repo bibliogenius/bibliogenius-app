@@ -261,6 +261,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   await api.updateLibraryConfig(
                                     name: controller.text,
                                     description: _config?['description'],
+                                    tags: _config?['tags'] != null ? List<String>.from(_config!['tags']) : [],
+                                    latitude: _config?['latitude'],
+                                    longitude: _config?['longitude'],
                                     showBorrowedBooks: _config?['show_borrowed_books'],
                                     shareLocation: _config?['share_location'],
                                   );
@@ -329,7 +332,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         // We need to update the library config
                         await api.updateLibraryConfig(
                           name: _config!['library_name'] ?? _config!['name'] ?? 'My Library',
-                          description: _config!['description'], // Correct key is 'description'
+                          description: _config!['description'],
+                          tags: _config?['tags'] != null ? List<String>.from(_config!['tags']) : [],
+                          latitude: _config?['latitude'],
+                          longitude: _config?['longitude'],
                           showBorrowedBooks: value,
                           shareLocation: _config!['share_location'],
                         );
@@ -665,6 +671,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _showSettingsDialog(BuildContext context) {
+    final libraryNameController = TextEditingController(
+      text: _config?['library_name'] ?? _config?['name'] ?? '',
+    );
+
     showDialog(
       context: context,
       builder: (context) {
@@ -672,47 +682,91 @@ class _ProfileScreenState extends State<ProfileScreen> {
           builder: (context, themeProvider, _) {
             return AlertDialog(
               title: Text(TranslationService.translate(context, 'edit_settings')),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(TranslationService.translate(context, 'lang_title') ?? 'Language'),
-                  DropdownButton<String>(
-                    value: themeProvider.locale.languageCode,
-                    isExpanded: true,
-                    items: [
-                      DropdownMenuItem(value: 'en', child: Text(TranslationService.translate(context, 'lang_en'))),
-                      DropdownMenuItem(value: 'fr', child: Text(TranslationService.translate(context, 'lang_fr'))),
-                      DropdownMenuItem(value: 'es', child: Text(TranslationService.translate(context, 'lang_es'))),
-                      DropdownMenuItem(value: 'de', child: Text(TranslationService.translate(context, 'lang_de'))),
-                    ],
-                    onChanged: (String? newValue) {
-                      if (newValue != null) {
-                        themeProvider.setLocale(Locale(newValue));
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  Text(TranslationService.translate(context, 'theme_title') ?? 'Theme'),
-                  DropdownButton<String>(
-                    value: themeProvider.themeStyle,
-                    isExpanded: true,
-                    items: [
-                      DropdownMenuItem(value: 'default', child: Text(TranslationService.translate(context, 'theme_default'))),
-                      DropdownMenuItem(value: 'minimal', child: Text(TranslationService.translate(context, 'theme_minimal'))),
-                    ],
-                    onChanged: (String? newValue) {
-                      if (newValue != null) {
-                        themeProvider.setThemeStyle(newValue);
-                      }
-                    },
-                  ),
-                ],
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(TranslationService.translate(context, 'library_name')),
+                    TextField(
+                      controller: libraryNameController,
+                      decoration: InputDecoration(
+                        hintText: TranslationService.translate(context, 'enter_library_name'),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(TranslationService.translate(context, 'lang_title') ?? 'Language'),
+                    DropdownButton<String>(
+                      value: themeProvider.locale.languageCode,
+                      isExpanded: true,
+                      items: [
+                        DropdownMenuItem(value: 'en', child: Text(TranslationService.translate(context, 'lang_en'))),
+                        DropdownMenuItem(value: 'fr', child: Text(TranslationService.translate(context, 'lang_fr'))),
+                        DropdownMenuItem(value: 'es', child: Text(TranslationService.translate(context, 'lang_es'))),
+                        DropdownMenuItem(value: 'de', child: Text(TranslationService.translate(context, 'lang_de'))),
+                      ],
+                      onChanged: (String? newValue) {
+                        if (newValue != null) {
+                          themeProvider.setLocale(Locale(newValue));
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    Text(TranslationService.translate(context, 'theme_title') ?? 'Theme'),
+                    DropdownButton<String>(
+                      value: themeProvider.themeStyle,
+                      isExpanded: true,
+                      items: [
+                        DropdownMenuItem(value: 'default', child: Text(TranslationService.translate(context, 'theme_default'))),
+                        DropdownMenuItem(value: 'minimal', child: Text(TranslationService.translate(context, 'theme_minimal'))),
+                      ],
+                      onChanged: (String? newValue) {
+                        if (newValue != null) {
+                          themeProvider.setThemeStyle(newValue);
+                        }
+                      },
+                    ),
+                  ],
+                ),
               ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Close'),
+                  child: Text(TranslationService.translate(context, 'cancel')),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    // Save library name
+                    if (libraryNameController.text.isNotEmpty && 
+                        libraryNameController.text != (_config?['library_name'] ?? _config?['name'])) {
+                      try {
+                        final api = Provider.of<ApiService>(context, listen: false);
+                        await api.updateLibraryConfig(
+                          name: libraryNameController.text,
+                          description: _config?['description'],
+                          tags: _config?['tags'] != null ? List<String>.from(_config!['tags']) : [],
+                          latitude: _config?['latitude'],
+                          longitude: _config?['longitude'],
+                          showBorrowedBooks: _config?['show_borrowed_books'],
+                          shareLocation: _config?['share_location'],
+                        );
+                        _fetchStatus(); // Refresh UI
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(TranslationService.translate(context, 'library_updated'))),
+                          );
+                        }
+                      } catch (e) {
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('${TranslationService.translate(context, 'error_updating_library')}: $e')),
+                          );
+                        }
+                      }
+                    }
+                  },
+                  child: Text(TranslationService.translate(context, 'save')),
                 ),
               ],
             );

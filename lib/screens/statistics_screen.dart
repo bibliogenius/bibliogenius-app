@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../services/api_service.dart';
+import '../services/translation_service.dart';
 import '../models/book.dart';
 import '../widgets/genie_app_bar.dart';
 
@@ -41,13 +42,13 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const GenieAppBar(
-        title: "Library Insights",
+      appBar: GenieAppBar(
+        title: TranslationService.translate(context, 'library_insights'),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _books.isEmpty
-              ? const Center(child: Text("No books to analyze yet!"))
+              ? Center(child: Text(TranslationService.translate(context, 'no_books_analyze')))
               : SingleChildScrollView(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -55,15 +56,15 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     children: [
                       _buildSummaryCards(),
                       const SizedBox(height: 32),
-                      _buildSectionTitle("Reading Habits"),
+                      _buildSectionTitle(TranslationService.translate(context, 'reading_habits')),
                       const SizedBox(height: 16),
                       _buildStatusPieChart(),
                       const SizedBox(height: 32),
-                      _buildSectionTitle("Top Authors"),
+                      _buildSectionTitle(TranslationService.translate(context, 'top_authors')),
                       const SizedBox(height: 16),
                       _buildTopAuthorsChart(),
                       const SizedBox(height: 32),
-                      _buildSectionTitle("Publication Timeline"),
+                      _buildSectionTitle(TranslationService.translate(context, 'publication_timeline')),
                       const SizedBox(height: 16),
                       _buildPublicationYearChart(),
                       const SizedBox(height: 40),
@@ -109,29 +110,29 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       children: [
         Row(
           children: [
-            Expanded(child: _buildStatCard("Total Books", totalBooks.toString(), Icons.library_books, Colors.blue)),
+            Expanded(child: _buildStatCard(TranslationService.translate(context, 'stat_total_books'), totalBooks.toString(), Icons.library_books, Colors.blue)),
             const SizedBox(width: 16),
-            Expanded(child: _buildStatCard("Read", readBooks.toString(), Icons.check_circle, Colors.green)),
+            Expanded(child: _buildStatCard(TranslationService.translate(context, 'stat_read'), readBooks.toString(), Icons.check_circle, Colors.green)),
             const SizedBox(width: 16),
-            Expanded(child: _buildStatCard("Borrowed", borrowedBooks.toString(), Icons.people, Colors.purple)),
+            Expanded(child: _buildStatCard(TranslationService.translate(context, 'stat_borrowed'), borrowedBooks.toString(), Icons.people, Colors.purple)),
           ],
         ),
         const SizedBox(height: 16),
         Row(
           children: [
-            Expanded(child: _buildStatCard("Unique Authors", uniqueAuthors.toString(), Icons.person_outline, Colors.orange)),
+            Expanded(child: _buildStatCard(TranslationService.translate(context, 'stat_unique_authors'), uniqueAuthors.toString(), Icons.person_outline, Colors.orange)),
             const SizedBox(width: 16),
-            Expanded(child: _buildStatCard("Completion", "$completionRate%", Icons.trending_up, Colors.teal)),
+            Expanded(child: _buildStatCard(TranslationService.translate(context, 'stat_completion'), "$completionRate%", Icons.trending_up, Colors.teal)),
             const SizedBox(width: 16),
-            Expanded(child: _buildStatCard("Oldest Book", oldestYear?.toString() ?? "N/A", Icons.history, Colors.brown)),
+            Expanded(child: _buildStatCard(TranslationService.translate(context, 'stat_oldest_book'), oldestYear?.toString() ?? "N/A", Icons.history, Colors.brown)),
           ],
         ),
         const SizedBox(height: 16),
         Row(
           children: [
-            Expanded(child: _buildStatCard("Avg Year", avgYear?.toString() ?? "N/A", Icons.calendar_today, Colors.indigo)),
+            Expanded(child: _buildStatCard(TranslationService.translate(context, 'stat_avg_year'), avgYear?.toString() ?? "N/A", Icons.calendar_today, Colors.indigo)),
             const SizedBox(width: 16),
-            Expanded(child: _buildStatCard("Books/Author", uniqueAuthors > 0 ? (totalBooks / uniqueAuthors).toStringAsFixed(1) : "0.0", Icons.auto_graph, Colors.pink)),
+            Expanded(child: _buildStatCard(TranslationService.translate(context, 'stat_books_per_author'), uniqueAuthors > 0 ? (totalBooks / uniqueAuthors).toStringAsFixed(1) : "0.0", Icons.auto_graph, Colors.pink)),
             const SizedBox(width: 16),
             const Expanded(child: SizedBox()), // Placeholder for symmetry
           ],
@@ -353,7 +354,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     final sortedYears = yearCounts.entries.toList()
       ..sort((a, b) => a.key.compareTo(b.key));
 
-    if (sortedYears.isEmpty) return const Text("No publication year data.");
+    if (sortedYears.isEmpty) return Text(TranslationService.translate(context, 'no_pub_year_data'));
 
     return Container(
       height: 300,

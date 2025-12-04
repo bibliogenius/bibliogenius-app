@@ -116,7 +116,7 @@ class _P2PScreenState extends State<P2PScreen>
 
       if (mounted) {
         Navigator.pop(context); // Pop loading
-        Navigator.pop(context); // Pop P2P screen to return to previous screen
+        // Navigator.pop(context); // Keep user on P2P screen to see success message
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text("${TranslationService.translate(context, 'connected_to')} $name!")));
