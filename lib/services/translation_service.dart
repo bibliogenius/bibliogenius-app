@@ -1345,7 +1345,7 @@ class TranslationService {
   };
 
   static String translate(BuildContext context, String key) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     final lang = themeProvider.locale.languageCode;
     
     // 1. Check dynamic translations for current lang

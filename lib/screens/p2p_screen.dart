@@ -9,6 +9,7 @@ import '../services/api_service.dart';
 import '../services/translation_service.dart';
 import '../providers/theme_provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:go_router/go_router.dart';
 
 class P2PScreen extends StatefulWidget {
   const P2PScreen({super.key});
@@ -103,7 +104,7 @@ class _P2PScreenState extends State<P2PScreen>
   }
 
   Future<void> _connect(String name, String url) async {
-    // Show loading
+    // This is now only called from QR scan, not manual dialog
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -116,17 +117,17 @@ class _P2PScreenState extends State<P2PScreen>
 
       if (mounted) {
         Navigator.pop(context); // Pop loading
-        // Navigator.pop(context); // Keep user on P2P screen to see success message
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("${TranslationService.translate(context, 'connected_to')} $name!")));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("${TranslationService.translate(context, 'connected_to')} $name!"),
+          duration: const Duration(seconds: 2),
+        ));
       }
     } catch (e) {
       if (mounted) {
-        Navigator.pop(context); // Pop loading
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("${TranslationService.translate(context, 'connection_failed')}: $e")));
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("${TranslationService.translate(context, 'connection_failed')}: $e")
+        ));
       }
     }
   }
@@ -137,36 +138,78 @@ class _P2PScreenState extends State<P2PScreen>
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(TranslationService.translate(context, 'manual_connection_title')),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: nameController,
-              decoration: InputDecoration(labelText: TranslationService.translate(context, 'library_name')),
-            ),
-            TextField(
-              controller: urlController,
-              decoration: InputDecoration(labelText: TranslationService.translate(context, 'library_url')),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(TranslationService.translate(context, 'cancel')),
-          ),
-          TextButton(
-            onPressed: () {
-              if (nameController.text.isNotEmpty && urlController.text.isNotEmpty) {
-                Navigator.pop(context);
-                _connect(nameController.text, urlController.text);
+      barrierDismissible: false,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setState) {
+          bool isLoading = false;
+
+          Future<void> handleConnect() async {
+            if (nameController.text.isEmpty || urlController.text.isEmpty) return;
+
+            setState(() => isLoading = true);
+
+            try {
+              final apiService = Provider.of<ApiService>(context, listen: false);
+              await apiService.connectPeer(nameController.text, urlController.text);
+
+              if (mounted) {
+                Navigator.pop(dialogContext); // Close dialog
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text("${TranslationService.translate(context, 'connected_to')} ${nameController.text}!"),
+                  duration: const Duration(seconds: 2),
+                ));
               }
-            },
-            child: Text(TranslationService.translate(context, 'connect')),
-          ),
-        ],
+            } catch (e) {
+              setState(() => isLoading = false);
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text("${TranslationService.translate(context, 'connection_failed')}: $e"),
+                  duration: const Duration(seconds: 3),
+                ));
+              }
+            }
+          }
+
+          return AlertDialog(
+            title: Text(TranslationService.translate(context, 'manual_connection_title')),
+            content: isLoading
+                ? const SizedBox(
+                    height: 100,
+                    child: Center(child: CircularProgressIndicator()),
+                  )
+                : Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextField(
+                        controller: nameController,
+                        decoration: InputDecoration(
+                          labelText: TranslationService.translate(context, 'library_name')
+                        ),
+                        enabled: !isLoading,
+                      ),
+                      TextField(
+                        controller: urlController,
+                        decoration: InputDecoration(
+                          labelText: TranslationService.translate(context, 'library_url')
+                        ),
+                        enabled: !isLoading,
+                      ),
+                    ],
+                  ),
+            actions: isLoading
+                ? []
+                : [
+                    TextButton(
+                      onPressed: () => Navigator.pop(dialogContext),
+                      child: Text(TranslationService.translate(context, 'cancel')),
+                    ),
+                    TextButton(
+                      onPressed: handleConnect,
+                      child: Text(TranslationService.translate(context, 'connect')),
+                    ),
+                  ],
+          );
+        },
       ),
     );
   }
