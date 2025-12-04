@@ -49,9 +49,12 @@ class _P2PScreenState extends State<P2PScreen>
       try {
         _localIp = await info.getWifiIP();
       } catch (e) {
+        // getWifiIP not supported on Web platform
         debugPrint("Error getting IP: $e");
+        _localIp = 'localhost';
       }
       _localIp ??= '127.0.0.1'; // Fallback
+
 
       // Get Library Config
       try {

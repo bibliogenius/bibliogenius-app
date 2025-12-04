@@ -292,7 +292,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
             _buildLabel(TranslationService.translate(context, 'status_label')),
             Builder(
               builder: (context) {
-                final themeProvider = Provider.of<ThemeProvider>(context);
+                final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
                 final isLibrarian = themeProvider.isLibrarian;
                 final statusOptions = getStatusOptions(context, isLibrarian);
                 
