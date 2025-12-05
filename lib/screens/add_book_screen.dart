@@ -4,10 +4,10 @@ import 'package:go_router/go_router.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
 import '../providers/theme_provider.dart';
-import '../providers/theme_provider.dart';
 import '../utils/book_status.dart';
-import '../services/open_library_service.dart';
 import '../models/book.dart';
+import '../services/open_library_service.dart';
+import '../services/search_cache.dart';
 
 class AddBookScreen extends StatefulWidget {
   final String? isbn;
@@ -20,6 +20,7 @@ class AddBookScreen extends StatefulWidget {
 class _AddBookScreenState extends State<AddBookScreen> {
   final _formKey = GlobalKey<FormState>();
   final _openLibraryService = OpenLibraryService();
+  final _searchCache = SearchCache();
   final _titleController = TextEditingController();
   final _publisherController = TextEditingController();
   final _publicationYearController = TextEditingController();
@@ -62,8 +63,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
   Future<void> _fetchBookDetails(String isbn) async {
     setState(() => _isFetchingDetails = true);
     try {
+      // Use backend (Inventaire with OpenLibrary cover enrichment)
       final api = Provider.of<ApiService>(context, listen: false);
-      final bookData = await api.fetchOpenLibraryBook(isbn);
+      final bookData = await api.lookupBook(isbn);
       
       if (bookData != null && mounted) {
         setState(() {
@@ -72,6 +74,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
           if (_publisherController.text.isEmpty) _publisherController.text = bookData['publisher'] ?? '';
           if (_publicationYearController.text.isEmpty) _publicationYearController.text = bookData['year']?.toString() ?? '';
           if (_summaryController.text.isEmpty) _summaryController.text = bookData['summary'] ?? '';
+          if (_coverUrl == null && bookData['cover_url'] != null) {
+            _coverUrl = bookData['cover_url'];
+          }
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(TranslationService.translate(context, 'book_details_found'))),
@@ -153,20 +158,48 @@ class _AddBookScreenState extends State<AddBookScreen> {
             _buildLabel(TranslationService.translate(context, 'title_label')),
             LayoutBuilder(
               builder: (context, constraints) {
-                return RawAutocomplete<OpenLibraryBook>(
+                return RawAutocomplete<Map<String, dynamic>>(
                   textEditingController: _titleController,
                   focusNode: FocusNode(),
-                  optionsBuilder: (TextEditingValue textEditingValue) {
-                    return _openLibraryService.searchBooks(textEditingValue.text);
+                  optionsBuilder: (TextEditingValue textEditingValue) async {
+                    if (textEditingValue.text.isEmpty) {
+                      return const Iterable<Map<String, dynamic>>.empty();
+                    }
+                    
+                    // Check cache first
+                    final cached = _searchCache.get(textEditingValue.text);
+                    if (cached != null) {
+                      return cached;
+                    }
+                    
+                    // Use OpenLibrary for title search (better relevance, covers, authors)
+                    // Inventaire search is too basic (missing authors) for autocomplete
+                    final results = await _openLibraryService.searchBooks(textEditingValue.text);
+                    
+                    // Filter out "Independently Published" (POD/self-published reprints)
+                    // These pollute results with low-quality editions of public domain works
+                    final filteredResults = results.where((book) {
+                      final publisher = book.toMap()['publisher'] as String?;
+                      return publisher != 'Independently Published';
+                    }).toList();
+                    
+                    final resultMaps = filteredResults.map((book) => book.toMap()).toList();
+                    
+                    // Cache the results
+                    _searchCache.set(textEditingValue.text, resultMaps);
+                    
+                    return resultMaps;
                   },
-                  displayStringForOption: (OpenLibraryBook option) => option.title,
-                  onSelected: (OpenLibraryBook selection) {
+                  displayStringForOption: (option) => option['title'] ?? '',
+                  onSelected: (Map<String, dynamic> selection) {
                     setState(() {
-                      _authorController.text = selection.author;
-                      if (selection.isbn != null) _isbnController.text = selection.isbn!;
-                      if (selection.publisher != null) _publisherController.text = selection.publisher!;
-                      if (selection.year != null) _publicationYearController.text = selection.year.toString();
-                      if (selection.coverUrl != null) _coverUrl = selection.coverUrl;
+                      if (selection['title'] != null) _titleController.text = selection['title'];
+                      if (selection['author'] != null) _authorController.text = selection['author'];
+                      if (selection['isbn'] != null) _isbnController.text = selection['isbn'];
+                      if (selection['publisher'] != null) _publisherController.text = selection['publisher'];
+                      if (selection['publication_year'] != null) _publicationYearController.text = selection['publication_year'].toString();
+                      if (selection['summary'] != null) _summaryController.text = selection['summary'];
+                      if (selection['cover_url'] != null) _coverUrl = selection['cover_url'];
                     });
                   },
                   fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
@@ -181,6 +214,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
                     );
                   },
                   optionsViewBuilder: (context, onSelected, options) {
+                    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+                    final isJuniorReader = themeProvider.isKid;
+                    
                     return Align(
                       alignment: Alignment.topLeft,
                       child: Material(
@@ -193,12 +229,27 @@ class _AddBookScreenState extends State<AddBookScreen> {
                             itemCount: options.length,
                             itemBuilder: (BuildContext context, int index) {
                               final option = options.elementAt(index);
+                              final cover = option['cover_url'] as String?;
+                              final author = option['author'] as String?;
+                              final publisher = option['publisher'] as String?;
+                              
+                              // For adults: show "Author • Publisher"
+                              // For kids: show just "Author" (simpler)
+                              String subtitle = author ?? '';
+                              if (!isJuniorReader && publisher != null && publisher.isNotEmpty) {
+                                if (subtitle.isNotEmpty) {
+                                  subtitle += ' • $publisher';
+                                } else {
+                                  subtitle = publisher;
+                                }
+                              }
+
                               return ListTile(
-                                leading: option.coverUrl != null
-                                    ? Image.network(option.coverUrl!, width: 40, errorBuilder: (_,__,___) => const Icon(Icons.book))
+                                leading: cover != null && cover.isNotEmpty
+                                    ? Image.network(cover, width: 40, errorBuilder: (context, error, stackTrace) => const Icon(Icons.book))
                                     : const Icon(Icons.book),
-                                title: Text(option.title),
-                                subtitle: Text(option.author),
+                                title: Text(option['title'] ?? ''),
+                                subtitle: subtitle.isNotEmpty ? Text(subtitle, style: const TextStyle(fontSize: 12)) : null,
                                 onTap: () => onSelected(option),
                               );
                             },
