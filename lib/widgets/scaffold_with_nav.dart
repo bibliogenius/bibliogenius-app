@@ -43,13 +43,14 @@ class ScaffoldWithNav extends StatelessWidget {
                   icon: Icon(Icons.swap_horiz),
                   label: Text(TranslationService.translate(context, 'requests')),
                 ),
-                NavigationRailDestination(
-                  icon: Icon(Icons.link),
-                  label: Text(TranslationService.translate(context, 'nav_p2p_connect')),
-                ),
+
                 NavigationRailDestination(
                   icon: Icon(Icons.person),
                   label: Text(TranslationService.translate(context, 'profile')),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.school),
+                  label: Text(TranslationService.translate(context, 'menu_tutorial')),
                 ),
                 NavigationRailDestination(
                   icon: Icon(Icons.help_outline),
@@ -72,8 +73,8 @@ class ScaffoldWithNav extends StatelessWidget {
     if (location.startsWith('/contacts')) return 2;
     if (location.startsWith('/peers')) return 3;
     if (location.startsWith('/requests')) return 4;
-    if (location.startsWith('/p2p')) return 5;
-    if (location.startsWith('/profile')) return 6;
+    if (location.startsWith('/profile')) return 5;
+    if (location.startsWith('/onboarding')) return 6;
     if (location.startsWith('/help')) return 7;
     return 0;
   }
@@ -96,10 +97,10 @@ class ScaffoldWithNav extends StatelessWidget {
         context.go('/requests');
         break;
       case 5:
-        context.go('/p2p');
+        context.go('/profile');
         break;
       case 6:
-        context.go('/profile');
+        context.push('/onboarding');
         break;
       case 7:
         context.go('/help');

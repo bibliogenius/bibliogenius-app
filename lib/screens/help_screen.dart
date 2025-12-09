@@ -90,6 +90,11 @@ class _HelpScreenState extends State<HelpScreen> {
                   fontWeight: FontWeight.bold,
                 ),
           ),
+          onTap: () {
+            setState(() {
+              _isExpanded[index] = !_isExpanded[index];
+            });
+          },
         );
       },
       body: Padding(

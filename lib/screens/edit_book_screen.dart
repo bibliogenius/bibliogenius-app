@@ -69,16 +69,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
     setState(() => _isFetchingDetails = true);
     try {
       final api = Provider.of<ApiService>(context, listen: false);
-      // We use a direct Dio call here or add a helper in ApiService.
-      // Since it's external, let's just use Dio directly if possible, 
-      // but ApiService has the dio instance. Let's add a method to ApiService 
-      // or just use a new Dio instance here for simplicity and separation.
-      // Actually, let's use the existing ApiService's dio but we need to point to a different base URL.
-      // Better to just create a temporary Dio for this external request.
-      
-      // We need to import Dio first. It is already imported in api_service.dart but not here.
-      // Let's add a method to ApiService to keep networking logic there.
-      final bookData = await api.fetchOpenLibraryBook(isbn);
+      final bookData = await api.lookupBook(isbn);
       
       if (bookData != null && mounted) {
         setState(() {

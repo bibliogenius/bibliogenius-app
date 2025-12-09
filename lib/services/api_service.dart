@@ -113,7 +113,6 @@ class ApiService {
   Future<Response> connectPeer(String name, String url) async {
     // Fetch my config to send to remote peer for handshake
     String? myName;
-    String? myUrl;
     try {
       final configRes = await getLibraryConfig();
       if (configRes.statusCode == 200) {
@@ -341,37 +340,49 @@ class ApiService {
     return await _dio.put('/api/profile', data: data);
   }
 
-  Future<Map<String, dynamic>?> fetchOpenLibraryBook(String isbn) async {
+  Future<Map<String, dynamic>?> lookupBook(String isbn) async {
     try {
-      final dio = Dio(); // New instance for external call
-      final response = await dio.get(
-        'https://openlibrary.org/api/books',
-        queryParameters: {
-          'bibkeys': 'ISBN:$isbn',
-          'jscmd': 'data',
-          'format': 'json',
-        },
+      final response = await _dio.get('/api/lookup/$isbn');
+
+      if (response.statusCode == 200 && response.data != null) {
+        final data = response.data;
+        return {
+          'title': data['title'],
+          'author': data['authors'] != null 
+              ? (data['authors'] as List).map((a) => a is String ? a : a['name']).join(', ') 
+              : null,
+          'authors_data': data['authors'], // Pass full data for UI
+          'publisher': data['publisher'],
+          'year': data['publication_year'] != null ? int.tryParse(data['publication_year'].toString()) : null,
+          'cover_url': data['cover_url'],
+        };
+      }
+    } catch (e) {
+      debugPrint('Lookup API Error: $e');
+    }
+    return null;
+  }
+
+  Future<List<Map<String, dynamic>>> searchBooks({String? query, String? title, String? author, String? publisher}) async {
+    try {
+      final queryParams = <String, dynamic>{};
+      if (query != null && query.isNotEmpty) queryParams['q'] = query;
+      if (title != null && title.isNotEmpty) queryParams['title'] = title;
+      if (author != null && author.isNotEmpty) queryParams['author'] = author;
+      if (publisher != null && publisher.isNotEmpty) queryParams['publisher'] = publisher;
+
+      final response = await _dio.get(
+        '/api/integrations/search_unified',
+        queryParameters: queryParams,
       );
 
       if (response.statusCode == 200 && response.data != null) {
-        final data = response.data as Map<String, dynamic>;
-        final key = 'ISBN:$isbn';
-        if (data.containsKey(key)) {
-          final book = data[key];
-          return {
-            'title': book['title'],
-            'author': book['authors'] != null ? (book['authors'] as List).map((a) => a['name']).join(', ') : null,
-            'publisher': book['publishers'] != null ? (book['publishers'] as List).first['name'] : null,
-            'year': book['publish_date'] != null ? int.tryParse(book['publish_date'].toString().split(' ').last) : null,
-            'summary': book['subtitle'] ?? (book['notes'] is String ? book['notes'] : null), // OpenLibrary structure varies
-            'cover_url': book['cover'] != null ? book['cover']['large'] : null,
-          };
-        }
+        return List<Map<String, dynamic>>.from(response.data);
       }
     } catch (e) {
-      debugPrint('OpenLibrary API Error: $e');
+      debugPrint('Search API Error: $e');
     }
-    return null;
+    return [];
   }
 
   Future<Response> getTranslations(String locale) async {

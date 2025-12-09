@@ -29,6 +29,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
   final _authorController = TextEditingController();
   String _readingStatus = 'to_read';
   String? _coverUrl;
+  List<dynamic>? _authorsData;
   bool _isFetchingDetails = false;
   bool _isSaving = false;
 
@@ -77,9 +78,19 @@ class _AddBookScreenState extends State<AddBookScreen> {
           if (_coverUrl == null && bookData['cover_url'] != null) {
             _coverUrl = bookData['cover_url'];
           }
+          if (bookData['authors_data'] != null) {
+            _authorsData = bookData['authors_data'];
+          }
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(TranslationService.translate(context, 'book_details_found'))),
+        );
+      } else if (mounted) {
+         ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(TranslationService.translate(context, 'book_not_found') ?? 'Book not found in database'),
+            backgroundColor: Colors.orange,
+          ),
         );
       }
     } catch (e) {
@@ -269,6 +280,69 @@ class _AddBookScreenState extends State<AddBookScreen> {
               controller: _authorController,
               decoration: _buildInputDecoration(hint: TranslationService.translate(context, 'author_hint')),
             ),
+            if (_authorsData != null && _authorsData!.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              ..._authorsData!.map((author) {
+                if (author is! Map) return const SizedBox.shrink();
+                final name = author['name'] as String? ?? '';
+                final bio = author['bio'] as String?;
+                final imageUrl = author['image_url'] as String?;
+                final birth = author['birth_year'] as String?;
+                final death = author['death_year'] as String?;
+                
+                String lifeSpan = '';
+                if (birth != null) lifeSpan += '$birth';
+                if (death != null) lifeSpan += ' - $death';
+                else if (birth != null) lifeSpan += ' - Present';
+
+                if (bio == null && imageUrl == null && lifeSpan.isEmpty) return const SizedBox.shrink();
+
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                         if (imageUrl != null)
+                           Padding(
+                             padding: const EdgeInsets.only(right: 12.0),
+                             child: ClipRRect(
+                               borderRadius: BorderRadius.circular(40),
+                               child: Image.network(
+                                 imageUrl,
+                                 width: 60,
+                                 height: 60,
+                                 fit: BoxFit.cover,
+                                 errorBuilder: (_, __, ___) => const Icon(Icons.person, size: 40),
+                               ),
+                             ),
+                           ),
+                         Expanded(
+                           child: Column(
+                             crossAxisAlignment: CrossAxisAlignment.start,
+                             children: [
+                               Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                               if (lifeSpan.isNotEmpty)
+                                 Text(lifeSpan, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+                               if (bio != null) ...[
+                                 const SizedBox(height: 4),
+                                 Text(
+                                   bio,
+                                   maxLines: 4,
+                                   overflow: TextOverflow.ellipsis,
+                                   style: const TextStyle(fontSize: 13),
+                                 ),
+                               ],
+                             ],
+                           ),
+                         ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+            ],
             const SizedBox(height: 24),
 
             // ISBN

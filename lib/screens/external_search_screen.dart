@@ -49,18 +49,21 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
 
     try {
       final api = Provider.of<ApiService>(context, listen: false);
-      final response = await api.searchOpenLibrary(
+      // Use unified search (Inventaire + OpenLibrary)
+      final results = await api.searchBooks(
         title: _titleController.text,
         author: _authorController.text,
-        subject: _subjectController.text,
+        // Subject not yet supported in unified search backend, mapped to broad query possibly?
+        // Ideally we add subject to backend too, but for now let's just use title/author 
+        // or append subject to title if really needed. 
+        // Or simply ignore subject for now as per plan/backend update.
+        // Actually, let's pass subject as 'query' or append it if title is missing.
+        // Simplified: just title and author for now as robust fields.
       );
 
-      if (response.statusCode == 200) {
-        final docs = response.data['docs'] as List<dynamic>;
-        setState(() {
-          _searchResults = docs.map((doc) => doc as Map<String, dynamic>).toList();
-        });
-      }
+      setState(() {
+        _searchResults = results;
+      });
     } catch (e) {
       setState(() {
         _error = '${TranslationService.translate(context, 'search_failed')}: $e';
@@ -76,16 +79,17 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
     try {
       final api = Provider.of<ApiService>(context, listen: false);
       
-      // Map Open Library doc to our Book model structure
+      // Map unified search result (Book DTO) to create payload
       final bookData = {
         'title': doc['title'],
-        'author': doc['author_name'] != null ? (doc['author_name'] as List).first.toString() : null,
-        'publication_year': doc['publish_year'] != null ? (doc['publish_year'] as List).first as int : null,
-        'publisher': doc['publisher'] != null ? (doc['publisher'] as List).first.toString() : null,
-        'isbn': doc['isbn'] != null ? (doc['isbn'] as List).first.toString() : null,
-        'summary': null, // Search API doesn't return summary usually
+        'author': doc['author'], // Already a string in DTO
+        // publication_year is int in DTO
+        'publication_year': doc['publication_year'], 
+        'publisher': doc['publisher'],
+        'isbn': doc['isbn'],
+        'summary': doc['summary'],
         'reading_status': 'to_read',
-        'cover_url': doc['cover_i'] != null ? 'https://covers.openlibrary.org/b/id/${doc['cover_i']}-L.jpg' : null,
+        'cover_url': doc['cover_url'],
       };
 
       await api.createBook(bookData);
@@ -169,27 +173,32 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
             child: ListView.builder(
               itemCount: _searchResults.length,
               itemBuilder: (context, index) {
-                final doc = _searchResults[index];
-                final coverId = doc['cover_i'];
-                final coverUrl = coverId != null 
-                    ? 'https://covers.openlibrary.org/b/id/$coverId-S.jpg' 
-                    : null;
+                final book = _searchResults[index];
+                final hasCover = book['cover_url'] != null;
 
                 return ListTile(
-                  leading: coverUrl != null
-                      ? Image.network(coverUrl, width: 40, fit: BoxFit.cover)
+                  leading: hasCover
+                      ? Image.network(
+                          book['cover_url'],
+                          width: 50,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              const Icon(Icons.book),
+                        )
                       : const Icon(Icons.book),
-                  title: Text(doc['title'] ?? TranslationService.translate(context, 'unknown_title')),
+                  title: Text(book['title'] ?? TranslationService.translate(context, 'unknown_title')),
                   subtitle: Text(
-                    doc['author_name'] != null 
-                        ? (doc['author_name'] as List).join(', ') 
-                        : TranslationService.translate(context, 'unknown_author')
+                    book['author'] ?? TranslationService.translate(context, 'unknown_author'),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   trailing: IconButton(
-                    icon: const Icon(Icons.add_circle_outline),
-                    onPressed: () => _addBook(doc),
-                    tooltip: TranslationService.translate(context, 'add_to_library_tooltip'),
+                    icon: const Icon(Icons.add),
+                    onPressed: () => _addBook(book),
                   ),
+                  onTap: () {
+                     // Show details?
+                  },
                 );
               },
             ),

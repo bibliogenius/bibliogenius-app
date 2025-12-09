@@ -299,6 +299,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     items: [
                       DropdownMenuItem(value: 'individual', child: Text(TranslationService.translate(context, 'individual'))),
                       DropdownMenuItem(value: 'professional', child: Text(TranslationService.translate(context, 'professional'))),
+                      DropdownMenuItem(value: 'librarian', child: Text(TranslationService.translate(context, 'librarian'))),
+                      DropdownMenuItem(value: 'kid', child: Text(TranslationService.translate(context, 'profile_kid'))),
                     ],
                     onChanged: (value) async {
                       if (value == null) return;

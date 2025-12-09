@@ -4,6 +4,20 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../services/translation_service.dart';
 
 class WizardService {
+  // Onboarding Tour
+  static const String _kHasSeenOnboardingTour = 'has_seen_onboarding_tour_v1';
+
+  static Future<bool> hasSeenOnboardingTour() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_kHasSeenOnboardingTour) ?? false;
+  }
+
+  static Future<void> markOnboardingTourSeen() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_kHasSeenOnboardingTour, true);
+  }
+
+  // Dashboard Wizard
   static const String _kHasSeenDashboardWizard = 'has_seen_dashboard_wizard_v1';
 
   static Future<bool> hasSeenDashboardWizard() async {
@@ -18,6 +32,7 @@ class WizardService {
 
   static Future<void> resetWizard() async {
     final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_kHasSeenOnboardingTour);
     await prefs.remove(_kHasSeenDashboardWizard);
     await prefs.remove(_kHasSeenBooksWizard);
     await prefs.remove(_kHasSeenContactsWizard);

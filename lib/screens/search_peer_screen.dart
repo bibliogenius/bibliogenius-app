@@ -116,7 +116,7 @@ class _SearchPeerScreenState extends State<SearchPeerScreen> {
                         const SizedBox(height: 8),
                         TextButton.icon(
                           onPressed: () {
-                            // TODO: Navigate to QR Scan
+                            context.push('/p2p');
                           }, 
                           icon: const Icon(Icons.qr_code_scanner),
                           label: Text(TranslationService.translate(context, 'scan_qr_code')),

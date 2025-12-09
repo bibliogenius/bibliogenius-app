@@ -10,6 +10,7 @@ class AppDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // debugPrint('Building AppDrawer');
     final themeProvider = Provider.of<ThemeProvider>(context);
     final isKid = themeProvider.isKid;
 
@@ -79,16 +80,7 @@ class AppDrawer extends StatelessWidget {
               context.go('/requests');
             },
           ),
-          // Hide P2P Setup for kids, they likely just use the network
-          if (!isKid)
-          ListTile(
-            leading: const Icon(Icons.link),
-            title: Text(TranslationService.translate(context, 'nav_p2p_connect')),
-            onTap: () {
-              Navigator.pop(context);
-              context.go('/p2p');
-            },
-          ),
+          // P2P Connect removed from drawer to simplify UX. Accessed via Network > Add.
           const Divider(),
           ListTile(
             leading: const Icon(Icons.person),
@@ -96,6 +88,14 @@ class AppDrawer extends StatelessWidget {
             onTap: () {
               Navigator.pop(context);
               context.go('/profile');
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.school),
+            title: Text(TranslationService.translate(context, 'menu_tutorial')),
+            onTap: () {
+              Navigator.pop(context);
+              context.push('/onboarding');
             },
           ),
           ListTile(

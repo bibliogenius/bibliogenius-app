@@ -13,6 +13,7 @@ import 'screens/login_screen.dart';
 import 'screens/book_list_screen.dart';
 import 'screens/add_book_screen.dart';
 import 'screens/book_copies_screen.dart';
+import 'screens/book_details_screen.dart';
 import 'screens/edit_book_screen.dart';
 import 'screens/contacts_screen.dart';
 import 'screens/add_contact_screen.dart';
@@ -31,7 +32,9 @@ import 'screens/search_peer_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/statistics_screen.dart';
 import 'screens/help_screen.dart';
-import 'screens/network_search_screen.dart';
+ import 'screens/network_search_screen.dart';
+import 'screens/onboarding_tour_screen.dart';
+import 'services/wizard_service.dart';
 import 'widgets/scaffold_with_nav.dart';
 
 import 'dart:io';
@@ -126,12 +129,20 @@ class AppRouter extends StatelessWidget {
     final router = GoRouter(
       initialLocation: '/dashboard',
       refreshListenable: themeProvider,
-      redirect: (context, state) {
+      redirect: (context, state) async {
         final isSetup = themeProvider.isSetupComplete;
         final isSetupRoute = state.uri.path == '/setup';
+        final isOnboardingRoute = state.uri.path == '/onboarding';
 
         if (!isSetup && !isSetupRoute) return '/setup';
-        if (isSetup && isSetupRoute) return '/dashboard';
+        if (isSetup && isSetupRoute) {
+          // After setup, check if should show onboarding tour
+          final hasSeenTour = await WizardService.hasSeenOnboardingTour();
+          if (!hasSeenTour && !isOnboardingRoute) {
+            return '/onboarding';
+          }
+          return '/dashboard';
+        }
 
         return null;
       },
@@ -139,6 +150,10 @@ class AppRouter extends StatelessWidget {
         GoRoute(
           path: '/setup',
           builder: (context, state) => const SetupScreen(),
+        ),
+        GoRoute(
+          path: '/onboarding',
+          builder: (context, state) => const OnboardingTourScreen(),
         ),
         GoRoute(
           path: '/search/external',
@@ -167,6 +182,13 @@ class AppRouter extends StatelessWidget {
                     final extra = state.extra as Map<String, dynamic>?;
                     final isbn = extra?['isbn'] as String?;
                     return AddBookScreen(isbn: isbn);
+                  },
+                ),
+                GoRoute(
+                  path: ':id',
+                  builder: (context, state) {
+                    final book = state.extra as Book;
+                    return BookDetailsScreen(book: book);
                   },
                 ),
                 GoRoute(

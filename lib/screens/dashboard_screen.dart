@@ -657,7 +657,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ],
                           ),
                           onTap: () =>
-                              context.push('/books/${book.id}/edit', extra: book),
+                              context.push('/books/${book.id}', extra: book),
                         ),
                       ))
                   .toList(),
@@ -771,7 +771,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ),
                         ),
                       ElevatedButton(
-                        onPressed: () => context.push('/books/${book.id}/edit', extra: book),
+                        onPressed: () => context.push('/books/${book.id}', extra: book),
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                           minimumSize: Size.zero,

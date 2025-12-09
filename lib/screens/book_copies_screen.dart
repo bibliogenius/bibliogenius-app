@@ -124,7 +124,7 @@ class _BookCopiesScreenState extends State<BookCopiesScreen> {
                   ),
                   title: Row(
                     children: [
-                      Text('${TranslationService.translate(context, 'copy_number')}${copy.id}'),
+                      Text('${TranslationService.translate(context, 'copy_number')} ${copy.id}'),
                       const SizedBox(width: 8),
                       _StatusBadge(status: copy.status),
                     ],

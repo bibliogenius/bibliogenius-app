@@ -228,6 +228,24 @@ class TranslationService {
       'save_book': 'Save Book',
       'saving': 'Saving...',
       'error_saving_book': 'Error saving book',
+      'copies_title': 'Copies of',
+      'copy_number': 'Copy #',
+      'no_copies': 'No copies found',
+      'book_summary': 'Summary',
+      'book_deleted': 'Book deleted',
+      'mark_as_finished': 'Mark as Finished',
+      'finished_on': 'Finished on',
+      'start_reading': 'Start Reading',
+      'started_on': 'Started on',
+      'reading_status_read': 'Read',
+      'reading_status_reading': 'Reading',
+      'reading_status_to_read': 'To Read', 
+      'status_updated': 'Status updated',
+      'date_select_title': 'Select Date',
+      'date_select_option_today': 'Today',
+      'date_select_option_pick': 'Pick a date',
+      'date_select_option_none': 'No date',
+
       // App Drawer
       'nav_dashboard': 'Dashboard',
       'nav_my_library': 'My Library',
@@ -253,11 +271,12 @@ class TranslationService {
       'lend_btn': 'Lend',
       // Scan Screen
       'scan_isbn_title': 'Scan ISBN',
+      'btn_enter_manually': 'Enter Manually',
       // External Search
       'external_search_title': 'External Book Search',
       'enter_search_term': 'Please enter at least one search term',
       'failed_add_book': 'Failed to add book',
-      'search_open_library': 'Search Open Library',
+      'search_open_library': 'Search Online',
       // Search Peer
       'request_sent_to': 'Request sent to',
       'connection_error': 'Connection error',
@@ -361,6 +380,28 @@ class TranslationService {
     'wizard_contacts_filter_title': 'Filter Contacts',
     'wizard_contacts_filter_desc': 'Filter by Borrowers (local) or Libraries (P2P).',
       'wizard_skip': 'Skip',
+      
+      // Onboarding Tour
+      'onboarding_skip': 'Skip',
+      'onboarding_next': 'Next',
+      'onboarding_finish': 'Get Started',
+      'onboarding_tap_continue': 'Tap anywhere to continue',
+      'menu_tutorial': 'Tutorial',
+      
+      'onboarding_welcome_title': 'Welcome to BiblioGenius!',
+      'onboarding_welcome_desc': 'Your personal library manager. Organize your books, connect with friends, and track your reading journey.',
+      
+      'onboarding_books_title': 'Manage Your Library',
+      'onboarding_books_desc': 'Add books by scanning barcodes, searching online databases, or entering details manually. Keep track of everything you own.',
+      
+      'onboarding_p2p_title': 'Connect & Share',
+      'onboarding_p2p_desc': 'Connect with other BiblioGenius users to share your libraries. See what your friends are reading and discover new books.',
+      
+      'onboarding_contacts_title': 'Track Borrowers',
+      'onboarding_contacts_desc': 'Manage your contacts and keep track of who borrowed what. Never lose track of your books again.',
+      
+      'onboarding_stats_title': 'Monitor Your Collection',
+      'onboarding_stats_desc': 'View statistics about your library, track reading habits, and see your collection grow over time.',
       'no_pub_year_data': 'No publication year data.',
       'nav_p2p_connect': 'Connect',
       'nav_help': 'Help',
@@ -570,6 +611,23 @@ class TranslationService {
       'save_book': 'Enregistrer le livre',
       'saving': 'Enregistrement...',
       'error_saving_book': 'Erreur lors de l\'enregistrement du livre',
+      'copies_title': 'Exemplaires de',
+      'copy_number': 'Exemplaire n°',
+      'no_copies': 'Aucune copie trouvée',
+      'book_summary': 'Résumé',
+      'book_deleted': 'Livre supprimé',
+      'mark_as_finished': 'Marquer comme lu',
+      'finished_on': 'Terminé le',
+      'start_reading': 'Commencer la lecture',
+      'started_on': 'Commencé le',
+      'reading_status_read': 'Lu',
+      'reading_status_reading': 'En cours',
+      'reading_status_to_read': 'À lire',
+      'status_updated': 'Statut mis à jour',
+      'date_select_title': 'Sélectionner une date',
+      'date_select_option_today': "Aujourd'hui",
+      'date_select_option_pick': 'Choisir une date',
+      'date_select_option_none': 'Pas de date',
       // App Drawer
       'nav_dashboard': 'Tableau de bord',
       'nav_my_library': 'Ma Bibliothèque',
@@ -595,11 +653,12 @@ class TranslationService {
       'lend_btn': 'Prêter',
       // Scan Screen
       'scan_isbn_title': 'Scanner un ISBN',
+      'btn_enter_manually': 'Saisir manuellement',
       // External Search
       'external_search_title': 'Recherche de livre externe',
       'enter_search_term': 'Veuillez entrer au moins un terme de recherche',
       'failed_add_book': 'Échec de l\'ajout du livre',
-      'search_open_library': 'Rechercher sur Open Library',
+      'search_open_library': 'Rechercher en ligne',
       // Search Peer
       'request_sent_to': 'Demande envoyée à',
       'connection_error': 'Erreur de connexion',
@@ -695,6 +754,28 @@ class TranslationService {
       'wizard_stats_title': 'Statistiques rapides',
       'wizard_stats_desc': 'Voyez combien de livres vous avez et qui les a empruntés.',
       'wizard_skip': 'Passer',
+      
+      //  Onboarding Tour
+      'onboarding_skip': 'Passer',
+      'onboarding_next': 'Suivant',
+      'onboarding_finish': 'Commencer',
+      'onboarding_tap_continue': 'Appuyez n\'importe où pour continuer',
+      'menu_tutorial': 'Tutoriel',
+      
+      'onboarding_welcome_title': 'Bienvenue dans BiblioGenius !',
+      'onboarding_welcome_desc': 'Votre gestionnaire de bibliothèque personnelle. Organisez vos livres, connectez-vous avec vos amis et suivez votre parcours de lecture.',
+      
+      'onboarding_books_title': 'Gérez Votre Bibliothèque',
+      'onboarding_books_desc': 'Ajoutez des livres en scannant les codes-barres, en cherchant dans les bases de données en ligne, ou en entrant les détails manuellement.',
+      
+      'onboarding_p2p_title': 'Connectez & Partagez',
+      'onboarding_p2p_desc': 'Connectez-vous avec d\'autres utilisateurs BiblioGenius pour partager vos bibliothèques. Voyez ce que vos amis lisent et découvrez de nouveaux livres.',
+      
+      'onboarding_contacts_title': 'Suivez les Emprunteurs',
+      'onboarding_contacts_desc': 'Gérez vos contacts et gardez une trace de qui a emprunté quoi. Ne perdez plus jamais vos livres.',
+      
+      'onboarding_stats_title': 'Surveillez Votre Collection',
+      'onboarding_stats_desc': 'Consultez les statistiques de votre bibliothèque, suivez vos habitudes de lecture et regardez votre collection grandir.',
       'no_pub_year_data': 'Aucune donnée de publication.',
       'nav_p2p_connect': 'Connexion',
       'nav_help': 'Aide',
@@ -904,6 +985,11 @@ class TranslationService {
       'save_book': 'Guardar libro',
       'saving': 'Guardando...',
       'error_saving_book': 'Error al guardar el libro',
+      'copies_title': 'Copias de',
+      'copy_number': 'Copia #',
+      'no_copies': 'No se encontraron copias',
+      'book_summary': 'Resumen',
+      'book_deleted': 'Libro eliminado',
       // App Drawer
       'nav_dashboard': 'Panel de control',
       'nav_my_library': 'Mi Biblioteca',
@@ -965,13 +1051,35 @@ class TranslationService {
       'wizard_stats_title': 'Estadísticas rápidas',
       'wizard_stats_desc': 'Mira cuántos libros tienes y quién los ha tomado prestados.',
       'wizard_skip': 'Saltar',
+      
+      // Onboarding Tour
+      'onboarding_skip': 'Saltar',
+      'onboarding_next': 'Siguiente',
+      'onboarding_finish': 'Comenzar',
+      'onboarding_tap_continue': 'Toque en cualquier lugar para continuar',
+      'menu_tutorial': 'Tutorial',
+      
+      'onboarding_welcome_title': '¡Bienvenido a BiblioGenius!',
+      'onboarding_welcome_desc': 'Tu gestor de biblioteca personal. Organiza tus libros, conéctate con amigos y sigue tu trayectoria de lectura.',
+      
+      'onboarding_books_title': 'Gestiona Tu Biblioteca',
+      'onboarding_books_desc': 'Añade libros escaneando códigos de barras, buscando en bases de datos en línea, o introduciendo detalles manualmente.',
+      
+      'onboarding_p2p_title': 'Conecta y Comparte',
+      'onboarding_p2p_desc': 'Conéctate con otros usuarios de BiblioGenius para compartir bibliotecas. Ve lo que leen tus amigos y descubre nuevos libros.',
+      
+      'onboarding_contacts_title': 'Rastrea Prestatarios',
+      'onboarding_contacts_desc': 'Gestiona tus contactos y lleva un registro de quién tomó prestado qué. Nunca pierdas el rastro de tus libros.',
+      
+      'onboarding_stats_title': 'Monitorea Tu Colección',
+      'onboarding_stats_desc': 'Ve estadísticas sobre tu biblioteca, sigue hábitos de lectura y observa crecer tu colección.',
       // Scan Screen
       'scan_isbn_title': 'Escanear ISBN',
       // External Search
       'external_search_title': 'Búsqueda externa de libros',
       'enter_search_term': 'Por favor, introduce al menos un término de búsqueda',
       'failed_add_book': 'Error al añadir libro',
-      'search_open_library': 'Buscar en Open Library',
+      'search_open_library': 'Buscar en línea',
       // Search Peer
       'request_sent_to': 'Solicitud enviada a',
       'connection_error': 'Error de conexión',
@@ -1276,6 +1384,11 @@ class TranslationService {
       'save_book': 'Buch speichern',
       'saving': 'Speichern...',
       'error_saving_book': 'Fehler beim Speichern des Buches',
+      'copies_title': 'Exemplare von',
+      'copy_number': 'Exemplar Nr. ',
+      'no_copies': 'Keine Exemplare gefunden',
+      'book_summary': 'Zusammenfassung',
+      'book_deleted': 'Buch gelöscht',
       // App Drawer
       'nav_dashboard': 'Dashboard',
       'nav_my_library': 'Meine Bibliothek',
@@ -1305,7 +1418,7 @@ class TranslationService {
       'external_search_title': 'Externe Buchsuche',
       'enter_search_term': 'Bitte geben Sie mindestens einen Suchbegriff ein',
       'failed_add_book': 'Fehler beim Hinzufügen des Buches',
-      'search_open_library': 'Open Library durchsuchen',
+      'search_open_library': 'Online suchen',
       // Search Peer
       'request_sent_to': 'Anfrage gesendet an',
       'connection_error': 'Verbindungsfehler',
@@ -1347,6 +1460,7 @@ class TranslationService {
   static String translate(BuildContext context, String key) {
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     final lang = themeProvider.locale.languageCode;
+    // debugPrint('Translating $key for $lang');
     
     // 1. Check dynamic translations for current lang
     if (_dynamicTranslations.containsKey(lang) && _dynamicTranslations[lang]!.containsKey(key)) {

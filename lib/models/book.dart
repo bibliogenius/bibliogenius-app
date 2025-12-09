@@ -6,6 +6,8 @@ class Book {
   final String? publisher;
   final int? publicationYear;
   final String? readingStatus;
+  final DateTime? finishedReadingAt;
+  final DateTime? startedReadingAt;
   final String? author;
   final String? _coverUrl; // Stored cover URL
 
@@ -17,6 +19,8 @@ class Book {
     this.publisher,
     this.publicationYear,
     this.readingStatus,
+    this.finishedReadingAt,
+    this.startedReadingAt,
     this.author,
     String? coverUrl,
   }) : _coverUrl = coverUrl;
@@ -30,6 +34,12 @@ class Book {
       publisher: json['publisher'],
       publicationYear: json['publication_year'],
       readingStatus: json['reading_status'],
+      finishedReadingAt: json['finished_reading_at'] != null 
+          ? DateTime.tryParse(json['finished_reading_at']) 
+          : null,
+      startedReadingAt: json['started_reading_at'] != null 
+          ? DateTime.tryParse(json['started_reading_at']) 
+          : null,
       author: json['author'],
       coverUrl: json['cover_url'],
     );
@@ -44,12 +54,16 @@ class Book {
       'publisher': publisher,
       'publication_year': publicationYear,
       'reading_status': readingStatus,
+      'finished_reading_at': finishedReadingAt?.toIso8601String(),
+      'started_reading_at': startedReadingAt?.toIso8601String(),
       'author': author,
       'cover_url': _coverUrl,
       'created_at': now,
       'updated_at': now,
     };
   }
+
+
   String? get coverUrl {
     if (_coverUrl != null && _coverUrl!.isNotEmpty) return _coverUrl;
     if (isbn != null && isbn!.isNotEmpty) {

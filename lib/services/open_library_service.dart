@@ -8,6 +8,7 @@ class OpenLibraryBook {
   final int? year;
   final String? coverUrl;
   final String? key;
+  final String? summary;
 
   OpenLibraryBook({
     required this.title,
@@ -17,6 +18,7 @@ class OpenLibraryBook {
     this.year,
     this.coverUrl,
     this.key,
+    this.summary,
   });
 
   factory OpenLibraryBook.fromJson(Map<String, dynamic> json) {
@@ -60,6 +62,18 @@ class OpenLibraryBook {
       key: json['key'],
     );
   }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'title': title,
+      'author': author,
+      'isbn': isbn,
+      'publisher': publisher,
+      'publication_year': year?.toString(),
+      'cover_url': coverUrl,
+      'key': key,
+    };
+  }
 }
 
 class OpenLibraryService {
@@ -91,6 +105,91 @@ class OpenLibraryService {
     } catch (e) {
       print('Error searching Open Library: $e');
       return [];
+    }
+  }
+
+  Future<OpenLibraryBook?> lookupByIsbn(String isbn) async {
+    try {
+      // Use the precise /isbn/ endpoint for exact ISBN matching
+      final response = await _dio.get('$_baseUrl/isbn/$isbn.json');
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+        
+        // Extract basic info
+        String title = data['title'] ?? 'Unknown Title';
+        String? publisher;
+        int? year;
+        String? coverUrl;
+        
+        // Extract publishers
+        if (data['publishers'] != null && (data['publishers'] as List).isNotEmpty) {
+          publisher = data['publishers'][0];
+        }
+        
+        // Extract publish date and parse year
+        if (data['publish_date'] != null) {
+          final publishDate = data['publish_date'] as String;
+          // Try to extract year from various formats like "1995", "January 1995", "Jan 01, 1995"
+          final yearMatch = RegExp(r'\d{4}').firstMatch(publishDate);
+          if (yearMatch != null) {
+            year = int.tryParse(yearMatch.group(0)!);
+          }
+        }
+        
+        // Get cover from cover IDs
+        if (data['covers'] != null && (data['covers'] as List).isNotEmpty) {
+          final coverId = data['covers'][0];
+          coverUrl = 'https://covers.openlibrary.org/b/id/$coverId-L.jpg';
+        }
+        
+        // Extract author - this is the tricky part
+        String author = 'Unknown Author';
+        
+        // Try to get author from the edition data
+        if (data['authors'] != null && (data['authors'] as List).isNotEmpty) {
+          // Authors in /isbn/ endpoint are usually just references like {"key": "/authors/OL1234A"}
+          // We need to fetch the actual author name
+          try {
+            final authorRef = data['authors'][0];
+            if (authorRef is Map && authorRef['key'] != null) {
+              final authorKey = authorRef['key'] as String;
+              final authorResponse = await _dio.get('$_baseUrl$authorKey.json',
+                options: Options(
+                  validateStatus: (status) => status! < 500, // Accept 4xx errors gracefully
+                  receiveTimeout: const Duration(seconds: 3), // Don't hang on slow requests
+                ),
+              );
+              
+              if (authorResponse.statusCode == 200 && authorResponse.data['name'] != null) {
+                author = authorResponse.data['name'];
+              }
+            }
+          } catch (e) {
+            print('Failed to fetch author details: $e');
+            // Keep 'Unknown Author' as fallback
+          }
+        }
+        
+        // Try to get author from 'by_statement' field as last resort
+        if (author == 'Unknown Author' && data['by_statement'] != null) {
+          author = data['by_statement'] as String;
+        }
+        
+        return OpenLibraryBook(
+          title: title,
+          author: author,
+          isbn: isbn,
+          publisher: publisher,
+          year: year,
+          coverUrl: coverUrl,
+          key: data['key'],
+        );
+      }
+      return null;
+    } catch (e) {
+      print('Error looking up ISBN in OpenLibrary: $e');
+      return null;
     }
   }
 }
