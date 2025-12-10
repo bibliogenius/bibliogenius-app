@@ -77,12 +77,12 @@ class BookDetailsScreen extends StatelessWidget {
               )
             else
               Container(
-                color: Theme.of(context).primaryColor.withOpacity(0.1),
+                color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
                 child: Center(
                   child: Icon(
                     Icons.book,
                     size: 100,
-                    color: Theme.of(context).primaryColor.withOpacity(0.3),
+                    color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
                   ),
                 ),
               ),
@@ -91,7 +91,7 @@ class BookDetailsScreen extends StatelessWidget {
               BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
                 child: Container(
-                  color: Colors.black.withOpacity(0.4),
+                  color: Colors.black.withValues(alpha: 0.4),
                 ),
               ),
             
@@ -105,7 +105,7 @@ class BookDetailsScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.4),
+                        color: Colors.black.withValues(alpha: 0.4),
                         blurRadius: 20,
                         offset: const Offset(0, 10),
                       ),
@@ -207,7 +207,7 @@ class BookDetailsScreen extends StatelessWidget {
               onPressed: () => _confirmDelete(context),
               icon: const Icon(Icons.delete_outline, color: Colors.deepOrange),
               style: IconButton.styleFrom(
-                backgroundColor: Colors.deepOrange.withOpacity(0.1),
+                backgroundColor: Colors.deepOrange.withValues(alpha: 0.1),
                 padding: const EdgeInsets.all(12),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
@@ -260,7 +260,7 @@ class BookDetailsScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -307,6 +307,40 @@ class BookDetailsScreen extends StatelessWidget {
                   _formatDate(book.finishedReadingAt!)
                 ),
               ],
+            ),
+          ],
+          if (book.subjects != null && book.subjects!.isNotEmpty) ...[
+            const Divider(height: 32),
+            SizedBox(
+              width: double.infinity,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    (TranslationService.translate(context, 'tags') ?? 'TAGS').toUpperCase(),
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.0,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: book.subjects!.map((subject) {
+                      return ActionChip(
+                        label: Text(subject),
+                        onPressed: () {
+                           // Navigate to book list with filter
+                           context.go(Uri(path: '/books', queryParameters: {'tag': subject}).toString());
+                        },
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
             ),
           ],
         ],

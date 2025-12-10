@@ -26,14 +26,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   Future<void> _fetchData() async {
     final api = Provider.of<ApiService>(context, listen: false);
     try {
-      final res = await api.getBooks();
-      if (res.statusCode == 200) {
-        final List<dynamic> data = res.data['books'];
-        setState(() {
-          _books = data.map((json) => Book.fromJson(json)).toList();
-          _isLoading = false;
-        });
-      }
+      final books = await api.getBooks();
+      setState(() {
+        _books = books;
+        _isLoading = false;
+      });
     } catch (e) {
       setState(() => _isLoading = false);
     }

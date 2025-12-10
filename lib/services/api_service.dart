@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../models/book.dart';
 import 'auth_service.dart';
 
 class ApiService {
@@ -44,9 +45,7 @@ class ApiService {
     );
   }
 
-  Future<Response> getBooks() async {
-    return await _dio.get('/api/books');
-  }
+
 
   Future<Response> createBook(Map<String, dynamic> bookData) async {
     return await _dio.post('/api/books', data: bookData);
@@ -340,6 +339,33 @@ class ApiService {
     return await _dio.put('/api/profile', data: data);
   }
 
+  Future<List<Book>> getBooks({
+    String? status,
+    String? author,
+    String? title,
+    String? tag,
+  }) async {
+    try {
+      final queryParams = <String, dynamic>{};
+      if (status != null) queryParams['status'] = status;
+      if (author != null) queryParams['author'] = author;
+      if (title != null) queryParams['title'] = title;
+      if (tag != null) queryParams['tag'] = tag;
+
+      final response = await _dio.get(
+        '/api/books',
+        queryParameters: queryParams,
+      );
+      if (response.statusCode == 200) {
+        final List<dynamic> data = response.data['books'];
+        return data.map((json) => Book.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to load books');
+      }
+    } catch (e) {
+      throw Exception('Failed to load books: $e');
+    }
+  }
   Future<Map<String, dynamic>?> lookupBook(String isbn) async {
     try {
       final response = await _dio.get('/api/lookup/$isbn');

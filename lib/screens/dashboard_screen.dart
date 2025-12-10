@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
@@ -5,9 +6,9 @@ import '../widgets/genie_app_bar.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
 import '../models/book.dart';
-import '../widgets/app_drawer.dart';
 import '../providers/theme_provider.dart';
-import '../services/wizard_service.dart'; // Add WizardService
+import '../services/wizard_service.dart';
+import '../widgets/premium_book_card.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -23,6 +24,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   int _contactsCount = 0;
   List<Book> _recentBooks = [];
   List<Book> _readingListBooks = [];
+  Book? _heroBook; // New state variable for the hero book
 
   final GlobalKey _addKey = GlobalKey();
   final GlobalKey _searchKey = GlobalKey();
@@ -61,20 +63,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
     try {
       // Fetch Books
       try {
-        final booksRes = await api.getBooks();
+        var books = await api.getBooks();
         final configRes = await api.getLibraryConfig(); // Fetch config
         
-        if (booksRes.statusCode == 200 && booksRes.data['books'] != null) {
-          final List<dynamic> booksData = booksRes.data['books'];
-          var books = booksData.map((json) => Book.fromJson(json)).toList();
-          
-          // Filter based on config
-          if (configRes.statusCode == 200) {
+        // Filter based on config
+        if (configRes.statusCode == 200) {
              final config = configRes.data;
              if (config['show_borrowed_books'] != true) {
                books = books.where((b) => b.readingStatus != 'borrowed').toList();
              }
-          }
+        }
 
           if (mounted) {
             setState(() {
@@ -103,9 +101,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
               recentCandidates.sort((a, b) => (b.id ?? 0).compareTo(a.id ?? 0));
               
               _recentBooks = recentCandidates.take(3).toList();
+
+              // Set hero book (e.g., the first book in the reading list if available, otherwise the first recent book)
+              _heroBook = _readingListBooks.isNotEmpty ? _readingListBooks.first : (_recentBooks.isNotEmpty ? _recentBooks.first : null);
+              // Remove hero book from its original list to avoid duplication in display
+              if (_heroBook != null) {
+                _readingListBooks.removeWhere((book) => book.id == _heroBook!.id);
+                _recentBooks.removeWhere((book) => book.id == _heroBook!.id);
+              }
             });
           }
-        }
       } catch (e) {
         debugPrint('Error fetching books: $e');
       }
@@ -194,8 +199,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Stats Row (Hidden for Kids to simplify)
-                  if (!isKid)
+                  // Stats Row (Visible for everyone now)
                   Row(
                     key: _statsKey,
                     children: [
@@ -227,7 +231,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                     ],
                   ),
-                  if (!isKid) const SizedBox(height: 32),
+                  const SizedBox(height: 32),
 
                   if (_totalBooks == 0) ...[
                     // Empty State / Get Started
@@ -343,7 +347,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                          ],
                        ),
                        const SizedBox(height: 32),
-                    ] else ...[
+                    ] else if (_heroBook != null)
+                // Hero Section (Top Logic)
+                _buildHeroBook(context, _heroBook!),
+                    if (!isKid) ...[
                       _buildSectionTitle(context, TranslationService.translate(context, 'quick_actions')),
                       const SizedBox(height: 16),
                       Container(
@@ -392,56 +399,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       const SizedBox(height: 32),
                     ],
   
-                    // Books Sections
-                    LayoutBuilder(
-                      builder: (context, constraints) {
-                        final isWide = constraints.maxWidth > 800;
-                        final children = [
-                          // Recent Books
-                          if (_recentBooks.isNotEmpty)
-                          Expanded(
-                            flex: isWide ? 1 : 0,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _buildSectionTitle(context, TranslationService.translate(context, 'recent_books')),
-                                const SizedBox(height: 16),
-                                _recentBooks.length == 1
-                                    ? _buildHeroBook(context, _recentBooks.first)
-                                    : _buildBookList(context, _recentBooks, TranslationService.translate(context, 'no_recent_books'), delay: 0),
-                              ],
-                            ),
-                          ),
-                          if (_recentBooks.isNotEmpty && _readingListBooks.isNotEmpty)
-                            SizedBox(width: 16, height: isWide ? 0 : 32),
-                          // Reading List
-                          if (_readingListBooks.isNotEmpty)
-                          Expanded(
-                            flex: isWide ? 1 : 0,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _buildSectionTitle(context, TranslationService.translate(context, 'reading_list')),
-                                const SizedBox(height: 16),
-                                _buildBookList(context, _readingListBooks, TranslationService.translate(context, 'no_reading_list'), delay: 200),
-                              ],
-                            ),
-                          ),
-                        ];
-  
-                        return isWide
-                            ? Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: children,
-                               )
-                            : Column(
-                                children: children.map((c) {
-                                  if (c is Expanded) return c.child;
-                                  return c;
-                                }).toList(),
-                              );
-                      },
-                    ),
+                    // Recent Books
+                    if (_recentBooks.isNotEmpty) ...[
+                      _buildSectionTitle(context,
+                          TranslationService.translate(context, 'recent_books')),
+                      const SizedBox(height: 16),
+                      // If only 1 book, user sees Hero. If more, he sees Hero + List effectively?
+                      // Actually, let's keep it simple: Show most recent as Hero ALWAYS if available?
+                      // Or just list? 
+                      // Decision: Use the first book as Hero, others in list if multiple?
+                      // Actually user prompt implies "Recent Books" AND "Reading List" appear.
+                      // Let's make "Continue Reading" the Hero section (most recent 'reading' book).
+                      
+                      // For now, let's stick to the current data logic but improve presentation.
+                      _buildBookList(context, _recentBooks, TranslationService.translate(context, 'no_recent_books')),
+                         
+                      const SizedBox(height: 32),
+                    ],
+
+                    // Reading List (All books with 'reading' status)
+                    if (_readingListBooks.isNotEmpty) ...[
+                       _buildSectionTitle(context,
+                          TranslationService.translate(context, 'reading_list')),
+                      const SizedBox(height: 16),
+                      _buildBookList(context, _readingListBooks,
+                          TranslationService.translate(context, 'no_reading_list')),
+                    ],
+
 
                     const SizedBox(height: 32),
                     if (!isKid)
@@ -541,252 +525,42 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
 
-  Widget _buildBookList(BuildContext context, List<Book> books, String emptyMessage, {int delay = 0}) {
-    final theme = Theme.of(context);
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0.0, end: 1.0),
-      duration: const Duration(milliseconds: 500),
-      curve: Curves.easeOut,
-      builder: (context, value, child) {
-        return Transform.translate(
-          offset: Offset(0, 20 * (1 - value)),
-          child: Opacity(
-            opacity: value,
-            child: child,
-          ),
-        );
-      },
-      child: Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: theme.cardTheme.color,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: theme.dividerColor.withOpacity(0.1)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ]
+  Widget _buildBookList(BuildContext context, List<Book> books, String emptyMessage,
+      {int delay = 0}) {
+    // If we have books, show them in a horizontal list (Netflix style)
+    if (books.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardTheme.color,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+              color: Theme.of(context).dividerColor.withOpacity(0.1)),
+        ),
+        child: Center(child: Text(emptyMessage)),
+      );
+    }
+
+    return SizedBox(
+      height: 260, // Height for card + shadow/padding
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: books.length,
+        padding: const EdgeInsets.only(bottom: 16, left: 4, right: 4),
+        itemBuilder: (context, index) {
+          return PremiumBookCard(book: books[index]);
+        },
       ),
-      child: books.isEmpty
-          ? Center(child: Text(emptyMessage))
-          : Column(
-              children: books
-                  .map((book) => Container(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        decoration: BoxDecoration(
-                          color: theme.cardColor,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                          border: Border.all(
-                            color: theme.dividerColor.withOpacity(0.1),
-                          ),
-                        ),
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.all(12),
-                          leading: Container(
-                            width: 40,
-                            height: 60,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              color: Colors.grey[200],
-                              image: book.coverUrl != null
-                                  ? DecorationImage(
-                                      image: NetworkImage(book.coverUrl!),
-                                      fit: BoxFit.cover,
-                                    )
-                                  : null,
-                            ),
-                            child: book.coverUrl == null
-                                ? const Icon(Icons.book, color: Colors.grey, size: 20)
-                                : null,
-                          ),
-                          title: Text(
-                            book.title,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(height: 4),
-                              Text(
-                                book.author ?? TranslationService.translate(context, 'unknown_author'),
-                                style: TextStyle(
-                                  color: theme.textTheme.bodySmall?.color,
-                                  fontSize: 14,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              if (book.readingStatus != null) ...[
-                                const SizedBox(height: 8),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: theme.primaryColor.withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  child: Text(
-                                    book.readingStatus!
-                                        .replaceAll('_', ' ')
-                                        .toUpperCase(),
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
-                                      color: theme.primaryColor,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ],
-                          ),
-                          onTap: () =>
-                              context.push('/books/${book.id}', extra: book),
-                        ),
-                      ))
-                  .toList(),
-            ),
-    ),
     );
   }
 
   Widget _buildHeroBook(BuildContext context, Book book) {
-    final theme = Theme.of(context);
-    return Container(
-      decoration: BoxDecoration(
-        color: theme.cardTheme.color,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Cover Image
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: book.coverUrl != null
-                  ? Image.network(
-                      book.coverUrl!,
-                      width: 100,
-                      height: 150,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        width: 100,
-                        height: 150,
-                        color: Colors.grey[300],
-                        child: const Center(
-                          child: Icon(Icons.book, size: 40, color: Colors.grey),
-                        ),
-                      ),
-                    )
-                  : Container(
-                      width: 100,
-                      height: 150,
-                      color: theme.primaryColor,
-                      child: const Center(
-                        child: Icon(Icons.book, size: 40, color: Colors.white),
-                      ),
-                    ),
-            ),
-            const SizedBox(width: 16),
-            
-            // Details
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    book.title,
-                    style: theme.textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    book.author ?? TranslationService.translate(context, 'unknown_author'),
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      color: theme.textTheme.bodySmall?.color,
-                      fontSize: 16,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  if (book.summary != null) ...[
-                    Text(
-                      book.summary!,
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.textTheme.bodySmall?.color,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                  ],
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      if (book.readingStatus != null)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: theme.primaryColor.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            book.readingStatus!.replaceAll('_', ' ').toUpperCase(),
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: theme.primaryColor,
-                            ),
-                          ),
-                        ),
-                      ElevatedButton(
-                        onPressed: () => context.push('/books/${book.id}', extra: book),
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          minimumSize: Size.zero,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                        child: Text(TranslationService.translate(context, 'btn_details')),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+    // Use the premium card in hero mode
+    return PremiumBookCard(
+      book: book,
+      isHero: true,
+      width: double.infinity,
+      height: 300,
     );
   }
   Widget _buildKidActionCard(

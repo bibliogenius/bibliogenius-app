@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:http_mock_adapter/http_mock_adapter.dart';
 import 'package:app/services/api_service.dart';
 import 'package:app/services/auth_service.dart';
+import 'package:app/models/book.dart';
 
 // Simple mock for AuthService
 class MockAuthService extends AuthService {
@@ -37,10 +38,11 @@ void main() {
         (server) => server.reply(200, mockResponse),
       );
 
-      final response = await apiService.getBooks();
+      final books = await apiService.getBooks();
 
-      expect(response.statusCode, 200);
-      expect(response.data, mockResponse);
+      expect(books, isA<List<Book>>());
+      expect(books.length, 1);
+      expect(books[0].title, 'Test Book');
     });
 
     test('login returns token on success', () async {

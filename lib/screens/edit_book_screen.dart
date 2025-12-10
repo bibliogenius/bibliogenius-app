@@ -28,11 +28,15 @@ class _EditBookScreenState extends State<EditBookScreen> {
   late TextEditingController _yearController;
   late TextEditingController _isbnController;
   late TextEditingController _summaryController;
+  late TextEditingController _startedDateController;
+  late TextEditingController _finishedDateController;
+  late Book _book;
   String _readingStatus = 'to_read';
   String? _coverUrl;
   bool _isEditing = false;
   bool _isSaving = false;
   bool _isFetchingDetails = false;
+  bool _hasChanges = false;
 
   @override
   void initState() {
@@ -43,6 +47,13 @@ class _EditBookScreenState extends State<EditBookScreen> {
     _publisherController = TextEditingController(text: widget.book.publisher ?? '');
     _yearController = TextEditingController(text: widget.book.publicationYear?.toString() ?? '');
     _summaryController = TextEditingController(text: widget.book.summary ?? '');
+    _startedDateController = TextEditingController(
+      text: widget.book.startedReadingAt?.toIso8601String().split('T')[0] ?? '',
+    );
+    _finishedDateController = TextEditingController(
+      text: widget.book.finishedReadingAt?.toIso8601String().split('T')[0] ?? '',
+    );
+    _book = widget.book;
     _coverUrl = widget.book.coverUrl;
     
     // Get profile type from ThemeProvider after first frame
@@ -97,8 +108,25 @@ class _EditBookScreenState extends State<EditBookScreen> {
     _publisherController.dispose();
     _yearController.dispose();
     _isbnController.dispose();
+    _isbnController.dispose();
     _summaryController.dispose();
+    _startedDateController.dispose();
+    _finishedDateController.dispose();
     super.dispose();
+  }
+
+  Future<void> _selectDate(BuildContext context, TextEditingController controller) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null) {
+      setState(() {
+        controller.text = picked.toIso8601String().split('T')[0];
+      });
+    }
   }
 
   Future<void> _saveBook() async {
@@ -115,6 +143,12 @@ class _EditBookScreenState extends State<EditBookScreen> {
       'summary': _summaryController.text,
       'reading_status': _readingStatus,
       'cover_url': _coverUrl,
+      'started_reading_at': _startedDateController.text.isNotEmpty 
+          ? DateTime.parse(_startedDateController.text).toIso8601String() 
+          : null,
+      'finished_reading_at': _finishedDateController.text.isNotEmpty 
+          ? DateTime.parse(_finishedDateController.text).toIso8601String() 
+          : null,
     };
 
     try {
@@ -123,6 +157,30 @@ class _EditBookScreenState extends State<EditBookScreen> {
         setState(() {
           _isSaving = false;
           _isEditing = false; // Return to view mode
+          _hasChanges = true; // Mark as changed
+          
+          // Update local book state including dates
+          DateTime? startedAt = _startedDateController.text.isNotEmpty 
+              ? DateTime.tryParse(_startedDateController.text) 
+              : null;
+          DateTime? finishedAt = _finishedDateController.text.isNotEmpty 
+              ? DateTime.tryParse(_finishedDateController.text) 
+              : null;
+
+          _book = Book(
+            id: widget.book.id,
+            title: _titleController.text,
+            author: _authorController.text.isNotEmpty ? _authorController.text : widget.book.author,
+            isbn: _isbnController.text,
+            publisher: _publisherController.text,
+            publicationYear: int.tryParse(_yearController.text),
+            summary: _summaryController.text,
+            readingStatus: _readingStatus,
+            coverUrl: _coverUrl,
+            startedReadingAt: startedAt,
+            finishedReadingAt: finishedAt,
+            subjects: widget.book.subjects, // Preserve subjects as they aren't edited clearly yet
+          );
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(TranslationService.translate(context, 'book_updated'))),
@@ -183,10 +241,15 @@ class _EditBookScreenState extends State<EditBookScreen> {
   }
 
   Widget _buildViewMode() {
-    final coverUrl = widget.book.largeCoverUrl;
+    final coverUrl = _book.largeCoverUrl;
 
-    return Scaffold(
-      body: CustomScrollView(
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.of(context).pop(_hasChanges);
+        return false;
+      },
+      child: Scaffold(
+        body: CustomScrollView(
         slivers: [
           SliverAppBar(
             expandedHeight: 200.0,
@@ -226,7 +289,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    widget.book.title,
+                    _book.title,
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: Colors.black87,
@@ -234,9 +297,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  if (widget.book.author != null)
+                  if (_book.author != null)
                     Text(
-                      widget.book.author!,
+                      _book.author!,
                       style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: Colors.black87,
@@ -245,20 +308,20 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   const SizedBox(height: 12),
                   Row(
                     children: [
-                      if (widget.book.publicationYear != null)
+                      if (_book.publicationYear != null)
                         Chip(
                           label: Text(
-                            widget.book.publicationYear.toString(),
+                            _book.publicationYear.toString(),
                             style: const TextStyle(fontSize: 14),
                           ),
                           avatar: const Icon(Icons.calendar_today, size: 18),
                         ),
                       const SizedBox(width: 8),
-                      if (widget.book.publisher != null)
+                      if (_book.publisher != null)
                         Expanded(
                           child: Chip(
                             label: Text(
-                              widget.book.publisher!,
+                              _book.publisher!,
                               style: const TextStyle(fontSize: 14),
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -268,7 +331,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     ],
                   ),
                   const SizedBox(height: 20),
-                  _buildStatusChip(widget.book.readingStatus),
+                  _buildStatusChip(_book.readingStatus),
                   const SizedBox(height: 30),
                   Text(
                     TranslationService.translate(context, 'summary_label'),
@@ -279,7 +342,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    widget.book.summary ?? TranslationService.translate(context, 'no_summary'),
+                    _book.summary ?? TranslationService.translate(context, 'no_summary'),
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       fontSize: 18,
                       height: 1.6,
@@ -287,9 +350,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     ),
                   ),
                   const SizedBox(height: 40),
-                  if (widget.book.isbn != null)
+                  if (_book.isbn != null)
                     Text(
-                      "ISBN: ${widget.book.isbn}",
+                      "ISBN: ${_book.isbn}",
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Colors.grey[600],
                         fontSize: 14,
@@ -302,12 +365,12 @@ class _EditBookScreenState extends State<EditBookScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: widget.book.readingStatus == 'borrowed' ? null : () => _lendBook(context),
-        backgroundColor: widget.book.readingStatus == 'borrowed' ? Colors.grey : null,
-        label: Text(widget.book.readingStatus == 'borrowed' ? TranslationService.translate(context, 'borrowed_label') : TranslationService.translate(context, 'lend_book_label')),
+        onPressed: _book.readingStatus == 'borrowed' ? null : () => _lendBook(context),
+        backgroundColor: _book.readingStatus == 'borrowed' ? Colors.grey : null,
+        label: Text(_book.readingStatus == 'borrowed' ? TranslationService.translate(context, 'borrowed_label') : TranslationService.translate(context, 'lend_book_label')),
         icon: const Icon(Icons.send),
       ),
-    );
+    ));
   }
 
   Future<void> _lendBook(BuildContext context) async {
@@ -448,7 +511,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: color),
       ),
@@ -648,6 +711,36 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 );
               },
             ),
+            const SizedBox(height: 24),
+
+            // Reading Dates (Conditional)
+            if (_readingStatus != 'to_read' && _readingStatus != 'wanted') ...[
+              _buildLabel(TranslationService.translate(context, 'started_reading_label')),
+              TextFormField(
+                controller: _startedDateController,
+                decoration: _buildInputDecoration(
+                  hint: TranslationService.translate(context, 'select_date'),
+                  suffixIcon: const Icon(Icons.calendar_today),
+                ),
+                readOnly: true,
+                onTap: () => _selectDate(context, _startedDateController),
+              ),
+              const SizedBox(height: 24),
+            ],
+
+            if (_readingStatus == 'read') ...[
+              _buildLabel(TranslationService.translate(context, 'finished_reading_label')),
+              TextFormField(
+                controller: _finishedDateController,
+                decoration: _buildInputDecoration(
+                  hint: TranslationService.translate(context, 'select_date'),
+                  suffixIcon: const Icon(Icons.calendar_today),
+                ),
+                readOnly: true,
+                onTap: () => _selectDate(context, _finishedDateController),
+              ),
+              const SizedBox(height: 24),
+            ],
             const SizedBox(height: 32),
 
             // Save Button

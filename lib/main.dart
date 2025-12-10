@@ -91,14 +91,20 @@ class MyApp extends StatelessWidget {
     final authService = AuthService();
     
     // Determine base URL:
-    // 1. If backend service is running, use its port
-    // 2. Else check .env
-    // 3. Fallback to localhost:8001
-    String baseUrl;
-    if (backendService.isRunning && backendService.port != null) {
+    // 1. If API_BASE_URL is set in .env, use it (Developer override)
+    // 2. If backend service is running, use its port
+    // 3. Fallback to default (usually localhost:8001)
+    
+    String baseUrl = dotenv.env['API_BASE_URL'] ?? '';
+    
+    if (baseUrl.isNotEmpty) {
+       debugPrint('Using API_BASE_URL from .env: $baseUrl');
+    } else if (backendService.isRunning && backendService.port != null) {
       baseUrl = 'http://localhost:${backendService.port}';
+      debugPrint('Using Bundled Backend at: $baseUrl');
     } else {
-      baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://localhost:8001';
+      baseUrl = ApiService.defaultBaseUrl;
+      debugPrint('Using Default Backend URL: $baseUrl');
     }
     
     final apiService = ApiService(authService, baseUrl: baseUrl);

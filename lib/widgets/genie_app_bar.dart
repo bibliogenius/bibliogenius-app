@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final String title;
+  final dynamic title;
   final List<Widget>? actions;
   final PreferredSizeWidget? bottom;
   final Widget? leading;
@@ -21,32 +21,53 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       automaticallyImplyLeading: automaticallyImplyLeading,
       leading: leading,
+      flexibleSpace: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF6A1B9A), Color(0xFFFF6F00)], // Deep Purple to Amber/Orange
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+      ),
+      elevation: 0,
       title: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          ClipOval(
-            child: Image.asset(
-              'assets/genie_mascot.jpg',
-              width: 48,
-              height: 48,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                // Fallback if image can't load
-                return const Icon(Icons.auto_stories, size: 48);
-              },
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.white.withOpacity(0.3)),
+            ),
+            child: const Icon(
+              Icons.auto_awesome, // "Spark" / Magic
+              color: Colors.white,
+              size: 24,
             ),
           ),
           const SizedBox(width: 12),
           Flexible(
-            child: Text(
-              title,
-              overflow: TextOverflow.ellipsis,
-            ),
+            child: title is Widget
+                ? title
+                : Text(
+                    title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                      color: Colors.white,
+                      letterSpacing: 0.5,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
           ),
         ],
       ),
       actions: actions,
       bottom: bottom,
+      centerTitle: false,
+      backgroundColor: Colors.transparent, // Required for flexibleSpace to show
     );
   }
 

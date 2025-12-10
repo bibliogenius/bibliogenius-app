@@ -9,6 +9,7 @@ class Book {
   final DateTime? finishedReadingAt;
   final DateTime? startedReadingAt;
   final String? author;
+  final List<String>? subjects;
   final String? _coverUrl; // Stored cover URL
 
   Book({
@@ -22,6 +23,7 @@ class Book {
     this.finishedReadingAt,
     this.startedReadingAt,
     this.author,
+    this.subjects,
     String? coverUrl,
   }) : _coverUrl = coverUrl;
 
@@ -42,6 +44,9 @@ class Book {
           : null,
       author: json['author'],
       coverUrl: json['cover_url'],
+      subjects: json['subjects'] != null 
+          ? List<String>.from(json['subjects']) 
+          : null,
     );
   }
 
@@ -57,6 +62,7 @@ class Book {
       'finished_reading_at': finishedReadingAt?.toIso8601String(),
       'started_reading_at': startedReadingAt?.toIso8601String(),
       'author': author,
+      'subjects': subjects,
       'cover_url': _coverUrl,
       'created_at': now,
       'updated_at': now,
