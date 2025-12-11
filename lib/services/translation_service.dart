@@ -266,6 +266,12 @@ class TranslationService {
       'filter_all_contacts': 'All Contacts',
       'filter_borrowers': 'Borrowers',
       'filter_libraries': 'Libraries',
+      'filter_contacts_only': 'Contacts Only',
+      'tab_list': 'List',
+      'no_network_members': 'No network members',
+      'add_contact_or_scan_help': 'Add a contact or scan a QR code to connect with friends.',
+      'confirm_delete': 'Are you sure you want to delete',
+      'add_contact': 'Add Contact',
       // Loan Dialog
       'lend_book_title': 'Lend Book',
       'no_borrowers_found': 'No borrowers found. Add a contact first.',
@@ -385,16 +391,20 @@ class TranslationService {
       
       // Onboarding Tour
       'onboarding_skip': 'Skip',
-      'onboarding_next': 'Next',
-      'onboarding_finish': 'Get Started',
+      'onboarding_next': 'Continue',
+      'onboarding_finish': 'Get Started!',
       'onboarding_tap_continue': 'Tap anywhere to continue',
+      'onboarding_swipe_hint': 'Swipe or use buttons to navigate',
       'menu_tutorial': 'Tutorial',
       
       'onboarding_welcome_title': 'Welcome to BiblioGenius!',
-      'onboarding_welcome_desc': 'Your personal library manager. Organize your books, connect with friends, and track your reading journey.',
+      'onboarding_welcome_desc': 'Your personal library management app. Organize, share, and discover books with a community of readers.',
       
-      'onboarding_books_title': 'Manage Your Library',
-      'onboarding_books_desc': 'Add books by scanning barcodes, searching online databases, or entering details manually. Keep track of everything you own.',
+      'onboarding_books_title': 'Build Your Library',
+      'onboarding_books_desc': 'Add books instantly by scanning barcodes, searching online databases, or entering details manually.',
+      
+      'onboarding_network_title': 'Connect Your Network',
+      'onboarding_network_desc': 'Link with friends and family to share libraries, borrow books, and track who has what.',
       
       'onboarding_p2p_title': 'Connect & Share',
       'onboarding_p2p_desc': 'Connect with other BiblioGenius users to share your libraries. See what your friends are reading and discover new books.',
@@ -402,8 +412,23 @@ class TranslationService {
       'onboarding_contacts_title': 'Track Borrowers',
       'onboarding_contacts_desc': 'Manage your contacts and keep track of who borrowed what. Never lose track of your books again.',
       
-      'onboarding_stats_title': 'Monitor Your Collection',
-      'onboarding_stats_desc': 'View statistics about your library, track reading habits, and see your collection grow over time.',
+      'onboarding_stats_title': 'Insights & Stats',
+      'onboarding_stats_desc': 'Track your reading habits, set goals, and watch your collection grow with beautiful analytics.',
+      
+      // Feature chips
+      'feature_organize': 'Organize',
+      'feature_discover': 'Discover',
+      'feature_share': 'Share',
+      'feature_scan': 'Scan ISBN',
+      'feature_search': 'Search Online',
+      'feature_manual': 'Add Manually',
+      'feature_connect': 'Connect',
+      'feature_borrow': 'Borrow',
+      'feature_track': 'Track Loans',
+      'feature_stats': 'Statistics',
+      'feature_goals': 'Reading Goals',
+      'feature_history': 'History',
+      
       'no_pub_year_data': 'No publication year data.',
       'nav_p2p_connect': 'Connect',
       'nav_help': 'Help',
@@ -619,6 +644,12 @@ class TranslationService {
       'filter_all_contacts': 'Tous les contacts',
       'filter_borrowers': 'Emprunteurs',
       'filter_libraries': 'Bibliothèques',
+      'filter_contacts_only': 'Contacts uniquement',
+      'tab_list': 'Liste',
+      'no_network_members': 'Aucun membre du réseau',
+      'add_contact_or_scan_help': 'Ajoutez un contact ou scannez un QR code pour vous connecter avec vos amis.',
+      'confirm_delete': 'Êtes-vous sûr de vouloir supprimer',
+      'add_contact': 'Ajouter un contact',
       // Loan Dialog
       'lend_book_title': 'Prêter le livre',
       'no_borrowers_found': 'Aucun emprunteur trouvé. Ajoutez d\'abord un contact.',
@@ -730,16 +761,20 @@ class TranslationService {
       
       //  Onboarding Tour
       'onboarding_skip': 'Passer',
-      'onboarding_next': 'Suivant',
-      'onboarding_finish': 'Commencer',
+      'onboarding_next': 'Continuer',
+      'onboarding_finish': 'C\'est parti !',
       'onboarding_tap_continue': 'Appuyez n\'importe où pour continuer',
+      'onboarding_swipe_hint': 'Glissez ou utilisez les boutons pour naviguer',
       'menu_tutorial': 'Tutoriel',
       
       'onboarding_welcome_title': 'Bienvenue dans BiblioGenius !',
-      'onboarding_welcome_desc': 'Votre gestionnaire de bibliothèque personnelle. Organisez vos livres, connectez-vous avec vos amis et suivez votre parcours de lecture.',
+      'onboarding_welcome_desc': 'Votre application de gestion de bibliothèque personnelle. Organisez, partagez et découvrez des livres avec une communauté de lecteurs.',
       
-      'onboarding_books_title': 'Gérez Votre Bibliothèque',
-      'onboarding_books_desc': 'Ajoutez des livres en scannant les codes-barres, en cherchant dans les bases de données en ligne, ou en entrant les détails manuellement.',
+      'onboarding_books_title': 'Construisez Votre Bibliothèque',
+      'onboarding_books_desc': 'Ajoutez des livres instantanément en scannant les codes-barres, en cherchant en ligne ou en saisissant les détails manuellement.',
+      
+      'onboarding_network_title': 'Connectez Votre Réseau',
+      'onboarding_network_desc': 'Reliez-vous avec vos amis et votre famille pour partager vos bibliothèques, emprunter des livres et suivre qui a quoi.',
       
       'onboarding_p2p_title': 'Connectez & Partagez',
       'onboarding_p2p_desc': 'Connectez-vous avec d\'autres utilisateurs BiblioGenius pour partager vos bibliothèques. Voyez ce que vos amis lisent et découvrez de nouveaux livres.',
@@ -747,8 +782,23 @@ class TranslationService {
       'onboarding_contacts_title': 'Suivez les Emprunteurs',
       'onboarding_contacts_desc': 'Gérez vos contacts et gardez une trace de qui a emprunté quoi. Ne perdez plus jamais vos livres.',
       
-      'onboarding_stats_title': 'Surveillez Votre Collection',
-      'onboarding_stats_desc': 'Consultez les statistiques de votre bibliothèque, suivez vos habitudes de lecture et regardez votre collection grandir.',
+      'onboarding_stats_title': 'Analyses & Statistiques',
+      'onboarding_stats_desc': 'Suivez vos habitudes de lecture, fixez des objectifs et regardez votre collection grandir avec de belles analyses.',
+      
+      // Feature chips
+      'feature_organize': 'Organiser',
+      'feature_discover': 'Découvrir',
+      'feature_share': 'Partager',
+      'feature_scan': 'Scanner ISBN',
+      'feature_search': 'Rechercher en ligne',
+      'feature_manual': 'Ajouter manuellement',
+      'feature_connect': 'Connecter',
+      'feature_borrow': 'Emprunter',
+      'feature_track': 'Suivre les prêts',
+      'feature_stats': 'Statistiques',
+      'feature_goals': 'Objectifs lecture',
+      'feature_history': 'Historique',
+      
       'no_pub_year_data': 'Aucune donnée de publication.',
       'nav_p2p_connect': 'Connexion',
       'nav_help': 'Aide',

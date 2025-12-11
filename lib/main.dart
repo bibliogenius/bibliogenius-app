@@ -15,18 +15,18 @@ import 'screens/add_book_screen.dart';
 import 'screens/book_copies_screen.dart';
 import 'screens/book_details_screen.dart';
 import 'screens/edit_book_screen.dart';
-import 'screens/contacts_screen.dart';
+// Note: ContactsScreen replaced by NetworkScreen
 import 'screens/add_contact_screen.dart';
 import 'screens/contact_details_screen.dart';
 import 'models/book.dart';
 import 'models/contact.dart';
 import 'screens/scan_screen.dart';
-import 'screens/p2p_screen.dart';
+// Note: P2PScreen replaced by NetworkScreen
 import 'screens/profile_screen.dart';
 import 'screens/setup_screen.dart';
 import 'screens/external_search_screen.dart';
 import 'screens/borrow_requests_screen.dart';
-import 'screens/peer_list_screen.dart';
+// Note: PeerListScreen replaced by NetworkScreen
 import 'screens/peer_book_list_screen.dart';
 import 'screens/search_peer_screen.dart';
 import 'screens/dashboard_screen.dart';
@@ -35,10 +35,11 @@ import 'screens/help_screen.dart';
 import 'screens/network_search_screen.dart';
 import 'screens/onboarding_tour_screen.dart';
 import 'screens/shelves_screen.dart';
+import 'screens/network_screen.dart';
 import 'services/wizard_service.dart';
 import 'widgets/scaffold_with_nav.dart';
 
-import 'dart:io';
+
 import 'services/backend_service.dart';
 import 'widgets/app_lifecycle_observer.dart';
 
@@ -217,9 +218,36 @@ class AppRouter extends StatelessWidget {
                 ),
               ],
             ),
+            // Unified Network screen (contacts + peers merged)
+            GoRoute(
+              path: '/network',
+              builder: (context, state) => const NetworkScreen(),
+              routes: [
+                // Keep sub-routes for contact management
+                GoRoute(
+                  path: 'contact/:id',
+                  builder: (context, state) {
+                    final contact = state.extra as Contact?;
+                    if (contact != null) {
+                      return ContactDetailsScreen(contact: contact);
+                    }
+                    // Fallback - this shouldn't happen but handle gracefully
+                    return const NetworkScreen();
+                  },
+                ),
+              ],
+            ),
+            // Keep /contacts for backward compatibility and sub-routes
             GoRoute(
               path: '/contacts',
-              builder: (context, state) => const ContactsScreen(),
+              redirect: (context, state) {
+                // Redirect base /contacts to /network
+                if (state.uri.path == '/contacts') {
+                  return '/network';
+                }
+                return null;
+              },
+              builder: (context, state) => const NetworkScreen(),
               routes: [
                 GoRoute(
                   path: 'add',
@@ -228,8 +256,11 @@ class AppRouter extends StatelessWidget {
                 GoRoute(
                   path: ':id',
                   builder: (context, state) {
-                    final contact = state.extra as Contact;
-                    return ContactDetailsScreen(contact: contact);
+                    final contact = state.extra as Contact?;
+                    if (contact != null) {
+                      return ContactDetailsScreen(contact: contact);
+                    }
+                    return const NetworkScreen();
                   },
                 ),
               ],
@@ -240,7 +271,7 @@ class AppRouter extends StatelessWidget {
             ),
             GoRoute(
               path: '/p2p',
-              builder: (context, state) => const P2PScreen(),
+              redirect: (context, state) => '/network',
             ),
             GoRoute(
               path: '/requests',
@@ -252,7 +283,7 @@ class AppRouter extends StatelessWidget {
             ),
             GoRoute(
               path: '/peers',
-              builder: (context, state) => const PeerListScreen(),
+              redirect: (context, state) => '/network',
               routes: [
                 GoRoute(
                   path: ':id/books',

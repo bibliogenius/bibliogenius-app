@@ -31,10 +31,7 @@ class ScaffoldWithNav extends StatelessWidget {
                   icon: Icon(Icons.book),
                   label: Text(TranslationService.translate(context, 'library')),
                 ),
-                NavigationRailDestination(
-                  icon: Icon(Icons.contacts),
-                  label: Text(TranslationService.translate(context, 'contacts')),
-                ),
+                // Unified Network (contacts + peers merged)
                 NavigationRailDestination(
                   icon: Icon(Icons.cloud_sync),
                   label: Text(TranslationService.translate(context, 'network')),
@@ -43,7 +40,6 @@ class ScaffoldWithNav extends StatelessWidget {
                   icon: Icon(Icons.swap_horiz),
                   label: Text(TranslationService.translate(context, 'requests')),
                 ),
-
                 NavigationRailDestination(
                   icon: Icon(Icons.person),
                   label: Text(TranslationService.translate(context, 'profile')),
@@ -70,12 +66,13 @@ class ScaffoldWithNav extends StatelessWidget {
     final String location = GoRouterState.of(context).uri.path;
     if (location.startsWith('/dashboard')) return 0;
     if (location.startsWith('/books')) return 1;
-    if (location.startsWith('/contacts')) return 2;
-    if (location.startsWith('/peers')) return 3;
-    if (location.startsWith('/requests')) return 4;
-    if (location.startsWith('/profile')) return 5;
-    if (location.startsWith('/onboarding')) return 6;
-    if (location.startsWith('/help')) return 7;
+    if (location.startsWith('/network') || 
+        location.startsWith('/contacts') || 
+        location.startsWith('/peers')) return 2;
+    if (location.startsWith('/requests')) return 3;
+    if (location.startsWith('/profile')) return 4;
+    if (location.startsWith('/onboarding')) return 5;
+    if (location.startsWith('/help')) return 6;
     return 0;
   }
 
@@ -88,21 +85,18 @@ class ScaffoldWithNav extends StatelessWidget {
         context.go('/books');
         break;
       case 2:
-        context.go('/contacts');
+        context.go('/network');
         break;
       case 3:
-        context.go('/peers');
-        break;
-      case 4:
         context.go('/requests');
         break;
-      case 5:
+      case 4:
         context.go('/profile');
         break;
-      case 6:
+      case 5:
         context.push('/onboarding');
         break;
-      case 7:
+      case 6:
         context.go('/help');
         break;
     }

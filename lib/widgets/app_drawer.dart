@@ -57,14 +57,6 @@ class AppDrawer extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.contacts),
-            title: Text(isKid ? TranslationService.translate(context, 'nav_contacts') : TranslationService.translate(context, 'nav_contacts')), // Could use 'My Friends' for kid
-            onTap: () {
-              Navigator.pop(context);
-              context.go('/contacts');
-            },
-          ),
-          ListTile(
             leading: const Icon(Icons.shelves), 
             title: Text(TranslationService.translate(context, 'tags') ?? 'Shelves'),
             onTap: () {
@@ -72,12 +64,13 @@ class AppDrawer extends StatelessWidget {
               context.go('/shelves');
             },
           ),
+          // Unified Network screen (contacts + peers merged)
           ListTile(
             leading: const Icon(Icons.cloud_sync),
             title: Text(TranslationService.translate(context, 'nav_network')),
             onTap: () {
               Navigator.pop(context);
-              context.go('/peers');
+              context.go('/network');
             },
           ),
           ListTile(
