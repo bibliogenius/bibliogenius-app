@@ -335,6 +335,20 @@ class _BookListScreenState extends State<BookListScreen> {
             },
           ),
           const SizedBox(width: 8),
+
+          // Wanting (Wishlist)
+          _buildFilterPill(
+            label: TranslationService.translate(context, 'reading_status_wanting') ?? 'Want',
+            icon: Icons.favorite_border,
+            isActive: _selectedStatus == 'wanting',
+            onTap: () {
+               setState(() {
+                _selectedStatus = _selectedStatus == 'wanting' ? null : 'wanting';
+                _filterBooks();
+              });
+            },
+          ),
+          const SizedBox(width: 8),
           
           // Finished
           _buildFilterPill(

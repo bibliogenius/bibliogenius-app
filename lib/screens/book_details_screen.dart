@@ -324,26 +324,84 @@ class BookDetailsScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    (TranslationService.translate(context, 'tags') ?? 'TAGS').toUpperCase(),
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.0,
-                      color: Colors.grey[600],
-                    ),
+                  Row(
+                    children: [
+                      Icon(Icons.local_offer_outlined, size: 16, color: Colors.grey[600]),
+                      const SizedBox(width: 6),
+                      Text(
+                        (TranslationService.translate(context, 'tags') ?? 'TAGS').toUpperCase(),
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.0,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 12),
                   Wrap(
                     spacing: 8,
-                    runSpacing: 8,
-                    children: book.subjects!.map((subject) {
-                      return ActionChip(
-                        label: Text(subject),
-                        onPressed: () {
-                           // Navigate to book list with filter
-                           context.go(Uri(path: '/books', queryParameters: {'tag': subject}).toString());
-                        },
+                    runSpacing: 10,
+                    children: book.subjects!.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final subject = entry.value;
+                      // Cycle through colors for visual variety
+                      final colors = [
+                        Colors.blue,
+                        Colors.teal,
+                        Colors.purple,
+                        Colors.orange,
+                        Colors.pink,
+                        Colors.indigo,
+                      ];
+                      final chipColor = colors[index % colors.length];
+                      
+                      return Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () {
+                            context.go(Uri(path: '/books', queryParameters: {'tag': subject}).toString());
+                          },
+                          borderRadius: BorderRadius.circular(20),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  chipColor.withValues(alpha: 0.15),
+                                  chipColor.withValues(alpha: 0.08),
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: chipColor.withValues(alpha: 0.3),
+                                width: 1,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.tag,
+                                  size: 14,
+                                  color: chipColor,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  subject,
+                                  style: TextStyle(
+                                    color: chipColor.shade700,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                       );
                     }).toList(),
                   ),
@@ -351,6 +409,7 @@ class BookDetailsScreen extends StatelessWidget {
               ),
             ),
           ],
+
         ],
       ),
     );

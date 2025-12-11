@@ -26,6 +26,7 @@ class ApiService {
         },
       ),
     );
+    _dio.interceptors.add(RetryInterceptor(_dio, this));
   }
 
   void updatePort(int port) {
@@ -428,5 +429,88 @@ class ApiService {
     } catch (e) {
       throw Exception('Failed to load tags: $e');
     }
+  }
+}
+
+class RetryInterceptor extends Interceptor {
+  final Dio dio;
+  final ApiService apiService;
+  // Prevent infinite loops or concurrent discovery attempts
+  static bool _isDiscovering = false;
+
+  RetryInterceptor(this.dio, this.apiService);
+
+  @override
+  Future<void> onError(DioException err, ErrorInterceptorHandler handler) async {
+    // Only attempt recovery for connection errors or timeouts
+    bool shouldRetry = err.type == DioExceptionType.connectionError ||
+        err.type == DioExceptionType.connectionTimeout ||
+        (err.error != null && err.error.toString().contains('Connection refused'));
+
+    if (!shouldRetry || _isDiscovering) {
+      return handler.next(err);
+    }
+
+    _isDiscovering = true;
+    debugPrint('⚠️ Connection failed on ${err.requestOptions.path}. Initiating Smart Port Discovery... 🕵️');
+
+    try {
+      // Ports to scan: 8000 to 8010
+      for (int port = 8000; port <= 8010; port++) {
+        final testUrl = 'http://localhost:$port';
+        
+        // Skip current failed URL to avoid redundancy if it was one of these
+        // if (err.requestOptions.baseUrl.contains(port.toString())) continue;
+
+        debugPrint('   → Probing $testUrl...');
+        try {
+          // Create a raw dio instance for probing to avoid interceptors
+          final probeDio = Dio(BaseOptions(
+            baseUrl: testUrl,
+            connectTimeout: const Duration(milliseconds: 500),
+            receiveTimeout: const Duration(milliseconds: 500),
+          ));
+          
+          // Try simple health check or root
+          final response = await probeDio.get('/api/books?limit=1'); // Light query
+          
+          if (response.statusCode == 200) {
+            debugPrint('   ✅ FOUND BACKEND AT $testUrl! Healing connection...');
+            
+            // Update the main ApiService
+            apiService.updatePort(port);
+            
+            // Update the original request's base URL
+            err.requestOptions.baseUrl = testUrl;
+            
+            _isDiscovering = false;
+            
+            // Clone the request with new base URL and retry
+            final opts = Options(
+              method: err.requestOptions.method,
+              headers: err.requestOptions.headers,
+            );
+            
+            final cloneReq = await dio.request(
+              err.requestOptions.path,
+              options: opts,
+              data: err.requestOptions.data,
+              queryParameters: err.requestOptions.queryParameters,
+            );
+            
+            return handler.resolve(cloneReq);
+          }
+        } catch (e) {
+          // Probe failed, continue to next port
+          // debugPrint('     (Test failed for $port)');
+        }
+      }
+      
+      debugPrint('❌ Smart Port Discovery failed. Backend unreachable on ports 8000-8010.');
+    } finally {
+      _isDiscovering = false;
+    }
+
+    return handler.next(err);
   }
 }
