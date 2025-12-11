@@ -368,6 +368,7 @@ class AvatarOptions {
       facialHair: 'none',
       mouth: 'smile',
       clothing: 'hoodie',
+      skinColor: 'ffdbb4',
     ),
     'woman': AvatarConfig(
       seed: 'woman',
@@ -376,6 +377,7 @@ class AvatarOptions {
       facialHair: 'none',
       mouth: 'smile',
       clothing: 'shirtCrewNeck',
+      skinColor: 'ffdbb4',
     ),
     'boy': AvatarConfig(
       seed: 'boy',
@@ -384,6 +386,7 @@ class AvatarOptions {
       facialHair: 'none',
       mouth: 'smile',
       clothing: 'hoodie',
+      skinColor: 'ffdbb4',
     ),
     'girl': AvatarConfig(
       seed: 'girl',
@@ -392,6 +395,7 @@ class AvatarOptions {
       facialHair: 'none',
       mouth: 'smile',
       clothing: 'overall',
+      skinColor: 'ffdbb4',
     ),
     'grandfather': AvatarConfig(
       seed: 'grandpa',
@@ -402,6 +406,7 @@ class AvatarOptions {
       mouth: 'smile',
       clothing: 'blazerAndShirt',
       accessories: 'prescription01',
+      skinColor: 'ffdbb4',
     ),
     'grandmother': AvatarConfig(
       seed: 'grandma',
@@ -412,6 +417,7 @@ class AvatarOptions {
       mouth: 'smile',
       clothing: 'blazerAndShirt',
       accessories: 'prescription01',
+      skinColor: 'ffdbb4',
     ),
     'bottts': AvatarConfig(
       seed: 'bot',

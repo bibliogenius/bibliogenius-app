@@ -171,13 +171,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final width = MediaQuery.of(context).size.width;
     final isWide = width > 600;
 
-    String greeting = TranslationService.translate(context, 'good_morning');
-    final hour = DateTime.now().hour;
-    if (hour >= 12 && hour < 17) {
-      greeting = TranslationService.translate(context, 'good_afternoon');
-    } else if (hour >= 17) {
-      greeting = TranslationService.translate(context, 'good_evening');
-    }
+    // Greeting logic removed as per user request
+
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -362,10 +357,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     ),
                                     style: TextButton.styleFrom(
                                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                                      backgroundColor: Colors.black.withOpacity(0.05),
+                                      backgroundColor: Colors.black.withValues(alpha: 0.05),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(30),
-                                        side: BorderSide(color: Colors.black.withOpacity(0.1)),
+                                        side: BorderSide(color: Colors.black.withValues(alpha: 0.1)),
                                       ),
                                     ),
                                   ),
@@ -384,13 +379,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildHeader(BuildContext context) {
-    String greeting = TranslationService.translate(context, 'good_morning');
-    final hour = DateTime.now().hour;
-    if (hour >= 12 && hour < 17) {
-      greeting = TranslationService.translate(context, 'good_afternoon');
-    } else if (hour >= 17) {
-      greeting = TranslationService.translate(context, 'good_evening');
-    }
+    // Greeting logic removed as per user request
+
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -399,14 +389,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                '$greeting,',
-                style: const TextStyle(
-                  fontSize: 28,
-                  color: Colors.black87,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              // Greeting Text removed
+
               if (_userName != null)
                 Text(
                   _userName!,
@@ -468,11 +452,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
         color: isAccent ? Theme.of(context).primaryColor : Colors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: isAccent ? Colors.transparent : Colors.grey.withOpacity(0.3),
+          color: isAccent ? Colors.transparent : Colors.grey.withValues(alpha: 0.3),
         ),
         boxShadow: isAccent ? [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 5),
           )
@@ -551,7 +535,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),
           ),
-          shadowColor: Colors.black.withOpacity(0.1),
+          shadowColor: Colors.black.withValues(alpha: 0.1),
         ),
       ),
     );
@@ -626,7 +610,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, size: 40, color: color),

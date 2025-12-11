@@ -137,6 +137,17 @@ class _EditBookScreenState extends State<EditBookScreen> {
   }
 
   Future<void> _saveBook() async {
+    // Check for pending tag in the controller that hasn't been added yet
+    if (_tagsController.text.trim().isNotEmpty) {
+      final pendingTag = _tagsController.text.trim();
+      if (!_selectedTags.contains(pendingTag)) {
+        setState(() {
+          _selectedTags.add(pendingTag);
+          _tagsController.clear();
+        });
+      }
+    }
+
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isSaving = true);
@@ -544,12 +555,15 @@ class _EditBookScreenState extends State<EditBookScreen> {
               },
               onSelected: (String selection) {
                 setState(() {
-                  _selectedTags.add(selection);
+                  final trimmed = selection.trim();
+                  if (trimmed.isNotEmpty && !_selectedTags.contains(trimmed)) {
+                    _selectedTags.add(trimmed);
+                  }
                   _tagsController.clear();
                 });
               },
               fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
-                _tagsController = controller; // Keep reference to clear it
+                _tagsController = controller; // Keep reference to check in _saveBook
                 return TextFormField(
                   controller: controller,
                   focusNode: focusNode,
@@ -558,10 +572,11 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     suffixIcon: IconButton(
                       icon: const Icon(Icons.add),
                       onPressed: () {
-                        if (controller.text.isNotEmpty) {
+                        if (controller.text.trim().isNotEmpty) {
                           setState(() {
-                             if (!_selectedTags.contains(controller.text)) {
-                               _selectedTags.add(controller.text);
+                             final val = controller.text.trim();
+                             if (!_selectedTags.contains(val)) {
+                               _selectedTags.add(val);
                              }
                              controller.clear();
                           });
@@ -570,10 +585,11 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     ),
                   ),
                   onFieldSubmitted: (String value) {
-                     if (value.isNotEmpty) {
+                     final trimmed = value.trim();
+                     if (trimmed.isNotEmpty) {
                         setState(() {
-                           if (!_selectedTags.contains(value)) {
-                             _selectedTags.add(value);
+                           if (!_selectedTags.contains(trimmed)) {
+                             _selectedTags.add(trimmed);
                            }
                            controller.clear();
                         });
