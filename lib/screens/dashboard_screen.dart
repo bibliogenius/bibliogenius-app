@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
@@ -9,6 +8,9 @@ import '../models/book.dart';
 import '../providers/theme_provider.dart';
 import '../services/wizard_service.dart';
 import '../widgets/premium_book_card.dart';
+import '../services/quote_service.dart';
+import '../models/quote.dart';
+import '../theme/app_design.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -19,12 +21,12 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   bool _isLoading = true;
-  int _totalBooks = 0;
-  int _activeLoans = 0;
-  int _contactsCount = 0;
+  Quote? _dailyQuote;
+  String? _userName;
+  Map<String, dynamic> _stats = {};
   List<Book> _recentBooks = [];
   List<Book> _readingListBooks = [];
-  Book? _heroBook; // New state variable for the hero book
+  Book? _heroBook;
 
   final GlobalKey _addKey = GlobalKey();
   final GlobalKey _searchKey = GlobalKey();
@@ -61,12 +63,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     setState(() => _isLoading = true);
     
     try {
-      // Fetch Books
       try {
         var books = await api.getBooks();
-        final configRes = await api.getLibraryConfig(); // Fetch config
+        final configRes = await api.getLibraryConfig();
         
-        // Filter based on config
         if (configRes.statusCode == 200) {
              final config = configRes.data;
              if (config['show_borrowed_books'] != true) {
@@ -76,15 +76,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
           if (mounted) {
             setState(() {
-              _totalBooks = books.length;
+              _stats['total_books'] = books.length;
               
-              // 1. Define Reading List (Priority: Reading > To Read)
               final readingListCandidates = books.where((b) => 
                 ['reading', 'to_read'].contains(b.readingStatus)
               ).toList();
               
               readingListCandidates.sort((a, b) {
-                // 'reading' comes before 'to_read'
                 if (a.readingStatus == 'reading' && b.readingStatus != 'reading') return -1;
                 if (a.readingStatus != 'reading' && b.readingStatus == 'reading') return 1;
                 return 0;
@@ -92,19 +90,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
               
               _readingListBooks = readingListCandidates.take(3).toList();
 
-              // 2. Define Recent Books (Everything else, sorted by ID desc)
-              // Exclude books already in reading list to avoid duplication
               final readingListIds = _readingListBooks.map((b) => b.id).toSet();
               
               final recentCandidates = books.where((b) => !readingListIds.contains(b.id)).toList();
-              // Assuming higher ID is newer. If you have created_at, use that.
               recentCandidates.sort((a, b) => (b.id ?? 0).compareTo(a.id ?? 0));
               
               _recentBooks = recentCandidates.take(3).toList();
 
-              // Set hero book (e.g., the first book in the reading list if available, otherwise the first recent book)
               _heroBook = _readingListBooks.isNotEmpty ? _readingListBooks.first : (_recentBooks.isNotEmpty ? _recentBooks.first : null);
-              // Remove hero book from its original list to avoid duplication in display
               if (_heroBook != null) {
                 _readingListBooks.removeWhere((book) => book.id == _heroBook!.id);
                 _recentBooks.removeWhere((book) => book.id == _heroBook!.id);
@@ -115,14 +108,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
         debugPrint('Error fetching books: $e');
       }
 
-      // Fetch Contacts
       try {
         final contactsRes = await api.getContacts();
         if (contactsRes.statusCode == 200) {
           final List<dynamic> contactsData = contactsRes.data['contacts'];
           if (mounted) {
             setState(() {
-              _contactsCount = contactsData.length;
+              _stats['contacts_count'] = contactsData.length;
             });
           }
         }
@@ -130,19 +122,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
         debugPrint('Error fetching contacts: $e');
       }
 
-      // Fetch User Status
       try {
         final statusRes = await api.getUserStatus();
         if (statusRes.statusCode == 200) {
           final statusData = statusRes.data;
           if (mounted) {
             setState(() {
-              _activeLoans = statusData['loans_count'] ?? 0;
+              _stats['active_loans'] = statusData['loans_count'] ?? 0;
+              _userName = statusData['name'];
             });
           }
         }
       } catch (e) {
         debugPrint('Error fetching user status: $e');
+      }
+
+      // Fetch Quote
+      if (mounted) {
+         final allBooks = [..._recentBooks, ..._readingListBooks]; 
+         if (allBooks.isNotEmpty) {
+           final quoteService = QuoteService();
+           final quote = await quoteService.fetchRandomQuote(allBooks);
+           if (mounted) {
+              setState(() {
+                _dailyQuote = quote;
+              });
+           }
+         }
       }
 
     } catch (e) {
@@ -160,329 +166,341 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
     final isKid = themeProvider.isKid;
-    
     final width = MediaQuery.of(context).size.width;
     final isWide = width > 600;
 
+    String greeting = TranslationService.translate(context, 'good_morning');
+    final hour = DateTime.now().hour;
+    if (hour >= 12 && hour < 17) {
+      greeting = TranslationService.translate(context, 'good_afternoon');
+    } else if (hour >= 17) {
+      greeting = TranslationService.translate(context, 'good_evening');
+    }
+
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: GenieAppBar(
-        title: TranslationService.translate(context, 'dashboard'),
+        title: 'BiblioGenius',
         leading: isWide 
           ? null 
           : IconButton(
               key: _menuKey,
-              icon: const Icon(Icons.menu),
+              icon: const Icon(Icons.menu, color: Colors.white),
               onPressed: () => Scaffold.of(context).openDrawer(),
             ),
-        automaticallyImplyLeading: false, // Prevent default back button if any
+        automaticallyImplyLeading: false,
         actions: [
           IconButton(
             key: _searchKey,
-            icon: const Icon(Icons.search),
+            icon: const Icon(Icons.search, color: Colors.white),
             onPressed: () {
                context.push('/books'); 
             },
           ),
         ],
       ),
-      // drawer: const AppDrawer(), // Removed, handled by parent ScaffoldWithNav
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
-              onRefresh: _fetchDashboardData,
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Stats Row (Visible for everyone now)
-                  Row(
-                    key: _statsKey,
-                    children: [
-                      Expanded(
-                        child: _buildStatCard(
-                          context,
-                          TranslationService.translate(context, 'total_books'),
-                          _totalBooks.toString(),
-                          Icons.book,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: _buildStatCard(
-                          context,
-                          TranslationService.translate(context, 'active_loans'),
-                          _activeLoans.toString(),
-                          Icons.swap_horiz,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: _buildStatCard(
-                          context,
-                          themeProvider.isLibrarian ? TranslationService.translate(context, 'borrowers') : TranslationService.translate(context, 'contacts'),
-                          _contactsCount.toString(),
-                          Icons.people,
-                        ),
-                      ),
-                    ],
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: AppDesign.pageGradient, // Discrete light background
+        ),
+        child: SafeArea(
+          child: _isLoading
+              ? const Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                   ),
-                  const SizedBox(height: 32),
+                )
+              : RefreshIndicator(
+                  onRefresh: _fetchDashboardData,
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // 1. Header with Quote
+                        _buildHeader(context),
+                        const SizedBox(height: 24),
 
-                  if (_totalBooks == 0) ...[
-                    // Empty State / Get Started
-                    Center(
-                      child: Container(
-                        padding: const EdgeInsets.all(32),
-                        decoration: BoxDecoration(
-                          color: theme.cardTheme.color,
-                          borderRadius: BorderRadius.circular(24),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 20,
-                              offset: const Offset(0, 10),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.library_books, size: 64, color: theme.primaryColor.withOpacity(0.5)),
-                            const SizedBox(height: 24),
-                            Text(
-                              TranslationService.translate(context, 'welcome_title'),
-                              style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              TranslationService.translate(context, 'welcome_subtitle'),
-                              style: theme.textTheme.bodyLarge?.copyWith(color: theme.textTheme.bodySmall?.color),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 32),
-                            Wrap(
-                              spacing: 16,
-                              runSpacing: 16,
-                              alignment: WrapAlignment.center,
-                              children: [
-                                ElevatedButton.icon(
-                                  key: _addKey,
-                                  onPressed: () => context.push('/books/add'),
-                                  icon: const Icon(Icons.add),
-                                  label: Text(TranslationService.translate(context, 'btn_add_manually')),
-                                  style: ElevatedButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                                  ),
-                                ),
-                                OutlinedButton.icon(
-                                  onPressed: () => context.push('/search/external'),
-                                  icon: const Icon(Icons.public),
-                                  label: Text(TranslationService.translate(context, 'btn_search_online')),
-                                  style: OutlinedButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                                  ),
+                        // Stats Row
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          clipBehavior: Clip.none,
+                          child: Row(
+                            key: _statsKey,
+                            children: [
+                              _buildStatCard(
+                                context,
+                                TranslationService.translate(context, 'my_books'),
+                                (_stats['total_books'] ?? 0).toString(),
+                                Icons.menu_book,
+                              ),
+                              const SizedBox(width: 12),
+                              _buildStatCard(
+                                context,
+                                TranslationService.translate(context, 'borrowed'),
+                                (_stats['active_loans'] ?? 0).toString(),
+                                Icons.outbox,
+                                isAccent: true,
+                              ),
+                              if (!isKid) ...[
+                                const SizedBox(width: 12),
+                                _buildStatCard(
+                                  context,
+                                  themeProvider.isLibrarian ? TranslationService.translate(context, 'borrowers') : TranslationService.translate(context, 'contacts'),
+                                  (_stats['contacts_count'] ?? 0).toString(),
+                                  Icons.people,
                                 ),
                               ],
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    ),
-                  ] else ...[
-                    // Quick Actions
-                    if (isKid) ...[
-                       // Kid Friendly Large Actions
-                       Row(
-                         children: [
-                           Expanded(
-                             child: _buildKidActionCard(
-                               context, 
-                               TranslationService.translate(context, 'action_add_book'), 
-                               Icons.add_a_photo, 
-                               Colors.orange,
-                               () => context.push('/books/add'),
-                               key: _addKey,
-                             ),
-                           ),
-                           const SizedBox(width: 16),
-                           Expanded(
-                             child: _buildKidActionCard(
-                               context, 
-                               TranslationService.translate(context, 'search_books'), 
-                               Icons.search, 
-                               Colors.blue,
-                               () => context.push('/books'),
-                             ),
-                           ),
-                         ],
-                       ),
-                       const SizedBox(height: 16),
-                       Row(
-                         children: [
-                           Expanded(
-                             child: _buildKidActionCard(
-                               context, 
-                               TranslationService.translate(context, 'nav_contacts'), // My Friends
-                               Icons.face, 
-                               Colors.green,
-                               () => context.push('/contacts'),
-                             ),
-                           ),
-                           const SizedBox(width: 16),
-                           Expanded(
-                             child: _buildKidActionCard(
-                               context, 
-                               TranslationService.translate(context, 'nav_network'), // Network
-                               Icons.public, 
-                               Colors.purple,
-                               () => context.push('/peers'),
-                             ),
-                           ),
-                         ],
-                       ),
-                       const SizedBox(height: 32),
-                    ] else if (_heroBook != null)
-                // Hero Section (Top Logic)
-                _buildHeroBook(context, _heroBook!),
-                    if (!isKid) ...[
-                      _buildSectionTitle(context, TranslationService.translate(context, 'quick_actions')),
-                      const SizedBox(height: 16),
-                      Container(
-                        padding: const EdgeInsets.all(24),
-                        decoration: BoxDecoration(
-                          color: theme.cardTheme.color,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: theme.dividerColor.withOpacity(0.1)),
-                          boxShadow: [
-                             BoxShadow(
-                                color: Colors.black.withOpacity(0.05),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                          ]
-                        ),
-                        child: Wrap(
-                          spacing: 16,
-                          runSpacing: 16,
+
+                        const SizedBox(height: 32),
+
+                        // Main Content Container
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildActionButton(
-                              context,
-                              TranslationService.translate(context, 'action_add_book'),
-                              Icons.add,
-                              () => context.push('/books/add'),
-                              isPrimary: true,
-                              key: _addKey,
-                            ),
-                            _buildActionButton(
-                              context,
-                              TranslationService.translate(context, 'action_checkout_book'),
-                              Icons.upload_file,
-                              () => context.push('/network-search'),
-                              isPrimary: true,
-                            ),
-                            _buildActionButton(
-                              context,
-                              TranslationService.translate(context, 'action_ask_library'),
-                              Icons.chat,
-                              () {}, // Placeholder
-                              isPrimary: true,
-                            ),
+                            if (isKid) ...[
+                              _buildSectionTitle(context, TranslationService.translate(context, 'quick_actions')),
+                              const SizedBox(height: 16),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildKidActionCard(
+                                      context,
+                                      TranslationService.translate(context, 'action_scan_barcode'),
+                                      Icons.qr_code_scanner,
+                                      Colors.orange,
+                                      () => context.push('/scan'),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: _buildKidActionCard(
+                                      context,
+                                      TranslationService.translate(context, 'action_search_online'),
+                                      Icons.search,
+                                      Colors.blue,
+                                      () => context.push('/books/add'),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 32),
+                            ] else if (_heroBook != null)
+                              // Hero Section
+                              _buildHeroBook(context, _heroBook!),
+                            
+                            if (!isKid) ...[
+                              _buildSectionTitle(context, TranslationService.translate(context, 'quick_actions')),
+                              const SizedBox(height: 16),
+                              Container(
+                                padding: const EdgeInsets.all(20),
+                                decoration: AppDesign.glassDecoration(),
+                                child: Wrap(
+                                  spacing: 12,
+                                  runSpacing: 12,
+                                  children: [
+                                    _buildActionButton(
+                                      context,
+                                      TranslationService.translate(context, 'action_add_book'),
+                                      Icons.add,
+                                      () => context.push('/books/add'),
+                                      isPrimary: true,
+                                      key: _addKey,
+                                    ),
+                                    _buildActionButton(
+                                      context,
+                                      TranslationService.translate(context, 'action_checkout_book'),
+                                      Icons.upload_file,
+                                      () => context.push('/network-search'),
+                                    ),
+                                    _buildActionButton(
+                                      context,
+                                      TranslationService.translate(context, 'action_ask_library'),
+                                      Icons.chat,
+                                      () {}, // Placeholder
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 32),
+                            ],
+
+                            // Recent Books
+                            if (_recentBooks.isNotEmpty) ...[
+                              _buildSectionTitle(context,
+                                  TranslationService.translate(context, 'recent_books')),
+                              const SizedBox(height: 16),
+                              _buildBookList(context, _recentBooks, TranslationService.translate(context, 'no_recent_books')),
+                              const SizedBox(height: 32),
+                            ],
+
+                            // Reading List
+                            if (_readingListBooks.isNotEmpty) ...[
+                              _buildSectionTitle(context,
+                                  TranslationService.translate(context, 'reading_list')),
+                              const SizedBox(height: 16),
+                              _buildBookList(context, _readingListBooks,
+                                  TranslationService.translate(context, 'no_reading_list')),
+                            ],
+
+                            const SizedBox(height: 32),
+                            if (!isKid)
+                              Center(
+                                child: ScaleOnTap(
+                                  child: TextButton.icon(
+                                    onPressed: () => context.push('/statistics'),
+                                    icon: const Icon(Icons.insights, color: Colors.black54),
+                                    label: Text(
+                                      TranslationService.translate(context, 'view_insights'),
+                                      style: const TextStyle(color: Colors.black54),
+                                    ),
+                                    style: TextButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                                      backgroundColor: Colors.black.withOpacity(0.05),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(30),
+                                        side: BorderSide(color: Colors.black.withOpacity(0.1)),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            const SizedBox(height: 32),
                           ],
                         ),
-                      ),
-                      const SizedBox(height: 32),
-                    ],
-  
-                    // Recent Books
-                    if (_recentBooks.isNotEmpty) ...[
-                      _buildSectionTitle(context,
-                          TranslationService.translate(context, 'recent_books')),
-                      const SizedBox(height: 16),
-                      // If only 1 book, user sees Hero. If more, he sees Hero + List effectively?
-                      // Actually, let's keep it simple: Show most recent as Hero ALWAYS if available?
-                      // Or just list? 
-                      // Decision: Use the first book as Hero, others in list if multiple?
-                      // Actually user prompt implies "Recent Books" AND "Reading List" appear.
-                      // Let's make "Continue Reading" the Hero section (most recent 'reading' book).
-                      
-                      // For now, let's stick to the current data logic but improve presentation.
-                      _buildBookList(context, _recentBooks, TranslationService.translate(context, 'no_recent_books')),
-                         
-                      const SizedBox(height: 32),
-                    ],
-
-                    // Reading List (All books with 'reading' status)
-                    if (_readingListBooks.isNotEmpty) ...[
-                       _buildSectionTitle(context,
-                          TranslationService.translate(context, 'reading_list')),
-                      const SizedBox(height: 16),
-                      _buildBookList(context, _readingListBooks,
-                          TranslationService.translate(context, 'no_reading_list')),
-                    ],
-
-
-                    const SizedBox(height: 32),
-                    if (!isKid)
-                    Center(
-                      child: TextButton.icon(
-                        onPressed: () => context.push('/statistics'),
-                        icon: const Icon(Icons.insights),
-                        label: Text(TranslationService.translate(context, 'view_insights')),
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                      ),
+                      ],
                     ),
-                    const SizedBox(height: 32),
-                  ],
-                ],
-              ),
-            ),
-          ),
+                  ),
+                ),
+        ),
+      ),
     );
   }
 
-  Widget _buildStatCard(BuildContext context, String label, String value, IconData icon) {
-    final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: theme.cardTheme.color,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: theme.dividerColor.withOpacity(0.1)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+  Widget _buildHeader(BuildContext context) {
+    String greeting = TranslationService.translate(context, 'good_morning');
+    final hour = DateTime.now().hour;
+    if (hour >= 12 && hour < 17) {
+      greeting = TranslationService.translate(context, 'good_afternoon');
+    } else if (hour >= 17) {
+      greeting = TranslationService.translate(context, 'good_evening');
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ScaleOnTap(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '$greeting,',
+                style: const TextStyle(
+                  fontSize: 28,
+                  color: Colors.black87,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              if (_userName != null)
+                Text(
+                  _userName!,
+                  style: const TextStyle(
+                    fontSize: 32,
+                    color: Colors.black,
+                    fontWeight: FontWeight.w900,
+                    height: 1.1,
+                  ),
+                ),
+            ],
+          ),
+        ),
+        if (_dailyQuote != null) ...[
+          const SizedBox(height: 24),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
+              boxShadow: AppDesign.subtleShadow,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _dailyQuote!.text,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontStyle: FontStyle.italic,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: Text(
+                    '- ${_dailyQuote!.author}',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
+      ],
+    );
+  }
+
+  Widget _buildStatCard(BuildContext context, String label, String value, IconData icon, {bool isAccent = false}) {
+    return Container(
+      width: 110,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isAccent ? Theme.of(context).primaryColor : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isAccent ? Colors.transparent : Colors.grey.withOpacity(0.3),
+        ),
+        boxShadow: isAccent ? [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          )
+        ] : AppDesign.subtleShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Icon(icon, color: isAccent ? Colors.white : Theme.of(context).primaryColor, size: 24),
+          const SizedBox(height: 12),
           Text(
             value,
-            style: theme.textTheme.headlineMedium?.copyWith(
+            style: TextStyle(
+              fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: theme.textTheme.bodyLarge?.color,
+              color: isAccent ? Colors.white : Colors.black87,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           Text(
-            label.toUpperCase(),
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.textTheme.bodySmall?.color?.withOpacity(0.6),
-              fontWeight: FontWeight.w600,
-              letterSpacing: 1.0,
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: isAccent ? Colors.white70 : Colors.black54,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -490,11 +508,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildSectionTitle(BuildContext context, String title) {
-    return Text(
-      title,
-      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+    return Padding(
+      padding: const EdgeInsets.only(left: 4),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          color: Colors.black87,
+          letterSpacing: 0.5,
+          shadows: [
+            Shadow(
+              color: Colors.black12,
+              offset: Offset(0, 1),
+              blurRadius: 2,
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -506,63 +537,71 @@ class _DashboardScreenState extends State<DashboardScreen> {
     bool isPrimary = false,
     Key? key,
   }) {
-    final theme = Theme.of(context);
-    return ElevatedButton.icon(
-      key: key,
-      onPressed: onPressed,
-      icon: Icon(icon, size: 18),
-      label: Text(label),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: isPrimary ? theme.primaryColor : theme.cardColor,
-        foregroundColor: isPrimary ? Colors.white : theme.textTheme.bodyLarge?.color,
-        elevation: 0,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
+    return ScaleOnTap(
+      child: ElevatedButton.icon(
+        key: key,
+        onPressed: onPressed,
+        icon: Icon(icon, size: 18),
+        label: Text(label),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: isPrimary ? Theme.of(context).primaryColor : Colors.white,
+          foregroundColor: isPrimary ? Colors.white : Theme.of(context).primaryColor,
+          elevation: isPrimary ? 4 : 2,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+          ),
+          shadowColor: Colors.black.withOpacity(0.1),
         ),
       ),
     );
   }
 
 
-  Widget _buildBookList(BuildContext context, List<Book> books, String emptyMessage,
-      {int delay = 0}) {
-    // If we have books, show them in a horizontal list (Netflix style)
+  Widget _buildBookList(BuildContext context, List<Book> books, String emptyMessage) {
     if (books.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: Theme.of(context).cardTheme.color,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-              color: Theme.of(context).dividerColor.withOpacity(0.1)),
+        decoration: AppDesign.glassDecoration(),
+        child: Center(
+          child: Text(
+            emptyMessage,
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Colors.black54),
+          )
         ),
-        child: Center(child: Text(emptyMessage)),
       );
     }
 
     return SizedBox(
-      height: 260, // Height for card + shadow/padding
+      height: 260,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: books.length,
         padding: const EdgeInsets.only(bottom: 16, left: 4, right: 4),
+        clipBehavior: Clip.none,
         itemBuilder: (context, index) {
-          return PremiumBookCard(book: books[index]);
+          return Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: PremiumBookCard(book: books[index]),
+          );
         },
       ),
     );
   }
 
   Widget _buildHeroBook(BuildContext context, Book book) {
-    // Use the premium card in hero mode
-    return PremiumBookCard(
-      book: book,
-      isHero: true,
-      width: double.infinity,
-      height: 300,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 32),
+      child: PremiumBookCard(
+        book: book,
+        isHero: true,
+        width: double.infinity,
+        height: 300,
+      ),
     );
   }
+
   Widget _buildKidActionCard(
     BuildContext context,
     String label,
@@ -571,26 +610,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
     VoidCallback onTap, {
     Key? key,
   }) {
-    return GestureDetector(
+    return ScaleOnTap(
       onTap: onTap,
       child: Container(
         key: key,
-        height: 120,
+        height: 140,
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: color.withOpacity(0.3), width: 2),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: AppDesign.subtleShadow,
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 48, color: color),
-            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, size: 40, color: color),
+            ),
+            const SizedBox(height: 12),
             Text(
               label,
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 18,
+                fontSize: 16,
                 fontWeight: FontWeight.bold,
                 color: color,
               ),

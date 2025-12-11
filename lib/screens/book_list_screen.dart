@@ -7,10 +7,10 @@ import '../services/sync_service.dart';
 import '../services/translation_service.dart';
 import '../models/book.dart';
 import '../widgets/bookshelf_view.dart';
-import '../widgets/book_cover_grid.dart'; // Import the new grid
+import '../widgets/book_cover_grid.dart'; 
+import '../widgets/premium_book_card.dart';
+import '../theme/app_design.dart';
 
-import '../widgets/app_drawer.dart';
-import '../services/wizard_service.dart';
 
 enum ViewMode {
   coverGrid, // Netflix style
@@ -35,6 +35,7 @@ class _BookListScreenState extends State<BookListScreen> {
   
   bool _isLoading = true;
   ViewMode _viewMode = ViewMode.coverGrid; // Default to cover grid
+  String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
   bool _isSearching = false;
 
@@ -91,6 +92,7 @@ class _BookListScreenState extends State<BookListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: GenieAppBar(
         title: _isSearching
             ? _buildSearchField() // Use custom search field with autocomplete
@@ -98,7 +100,7 @@ class _BookListScreenState extends State<BookListScreen> {
         actions: [
           IconButton(
             key: _searchKey,
-            icon: Icon(_isSearching ? Icons.close : Icons.search),
+            icon: Icon(_isSearching ? Icons.close : Icons.search, color: Colors.white),
             onPressed: () {
               setState(() {
                 if (_isSearching) {
@@ -114,7 +116,7 @@ class _BookListScreenState extends State<BookListScreen> {
           if (!_isSearching) ...[
             IconButton(
               key: _viewKey,
-              icon: Icon(_getViewIcon(_viewMode)),
+              icon: Icon(_getViewIcon(_viewMode), color: Colors.white),
               onPressed: () {
                 setState(() {
                   _viewMode = _getNextViewMode(_viewMode);
@@ -123,15 +125,15 @@ class _BookListScreenState extends State<BookListScreen> {
             ),
             IconButton(
               key: _scanKey,
-              icon: const Icon(Icons.camera_alt),
+              icon: const Icon(Icons.camera_alt, color: Colors.white),
               onPressed: () {
                 context.push('/scan');
               },
             ),
-            IconButton(icon: const Icon(Icons.refresh), onPressed: _fetchBooks),
+            IconButton(icon: const Icon(Icons.refresh, color: Colors.white), onPressed: _fetchBooks),
             IconButton(
               key: _externalSearchKey,
-              icon: const Icon(Icons.public),
+              icon: const Icon(Icons.public, color: Colors.white),
               tooltip:
                   TranslationService.translate(context, 'btn_search_online'),
               onPressed: () {
@@ -140,14 +142,25 @@ class _BookListScreenState extends State<BookListScreen> {
             ),
           ],
         ],
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(60),
-          child: _buildFilterBar(),
+      ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: AppDesign.pageGradient, // Discrete light background
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              _buildHeader(context),
+              _buildFilterBar(),
+              Expanded(
+                child: _isLoading
+                    ? const Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.black54)))
+                    : _buildBody(),
+              ),
+            ],
+          ),
         ),
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _buildBody(),
       floatingActionButton: FloatingActionButton(
         key: _addKey,
         onPressed: () async {
@@ -167,19 +180,11 @@ class _BookListScreenState extends State<BookListScreen> {
     final apiService = Provider.of<ApiService>(context, listen: false);
     
     try {
-      // Build filters
-      // Note: Backend supports status, title, author, tag.
-      // We map our search query to 'title' for now, or use a general search if backend supports 'q'.
-      // Looking at `ApiService`, getBooks takes named args.
-      
-      debugPrint('Fetching books with status: $_selectedStatus, tag: $_tagFilter, search: ${_searchController.text}');
-      final books = await apiService.getBooks(
-        status: _selectedStatus,
-        tag: _tagFilter,
-        title: _searchController.text.isNotEmpty ? _searchController.text : null,
-      );
+      debugPrint('Fetching books with status: $_selectedStatus, tag: $_tagFilter, search: $_searchQuery');
+      // Fetch all books initially, filtering will happen locally
+      final books = await apiService.getBooks();
 
-      final configRes = await apiService.getLibraryConfig(); // Keep config check?
+      final configRes = await apiService.getLibraryConfig(); 
       bool showBorrowed = true;
       if (configRes.statusCode == 200) {
          showBorrowed = configRes.data['show_borrowed_books'] == true;
@@ -187,10 +192,8 @@ class _BookListScreenState extends State<BookListScreen> {
       
       if (mounted) {
         setState(() {
-          // If config hides borrowed, we filter them out client side OR update backend to support it.
-          // For safety, filter client side too.
           _books = showBorrowed ? books : books.where((b) => b.readingStatus != 'borrowed').toList();
-          _filteredBooks = _books; // They are same now, as filtering happened on server
+          _filterBooks(); // Apply filters after fetching all books
           _isLoading = false;
         });
       }
@@ -198,241 +201,291 @@ class _BookListScreenState extends State<BookListScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
         debugPrint('Error loading books: $e');
-        // Optional: Show snackbar
       }
     }
   }
 
-  // Triggered when filters change
+  // Triggered when filters change or search query changes
   void _filterBooks() {
-    _fetchBooks();
+    List<Book> tempBooks = List.from(_books);
+
+    // Apply status filter
+    if (_selectedStatus != null) {
+      tempBooks = tempBooks.where((book) => book.readingStatus == _selectedStatus).toList();
+    }
+
+    // Apply tag filter
+    if (_tagFilter != null) {
+      tempBooks = tempBooks.where((book) => (book.subjects ?? []).contains(_tagFilter)).toList();
+    }
+
+    // Apply search query filter
+    if (_searchQuery.isNotEmpty) {
+      tempBooks = tempBooks.where((book) => 
+        book.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+        (book.author?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false)
+      ).toList();
+    }
+
+    setState(() {
+      _filteredBooks = tempBooks;
+    });
   }
   
-  // Fetch autocomplete suggestions
-  Future<Iterable<String>> _fetchSuggestions(String query) async {
-    if (query.isEmpty) return [];
-    try {
-      final api = Provider.of<ApiService>(context, listen: false);
-      // We can use the same getBooks query but just for titles
-      final books = await api.getBooks(title: query);
-      return books.map((b) => b.title).toSet().toList(); // Unique titles
-    } catch (e) {
-       return [];
-    }
-  }
+  // _fetchSuggestions is removed as Autocomplete now works directly on _allBooks
 
   Widget _buildSearchField() {
-    return Autocomplete<String>(
-      optionsBuilder: (TextEditingValue textEditingValue) {
-        return _fetchSuggestions(textEditingValue.text);
-      },
-      onSelected: (String selection) {
-        _searchController.text = selection;
-        _filterBooks();
-      },
-      fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
-        // Sync with our controller
-        if (_searchController.text != textEditingController.text) {
-           textEditingController.text = _searchController.text;
-        }
-        
-        return TextField(
-          controller: textEditingController,
-          focusNode: focusNode,
-          style: const TextStyle(color: Colors.white), 
-          decoration: InputDecoration(
-            hintText: TranslationService.translate(context, 'search_hint') ?? 'Search title, author...',
-            hintStyle: const TextStyle(color: Colors.white70),
-            border: InputBorder.none,
-          ),
-          onChanged: (value) {
-            _searchController.text = value; 
-             _filterBooks(); 
-          },
-        );
-      },
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: AppDesign.subtleShadow,
+      ),
+      child: Autocomplete<Book>(
+        displayStringForOption: (Book option) => option.title,
+        optionsBuilder: (TextEditingValue textEditingValue) {
+          if (textEditingValue.text.isEmpty) {
+            return const Iterable<Book>.empty();
+          }
+          return _books.where((Book book) {
+            return book.title.toLowerCase().contains(textEditingValue.text.toLowerCase()) ||
+                   (book.author?.toLowerCase().contains(textEditingValue.text.toLowerCase()) ?? false);
+          });
+        },
+        onSelected: (Book selection) {
+          context.push('/books/${selection.id}');
+        },
+        fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
+          // Sync internal _searchQuery with Autocomplete's controller
+          if (_searchQuery != textEditingController.text) {
+            textEditingController.text = _searchQuery;
+          }
+
+          return TextField(
+            controller: textEditingController,
+            focusNode: focusNode,
+            style: const TextStyle(color: Colors.black87),
+            decoration: InputDecoration(
+              hintText: TranslationService.translate(context, 'search_books'),
+              hintStyle: const TextStyle(color: Colors.black38),
+              prefixIcon: const Icon(Icons.search, color: Colors.black54),
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+            ),
+            onChanged: (value) {
+              setState(() {
+                _searchQuery = value;
+                _filterBooks(); // Trigger filter on search query change
+              });
+            },
+          );
+        },
+        optionsViewBuilder: (context, onSelected, options) {
+          return Align(
+            alignment: Alignment.topLeft,
+            child: Material(
+              elevation: 4.0,
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 200, maxWidth: 300), // Adjust width as needed
+                child: ListView.builder(
+                  padding: EdgeInsets.zero,
+                  shrinkWrap: true,
+                  itemCount: options.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    final Book option = options.elementAt(index);
+                    return InkWell(
+                      onTap: () => onSelected(option),
+                      child: ListTile(
+                        leading: option.coverUrl != null
+                          ? Image.network(option.coverUrl!, width: 30, fit: BoxFit.cover, errorBuilder: (_,__,___) => const Icon(Icons.book, size: 30))
+                          : const Icon(Icons.book, size: 30, color: Colors.grey),
+                        title: Text(option.title, maxLines: 1, overflow: TextOverflow.ellipsis),
+                        subtitle: Text(option.author ?? 'Unknown', maxLines: 1, overflow: TextOverflow.ellipsis),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 
-  Widget _buildFilterBar() {
-    return Container(
-      height: 50,
-      decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
-        border: Border(
-          bottom: BorderSide(
-            color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
-            width: 1,
-          ),
-        ),
-      ),
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+  Widget _buildHeader(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+      child: Row(
         children: [
-          // Tag Filter (if active)
-          if (_tagFilter != null) ...[
-            _buildFilterPill(
-              label: '#$_tagFilter',
-              icon: Icons.tag,
-              isActive: true, // Always active if visible
-              isClearAction: true, // Special styling for clearable tags
-              onTap: () {
-                setState(() {
-                  _tagFilter = null;
-                  _filterBooks();
-                });
+          Expanded(
+            child: Text(
+              TranslationService.translate(context, 'my_library_title'),
+              style: const TextStyle(
+                fontSize: 28, 
+                fontWeight: FontWeight.bold,
+                color: Colors.black87, // Dark text
+              ),
+            ),
+          ),
+          // Add Book Button
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () async {
+                final result = await context.push('/books/add');
+                if (result == true) {
+                  _fetchBooks(); // Refresh if book was added
+                }
               },
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: AppDesign.subtleShadow,
+                ),
+                child: const Icon(Icons.add, color: Colors.white, size: 24),
+              ),
             ),
-            const SizedBox(width: 8),
-            Container(
-              width: 1,
-              height: 24,
-              margin: const EdgeInsets.symmetric(horizontal: 4),
-              color: Theme.of(context).dividerColor,
-            ),
-            const SizedBox(width: 8),
-          ],
-          
-          // "All" Filter
-          _buildFilterPill(
-            label: TranslationService.translate(context, 'filter_all') ?? 'All',
-            icon: Icons.apps,
-            isActive: _selectedStatus == null,
-            onTap: () {
-              setState(() {
-                _selectedStatus = null;
-                _filterBooks();
-              });
-            },
-          ),
-          const SizedBox(width: 8),
-          
-          // Reading
-          _buildFilterPill(
-            label: TranslationService.translate(context, 'reading_status_reading') ?? 'Reading',
-            icon: Icons.auto_stories, // or local_library
-            isActive: _selectedStatus == 'reading',
-            onTap: () {
-              setState(() {
-                _selectedStatus = _selectedStatus == 'reading' ? null : 'reading';
-                _filterBooks();
-              });
-            },
-          ),
-          const SizedBox(width: 8),
-          
-          // To Read
-          _buildFilterPill(
-            label: TranslationService.translate(context, 'reading_status_to_read') ?? 'To Read',
-            icon: Icons.bookmark_border,
-            isActive: _selectedStatus == 'to_read',
-            onTap: () {
-               setState(() {
-                _selectedStatus = _selectedStatus == 'to_read' ? null : 'to_read';
-                _filterBooks();
-              });
-            },
-          ),
-          const SizedBox(width: 8),
-
-          // Wanting (Wishlist)
-          _buildFilterPill(
-            label: TranslationService.translate(context, 'reading_status_wanting') ?? 'Want',
-            icon: Icons.favorite_border,
-            isActive: _selectedStatus == 'wanting',
-            onTap: () {
-               setState(() {
-                _selectedStatus = _selectedStatus == 'wanting' ? null : 'wanting';
-                _filterBooks();
-              });
-            },
-          ),
-          const SizedBox(width: 8),
-          
-          // Finished
-          _buildFilterPill(
-            label: TranslationService.translate(context, 'reading_status_read') ?? 'Finished',
-            icon: Icons.check_circle_outline,
-            isActive: _selectedStatus == 'read',
-            onTap: () {
-               setState(() {
-                _selectedStatus = _selectedStatus == 'read' ? null : 'read';
-                _filterBooks();
-              });
-            },
           ),
         ],
       ),
     );
   }
 
+  Widget _buildFilterBar() {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: Row(
+        children: [
+          // View Mode Toggles
+          Container(
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              color: Colors.grey.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.withOpacity(0.2)),
+            ),
+            child: Row(
+              children: [
+                _buildViewModeToggle(Icons.grid_view, ViewMode.coverGrid),
+                _buildViewModeToggle(Icons.shelves, ViewMode.spineShelf),
+                _buildViewModeToggle(Icons.list, ViewMode.list),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          
+          // Tag Filter (if active)
+          if (_tagFilter != null) ...[
+            _buildFilterPill(
+              status: 'tag_filter', // A dummy status to identify this pill
+              label: '#$_tagFilter',
+              isClearAction: true,
+            ),
+            const SizedBox(width: 8),
+          ],
+
+          // Status Filters
+          _buildFilterPill(status: null, label: TranslationService.translate(context, 'filter_all')),
+          _buildFilterPill(status: 'reading', label: TranslationService.translate(context, 'reading_status_reading')),
+          _buildFilterPill(status: 'to_read', label: TranslationService.translate(context, 'reading_status_to_read')),
+          _buildFilterPill(status: 'wanting', label: TranslationService.translate(context, 'reading_status_wanting')),
+          _buildFilterPill(status: 'read', label: TranslationService.translate(context, 'reading_status_read')),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildViewModeToggle(IconData icon, ViewMode mode) {
+    final bool isSelected = _viewMode == mode;
+    return ScaleOnTap(
+      onTap: () {
+        setState(() {
+          _viewMode = mode;
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: isSelected ? Theme.of(context).primaryColor : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(
+          icon,
+          color: isSelected ? Colors.white : Colors.black54,
+          size: 20,
+        ),
+      ),
+    );
+  }
+
   Widget _buildFilterPill({
+    required String? status,
     required String label,
-    required IconData icon,
-    required bool isActive,
-    required VoidCallback onTap,
     bool isClearAction = false,
   }) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    
-    // Active colors
-    final activeBg = theme.colorScheme.primary;
-    final activeFg = theme.colorScheme.onPrimary;
-    
-    // Inactive colors
-    final inactiveBg = isDark ? Colors.white.withValues(alpha: 0.1) : Colors.grey.withValues(alpha: 0.1);
-    final inactiveFg = isDark ? Colors.white70 : Colors.black87;
-    
-    // Clear action specific logic (like for tags)
-    final bg = isClearAction 
-        ? theme.colorScheme.tertiaryContainer 
-        : (isActive ? activeBg : inactiveBg);
-    final fg = isClearAction
-        ? theme.colorScheme.onTertiaryContainer
-        : (isActive ? activeFg : inactiveFg);
+    final bool isSelected = _selectedStatus == status;
 
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOut,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: BorderRadius.circular(20),
-          border: isActive 
-              ? null 
-              : Border.all(color: theme.dividerColor.withValues(alpha: 0.1)),
-          boxShadow: isActive && !isClearAction
-              ? [
-                  BoxShadow(
-                    color: activeBg.withValues(alpha: 0.4),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  )
-                ]
-              : null,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              isClearAction ? Icons.close : icon,
-              size: 16,
-              color: fg,
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: ScaleOnTap(
+        onTap: () {
+          if (isClearAction) {
+            setState(() {
+              _tagFilter = null;
+              _filterBooks();
+            });
+          } else {
+            setState(() {
+              _selectedStatus = isSelected ? null : status;
+              _filterBooks();
+            });
+          }
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: isClearAction 
+                ? Colors.redAccent.withOpacity(0.8)
+                : (isSelected ? Theme.of(context).primaryColor : Colors.white),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: isSelected ? Colors.transparent : Colors.grey.withOpacity(0.3),
             ),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: TextStyle(
-                color: fg,
-                fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
-                fontSize: 13,
+             boxShadow: isSelected && !isClearAction
+                ? [
+                    BoxShadow(
+                      color: Theme.of(context).primaryColor.withOpacity(0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    )
+                  ]
+                : null,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (isClearAction) ...[
+                const Icon(Icons.close, size: 16, color: Colors.white),
+                const SizedBox(width: 6),
+              ],
+              Text(
+                label,
+                style: TextStyle(
+                  color: isClearAction ? Colors.white : (isSelected ? Colors.white : Colors.black54),
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                  fontSize: 13,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -445,12 +498,7 @@ class _BookListScreenState extends State<BookListScreen> {
     }
   }
 
-  Future<void> _navigateToEditBook(Book book) async {
-    final result = await context.push('/books/${book.id}/edit', extra: book);
-    if (result == true) {
-      _fetchBooks();
-    }
-  }
+
 
   ViewMode _getNextViewMode(ViewMode current) {
     switch (current) {
@@ -477,7 +525,17 @@ class _BookListScreenState extends State<BookListScreen> {
   Widget _buildBody() {
     if (_filteredBooks.isEmpty && !_isLoading) {
       return Center(
-        child: Text(TranslationService.translate(context, 'no_books_found') ?? 'No books found'),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.search_off, size: 64, color: Colors.grey.withOpacity(0.5)),
+            const SizedBox(height: 16),
+            Text(
+              TranslationService.translate(context, 'no_books_found'),
+              style: TextStyle(fontSize: 18, color: Colors.grey.withOpacity(0.8)),
+            ),
+          ],
+        ),
       );
     }
     
@@ -498,107 +556,18 @@ class _BookListScreenState extends State<BookListScreen> {
   }
 
   Widget _buildListView() {
-    return ListView.separated(
+    return ListView.builder(
       itemCount: _filteredBooks.length,
-      separatorBuilder: (context, index) =>
-          const Divider(height: 1, indent: 16, endIndent: 16),
+      padding: const EdgeInsets.all(16),
       itemBuilder: (context, index) {
         final book = _filteredBooks[index];
-        return ListTile(
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          leading: Container(
-            width: 40,
-            height: 60,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(4),
-              color: Colors.grey[200],
-              image: book.coverUrl != null
-                  ? DecorationImage(
-                      image: NetworkImage(book.coverUrl!),
-                      fit: BoxFit.cover,
-                    )
-                  : null,
-            ),
-            child: book.coverUrl == null
-                ? const Icon(Icons.book, color: Colors.grey, size: 20)
-                : null,
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: PremiumBookCard(
+            book: book,
+            isHero: true, // Use hero layout (horizontal) for list items
+            width: double.infinity,
           ),
-          title: Text(
-            book.title,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 4),
-              Text(
-                book.publisher ?? 'Unknown Publisher',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Theme.of(context).textTheme.bodySmall?.color,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              if (book.readingStatus != null) ...[
-                const SizedBox(height: 4),
-                Text(
-                  book.readingStatus!.replaceAll('_', ' ').toUpperCase(),
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).primaryColor,
-                  ),
-                ),
-              ],
-            ],
-          ),
-          trailing: IconButton(
-            icon: const Icon(Icons.more_vert),
-            onPressed: () {
-              showModalBottomSheet(
-                context: context,
-                builder: (context) => SafeArea(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      ListTile(
-                        leading: const Icon(Icons.edit),
-                        title: Text(TranslationService.translate(
-                            context, 'menu_edit')),
-                        onTap: () {
-                          Navigator.pop(context);
-                          _navigateToEditBook(book);
-                        },
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.library_books),
-                        title: Text(TranslationService.translate(
-                            context, 'menu_manage_copies')),
-                        onTap: () {
-                          Navigator.pop(context);
-                          context.push(
-                            '/books/${book.id}/copies',
-                            extra: {
-                              'bookId': book.id,
-                              'bookTitle': book.title
-                            },
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-          onTap: () => _onBookTap(book),
         );
       },
     );

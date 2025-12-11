@@ -429,6 +429,10 @@ class TranslationService {
       'feature_goals': 'Reading Goals',
       'feature_history': 'History',
       
+      // Hero card
+      'continue_reading': 'Continue Reading',
+      'tap_to_view': 'Tap to view details',
+      
       'no_pub_year_data': 'No publication year data.',
       'nav_p2p_connect': 'Connect',
       'nav_help': 'Help',
@@ -809,6 +813,10 @@ class TranslationService {
       'feature_stats': 'Statistiques',
       'feature_goals': 'Objectifs lecture',
       'feature_history': 'Historique',
+      
+      // Hero card
+      'continue_reading': 'Continuer la lecture',
+      'tap_to_view': 'Appuyer pour voir les détails',
       
       'no_pub_year_data': 'Aucune donnée de publication.',
       'nav_p2p_connect': 'Connexion',

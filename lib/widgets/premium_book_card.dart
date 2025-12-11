@@ -121,6 +121,8 @@ class _PremiumBookCardState extends State<PremiumBookCard>
   }
 
   Widget _buildHeroCard(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return GestureDetector(
       onTap: () => context.push('/books/${widget.book.id}', extra: widget.book),
       child: MouseRegion(
@@ -129,12 +131,13 @@ class _PremiumBookCardState extends State<PremiumBookCard>
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeOutCubic,
-          height: 300,
+          margin: const EdgeInsets.only(bottom: 24),
           decoration: BoxDecoration(
+            color: theme.cardColor,
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: _isHovering ? 0.3 : 0.2),
+                color: theme.primaryColor.withValues(alpha: _isHovering ? 0.3 : 0.15),
                 blurRadius: _isHovering ? 30 : 20,
                 offset: const Offset(0, 10),
               ),
@@ -144,78 +147,134 @@ class _PremiumBookCardState extends State<PremiumBookCard>
             borderRadius: BorderRadius.circular(20),
             child: Stack(
               children: [
-                // Background Image (Blurred)
-                Positioned.fill(
-                  child: widget.book.coverUrl != null
-                      ? Image.network(
-                          widget.book.coverUrl!,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) =>
-                              _buildFallbackCover(context),
-                        )
-                      : _buildFallbackCover(context),
-                ),
-                Positioned.fill(
+                // Gradient accent bar at top
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: 4,
                   child: Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
                         colors: [
-                          Colors.transparent,
-                          Colors.black.withValues(alpha: 0.8),
+                          theme.primaryColor,
+                          theme.colorScheme.secondary,
                         ],
-                        stops: const [0.5, 1.0],
                       ),
                     ),
                   ),
                 ),
-                // Content
-                Positioned(
-                  bottom: 24,
-                  left: 24,
-                  right: 24,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                // Main content
+                Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                      // Book cover thumbnail
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
+                        width: 120,
+                        height: 180,
                         decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: const Text('CONTINUE READING',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold)),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        widget.book.title,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          shadows: [
-                            Shadow(
-                                color: Colors.black54,
-                                offset: Offset(0, 2),
-                                blurRadius: 4)
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.2),
+                              blurRadius: 15,
+                              offset: const Offset(0, 5),
+                            ),
                           ],
                         ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      if (widget.book.author != null)
-                        Text(
-                          widget.book.author!,
-                          style: const TextStyle(
-                              color: Colors.white70, fontSize: 16),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: widget.book.coverUrl != null
+                              ? Image.network(
+                                  widget.book.coverUrl!,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, _, _) =>
+                                      _buildFallbackCover(context),
+                                )
+                              : _buildFallbackCover(context),
                         ),
+                      ),
+                      const SizedBox(width: 20),
+                      // Book info
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Continue Reading badge
+                            if (widget.book.readingStatus != null) ...[
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 5),
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      theme.primaryColor,
+                                      theme.colorScheme.secondary,
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  // Use translated status directly as translate returns non-nullable
+                                  TranslationService.translate(context, 'reading_status_${widget.book.readingStatus}').toUpperCase(),
+                                  style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 0.5),
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                            ],
+                            // Title
+                            Text(
+                              widget.book.title,
+                              style: theme.textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 8),
+                            // Author
+                            if (widget.book.author != null)
+                              Text(
+                                widget.book.author!,
+                                style: theme.textTheme.bodyLarge?.copyWith(
+                                  color: theme.textTheme.bodySmall?.color,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            const Spacer(),
+                            // Action hint
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.touch_app,
+                                  size: 16,
+                                  color: theme.primaryColor,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  TranslationService.translate(context, 'tap_to_view'),
+                                  style: TextStyle(
+                                    color: theme.primaryColor,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
+                ),
                 ),
               ],
             ),
@@ -224,6 +283,7 @@ class _PremiumBookCardState extends State<PremiumBookCard>
       ),
     );
   }
+
 
   Widget _buildStandardCard(BuildContext context) {
     return GestureDetector(
@@ -266,7 +326,7 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                           ? Image.network(
                               widget.book.coverUrl!,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => _buildFallbackCover(context),
+                              errorBuilder: (_, _, _) => _buildFallbackCover(context),
                             )
                           : _buildFallbackCover(context),
                     ),
@@ -294,13 +354,13 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                         right: 8,
                         child: Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 3),
+                              horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: Colors.black.withValues(alpha: 0.5),
-                            borderRadius: BorderRadius.circular(4),
+                            color: Colors.blueAccent.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
-                            widget.book.readingStatus!
+                            (widget.book.readingStatus ?? 'unknown')
                                 .replaceAll('_', ' ')
                                 .toUpperCase(),
                             style: const TextStyle(

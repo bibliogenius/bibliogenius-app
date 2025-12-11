@@ -17,6 +17,14 @@ class AppDesign {
     colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
   );
 
+  /// Discrete page background gradient - Light Blue Grey
+  static const pageGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [Color(0xFFF8FAFC), Color(0xFFE2E8F0)], // Slate-50 -> Slate-200
+    stops: [0.0, 1.0],
+  );
+
   /// Success gradient - Green tones
   static const successGradient = LinearGradient(
     begin: Alignment.topLeft,
