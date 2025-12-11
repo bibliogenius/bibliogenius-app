@@ -65,6 +65,14 @@ class AppDrawer extends StatelessWidget {
             },
           ),
           ListTile(
+            leading: const Icon(Icons.shelves), 
+            title: Text(TranslationService.translate(context, 'tags') ?? 'Shelves'),
+            onTap: () {
+              Navigator.pop(context);
+              context.go('/shelves');
+            },
+          ),
+          ListTile(
             leading: const Icon(Icons.cloud_sync),
             title: Text(TranslationService.translate(context, 'nav_network')),
             onTap: () {

@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../models/book.dart';
+import '../models/tag.dart';
 import 'auth_service.dart';
 
 class ApiService {
@@ -413,5 +414,19 @@ class ApiService {
 
   Future<Response> getTranslations(String locale) async {
     return await _dio.get('$hubUrl/api/translations/$locale');
+  }
+
+  Future<List<Tag>> getTags() async {
+    try {
+      final response = await _dio.get('/api/books/tags');
+      if (response.statusCode == 200) {
+        final List<dynamic> data = response.data;
+        return data.map((json) => Tag.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to load tags');
+      }
+    } catch (e) {
+      throw Exception('Failed to load tags: $e');
+    }
   }
 }

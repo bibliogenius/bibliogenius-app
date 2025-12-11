@@ -270,8 +270,16 @@ class BookDetailsScreen extends StatelessWidget {
         children: [
           Row(
             children: [
-              _buildMetadataItem(context, 'Year', book.publicationYear?.toString() ?? '-'),
-              _buildMetadataItem(context, 'Publisher', book.publisher ?? '-'),
+              _buildMetadataItem(
+                context, 
+                TranslationService.translate(context, 'year_label') ?? 'Year', 
+                book.publicationYear?.toString() ?? '-'
+              ),
+              _buildMetadataItem(
+                context, 
+                TranslationService.translate(context, 'publisher_label') ?? 'Publisher', 
+                book.publisher ?? '-'
+              ),
             ],
           ),
           const Divider(height: 32),
@@ -280,7 +288,7 @@ class BookDetailsScreen extends StatelessWidget {
                _buildMetadataItem(context, 'ISBN', book.isbn ?? '-'),
                _buildMetadataItem(
                  context, 
-                 'Status', 
+                 TranslationService.translate(context, 'status_label') ?? 'Status', 
                  _translateStatus(context, book.readingStatus)
                ),
             ],

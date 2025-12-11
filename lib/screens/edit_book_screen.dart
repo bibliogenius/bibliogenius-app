@@ -30,10 +30,12 @@ class _EditBookScreenState extends State<EditBookScreen> {
   late TextEditingController _summaryController;
   late TextEditingController _startedDateController;
   late TextEditingController _finishedDateController;
+  late TextEditingController _tagsController; // Add this
   late Book _book;
+  List<String> _selectedTags = []; // Add this
   String _readingStatus = 'to_read';
   String? _coverUrl;
-  bool _isEditing = false;
+  bool _isEditing = true; // Always start in edit mode
   bool _isSaving = false;
   bool _isFetchingDetails = false;
   bool _hasChanges = false;
@@ -55,6 +57,11 @@ class _EditBookScreenState extends State<EditBookScreen> {
     );
     _book = widget.book;
     _coverUrl = widget.book.coverUrl;
+    
+    // Initialize tags
+    _selectedTags = widget.book.subjects != null 
+        ? List.from(widget.book.subjects!) 
+        : [];
     
     // Get profile type from ThemeProvider after first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -149,6 +156,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
       'finished_reading_at': _finishedDateController.text.isNotEmpty 
           ? DateTime.parse(_finishedDateController.text).toIso8601String() 
           : null,
+      'subjects': _selectedTags,
     };
 
     try {
@@ -179,7 +187,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
             coverUrl: _coverUrl,
             startedReadingAt: startedAt,
             finishedReadingAt: finishedAt,
-            subjects: widget.book.subjects, // Preserve subjects as they aren't edited clearly yet
+            subjects: _selectedTags,
           );
         });
         ScaffoldMessenger.of(context).showSnackBar(
@@ -237,253 +245,13 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return _isEditing ? _buildEditMode() : _buildViewMode();
+    // Only build edit mode, view mode logic is deprecated for this screen
+    // as navigation now handles pushing this screen specifically for editing
+    return _buildEditMode();
   }
 
-  Widget _buildViewMode() {
-    final coverUrl = _book.largeCoverUrl;
-
-    return WillPopScope(
-      onWillPop: () async {
-        Navigator.of(context).pop(_hasChanges);
-        return false;
-      },
-      child: Scaffold(
-        body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 200.0,
-            floating: false,
-            pinned: true,
-            flexibleSpace: FlexibleSpaceBar(
-              // Title removed from here to be placed in the body
-              background: coverUrl != null
-                  ? Image.network(
-                      coverUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        color: Colors.grey,
-                        child: const Center(
-                          child: Icon(Icons.book, size: 80, color: Colors.white),
-                        ),
-                      ),
-                    )
-                  : Container(
-                      color: Theme.of(context).primaryColor,
-                      child: const Center(
-                        child: Icon(Icons.book, size: 80, color: Colors.white),
-                      ),
-                    ),
-            ),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.edit),
-                onPressed: () => setState(() => _isEditing = true),
-              ),
-            ],
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(20.0), // Increased padding
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    _book.title,
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                      fontSize: 28,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  if (_book.author != null)
-                    Text(
-                      _book.author!,
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      if (_book.publicationYear != null)
-                        Chip(
-                          label: Text(
-                            _book.publicationYear.toString(),
-                            style: const TextStyle(fontSize: 14),
-                          ),
-                          avatar: const Icon(Icons.calendar_today, size: 18),
-                        ),
-                      const SizedBox(width: 8),
-                      if (_book.publisher != null)
-                        Expanded(
-                          child: Chip(
-                            label: Text(
-                              _book.publisher!,
-                              style: const TextStyle(fontSize: 14),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            avatar: const Icon(Icons.business, size: 18),
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  _buildStatusChip(_book.readingStatus),
-                  const SizedBox(height: 30),
-                  Text(
-                    TranslationService.translate(context, 'summary_label'),
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 22,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    _book.summary ?? TranslationService.translate(context, 'no_summary'),
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontSize: 18,
-                      height: 1.6,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 40),
-                  if (_book.isbn != null)
-                    Text(
-                      "ISBN: ${_book.isbn}",
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.grey[600],
-                        fontSize: 14,
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _book.readingStatus == 'borrowed' ? null : () => _lendBook(context),
-        backgroundColor: _book.readingStatus == 'borrowed' ? Colors.grey : null,
-        label: Text(_book.readingStatus == 'borrowed' ? TranslationService.translate(context, 'borrowed_label') : TranslationService.translate(context, 'lend_book_label')),
-        icon: const Icon(Icons.send),
-      ),
-    ));
-  }
-
-  Future<void> _lendBook(BuildContext context) async {
-    final api = Provider.of<ApiService>(context, listen: false);
-    
-    // 1. Check for available copies
-    try {
-      final copiesRes = await api.getBookCopies(widget.book.id!);
-      if (copiesRes.statusCode == 200) {
-        final List<dynamic> copies = copiesRes.data['copies'];
-        var availableCopies = copies.where((c) => c['status'] == 'available').toList();
-
-        if (availableCopies.isEmpty) {
-          // If no copies at all, offer to create one
-          if (copies.isEmpty) {
-             if (!mounted) return;
-             final createConfirm = await showDialog<bool>(
-               context: context,
-               builder: (context) => AlertDialog(
-                 title: Text(TranslationService.translate(context, 'no_copies_title')),
-                 content: Text(TranslationService.translate(context, 'no_copies_confirm')),
-                 actions: [
-                   TextButton(
-                     onPressed: () => Navigator.pop(context, false),
-                     child: Text(TranslationService.translate(context, 'cancel')),
-                   ),
-                   TextButton(
-                     onPressed: () => Navigator.pop(context, true),
-                     child: Text(TranslationService.translate(context, 'create_lend_btn')),
-                   ),
-                 ],
-               ),
-             );
-
-             if (createConfirm == true) {
-               // Create a new copy
-               final newCopyRes = await api.createCopy({
-                 'book_id': widget.book.id,
-                 'status': 'available',
-                 'condition': 'good', // Default
-               });
-               
-               if (newCopyRes.statusCode == 200 || newCopyRes.statusCode == 201) {
-                  // Refresh available copies list with the new one
-                  // The backend usually returns the created object, but let's just use the ID if possible or re-fetch.
-                  // Simpler to just use the data returned or re-fetch.
-                  // Let's re-fetch to be safe and simple.
-                  final refetched = await api.getBookCopies(widget.book.id!);
-                  final refetchedCopies = refetched.data['copies'] as List<dynamic>;
-                  availableCopies = refetchedCopies.where((c) => c['status'] == 'available').toList();
-               } else {
-                 if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(TranslationService.translate(context, 'failed_create_copy'))),
-                    );
-                 }
-                 return;
-               }
-             } else {
-               return;
-             }
-          } else {
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(TranslationService.translate(context, 'all_copies_lent'))),
-              );
-            }
-            return;
-          }
-        }
-
-        // Double check we have a copy now
-        if (availableCopies.isEmpty) return;
-
-        // 2. Select Contact
-        if (!mounted) return;
-        final Contact? contact = await showDialog<Contact>(
-          context: context,
-          builder: (context) => const LoanDialog(),
-        );
-
-        if (contact == null) return;
-
-        // 3. Create Loan
-        final copyId = availableCopies.first['id']; // Take first available
-        final loanData = {
-          'copy_id': copyId,
-          'contact_id': contact.id,
-          'loan_date': DateTime.now().toIso8601String(),
-          'status': 'active',
-        };
-
-        await api.createLoan(loanData);
-        
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('${TranslationService.translate(context, 'book_lent_to')} ${contact.name}')),
-          );
-          // Refresh book status if needed
-          setState(() {
-             // potentially update local state or re-fetch
-          });
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${TranslationService.translate(context, 'error_lending_book')}: $e')),
-        );
-      }
-    }
-  }
-
+  // Deprecated view mode removed for brevity and correctness
+  
   Widget _buildStatusChip(String? status) {
     Color color;
     String label;
@@ -528,10 +296,19 @@ class _EditBookScreenState extends State<EditBookScreen> {
         title: Text(TranslationService.translate(context, 'edit_book_title')),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => setState(() => _isEditing = false),
+          onPressed: () {
+            // Signal back if changes were made
+            Navigator.of(context).pop(_hasChanges); 
+          },
         ),
       ),
-      body: Form(
+      // Wrap in WillPopScope to handle system back button too
+      body: WillPopScope(
+        onWillPop: () async {
+          Navigator.of(context).pop(_hasChanges); 
+          return false;
+        },
+        child: Form(
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.all(24.0),
@@ -740,7 +517,88 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 onTap: () => _selectDate(context, _finishedDateController),
               ),
               const SizedBox(height: 24),
+              const SizedBox(height: 24),
             ],
+
+            // Tags
+            _buildLabel(TranslationService.translate(context, 'tags')),
+            Autocomplete<String>(
+              optionsBuilder: (TextEditingValue textEditingValue) async {
+                if (textEditingValue.text == '') {
+                  return const Iterable<String>.empty();
+                }
+                
+                // Fetch tags from backend or filter local list if we had one
+                try {
+                  final api = Provider.of<ApiService>(context, listen: false);
+                  final tags = await api.getTags();
+                  final tagNames = tags.map((t) => t.name).toList();
+                  
+                  return tagNames.where((String option) {
+                    return option.toLowerCase().contains(textEditingValue.text.toLowerCase()) && 
+                          !_selectedTags.contains(option);
+                  });
+                } catch (e) {
+                   return const Iterable<String>.empty();
+                }
+              },
+              onSelected: (String selection) {
+                setState(() {
+                  _selectedTags.add(selection);
+                  _tagsController.clear();
+                });
+              },
+              fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+                _tagsController = controller; // Keep reference to clear it
+                return TextFormField(
+                  controller: controller,
+                  focusNode: focusNode,
+                  decoration: _buildInputDecoration(
+                    hint: TranslationService.translate(context, 'add_tag_hint'),
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.add),
+                      onPressed: () {
+                        if (controller.text.isNotEmpty) {
+                          setState(() {
+                             if (!_selectedTags.contains(controller.text)) {
+                               _selectedTags.add(controller.text);
+                             }
+                             controller.clear();
+                          });
+                        }
+                      },
+                    ),
+                  ),
+                  onFieldSubmitted: (String value) {
+                     if (value.isNotEmpty) {
+                        setState(() {
+                           if (!_selectedTags.contains(value)) {
+                             _selectedTags.add(value);
+                           }
+                           controller.clear();
+                        });
+                        focusNode.requestFocus(); // Keep focus to add more
+                     }
+                  },
+                );
+              },
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: _selectedTags.map((tag) {
+                return Chip(
+                  label: Text(tag),
+                  deleteIcon: const Icon(Icons.close, size: 18),
+                  onDeleted: () {
+                    setState(() {
+                      _selectedTags.remove(tag);
+                    });
+                  },
+                );
+              }).toList(),
+            ),
             const SizedBox(height: 32),
 
             // Save Button
@@ -776,6 +634,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
           ],
         ),
       ),
+    ),
     );
   }
 

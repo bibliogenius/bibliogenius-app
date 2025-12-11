@@ -32,8 +32,9 @@ import 'screens/search_peer_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/statistics_screen.dart';
 import 'screens/help_screen.dart';
- import 'screens/network_search_screen.dart';
+import 'screens/network_search_screen.dart';
 import 'screens/onboarding_tour_screen.dart';
+import 'screens/shelves_screen.dart';
 import 'services/wizard_service.dart';
 import 'widgets/scaffold_with_nav.dart';
 
@@ -281,6 +282,10 @@ class AppRouter extends StatelessWidget {
             GoRoute(
               path: '/network-search',
               builder: (context, state) => const NetworkSearchScreen(),
+            ),
+            GoRoute(
+              path: '/shelves',
+              builder: (context, state) => const ShelvesScreen(),
             ),
           ],
         ),
