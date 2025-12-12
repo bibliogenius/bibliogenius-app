@@ -19,7 +19,9 @@ enum ViewMode {
 }
 
 class BookListScreen extends StatefulWidget {
-  const BookListScreen({super.key});
+  final String? initialSearchQuery;
+
+  const BookListScreen({super.key, this.initialSearchQuery});
 
   @override
   State<BookListScreen> createState() => _BookListScreenState();
@@ -48,6 +50,10 @@ class _BookListScreenState extends State<BookListScreen> {
   @override
   void initState() {
     super.initState();
+    _searchQuery = widget.initialSearchQuery ?? '';
+    if (_searchQuery.isNotEmpty) {
+      _isSearching = true;
+    }
     _fetchBooks();
     // Trigger background sync
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -232,6 +238,69 @@ class _BookListScreenState extends State<BookListScreen> {
     });
   }
   
+  void _showTagFilterDialog() async {
+    final apiService = Provider.of<ApiService>(context, listen: false);
+    
+    try {
+      final tags = await apiService.getTags();
+      
+      if (!mounted) return;
+      
+      if (tags.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(TranslationService.translate(context, 'no_tags'))),
+        );
+        return;
+      }
+      
+      showModalBottomSheet(
+        context: context,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        builder: (context) {
+          return Container(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  TranslationService.translate(context, 'filter_by_tag'),
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: tags.map((tag) {
+                    return ActionChip(
+                      label: Text('${tag.name} (${tag.count})'),
+                      avatar: const Icon(Icons.label, size: 16),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        setState(() {
+                          _tagFilter = tag.name;
+                          _filterBooks();
+                        });
+                      },
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
+          );
+        },
+      );
+    } catch (e) {
+      debugPrint('Error loading tags: $e');
+    }
+  }
+  
   // _fetchSuggestions is removed as Autocomplete now works directly on _allBooks
 
   Widget _buildSearchField() {
@@ -391,6 +460,37 @@ class _BookListScreenState extends State<BookListScreen> {
             ),
             const SizedBox(width: 8),
           ],
+
+          // Tag Filter Button (to select a tag)
+          if (_tagFilter == null)
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: ScaleOnTap(
+                onTap: () => _showTagFilterDialog(),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.label_outline, size: 16, color: Theme.of(context).primaryColor),
+                      const SizedBox(width: 4),
+                      Text(
+                        TranslationService.translate(context, 'tags'),
+                        style: TextStyle(
+                          color: Colors.black87,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
 
           // Status Filters
           _buildFilterPill(status: null, label: TranslationService.translate(context, 'filter_all')),

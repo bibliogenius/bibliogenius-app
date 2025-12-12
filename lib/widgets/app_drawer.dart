@@ -92,6 +92,14 @@ class AppDrawer extends StatelessWidget {
             },
           ),
           ListTile(
+            leading: const Icon(Icons.insights),
+            title: Text(TranslationService.translate(context, 'nav_statistics')),
+            onTap: () {
+              Navigator.pop(context);
+              context.go('/statistics');
+            },
+          ),
+          ListTile(
             leading: const Icon(Icons.school),
             title: Text(TranslationService.translate(context, 'menu_tutorial')),
             onTap: () {

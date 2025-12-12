@@ -6,16 +6,49 @@ import '../models/book.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
 import '../widgets/genie_app_bar.dart'; // Assuming we might want to use common widgets, but for this specific design we want a SliverAppBar
+import '../widgets/star_rating_widget.dart';
 
-class BookDetailsScreen extends StatelessWidget {
+class BookDetailsScreen extends StatefulWidget {
   final Book book;
 
   const BookDetailsScreen({super.key, required this.book});
 
   @override
+  State<BookDetailsScreen> createState() => _BookDetailsScreenState();
+}
+
+class _BookDetailsScreenState extends State<BookDetailsScreen> {
+  late Book _book;
+
+  @override
+  void initState() {
+    super.initState();
+    _book = widget.book;
+  }
+
+  Future<void> _updateRating(int? newRating) async {
+    final api = Provider.of<ApiService>(context, listen: false);
+    try {
+      await api.updateBook(_book.id!, {
+        'title': _book.title,
+        'user_rating': newRating,
+      });
+      setState(() {
+        _book = _book.copyWithRating(newRating);
+      });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error updating rating: $e')),
+        );
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     // Use large cover URL if available, otherwise fallback
-    final coverUrl = book.largeCoverUrl ?? book.coverUrl;
+    final coverUrl = _book.largeCoverUrl ?? _book.coverUrl;
 
     return Scaffold(
       body: CustomScrollView(
@@ -33,7 +66,7 @@ class BookDetailsScreen extends StatelessWidget {
                   const SizedBox(height: 32),
                   _buildMetadataGrid(context),
                   const SizedBox(height: 32),
-                  if (book.summary != null && book.summary!.isNotEmpty) ...[
+                  if (_book.summary != null && _book.summary!.isNotEmpty) ...[
                     Text(
                       TranslationService.translate(context, 'book_summary') ?? 'Summary',
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -42,7 +75,7 @@ class BookDetailsScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      book.summary!,
+                      _book.summary!,
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                             height: 1.6,
                             color: Colors.grey[700],
@@ -98,7 +131,7 @@ class BookDetailsScreen extends StatelessWidget {
             // Hero Image
             Center(
               child: Hero(
-                tag: 'book_cover_${book.id}',
+                tag: 'book_cover_${_book.id}',
                 child: Container(
                   width: 200,
                   height: 300,
@@ -138,16 +171,16 @@ class BookDetailsScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          book.title,
+          _book.title,
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                 fontWeight: FontWeight.w800,
                 color: Theme.of(context).textTheme.titleLarge?.color,
               ),
         ),
-        if (book.author != null) ...[
+        if (_book.author != null) ...[
           const SizedBox(height: 8),
           Text(
-            book.author!,
+            _book.author!,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   color: Theme.of(context).primaryColor,
                   fontWeight: FontWeight.w600,
@@ -159,8 +192,8 @@ class BookDetailsScreen extends StatelessWidget {
   }
 
   Widget _buildActionButtons(BuildContext context) {
-    final isReading = book.readingStatus == 'reading';
-    final isToRead = book.readingStatus == 'to_read' || book.readingStatus == null;
+    final isReading = _book.readingStatus == 'reading';
+    final isToRead = _book.readingStatus == 'to_read' || _book.readingStatus == null;
 
     return Column(
       children: [
@@ -169,7 +202,7 @@ class BookDetailsScreen extends StatelessWidget {
             Expanded(
               child: ElevatedButton.icon(
                 onPressed: () async {
-                  final result = await context.push('/books/${book.id}/edit', extra: book);
+                  final result = await context.push('/books/${_book.id}/edit', extra: _book);
                   if (result == true && context.mounted) {
                      Navigator.of(context).pop(true);
                   }
@@ -187,10 +220,10 @@ class BookDetailsScreen extends StatelessWidget {
               child: OutlinedButton.icon(
                 onPressed: () {
                    context.push(
-                    '/books/${book.id}/copies',
+                    '/books/${_book.id}/copies',
                     extra: {
-                      'bookId': book.id,
-                      'bookTitle': book.title
+                      'bookId': _book.id,
+                      'bookTitle': _book.title
                     },
                   );
                 },
@@ -273,51 +306,79 @@ class BookDetailsScreen extends StatelessWidget {
               _buildMetadataItem(
                 context, 
                 TranslationService.translate(context, 'year_label') ?? 'Year', 
-                book.publicationYear?.toString() ?? '-'
+                _book.publicationYear?.toString() ?? '-'
               ),
               _buildMetadataItem(
                 context, 
                 TranslationService.translate(context, 'publisher_label') ?? 'Publisher', 
-                book.publisher ?? '-'
+                _book.publisher ?? '-'
               ),
             ],
           ),
           const Divider(height: 32),
           Row(
             children: [
-               _buildMetadataItem(context, 'ISBN', book.isbn ?? '-'),
+               _buildMetadataItem(context, 'ISBN', _book.isbn ?? '-'),
                _buildMetadataItem(
                  context, 
                  TranslationService.translate(context, 'status_label') ?? 'Status', 
-                 _translateStatus(context, book.readingStatus)
+                 _translateStatus(context, _book.readingStatus)
                ),
             ],
           ),
-          if ((book.readingStatus == 'reading' || book.readingStatus == 'read') && book.startedReadingAt != null) ...[
+          // Rating section
+          const Divider(height: 32),
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      (TranslationService.translate(context, 'rating_label') ?? 'MY RATING').toUpperCase(),
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.0,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    StarRatingWidget(
+                      rating: _book.userRating,
+                      onRatingChanged: _updateRating,
+                      size: 32,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          if ((_book.readingStatus == 'reading' || _book.readingStatus == 'read') && _book.startedReadingAt != null) ...[
             const Divider(height: 32),
             Row(
               children: [
                 _buildMetadataItem(
                   context, 
                   TranslationService.translate(context, 'started_on') ?? 'Started', 
-                  _formatDate(book.startedReadingAt!)
+                  _formatDate(_book.startedReadingAt!)
                 ),
               ],
             ),
           ],
-          if (book.readingStatus == 'read' && book.finishedReadingAt != null) ...[
+          if (_book.readingStatus == 'read' && _book.finishedReadingAt != null) ...[
             const Divider(height: 32),
             Row(
               children: [
                 _buildMetadataItem(
                   context, 
                   TranslationService.translate(context, 'finished_on') ?? 'Finished', 
-                  _formatDate(book.finishedReadingAt!)
+                  _formatDate(_book.finishedReadingAt!)
                 ),
               ],
             ),
           ],
-          if (book.subjects != null && book.subjects!.isNotEmpty) ...[
+          if (_book.subjects != null && _book.subjects!.isNotEmpty) ...[
             const Divider(height: 32),
             SizedBox(
               width: double.infinity,
@@ -343,7 +404,7 @@ class BookDetailsScreen extends StatelessWidget {
                   Wrap(
                     spacing: 8,
                     runSpacing: 10,
-                    children: book.subjects!.asMap().entries.map((entry) {
+                    children: _book.subjects!.asMap().entries.map((entry) {
                       final index = entry.key;
                       final subject = entry.value;
                       // Cycle through colors for visual variety
@@ -533,7 +594,7 @@ class BookDetailsScreen extends StatelessWidget {
     final apiService = Provider.of<ApiService>(context, listen: false);
     try {
       final Map<String, dynamic> updateData = {
-        'title': book.title,
+        'title': _book.title,
         'reading_status': newStatus,
       };
 
@@ -553,7 +614,7 @@ class BookDetailsScreen extends StatelessWidget {
         updateData['finished_reading_at'] = selectedDate?.toIso8601String();
       }
 
-      await apiService.updateBook(book.id!, updateData);
+      await apiService.updateBook(_book.id!, updateData);
       
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -593,7 +654,7 @@ class BookDetailsScreen extends StatelessWidget {
     if (confirmed == true && context.mounted) {
       final apiService = Provider.of<ApiService>(context, listen: false);
       try {
-        await apiService.deleteBook(book.id!);
+        await apiService.deleteBook(_book.id!);
         if (context.mounted) {
            ScaffoldMessenger.of(context).showSnackBar(
              SnackBar(content: Text(TranslationService.translate(context, 'book_deleted') ?? 'Book deleted')),

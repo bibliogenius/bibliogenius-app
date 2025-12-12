@@ -5,6 +5,8 @@ import '../widgets/genie_app_bar.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
 import '../models/book.dart';
+import '../models/gamification_status.dart';
+// import 'genie_chat_screen.dart'; // Removed as we use route string
 import '../providers/theme_provider.dart';
 import '../services/wizard_service.dart';
 import '../widgets/premium_book_card.dart';
@@ -27,6 +29,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   List<Book> _recentBooks = [];
   List<Book> _readingListBooks = [];
   Book? _heroBook;
+  GamificationStatus? _gamificationStatus;
+  String? _libraryName;
 
   final GlobalKey _addKey = GlobalKey();
   final GlobalKey _searchKey = GlobalKey();
@@ -71,6 +75,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
              final config = configRes.data;
              if (config['show_borrowed_books'] != true) {
                books = books.where((b) => b.readingStatus != 'borrowed').toList();
+             }
+             // Store library name
+             if (mounted) {
+               setState(() {
+                 _libraryName = config['library_name'] ?? config['name'];
+               });
              }
         }
 
@@ -130,6 +140,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             setState(() {
               _stats['active_loans'] = statusData['loans_count'] ?? 0;
               _userName = statusData['name'];
+              _gamificationStatus = GamificationStatus.fromJson(statusData);
             });
           }
         }
@@ -196,7 +207,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ],
       ),
-      body: Container(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          context.push('/genie-chat');
+        },
+        backgroundColor: Colors.blueAccent,
+        child: const Icon(Icons.auto_awesome, color: Colors.white),
+      ),
+      bottomNavigationBar: Container(
         decoration: const BoxDecoration(
           gradient: AppDesign.pageGradient, // Discrete light background
         ),
@@ -219,39 +237,47 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         _buildHeader(context),
                         const SizedBox(height: 24),
 
-                        // Stats Row
-                        SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          clipBehavior: Clip.none,
-                          child: Row(
-                            key: _statsKey,
-                            children: [
-                              _buildStatCard(
+                        // Stats Row - Full Width
+                        Row(
+                          key: _statsKey,
+                          children: [
+                            Expanded(
+                              child: _buildStatCard(
                                 context,
                                 TranslationService.translate(context, 'my_books'),
                                 (_stats['total_books'] ?? 0).toString(),
                                 Icons.menu_book,
                               ),
-                              const SizedBox(width: 12),
-                              _buildStatCard(
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _buildStatCard(
                                 context,
                                 TranslationService.translate(context, 'borrowed'),
                                 (_stats['active_loans'] ?? 0).toString(),
                                 Icons.outbox,
                                 isAccent: true,
                               ),
-                              if (!isKid) ...[
-                                const SizedBox(width: 12),
-                                _buildStatCard(
+                            ),
+                            if (!isKid) ...[
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: _buildStatCard(
                                   context,
                                   themeProvider.isLibrarian ? TranslationService.translate(context, 'borrowers') : TranslationService.translate(context, 'contacts'),
                                   (_stats['contacts_count'] ?? 0).toString(),
                                   Icons.people,
                                 ),
-                              ],
+                              ),
                             ],
-                          ),
+                          ],
                         ),
+
+                        const SizedBox(height: 24),
+
+                        // Gamification Mini-Widget
+                        if (_gamificationStatus != null && !isKid)
+                          _buildGamificationMini(context),
 
                         const SizedBox(height: 32),
 
@@ -295,7 +321,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               const SizedBox(height: 16),
                               Container(
                                 padding: const EdgeInsets.all(20),
-                                decoration: AppDesign.glassDecoration(),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.08),
+                                      blurRadius: 15,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                  border: Border.all(
+                                    color: const Color(0xFF667eea).withValues(alpha: 0.1),
+                                    width: 1,
+                                  ),
+                                ),
                                 child: Wrap(
                                   spacing: 12,
                                   runSpacing: 12,
@@ -316,9 +356,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     ),
                                     _buildActionButton(
                                       context,
-                                      TranslationService.translate(context, 'action_ask_library'),
-                                      Icons.chat,
-                                      () {}, // Placeholder
+                                      TranslationService.translate(context, 'ask_genie'), // Translated
+                                      Icons.auto_awesome,
+                                      () => context.push(
+                                        '/genie-chat', 
+                                      ), 
                                     ),
                                   ],
                                 ),
@@ -331,7 +373,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               _buildSectionTitle(context,
                                   TranslationService.translate(context, 'recent_books')),
                               const SizedBox(height: 16),
-                              _buildBookList(context, _recentBooks, TranslationService.translate(context, 'no_recent_books')),
+                              Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.08),
+                                      blurRadius: 15,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: _buildBookList(context, _recentBooks, TranslationService.translate(context, 'no_recent_books')),
+                              ),
                               const SizedBox(height: 32),
                             ],
 
@@ -340,8 +396,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               _buildSectionTitle(context,
                                   TranslationService.translate(context, 'reading_list')),
                               const SizedBox(height: 16),
-                              _buildBookList(context, _readingListBooks,
-                                  TranslationService.translate(context, 'no_reading_list')),
+                              Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.08),
+                                      blurRadius: 15,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: _buildBookList(context, _readingListBooks,
+                                    TranslationService.translate(context, 'no_reading_list')),
+                              ),
                             ],
 
                             const SizedBox(height: 32),
@@ -385,22 +455,80 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ScaleOnTap(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        // Welcome Banner
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF667eea), Color(0xFF764ba2)],
+            ),
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF667eea).withValues(alpha: 0.3),
+                blurRadius: 15,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Row(
             children: [
-              // Greeting Text removed
-
-              if (_userName != null)
-                Text(
-                  _userName!,
-                  style: const TextStyle(
-                    fontSize: 32,
-                    color: Colors.black,
-                    fontWeight: FontWeight.w900,
-                    height: 1.1,
-                  ),
+              // Logo
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
                 ),
+                child: const Icon(
+                  Icons.auto_awesome,
+                  color: Colors.white,
+                  size: 28,
+                ),
+              ),
+              const SizedBox(width: 16),
+              // Name and streak
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _libraryName ?? _userName ?? 'BiblioGenius',
+                      style: const TextStyle(
+                        fontSize: 24,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w900,
+                        height: 1.1,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (_gamificationStatus != null && _gamificationStatus!.streak.hasStreak)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 6),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.local_fire_department, color: Colors.orange, size: 14),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${_gamificationStatus!.streak.current} ${TranslationService.translate(context, 'days')}',
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
@@ -444,9 +572,165 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  String _getGreeting(BuildContext context) {
+    final hour = DateTime.now().hour;
+    if (hour < 12) {
+      return TranslationService.translate(context, 'greeting_morning');
+    } else if (hour < 18) {
+      return TranslationService.translate(context, 'greeting_afternoon');
+    } else {
+      return TranslationService.translate(context, 'greeting_evening');
+    }
+  }
+
+  Widget _buildGamificationMini(BuildContext context) {
+    if (_gamificationStatus == null) return const SizedBox.shrink();
+    
+    return GestureDetector(
+      onTap: () => context.push('/profile'),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: AppDesign.subtleShadow,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF667eea), Color(0xFF764ba2)],
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(Icons.emoji_events, color: Colors.white, size: 14),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      TranslationService.translate(context, 'your_progress'),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+                const Icon(Icons.chevron_right, color: Colors.grey, size: 20),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildMiniTrack(
+                  context,
+                  Icons.library_books,
+                  _gamificationStatus!.collector,
+                  Colors.blue,
+                ),
+                _buildMiniTrack(
+                  context,
+                  Icons.menu_book,
+                  _gamificationStatus!.reader,
+                  Colors.green,
+                ),
+                _buildMiniTrack(
+                  context,
+                  Icons.handshake,
+                  _gamificationStatus!.lender,
+                  Colors.orange,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMiniTrack(BuildContext context, IconData icon, TrackProgress track, Color color) {
+    return Column(
+      children: [
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            SizedBox(
+              width: 50,
+              height: 50,
+              child: CircularProgressIndicator(
+                value: track.progress,
+                strokeWidth: 4,
+                backgroundColor: color.withValues(alpha: 0.2),
+                valueColor: AlwaysStoppedAnimation<Color>(color),
+              ),
+            ),
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: color.withValues(alpha: 0.1),
+              ),
+              child: Icon(icon, color: color, size: 18),
+            ),
+            if (track.level > 0)
+              Positioned(
+                top: 0,
+                right: 0,
+                child: Container(
+                  width: 16,
+                  height: 16,
+                  decoration: BoxDecoration(
+                    color: _getLevelColor(track.level),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 1.5),
+                  ),
+                  child: Center(
+                    child: Text(
+                      '${track.level}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 9,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          '${track.current}',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 12,
+            color: color,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Color _getLevelColor(int level) {
+    switch (level) {
+      case 1: return const Color(0xFFCD7F32); // Bronze
+      case 2: return const Color(0xFFC0C0C0); // Silver
+      case 3: return const Color(0xFFFFD700); // Gold
+      default: return Colors.grey;
+    }
+  }
+
   Widget _buildStatCard(BuildContext context, String label, String value, IconData icon, {bool isAccent = false}) {
     return Container(
-      width: 110,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: isAccent ? Theme.of(context).primaryColor : Colors.white,
@@ -492,23 +776,51 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildSectionTitle(BuildContext context, String title) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 4),
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-          color: Colors.black87,
-          letterSpacing: 0.5,
-          shadows: [
-            Shadow(
-              color: Colors.black12,
-              offset: Offset(0, 1),
-              blurRadius: 2,
+    IconData icon = Icons.auto_stories;
+    if (title.toLowerCase().contains('recent') || title.toLowerCase().contains('récent')) {
+      icon = Icons.history;
+    } else if (title.toLowerCase().contains('reading') || title.toLowerCase().contains('lecture')) {
+      icon = Icons.bookmark;
+    } else if (title.toLowerCase().contains('action')) {
+      icon = Icons.bolt;
+    }
+    
+    return Container(
+      margin: const EdgeInsets.only(top: 8),
+      child: Row(
+        children: [
+          Container(
+            width: 4,
+            height: 28,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Color(0xFF667eea), Color(0xFF764ba2)],
+              ),
+              borderRadius: BorderRadius.circular(2),
             ),
-          ],
-        ),
+          ),
+          const SizedBox(width: 12),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: const Color(0xFF667eea).withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, size: 18, color: const Color(0xFF667eea)),
+          ),
+          const SizedBox(width: 10),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+              letterSpacing: 0.3,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -562,7 +874,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: books.length,
-        padding: const EdgeInsets.only(bottom: 16, left: 4, right: 4),
+        padding: const EdgeInsets.only(top: 8, bottom: 4, left: 4, right: 4),
         clipBehavior: Clip.none,
         itemBuilder: (context, index) {
           return Padding(

@@ -15,6 +15,8 @@ import '../widgets/avatar_customizer.dart';
 import '../models/avatar_config.dart';
 import '../services/translation_service.dart';
 import '../services/demo_service.dart';
+import '../models/gamification_status.dart';
+import '../widgets/gamification_widgets.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -168,55 +170,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           StatusBadge(level: level, size: 32),
           const SizedBox(height: 32),
 
-          // Progress Card
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    TranslationService.translate(context, 'next_level_progress'),
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 8),
-                  LinearProgressIndicator(
-                    value: progress,
-                    minHeight: 10,
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '${(progress * 100).toInt()}% ${TranslationService.translate(context, 'to_next_level')}',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // Stats Grid
-          Row(
-            children: [
-              Expanded(
-                child: _buildStatCard(
-                  TranslationService.translate(context, 'loans'),
-                  loansCount.toString(),
-                  Icons.book,
-                  Colors.blue,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _buildStatCard(
-                  TranslationService.translate(context, 'edits'),
-                  editsCount.toString(),
-                  Icons.edit,
-                  Colors.green,
-                ),
-              ),
-            ],
+          // Gamification V3 - Track Progress Card
+          GamificationSummaryCard(
+            status: GamificationStatus.fromJson(_userStatus!),
           ),
           const SizedBox(height: 32),
 
@@ -568,26 +524,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildStatCard(
-    String title,
-    String value,
-    IconData icon,
-    Color color,
-  ) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Icon(icon, color: color, size: 32),
-            const SizedBox(height: 8),
-            Text(value, style: Theme.of(context).textTheme.headlineSmall),
-            Text(title, style: Theme.of(context).textTheme.bodyMedium),
-          ],
-        ),
-      ),
-    );
-  }
 
   void _showAvatarPicker(BuildContext context, ThemeProvider themeProvider) {
     // Create a local copy of the config to avoid updating the provider immediately

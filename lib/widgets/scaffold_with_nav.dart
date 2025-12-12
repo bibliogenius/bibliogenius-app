@@ -45,6 +45,10 @@ class ScaffoldWithNav extends StatelessWidget {
                   label: Text(TranslationService.translate(context, 'profile')),
                 ),
                 NavigationRailDestination(
+                  icon: Icon(Icons.insights),
+                  label: Text(TranslationService.translate(context, 'nav_statistics')),
+                ),
+                NavigationRailDestination(
                   icon: Icon(Icons.school),
                   label: Text(TranslationService.translate(context, 'menu_tutorial')),
                 ),
@@ -71,8 +75,9 @@ class ScaffoldWithNav extends StatelessWidget {
         location.startsWith('/peers')) return 2;
     if (location.startsWith('/requests')) return 3;
     if (location.startsWith('/profile')) return 4;
-    if (location.startsWith('/onboarding')) return 5;
-    if (location.startsWith('/help')) return 6;
+    if (location.startsWith('/statistics')) return 5;
+    if (location.startsWith('/onboarding')) return 6;
+    if (location.startsWith('/help')) return 7;
     return 0;
   }
 
@@ -94,9 +99,12 @@ class ScaffoldWithNav extends StatelessWidget {
         context.go('/profile');
         break;
       case 5:
-        context.push('/onboarding');
+        context.go('/statistics');
         break;
       case 6:
+        context.push('/onboarding');
+        break;
+      case 7:
         context.go('/help');
         break;
     }

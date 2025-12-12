@@ -11,6 +11,7 @@ class Book {
   final String? author;
   final List<String>? subjects;
   final String? _coverUrl; // Stored cover URL
+  final int? userRating;  // 0-10 scale
 
   Book({
     this.id,
@@ -25,6 +26,7 @@ class Book {
     this.author,
     this.subjects,
     String? coverUrl,
+    this.userRating,
   }) : _coverUrl = coverUrl;
 
   factory Book.fromJson(Map<String, dynamic> json) {
@@ -47,6 +49,7 @@ class Book {
       subjects: json['subjects'] != null 
           ? List<String>.from(json['subjects']) 
           : null,
+      userRating: json['user_rating'],
     );
   }
 
@@ -64,11 +67,30 @@ class Book {
       'author': author,
       'subjects': subjects,
       'cover_url': _coverUrl,
+      'user_rating': userRating,
       'created_at': now,
       'updated_at': now,
     };
   }
 
+  /// Create a copy with updated rating
+  Book copyWithRating(int? newRating) {
+    return Book(
+      id: id,
+      title: title,
+      isbn: isbn,
+      summary: summary,
+      publisher: publisher,
+      publicationYear: publicationYear,
+      readingStatus: readingStatus,
+      finishedReadingAt: finishedReadingAt,
+      startedReadingAt: startedReadingAt,
+      author: author,
+      subjects: subjects,
+      coverUrl: _coverUrl,
+      userRating: newRating,
+    );
+  }
 
   String? get coverUrl {
     if (_coverUrl != null && _coverUrl!.isNotEmpty) return _coverUrl;
@@ -85,4 +107,7 @@ class Book {
     }
     return null;
   }
+
+  /// Returns star rating (1-5) from internal 0-10 scale
+  double? get starRating => userRating != null ? userRating! / 2.0 : null;
 }

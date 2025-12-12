@@ -1,8 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+
+import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../models/book.dart';
 import '../models/tag.dart';
+import '../models/genie.dart';
 import 'auth_service.dart';
 
 class ApiService {
@@ -174,6 +177,24 @@ class ApiService {
         'my_url': 'http://localhost:8000', // TODO: Make this configurable!
       },
     );
+  }
+
+  Future<GenieResponse> sendGenieChat(String text) async {
+    try {
+      final response = await _dio.post(
+        '/api/genie/chat',
+        data: {'text': text},
+      );
+
+      if (response.statusCode == 200) {
+        return GenieResponse.fromJson(response.data);
+      } else {
+        throw Exception('Failed to chat with Genie: Status ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('Genie Chat Error: $e');
+      rethrow;
+    }
   }
 
   Future<Response> getLibraryConfig() async {

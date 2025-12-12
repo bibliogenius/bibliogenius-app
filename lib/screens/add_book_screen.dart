@@ -32,6 +32,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
   List<dynamic>? _authorsData;
   bool _isFetchingDetails = false;
   bool _isSaving = false;
+  List<String> _selectedTags = [];
+  late TextEditingController _tagsController;
 
   @override
   void initState() {
@@ -41,6 +43,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
       _fetchBookDetails(widget.isbn!);
     }
     _isbnController.addListener(_onIsbnChanged);
+    _tagsController = TextEditingController();
   }
 
   @override
@@ -51,6 +54,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
     _publicationYearController.dispose();
     _isbnController.dispose();
     _summaryController.dispose();
+    _tagsController.dispose();
     super.dispose();
   }
 
@@ -114,6 +118,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
       readingStatus: _readingStatus,
       summary: _summaryController.text,
       coverUrl: _coverUrl,
+      subjects: _selectedTags.isNotEmpty ? _selectedTags : null,
     );
 
     try {
@@ -439,6 +444,91 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   onChanged: (value) => setState(() => _readingStatus = value!),
                 );
               },
+            ),
+            const SizedBox(height: 24),
+
+            // Tags
+            _buildLabel(TranslationService.translate(context, 'tags')),
+            Autocomplete<String>(
+              optionsBuilder: (TextEditingValue textEditingValue) async {
+                if (textEditingValue.text == '') {
+                  return const Iterable<String>.empty();
+                }
+                
+                try {
+                  final api = Provider.of<ApiService>(context, listen: false);
+                  final tags = await api.getTags();
+                  final tagNames = tags.map((t) => t.name).toList();
+                  
+                  return tagNames.where((String option) {
+                    return option.toLowerCase().contains(textEditingValue.text.toLowerCase()) && 
+                          !_selectedTags.contains(option);
+                  });
+                } catch (e) {
+                   return const Iterable<String>.empty();
+                }
+              },
+              onSelected: (String selection) {
+                setState(() {
+                  final trimmed = selection.trim();
+                  if (trimmed.isNotEmpty && !_selectedTags.contains(trimmed)) {
+                    _selectedTags.add(trimmed);
+                  }
+                  _tagsController.clear();
+                });
+              },
+              fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+                _tagsController = controller;
+                return TextFormField(
+                  controller: controller,
+                  focusNode: focusNode,
+                  decoration: _buildInputDecoration(
+                    hint: TranslationService.translate(context, 'add_tag_hint'),
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.add),
+                      onPressed: () {
+                        if (controller.text.trim().isNotEmpty) {
+                          setState(() {
+                             final val = controller.text.trim();
+                             if (!_selectedTags.contains(val)) {
+                               _selectedTags.add(val);
+                             }
+                             controller.clear();
+                          });
+                        }
+                      },
+                    ),
+                  ),
+                  onFieldSubmitted: (String value) {
+                     final trimmed = value.trim();
+                     if (trimmed.isNotEmpty) {
+                        setState(() {
+                           if (!_selectedTags.contains(trimmed)) {
+                             _selectedTags.add(trimmed);
+                           }
+                           controller.clear();
+                        });
+                        focusNode.requestFocus();
+                     }
+                  },
+                );
+              },
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: _selectedTags.map((tag) {
+                return Chip(
+                  label: Text(tag),
+                  deleteIcon: const Icon(Icons.close, size: 18),
+                  onDeleted: () {
+                    setState(() {
+                      _selectedTags.remove(tag);
+                    });
+                  },
+                );
+              }).toList(),
             ),
             const SizedBox(height: 32),
 

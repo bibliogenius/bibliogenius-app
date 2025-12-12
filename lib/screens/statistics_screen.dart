@@ -370,13 +370,14 @@ class _StatisticsScreenState extends State<StatisticsScreen>
   String _formatStatusLabel(String status) {
     switch (status) {
       case 'read':
-        return TranslationService.translate(context, 'status_read');
+        return TranslationService.translate(context, 'reading_status_read');
       case 'reading':
-        return TranslationService.translate(context, 'status_reading');
+        return TranslationService.translate(context, 'reading_status_reading');
       case 'to_read':
-        return TranslationService.translate(context, 'status_to_read');
+        return TranslationService.translate(context, 'reading_status_to_read');
       case 'wanted':
-        return TranslationService.translate(context, 'status_wanted');
+      case 'wanting':
+        return TranslationService.translate(context, 'reading_status_wanting');
       case 'borrowed':
         return TranslationService.translate(context, 'filter_borrowed');
       default:

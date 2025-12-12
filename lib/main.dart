@@ -29,6 +29,7 @@ import 'screens/borrow_requests_screen.dart';
 // Note: PeerListScreen replaced by NetworkScreen
 import 'screens/peer_book_list_screen.dart';
 import 'screens/search_peer_screen.dart';
+import 'screens/genie_chat_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/statistics_screen.dart';
 import 'screens/help_screen.dart';
@@ -170,6 +171,10 @@ class AppRouter extends StatelessWidget {
         GoRoute(
           path: '/login',
           builder: (context, state) => const LoginScreen(),
+        ),
+        GoRoute(
+          path: '/genie-chat',
+          builder: (context, state) => const GenieChatScreen(),
         ),
         ShellRoute(
           builder: (context, state, child) {

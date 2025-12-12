@@ -24,7 +24,7 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
       flexibleSpace: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF6A1B9A), Color(0xFFFF6F00)], // Deep Purple to Amber/Orange
+            colors: [Color(0xFF667eea), Color(0xFF764ba2)], // Blue to Purple (matches dashboard)
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
