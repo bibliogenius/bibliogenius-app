@@ -24,6 +24,23 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   void initState() {
     super.initState();
     _book = widget.book;
+    _fetchBookDetails();
+  }
+
+  Future<void> _fetchBookDetails() async {
+    final api = Provider.of<ApiService>(context, listen: false);
+    try {
+      if (_book.id == null) return;
+      
+      final freshBook = await api.getBook(_book.id!);
+      if (mounted) {
+        setState(() {
+          _book = freshBook;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error fetching book details: $e');
+    }
   }
 
   Future<void> _updateRating(int? newRating) async {
@@ -200,49 +217,58 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         Row(
           children: [
             Expanded(
-              child: ElevatedButton.icon(
-                onPressed: () async {
-                  final result = await context.push('/books/${_book.id}/edit', extra: _book);
-                  if (result == true && context.mounted) {
-                     Navigator.of(context).pop(true);
-                  }
-                },
-                icon: const Icon(Icons.edit_outlined),
-                label: Text(TranslationService.translate(context, 'menu_edit') ?? 'Edit'),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                child: Tooltip(
+                  message: TranslationService.translate(context, 'menu_edit') ?? 'Edit Book',
+                  child: ElevatedButton.icon(
+                    onPressed: () async {
+                      final result = await context.push('/books/${_book.id}/edit', extra: _book);
+                      if (result == true && context.mounted) {
+                         Navigator.of(context).pop(true);
+                      }
+                    },
+                    icon: const Icon(Icons.edit_outlined),
+                    label: Text(TranslationService.translate(context, 'menu_edit') ?? 'Edit'),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
                 ),
-              ),
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () {
-                   context.push(
-                    '/books/${_book.id}/copies',
-                    extra: {
-                      'bookId': _book.id,
-                      'bookTitle': _book.title
+                child: Tooltip(
+                  message: TranslationService.translate(context, 'menu_manage_copies') ?? 'Manage Copies',
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                       context.push(
+                        '/books/${_book.id}/copies',
+                        extra: {
+                          'bookId': _book.id,
+                          'bookTitle': _book.title
+                        },
+                      );
                     },
-                  );
-                },
-                icon: const Icon(Icons.library_books_outlined),
-                label: Text(TranslationService.translate(context, 'menu_manage_copies') ?? 'Copies'),
-                 style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    icon: const Icon(Icons.library_books_outlined),
+                    label: Text(TranslationService.translate(context, 'menu_manage_copies') ?? 'Copies'),
+                     style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
                 ),
-              ),
             ),
             const SizedBox(width: 12),
-            IconButton(
-              onPressed: () => _confirmDelete(context),
-              icon: const Icon(Icons.delete_outline, color: Colors.deepOrange),
-              style: IconButton.styleFrom(
-                backgroundColor: Colors.deepOrange.withValues(alpha: 0.1),
-                padding: const EdgeInsets.all(12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            Tooltip(
+              message: TranslationService.translate(context, 'menu_delete') ?? 'Delete Book',
+              child: IconButton(
+                onPressed: () => _confirmDelete(context),
+                icon: const Icon(Icons.delete_outline, color: Colors.deepOrange),
+                style: IconButton.styleFrom(
+                  backgroundColor: Colors.deepOrange.withValues(alpha: 0.1),
+                  padding: const EdgeInsets.all(12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
               ),
             ),
           ],

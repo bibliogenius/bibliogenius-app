@@ -40,6 +40,7 @@ class _BookListScreenState extends State<BookListScreen> {
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
   bool _isSearching = false;
+  bool _isReordering = false;
 
   final GlobalKey _addKey = GlobalKey();
   final GlobalKey _searchKey = GlobalKey();
@@ -97,32 +98,78 @@ class _BookListScreenState extends State<BookListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // If reordering, override header title
+    dynamic titleWidget = _isSearching
+            ? _buildSearchField() // Use custom search field with autocomplete
+            : TranslationService.translate(context, 'my_library_title');
+    
+    if (_isReordering) {
+      titleWidget = const Text('Reordering Shelf...', style: TextStyle(color: Colors.white, fontSize: 18));
+    }
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: GenieAppBar(
-        title: _isSearching
-            ? _buildSearchField() // Use custom search field with autocomplete
-            : TranslationService.translate(context, 'my_library_title'),
+        title: titleWidget,
         actions: [
-          IconButton(
-            key: _searchKey,
-            icon: Icon(_isSearching ? Icons.close : Icons.search, color: Colors.white),
-            onPressed: () {
-              setState(() {
-                if (_isSearching) {
-                  _isSearching = false;
-                  _searchController.clear();
-                  _filterBooks();
-                } else {
-                  _isSearching = true;
-                }
-              });
-            },
-          ),
-          if (!_isSearching) ...[
+          if (_isReordering) ...[
+             IconButton(
+               icon: const Icon(Icons.sort_by_alpha, color: Colors.white),
+               tooltip: 'Sort A→Z by Author',
+               onPressed: _autoSortByAuthor,
+             ),
+             IconButton(
+               icon: const Icon(Icons.check, color: Colors.white),
+               tooltip: 'Save Order',
+               onPressed: _saveOrder,
+             ),
+             IconButton(
+               icon: const Icon(Icons.close, color: Colors.white),
+               tooltip: 'Cancel',
+               onPressed: () {
+                 setState(() {
+                   _isReordering = false;
+                   _fetchBooks(); // Reset to original order
+                 });
+               },
+             ),
+          ] else ...[
+            // Reorder Button (Only when Tag Filter is Active)
+            if (_tagFilter != null && !_isSearching)
+              IconButton(
+                icon: const Icon(Icons.sort, color: Colors.white),
+                tooltip: 'Reorder Shelf',
+                onPressed: () {
+                  setState(() {
+                    _isReordering = true;
+                    _viewMode = ViewMode.list; // Force list view for reordering
+                  });
+                },
+              ),
+
+             IconButton(
+              key: _searchKey,
+              icon: Icon(_isSearching ? Icons.close : Icons.search, color: Colors.white),
+              tooltip: TranslationService.translate(context, _isSearching ? 'cancel' : 'search_books'),
+              onPressed: () {
+                setState(() {
+                  if (_isSearching) {
+                    _isSearching = false;
+                    _searchController.clear();
+                    _filterBooks();
+                  } else {
+                    _isSearching = true;
+                  }
+                });
+              },
+            ),
+          ], // End else
+          
+          if (!_isSearching && !_isReordering) ...[
             IconButton(
               key: _viewKey,
               icon: Icon(_getViewIcon(_viewMode), color: Colors.white),
+              tooltip: TranslationService.translate(context, 'action_change_view'),
               onPressed: () {
                 setState(() {
                   _viewMode = _getNextViewMode(_viewMode);
@@ -132,11 +179,16 @@ class _BookListScreenState extends State<BookListScreen> {
             IconButton(
               key: _scanKey,
               icon: const Icon(Icons.camera_alt, color: Colors.white),
+              tooltip: TranslationService.translate(context, 'scan_isbn_title'),
               onPressed: () {
                 context.push('/scan');
               },
             ),
-            IconButton(icon: const Icon(Icons.refresh, color: Colors.white), onPressed: _fetchBooks),
+            IconButton(
+              icon: const Icon(Icons.refresh, color: Colors.white),
+              tooltip: TranslationService.translate(context, 'action_refresh'),
+              onPressed: _fetchBooks
+            ),
             IconButton(
               key: _externalSearchKey,
               icon: const Icon(Icons.public, color: Colors.white),
@@ -656,6 +708,41 @@ class _BookListScreenState extends State<BookListScreen> {
   }
 
   Widget _buildListView() {
+    if (_isReordering) {
+      return ReorderableListView.builder(
+        itemCount: _filteredBooks.length,
+        padding: const EdgeInsets.all(16),
+        onReorder: (oldIndex, newIndex) {
+          setState(() {
+            if (oldIndex < newIndex) {
+              newIndex -= 1;
+            }
+            final Book item = _filteredBooks.removeAt(oldIndex);
+            _filteredBooks.insert(newIndex, item);
+          });
+        },
+        itemBuilder: (context, index) {
+          final book = _filteredBooks[index];
+          return Card(
+            key: ValueKey(book.id ?? index), // Ensure stable key
+            margin: const EdgeInsets.only(bottom: 16),
+            child: ListTile(
+              contentPadding: const EdgeInsets.all(8),
+              leading: book.coverUrl != null
+                  ? Image.network(book.coverUrl!, width: 40, fit: BoxFit.cover, errorBuilder: (_,__,___) => const Icon(Icons.book))
+                  : const Icon(Icons.book, size: 40, color: Colors.grey),
+              title: Text(book.title),
+              subtitle: Text(book.author ?? 'Unknown'),
+              trailing: ReorderableDragStartListener(
+                index: index,
+                child: const Icon(Icons.drag_handle),
+              ),
+            ),
+          );
+        },
+      );
+    }
+
     return ListView.builder(
       itemCount: _filteredBooks.length,
       padding: const EdgeInsets.all(16),
@@ -670,6 +757,49 @@ class _BookListScreenState extends State<BookListScreen> {
           ),
         );
       },
+    );
+  }
+
+  Future<void> _saveOrder() async {
+    setState(() => _isLoading = true);
+    final apiService = Provider.of<ApiService>(context, listen: false);
+    try {
+      final ids = _filteredBooks.map((b) => b.id!).toList();
+      await apiService.reorderBooks(ids);
+      
+      setState(() {
+        _isReordering = false;
+        _isLoading = false;
+      });
+      // Optionally refresh
+      _fetchBooks();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Shelf order saved!')),
+      );
+    } catch (e) {
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error saving order: $e')),
+      );
+    }
+  }
+
+  void _autoSortByAuthor() {
+    setState(() {
+      _filteredBooks.sort((a, b) {
+        // Sort by author (null-safe), then by title if same author
+        final authorA = (a.author ?? '').toLowerCase();
+        final authorB = (b.author ?? '').toLowerCase();
+        final authorCompare = authorA.compareTo(authorB);
+        if (authorCompare != 0) return authorCompare;
+        return a.title.toLowerCase().compareTo(b.title.toLowerCase());
+      });
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Sorted by author A→Z. Click ✓ to save.'),
+        duration: Duration(seconds: 2),
+      ),
     );
   }
 }

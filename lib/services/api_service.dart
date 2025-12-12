@@ -389,6 +389,31 @@ class ApiService {
       throw Exception('Failed to load books: $e');
     }
   }
+
+  Future<Book> getBook(int id) async {
+    try {
+      final response = await _dio.get('/api/books/$id');
+      if (response.statusCode == 200) {
+        return Book.fromJson(response.data);
+      } else {
+        throw Exception('Failed to load book');
+      }
+    } catch (e) {
+      throw Exception('Failed to load book: $e');
+    }
+  }
+
+  Future<void> reorderBooks(List<int> bookIds) async {
+    try {
+      await _dio.patch(
+        '/api/books/reorder',
+        data: {'book_ids': bookIds},
+      );
+    } catch (e) {
+      debugPrint('Error reordering books: $e');
+      rethrow;
+    }
+  }
   Future<Map<String, dynamic>?> lookupBook(String isbn) async {
     try {
       final response = await _dio.get('/api/lookup/$isbn');

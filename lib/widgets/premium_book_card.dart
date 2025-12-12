@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import '../models/book.dart';
 import '../services/translation_service.dart';
 import 'package:flutter/material.dart';
@@ -188,10 +189,14 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(12),
                           child: widget.book.coverUrl != null
-                              ? Image.network(
-                                  widget.book.coverUrl!,
+                              ? CachedNetworkImage(
+                                  imageUrl: widget.book.coverUrl!,
                                   fit: BoxFit.cover,
-                                  errorBuilder: (_, _, _) =>
+                                  placeholder: (context, url) => Container(
+                                    color: Colors.grey[300],
+                                    child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                                  ),
+                                  errorWidget: (context, url, error) =>
                                       _buildFallbackCover(context),
                                 )
                               : _buildFallbackCover(context),
@@ -323,10 +328,14 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                       height: widget.height,
                       width: widget.width,
                       child: widget.book.coverUrl != null
-                          ? Image.network(
-                              widget.book.coverUrl!,
+                          ? CachedNetworkImage(
+                              imageUrl: widget.book.coverUrl!,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, _, _) => _buildFallbackCover(context),
+                              placeholder: (context, url) => Container(
+                                color: Colors.grey[300],
+                                child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                              ),
+                              errorWidget: (context, url, error) => _buildFallbackCover(context),
                             )
                           : _buildFallbackCover(context),
                     ),

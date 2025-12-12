@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../widgets/genie_app_bar.dart';
 import '../services/translation_service.dart';
 import '../theme/app_design.dart';
@@ -41,14 +43,20 @@ class _HelpScreenState extends State<HelpScreen> {
     _HelpTopic(
       icon: Icons.cloud_sync,
       titleKey: 'help_topic_network',
-      descKey: 'help_desc_network',
+      descKey: 'help_desc_network_p2p',  // Updated for P2P roadmap
       gradient: AppDesign.accentGradient,
     ),
     _HelpTopic(
       icon: Icons.swap_horiz,
       titleKey: 'help_topic_requests',
-      descKey: 'help_desc_requests',
+      descKey: 'help_desc_requests_p2p',  // Updated for P2P roadmap
       gradient: AppDesign.darkGradient,
+    ),
+    _HelpTopic(
+      icon: Icons.sort,
+      titleKey: 'help_topic_organize_shelf',
+      descKey: 'help_desc_organize_shelf',
+      gradient: AppDesign.successGradient,
     ),
   ];
 
@@ -255,7 +263,7 @@ class _HelpScreenState extends State<HelpScreen> {
                 icon: Icons.school,
                 label: TranslationService.translate(context, 'menu_tutorial'),
                 gradient: AppDesign.primaryGradient,
-                onTap: () => Navigator.pushNamed(context, '/onboarding'),
+                onTap: () => context.push('/onboarding'),
               ),
             ),
             const SizedBox(width: 12),
@@ -265,8 +273,17 @@ class _HelpScreenState extends State<HelpScreen> {
                 icon: Icons.mail_outline,
                 label: TranslationService.translate(context, 'help_contact_us'),
                 gradient: AppDesign.oceanGradient,
-                onTap: () {
-                  // TODO: Open contact
+                onTap: () async {
+                  final Uri emailUri = Uri(
+                    scheme: 'mailto',
+                    path: 'contact@bibliogenius.org',
+                    queryParameters: {
+                      'subject': 'BiblioGenius - Contact',
+                    },
+                  );
+                  if (await canLaunchUrl(emailUri)) {
+                    await launchUrl(emailUri);
+                  }
                 },
               ),
             ),

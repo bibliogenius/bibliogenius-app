@@ -129,10 +129,15 @@ class QuoteService {
     final baseUrl = 'https://$locale.wikiquote.org/w/api.php';
     
     // Step 1: Get a random page from the main namespace
-    final randomUrl = Uri.parse('$baseUrl?action=query&format=json&list=random&rnnamespace=0&rnlimit=1');
+    // Added origin=* for CORS support (required by MediaWiki API for anonymous cross-site requests)
+    final randomUrl = Uri.parse('$baseUrl?action=query&format=json&list=random&rnnamespace=0&rnlimit=1&origin=*');
     
     try {
-      final randomResponse = await http.get(randomUrl).timeout(const Duration(seconds: 5));
+      final headers = {
+        'User-Agent': 'BiblioGenius/1.0 (contact@bibliogenius.org)',
+      };
+      
+      final randomResponse = await http.get(randomUrl, headers: headers).timeout(const Duration(milliseconds: 1500));
       if (randomResponse.statusCode != 200) return null;
       
       final randomData = json.decode(randomResponse.body) as Map<String, dynamic>;
@@ -147,7 +152,7 @@ class QuoteService {
         '$baseUrl?action=query&format=json&prop=extracts&exintro=true&explaintext=true&titles=${Uri.encodeComponent(pageTitle)}'
       );
       
-      final contentResponse = await http.get(contentUrl).timeout(const Duration(seconds: 5));
+      final contentResponse = await http.get(contentUrl, headers: headers).timeout(const Duration(milliseconds: 1500));
       if (contentResponse.statusCode != 200) return null;
       
       final contentData = json.decode(contentResponse.body) as Map<String, dynamic>;

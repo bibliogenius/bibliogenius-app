@@ -41,8 +41,17 @@ import 'services/wizard_service.dart';
 import 'widgets/scaffold_with_nav.dart';
 
 
+import 'package:flutter/gestures.dart';
 import 'services/backend_service.dart';
 import 'widgets/app_lifecycle_observer.dart';
+
+class AppScrollBehavior extends MaterialScrollBehavior {
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+      };
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -343,6 +352,7 @@ class AppRouter extends StatelessWidget {
         Locale('es'), // Spanish
         Locale('de'), // German
       ],
+      scrollBehavior: AppScrollBehavior(),
       routerConfig: router,
     );
   }

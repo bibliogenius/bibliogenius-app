@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../models/book.dart';
 import 'dart:math';
@@ -43,12 +44,14 @@ class BookCoverCard extends StatelessWidget {
           children: [
             // Background / Cover
             if (book.coverUrl != null && book.coverUrl!.isNotEmpty)
-              Image.network(
-                book.coverUrl!,
+              CachedNetworkImage(
+                imageUrl: book.coverUrl!,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return _buildFallbackCover();
-                },
+                placeholder: (context, url) => Container(
+                  color: Colors.grey[200],
+                  child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                ),
+                errorWidget: (context, url, error) => _buildFallbackCover(),
               )
             else
               _buildFallbackCover(),

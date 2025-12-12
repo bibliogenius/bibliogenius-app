@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
+import '../models/gamification_status.dart';
 import '../models/book.dart';
 import '../widgets/genie_app_bar.dart';
 import '../theme/app_design.dart';
@@ -17,6 +18,7 @@ class StatisticsScreen extends StatefulWidget {
 class _StatisticsScreenState extends State<StatisticsScreen>
     with SingleTickerProviderStateMixin {
   List<Book> _books = [];
+  GamificationStatus? _userStatus;
   bool _isLoading = true;
   late AnimationController _animController;
   late Animation<double> _fadeAnim;
@@ -44,13 +46,29 @@ class _StatisticsScreenState extends State<StatisticsScreen>
     final api = Provider.of<ApiService>(context, listen: false);
     try {
       final books = await api.getBooks();
-      setState(() {
-        _books = books;
-        _isLoading = false;
-      });
-      _animController.forward();
+      
+      GamificationStatus? status;
+      try {
+        final statusRes = await api.getUserStatus();
+        if (statusRes.statusCode == 200) {
+          status = GamificationStatus.fromJson(statusRes.data);
+        }
+      } catch (e) {
+        debugPrint('Error fetching gamification stats: $e');
+      }
+
+      if (mounted) {
+        setState(() {
+          _books = books;
+          _userStatus = status;
+          _isLoading = false;
+        });
+        _animController.forward();
+      }
     } catch (e) {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -73,6 +91,16 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                       children: [
                         _buildSummaryCards(),
                         const SizedBox(height: 32),
+                        if (_userStatus != null) ...[
+                          _buildSectionTitle(
+                            'Gamification',
+                            Icons.emoji_events,
+                            AppDesign.primaryGradient,
+                          ),
+                          const SizedBox(height: 16),
+                          _buildGamificationSection(),
+                          const SizedBox(height: 32),
+                        ],
                         _buildSectionTitle(
                           TranslationService.translate(context, 'reading_habits'),
                           Icons.pie_chart,
@@ -653,6 +681,109 @@ class _StatisticsScreenState extends State<StatisticsScreen>
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildGamificationSection() {
+    if (_userStatus == null) return const SizedBox.shrink();
+
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
+        boxShadow: AppDesign.cardShadow,
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+               Expanded(
+                 child: _buildStreakCard(
+                   _userStatus!.streak.current,
+                   'Current Streak',
+                   Icons.local_fire_department,
+                   Colors.orange,
+                 ),
+               ),
+               const SizedBox(width: 16),
+               Expanded(
+                 child: _buildStreakCard(
+                   _userStatus!.streak.longest,
+                   'Best Streak',
+                   Icons.emoji_events_outlined,
+                   Colors.amber,
+                 ),
+               ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          _buildTrackProgress('Reader', _userStatus!.reader),
+          const SizedBox(height: 16),
+          _buildTrackProgress('Collector', _userStatus!.collector),
+          const SizedBox(height: 16),
+          _buildTrackProgress('Lender', _userStatus!.lender),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStreakCard(int count, String label, IconData icon, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: color, size: 32),
+          const SizedBox(height: 8),
+           Text(
+             count.toString(),
+             style: TextStyle(
+               fontSize: 24,
+               fontWeight: FontWeight.bold,
+               color: color,
+             ),
+           ),
+           Text(
+             label,
+             style: TextStyle(
+               fontSize: 12,
+               color: Theme.of(context).textTheme.bodySmall?.color,
+             ),
+           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTrackProgress(String title, TrackProgress track) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('$title: ${track.levelName}', style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text('${track.current} / ${track.nextThreshold}'),
+          ],
+        ),
+        const SizedBox(height: 8),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: LinearProgressIndicator(
+            value: track.progress,
+            minHeight: 12,
+            backgroundColor: Colors.grey.withValues(alpha: 0.2),
+            valueColor: AlwaysStoppedAnimation<Color>(
+               track.level >= 3 ? Colors.amber : Theme.of(context).primaryColor,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
