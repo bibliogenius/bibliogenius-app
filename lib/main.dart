@@ -37,6 +37,7 @@ import 'screens/network_search_screen.dart';
 import 'screens/onboarding_tour_screen.dart';
 import 'screens/shelves_screen.dart';
 import 'screens/network_screen.dart';
+import 'screens/feedback_screen.dart';
 import 'services/wizard_service.dart';
 import 'widgets/scaffold_with_nav.dart';
 
@@ -332,13 +333,17 @@ class AppRouter extends StatelessWidget {
               path: '/shelves',
               builder: (context, state) => const ShelvesScreen(),
             ),
+            GoRoute(
+              path: '/feedback',
+              builder: (context, state) => const FeedbackScreen(),
+            ),
           ],
         ),
       ],
     );
 
     return MaterialApp.router(
-      title: 'Bibliotech',
+      title: 'BiblioGenius',
       theme: themeProvider.themeData,
       locale: themeProvider.locale,
       localizationsDelegates: const [

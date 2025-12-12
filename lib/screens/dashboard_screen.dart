@@ -648,6 +648,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   _gamificationStatus!.lender,
                   Colors.orange,
                 ),
+                _buildMiniTrack(
+                  context,
+                  Icons.sort,
+                  _gamificationStatus!.cataloguer,
+                  Colors.purple,
+                ),
               ],
             ),
           ],

@@ -115,6 +115,14 @@ class AppDrawer extends StatelessWidget {
               context.go('/help');
             },
           ),
+          ListTile(
+            leading: const Icon(Icons.bug_report),
+            title: Text(TranslationService.translate(context, 'nav_report_bug')),
+            onTap: () {
+              Navigator.pop(context);
+              context.push('/feedback');
+            },
+          ),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.help_outline),

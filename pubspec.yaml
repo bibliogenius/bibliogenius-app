@@ -71,6 +71,7 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   network_image_mock: ^2.1.1
   http_mock_adapter: ^0.6.1
+  flutter_launcher_icons: ^0.14.4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -88,6 +89,7 @@ flutter:
     - .env
     - assets/avatars/
     - assets/genie_mascot.jpg
+    - assets/images/badges/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

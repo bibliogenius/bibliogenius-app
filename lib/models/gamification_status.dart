@@ -102,6 +102,7 @@ class GamificationStatus {
   final TrackProgress collector;
   final TrackProgress reader;
   final TrackProgress lender;
+  final TrackProgress cataloguer;
   final StreakInfo streak;
   final List<String> recentAchievements;
   final GamificationConfig config;
@@ -117,6 +118,7 @@ class GamificationStatus {
     required this.collector,
     required this.reader,
     required this.lender,
+    required this.cataloguer,
     required this.streak,
     required this.recentAchievements,
     required this.config,
@@ -140,6 +142,9 @@ class GamificationStatus {
       lender: TrackProgress.fromJson(
         tracks['lender'] as Map<String, dynamic>? ?? {},
       ),
+      cataloguer: TrackProgress.fromJson(
+        tracks['cataloguer'] as Map<String, dynamic>? ?? {},
+      ),
       streak: StreakInfo.fromJson(
         json['streak'] as Map<String, dynamic>? ?? {},
       ),
@@ -159,7 +164,7 @@ class GamificationStatus {
   }
 
   /// Returns the highest level achieved across all tracks.
-  int get maxTrackLevel => [collector.level, reader.level, lender.level]
+  int get maxTrackLevel => [collector.level, reader.level, lender.level, cataloguer.level]
       .reduce((a, b) => a > b ? a : b);
 
   /// Returns true if user has any achievements.
@@ -170,6 +175,7 @@ class GamificationStatus {
     collector: TrackProgress(level: 0, progress: 0, current: 0, nextThreshold: 10),
     reader: TrackProgress(level: 0, progress: 0, current: 0, nextThreshold: 5),
     lender: TrackProgress(level: 0, progress: 0, current: 0, nextThreshold: 5),
+    cataloguer: TrackProgress(level: 0, progress: 0, current: 0, nextThreshold: 10),
     streak: StreakInfo(current: 0, longest: 0),
     recentAchievements: [],
     config: GamificationConfig(

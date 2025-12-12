@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -7,6 +8,7 @@ import '../models/gamification_status.dart';
 import '../models/book.dart';
 import '../widgets/genie_app_bar.dart';
 import '../theme/app_design.dart';
+import '../widgets/gamification_widgets.dart';
 
 class StatisticsScreen extends StatefulWidget {
   const StatisticsScreen({super.key});
@@ -16,12 +18,15 @@ class StatisticsScreen extends StatefulWidget {
 }
 
 class _StatisticsScreenState extends State<StatisticsScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   List<Book> _books = [];
   GamificationStatus? _userStatus;
   bool _isLoading = true;
   late AnimationController _animController;
   late Animation<double> _fadeAnim;
+
+  // late AnimationController _pulseController; removed
+  // late Animation<double> _pulseAnimation; removed
 
   @override
   void initState() {
@@ -33,12 +38,16 @@ class _StatisticsScreenState extends State<StatisticsScreen>
     _fadeAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _animController, curve: Curves.easeOut),
     );
+
+
+
     _fetchData();
   }
 
   @override
   void dispose() {
     _animController.dispose();
+    // _pulseController.dispose() removed
     super.dispose();
   }
 
@@ -93,7 +102,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                         const SizedBox(height: 32),
                         if (_userStatus != null) ...[
                           _buildSectionTitle(
-                            'Gamification',
+                            TranslationService.translate(context, 'your_progress'),
                             Icons.emoji_events,
                             AppDesign.primaryGradient,
                           ),
@@ -588,7 +597,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
             horizontalInterval: 1,
             getDrawingHorizontalLine: (value) {
               return FlLine(
-                color: Colors.grey.withValues(alpha: 0.1),
+                color: Colors.black.withValues(alpha: 0.5),
                 strokeWidth: 1,
               );
             },
@@ -688,7 +697,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
     if (_userStatus == null) return const SizedBox.shrink();
 
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.symmetric(vertical: 24),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
@@ -696,33 +705,74 @@ class _StatisticsScreenState extends State<StatisticsScreen>
       ),
       child: Column(
         children: [
-          Row(
-            children: [
-               Expanded(
-                 child: _buildStreakCard(
-                   _userStatus!.streak.current,
-                   'Current Streak',
-                   Icons.local_fire_department,
-                   Colors.orange,
+          // Badge display at top
+          CurrentBadgeWidget(maxTrackLevel: _userStatus!.maxTrackLevel),
+          const SizedBox(height: 24),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: Row(
+              children: [
+                 Expanded(
+                   child: _buildStreakCard(
+                     _userStatus!.streak.current,
+                     TranslationService.translate(context, 'current_streak'),
+                     Icons.local_fire_department,
+                     Colors.orange,
+                   ),
                  ),
-               ),
-               const SizedBox(width: 16),
-               Expanded(
-                 child: _buildStreakCard(
-                   _userStatus!.streak.longest,
-                   'Best Streak',
-                   Icons.emoji_events_outlined,
-                   Colors.amber,
+                 const SizedBox(width: 16),
+                 Expanded(
+                   child: _buildStreakCard(
+                     _userStatus!.streak.longest,
+                     TranslationService.translate(context, 'best_streak'),
+                     Icons.emoji_events_outlined,
+                     Colors.amber,
+                   ),
                  ),
-               ),
-            ],
+              ],
+            ),
           ),
           const SizedBox(height: 24),
-          _buildTrackProgress('Reader', _userStatus!.reader),
-          const SizedBox(height: 16),
-          _buildTrackProgress('Collector', _userStatus!.collector),
-          const SizedBox(height: 16),
-          _buildTrackProgress('Lender', _userStatus!.lender),
+          BadgeCollectionWidget(maxTrackLevel: _userStatus!.maxTrackLevel),
+          const SizedBox(height: 24),
+          const Divider(height: 1, indent: 24, endIndent: 24),
+          const SizedBox(height: 24),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildCircularTrack(
+                  context,
+                  TranslationService.translate(context, 'track_collector'),
+                  _userStatus!.collector,
+                  Icons.collections_bookmark,
+                  Colors.blue,
+                ),
+                _buildCircularTrack(
+                  context,
+                  TranslationService.translate(context, 'track_reader'),
+                  _userStatus!.reader,
+                  Icons.menu_book,
+                  Colors.green,
+                ),
+                _buildCircularTrack(
+                  context,
+                  TranslationService.translate(context, 'track_lender'),
+                  _userStatus!.lender,
+                  Icons.volunteer_activism,
+                  Colors.orange,
+                ),
+                _buildCircularTrack(
+                  context,
+                  TranslationService.translate(context, 'track_cataloguer'),
+                  _userStatus!.cataloguer,
+                  Icons.list_alt,
+                  Colors.purple,
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -760,30 +810,81 @@ class _StatisticsScreenState extends State<StatisticsScreen>
     );
   }
 
-  Widget _buildTrackProgress(String title, TrackProgress track) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('$title: ${track.levelName}', style: const TextStyle(fontWeight: FontWeight.bold)),
-            Text('${track.current} / ${track.nextThreshold}'),
-          ],
-        ),
-        const SizedBox(height: 8),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: LinearProgressIndicator(
-            value: track.progress,
-            minHeight: 12,
-            backgroundColor: Colors.grey.withValues(alpha: 0.2),
-            valueColor: AlwaysStoppedAnimation<Color>(
-               track.level >= 3 ? Colors.amber : Theme.of(context).primaryColor,
+  Widget _buildCircularTrack(BuildContext context, String title, TrackProgress track, IconData icon, Color color) {
+    return Expanded(
+      child: Column(
+        children: [
+          SizedBox(
+            width: 70,
+            height: 70,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                SizedBox(
+                  width: 60,
+                  height: 60,
+                  child: CircularProgressIndicator(
+                    value: 1.0,
+                    strokeWidth: 6,
+                    color: color.withValues(alpha: 0.1),
+                  ),
+                ),
+                SizedBox(
+                  width: 60,
+                  height: 60,
+                  child: CircularProgressIndicator(
+                    value: track.progress,
+                    strokeWidth: 6,
+                    color: color,
+                    strokeCap: StrokeCap.round,
+                  ),
+                ),
+                Icon(icon, color: color, size: 28),
+                if (track.level > 0)
+                  Positioned(
+                    top: 0,
+                    right: 4,
+                    child: Container(
+                      padding: const EdgeInsets.all(5),
+                      decoration: const BoxDecoration(
+                        color: Colors.amber,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        track.level.toString(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
-        ),
-      ],
+          const SizedBox(height: 8),
+          Text(
+            title.split(' ').last,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).textTheme.bodySmall?.color,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 2),
+           Text(
+             '${track.current}/${track.nextThreshold}',
+             style: TextStyle(
+               fontSize: 10,
+               color: Colors.grey[600],
+             ),
+           ),
+        ],
+      ),
     );
   }
 }

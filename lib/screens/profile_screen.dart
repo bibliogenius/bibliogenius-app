@@ -658,11 +658,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         DropdownMenuItem(value: 'default', child: Text(TranslationService.translate(context, 'theme_default'))),
                         DropdownMenuItem(value: 'minimal', child: Text(TranslationService.translate(context, 'theme_minimal'))),
                       ],
-                      onChanged: (String? newValue) {
-                        if (newValue != null) {
-                          themeProvider.setThemeStyle(newValue);
-                        }
-                      },
+                      onChanged: null, // Disabled for now as requested
+                        // if (newValue != null) {
+                        //   themeProvider.setThemeStyle(newValue);
+                        // }
+
                     ),
                   ],
                 ),

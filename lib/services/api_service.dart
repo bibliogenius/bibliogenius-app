@@ -497,8 +497,29 @@ class RetryInterceptor extends Interceptor {
       return handler.next(err);
     }
 
+    // Skip port discovery for requests to external services (Hub, etc.)
+    // These are identified by having a full URL in the path or targeting a different host
+    final requestPath = err.requestOptions.path;
+    final requestUri = err.requestOptions.uri.toString();
+    final currentBaseUrl = dio.options.baseUrl;
+    
+    // If the path is a full URL (starts with http), check if it's targeting our backend
+    if (requestPath.startsWith('http://') || requestPath.startsWith('https://')) {
+      // Extract port from the full URL path
+      final pathUri = Uri.tryParse(requestPath);
+      final baseUri = Uri.tryParse(currentBaseUrl);
+      
+      // If it's targeting a different port/host, don't try to "fix" it with port discovery
+      if (pathUri != null && baseUri != null) {
+        if (pathUri.host != baseUri.host || pathUri.port != baseUri.port) {
+          debugPrint('⚠️ Connection failed on $requestPath (external service). Skipping port discovery.');
+          return handler.next(err);
+        }
+      }
+    }
+
     _isDiscovering = true;
-    debugPrint('⚠️ Connection failed on ${err.requestOptions.path}. Initiating Smart Port Discovery... 🕵️');
+    debugPrint('⚠️ Connection failed on $requestUri. Initiating Smart Port Discovery... 🕵️');
 
     try {
       // Ports to scan: 8000 to 8010

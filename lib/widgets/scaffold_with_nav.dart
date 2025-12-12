@@ -56,6 +56,10 @@ class ScaffoldWithNav extends StatelessWidget {
                   icon: Icon(Icons.help_outline),
                   label: Text(TranslationService.translate(context, 'nav_help')),
                 ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.bug_report),
+                  label: Text(TranslationService.translate(context, 'nav_report_bug')),
+                ),
               ],
             ),
           if (useRail) const VerticalDivider(thickness: 1, width: 1),
@@ -78,6 +82,7 @@ class ScaffoldWithNav extends StatelessWidget {
     if (location.startsWith('/statistics')) return 5;
     if (location.startsWith('/onboarding')) return 6;
     if (location.startsWith('/help')) return 7;
+    if (location.startsWith('/feedback')) return 8;
     return 0;
   }
 
@@ -106,6 +111,9 @@ class ScaffoldWithNav extends StatelessWidget {
         break;
       case 7:
         context.go('/help');
+        break;
+      case 8:
+        context.push('/feedback');
         break;
     }
   }
