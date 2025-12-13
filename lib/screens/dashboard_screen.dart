@@ -87,6 +87,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           if (mounted) {
             setState(() {
               _stats['total_books'] = books.length;
+              _stats['borrowed_count'] = books.where((b) => b.readingStatus == 'borrowed').length;
               
               final readingListCandidates = books.where((b) => 
                 ['reading', 'to_read'].contains(b.readingStatus)
@@ -250,15 +251,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               ),
                             ),
                             const SizedBox(width: 12),
+                            // Lent books (prêtés) - visible for all
                             Expanded(
                               child: _buildStatCard(
                                 context,
-                                TranslationService.translate(context, 'borrowed'),
+                                TranslationService.translate(context, 'lent_status'),
                                 (_stats['active_loans'] ?? 0).toString(),
-                                Icons.outbox,
+                                Icons.arrow_upward,
                                 isAccent: true,
                               ),
                             ),
+                            // Borrowed books (empruntés) - hidden for librarians
+                            if (!themeProvider.isLibrarian) ...[
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: _buildStatCard(
+                                  context,
+                                  TranslationService.translate(context, 'borrowed_status'),
+                                  (_stats['borrowed_count'] ?? 0).toString(),
+                                  Icons.arrow_downward,
+                                ),
+                              ),
+                            ],
                             if (!isKid) ...[
                               const SizedBox(width: 12),
                               Expanded(
