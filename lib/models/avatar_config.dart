@@ -32,6 +32,15 @@ class AvatarConfig {
     required this.seed,
   });
 
+  /// Returns true if this is the Genie mascot avatar (local asset)
+  bool get isGenie => style == 'genie';
+  
+  /// Returns true if this avatar should use a local asset (currently only genie)
+  bool get isAsset => isGenie;
+  
+  /// Returns the asset path if isAsset is true
+  String get assetPath => 'assets/genie_mascot.jpg';
+
   // Generate DiceBear API URL or local asset path
   String toUrl({int size = 200, String format = 'png'}) {
     // For genie avatar, use local asset
@@ -100,7 +109,9 @@ class AvatarConfig {
         'accessories': accessories,
         'clothing': clothing,
         'clothingColor': clothingColor,
-
+        'genieColor': genieColor,
+        'genieBackground': genieBackground,
+        'genieExpression': genieExpression,
         'mouth': mouth,
         'seed': seed,
       };
@@ -115,7 +126,9 @@ class AvatarConfig {
         accessories: json['accessories'],
         clothing: json['clothing'],
         clothingColor: json['clothingColor'],
-
+        genieColor: json['genieColor'],
+        genieBackground: json['genieBackground'],
+        genieExpression: json['genieExpression'],
         mouth: json['mouth'],
         seed: json['seed'] ?? 'default',
       );

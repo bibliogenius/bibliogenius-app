@@ -473,13 +473,16 @@ class _BookListScreenState extends State<BookListScreen> {
                     : Colors.white,
               ),
               child: ClipOval(
-                child: avatarConfig?.style == 'genie'
-                    ? Image.network(
+                child: (avatarConfig?.isGenie ?? false)
+                    ? Image.asset(
+                        avatarConfig?.assetPath ?? 'assets/genie_mascot.jpg',
+                        fit: BoxFit.cover,
+                      )
+                    : Image.network(
                         avatarConfig?.toUrl(size: 48, format: 'png') ?? '',
                         fit: BoxFit.cover,
                         errorBuilder: (_, __, ___) => Image.asset(avatar.assetPath, fit: BoxFit.cover),
-                      )
-                    : Image.asset(avatar.assetPath, fit: BoxFit.cover),
+                      ),
               ),
             ),
           ),

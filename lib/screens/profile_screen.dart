@@ -132,13 +132,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           : Colors.grey[100],
                     ),
                     child: ClipOval(
-                      child: themeProvider.avatarConfig?.style == 'genie'
-                          ? Image.network(
+                      child: (themeProvider.avatarConfig?.isGenie ?? false)
+                          ? Image.asset(
+                              themeProvider.avatarConfig?.assetPath ?? 'assets/genie_mascot.jpg',
+                              fit: BoxFit.cover,
+                            )
+                          : Image.network(
                               themeProvider.avatarConfig?.toUrl(size: 120, format: 'png') ?? '',
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) => Image.asset(avatar.assetPath),
-                            )
-                          : Image.asset(avatar.assetPath, fit: BoxFit.cover),
+                            ),
                     ),
                   ),
                   Positioned(
