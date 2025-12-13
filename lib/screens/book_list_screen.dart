@@ -10,7 +10,7 @@ import '../widgets/bookshelf_view.dart';
 import '../widgets/book_cover_grid.dart'; 
 import '../widgets/premium_book_card.dart';
 import '../theme/app_design.dart';
-import '../services/theme_provider.dart';
+import '../providers/theme_provider.dart';
 import '../utils/avatars.dart';
 
 
@@ -451,7 +451,7 @@ class _BookListScreenState extends State<BookListScreen> {
     // Get avatar info
     final avatarConfig = themeProvider.avatarConfig;
     final avatar = availableAvatars.firstWhere(
-      (a) => a.id == themeProvider.selectedAvatar,
+      (a) => a.id == themeProvider.currentAvatarId,
       orElse: () => availableAvatars.first,
     );
     

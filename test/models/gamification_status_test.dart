@@ -166,6 +166,7 @@ void main() {
         collector: const TrackProgress(level: 2, progress: 0.5, current: 50, nextThreshold: 200),
         reader: const TrackProgress(level: 1, progress: 0.3, current: 10, nextThreshold: 20),
         lender: const TrackProgress(level: 0, progress: 0.1, current: 1, nextThreshold: 5),
+        cataloguer: const TrackProgress(level: 0, progress: 0.0, current: 0, nextThreshold: 10),
         streak: const StreakInfo(current: 0, longest: 0),
         recentAchievements: const [],
         config: const GamificationConfig(achievementsStyle: 'minimal', readingGoalYearly: 12, readingGoalProgress: 0),
