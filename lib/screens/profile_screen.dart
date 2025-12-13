@@ -133,15 +133,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     child: ClipOval(
                       child: themeProvider.avatarConfig?.style == 'genie'
-                          ? Image.asset(
-                              'assets/genie_mascot.jpg',
-                              fit: BoxFit.cover,
-                            )
-                          : Image.network(
+                          ? Image.network(
                               themeProvider.avatarConfig?.toUrl(size: 120, format: 'png') ?? '',
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) => Image.asset(avatar.assetPath),
-                            ),
+                            )
+                          : Image.asset(avatar.assetPath, fit: BoxFit.cover),
                     ),
                   ),
                   Positioned(
