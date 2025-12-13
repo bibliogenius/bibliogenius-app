@@ -123,35 +123,6 @@ class AppDrawer extends StatelessWidget {
               context.push('/feedback');
             },
           ),
-          const Divider(),
-          ListTile(
-            leading: const Icon(Icons.help_outline),
-            title: const Text('Restart Tour'), // Add translation later if needed
-            onTap: () async {
-              Navigator.pop(context);
-              await WizardService.resetWizard();
-              if (context.mounted) {
-                 // Force reload if already on dashboard
-                 if (GoRouterState.of(context).uri.path == '/dashboard') {
-                   context.pushReplacement('/dashboard');
-                 } else {
-                   context.go('/dashboard');
-                 }
-              }
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.settings_backup_restore),
-            title: Text(TranslationService.translate(context, 'reset_setup')),
-            onTap: () async {
-              Navigator.pop(context);
-              final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
-              await themeProvider.resetSetup();
-              if (context.mounted) {
-                context.go('/setup');
-              }
-            },
-          ),
         ],
       ),
     );
