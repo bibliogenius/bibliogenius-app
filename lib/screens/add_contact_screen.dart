@@ -16,6 +16,7 @@ class _AddContactScreenState extends State<AddContactScreen> {
 
   String _type = 'borrower';
   final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
@@ -26,6 +27,7 @@ class _AddContactScreenState extends State<AddContactScreen> {
   @override
   void dispose() {
     _nameController.dispose();
+    _firstNameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
     _addressController.dispose();
@@ -43,6 +45,7 @@ class _AddContactScreenState extends State<AddContactScreen> {
       final contactData = {
         'type': _type,
         'name': _nameController.text,
+        'first_name': _firstNameController.text.isEmpty ? null : _firstNameController.text,
         'email': _emailController.text.isEmpty ? null : _emailController.text,
         'phone': _phoneController.text.isEmpty ? null : _phoneController.text,
         'address': _addressController.text.isEmpty
@@ -108,6 +111,18 @@ class _AddContactScreenState extends State<AddContactScreen> {
                 return null;
               },
             ),
+            // First name field - only shown for borrower type
+            if (_type == 'borrower') ...[
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _firstNameController,
+                decoration: InputDecoration(
+                  labelText: TranslationService.translate(context, 'contact_first_name_label'),
+                  hintText: TranslationService.translate(context, 'contact_first_name_hint'),
+                  border: const OutlineInputBorder(),
+                ),
+              ),
+            ],
             const SizedBox(height: 16),
             TextFormField(
               controller: _emailController,
