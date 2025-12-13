@@ -82,6 +82,17 @@ class ApiService {
     return await _dio.post('/api/loans', data: loanData);
   }
 
+  Future<Response> getLoans({String? status, int? contactId}) async {
+    Map<String, dynamic> params = {};
+    if (status != null) params['status'] = status;
+    if (contactId != null) params['contact_id'] = contactId;
+    return await _dio.get('/api/loans', queryParameters: params);
+  }
+
+  Future<Response> returnLoan(int loanId) async {
+    return await _dio.post('/api/loans/$loanId/return');
+  }
+
   // Contact methods
   Future<Response> getContacts({int? libraryId, String? type}) async {
     Map<String, dynamic> params = {};

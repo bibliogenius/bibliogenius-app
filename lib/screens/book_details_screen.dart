@@ -309,22 +309,42 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             ),
           ),
         ],
-        // Lend book button - always visible
-        const SizedBox(height: 12),
-        SizedBox(
-          width: double.infinity,
-          child: OutlinedButton.icon(
-            onPressed: () => _lendBook(context),
-            icon: const Icon(Icons.handshake_outlined),
-            label: Text(TranslationService.translate(context, 'lend_book_btn') ?? 'Lend this book'),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.purple,
-              side: const BorderSide(color: Colors.purple),
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        // Lend book button - only visible when book is not borrowed
+        if (_book.readingStatus != 'borrowed') ...[
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () => _lendBook(context),
+              icon: const Icon(Icons.handshake_outlined),
+              label: Text(TranslationService.translate(context, 'lend_book_btn') ?? 'Lend this book'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.purple,
+                side: const BorderSide(color: Colors.purple),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
             ),
           ),
-        ),
+        ],
+        // Return book button - only visible when book is borrowed
+        if (_book.readingStatus == 'borrowed') ...[
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: () => _returnBook(context),
+              icon: const Icon(Icons.assignment_return_outlined),
+              label: Text(TranslationService.translate(context, 'return_book_btn') ?? 'Return this book'),
+              style: FilledButton.styleFrom(
+                backgroundColor: Colors.orange,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ),
+        ],
       ],
     );
   }
@@ -728,14 +748,44 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
     final apiService = Provider.of<ApiService>(context, listen: false);
     try {
+      // 1. Get existing copies for this book
+      final copiesResponse = await apiService.getBookCopies(_book.id!);
+      List<dynamic> copies = copiesResponse.data['copies'] ?? [];
+      
+      int copyId;
+      
+      if (copies.isEmpty) {
+        // 2. Create a copy if none exists
+        final newCopyResponse = await apiService.createCopy({
+          'book_id': _book.id,
+          'library_id': 1, // Default library
+          'status': 'available',
+          'is_temporary': false,
+        });
+        copyId = newCopyResponse.data['copy']['id'];
+      } else {
+        // Find an available copy
+        final availableCopy = copies.firstWhere(
+          (c) => c['status'] == 'available',
+          orElse: () => copies.first,
+        );
+        copyId = availableCopy['id'];
+      }
+
+      // 3. Calculate due date (30 days from now)
+      final now = DateTime.now();
+      final dueDate = now.add(const Duration(days: 30));
+
+      // 4. Create the loan with correct fields
       await apiService.createLoan({
-        'book_id': _book.id,
+        'copy_id': copyId,
         'contact_id': selectedContact.id,
-        'loan_date': DateTime.now().toIso8601String(),
-        'status': 'active',
+        'library_id': 1, // Default library
+        'loan_date': now.toIso8601String().split('T')[0],
+        'due_date': dueDate.toIso8601String().split('T')[0],
       });
 
-      // Update book status to borrowed
+      // 5. Update book reading status to 'borrowed'
       await apiService.updateBook(_book.id!, {
         'title': _book.title,
         'reading_status': 'borrowed',
@@ -756,6 +806,61 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('${TranslationService.translate(context, 'error_lending_book') ?? 'Error lending book'}: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _returnBook(BuildContext context) async {
+    final apiService = Provider.of<ApiService>(context, listen: false);
+    
+    try {
+      // Find active loan for this book's copy
+      final copiesResponse = await apiService.getBookCopies(_book.id!);
+      List<dynamic> copies = copiesResponse.data['copies'] ?? [];
+      
+      if (copies.isEmpty) {
+        throw Exception('No copy found for this book');
+      }
+
+      // Get the borrowed copy
+      final borrowedCopy = copies.firstWhere(
+        (c) => c['status'] == 'borrowed',
+        orElse: () => copies.first,
+      );
+
+      // Find active loan for this copy
+      final loansResponse = await apiService.getLoans(status: 'active');
+      List<dynamic> loans = loansResponse.data['loans'] ?? [];
+      
+      final activeLoan = loans.firstWhere(
+        (l) => l['copy_id'] == borrowedCopy['id'],
+        orElse: () => null,
+      );
+
+      if (activeLoan != null) {
+        // Return the loan
+        await apiService.returnLoan(activeLoan['id']);
+      }
+
+      // Update book reading status
+      await apiService.updateBook(_book.id!, {
+        'title': _book.title,
+        'reading_status': 'read', // or 'to_read' based on preference
+      });
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(TranslationService.translate(context, 'book_returned') ?? 'Book returned'),
+          ),
+        );
+        _fetchBookDetails();
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${TranslationService.translate(context, 'error_returning_book') ?? 'Error returning book'}: $e')),
         );
       }
     }

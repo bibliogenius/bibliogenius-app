@@ -608,6 +608,7 @@ class _BookListScreenState extends State<BookListScreen> {
           _buildFilterPill(status: 'to_read', label: TranslationService.translate(context, 'reading_status_to_read')),
           _buildFilterPill(status: 'wanting', label: TranslationService.translate(context, 'reading_status_wanting')),
           _buildFilterPill(status: 'read', label: TranslationService.translate(context, 'reading_status_read')),
+          _buildFilterPill(status: 'borrowed', label: TranslationService.translate(context, 'borrowed_label')),
         ],
       ),
     );
