@@ -632,27 +632,31 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 _buildMiniTrack(
                   context,
-                  Icons.library_books,
+                  Icons.collections_bookmark,
                   _gamificationStatus!.collector,
                   Colors.blue,
+                  TranslationService.translate(context, 'track_collector'),
                 ),
                 _buildMiniTrack(
                   context,
                   Icons.menu_book,
                   _gamificationStatus!.reader,
                   Colors.green,
+                  TranslationService.translate(context, 'track_reader'),
                 ),
                 _buildMiniTrack(
                   context,
-                  Icons.handshake,
+                  Icons.volunteer_activism,
                   _gamificationStatus!.lender,
                   Colors.orange,
+                  TranslationService.translate(context, 'track_lender'),
                 ),
                 _buildMiniTrack(
                   context,
-                  Icons.sort,
+                  Icons.list_alt,
                   _gamificationStatus!.cataloguer,
                   Colors.purple,
+                  TranslationService.translate(context, 'track_cataloguer'),
                 ),
               ],
             ),
@@ -662,7 +666,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildMiniTrack(BuildContext context, IconData icon, TrackProgress track, Color color) {
+  Widget _buildMiniTrack(BuildContext context, IconData icon, TrackProgress track, Color color, String label) {
     return Column(
       children: [
         Stack(
@@ -715,12 +719,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
         const SizedBox(height: 4),
         Text(
-          '${track.current}',
+          label.split(' ').last,
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 12,
+            fontSize: 10,
             color: color,
           ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
       ],
     );
