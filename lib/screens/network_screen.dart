@@ -397,9 +397,19 @@ class _NetworkScreenState extends State<NetworkScreen>
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final bool isMobile = width <= 600;
+
     return Scaffold(
       appBar: GenieAppBar(
         title: TranslationService.translate(context, 'nav_network'),
+        leading: isMobile
+            ? IconButton(
+                icon: const Icon(Icons.menu, color: Colors.white),
+                onPressed: () => Scaffold.of(context).openDrawer(),
+              )
+            : null,
+        automaticallyImplyLeading: false,
         actions: [
           IconButton(
             icon: const Icon(Icons.search),

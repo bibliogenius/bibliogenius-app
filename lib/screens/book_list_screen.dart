@@ -110,10 +110,20 @@ class _BookListScreenState extends State<BookListScreen> {
       titleWidget = const Text('Reordering Shelf...', style: TextStyle(color: Colors.white, fontSize: 18));
     }
 
+    final width = MediaQuery.of(context).size.width;
+    final bool isMobile = width <= 600;
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: GenieAppBar(
         title: titleWidget,
+        leading: isMobile
+            ? IconButton(
+                icon: const Icon(Icons.menu, color: Colors.white),
+                onPressed: () => Scaffold.of(context).openDrawer(),
+              )
+            : null,
+        automaticallyImplyLeading: false,
         actions: [
           if (_isReordering) ...[
              IconButton(

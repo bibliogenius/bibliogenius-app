@@ -87,8 +87,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final bool isMobile = width <= 600;
+
     return Scaffold(
-      appBar: GenieAppBar(title: TranslationService.translate(context, 'profile')),
+      appBar: GenieAppBar(
+        title: TranslationService.translate(context, 'profile'),
+        leading: isMobile
+            ? IconButton(
+                icon: const Icon(Icons.menu, color: Colors.white),
+                onPressed: () => Scaffold.of(context).openDrawer(),
+              )
+            : null,
+        automaticallyImplyLeading: false,
+      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null

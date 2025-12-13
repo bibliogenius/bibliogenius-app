@@ -139,9 +139,19 @@ class _BorrowRequestsScreenState extends State<BorrowRequestsScreen>
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final bool isMobile = width <= 600;
+
     return Scaffold(
       appBar: GenieAppBar(
         title: TranslationService.translate(context, 'borrow_requests_title'),
+        leading: isMobile
+            ? IconButton(
+                icon: const Icon(Icons.menu, color: Colors.white),
+                onPressed: () => Scaffold.of(context).openDrawer(),
+              )
+            : null,
+        automaticallyImplyLeading: false,
         bottom: TabBar(
           controller: _tabController,
           labelColor: Theme.of(context).appBarTheme.foregroundColor,
