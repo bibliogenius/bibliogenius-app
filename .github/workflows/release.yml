@@ -108,8 +108,31 @@ jobs:
       - name: Disable Code Signing
         run: sed -i '' 's/Apple Development/-/g' macos/Runner.xcodeproj/project.pbxproj
 
+      - name: Download Rust Backend (x64)
+        uses: actions/download-artifact@v4
+        with:
+          name: bibliogenius-macos-x64
+          path: backend-x64
+
+      - name: Download Rust Backend (ARM64)
+        uses: actions/download-artifact@v4
+        with:
+          name: bibliogenius-macos-arm64
+          path: backend-arm64
+
       - name: Build macOS app
         run: flutter build macos --release
+
+      - name: Inject Rust Binary
+        run: |
+          ARCH=$(uname -m)
+          mkdir -p build/macos/Build/Products/Release/bibliogenius.app/Contents/Resources/backend
+          if [ "$ARCH" == "arm64" ]; then
+            cp backend-arm64/bibliogenius build/macos/Build/Products/Release/bibliogenius.app/Contents/Resources/backend/
+          else
+            cp backend-x64/bibliogenius build/macos/Build/Products/Release/bibliogenius.app/Contents/Resources/backend/
+          fi
+          chmod +x build/macos/Build/Products/Release/bibliogenius.app/Contents/Resources/backend/bibliogenius
         
       - name: Create DMG
         run: |
@@ -152,8 +175,19 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
         
+      - name: Download Rust Backend
+        uses: actions/download-artifact@v4
+        with:
+          name: bibliogenius-windows-x64
+          path: backend
+
       - name: Build Windows app
         run: flutter build windows --release
+
+      - name: Inject Rust Binary
+        run: |
+          mkdir build\windows\x64\runner\Release\backend
+          copy backend\bibliogenius.exe build\windows\x64\runner\Release\backend\
         
       - name: Create ZIP
         run: |
@@ -186,8 +220,20 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
         
+      - name: Download Rust Backend
+        uses: actions/download-artifact@v4
+        with:
+          name: bibliogenius-linux-x64
+          path: backend
+
       - name: Build Linux app
         run: flutter build linux --release
+
+      - name: Inject Rust Binary
+        run: |
+          mkdir -p build/linux/x64/release/bundle/backend
+          cp backend/bibliogenius build/linux/x64/release/bundle/backend/
+          chmod +x build/linux/x64/release/bundle/backend/bibliogenius
         
       - name: Create tarball
         run: |

@@ -120,28 +120,39 @@ class BackendService {
 
   /// Get the path to the bundled backend binary
   Future<String> _getBackendBinaryPath() async {
+    String backendPath;
+    
     if (Platform.isMacOS) {
       // In bundled app: BiblioGenius.app/Contents/MacOS/BiblioGenius (executable)
       // Backend is in: BiblioGenius.app/Contents/Resources/backend/bibliogenius
       
       final executableDir = File(Platform.resolvedExecutable).parent.path;
       // Go up one level from MacOS to Contents, then down to Resources
-      final backendPath = path.join(executableDir, '..', 'Resources', 'backend', 'bibliogenius');
-      final absoluteBackendPath = path.normalize(backendPath);
-      
-      debugPrint('Resolved backend path: $absoluteBackendPath');
-      
-      if (!await File(backendPath).exists()) {
-        throw Exception(
-          'Backend binary not found at $backendPath. '
-          'Make sure to bundle the Rust backend in the app.',
-        );
-      }
-      
-      return backendPath;
+      final resourcesDir = path.join(executableDir, '..', 'Resources');
+      backendPath = path.join(resourcesDir, 'backend', 'bibliogenius');
+    } else if (Platform.isWindows) {
+      // Alongside executable in 'backend' folder
+      final executableDir = File(Platform.resolvedExecutable).parent.path;
+      backendPath = path.join(executableDir, 'backend', 'bibliogenius.exe');
+    } else if (Platform.isLinux) {
+      // Alongside executable in 'backend' folder (often lib/backend or share/backend, but we put it in root of bundle/backend)
+      final executableDir = File(Platform.resolvedExecutable).parent.path;
+      backendPath = path.join(executableDir, 'backend', 'bibliogenius');
     } else {
-      throw UnsupportedError('Backend bundling only supported on macOS for now');
+       throw UnsupportedError('Backend bundling not supported on ${Platform.operatingSystem}');
     }
+
+    final absoluteBackendPath = path.normalize(backendPath);
+    debugPrint('Resolved backend path: $absoluteBackendPath');
+    
+    if (!await File(backendPath).exists()) {
+      throw Exception(
+        'Backend binary not found at $backendPath. '
+        'Make sure to bundle the Rust backend in the app.',
+      );
+    }
+    
+    return backendPath;
   }
 
   /// Get the database path
