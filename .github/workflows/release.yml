@@ -1,0 +1,249 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:  # Allows manual trigger for testing
+
+env:
+  FLUTTER_VERSION: '3.29.3'
+
+jobs:
+  # =============================================================================
+  # BUILD RUST BACKEND
+  # =============================================================================
+  build-rust:
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            artifact: bibliogenius-macos-x64
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            artifact: bibliogenius-macos-arm64
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            artifact: bibliogenius-linux-x64
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            artifact: bibliogenius-windows-x64
+
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: bibliogenius/bibliogenius
+          
+      - name: Install Rust
+        uses: dtolnay/rust-action@stable
+        with:
+          targets: ${{ matrix.target }}
+          
+      - name: Build Rust backend
+        run: cargo build --release --target ${{ matrix.target }}
+        
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: |
+            target/${{ matrix.target }}/release/bibliogenius
+            target/${{ matrix.target }}/release/bibliogenius.exe
+
+  # =============================================================================
+  # BUILD FLUTTER APP
+  # =============================================================================
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          
+      - name: Get dependencies
+        run: flutter pub get
+        
+      - name: Build APK
+        run: flutter build apk --release
+        
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: bibliogenius-android
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          
+      - name: Get dependencies
+        run: flutter pub get
+        
+      - name: Build macOS app
+        run: flutter build macos --release
+        
+      - name: Create DMG
+        run: |
+          brew install create-dmg
+          create-dmg \
+            --volname "BiblioGenius" \
+            --window-pos 200 120 \
+            --window-size 600 400 \
+            --icon-size 100 \
+            --app-drop-link 450 185 \
+            "BiblioGenius-macOS.dmg" \
+            "build/macos/Build/Products/Release/bibliogenius.app" || true
+          # Fallback to zip if create-dmg fails
+          if [ ! -f "BiblioGenius-macOS.dmg" ]; then
+            cd build/macos/Build/Products/Release
+            zip -r ../../../../../BiblioGenius-macOS.zip bibliogenius.app
+          fi
+          
+      - name: Upload macOS app
+        uses: actions/upload-artifact@v4
+        with:
+          name: bibliogenius-macos
+          path: |
+            BiblioGenius-macOS.dmg
+            BiblioGenius-macOS.zip
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          
+      - name: Get dependencies
+        run: flutter pub get
+        
+      - name: Build Windows app
+        run: flutter build windows --release
+        
+      - name: Create ZIP
+        run: |
+          Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath BiblioGenius-Windows.zip
+          
+      - name: Upload Windows app
+        uses: actions/upload-artifact@v4
+        with:
+          name: bibliogenius-windows
+          path: BiblioGenius-Windows.zip
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+          
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          
+      - name: Get dependencies
+        run: flutter pub get
+        
+      - name: Build Linux app
+        run: flutter build linux --release
+        
+      - name: Create tarball
+        run: |
+          cd build/linux/x64/release
+          tar -czvf ../../../../BiblioGenius-Linux.tar.gz bundle/
+          
+      - name: Upload Linux app
+        uses: actions/upload-artifact@v4
+        with:
+          name: bibliogenius-linux
+          path: BiblioGenius-Linux.tar.gz
+
+  # =============================================================================
+  # CREATE GITHUB RELEASE
+  # =============================================================================
+  release:
+    needs: [build-android, build-macos, build-windows, build-linux]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          
+      - name: Display structure
+        run: ls -R artifacts
+        
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: false
+          prerelease: true
+          generate_release_notes: false
+          body: |
+            # BiblioGenius v1.0.0-beta.1 "Sovereign Librarian"
+            
+            🎉 **First public beta release!**
+            
+            ## ✨ Features
+            - 📚 Complete book catalog management (ISBN scan, manual entry)
+            - 🔄 Local network synchronization (LAN/mDNS)
+            - 🤝 Peer-to-peer book sharing with friends
+            - 🏆 Gamification system with badges and levels
+            - 📱 Cross-platform: macOS, Windows, Linux, Android
+            
+            ## 📥 Downloads
+            
+            | Platform | Status | File |
+            |----------|--------|------|
+            | **macOS** | ✅ Tested | `BiblioGenius-macOS.dmg` |
+            | **Android** | ✅ Tested | `app-release.apk` |
+            | **Windows** | ⚠️ Untested | `BiblioGenius-Windows.zip` |
+            | **Linux** | ⚠️ Untested | `BiblioGenius-Linux.tar.gz` |
+            
+            > ⚠️ **Note**: Windows and Linux builds are automated but not manually tested. Please report any issues!
+            
+            ## 🚀 Getting Started
+            
+            1. Download the appropriate file for your platform
+            2. **macOS**: Open the .dmg, drag to Applications. First launch: Right-click → Open
+            3. **Android**: Enable "Install from unknown sources", install APK
+            4. **Windows**: Extract ZIP, run `bibliogenius.exe`
+            5. **Linux**: Extract tarball, run `./bibliogenius`
+            
+            ## 🐛 Known Limitations
+            - P2P works on local network only (global P2P coming in v2.0)
+            - No iOS build (requires Apple Developer account)
+            - Apps are unsigned (security warnings expected)
+            
+            ## 📝 Feedback
+            Please report issues on [GitHub Issues](https://github.com/bibliogenius/bibliogenius-app/issues)
+            
+          files: |
+            artifacts/bibliogenius-macos/*
+            artifacts/bibliogenius-android/*
+            artifacts/bibliogenius-windows/*
+            artifacts/bibliogenius-linux/*
