@@ -506,6 +506,8 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     if (status == 'read') return TranslationService.translate(context, 'reading_status_read') ?? 'Read';
     if (status == 'reading') return TranslationService.translate(context, 'reading_status_reading') ?? 'Reading';
     if (status == 'to_read') return TranslationService.translate(context, 'reading_status_to_read') ?? 'To Read';
+    if (status == 'wanted' || status == 'wanting') return TranslationService.translate(context, 'reading_status_wanting') ?? 'Wanted';
+    if (status == 'borrowed') return TranslationService.translate(context, 'borrowed_label') ?? 'Borrowed';
     return status?.replaceAll('_', ' ').toUpperCase() ?? '-';
   }
 

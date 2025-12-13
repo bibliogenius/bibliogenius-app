@@ -715,6 +715,8 @@ class TranslationService {
       'status_label': 'Statut',
       'no_summary': 'Aucun résumé disponible.',
       'borrowed': 'Emprunté',
+      'borrowed_label': 'Emprunté',
+      'status_wanted': 'Souhaité',
       'lend_book_label': 'Prêter le livre',
       'no_copies_title': 'Aucune copie trouvée',
       'no_copies_confirm': 'Ce livre n\'a pas de copie. Créer une nouvelle copie pour le prêter ?',
