@@ -689,8 +689,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           showBorrowedBooks: _config?['show_borrowed_books'],
                           shareLocation: _config?['share_location'],
                         );
-                        _fetchStatus(); // Refresh UI
+                        // Navigate to profile to refresh
                         if (mounted) {
+                          context.go('/profile');
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text(TranslationService.translate(context, 'library_updated'))),
                           );
