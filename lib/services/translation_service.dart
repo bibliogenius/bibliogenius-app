@@ -795,7 +795,7 @@ class TranslationService {
       'preparing_backup': 'Préparation de la sauvegarde...',
       'importing_books': 'Importation des livres...',
       'start_reading': 'Commencer la lecture',
-      'reordering_shelf': 'Réorganisation de l\\'étagère...',
+      'reordering_shelf': 'Réorganisation de l\'étagère...',
       'profile_updated': 'Profil mis à jour avec succès',
       'started_reading_label': 'Commencé le',
       'finished_reading_label': 'Terminé le',
