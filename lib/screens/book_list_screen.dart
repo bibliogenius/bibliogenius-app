@@ -10,6 +10,8 @@ import '../widgets/bookshelf_view.dart';
 import '../widgets/book_cover_grid.dart'; 
 import '../widgets/premium_book_card.dart';
 import '../theme/app_design.dart';
+import '../services/theme_provider.dart';
+import '../utils/avatars.dart';
 
 
 enum ViewMode {
@@ -99,13 +101,10 @@ class _BookListScreenState extends State<BookListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Use library name if available, otherwise fallback to translation
-    final libraryTitle = _libraryName ?? TranslationService.translate(context, 'my_library_title');
-    
-    // If reordering, override header title
+    // Banner always shows translated "My Library"
     dynamic titleWidget = _isSearching
             ? _buildSearchField() // Use custom search field with autocomplete
-            : libraryTitle;
+            : TranslationService.translate(context, 'my_library_title');
     
     if (_isReordering) {
       titleWidget = const Text('Reordering Shelf...', style: TextStyle(color: Colors.white, fontSize: 18));
@@ -447,11 +446,44 @@ class _BookListScreenState extends State<BookListScreen> {
   Widget _buildHeader(BuildContext context) {
     // Use library name if available, otherwise fallback to translation
     final libraryTitle = _libraryName ?? TranslationService.translate(context, 'my_library_title');
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    
+    // Get avatar info
+    final avatarConfig = themeProvider.avatarConfig;
+    final avatar = availableAvatars.firstWhere(
+      (a) => a.id == themeProvider.selectedAvatar,
+      orElse: () => availableAvatars.first,
+    );
     
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
       child: Row(
         children: [
+          // Avatar circle
+          GestureDetector(
+            onTap: () => context.push('/profile'),
+            child: Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: avatar.themeColor, width: 2),
+                color: avatarConfig?.style == 'genie'
+                    ? Color(int.parse('FF${avatarConfig?.genieBackground ?? "fbbf24"}', radix: 16))
+                    : Colors.white,
+              ),
+              child: ClipOval(
+                child: avatarConfig?.style == 'genie'
+                    ? Image.network(
+                        avatarConfig?.toUrl(size: 48, format: 'png') ?? '',
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Image.asset(avatar.assetPath, fit: BoxFit.cover),
+                      )
+                    : Image.asset(avatar.assetPath, fit: BoxFit.cover),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
           Expanded(
             child: Text(
               libraryTitle,
