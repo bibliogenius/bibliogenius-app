@@ -58,7 +58,7 @@ class AppDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.shelves), 
-            title: Text(TranslationService.translate(context, 'tags') ?? 'Shelves'),
+            title: Text(TranslationService.translate(context, 'shelves') ?? 'Shelves'),
             onTap: () {
               Navigator.pop(context);
               context.go('/shelves');
