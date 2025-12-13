@@ -41,6 +41,7 @@ class _BookListScreenState extends State<BookListScreen> {
   final TextEditingController _searchController = TextEditingController();
   bool _isSearching = false;
   bool _isReordering = false;
+  String? _libraryName; // Store library name for title
 
   final GlobalKey _addKey = GlobalKey();
   final GlobalKey _searchKey = GlobalKey();
@@ -98,10 +99,13 @@ class _BookListScreenState extends State<BookListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Use library name if available, otherwise fallback to translation
+    final libraryTitle = _libraryName ?? TranslationService.translate(context, 'my_library_title');
+    
     // If reordering, override header title
     dynamic titleWidget = _isSearching
             ? _buildSearchField() // Use custom search field with autocomplete
-            : TranslationService.translate(context, 'my_library_title');
+            : libraryTitle;
     
     if (_isReordering) {
       titleWidget = const Text('Reordering Shelf...', style: TextStyle(color: Colors.white, fontSize: 18));
@@ -244,13 +248,16 @@ class _BookListScreenState extends State<BookListScreen> {
 
       final configRes = await apiService.getLibraryConfig(); 
       bool showBorrowed = true;
+      String? libraryName;
       if (configRes.statusCode == 200) {
          showBorrowed = configRes.data['show_borrowed_books'] == true;
+         libraryName = configRes.data['library_name'] as String?;
       }
       
       if (mounted) {
         setState(() {
           _books = showBorrowed ? books : books.where((b) => b.readingStatus != 'borrowed').toList();
+          _libraryName = libraryName;
           _filterBooks(); // Apply filters after fetching all books
           _isLoading = false;
         });
@@ -438,13 +445,16 @@ class _BookListScreenState extends State<BookListScreen> {
   }
 
   Widget _buildHeader(BuildContext context) {
+    // Use library name if available, otherwise fallback to translation
+    final libraryTitle = _libraryName ?? TranslationService.translate(context, 'my_library_title');
+    
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
       child: Row(
         children: [
           Expanded(
             child: Text(
-              TranslationService.translate(context, 'my_library_title'),
+              libraryTitle,
               style: const TextStyle(
                 fontSize: 28, 
                 fontWeight: FontWeight.bold,
