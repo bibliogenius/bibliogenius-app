@@ -207,8 +207,11 @@ class _BookListScreenState extends State<BookListScreen> {
               icon: const Icon(Icons.public, color: Colors.white),
               tooltip:
                   TranslationService.translate(context, 'btn_search_online'),
-              onPressed: () {
-                context.push('/search/external');
+              onPressed: () async {
+                final result = await context.push('/search/external');
+                if (result == true) {
+                  _fetchBooks();
+                }
               },
             ),
           ],

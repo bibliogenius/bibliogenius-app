@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import '../widgets/genie_app_bar.dart';
 import 'package:provider/provider.dart';
@@ -17,6 +16,10 @@ import '../services/translation_service.dart';
 import '../services/demo_service.dart';
 import '../models/gamification_status.dart';
 import '../widgets/gamification_widgets.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:universal_html/html.dart' as html;
+import 'dart:io' as io;
+import 'package:dio/dio.dart' show Response;
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -60,28 +63,62 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+
   Future<void> _exportData() async {
     try {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(TranslationService.translate(context, 'preparing_backup'))));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              TranslationService.translate(context, 'preparing_backup'),
+            ),
+          ),
+        );
+      }
 
       final apiService = Provider.of<ApiService>(context, listen: false);
       final response = await apiService.exportData();
 
-      final directory = await getTemporaryDirectory();
-      final filename =
-          'bibliogenius_backup_${DateTime.now().toIso8601String().split('T')[0]}.json';
-      final file = File('${directory.path}/$filename');
-      await file.writeAsBytes(response.data);
+      if (kIsWeb) {
+        // Web export: trigger download directly
+        final blob = html.Blob([response.data]);
+        final url = html.Url.createObjectUrlFromBlob(blob);
+        final anchor =
+            html.AnchorElement(href: url)
+              ..setAttribute(
+                'download',
+                'bibliogenius_backup_${DateTime.now().toIso8601String().split('T')[0]}.json',
+              )
+              ..click();
+        html.Url.revokeObjectUrl(url);
+        
+        if (mounted) {
+           ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Backup downloaded successfully')),
+          );
+        }
+      } else {
+        // Mobile/Desktop export: use share_plus
+        final directory = await getTemporaryDirectory();
+        final filename =
+            'bibliogenius_backup_${DateTime.now().toIso8601String().split('T')[0]}.json';
+        final file = io.File('${directory.path}/$filename');
+        await file.writeAsBytes(response.data);
 
-      await Share.shareXFiles([
-        XFile(file.path),
-      ], text: 'My BiblioGenius Backup');
+        await Share.shareXFiles([
+          XFile(file.path),
+        ], text: 'My BiblioGenius Backup');
+      }
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('${TranslationService.translate(context, 'export_fail')}: $e')));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '${TranslationService.translate(context, 'export_fail')}: $e',
+            ),
+          ),
+        );
+      }
     }
   }
 
@@ -345,9 +382,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 final result = await FilePicker.platform.pickFiles(
                   type: FileType.custom,
                   allowedExtensions: ['csv', 'txt'],
+                  withData: kIsWeb, // Important: Request data on web
                 );
 
-                if (result != null && result.files.single.path != null) {
+                if (result != null) {
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text(TranslationService.translate(context, 'importing_books'))),
@@ -358,9 +396,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     context,
                     listen: false,
                   );
-                  final response = await apiService.importBooks(
-                    result.files.single.path!,
-                  );
+                  
+                  late final Response response;
+                  if (kIsWeb) {
+                     // Web: Pass bytes
+                     response = await apiService.importBooks(
+                      result.files.single.bytes!,
+                      filename: result.files.single.name,
+                    );
+                  } else {
+                    // Native: Pass path
+                     response = await apiService.importBooks(
+                      result.files.single.path!,
+                    );
+                  }
 
                   if (context.mounted) {
                     if (response.statusCode == 200) {

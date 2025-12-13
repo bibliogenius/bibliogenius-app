@@ -58,6 +58,7 @@ dependencies:
   path: ^1.9.1
   url_launcher: ^6.3.2
   cached_network_image: ^3.4.1
+  universal_html: ^2.3.0
 
 dev_dependencies:
   flutter_test:

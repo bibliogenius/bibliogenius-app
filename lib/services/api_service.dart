@@ -214,10 +214,19 @@ class ApiService {
     );
   }
 
-  Future<Response> importBooks(String filePath) async {
-    String fileName = filePath.split('/').last;
+    Future<Response> importBooks(dynamic fileSource, {String? filename}) async {
+    MultipartFile file;
+    if (fileSource is String) {
+      final name = filename ?? fileSource.split('/').last;
+      file = await MultipartFile.fromFile(fileSource, filename: name);
+    } else if (fileSource is List<int>) {
+      file = MultipartFile.fromBytes(fileSource, filename: filename ?? 'import.csv');
+    } else {
+      throw Exception("Unsupported file source type");
+    }
+
     FormData formData = FormData.fromMap({
-      "file": await MultipartFile.fromFile(filePath, filename: fileName),
+      "file": file,
     });
     return await _dio.post('/api/import/file', data: formData);
   }
@@ -437,13 +446,14 @@ class ApiService {
     return null;
   }
 
-  Future<List<Map<String, dynamic>>> searchBooks({String? query, String? title, String? author, String? publisher}) async {
+  Future<List<Map<String, dynamic>>> searchBooks({String? query, String? title, String? author, String? publisher, String? subject}) async {
     try {
       final queryParams = <String, dynamic>{};
       if (query != null && query.isNotEmpty) queryParams['q'] = query;
       if (title != null && title.isNotEmpty) queryParams['title'] = title;
       if (author != null && author.isNotEmpty) queryParams['author'] = author;
       if (publisher != null && publisher.isNotEmpty) queryParams['publisher'] = publisher;
+      if (subject != null && subject.isNotEmpty) queryParams['subject'] = subject;
 
       final response = await _dio.get(
         '/api/integrations/search_unified',

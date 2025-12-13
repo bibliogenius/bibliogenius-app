@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import '../widgets/genie_app_bar.dart';
 import 'package:provider/provider.dart';
-import 'package:dio/dio.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
-import '../models/book.dart';
+import 'package:go_router/go_router.dart';
 
 class ExternalSearchScreen extends StatefulWidget {
   const ExternalSearchScreen({super.key});
@@ -22,6 +21,7 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
   List<Map<String, dynamic>> _searchResults = [];
   bool _isSearching = false;
   String? _error;
+  bool _booksAdded = false;
 
   @override
   void dispose() {
@@ -53,12 +53,7 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
       final results = await api.searchBooks(
         title: _titleController.text,
         author: _authorController.text,
-        // Subject not yet supported in unified search backend, mapped to broad query possibly?
-        // Ideally we add subject to backend too, but for now let's just use title/author 
-        // or append subject to title if really needed. 
-        // Or simply ignore subject for now as per plan/backend update.
-        // Actually, let's pass subject as 'query' or append it if title is missing.
-        // Simplified: just title and author for now as robust fields.
+        subject: _subjectController.text,
       );
 
       setState(() {
@@ -93,9 +88,12 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
       };
 
       await api.createBook(bookData);
-      
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+    
+    // Mark as modified so we can refresh the list on return
+    _booksAdded = true;
+    
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('"${doc['title']}" ${TranslationService.translate(context, 'added_to_library')}')),
         );
       }
@@ -110,11 +108,17 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: GenieAppBar(
-        title: TranslationService.translate(context, 'external_search_title'),
-      ),
-      body: Column(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (bool didPop, dynamic result) {
+        if (didPop) return;
+        context.pop(_booksAdded);
+      },
+      child: Scaffold(
+        appBar: GenieAppBar(
+          title: TranslationService.translate(context, 'external_search_title'),
+        ),
+        body: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
@@ -125,7 +129,7 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
                   TextFormField(
                     controller: _titleController,
                     decoration: InputDecoration(
-                      labelText: TranslationService.translate(context, 'title_label'),
+                      labelText: TranslationService.translate(context, 'search_title_label'),
                       prefixIcon: const Icon(Icons.book),
                     ),
                     textInputAction: TextInputAction.next,
@@ -205,6 +209,6 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
           ),
         ],
       ),
-    );
+    ));
   }
 }
