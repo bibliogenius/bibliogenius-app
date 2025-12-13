@@ -42,8 +42,14 @@ const List<BookStatus> individualStatuses = [
   ),
   BookStatus(
     value: 'borrowed',
-    label: 'borrowed_label',
-    icon: Icons.people_outline,
+    label: 'borrowed_status',
+    icon: Icons.arrow_downward,
+    color: Colors.teal,
+  ),
+  BookStatus(
+    value: 'lent',
+    label: 'lent_status',
+    icon: Icons.arrow_upward,
     color: Colors.purple,
   ),
 ];

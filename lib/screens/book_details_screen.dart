@@ -9,6 +9,7 @@ import '../services/translation_service.dart';
 import '../widgets/genie_app_bar.dart'; // Assuming we might want to use common widgets, but for this specific design we want a SliverAppBar
 import '../widgets/star_rating_widget.dart';
 import '../widgets/loan_dialog.dart';
+import '../providers/theme_provider.dart';
 
 class BookDetailsScreen extends StatefulWidget {
   final Book book;
@@ -309,8 +310,8 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             ),
           ),
         ],
-        // Lend book button - only visible when book is not borrowed
-        if (_book.readingStatus != 'borrowed') ...[
+        // Lend book button - only visible when book is not lent/borrowed
+        if (_book.readingStatus != 'lent' && _book.readingStatus != 'borrowed') ...[
           const SizedBox(height: 12),
           SizedBox(
             width: double.infinity,
@@ -327,8 +328,8 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             ),
           ),
         ],
-        // Return book button - only visible when book is borrowed
-        if (_book.readingStatus == 'borrowed') ...[
+        // Return lent book button - only visible when book is lent
+        if (_book.readingStatus == 'lent') ...[
           const SizedBox(height: 12),
           SizedBox(
             width: double.infinity,
@@ -338,6 +339,24 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
               label: Text(TranslationService.translate(context, 'return_book_btn') ?? 'Return this book'),
               style: FilledButton.styleFrom(
                 backgroundColor: Colors.orange,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ),
+        ],
+        // Return borrowed book button - only visible when book is borrowed (not for librarian)
+        if (_book.readingStatus == 'borrowed' && !Provider.of<ThemeProvider>(context, listen: false).isLibrarian) ...[
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: () => _returnBorrowedBook(context),
+              icon: const Icon(Icons.keyboard_return_outlined),
+              label: Text(TranslationService.translate(context, 'give_back_book_btn') ?? 'Give back this book'),
+              style: FilledButton.styleFrom(
+                backgroundColor: Colors.teal,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -545,7 +564,8 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     if (status == 'reading') return TranslationService.translate(context, 'reading_status_reading') ?? 'Reading';
     if (status == 'to_read') return TranslationService.translate(context, 'reading_status_to_read') ?? 'To Read';
     if (status == 'wanted' || status == 'wanting') return TranslationService.translate(context, 'reading_status_wanting') ?? 'Wanted';
-    if (status == 'borrowed') return TranslationService.translate(context, 'borrowed_label') ?? 'Borrowed';
+    if (status == 'lent') return TranslationService.translate(context, 'lent_status') ?? 'Lent';
+    if (status == 'borrowed') return TranslationService.translate(context, 'borrowed_status') ?? 'Borrowed';
     return status?.replaceAll('_', ' ').toUpperCase() ?? '-';
   }
 
@@ -785,10 +805,10 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         'due_date': dueDate.toIso8601String().split('T')[0],
       });
 
-      // 5. Update book reading status to 'borrowed'
+      // 5. Update book reading status to 'lent'
       await apiService.updateBook(_book.id!, {
         'title': _book.title,
-        'reading_status': 'borrowed',
+        'reading_status': 'lent',
       });
 
       if (context.mounted) {
@@ -825,7 +845,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
       // Get the borrowed copy
       final borrowedCopy = copies.firstWhere(
-        (c) => c['status'] == 'borrowed',
+        (c) => c['status'] == 'lent' || c['status'] == 'borrowed',
         orElse: () => copies.first,
       );
 
@@ -861,6 +881,34 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('${TranslationService.translate(context, 'error_returning_book') ?? 'Error returning book'}: $e')),
+        );
+      }
+    }
+  }
+
+  /// Return a book that was borrowed FROM someone (mark as to_read or delete)
+  Future<void> _returnBorrowedBook(BuildContext context) async {
+    final apiService = Provider.of<ApiService>(context, listen: false);
+    
+    try {
+      // Update book reading status back to to_read (user gave it back)
+      await apiService.updateBook(_book.id!, {
+        'title': _book.title,
+        'reading_status': 'to_read',
+      });
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(TranslationService.translate(context, 'book_given_back') ?? 'Book given back'),
+          ),
+        );
+        _fetchBookDetails();
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${TranslationService.translate(context, 'error_giving_back_book') ?? 'Error giving back book'}: $e')),
         );
       }
     }

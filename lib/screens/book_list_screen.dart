@@ -107,7 +107,7 @@ class _BookListScreenState extends State<BookListScreen> {
             : TranslationService.translate(context, 'my_library_title');
     
     if (_isReordering) {
-      titleWidget = const Text('Reordering Shelf...', style: TextStyle(color: Colors.white, fontSize: 18));
+      titleWidget = Text(TranslationService.translate(context, 'reordering_shelf') ?? 'Reordering Shelf...', style: const TextStyle(color: Colors.white, fontSize: 18));
     }
 
     final width = MediaQuery.of(context).size.width;
@@ -608,7 +608,8 @@ class _BookListScreenState extends State<BookListScreen> {
           _buildFilterPill(status: 'to_read', label: TranslationService.translate(context, 'reading_status_to_read')),
           _buildFilterPill(status: 'wanting', label: TranslationService.translate(context, 'reading_status_wanting')),
           _buildFilterPill(status: 'read', label: TranslationService.translate(context, 'reading_status_read')),
-          _buildFilterPill(status: 'borrowed', label: TranslationService.translate(context, 'borrowed_label')),
+          _buildFilterPill(status: 'lent', label: TranslationService.translate(context, 'lent_status')),
+          _buildFilterPill(status: 'borrowed', label: TranslationService.translate(context, 'borrowed_status')),
         ],
       ),
     );

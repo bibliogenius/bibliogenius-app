@@ -328,34 +328,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     },
                   ),
                 ),
-                if (_config?['profile_type'] == 'individual')
-                  SwitchListTile(
-                    title: Text(TranslationService.translate(context, 'show_borrowed_books')),
-                    subtitle: Text(TranslationService.translate(context, 'show_borrowed_subtitle')),
-                    value: _config?['show_borrowed_books'] ?? false,
-                    onChanged: (value) async {
-                      try {
-                        final api = Provider.of<ApiService>(context, listen: false);
-                        // We need to update the library config
-                        await api.updateLibraryConfig(
-                          name: _config!['library_name'] ?? _config!['name'] ?? 'My Library',
-                          description: _config!['description'],
-                          tags: _config?['tags'] != null ? List<String>.from(_config!['tags']) : [],
-                          latitude: _config?['latitude'],
-                          longitude: _config?['longitude'],
-                          showBorrowedBooks: value,
-                          shareLocation: _config!['share_location'],
-                        );
-                        _fetchStatus();
-                      } catch (e) {
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('${TranslationService.translate(context, 'error_updating_setting')}: $e')),
-                          );
-                        }
-                      }
-                    },
-                  ),
+                // TODO: Re-enable when borrowed books list is needed (currently using filters instead)
+                // if (_config?['profile_type'] == 'individual')
+                //   SwitchListTile(
+                //     title: Text(TranslationService.translate(context, 'show_borrowed_books')),
+                //     subtitle: Text(TranslationService.translate(context, 'show_borrowed_subtitle')),
+                //     value: _config?['show_borrowed_books'] ?? false,
+                //     onChanged: (value) async {
+                //       try {
+                //         final api = Provider.of<ApiService>(context, listen: false);
+                //         await api.updateLibraryConfig(
+                //           name: _config!['library_name'] ?? _config!['name'] ?? 'My Library',
+                //           description: _config!['description'],
+                //           tags: _config?['tags'] != null ? List<String>.from(_config!['tags']) : [],
+                //           latitude: _config?['latitude'],
+                //           longitude: _config?['longitude'],
+                //           showBorrowedBooks: value,
+                //           shareLocation: _config!['share_location'],
+                //         );
+                //         _fetchStatus();
+                //       } catch (e) {
+                //         if (mounted) {
+                //           ScaffoldMessenger.of(context).showSnackBar(
+                //             SnackBar(content: Text('${TranslationService.translate(context, 'error_updating_setting')}: $e')),
+                //           );
+                //         }
+                //       }
+                //     },
+                //   ),
               ],
             ),
           ),
