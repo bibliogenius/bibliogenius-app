@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../models/book.dart';
+import '../models/contact.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
 import '../widgets/genie_app_bar.dart'; // Assuming we might want to use common widgets, but for this specific design we want a SliverAppBar
 import '../widgets/star_rating_widget.dart';
+import '../widgets/loan_dialog.dart';
 
 class BookDetailsScreen extends StatefulWidget {
   final Book book;
@@ -307,6 +309,22 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             ),
           ),
         ],
+        // Lend book button - always visible
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: () => _lendBook(context),
+            icon: const Icon(Icons.handshake_outlined),
+            label: Text(TranslationService.translate(context, 'lend_book_btn') ?? 'Lend this book'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Colors.purple,
+              side: const BorderSide(color: Colors.purple),
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -696,6 +714,49 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             SnackBar(content: Text('Error deleting book: $e')),
           );
         }
+      }
+    }
+  }
+
+  Future<void> _lendBook(BuildContext context) async {
+    final selectedContact = await showDialog<Contact>(
+      context: context,
+      builder: (context) => const LoanDialog(),
+    );
+
+    if (selectedContact == null || !context.mounted) return;
+
+    final apiService = Provider.of<ApiService>(context, listen: false);
+    try {
+      await apiService.createLoan({
+        'book_id': _book.id,
+        'contact_id': selectedContact.id,
+        'loan_date': DateTime.now().toIso8601String(),
+        'status': 'active',
+      });
+
+      // Update book status to borrowed
+      await apiService.updateBook(_book.id!, {
+        'title': _book.title,
+        'reading_status': 'borrowed',
+      });
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '${TranslationService.translate(context, 'book_lent_to') ?? 'Book lent to'} ${selectedContact.displayName}',
+            ),
+          ),
+        );
+        // Refresh the book details from API
+        _fetchBookDetails();
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${TranslationService.translate(context, 'error_lending_book') ?? 'Error lending book'}: $e')),
+        );
       }
     }
   }

@@ -735,7 +735,7 @@ class _NetworkScreenState extends State<NetworkScreen>
       }
     } else {
       // Navigate to contact details
-      context.push('/contacts/${member.id}');
+      context.push('/contacts/${member.id}', extra: member.toContact());
     }
   }
 

@@ -120,4 +120,19 @@ class NetworkMember {
       return email ?? phone ?? 'Aucune info de contact';
     }
   }
+
+  /// Convert NetworkMember back to Contact (only works for local contacts)
+  Contact toContact() {
+    return Contact(
+      id: id,
+      type: type == NetworkMemberType.borrower ? 'borrower' : 'library',
+      name: name,
+      email: email,
+      phone: phone,
+      address: address,
+      notes: notes,
+      libraryOwnerId: 1, // Default library
+      isActive: isActive ?? true,
+    );
+  }
 }

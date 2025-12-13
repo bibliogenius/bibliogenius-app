@@ -292,6 +292,9 @@ class TranslationService {
       'no_borrowers_found': 'No borrowers found. Add a contact first.',
       'select_contact_lend': 'Select a contact to lend this book to:',
       'lend_btn': 'Lend',
+      'lend_book_btn': 'Lend this book',
+      'book_lent_to': 'Book lent to',
+      'error_lending_book': 'Error lending book',
       // Scan Screen
       'scan_isbn_title': 'Scan ISBN',
       'btn_enter_manually': 'Enter Manually',
@@ -817,6 +820,9 @@ class TranslationService {
       'no_borrowers_found': 'Aucun emprunteur trouvé. Ajoutez d\'abord un contact.',
       'select_contact_lend': 'Sélectionnez un contact à qui prêter ce livre :',
       'lend_btn': 'Prêter',
+      'lend_book_btn': 'Prêter ce livre',
+      'book_lent_to': 'Livre prêté à',
+      'error_lending_book': 'Erreur lors du prêt',
       // Scan Screen
       'scan_isbn_title': 'Scanner un ISBN',
       'btn_enter_manually': 'Saisir manuellement',
