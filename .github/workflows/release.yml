@@ -90,6 +90,7 @@ jobs:
           path: build/app/outputs/flutter-apk/app-release.apk
 
   build-macos:
+    needs: build-rust
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
@@ -160,6 +161,7 @@ jobs:
             BiblioGenius-macOS.zip
 
   build-windows:
+    needs: build-rust
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -200,6 +202,7 @@ jobs:
           path: BiblioGenius-Windows.zip
 
   build-linux:
+    needs: build-rust
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
