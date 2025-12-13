@@ -66,6 +66,9 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'stable'
           
+      - name: Create .env file
+        run: cp .env.example .env
+
       - name: Get dependencies
         run: flutter pub get
         
@@ -88,6 +91,9 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'stable'
           
+      - name: Create .env file
+        run: cp .env.example .env
+
       - name: Get dependencies
         run: flutter pub get
         
@@ -129,6 +135,9 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'stable'
           
+      - name: Create .env file
+        run: copy .env.example .env
+
       - name: Get dependencies
         run: flutter pub get
         
@@ -160,6 +169,9 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'stable'
           
+      - name: Create .env file
+        run: cp .env.example .env
+
       - name: Get dependencies
         run: flutter pub get
         
