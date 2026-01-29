@@ -858,16 +858,19 @@ class _DashboardScreenState extends State<DashboardScreen>
                                       : null;
 
                                   return InkWell(
-                                    onTap: () {
+                                    onTap: () async {
                                       if (localBook != null) {
                                         context.push('/books/${localBook.id}');
                                       } else {
                                         final searchQuery = source.isNotEmpty
                                             ? "$author $source"
                                             : author;
-                                        context.push(
+                                        final result = await context.push(
                                           '/search/external?q=${Uri.encodeComponent(searchQuery)}',
                                         );
+                                        if (result == true) {
+                                          _fetchDashboardData();
+                                        }
                                       }
                                     },
                                     child: Row(

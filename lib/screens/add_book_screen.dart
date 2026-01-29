@@ -426,11 +426,23 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 context,
                 'btn_search_online',
               ),
-              onPressed: () => context.push('/search/external'),
+              onPressed: () async {
+                final result = await context.push('/search/external');
+                if (result == true && mounted) {
+                  // Book was added from external search, pop back with result
+                  context.pop(result);
+                }
+              },
             )
           else
             TextButton.icon(
-              onPressed: () => context.push('/search/external'),
+              onPressed: () async {
+                final result = await context.push('/search/external');
+                if (result == true && mounted) {
+                  // Book was added from external search, pop back with result
+                  context.pop(result);
+                }
+              },
               icon: Icon(
                 Icons.travel_explore,
                 color: Theme.of(context).appBarTheme.foregroundColor,

@@ -283,7 +283,12 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
               color: Colors.white,
             ), // Globe + search icon
             tooltip: 'Recherche en ligne',
-            onPressed: () => context.push('/search/external'),
+            onPressed: () async {
+              final result = await context.push('/search/external');
+              if (result == true && onBookAdded != null) {
+                onBookAdded!();
+              }
+            },
           ),
         ],
         if (actions != null) ...actions!,
