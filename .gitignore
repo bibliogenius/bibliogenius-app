@@ -56,3 +56,4 @@ key.properties
 **/*.jks
 **/*.keystore
 .agent/
+.claude/
