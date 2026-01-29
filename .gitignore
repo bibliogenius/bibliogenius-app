@@ -55,3 +55,4 @@ logs/
 key.properties
 **/*.jks
 **/*.keystore
+.agent/
