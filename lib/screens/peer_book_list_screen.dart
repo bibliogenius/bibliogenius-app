@@ -55,7 +55,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     }
   }
 
-  /// Load books: check connectivity first, then decide how to proceed
+  /// Load books: fetch live when online, fall back to cache when offline
   Future<void> _loadCachedBooksFirst() async {
     final api = Provider.of<ApiService>(context, listen: false);
 
@@ -70,14 +70,52 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       if (!mounted) return;
       setState(() => _isPeerOnline = isOnline);
 
-      // 2. If offline and caching disabled, stop here - show offline message
+      // 2. If ONLINE: fetch books directly from peer (no caching consent needed)
+      if (isOnline) {
+        debugPrint('Peer online - fetching books live from ${widget.peerUrl}');
+        try {
+          final liveRes = await api.getPeerBooksByUrl(widget.peerUrl);
+
+          if (!mounted) return;
+
+          List<dynamic> booksData = [];
+          if (liveRes.data is Map && liveRes.data['books'] != null) {
+            booksData = liveRes.data['books'];
+          } else if (liveRes.data is List) {
+            booksData = liveRes.data;
+          }
+
+          setState(() {
+            _books = booksData.map((json) => Book.fromJson(json)).toList();
+            _filteredBooks = _books;
+            _isLoading = false;
+          });
+
+          debugPrint('Loaded ${_books.length} books live from peer');
+
+          // Background sync to update cache (if peer allows caching)
+          if (_offlineCachingEnabled) {
+            api.syncPeer(widget.peerUrl).then((_) {
+              debugPrint('Background cache sync completed');
+            }).catchError((e) {
+              debugPrint('Background cache sync failed: $e');
+            });
+          }
+          return;
+        } catch (e) {
+          debugPrint('Live fetch failed, falling back to cache: $e');
+          // Fall through to cache logic below
+        }
+      }
+
+      // 3. If offline and caching disabled, stop here - show offline message
       if (!isOnline && !_offlineCachingEnabled) {
         debugPrint('Peer offline and caching disabled - showing offline view');
         setState(() => _isLoading = false);
         return;
       }
 
-      // 3. Load cached books (works for both online and offline+caching modes)
+      // 4. Load cached books (offline + caching enabled, or live fetch failed)
       debugPrint('Loading cached books for ${widget.peerUrl}');
       final cachedRes = await api.getCachedPeerBooks(widget.peerUrl);
 
@@ -96,14 +134,8 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
           'Loaded ${_books.length} cached books, last_synced: $_lastSynced',
         );
       }
-
-      // 4. If online and cache is stale, auto-sync
-      if (isOnline && _shouldAutoSync()) {
-        debugPrint('Auto-syncing stale cache');
-        _syncBooks(showFeedback: false);
-      }
     } catch (e) {
-      debugPrint('Error loading cached books: $e');
+      debugPrint('Error loading books: $e');
       if (mounted) {
         setState(() => _isLoading = false);
       }
@@ -206,31 +238,42 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     final api = Provider.of<ApiService>(context, listen: false);
 
     try {
-      await api.syncPeer(widget.peerUrl);
+      // Fetch books live from peer (no caching consent required)
+      final liveRes = await api.getPeerBooksByUrl(widget.peerUrl);
 
-      // Reload cached books after sync
-      final cachedRes = await api.getCachedPeerBooks(widget.peerUrl);
+      if (!mounted) return;
 
-      if (mounted) {
-        final data = cachedRes.data;
-        List<dynamic> booksData = data['books'] ?? [];
+      List<dynamic> booksData = [];
+      if (liveRes.data is Map && liveRes.data['books'] != null) {
+        booksData = liveRes.data['books'];
+      } else if (liveRes.data is List) {
+        booksData = liveRes.data;
+      }
 
-        setState(() {
-          _books = booksData.map((json) => Book.fromJson(json)).toList();
-          _filteredBooks = _books;
-          _lastSynced = data['last_synced'];
-          _isSyncing = false;
-        });
+      setState(() {
+        _books = booksData.map((json) => Book.fromJson(json)).toList();
+        _filteredBooks = _books;
+        _isSyncing = false;
+      });
 
-        if (showFeedback) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                TranslationService.translate(context, 'library_synced'),
-              ),
+      if (showFeedback) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              TranslationService.translate(context, 'library_synced') ??
+                  'Library refreshed',
             ),
-          );
-        }
+          ),
+        );
+      }
+
+      // Background sync to update cache (if peer allows caching)
+      if (_offlineCachingEnabled) {
+        api.syncPeer(widget.peerUrl).then((_) {
+          debugPrint('Background cache sync completed');
+        }).catchError((e) {
+          debugPrint('Background cache sync failed (peer may not allow caching): $e');
+        });
       }
     } catch (e) {
       debugPrint('Sync failed: $e');
