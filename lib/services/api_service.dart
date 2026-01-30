@@ -741,20 +741,27 @@ class ApiService {
   }
 
   Future<List<dynamic>> getCollectionBooks(String id) async {
-    // Returns List<CollectionBook> but keeping dynamic for flexibility if needed,
-    // or better perform conversion here.
-    // Let's return List<CollectionBook> actually.
-    final dio = useFfi ? await _getLocalDio() : _dio;
-    final response = await dio.get('/api/collections/$id/books');
-    return (response.data as List)
-        .map((e) => e)
-        .toList(); // Return raw or convert in screen?
-    // Better to convert here. I need to import CollectionBook.
-    // Since I can't easily add import at top right now without viewing top,
-    // I will return dynamic or map here.
-    // Wait, I can use a separate file edit for import or just assume I can edit top.
-    // safer to return dynamic list and let screen convert, or just use dynamic for now.
-    // actually I should add import.
+    try {
+      final dio = useFfi ? await _getLocalDio() : _dio;
+      final response = await dio.get('/api/collections/$id/books');
+
+      if (response.data is List) {
+        return (response.data as List).map((e) => e).toList();
+      } else if (response.data is Map && response.data['books'] is List) {
+        // Handle case where it might be wrapped in { "books": [...] }
+        return (response.data['books'] as List).map((e) => e).toList();
+      } else {
+        if (kDebugMode) {
+          debugPrint(
+            '⚠️ getCollectionBooks: Unexpected response format: ${response.data}',
+          );
+        }
+        return [];
+      }
+    } catch (e) {
+      if (kDebugMode) debugPrint('❌ getCollectionBooks error: $e');
+      return [];
+    }
   }
 
   Future<void> addBookToCollection(String collectionId, int bookId) async {
@@ -1688,7 +1695,8 @@ class ApiService {
     if (useFfi) {
       try {
         // Check if file is XLSX based on filename or content
-        final isXlsx = filename?.toLowerCase().endsWith('.xlsx') == true ||
+        final isXlsx =
+            filename?.toLowerCase().endsWith('.xlsx') == true ||
             (fileSource is List<int> && _isXlsxBytes(fileSource));
 
         if (isXlsx) {
@@ -2024,7 +2032,8 @@ class ApiService {
             final cellValue = cell.value;
             if (cellValue is xlsx.BoolCellValue) return cellValue.value;
             if (cellValue is xlsx.IntCellValue) return cellValue.value == 1;
-            if (cellValue is xlsx.DoubleCellValue) return cellValue.value == 1.0;
+            if (cellValue is xlsx.DoubleCellValue)
+              return cellValue.value == 1.0;
             final strValue = cellValue.toString().toLowerCase().trim();
             // Support English and French boolean values
             return strValue == 'true' ||
@@ -2340,12 +2349,17 @@ class ApiService {
         ),
       );
       final response = await localDio.post('/api/peers/cleanup_stale_cache');
-      final deleted = response.data['deleted'] ?? 0;
-      if (deleted > 0) {
-        debugPrint('🧹 TTL cleanup: removed $deleted stale peer book cache entries');
+      int deletedCount = 0;
+      if (response.data is Map) {
+        deletedCount = response.data['deleted'] ?? 0;
+      }
+      if (deletedCount > 0 && kDebugMode) {
+        debugPrint(
+          '🧹 TTL cleanup: removed $deletedCount stale peer book cache entries',
+        );
       }
     } catch (e) {
-      debugPrint('⚠️ Peer cache cleanup failed: $e');
+      if (kDebugMode) debugPrint('⚠️ Peer cache cleanup failed: $e');
       // Silent failure - cleanup is not critical
     }
   }
@@ -3047,10 +3061,21 @@ class ApiService {
         queryParameters: queryParams,
       );
       if (response.statusCode == 200) {
-        final List<dynamic> data = response.data['books'];
-        return data.map((json) => Book.fromJson(json)).toList();
+        if (response.data is Map && response.data['books'] is List) {
+          final List<dynamic> data = response.data['books'];
+          return data.map((json) => Book.fromJson(json)).toList();
+        } else {
+          if (kDebugMode) {
+            debugPrint(
+              '⚠️ getBooks: Unexpected response format: ${response.data}',
+            );
+          }
+          return [];
+        }
       } else {
-        throw Exception('Failed to load books');
+        throw Exception(
+          'Failed to load books (Status: ${response.statusCode})',
+        );
       }
     } catch (e) {
       throw Exception('Failed to load books: $e');

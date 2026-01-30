@@ -171,14 +171,20 @@ class _CollectionSelectionDialogState
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Created collection: ${newCollection.name}')),
+          SnackBar(
+            content: Text(
+              '${TranslationService.translate(context, 'collection_created')}: ${newCollection.name}',
+            ),
+          ),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error creating collection: $e'),
+            content: Text(
+              '${TranslationService.translate(context, 'error_creating_collection')}: $e',
+            ),
             backgroundColor: Colors.red,
           ),
         );
@@ -228,10 +234,15 @@ class _CollectionSelectionDialogState
                   color: Colors.grey.shade50,
                 ),
                 child: _collections.isEmpty
-                    ? const Center(
+                    ? Center(
                         child: Padding(
-                          padding: EdgeInsets.all(24.0),
-                          child: Text('No collections found'),
+                          padding: const EdgeInsets.all(24.0),
+                          child: Text(
+                            TranslationService.translate(
+                              context,
+                              'no_collections',
+                            ),
+                          ),
                         ),
                       )
                     : Scrollbar(

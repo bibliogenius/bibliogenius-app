@@ -638,8 +638,8 @@ class _MigrationWizardScreenState extends State<MigrationWizardScreen> {
             backgroundColor: Colors.green,
           ),
         );
-        // Navigate to setup screen after full reset
-        context.go('/setup');
+        // Navigate to library screen after full reset
+        context.go('/books');
       }
     } catch (e) {
       if (mounted) {

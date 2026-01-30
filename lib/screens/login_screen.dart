@@ -389,7 +389,7 @@ class _LoginScreenState extends State<LoginScreen>
                   child: TextButton(
                     onPressed: () {
                       Navigator.pop(context);
-                      context.go('/setup');
+                      context.go('/books');
                     },
                     child: Text(
                       TranslationService.translate(

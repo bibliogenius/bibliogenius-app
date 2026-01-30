@@ -303,12 +303,19 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
         final isLoggedIn = await authService.isLoggedIn();
 
         if (!isLoggedIn) {
-          // Fallback auto-login for edge cases
+          final hasPassword = await authService.hasPasswordSet();
+          if (hasPassword) {
+            // Password configured - must show login screen
+            if (isLoginRoute) return null;
+            return '/login';
+          }
+
+          // No password - perform auto-login for seamless experience
           await authService.saveUsername('admin');
           await authService.saveToken(
             'local-auto-token-${DateTime.now().millisecondsSinceEpoch}',
           );
-          debugPrint('✅ Redirect fallback: auto-logged in');
+          debugPrint('✅ Redirect: auto-logged in (no password set)');
           // Continue to destination (now logged in)
         }
 

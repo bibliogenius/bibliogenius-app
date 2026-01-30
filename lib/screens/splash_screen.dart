@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../services/api_service.dart';
+import '../services/auth_service.dart';
 import '../providers/theme_provider.dart';
 import '../theme/app_design.dart';
 
@@ -75,25 +76,39 @@ class _SplashScreenState extends State<SplashScreen>
 
   Future<void> _checkSetupStatus() async {
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final authService = Provider.of<AuthService>(context, listen: false);
     final apiService = Provider.of<ApiService>(context, listen: false);
 
-    // 1. Check local preference first
+    // 1. Check local setup status & password configuration
+    final isLoggedIn = await authService.isLoggedIn();
+    final hasPassword = await authService.hasPasswordSet();
+
     if (themeProvider.isSetupComplete) {
-      if (mounted) context.go('/login');
+      if (isLoggedIn || !hasPassword) {
+        if (mounted) context.go('/books');
+      } else {
+        if (mounted) context.go('/login');
+      }
       return;
     }
 
-    // 2. Check backend
+    // 2. Setup incomplete - Check backend or default auto-login
     try {
       final res = await apiService.getLibraryConfig();
       if (res.statusCode == 200) {
         await themeProvider.completeSetup();
-        if (mounted) context.go('/login');
+        // Setup marked as complete, follow same landing logic
+        if (isLoggedIn || !hasPassword) {
+          if (mounted) context.go('/books');
+        } else {
+          if (mounted) context.go('/login');
+        }
       } else {
-        if (mounted) context.go('/setup');
+        // First visit or reset: go to books (auto-init and auto-login will handle it)
+        if (mounted) context.go('/books');
       }
     } catch (e) {
-      if (mounted) context.go('/setup');
+      if (mounted) context.go('/books');
     }
   }
 

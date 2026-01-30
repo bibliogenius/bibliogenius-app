@@ -2030,6 +2030,9 @@ class TranslationService {
       'collection_empty_state_desc':
           "C'est une manière de rassembler tous les livres d'un même auteur, d'une même série et de voir ceux que l'on a et ceux qui nous manquent.",
       'create_collection': 'Créer une collection',
+      'collection_created': 'Collection créée',
+      'error_creating_collection':
+          'Erreur lors de la création de la collection',
       'add_collection': 'Ajouter une collection',
       'manage_collections': 'Gérer les collections',
       'create_new_collection': 'Créer une nouvelle collection',
