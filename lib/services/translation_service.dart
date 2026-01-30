@@ -344,6 +344,7 @@ class TranslationService {
       'read_status': 'Read',
       'wishlist_status': 'Wishlist',
       'owned_status': 'In Collection',
+      'no_reading_status': 'No status',
       'to_read_status': 'To Read',
       'edit_book_title': 'Edit Book',
       'edit_book_details': 'Edit Book Details',
@@ -1543,12 +1544,12 @@ class TranslationService {
       'how_to_add_contact_qr': 'How to add a contact with QR Code',
       'how_to_add_contact_help_title': 'Add Contact via QR Code',
       'how_to_add_contact_help_desc':
-          'Ask your friend to open their app, go to "Network" and tap "Show My Code". Then scan that code to add them instantly.',
+          'Ask your friend to open their app, go to "Network" and tap the + button at the bottom right of the screen, then tap "Show My Code". On your side, tap "Scan QR Code" to add them instantly.',
       'understood': 'Understood',
       'how_to_show_code_label': 'How to show get my code',
       'how_to_show_code_help_title': 'Show My QR Code',
       'how_to_show_code_help_desc':
-          'Go to "Network" tab, then tap "Show My Code". Your friends can scan this code to connect to your library.',
+          'Go to the "Network" tab. Tap the + button at the bottom right of the screen and tap "Show My Code". Your friends can scan it by tapping "Scan QR Code" to connect to your library.',
       // Quick Actions
       'quick_actions_title': 'Quick Actions',
       'search_library_placeholder': 'Search my library...',
@@ -1873,14 +1874,14 @@ class TranslationService {
       'how_to_add_contact_qr': 'Comment ajouter un contact avec son QR Code',
       'how_to_add_contact_help_title': 'Ajouter un contact par QR Code',
       'how_to_add_contact_help_desc':
-          'Demandez à votre ami d\'ouvrir son application, d\'aller dans "Réseau" et de cliquer sur "Partager le code". Scannez ensuite ce code pour l\'ajouter instantanément.',
+          'Demandez à votre ami d\'ouvrir son application, d\'aller dans "Réseau" et de cliquer sur le lien + en bas à droite de l\'écran puis sur "Afficher mon code". De votre côté, cliquez sur "Scannez le QR Code" pour l\'ajouter instantanément. ',
       'understood': 'Compris',
       'filter_books': 'Filtrer les livres',
       'create_shelf': 'Créer une étagère',
       'how_to_show_code_label': 'Comment afficher mon code',
       'how_to_show_code_help_title': 'Afficher mon code QR',
       'how_to_show_code_help_desc':
-          'Allez dans l\'onglet "Réseau" et appuyez sur "Partager le code". Vos amis pourront le scanner pour se connecter à votre bibliothèque.',
+          'Allez dans l\'onglet "Réseau". Cliquez sur le lien + en bas à droite de l\'écran et appuyez sur "Afficher le code". Vos amis pourront le scanner en cliquant sur "Scannez le QR Code" pour se connecter à votre bibliothèque.',
       // Quick Actions
       'quick_actions_title': 'Actions rapides',
       'search_library_placeholder': 'Rechercher dans ma bibliothèque...',
@@ -2015,6 +2016,7 @@ class TranslationService {
       'read_status': 'Lu',
       'wishlist_status': 'Liste de souhaits',
       'owned_status': 'Dans ma bibliothèque',
+      'no_reading_status': 'Aucun statut',
       'to_read_status': 'À lire',
       'mark_as_finished': 'Marquer comme terminé',
       'finished_on': 'Terminé le',

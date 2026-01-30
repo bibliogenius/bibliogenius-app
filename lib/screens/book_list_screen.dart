@@ -14,6 +14,7 @@ import '../widgets/book_cover_grid.dart';
 import '../widgets/premium_book_card.dart';
 import '../theme/app_design.dart';
 import '../providers/theme_provider.dart';
+import '../providers/book_refresh_notifier.dart';
 import '../utils/book_status.dart';
 
 enum ViewMode {
@@ -46,6 +47,9 @@ class _BookListScreenState extends State<BookListScreen>
     with WidgetsBindingObserver {
   List<Book> _books = [];
   List<Book> _filteredBooks = [];
+
+  // Global refresh notifier
+  BookRefreshNotifier? _globalRefreshNotifier;
 
   // Filter state
   String? _selectedStatus;
@@ -82,8 +86,15 @@ class _BookListScreenState extends State<BookListScreen>
       _tagFilter = widget.initialTagFilter;
     }
 
-    // Listen to refresh trigger
+    // Listen to refresh trigger (local)
     widget.refreshNotifier?.addListener(_handleRefreshTrigger);
+
+    // Listen to global refresh trigger (for cross-screen updates)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _globalRefreshNotifier = context.read<BookRefreshNotifier>();
+      _globalRefreshNotifier?.addListener(_handleRefreshTrigger);
+    });
 
     _fetchBooks();
 
@@ -185,6 +196,7 @@ class _BookListScreenState extends State<BookListScreen>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     widget.refreshNotifier?.removeListener(_handleRefreshTrigger);
+    _globalRefreshNotifier?.removeListener(_handleRefreshTrigger);
     _searchController.dispose();
     super.dispose();
   }

@@ -15,6 +15,7 @@ import 'services/ffi_service.dart';
 import 'utils/app_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'providers/theme_provider.dart';
+import 'providers/book_refresh_notifier.dart';
 import 'audio/audio_module.dart'; // Audio module (decoupled)
 
 import 'screens/login_screen.dart';
@@ -249,6 +250,9 @@ class MyApp extends StatelessWidget {
     Widget app = MultiProvider(
       providers: [
         ChangeNotifierProvider<ThemeProvider>.value(value: themeProvider),
+        ChangeNotifierProvider<BookRefreshNotifier>(
+          create: (_) => BookRefreshNotifier(),
+        ),
         Provider<AuthService>.value(value: authService),
         Provider<ApiService>.value(value: apiService),
         Provider<SyncService>(create: (_) => SyncService(apiService)),

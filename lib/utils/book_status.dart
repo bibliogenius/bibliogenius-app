@@ -42,9 +42,9 @@ const List<BookStatus> individualStatuses = [
     color: Colors.red,
   ),
   BookStatus(
-    value: 'owned',
-    label: 'owned_status',
-    icon: Icons.inventory_2_outlined,
+    value: '',
+    label: 'no_reading_status',
+    icon: Icons.remove_circle_outline,
     color: Colors.blueGrey,
   ),
 ];

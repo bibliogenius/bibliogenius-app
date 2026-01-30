@@ -160,12 +160,12 @@ class _ImportCuratedListScreenState extends State<ImportCuratedListScreen> {
                         value: 'owned',
                         child: Row(
                           children: [
-                            const Icon(Icons.inventory_2_outlined, size: 20),
+                            const Icon(Icons.remove_circle_outline, size: 20),
                             const SizedBox(width: 8),
                             Text(
                               TranslationService.translate(
                                 dialogContext,
-                                'in_my_library',
+                                'no_reading_status',
                               ),
                             ),
                           ],
@@ -248,8 +248,9 @@ class _ImportCuratedListScreenState extends State<ImportCuratedListScreen> {
     if (confirmedStatus == null) return; // Dialog was cancelled
 
     final bool shouldMarkAsOwned = confirmedStatus != 'wanting';
+    // 'owned' = no reading status (empty string, will show as "Sans statut" in filters)
     final String readingStatus = confirmedStatus == 'owned'
-        ? 'to_read'
+        ? ''
         : confirmedStatus;
 
     if (!mounted) return;

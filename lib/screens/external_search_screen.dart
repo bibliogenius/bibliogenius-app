@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
 import '../providers/theme_provider.dart';
+import '../providers/book_refresh_notifier.dart';
 import 'package:go_router/go_router.dart';
 import '../theme/app_design.dart';
 
@@ -689,6 +690,11 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
 
       // Mark as modified so we can refresh the list on return
       _booksAdded = true;
+
+      // Trigger global book list refresh
+      if (mounted) {
+        context.read<BookRefreshNotifier>().refresh();
+      }
 
       if (mounted) {
         // Mario Bros-style +1 animation! 🎮
