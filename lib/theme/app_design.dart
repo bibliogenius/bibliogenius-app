@@ -114,10 +114,78 @@ class AppDesign {
   /// Pastel Ocean (Soft Blue)
   static const pastelOceanGradient = LinearGradient(
     begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
     colors: [Color(0xFF38BDF8), Color(0xFF0EA5E9)],
   );
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // REFINED VIBRANT GRADIENTS (Slightly lighter)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /// Refined Primary (Slightly lighter Indigo/Violet)
+  static const refinedPrimaryGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      Color(0xFF7174FA),
+      Color(0xFF966DF8),
+    ], // Balanced between vibrant and pastel
+  );
+
+  /// Refined Success (Slightly lighter Green)
+  static const refinedSuccessGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFF22C58E), Color(0xFF0EA37A)],
+  );
+
+  /// Refined Warning (Slightly lighter Orange)
+  static const refinedWarningGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFFFACC15), Color(0xFFEAB308)],
+  );
+
+  /// Refined Accent (Slightly lighter Pink)
+  static const refinedAccentGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFFF472B6), Color(0xFFE11D48)],
+  );
+
+  /// Refined Ocean (Slightly lighter Blue)
+  static const refinedOceanGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFF38BDF8), Color(0xFF0284C7)],
+  );
+
+  /// Anthracite gradient (Dark Grey)
+  static const anthraciteGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFF374151), Color(0xFF1F2937)], // Gray-700 -> Gray-800
+  );
+  // ═══════════════════════════════════════════════════════════════════════════
+  // PASTEL COLORS
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /// Pastel Blue - 0xFF81D4FA
+  static const pastelBlue = Color(0xFF81D4FA);
+
+  /// Pastel Green - 0xFFA5D6A7
+  static const pastelGreen = Color(0xFFA5D6A7);
+
+  /// Pastel Purple - 0xFFCE93D8
+  static const pastelPurple = Color(0xFFCE93D8);
+
+  /// Pastel Orange - 0xFFFFCC80
+  static const pastelOrange = Color(0xFFFFCC80);
+
+  /// Pastel Cyan - 0xFF80DEEA
+  static const pastelCyan = Color(0xFF80DEEA);
+
+  /// Pastel Blue Grey - 0xFFB0BEC5
+  static const pastelBlueGrey = Color(0xFFB0BEC5);
   // ═══════════════════════════════════════════════════════════════════════════
   // SHADOW PRESETS
   // ═══════════════════════════════════════════════════════════════════════════
@@ -334,10 +402,7 @@ class _ScaleOnTapState extends State<ScaleOnTap> {
 
     // Show pointer cursor on hover when clickable
     if (widget.onTap != null) {
-      return MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: child,
-      );
+      return MouseRegion(cursor: SystemMouseCursors.click, child: child);
     }
     return child;
   }

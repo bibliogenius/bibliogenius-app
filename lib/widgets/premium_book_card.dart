@@ -9,6 +9,7 @@ class PremiumBookCard extends StatefulWidget {
   final double width;
   final double height;
   final bool isHero;
+  final bool showStatus;
 
   const PremiumBookCard({
     super.key,
@@ -16,6 +17,7 @@ class PremiumBookCard extends StatefulWidget {
     this.width = 160,
     this.height = 240,
     this.isHero = false,
+    this.showStatus = true,
   });
 
   @override
@@ -395,7 +397,7 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                       ),
                     ),
                     // Status Badge
-                    if (widget.book.readingStatus != null)
+                    if (widget.showStatus && widget.book.readingStatus != null)
                       Positioned(
                         top: 8,
                         right: 8,

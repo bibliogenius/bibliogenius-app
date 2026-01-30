@@ -169,8 +169,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           children: [
             // App Settings Section
             Text(
-              TranslationService.translate(context, 'app_settings') ??
-                  'App Settings',
+              TranslationService.translate(context, 'app_settings'),
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
@@ -180,8 +179,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ListTile(
                     leading: const Icon(Icons.library_books),
                     title: Text(
-                      TranslationService.translate(context, 'library_name') ??
-                          'Library Name',
+                      TranslationService.translate(context, 'library_name'),
                     ),
                     subtitle: Text(_libraryName ?? 'My Library'),
                     trailing: const Icon(Icons.edit),
@@ -206,10 +204,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             Text(
               TranslationService.translate(context, 'quick_presets_desc') ??
                   'Apply a configuration adapted to your usage:',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
             ),
             const SizedBox(height: 16),
             Row(
@@ -242,7 +237,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   child: _buildPresetButton(
                     context,
                     'bookseller',
-                    TranslationService.translate(context, 'preset_bookseller') ??
+                    TranslationService.translate(
+                          context,
+                          'preset_bookseller',
+                        ) ??
                         'Bookseller',
                     Icons.storefront,
                     Colors.orange,
@@ -330,21 +328,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       'peer_offline_caching_desc',
                       Icons.cloud_off,
                       themeProvider.peerOfflineCachingEnabled,
-                      (value) => themeProvider.setPeerOfflineCachingEnabled(value),
+                      (value) =>
+                          themeProvider.setPeerOfflineCachingEnabled(value),
                     ),
                   ),
-                  // Sub-option for network module: allow own library caching
-                  Padding(
-                    padding: const EdgeInsets.only(left: 16.0),
-                    child: _buildModuleToggle(
-                      context,
-                      'allow_library_caching',
-                      'allow_library_caching_desc',
-                      Icons.share,
-                      themeProvider.allowLibraryCaching,
-                      (value) => themeProvider.setAllowLibraryCaching(value),
-                    ),
+                // Sub-option for network module: allow own library caching
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: _buildModuleToggle(
+                    context,
+                    'allow_library_caching',
+                    'allow_library_caching_desc',
+                    Icons.share,
+                    themeProvider.allowLibraryCaching,
+                    (value) => themeProvider.setAllowLibraryCaching(value),
                   ),
+                ),
                 _buildModuleToggle(
                   context,
                   'module_edition_browser',
@@ -485,6 +484,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
             const SizedBox(height: 24),
 
             // Data Management
+            Text(
+              TranslationService.translate(context, 'content') ?? 'Content',
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
             Card(
               child: ListTile(
                 leading: const Icon(Icons.swap_calls, color: Colors.blue),
@@ -753,10 +757,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
       // Use updateProfile which properly syncs to enabled_modules in database
       // This ensures Google Books and other module toggles persist correctly
-      await api.updateProfile(data: {
-        'profile_type': profileType,
-        'fallback_preferences': _searchPrefs,
-      });
+      await api.updateProfile(
+        data: {
+          'profile_type': profileType,
+          'fallback_preferences': _searchPrefs,
+        },
+      );
 
       if (_userStatus != null) {
         if (_userStatus!['config'] == null) {

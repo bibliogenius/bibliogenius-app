@@ -49,35 +49,7 @@ class _MigrationWizardScreenState extends State<MigrationWizardScreen> {
                         'Ajoutez des livres provenant d\'autres plateformes à votre bibliothèque actuelle.',
                       ),
                       const SizedBox(height: 12),
-                      _buildMigrationCard(
-                        context,
-                        title: 'Gleeph',
-                        description:
-                            'Importation directe via navigateur intégré.',
-                        icon: Icons.auto_awesome,
-                        onTap: () => context.push('/settings/gleeph-import'),
-                        color: Colors.purple.shade400,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 16, right: 16, bottom: 4),
-                        child: Row(
-                          children: [
-                            Icon(Icons.info_outline, size: 14, color: Colors.grey.shade500),
-                            const SizedBox(width: 6),
-                            Expanded(
-                              child: Text(
-                                'En cas d\'échec, demandez un export de votre bibliothèque Gleeph et utilisez l\'option "Autre CSV" ci-dessous.',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: Colors.grey.shade500,
-                                  fontStyle: FontStyle.italic,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 12),
+
                       _buildMigrationCard(
                         context,
                         title: 'Import fichier (CSV / XLSX)',
@@ -142,8 +114,7 @@ class _MigrationWizardScreenState extends State<MigrationWizardScreen> {
                       _buildMigrationCard(
                         context,
                         title: 'Réinitialiser l\'application',
-                        description:
-                            'Effacer les livres ou repartir de zéro.',
+                        description: 'Effacer les livres ou repartir de zéro.',
                         icon: Icons.delete_forever,
                         onTap: () => _showResetDialog(),
                         color: Colors.red.shade700,
@@ -375,9 +346,7 @@ class _MigrationWizardScreenState extends State<MigrationWizardScreen> {
             children: [
               Icon(Icons.warning_amber_rounded, color: Colors.red.shade700),
               const SizedBox(width: 8),
-              const Expanded(
-                child: Text('Réinitialiser l\'application'),
-              ),
+              const Expanded(child: Text('Réinitialiser l\'application')),
             ],
           ),
           content: SingleChildScrollView(
@@ -397,7 +366,8 @@ class _MigrationWizardScreenState extends State<MigrationWizardScreen> {
                   icon: Icons.menu_book,
                   color: Colors.orange,
                   title: 'Supprimer les livres uniquement',
-                  description: 'Conserve les étagères, paramètres${collectionsEnabled ? ' et collections' : ''}.',
+                  description:
+                      'Conserve les étagères, paramètres${collectionsEnabled ? ' et collections' : ''}.',
                   onTap: () {
                     Navigator.pop(dialogContext);
                     _confirmAndResetBooks();
@@ -410,7 +380,8 @@ class _MigrationWizardScreenState extends State<MigrationWizardScreen> {
                   dialogContext,
                   icon: Icons.layers_clear,
                   color: Colors.deepOrange,
-                  title: 'Supprimer livres, étagères${collectionsEnabled ? ' et collections' : ''}',
+                  title:
+                      'Supprimer livres, étagères${collectionsEnabled ? ' et collections' : ''}',
                   description: 'Conserve uniquement les paramètres.',
                   onTap: () {
                     Navigator.pop(dialogContext);
@@ -425,7 +396,8 @@ class _MigrationWizardScreenState extends State<MigrationWizardScreen> {
                   icon: Icons.delete_forever,
                   color: Colors.red.shade700,
                   title: 'Réinitialisation complète',
-                  description: 'Efface TOUTES les données. Retour à l\'état initial.',
+                  description:
+                      'Efface TOUTES les données. Retour à l\'état initial.',
                   onTap: () {
                     Navigator.pop(dialogContext);
                     _confirmAndResetAll();
@@ -592,10 +564,7 @@ class _MigrationWizardScreenState extends State<MigrationWizardScreen> {
       if (mounted) {
         setState(() => _isProcessing = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erreur : $e'),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text('Erreur : $e'), backgroundColor: Colors.red),
         );
       }
     }
@@ -644,10 +613,7 @@ class _MigrationWizardScreenState extends State<MigrationWizardScreen> {
       if (mounted) {
         setState(() => _isProcessing = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erreur : $e'),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text('Erreur : $e'), backgroundColor: Colors.red),
         );
       }
     }
@@ -679,10 +645,7 @@ class _MigrationWizardScreenState extends State<MigrationWizardScreen> {
       if (mounted) {
         setState(() => _isProcessing = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erreur : $e'),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text('Erreur : $e'), backgroundColor: Colors.red),
         );
       }
     }

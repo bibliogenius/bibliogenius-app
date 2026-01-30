@@ -12,6 +12,7 @@ import '../models/book.dart';
 import '../providers/theme_provider.dart';
 
 import '../widgets/premium_book_card.dart';
+import '../widgets/premium_empty_state.dart';
 
 import '../services/quote_service.dart';
 import '../models/quote.dart';
@@ -34,25 +35,23 @@ class _DashboardScreenState extends State<DashboardScreen>
   String? _userName;
   String? _lastLocale;
   final Map<String, dynamic> _stats = {};
+
+  // New List categorization
+  List<Book> _readingBooks = [];
+  List<Book> _toReadBooks = [];
   List<Book> _recentBooks = [];
-  List<Book> _readingListBooks = [];
-  List<Book> _allBooks = []; // Full list for search context
-  Book? _heroBook;
+  List<Book> _allBooks = [];
+
   bool _quoteExpanded = false;
 
   final GlobalKey _statsKey = GlobalKey(debugLabel: 'dashboard_stats');
   final GlobalKey _menuKey = GlobalKey(debugLabel: 'dashboard_menu');
-
-  // Search preferences state
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _fetchDashboardData();
-    // Verify locale changes on startup/init
-    // Removed redundant _fetchDashboardData call in postFrameCallback
-    // Add delay to ensure layout is complete and stable before showing wizard
     Future.delayed(const Duration(seconds: 1), _checkWizard);
     _checkBackupReminder();
   }
@@ -85,36 +84,12 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   void _checkWizard() async {
-    // DISABLED: Dashboard spotlight wizard disabled for alpha release
-    // to avoid UI issues during theme transitions
     return;
-
-    /*
-    if (!mounted) return;
-    
-    // Skip wizard completely for Kid profile
-    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
-    if (themeProvider.isKid) return;
-
-    if (!await WizardService.hasSeenDashboardWizard()) {
-      if (mounted) {
-         WizardService.showDashboardWizard(
-          context: context,
-          addKey: _addKey,
-          searchKey: _searchKey,
-          statsKey: _statsKey,
-          menuKey: _menuKey,
-          onFinish: () {},
-        );
-      }
-    }
-    */
   }
 
   Future<void> _fetchDashboardData() async {
     final api = Provider.of<ApiService>(context, listen: false);
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
-    // Background fetch of translations
     TranslationService.fetchTranslations(context);
 
     setState(() => _isLoading = true);
@@ -125,16 +100,12 @@ class _DashboardScreenState extends State<DashboardScreen>
         var books = await api.getBooks();
         print('Dashboard: Books fetched. Count: ${books.length}');
 
-        print('Dashboard: Fetching config...');
         final configRes = await api.getLibraryConfig();
-        print('Dashboard: Config fetched. Status: ${configRes.statusCode}');
-
         if (configRes.statusCode == 200) {
           final config = configRes.data;
           if (config['show_borrowed_books'] != true) {
             books = books.where((b) => b.readingStatus != 'borrowed').toList();
           }
-          // Store library name
           final name = config['library_name'] ?? config['name'];
           if (name != null) {
             themeProvider.setLibraryName(name);
@@ -145,38 +116,24 @@ class _DashboardScreenState extends State<DashboardScreen>
           setState(() {
             _allBooks = books;
             _stats['total_books'] = books.length;
-            // Note: borrowed_count is now fetched separately from getBorrowedCopies()
 
-            final readingListCandidates = books
-                .where((b) => ['reading', 'to_read'].contains(b.readingStatus))
+            // Sort by recently added (ID desc)
+            final sortedBooks = List<Book>.from(books);
+            sortedBooks.sort((a, b) => (b.id ?? 0).compareTo(a.id ?? 0));
+            _recentBooks = sortedBooks.take(10).toList();
+
+            // En cours de lecture
+            _readingBooks = books
+                .where((b) => b.readingStatus == 'reading')
                 .toList();
+            // Sort reading by most recently added/updated if possible, or just ID
+            _readingBooks.sort((a, b) => (b.id ?? 0).compareTo(a.id ?? 0));
 
-            readingListCandidates.sort((a, b) {
-              if (a.readingStatus == 'reading' && b.readingStatus != 'reading')
-                return -1;
-              if (a.readingStatus != 'reading' && b.readingStatus == 'reading')
-                return 1;
-              return 0;
-            });
-
-            _readingListBooks = readingListCandidates.take(10).toList();
-
-            final readingListIds = _readingListBooks.map((b) => b.id).toSet();
-
-            final recentCandidates = books
-                .where((b) => !readingListIds.contains(b.id))
+            // À lire
+            _toReadBooks = books
+                .where((b) => b.readingStatus == 'to_read')
                 .toList();
-            recentCandidates.sort((a, b) => (b.id ?? 0).compareTo(a.id ?? 0));
-
-            _recentBooks = recentCandidates.take(10).toList();
-
-            _heroBook = _readingListBooks.isNotEmpty
-                ? _readingListBooks.first
-                : (_recentBooks.isNotEmpty ? _recentBooks.first : null);
-            if (_heroBook != null) {
-              _readingListBooks.removeWhere((book) => book.id == _heroBook!.id);
-              _recentBooks.removeWhere((book) => book.id == _heroBook!.id);
-            }
+            _toReadBooks.sort((a, b) => (b.id ?? 0).compareTo(a.id ?? 0));
           });
         }
       } catch (e) {
@@ -184,9 +141,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       }
 
       try {
-        print('Dashboard: Fetching contacts...');
         final contactsRes = await api.getContacts();
-        print('Dashboard: Contacts fetched.');
         if (contactsRes.statusCode == 200) {
           final List<dynamic> contactsData = contactsRes.data['contacts'];
           if (mounted) {
@@ -200,9 +155,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       }
 
       try {
-        print('Dashboard: Fetching user status...');
         final statusRes = await api.getUserStatus();
-        print('Dashboard: User status fetched.');
         if (statusRes.statusCode == 200) {
           final statusData = statusRes.data;
           if (mounted) {
@@ -210,13 +163,11 @@ class _DashboardScreenState extends State<DashboardScreen>
               _userName = statusData['name'];
             });
 
-            // Show streak celebration if gamification is enabled
             if (themeProvider.gamificationEnabled) {
               final streakData = statusData['streak'] as Map<String, dynamic>?;
               if (streakData != null) {
                 final currentStreak = streakData['current'] as int? ?? 0;
                 final longestStreak = streakData['longest'] as int? ?? 0;
-                // Delay slightly to let UI render first
                 Future.delayed(const Duration(milliseconds: 800), () {
                   if (mounted) {
                     StreakCelebration.showIfNeeded(
@@ -231,8 +182,6 @@ class _DashboardScreenState extends State<DashboardScreen>
           }
         }
 
-        // Fetch active loans count (books lent to others) - same query as LoansScreen
-        print('Dashboard: Fetching active loans...');
         final loansRes = await api.getLoans(status: 'active');
         if (mounted && loansRes.statusCode == 200) {
           final loans = loansRes.data['loans'] ?? [];
@@ -241,9 +190,7 @@ class _DashboardScreenState extends State<DashboardScreen>
           });
         }
 
-        // Fetch borrowed copies count (books borrowed from others) - same query as LoansScreen
         if (themeProvider.canBorrowBooks) {
-          print('Dashboard: Fetching borrowed copies...');
           try {
             final borrowedRes = await api.getBorrowedCopies();
             if (mounted && borrowedRes.statusCode == 200) {
@@ -257,22 +204,14 @@ class _DashboardScreenState extends State<DashboardScreen>
           }
         }
 
-        // Fetch Config for library name
-        print('Dashboard: Fetching config...');
         final configRes = await api.getLibraryConfig();
-
         if (mounted) {
           setState(() {
             final config = configRes.data;
-
-            // Sync library name from config
             final name = config?['library_name'] ?? config?['name'];
             if (name != null) {
               themeProvider.setLibraryName(name);
-              // _libraryName removed
             }
-
-            // Sync profile type
             final profileType = config?['profile_type'];
             if (profileType != null) {
               themeProvider.setProfileType(profileType);
@@ -283,16 +222,11 @@ class _DashboardScreenState extends State<DashboardScreen>
         debugPrint('Error fetching user status: $e');
       }
 
-      // Fetch quote separate from main data to allow localized refresh
-      // Only fetch if quotes module is enabled
       if (themeProvider.quotesEnabled) {
-        print('Dashboard: Fetching quote...');
         await _fetchQuote();
-        print('Dashboard: Quote fetched.');
       }
 
       if (mounted) {
-        print('Dashboard: Loading complete. Setting _isLoading = false');
         setState(() {
           _isLoading = false;
         });
@@ -300,13 +234,6 @@ class _DashboardScreenState extends State<DashboardScreen>
     } catch (e) {
       debugPrint('Error fetching dashboard data: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '${TranslationService.translate(context, 'error_loading_dashboard')}: $e',
-            ),
-          ),
-        );
         setState(() => _isLoading = false);
       }
     }
@@ -315,12 +242,10 @@ class _DashboardScreenState extends State<DashboardScreen>
   Future<void> _fetchQuote() async {
     try {
       final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
-      final allBooks = [..._recentBooks, ..._readingListBooks];
-
-      // Even if books are empty, we try to fetch a quote (service handles fallback)
+      // Use recent books for context
       final quoteService = QuoteService();
       final quote = await quoteService.fetchRandomQuote(
-        allBooks,
+        _recentBooks,
         locale: themeProvider.locale.languageCode,
       );
 
@@ -338,22 +263,13 @@ class _DashboardScreenState extends State<DashboardScreen>
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final isKid = themeProvider.isKid;
-    final isLibrarian = themeProvider.isLibrarian;
-
-    debugPrint('DashboardScreen: build called');
-    debugPrint(
-      'DashboardScreen: isKid=$isKid, isLibrarian=$isLibrarian, isLoading=$_isLoading',
-    );
     final width = MediaQuery.of(context).size.width;
     final isWide = width > 600;
-
-    // Greeting logic removed as per user request
 
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: GenieAppBar(
         title: 'BiblioGenius',
-        // subtitle: _libraryName, // Handled by ThemeProvider
         leading: isWide
             ? null
             : IconButton(
@@ -389,10 +305,8 @@ class _DashboardScreenState extends State<DashboardScreen>
           indicatorWeight: 4,
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white.withValues(alpha: 0.6),
-          isScrollable: !isWide, // Scrollable on mobile to prevent cramping
-          tabAlignment: !isWide
-              ? TabAlignment.start
-              : TabAlignment.fill, // Align start on mobile
+          isScrollable: !isWide,
+          tabAlignment: !isWide ? TabAlignment.start : TabAlignment.fill,
           labelStyle: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: isWide ? 16 : 15,
@@ -421,9 +335,7 @@ class _DashboardScreenState extends State<DashboardScreen>
           child: TabBarView(
             controller: _tabController,
             children: [
-              // Tab 1: Dashboard
               _buildDashboardTab(context, isWide, themeProvider, isKid),
-              // Tab 2: Statistics
               const StatisticsContent(),
             ],
           ),
@@ -438,134 +350,116 @@ class _DashboardScreenState extends State<DashboardScreen>
     ThemeProvider themeProvider,
     bool isKid,
   ) {
-    return _isLoading
-        ? const Center(
-            child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+    if (_isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+        ),
+      );
+    }
+
+    // EMPTY STATE Check
+    if (_allBooks.isEmpty) {
+      // Import PremiumEmptyState if not already imported, or use a basic one if not available.
+      // Assuming PremiumEmptyState is available in the project structure at widgets/premium_empty_state.dart
+      // If imports are missing, I'll need to add them, but I'm editing the state class here.
+      // Since I see it used in other files in context, it should be importable.
+      // NOTE: I need to ensure the import exists at the top of the file!
+      return Center(
+        child: PremiumEmptyState(
+          message: TranslationService.translate(context, 'empty_library_title'),
+          description: TranslationService.translate(
+            context,
+            'empty_library_subtitle',
+          ),
+          icon: Icons.library_books_outlined,
+          buttonLabel: TranslationService.translate(context, 'scan_first_book'),
+          onAction: () => context.push('/books/add'),
+          colorOverride: Colors.white,
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: _fetchDashboardData,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: EdgeInsets.only(
+          top: 24,
+          left: isWide ? 32 : 16,
+          right: isWide ? 32 : 16,
+          bottom: 16,
+        ),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: isWide ? 900 : double.infinity,
             ),
-          )
-        : RefreshIndicator(
-            onRefresh: _fetchDashboardData,
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: EdgeInsets.only(
-                top: 24,
-                left: isWide ? 32 : 16,
-                right: isWide ? 32 : 16,
-                bottom: 16,
-              ),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxWidth: isWide ? 900 : double.infinity,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // 1. [REMOVED] Quick Actions (now in AppBar)
-                      // const SizedBox(height: 32),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (themeProvider.quotesEnabled) ...[
+                  _buildHeader(context),
+                  const SizedBox(height: 24),
+                ],
 
-                      // 2. Header with Quote (if enabled)
-                      if (themeProvider.quotesEnabled) ...[
-                        _buildHeader(context),
-                        const SizedBox(height: 24),
-                      ],
-
-                      // Stats Row - Responsive Layout (2x2 on small screens)
-                      LayoutBuilder(
-                        key: _statsKey,
-                        builder: (context, constraints) {
-                          // Build list of stat cards based on conditions
-                          final statCards = <Widget>[
-                            _buildStatCard(
-                              context,
-                              TranslationService.translate(context, 'my_books'),
-                              (_stats['total_books'] ?? 0).toString(),
-                              Icons.menu_book,
-                              onTap: () => context.push('/books'),
-                            ),
-                            _buildStatCard(
-                              context,
-                              TranslationService.translate(
-                                context,
-                                'lent_status',
-                              ),
-                              (_stats['active_loans'] ?? 0).toString(),
-                              Icons.arrow_upward,
-                              isAccent: true,
-                              onTap: () => context.push('/network?tab=lent'),
-                            ),
-                            if (!themeProvider.isLibrarian)
-                              _buildStatCard(
-                                context,
-                                TranslationService.translate(
+                // Stats Row
+                LayoutBuilder(
+                  key: _statsKey,
+                  builder: (context, constraints) {
+                    final statCards = <Widget>[
+                      _buildStatCard(
+                        context,
+                        TranslationService.translate(context, 'my_books'),
+                        (_stats['total_books'] ?? 0).toString(),
+                        Icons.menu_book,
+                        onTap: () => context.push('/books'),
+                      ),
+                      _buildStatCard(
+                        context,
+                        TranslationService.translate(context, 'lent_status'),
+                        (_stats['active_loans'] ?? 0).toString(),
+                        Icons.arrow_upward,
+                        isAccent: true,
+                        onTap: () => context.push('/network?tab=lent'),
+                      ),
+                      if (!themeProvider.isLibrarian)
+                        _buildStatCard(
+                          context,
+                          TranslationService.translate(
+                            context,
+                            'borrowed_status',
+                          ),
+                          (_stats['borrowed_count'] ?? 0).toString(),
+                          Icons.arrow_downward,
+                          onTap: () => context.push('/network?tab=borrowed'),
+                        ),
+                      if (!isKid)
+                        _buildStatCard(
+                          context,
+                          themeProvider.isLibrarian
+                              ? TranslationService.translate(
                                   context,
-                                  'borrowed_status',
+                                  'borrowers',
+                                )
+                              : TranslationService.translate(
+                                  context,
+                                  'contacts',
                                 ),
-                                (_stats['borrowed_count'] ?? 0).toString(),
-                                Icons.arrow_downward,
-                                onTap: () =>
-                                    context.push('/network?tab=borrowed'),
-                              ),
-                            if (!isKid)
-                              _buildStatCard(
-                                context,
-                                themeProvider.isLibrarian
-                                    ? TranslationService.translate(
-                                        context,
-                                        'borrowers',
-                                      )
-                                    : TranslationService.translate(
-                                        context,
-                                        'contacts',
-                                      ),
-                                (_stats['contacts_count'] ?? 0).toString(),
-                                Icons.people,
-                                onTap: () => context.push('/network'),
-                              ),
-                          ];
+                          (_stats['contacts_count'] ?? 0).toString(),
+                          Icons.people,
+                          onTap: () => context.push('/network'),
+                        ),
+                    ];
 
-                          // Use 2x2 grid for narrow screens (< 400px)
-                          if (constraints.maxWidth < 400 &&
-                              statCards.length > 2) {
-                            // Split into rows of 2
-                            final firstRow = statCards.take(2).toList();
-                            final secondRow = statCards.skip(2).toList();
-                            return Column(
-                              children: [
-                                Row(
-                                  children:
-                                      firstRow
-                                          .expand(
-                                            (w) => [
-                                              Expanded(child: w),
-                                              const SizedBox(width: 12),
-                                            ],
-                                          )
-                                          .toList()
-                                        ..removeLast(),
-                                ),
-                                const SizedBox(height: 12),
-                                Row(
-                                  children:
-                                      secondRow
-                                          .expand(
-                                            (w) => [
-                                              Expanded(child: w),
-                                              const SizedBox(width: 12),
-                                            ],
-                                          )
-                                          .toList()
-                                        ..removeLast(),
-                                ),
-                              ],
-                            );
-                          }
-
-                          // Use Row for wide screens
-                          return Row(
+                    if (constraints.maxWidth < 400 && statCards.length > 2) {
+                      final firstRow = statCards.take(2).toList();
+                      final secondRow = statCards.skip(2).toList();
+                      return Column(
+                        children: [
+                          Row(
                             children:
-                                statCards
+                                firstRow
                                     .expand(
                                       (w) => [
                                         Expanded(child: w),
@@ -574,135 +468,222 @@ class _DashboardScreenState extends State<DashboardScreen>
                                     )
                                     .toList()
                                   ..removeLast(),
-                          );
-                        },
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children:
+                                secondRow
+                                    .expand(
+                                      (w) => [
+                                        Expanded(child: w),
+                                        const SizedBox(width: 12),
+                                      ],
+                                    )
+                                    .toList()
+                                  ..removeLast(),
+                          ),
+                        ],
+                      );
+                    }
+                    return Row(
+                      children:
+                          statCards
+                              .expand(
+                                (w) => [
+                                  Expanded(child: w),
+                                  const SizedBox(width: 12),
+                                ],
+                              )
+                              .toList()
+                            ..removeLast(),
+                    );
+                  },
+                ),
+
+                const SizedBox(height: 24),
+
+                // Main Content
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 1. En cours de lecture (Currently Reading)
+                    if (_readingBooks.isNotEmpty)
+                      _buildBookListSection(
+                        context,
+                        title: TranslationService.translate(
+                          context,
+                          'currently_reading',
+                        ),
+                        books: _readingBooks,
+                        emptyMessage:
+                            '', // Should not show if empty check passes
+                        seeAllLabel: TranslationService.translate(
+                          context,
+                          'see_all_reading',
+                        ),
+                        seeAllRoute: '/books?status=reading',
+                        showStatus: false,
                       ),
 
-                      const SizedBox(height: 24),
+                    // 2. À lire (To Read)
+                    if (_toReadBooks.isNotEmpty)
+                      _buildBookListSection(
+                        context,
+                        title: TranslationService.translate(
+                          context,
+                          'reading_status_to_read',
+                        ),
+                        books: _toReadBooks,
+                        emptyMessage: '',
+                        seeAllLabel: TranslationService.translate(
+                          context,
+                          'see_all_to_read',
+                        ),
+                        seeAllRoute: '/books?status=to_read',
+                        showStatus: false,
+                      ),
 
-                      // Main Content Container
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (_heroBook != null && !isKid)
-                            // Hero Section
-                            _buildHeroBook(context, _heroBook!),
+                    // 3. Livres récents (Recent Books)
+                    if (_recentBooks.isNotEmpty)
+                      _buildBookListSection(
+                        context,
+                        title: TranslationService.translate(
+                          context,
+                          'recent_books',
+                        ),
+                        books: _recentBooks,
+                        emptyMessage: TranslationService.translate(
+                          context,
+                          'no_recent_books',
+                        ),
+                        // No specific label requested, just generic link to library usually,
+                        // but user said "for recent books it's just a link to the library"
+                        seeAllLabel: TranslationService.translate(
+                          context,
+                          'see_all_books',
+                        ),
+                        seeAllRoute: '/books', // Just library
+                        showStatus: false,
+                      ),
 
-                          // Recent Books
-                          if (_recentBooks.isNotEmpty) ...[
-                            _buildSectionTitle(
-                              context,
+                    const SizedBox(height: 24),
+                    if (!isKid)
+                      Center(
+                        child: ScaleOnTap(
+                          child: TextButton.icon(
+                            onPressed: () => context.push('/statistics'),
+                            icon: const Icon(
+                              Icons.insights,
+                              color: Colors.black54,
+                            ),
+                            label: Text(
                               TranslationService.translate(
                                 context,
-                                'recent_books',
+                                'view_insights',
                               ),
+                              style: const TextStyle(color: Colors.black54),
                             ),
-                            const SizedBox(height: 16),
-                            Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(20),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.08),
-                                    blurRadius: 15,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 16,
                               ),
-                              child: _buildBookList(
-                                context,
-                                _recentBooks,
-                                TranslationService.translate(
-                                  context,
-                                  'no_recent_books',
+                              backgroundColor: Colors.black.withValues(
+                                alpha: 0.05,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                                side: BorderSide(
+                                  color: Colors.black.withValues(alpha: 0.1),
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 24),
-                          ],
+                          ),
+                        ),
+                      ),
+                    const SizedBox(height: 24),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
-                          // Reading List
-                          if (_readingListBooks.isNotEmpty) ...[
-                            _buildSectionTitle(
-                              context,
-                              TranslationService.translate(
-                                context,
-                                'reading_list',
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(20),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.08),
-                                    blurRadius: 15,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              child: _buildBookList(
-                                context,
-                                _readingListBooks,
-                                TranslationService.translate(
-                                  context,
-                                  'no_reading_list',
-                                ),
-                              ),
-                            ),
-                          ],
+  Widget _buildBookListSection(
+    BuildContext context, {
+    required String title,
+    required List<Book> books,
+    required String emptyMessage,
+    required String seeAllLabel,
+    required String seeAllRoute,
+    bool showStatus = true,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionTitle(context, title),
+        const SizedBox(height: 16),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 15,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              // Show max 10 items in horizontal list
+              _buildBookList(context, books.take(10).toList(), emptyMessage),
 
-                          const SizedBox(height: 24),
-                          if (!isKid)
-                            Center(
-                              child: ScaleOnTap(
-                                child: TextButton.icon(
-                                  onPressed: () => context.push('/statistics'),
-                                  icon: const Icon(
-                                    Icons.insights,
-                                    color: Colors.black54,
-                                  ),
-                                  label: Text(
-                                    TranslationService.translate(
-                                      context,
-                                      'view_insights',
-                                    ),
-                                    style: TextStyle(color: Colors.black54),
-                                  ),
-                                  style: TextButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 24,
-                                      vertical: 16,
-                                    ),
-                                    backgroundColor: Colors.black.withValues(
-                                      alpha: 0.05,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30),
-                                      side: BorderSide(
-                                        color: Colors.black.withValues(
-                                          alpha: 0.1,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          const SizedBox(height: 24),
-                        ],
+              const SizedBox(height: 16),
+              // See All Link
+              InkWell(
+                onTap: () => context.go(
+                  seeAllRoute,
+                ), // use go to replace/navigate properly with query params
+                borderRadius: BorderRadius.circular(8),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        seeAllLabel,
+                        style: TextStyle(
+                          color: Theme.of(context).primaryColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Icon(
+                        Icons.arrow_forward_rounded,
+                        size: 16,
+                        color: Theme.of(context).primaryColor,
                       ),
                     ],
                   ),
                 ),
               ),
-            ),
-          );
+            ],
+          ),
+        ),
+        const SizedBox(height: 24),
+      ],
+    );
   }
 
   Widget _buildHeader(BuildContext context) {
@@ -1077,60 +1058,6 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
-  Widget _buildQuickActionCard(
-    BuildContext context, {
-    required String label,
-    required IconData icon,
-    required Color color,
-    required VoidCallback onTap,
-    required double width,
-  }) {
-    return ScaleOnTap(
-      onTap: onTap,
-      child: Container(
-        width: width,
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.05),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: color.withValues(alpha: 0.1), width: 1.5),
-        ),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: color.withValues(alpha: 0.2),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Icon(icon, color: color, size: 28),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: Colors.black87,
-                height: 1.2,
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildBookList(
     BuildContext context,
     List<Book> books,
@@ -1163,40 +1090,6 @@ class _DashboardScreenState extends State<DashboardScreen>
             child: PremiumBookCard(book: books[index]),
           );
         },
-      ),
-    );
-  }
-
-  Widget _buildHeroBook(BuildContext context, Book book) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 32),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: double.infinity,
-            height: 300,
-            child: PremiumBookCard(
-              book: book,
-              isHero: true,
-              width: double.infinity,
-              height: 300,
-            ),
-          ),
-          Center(
-            child: TextButton.icon(
-              onPressed: () => context.push('/books?status=reading'),
-              icon: const Icon(Icons.arrow_forward, size: 16),
-              label: Text(
-                TranslationService.translate(context, 'see_all_reading'),
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              style: TextButton.styleFrom(
-                foregroundColor: Theme.of(context).primaryColor,
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

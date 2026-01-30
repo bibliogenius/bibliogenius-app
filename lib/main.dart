@@ -44,7 +44,6 @@ import 'screens/network_screen.dart';
 import 'screens/library_screen.dart';
 import 'screens/feedback_screen.dart';
 import 'screens/settings_screen.dart';
-import 'screens/gleeph_import_screen.dart';
 import 'screens/migration_wizard_screen.dart';
 
 import 'screens/link_device_screen.dart';
@@ -588,10 +587,6 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
                 GoRoute(
                   path: 'migration-wizard',
                   builder: (context, state) => const MigrationWizardScreen(),
-                ),
-                GoRoute(
-                  path: 'gleeph-import',
-                  builder: (context, state) => const GleephImportScreen(),
                 ),
               ],
             ),

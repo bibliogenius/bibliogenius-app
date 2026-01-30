@@ -102,6 +102,9 @@ class TranslationService {
 
       'create_first_shelf': 'Create your first shelf to organize your books',
       'scan_first_book': 'Scan my first book',
+      'empty_library_title': 'Your Library is Empty',
+      'empty_library_subtitle':
+          'Start by adding your first book using the button below or the + menu.',
       'shelf_management_hint':
           'Tap a shelf to edit. Long press to move or delete.',
       'select_new_parent': 'Select new parent:',
@@ -143,6 +146,7 @@ class TranslationService {
       'reset_app_title': 'Reset Application',
       'reset_app_confirmation':
           'Are you sure you want to reset the application? This will clear all local data and return you to the setup wizard.',
+      'content': 'Content',
       'reset_confirm': 'Reset Everything',
       'reset_type_label': 'Choose reset type:',
       'reset_type_standard': 'Standard Reset',
@@ -239,15 +243,7 @@ class TranslationService {
       'active_loans': 'Active Loans',
       'profile_kid': 'Young Reader',
       'kid': 'Young Reader',
-      'profile_advantage_simple_ui': 'Simplified UI',
-      'profile_advantage_borrow': 'Borrow books',
-      'profile_advantage_lend': 'Lend books',
-      'profile_advantage_lending': 'Lend books',
-      'profile_advantage_contacts': 'Manage contacts',
-      'profile_advantage_statistics': 'View statistics',
-      'profile_advantage_wishlist': 'Manage wishlist',
-      'profile_restriction_no_borrow': 'Cannot borrow',
-      'profile_restriction_no_lend': 'Cannot lend',
+
       // Bookseller profile features
       'profile_advantage_pricing': 'Set book prices',
       'profile_advantage_sales': 'Record sales',
@@ -298,8 +294,11 @@ class TranslationService {
       'action_refresh': 'Refresh',
       'action_ask_library': 'Ask Library',
       'recent_books': 'Recent Books',
-      'no_recent_books': 'No recent books',
+      'currently_reading': 'Currently Reading',
       'see_all_reading': 'See all reading',
+      'see_all_books': 'See all books',
+      'see_all_to_read': 'See all to read',
+      'no_recent_books': 'No recent books',
       'reading_list': 'Reading List',
       'no_reading_list': 'No books in reading list',
       'view_insights': 'View Library Insights',
@@ -338,9 +337,7 @@ class TranslationService {
       'create_lend_btn': 'Create & Lend',
       'failed_create_copy': 'Failed to create copy.',
       'all_copies_lent': 'All copies are currently lent out.',
-      'book_lent_to': 'Book lent to',
-      'error_lending_book': 'Error lending book',
-      'currently_reading': 'Currently Reading',
+
       'read_status': 'Read',
       'wishlist_status': 'Wishlist',
       'owned_status': 'In Collection',
@@ -471,6 +468,9 @@ class TranslationService {
       'sub_categories': 'Sub-categories',
       // Collections
       'collections': 'Collections',
+      'stat_total_collections': 'Total Collections',
+      'stat_avg_collection_completion': 'Avg. Completion',
+      'collection_statistics': 'Collection Statistics',
       'no_collections': 'No collections found',
       'collection_empty_state_desc':
           'Gather all books from the same series here and track the ones you\'re missing.',
@@ -549,7 +549,7 @@ class TranslationService {
       'no_network_members': 'No network members',
       'add_contact_or_scan_help':
           'Add a contact or scan a QR code to connect with friends.',
-      'confirm_delete': 'Are you sure you want to delete',
+
       'add_contact': 'Add Contact',
       // Loan Dialog
       'lend_book_title': 'Lend Book',
@@ -647,6 +647,7 @@ class TranslationService {
       'passwords_do_not_match': 'Passwords do not match',
       'lang_en': 'English',
       'lang_fr': 'French',
+      'content': 'Contenu',
       'lang_es': 'Spanish',
       'lang_de': 'German',
       'theme_default': 'Default (Colorful)',
@@ -692,7 +693,6 @@ class TranslationService {
       'avatar_bookworm': 'Bookworm',
       'avatar_young_reader': 'Young Reader',
       'avatar_grandmother': 'Grandmother',
-      'avatar_head_librarian': 'Head Librarian',
       'avatar_head_librarian': 'Head Librarian',
       'avatar_professional_librarian': 'Professional Librarian',
       'avatar_robot': 'Robot',
@@ -1928,9 +1928,12 @@ class TranslationService {
       'action_change_view': 'Changer de vue',
       'action_refresh': 'Actualiser',
       'action_ask_library': 'Demander à la bibliothèque',
-      'recent_books': 'Livres récents',
-      'no_recent_books': 'Aucun livre récent',
+      'recent_books': 'Livres ajoutés récemment',
+      'currently_reading': 'En cours de lecture',
       'see_all_reading': 'Voir toutes les lectures',
+      'see_all_books': 'Voir tous les livres',
+      'see_all_to_read': 'Voir toute la pile à lire',
+      'no_recent_books': 'Aucun livre récent',
       'reading_list': 'Liste de lecture',
       'no_reading_list': 'Aucun livre dans la liste de lecture',
       'view_insights': 'Voir les statistiques',
@@ -2012,7 +2015,7 @@ class TranslationService {
       'copy_label': 'Exemplaire',
       'book_lent_to': 'Livre prêté à',
       'error_lending_book': 'Erreur lors du prêt du livre',
-      'currently_reading': 'En cours de lecture',
+
       'read_status': 'Lu',
       'wishlist_status': 'Liste de souhaits',
       'owned_status': 'Dans ma bibliothèque',
@@ -2108,6 +2111,9 @@ class TranslationService {
       'go_to_library': 'Aller à la bibliothèque',
       'create_first_shelf': 'Créer ma première étagère',
       'scan_first_book': 'Scanner mon premier livre',
+      'empty_library_title': 'Votre bibliothèque est vide',
+      'empty_library_subtitle':
+          'Commencez par ajouter votre premier livre via le bouton ci-dessous ou le menu +.',
       'add_tag_hint': 'Ajouter une étagère...',
       'hierarchical_tag_hint':
           'Astuce : Utilisez "Parent > Enfant" pour créer des sous-étagères',
@@ -2529,7 +2535,9 @@ class TranslationService {
       'no_shelves': 'Aucune étagère',
       // Collection Statistics
       'collection_statistics': 'Collections',
+      'stat_total_collections': 'Collections',
       'total_collections': 'Collections',
+      'stat_avg_collection_completion': 'Complétion moy.',
       'books_in_collections': 'Livres en collections',
       'top_collections': 'Collections principales',
       'no_collections': 'Aucune collection',
