@@ -71,23 +71,12 @@ Future<String> _resolveDatabasePath() async {
     return newPath;
   }
 
-  final oldFile = File(oldPath);
-  final newFile = File(newPath);
-  final oldExists = oldFile.existsSync();
-  final newExists = newFile.existsSync();
-
-  if (newExists) {
-    // New location already has a DB — use it, clean up old
-    debugPrint('DB Migration: DB already exists at new path');
-    if (oldExists) {
-      await _deleteOldFiles(oldPath);
-    }
-    await prefs.setBool(_migrationFlag, true);
-    return newPath;
-  }
+  final oldExists = File(oldPath).existsSync();
+  final newExists = File(newPath).existsSync();
 
   if (oldExists) {
-    // Old DB exists, new does not — migrate
+    // Old DB exists — always migrate it to new path (overwriting any
+    // pre-existing DB at new path, which may be from standalone Rust binary)
     debugPrint('DB Migration: Migrating from old to new path...');
     final success = await _migrateDatabase(oldPath, newPath);
     if (success) {
@@ -102,8 +91,12 @@ Future<String> _resolveDatabasePath() async {
     }
   }
 
-  // Fresh install — neither exists, Rust will create at new path
-  debugPrint('DB Migration: Fresh install, using new path');
+  // No old DB — use new path (may already exist from standalone Rust, or fresh install)
+  if (newExists) {
+    debugPrint('DB Migration: No old DB, using existing DB at new path');
+  } else {
+    debugPrint('DB Migration: Fresh install, using new path');
+  }
   await prefs.setBool(_migrationFlag, true);
   return newPath;
 }

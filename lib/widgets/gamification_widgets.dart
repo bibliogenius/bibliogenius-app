@@ -6,12 +6,14 @@ import '../services/translation_service.dart';
 class BadgeInfo {
   final String assetPath;
   final String translationKey;
+  final String descriptionKey;
   final Color color;
   final Color secondaryColor;
 
   BadgeInfo({
     required this.assetPath,
     required this.translationKey,
+    required this.descriptionKey,
     required this.color,
     required this.secondaryColor,
   });
@@ -24,6 +26,7 @@ BadgeInfo getBadgeInfo(int index) {
       return BadgeInfo(
         assetPath: 'assets/images/badges/curieux.svg',
         translationKey: 'level_curieux',
+        descriptionKey: 'badge_desc_curieux',
         color: const Color(0xFF4CAF50), // Green
         secondaryColor: const Color(0xFF81C784),
       );
@@ -31,6 +34,7 @@ BadgeInfo getBadgeInfo(int index) {
       return BadgeInfo(
         assetPath: 'assets/images/badges/initie.svg',
         translationKey: 'level_initie',
+        descriptionKey: 'badge_desc_initie',
         color: const Color(0xFF2196F3), // Blue
         secondaryColor: const Color(0xFF64B5F6),
       );
@@ -38,6 +42,7 @@ BadgeInfo getBadgeInfo(int index) {
       return BadgeInfo(
         assetPath: 'assets/images/badges/bibliophile.svg',
         translationKey: 'level_bibliophile',
+        descriptionKey: 'badge_desc_bibliophile',
         color: const Color(0xFFFF9800), // Orange
         secondaryColor: const Color(0xFFFFB74D),
       );
@@ -46,6 +51,7 @@ BadgeInfo getBadgeInfo(int index) {
       return BadgeInfo(
         assetPath: 'assets/images/badges/erudit.svg',
         translationKey: 'level_erudit',
+        descriptionKey: 'badge_desc_erudit',
         color: const Color(0xFFFFC107), // Gold
         secondaryColor: const Color(0xFFFFD54F),
       );
@@ -268,41 +274,49 @@ class BadgeCollectionWidget extends StatelessWidget {
                 return Column(
                   children: [
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildBadgeItem(
-                          context,
-                          0,
-                          currentBadgeIndex,
-                          isDesktop,
-                          badgeLabelFontSize,
+                        Expanded(
+                          child: _buildBadgeItem(
+                            context,
+                            0,
+                            currentBadgeIndex,
+                            isDesktop,
+                            badgeLabelFontSize,
+                          ),
                         ),
-                        _buildBadgeItem(
-                          context,
-                          1,
-                          currentBadgeIndex,
-                          isDesktop,
-                          badgeLabelFontSize,
+                        Expanded(
+                          child: _buildBadgeItem(
+                            context,
+                            1,
+                            currentBadgeIndex,
+                            isDesktop,
+                            badgeLabelFontSize,
+                          ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 16),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildBadgeItem(
-                          context,
-                          2,
-                          currentBadgeIndex,
-                          isDesktop,
-                          badgeLabelFontSize,
+                        Expanded(
+                          child: _buildBadgeItem(
+                            context,
+                            2,
+                            currentBadgeIndex,
+                            isDesktop,
+                            badgeLabelFontSize,
+                          ),
                         ),
-                        _buildBadgeItem(
-                          context,
-                          3,
-                          currentBadgeIndex,
-                          isDesktop,
-                          badgeLabelFontSize,
+                        Expanded(
+                          child: _buildBadgeItem(
+                            context,
+                            3,
+                            currentBadgeIndex,
+                            isDesktop,
+                            badgeLabelFontSize,
+                          ),
                         ),
                       ],
                     ),
@@ -311,14 +325,16 @@ class BadgeCollectionWidget extends StatelessWidget {
               }
               // Use Row for wide screens
               return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: List.generate(4, (index) {
-                  return _buildBadgeItem(
-                    context,
-                    index,
-                    currentBadgeIndex,
-                    isDesktop,
-                    badgeLabelFontSize,
+                  return Expanded(
+                    child: _buildBadgeItem(
+                      context,
+                      index,
+                      currentBadgeIndex,
+                      isDesktop,
+                      badgeLabelFontSize,
+                    ),
                   );
                 }),
               );
@@ -465,6 +481,25 @@ class BadgeCollectionWidget extends StatelessWidget {
               color: isUnlocked ? badgeInfo.color : Colors.grey,
             ),
             maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+          child: Text(
+            TranslationService.translate(
+              context,
+              badgeInfo.descriptionKey,
+            ),
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: isDesktop ? 12.0 : 10.0,
+              color: isUnlocked
+                  ? Theme.of(context).textTheme.bodySmall?.color
+                  : Colors.grey,
+            ),
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
         ),
@@ -1083,7 +1118,17 @@ class _GamificationSummaryCardState extends State<GamificationSummaryCard> {
                     _buildHelpPanel(context, isDark),
                   ],
 
-                  const SizedBox(height: 16),
+                  // Dynamic progress hint
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0, bottom: 12.0),
+                    child: Text(
+                      _getProgressHint(context),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: isDark ? Colors.grey[400] : Colors.grey[600],
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ),
 
                   // Badge Collection
                   BadgeCollectionWidget(statusLevel: widget.status.statusLevel),
@@ -1156,6 +1201,25 @@ class _GamificationSummaryCardState extends State<GamificationSummaryCard> {
         ),
       ),
     );
+  }
+
+  String _getProgressHint(BuildContext context) {
+    final badgeIndex = getStatusBadgeIndex(widget.status.statusLevel);
+    switch (badgeIndex) {
+      case 0:
+        return TranslationService.translate(context, 'progress_hint_curieux');
+      case 1:
+        return TranslationService.translate(context, 'progress_hint_initie');
+      case 2:
+        return TranslationService.translate(
+          context,
+          'progress_hint_bibliophile',
+        );
+      case 3:
+        return TranslationService.translate(context, 'progress_hint_erudit');
+      default:
+        return TranslationService.translate(context, 'progress_hint_curieux');
+    }
   }
 
   Widget _buildHelpPanel(BuildContext context, bool isDark) {

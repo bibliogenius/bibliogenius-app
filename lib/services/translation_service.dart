@@ -776,6 +776,18 @@ class TranslationService {
       'level_initie': 'Initiate',
       'level_bibliophile': 'Bibliophile',
       'level_erudit': 'Scholar',
+      'badge_desc_curieux': 'Welcome to the adventure!',
+      'badge_desc_initie': 'Reach Apprentice in 1 track',
+      'badge_desc_bibliophile': 'Reach Bronze in all tracks',
+      'badge_desc_erudit': 'Reach Gold in all tracks',
+      'progress_hint_curieux':
+          'Progress in the 4 tracks to unlock new badges',
+      'progress_hint_initie':
+          'Keep going! Reach Bronze in every track to become Bibliophile',
+      'progress_hint_bibliophile':
+          'Almost there! Reach Gold in all tracks to become Scholar',
+      'progress_hint_erudit':
+          'Congratulations! You\'ve reached the highest rank',
       'no_books_analyze': 'No books to analyze yet!',
       'reading_habits': 'Reading Habits',
       'top_authors': 'Top Authors',
@@ -2493,6 +2505,18 @@ class TranslationService {
       'level_initie': 'Initié',
       'level_bibliophile': 'Bibliophile',
       'level_erudit': 'Érudit',
+      'badge_desc_curieux': 'Bienvenue dans l\'aventure !',
+      'badge_desc_initie': 'Atteignez Apprenti dans 1 domaine',
+      'badge_desc_bibliophile': 'Atteignez Bronze dans tous les domaines',
+      'badge_desc_erudit': 'Atteignez Or dans tous les domaines',
+      'progress_hint_curieux':
+          'Progressez dans les 4 domaines pour débloquer de nouveaux badges',
+      'progress_hint_initie':
+          'Continuez ! Atteignez Bronze dans chaque domaine pour devenir Bibliophile',
+      'progress_hint_bibliophile':
+          'Vous y êtes presque ! Visez Or partout pour devenir Érudit',
+      'progress_hint_erudit':
+          'Bravo ! Vous avez atteint le rang suprême',
       'no_books_analyze': 'Aucun livre à analyser pour le moment !',
       'reading_habits': 'Habitudes de lecture',
       'top_authors': 'Auteurs les plus lus',
