@@ -53,7 +53,7 @@ class _ScanContactViewState extends State<ScanContactView> {
   }
 
   // Adapted from original _onDetect
-  void _onDetect(BarcodeCapture capture) async {
+  void _onDetect(BarcodeCapture capture) {
     if (_isProcessingScan) return;
     final List<Barcode> barcodes = capture.barcodes;
     for (final barcode in barcodes) {
@@ -61,10 +61,13 @@ class _ScanContactViewState extends State<ScanContactView> {
         try {
           final data = jsonDecode(barcode.rawValue!);
           if (data['name'] != null && data['url'] != null) {
-            setState(() => _isProcessingScan = true);
+            // Stop the camera immediately to prevent further callbacks
+            _isProcessingScan = true;
+            cameraController.stop();
+            setState(() {});
             // Call connect peer logic
-            await _connect(data['name'], data['url']);
-            break;
+            _connect(data['name'], data['url']);
+            return;
           }
         } catch (_) {}
       }
@@ -96,7 +99,10 @@ class _ScanContactViewState extends State<ScanContactView> {
             ),
           ),
         );
-        setState(() => _isProcessingScan = false);
+        // Restart camera to allow retrying
+        _isProcessingScan = false;
+        cameraController.start();
+        setState(() {});
       }
     }
   }
