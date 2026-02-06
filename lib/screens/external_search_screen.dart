@@ -7,6 +7,7 @@ import '../widgets/plus_one_animation.dart';
 import '../widgets/work_edition_card.dart';
 import '../widgets/search_result_card.dart';
 import 'package:provider/provider.dart';
+import '../data/repositories/copy_repository.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
 import '../providers/theme_provider.dart';
@@ -652,7 +653,8 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
           if (action == 'view' && mounted) {
             context.push('/books/${existingBook.id}');
           } else if (action == 'copy' && mounted) {
-            await api.createCopy({
+            final copyRepo = Provider.of<CopyRepository>(context, listen: false);
+            await copyRepo.createCopy({
               'book_id': existingBook.id,
               'status': 'available',
             });

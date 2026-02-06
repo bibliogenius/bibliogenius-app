@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import '../data/repositories/tag_repository.dart';
 import '../models/tag.dart';
-import '../services/api_service.dart';
 import '../services/translation_service.dart';
 import '../utils/app_constants.dart';
 
@@ -298,7 +298,7 @@ class QuickActionsSheet extends StatelessWidget {
   void _showCreateShelfDialog(BuildContext context) {
     final controller = TextEditingController();
     final formKey = GlobalKey<FormState>();
-    final api = Provider.of<ApiService>(context, listen: false);
+    final api = Provider.of<TagRepository>(context, listen: false);
     int? selectedParentId;
 
     showDialog(
@@ -422,7 +422,7 @@ class QuickActionsSheet extends StatelessWidget {
   Future<void> _createShelf(BuildContext context, String name,
       {int? parentId}) async {
     try {
-      final api = Provider.of<ApiService>(context, listen: false);
+      final api = Provider.of<TagRepository>(context, listen: false);
       await api.createTag(name, parentId: parentId);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

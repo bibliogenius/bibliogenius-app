@@ -4,6 +4,9 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:dio/dio.dart';
 import 'dart:async';
+import '../data/repositories/copy_repository.dart';
+import '../data/repositories/loan_repository.dart';
+import '../models/loan.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
 import '../providers/theme_provider.dart';
@@ -38,7 +41,7 @@ class _LoansScreenState extends State<LoansScreen>
   List<dynamic> _connectionRequests = [];
 
   // Loans data
-  List<dynamic> _activeLoans = []; // Books I lent to others
+  List<Loan> _activeLoans = []; // Books I lent to others
   List<dynamic> _borrowedBooks = []; // Books I borrowed from others
 
   @override
@@ -106,7 +109,8 @@ class _LoansScreenState extends State<LoansScreen>
       }
 
       // Fetch active loans (books I lent)
-      final loansRes = await api.getLoans(status: 'active');
+      final loanRepo = Provider.of<LoanRepository>(context, listen: false);
+      final activeLoans = await loanRepo.getLoans(status: 'active');
 
       List<dynamic> borrowedBooks = [];
       if (themeProvider.canBorrowBooks) {
@@ -121,7 +125,7 @@ class _LoansScreenState extends State<LoansScreen>
 
       if (mounted) {
         setState(() {
-          _activeLoans = loansRes.data['loans'] ?? [];
+          _activeLoans = activeLoans;
           _borrowedBooks = borrowedBooks;
         });
       }
@@ -157,9 +161,9 @@ class _LoansScreenState extends State<LoansScreen>
   }
 
   Future<void> _returnLoan(int loanId) async {
-    final api = Provider.of<ApiService>(context, listen: false);
+    final loanRepo = Provider.of<LoanRepository>(context, listen: false);
     try {
-      await api.returnLoan(loanId);
+      await loanRepo.returnLoan(loanId);
       _fetchAllData();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -358,13 +362,13 @@ class _LoansScreenState extends State<LoansScreen>
     );
   }
 
-  Widget _buildLoanTile(Map<String, dynamic> loan) {
-    final bookTitle = loan['book_title'] ?? 'Unknown';
-    final contactName = loan['contact_name'] ?? 'Unknown';
-    final loanDate = loan['loan_date'] ?? '';
-    final dueDate = loan['due_date'] ?? '';
-    final loanId = loan['id'] as int;
-    final bookId = loan['book_id'] as int?;
+  Widget _buildLoanTile(Loan loan) {
+    final bookTitle = loan.bookTitle.isNotEmpty ? loan.bookTitle : 'Unknown';
+    final contactName = loan.contactName.isNotEmpty ? loan.contactName : 'Unknown';
+    final loanDate = loan.loanDate;
+    final dueDate = loan.dueDate;
+    final loanId = loan.id;
+    final bookId = loan.bookId;
 
     final isOverdue =
         dueDate.isNotEmpty &&
@@ -429,9 +433,9 @@ class _LoansScreenState extends State<LoansScreen>
     );
   }
 
-  Future<void> _navigateToLoanBook(Map<String, dynamic> loan) async {
-    final bookTitle = loan['book_title'] as String?;
-    if (bookTitle == null || bookTitle.isEmpty) {
+  Future<void> _navigateToLoanBook(Loan loan) async {
+    final bookTitle = loan.bookTitle;
+    if (bookTitle.isEmpty) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -607,9 +611,9 @@ class _LoansScreenState extends State<LoansScreen>
 
     if (confirmed == true) {
       try {
-        final api = Provider.of<ApiService>(context, listen: false);
+        final copyRepo = Provider.of<CopyRepository>(context, listen: false);
         // Delete the temporary copy when returned
-        await api.deleteCopy(copyId);
+        await copyRepo.deleteCopy(copyId);
         _fetchAllData();
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(

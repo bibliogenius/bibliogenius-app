@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import '../data/repositories/tag_repository.dart';
 import '../models/tag.dart';
-import '../services/api_service.dart';
 import '../widgets/genie_app_bar.dart';
 import '../widgets/contextual_help_sheet.dart';
 import '../services/translation_service.dart';
@@ -29,7 +29,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
   @override
   void initState() {
     super.initState();
-    _tagsFuture = Provider.of<ApiService>(context, listen: false).getTags();
+    _tagsFuture = Provider.of<TagRepository>(context, listen: false).getTags();
     widget.refreshNotifier?.addListener(_onRefreshRequested);
   }
 
@@ -45,7 +45,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
 
   void _refreshTags() {
     setState(() {
-      _tagsFuture = Provider.of<ApiService>(context, listen: false).getTags();
+      _tagsFuture = Provider.of<TagRepository>(context, listen: false).getTags();
       _currentParent = null;
       _path = [];
     });
@@ -624,7 +624,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
 
   Future<void> _updateShelf(int id, String name, {int? parentId}) async {
     try {
-      final api = Provider.of<ApiService>(context, listen: false);
+      final api = Provider.of<TagRepository>(context, listen: false);
       await api.updateTag(id, name, parentId: parentId);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -680,7 +680,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
 
   Future<void> _deleteShelf(Tag tag) async {
     try {
-      final api = Provider.of<ApiService>(context, listen: false);
+      final api = Provider.of<TagRepository>(context, listen: false);
       await api.deleteTag(tag.id);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -948,7 +948,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
   // Methods for direct shelf creation (copied/adapted from ShelfManagementScreen)
   Future<void> _createShelf(String name, {int? parentId}) async {
     try {
-      final api = Provider.of<ApiService>(context, listen: false);
+      final api = Provider.of<TagRepository>(context, listen: false);
       await api.createTag(name, parentId: parentId);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

@@ -1,5 +1,7 @@
 import '../../models/collection.dart';
 import '../../models/collection_book.dart';
+import '../../data/repositories/collection_repository.dart';
+import '../../data/repositories/copy_repository.dart';
 import '../../services/api_service.dart';
 import '../../services/collection_export_service.dart';
 import '../../services/translation_service.dart';
@@ -33,12 +35,8 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
 
   void _refreshBooks() {
     setState(() {
-      _booksFuture = Provider.of<ApiService>(context, listen: false)
-          .getCollectionBooks(widget.collection.id)
-          .then(
-            (list) =>
-                list.map((item) => CollectionBook.fromJson(item)).toList(),
-          );
+      _booksFuture = Provider.of<CollectionRepository>(context, listen: false)
+          .getCollectionBooks(widget.collection.id);
     });
   }
 
@@ -69,7 +67,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
     if (confirmed == true) {
       if (!mounted) return;
       try {
-        await Provider.of<ApiService>(
+        await Provider.of<CollectionRepository>(
           context,
           listen: false,
         ).deleteCollection(widget.collection.id);
@@ -225,7 +223,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
 
   Future<void> _removeBook(CollectionBook book) async {
     try {
-      await Provider.of<ApiService>(
+      await Provider.of<CollectionRepository>(
         context,
         listen: false,
       ).removeBookFromCollection(widget.collection.id, book.bookId);
@@ -788,36 +786,30 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
     try {
       final newStatus = !book.isOwned;
       final api = Provider.of<ApiService>(context, listen: false);
+      final copyRepo = Provider.of<CopyRepository>(context, listen: false);
 
       // 1. Update the book's owned status
       await api.updateBook(book.bookId, {'owned': newStatus});
 
       // 2. If becoming owned, check/create copy
-      // 2. If becoming owned, check/create copy
       if (newStatus) {
-        final copiesRes = await api.getBookCopies(book.bookId);
-        final List copies = copiesRes.data['copies'] ?? [];
+        final copies = await copyRepo.getBookCopies(book.bookId);
 
         if (copies.isEmpty) {
-          await api.createCopy({
+          await copyRepo.createCopy({
             'book_id': book.bookId,
             'library_id': 1, // Default library
             'status': 'available',
             'is_temporary': false,
           });
-          if (mounted) {
-            // Optional: Show specific message about copy creation or just rely on generic status update
-            // Ideally we just inform the user that it's now owned.
-          }
         }
       } else {
         // If becoming un-owned, delete all existing copies
         try {
-          final copiesRes = await api.getBookCopies(book.bookId);
-          final List copies = copiesRes.data['copies'] ?? [];
+          final copies = await copyRepo.getBookCopies(book.bookId);
           for (var copy in copies) {
-            if (copy['id'] != null) {
-              await api.deleteCopy(copy['id']);
+            if (copy.id != null) {
+              await copyRepo.deleteCopy(copy.id!);
             }
           }
         } catch (e) {

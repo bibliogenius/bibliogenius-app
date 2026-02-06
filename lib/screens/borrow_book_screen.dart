@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../models/contact.dart';
+import '../data/repositories/copy_repository.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
 import '../widgets/genie_app_bar.dart';
@@ -201,7 +202,8 @@ class _BorrowBookScreenState extends State<BorrowBookScreen> {
       // 2. Create temporary copy with borrowed status
       // The copy tracks who we borrowed from in the notes field
       final borrowedFrom = TranslationService.translate(context, 'borrowed_from');
-      await api.createCopy({
+      final copyRepo = Provider.of<CopyRepository>(context, listen: false);
+      await copyRepo.createCopy({
         'book_id': bookId,
         'status': 'borrowed',
         'is_temporary': true,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../data/repositories/tag_repository.dart';
 import '../models/tag.dart';
-import '../services/api_service.dart';
 import '../services/translation_service.dart';
 import 'tag_tree_view.dart';
 
@@ -38,7 +38,7 @@ class _HierarchicalTagSelectorState extends State<HierarchicalTagSelector> {
   }
 
   Future<void> _showSelectionDialog() async {
-    final api = Provider.of<ApiService>(context, listen: false);
+    final api = Provider.of<TagRepository>(context, listen: false);
 
     // Fetch fresh tags
     final tags = await api.getTags();
@@ -169,7 +169,7 @@ class _TagSelectionDialogState extends State<_TagSelectionDialog> {
     setState(() => _isCreating = true);
 
     try {
-      final api = Provider.of<ApiService>(context, listen: false);
+      final api = Provider.of<TagRepository>(context, listen: false);
       final newTag = await api.createTag(name, parentId: parentId);
 
       setState(() {

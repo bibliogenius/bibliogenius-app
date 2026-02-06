@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/contact.dart';
-import '../services/api_service.dart';
+import '../data/repositories/contact_repository.dart';
 import '../services/translation_service.dart';
 
 class LoanDialog extends StatefulWidget {
@@ -23,17 +23,14 @@ class _LoanDialogState extends State<LoanDialog> {
   }
 
   Future<void> _fetchContacts() async {
-    final api = Provider.of<ApiService>(context, listen: false);
+    final contactRepo = Provider.of<ContactRepository>(context, listen: false);
     try {
-      final response = await api.getContacts(type: 'borrower');
-      if (response.statusCode == 200) {
-        final List<dynamic> data = response.data['contacts'];
-        if (mounted) {
-          setState(() {
-            _contacts = data.map((json) => Contact.fromJson(json)).toList();
-            _isLoading = false;
-          });
-        }
+      final contacts = await contactRepo.getContacts(type: 'borrower');
+      if (mounted) {
+        setState(() {
+          _contacts = contacts;
+          _isLoading = false;
+        });
       }
     } catch (e) {
       if (mounted) {

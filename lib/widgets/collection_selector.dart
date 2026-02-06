@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/collection.dart';
-import '../services/api_service.dart';
+import '../data/repositories/collection_repository.dart';
 import '../services/translation_service.dart';
 
 class CollectionSelector extends StatefulWidget {
@@ -36,10 +36,10 @@ class _CollectionSelectorState extends State<CollectionSelector> {
   }
 
   Future<void> _showSelectionDialog() async {
-    final api = Provider.of<ApiService>(context, listen: false);
+    final collectionRepo = Provider.of<CollectionRepository>(context, listen: false);
 
     // Fetch fresh collections
-    final allCollections = await api.getCollections();
+    final allCollections = await collectionRepo.getCollections();
 
     if (!mounted) return;
 
@@ -158,8 +158,8 @@ class _CollectionSelectionDialogState
     setState(() => _isCreating = true);
 
     try {
-      final api = Provider.of<ApiService>(context, listen: false);
-      final newCollection = await api.createCollection(name);
+      final collectionRepo = Provider.of<CollectionRepository>(context, listen: false);
+      final newCollection = await collectionRepo.createCollection(name);
 
       setState(() {
         _collections.insert(0, newCollection); // Add to top

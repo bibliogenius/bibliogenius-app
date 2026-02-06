@@ -17,6 +17,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'providers/theme_provider.dart';
 import 'providers/book_refresh_notifier.dart';
 import 'audio/audio_module.dart'; // Audio module (decoupled)
+import 'data/repositories/book_repository.dart';
+import 'data/repositories/tag_repository.dart';
+import 'data/repositories/contact_repository.dart';
+import 'data/repositories/collection_repository.dart';
+import 'data/repositories/copy_repository.dart';
+import 'data/repositories/loan_repository.dart';
+import 'data/repositories_impl/book_repository_impl.dart';
+import 'data/repositories_impl/tag_repository_impl.dart';
+import 'data/repositories_impl/contact_repository_impl.dart';
+import 'data/repositories_impl/collection_repository_impl.dart';
+import 'data/repositories_impl/copy_repository_impl.dart';
+import 'data/repositories_impl/loan_repository_impl.dart';
 
 import 'screens/login_screen.dart';
 import 'screens/add_book_screen.dart';
@@ -254,6 +266,24 @@ class MyApp extends StatelessWidget {
         ),
         Provider<AuthService>.value(value: authService),
         Provider<ApiService>.value(value: apiService),
+        Provider<BookRepository>.value(
+          value: BookRepositoryImpl(apiService),
+        ),
+        Provider<TagRepository>.value(
+          value: TagRepositoryImpl(apiService),
+        ),
+        Provider<ContactRepository>.value(
+          value: ContactRepositoryImpl(apiService),
+        ),
+        Provider<CollectionRepository>.value(
+          value: CollectionRepositoryImpl(apiService),
+        ),
+        Provider<CopyRepository>.value(
+          value: CopyRepositoryImpl(apiService),
+        ),
+        Provider<LoanRepository>.value(
+          value: LoanRepositoryImpl(apiService),
+        ),
         Provider<SyncService>(create: (_) => SyncService(apiService)),
         // Audio module (decoupled, can be removed without breaking the app)
         ChangeNotifierProvider<AudioProvider>(create: (_) => AudioProvider()),

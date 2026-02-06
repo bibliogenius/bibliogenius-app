@@ -3,6 +3,12 @@ import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../data/repositories/book_repository.dart';
+import '../data/repositories/tag_repository.dart';
+import '../data/repositories/contact_repository.dart';
+import '../data/repositories/collection_repository.dart';
+import '../data/repositories/loan_repository.dart';
+import '../models/loan.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
 import '../models/book.dart';
@@ -25,7 +31,7 @@ class StatisticsScreen extends StatefulWidget {
 class _StatisticsScreenState extends State<StatisticsScreen>
     with TickerProviderStateMixin {
   List<Book> _books = [];
-  List<dynamic> _loans = [];
+  List<Loan> _loans = [];
   Map<int, Contact> _contactsMap = {};
   List<Tag> _tags = [];
   List<Collection> _collections = [];
@@ -99,17 +105,19 @@ class _StatisticsScreenState extends State<StatisticsScreen>
   }
 
   Future<void> _fetchData() async {
+    final bookRepo = Provider.of<BookRepository>(context, listen: false);
+    final tagRepo = Provider.of<TagRepository>(context, listen: false);
+    final contactRepo = Provider.of<ContactRepository>(context, listen: false);
+    final collectionRepo = Provider.of<CollectionRepository>(context, listen: false);
+    final loanRepo = Provider.of<LoanRepository>(context, listen: false);
     final api = Provider.of<ApiService>(context, listen: false);
     try {
-      final books = await api.getBooks();
+      final books = await bookRepo.getBooks();
 
       // Fetch loans
-      List<dynamic> loans = [];
+      List<Loan> loans = [];
       try {
-        final loansRes = await api.getLoans();
-        if (loansRes.statusCode == 200) {
-          loans = loansRes.data['loans'] ?? loansRes.data ?? [];
-        }
+        loans = await loanRepo.getLoans();
       } catch (e) {
         debugPrint('Error fetching loans: $e');
       }
@@ -117,14 +125,10 @@ class _StatisticsScreenState extends State<StatisticsScreen>
       // Fetch contacts for names
       Map<int, Contact> contactsMap = {};
       try {
-        final contactsRes = await api.getContacts();
-        if (contactsRes.statusCode == 200) {
-          final List<dynamic> list = contactsRes.data['contacts'] ?? [];
-          for (var json in list) {
-            final c = Contact.fromJson(json);
-            if (c.id != null) {
-              contactsMap[c.id!] = c;
-            }
+        final contacts = await contactRepo.getContacts();
+        for (var c in contacts) {
+          if (c.id != null) {
+            contactsMap[c.id!] = c;
           }
         }
       } catch (e) {}
@@ -132,7 +136,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
       // Fetch tags (shelves)
       List<Tag> tags = [];
       try {
-        tags = await api.getTags();
+        tags = await tagRepo.getTags();
       } catch (e) {
         debugPrint('Error fetching tags: $e');
       }
@@ -140,7 +144,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
       // Fetch collections
       List<Collection> collections = [];
       try {
-        collections = await api.getCollections();
+        collections = await collectionRepo.getCollections();
       } catch (e) {
         debugPrint('Error fetching collections: $e');
       }
@@ -1187,21 +1191,21 @@ class _StatisticsScreenState extends State<StatisticsScreen>
   Widget _buildLoanStatisticsSection() {
     // Calculate loan statistics
     final totalLoans = _loans.length;
-    final activeLoans = _loans.where((l) => l['return_date'] == null).length;
-    final returnedLoans = _loans.where((l) => l['return_date'] != null).length;
+    final activeLoans = _loans.where((l) => l.returnDate == null).length;
+    final returnedLoans = _loans.where((l) => l.returnDate != null).length;
 
     // Calculate average loan duration (for returned loans)
     double avgDuration = 0;
     final returnedWithDates = _loans
-        .where((l) => l['return_date'] != null && l['loan_date'] != null)
+        .where((l) => l.returnDate != null)
         .toList();
 
     if (returnedWithDates.isNotEmpty) {
       int totalDays = 0;
       for (var loan in returnedWithDates) {
         try {
-          final loanDate = DateTime.parse(loan['loan_date']);
-          final returnDate = DateTime.parse(loan['return_date']);
+          final loanDate = DateTime.parse(loan.loanDate);
+          final returnDate = DateTime.parse(loan.returnDate!);
           totalDays += returnDate.difference(loanDate).inDays;
         } catch (_) {}
       }
@@ -1212,14 +1216,12 @@ class _StatisticsScreenState extends State<StatisticsScreen>
     final borrowerCounts = <String, int>{};
     for (var loan in _loans) {
       String contactName = 'Unknown';
-      final contactId = loan['contact_id'];
 
-      if (contactId != null && _contactsMap.containsKey(contactId)) {
-        final contact = _contactsMap[contactId]!;
+      if (_contactsMap.containsKey(loan.contactId)) {
+        final contact = _contactsMap[loan.contactId]!;
         contactName = contact.fullName;
-      } else {
-        contactName =
-            loan['contact_name'] ?? loan['contact']?['name'] ?? 'Unknown';
+      } else if (loan.contactName.isNotEmpty) {
+        contactName = loan.contactName;
       }
 
       borrowerCounts[contactName] = (borrowerCounts[contactName] ?? 0) + 1;
@@ -1231,8 +1233,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
     // Most lent books
     final bookCounts = <String, int>{};
     for (var loan in _loans) {
-      final bookTitle =
-          loan['book_title'] ?? loan['book']?['title'] ?? 'Unknown';
+      final bookTitle = loan.bookTitle.isNotEmpty ? loan.bookTitle : 'Unknown';
       bookCounts[bookTitle] = (bookCounts[bookTitle] ?? 0) + 1;
     }
     var mostLentBooks = bookCounts.entries.toList()
@@ -2078,7 +2079,7 @@ class StatisticsContent extends StatefulWidget {
 class _StatisticsContentState extends State<StatisticsContent>
     with TickerProviderStateMixin {
   List<Book> _books = [];
-  List<dynamic> _loans = [];
+  List<Loan> _loans = [];
   Map<int, Contact> _contactsMap = {};
   List<Tag> _tags = [];
   List<Collection> _collections = [];
@@ -2109,17 +2110,19 @@ class _StatisticsContentState extends State<StatisticsContent>
   }
 
   Future<void> _fetchData() async {
+    final bookRepo = Provider.of<BookRepository>(context, listen: false);
+    final tagRepo = Provider.of<TagRepository>(context, listen: false);
+    final contactRepo = Provider.of<ContactRepository>(context, listen: false);
+    final collectionRepo = Provider.of<CollectionRepository>(context, listen: false);
+    final loanRepo = Provider.of<LoanRepository>(context, listen: false);
     final api = Provider.of<ApiService>(context, listen: false);
     try {
-      final books = await api.getBooks();
+      final books = await bookRepo.getBooks();
 
       // Fetch loans
-      List<dynamic> loans = [];
+      List<Loan> loans = [];
       try {
-        final loansRes = await api.getLoans();
-        if (loansRes.statusCode == 200) {
-          loans = loansRes.data['loans'] ?? loansRes.data ?? [];
-        }
+        loans = await loanRepo.getLoans();
       } catch (e) {
         debugPrint('Error fetching loans: $e');
       }
@@ -2127,14 +2130,10 @@ class _StatisticsContentState extends State<StatisticsContent>
       // Fetch contacts for names
       Map<int, Contact> contactsMap = {};
       try {
-        final contactsRes = await api.getContacts();
-        if (contactsRes.statusCode == 200) {
-          final List<dynamic> list = contactsRes.data['contacts'] ?? [];
-          for (var json in list) {
-            final c = Contact.fromJson(json);
-            if (c.id != null) {
-              contactsMap[c.id!] = c;
-            }
+        final contacts = await contactRepo.getContacts();
+        for (var c in contacts) {
+          if (c.id != null) {
+            contactsMap[c.id!] = c;
           }
         }
       } catch (e) {
@@ -2144,7 +2143,7 @@ class _StatisticsContentState extends State<StatisticsContent>
       // Fetch tags (shelves)
       List<Tag> tags = [];
       try {
-        tags = await api.getTags();
+        tags = await tagRepo.getTags();
       } catch (e) {
         debugPrint('Error fetching tags: $e');
       }
@@ -2152,7 +2151,7 @@ class _StatisticsContentState extends State<StatisticsContent>
       // Fetch collections
       List<Collection> collections = [];
       try {
-        collections = await api.getCollections();
+        collections = await collectionRepo.getCollections();
       } catch (e) {
         debugPrint('Error fetching collections: $e');
       }
@@ -3376,20 +3375,20 @@ class _StatisticsContentState extends State<StatisticsContent>
 
   Widget _buildLoanStatisticsSection() {
     final totalLoans = _loans.length;
-    final activeLoans = _loans.where((l) => l['return_date'] == null).length;
-    final returnedLoans = _loans.where((l) => l['return_date'] != null).length;
+    final activeLoans = _loans.where((l) => l.returnDate == null).length;
+    final returnedLoans = _loans.where((l) => l.returnDate != null).length;
 
     double avgDuration = 0;
     final returnedWithDates = _loans
-        .where((l) => l['return_date'] != null && l['loan_date'] != null)
+        .where((l) => l.returnDate != null)
         .toList();
 
     if (returnedWithDates.isNotEmpty) {
       int totalDays = 0;
       for (var loan in returnedWithDates) {
         try {
-          final loanDate = DateTime.parse(loan['loan_date']);
-          final returnDate = DateTime.parse(loan['return_date']);
+          final loanDate = DateTime.parse(loan.loanDate);
+          final returnDate = DateTime.parse(loan.returnDate!);
           totalDays += returnDate.difference(loanDate).inDays;
         } catch (_) {}
       }
@@ -3399,14 +3398,12 @@ class _StatisticsContentState extends State<StatisticsContent>
     final borrowerCounts = <String, int>{};
     for (var loan in _loans) {
       String contactName = 'Unknown';
-      final contactId = loan['contact_id'];
 
-      if (contactId != null && _contactsMap.containsKey(contactId)) {
-        final contact = _contactsMap[contactId]!;
+      if (_contactsMap.containsKey(loan.contactId)) {
+        final contact = _contactsMap[loan.contactId]!;
         contactName = contact.fullName;
-      } else {
-        contactName =
-            loan['contact_name'] ?? loan['contact']?['name'] ?? 'Unknown';
+      } else if (loan.contactName.isNotEmpty) {
+        contactName = loan.contactName;
       }
 
       borrowerCounts[contactName] = (borrowerCounts[contactName] ?? 0) + 1;
@@ -3417,8 +3414,7 @@ class _StatisticsContentState extends State<StatisticsContent>
 
     final bookCounts = <String, int>{};
     for (var loan in _loans) {
-      final bookTitle =
-          loan['book_title'] ?? loan['book']?['title'] ?? 'Unknown';
+      final bookTitle = loan.bookTitle.isNotEmpty ? loan.bookTitle : 'Unknown';
       bookCounts[bookTitle] = (bookCounts[bookTitle] ?? 0) + 1;
     }
     var mostLentBooks = bookCounts.entries.toList()

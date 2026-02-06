@@ -959,24 +959,6 @@ class ApiService {
     Map<String, dynamic> params = {};
     if (libraryId != null) params['library_id'] = libraryId;
     if (type != null) params['type'] = type;
-    if (useFfi) {
-      try {
-        final contacts = await FfiService().getContacts(
-          libraryId: 1, // Default to 1 for FFI
-        );
-        return Response(
-          requestOptions: RequestOptions(path: '/api/contacts'),
-          statusCode: 200,
-          data: {'contacts': contacts.map((c) => c.toJson()).toList()},
-        );
-      } catch (e) {
-        return Response(
-          requestOptions: RequestOptions(path: '/api/contacts'),
-          statusCode: 500,
-          statusMessage: 'Error getting contacts: $e',
-        );
-      }
-    }
     return await _dio.get('/api/contacts', queryParameters: params);
   }
 

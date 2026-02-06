@@ -9,6 +9,7 @@ import 'dart:convert';
 import '../models/contact.dart';
 import '../models/network_member.dart';
 import '../providers/theme_provider.dart';
+import '../data/repositories/contact_repository.dart';
 import '../services/api_service.dart';
 import '../services/auth_service.dart';
 import '../services/mdns_service.dart';
@@ -252,12 +253,12 @@ class _ContactsListViewState extends State<ContactsListView> {
       final authService = Provider.of<AuthService>(context, listen: false);
       final libraryId = await authService.getLibraryId() ?? 1;
 
+      final contactRepo = Provider.of<ContactRepository>(context, listen: false);
+
       // When P2P disabled, only load contacts
       if (!AppConstants.enableP2PFeatures) {
-        final contactsRes = await api.getContacts(libraryId: libraryId);
-        final List<dynamic> contactsJson = contactsRes.data['contacts'] ?? [];
-        final contacts = contactsJson
-            .map((json) => Contact.fromJson(json))
+        final contactsList = await contactRepo.getContacts(libraryId: libraryId);
+        final contacts = contactsList
             .map((c) => NetworkMember.fromContact(c))
             .toList();
 
@@ -280,18 +281,13 @@ class _ContactsListViewState extends State<ContactsListView> {
       // To save tokens/complexity, I will implement a simplified version that fetches both
       // assuming standard API behavior.
 
-      // Fetch contacts and peers
-      final results = await Future.wait([
-        api.getContacts(libraryId: libraryId),
-        api.getPeers(),
-      ]);
+      // Fetch contacts and peers in parallel
+      final contactsFuture = contactRepo.getContacts(libraryId: libraryId);
+      final peersFuture = api.getPeers();
+      final contactsList = await contactsFuture;
+      final peersRes = await peersFuture;
 
-      final contactsRes = results[0];
-      final peersRes = results[1];
-
-      final List<dynamic> contactsJson = contactsRes.data['contacts'] ?? [];
-      final contacts = contactsJson
-          .map((json) => Contact.fromJson(json))
+      final contacts = contactsList
           .map((c) => NetworkMember.fromContact(c))
           .toList();
 
@@ -398,6 +394,7 @@ class _ContactsListViewState extends State<ContactsListView> {
 
   Future<void> _deleteMember(NetworkMember member) async {
     final api = Provider.of<ApiService>(context, listen: false);
+    final contactRepo = Provider.of<ContactRepository>(context, listen: false);
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -433,7 +430,7 @@ class _ContactsListViewState extends State<ContactsListView> {
         if (member.source == NetworkMemberSource.network) {
           await api.deletePeer(member.id);
         } else {
-          await api.deleteContact(member.id);
+          await contactRepo.deleteContact(member.id);
         }
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(

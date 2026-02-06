@@ -8,6 +8,8 @@ import 'package:universal_html/html.dart' as html;
 import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../data/repositories/book_repository.dart';
+import '../data/repositories/tag_repository.dart';
 import '../services/api_service.dart';
 import '../services/auth_service.dart';
 import '../theme/app_design.dart';
@@ -538,15 +540,15 @@ class _MigrationWizardScreenState extends State<MigrationWizardScreen> {
   Future<void> _performResetBooks() async {
     try {
       setState(() => _isProcessing = true);
-      final apiService = Provider.of<ApiService>(context, listen: false);
+      final bookRepo = Provider.of<BookRepository>(context, listen: false);
 
       // Get all books
-      final books = await apiService.getBooks();
+      final books = await bookRepo.getBooks();
 
       int deleted = 0;
       for (final book in books) {
         if (book.id != null) {
-          await apiService.deleteBook(book.id!);
+          await bookRepo.deleteBook(book.id!);
           deleted++;
         }
       }
@@ -573,21 +575,23 @@ class _MigrationWizardScreenState extends State<MigrationWizardScreen> {
   Future<void> _performResetBooksShelvesCollections() async {
     try {
       setState(() => _isProcessing = true);
+      final bookRepo = Provider.of<BookRepository>(context, listen: false);
+      final tagRepo = Provider.of<TagRepository>(context, listen: false);
       final apiService = Provider.of<ApiService>(context, listen: false);
       final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
 
       // Delete all books first
-      final books = await apiService.getBooks();
+      final books = await bookRepo.getBooks();
       for (final book in books) {
         if (book.id != null) {
-          await apiService.deleteBook(book.id!);
+          await bookRepo.deleteBook(book.id!);
         }
       }
 
       // Delete all shelves/tags
-      final tags = await apiService.getTags();
+      final tags = await tagRepo.getTags();
       for (final tag in tags) {
-        await apiService.deleteTag(tag.id);
+        await tagRepo.deleteTag(tag.id);
       }
 
       // Delete all collections if module is enabled

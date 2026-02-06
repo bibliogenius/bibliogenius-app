@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../models/collection.dart';
 
 import '../../services/translation_service.dart';
+import '../../data/repositories/collection_repository.dart';
 import '../../services/api_service.dart';
 import '../../providers/theme_provider.dart';
 import 'dart:math';
@@ -246,6 +247,7 @@ class _ImportFromSearchScreenState extends State<ImportFromSearchScreen>
     setState(() => _isImporting = true);
 
     final apiService = Provider.of<ApiService>(context, listen: false);
+    final collectionRepo = Provider.of<CollectionRepository>(context, listen: false);
 
     try {
       final bookData = {
@@ -277,7 +279,7 @@ class _ImportFromSearchScreenState extends State<ImportFromSearchScreen>
         for (final collection in _selectedCollections) {
           try {
             if (collection.id.isNotEmpty) {
-              await apiService.addBookToCollection(collection.id, bookId);
+              await collectionRepo.addBookToCollection(collection.id, bookId);
             }
           } catch (e) {
             debugPrint('Failed to add to collection ${collection.name}: $e');
@@ -319,6 +321,7 @@ class _ImportFromSearchScreenState extends State<ImportFromSearchScreen>
     setState(() => _isImporting = true);
 
     final apiService = Provider.of<ApiService>(context, listen: false);
+    final collectionRepo = Provider.of<CollectionRepository>(context, listen: false);
     int successCount = 0;
     int failCount = 0;
 
@@ -375,7 +378,7 @@ class _ImportFromSearchScreenState extends State<ImportFromSearchScreen>
           for (final collection in _selectedCollections) {
             try {
               if (collection.id.isNotEmpty) {
-                await apiService.addBookToCollection(collection.id, bookId);
+                await collectionRepo.addBookToCollection(collection.id, bookId);
               }
             } catch (e) {
               debugPrint('Failed to add to collection ${collection.name}: $e');

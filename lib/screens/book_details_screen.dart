@@ -6,8 +6,10 @@ import '../models/book.dart';
 import '../models/copy.dart';
 import '../models/contact.dart';
 import 'record_sale_screen.dart';
-import '../services/api_service.dart';
-import 'package:dio/dio.dart';
+import '../data/repositories/book_repository.dart';
+import '../data/repositories/contact_repository.dart';
+import '../data/repositories/copy_repository.dart';
+import '../data/repositories/loan_repository.dart';
 import '../services/translation_service.dart';
 // Assuming we might want to use common widgets, but for this specific design we want a SliverAppBar
 import '../widgets/star_rating_widget.dart';
@@ -28,7 +30,7 @@ class BookDetailsScreen extends StatefulWidget {
 
 class _BookDetailsScreenState extends State<BookDetailsScreen> {
   Book? _book;
-  List<dynamic> _copies = [];
+  List<Copy> _copies = [];
   bool _isLoadingCopies = true;
   bool _isLoadingBook = false;
   bool _hasChanges = false;
@@ -50,16 +52,11 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   Future<void> _fetchCopies() async {
     if (!mounted) return;
     try {
-      final api = Provider.of<ApiService>(context, listen: false);
-      final response = await api.getBookCopies(widget.bookId);
-      if (mounted && response.statusCode == 200) {
-        final data = response.data;
+      final copyRepo = Provider.of<CopyRepository>(context, listen: false);
+      final copies = await copyRepo.getBookCopies(widget.bookId);
+      if (mounted) {
         setState(() {
-          if (data is Map && data.containsKey('copies')) {
-            _copies = data['copies'];
-          } else if (data is List) {
-            _copies = data;
-          }
+          _copies = copies;
           _isLoadingCopies = false;
         });
       }
@@ -70,22 +67,19 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   }
 
   Future<void> _fetchBookDetails({bool forceRefresh = false}) async {
-    final api = Provider.of<ApiService>(context, listen: false);
+    final bookRepo = Provider.of<BookRepository>(context, listen: false);
+    final copyRepo = Provider.of<CopyRepository>(context, listen: false);
     try {
-      final futures = <Future<dynamic>>[api.getBookCopies(widget.bookId)];
+      final copiesFuture = copyRepo.getBookCopies(widget.bookId);
 
       // Fetch book if we don't have it OR if forced refresh is requested
+      Future<Book>? bookFuture;
       if (_book == null || forceRefresh) {
-        futures.add(api.getBook(widget.bookId));
+        bookFuture = bookRepo.getBook(widget.bookId);
       }
 
-      final results = await Future.wait(futures);
-
-      final copiesResponse = results[0] as Response;
-      Book? freshBook;
-      if (results.length > 1) {
-        freshBook = results[1] as Book;
-      }
+      final copies = await copiesFuture;
+      final freshBook = bookFuture != null ? await bookFuture : null;
 
       if (mounted) {
         setState(() {
@@ -94,14 +88,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             _isLoadingBook = false;
           }
 
-          if (copiesResponse.statusCode == 200) {
-            final data = copiesResponse.data;
-            if (data is Map && data.containsKey('copies')) {
-              _copies = data['copies'];
-            } else if (data is List) {
-              _copies = data;
-            }
-          }
+          _copies = copies;
           _isLoadingCopies = false;
         });
       }
@@ -119,26 +106,26 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
   bool get _hasAvailableCopies {
     if (_copies.isEmpty) return false;
-    return _copies.any((copy) => copy['status'] == 'available');
+    return _copies.any((copy) => copy.status == 'available');
   }
 
   bool get _hasLentCopies {
     if (_copies.isEmpty) return false;
-    return _copies.any((copy) => copy['status'] == 'loaned');
-  }
+    return _copies.any((copy) => copy.status == 'loaned');
+}
 
   bool get _hasBorrowedCopies {
     if (_copies.isEmpty) return false;
-    return _copies.any((copy) => copy['status'] == 'borrowed');
+    return _copies.any((copy) => copy.status == 'borrowed');
   }
 
   // ... existing build methods ...
 
   Future<void> _updateRating(int? newRating) async {
     if (_book == null || _book!.id == null) return;
-    final api = Provider.of<ApiService>(context, listen: false);
+    final bookRepo = Provider.of<BookRepository>(context, listen: false);
     try {
-      await api.updateBook(_book!.id!, {
+      await bookRepo.updateBook(_book!.id!, {
         'title': _book!.title,
         'user_rating': newRating,
       });
@@ -683,16 +670,16 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   Future<void> _sellBook(BuildContext context) async {
     // Check copies
     final availableCopies = _copies
-        .where((c) => c['status'] == 'available')
+        .where((c) => c.status == 'available')
         .toList();
     if (availableCopies.isEmpty) return;
 
-    Map<String, dynamic> selectedCopyMap;
+    Copy selectedCopy;
     if (availableCopies.length == 1) {
-      selectedCopyMap = availableCopies.first;
+      selectedCopy = availableCopies.first;
     } else {
       // Show dialog to pick copy
-      final picked = await showDialog<Map<String, dynamic>>(
+      final picked = await showDialog<Copy>(
         context: context,
         builder: (ctx) => SimpleDialog(
           title: Text(TranslationService.translate(context, 'select_copy')),
@@ -701,7 +688,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                 (c) => SimpleDialogOption(
                   onPressed: () => Navigator.pop(ctx, c),
                   child: Text(
-                    '${TranslationService.translate(context, 'copy_label')} #${c['id']}',
+                    '${TranslationService.translate(context, 'copy_label')} #${c.id}',
                   ),
                 ),
               )
@@ -709,10 +696,10 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         ),
       );
       if (picked == null) return;
-      selectedCopyMap = picked;
+      selectedCopy = picked;
     }
 
-    final copy = Copy.fromJson(selectedCopyMap);
+    final copy = selectedCopy;
 
     if (!mounted) return;
     final result = await Navigator.push(
@@ -803,8 +790,8 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             () {
               // Get all copy prices that are set and greater than zero
               final copyPrices = _copies
-                  .where((c) => c['price'] != null && (c['price'] as num) > 0)
-                  .map((c) => (c['price'] as num).toDouble())
+                  .where((c) => c.price != null && c.price! > 0)
+                  .map((c) => c.price!)
                   .toList();
 
               String? priceString;
@@ -1140,7 +1127,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
     if (!context.mounted) return;
 
-    final apiService = Provider.of<ApiService>(context, listen: false);
+    final bookRepo = Provider.of<BookRepository>(context, listen: false);
     try {
       final Map<String, dynamic> updateData = {
         'title': _book!.title,
@@ -1163,7 +1150,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         updateData['finished_reading_at'] = selectedDate?.toIso8601String();
       }
 
-      await apiService.updateBook(_book!.id!, updateData);
+      await bookRepo.updateBook(_book!.id!, updateData);
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -1220,10 +1207,10 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     );
 
     if (confirmed == true && context.mounted) {
-      final apiService = Provider.of<ApiService>(context, listen: false);
+      final bookRepo = Provider.of<BookRepository>(context, listen: false);
       try {
         if (_book == null) return;
-        await apiService.deleteBook(_book!.id!);
+        await bookRepo.deleteBook(_book!.id!);
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -1258,32 +1245,31 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
     if (selectedContact == null || !context.mounted) return;
 
-    final apiService = Provider.of<ApiService>(context, listen: false);
+    final copyRepo = Provider.of<CopyRepository>(context, listen: false);
+    final loanRepo = Provider.of<LoanRepository>(context, listen: false);
     try {
       if (_book == null) return;
-      if (_book == null) return;
       // 1. Get existing copies for this book
-      final copiesResponse = await apiService.getBookCopies(_book!.id!);
-      List<dynamic> copies = copiesResponse.data['copies'] ?? [];
+      final copies = await copyRepo.getBookCopies(_book!.id!);
 
       int copyId;
 
       if (copies.isEmpty) {
         // 2. Create a copy if none exists
-        final newCopyResponse = await apiService.createCopy({
+        final newCopy = await copyRepo.createCopy({
           'book_id': _book!.id,
           'library_id': 1, // Default library
           'status': 'available',
           'is_temporary': false,
         });
-        copyId = newCopyResponse.data['copy']['id'];
+        copyId = newCopy.id!;
       } else {
         // Find an available copy
         final availableCopy = copies.firstWhere(
-          (c) => c['status'] == 'available',
+          (c) => c.status == 'available',
           orElse: () => copies.first,
         );
-        copyId = availableCopy['id'];
+        copyId = availableCopy.id!;
       }
 
       // 3. Calculate due date (30 days from now)
@@ -1291,7 +1277,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       final dueDate = now.add(const Duration(days: 30));
 
       // 4. Create the loan with correct fields
-      await apiService.createLoan({
+      await loanRepo.createLoan({
         'copy_id': copyId,
         'contact_id': selectedContact.id,
         'library_id': 1, // Default library
@@ -1300,7 +1286,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       });
 
       // 5. Update copy status to 'lent'
-      await apiService.updateCopy(copyId, {'status': 'loaned'});
+      await copyRepo.updateCopy(copyId, {'status': 'loaned'});
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -1327,22 +1313,22 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   }
 
   Future<void> _returnBook(BuildContext context) async {
-    final apiService = Provider.of<ApiService>(context, listen: false);
+    final copyRepo = Provider.of<CopyRepository>(context, listen: false);
+    final loanRepo = Provider.of<LoanRepository>(context, listen: false);
 
     try {
       if (_book == null) return;
       // Find copies for this book
-      final copiesResponse = await apiService.getBookCopies(_book!.id!);
-      List<dynamic> copies = copiesResponse.data['copies'] ?? [];
+      final copies = await copyRepo.getBookCopies(_book!.id!);
 
       if (copies.isEmpty) {
         throw Exception('No copy found for this book');
       }
 
       // Get the lent copy - find one with 'loaned' status first
-      var lentCopies = copies.where((c) => c['status'] == 'loaned').toList();
+      var lentCopies = copies.where((c) => c.status == 'loaned').toList();
       if (lentCopies.isEmpty) {
-        lentCopies = copies.where((c) => c['status'] == 'borrowed').toList();
+        lentCopies = copies.where((c) => c.status == 'borrowed').toList();
       }
 
       if (lentCopies.isEmpty) {
@@ -1351,21 +1337,20 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       final lentCopy = lentCopies.first;
 
       // Find active loan for this copy
-      final loansResponse = await apiService.getLoans(status: 'active');
-      List<dynamic> loans = loansResponse.data['loans'] ?? [];
+      final loans = await loanRepo.getLoans(status: 'active');
 
       // Find the loan matching this copy
       final matchingLoans = loans
-          .where((l) => l['copy_id'] == lentCopy['id'])
+          .where((l) => l.copyId == lentCopy.id)
           .toList();
 
       if (matchingLoans.isNotEmpty) {
         // Return the loan
-        await apiService.returnLoan(matchingLoans.first['id']);
+        await loanRepo.returnLoan(matchingLoans.first.id);
       }
 
       // Update copy status back to 'available'
-      await apiService.updateCopy(lentCopy['id'], {'status': 'available'});
+      await copyRepo.updateCopy(lentCopy.id!, {'status': 'available'});
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -1393,16 +1378,13 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
   /// Borrow a book from a contact - creates a copy with 'borrowed' status
   Future<void> _borrowBook(BuildContext context) async {
-    final apiService = Provider.of<ApiService>(context, listen: false);
+    final contactRepo = Provider.of<ContactRepository>(context, listen: false);
 
     try {
       if (_book == null) return;
 
       // 1. Fetch contacts to let user pick who they're borrowing from
-      final contactsRes = await apiService.getContacts();
-      List<dynamic> contactsList = contactsRes.data is List
-          ? contactsRes.data
-          : (contactsRes.data['contacts'] ?? []);
+      final contactsList = await contactRepo.getContacts();
 
       if (contactsList.isEmpty) {
         if (context.mounted) {
@@ -1435,8 +1417,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
               shrinkWrap: true,
               itemCount: contactsList.length,
               itemBuilder: (context, index) {
-                final c = contactsList[index];
-                final contact = c is Contact ? c : Contact.fromJson(c);
+                final contact = contactsList[index];
                 return ListTile(
                   leading: const Icon(Icons.person),
                   title: Text(contact.displayName),
@@ -1462,7 +1443,8 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       final borrowedFromLabel =
           TranslationService.translate(context, 'borrowed_from_label') ??
           'Borrowed from';
-      await apiService.createCopy({
+      final copyRepo = Provider.of<CopyRepository>(context, listen: false);
+      await copyRepo.createCopy({
         'book_id': _book!.id,
         'library_id': 1,
         'status': 'borrowed',
@@ -1495,14 +1477,14 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
   /// Give back a borrowed book - removes the borrowed copy
   Future<void> _giveBackBook(BuildContext context) async {
-    final apiService = Provider.of<ApiService>(context, listen: false);
+    final copyRepo = Provider.of<CopyRepository>(context, listen: false);
 
     try {
       if (_book == null) return;
 
       // Find the borrowed copy
       final borrowedCopies = _copies
-          .where((c) => c['status'] == 'borrowed')
+          .where((c) => c.status == 'borrowed')
           .toList();
       if (borrowedCopies.isEmpty) {
         throw Exception('No borrowed copy found');
@@ -1510,7 +1492,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       final borrowedCopy = borrowedCopies.first;
 
       // Delete the borrowed copy (book was given back, no longer in our possession)
-      await apiService.deleteCopy(borrowedCopy['id']);
+      await copyRepo.deleteCopy(borrowedCopy.id!);
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

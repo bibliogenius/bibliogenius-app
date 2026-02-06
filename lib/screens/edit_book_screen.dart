@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import '../data/repositories/book_repository.dart';
+import '../data/repositories/collection_repository.dart';
+import '../data/repositories/copy_repository.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
 import '../providers/theme_provider.dart';
@@ -153,8 +156,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
     if (widget.book.id == null) return;
     try {
-      final api = Provider.of<ApiService>(context, listen: false);
-      final collections = await api.getBookCollections(widget.book.id!);
+      final collectionRepo = Provider.of<CollectionRepository>(context, listen: false);
+      final collections = await collectionRepo.getBookCollections(widget.book.id!);
       if (mounted) {
         setState(() {
           // Merge with initial if present, avoiding duplicates
@@ -172,8 +175,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
   Future<void> _loadAuthors() async {
     try {
-      final api = Provider.of<ApiService>(context, listen: false);
-      final authors = await api.getAllAuthors();
+      final bookRepo = Provider.of<BookRepository>(context, listen: false);
+      final authors = await bookRepo.getAllAuthors();
       if (mounted) {
         setState(() {
           _allAuthors = authors;
@@ -217,18 +220,15 @@ class _EditBookScreenState extends State<EditBookScreen> {
     // ... existing implementation
     if (widget.book.id == null) return;
     try {
-      final api = Provider.of<ApiService>(context, listen: false);
-      final res = await api.getBookCopies(widget.book.id!);
-      if (res.statusCode == 200 && res.data != null) {
-        final copies = res.data['copies'] as List? ?? [];
-        if (copies.isNotEmpty) {
-          final firstCopy = copies.first;
-          setState(() {
-            _copyId = firstCopy['id'];
-            _copyStatus = firstCopy['status'] ?? 'available';
-          });
-          debugPrint('📦 Loaded copy: id=$_copyId, status=$_copyStatus');
-        }
+      final copyRepo = Provider.of<CopyRepository>(context, listen: false);
+      final copies = await copyRepo.getBookCopies(widget.book.id!);
+      if (copies.isNotEmpty) {
+        final firstCopy = copies.first;
+        setState(() {
+          _copyId = firstCopy.id;
+          _copyStatus = firstCopy.status;
+        });
+        debugPrint('📦 Loaded copy: id=$_copyId, status=$_copyStatus');
       }
     } catch (e) {
       debugPrint('⚠️ Failed to load copy status: $e');
@@ -236,6 +236,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
   }
 
   void _onIsbnChanged() {
+    if (!mounted || _isSaving) return;
     final isbn = _isbnController.text.replaceAll(RegExp(r'[^0-9X]'), '');
     if ((isbn.length == 10 || isbn.length == 13) && !_isFetchingDetails) {
       _fetchBookDetails(isbn);
@@ -289,6 +290,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
   @override
   void dispose() {
+    _isbnController.removeListener(_onIsbnChanged);
     _titleController.dispose();
     _authorController.dispose();
     _publisherController.dispose();
@@ -298,6 +300,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
     _startedDateController.dispose();
     _finishedDateController.dispose();
     _priceController.dispose();
+    _tagsController.dispose();
     // Dispose FocusNodes
     _titleFocusNode.dispose();
     _authorFocusNode.dispose();
@@ -364,6 +367,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
     setState(() => _isSaving = true);
 
+    final bookRepo = Provider.of<BookRepository>(context, listen: false);
     final apiService = Provider.of<ApiService>(context, listen: false);
 
     // Construct book data map manually for update
@@ -398,37 +402,43 @@ class _EditBookScreenState extends State<EditBookScreen> {
       if (widget.book.id == null) {
         throw Exception("Book ID is missing");
       }
-      await apiService.updateBook(widget.book.id!, bookData);
+      await bookRepo.updateBook(widget.book.id!, bookData);
 
       // If not owned anymore, delete all copies. Otherwise update copy status.
+      final copyRepo = Provider.of<CopyRepository>(context, listen: false);
       if (!_owned) {
         try {
-          final copiesRes = await apiService.getBookCopies(widget.book.id!);
-          final List copies = copiesRes.data['copies'] ?? [];
+          final copies = await copyRepo.getBookCopies(widget.book.id!);
           for (var copy in copies) {
-            if (copy['id'] != null) {
-              await apiService.deleteCopy(copy['id']);
+            if (copy.id != null) {
+              await copyRepo.deleteCopy(copy.id!);
             }
           }
         } catch (e) {
           debugPrint('Error cleaning up copies for un-owned book: $e');
         }
       } else if (_copyId != null) {
-        await apiService.updateCopy(_copyId!, {'status': _copyStatus});
+        await copyRepo.updateCopy(_copyId!, {'status': _copyStatus});
       }
 
       // Update collections
       if (widget.book.id != null) {
-        await apiService.updateBookCollections(
+        final collectionRepo = Provider.of<CollectionRepository>(context, listen: false);
+        await collectionRepo.updateBookCollections(
           widget.book.id!,
           _selectedCollections.map((c) => c.id).toList(),
         );
       }
 
       if (mounted) {
+        // Remove listener before syncing controllers to prevent
+        // _onIsbnChanged from firing during setState (nested setState crash)
+        _isbnController.removeListener(_onIsbnChanged);
+
         // Re-fetch the book from API to get confirmed server state
         try {
-          final updatedBook = await apiService.getBook(widget.book.id!);
+          final updatedBook = await bookRepo.getBook(widget.book.id!);
+          if (!mounted) return;
           setState(() {
             _isSaving = false;
             _isEditing = false; // Return to view mode
@@ -536,9 +546,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
     setState(() => _isSaving = true);
 
-    final apiService = Provider.of<ApiService>(context, listen: false);
+    final bookRepo = Provider.of<BookRepository>(context, listen: false);
     try {
-      await apiService.deleteBook(widget.book.id!);
+      await bookRepo.deleteBook(widget.book.id!);
       if (mounted) {
         context.pop(true); // Return true to indicate success (and refresh list)
       }

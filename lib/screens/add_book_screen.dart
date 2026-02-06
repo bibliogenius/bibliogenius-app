@@ -4,6 +4,10 @@ import 'dart:async';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
+import '../data/repositories/book_repository.dart';
+import '../data/repositories/tag_repository.dart';
+import '../data/repositories/collection_repository.dart';
+import '../data/repositories/copy_repository.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
 import '../services/sync_service.dart';
@@ -14,8 +18,6 @@ import '../models/book.dart';
 import '../services/search_cache.dart';
 import '../widgets/plus_one_animation.dart';
 import '../widgets/cached_book_cover.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'scan_screen.dart';
 import '../widgets/collection_selector.dart';
 import '../widgets/edition_picker_sheet.dart';
 import '../models/collection.dart';
@@ -89,8 +91,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
   Future<void> _loadPreSelectedCollection() async {
     if (widget.preSelectedCollectionId == null) return;
     try {
-      final api = Provider.of<ApiService>(context, listen: false);
-      final collections = await api.getCollections();
+      final collectionRepo = Provider.of<CollectionRepository>(context, listen: false);
+      final collections = await collectionRepo.getCollections();
       try {
         final collection = collections.firstWhere(
           (c) => c.id.toString() == widget.preSelectedCollectionId.toString(),
@@ -114,8 +116,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
   Future<void> _loadAuthors() async {
     try {
-      final api = Provider.of<ApiService>(context, listen: false);
-      final authors = await api.getAllAuthors();
+      final bookRepo = Provider.of<BookRepository>(context, listen: false);
+      final authors = await bookRepo.getAllAuthors();
       if (mounted) {
         setState(() {
           _allAuthors = authors;
@@ -138,6 +140,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
   @override
   void dispose() {
+    _debounce?.cancel();
+    _isbnController.removeListener(_onIsbnChanged);
     _titleController.dispose();
     _authorController.dispose();
     _publisherController.dispose();
@@ -145,13 +149,13 @@ class _AddBookScreenState extends State<AddBookScreen> {
     _isbnController.dispose();
     _summaryController.dispose();
     _priceController.dispose();
+    _tagsController.dispose();
     _titleFocusNode.dispose();
-    _debounce?.cancel();
-    // _tagsController is managed by Autocomplete
     super.dispose();
   }
 
   void _onIsbnChanged() {
+    if (!mounted || _isSaving) return;
     final isbn = _isbnController.text.replaceAll(RegExp(r'[^0-9X]'), '');
 
     // Reset last lookup if ISBN changed significantly (not just adding digits)
@@ -169,12 +173,15 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
   Future<void> _fetchBookDetails(String isbn) async {
     _lastLookedUpIsbn = isbn; // Prevent duplicate lookups
+    if (!mounted) return;
     setState(() => _isFetchingDetails = true);
     try {
       // Check if this ISBN already exists in library
+      final bookRepo = Provider.of<BookRepository>(context, listen: false);
       final api = Provider.of<ApiService>(context, listen: false);
-      final existingBook = await api.findBookByIsbn(isbn);
-      if (existingBook != null && mounted) {
+      final existingBook = await bookRepo.findBookByIsbn(isbn);
+      if (!mounted) return;
+      if (existingBook != null) {
         setState(() {
           _duplicateBook = existingBook;
           _isDuplicate = true;
@@ -320,6 +327,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
     setState(() => _isSaving = true);
 
+    final bookRepo = Provider.of<BookRepository>(context, listen: false);
     final apiService = Provider.of<ApiService>(context, listen: false);
     final book = Book(
       title: _titleController.text,
@@ -343,18 +351,23 @@ class _AddBookScreenState extends State<AddBookScreen> {
     );
 
     try {
-      final response = await apiService.createBook(book.toJson());
-      final newBookId = response.data['id'];
+      final createdBook = await bookRepo.createBook(book.toJson());
+      final newBookId = createdBook.id;
 
       // Update collections if any are selected
       if (newBookId != null && _selectedCollections.isNotEmpty) {
-        await apiService.updateBookCollections(
+        final collectionRepo = Provider.of<CollectionRepository>(context, listen: false);
+        await collectionRepo.updateBookCollections(
           newBookId,
           _selectedCollections.map((c) => c.id).toList(),
         );
       }
 
       if (mounted) {
+        // Remove listener before clearing to prevent _onIsbnChanged from firing
+        _isbnController.removeListener(_onIsbnChanged);
+        _debounce?.cancel();
+
         // Clear all form fields to prevent Android autofill from retaining values
         _titleController.clear();
         _authorController.clear();
@@ -634,12 +647,12 @@ class _AddBookScreenState extends State<AddBookScreen> {
                         Expanded(
                           child: ElevatedButton.icon(
                             onPressed: () async {
-                              final api = Provider.of<ApiService>(
+                              final copyRepo = Provider.of<CopyRepository>(
                                 context,
                                 listen: false,
                               );
                               try {
-                                await api.createCopy({
+                                await copyRepo.createCopy({
                                   'book_id': _duplicateBook!.id,
                                   'status': 'available',
                                 });
@@ -714,6 +727,14 @@ class _AddBookScreenState extends State<AddBookScreen> {
                     final completer =
                         Completer<Iterable<Map<String, dynamic>>>();
                     _debounce = Timer(const Duration(milliseconds: 500), () async {
+                      if (!mounted) {
+                        if (!completer.isCompleted) {
+                          completer.complete(
+                            const Iterable<Map<String, dynamic>>.empty(),
+                          );
+                        }
+                        return;
+                      }
                       try {
                         // Use unified search via backend API (respects enabled sources)
                         final api = Provider.of<ApiService>(
@@ -1165,15 +1186,12 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 prefixIcon: IconButton(
                   icon: const Icon(Icons.qr_code_scanner),
                   onPressed: () async {
-                    final result = await Navigator.push<String>(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ScanScreen(),
-                      ),
-                    );
+                    final result = await context.push<String>('/scan');
+                    if (!mounted) return;
                     if (result != null && result.isNotEmpty) {
                       _isbnController.text = result;
-                      _fetchBookDetails(result);
+                      // _onIsbnChanged listener already triggers _fetchBookDetails,
+                      // so no need to call it again here.
                     }
                   },
                   tooltip: TranslationService.translate(
@@ -1471,8 +1489,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 }
 
                 try {
-                  final api = Provider.of<ApiService>(context, listen: false);
-                  final tags = await api.getTags();
+                  final tagRepo = Provider.of<TagRepository>(context, listen: false);
+                  final tags = await tagRepo.getTags();
                   final tagNames = tags.map((t) => t.name).toList();
 
                   return tagNames.where((String option) {

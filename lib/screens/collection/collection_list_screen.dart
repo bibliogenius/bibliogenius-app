@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import '../../services/api_service.dart';
+import '../../data/repositories/collection_repository.dart';
 import '../../services/translation_service.dart';
 import '../../models/collection.dart';
 import 'import_curated_list_screen.dart' as import_curated;
@@ -30,7 +30,7 @@ class _CollectionListScreenState extends State<CollectionListScreen> {
 
   void _refreshCollections() {
     setState(() {
-      _collectionsFuture = Provider.of<ApiService>(
+      _collectionsFuture = Provider.of<CollectionRepository>(
         context,
         listen: false,
       ).getCollections();
@@ -77,11 +77,11 @@ class _CollectionListScreenState extends State<CollectionListScreen> {
               onPressed: () async {
                 if (nameController.text.isNotEmpty) {
                   try {
-                    final apiService = Provider.of<ApiService>(
+                    final collectionRepo = Provider.of<CollectionRepository>(
                       context,
                       listen: false,
                     );
-                    await apiService.createCollection(
+                    await collectionRepo.createCollection(
                       nameController.text,
                       description: descriptionController.text.isEmpty
                           ? null
@@ -565,7 +565,7 @@ class _CollectionListScreenState extends State<CollectionListScreen> {
 
                                   if (confirm == true && context.mounted) {
                                     try {
-                                      await Provider.of<ApiService>(
+                                      await Provider.of<CollectionRepository>(
                                         context,
                                         listen: false,
                                       ).deleteCollection(collection.id);

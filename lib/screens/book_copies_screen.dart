@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
 import 'dart:math' as math;
-import '../services/api_service.dart';
+import '../data/repositories/copy_repository.dart';
 import '../models/copy.dart';
 import '../services/translation_service.dart';
 import '../providers/theme_provider.dart';
@@ -55,17 +55,14 @@ class _BookCopiesScreenState extends State<BookCopiesScreen>
   }
 
   Future<void> _fetchCopies() async {
-    final apiService = Provider.of<ApiService>(context, listen: false);
+    final copyRepo = Provider.of<CopyRepository>(context, listen: false);
     try {
-      final response = await apiService.getBookCopies(widget.bookId);
-      if (response.statusCode == 200) {
-        final List<dynamic> data = response.data['copies'];
-        setState(() {
-          _copies = data.map((json) => Copy.fromJson(json)).toList();
-          _isLoading = false;
-        });
-        _animController.forward();
-      }
+      final copies = await copyRepo.getBookCopies(widget.bookId);
+      setState(() {
+        _copies = copies;
+        _isLoading = false;
+      });
+      _animController.forward();
     } catch (e) {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -84,9 +81,9 @@ class _BookCopiesScreenState extends State<BookCopiesScreen>
 
     if (result != null) {
       if (!mounted) return;
-      final apiService = Provider.of<ApiService>(context, listen: false);
+      final copyRepo = Provider.of<CopyRepository>(context, listen: false);
       try {
-        await apiService.createCopy({
+        await copyRepo.createCopy({
           'book_id': widget.bookId,
           'library_id': 1,
           ...result,
@@ -114,9 +111,9 @@ class _BookCopiesScreenState extends State<BookCopiesScreen>
 
     if (confirmed == true) {
       if (!mounted) return;
-      final apiService = Provider.of<ApiService>(context, listen: false);
+      final copyRepo = Provider.of<CopyRepository>(context, listen: false);
       try {
-        await apiService.deleteCopy(copyId);
+        await copyRepo.deleteCopy(copyId);
         _fetchCopies();
       } catch (e) {
         if (mounted) {
@@ -143,9 +140,9 @@ class _BookCopiesScreenState extends State<BookCopiesScreen>
 
     if (result != null) {
       if (!mounted) return;
-      final apiService = Provider.of<ApiService>(context, listen: false);
+      final copyRepo = Provider.of<CopyRepository>(context, listen: false);
       try {
-        await apiService.updateCopy(copy.id!, {
+        await copyRepo.updateCopy(copy.id!, {
           'book_id': widget.bookId,
           ...result,
         });

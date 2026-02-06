@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../data/repositories/tag_repository.dart';
 import '../models/tag.dart';
-import '../services/api_service.dart';
 import '../services/translation_service.dart';
 import '../widgets/genie_app_bar.dart';
 
@@ -32,7 +32,7 @@ class _ShelfManagementScreenState extends State<ShelfManagementScreen> {
     });
 
     try {
-      final api = Provider.of<ApiService>(context, listen: false);
+      final api = Provider.of<TagRepository>(context, listen: false);
       final tags = await api.getTags();
       if (mounted) {
         setState(() {
@@ -712,7 +712,7 @@ class _ShelfManagementScreenState extends State<ShelfManagementScreen> {
   // CRUD Operations
   Future<void> _createTag(String name, int? parentId) async {
     try {
-      final api = Provider.of<ApiService>(context, listen: false);
+      final api = Provider.of<TagRepository>(context, listen: false);
       await api.createTag(name, parentId: parentId);
       _showSuccess(
         TranslationService.translate(context, 'shelf_created') ??
@@ -726,7 +726,7 @@ class _ShelfManagementScreenState extends State<ShelfManagementScreen> {
 
   Future<void> _updateTag(int id, String name, int? parentId) async {
     try {
-      final api = Provider.of<ApiService>(context, listen: false);
+      final api = Provider.of<TagRepository>(context, listen: false);
 
       // Legacy tags have negative IDs - they exist in book subjects but not in tags table
       // We need to create them first before we can set their parent
@@ -755,7 +755,7 @@ class _ShelfManagementScreenState extends State<ShelfManagementScreen> {
 
   Future<void> _deleteTag(Tag tag) async {
     try {
-      final api = Provider.of<ApiService>(context, listen: false);
+      final api = Provider.of<TagRepository>(context, listen: false);
 
       // Legacy tags (ID < 0) don't exist in DB - only skip if needed
       if (tag.id < 0) {
@@ -786,7 +786,7 @@ class _ShelfManagementScreenState extends State<ShelfManagementScreen> {
 
   Future<void> _deleteTagRecursive(Tag tag) async {
     if (tag.id < 0) return; // Skip legacy tags
-    final api = Provider.of<ApiService>(context, listen: false);
+    final api = Provider.of<TagRepository>(context, listen: false);
     final children = Tag.getDirectChildren(tag.id, _allTags);
     for (final child in children) {
       await _deleteTagRecursive(child);

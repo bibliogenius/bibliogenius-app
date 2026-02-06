@@ -3,6 +3,8 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/services.dart'; // For HapticFeedback
 import 'package:provider/provider.dart';
+import '../data/repositories/book_repository.dart';
+import '../data/repositories/copy_repository.dart';
 import '../services/translation_service.dart';
 import '../services/api_service.dart';
 import '../utils/isbn_validator.dart';
@@ -156,6 +158,7 @@ class _ScanScreenState extends State<ScanScreen> {
     });
 
     try {
+      final bookRepo = Provider.of<BookRepository>(context, listen: false);
       final api = Provider.of<ApiService>(context, listen: false);
 
       int? bookId;
@@ -163,7 +166,7 @@ class _ScanScreenState extends State<ScanScreen> {
 
       // 1. Check if book already exists in library
       // This "findBookByIsbn" might be slow if library is huge, but safe for now.
-      Book? existingBook = await api.findBookByIsbn(isbn);
+      Book? existingBook = await bookRepo.findBookByIsbn(isbn);
 
       if (existingBook != null) {
         bookId = existingBook.id;
@@ -175,7 +178,7 @@ class _ScanScreenState extends State<ScanScreen> {
           if (!currentSubjects.contains(widget.preSelectedShelfId)) {
             final newSubjects = List<String>.from(currentSubjects)
               ..add(widget.preSelectedShelfId!);
-            await api.updateBook(bookId, {'subjects': newSubjects});
+            await bookRepo.updateBook(bookId, {'subjects': newSubjects});
           }
         }
       } else {
@@ -204,17 +207,8 @@ class _ScanScreenState extends State<ScanScreen> {
               'subjects': [widget.preSelectedShelfId],
           };
 
-          final response = await api.createBook(bookPayload);
-
-          // Handle response format variations
-          if (response.data is Map) {
-            final data = response.data as Map<String, dynamic>;
-            if (data.containsKey('id')) {
-              bookId = data['id'];
-            } else if (data.containsKey('book') && data['book'] is Map) {
-              bookId = data['book']['id'];
-            }
-          }
+          final createdBook = await bookRepo.createBook(bookPayload);
+          bookId = createdBook.id;
         } else {
           // Book not found in metadata sources
           if (mounted) await _showBookNotFoundDialog(isbn);
@@ -255,7 +249,8 @@ class _ScanScreenState extends State<ScanScreen> {
       // For existing books, we create an additional copy only if book is owned
       // (user may have multiple physical copies of books they own).
       if (existingBook != null && existingBook.owned) {
-        await api.createCopy({'book_id': bookId, 'status': 'available'});
+        final copyRepo = Provider.of<CopyRepository>(context, listen: false);
+        await copyRepo.createCopy({'book_id': bookId, 'status': 'available'});
       }
 
       setState(() {
@@ -386,7 +381,7 @@ class _ScanScreenState extends State<ScanScreen> {
   }
 
   void _showIsbnInputDialog() {
-    final controller = TextEditingController();
+    final isbnController = TextEditingController();
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -394,7 +389,7 @@ class _ScanScreenState extends State<ScanScreen> {
           TranslationService.translate(context, 'enter_isbn_manually'),
         ),
         content: TextField(
-          controller: controller,
+          controller: isbnController,
           keyboardType: TextInputType.number,
           decoration: InputDecoration(
             labelText: 'ISBN',
@@ -420,12 +415,13 @@ class _ScanScreenState extends State<ScanScreen> {
           ),
           ElevatedButton(
             onPressed: () {
-              if (controller.text.isNotEmpty) {
+              if (isbnController.text.isNotEmpty) {
+                final text = isbnController.text;
                 Navigator.pop(ctx);
                 if (widget.batchMode && _hasDestination) {
-                  _handleBatchScan(controller.text);
+                  _handleBatchScan(text);
                 } else {
-                  context.push('/books/add', extra: {'isbn': controller.text});
+                  context.push('/books/add', extra: {'isbn': text});
                 }
               }
             },
@@ -433,7 +429,7 @@ class _ScanScreenState extends State<ScanScreen> {
           ),
         ],
       ),
-    );
+    ).then((_) => isbnController.dispose());
   }
 
   @override

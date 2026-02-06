@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../models/contact.dart';
 import '../services/translation_service.dart';
-import '../services/api_service.dart';
+import '../data/repositories/contact_repository.dart';
 import '../providers/theme_provider.dart';
 import 'add_contact_screen.dart';
 import 'borrow_book_screen.dart';
@@ -48,19 +48,14 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
               if (result == true && mounted) {
                 // Refresh contact details
                 try {
-                  final apiService = Provider.of<ApiService>(
+                  final contactRepo = Provider.of<ContactRepository>(
                     context,
                     listen: false,
                   );
-                  final response = await apiService.getContact(_contact.id!);
-                  if (response.statusCode == 200 && response.data != null) {
+                  final contact = await contactRepo.getContact(_contact.id!);
+                  if (mounted) {
                     setState(() {
-                      // Handle both response formats (with or without 'contact' key)
-                      if (response.data['contact'] != null) {
-                        _contact = Contact.fromJson(response.data['contact']);
-                      } else {
-                        _contact = Contact.fromJson(response.data);
-                      }
+                      _contact = contact;
                     });
                   }
                 } catch (e) {

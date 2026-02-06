@@ -5,6 +5,9 @@ import 'package:go_router/go_router.dart';
 import '../widgets/genie_app_bar.dart';
 import '../widgets/contextual_help_sheet.dart';
 import '../widgets/streak_celebration.dart';
+import '../data/repositories/book_repository.dart';
+import '../data/repositories/contact_repository.dart';
+import '../data/repositories/loan_repository.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
 import '../models/book.dart';
@@ -88,6 +91,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   Future<void> _fetchDashboardData() async {
+    final bookRepo = Provider.of<BookRepository>(context, listen: false);
     final api = Provider.of<ApiService>(context, listen: false);
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     TranslationService.fetchTranslations(context);
@@ -97,7 +101,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     try {
       try {
         print('Dashboard: Fetching books...');
-        var books = await api.getBooks();
+        var books = await bookRepo.getBooks();
         print('Dashboard: Books fetched. Count: ${books.length}');
 
         final configRes = await api.getLibraryConfig();
@@ -141,14 +145,12 @@ class _DashboardScreenState extends State<DashboardScreen>
       }
 
       try {
-        final contactsRes = await api.getContacts();
-        if (contactsRes.statusCode == 200) {
-          final List<dynamic> contactsData = contactsRes.data['contacts'];
-          if (mounted) {
-            setState(() {
-              _stats['contacts_count'] = contactsData.length;
-            });
-          }
+        final contactRepo = Provider.of<ContactRepository>(context, listen: false);
+        final contacts = await contactRepo.getContacts();
+        if (mounted) {
+          setState(() {
+            _stats['contacts_count'] = contacts.length;
+          });
         }
       } catch (e) {
         debugPrint('Error fetching contacts: $e');
@@ -182,9 +184,9 @@ class _DashboardScreenState extends State<DashboardScreen>
           }
         }
 
-        final loansRes = await api.getLoans(status: 'active');
-        if (mounted && loansRes.statusCode == 200) {
-          final loans = loansRes.data['loans'] ?? [];
+        final loanRepo = Provider.of<LoanRepository>(context, listen: false);
+        final loans = await loanRepo.getLoans(status: 'active');
+        if (mounted) {
           setState(() {
             _stats['active_loans'] = loans.length;
           });
@@ -192,9 +194,8 @@ class _DashboardScreenState extends State<DashboardScreen>
 
         if (themeProvider.canBorrowBooks) {
           try {
-            final borrowedRes = await api.getBorrowedCopies();
-            if (mounted && borrowedRes.statusCode == 200) {
-              final borrowed = borrowedRes.data['loans'] ?? [];
+            final borrowed = await loanRepo.getBorrowedCopies();
+            if (mounted) {
               setState(() {
                 _stats['borrowed_count'] = borrowed.length;
               });

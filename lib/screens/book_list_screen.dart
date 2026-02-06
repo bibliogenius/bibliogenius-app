@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../widgets/genie_app_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import '../data/repositories/book_repository.dart';
+import '../data/repositories/tag_repository.dart';
 import '../services/api_service.dart';
 import '../services/sync_service.dart';
 import '../services/translation_service.dart';
@@ -563,6 +565,7 @@ class _BookListScreenState extends State<BookListScreen>
 
   Future<void> _fetchBooks({bool silent = false}) async {
     if (!silent) setState(() => _isLoading = true);
+    final bookRepo = Provider.of<BookRepository>(context, listen: false);
     final apiService = Provider.of<ApiService>(context, listen: false);
 
     try {
@@ -570,7 +573,7 @@ class _BookListScreenState extends State<BookListScreen>
         'Fetching books with status: $_selectedStatus, tag: $_tagFilter, search: $_searchQuery (silent: $silent)',
       );
       // Fetch all books initially, filtering will happen locally
-      final books = await apiService.getBooks();
+      final books = await bookRepo.getBooks();
 
       final configRes = await apiService.getLibraryConfig();
       String? libraryName;
@@ -587,7 +590,8 @@ class _BookListScreenState extends State<BookListScreen>
 
       if (mounted) {
         // Also load tags for hierarchy navigation
-        final tags = await apiService.getTags();
+        final tagRepo = Provider.of<TagRepository>(context, listen: false);
+        final tags = await tagRepo.getTags();
 
         setState(() {
           _books = books; // Store ALL books, filtering happens in _filterBooks
@@ -721,10 +725,10 @@ class _BookListScreenState extends State<BookListScreen>
   }
 
   void _showTagFilterDialog() async {
-    final apiService = Provider.of<ApiService>(context, listen: false);
+    final tagRepo = Provider.of<TagRepository>(context, listen: false);
 
     try {
-      final tags = await apiService.getTags();
+      final tags = await tagRepo.getTags();
 
       if (!mounted) return;
 
@@ -1994,10 +1998,10 @@ class _BookListScreenState extends State<BookListScreen>
 
   Future<void> _saveOrder() async {
     setState(() => _isLoading = true);
-    final apiService = Provider.of<ApiService>(context, listen: false);
+    final bookRepo = Provider.of<BookRepository>(context, listen: false);
     try {
       final ids = _filteredBooks.map((b) => b.id!).toList();
-      await apiService.reorderBooks(ids);
+      await bookRepo.reorderBooks(ids);
 
       setState(() {
         _isReordering = false;

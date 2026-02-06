@@ -4,6 +4,8 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import '../data/repositories/book_repository.dart';
+import '../data/repositories/tag_repository.dart';
 import '../services/api_service.dart';
 import '../models/tag.dart';
 import '../theme/app_design.dart';
@@ -584,10 +586,11 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
 
   /// Resolve metadata for all candidates
   Future<void> _resolveAllMetadata() async {
+    final bookRepo = Provider.of<BookRepository>(context, listen: false);
     final api = Provider.of<ApiService>(context, listen: false);
 
     // First, get all existing books to check duplicates efficiently
-    final existingBooks = await api.getBooks();
+    final existingBooks = await bookRepo.getBooks();
     final existingIsbns = existingBooks
         .where((b) => b.isbn != null)
         .map((b) => b.isbn!.replaceAll(RegExp(r'[^0-9X]'), ''))
@@ -624,7 +627,8 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
 
     // Load available shelves from BiblioGenius
     try {
-      _availableShelves = await api.getTags();
+      final tagRepo = Provider.of<TagRepository>(context, listen: false);
+      _availableShelves = await tagRepo.getTags();
 
       // If a shelf was detected from Gleeph, check if it exists in BiblioGenius
       if (_detectedGleephShelf != null) {
@@ -715,12 +719,14 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
       _importErrorCount = 0;
     });
 
+    final bookRepo = Provider.of<BookRepository>(context, listen: false);
     final api = Provider.of<ApiService>(context, listen: false);
 
     // Create new shelf if needed
     if (_createNewShelf && _selectedShelfName != null) {
       try {
-        await api.createTag(_selectedShelfName!);
+        final tagRepo = Provider.of<TagRepository>(context, listen: false);
+        await tagRepo.createTag(_selectedShelfName!);
         _createNewShelf = false; // Mark as created
       } catch (e) {
         // Continue anyway - books will be imported without shelf
@@ -741,13 +747,13 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
 
       try {
         // Double-check it's not already in library (race condition protection)
-        final existing = await api.findBookByIsbn(candidate.isbn);
+        final existing = await bookRepo.findBookByIsbn(candidate.isbn);
         if (existing != null) {
           _importSkippedCount++;
           candidate.isAlreadyInLibrary = true;
         } else {
           // Create the book with mapped status, rating, and shelf
-          final response = await api.createBook({
+          await bookRepo.createBook({
             'isbn': candidate.isbn,
             'title': candidate.title,
             'author': candidate.author,
@@ -759,12 +765,7 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
             if (candidate.userRating != null) 'user_rating': candidate.userRating,
             if (subjects != null) 'subjects': subjects,
           });
-
-          if (response.statusCode == 200 || response.statusCode == 201) {
-            _importSuccessCount++;
-          } else {
-            _importErrorCount++;
-          }
+          _importSuccessCount++;
         }
       } catch (e) {
         _importErrorCount++;

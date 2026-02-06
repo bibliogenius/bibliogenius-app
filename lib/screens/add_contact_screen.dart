@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import '../services/api_service.dart';
+import '../data/repositories/contact_repository.dart';
 import '../services/auth_service.dart';
 import '../services/translation_service.dart';
 import '../models/contact.dart';
@@ -83,7 +83,7 @@ class _AddContactScreenState extends State<AddContactScreen> {
 
     try {
       final authService = Provider.of<AuthService>(context, listen: false);
-      final apiService = Provider.of<ApiService>(context, listen: false);
+      final contactRepo = Provider.of<ContactRepository>(context, listen: false);
       final libraryId = await authService.getLibraryId() ?? 1;
       final userId = await authService.getUserId();
 
@@ -118,9 +118,9 @@ class _AddContactScreenState extends State<AddContactScreen> {
       };
 
       if (widget.contact != null) {
-        await apiService.updateContact(widget.contact!.id!, contactData);
+        await contactRepo.updateContact(widget.contact!.id!, contactData);
       } else {
-        await apiService.createContact(contactData);
+        await contactRepo.createContact(contactData);
       }
 
       if (mounted) {
