@@ -997,9 +997,24 @@ class _ShareContactViewState extends State<ShareContactView> {
   Future<void> _initQRData() async {
     // Generate QR Data
     final apiService = Provider.of<ApiService>(context, listen: false);
-    final info = NetworkInfo();
     try {
-      String? localIp = await info.getWifiIP() ?? '127.0.0.1';
+      // Use the same multi-strategy IP resolution as mDNS/peer handshake
+      String? localIp;
+      try {
+        final info = NetworkInfo();
+        final wifiIp = await info.getWifiIP();
+        if (wifiIp != null && !wifiIp.startsWith('169.254.')) {
+          localIp = wifiIp;
+        }
+      } catch (_) {}
+      localIp ??= await MdnsService.getValidLanIp();
+
+      if (localIp == null) {
+        debugPrint('⚠️ QR: No valid LAN IP found for QR code');
+        if (mounted) setState(() => _isLoading = false);
+        return;
+      }
+
       final configRes = await apiService.getLibraryConfig();
       String libraryName = configRes.data['library_name'] ?? 'My Library';
 
@@ -1007,11 +1022,12 @@ class _ShareContactViewState extends State<ShareContactView> {
         "name": libraryName,
         "url": "http://$localIp:${ApiService.httpPort}",
       };
-      if (mounted)
+      if (mounted) {
         setState(() {
           _qrData = jsonEncode(data);
           _isLoading = false;
         });
+      }
     } catch (e) {
       if (mounted) setState(() => _isLoading = false);
     }

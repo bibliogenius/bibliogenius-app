@@ -545,6 +545,7 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
           .cast<String>()
           .toSet();
 
+      if (!mounted) return;
       setState(() {
         _searchResults = results;
         // Use title search query for relevance sorting
@@ -567,6 +568,7 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
         }
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _error =
             '${TranslationService.translate(context, 'search_failed')}: $e';

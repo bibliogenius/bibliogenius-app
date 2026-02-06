@@ -2247,6 +2247,13 @@ class ApiService {
       // FFI mode: Direct P2P sync
       try {
         final myUrl = await _getMyUrl();
+        if (myUrl == null) {
+          return Response(
+            requestOptions: RequestOptions(path: '/api/peers/sync_by_url'),
+            statusCode: 503,
+            data: {'error': 'No valid LAN IP available for P2P sync'},
+          );
+        }
         final dio = Dio();
         debugPrint(
           'P2P Sync: Requesting sync from $normalizedUrl/api/peers/sync_by_url with my URL $myUrl',
@@ -2372,12 +2379,12 @@ class ApiService {
         final myName = configRes.data['library_name'];
         // In FFI/P2P mode, we calculate our dynamic IP URL
         final myUrl = await _getMyUrl();
+        if (myUrl == null) {
+          throw Exception('No valid LAN IP available for P2P loan request');
+        }
         // Get stable UUID for peer deduplication
         final authService = AuthService();
         final libraryUuid = await authService.getOrCreateLibraryUuid();
-
-        if (myUrl.isEmpty)
-          throw Exception("My library URL could not be determined");
 
         // 2. Send request to peer
         // Use clean URL without trailing slash
@@ -2687,16 +2694,27 @@ class ApiService {
     );
   }
 
-  /// Helper to get my own URL (IP address) for P2P handshake
-  Future<String> _getMyUrl() async {
-    String myIp = '127.0.0.1';
+  /// Helper to get my own URL (IP address) for P2P handshake.
+  /// Uses multiple strategies to find a valid LAN IP, never falls back to
+  /// 127.0.0.1 which would be useless for remote peers and cause UNIQUE
+  /// constraint conflicts in the peers table.
+  Future<String?> _getMyUrl() async {
+    String? myIp;
     try {
       final info = NetworkInfo();
-      myIp = await info.getWifiIP() ?? '127.0.0.1';
+      final wifiIp = await info.getWifiIP();
+      if (wifiIp != null && !wifiIp.startsWith('169.254.')) {
+        myIp = wifiIp;
+      }
     } catch (e) {
-      debugPrint('Failed to get local IP: $e');
+      debugPrint('Failed to get WiFi IP: $e');
     }
-    // Use the dynamically discovered port
+    // Fallback: enumerate network interfaces (works for wired connections)
+    myIp ??= await MdnsService.getValidLanIp();
+    if (myIp == null) {
+      debugPrint('⚠️ P2P: No valid LAN IP found, cannot build peer URL');
+      return null;
+    }
     return 'http://$myIp:${ApiService.httpPort}';
   }
 
@@ -2707,6 +2725,13 @@ class ApiService {
         // 1. Get my own details
         String myName = 'BiblioGenius User';
         final myUrl = await _getMyUrl();
+        if (myUrl == null) {
+          return Response(
+            requestOptions: RequestOptions(path: '/api/peers/connect'),
+            statusCode: 503,
+            data: {'error': 'No valid LAN IP available for P2P handshake'},
+          );
+        }
 
         try {
           final config = await getLibraryConfig();

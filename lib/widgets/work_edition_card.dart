@@ -251,8 +251,44 @@ class _WorkEditionCardState extends State<WorkEditionCard> {
     );
   }
 
+  /// Find a fallback cover from sibling editions when current edition has none.
+  /// Prioritizes: same language + same publisher > same language > any cover.
+  String? _findFallbackCover(Map<String, dynamic> currentEdition) {
+    final currentLang = _getLanguageLabel(currentEdition['language'] as String?);
+    final currentPublisher =
+        (currentEdition['publisher'] as String?)?.toLowerCase() ?? '';
+
+    String? bestCover;
+    int bestScore = -1;
+
+    for (final edition in widget.editions) {
+      if (identical(edition, currentEdition)) continue;
+      final cover = edition['cover_url'] as String?;
+      if (cover == null || cover.isEmpty) continue;
+
+      int score = 0;
+      final lang = _getLanguageLabel(edition['language'] as String?);
+      if (currentLang.isNotEmpty && lang == currentLang) score += 10;
+      final publisher =
+          (edition['publisher'] as String?)?.toLowerCase() ?? '';
+      if (currentPublisher.isNotEmpty && publisher == currentPublisher) {
+        score += 5;
+      }
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestCover = cover;
+      }
+    }
+
+    return bestCover;
+  }
+
   Widget _buildEditionSlide(Map<String, dynamic> edition, ThemeData theme) {
-    final coverUrl = edition['cover_url'] as String?;
+    var coverUrl = edition['cover_url'] as String?;
+    if (coverUrl == null || coverUrl.isEmpty) {
+      coverUrl = _findFallbackCover(edition);
+    }
     final source = edition['source'] as String?;
     final language = edition['language'] as String?;
     final langLabel = _getLanguageLabel(language);

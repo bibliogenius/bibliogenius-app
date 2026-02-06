@@ -63,9 +63,35 @@ class MdnsService {
     return ip.startsWith('169.254.');
   }
 
-  /// Try to get a valid LAN IP from network interfaces
-  /// Returns the first non-link-local, non-loopback IPv4 address found
-  static Future<String?> _getValidLanIp() async {
+  /// Try to resolve a hostname via .local mDNS lookup
+  /// Used as fallback when TXT record IP and service.host are unavailable
+  static Future<String?> _resolveHostname(String hostname) async {
+    try {
+      // Ensure .local suffix for mDNS resolution
+      final localName =
+          hostname.endsWith('.local') ? hostname : '$hostname.local';
+      final addresses = await InternetAddress.lookup(localName)
+          .timeout(const Duration(seconds: 2));
+      for (final addr in addresses) {
+        if (addr.type == InternetAddressType.IPv4 &&
+            !addr.isLoopback &&
+            !_isLinkLocalAddress(addr.address)) {
+          debugPrint(
+            '🔍 mDNS: Resolved $localName -> ${addr.address}',
+          );
+          return addr.address;
+        }
+      }
+    } catch (e) {
+      debugPrint('⚠️ mDNS: Failed to resolve hostname "$hostname" - $e');
+    }
+    return null;
+  }
+
+  /// Try to get a valid LAN IP from network interfaces.
+  /// Returns the first non-link-local, non-loopback IPv4 address found.
+  /// Public so it can be reused by other services (e.g., peer handshake, QR code).
+  static Future<String?> getValidLanIp() async {
     try {
       final interfaces = await NetworkInterface.list(
         type: InternetAddressType.IPv4,
@@ -138,10 +164,7 @@ class MdnsService {
           localIp = wifiIp;
         }
         // If WiFi IP is link-local or null, try getting wired IP (on macOS/desktop)
-        if (localIp == null) {
-          // Fallback: get IP from network interfaces
-          localIp = await _getValidLanIp();
-        }
+        localIp ??= await getValidLanIp();
         if (localIp == null) {
           debugPrint(
             '⚠️ mDNS: No valid LAN IP found (only link-local available)',
@@ -156,6 +179,13 @@ class MdnsService {
       if (localIp != null) {
         attributes['ip'] = localIp;
         _ownIp = localIp; // Store our IP for filtering
+      }
+      // Include device hostname for .local mDNS resolution fallback
+      // (on macOS, ServiceResolvedEvent may not fire, so discovery
+      // can resolve hostname.local via InternetAddress.lookup instead)
+      final hostname = Platform.localHostname;
+      if (hostname.isNotEmpty) {
+        attributes['hostname'] = hostname;
       }
 
       final service = BonsoirService(
@@ -199,158 +229,13 @@ class MdnsService {
         (event) {
           debugPrint('📡 mDNS: Received event: ${event.runtimeType}');
           // Handle service found - add immediately as workaround for macOS sandbox
-          // (ServiceResolvedEvent doesn\'t fire reliably in Flutter sandbox)
+          // (ServiceResolvedEvent doesn't fire reliably in Flutter sandbox)
           if (event is BonsoirDiscoveryServiceFoundEvent) {
-            final service = event.service;
-
-            // Get peer IP from attributes
-            final peerIp = service.attributes['ip'];
-
-            // Skip our own service by IP (more reliable than name)
-            if (_ownIp != null && peerIp == _ownIp) {
-              debugPrint(
-                '🔇 mDNS: Skipping own service by IP: ${service.name} ($peerIp)',
-              );
-              return;
-            }
-
-            // Also skip by name as fallback (handle Bonjour auto-suffix like "(2)")
-            final cleanServiceName = service.name.replaceAll(
-              RegExp(r'\s*\(\d+\)$'),
-              '',
-            );
-            if (_ownServiceName != null &&
-                cleanServiceName == _ownServiceName &&
-                peerIp == null) {
-              debugPrint(
-                '🔇 mDNS: Skipping own service by name (no IP): ${service.name}',
-              );
-              return;
-            }
-
-            // Prefer IP from attributes (reliable), fallback to resolved host
-            final ipFromAttrs = service.attributes['ip'];
-            String? host;
-            if (ipFromAttrs != null &&
-                ipFromAttrs.isNotEmpty &&
-                !_isLinkLocalAddress(ipFromAttrs)) {
-              host = ipFromAttrs;
-              debugPrint('📚 mDNS: Using IP from attributes: $host');
-            } else {
-              // Try to use resolved host if available (better than nothing)
-              // This helps cross-platform discovery when IP attributes aren't set
-              if (service.host != null &&
-                  service.host!.isNotEmpty &&
-                  !_isLinkLocalAddress(service.host!)) {
-                host = service.host;
-                debugPrint(
-                  '📚 mDNS: Using resolved host for "${service.name}": $host',
-                );
-              } else if (ipFromAttrs != null &&
-                  _isLinkLocalAddress(ipFromAttrs)) {
-                debugPrint(
-                  '⚠️ mDNS: Peer advertised link-local IP ($ipFromAttrs), skipping',
-                );
-                return;
-              } else {
-                debugPrint(
-                  '⚠️ mDNS: No valid IP for "${service.name}", waiting for resolve event',
-                );
-                return; // Wait for resolved event which may have better info
-              }
-            }
-
-            // At this point host is guaranteed to be non-null (we returned early otherwise)
-            final validHost = host!;
-
-            // Use actual port from service (default to 8000 if not available)
-            final actualPort = service.port > 0 ? service.port : 8000;
-
-            // Strip Bonjour auto-suffix like "(2)", "(3)" from conflicting names
-            final cleanName = service.name.replaceAll(
-              RegExp(r'\s*\(\d+\)$'),
-              '',
-            );
-
-            // Use host:port as key to deduplicate same library announced multiple times
-            final peerKey = '$validHost:$actualPort';
-
-            final peer = DiscoveredPeer(
-              name: cleanName,
-              host: validHost,
-              port: actualPort,
-              addresses: [validHost],
-              libraryId: service.attributes['library_id'],
-              discoveredAt: DateTime.now(),
-            );
-
-            _peers[peerKey] = peer;
-            debugPrint('📚 mDNS: Discovered "$cleanName" at $peerKey');
+            _handleServiceFound(event.service);
           }
           // Handle service resolved (preferred if it fires)
           else if (event is BonsoirDiscoveryServiceResolvedEvent) {
-            final service = event.service;
-
-            // Get peer IP from attributes first (more reliable)
-            final peerIp = service.attributes['ip'];
-
-            // Skip our own service by IP first (most reliable)
-            if (_ownIp != null && peerIp == _ownIp) {
-              debugPrint(
-                '🔇 mDNS: Skipping own resolved service by IP: ${service.name}',
-              );
-              return;
-            }
-
-            // Strip Bonjour auto-suffix
-            final cleanName = service.name.replaceAll(
-              RegExp(r'\s*\(\d+\)$'),
-              '',
-            );
-
-            // Also skip by name as fallback
-            if (_ownServiceName != null &&
-                cleanName == _ownServiceName &&
-                peerIp == null) {
-              debugPrint(
-                '🔇 mDNS: Skipping own resolved service by name: ${service.name}',
-              );
-              return;
-            }
-
-            // Prefer IP from attributes, then resolved host
-            String resolvedHost;
-            if (peerIp != null &&
-                peerIp.isNotEmpty &&
-                !_isLinkLocalAddress(peerIp)) {
-              resolvedHost = peerIp;
-              debugPrint('📚 mDNS: Resolved using IP from attributes: $peerIp');
-            } else if (service.host != null &&
-                service.host!.isNotEmpty &&
-                !_isLinkLocalAddress(service.host!)) {
-              resolvedHost = service.host!;
-              debugPrint('📚 mDNS: Resolved using host: $resolvedHost');
-            } else {
-              debugPrint(
-                '⚠️ mDNS: Resolved event has no valid IP for "${service.name}"',
-              );
-              return;
-            }
-
-            final peerKey = '$resolvedHost:${service.port}';
-
-            // Update/add with resolved info (more accurate)
-            final peer = DiscoveredPeer(
-              name: cleanName,
-              host: resolvedHost,
-              port: service.port,
-              addresses: [resolvedHost],
-              libraryId: service.attributes['library_id'],
-              discoveredAt: DateTime.now(),
-            );
-
-            _peers[peerKey] = peer;
-            debugPrint('📚 mDNS: Resolved "$cleanName" at $peerKey');
+            _handleServiceResolved(event.service);
           }
           // Handle service lost
           else if (event is BonsoirDiscoveryServiceLostEvent) {
@@ -386,6 +271,124 @@ class MdnsService {
       debugPrint('❌ mDNS: Failed to start discovery - $e');
       return false;
     }
+  }
+
+  /// Helper to register a peer once we have a valid host
+  static void _addPeer(BonsoirService service, String host) {
+    final actualPort = service.port > 0 ? service.port : 8000;
+    final cleanName = service.name.replaceAll(
+      RegExp(r'\s*\(\d+\)$'),
+      '',
+    );
+    final peerKey = '$host:$actualPort';
+
+    final peer = DiscoveredPeer(
+      name: cleanName,
+      host: host,
+      port: actualPort,
+      addresses: [host],
+      libraryId: service.attributes['library_id'],
+      discoveredAt: DateTime.now(),
+    );
+
+    _peers[peerKey] = peer;
+    debugPrint('📚 mDNS: Discovered "$cleanName" at $peerKey');
+  }
+
+  /// Check if a service is our own (should be filtered out)
+  static bool _isOwnService(BonsoirService service) {
+    final peerIp = service.attributes['ip'];
+
+    // Skip by IP (most reliable)
+    if (_ownIp != null && peerIp == _ownIp) {
+      debugPrint(
+        '🔇 mDNS: Skipping own service by IP: ${service.name} ($peerIp)',
+      );
+      return true;
+    }
+
+    // Skip by name as fallback (handle Bonjour auto-suffix like "(2)")
+    final cleanName = service.name.replaceAll(
+      RegExp(r'\s*\(\d+\)$'),
+      '',
+    );
+    if (_ownServiceName != null && cleanName == _ownServiceName && peerIp == null) {
+      debugPrint(
+        '🔇 mDNS: Skipping own service by name (no IP): ${service.name}',
+      );
+      return true;
+    }
+
+    return false;
+  }
+
+  /// Resolve host IP from a service, trying multiple strategies:
+  /// 1. IP from TXT record attributes (most reliable)
+  /// 2. Resolved host from Bonsoir
+  /// 3. Hostname.local mDNS lookup (fallback for macOS where resolve events
+  ///    don't fire reliably)
+  static Future<String?> _resolveServiceHost(BonsoirService service) async {
+    // Strategy 1: IP from TXT attributes
+    final ipFromAttrs = service.attributes['ip'];
+    if (ipFromAttrs != null &&
+        ipFromAttrs.isNotEmpty &&
+        !_isLinkLocalAddress(ipFromAttrs)) {
+      debugPrint('📚 mDNS: Using IP from attributes: $ipFromAttrs');
+      return ipFromAttrs;
+    }
+
+    // Strategy 2: Bonsoir resolved host
+    if (service.host != null &&
+        service.host!.isNotEmpty &&
+        !_isLinkLocalAddress(service.host!)) {
+      debugPrint(
+        '📚 mDNS: Using resolved host for "${service.name}": ${service.host}',
+      );
+      return service.host;
+    }
+
+    // Strategy 3: Resolve hostname.local via DNS
+    // This is critical on macOS where ServiceResolvedEvent often doesn't fire
+    final hostname = service.attributes['hostname'];
+    if (hostname != null && hostname.isNotEmpty) {
+      debugPrint(
+        '📚 mDNS: Attempting hostname.local resolution for "${service.name}" ($hostname)',
+      );
+      final resolved = await _resolveHostname(hostname);
+      if (resolved != null) return resolved;
+    }
+
+    // All strategies exhausted
+    if (ipFromAttrs != null && _isLinkLocalAddress(ipFromAttrs)) {
+      debugPrint(
+        '⚠️ mDNS: Peer advertised link-local IP ($ipFromAttrs), skipping',
+      );
+    } else {
+      debugPrint(
+        '⚠️ mDNS: No valid IP for "${service.name}" after all resolution strategies',
+      );
+    }
+    return null;
+  }
+
+  /// Handle ServiceFoundEvent - async to allow hostname.local resolution
+  static Future<void> _handleServiceFound(BonsoirService service) async {
+    if (_isOwnService(service)) return;
+
+    final host = await _resolveServiceHost(service);
+    if (host == null) return;
+
+    _addPeer(service, host);
+  }
+
+  /// Handle ServiceResolvedEvent - async to allow hostname.local fallback
+  static Future<void> _handleServiceResolved(BonsoirService service) async {
+    if (_isOwnService(service)) return;
+
+    final host = await _resolveServiceHost(service);
+    if (host == null) return;
+
+    _addPeer(service, host);
   }
 
   /// Get peers as JSON-compatible maps (for API compatibility)
