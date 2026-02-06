@@ -124,7 +124,10 @@ class _DashboardScreenState extends State<DashboardScreen>
             // Sort by recently added (ID desc)
             final sortedBooks = List<Book>.from(books);
             sortedBooks.sort((a, b) => (b.id ?? 0).compareTo(a.id ?? 0));
-            _recentBooks = sortedBooks.take(10).toList();
+            _recentBooks = sortedBooks
+                .where((b) => b.readingStatus != 'to_read')
+                .take(10)
+                .toList();
 
             // En cours de lecture
             _readingBooks = books
