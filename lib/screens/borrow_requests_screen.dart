@@ -74,7 +74,10 @@ class _LoansScreenState extends State<LoansScreen>
       vsync: this,
       initialIndex: initialIndex,
     );
-    _requestsTabController = TabController(length: 3, vsync: this);
+    _requestsTabController = TabController(
+      length: themeProvider.connectionValidationEnabled ? 3 : 2,
+      vsync: this,
+    );
     _fetchAllData();
     _refreshTimer = Timer.periodic(const Duration(seconds: 30), (_) {
       if (mounted) _fetchAllData(silent: true);
@@ -295,6 +298,9 @@ class _LoansScreenState extends State<LoansScreen>
 
   /// Requests tab with nested tabs (Incoming/Outgoing/Connections)
   Widget _buildRequestsTab() {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final showConnections = themeProvider.connectionValidationEnabled;
+
     return Column(
       children: [
         Material(
@@ -313,10 +319,11 @@ class _LoansScreenState extends State<LoansScreen>
                 text:
                     '${TranslationService.translate(context, 'tab_sent')} (${_outgoingRequests.length})',
               ),
-              Tab(
-                text:
-                    '${TranslationService.translate(context, 'tab_connections')} (${_connectionRequests.length})',
-              ),
+              if (showConnections)
+                Tab(
+                  text:
+                      '${TranslationService.translate(context, 'tab_connections')} (${_connectionRequests.length})',
+                ),
             ],
           ),
         ),
@@ -332,10 +339,11 @@ class _LoansScreenState extends State<LoansScreen>
                 onRefresh: _fetchAllData,
                 child: _buildOutgoingList(),
               ),
-              RefreshIndicator(
-                onRefresh: _fetchAllData,
-                child: _buildConnectionList(),
-              ),
+              if (showConnections)
+                RefreshIndicator(
+                  onRefresh: _fetchAllData,
+                  child: _buildConnectionList(),
+                ),
             ],
           ),
         ),

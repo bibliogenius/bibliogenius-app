@@ -233,6 +233,7 @@ class _ContactsListViewState extends State<ContactsListView> {
   NetworkFilter _filter = NetworkFilter.all;
   Map<int, bool> _peerConnectivity = {};
   Map<String, bool> _localPeerConnectivity = {}; // connectivity for mDNS peers
+  Map<String, NetworkMember> _mergedLocalPeers = {}; // mDNS peers that are also in DB
 
   @override
   void initState() {
@@ -326,13 +327,44 @@ class _ContactsListViewState extends State<ContactsListView> {
         debugPrint('🔍 NetworkScreen: Found ${localPeers.length} mDNS peers');
       }
 
+      // Build merged peers map: mDNS peers that match a DB peer by URL
+      final Map<String, NetworkMember> mergedLocalPeers = {};
+      final Set<int> mergedPeerIds = {};
+
+      if (localPeers.isNotEmpty) {
+        // Index mDNS peers by URL
+        final Map<String, DiscoveredPeer> mdnsByUrl = {};
+        for (final lp in localPeers) {
+          mdnsByUrl['http://${lp.host}:${lp.port}'] = lp;
+        }
+
+        // Check which DB peers match an mDNS peer
+        for (final member in allMembers) {
+          if (member.source == NetworkMemberSource.network && member.url != null) {
+            final normalizedUrl = member.url!;
+            if (mdnsByUrl.containsKey(normalizedUrl)) {
+              final peer = mdnsByUrl[normalizedUrl]!;
+              final peerKey = '${peer.host}:${peer.port}';
+              mergedLocalPeers[peerKey] = member;
+              mergedPeerIds.add(member.id);
+            }
+          }
+        }
+      }
+
+      // Filter out merged peers from the main list (they appear in the mDNS section)
+      final filteredMembers = allMembers
+          .where((m) => !mergedPeerIds.contains(m.id))
+          .toList();
+
       if (mounted) {
         setState(() {
-          _members = allMembers;
+          _members = filteredMembers;
           _localPeers = localPeers;
+          _mergedLocalPeers = mergedLocalPeers;
           _isLoading = false;
         });
-        _checkPeersConnectivity(allMembers);
+        _checkPeersConnectivity(filteredMembers);
         _checkLocalPeersConnectivity(localPeers);
       }
     } catch (e) {
@@ -774,6 +806,24 @@ class _ContactsListViewState extends State<ContactsListView> {
     final isOnline =
         _localPeerConnectivity[peerKey] ?? true; // Assume online until checked
     final url = 'http://${peer.host}:${peer.port}';
+    final mergedMember = _mergedLocalPeers[peerKey];
+    final isPending = mergedMember?.status == 'pending';
+
+    // Determine badge color and text
+    final Color badgeColor;
+    final String badgeText;
+    if (mergedMember != null && !isPending) {
+      badgeColor = Colors.green;
+      badgeText = TranslationService.translate(context, 'status_connected');
+    } else if (isPending) {
+      badgeColor = Colors.orange;
+      badgeText = TranslationService.translate(context, 'connection_pending_approval');
+    } else {
+      badgeColor = Colors.blue;
+      badgeText = isOnline
+          ? TranslationService.translate(context, 'status_active')
+          : TranslationService.translate(context, 'status_offline');
+    }
 
     return Card(
       color: Colors.white,
@@ -782,73 +832,137 @@ class _ContactsListViewState extends State<ContactsListView> {
       child: ListTile(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         leading: CircleAvatar(
-          backgroundColor: Colors.green,
+          backgroundColor: badgeColor,
           child: const Icon(Icons.wifi, color: Colors.white),
         ),
         title: Text(peer.name),
-        subtitle: Text(
-          isOnline
-              ? TranslationService.translate(context, 'status_active')
-              : TranslationService.translate(context, 'status_offline'),
-        ),
+        subtitle: Text(badgeText),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Browse library button
-            IconButton(
-              icon: const Icon(Icons.menu_book),
-              tooltip: TranslationService.translate(context, 'browse_library'),
-              onPressed: isOnline
-                  ? () {
-                      context.push(
-                        '/peers/0/books', // Use 0 as placeholder ID for mDNS peers
-                        extra: {'id': 0, 'name': peer.name, 'url': url},
+            if (mergedMember != null && !isPending) ...[
+              // Connected peer: browse, sync, edit, delete
+              IconButton(
+                icon: const Icon(Icons.menu_book),
+                tooltip: TranslationService.translate(context, 'browse_library'),
+                onPressed: isOnline
+                    ? () {
+                        context.push(
+                          '/peers/${mergedMember.id}/books',
+                          extra: {
+                            'id': mergedMember.id,
+                            'name': mergedMember.name,
+                            'url': mergedMember.url,
+                          },
+                        );
+                      }
+                    : null,
+              ),
+              IconButton(
+                icon: const Icon(Icons.sync),
+                tooltip: TranslationService.translate(context, 'tooltip_sync'),
+                onPressed: () async {
+                  final api = Provider.of<ApiService>(context, listen: false);
+                  if (mergedMember.url != null) {
+                    await api.syncPeer(mergedMember.url!);
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            TranslationService.translate(context, 'sync_started'),
+                          ),
+                        ),
                       );
                     }
-                  : null,
-            ),
-            // Connect button
-            IconButton(
-              icon: const Icon(Icons.add_circle_outline),
-              tooltip: TranslationService.translate(context, 'connect'),
-              onPressed: () async {
-                final api = Provider.of<ApiService>(context, listen: false);
-                try {
-                  await api.connectPeer(peer.name, url);
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          '${TranslationService.translate(context, 'request_sent_to')} ${peer.name}',
-                        ),
-                      ),
-                    );
-                    _loadAllMembers(); // Reload to show the new peer
                   }
-                } catch (e) {
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          '${TranslationService.translate(context, 'connection_error')}: $e',
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.edit_outlined),
+                tooltip: TranslationService.translate(context, 'edit_contact'),
+                onPressed: () {
+                  context.push(
+                    '/contacts/${mergedMember.id}?isNetwork=true',
+                    extra: mergedMember.toContact(),
+                  );
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete, color: Colors.grey),
+                onPressed: () => _deleteMember(mergedMember),
+              ),
+            ] else if (isPending) ...[
+              // Pending peer: only delete (cancel request)
+              IconButton(
+                icon: const Icon(Icons.delete, color: Colors.grey),
+                onPressed: () => _deleteMember(mergedMember!),
+              ),
+            ] else ...[
+              // Not connected: browse + connect
+              IconButton(
+                icon: const Icon(Icons.menu_book),
+                tooltip: TranslationService.translate(context, 'browse_library'),
+                onPressed: isOnline
+                    ? () {
+                        context.push(
+                          '/peers/0/books',
+                          extra: {'id': 0, 'name': peer.name, 'url': url},
+                        );
+                      }
+                    : null,
+              ),
+              IconButton(
+                icon: const Icon(Icons.add_circle_outline),
+                tooltip: TranslationService.translate(context, 'connect'),
+                onPressed: () async {
+                  final api = Provider.of<ApiService>(context, listen: false);
+                  try {
+                    await api.connectPeer(peer.name, url);
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            '${TranslationService.translate(context, 'request_sent_to')} ${peer.name}',
+                          ),
                         ),
-                      ),
-                    );
+                      );
+                      _loadAllMembers();
+                    }
+                  } catch (e) {
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            '${TranslationService.translate(context, 'connection_error')}: $e',
+                          ),
+                        ),
+                      );
+                    }
                   }
-                }
-              },
-            ),
+                },
+              ),
+            ],
           ],
         ),
-        // Tap to browse library
-        onTap: isOnline
+        onTap: (mergedMember != null && !isPending)
             ? () {
                 context.push(
-                  '/peers/0/books',
-                  extra: {'id': 0, 'name': peer.name, 'url': url},
+                  '/peers/${mergedMember.id}/books',
+                  extra: {
+                    'id': mergedMember.id,
+                    'name': mergedMember.name,
+                    'url': mergedMember.url,
+                  },
                 );
               }
-            : null,
+            : (isOnline && !isPending)
+                ? () {
+                    context.push(
+                      '/peers/0/books',
+                      extra: {'id': 0, 'name': peer.name, 'url': url},
+                    );
+                  }
+                : null,
       ),
     );
   }

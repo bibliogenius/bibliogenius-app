@@ -1508,6 +1508,11 @@ class ApiService {
     return await _dio.get('/api/user/status');
   }
 
+  /// Get network gamification leaderboard
+  Future<Response> getLeaderboard() async {
+    return await _dio.get('/api/gamification/leaderboard');
+  }
+
   /// Update gamification config (reading goals, etc.)
   Future<Response> updateGamificationConfig({
     int? readingGoalYearly,
@@ -2544,9 +2549,9 @@ class ApiService {
             allPeers = [];
           }
 
-          // Filter for peers where auto_approve is false (pending connections)
+          // Filter for peers with pending connection status
           final pendingPeers = allPeers
-              .where((p) => p['auto_approve'] == false)
+              .where((p) => p['connection_status'] == 'pending')
               .map((p) {
                 final Map<String, dynamic> peer = Map<String, dynamic>.from(
                   p as Map,
@@ -2638,6 +2643,32 @@ class ApiService {
       }
     }
     return await _dio.delete('$hubUrl/api/peers/$id');
+  }
+
+  /// Bulk-approve all pending peers (called when connection validation is disabled)
+  Future<Response> autoApproveAllPeers() async {
+    if (useFfi) {
+      try {
+        final localDio = Dio(
+          BaseOptions(
+            baseUrl: 'http://localhost:${ApiService.httpPort}',
+            connectTimeout: const Duration(seconds: 5),
+            receiveTimeout: const Duration(seconds: 5),
+          ),
+        );
+        final response = await localDio.post('/api/peers/auto_approve_all');
+        debugPrint('✅ autoApproveAllPeers: ${response.data}');
+        return response;
+      } catch (e) {
+        debugPrint('❌ autoApproveAllPeers error: $e');
+        return Response(
+          requestOptions: RequestOptions(path: '/api/peers/auto_approve_all'),
+          statusCode: 500,
+          data: {'error': e.toString()},
+        );
+      }
+    }
+    return await _dio.post('$hubUrl/api/peers/auto_approve_all');
   }
 
   /// Check if a peer is reachable by performing a quick health check

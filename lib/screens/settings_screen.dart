@@ -286,6 +286,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   themeProvider.gamificationEnabled,
                   (value) => themeProvider.setGamificationEnabled(value),
                 ),
+                if (themeProvider.gamificationEnabled &&
+                    themeProvider.networkEnabled)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16.0),
+                    child: _buildModuleToggle(
+                      context,
+                      'network_gamification',
+                      'network_gamification_desc',
+                      Icons.leaderboard,
+                      themeProvider.networkGamificationEnabled,
+                      (value) =>
+                          themeProvider.setNetworkGamificationEnabled(value),
+                    ),
+                  ),
+                if (themeProvider.networkGamificationEnabled &&
+                    themeProvider.gamificationEnabled &&
+                    themeProvider.networkEnabled)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 32.0),
+                    child: _buildModuleToggle(
+                      context,
+                      'share_gamification_stats',
+                      'share_gamification_stats_desc',
+                      Icons.share,
+                      themeProvider.shareGamificationStats,
+                      (value) =>
+                          themeProvider.setShareGamificationStats(value),
+                    ),
+                  ),
                 _buildModuleToggle(
                   context,
                   'collections_module',
@@ -317,6 +346,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Icons.hub,
                   themeProvider.networkEnabled,
                   (value) => themeProvider.setNetworkEnabled(value),
+                  tag: TranslationService.translate(
+                    context,
+                    'tag_experimental',
+                  ),
                 ),
                 // Sub-option for network module: peer offline caching
                 if (themeProvider.networkEnabled)
@@ -344,6 +377,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     (value) => themeProvider.setAllowLibraryCaching(value),
                   ),
                 ),
+                // Sub-option for network module: connection validation
+                if (themeProvider.networkEnabled)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16.0),
+                    child: _buildModuleToggle(
+                      context,
+                      'connection_validation',
+                      'connection_validation_desc',
+                      Icons.verified_user,
+                      themeProvider.connectionValidationEnabled,
+                      (value) =>
+                          themeProvider.setConnectionValidationEnabled(value),
+                    ),
+                  ),
                 _buildModuleToggle(
                   context,
                   'module_edition_browser',
@@ -653,13 +700,38 @@ class _SettingsScreenState extends State<SettingsScreen> {
     String descKey,
     IconData icon,
     bool value,
-    ValueChanged<bool> onChanged,
-  ) {
+    ValueChanged<bool> onChanged, {
+    String? tag,
+  }) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: SwitchListTile(
         secondary: Icon(icon),
-        title: Text(TranslationService.translate(context, titleKey)),
+        title: Row(
+          children: [
+            Flexible(
+              child: Text(TranslationService.translate(context, titleKey)),
+            ),
+            if (tag != null) ...[
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  tag,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.orange,
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
         subtitle: Text(TranslationService.translate(context, descKey)),
         value: value,
         onChanged: onChanged,

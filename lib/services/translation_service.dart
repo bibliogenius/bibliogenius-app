@@ -250,10 +250,17 @@ class TranslationService {
       'profile_advantage_inventory': 'Manage inventory',
       'profile_restriction_no_loans': 'Loans disabled',
       'profile_restriction_no_gamification': 'Gamification disabled',
+      'tag_experimental': 'BETA',
       'status_active': 'Active',
       'status_offline': 'Offline',
       'status_inactive': 'Inactive',
       'status_label': 'Status',
+      'status_connected': 'Connected',
+      'connection_validation': 'Connection Approval',
+      'connection_validation_desc':
+          'Require your approval before new peers can access your library',
+      'connection_pending_approval': 'Pending approval',
+      'connection_request_awaiting': 'Awaiting approval from',
       'status': 'Status',
       // Copy Availability
       'availability_label': 'Availability',
@@ -1342,6 +1349,16 @@ class TranslationService {
       'allow_library_caching': 'Allow Library Caching',
       'allow_library_caching_desc':
           'Allow others to cache YOUR library for offline viewing. Your book list will be stored on their devices.',
+      'network_gamification': 'Network Leaderboard',
+      'network_gamification_desc':
+          'Compare your progress with connected peers.',
+      'share_gamification_stats': 'Share My Stats',
+      'share_gamification_stats_desc':
+          'Allow connected peers to see your gamification progress.',
+      'leaderboard_title': 'Leaderboard',
+      'leaderboard_empty': 'No peers sharing their stats yet',
+      'leaderboard_rank': 'Rank',
+      'leaderboard_you': 'You',
       'module_collections': 'Collections',
       'module_collections_desc':
           'Enable or disable collection management features.',
@@ -1867,10 +1884,17 @@ class TranslationService {
       'profile_advantage_inventory': 'Gérer l\'inventaire',
       'profile_restriction_no_loans': 'Prêts désactivés',
       'profile_restriction_no_gamification': 'Gamification désactivée',
+      'tag_experimental': 'BÊTA',
       'status_active': 'Actif',
       'status_offline': 'Hors ligne',
       'status_inactive': 'Inactif',
       'status_label': 'Statut',
+      'status_connected': 'Connecté',
+      'connection_validation': 'Validation des connexions',
+      'connection_validation_desc':
+          'Exiger votre approbation avant que de nouveaux pairs puissent accéder à votre bibliothèque',
+      'connection_pending_approval': 'En attente d\'approbation',
+      'connection_request_awaiting': 'En attente d\'approbation de',
       // Copy Availability
       'availability_label': 'Disponibilité',
       'availability_available': 'Disponible',
@@ -2407,6 +2431,17 @@ class TranslationService {
       'allow_library_caching': 'Autoriser la mise en cache de ma bibliothèque',
       'allow_library_caching_desc':
           'Autoriser les autres à mettre en cache VOTRE bibliothèque pour une consultation hors ligne. Votre liste de livres sera stockée sur leurs appareils.',
+      'network_gamification': 'Classement réseau',
+      'network_gamification_desc':
+          'Comparez votre progression avec les pairs connectés.',
+      'share_gamification_stats': 'Partager mes stats',
+      'share_gamification_stats_desc':
+          'Permettre aux pairs connectés de voir votre progression.',
+      'leaderboard_title': 'Classement',
+      'leaderboard_empty':
+          'Aucun pair ne partage ses stats pour l\'instant',
+      'leaderboard_rank': 'Rang',
+      'leaderboard_you': 'Vous',
       'module_gamification': 'Gamification',
       'module_gamification_desc':
           'Activez les badges, niveaux et le suivi de progression.',

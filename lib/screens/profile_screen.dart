@@ -4,12 +4,14 @@ import 'package:provider/provider.dart';
 
 import '../models/avatar_config.dart';
 import '../models/gamification_status.dart';
+import '../models/leaderboard_entry.dart';
 import '../providers/theme_provider.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
 import '../widgets/avatar_customizer.dart';
 import '../widgets/gamification_widgets.dart';
 import '../widgets/genie_app_bar.dart';
+import '../widgets/network_leaderboard_card.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String? initialAction;
@@ -23,6 +25,7 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   bool _isLoading = true;
   Map<String, dynamic>? _userStatus;
+  Map<String, List<LeaderboardEntry>>? _leaderboard;
   String? _error;
 
   @override
@@ -54,6 +57,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
             context,
             listen: false,
           ).setProfileType(profileType);
+        }
+
+        // Fetch leaderboard if network gamification is enabled
+        final themeProvider = Provider.of<ThemeProvider>(
+          context,
+          listen: false,
+        );
+        if (themeProvider.networkGamificationEnabled) {
+          try {
+            final leaderboardRes = await apiService.getLeaderboard();
+            if (mounted && leaderboardRes.statusCode == 200) {
+              final data = leaderboardRes.data as Map<String, dynamic>;
+              _leaderboard = {};
+              for (final domain in [
+                'collector',
+                'reader',
+                'lender',
+                'cataloguer',
+              ]) {
+                _leaderboard![domain] =
+                    (data[domain] as List<dynamic>?)
+                        ?.map(
+                          (e) => LeaderboardEntry.fromJson(
+                            e as Map<String, dynamic>,
+                          ),
+                        )
+                        .toList() ??
+                    [];
+              }
+            }
+          } catch (e) {
+            debugPrint('Leaderboard fetch failed: $e');
+          }
         }
 
         setState(() {
@@ -208,6 +244,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     }
                     return GamificationSummaryCard(
                       status: GamificationStatus.fromJson(_userStatus!),
+                    );
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                // Network Leaderboard Card
+                Consumer<ThemeProvider>(
+                  builder: (context, themeProvider, _) {
+                    if (!themeProvider.networkGamificationEnabled ||
+                        _leaderboard == null) {
+                      return const SizedBox.shrink();
+                    }
+                    return NetworkLeaderboardCard(
+                      leaderboard: _leaderboard!,
                     );
                   },
                 ),

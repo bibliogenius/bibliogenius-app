@@ -102,6 +102,21 @@ class ThemeProvider with ChangeNotifier {
   bool _allowLibraryCaching = false;
   bool get allowLibraryCaching => _allowLibraryCaching;
 
+  // Connection Validation: require approval before new peers can access library
+  // Disabled by default (open access)
+  bool _connectionValidationEnabled = false;
+  bool get connectionValidationEnabled => _connectionValidationEnabled;
+
+  // Network Gamification: compare progress with connected peers
+  // Disabled by default (opt-in)
+  bool _networkGamificationEnabled = false;
+  bool get networkGamificationEnabled => _networkGamificationEnabled;
+
+  // Share Gamification Stats: allow peers to see your gamification progress
+  // Disabled by default for privacy
+  bool _shareGamificationStats = false;
+  bool get shareGamificationStats => _shareGamificationStats;
+
   ThemeData get themeData {
     // Initialize registry if needed
     ThemeRegistry.initialize();
@@ -208,6 +223,12 @@ class ThemeProvider with ChangeNotifier {
     _peerOfflineCachingEnabled =
         prefs.getBool('peerOfflineCachingEnabled') ?? false;
     _allowLibraryCaching = prefs.getBool('allowLibraryCaching') ?? false;
+    _connectionValidationEnabled =
+        prefs.getBool('connectionValidationEnabled') ?? false;
+    _networkGamificationEnabled =
+        prefs.getBool('networkGamificationEnabled') ?? false;
+    _shareGamificationStats =
+        prefs.getBool('shareGamificationStats') ?? false;
     _collectionsEnabled = prefs.getBool('collectionsEnabled') ?? false;
     _quotesEnabled = prefs.getBool('quotesEnabled') ?? true;
     _editionBrowserEnabled = prefs.getBool('editionBrowserEnabled') ?? true;
@@ -670,6 +691,44 @@ class ThemeProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Enable/disable connection validation
+  /// When enabled, new peers must be approved before they can access your library
+  /// When toggled OFF, all pending peers are auto-approved
+  Future<void> setConnectionValidationEnabled(bool enabled) async {
+    _connectionValidationEnabled = enabled;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('connectionValidationEnabled', enabled);
+    await _updateEnabledModules();
+    if (!enabled) {
+      // Auto-approve all pending peers when disabling validation
+      try {
+        final apiService = ApiService(AuthService());
+        await apiService.autoApproveAllPeers();
+      } catch (e) {
+        debugPrint('Error auto-approving peers: $e');
+      }
+    }
+    notifyListeners();
+  }
+
+  /// Enable/disable network gamification leaderboard
+  Future<void> setNetworkGamificationEnabled(bool enabled) async {
+    _networkGamificationEnabled = enabled;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('networkGamificationEnabled', enabled);
+    await _updateEnabledModules();
+    notifyListeners();
+  }
+
+  /// Enable/disable sharing gamification stats with peers
+  Future<void> setShareGamificationStats(bool enabled) async {
+    _shareGamificationStats = enabled;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('shareGamificationStats', enabled);
+    await _updateEnabledModules();
+    notifyListeners();
+  }
+
   // Collections Module
   bool _collectionsEnabled = false;
   bool get collectionsEnabled => _collectionsEnabled;
@@ -757,7 +816,16 @@ class ThemeProvider with ChangeNotifier {
     if (mcpEnabled) enabledModules.add('mcp');
     if (peerOfflineCachingEnabled) enabledModules.add('peer_offline_caching');
     if (allowLibraryCaching) enabledModules.add('allow_library_caching');
+    if (connectionValidationEnabled) {
+      enabledModules.add('connection_validation');
+    }
     if (commerceEnabled) enabledModules.add('commerce');
+    if (networkGamificationEnabled) {
+      enabledModules.add('network_gamification');
+    }
+    if (shareGamificationStats) {
+      enabledModules.add('share_gamification_stats');
+    }
 
     try {
       await apiService.updateProfile(data: {'enabled_modules': enabledModules});

@@ -83,14 +83,19 @@ class NetworkMember {
 
   /// Create a NetworkMember from a Peer JSON map
   factory NetworkMember.fromPeer(Map<String, dynamic> peer) {
+    // Prefer connection_status over status for more accurate state
+    final connectionStatus = peer['connection_status'] as String?;
     final status = peer['status'] as String?;
+    final derivedStatus = connectionStatus == 'pending'
+        ? 'pending'
+        : (status ?? 'connected');
     return NetworkMember(
       id: peer['id'] as int,
       name: peer['name'] as String,
       type: NetworkMemberType.library,
       source: NetworkMemberSource.network,
       url: peer['url'] as String?,
-      status: status ?? 'connected',
+      status: derivedStatus,
       lastSeen: peer['last_seen'] as String?,
     );
   }
