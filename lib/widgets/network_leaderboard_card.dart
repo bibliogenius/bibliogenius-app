@@ -28,6 +28,18 @@ class _NetworkLeaderboardCardState extends State<NetworkLeaderboardCard>
     Icons.handshake,
     Icons.shelves,
   ];
+  static const _domainTitleKeys = [
+    'leaderboard_collector',
+    'leaderboard_reader',
+    'leaderboard_lender',
+    'leaderboard_cataloguer',
+  ];
+  static const _domainDescKeys = [
+    'leaderboard_collector_desc',
+    'leaderboard_reader_desc',
+    'leaderboard_lender_desc',
+    'leaderboard_cataloguer_desc',
+  ];
 
   @override
   void initState() {
@@ -139,7 +151,8 @@ class _NetworkLeaderboardCardState extends State<NetworkLeaderboardCard>
                 height: _calculateTabHeight(),
                 child: TabBarView(
                   controller: _tabController,
-                  children: _domains.map((domain) {
+                  children: List.generate(_domains.length, (i) {
+                    final domain = _domains[i];
                     final entries = widget.leaderboard[domain] ?? [];
                     if (entries.isEmpty) {
                       return Center(
@@ -153,8 +166,8 @@ class _NetworkLeaderboardCardState extends State<NetworkLeaderboardCard>
                         ),
                       );
                     }
-                    return _buildRankingList(entries);
-                  }).toList(),
+                    return _buildDomainTab(i, entries);
+                  }),
                 ),
               ),
             ],
@@ -193,20 +206,64 @@ class _NetworkLeaderboardCardState extends State<NetworkLeaderboardCard>
     final maxEntries = _domains
         .map((d) => (widget.leaderboard[d] ?? []).length)
         .fold(0, (a, b) => a > b ? a : b);
-    // 56px per entry + padding, min 80 for empty state
-    return (maxEntries * 56.0 + 8).clamp(80.0, 336.0);
+    // 48px header + 56px per entry + padding, min 100 for empty state
+    return (48 + maxEntries.clamp(0, 6) * 56.0 + 8).clamp(100.0, 396.0);
   }
 
-  Widget _buildRankingList(List<LeaderboardEntry> entries) {
-    return ListView.builder(
-      padding: EdgeInsets.zero,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: entries.length.clamp(0, 6),
-      itemBuilder: (context, index) {
-        final entry = entries[index];
-        final rank = index + 1;
-        return _buildRankRow(rank, entry);
-      },
+  Widget _buildDomainTab(int domainIndex, List<LeaderboardEntry> entries) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Domain header
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          child: Row(
+            children: [
+              Icon(
+                _domainIcons[domainIndex],
+                size: 16,
+                color: theme.colorScheme.primary,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                TranslationService.translate(
+                  context,
+                  _domainTitleKeys[domainIndex],
+                ),
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  TranslationService.translate(
+                    context,
+                    _domainDescKeys[domainIndex],
+                  ),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color:
+                        theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ),
+        // Ranking list
+        Expanded(
+          child: ListView.builder(
+            padding: EdgeInsets.zero,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: entries.length.clamp(0, 6),
+            itemBuilder: (context, index) {
+              return _buildRankRow(index + 1, entries[index]);
+            },
+          ),
+        ),
+      ],
     );
   }
 
@@ -252,9 +309,9 @@ class _NetworkLeaderboardCardState extends State<NetworkLeaderboardCard>
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              'Lv.${entry.level}',
+              _levelName(entry.level),
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 11,
                 fontWeight: FontWeight.bold,
                 color: _levelColor(entry.level),
               ),
@@ -290,6 +347,21 @@ class _NetworkLeaderboardCardState extends State<NetworkLeaderboardCard>
         color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
       ),
     );
+  }
+
+  String _levelName(int level) {
+    if (level >= 6) {
+      return '${TranslationService.translate(context, 'level_platine')}+';
+    }
+    final keys = [
+      'level_curieux',
+      'level_novice',
+      'level_apprenti',
+      'level_bronze',
+      'level_silver',
+      'level_gold',
+    ];
+    return TranslationService.translate(context, keys[level]);
   }
 
   Color _levelColor(int level) {

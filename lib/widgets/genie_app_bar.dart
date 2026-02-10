@@ -236,19 +236,19 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const Icon(Icons.bolt, color: Colors.white, size: 20),
-                    if (MediaQuery.of(context).size.width > 600) ...[
-                      const SizedBox(width: 8),
-                      Text(
-                        TranslationService.translate(
-                          context,
-                          'quick_actions_title',
-                        ),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
+                    const SizedBox(width: 4),
+                    Text(
+                      MediaQuery.of(context).size.width > 600
+                          ? TranslationService.translate(
+                              context,
+                              'quick_actions_title',
+                            )
+                          : 'Actions',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
                       ),
-                    ],
+                    ),
                   ],
                 ),
               ),
