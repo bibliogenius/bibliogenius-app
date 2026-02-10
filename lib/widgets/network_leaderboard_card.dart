@@ -5,8 +5,13 @@ import '../services/translation_service.dart';
 
 class NetworkLeaderboardCard extends StatefulWidget {
   final Map<String, List<LeaderboardEntry>> leaderboard;
+  final String? lastRefreshed;
 
-  const NetworkLeaderboardCard({super.key, required this.leaderboard});
+  const NetworkLeaderboardCard({
+    super.key,
+    required this.leaderboard,
+    this.lastRefreshed,
+  });
 
   @override
   State<NetworkLeaderboardCard> createState() => _NetworkLeaderboardCardState();
@@ -86,12 +91,33 @@ class _NetworkLeaderboardCardState extends State<NetworkLeaderboardCard>
                     ),
                   ),
                   const SizedBox(width: 12),
-                  Text(
-                    TranslationService.translate(context, 'leaderboard_title'),
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(fontWeight: FontWeight.bold),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          TranslationService.translate(
+                              context, 'leaderboard_title'),
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        if (widget.lastRefreshed != null)
+                          Text(
+                            _formatStaleness(widget.lastRefreshed!),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurface
+                                      .withValues(alpha: 0.5),
+                                ),
+                          ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -136,6 +162,31 @@ class _NetworkLeaderboardCardState extends State<NetworkLeaderboardCard>
         ),
       ),
     );
+  }
+
+  String _formatStaleness(String isoDate) {
+    try {
+      final syncTime = DateTime.parse(isoDate);
+      final age = DateTime.now().difference(syncTime);
+
+      if (age.inMinutes < 1) {
+        return TranslationService.translate(context, 'synced_just_now');
+      } else if (age.inMinutes < 60) {
+        final label =
+            TranslationService.translate(context, 'synced_minutes_ago');
+        return label.replaceAll('%d', age.inMinutes.toString());
+      } else if (age.inHours < 24) {
+        final label =
+            TranslationService.translate(context, 'synced_hours_ago');
+        return label.replaceAll('%d', age.inHours.toString());
+      } else {
+        final label =
+            TranslationService.translate(context, 'synced_days_ago');
+        return label.replaceAll('%d', age.inDays.toString());
+      }
+    } catch (_) {
+      return isoDate;
+    }
   }
 
   double _calculateTabHeight() {

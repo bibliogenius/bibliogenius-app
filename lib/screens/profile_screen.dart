@@ -26,6 +26,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _isLoading = true;
   Map<String, dynamic>? _userStatus;
   Map<String, List<LeaderboardEntry>>? _leaderboard;
+  String? _lastRefreshed;
   String? _error;
 
   @override
@@ -86,6 +87,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         .toList() ??
                     [];
               }
+              _lastRefreshed = data['last_refreshed'] as String?;
             }
           } catch (e) {
             debugPrint('Leaderboard fetch failed: $e');
@@ -258,6 +260,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     }
                     return NetworkLeaderboardCard(
                       leaderboard: _leaderboard!,
+                      lastRefreshed: _lastRefreshed,
                     );
                   },
                 ),
@@ -287,12 +290,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          TranslationService.translate(context, 'reading_goals_title'),
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-        const SizedBox(height: 16),
-
         // Yearly Goal Card
         _buildGoalCard(
           icon: Icons.calendar_today,

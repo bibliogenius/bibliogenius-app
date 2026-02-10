@@ -1510,7 +1510,22 @@ class ApiService {
 
   /// Get network gamification leaderboard
   Future<Response> getLeaderboard() async {
-    return await _dio.get('/api/gamification/leaderboard');
+    try {
+      final dio = useFfi ? await _getLocalDio() : _dio;
+      return await dio.get('/api/gamification/leaderboard');
+    } catch (e) {
+      debugPrint('Leaderboard: server unavailable, returning empty ($e)');
+      return Response(
+        requestOptions: RequestOptions(path: '/api/gamification/leaderboard'),
+        statusCode: 200,
+        data: {
+          'collector': [],
+          'reader': [],
+          'lender': [],
+          'cataloguer': [],
+        },
+      );
+    }
   }
 
   /// Update gamification config (reading goals, etc.)
