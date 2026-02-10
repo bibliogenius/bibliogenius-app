@@ -33,7 +33,11 @@ class CopyRepositoryImpl implements CopyRepository {
     if (response.statusCode == 200 && response.data != null) {
       final data = response.data;
       if (data is Map<String, dynamic>) {
-        return Copy.fromJson(data);
+        // Unwrap {"copy": {...}} wrapper from backend
+        final copyData = data['copy'] is Map<String, dynamic>
+            ? data['copy'] as Map<String, dynamic>
+            : data;
+        return Copy.fromJson(copyData);
       }
     }
     throw Exception('Copy not found');
@@ -45,7 +49,11 @@ class CopyRepositoryImpl implements CopyRepository {
     if (response.statusCode == 201 || response.statusCode == 200) {
       final data = response.data;
       if (data is Map<String, dynamic>) {
-        return Copy.fromJson(data);
+        // Unwrap {"copy": {...}} wrapper from backend
+        final copy = data['copy'] is Map<String, dynamic>
+            ? data['copy'] as Map<String, dynamic>
+            : data;
+        return Copy.fromJson(copy);
       }
     }
     throw Exception('Failed to create copy (status: ${response.statusCode})');
@@ -57,7 +65,11 @@ class CopyRepositoryImpl implements CopyRepository {
     if (response.statusCode == 200 && response.data != null) {
       final responseData = response.data;
       if (responseData is Map<String, dynamic>) {
-        return Copy.fromJson(responseData);
+        // Unwrap {"copy": {...}} wrapper from backend
+        final copyData = responseData['copy'] is Map<String, dynamic>
+            ? responseData['copy'] as Map<String, dynamic>
+            : responseData;
+        return Copy.fromJson(copyData);
       }
     }
     throw Exception('Failed to update copy (status: ${response.statusCode})');

@@ -149,7 +149,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
     _isbnController.dispose();
     _summaryController.dispose();
     _priceController.dispose();
-    _tagsController.dispose();
+    // _tagsController is not disposed here because it gets reassigned to the
+    // Autocomplete widget's internal controller (in fieldViewBuilder), which
+    // Autocomplete manages and disposes itself.
     _titleFocusNode.dispose();
     super.dispose();
   }
