@@ -1528,6 +1528,18 @@ class ApiService {
     }
   }
 
+  /// Refresh leaderboard by syncing gamification stats from all connected peers,
+  /// then return the updated leaderboard data.
+  Future<Response> refreshLeaderboard() async {
+    try {
+      final dio = useFfi ? await _getLocalDio() : _dio;
+      return await dio.post('/api/gamification/refresh-leaderboard');
+    } catch (e) {
+      debugPrint('Refresh leaderboard failed, falling back to cached ($e)');
+      return getLeaderboard();
+    }
+  }
+
   /// Update gamification config (reading goals, etc.)
   Future<Response> updateGamificationConfig({
     int? readingGoalYearly,

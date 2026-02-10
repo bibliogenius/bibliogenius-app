@@ -67,7 +67,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         );
         if (themeProvider.networkGamificationEnabled) {
           try {
-            final leaderboardRes = await apiService.getLeaderboard();
+            final leaderboardRes = await apiService.refreshLeaderboard();
             if (mounted && leaderboardRes.statusCode == 200) {
               final data = leaderboardRes.data as Map<String, dynamic>;
               _leaderboard = {};
