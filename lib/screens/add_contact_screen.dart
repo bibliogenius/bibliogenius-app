@@ -85,7 +85,6 @@ class _AddContactScreenState extends State<AddContactScreen> {
       final authService = Provider.of<AuthService>(context, listen: false);
       final contactRepo = Provider.of<ContactRepository>(context, listen: false);
       final libraryId = await authService.getLibraryId() ?? 1;
-      final userId = await authService.getUserId();
 
       final contactData = {
         'type': _type,
@@ -112,7 +111,6 @@ class _AddContactScreenState extends State<AddContactScreen> {
         'notes': _notesController.text.isNotEmpty
             ? _notesController.text
             : null,
-        'user_id': userId,
         'library_owner_id': libraryId,
         'is_active': true,
       };

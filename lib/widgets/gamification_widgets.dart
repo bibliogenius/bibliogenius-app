@@ -710,6 +710,7 @@ class _CurrentBadgeWidgetState extends State<CurrentBadgeWidget>
 class TrackProgressWidget extends StatelessWidget {
   final TrackProgress track;
   final String trackName;
+  final String? descriptionKey;
   final IconData icon;
   final Color color;
   final double size;
@@ -718,6 +719,7 @@ class TrackProgressWidget extends StatelessWidget {
     super.key,
     required this.track,
     required this.trackName,
+    this.descriptionKey,
     required this.icon,
     required this.color,
     this.size = 70.0,
@@ -816,7 +818,13 @@ class TrackProgressWidget extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          Text(trackName, style: labelStyle),
+          Text(
+            trackName,
+            style: labelStyle?.copyWith(
+              color: color,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           // Show progress intelligently: if current >= nextThreshold, show level completed
           Text(
             track.isMaxLevel
@@ -826,6 +834,22 @@ class TrackProgressWidget extends StatelessWidget {
                 : '${track.current}/${track.nextThreshold}',
             style: progressStyle,
           ),
+          if (descriptionKey != null) ...[
+            const SizedBox(height: 2),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+              child: Text(
+                TranslationService.translate(context, descriptionKey!),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: isDesktop ? 12.0 : 10.0,
+                  color: Theme.of(context).textTheme.bodySmall?.color,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -867,6 +891,7 @@ class TracksProgressRow extends StatelessWidget {
                     context,
                     'track_collector',
                   ),
+                  descriptionKey: 'gamification_collector_desc',
                   icon: Icons.collections_bookmark,
                   color: Colors.blue,
                 ),
@@ -878,6 +903,7 @@ class TracksProgressRow extends StatelessWidget {
                     context,
                     'track_reader',
                   ),
+                  descriptionKey: 'gamification_reader_desc',
                   icon: Icons.menu_book,
                   color: Colors.green,
                 ),
@@ -889,6 +915,7 @@ class TracksProgressRow extends StatelessWidget {
                     context,
                     'track_lender',
                   ),
+                  descriptionKey: 'gamification_lender_desc',
                   icon: Icons.volunteer_activism,
                   color: Colors.orange,
                 ),
@@ -900,6 +927,7 @@ class TracksProgressRow extends StatelessWidget {
                     context,
                     'track_cataloguer',
                   ),
+                  descriptionKey: 'gamification_cataloguer_desc',
                   icon: Icons.list_alt,
                   color: Colors.purple,
                 ),
@@ -913,23 +941,29 @@ class TracksProgressRow extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  TrackProgressWidget(
-                    track: status.collector,
-                    trackName: TranslationService.translate(
-                      context,
-                      'track_collector',
+                  Expanded(
+                    child: TrackProgressWidget(
+                      track: status.collector,
+                      trackName: TranslationService.translate(
+                        context,
+                        'track_collector',
+                      ),
+                      descriptionKey: 'gamification_collector_desc',
+                      icon: Icons.library_books,
+                      color: Colors.blue,
                     ),
-                    icon: Icons.library_books,
-                    color: Colors.blue,
                   ),
-                  TrackProgressWidget(
-                    track: status.reader,
-                    trackName: TranslationService.translate(
-                      context,
-                      'track_reader',
+                  Expanded(
+                    child: TrackProgressWidget(
+                      track: status.reader,
+                      trackName: TranslationService.translate(
+                        context,
+                        'track_reader',
+                      ),
+                      descriptionKey: 'gamification_reader_desc',
+                      icon: Icons.menu_book,
+                      color: Colors.green,
                     ),
-                    icon: Icons.menu_book,
-                    color: Colors.green,
                   ),
                 ],
               ),
@@ -937,23 +971,29 @@ class TracksProgressRow extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  TrackProgressWidget(
-                    track: status.lender,
-                    trackName: TranslationService.translate(
-                      context,
-                      'track_lender',
+                  Expanded(
+                    child: TrackProgressWidget(
+                      track: status.lender,
+                      trackName: TranslationService.translate(
+                        context,
+                        'track_lender',
+                      ),
+                      descriptionKey: 'gamification_lender_desc',
+                      icon: Icons.handshake,
+                      color: Colors.orange,
                     ),
-                    icon: Icons.handshake,
-                    color: Colors.orange,
                   ),
-                  TrackProgressWidget(
-                    track: status.cataloguer,
-                    trackName: TranslationService.translate(
-                      context,
-                      'track_cataloguer',
+                  Expanded(
+                    child: TrackProgressWidget(
+                      track: status.cataloguer,
+                      trackName: TranslationService.translate(
+                        context,
+                        'track_cataloguer',
+                      ),
+                      descriptionKey: 'gamification_cataloguer_desc',
+                      icon: Icons.sort,
+                      color: Colors.purple,
                     ),
-                    icon: Icons.sort,
-                    color: Colors.purple,
                   ),
                 ],
               ),

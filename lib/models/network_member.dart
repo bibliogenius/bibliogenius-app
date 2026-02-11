@@ -26,6 +26,12 @@ class NetworkMember {
   final String? phone;
   final String? notes;
   final String? address;
+  final String? streetAddress;
+  final String? postalCode;
+  final String? city;
+  final String? country;
+  final double? latitude;
+  final double? longitude;
   final bool? isActive;
 
   // Peer-specific fields (null for local contacts)
@@ -47,6 +53,12 @@ class NetworkMember {
     this.phone,
     this.notes,
     this.address,
+    this.streetAddress,
+    this.postalCode,
+    this.city,
+    this.country,
+    this.latitude,
+    this.longitude,
     this.isActive,
     this.url,
     this.status,
@@ -77,6 +89,12 @@ class NetworkMember {
       phone: contact.phone,
       notes: contact.notes,
       address: contact.address,
+      streetAddress: contact.streetAddress,
+      postalCode: contact.postalCode,
+      city: contact.city,
+      country: contact.country,
+      latitude: contact.latitude,
+      longitude: contact.longitude,
       isActive: contact.isActive,
     );
   }
@@ -143,9 +161,16 @@ class NetworkMember {
       id: id,
       type: type == NetworkMemberType.borrower ? 'borrower' : 'library',
       name: name,
+      firstName: firstName,
       email: email,
       phone: phone,
       address: address,
+      streetAddress: streetAddress,
+      postalCode: postalCode,
+      city: city,
+      country: country,
+      latitude: latitude,
+      longitude: longitude,
       notes: notes,
       libraryOwnerId: 1, // Default library
       isActive: isActive ?? true,

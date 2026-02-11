@@ -2276,7 +2276,7 @@ class ApiService {
         : 'http://$peerUrl';
 
     if (useFfi) {
-      // FFI mode: Direct P2P sync
+      // FFI mode: Direct P2P sync (bidirectional)
       try {
         final myUrl = await _getMyUrl();
         if (myUrl == null) {
@@ -2286,14 +2286,35 @@ class ApiService {
             data: {'error': 'No valid LAN IP available for P2P sync'},
           );
         }
+
+        // 1. Ask remote peer to sync from us
         final dio = Dio();
         debugPrint(
           'P2P Sync: Requesting sync from $normalizedUrl/api/peers/sync_by_url with my URL $myUrl',
         );
-        return await dio.post(
+        final remoteRes = await dio.post(
           '$normalizedUrl/api/peers/sync_by_url',
           data: {'url': myUrl},
         );
+
+        // 2. Also sync locally from the remote peer (updates peer name, books, stats)
+        try {
+          final localDio = Dio(
+            BaseOptions(
+              baseUrl: 'http://localhost:${ApiService.httpPort}',
+              connectTimeout: const Duration(seconds: 10),
+              receiveTimeout: const Duration(seconds: 30),
+            ),
+          );
+          await localDio.post(
+            '/api/peers/sync_by_url',
+            data: {'url': normalizedUrl},
+          );
+        } catch (e) {
+          debugPrint('P2P local sync error (non-fatal): $e');
+        }
+
+        return remoteRes;
       } catch (e) {
         debugPrint('P2P Sync Error: $e');
         return Response(

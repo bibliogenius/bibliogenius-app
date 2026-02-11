@@ -439,7 +439,7 @@ class _ContactsListViewState extends State<ContactsListView> {
               : TranslationService.translate(context, 'delete_contact_title'),
         ),
         content: Text(
-          '${TranslationService.translate(context, 'confirm_delete')} ${member.name}?',
+          '${TranslationService.translate(context, 'confirm_delete')} ${member.displayName}?',
         ),
         actions: [
           TextButton(
@@ -873,6 +873,7 @@ class _ContactsListViewState extends State<ContactsListView> {
                           ),
                         ),
                       );
+                      _loadAllMembers();
                     }
                   }
                 },
@@ -985,7 +986,7 @@ class _ContactsListViewState extends State<ContactsListView> {
             color: Colors.white,
           ),
         ),
-        title: Text(member.name),
+        title: Text(member.displayName),
         subtitle: Text(
           member.source == NetworkMemberSource.network
               ? (isOnline
