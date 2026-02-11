@@ -2883,7 +2883,7 @@ class ApiService {
     bool? shareLocation,
     bool? showBorrowedBooks,
   }) async {
-    // In FFI mode, persist config to SharedPreferences
+    // In FFI mode, persist config to SharedPreferences AND to the Rust DB
     if (useFfi) {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('ffi_library_name', name);
@@ -2898,6 +2898,23 @@ class ApiService {
         await prefs.setBool('ffi_share_location', shareLocation);
       if (showBorrowedBooks != null)
         await prefs.setBool('ffi_show_borrowed_books', showBorrowedBooks);
+
+      // Also persist to the Rust backend DB so leaderboard/config stay in sync
+      try {
+        final localDio = await _getLocalDio();
+        await localDio.post('/api/library/config', data: {
+          'name': name,
+          'description': description,
+          'profile_type': profileType,
+          'tags': tags ?? [],
+          'latitude': latitude,
+          'longitude': longitude,
+          'share_location': shareLocation ?? false,
+          'show_borrowed_books': showBorrowedBooks ?? false,
+        });
+      } catch (e) {
+        debugPrint('FFI config sync to DB failed: $e');
+      }
 
       return Response(
         requestOptions: RequestOptions(path: '/api/library/config'),

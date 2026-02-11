@@ -27,7 +27,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Map<String, dynamic>? _config;
   Map<String, dynamic>? _userInfo;
   Map<String, dynamic>? _userStatus;
-  String? _libraryName;
   Map<String, bool> _searchPrefs = {};
 
   @override
@@ -50,7 +49,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         final name = _config?['library_name'] ?? _config?['name'];
         if (name != null) {
           themeProvider.setLibraryName(name);
-          _libraryName = name;
         }
         final profileType = _config?['profile_type'];
         if (profileType != null) {
@@ -173,26 +171,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            Card(
-              child: Column(
-                children: [
-                  ListTile(
-                    leading: const Icon(Icons.library_books),
-                    title: Text(
-                      TranslationService.translate(context, 'library_name'),
-                    ),
-                    subtitle: Text(_libraryName ?? 'My Library'),
-                    trailing: const Icon(Icons.edit),
-                    onTap: () {
-                      // TODO: Implement rename dialog if needed
-                    },
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-            const Divider(),
-            const SizedBox(height: 24),
+            const SizedBox(height: 8),
 
             // Quick Presets Section
             Text(

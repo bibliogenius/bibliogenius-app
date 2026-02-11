@@ -6,11 +6,13 @@ import '../services/translation_service.dart';
 class NetworkLeaderboardCard extends StatefulWidget {
   final Map<String, List<LeaderboardEntry>> leaderboard;
   final String? lastRefreshed;
+  final VoidCallback? onRefresh;
 
   const NetworkLeaderboardCard({
     super.key,
     required this.leaderboard,
     this.lastRefreshed,
+    this.onRefresh,
   });
 
   @override
@@ -20,6 +22,7 @@ class NetworkLeaderboardCard extends StatefulWidget {
 class _NetworkLeaderboardCardState extends State<NetworkLeaderboardCard>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  bool _isRefreshing = false;
 
   static const _domains = ['collector', 'reader', 'lender', 'cataloguer'];
   static const _domainIcons = [
@@ -51,6 +54,19 @@ class _NetworkLeaderboardCardState extends State<NetworkLeaderboardCard>
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  Future<void> _handleRefresh() async {
+    if (_isRefreshing) return;
+    setState(() => _isRefreshing = true);
+    try {
+      widget.onRefresh?.call();
+    } finally {
+      // Allow parent to rebuild this widget with new data;
+      // a short delay avoids the spinner disappearing instantly.
+      await Future.delayed(const Duration(milliseconds: 500));
+      if (mounted) setState(() => _isRefreshing = false);
+    }
   }
 
   @override
@@ -131,6 +147,21 @@ class _NetworkLeaderboardCardState extends State<NetworkLeaderboardCard>
                       ],
                     ),
                   ),
+                  if (widget.onRefresh != null)
+                    _isRefreshing
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : IconButton(
+                            icon: const Icon(Icons.refresh, size: 20),
+                            tooltip: TranslationService.translate(
+                                context, 'action_refresh'),
+                            onPressed: _handleRefresh,
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                          ),
                 ],
               ),
               const SizedBox(height: 16),

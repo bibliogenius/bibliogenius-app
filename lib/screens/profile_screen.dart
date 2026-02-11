@@ -42,29 +42,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final configRes = await apiService.getLibraryConfig();
 
       if (mounted) {
-        // Sync library name
-        final name = configRes.data['library_name'] ?? configRes.data['name'];
-        if (name != null) {
-          Provider.of<ThemeProvider>(
-            context,
-            listen: false,
-          ).setLibraryName(name);
+        // Sync library name from backend
+        final dbName = configRes.data['library_name'] ?? configRes.data['name'];
+        final themeProvider = Provider.of<ThemeProvider>(
+          context,
+          listen: false,
+        );
+        final localName = themeProvider.libraryName;
+
+        if (dbName != null && localName == 'My Library') {
+          themeProvider.setLibraryName(dbName);
         }
 
         // Sync profile type
         final profileType = configRes.data['profile_type'];
         if (profileType != null) {
-          Provider.of<ThemeProvider>(
-            context,
-            listen: false,
-          ).setProfileType(profileType);
+          themeProvider.setProfileType(profileType);
         }
 
         // Fetch leaderboard if network gamification is enabled
-        final themeProvider = Provider.of<ThemeProvider>(
-          context,
-          listen: false,
-        );
         if (themeProvider.networkGamificationEnabled) {
           try {
             final leaderboardRes = await apiService.refreshLeaderboard();
@@ -79,11 +75,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ]) {
                 _leaderboard![domain] =
                     (data[domain] as List<dynamic>?)
-                        ?.map(
-                          (e) => LeaderboardEntry.fromJson(
+                        ?.map((e) {
+                          final entry = LeaderboardEntry.fromJson(
                             e as Map<String, dynamic>,
-                          ),
-                        )
+                          );
+                          // Override self entry name with ThemeProvider name
+                          // (DB may be stale in FFI mode)
+                          if (entry.isSelf && localName != 'My Library') {
+                            return LeaderboardEntry(
+                              libraryName: localName,
+                              level: entry.level,
+                              current: entry.current,
+                              isSelf: true,
+                              peerId: entry.peerId,
+                            );
+                          }
+                          return entry;
+                        })
                         .toList() ??
                     [];
               }
@@ -236,7 +244,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     );
                   },
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 16),
+
+                // Library Name (editable)
+                Consumer<ThemeProvider>(
+                  builder: (context, themeProvider, _) {
+                    final libraryName = themeProvider.libraryName;
+                    return GestureDetector(
+                      onTap: () => _showEditLibraryNameDialog(libraryName),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              libraryName,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineSmall
+                                  ?.copyWith(fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.center,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Icon(
+                            Icons.edit_outlined,
+                            size: 18,
+                            color: Colors.grey[400],
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 16),
 
                 // Gamification Card
                 Consumer<ThemeProvider>(
@@ -251,6 +292,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: 16),
 
+                // Reading Goals
+                _buildReadingGoalsSection(),
+                const SizedBox(height: 16),
+
                 // Network Leaderboard Card
                 Consumer<ThemeProvider>(
                   builder: (context, themeProvider, _) {
@@ -261,13 +306,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     return NetworkLeaderboardCard(
                       leaderboard: _leaderboard!,
                       lastRefreshed: _lastRefreshed,
+                      onRefresh: _fetchStatus,
                     );
                   },
                 ),
-                const SizedBox(height: 32),
-
-                // Reading Goals
-                _buildReadingGoalsSection(),
 
                 const SizedBox(height: 100),
               ],
@@ -281,7 +323,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildReadingGoalsSection() {
     // Get current goals from status
     final yearlyGoal = _userStatus?['config']?['reading_goal_yearly'] ?? 12;
-    final monthlyGoal = _userStatus?['config']?['reading_goal_monthly'] ?? 0;
     final booksRead = _userStatus?['config']?['reading_goal_progress'] ?? 0;
     final yearlyProgress = yearlyGoal > 0
         ? (booksRead / yearlyGoal).clamp(0.0, 1.0)
@@ -644,6 +685,68 @@ class _ProfileScreenState extends State<ProfileScreen> {
             backgroundColor: Colors.red,
           ),
         );
+      }
+    }
+  }
+
+  Future<void> _showEditLibraryNameDialog(String currentName) async {
+    final controller = TextEditingController(text: currentName);
+    final result = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(
+          TranslationService.translate(context, 'edit_library_name'),
+        ),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: InputDecoration(
+            labelText: TranslationService.translate(context, 'library_name'),
+          ),
+          onSubmitted: (value) => Navigator.pop(dialogContext, value.trim()),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(TranslationService.translate(context, 'cancel')),
+          ),
+          FilledButton(
+            onPressed: () =>
+                Navigator.pop(dialogContext, controller.text.trim()),
+            child: Text(TranslationService.translate(context, 'save')),
+          ),
+        ],
+      ),
+    );
+
+    if (result != null && result.isNotEmpty && result != currentName) {
+      try {
+        final api = Provider.of<ApiService>(context, listen: false);
+        await api.updateLibraryConfig(name: result);
+        if (mounted) {
+          Provider.of<ThemeProvider>(
+            context,
+            listen: false,
+          ).setLibraryName(result);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                TranslationService.translate(context, 'library_updated'),
+              ),
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                '${TranslationService.translate(context, 'error')}: $e',
+              ),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       }
     }
   }

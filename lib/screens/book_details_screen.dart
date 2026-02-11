@@ -465,7 +465,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                   label: Text(
                     TranslationService.translate(
                           context,
-                          'menu_manage_copies',
+                          'menu_copies_short',
                         ) ??
                         'Copies',
                   ),

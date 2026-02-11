@@ -671,6 +671,7 @@ class TranslationService {
       'menu_edit': 'Edit',
       'menu_delete': 'Delete',
       'menu_manage_copies': 'Manage Copies',
+      'menu_copies_short': 'Copies',
       // Book Status
       'status_available': 'Available',
       'status_checked_out': 'Checked Out',
@@ -2350,6 +2351,7 @@ class TranslationService {
       'menu_edit': 'Modifier',
       'menu_delete': 'Supprimer',
       'menu_manage_copies': 'Gérer les copies',
+      'menu_copies_short': 'Copies',
       // Book Status
       'status_available': 'Disponible',
       'status_checked_out': 'Emprunté',
@@ -2978,7 +2980,7 @@ class TranslationService {
       'feedback_opened_github': 'GitHub ouvert dans le navigateur',
       'feedback_copied': 'Copié dans le presse-papiers',
       'feedback_error_opening': 'Impossible d\'ouvrir GitHub',
-      'reading_status_reading': 'Lecture en cours',
+      'reading_status_reading': 'En cours',
       'reading_status_to_read': 'À lire',
       'reading_status_wanting': 'Envie de lire',
       'reading_status_read': 'Lu',
@@ -3780,6 +3782,7 @@ class TranslationService {
       'menu_edit': 'Editar',
       'menu_delete': 'Eliminar',
       'menu_manage_copies': 'Gestionar copias',
+      'menu_copies_short': 'Copias',
       // Book Status
       'status_available': 'Disponible',
       'status_checked_out': 'Prestado',
@@ -4521,6 +4524,7 @@ class TranslationService {
       'menu_edit': 'Bearbeiten',
       'menu_delete': 'Löschen',
       'menu_manage_copies': 'Exemplare verwalten',
+      'menu_copies_short': 'Exemplare',
       // Book Status
       'status_available': 'Verfügbar',
       'status_checked_out': 'Ausgeliehen',

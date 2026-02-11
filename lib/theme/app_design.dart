@@ -118,52 +118,49 @@ class AppDesign {
   );
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // REFINED VIBRANT GRADIENTS (Slightly lighter)
+  // STAT CARD GRADIENTS (Harmonized with app teal/indigo palette)
   // ═══════════════════════════════════════════════════════════════════════════
 
-  /// Refined Primary (Slightly lighter Indigo/Violet)
+  /// Primary stat (Indigo — matches app primary brand)
   static const refinedPrimaryGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [
-      Color(0xFF7174FA),
-      Color(0xFF966DF8),
-    ], // Balanced between vibrant and pastel
+    colors: [Color(0xFF6366F1), Color(0xFF818CF8)],
   );
 
-  /// Refined Success (Slightly lighter Green)
+  /// Success stat (Teal — matches app bar / sidebar)
   static const refinedSuccessGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF22C58E), Color(0xFF0EA37A)],
+    colors: [Color(0xFF5C8C9F), Color(0xFF6BB0A9)],
   );
 
-  /// Refined Warning (Slightly lighter Orange)
-  static const refinedWarningGradient = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [Color(0xFFFACC15), Color(0xFFEAB308)],
-  );
-
-  /// Refined Accent (Slightly lighter Pink)
+  /// Accent stat (Muted rose — warm complement to teal)
   static const refinedAccentGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFFF472B6), Color(0xFFE11D48)],
+    colors: [Color(0xFFB07D8E), Color(0xFFC9939F)],
   );
 
-  /// Refined Ocean (Slightly lighter Blue)
+  /// Warning stat (Warm amber — complements the cream background)
+  static const refinedWarningGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFFC4956A), Color(0xFFD4A574)],
+  );
+
+  /// Ocean stat (Slate blue — muted complement to indigo)
   static const refinedOceanGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF38BDF8), Color(0xFF0284C7)],
+    colors: [Color(0xFF7189A8), Color(0xFF8DA0B8)],
   );
 
-  /// Anthracite gradient (Dark Grey)
+  /// Anthracite gradient (Stone — matches app text color family)
   static const anthraciteGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF374151), Color(0xFF1F2937)], // Gray-700 -> Gray-800
+    colors: [Color(0xFF57534E), Color(0xFF78716C)], // Stone-600 -> Stone-500
   );
   // ═══════════════════════════════════════════════════════════════════════════
   // PASTEL COLORS
