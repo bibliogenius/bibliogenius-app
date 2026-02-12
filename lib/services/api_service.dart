@@ -8,6 +8,7 @@ import 'package:network_info_plus/network_info_plus.dart';
 import 'package:excel/excel.dart' as xlsx;
 
 import '../models/book.dart';
+import '../models/cover_candidate.dart';
 import '../models/genie.dart';
 import '../models/tag.dart';
 import '../models/contact.dart';
@@ -2288,7 +2289,12 @@ class ApiService {
         }
 
         // 1. Ask remote peer to sync from us
-        final dio = Dio();
+        final dio = Dio(
+          BaseOptions(
+            connectTimeout: const Duration(seconds: 5),
+            receiveTimeout: const Duration(seconds: 10),
+          ),
+        );
         debugPrint(
           'P2P Sync: Requesting sync from $normalizedUrl/api/peers/sync_by_url with my URL $myUrl',
         );
@@ -2350,7 +2356,12 @@ class ApiService {
 
       debugPrint('P2P: Fetching books from $targetUrl');
 
-      final dio = Dio();
+      final dio = Dio(
+        BaseOptions(
+          connectTimeout: const Duration(seconds: 5),
+          receiveTimeout: const Duration(seconds: 10),
+        ),
+      );
       return await dio.get(targetUrl);
     } catch (e) {
       debugPrint('P2P: Error fetching books from $peerUrl - $e');
@@ -2404,6 +2415,62 @@ class ApiService {
       if (kDebugMode) debugPrint('⚠️ Peer cache cleanup failed: $e');
       // Silent failure - cleanup is not critical
     }
+  }
+
+  // ============ Cover Enrichment ============
+
+  /// Enrich books that have an ISBN but no cover by checking external sources.
+  /// Returns the number of covers found and persisted.
+  Future<int> enrichMissingCovers() async {
+    if (useFfi) {
+      return await FfiService().enrichMissingCovers();
+    }
+    return 0;
+  }
+
+  /// Search for a cover URL for a single ISBN from external sources.
+  Future<String?> searchCoverForBook(String isbn) async {
+    if (useFfi) {
+      return await FfiService().searchCoverForBook(isbn);
+    }
+    return null;
+  }
+
+  /// Search for a cover URL by title with author verification (fallback).
+  Future<String?> searchCoverByTitle(String title, String? author, {bool enableGoogle = false}) async {
+    if (useFfi) {
+      return await FfiService().searchCoverByTitle(title, author, enableGoogle: enableGoogle);
+    }
+    return null;
+  }
+
+  /// Search all cover sources in parallel for a given ISBN.
+  /// Returns all cover candidates for the picker carousel.
+  Future<List<CoverCandidate>> searchAllCoversForBook(String isbn) async {
+    if (useFfi) {
+      return await FfiService().searchAllCoversForBook(isbn);
+    }
+    return [];
+  }
+
+  /// Search all cover sources by title in parallel.
+  Future<List<CoverCandidate>> searchAllCoversByTitle(
+      String title, String? author,
+      {bool enableGoogle = false}) async {
+    if (useFfi) {
+      return await FfiService()
+          .searchAllCoversByTitle(title, author, enableGoogle: enableGoogle);
+    }
+    return [];
+  }
+
+  /// Look up book metadata from external sources by ISBN.
+  /// Returns a map of field names to values, or null if not found.
+  Future<Map<String, String?>?> lookupBookMetadata(String isbn, {String? lang}) async {
+    if (useFfi) {
+      return await FfiService().lookupBookMetadata(isbn, lang: lang);
+    }
+    return null;
   }
 
   Future<Response> requestBook(int peerId, String isbn, String title) async {

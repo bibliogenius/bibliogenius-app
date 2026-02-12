@@ -780,13 +780,27 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                 right: 8,
                 child: PopupMenuButton<String>(
                   onSelected: (value) {
-                    if (value == 'edit') {
+                    if (value == 'scan') {
+                      context.push('/scan', extra: {
+                        'shelfId': tag.name,
+                        'shelfName': tag.fullPath,
+                        'batch': true,
+                      }).then((_) => _refreshTags());
+                    } else if (value == 'edit') {
                       _showEditShelfDialog(tag);
                     } else if (value == 'delete') {
                       _showDeleteConfirmDialog(tag);
                     }
                   },
                   itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                    PopupMenuItem<String>(
+                      value: 'scan',
+                      child: ListTile(
+                        leading: const Icon(Icons.qr_code_scanner, color: Colors.orange),
+                        title: Text(TranslationService.translate(context, 'scan_into_shelf') ?? 'Scan into this shelf'),
+                      ),
+                    ),
+                    const PopupMenuDivider(),
                     PopupMenuItem<String>(
                       value: 'edit',
                       child: ListTile(
@@ -815,7 +829,9 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     // Shelf icon with count badge
-                    Row(
+                    Padding(
+                      padding: const EdgeInsets.only(right: 32),
+                      child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Container(
@@ -862,6 +878,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                           ),
                         ),
                       ],
+                    ),
                     ),
                     // Tag name
                     Column(

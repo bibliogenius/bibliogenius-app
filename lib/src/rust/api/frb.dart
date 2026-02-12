@@ -9,7 +9,7 @@ import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 part 'frb.freezed.dart';
 
 // These functions are ignored because they are not marked as `pub`: `db`, `install_panic_hook`, `runtime`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `from`, `from`, `from`, `from`, `from`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `from`, `from`, `from`, `from`, `from`, `from`
 
 /// Initialize the FFI backend with database at the given path
 /// Must be called before any other FFI functions
@@ -84,6 +84,53 @@ Future<void> deleteBook({required int id}) =>
 /// Count total books
 Future<PlatformInt64> countBooks() =>
     RustLib.instance.api.crateApiFrbCountBooks();
+
+/// Enrich books that have an ISBN but no cover by checking external sources.
+/// Runs in background, returns the count of covers found and persisted.
+Future<int> enrichMissingCovers() =>
+    RustLib.instance.api.crateApiFrbEnrichMissingCovers();
+
+/// Search for a cover URL for a single ISBN from external sources.
+Future<String?> searchCoverForBook({required String isbn}) =>
+    RustLib.instance.api.crateApiFrbSearchCoverForBook(isbn: isbn);
+
+/// Search for a cover URL by title with author verification.
+/// Used as a fallback when ISBN-based search returns nothing.
+/// Returns a cover only if the result author matches the given author.
+Future<String?> searchCoverByTitle({
+  required String title,
+  String? author,
+  bool? enableGoogle,
+}) => RustLib.instance.api.crateApiFrbSearchCoverByTitle(
+  title: title,
+  author: author,
+  enableGoogle: enableGoogle,
+);
+
+/// Search ALL enabled cover sources in parallel for a given ISBN.
+/// Returns all found cover candidates for the picker carousel.
+Future<List<FrbCoverCandidate>> searchAllCoversForBook({
+  required String isbn,
+}) => RustLib.instance.api.crateApiFrbSearchAllCoversForBook(isbn: isbn);
+
+/// Search ALL enabled sources by title in parallel for the cover picker.
+Future<List<FrbCoverCandidate>> searchAllCoversByTitle({
+  required String title,
+  String? author,
+  bool? enableGoogle,
+}) => RustLib.instance.api.crateApiFrbSearchAllCoversByTitle(
+  title: title,
+  author: author,
+  enableGoogle: enableGoogle,
+);
+
+/// Look up book metadata by ISBN from external sources (BNF, Inventaire, OpenLibrary, etc.).
+/// Used by the metadata refresh feature to let users preview and cherry-pick fields.
+Future<FrbBookMetadata?> lookupBookMetadata({
+  required String isbn,
+  String? lang,
+}) =>
+    RustLib.instance.api.crateApiFrbLookupBookMetadata(isbn: isbn, lang: lang);
 
 /// Get all tags with hierarchy info
 Future<List<FrbTag>> getAllTags() =>
@@ -214,6 +261,20 @@ sealed class FrbBook with _$FrbBook {
   }) = _FrbBook;
 }
 
+/// Metadata fetched from external sources for a book refresh.
+/// Each field is optional — only non-null fields have data from the source.
+@freezed
+sealed class FrbBookMetadata with _$FrbBookMetadata {
+  const factory FrbBookMetadata({
+    String? title,
+    String? author,
+    String? publisher,
+    String? publicationYear,
+    String? coverUrl,
+    String? summary,
+  }) = _FrbBookMetadata;
+}
+
 /// Simplified contact structure for FFI
 @freezed
 sealed class FrbContact with _$FrbContact {
@@ -236,6 +297,15 @@ sealed class FrbContact with _$FrbContact {
     int? libraryOwnerId,
     required bool isActive,
   }) = _FrbContact;
+}
+
+/// A cover candidate from an external source, for the multi-cover picker.
+@freezed
+sealed class FrbCoverCandidate with _$FrbCoverCandidate {
+  const factory FrbCoverCandidate({
+    required String url,
+    required String source,
+  }) = _FrbCoverCandidate;
 }
 
 /// Discovered peer on local network (FFI-compatible)

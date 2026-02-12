@@ -52,7 +52,7 @@ class AppDrawer extends StatelessWidget {
 
           // Unified Network screen (contacts + peers merged)
           ListTile(
-            leading: const Icon(Icons.cloud_sync),
+            leading: const Icon(Icons.people),
             title: Text(TranslationService.translate(context, 'nav_network')),
             onTap: () {
               Navigator.pop(context);
@@ -60,7 +60,14 @@ class AppDrawer extends StatelessWidget {
             },
           ),
 
-          // P2P Connect removed from drawer to simplify UX. Accessed via Network > Add.
+          ListTile(
+            leading: const Icon(Icons.swap_horiz),
+            title: Text(TranslationService.translate(context, 'nav_loans')),
+            onTap: () {
+              Navigator.pop(context);
+              context.go('/network?tab=lent');
+            },
+          ),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.person),

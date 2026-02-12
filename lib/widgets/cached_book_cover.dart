@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:provider/provider.dart';
+
 import '../services/api_service.dart';
 
 /// Custom Cache Manager for Book Covers
@@ -51,11 +54,30 @@ class CachedBookCover extends StatelessWidget {
       return _buildFallback();
     }
 
+    // Local file path detection (from cover upload feature)
+    // Network URLs start with 'http', relative API paths with '/api'
+    // Everything else (including absolute paths like /Users/.../covers/42.jpg) is a local file
+    final isNetworkUrl = imageUrl!.startsWith('http');
+    final isRelativeApiPath = imageUrl!.startsWith('/api');
+
+    if (!isNetworkUrl && !isRelativeApiPath) {
+      Widget localImage = Image.file(
+        File(imageUrl!),
+        width: width,
+        height: height,
+        fit: fit,
+        errorBuilder: (_, _, _) => _buildFallback(),
+      );
+      if (borderRadius != null) {
+        localImage = ClipRRect(borderRadius: borderRadius!, child: localImage);
+      }
+      return localImage;
+    }
+
     String resolvedUrl = imageUrl!;
-    if (resolvedUrl.startsWith('/')) {
+    if (isRelativeApiPath) {
       final apiService = Provider.of<ApiService>(context, listen: false);
       String baseUrl = apiService.baseUrl;
-      // Remove trailing slash from base if present
       if (baseUrl.endsWith('/')) {
         baseUrl = baseUrl.substring(0, baseUrl.length - 1);
       }

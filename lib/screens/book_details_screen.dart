@@ -1,22 +1,33 @@
+import 'dart:convert';
+import 'dart:io';
 import 'dart:ui';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:go_router/go_router.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
-import '../models/book.dart';
-import '../models/copy.dart';
-import '../models/contact.dart';
-import 'record_sale_screen.dart';
+
+import '../audio/audio_module.dart';
 import '../data/repositories/book_repository.dart';
 import '../data/repositories/contact_repository.dart';
 import '../data/repositories/copy_repository.dart';
 import '../data/repositories/loan_repository.dart';
-import '../services/translation_service.dart';
-// Assuming we might want to use common widgets, but for this specific design we want a SliverAppBar
-import '../widgets/star_rating_widget.dart';
-import '../widgets/loan_dialog.dart';
+import '../models/book.dart';
+import '../models/contact.dart';
+import '../models/copy.dart';
+import '../models/cover_candidate.dart';
 import '../providers/theme_provider.dart';
-import '../audio/audio_module.dart'; // Audio module (decoupled)
+import '../services/api_service.dart';
+import '../services/translation_service.dart';
+import '../utils/book_status.dart';
 import '../widgets/cached_book_cover.dart';
+import '../widgets/cover_picker_dialog.dart';
+import '../widgets/loan_dialog.dart';
+import '../widgets/metadata_refresh_dialog.dart';
+import '../widgets/star_rating_widget.dart';
+import 'record_sale_screen.dart';
 
 class BookDetailsScreen extends StatefulWidget {
   final Book? book;
@@ -34,6 +45,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   bool _isLoadingCopies = true;
   bool _isLoadingBook = false;
   bool _hasChanges = false;
+  bool _isRefreshing = false;
 
   @override
   void initState() {
@@ -142,6 +154,331 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           ),
         );
       }
+    }
+  }
+
+  // ============ Cover management ============
+
+  void _showCoverOptions(BuildContext context, Book book) {
+    final bool hasCover = book.hasPersistedCover;
+    final bool hasIsbn = book.isbn != null && book.isbn!.isNotEmpty;
+
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              margin: const EdgeInsets.only(top: 12, bottom: 8),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[400],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Text(
+              TranslationService.translate(
+                      context, hasCover ? 'cover_change' : 'cover_add') ??
+                  (hasCover ? 'Change cover' : 'Add a cover'),
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            if (hasIsbn)
+              ListTile(
+                leading: const Icon(Icons.search),
+                title: Text(
+                    TranslationService.translate(context, 'cover_search_online') ??
+                        'Search online'),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _searchCoverOnline(book);
+                },
+              )
+            else
+              ListTile(
+                leading: Icon(Icons.search, color: Colors.grey[400]),
+                title: Text(
+                  TranslationService.translate(context, 'cover_no_isbn') ??
+                      'Add an ISBN to search online',
+                  style: TextStyle(color: Colors.grey[400]),
+                ),
+              ),
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: Text(
+                  TranslationService.translate(context, 'cover_choose_file') ??
+                      'Choose from files'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _pickCoverFromFile(book);
+              },
+            ),
+            if (hasCover)
+              ListTile(
+                leading: Icon(Icons.delete_outline,
+                    color: Theme.of(context).colorScheme.error),
+                title: Text(
+                  TranslationService.translate(context, 'cover_remove') ??
+                      'Remove cover',
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _removeCover(book);
+                },
+              ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _searchCoverOnline(Book book) async {
+    if (book.id == null) return;
+
+    final apiService = Provider.of<ApiService>(context, listen: false);
+    final bookRepo = Provider.of<BookRepository>(context, listen: false);
+
+    // Show searching snackbar
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+            ),
+            const SizedBox(width: 12),
+            Text(TranslationService.translate(context, 'cover_searching') ??
+                'Searching for cover...'),
+          ],
+        ),
+        duration: const Duration(seconds: 20),
+      ),
+    );
+
+    try {
+      List<CoverCandidate> candidates = [];
+
+      // Step 1: ISBN-based parallel search (all sources at once)
+      if (book.isbn != null && book.isbn!.isNotEmpty) {
+        candidates = await apiService.searchAllCoversForBook(book.isbn!);
+      }
+
+      if (!mounted) return;
+
+      // Step 2: If ISBN gave < 2 results, also try title search
+      if (candidates.length < 2) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                        strokeWidth: 2, color: Colors.white),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(TranslationService.translate(
+                          context, 'cover_searching_by_title') ??
+                      'Searching by title...'),
+                ],
+              ),
+              duration: const Duration(seconds: 15),
+            ),
+          );
+        }
+
+        bool googleBooksEnabled = false;
+        try {
+          final prefs = await SharedPreferences.getInstance();
+          final fallbackStr = prefs.getString('ffi_fallback_preferences');
+          if (fallbackStr != null) {
+            final fallbackPrefs =
+                jsonDecode(fallbackStr) as Map<String, dynamic>;
+            if (fallbackPrefs.containsKey('google_books')) {
+              googleBooksEnabled = fallbackPrefs['google_books'] == true;
+            }
+          }
+        } catch (_) {}
+
+        final titleCandidates = await apiService.searchAllCoversByTitle(
+            book.title, book.author,
+            enableGoogle: googleBooksEnabled);
+
+        if (!mounted) return;
+
+        // Merge: add title candidates not already found by ISBN
+        final existingUrls = candidates.map((c) => c.url).toSet();
+        for (final tc in titleCandidates) {
+          if (!existingUrls.contains(tc.url)) {
+            candidates.add(tc);
+          }
+        }
+      }
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+      if (candidates.isEmpty) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text(TranslationService.translate(
+                        context, 'cover_not_found') ??
+                    'No cover found')),
+          );
+        }
+        return;
+      }
+
+      // Single result from ISBN search: auto-apply (high confidence)
+      if (candidates.length == 1 &&
+          book.isbn != null &&
+          book.isbn!.isNotEmpty) {
+        await bookRepo.updateBook(
+            book.id!, {'cover_url': candidates.first.url});
+        await _fetchBookDetails(forceRefresh: true);
+        _hasChanges = true;
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text(
+                    TranslationService.translate(context, 'cover_found') ??
+                        'Cover found!')),
+          );
+        }
+        return;
+      }
+
+      // Multiple results: show carousel picker
+      final selectedUrl = await CoverPickerDialog.show(
+        context: context,
+        candidates: candidates,
+        bookTitle: book.title,
+      );
+
+      if (!mounted) return;
+      if (selectedUrl != null) {
+        await bookRepo.updateBook(book.id!, {'cover_url': selectedUrl});
+        await _fetchBookDetails(forceRefresh: true);
+        _hasChanges = true;
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text(
+                    TranslationService.translate(context, 'cover_updated') ??
+                        'Cover updated')),
+          );
+        }
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
+  }
+
+  Future<void> _pickCoverFromFile(Book book) async {
+    if (book.id == null) return;
+
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.image,
+        allowMultiple: false,
+      );
+
+      if (result == null || result.files.isEmpty) return;
+
+      final pickedFile = result.files.first;
+      if (pickedFile.path == null) return;
+
+      final appDir = await getApplicationSupportDirectory();
+      final coversDir = Directory('${appDir.path}/covers');
+      if (!await coversDir.exists()) {
+        await coversDir.create(recursive: true);
+      }
+
+      final extension = pickedFile.extension ?? 'jpg';
+      final targetPath = '${coversDir.path}/${book.id}.$extension';
+
+      final sourceFile = File(pickedFile.path!);
+      await sourceFile.copy(targetPath);
+
+      if (!mounted) return;
+      final bookRepo = Provider.of<BookRepository>(context, listen: false);
+      await bookRepo.updateBook(book.id!, {'cover_url': targetPath});
+      await _fetchBookDetails(forceRefresh: true);
+      _hasChanges = true;
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(
+                  TranslationService.translate(context, 'cover_updated') ??
+                      'Cover updated')),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
+  }
+
+  Future<void> _removeCover(Book book) async {
+    if (book.id == null) return;
+
+    try {
+      // Delete local file if applicable
+      if (book.hasPersistedCover &&
+          book.coverUrl != null &&
+          !book.coverUrl!.startsWith('http')) {
+        final file = File(book.coverUrl!);
+        if (await file.exists()) {
+          await file.delete();
+        }
+      }
+
+      // Evict from network cache if applicable
+      if (book.hasPersistedCover &&
+          book.coverUrl != null &&
+          book.coverUrl!.startsWith('http')) {
+        await BookCoverCacheManager.instance.removeFile(book.coverUrl!);
+      }
+
+      if (!mounted) return;
+      final bookRepo = Provider.of<BookRepository>(context, listen: false);
+      await bookRepo.updateBook(book.id!, {'cover_url': null});
+      await _fetchBookDetails(forceRefresh: true);
+      _hasChanges = true;
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(
+                  TranslationService.translate(context, 'cover_removed') ??
+                      'Cover removed')),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
     }
   }
 
@@ -325,10 +662,12 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
               child: Container(color: Colors.black.withValues(alpha: 0.4)),
             ),
 
-            // Hero Image
+            // Hero Image — tap to add/change cover
             Center(
-              child: Hero(
-                tag: 'book_cover_${book.id}',
+              child: GestureDetector(
+                onTap: () => _showCoverOptions(context, book),
+                child: Hero(
+                  tag: 'book_cover_${book.id}',
                 child: Container(
                   width: 200,
                   height: 300,
@@ -363,6 +702,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                     ),
                   ),
                 ),
+              ),
               ),
             ),
           ],
@@ -479,7 +819,33 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            if (book.isbn != null) ...[
+              const SizedBox(width: 8),
+              Tooltip(
+                message: TranslationService.translate(
+                        context, 'refresh_metadata_title') ??
+                    'Update Book Info',
+                child: IconButton(
+                  onPressed:
+                      _isRefreshing ? null : () => _refreshMetadata(context),
+                  icon: _isRefreshing
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.refresh_outlined),
+                  style: IconButton.styleFrom(
+                    padding: const EdgeInsets.all(12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  key: const Key('refreshMetadataButton'),
+                ),
+              ),
+            ],
+            const SizedBox(width: 8),
             Tooltip(
               message:
                   TranslationService.translate(context, 'menu_delete') ??
@@ -516,6 +882,26 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
               style: FilledButton.styleFrom(
                 backgroundColor: Colors.blue,
                 foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () => _markAsRead(context),
+              icon: const Icon(Icons.check_circle_outline),
+              label: Text(
+                TranslationService.translate(context, 'mark_as_read') ??
+                    'Mark as Read',
+              ),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.green,
+                side: const BorderSide(color: Colors.green),
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -748,11 +1134,23 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           Row(
             children: [
               _buildMetadataItem(context, 'ISBN', book.isbn ?? '-'),
-              _buildMetadataItem(
-                context,
-                TranslationService.translate(context, 'status_label') ??
-                    'Status',
-                _translateStatus(context, book.readingStatus),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      (TranslationService.translate(context, 'status_label') ?? 'Status').toUpperCase(),
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.0,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    _buildStatusChip(context, book),
+                  ],
+                ),
               ),
             ],
           ),
@@ -970,6 +1368,155 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     );
   }
 
+  Widget _buildStatusChip(BuildContext context, Book book) {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final statusObj = getStatusFromValue(
+      context,
+      book.readingStatus ?? '',
+      themeProvider.isLibrarian,
+    );
+    final color = statusObj?.color ?? Colors.grey;
+    final icon = statusObj?.icon ?? Icons.help_outline;
+    final label = statusObj?.label ?? _translateStatus(context, book.readingStatus);
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => _showStatusPicker(context),
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: color.withValues(alpha: 0.3)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 16, color: color),
+              const SizedBox(width: 6),
+              Flexible(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    color: color,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Icon(Icons.arrow_drop_down, size: 18, color: color),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showStatusPicker(BuildContext context) async {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final isLibrarian = themeProvider.isLibrarian;
+    final statusOptions = getStatusOptions(context, isLibrarian);
+    final currentStatus = _book?.readingStatus ?? '';
+
+    final selected = await showModalBottomSheet<String>(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              margin: const EdgeInsets.only(top: 12, bottom: 8),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[400],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                TranslationService.translate(context, 'status_label') ?? 'Status',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            ...statusOptions.map((status) {
+              final isSelected = status.value == currentStatus;
+              return ListTile(
+                leading: Icon(status.icon, color: status.color),
+                title: Text(
+                  status.label,
+                  style: TextStyle(
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  ),
+                ),
+                trailing: isSelected
+                    ? Icon(Icons.check_circle, color: status.color)
+                    : null,
+                onTap: () => Navigator.pop(ctx, status.value),
+              );
+            }),
+            const SizedBox(height: 12),
+          ],
+        ),
+      ),
+    );
+
+    if (selected == null || !context.mounted || selected == currentStatus) return;
+
+    // Statuses that need a date picker
+    if (selected == 'reading' || selected == 'read') {
+      final title = selected == 'reading'
+          ? TranslationService.translate(context, 'start_reading') ?? 'Start Reading'
+          : TranslationService.translate(context, 'mark_as_read') ?? 'Mark as Read';
+      await _showStatusChangeOptions(context, selected, title);
+    } else {
+      await _updateStatusDirectly(context, selected);
+    }
+  }
+
+  Future<void> _updateStatusDirectly(BuildContext context, String newStatus) async {
+    if (_book == null || _book!.id == null) return;
+    final bookRepo = Provider.of<BookRepository>(context, listen: false);
+    try {
+      await bookRepo.updateBook(_book!.id!, {
+        'title': _book!.title,
+        'reading_status': newStatus,
+      });
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              TranslationService.translate(context, 'status_updated') ?? 'Status updated',
+            ),
+          ),
+        );
+        await _fetchBookDetails(forceRefresh: true);
+        _hasChanges = true;
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '${TranslationService.translate(context, 'error_updating_status')}: $e',
+            ),
+          ),
+        );
+      }
+    }
+  }
+
   String _translateStatus(BuildContext context, String? status) {
     if (status == 'read')
       return TranslationService.translate(context, 'reading_status_read') ??
@@ -1041,6 +1588,16 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       'read',
       TranslationService.translate(context, 'mark_as_finished') ??
           'Mark as Finished',
+    );
+  }
+
+  Future<void> _markAsRead(BuildContext context) async {
+    if (_book == null) return;
+    await _showStatusChangeOptions(
+      context,
+      'read',
+      TranslationService.translate(context, 'mark_as_read') ??
+          'Mark as Read',
     );
   }
 
@@ -1173,6 +1730,95 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           ),
         );
       }
+    }
+  }
+
+  Future<void> _refreshMetadata(BuildContext context) async {
+    final book = _book;
+    if (book == null || book.isbn == null || book.id == null) return;
+
+    setState(() => _isRefreshing = true);
+
+    try {
+      final apiService = Provider.of<ApiService>(context, listen: false);
+      final locale = Localizations.localeOf(context).languageCode;
+      final metadata =
+          await apiService.lookupBookMetadata(book.isbn!, lang: locale);
+
+      if (!mounted) return;
+
+      if (metadata == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              TranslationService.translate(
+                      context, 'refresh_metadata_not_found') ??
+                  'No data found for this ISBN',
+            ),
+          ),
+        );
+        return;
+      }
+
+      // Check if there are any differences worth showing
+      final hasAnyDiff = metadata.entries.any((e) {
+        final fetched = e.value;
+        if (fetched == null || fetched.isEmpty) return false;
+        return true;
+      });
+
+      if (!hasAnyDiff) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              TranslationService.translate(
+                      context, 'refresh_metadata_no_changes') ??
+                  'No new data found',
+            ),
+          ),
+        );
+        return;
+      }
+
+      final selectedUpdates = await showDialog<Map<String, dynamic>>(
+        context: context,
+        builder: (ctx) => MetadataRefreshDialog(
+          currentBook: book,
+          fetchedMetadata: metadata,
+        ),
+      );
+
+      if (!mounted) return;
+
+      if (selectedUpdates != null && selectedUpdates.isNotEmpty) {
+        final bookRepo = Provider.of<BookRepository>(context, listen: false);
+        await bookRepo.updateBook(book.id!, selectedUpdates);
+        await _fetchBookDetails(forceRefresh: true);
+        _hasChanges = true;
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                TranslationService.translate(
+                        context, 'refresh_metadata_applied') ??
+                    'Info updated',
+              ),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '${TranslationService.translate(context, 'refresh_metadata_error') ?? 'Error refreshing info'}: $e',
+          ),
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _isRefreshing = false);
     }
   }
 

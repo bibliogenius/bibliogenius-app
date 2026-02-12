@@ -25,10 +25,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   bool dco_decode_bool(dynamic raw);
 
   @protected
+  bool dco_decode_box_autoadd_bool(dynamic raw);
+
+  @protected
   double dco_decode_box_autoadd_f_64(dynamic raw);
 
   @protected
   FrbBook dco_decode_box_autoadd_frb_book(dynamic raw);
+
+  @protected
+  FrbBookMetadata dco_decode_box_autoadd_frb_book_metadata(dynamic raw);
 
   @protected
   FrbContact dco_decode_box_autoadd_frb_contact(dynamic raw);
@@ -43,7 +49,13 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FrbBook dco_decode_frb_book(dynamic raw);
 
   @protected
+  FrbBookMetadata dco_decode_frb_book_metadata(dynamic raw);
+
+  @protected
   FrbContact dco_decode_frb_contact(dynamic raw);
+
+  @protected
+  FrbCoverCandidate dco_decode_frb_cover_candidate(dynamic raw);
 
   @protected
   FrbDiscoveredPeer dco_decode_frb_discovered_peer(dynamic raw);
@@ -70,6 +82,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<FrbContact> dco_decode_list_frb_contact(dynamic raw);
 
   @protected
+  List<FrbCoverCandidate> dco_decode_list_frb_cover_candidate(dynamic raw);
+
+  @protected
   List<FrbDiscoveredPeer> dco_decode_list_frb_discovered_peer(dynamic raw);
 
   @protected
@@ -91,7 +106,13 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   String? dco_decode_opt_String(dynamic raw);
 
   @protected
+  bool? dco_decode_opt_box_autoadd_bool(dynamic raw);
+
+  @protected
   double? dco_decode_opt_box_autoadd_f_64(dynamic raw);
+
+  @protected
+  FrbBookMetadata? dco_decode_opt_box_autoadd_frb_book_metadata(dynamic raw);
 
   @protected
   int? dco_decode_opt_box_autoadd_i_32(dynamic raw);
@@ -115,10 +136,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   bool sse_decode_bool(SseDeserializer deserializer);
 
   @protected
+  bool sse_decode_box_autoadd_bool(SseDeserializer deserializer);
+
+  @protected
   double sse_decode_box_autoadd_f_64(SseDeserializer deserializer);
 
   @protected
   FrbBook sse_decode_box_autoadd_frb_book(SseDeserializer deserializer);
+
+  @protected
+  FrbBookMetadata sse_decode_box_autoadd_frb_book_metadata(
+    SseDeserializer deserializer,
+  );
 
   @protected
   FrbContact sse_decode_box_autoadd_frb_contact(SseDeserializer deserializer);
@@ -133,7 +162,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FrbBook sse_decode_frb_book(SseDeserializer deserializer);
 
   @protected
+  FrbBookMetadata sse_decode_frb_book_metadata(SseDeserializer deserializer);
+
+  @protected
   FrbContact sse_decode_frb_contact(SseDeserializer deserializer);
+
+  @protected
+  FrbCoverCandidate sse_decode_frb_cover_candidate(
+    SseDeserializer deserializer,
+  );
 
   @protected
   FrbDiscoveredPeer sse_decode_frb_discovered_peer(
@@ -162,6 +199,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<FrbContact> sse_decode_list_frb_contact(SseDeserializer deserializer);
 
   @protected
+  List<FrbCoverCandidate> sse_decode_list_frb_cover_candidate(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   List<FrbDiscoveredPeer> sse_decode_list_frb_discovered_peer(
     SseDeserializer deserializer,
   );
@@ -185,7 +227,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   String? sse_decode_opt_String(SseDeserializer deserializer);
 
   @protected
+  bool? sse_decode_opt_box_autoadd_bool(SseDeserializer deserializer);
+
+  @protected
   double? sse_decode_opt_box_autoadd_f_64(SseDeserializer deserializer);
+
+  @protected
+  FrbBookMetadata? sse_decode_opt_box_autoadd_frb_book_metadata(
+    SseDeserializer deserializer,
+  );
 
   @protected
   int? sse_decode_opt_box_autoadd_i_32(SseDeserializer deserializer);
@@ -209,10 +259,19 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_bool(bool self, SseSerializer serializer);
 
   @protected
+  void sse_encode_box_autoadd_bool(bool self, SseSerializer serializer);
+
+  @protected
   void sse_encode_box_autoadd_f_64(double self, SseSerializer serializer);
 
   @protected
   void sse_encode_box_autoadd_frb_book(FrbBook self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_frb_book_metadata(
+    FrbBookMetadata self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_box_autoadd_frb_contact(
@@ -230,7 +289,19 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_frb_book(FrbBook self, SseSerializer serializer);
 
   @protected
+  void sse_encode_frb_book_metadata(
+    FrbBookMetadata self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_frb_contact(FrbContact self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_frb_cover_candidate(
+    FrbCoverCandidate self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_frb_discovered_peer(
@@ -259,6 +330,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_list_frb_contact(
     List<FrbContact> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_frb_cover_candidate(
+    List<FrbCoverCandidate> self,
     SseSerializer serializer,
   );
 
@@ -296,7 +373,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_opt_String(String? self, SseSerializer serializer);
 
   @protected
+  void sse_encode_opt_box_autoadd_bool(bool? self, SseSerializer serializer);
+
+  @protected
   void sse_encode_opt_box_autoadd_f_64(double? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_box_autoadd_frb_book_metadata(
+    FrbBookMetadata? self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_opt_box_autoadd_i_32(int? self, SseSerializer serializer);

@@ -207,11 +207,32 @@ class _LibraryScreenState extends State<LibraryScreen>
   }
 
   List<Widget> _buildQuickActions(BuildContext context) {
-    // Books Tab (Index 0) -> Standard Quick Actions (Scan, Search) are already in the sheet.
+    final batchScanTile = ListTile(
+      leading: const Icon(Icons.document_scanner, color: Colors.deepOrange),
+      title: Text(
+        TranslationService.translate(context, 'batch_scan_title') ??
+            'Batch Scan',
+      ),
+      subtitle: Text(
+        TranslationService.translate(context, 'batch_scan_desc') ??
+            'Scan multiple books in a row',
+        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+      ),
+      onTap: () {
+        Navigator.pop(context);
+        context.push('/scan', extra: {'batch': true});
+      },
+    );
+
+    // Books Tab (Index 0)
+    if (_tabController.index == 0) {
+      return [batchScanTile];
+    }
 
     // Shelves Tab (Index 1)
     if (_tabController.index == 1) {
       return [
+        batchScanTile,
         ListTile(
           leading: const Icon(Icons.settings, color: Colors.blueGrey),
           title: Text(

@@ -56,4 +56,6 @@ key.properties
 **/*.jks
 **/*.keystore
 .agent/
-.claude/
+
+# Integration test screenshots
+integration_test/screenshots/

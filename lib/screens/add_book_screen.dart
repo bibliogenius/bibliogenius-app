@@ -567,24 +567,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         child: ListView(
           padding: const EdgeInsets.all(24.0),
           children: [
-            // Header
-            Row(
-              children: [
-                Icon(
-                  Icons.library_add,
-                  size: 32,
-                  color: Theme.of(context).primaryColor,
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  TranslationService.translate(context, 'add_new_book'),
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const Divider(height: 32),
+            const SizedBox(height: 8),
 
             // Duplicate ISBN Warning Banner
             if (_isDuplicate && _duplicateBook != null)
@@ -1222,7 +1205,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
               ),
               keyboardType: TextInputType.number,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 12),
+            if (_coverUrl != null || (_titleController.text.isNotEmpty && !_isFetchingDetails && _isbnController.text.isNotEmpty))
+              _buildCoverPreview(),
+            const SizedBox(height: 12),
 
             // Publisher & Year
             Row(
@@ -1585,6 +1571,65 @@ class _AddBookScreenState extends State<AddBookScreen> {
             const SizedBox(height: 32),
 
             // Save Button moved to AppBar
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCoverPreview() {
+    final hasCover = _coverUrl != null && _coverUrl!.isNotEmpty;
+    final borderColor = hasCover ? Colors.green : Colors.grey;
+    final bgColor = hasCover ? Colors.green.withValues(alpha: 0.05) : Colors.grey.withValues(alpha: 0.05);
+
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: borderColor.withValues(alpha: 0.4)),
+        ),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 60,
+              height: 90,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: hasCover
+                    ? CachedBookCover(
+                        imageUrl: _coverUrl!,
+                        fit: BoxFit.cover,
+                        placeholder: Container(
+                          color: Colors.grey[200],
+                          child: const Icon(Icons.image, color: Colors.grey),
+                        ),
+                        errorWidget: Container(
+                          color: Colors.grey[200],
+                          child: const Icon(Icons.broken_image, color: Colors.grey),
+                        ),
+                      )
+                    : Container(
+                        color: Colors.grey[200],
+                        child: const Icon(Icons.image_not_supported, color: Colors.grey),
+                      ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                hasCover
+                    ? TranslationService.translate(context, 'cover_found') ?? 'Cover found!'
+                    : TranslationService.translate(context, 'no_cover_available') ?? 'No cover',
+                style: TextStyle(
+                  color: hasCover ? Colors.green.shade700 : Colors.grey.shade600,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
           ],
         ),
       ),

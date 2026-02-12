@@ -134,6 +134,9 @@ class Book {
     return null;
   }
 
+  /// Whether this book has a cover URL explicitly persisted (not auto-derived from ISBN)
+  bool get hasPersistedCover => _coverUrl != null && _coverUrl!.isNotEmpty;
+
   /// Returns star rating (1-5) from internal 0-10 scale
   double? get starRating => userRating != null ? userRating! / 2.0 : null;
 }

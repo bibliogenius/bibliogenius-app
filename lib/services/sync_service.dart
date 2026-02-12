@@ -11,14 +11,17 @@ class SyncService {
       final response = await _apiService.getPeers();
       if (response.statusCode == 200) {
         final List peers = response.data['data'] ?? [];
-        for (var peer in peers) {
-          try {
-            await _apiService.syncPeer(peer['url']);
-            debugPrint("Synced peer ${peer['name']}");
-          } catch (e) {
-            debugPrint("Failed to sync peer ${peer['name']}: $e");
-          }
-        }
+        // Sync all peers in parallel to avoid one offline peer blocking the rest
+        await Future.wait(
+          peers.map((peer) async {
+            try {
+              await _apiService.syncPeer(peer['url']);
+              debugPrint("Synced peer ${peer['name']}");
+            } catch (e) {
+              debugPrint("Failed to sync peer ${peer['name']}: $e");
+            }
+          }),
+        );
       }
     } catch (e) {
       debugPrint("Failed to fetch peers for sync: $e");

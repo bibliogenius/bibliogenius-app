@@ -76,6 +76,7 @@ class _ScanScreenState extends State<ScanScreen> {
   int _batchCount = 0;
   String? _lastAddedTitle;
   bool _isProcessingBatch = false;
+  final List<_BatchedBook> _batchedBooks = [];
 
   @override
   void dispose() {
@@ -122,7 +123,7 @@ class _ScanScreenState extends State<ScanScreen> {
         // Haptic feedback
         HapticFeedback.lightImpact();
 
-        if (widget.batchMode && _hasDestination) {
+        if (widget.batchMode) {
           // Batch mode: add book directly and continue scanning
           _handleBatchScan(rawValue);
         } else {
@@ -163,6 +164,7 @@ class _ScanScreenState extends State<ScanScreen> {
 
       int? bookId;
       String? bookTitle;
+      String? bookCoverUrl;
 
       // 1. Check if book already exists in library
       // This "findBookByIsbn" might be slow if library is huge, but safe for now.
@@ -171,6 +173,7 @@ class _ScanScreenState extends State<ScanScreen> {
       if (existingBook != null) {
         bookId = existingBook.id;
         bookTitle = existingBook.title;
+        bookCoverUrl = existingBook.coverUrl;
 
         // If shelf (tag) is pre-selected, ensure book has it
         if (widget.preSelectedShelfId != null && bookId != null) {
@@ -209,6 +212,7 @@ class _ScanScreenState extends State<ScanScreen> {
 
           final createdBook = await bookRepo.createBook(bookPayload);
           bookId = createdBook.id;
+          bookCoverUrl = bookData['cover_url'] as String?;
         } else {
           // Book not found in metadata sources
           if (mounted) await _showBookNotFoundDialog(isbn);
@@ -257,6 +261,10 @@ class _ScanScreenState extends State<ScanScreen> {
         _batchCount++;
         _lastAddedTitle = bookTitle ?? isbn;
         _lastScannedIsbn = isbn;
+        _batchedBooks.add(_BatchedBook(
+          title: bookTitle ?? isbn,
+          coverUrl: bookCoverUrl,
+        ));
       });
 
       // Show success feedback
@@ -400,7 +408,7 @@ class _ScanScreenState extends State<ScanScreen> {
           onSubmitted: (value) {
             if (value.isNotEmpty) {
               Navigator.pop(ctx);
-              if (widget.batchMode && _hasDestination) {
+              if (widget.batchMode) {
                 _handleBatchScan(value);
               } else {
                 context.push('/books/add', extra: {'isbn': value});
@@ -418,7 +426,7 @@ class _ScanScreenState extends State<ScanScreen> {
               if (isbnController.text.isNotEmpty) {
                 final text = isbnController.text;
                 Navigator.pop(ctx);
-                if (widget.batchMode && _hasDestination) {
+                if (widget.batchMode) {
                   _handleBatchScan(text);
                 } else {
                   context.push('/books/add', extra: {'isbn': text});
@@ -430,6 +438,27 @@ class _ScanScreenState extends State<ScanScreen> {
         ],
       ),
     ).then((_) => isbnController.dispose());
+  }
+
+  Widget _buildPlaceholder(String title) {
+    return Container(
+      width: 58,
+      height: 80,
+      decoration: BoxDecoration(
+        color: Colors.blueGrey.shade700,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      padding: const EdgeInsets.all(4),
+      child: Center(
+        child: Text(
+          title,
+          style: const TextStyle(color: Colors.white, fontSize: 8),
+          textAlign: TextAlign.center,
+          maxLines: 3,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ),
+    );
   }
 
   @override
@@ -444,7 +473,7 @@ class _ScanScreenState extends State<ScanScreen> {
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: Text(
-          widget.batchMode && _hasDestination
+          widget.batchMode
               ? TranslationService.translate(context, 'batch_scan_title')
               : TranslationService.translate(context, 'scan_isbn_title'),
         ),
@@ -491,11 +520,56 @@ class _ScanScreenState extends State<ScanScreen> {
             child: Container(),
           ),
 
+          // Batch mode: scanned covers side panel (Gleeph-style)
+          if (widget.batchMode && _batchedBooks.isNotEmpty)
+            Positioned(
+              left: 0,
+              top: 100,
+              bottom: 160,
+              width: 70,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.7),
+                  borderRadius: const BorderRadius.only(
+                    topRight: Radius.circular(12),
+                    bottomRight: Radius.circular(12),
+                  ),
+                ),
+                child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  reverse: true,
+                  itemCount: _batchedBooks.length,
+                  itemBuilder: (context, index) {
+                    final book = _batchedBooks[index];
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 4,
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: book.coverUrl != null
+                            ? Image.network(
+                                book.coverUrl!,
+                                width: 58,
+                                height: 80,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) =>
+                                    _buildPlaceholder(book.title),
+                              )
+                            : _buildPlaceholder(book.title),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+
           // Batch mode: destination indicator at top
           if (widget.batchMode && _hasDestination)
             Positioned(
               top: 100,
-              left: 20,
+              left: 80,
               right: 20,
               child: Container(
                 padding: const EdgeInsets.symmetric(
@@ -568,7 +642,7 @@ class _ScanScreenState extends State<ScanScreen> {
           ),
 
           // Batch mode: counter and last added
-          if (widget.batchMode && _hasDestination)
+          if (widget.batchMode)
             Positioned(
               bottom: 90,
               left: 20,
@@ -664,6 +738,12 @@ class _ScanScreenState extends State<ScanScreen> {
       ),
     );
   }
+}
+
+class _BatchedBook {
+  final String title;
+  final String? coverUrl;
+  const _BatchedBook({required this.title, this.coverUrl});
 }
 
 class ScannerOverlayPainter extends CustomPainter {

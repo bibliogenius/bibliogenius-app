@@ -79,7 +79,7 @@ class ScaffoldWithNav extends StatelessWidget {
         route: '/network',
         matchPrefixes: ['/network', '/contacts', '/peers', '/requests'],
         destination: NavigationRailDestination(
-          icon: const Icon(Icons.cloud_sync),
+          icon: const Icon(Icons.people),
           label: Text(TranslationService.translate(context, 'network')),
         ),
       ),

@@ -328,6 +328,272 @@ as List<String>?,
 }
 
 /// @nodoc
+mixin _$FrbBookMetadata {
+
+ String? get title; String? get author; String? get publisher; String? get publicationYear; String? get coverUrl; String? get summary;
+/// Create a copy of FrbBookMetadata
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$FrbBookMetadataCopyWith<FrbBookMetadata> get copyWith => _$FrbBookMetadataCopyWithImpl<FrbBookMetadata>(this as FrbBookMetadata, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbBookMetadata&&(identical(other.title, title) || other.title == title)&&(identical(other.author, author) || other.author == author)&&(identical(other.publisher, publisher) || other.publisher == publisher)&&(identical(other.publicationYear, publicationYear) || other.publicationYear == publicationYear)&&(identical(other.coverUrl, coverUrl) || other.coverUrl == coverUrl)&&(identical(other.summary, summary) || other.summary == summary));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,title,author,publisher,publicationYear,coverUrl,summary);
+
+@override
+String toString() {
+  return 'FrbBookMetadata(title: $title, author: $author, publisher: $publisher, publicationYear: $publicationYear, coverUrl: $coverUrl, summary: $summary)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $FrbBookMetadataCopyWith<$Res>  {
+  factory $FrbBookMetadataCopyWith(FrbBookMetadata value, $Res Function(FrbBookMetadata) _then) = _$FrbBookMetadataCopyWithImpl;
+@useResult
+$Res call({
+ String? title, String? author, String? publisher, String? publicationYear, String? coverUrl, String? summary
+});
+
+
+
+
+}
+/// @nodoc
+class _$FrbBookMetadataCopyWithImpl<$Res>
+    implements $FrbBookMetadataCopyWith<$Res> {
+  _$FrbBookMetadataCopyWithImpl(this._self, this._then);
+
+  final FrbBookMetadata _self;
+  final $Res Function(FrbBookMetadata) _then;
+
+/// Create a copy of FrbBookMetadata
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? title = freezed,Object? author = freezed,Object? publisher = freezed,Object? publicationYear = freezed,Object? coverUrl = freezed,Object? summary = freezed,}) {
+  return _then(_self.copyWith(
+title: freezed == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String?,author: freezed == author ? _self.author : author // ignore: cast_nullable_to_non_nullable
+as String?,publisher: freezed == publisher ? _self.publisher : publisher // ignore: cast_nullable_to_non_nullable
+as String?,publicationYear: freezed == publicationYear ? _self.publicationYear : publicationYear // ignore: cast_nullable_to_non_nullable
+as String?,coverUrl: freezed == coverUrl ? _self.coverUrl : coverUrl // ignore: cast_nullable_to_non_nullable
+as String?,summary: freezed == summary ? _self.summary : summary // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [FrbBookMetadata].
+extension FrbBookMetadataPatterns on FrbBookMetadata {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _FrbBookMetadata value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _FrbBookMetadata() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _FrbBookMetadata value)  $default,){
+final _that = this;
+switch (_that) {
+case _FrbBookMetadata():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _FrbBookMetadata value)?  $default,){
+final _that = this;
+switch (_that) {
+case _FrbBookMetadata() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? title,  String? author,  String? publisher,  String? publicationYear,  String? coverUrl,  String? summary)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _FrbBookMetadata() when $default != null:
+return $default(_that.title,_that.author,_that.publisher,_that.publicationYear,_that.coverUrl,_that.summary);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? title,  String? author,  String? publisher,  String? publicationYear,  String? coverUrl,  String? summary)  $default,) {final _that = this;
+switch (_that) {
+case _FrbBookMetadata():
+return $default(_that.title,_that.author,_that.publisher,_that.publicationYear,_that.coverUrl,_that.summary);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? title,  String? author,  String? publisher,  String? publicationYear,  String? coverUrl,  String? summary)?  $default,) {final _that = this;
+switch (_that) {
+case _FrbBookMetadata() when $default != null:
+return $default(_that.title,_that.author,_that.publisher,_that.publicationYear,_that.coverUrl,_that.summary);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _FrbBookMetadata implements FrbBookMetadata {
+  const _FrbBookMetadata({this.title, this.author, this.publisher, this.publicationYear, this.coverUrl, this.summary});
+  
+
+@override final  String? title;
+@override final  String? author;
+@override final  String? publisher;
+@override final  String? publicationYear;
+@override final  String? coverUrl;
+@override final  String? summary;
+
+/// Create a copy of FrbBookMetadata
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$FrbBookMetadataCopyWith<_FrbBookMetadata> get copyWith => __$FrbBookMetadataCopyWithImpl<_FrbBookMetadata>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbBookMetadata&&(identical(other.title, title) || other.title == title)&&(identical(other.author, author) || other.author == author)&&(identical(other.publisher, publisher) || other.publisher == publisher)&&(identical(other.publicationYear, publicationYear) || other.publicationYear == publicationYear)&&(identical(other.coverUrl, coverUrl) || other.coverUrl == coverUrl)&&(identical(other.summary, summary) || other.summary == summary));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,title,author,publisher,publicationYear,coverUrl,summary);
+
+@override
+String toString() {
+  return 'FrbBookMetadata(title: $title, author: $author, publisher: $publisher, publicationYear: $publicationYear, coverUrl: $coverUrl, summary: $summary)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$FrbBookMetadataCopyWith<$Res> implements $FrbBookMetadataCopyWith<$Res> {
+  factory _$FrbBookMetadataCopyWith(_FrbBookMetadata value, $Res Function(_FrbBookMetadata) _then) = __$FrbBookMetadataCopyWithImpl;
+@override @useResult
+$Res call({
+ String? title, String? author, String? publisher, String? publicationYear, String? coverUrl, String? summary
+});
+
+
+
+
+}
+/// @nodoc
+class __$FrbBookMetadataCopyWithImpl<$Res>
+    implements _$FrbBookMetadataCopyWith<$Res> {
+  __$FrbBookMetadataCopyWithImpl(this._self, this._then);
+
+  final _FrbBookMetadata _self;
+  final $Res Function(_FrbBookMetadata) _then;
+
+/// Create a copy of FrbBookMetadata
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? title = freezed,Object? author = freezed,Object? publisher = freezed,Object? publicationYear = freezed,Object? coverUrl = freezed,Object? summary = freezed,}) {
+  return _then(_FrbBookMetadata(
+title: freezed == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String?,author: freezed == author ? _self.author : author // ignore: cast_nullable_to_non_nullable
+as String?,publisher: freezed == publisher ? _self.publisher : publisher // ignore: cast_nullable_to_non_nullable
+as String?,publicationYear: freezed == publicationYear ? _self.publicationYear : publicationYear // ignore: cast_nullable_to_non_nullable
+as String?,coverUrl: freezed == coverUrl ? _self.coverUrl : coverUrl // ignore: cast_nullable_to_non_nullable
+as String?,summary: freezed == summary ? _self.summary : summary // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
+
+/// @nodoc
 mixin _$FrbContact {
 
  int? get id; String get contactType; String get name; String? get firstName; String? get email; String? get phone; String? get address; String? get streetAddress; String? get postalCode; String? get city; String? get country; double? get latitude; double? get longitude; String? get notes; int? get userId; int? get libraryOwnerId; bool get isActive;
@@ -620,6 +886,260 @@ as String?,userId: freezed == userId ? _self.userId : userId // ignore: cast_nul
 as int?,libraryOwnerId: freezed == libraryOwnerId ? _self.libraryOwnerId : libraryOwnerId // ignore: cast_nullable_to_non_nullable
 as int?,isActive: null == isActive ? _self.isActive : isActive // ignore: cast_nullable_to_non_nullable
 as bool,
+  ));
+}
+
+
+}
+
+/// @nodoc
+mixin _$FrbCoverCandidate {
+
+ String get url; String get source;
+/// Create a copy of FrbCoverCandidate
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$FrbCoverCandidateCopyWith<FrbCoverCandidate> get copyWith => _$FrbCoverCandidateCopyWithImpl<FrbCoverCandidate>(this as FrbCoverCandidate, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbCoverCandidate&&(identical(other.url, url) || other.url == url)&&(identical(other.source, source) || other.source == source));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,url,source);
+
+@override
+String toString() {
+  return 'FrbCoverCandidate(url: $url, source: $source)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $FrbCoverCandidateCopyWith<$Res>  {
+  factory $FrbCoverCandidateCopyWith(FrbCoverCandidate value, $Res Function(FrbCoverCandidate) _then) = _$FrbCoverCandidateCopyWithImpl;
+@useResult
+$Res call({
+ String url, String source
+});
+
+
+
+
+}
+/// @nodoc
+class _$FrbCoverCandidateCopyWithImpl<$Res>
+    implements $FrbCoverCandidateCopyWith<$Res> {
+  _$FrbCoverCandidateCopyWithImpl(this._self, this._then);
+
+  final FrbCoverCandidate _self;
+  final $Res Function(FrbCoverCandidate) _then;
+
+/// Create a copy of FrbCoverCandidate
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? url = null,Object? source = null,}) {
+  return _then(_self.copyWith(
+url: null == url ? _self.url : url // ignore: cast_nullable_to_non_nullable
+as String,source: null == source ? _self.source : source // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [FrbCoverCandidate].
+extension FrbCoverCandidatePatterns on FrbCoverCandidate {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _FrbCoverCandidate value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _FrbCoverCandidate() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _FrbCoverCandidate value)  $default,){
+final _that = this;
+switch (_that) {
+case _FrbCoverCandidate():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _FrbCoverCandidate value)?  $default,){
+final _that = this;
+switch (_that) {
+case _FrbCoverCandidate() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String url,  String source)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _FrbCoverCandidate() when $default != null:
+return $default(_that.url,_that.source);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String url,  String source)  $default,) {final _that = this;
+switch (_that) {
+case _FrbCoverCandidate():
+return $default(_that.url,_that.source);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String url,  String source)?  $default,) {final _that = this;
+switch (_that) {
+case _FrbCoverCandidate() when $default != null:
+return $default(_that.url,_that.source);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _FrbCoverCandidate implements FrbCoverCandidate {
+  const _FrbCoverCandidate({required this.url, required this.source});
+  
+
+@override final  String url;
+@override final  String source;
+
+/// Create a copy of FrbCoverCandidate
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$FrbCoverCandidateCopyWith<_FrbCoverCandidate> get copyWith => __$FrbCoverCandidateCopyWithImpl<_FrbCoverCandidate>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbCoverCandidate&&(identical(other.url, url) || other.url == url)&&(identical(other.source, source) || other.source == source));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,url,source);
+
+@override
+String toString() {
+  return 'FrbCoverCandidate(url: $url, source: $source)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$FrbCoverCandidateCopyWith<$Res> implements $FrbCoverCandidateCopyWith<$Res> {
+  factory _$FrbCoverCandidateCopyWith(_FrbCoverCandidate value, $Res Function(_FrbCoverCandidate) _then) = __$FrbCoverCandidateCopyWithImpl;
+@override @useResult
+$Res call({
+ String url, String source
+});
+
+
+
+
+}
+/// @nodoc
+class __$FrbCoverCandidateCopyWithImpl<$Res>
+    implements _$FrbCoverCandidateCopyWith<$Res> {
+  __$FrbCoverCandidateCopyWithImpl(this._self, this._then);
+
+  final _FrbCoverCandidate _self;
+  final $Res Function(_FrbCoverCandidate) _then;
+
+/// Create a copy of FrbCoverCandidate
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? url = null,Object? source = null,}) {
+  return _then(_FrbCoverCandidate(
+url: null == url ? _self.url : url // ignore: cast_nullable_to_non_nullable
+as String,source: null == source ? _self.source : source // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 

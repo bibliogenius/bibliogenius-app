@@ -258,11 +258,20 @@ class MyApp extends StatelessWidget {
     // Run async, don't block app startup
     apiService.cleanupStalePeerBooksCache();
 
+    // Enrich missing covers in background (async, don't block startup)
+    final bookRefreshNotifier = BookRefreshNotifier();
+    apiService.enrichMissingCovers().then((count) {
+      if (count > 0) {
+        debugPrint('Enriched $count book covers');
+        bookRefreshNotifier.refresh();
+      }
+    });
+
     Widget app = MultiProvider(
       providers: [
         ChangeNotifierProvider<ThemeProvider>.value(value: themeProvider),
-        ChangeNotifierProvider<BookRefreshNotifier>(
-          create: (_) => BookRefreshNotifier(),
+        ChangeNotifierProvider<BookRefreshNotifier>.value(
+          value: bookRefreshNotifier,
         ),
         Provider<AuthService>.value(value: authService),
         Provider<ApiService>.value(value: apiService),

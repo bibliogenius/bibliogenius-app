@@ -5,6 +5,7 @@
 import 'package:flutter/foundation.dart';
 import '../models/book.dart';
 import '../models/contact.dart';
+import '../models/cover_candidate.dart';
 import '../models/tag.dart';
 import '../src/rust/api/frb.dart' as frb;
 import 'dart:convert';
@@ -335,6 +336,92 @@ class FfiService {
     } catch (e) {
       debugPrint('FFI deleteBook error: $e');
       rethrow;
+    }
+  }
+
+  // ============ Cover Enrichment ============
+
+  Future<int> enrichMissingCovers() async {
+    try {
+      return await frb.enrichMissingCovers();
+    } catch (e) {
+      debugPrint('FFI enrichMissingCovers error: $e');
+      return 0;
+    }
+  }
+
+  Future<String?> searchCoverForBook(String isbn) async {
+    try {
+      return await frb.searchCoverForBook(isbn: isbn);
+    } catch (e) {
+      debugPrint('FFI searchCoverForBook error: $e');
+      return null;
+    }
+  }
+
+  Future<String?> searchCoverByTitle(String title, String? author, {bool enableGoogle = false}) async {
+    try {
+      debugPrint('FFI searchCoverByTitle: title="$title", author="$author", enableGoogle=$enableGoogle');
+      final result = await frb.searchCoverByTitle(title: title, author: author, enableGoogle: enableGoogle);
+      debugPrint('FFI searchCoverByTitle: result=$result');
+      return result;
+    } catch (e) {
+      debugPrint('FFI searchCoverByTitle error: $e');
+      return null;
+    }
+  }
+
+  // ============ Multi-Cover Search ============
+
+  /// Search ALL enabled cover sources in parallel for a given ISBN.
+  /// Returns all found cover candidates for the picker carousel.
+  Future<List<CoverCandidate>> searchAllCoversForBook(String isbn) async {
+    try {
+      final results = await frb.searchAllCoversForBook(isbn: isbn);
+      return results
+          .map((r) => CoverCandidate(url: r.url, source: r.source))
+          .toList();
+    } catch (e) {
+      debugPrint('FFI searchAllCoversForBook error: $e');
+      return [];
+    }
+  }
+
+  /// Search ALL enabled sources by title in parallel for the cover picker.
+  Future<List<CoverCandidate>> searchAllCoversByTitle(
+      String title, String? author,
+      {bool enableGoogle = false}) async {
+    try {
+      final results = await frb.searchAllCoversByTitle(
+          title: title, author: author, enableGoogle: enableGoogle);
+      return results
+          .map((r) => CoverCandidate(url: r.url, source: r.source))
+          .toList();
+    } catch (e) {
+      debugPrint('FFI searchAllCoversByTitle error: $e');
+      return [];
+    }
+  }
+
+  // ============ Metadata Lookup ============
+
+  /// Look up book metadata from external sources by ISBN.
+  /// Returns a map of field names to values, or null if not found.
+  Future<Map<String, String?>?> lookupBookMetadata(String isbn, {String? lang}) async {
+    try {
+      final meta = await frb.lookupBookMetadata(isbn: isbn, lang: lang);
+      if (meta == null) return null;
+      return {
+        'title': meta.title,
+        'author': meta.author,
+        'publisher': meta.publisher,
+        'publication_year': meta.publicationYear,
+        'cover_url': meta.coverUrl,
+        'summary': meta.summary,
+      };
+    } catch (e) {
+      debugPrint('FFI lookupBookMetadata error: $e');
+      return null;
     }
   }
 

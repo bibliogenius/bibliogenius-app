@@ -20,6 +20,7 @@ class DiscoveredPeer {
   final int port;
   final List<String> addresses;
   final String? libraryId;
+  final String? deviceName;
   final DateTime discoveredAt;
 
   DiscoveredPeer({
@@ -28,6 +29,7 @@ class DiscoveredPeer {
     required this.port,
     required this.addresses,
     this.libraryId,
+    this.deviceName,
     required this.discoveredAt,
   });
 
@@ -37,6 +39,7 @@ class DiscoveredPeer {
     'port': port,
     'addresses': addresses,
     'library_id': libraryId,
+    'device_name': deviceName,
     'discovered_at': discoveredAt.toIso8601String(),
   };
 }
@@ -288,6 +291,7 @@ class MdnsService {
       port: actualPort,
       addresses: [host],
       libraryId: service.attributes['library_id'],
+      deviceName: service.attributes['hostname'],
       discoveredAt: DateTime.now(),
     );
 

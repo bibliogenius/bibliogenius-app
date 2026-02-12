@@ -636,6 +636,30 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 },
               ),
         actions: [
+          // Online search button for metadata enrichment
+          if (isMobile)
+            IconButton(
+              icon: const Icon(Icons.travel_explore),
+              tooltip: TranslationService.translate(
+                context,
+                'btn_search_online',
+              ),
+              onPressed: () => context.push('/search/external'),
+            )
+          else
+            TextButton.icon(
+              onPressed: () => context.push('/search/external'),
+              icon: Icon(
+                Icons.travel_explore,
+                color: Theme.of(context).appBarTheme.foregroundColor,
+              ),
+              label: Text(
+                TranslationService.translate(context, 'btn_search_online'),
+                style: TextStyle(
+                  color: Theme.of(context).appBarTheme.foregroundColor,
+                ),
+              ),
+            ),
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
             child: _isSaving
@@ -686,34 +710,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
           child: ListView(
             padding: const EdgeInsets.all(24.0),
             children: [
-              // Header
-              Row(
-                children: [
-                  Icon(
-                    Icons.edit_note,
-                    size: MediaQuery.of(context).size.width < 400 ? 24 : 32,
-                    color: Theme.of(context).primaryColor,
-                  ),
-                  const SizedBox(width: 8),
-                  Flexible(
-                    child: Text(
-                      TranslationService.translate(
-                        context,
-                        'edit_book_details',
-                      ),
-                      style: Theme.of(context).textTheme.headlineSmall
-                          ?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            fontSize: MediaQuery.of(context).size.width < 400
-                                ? 16
-                                : null,
-                          ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-              const Divider(height: 32),
+              const SizedBox(height: 8),
 
               // Title - Simple TextFormField (autocomplete not needed for edit, book already exists)
               _buildLabel(TranslationService.translate(context, 'title_label')),
