@@ -19,6 +19,7 @@ import '../services/search_cache.dart';
 import '../widgets/plus_one_animation.dart';
 import '../widgets/cached_book_cover.dart';
 import '../widgets/collection_selector.dart';
+import '../widgets/shimmer_loading.dart';
 import '../widgets/edition_picker_sheet.dart';
 import '../models/collection.dart';
 
@@ -54,6 +55,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
   List<dynamic>? _authorsData;
   bool _isFetchingDetails = false;
   bool _isSaving = false;
+  bool _isAutocompleteFetching = false;
   String? _lastLookedUpIsbn; // Prevent duplicate lookups
   final List<String> _selectedTags = [];
   List<Collection> _selectedCollections = [];
@@ -421,15 +423,66 @@ class _AddBookScreenState extends State<AddBookScreen> {
     }
   }
 
+  bool get _hasFormData =>
+      _titleController.text.isNotEmpty ||
+      _isbnController.text.isNotEmpty ||
+      _authorController.text.isNotEmpty;
+
+  void _showDiscardDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(
+          TranslationService.translate(context, 'discard_changes_title') ??
+              'Discard changes?',
+        ),
+        content: Text(
+          TranslationService.translate(context, 'discard_changes_message') ??
+              'You have unsaved data. Are you sure you want to leave?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(
+              TranslationService.translate(context, 'cancel') ?? 'Cancel',
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              context.pop();
+            },
+            child: Text(
+              TranslationService.translate(context, 'discard') ?? 'Discard',
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 600;
 
-    return Scaffold(
+    return PopScope(
+      canPop: !_hasFormData,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        _showDiscardDialog();
+      },
+      child: Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
+          onPressed: () {
+            if (_hasFormData) {
+              _showDiscardDialog();
+            } else {
+              context.pop();
+            }
+          },
         ),
         title: Text(TranslationService.translate(context, 'add_book_title')),
         actions: [
@@ -709,6 +762,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
                     // Debounce search
                     if (_debounce?.isActive ?? false) _debounce!.cancel();
 
+                    if (mounted) {
+                      setState(() => _isAutocompleteFetching = true);
+                    }
+
                     final completer =
                         Completer<Iterable<Map<String, dynamic>>>();
                     _debounce = Timer(const Duration(milliseconds: 500), () async {
@@ -753,6 +810,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
                           completer.complete(
                             const Iterable<Map<String, dynamic>>.empty(),
                           );
+                        }
+                      } finally {
+                        if (mounted) {
+                          setState(() => _isAutocompleteFetching = false);
                         }
                       }
                     });
@@ -803,7 +864,18 @@ class _AddBookScreenState extends State<AddBookScreen> {
                               context,
                               'enter_book_title',
                             ),
-                            suffixIcon: const Icon(Icons.search),
+                            suffixIcon: _isAutocompleteFetching
+                                ? const Padding(
+                                    padding: EdgeInsets.all(12.0),
+                                    child: SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    ),
+                                  )
+                                : const Icon(Icons.search),
                           ),
                           validator: (value) => value == null || value.isEmpty
                               ? TranslationService.translate(
@@ -1574,13 +1646,23 @@ class _AddBookScreenState extends State<AddBookScreen> {
           ],
         ),
       ),
+      ),
     );
   }
 
   Widget _buildCoverPreview() {
     final hasCover = _coverUrl != null && _coverUrl!.isNotEmpty;
-    final borderColor = hasCover ? Colors.green : Colors.grey;
-    final bgColor = hasCover ? Colors.green.withValues(alpha: 0.05) : Colors.grey.withValues(alpha: 0.05);
+    final isLoading = _isFetchingDetails;
+    final borderColor = isLoading
+        ? Colors.blue
+        : hasCover
+            ? Colors.green
+            : Colors.grey;
+    final bgColor = isLoading
+        ? Colors.blue.withValues(alpha: 0.05)
+        : hasCover
+            ? Colors.green.withValues(alpha: 0.05)
+            : Colors.grey.withValues(alpha: 0.05);
 
     return AnimatedSize(
       duration: const Duration(milliseconds: 300),
@@ -1599,33 +1681,55 @@ class _AddBookScreenState extends State<AddBookScreen> {
               height: 90,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(6),
-                child: hasCover
-                    ? CachedBookCover(
-                        imageUrl: _coverUrl!,
-                        fit: BoxFit.cover,
-                        placeholder: Container(
-                          color: Colors.grey[200],
-                          child: const Icon(Icons.image, color: Colors.grey),
-                        ),
-                        errorWidget: Container(
-                          color: Colors.grey[200],
-                          child: const Icon(Icons.broken_image, color: Colors.grey),
-                        ),
-                      )
-                    : Container(
-                        color: Colors.grey[200],
-                        child: const Icon(Icons.image_not_supported, color: Colors.grey),
-                      ),
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  child: isLoading
+                      ? _buildShimmerPlaceholder()
+                      : hasCover
+                          ? CachedBookCover(
+                              key: ValueKey(_coverUrl),
+                              imageUrl: _coverUrl!,
+                              fit: BoxFit.cover,
+                              placeholder: Container(
+                                color: Colors.grey[200],
+                                child: const Icon(Icons.image,
+                                    color: Colors.grey),
+                              ),
+                              errorWidget: Container(
+                                color: Colors.grey[200],
+                                child: const Icon(Icons.broken_image,
+                                    color: Colors.grey),
+                              ),
+                            )
+                          : Container(
+                              key: const ValueKey('no_cover'),
+                              color: Colors.grey[200],
+                              child: const Icon(Icons.image_not_supported,
+                                  color: Colors.grey),
+                            ),
+                ),
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                hasCover
-                    ? TranslationService.translate(context, 'cover_found') ?? 'Cover found!'
-                    : TranslationService.translate(context, 'no_cover_available') ?? 'No cover',
+                isLoading
+                    ? TranslationService.translate(
+                            context, 'looking_up_isbn') ??
+                        'Looking up...'
+                    : hasCover
+                        ? TranslationService.translate(
+                                context, 'cover_found') ??
+                            'Cover found!'
+                        : TranslationService.translate(
+                                context, 'no_cover_available') ??
+                            'No cover',
                 style: TextStyle(
-                  color: hasCover ? Colors.green.shade700 : Colors.grey.shade600,
+                  color: isLoading
+                      ? Colors.blue.shade700
+                      : hasCover
+                          ? Colors.green.shade700
+                          : Colors.grey.shade600,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -1634,6 +1738,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildShimmerPlaceholder() {
+    return _ShimmerBox(key: const ValueKey('shimmer'));
   }
 
   Widget _buildLabel(String label) {
@@ -1826,6 +1934,26 @@ class _AddBookScreenState extends State<AddBookScreen> {
       random.nextInt(200),
       random.nextInt(200),
       random.nextInt(200),
+    );
+  }
+}
+
+/// Pulsing shimmer placeholder for cover preview during ISBN lookup.
+class _ShimmerBox extends StatelessWidget {
+  const _ShimmerBox({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ShimmerLoading(
+      child: Container(
+        width: 60,
+        height: 90,
+        decoration: BoxDecoration(
+          color: Colors.blue.withValues(alpha: 0.6),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: const Icon(Icons.auto_stories, color: Colors.white54),
+      ),
     );
   }
 }

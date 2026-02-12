@@ -1431,7 +1431,14 @@ class TranslationService {
       'confirm_return_borrowed': 'Mark this book as returned to the lender?',
       'book_returned_success': 'Book returned successfully',
       'empty_no_loans': 'No books currently lent',
+      'empty_no_loans_hint': 'Lend a book from your library to get started',
       'empty_no_borrowed': 'No books currently borrowed',
+      'empty_no_borrowed_hint':
+          'Books you borrow from contacts will appear here',
+      'discard_changes_title': 'Discard changes?',
+      'discard_changes_message':
+          'You have unsaved data. Are you sure you want to leave?',
+      'discard': 'Discard',
       'empty_no_incoming': 'No incoming requests',
       'empty_no_outgoing': 'No outgoing requests',
       'empty_no_connections': 'No pending connections',
@@ -1625,6 +1632,7 @@ class TranslationService {
       'cover_remove': 'Remove cover',
       'cover_search_online': 'Search online',
       'cover_choose_file': 'Choose from files',
+      'looking_up_isbn': 'Looking up...',
       'cover_searching': 'Searching for cover...',
       'cover_found': 'Cover found!',
       'no_cover_available': 'No cover',
@@ -3157,7 +3165,15 @@ class TranslationService {
       'confirm_return_borrowed': 'Marquer ce livre comme rendu au prêteur ?',
       'book_returned_success': 'Livre rendu avec succès',
       'empty_no_loans': 'Aucun livre prêté actuellement',
+      'empty_no_loans_hint':
+          'Prêtez un livre de votre bibliothèque pour commencer',
       'empty_no_borrowed': 'Aucun livre emprunté actuellement',
+      'empty_no_borrowed_hint':
+          'Les livres empruntés à vos contacts apparaîtront ici',
+      'discard_changes_title': 'Abandonner les modifications ?',
+      'discard_changes_message':
+          'Vous avez des données non sauvegardées. Voulez-vous quitter ?',
+      'discard': 'Abandonner',
       'empty_no_incoming': 'Aucune demande reçue',
       'empty_no_outgoing': 'Aucune demande envoyée',
       'empty_no_connections': 'Aucune connexion en attente',
@@ -3310,6 +3326,7 @@ class TranslationService {
       'cover_remove': 'Supprimer la couverture',
       'cover_search_online': 'Rechercher en ligne',
       'cover_choose_file': 'Choisir un fichier',
+      'looking_up_isbn': 'Recherche en cours...',
       'cover_searching': 'Recherche de couverture...',
       'cover_found': 'Couverture trouvée !',
       'no_cover_available': 'Pas de couverture',
@@ -3969,7 +3986,15 @@ class TranslationService {
           '¿Marcar este libro como devuelto al prestamista?',
       'book_returned_success': 'Libro devuelto con éxito',
       'empty_no_loans': 'No hay libros prestados actualmente',
+      'empty_no_loans_hint':
+          'Presta un libro de tu biblioteca para empezar',
       'empty_no_borrowed': 'No hay libros tomados prestados',
+      'empty_no_borrowed_hint':
+          'Los libros que tomes prestados de tus contactos aparecerán aquí',
+      'discard_changes_title': '¿Descartar cambios?',
+      'discard_changes_message':
+          'Tienes datos sin guardar. ¿Estás seguro de que quieres salir?',
+      'discard': 'Descartar',
       'empty_no_incoming': 'No hay solicitudes recibidas',
       'empty_no_outgoing': 'No hay solicitudes enviadas',
       'empty_no_connections': 'No hay conexiones pendientes',
@@ -4651,7 +4676,15 @@ class TranslationService {
           'Dieses Buch als an den Verleiher zurückgegeben markieren?',
       'book_returned_success': 'Buch erfolgreich zurückgegeben',
       'empty_no_loans': 'Keine Bücher derzeit verliehen',
+      'empty_no_loans_hint':
+          'Verleihen Sie ein Buch aus Ihrer Bibliothek, um loszulegen',
       'empty_no_borrowed': 'Keine Bücher derzeit ausgeliehen',
+      'empty_no_borrowed_hint':
+          'Bücher, die Sie von Kontakten ausleihen, werden hier angezeigt',
+      'discard_changes_title': 'Änderungen verwerfen?',
+      'discard_changes_message':
+          'Sie haben ungespeicherte Daten. Möchten Sie wirklich gehen?',
+      'discard': 'Verwerfen',
       'empty_no_incoming': 'Keine eingehenden Anfragen',
       'empty_no_outgoing': 'Keine ausgehenden Anfragen',
       'empty_no_connections': 'Keine ausstehenden Verbindungen',

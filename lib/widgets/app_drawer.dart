@@ -65,7 +65,7 @@ class AppDrawer extends StatelessWidget {
             title: Text(TranslationService.translate(context, 'nav_loans')),
             onTap: () {
               Navigator.pop(context);
-              context.go('/network?tab=lent');
+              context.go('/requests');
             },
           ),
           const Divider(),

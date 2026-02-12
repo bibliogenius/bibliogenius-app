@@ -6,6 +6,7 @@ import '../widgets/genie_app_bar.dart';
 import '../widgets/plus_one_animation.dart';
 import '../widgets/work_edition_card.dart';
 import '../widgets/search_result_card.dart';
+import '../widgets/shimmer_loading.dart';
 import 'package:provider/provider.dart';
 import '../data/repositories/copy_repository.dart';
 import '../services/api_service.dart';
@@ -1052,7 +1053,7 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
                   ),
                 Expanded(
                   child: _isSearching
-                      ? const Center(child: CircularProgressIndicator())
+                      ? const SearchLoadingSkeleton()
                       : _searchResults.isEmpty
                       ? _buildEmptyState()
                       : (_useCarouselView)

@@ -4,6 +4,7 @@ import '../models/book.dart';
 import 'dart:math';
 import '../services/translation_service.dart';
 import '../providers/theme_provider.dart';
+import '../utils/book_status.dart';
 import 'cached_book_cover.dart';
 
 class BookCoverCard extends StatelessWidget {
@@ -87,27 +88,33 @@ class BookCoverCard extends StatelessWidget {
                 Positioned(
                   top: 8,
                   right: 8,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.7),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      TranslationService.translate(
-                        context,
-                        'reading_status_${book.readingStatus}',
-                      ).toUpperCase(),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
+                  child: Builder(builder: (context) {
+                    final statusInfo = getStatusFromValue(
+                        context, book.readingStatus!, false);
+                    final badgeColor =
+                        statusInfo?.color ?? Colors.black;
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
                       ),
-                    ),
-                  ),
+                      decoration: BoxDecoration(
+                        color: badgeColor.withValues(alpha: 0.85),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        TranslationService.translate(
+                          context,
+                          'reading_status_${book.readingStatus}',
+                        ).toUpperCase(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    );
+                  }),
                 ),
             ],
           ),

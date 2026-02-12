@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import '../models/book.dart';
 import '../services/translation_service.dart';
+import '../utils/book_status.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -401,27 +402,33 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                       Positioned(
                         top: 8,
                         right: 8,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.blueAccent.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            TranslationService.translate(
-                              context,
-                              'reading_status_${widget.book.readingStatus}',
-                            ).toUpperCase(),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 9,
-                              fontWeight: FontWeight.bold,
+                        child: Builder(builder: (context) {
+                          final statusInfo = getStatusFromValue(
+                              context, widget.book.readingStatus!, false);
+                          final badgeColor =
+                              statusInfo?.color ?? Colors.blueAccent;
+                          return Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
                             ),
-                          ),
-                        ),
+                            decoration: BoxDecoration(
+                              color: badgeColor.withValues(alpha: 0.85),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              TranslationService.translate(
+                                context,
+                                'reading_status_${widget.book.readingStatus}',
+                              ).toUpperCase(),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 9,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          );
+                        }),
                       ),
                   ],
                 ),

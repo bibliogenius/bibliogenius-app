@@ -10,6 +10,7 @@ import '../models/loan.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
 import '../providers/theme_provider.dart';
+import '../widgets/premium_empty_state.dart';
 
 /// Screen for managing loans, borrows, and P2P requests
 /// Structure:
@@ -354,8 +355,14 @@ class _LoansScreenState extends State<LoansScreen>
   /// Lent tab - books I lent to others
   Widget _buildLentTab() {
     if (_activeLoans.isEmpty) {
-      return _buildEmptyState(
-        TranslationService.translate(context, 'empty_no_loans'),
+      return PremiumEmptyState(
+        message: TranslationService.translate(context, 'empty_no_loans'),
+        description:
+            TranslationService.translate(context, 'empty_no_loans_hint'),
+        icon: Icons.arrow_upward,
+        buttonLabel:
+            TranslationService.translate(context, 'go_to_library'),
+        onAction: () => context.go('/books'),
       );
     }
     return RefreshIndicator(
@@ -506,8 +513,11 @@ class _LoansScreenState extends State<LoansScreen>
   /// Borrowed tab - books I borrowed from others
   Widget _buildBorrowedTab() {
     if (_borrowedBooks.isEmpty) {
-      return _buildEmptyState(
-        TranslationService.translate(context, 'empty_no_borrowed'),
+      return PremiumEmptyState(
+        message: TranslationService.translate(context, 'empty_no_borrowed'),
+        description:
+            TranslationService.translate(context, 'empty_no_borrowed_hint'),
+        icon: Icons.arrow_downward,
       );
     }
     return RefreshIndicator(

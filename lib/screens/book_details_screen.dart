@@ -23,6 +23,7 @@ import '../services/api_service.dart';
 import '../services/translation_service.dart';
 import '../utils/book_status.dart';
 import '../widgets/cached_book_cover.dart';
+import '../widgets/plus_one_animation.dart';
 import '../widgets/cover_picker_dialog.dart';
 import '../widgets/loan_dialog.dart';
 import '../widgets/metadata_refresh_dialog.dart';
@@ -868,70 +869,6 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             ),
           ],
         ),
-        if (isToRead) ...[
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: () => _startReading(context),
-              icon: const Icon(Icons.play_circle_outline),
-              label: Text(
-                TranslationService.translate(context, 'start_reading') ??
-                    'Start Reading',
-              ),
-              style: FilledButton.styleFrom(
-                backgroundColor: Colors.blue,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () => _markAsRead(context),
-              icon: const Icon(Icons.check_circle_outline),
-              label: Text(
-                TranslationService.translate(context, 'mark_as_read') ??
-                    'Mark as Read',
-              ),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.green,
-                side: const BorderSide(color: Colors.green),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ),
-        ],
-        if (isReading) ...[
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: () => _markAsFinished(context),
-              icon: const Icon(Icons.check_circle_outline),
-              label: Text(
-                TranslationService.translate(context, 'mark_as_finished') ??
-                    'Mark as Finished',
-              ),
-              style: FilledButton.styleFrom(
-                backgroundColor: Colors.green,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ),
-        ],
         // Lend book button - only visible when there are available copies and book is owned
         if (_hasAvailableCopies && book.owned) ...[
           const SizedBox(height: 12),
@@ -1478,7 +1415,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       final title = selected == 'reading'
           ? TranslationService.translate(context, 'start_reading') ?? 'Start Reading'
           : TranslationService.translate(context, 'mark_as_read') ?? 'Mark as Read';
-      await _showStatusChangeOptions(context, selected, title);
+      await _showStatusChangeOptions(context, selected, title, stayOnScreen: true);
     } else {
       await _updateStatusDirectly(context, selected);
     }
@@ -1604,8 +1541,10 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   Future<void> _showStatusChangeOptions(
     BuildContext context,
     String newStatus,
-    String title,
-  ) async {
+    String title, {
+    bool stayOnScreen = false,
+  }) async {
+    final previousStatus = _book?.readingStatus;
     final option = await showModalBottomSheet<String>(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -1710,6 +1649,11 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       await bookRepo.updateBook(_book!.id!, updateData);
 
       if (context.mounted) {
+        // Celebrate marking as read with a subtle animation
+        if (newStatus == 'read' && previousStatus != 'read') {
+          PlusOneAnimation.show(context, text: '\u2713');
+        }
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -1718,7 +1662,13 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             ),
           ),
         );
-        Navigator.of(context).pop(true);
+
+        if (stayOnScreen) {
+          await _fetchBookDetails(forceRefresh: true);
+          _hasChanges = true;
+        } else {
+          Navigator.of(context).pop(true);
+        }
       }
     } catch (e) {
       if (context.mounted) {
