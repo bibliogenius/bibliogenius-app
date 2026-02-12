@@ -1,30 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import '../providers/theme_provider.dart';
 import '../services/translation_service.dart';
+import '../theme/app_design.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final themeStyle = themeProvider.themeStyle;
+    final headerGradient = AppDesign.appBarGradientForTheme(themeStyle);
+    final theme = Theme.of(context);
+
+    final currentPath = GoRouterState.of(context).uri.path;
+
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
           DrawerHeader(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF6BB0A9), Color(0xFF5C8C9F)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
+            decoration: BoxDecoration(gradient: headerGradient),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 const Text(
-                  'BiblioGenius', // Use literal or translation
+                  'BiblioGenius',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 24,
@@ -39,82 +43,116 @@ class AppDrawer extends StatelessWidget {
               ],
             ),
           ),
-          ListTile(
-            leading: const Icon(Icons.book),
-            title: Text(
-              TranslationService.translate(context, 'nav_my_library'),
-            ),
-            onTap: () {
-              Navigator.pop(context);
-              context.go('/books');
-            },
+          _buildDrawerItem(
+            context,
+            icon: Icons.book,
+            titleKey: 'nav_my_library',
+            route: '/books',
+            currentPath: currentPath,
+            theme: theme,
           ),
-
-          // Unified Network screen (contacts + peers merged)
-          ListTile(
-            leading: const Icon(Icons.people),
-            title: Text(TranslationService.translate(context, 'nav_network')),
-            onTap: () {
-              Navigator.pop(context);
-              context.go('/network');
-            },
+          _buildDrawerItem(
+            context,
+            icon: Icons.people,
+            titleKey: 'nav_network',
+            route: '/network',
+            currentPath: currentPath,
+            theme: theme,
           ),
-
-          ListTile(
-            leading: const Icon(Icons.swap_horiz),
-            title: Text(TranslationService.translate(context, 'nav_loans')),
-            onTap: () {
-              Navigator.pop(context);
-              context.go('/requests');
-            },
+          _buildDrawerItem(
+            context,
+            icon: Icons.swap_horiz,
+            titleKey: 'nav_loans',
+            route: '/requests',
+            currentPath: currentPath,
+            theme: theme,
           ),
           const Divider(),
-          ListTile(
-            leading: const Icon(Icons.person),
-            title: Text(TranslationService.translate(context, 'nav_profile')),
-            onTap: () {
-              Navigator.pop(context);
-              context.go('/profile');
-            },
+          _buildDrawerItem(
+            context,
+            icon: Icons.person,
+            titleKey: 'nav_profile',
+            route: '/profile',
+            currentPath: currentPath,
+            theme: theme,
           ),
-          ListTile(
-            leading: const Icon(Icons.dashboard),
-            title: Text(TranslationService.translate(context, 'nav_dashboard')),
-            onTap: () {
-              Navigator.pop(context);
-              context.go('/dashboard');
-            },
+          _buildDrawerItem(
+            context,
+            icon: Icons.dashboard,
+            titleKey: 'nav_dashboard',
+            route: '/dashboard',
+            currentPath: currentPath,
+            theme: theme,
           ),
-
-          ListTile(
-            leading: const Icon(Icons.settings),
-            title: Text(TranslationService.translate(context, 'nav_settings')),
-            onTap: () {
-              Navigator.pop(context);
-              context.go('/settings');
-            },
+          _buildDrawerItem(
+            context,
+            icon: Icons.settings,
+            titleKey: 'nav_settings',
+            route: '/settings',
+            currentPath: currentPath,
+            theme: theme,
           ),
-          ListTile(
-            leading: const Icon(Icons.help_outline),
-            title: Text(TranslationService.translate(context, 'nav_help')),
-            onTap: () {
-              Navigator.pop(context);
-              context.go('/help');
-            },
+          _buildDrawerItem(
+            context,
+            icon: Icons.help_outline,
+            titleKey: 'nav_help',
+            route: '/help',
+            currentPath: currentPath,
+            theme: theme,
           ),
           // TODO: Move "Signaler un bug" to Settings after testing phase
-          ListTile(
-            leading: const Icon(Icons.bug_report),
-            title: Text(
-              TranslationService.translate(context, 'nav_report_bug'),
-            ),
-            onTap: () {
-              Navigator.pop(context);
-              context.push('/feedback');
-            },
+          _buildDrawerItem(
+            context,
+            icon: Icons.bug_report,
+            titleKey: 'nav_report_bug',
+            route: '/feedback',
+            currentPath: currentPath,
+            theme: theme,
+            isPush: true,
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildDrawerItem(
+    BuildContext context, {
+    required IconData icon,
+    required String titleKey,
+    required String route,
+    required String currentPath,
+    required ThemeData theme,
+    bool isPush = false,
+  }) {
+    final isActive = currentPath.startsWith(route);
+
+    return ListTile(
+      leading: Icon(
+        icon,
+        color: isActive ? theme.colorScheme.primary : null,
+      ),
+      title: Text(
+        TranslationService.translate(context, titleKey),
+        style: isActive
+            ? TextStyle(
+                color: theme.colorScheme.primary,
+                fontWeight: FontWeight.w600,
+              )
+            : null,
+      ),
+      selected: isActive,
+      selectedTileColor: theme.colorScheme.primary.withValues(alpha: 0.08),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppDesign.radiusSmall),
+      ),
+      onTap: () {
+        Navigator.pop(context);
+        if (isPush) {
+          context.push(route);
+        } else {
+          context.go(route);
+        }
+      },
     );
   }
 }

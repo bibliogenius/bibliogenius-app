@@ -731,7 +731,14 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
       ],
       scrollBehavior: AppScrollBehavior(),
       builder: (context, child) {
-        return child!;
+        final scale = Provider.of<ThemeProvider>(context).textScaleFactor;
+        if (scale == 1.0) return child!;
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            textScaler: TextScaler.linear(scale),
+          ),
+          child: child!,
+        );
       },
       routerConfig: _router,
     );

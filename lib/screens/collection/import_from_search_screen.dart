@@ -834,7 +834,7 @@ class _ImportFromSearchScreenState extends State<ImportFromSearchScreen>
                         _getSourceLabel(source),
                         style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 7,
+                          fontSize: 11,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

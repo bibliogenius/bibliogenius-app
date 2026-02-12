@@ -1495,7 +1495,7 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
                                 const SizedBox(width: 3),
                                 Text(
                                   "J'ai",
-                                  style: TextStyle(fontSize: 9, color: Colors.orange.shade700, fontWeight: FontWeight.w500),
+                                  style: TextStyle(fontSize: 11, color: Colors.orange.shade700, fontWeight: FontWeight.w500),
                                 ),
                               ],
                             ),

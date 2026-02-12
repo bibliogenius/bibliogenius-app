@@ -16,7 +16,10 @@ class MinimalTheme extends AppTheme {
   String get description => 'Clean, typographic design with sharp lines';
 
   @override
-  Color get previewColor => const Color(0xFF1A1A1A);
+  Color get previewColor => const Color(0xFF2563EB);
+
+  @override
+  Color get previewSecondaryColor => const Color(0xFFFFFFFF);
 
   @override
   ThemeData buildTheme({Color? accentColor}) {

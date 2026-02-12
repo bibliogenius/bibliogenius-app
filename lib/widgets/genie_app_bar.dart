@@ -7,6 +7,7 @@ import '../services/translation_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'bibliogenius_logo.dart';
 import 'quick_actions_sheet.dart';
+import '../theme/app_design.dart';
 
 class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
   final dynamic title;
@@ -48,22 +49,8 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
     // Get avatar info from provider (customizable avatar system)
     final avatarConfig = themeProvider.avatarConfig;
 
-    // Theme-aware gradient - dark wood for Sorbonne, blue-purple for others
-    // Theme-aware gradient
-    final isSorbonne = themeProvider.themeStyle == 'sorbonne';
-    final isDefault = themeProvider.themeStyle == 'default';
-
-    final gradientColors = isSorbonne
-        ? [const Color(0xFF1A0F0A), const Color(0xFF2D1810)] // Dark wood
-        : isDefault
-        ? [
-            const Color(0xFF6BB0A9),
-            const Color(0xFF5C8C9F),
-          ] // Teal Gradient (6bb0a9 -> 5c8c9f)
-        : [
-            const Color(0xFF667eea),
-            const Color(0xFF764ba2),
-          ]; // Blue-purple (fallback)
+    // Theme-aware gradient via centralized design tokens
+    final gradientColors = AppDesign.appBarGradientForTheme(themeProvider.themeStyle).colors;
 
     if (transparent) {
       // Use a transparent gradient/color if requested
@@ -186,23 +173,20 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Theme.of(context).primaryColor,
-                  Theme.of(context).primaryColor.withOpacity(0.8),
+                  Colors.white.withValues(alpha: 0.25),
+                  Colors.white.withValues(alpha: 0.12),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+              borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.3),
+                width: 1,
+              ),
             ),
             child: InkWell(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
               onTap: () {
                 // Determine if we are on the main library screen to hide redundant actions
                 final currentPath = GoRouterState.of(context).uri.path;
@@ -299,8 +283,8 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
             child: GestureDetector(
               onTap: () => context.push('/profile'),
               child: Container(
-                width: 32,
-                height: 32,
+                width: 34,
+                height: 34,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: avatarConfig?.style == 'genie'
@@ -311,6 +295,10 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
                           ),
                         )
                       : Colors.white,
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.5),
+                    width: 2,
+                  ),
                 ),
                 child: ClipOval(
                   child: (avatarConfig?.isGenie ?? false)

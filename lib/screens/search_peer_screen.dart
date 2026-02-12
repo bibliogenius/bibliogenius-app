@@ -255,7 +255,7 @@ class _SearchPeerScreenState extends State<SearchPeerScreen> {
                                       child: const Text(
                                         'CONNECTED',
                                         style: TextStyle(
-                                          fontSize: 9,
+                                          fontSize: 11,
                                           fontWeight: FontWeight.bold,
                                           color: Colors.green,
                                           letterSpacing: 0.5,
@@ -277,7 +277,7 @@ class _SearchPeerScreenState extends State<SearchPeerScreen> {
                                       child: const Text(
                                         'PENDING',
                                         style: TextStyle(
-                                          fontSize: 9,
+                                          fontSize: 11,
                                           fontWeight: FontWeight.bold,
                                           color: Colors.orange,
                                           letterSpacing: 0.5,

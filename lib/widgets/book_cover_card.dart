@@ -4,6 +4,7 @@ import '../models/book.dart';
 import 'dart:math';
 import '../services/translation_service.dart';
 import '../providers/theme_provider.dart';
+import '../theme/app_design.dart';
 import '../utils/book_status.dart';
 import 'cached_book_cover.dart';
 
@@ -51,14 +52,8 @@ class BookCoverCard extends StatelessWidget {
         opacity: isOwned ? 1.0 : 0.5,
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.2),
-                offset: const Offset(0, 2),
-                blurRadius: 4,
-              ),
-            ],
+            borderRadius: BorderRadius.circular(AppDesign.radiusSmall),
+            boxShadow: AppDesign.subtleShadow,
           ),
           clipBehavior: Clip.antiAlias,
           child: Stack(

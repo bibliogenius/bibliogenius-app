@@ -1023,7 +1023,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                                                 ),
                                                 style: const TextStyle(
                                                   color: Colors.white,
-                                                  fontSize: 7,
+                                                  fontSize: 11,
                                                   fontWeight: FontWeight.bold,
                                                 ),
                                               ),

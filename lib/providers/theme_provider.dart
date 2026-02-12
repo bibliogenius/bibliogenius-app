@@ -20,6 +20,9 @@ class ThemeProvider with ChangeNotifier {
   String _themeStyle = 'default';
   String get themeStyle => _themeStyle;
 
+  double _textScaleFactor = 1.0;
+  double get textScaleFactor => _textScaleFactor;
+
   String _currentAvatarId = 'individual';
   String get currentAvatarId => _currentAvatarId;
 
@@ -161,6 +164,7 @@ class ThemeProvider with ChangeNotifier {
     }
     _isSetupComplete = prefs.getBool('isSetupComplete') ?? false;
     _themeStyle = prefs.getString('themeStyle') ?? 'default';
+    _textScaleFactor = prefs.getDouble('textScaleFactor') ?? 1.0;
 
     // Load username
     String? storedUsername = prefs.getString('username');
@@ -308,6 +312,13 @@ class ThemeProvider with ChangeNotifier {
     _themeStyle = style;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('themeStyle', style);
+    notifyListeners();
+  }
+
+  Future<void> setTextScaleFactor(double factor) async {
+    _textScaleFactor = factor.clamp(0.85, 1.4);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('textScaleFactor', _textScaleFactor);
     notifyListeners();
   }
 

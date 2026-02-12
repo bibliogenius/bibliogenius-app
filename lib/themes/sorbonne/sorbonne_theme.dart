@@ -59,7 +59,10 @@ class SorbonneTheme extends AppTheme {
       'Immersive "Old Library" ambiance (inspired from Sorbonne and Salamanca university libraries)';
 
   @override
-  Color get previewColor => SorbonneColors.warmWood;
+  Color get previewColor => SorbonneColors.warmAmber;
+
+  @override
+  Color get previewSecondaryColor => SorbonneColors.warmWood;
 
   @override
   String? get previewAsset => 'assets/themes/sorbonne_preview.webp';

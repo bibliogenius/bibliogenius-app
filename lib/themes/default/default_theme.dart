@@ -98,42 +98,61 @@ class DefaultTheme extends AppTheme {
         elevation: 0,
         shape: RoundedRectangleBorder(
           side: const BorderSide(color: border),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
         ),
         margin: const EdgeInsets.only(bottom: 16),
       ),
       textTheme: const TextTheme(
-        bodyLarge: TextStyle(color: textMain),
-        bodyMedium: TextStyle(color: textMain),
+        bodyLarge: TextStyle(color: textMain, fontSize: 16, height: 1.5),
+        bodyMedium: TextStyle(color: textMain, fontSize: 14, height: 1.5),
+        bodySmall: TextStyle(
+          color: Color(0xFF78716C), // Stone 500 — secondary text
+          fontSize: 13,
+          fontWeight: FontWeight.w500,
+          height: 1.4,
+        ),
         titleLarge: TextStyle(
           color: textMain,
           fontWeight: FontWeight.w800,
+          fontSize: 22,
           letterSpacing: -0.5,
         ),
-        titleMedium: TextStyle(color: textMain, fontWeight: FontWeight.w700),
+        titleMedium: TextStyle(
+          color: textMain,
+          fontWeight: FontWeight.w700,
+          fontSize: 16,
+        ),
+        labelLarge: TextStyle(
+          color: textMain,
+          fontWeight: FontWeight.w600,
+          fontSize: 14,
+          letterSpacing: 0.3,
+        ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: bannerColor,
           foregroundColor: foregroundColor,
-          elevation: 0,
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          elevation: 2,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: bgCard,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: border),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: border),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: bannerColor, width: 2),
         ),
         contentPadding: const EdgeInsets.symmetric(

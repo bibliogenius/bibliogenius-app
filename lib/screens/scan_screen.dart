@@ -452,7 +452,7 @@ class _ScanScreenState extends State<ScanScreen> {
       child: Center(
         child: Text(
           title,
-          style: const TextStyle(color: Colors.white, fontSize: 8),
+          style: const TextStyle(color: Colors.white, fontSize: 11),
           textAlign: TextAlign.center,
           maxLines: 3,
           overflow: TextOverflow.ellipsis,

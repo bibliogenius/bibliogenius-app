@@ -17,6 +17,9 @@ class ScaffoldWithNav extends StatelessWidget {
     // Build navigation items (always includes loans menu)
     final navItems = _buildNavItems(context);
 
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
       key: GlobalKeys.rootScaffoldKey,
       drawer: useRail ? null : const AppDrawer(),
@@ -32,7 +35,11 @@ class ScaffoldWithNav extends StatelessWidget {
                     ),
                     child: IntrinsicHeight(
                       child: NavigationRail(
-                        minWidth: 88, // Slightly wider for larger font
+                        minWidth: 88,
+                        backgroundColor: isDark
+                            ? theme.colorScheme.surface
+                            : null,
+                        indicatorColor: theme.colorScheme.primary.withValues(alpha: 0.12),
                         selectedIndex: _calculateSelectedIndex(
                           context,
                           navItems,
@@ -41,13 +48,19 @@ class ScaffoldWithNav extends StatelessWidget {
                             _onItemTapped(index, context, navItems),
                         labelType: NavigationRailLabelType.all,
                         selectedLabelTextStyle: TextStyle(
-                          fontSize: 14, // 2px larger than default 12
+                          fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: Theme.of(context).colorScheme.primary,
+                          color: theme.colorScheme.primary,
                         ),
                         unselectedLabelTextStyle: TextStyle(
-                          fontSize: 14, // 2px larger than default 12
-                          color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: 14,
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                        ),
+                        selectedIconTheme: IconThemeData(
+                          color: theme.colorScheme.primary,
+                        ),
+                        unselectedIconTheme: IconThemeData(
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                         ),
                         destinations: navItems
                             .map((item) => item.destination)
@@ -58,7 +71,11 @@ class ScaffoldWithNav extends StatelessWidget {
                 );
               },
             ),
-          if (useRail) const VerticalDivider(thickness: 1, width: 1),
+          if (useRail) VerticalDivider(
+            thickness: 1,
+            width: 1,
+            color: theme.dividerColor,
+          ),
           Expanded(child: child),
         ],
       ),

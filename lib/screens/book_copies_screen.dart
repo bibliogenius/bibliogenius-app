@@ -798,7 +798,7 @@ class _Book3DState extends State<_Book3D> {
                                 'TEMP',
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 8,
+                                  fontSize: 11,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -832,7 +832,7 @@ class _Book3DState extends State<_Book3D> {
                                 '${widget.copy.price!.toStringAsFixed(2)} ${Provider.of<ThemeProvider>(context).currency}',
                                 style: TextStyle(
                                   color: _bookColors[0],
-                                  fontSize: 9,
+                                  fontSize: 11,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),

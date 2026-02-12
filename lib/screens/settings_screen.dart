@@ -13,6 +13,7 @@ import '../services/translation_service.dart';
 import '../providers/theme_provider.dart';
 import '../services/auth_service.dart';
 import '../theme/app_design.dart';
+import '../themes/base/theme_registry.dart';
 import '../utils/app_constants.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -171,7 +172,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            const SizedBox(height: 8),
+
+            // Theme Selection
+            _buildThemeSelector(context, themeProvider),
+            const SizedBox(height: 24),
+
+            // Text Size
+            _buildTextScaleSlider(context, themeProvider),
+            const SizedBox(height: 24),
 
             // Quick Presets Section
             Text(
@@ -671,6 +679,234 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildThemeSelector(BuildContext context, ThemeProvider themeProvider) {
+    ThemeRegistry.initialize();
+    final themes = ThemeRegistry.all;
+    final currentId = themeProvider.themeStyle;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          TranslationService.translate(context, 'theme_title') ?? 'Theme',
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: themes.map((theme) {
+            final isSelected = theme.id == currentId;
+            return Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(
+                  right: theme.id != themes.last.id ? 8.0 : 0,
+                ),
+                child: GestureDetector(
+                  onTap: () async {
+                    HapticFeedback.lightImpact();
+                    await themeProvider.setThemeStyle(theme.id);
+                  },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? theme.previewColor.withValues(alpha: 0.15)
+                          : Theme.of(context)
+                              .colorScheme
+                              .surface
+                              .withValues(alpha: 0.8),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isSelected
+                            ? theme.previewColor
+                            : Colors.grey.withValues(alpha: 0.3),
+                        width: isSelected ? 2 : 1,
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                theme.previewSecondaryColor,
+                                theme.previewColor,
+                              ],
+                              stops: const [0.5, 0.5],
+                            ),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.grey.withValues(alpha: 0.3),
+                              width: 1.5,
+                            ),
+                          ),
+                          child: isSelected
+                              ? const Icon(
+                                  Icons.check,
+                                  color: Colors.white,
+                                  size: 20,
+                                )
+                              : null,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          _themeDisplayName(context, theme.id),
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight:
+                                isSelected ? FontWeight.bold : FontWeight.w500,
+                            color: isSelected
+                                ? theme.previewColor
+                                : Theme.of(context).textTheme.bodyMedium?.color,
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTextScaleSlider(
+    BuildContext context,
+    ThemeProvider themeProvider,
+  ) {
+    const steps = [0.85, 1.0, 1.15, 1.3, 1.4];
+    final current = themeProvider.textScaleFactor;
+    // Find closest step index
+    int stepIndex = 0;
+    double minDist = (steps[0] - current).abs();
+    for (int i = 1; i < steps.length; i++) {
+      final dist = (steps[i] - current).abs();
+      if (dist < minDist) {
+        minDist = dist;
+        stepIndex = i;
+      }
+    }
+
+    String stepLabel(int index) {
+      switch (index) {
+        case 0:
+          return TranslationService.translate(context, 'text_size_small') ??
+              'Small';
+        case 1:
+          return TranslationService.translate(context, 'text_size_default') ??
+              'Default';
+        default:
+          return TranslationService.translate(context, 'text_size_large') ??
+              'Large';
+      }
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          TranslationService.translate(context, 'text_size') ?? 'Text Size',
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: Theme.of(context)
+                .colorScheme
+                .surface
+                .withValues(alpha: 0.8),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: Colors.grey.withValues(alpha: 0.3),
+            ),
+          ),
+          child: Column(
+            children: [
+              // Preview text
+              Text(
+                'Aa',
+                style: TextStyle(
+                  fontSize: 24 * steps[stepIndex],
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                stepLabel(stepIndex),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Theme.of(context).textTheme.bodySmall?.color,
+                ),
+              ),
+              const SizedBox(height: 8),
+              // Slider
+              SliderTheme(
+                data: SliderTheme.of(context).copyWith(
+                  trackHeight: 4,
+                  thumbShape:
+                      const RoundSliderThumbShape(enabledThumbRadius: 8),
+                ),
+                child: Slider(
+                  value: stepIndex.toDouble(),
+                  min: 0,
+                  max: (steps.length - 1).toDouble(),
+                  divisions: steps.length - 1,
+                  activeColor: Theme.of(context).colorScheme.primary,
+                  onChanged: (value) {
+                    HapticFeedback.lightImpact();
+                    themeProvider.setTextScaleFactor(steps[value.round()]);
+                  },
+                ),
+              ),
+              // Min/max labels
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'A',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Theme.of(context).textTheme.bodySmall?.color,
+                      ),
+                    ),
+                    Text(
+                      'A',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).textTheme.bodySmall?.color,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _themeDisplayName(BuildContext context, String themeId) {
+    final key = 'theme_$themeId';
+    return TranslationService.translate(context, key) ??
+        ThemeRegistry.get(themeId)?.displayName ??
+        themeId;
   }
 
   Widget _buildModuleToggle(

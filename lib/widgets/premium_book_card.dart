@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import '../models/book.dart';
 import '../services/translation_service.dart';
+import '../theme/app_design.dart';
 import '../utils/book_status.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -324,6 +325,8 @@ class _PremiumBookCardState extends State<PremiumBookCard>
   }
 
   Widget _buildStandardCard(BuildContext context) {
+    final theme = Theme.of(context);
+
     return GestureDetector(
       onTap: () => context.push('/books/${widget.book.id}', extra: widget.book),
       child: MouseRegion(
@@ -340,23 +343,18 @@ class _PremiumBookCardState extends State<PremiumBookCard>
           animation: _scaleAnimation,
           builder: (context, child) => Transform.scale(
             scale: _scaleAnimation.value,
-            child: Container(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
               width: widget.width,
               margin: const EdgeInsets.only(right: 16, bottom: 16),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(
-                      alpha: _isHovering ? 0.25 : 0.15,
-                    ),
-                    blurRadius: _isHovering ? 15 : 10,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
+                borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
+                boxShadow: _isHovering
+                    ? AppDesign.glowShadow(theme.colorScheme.primary)
+                    : AppDesign.cardShadow,
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
                 child: Stack(
                   children: [
                     // Cover Image
@@ -391,7 +389,7 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                             end: Alignment.bottomCenter,
                             colors: [
                               Colors.transparent,
-                              Colors.black.withValues(alpha: 0.8),
+                              theme.colorScheme.primary.withValues(alpha: 0.5),
                             ],
                           ),
                         ),
@@ -423,7 +421,7 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                               ).toUpperCase(),
                               style: const TextStyle(
                                 color: Colors.white,
-                                fontSize: 9,
+                                fontSize: 10,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),

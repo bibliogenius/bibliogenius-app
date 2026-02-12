@@ -2995,7 +2995,7 @@ class _StatisticsContentState extends State<StatisticsContent>
                     padding: const EdgeInsets.only(top: 8),
                     child: Text(
                       sortedData[value.toInt()].key,
-                      style: const TextStyle(fontSize: 9),
+                      style: const TextStyle(fontSize: 11),
                     ),
                   );
                 },

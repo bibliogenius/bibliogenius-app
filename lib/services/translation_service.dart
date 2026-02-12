@@ -1661,6 +1661,10 @@ class TranslationService {
       'refresh_identical': 'Same',
       'refresh_empty': 'Empty',
       'refresh_apply': 'Apply',
+      'text_size': 'Text Size',
+      'text_size_small': 'Small',
+      'text_size_default': 'Default',
+      'text_size_large': 'Large',
     },
     'fr': {
       'app_title': 'BiblioGenius',
@@ -3355,6 +3359,10 @@ class TranslationService {
       'refresh_identical': 'Identique',
       'refresh_empty': 'Vide',
       'refresh_apply': 'Appliquer',
+      'text_size': 'Taille du texte',
+      'text_size_small': 'Petit',
+      'text_size_default': 'Normal',
+      'text_size_large': 'Grand',
     },
     'es': {
       'tag_beta': 'Beta',

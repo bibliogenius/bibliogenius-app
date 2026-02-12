@@ -316,6 +316,58 @@ class AppDesign {
     );
   }
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // THEME-AWARE HELPERS
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /// Theme-aware AppBar gradient
+  static LinearGradient appBarGradientForTheme(String themeStyle) {
+    switch (themeStyle) {
+      case 'sorbonne':
+        return const LinearGradient(
+          colors: [Color(0xFF1A0F0A), Color(0xFF2D1810)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        );
+      case 'minimal':
+        return const LinearGradient(
+          colors: [Color(0xFF2563EB), Color(0xFF1D4ED8)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        );
+      default:
+        return const LinearGradient(
+          colors: [Color(0xFF6BB0A9), Color(0xFF5C8C9F)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        );
+    }
+  }
+
+  /// Theme-aware section accent gradient (for decorative bars / icons)
+  static LinearGradient sectionAccentGradient(String themeStyle) {
+    switch (themeStyle) {
+      case 'sorbonne':
+        return const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0xFF8B4513), Color(0xFF5D3A1A)],
+        );
+      case 'minimal':
+        return const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0xFF2563EB), Color(0xFF1D4ED8)],
+        );
+      default:
+        return const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0xFF667eea), Color(0xFF764ba2)],
+        );
+    }
+  }
+
   /// Feature gradient based on index (for lists)
   static LinearGradient featureGradient(int index) {
     final gradients = [

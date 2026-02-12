@@ -19,6 +19,9 @@ abstract class AppTheme {
   /// Primary color for preview in theme selector
   Color get previewColor;
 
+  /// Secondary color for two-tone preview (defaults to previewColor)
+  Color get previewSecondaryColor => previewColor;
+
   /// Optional asset path for theme preview image
   String? get previewAsset => null;
 

@@ -576,29 +576,35 @@ class _DashboardScreenState extends State<DashboardScreen>
                         child: ScaleOnTap(
                           child: TextButton.icon(
                             onPressed: () => context.push('/statistics'),
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.insights,
-                              color: Colors.black54,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                             label: Text(
                               TranslationService.translate(
                                 context,
                                 'view_insights',
                               ),
-                              style: const TextStyle(color: Colors.black54),
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
                             ),
                             style: TextButton.styleFrom(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 24,
                                 vertical: 16,
                               ),
-                              backgroundColor: Colors.black.withValues(
-                                alpha: 0.05,
-                              ),
+                              backgroundColor: Theme.of(context)
+                                  .colorScheme
+                                  .onSurface
+                                  .withValues(alpha: 0.05),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(30),
                                 side: BorderSide(
-                                  color: Colors.black.withValues(alpha: 0.1),
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurface
+                                      .withValues(alpha: 0.1),
                                 ),
                               ),
                             ),
@@ -631,34 +637,45 @@ class _DashboardScreenState extends State<DashboardScreen>
         _buildSectionTitle(context, title),
         const SizedBox(height: 16),
         Container(
-          padding: const EdgeInsets.all(16),
+          clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.08),
-                blurRadius: 15,
-                offset: const Offset(0, 4),
-              ),
-            ],
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(AppDesign.radiusXLarge),
+            boxShadow: AppDesign.cardShadow,
           ),
           child: Column(
             children: [
+              // Accent gradient bar at top
+              Container(
+                height: 3,
+                decoration: BoxDecoration(
+                  gradient: AppDesign.sectionAccentGradient(
+                    Provider.of<ThemeProvider>(context, listen: false).themeStyle,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
               // Show max 10 items in horizontal list
               _buildBookList(context, books.take(10).toList(), emptyMessage),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               // See All Link
-              InkWell(
-                onTap: () => context.go(
-                  seeAllRoute,
-                ), // use go to replace/navigate properly with query params
-                borderRadius: BorderRadius.circular(8),
-                child: Padding(
+              ScaleOnTap(
+                onTap: () => context.go(seeAllRoute),
+                child: Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(AppDesign.radiusRound),
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
+                    ),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -667,19 +684,23 @@ class _DashboardScreenState extends State<DashboardScreen>
                       Text(
                         seeAllLabel,
                         style: TextStyle(
-                          color: Theme.of(context).primaryColor,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 13,
+                          letterSpacing: 0.2,
                         ),
                       ),
-                      const SizedBox(width: 4),
+                      const SizedBox(width: 6),
                       Icon(
                         Icons.arrow_forward_rounded,
                         size: 16,
-                        color: Theme.of(context).primaryColor,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ],
                   ),
+                ),
+              ),
+                  ],
                 ),
               ),
             ],
@@ -696,19 +717,22 @@ class _DashboardScreenState extends State<DashboardScreen>
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    // Theme-aware colors - dark wood for Sorbonne, warm gradient for light themes
-    final bgColor = isDark
-        ? const Color(0xFF2D1810)
-        : const Color(0xFFFFFBF5); // Warm cream white
+    // Theme-aware colors — light themes use a tinted primary wash
     final gradientColors = isDark
-        ? [const Color(0xFF2D1810), const Color(0xFF3D2518)]
+        ? [theme.colorScheme.surface, theme.colorScheme.surface.withValues(alpha: 0.9)]
         : [
-            const Color(0xFFFFF8F0),
-            const Color(0xFFFFE8D6),
-          ]; // Warm peach gradient
+            Color.alphaBlend(
+              theme.colorScheme.primary.withValues(alpha: 0.04),
+              const Color(0xFFFFFBF7),
+            ),
+            Color.alphaBlend(
+              theme.colorScheme.secondary.withValues(alpha: 0.06),
+              const Color(0xFFFFF5ED),
+            ),
+          ];
     final textColor = isDark
-        ? const Color(0xFFC4A35A)
-        : const Color(0xFF8B5A2B); // Richer brown
+        ? theme.colorScheme.onSurface
+        : Color.lerp(theme.colorScheme.primary, const Color(0xFF5D4037), 0.6)!;
 
     // Check if quote is long (more than ~100 chars typically needs expansion)
     final isLongQuote = _dailyQuote!.text.length > 120;
@@ -734,16 +758,13 @@ class _DashboardScreenState extends State<DashboardScreen>
                   colors: gradientColors,
                 ),
                 borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
-                border: isDark
-                    ? Border.all(color: const Color(0xFF5D3A1A), width: 1)
-                    : Border.all(color: const Color(0xFFE8D4C4), width: 1),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+                border: Border.all(
+                  color: isDark
+                      ? theme.colorScheme.outline
+                      : theme.colorScheme.primary.withValues(alpha: 0.12),
+                  width: 1,
+                ),
+                boxShadow: AppDesign.cardShadow,
               ),
               child: Stack(
                 clipBehavior: Clip.hardEdge,
@@ -755,7 +776,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                     child: Icon(
                       Icons.format_quote_rounded,
                       size: 120,
-                      color: textColor.withValues(alpha: 0.08),
+                      color: textColor.withValues(alpha: 0.12),
                     ),
                   ),
                   // Content
@@ -924,46 +945,39 @@ class _DashboardScreenState extends State<DashboardScreen>
     bool isAccent = false,
     VoidCallback? onTap,
   }) {
-    final isSorbonne =
-        Provider.of<ThemeProvider>(context, listen: false).themeStyle ==
-        'sorbonne';
-    final cardBg = isAccent
-        ? Theme.of(context).primaryColor
-        : (isSorbonne ? const Color(0xFF2D1810) : Colors.white);
-    final borderClr = isAccent
-        ? Colors.transparent
-        : (isSorbonne
-              ? const Color(0xFF5D3A1A)
-              : Colors.grey.withValues(alpha: 0.3));
-    final iconClr = isAccent
-        ? Colors.white
-        : (isSorbonne
-              ? const Color(0xFFC4A35A)
-              : Theme.of(context).primaryColor);
-    final valueClr = isAccent
-        ? Colors.white
-        : (isSorbonne ? const Color(0xFFD4A855) : Colors.black87);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final iconClr = isAccent ? Colors.white : theme.colorScheme.primary;
+    final valueClr = isAccent ? Colors.white : theme.colorScheme.onSurface;
     final labelClr = isAccent
-        ? Colors.white70
-        : (isSorbonne ? const Color(0xFF8B7355) : Colors.black54);
+        ? Colors.white.withValues(alpha: 0.8)
+        : theme.colorScheme.onSurfaceVariant;
 
     return ScaleOnTap(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: cardBg,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: borderClr),
+          gradient: isAccent
+              ? LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    theme.colorScheme.primary,
+                    theme.colorScheme.primary.withValues(alpha: 0.85),
+                  ],
+                )
+              : null,
+          color: isAccent ? null : theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(AppDesign.radiusXLarge),
+          border: isAccent
+              ? null
+              : Border.all(
+                  color: theme.colorScheme.outlineVariant,
+                ),
           boxShadow: isAccent
-              ? [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
-                    blurRadius: 10,
-                    offset: const Offset(0, 5),
-                  ),
-                ]
-              : AppDesign.subtleShadow,
+              ? AppDesign.glowShadow(theme.colorScheme.primary)
+              : AppDesign.cardShadow,
         ),
         child: Builder(
           builder: (context) {
@@ -971,23 +985,34 @@ class _DashboardScreenState extends State<DashboardScreen>
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(icon, color: iconClr, size: isDesktop ? 28 : 24),
-                SizedBox(height: isDesktop ? 16 : 12),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: isAccent
+                        ? Colors.white.withValues(alpha: 0.2)
+                        : iconClr.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
+                  ),
+                  child: Icon(icon, color: iconClr, size: isDesktop ? 24 : 20),
+                ),
+                SizedBox(height: isDesktop ? 14 : 10),
                 Text(
                   value,
                   style: TextStyle(
-                    fontSize: isDesktop ? 32 : 24,
-                    fontWeight: FontWeight.bold,
+                    fontSize: isDesktop ? 32 : 26,
+                    fontWeight: FontWeight.w900,
                     color: valueClr,
+                    letterSpacing: -0.5,
                   ),
                 ),
-                SizedBox(height: isDesktop ? 6 : 4),
+                SizedBox(height: isDesktop ? 4 : 2),
                 Text(
                   label,
                   style: TextStyle(
-                    fontSize: isDesktop ? 14 : 12,
-                    fontWeight: FontWeight.w500,
+                    fontSize: isDesktop ? 13 : 11,
+                    fontWeight: FontWeight.w600,
                     color: labelClr,
+                    letterSpacing: 0.3,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -1012,49 +1037,41 @@ class _DashboardScreenState extends State<DashboardScreen>
       icon = Icons.bolt;
     }
 
-    final isSorbonne =
-        Provider.of<ThemeProvider>(context, listen: false).themeStyle ==
-        'sorbonne';
-    final accentColors = isSorbonne
-        ? [const Color(0xFF8B4513), const Color(0xFF5D3A1A)]
-        : [const Color(0xFF667eea), const Color(0xFF764ba2)];
-    final iconColor = isSorbonne
-        ? const Color(0xFFC4A35A)
-        : const Color(0xFF667eea);
+    final themeStyle =
+        Provider.of<ThemeProvider>(context, listen: false).themeStyle;
+    final theme = Theme.of(context);
+    final accentGradient = AppDesign.sectionAccentGradient(themeStyle);
+    final iconColor = theme.colorScheme.primary;
 
     return Container(
       margin: const EdgeInsets.only(top: 8),
       child: Row(
         children: [
           Container(
-            width: 4,
-            height: 28,
+            width: 5,
+            height: 32,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: accentColors,
-              ),
-              borderRadius: BorderRadius.circular(2),
+              gradient: accentGradient,
+              borderRadius: BorderRadius.circular(3),
             ),
           ),
           const SizedBox(width: 12),
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(9),
             decoration: BoxDecoration(
-              color: iconColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(10),
+              color: iconColor.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
             ),
-            child: Icon(icon, size: 18, color: iconColor),
+            child: Icon(icon, size: 20, color: iconColor),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 12),
           Text(
             title,
             style: TextStyle(
               fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: isSorbonne ? const Color(0xFFD4A855) : Colors.black87,
-              letterSpacing: 0.3,
+              fontWeight: FontWeight.w800,
+              color: theme.colorScheme.onSurface,
+              letterSpacing: 0.2,
             ),
           ),
         ],
@@ -1075,7 +1092,9 @@ class _DashboardScreenState extends State<DashboardScreen>
           child: Text(
             emptyMessage,
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.black54),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
         ),
       );

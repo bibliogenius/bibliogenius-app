@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'cached_book_cover.dart';
+import '../theme/app_design.dart';
 
 class SearchResultCard extends StatelessWidget {
   final Map<String, dynamic> book;
@@ -29,21 +30,15 @@ class SearchResultCard extends StatelessWidget {
       height: 160,
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
+        boxShadow: AppDesign.cardShadow,
       ),
       child: Material(
         color: Colors.transparent,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
         child: InkWell(
           onTap: onOpenUrl,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
           child: Row(
             children: [
               // Cover Section
@@ -137,26 +132,27 @@ class SearchResultCard extends StatelessWidget {
   }
 
   Widget _buildCover(String? url, String title, ThemeData theme) {
+    final coverBg = theme.colorScheme.primaryContainer.withValues(alpha: 0.3);
     return Container(
       width: 100,
       height: 160,
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(16),
-          bottomLeft: Radius.circular(16),
+          topLeft: Radius.circular(AppDesign.radiusLarge),
+          bottomLeft: Radius.circular(AppDesign.radiusLarge),
         ),
-        color: const Color(0xFFE0F7FA),
+        color: coverBg,
       ),
       child: ClipRRect(
         borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(16),
-          bottomLeft: Radius.circular(16),
+          topLeft: Radius.circular(AppDesign.radiusLarge),
+          bottomLeft: Radius.circular(AppDesign.radiusLarge),
         ),
         child: CachedBookCover(
           imageUrl: url,
           fit: BoxFit.cover,
           placeholder: Container(
-            color: const Color(0xFFE0F7FA),
+            color: coverBg,
             child: Center(
               child: Text(
                 title.isNotEmpty ? title[0].toUpperCase() : '',

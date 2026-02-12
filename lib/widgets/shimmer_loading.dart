@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_design.dart';
 
 /// A pulsing shimmer placeholder that mimics content shape during loading.
 /// Reusable across the app for any loading state that benefits from
@@ -86,14 +87,8 @@ class SearchResultSkeleton extends StatelessWidget {
         height: 160,
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 3),
-            ),
-          ],
+          borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
+          boxShadow: AppDesign.subtleShadow,
         ),
         child: Row(
           children: [
@@ -106,8 +101,8 @@ class SearchResultSkeleton extends StatelessWidget {
                     .onSurface
                     .withValues(alpha: 0.08),
                 borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  bottomLeft: Radius.circular(16),
+                  topLeft: Radius.circular(AppDesign.radiusLarge),
+                  bottomLeft: Radius.circular(AppDesign.radiusLarge),
                 ),
               ),
               child: Center(
