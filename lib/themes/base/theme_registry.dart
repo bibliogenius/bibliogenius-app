@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'theme_interface.dart';
 import '../default/default_theme.dart';
 import '../minimal/minimal_theme.dart';
-import '../sorbonne/sorbonne_theme.dart';
+import '../dark/dark_theme.dart';
 
 class ThemeRegistry {
   static final Map<String, AppTheme> _themes = {};
@@ -19,7 +19,7 @@ class ThemeRegistry {
 
     register(DefaultTheme());
     register(MinimalTheme());
-    register(SorbonneTheme());
+    register(DarkTheme());
 
     _initialized = true;
     debugPrint('ThemeRegistry: Initialized with ${_themes.length} themes');

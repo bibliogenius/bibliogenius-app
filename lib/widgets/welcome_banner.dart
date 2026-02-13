@@ -29,20 +29,20 @@ class WelcomeBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final displayName = libraryName ?? userName ?? 'BiblioGenius';
     final themeProvider = Provider.of<ThemeProvider>(context);
-    final isSorbonne = themeProvider.themeStyle == 'sorbonne';
+    final isDark = themeProvider.themeStyle == 'dark';
 
     // Theme-aware colors
-    final gradientColors = isSorbonne
-        ? [const Color(0xFF1A0F0A), const Color(0xFF2D1810)] // Dark wood
+    final gradientColors = isDark
+        ? [const Color(0xFF0F172A), const Color(0xFF1E293B)] // Slate dark
         : [const Color(0xFF667eea), const Color(0xFF764ba2)]; // Blue-purple
-    final shadowColor = isSorbonne
+    final shadowColor = isDark
         ? const Color(0xFF000000).withValues(alpha: 0.5)
         : const Color(0xFF667eea).withValues(alpha: 0.3);
-    final iconBgColor = isSorbonne
-        ? const Color(0xFFD4A855).withValues(alpha: 0.2)
+    final iconBgColor = isDark
+        ? const Color(0xFF06B6D4).withValues(alpha: 0.2)
         : Colors.white.withValues(alpha: 0.2);
-    final iconColor = isSorbonne ? const Color(0xFFD4A855) : Colors.white;
-    final textColor = isSorbonne ? const Color(0xFFC4A35A) : Colors.white;
+    final iconColor = isDark ? const Color(0xFF22D3EE) : Colors.white;
+    final textColor = isDark ? const Color(0xFFF8FAFC) : Colors.white;
 
     return Container(
       width: double.infinity,
@@ -57,7 +57,7 @@ class WelcomeBanner extends StatelessWidget {
           colors: gradientColors,
         ),
         borderRadius: BorderRadius.circular(compact ? 16 : 20),
-        border: isSorbonne ? Border.all(color: const Color(0xFF5D3A1A)) : null,
+        border: isDark ? Border.all(color: const Color(0xFF334155)) : null,
         boxShadow: [
           BoxShadow(
             color: shadowColor,

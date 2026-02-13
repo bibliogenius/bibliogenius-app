@@ -22,6 +22,31 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
+class _ProfileCache {
+  static Map<String, dynamic>? _statusData;
+  static DateTime? _cachedAt;
+  static const _ttl = Duration(seconds: 60);
+
+  static Map<String, dynamic>? get() {
+    if (_statusData != null &&
+        _cachedAt != null &&
+        DateTime.now().difference(_cachedAt!) < _ttl) {
+      return _statusData;
+    }
+    return null;
+  }
+
+  static void set(Map<String, dynamic> data) {
+    _statusData = data;
+    _cachedAt = DateTime.now();
+  }
+
+  static void invalidate() {
+    _statusData = null;
+    _cachedAt = null;
+  }
+}
+
 class _ProfileScreenState extends State<ProfileScreen> {
   bool _isLoading = true;
   Map<String, dynamic>? _userStatus;
@@ -36,76 +61,63 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _fetchStatus() async {
+    // Check cache first for instant display
+    final cached = _ProfileCache.get();
+    if (cached != null) {
+      setState(() {
+        _userStatus = cached;
+        _isLoading = false;
+      });
+      // Refresh in background (non-blocking)
+      _fetchFresh(showLoading: false);
+      return;
+    }
+
+    await _fetchFresh(showLoading: true);
+  }
+
+  Future<void> _fetchFresh({required bool showLoading}) async {
     try {
       final apiService = Provider.of<ApiService>(context, listen: false);
-      final statusRes = await apiService.getUserStatus();
-      final configRes = await apiService.getLibraryConfig();
 
-      if (mounted) {
-        // Sync library name from backend
-        final dbName = configRes.data['library_name'] ?? configRes.data['name'];
-        final themeProvider = Provider.of<ThemeProvider>(
-          context,
-          listen: false,
-        );
-        final localName = themeProvider.libraryName;
+      // Parallel: status + config
+      final results = await Future.wait([
+        apiService.getUserStatus(),
+        apiService.getLibraryConfig(),
+      ]);
+      final statusRes = results[0];
+      final configRes = results[1];
 
-        if (dbName != null && localName == 'My Library') {
-          themeProvider.setLibraryName(dbName);
-        }
+      if (!mounted) return;
 
-        // Sync profile type
-        final profileType = configRes.data['profile_type'];
-        if (profileType != null) {
-          themeProvider.setProfileType(profileType);
-        }
+      // Sync library name from backend
+      final dbName = configRes.data['library_name'] ?? configRes.data['name'];
+      final themeProvider = Provider.of<ThemeProvider>(
+        context,
+        listen: false,
+      );
+      final localName = themeProvider.libraryName;
 
-        // Fetch leaderboard if network gamification is enabled
-        if (themeProvider.networkGamificationEnabled) {
-          try {
-            final leaderboardRes = await apiService.refreshLeaderboard();
-            if (mounted && leaderboardRes.statusCode == 200) {
-              final data = leaderboardRes.data as Map<String, dynamic>;
-              _leaderboard = {};
-              for (final domain in [
-                'collector',
-                'reader',
-                'lender',
-                'cataloguer',
-              ]) {
-                _leaderboard![domain] =
-                    (data[domain] as List<dynamic>?)
-                        ?.map((e) {
-                          final entry = LeaderboardEntry.fromJson(
-                            e as Map<String, dynamic>,
-                          );
-                          // Override self entry name with ThemeProvider name
-                          // (DB may be stale in FFI mode)
-                          if (entry.isSelf && localName != 'My Library') {
-                            return LeaderboardEntry(
-                              libraryName: localName,
-                              level: entry.level,
-                              current: entry.current,
-                              isSelf: true,
-                              peerId: entry.peerId,
-                            );
-                          }
-                          return entry;
-                        })
-                        .toList() ??
-                    [];
-              }
-              _lastRefreshed = data['last_refreshed'] as String?;
-            }
-          } catch (e) {
-            debugPrint('Leaderboard fetch failed: $e');
-          }
-        }
+      if (dbName != null && localName == 'My Library') {
+        themeProvider.setLibraryName(dbName);
+      }
 
-        setState(() {
-          _userStatus = statusRes.data;
-          _isLoading = false;
-        });
+      // Sync profile type
+      final profileType = configRes.data['profile_type'];
+      if (profileType != null) {
+        themeProvider.setProfileType(profileType);
+      }
+
+      // Cache and show profile immediately
+      _ProfileCache.set(statusRes.data);
+      setState(() {
+        _userStatus = statusRes.data;
+        _isLoading = false;
+      });
+
+      // Defer leaderboard (non-blocking)
+      if (themeProvider.networkGamificationEnabled) {
+        _fetchLeaderboard(apiService, localName);
       }
     } catch (e) {
       if (mounted) {
@@ -115,6 +127,59 @@ class _ProfileScreenState extends State<ProfileScreen> {
         });
       }
     }
+  }
+
+  Future<void> _fetchLeaderboard(
+    ApiService apiService,
+    String localName,
+  ) async {
+    try {
+      final leaderboardRes = await apiService.refreshLeaderboard();
+      if (!mounted || leaderboardRes.statusCode != 200) return;
+
+      final data = leaderboardRes.data as Map<String, dynamic>;
+      final leaderboard = <String, List<LeaderboardEntry>>{};
+      for (final domain in [
+        'collector',
+        'reader',
+        'lender',
+        'cataloguer',
+      ]) {
+        leaderboard[domain] =
+            (data[domain] as List<dynamic>?)
+                ?.map((e) {
+                  final entry = LeaderboardEntry.fromJson(
+                    e as Map<String, dynamic>,
+                  );
+                  // Override self entry name with ThemeProvider name
+                  // (DB may be stale in FFI mode)
+                  if (entry.isSelf && localName != 'My Library') {
+                    return LeaderboardEntry(
+                      libraryName: localName,
+                      level: entry.level,
+                      current: entry.current,
+                      isSelf: true,
+                      peerId: entry.peerId,
+                    );
+                  }
+                  return entry;
+                })
+                .toList() ??
+            [];
+      }
+
+      setState(() {
+        _leaderboard = leaderboard;
+        _lastRefreshed = data['last_refreshed'] as String?;
+      });
+    } catch (e) {
+      debugPrint('Leaderboard fetch failed: $e');
+    }
+  }
+
+  Future<void> _refreshStatus() async {
+    _ProfileCache.invalidate();
+    await _fetchFresh(showLoading: false);
   }
 
   @override
@@ -153,7 +218,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
 
     return RefreshIndicator(
-      onRefresh: _fetchStatus,
+      onRefresh: _refreshStatus,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: EdgeInsets.symmetric(
@@ -306,7 +371,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     return NetworkLeaderboardCard(
                       leaderboard: _leaderboard!,
                       lastRefreshed: _lastRefreshed,
-                      onRefresh: _fetchStatus,
+                      onRefresh: _refreshStatus,
                     );
                   },
                 ),
@@ -664,6 +729,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       } else {
         await api.updateGamificationConfig(readingGoalYearly: newGoal);
       }
+      _ProfileCache.invalidate();
       _fetchStatus(); // Refresh
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

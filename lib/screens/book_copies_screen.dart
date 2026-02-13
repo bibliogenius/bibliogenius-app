@@ -163,7 +163,7 @@ class _BookCopiesScreenState extends State<BookCopiesScreen>
 
   @override
   Widget build(BuildContext context) {
-    // Sorbonne theme colors are handled by the theme system, no special display needed
+    // Theme colors are handled by the theme system, no special display needed
 
     return Scaffold(
       appBar: AppBar(

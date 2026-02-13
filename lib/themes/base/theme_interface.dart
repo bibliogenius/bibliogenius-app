@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 
 /// Base interface for all BiblioGenius themes
 abstract class AppTheme {
-  /// Unique identifier for the theme (e.g., 'sorbonne', 'minimal')
+  /// Unique identifier for the theme (e.g., 'dark', 'minimal')
   String get id;
 
   /// Displayed name in theme selector
@@ -40,7 +40,7 @@ abstract class AppTheme {
 
   /// Optional custom widgets/decorations specific to this theme
   ///
-  /// Themes like "Sorbonne" can provide custom shelf widgets, card styles, etc.
+  /// Themes can provide custom shelf widgets, card styles, etc.
   ThemeWidgets? get customWidgets => null;
 }
 
@@ -55,7 +55,7 @@ class ThemeWidgets {
   /// Custom background decoration (for immersive themes)
   final BoxDecoration? backgroundDecoration;
 
-  /// Light overlay decoration (e.g., candle glow for Sorbonne)
+  /// Light overlay decoration (e.g., ambient glow effect)
   final BoxDecoration? lightOverlay;
 
   const ThemeWidgets({

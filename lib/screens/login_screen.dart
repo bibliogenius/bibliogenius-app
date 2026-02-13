@@ -217,7 +217,7 @@ class _LoginScreenState extends State<LoginScreen>
 
   void _showServerSettings() {
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
-    final isSorbonne = themeProvider.themeStyle == 'sorbonne';
+    final isDark = themeProvider.themeStyle == 'dark';
 
     // Theme colors
     final primaryColor = Theme.of(context).colorScheme.primary;
@@ -293,21 +293,21 @@ class _LoginScreenState extends State<LoginScreen>
                     hintText: 'http://localhost:8000',
                     prefixIcon: Icon(
                       Icons.link,
-                      color: isSorbonne ? primaryColor : null,
+                      color: isDark ? primaryColor : null,
                     ),
                     filled: true,
-                    fillColor: isSorbonne
+                    fillColor: isDark
                         ? Theme.of(context).scaffoldBackgroundColor
                         : null,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: isSorbonne
+                      borderSide: isDark
                           ? BorderSide(color: primaryColor.withOpacity(0.5))
                           : const BorderSide(),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: isSorbonne
+                      borderSide: isDark
                           ? BorderSide(color: primaryColor.withOpacity(0.3))
                           : const BorderSide(color: Colors.grey),
                     ),
@@ -325,8 +325,8 @@ class _LoginScreenState extends State<LoginScreen>
                         onPressed: () => Navigator.pop(context),
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
-                          foregroundColor: isSorbonne ? primaryColor : null,
-                          side: isSorbonne
+                          foregroundColor: isDark ? primaryColor : null,
+                          side: isDark
                               ? BorderSide(color: primaryColor.withOpacity(0.5))
                               : null,
                           shape: RoundedRectangleBorder(
@@ -374,7 +374,7 @@ class _LoginScreenState extends State<LoginScreen>
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          elevation: isSorbonne ? 4 : 2,
+                          elevation: isDark ? 4 : 2,
                         ),
                         child: Text(
                           TranslationService.translate(context, 'save') ??
@@ -413,11 +413,11 @@ class _LoginScreenState extends State<LoginScreen>
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
-    final isSorbonne = themeProvider.themeStyle == 'sorbonne';
+    final isDark = themeProvider.themeStyle == 'dark';
 
     // Choose background based on theme
-    final Gradient bgGradient = isSorbonne
-        ? AppDesign.sorbonnePageGradient
+    final Gradient bgGradient = isDark
+        ? AppDesign.darkPageGradient
         : AppDesign.primaryGradient;
 
     return Scaffold(

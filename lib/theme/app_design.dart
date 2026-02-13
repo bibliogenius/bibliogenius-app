@@ -25,23 +25,23 @@ class AppDesign {
     stops: [0.0, 1.0],
   );
 
-  /// Theme-aware page gradient - use this for Sorbonne compatibility
+  /// Theme-aware page gradient
   static LinearGradient pageGradientForTheme(String themeStyle) {
-    if (themeStyle == 'sorbonne') {
+    if (themeStyle == 'dark') {
       return const LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [Color(0xFF0D0705), Color(0xFF1A0F0A), Color(0xFF2D1810)],
+        colors: [Color(0xFF0F172A), Color(0xFF1E293B)],
       );
     }
     return pageGradient;
   }
 
-  /// Sorbonne dark wood page gradient
-  static const sorbonnePageGradient = LinearGradient(
+  /// Dark theme page gradient
+  static const darkPageGradient = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [Color(0xFF0D0705), Color(0xFF1A0F0A), Color(0xFF2D1810)],
+    colors: [Color(0xFF0F172A), Color(0xFF1E293B)],
   );
 
   /// Success gradient - Green tones
@@ -323,9 +323,9 @@ class AppDesign {
   /// Theme-aware AppBar gradient
   static LinearGradient appBarGradientForTheme(String themeStyle) {
     switch (themeStyle) {
-      case 'sorbonne':
+      case 'dark':
         return const LinearGradient(
-          colors: [Color(0xFF1A0F0A), Color(0xFF2D1810)],
+          colors: [Color(0xFF0F172A), Color(0xFF1E293B)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         );
@@ -347,11 +347,11 @@ class AppDesign {
   /// Theme-aware section accent gradient (for decorative bars / icons)
   static LinearGradient sectionAccentGradient(String themeStyle) {
     switch (themeStyle) {
-      case 'sorbonne':
+      case 'dark':
         return const LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [Color(0xFF8B4513), Color(0xFF5D3A1A)],
+          colors: [Color(0xFF0891B2), Color(0xFF06B6D4)],
         );
       case 'minimal':
         return const LinearGradient(

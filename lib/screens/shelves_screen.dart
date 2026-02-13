@@ -708,19 +708,19 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
       context,
       listen: false,
     ).themeStyle;
-    final isSorbonne = themeStyle == 'sorbonne';
+    final isDark = themeStyle == 'dark';
 
-    // Autumn palette for Sorbonne, colorful for others
-    final colors = isSorbonne
+    // Cyan palette for dark theme, colorful for others
+    final colors = isDark
         ? [
-            const Color(0xFF8B4513), // Saddle brown
-            const Color(0xFFCD853F), // Peru/tan
-            const Color(0xFFD2691E), // Chocolate
-            const Color(0xFFA0522D), // Sienna
-            const Color(0xFF6B4423), // Dark brown
-            const Color(0xFFCC7722), // Ochre
-            const Color(0xFF8B6914), // Bronze
-            const Color(0xFF704214), // Sepia
+            const Color(0xFF06B6D4), // Cyan
+            const Color(0xFF0891B2), // Cyan dark
+            const Color(0xFF22D3EE), // Cyan light
+            const Color(0xFF0E7490), // Cyan 700
+            const Color(0xFF155E75), // Cyan 800
+            const Color(0xFF67E8F9), // Cyan 300
+            const Color(0xFF0284C7), // Sky 600
+            const Color(0xFF0369A1), // Sky 700
           ]
         : [
             const Color(0xFF667eea), // Indigo

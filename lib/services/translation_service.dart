@@ -662,7 +662,7 @@ class TranslationService {
       'lang_de': 'German',
       'theme_default': 'Default (Colorful)',
       'theme_minimal': 'Minimal (Clean)',
-      'theme_sorbonne': 'Sorbonne (Vintage Library)',
+      'theme_dark': 'Dark (Neon)',
       // Login Screen
       'login_title': 'Login',
       'login_btn': 'Login',
@@ -2391,7 +2391,7 @@ class TranslationService {
       'lang_de': 'Allemand',
       'theme_default': 'Défaut (Coloré)',
       'theme_minimal': 'Minimal (Épuré)',
-      'theme_sorbonne': 'Sorbonne (Bibliothèque Vintage)',
+      'theme_dark': 'Dark (Néon)',
       // Login Screen
       'login_title': 'Connexion',
       'login_btn': 'Se connecter',
@@ -3870,7 +3870,7 @@ class TranslationService {
       'lang_de': 'Alemán',
       'theme_default': 'Por defecto (Colorido)',
       'theme_minimal': 'Minimalista (Limpio)',
-      'theme_sorbonne': 'Sorbonne (Biblioteca Vintage)',
+      'theme_dark': 'Dark (Neón)',
       // Login Screen
       'login_title': 'Iniciar sesión',
       'login_btn': 'Iniciar sesión',
@@ -4619,7 +4619,7 @@ class TranslationService {
       'lang_de': 'Alemán',
       'theme_default': 'Standard (Bunt)',
       'theme_minimal': 'Minimal (Sauber)',
-      'theme_sorbonne': 'Sorbonne (Vintage Bibliothek)',
+      'theme_dark': 'Dark (Neon)',
       // Login Screen
       'login_title': 'Anmelden',
       'login_btn': 'Anmelden',

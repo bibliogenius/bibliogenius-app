@@ -14,24 +14,24 @@ class BookCoverCard extends StatelessWidget {
 
   const BookCoverCard({super.key, required this.book, required this.onTap});
 
-  // Autumn/vintage palette for Sorbonne theme
-  static const List<Color> _autumnColors = [
-    Color(0xFF8B4513), // Saddle brown
-    Color(0xFFCD853F), // Peru/tan
-    Color(0xFFD2691E), // Chocolate
-    Color(0xFFA0522D), // Sienna
-    Color(0xFF6B4423), // Dark brown
-    Color(0xFFCC7722), // Ochre
-    Color(0xFF8B6914), // Bronze
-    Color(0xFF704214), // Sepia
+  // Cyan palette for dark theme
+  static const List<Color> _darkColors = [
+    Color(0xFF06B6D4), // Cyan 500
+    Color(0xFF0891B2), // Cyan 600
+    Color(0xFF22D3EE), // Cyan 400
+    Color(0xFF0E7490), // Cyan 700
+    Color(0xFF155E75), // Cyan 800
+    Color(0xFF67E8F9), // Cyan 300
+    Color(0xFF0284C7), // Sky 600
+    Color(0xFF0369A1), // Sky 700
   ];
 
   Color _getColorFromId(BuildContext context, int id) {
-    final isSorbonne =
+    final isDark =
         Provider.of<ThemeProvider>(context, listen: false).themeStyle ==
-        'sorbonne';
-    if (isSorbonne) {
-      return _autumnColors[id % _autumnColors.length];
+        'dark';
+    if (isDark) {
+      return _darkColors[id % _darkColors.length];
     }
     final random = Random(id);
     return Color.fromARGB(

@@ -991,7 +991,6 @@ class _ContactsListViewState extends State<ContactsListView> {
     if (!isCompact) {
       // Wide screen: standard ListTile with trailing icons
       return Card(
-        color: Colors.white,
         surfaceTintColor: Colors.transparent,
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: ListTile(
@@ -1014,7 +1013,6 @@ class _ContactsListViewState extends State<ContactsListView> {
 
     // Narrow screen: two-row layout (name/status on top, icons on bottom)
     return Card(
-      color: Colors.white,
       surfaceTintColor: Colors.transparent,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: InkWell(
@@ -1086,7 +1084,6 @@ class _ContactsListViewState extends State<ContactsListView> {
     // For contacts (1 icon), keep simple ListTile layout
     if (!isNetwork) {
       return Card(
-        color: Colors.white,
         surfaceTintColor: Colors.transparent,
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: ListTile(
@@ -1191,7 +1188,6 @@ class _ContactsListViewState extends State<ContactsListView> {
     if (!isCompact) {
       // Wide screen: standard ListTile with trailing icons
       return Card(
-        color: Colors.white,
         surfaceTintColor: Colors.transparent,
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: ListTile(
@@ -1215,7 +1211,6 @@ class _ContactsListViewState extends State<ContactsListView> {
     final statusColor = isOnline ? Colors.green : Colors.grey;
 
     return Card(
-      color: Colors.white,
       surfaceTintColor: Colors.transparent,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: InkWell(

@@ -714,7 +714,7 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
       debugShowCheckedModeBanner: false,
       theme: themeProvider.themeData,
       // Disable theme animation to prevent TextStyle.lerp errors when switching between
-      // themes with different inherit values (e.g., Sorbonne vs Default)
+      // themes with different inherit values (e.g., Dark vs Default)
       themeAnimationDuration: Duration.zero,
       themeAnimationStyle: AnimationStyle.noAnimation,
       locale: themeProvider.locale,

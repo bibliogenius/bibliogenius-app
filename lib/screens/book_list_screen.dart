@@ -782,7 +782,7 @@ class _BookListScreenState extends State<BookListScreen>
       key: const ValueKey('search_autocomplete'),
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
         boxShadow: AppDesign.subtleShadow,
       ),
@@ -824,11 +824,11 @@ class _BookListScreenState extends State<BookListScreen>
           return TextField(
             controller: textEditingController,
             focusNode: focusNode,
-            style: const TextStyle(color: Colors.black87),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
             decoration: InputDecoration(
               hintText: TranslationService.translate(context, 'search_books'),
-              hintStyle: const TextStyle(color: Colors.black38),
-              prefixIcon: const Icon(Icons.search, color: Colors.black54),
+              hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4)),
+              prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
               border: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 20,
@@ -849,7 +849,7 @@ class _BookListScreenState extends State<BookListScreen>
             alignment: Alignment.topLeft,
             child: Material(
               elevation: 4.0,
-              color: Colors.white,
+              color: Theme.of(context).cardColor,
               borderRadius: BorderRadius.circular(12),
               child: ConstrainedBox(
                 constraints: const BoxConstraints(

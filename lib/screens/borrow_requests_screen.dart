@@ -390,7 +390,6 @@ class _LoansScreenState extends State<LoansScreen>
         DateTime.tryParse(dueDate)?.isBefore(DateTime.now()) == true;
 
     return Card(
-      color: Colors.white,
       surfaceTintColor: Colors.transparent,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ListTile(
@@ -551,7 +550,6 @@ class _LoansScreenState extends State<LoansScreen>
     }
 
     return Card(
-      color: Colors.white,
       surfaceTintColor: Colors.transparent,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ListTile(
@@ -741,7 +739,6 @@ class _LoansScreenState extends State<LoansScreen>
     final status = req['status'] ?? 'pending';
 
     return Card(
-      color: Colors.white,
       surfaceTintColor: Colors.transparent,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ListTile(
@@ -766,7 +763,6 @@ class _LoansScreenState extends State<LoansScreen>
     final url = peer['url'] ?? '';
 
     return Card(
-      color: Colors.white,
       surfaceTintColor: Colors.transparent,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ListTile(

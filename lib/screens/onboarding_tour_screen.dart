@@ -22,18 +22,18 @@ class _OnboardingTourScreenState extends State<OnboardingTourScreen>
   late Animation<double> _iconRotationAnimation;
 
   // Slide data for cleaner code
-  // Slide data - theme-aware for Sorbonne
+  // Slide data - theme-aware for dark mode
   List<_SlideData> _getSlides(BuildContext context) {
-    final isSorbonne =
+    final isDark =
         Provider.of<ThemeProvider>(context, listen: false).themeStyle ==
-        'sorbonne';
+        'dark';
 
-    // Autumn gradient palette for Sorbonne
-    final sorbonneGradients = [
-      [const Color(0xFF6B4423), const Color(0xFF8B4513)], // Brown
-      [const Color(0xFFCC7722), const Color(0xFFCD853F)], // Ochre/Tan
-      [const Color(0xFF704214), const Color(0xFFA0522D)], // Sepia/Sienna
-      [const Color(0xFF8B6914), const Color(0xFFD2691E)], // Bronze/Chocolate
+    // Cyan gradient palette for dark theme
+    final darkGradients = [
+      [const Color(0xFF06B6D4), const Color(0xFF0891B2)], // Cyan
+      [const Color(0xFF0891B2), const Color(0xFF0E7490)], // Cyan dark
+      [const Color(0xFF22D3EE), const Color(0xFF06B6D4)], // Cyan light
+      [const Color(0xFF0284C7), const Color(0xFF0369A1)], // Sky
     ];
 
     final defaultGradients = [
@@ -43,7 +43,7 @@ class _OnboardingTourScreenState extends State<OnboardingTourScreen>
       [const Color(0xFFEC4899), const Color(0xFFDB2777)],
     ];
 
-    final gradients = isSorbonne ? sorbonneGradients : defaultGradients;
+    final gradients = isDark ? darkGradients : defaultGradients;
 
     return [
       _SlideData(
