@@ -493,8 +493,7 @@ class _ScanScreenState extends State<ScanScreen> {
             icon: const Icon(Icons.cameraswitch),
             onPressed: () => controller.switchCamera(),
             tooltip:
-                TranslationService.translate(context, 'switch_camera') ??
-                'Switch Camera',
+                TranslationService.translate(context, 'switch_camera'),
           ),
         ],
       ),
@@ -624,8 +623,7 @@ class _ScanScreenState extends State<ScanScreen> {
             left: 20,
             right: 20,
             child: Text(
-              TranslationService.translate(context, 'scan_instruction') ??
-                  'Align barcode within the frame',
+              TranslationService.translate(context, 'scan_instruction'),
               textAlign: TextAlign.center,
               style: const TextStyle(
                 color: Colors.white,
@@ -679,7 +677,7 @@ class _ScanScreenState extends State<ScanScreen> {
                       ),
                     const SizedBox(height: 4),
                     Text(
-                      '$_batchCount ${TranslationService.translate(context, 'books_added') ?? 'livres ajoutés'}',
+                      '$_batchCount ${TranslationService.translate(context, 'books_added')}',
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.8),
                         fontSize: 12,
@@ -699,8 +697,7 @@ class _ScanScreenState extends State<ScanScreen> {
                 ? ElevatedButton.icon(
                     icon: const Icon(Icons.done),
                     label: Text(
-                      TranslationService.translate(context, 'done') ??
-                          'Terminé',
+                      TranslationService.translate(context, 'done'),
                     ),
                     onPressed: () => context.pop(_batchCount > 0),
                     style: ElevatedButton.styleFrom(

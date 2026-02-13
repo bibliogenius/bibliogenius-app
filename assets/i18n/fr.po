@@ -94,9 +94,17 @@ msgstr "Recherche distante"
 msgid "action_share"
 msgstr "Partager"
 
+#. Browse only — disappears when offline
+msgid "active_explanation"
+msgstr "Consultation seule — disparaît hors ligne"
+
 #. Active
 msgid "active_loans"
 msgstr "En cours"
+
+#. Browse only — tap + to enable loans and sync
+msgid "active_peer_hint"
+msgstr "Consultation seule — appuyez sur + pour les prêts et la synchro"
 
 #. Add a book
 msgid "add_book_button"
@@ -125,6 +133,10 @@ msgstr "Ajouter une collection"
 #. Add Contact
 msgid "add_contact"
 msgstr "Ajouter un contact"
+
+#. Add a connection
+msgid "add_connection_title"
+msgstr "Ajouter une connexion"
 
 #. Add a contact or scan a QR code to connect with friends.
 msgid "add_contact_or_scan_help"
@@ -936,6 +948,10 @@ msgstr "Félicitations !"
 msgid "connect"
 msgstr "Se connecter"
 
+#. Loans, sync, persists offline, editable
+msgid "connected_explanation"
+msgstr "Prêts, synchro, persiste hors ligne, modifiable"
+
 #. Connected to
 msgid "connected_to"
 msgstr "Connecté à"
@@ -943,6 +959,10 @@ msgstr "Connecté à"
 #. Connection error
 msgid "connection_error"
 msgstr "Erreur de connexion"
+
+#. You can now manage loans and sync books
+msgid "connection_success_hint"
+msgstr "Vous pouvez maintenant gérer les prêts et synchroniser les livres"
 
 #. Failed to connect
 msgid "connection_failed"
@@ -2566,7 +2586,7 @@ msgstr "Accueil"
 
 #. Ask your friend to open their app, go to \"Network\" and tap the + button at the bottom right of the screen, then tap \"Show My Code\". On your side, tap \"Scan QR Code\" to add them instantly.
 msgid "how_to_add_contact_help_desc"
-msgstr "Demandez à votre ami d'ouvrir son application, d'aller dans \"Réseau\" et de cliquer sur le lien + en bas à droite de l'écran puis sur \"Afficher mon code\". De votre côté, cliquez sur \"Scannez le QR Code\" pour l'ajouter instantanément. "
+msgstr "Se connecter permet de gérer les prêts et synchroniser les livres. Demandez à votre ami d'ouvrir son appli, d'aller dans \"Réseau\" et d'appuyer sur +, puis \"Afficher mon code\". De votre côté, appuyez sur \"Scanner le QR Code\" pour vous connecter instantanément."
 
 #. Add Contact via QR Code
 msgid "how_to_add_contact_help_title"
@@ -2912,9 +2932,9 @@ msgstr "Prêté"
 msgid "lent_to"
 msgstr "Prêté à"
 
-#. Let someone scan your library
+#. Display your code for a friend to scan
 msgid "let_someone_scan_your_library"
-msgstr "Laissez quelqu"
+msgstr "Affichez votre code pour qu'un ami le scanne"
 
 #. Level
 msgid "level"
@@ -3144,6 +3164,10 @@ msgstr "Prêts & Emprunts"
 #. Make sure other BiblioGenius users are connected to the same WiFi network.
 msgid "local_discovery_help"
 msgstr "Assurez-vous que d'autres utilisateurs BiblioGenius sont connectés au même réseau WiFi."
+
+#. Libraries detected on your Wi-Fi
+msgid "local_network_hint"
+msgstr "Bibliothèques détectées sur votre Wi-Fi"
 
 #. Local Network
 msgid "local_network_title"
@@ -4439,9 +4463,9 @@ msgstr "Enregistrement en cours..."
 msgid "scan_first_book"
 msgstr "Scanner mon premier livre"
 
-#. Scan a friend
+#. Scan a friend's code to enable loans and sync
 msgid "scan_friend_qr_code"
-msgstr "Scannez le code de la bibliothèque d"
+msgstr "Scannez le code d'un ami pour activer les prêts et la synchro"
 
 #. Align barcode within the frame
 msgid "scan_instruction"
@@ -4825,6 +4849,22 @@ msgstr "Afficher les livres empruntés"
 #. Include borrowed books in your library view
 msgid "show_borrowed_subtitle"
 msgstr "Inclure les livres empruntés dans la vue bibliothèque"
+
+#. When someone scans this code, they can connect to your library for loans and sync.
+msgid "show_code_explanation"
+msgstr "Quand quelqu'un scanne ce code, il peut se connecter à votre bibliothèque pour les prêts et la synchronisation."
+
+#. Show this code to a friend
+msgid "show_code_step_1"
+msgstr "Montrez ce code à un ami"
+
+#. They tap + then "Scan QR Code" in their app
+msgid "show_code_step_2"
+msgstr "Il appuie sur + puis \"Scanner le QR Code\" dans son appli"
+
+#. You both get access to loans and sync
+msgid "show_code_step_3"
+msgstr "Vous obtenez tous les deux accès aux prêts et à la synchro"
 
 #. Show My Code
 msgid "show_my_code"
@@ -5361,9 +5401,9 @@ msgstr "Lecteur"
 msgid "two_factor_auth"
 msgstr "Authentification à deux facteurs"
 
-#. Type contact details
+#. For borrowers who don't use the app
 msgid "type_contact_details"
-msgstr "Saisir les détails du contact"
+msgstr "Pour les emprunteurs qui n'utilisent pas l'appli"
 
 #. Understood
 msgid "understood"

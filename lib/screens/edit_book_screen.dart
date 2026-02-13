@@ -647,22 +647,20 @@ class _EditBookScreenState extends State<EditBookScreen> {
               onPressed: () => context.push('/search/external'),
             )
           else
-            OutlinedButton.icon(
+            TextButton.icon(
               onPressed: () => context.push('/search/external'),
-              icon: const Icon(Icons.travel_explore, size: 18),
+              icon: Icon(
+                Icons.travel_explore,
+                color: Theme.of(context).appBarTheme.foregroundColor,
+              ),
               label: Text(
                 TranslationService.translate(context, 'btn_search_online'),
-              ),
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                style: TextStyle(
+                  color: Theme.of(context).appBarTheme.foregroundColor,
                 ),
               ),
             ),
+          const SizedBox(width: 8),
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
             child: _isSaving

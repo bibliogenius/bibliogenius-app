@@ -62,11 +62,25 @@ class _NetworkScreenState extends State<NetworkScreen>
       context: context,
       builder: (sheetContext) {
         return SafeArea(
-          child: Wrap(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                child: Text(
+                  TranslationService.translate(context, 'add_connection_title'),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const Divider(height: 1),
               ListTile(
                 key: const Key('actionEnterManually'),
-                leading: const Icon(Icons.edit),
+                leading: CircleAvatar(
+                  backgroundColor: Colors.orange.shade100,
+                  child: Icon(Icons.edit, color: Colors.orange.shade700),
+                ),
                 title: Text(
                   TranslationService.translate(context, 'enter_manually'),
                 ),
@@ -84,7 +98,10 @@ class _NetworkScreenState extends State<NetworkScreen>
               const Divider(height: 1),
               ListTile(
                 key: const Key('actionScanQr'),
-                leading: const Icon(Icons.qr_code_scanner),
+                leading: CircleAvatar(
+                  backgroundColor: Colors.blue.shade100,
+                  child: Icon(Icons.qr_code_scanner, color: Colors.blue.shade700),
+                ),
                 title: Text(
                   TranslationService.translate(context, 'scan_qr_code'),
                 ),
@@ -102,7 +119,10 @@ class _NetworkScreenState extends State<NetworkScreen>
               const Divider(height: 1),
               ListTile(
                 key: const Key('actionShowMyCode'),
-                leading: const Icon(Icons.qr_code),
+                leading: CircleAvatar(
+                  backgroundColor: Colors.purple.shade100,
+                  child: Icon(Icons.qr_code, color: Colors.purple.shade700),
+                ),
                 title: Text(
                   TranslationService.translate(context, 'show_my_code'),
                 ),
@@ -134,6 +154,7 @@ class _NetworkScreenState extends State<NetworkScreen>
                   );
                 },
               ),
+              const SizedBox(height: 8),
             ],
           ),
         );
@@ -551,6 +572,10 @@ class _ContactsListViewState extends State<ContactsListView> {
                         ),
                         Icons.wifi,
                         key: const Key('localNetworkSection'),
+                        subtitle: TranslationService.translate(
+                          context,
+                          'local_network_hint',
+                        ),
                       ),
                       ..._localPeers.map((peer) => _buildLocalPeerTile(peer)),
                     ],
@@ -693,23 +718,23 @@ class _ContactsListViewState extends State<ContactsListView> {
                 context,
                 'how_to_add_contact_help_desc',
               ),
-              style: const TextStyle(fontSize: 16, height: 1.5),
+              style: const TextStyle(fontSize: 14, height: 1.5),
             ),
             const SizedBox(height: 20),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: Theme.of(context).colorScheme.outlineVariant,
-                ),
-              ),
-              child: Icon(
-                Icons.qr_code_scanner,
-                size: 48,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
+            _buildComparisonRow(
+              context,
+              icon: Icons.wifi,
+              color: Colors.blue,
+              label: TranslationService.translate(context, 'status_active'),
+              description: TranslationService.translate(context, 'active_explanation'),
+            ),
+            const SizedBox(height: 10),
+            _buildComparisonRow(
+              context,
+              icon: Icons.link,
+              color: Colors.green,
+              label: TranslationService.translate(context, 'status_connected'),
+              description: TranslationService.translate(context, 'connected_explanation'),
             ),
           ],
         ),
@@ -717,6 +742,55 @@ class _ContactsListViewState extends State<ContactsListView> {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(TranslationService.translate(context, 'understood')),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildComparisonRow(
+    BuildContext context, {
+    required IconData icon,
+    required Color color,
+    required String label,
+    required String description,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 16,
+            backgroundColor: color,
+            child: Icon(icon, size: 16, color: Colors.white),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                    color: color,
+                  ),
+                ),
+                Text(
+                  description,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -805,6 +879,7 @@ class _ContactsListViewState extends State<ContactsListView> {
     String title,
     IconData icon, {
     Key? key,
+    String? subtitle,
   }) {
     return Container(
       key: key,
@@ -816,11 +891,26 @@ class _ContactsListViewState extends State<ContactsListView> {
         children: [
           Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary),
           const SizedBox(width: 8),
-          Text(
-            title,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.primary,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+                if (subtitle != null)
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+              ],
             ),
           ),
         ],
@@ -830,18 +920,21 @@ class _ContactsListViewState extends State<ContactsListView> {
 
   /// Builds a visual status badge with rounded corners and semi-transparent background
   Widget _buildStatusBadge(String text, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-          color: color,
+    return UnconstrainedBox(
+      alignment: Alignment.centerLeft,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Text(
+          text,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: color,
+          ),
         ),
       ),
     );
@@ -976,9 +1069,12 @@ class _ContactsListViewState extends State<ContactsListView> {
                 }
               : null,
         ),
-        IconButton(
-          icon: const Icon(Icons.add_circle_outline),
-          tooltip: TranslationService.translate(context, 'connect'),
+        FilledButton.tonalIcon(
+          icon: const Icon(Icons.add, size: 18),
+          label: Text(
+            TranslationService.translate(context, 'connect'),
+            style: const TextStyle(fontSize: 13),
+          ),
           onPressed: () async {
             final api = Provider.of<ApiService>(context, listen: false);
             try {
@@ -1034,6 +1130,7 @@ class _ContactsListViewState extends State<ContactsListView> {
     }
 
     final statusBadge = _buildStatusBadge(badgeText, badgeColor);
+    final isActiveOnly = mergedMember == null && !isPending;
 
     // Use compact two-row layout on narrow screens to avoid icon overflow
     final isCompact = MediaQuery.of(context).size.width < 600;
@@ -1067,6 +1164,17 @@ class _ContactsListViewState extends State<ContactsListView> {
                   ),
                 ),
               statusBadge,
+              if (isActiveOnly)
+                Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Text(
+                    TranslationService.translate(context, 'active_peer_hint'),
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
             ],
           ),
           isThreeLine: showDeviceName,
@@ -1125,6 +1233,17 @@ class _ContactsListViewState extends State<ContactsListView> {
                           ),
                         const SizedBox(height: 4),
                         statusBadge,
+                        if (isActiveOnly)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 2),
+                            child: Text(
+                              TranslationService.translate(context, 'active_peer_hint'),
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ),
                       ],
                     ),
                   ),
@@ -1346,23 +1465,30 @@ class _ShareContactViewState extends State<ShareContactView> {
   @override
   void initState() {
     super.initState();
+    debugPrint('📱 [QR] ShareContactView.initState()');
     _initQRData();
   }
 
   Future<void> _initQRData() async {
-    // Generate QR Data
-    final apiService = Provider.of<ApiService>(context, listen: false);
+    debugPrint('📱 [QR] _initQRData() START');
     try {
+      final apiService = Provider.of<ApiService>(context, listen: false);
+      debugPrint('📱 [QR] Got ApiService OK');
+
       // Use the same multi-strategy IP resolution as mDNS/peer handshake
       String? localIp;
       try {
         final info = NetworkInfo();
         final wifiIp = await info.getWifiIP();
+        debugPrint('📱 [QR] NetworkInfo.getWifiIP() = $wifiIp');
         if (wifiIp != null && !wifiIp.startsWith('169.254.')) {
           localIp = wifiIp;
         }
-      } catch (_) {}
+      } catch (e) {
+        debugPrint('📱 [QR] NetworkInfo error: $e');
+      }
       localIp ??= await MdnsService.getValidLanIp();
+      debugPrint('📱 [QR] Final localIp = $localIp');
 
       if (localIp == null) {
         debugPrint('⚠️ QR: No valid LAN IP found for QR code');
@@ -1372,6 +1498,7 @@ class _ShareContactViewState extends State<ShareContactView> {
 
       final configRes = await apiService.getLibraryConfig();
       String libraryName = configRes.data['library_name'] ?? 'My Library';
+      debugPrint('📱 [QR] libraryName = $libraryName');
 
       final data = {
         "name": libraryName,
@@ -1382,69 +1509,134 @@ class _ShareContactViewState extends State<ShareContactView> {
           _qrData = jsonEncode(data);
           _isLoading = false;
         });
+        debugPrint('📱 [QR] QR data ready: $_qrData');
       }
-    } catch (e) {
+    } catch (e, stack) {
+      debugPrint('📱 [QR] ERROR in _initQRData: $e');
+      debugPrint('📱 [QR] Stack: $stack');
       if (mounted) setState(() => _isLoading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) return const Center(child: CircularProgressIndicator());
+    debugPrint('📱 [QR] build() — isLoading=$_isLoading, qrData=${_qrData != null}');
+    if (_isLoading) {
+      return const SizedBox(
+        height: 200,
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
 
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          if (_qrData != null)
-            QrImageView(
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (_qrData != null) ...[
+          // Info banner
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primaryContainer,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.info_outline,
+                  size: 20,
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    TranslationService.translate(context, 'show_code_explanation'),
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          // QR code
+          SizedBox(
+            width: 200,
+            height: 200,
+            child: QrImageView(
               key: const Key('myQrCode'),
               data: _qrData!,
               version: QrVersions.auto,
               size: 200.0,
-            )
-          else
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.wifi_off,
-                    size: 48,
-                    color: Theme.of(context).colorScheme.error,
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    TranslationService.translate(context, 'qr_error'),
-                    style: Theme.of(context).textTheme.titleMedium,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    TranslationService.translate(context, 'qr_wifi_suggestion'),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
             ),
+          ),
           const SizedBox(height: 16),
-          if (_qrData != null)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: Text(
-                TranslationService.translate(context, 'share_code_instruction'),
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+          // Numbered steps
+          _buildStep(context, 1, TranslationService.translate(context, 'show_code_step_1')),
+          const SizedBox(height: 8),
+          _buildStep(context, 2, TranslationService.translate(context, 'show_code_step_2')),
+          const SizedBox(height: 8),
+          _buildStep(context, 3, TranslationService.translate(context, 'show_code_step_3')),
+        ] else
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.wifi_off,
+                  size: 48,
+                  color: Theme.of(context).colorScheme.error,
                 ),
-              ),
+                const SizedBox(height: 12),
+                Text(
+                  TranslationService.translate(context, 'qr_error'),
+                  style: Theme.of(context).textTheme.titleMedium,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  TranslationService.translate(context, 'qr_wifi_suggestion'),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
             ),
-        ],
-      ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildStep(BuildContext context, int number, String text) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        CircleAvatar(
+          radius: 12,
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          child: Text(
+            '$number',
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            text,
+            style: TextStyle(
+              fontSize: 13,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

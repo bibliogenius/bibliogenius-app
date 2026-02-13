@@ -112,8 +112,8 @@ void main() {
       // onPressed: () { context.push('/books/add'); },
       expect(mockRouter.lastExtra, null);
 
-      // Verify instruction text
-      expect(find.textContaining('Align', skipOffstage: false), findsOneWidget);
+      // Verify instruction text (translate returns the key when no PO files are loaded)
+      expect(find.textContaining('scan_instruction', skipOffstage: false), findsOneWidget);
     });
   });
 }
