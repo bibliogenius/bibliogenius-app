@@ -6,6 +6,7 @@ import '../models/avatar_config.dart';
 import '../services/api_service.dart';
 import '../services/auth_service.dart';
 import '../services/mdns_service.dart';
+import '../services/translation_service.dart';
 import '../themes/base/theme_registry.dart';
 
 class ThemeProvider with ChangeNotifier {
@@ -16,6 +17,13 @@ class ThemeProvider with ChangeNotifier {
   bool get isSetupComplete => _isSetupComplete;
   Locale _locale = const Locale('en');
   Locale get locale => _locale;
+
+  // User reading languages (multi-select, persisted as JSON in SharedPreferences)
+  List<String> _userLanguages = [];
+  List<String> get userLanguages => List.unmodifiable(_userLanguages);
+
+  // Delegates to TranslationService.supportedLocales (single source of truth)
+  static List<String> get supportedUILanguages => TranslationService.supportedLocales;
 
   String _themeStyle = 'default';
   String get themeStyle => _themeStyle;
@@ -186,12 +194,33 @@ class ThemeProvider with ChangeNotifier {
     } else {
       // Auto-detect system language on first launch
       final systemLocale = WidgetsBinding.instance.platformDispatcher.locale;
-      final supportedLanguages = ['en', 'fr', 'es', 'de'];
-      if (supportedLanguages.contains(systemLocale.languageCode)) {
+      if (supportedUILanguages.contains(systemLocale.languageCode)) {
         _locale = Locale(systemLocale.languageCode);
       } else {
         _locale = const Locale('en'); // Fallback to English
       }
+    }
+
+    // Load user reading languages
+    final userLangsJson = prefs.getString('userLanguages');
+    if (userLangsJson != null) {
+      try {
+        final decoded = List<String>.from(jsonDecode(userLangsJson));
+        _userLanguages = decoded.isNotEmpty ? decoded : [_locale.languageCode];
+      } catch (e) {
+        debugPrint('Error loading userLanguages: $e');
+        _userLanguages = [_locale.languageCode];
+      }
+    } else {
+      // First launch: default to UI locale + system locale if different
+      final systemLang = WidgetsBinding.instance
+          .platformDispatcher.locale.languageCode;
+      _userLanguages = {_locale.languageCode, systemLang}.toList();
+    }
+
+    // If UI locale is no longer reachable, auto-switch and persist
+    if (_ensureLocaleConsistency()) {
+      await prefs.setString('languageCode', _locale.languageCode);
     }
 
     _currentAvatarId = prefs.getString('avatarId') ?? 'individual';
@@ -416,6 +445,28 @@ class ThemeProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> setUserLanguages(List<String> langs) async {
+    if (langs.isEmpty) return;
+    _userLanguages = List<String>.from(langs);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('userLanguages', jsonEncode(_userLanguages));
+    if (_ensureLocaleConsistency()) {
+      await prefs.setString('languageCode', _locale.languageCode);
+    }
+    notifyListeners();
+  }
+
+  /// Ensures the current UI locale is a supported UI language.
+  /// Reading languages and UI language are independent concerns.
+  /// Returns true if the locale was changed (caller should persist).
+  bool _ensureLocaleConsistency() {
+    if (supportedUILanguages.contains(_locale.languageCode)) {
+      return false;
+    }
+    _locale = const Locale('en');
+    return true;
+  }
+
   Future<void> setAvatarId(String avatarId) async {
     _currentAvatarId = avatarId;
     final prefs = await SharedPreferences.getInstance();
@@ -494,8 +545,7 @@ class ThemeProvider with ChangeNotifier {
 
     // Auto-detect language from device
     final systemLocale = WidgetsBinding.instance.platformDispatcher.locale;
-    final supportedLanguages = ['en', 'fr', 'es', 'de'];
-    if (supportedLanguages.contains(systemLocale.languageCode)) {
+    if (supportedUILanguages.contains(systemLocale.languageCode)) {
       _locale = Locale(systemLocale.languageCode);
       await prefs.setString('languageCode', systemLocale.languageCode);
     } else {

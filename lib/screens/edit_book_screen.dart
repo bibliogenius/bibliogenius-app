@@ -647,16 +647,19 @@ class _EditBookScreenState extends State<EditBookScreen> {
               onPressed: () => context.push('/search/external'),
             )
           else
-            TextButton.icon(
+            OutlinedButton.icon(
               onPressed: () => context.push('/search/external'),
-              icon: Icon(
-                Icons.travel_explore,
-                color: Theme.of(context).appBarTheme.foregroundColor,
-              ),
+              icon: const Icon(Icons.travel_explore, size: 18),
               label: Text(
                 TranslationService.translate(context, 'btn_search_online'),
-                style: TextStyle(
-                  color: Theme.of(context).appBarTheme.foregroundColor,
+              ),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
             ),
@@ -675,24 +678,24 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       ),
                     ),
                   )
-                : TextButton(
+                : ElevatedButton.icon(
                     onPressed: _saveBook,
-                    style: TextButton.styleFrom(
-                      backgroundColor: Colors.white.withValues(alpha: 0.2),
-                      foregroundColor:
-                          Theme.of(context).appBarTheme.foregroundColor ??
-                          Colors.white,
+                    icon: const Icon(Icons.check, size: 18),
+                    label: Text(
+                      TranslationService.translate(context, 'save_changes') ??
+                          'Save',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          Theme.of(context).colorScheme.primary,
+                      foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 8,
                       ),
-                    ),
-                    child: Text(
-                      TranslationService.translate(context, 'save_changes') ??
-                          'Save',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
                   ),

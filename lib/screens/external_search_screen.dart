@@ -17,6 +17,7 @@ import 'package:go_router/go_router.dart';
 import '../theme/app_design.dart';
 
 import '../utils/book_url_helper.dart';
+import '../utils/language_constants.dart';
 import 'web_view_screen.dart';
 
 class ExternalSearchScreen extends StatefulWidget {
@@ -49,25 +50,11 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
   bool _sourcesLoaded = false;
   bool _initialSearchDone = false;
 
-  // Language filter (defaults to user's language)
-  // _selectedLanguage: null = "all languages" (no strict filter, but still prioritize user's lang)
-  // _userLanguage: device/app language, used for sorting prioritization
+  // Language filter (defaults to user's reading languages)
+  // _selectedLanguage: null = "my languages" (all userLanguages sent as comma-separated)
+  // _selectedLanguage: '*' = "all languages" (no lang param, no prioritization)
+  // _selectedLanguage: 'fr' etc. = specific single language
   String? _selectedLanguage;
-  String _userLanguage =
-      'en'; // Default fallback, updated in didChangeDependencies
-  static const _languageOptions = [
-    {'value': null, 'label': 'Toutes les langues', 'labelKey': 'all_languages'},
-    {'value': 'fr', 'label': 'Français'},
-    {'value': 'en', 'label': 'English'},
-    {'value': 'es', 'label': 'Español'},
-    {'value': 'de', 'label': 'Deutsch'},
-    {'value': 'it', 'label': 'Italiano'},
-    {'value': 'pt', 'label': 'Português'},
-    {'value': 'nl', 'label': 'Nederlands'},
-    {'value': 'ru', 'label': 'Русский'},
-    {'value': 'ja', 'label': '日本語'},
-    {'value': 'zh', 'label': '中文'},
-  ];
 
   Set<String> _availableSources =
       {}; // Populated from search results for post-filtering
@@ -80,22 +67,9 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Store user's device language for prioritization
-    final deviceLang = Localizations.localeOf(context).languageCode;
-    _userLanguage = deviceLang;
 
-    // Initialize language filter dropdown (only once, on first load)
-    // Default to user's device language for better UX
     if (!_sourcesLoaded) {
-      // Pre-select user's language if it's in our supported list
-      final supportedLangs = _languageOptions
-          .map((o) => o['value'])
-          .whereType<String>()
-          .toSet();
-      if (supportedLangs.contains(deviceLang)) {
-        _selectedLanguage = deviceLang;
-      }
-
+      // Default: null = "My languages" (all userLanguages)
       _loadEnabledSources();
     }
 
@@ -333,17 +307,27 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
 
     // Sort editions within each work using a quality score
     // Score: language match (100) + cover (30) + publisher (20) + ISBN (10)
-    // Language priority: use selected language if set, otherwise use device language
-    final langForSorting = (_selectedLanguage ?? _userLanguage).toLowerCase();
+    // Language priority: use selected language if set, otherwise all user reading languages
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final List<String> langsForSorting;
+    if (_selectedLanguage == null) {
+      // "My languages": match any user reading language
+      langsForSorting = themeProvider.userLanguages;
+    } else if (_selectedLanguage == '*') {
+      // "All languages": no language prioritization
+      langsForSorting = [];
+    } else {
+      // Specific language
+      langsForSorting = [_selectedLanguage!];
+    }
 
     int editionScore(Map<String, dynamic> edition) {
       int score = 0;
 
       // Language match is top priority
-      // Always prioritize user's language (either explicit selection or device language)
-      if (langForSorting.isNotEmpty) {
+      if (langsForSorting.isNotEmpty) {
         final lang = (edition['language'] as String?)?.toLowerCase() ?? '';
-        if (_langMatches(lang, langForSorting)) {
+        if (lang.isNotEmpty && langsForSorting.any((ul) => _langMatches(lang, ul))) {
           score += 100;
         } else if (lang.isNotEmpty) {
           score -= 50; // Penalty for explicit non-matching language
@@ -429,7 +413,7 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
     final worksList = workMap.values.toList();
 
     // Debug: log scores before sorting
-    debugPrint('🔄 SORTING WORKS (lang=$langForSorting):');
+    debugPrint('🔄 SORTING WORKS (langs=$langsForSorting):');
     for (final work in worksList.take(5)) {
       final editions = (work['editions'] as List).cast<Map<String, dynamic>>();
       if (editions.isNotEmpty) {
@@ -455,9 +439,9 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
       if (editionsA.isNotEmpty) qualityScoreA = editionScore(editionsA.first);
       if (editionsB.isNotEmpty) qualityScoreB = editionScore(editionsB.first);
 
-      // When user has EXPLICITLY selected a language (not just device default),
+      // When language prioritization is active (not "All languages"),
       // prioritize language matching FIRST, then title relevance
-      if (_selectedLanguage != null) {
+      if (langsForSorting.isNotEmpty) {
         // Check if one has matching language and the other doesn't
         // Language match gives +100 points, non-match gives -50
         // So a book with matching lang has score >= 100, non-matching has score < 100
@@ -523,11 +507,23 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
 
     try {
       final api = Provider.of<ApiService>(context, listen: false);
+      final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
       // Language handling:
-      // - If user selected a specific language -> use that for filtering & prioritization
-      // - If "All languages" (null) -> still pass user's device language for prioritization
+      // - null ("My languages") → send all userLanguages comma-separated
+      // - '*' ("All languages") → don't send lang param (no prioritization)
+      // - specific code ("fr") → send that single language
       // Backend uses lang param for relevance scoring, not strict filtering
-      final langForApi = _selectedLanguage ?? _userLanguage;
+      String? langForApi;
+      if (_selectedLanguage == null) {
+        // "My languages": send all reading languages
+        langForApi = themeProvider.userLanguages.join(',');
+      } else if (_selectedLanguage == '*') {
+        // "All languages": no language prioritization
+        langForApi = null;
+      } else {
+        // Specific language selected
+        langForApi = _selectedLanguage;
+      }
 
       // Use unified search (Inventaire + OpenLibrary + BNF)
       final results = await api.searchBooks(
@@ -556,7 +552,7 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
         // Debug: Print grouping info
         debugPrint('🔍 Search returned ${results.length} results');
         debugPrint('📚 Grouped into ${_groupedWorks.length} works');
-        debugPrint('🌐 Lang filter: $_selectedLanguage | User: $_userLanguage');
+        debugPrint('🌐 Lang filter: $_selectedLanguage | User langs: ${themeProvider.userLanguages}');
         debugPrint('🗂️ Sources: $sources');
         for (final work in _groupedWorks.take(5)) {
           final editions = work['editions'] as List;
@@ -960,39 +956,68 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
                           onFieldSubmitted: (_) => _search(),
                         ),
                         const SizedBox(height: 8),
-                        // Language filter dropdown
-                        DropdownButtonFormField<String?>(
-                          value: _selectedLanguage,
-                          decoration: InputDecoration(
-                            labelText: TranslationService.translate(
-                              context,
-                              'language_filter',
+                        // Language filter dropdown (dynamic from userLanguages)
+                        Builder(builder: (context) {
+                          final userLangs = Provider.of<ThemeProvider>(context).userLanguages;
+                          // Build dynamic language options:
+                          // 1. null = "My languages" (default, all reading languages)
+                          // 2. Each individual reading language
+                          // 3. '*' = "All languages" (no prioritization)
+                          final langOptions = <Map<String, dynamic>>[
+                            {
+                              'value': null,
+                              'label': TranslationService.translate(context, 'lang_filter_my_languages') ?? 'My languages',
+                            },
+                            for (final code in userLangs)
+                              {
+                                'value': code,
+                                'label': kLanguageNativeNames[code] ?? code,
+                              },
+                            {
+                              'value': '*',
+                              'label': TranslationService.translate(context, 'lang_filter_all') ?? 'All languages',
+                            },
+                          ];
+                          // Ensure current selection is valid
+                          final validValues = langOptions.map((o) => o['value'] as String?).toSet();
+                          if (!validValues.contains(_selectedLanguage)) {
+                            // Reset to default if user removed the selected language from settings
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              if (mounted) setState(() => _selectedLanguage = null);
+                            });
+                          }
+                          return DropdownButtonFormField<String?>(
+                            value: validValues.contains(_selectedLanguage) ? _selectedLanguage : null,
+                            decoration: InputDecoration(
+                              labelText: TranslationService.translate(
+                                context,
+                                'language_filter',
+                              ),
+                              prefixIcon: const Icon(Icons.language, size: 20),
+                              border: const OutlineInputBorder(),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 10,
+                              ),
+                              isDense: true,
                             ),
-                            prefixIcon: const Icon(Icons.language, size: 20),
-                            border: const OutlineInputBorder(),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 10,
-                            ),
-                            isDense: true,
-                          ),
-                          items: _languageOptions.map((option) {
-                            return DropdownMenuItem<String?>(
-                              value: option['value'] as String?,
-                              child: Text(option['label'] as String),
-                            );
-                          }).toList(),
-                          onChanged: (value) {
-                            setState(() => _selectedLanguage = value);
-                            // Auto-trigger search when language is changed
-                            // (only if user has already entered search criteria)
-                            if (_titleController.text.isNotEmpty ||
-                                _authorController.text.isNotEmpty ||
-                                _subjectController.text.isNotEmpty) {
-                              _search();
-                            }
-                          },
-                        ),
+                            items: langOptions.map((option) {
+                              return DropdownMenuItem<String?>(
+                                value: option['value'] as String?,
+                                child: Text(option['label'] as String),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              setState(() => _selectedLanguage = value);
+                              // Auto-trigger search when language is changed
+                              if (_titleController.text.isNotEmpty ||
+                                  _authorController.text.isNotEmpty ||
+                                  _subjectController.text.isNotEmpty) {
+                                _search();
+                              }
+                            },
+                          );
+                        }),
                       ],
                     ),
                   ),

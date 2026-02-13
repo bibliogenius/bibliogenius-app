@@ -40,6 +40,7 @@ import 'screens/contact_details_screen.dart';
 import 'models/book.dart';
 import 'models/contact.dart';
 import 'screens/scan_screen.dart';
+import 'screens/scan_qr_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/setup_screen.dart';
 
@@ -130,6 +131,7 @@ void main([List<String>? args]) async {
     debugPrint('No .env file found, using default configuration');
   }
   await TranslationService.loadFromCache();
+  await TranslationService.loadTranslations();
   final themeProvider = ThemeProvider();
 
   // Load settings early so library name is available for mDNS
@@ -582,6 +584,10 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
                 );
               },
             ),
+            GoRoute(
+              path: '/scan-qr',
+              builder: (context, state) => const ScanQrScreen(),
+            ),
             GoRoute(path: '/p2p', redirect: (context, state) => '/network'),
             GoRoute(
               path: '/requests',
@@ -723,12 +729,9 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: const [
-        Locale('en'),
-        Locale('fr'),
-        Locale('es'),
-        Locale('de'),
-      ],
+      supportedLocales: TranslationService.supportedLocales
+          .map((code) => Locale(code))
+          .toList(),
       scrollBehavior: AppScrollBehavior(),
       builder: (context, child) {
         final scale = Provider.of<ThemeProvider>(context).textScaleFactor;

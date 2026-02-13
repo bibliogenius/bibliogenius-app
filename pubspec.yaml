@@ -75,3 +75,4 @@ flutter:
     - assets/curated_lists/institutions/
     - assets/curated_lists/tech/
     - assets/curated_lists/jeunesse/
+    - assets/i18n/

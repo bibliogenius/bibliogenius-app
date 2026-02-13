@@ -776,6 +776,8 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                         'Edit',
                   ),
                   style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),

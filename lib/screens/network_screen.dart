@@ -1,4 +1,3 @@
-import 'package:bibliogenius/screens/scan_qr_screen.dart';
 import 'package:flutter/material.dart';
 import '../widgets/genie_app_bar.dart';
 import '../widgets/contextual_help_sheet.dart';
@@ -6,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:async';
 import 'dart:convert';
-import '../models/contact.dart';
 import '../models/network_member.dart';
 import '../providers/theme_provider.dart';
 import '../data/repositories/contact_repository.dart';
@@ -67,6 +65,7 @@ class _NetworkScreenState extends State<NetworkScreen>
           child: Wrap(
             children: <Widget>[
               ListTile(
+                key: const Key('actionEnterManually'),
                 leading: const Icon(Icons.edit),
                 title: Text(
                   TranslationService.translate(context, 'enter_manually'),
@@ -82,7 +81,9 @@ class _NetworkScreenState extends State<NetworkScreen>
                   }
                 },
               ),
+              const Divider(height: 1),
               ListTile(
+                key: const Key('actionScanQr'),
                 leading: const Icon(Icons.qr_code_scanner),
                 title: Text(
                   TranslationService.translate(context, 'scan_qr_code'),
@@ -92,18 +93,15 @@ class _NetworkScreenState extends State<NetworkScreen>
                 ),
                 onTap: () async {
                   Navigator.pop(sheetContext);
-                  final result = await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ScanQrScreen(),
-                    ),
-                  );
+                  final result = await context.push('/scan-qr');
                   if (result == true) {
                     _contactsListKey.currentState?.reloadMembers();
                   }
                 },
               ),
+              const Divider(height: 1),
               ListTile(
+                key: const Key('actionShowMyCode'),
                 leading: const Icon(Icons.qr_code),
                 title: Text(
                   TranslationService.translate(context, 'show_my_code'),
@@ -119,6 +117,7 @@ class _NetworkScreenState extends State<NetworkScreen>
                   showDialog(
                     context: context,
                     builder: (dialogContext) => AlertDialog(
+                      key: const Key('showMyCodeDialog'),
                       title: Text(
                         TranslationService.translate(context, 'show_my_code'),
                       ),
@@ -209,6 +208,7 @@ class _NetworkScreenState extends State<NetworkScreen>
         ],
       ),
       floatingActionButton: FloatingActionButton(
+        key: const Key('networkAddFab'),
         heroTag: 'network_add_fab',
         onPressed: () => _showAddConnectionSheet(context),
         child: const Icon(Icons.add),
@@ -513,17 +513,20 @@ class _ContactsListViewState extends State<ContactsListView> {
                 _buildFilterChip(
                   NetworkFilter.all,
                   TranslationService.translate(context, 'filter_all_contacts'),
+                  const Key('filterAll'),
                 ),
                 const SizedBox(width: 8),
                 _buildFilterChip(
                   NetworkFilter.contacts,
                   TranslationService.translate(context, 'filter_borrowers'),
+                  const Key('filterBorrowers'),
                 ),
                 const SizedBox(width: 8),
                 if (AppConstants.enableP2PFeatures)
                   _buildFilterChip(
                     NetworkFilter.libraries,
                     TranslationService.translate(context, 'filter_libraries'),
+                    const Key('filterLibraries'),
                   ),
               ],
             ),
@@ -535,6 +538,7 @@ class _ContactsListViewState extends State<ContactsListView> {
               : (_filteredMembers.isEmpty && _localPeers.isEmpty)
               ? _buildEmptyState(context)
               : ListView(
+                  key: const Key('networkMemberList'),
                   children: [
                     // Local Network section (mDNS discovered peers)
                     if (_localPeers.isNotEmpty &&
@@ -542,11 +546,11 @@ class _ContactsListViewState extends State<ContactsListView> {
                       _buildSectionHeader(
                         context,
                         TranslationService.translate(
-                              context,
-                              'local_network_title',
-                            ) ??
-                            'Réseau local',
+                          context,
+                          'local_network_title',
+                        ),
                         Icons.wifi,
+                        key: const Key('localNetworkSection'),
                       ),
                       ..._localPeers.map((peer) => _buildLocalPeerTile(peer)),
                     ],
@@ -564,6 +568,7 @@ class _ContactsListViewState extends State<ContactsListView> {
 
   Widget _buildEmptyState(BuildContext context) {
     return Center(
+      key: const Key('networkEmptyState'),
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(
@@ -595,13 +600,14 @@ class _ContactsListViewState extends State<ContactsListView> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
-                color: Colors.grey[600],
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 height: 1.5,
               ),
             ),
             const SizedBox(height: 32),
             // Primary Button: Add First Contact
             ElevatedButton.icon(
+              key: const Key('addFirstContactBtn'),
               onPressed: () {
                 final networkScreenState = context
                     .findAncestorStateOfType<_NetworkScreenState>();
@@ -663,6 +669,7 @@ class _ContactsListViewState extends State<ContactsListView> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        key: const Key('qrHelpDialog'),
         title: Row(
           children: [
             const Icon(Icons.qr_code_2, color: Colors.blue),
@@ -692,14 +699,16 @@ class _ContactsListViewState extends State<ContactsListView> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.grey[100],
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey[300]!),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                ),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.qr_code_scanner,
                 size: 48,
-                color: Colors.black54,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ],
@@ -718,6 +727,7 @@ class _ContactsListViewState extends State<ContactsListView> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        key: const Key('showCodeHelpDialog'),
         title: Row(
           children: [
             const Icon(Icons.qr_code, color: Colors.purple),
@@ -747,11 +757,17 @@ class _ContactsListViewState extends State<ContactsListView> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.grey[100],
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey[300]!),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                ),
               ),
-              child: const Icon(Icons.qr_code, size: 48, color: Colors.black54),
+              child: Icon(
+                Icons.qr_code,
+                size: 48,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
           ],
         ),
@@ -765,10 +781,19 @@ class _ContactsListViewState extends State<ContactsListView> {
     );
   }
 
-  Widget _buildFilterChip(NetworkFilter filter, String label) {
+  Widget _buildFilterChip(NetworkFilter filter, String label, [Key? chipKey]) {
+    final isSelected = _filter == filter;
     return FilterChip(
-      selected: _filter == filter,
-      label: Text(label),
+      key: chipKey,
+      selected: isSelected,
+      label: Text(
+        label,
+        style: TextStyle(
+          color: isSelected ? Colors.white : null,
+        ),
+      ),
+      selectedColor: Theme.of(context).colorScheme.primary,
+      checkmarkColor: Colors.white,
       onSelected: (selected) {
         setState(() => _filter = filter);
       },
@@ -778,9 +803,11 @@ class _ContactsListViewState extends State<ContactsListView> {
   Widget _buildSectionHeader(
     BuildContext context,
     String title,
-    IconData icon,
-  ) {
+    IconData icon, {
+    Key? key,
+  }) {
     return Container(
+      key: key,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       color: Theme.of(
         context,
@@ -797,6 +824,25 @@ class _ContactsListViewState extends State<ContactsListView> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  /// Builds a visual status badge with rounded corners and semi-transparent background
+  Widget _buildStatusBadge(String text, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: color,
+        ),
       ),
     );
   }
@@ -847,6 +893,11 @@ class _ContactsListViewState extends State<ContactsListView> {
     const defaultNames = {'My Library', 'Ma Bibliothèque', 'BiblioGenius Library'};
     final showDeviceName = hasDeviceName && defaultNames.contains(displayName);
 
+    // Title for peer library screen: only append device name for default library names
+    final peerTitle = showDeviceName
+        ? '$displayName (${peer.deviceName})'
+        : displayName;
+
     // Build action buttons
     final List<Widget> actionButtons;
     if (mergedMember != null && !isPending) {
@@ -860,7 +911,7 @@ class _ContactsListViewState extends State<ContactsListView> {
                     '/peers/${mergedMember.id}/books',
                     extra: {
                       'id': mergedMember.id,
-                      'name': mergedMember.name,
+                      'name': peerTitle,
                       'url': mergedMember.url,
                     },
                   );
@@ -898,14 +949,16 @@ class _ContactsListViewState extends State<ContactsListView> {
           },
         ),
         IconButton(
-          icon: const Icon(Icons.delete, color: Colors.grey),
+          icon: Icon(Icons.delete_outline, color: Theme.of(context).colorScheme.error),
+          tooltip: TranslationService.translate(context, 'delete'),
           onPressed: () => _deleteMember(mergedMember),
         ),
       ];
     } else if (isPending) {
       actionButtons = [
         IconButton(
-          icon: const Icon(Icons.delete, color: Colors.grey),
+          icon: Icon(Icons.delete_outline, color: Theme.of(context).colorScheme.error),
+          tooltip: TranslationService.translate(context, 'delete'),
           onPressed: () => _deleteMember(mergedMember!),
         ),
       ];
@@ -918,7 +971,7 @@ class _ContactsListViewState extends State<ContactsListView> {
               ? () {
                   context.push(
                     '/peers/0/books',
-                    extra: {'id': 0, 'name': peer.name, 'url': url},
+                    extra: {'id': 0, 'name': peerTitle, 'url': url},
                   );
                 }
               : null,
@@ -964,7 +1017,7 @@ class _ContactsListViewState extends State<ContactsListView> {
           '/peers/${mergedMember.id}/books',
           extra: {
             'id': mergedMember.id,
-            'name': mergedMember.name,
+            'name': peerTitle,
             'url': mergedMember.url,
           },
         );
@@ -973,17 +1026,14 @@ class _ContactsListViewState extends State<ContactsListView> {
       onTap = () {
         context.push(
           '/peers/0/books',
-          extra: {'id': 0, 'name': peer.name, 'url': url},
+          extra: {'id': 0, 'name': peerTitle, 'url': url},
         );
       };
     } else {
       onTap = null;
     }
 
-    // Subtitle: device name + status on separate lines, or just status
-    final subtitle = showDeviceName
-        ? '${peer.deviceName}\n$badgeText'
-        : badgeText;
+    final statusBadge = _buildStatusBadge(badgeText, badgeColor);
 
     // Use compact two-row layout on narrow screens to avoid icon overflow
     final isCompact = MediaQuery.of(context).size.width < 600;
@@ -991,6 +1041,7 @@ class _ContactsListViewState extends State<ContactsListView> {
     if (!isCompact) {
       // Wide screen: standard ListTile with trailing icons
       return Card(
+        key: Key('localPeerTile_$peerKey'),
         surfaceTintColor: Colors.transparent,
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: ListTile(
@@ -1000,7 +1051,24 @@ class _ContactsListViewState extends State<ContactsListView> {
             child: const Icon(Icons.wifi, color: Colors.white),
           ),
           title: Text(displayName),
-          subtitle: Text(subtitle),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (showDeviceName)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Text(
+                    peer.deviceName!,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              statusBadge,
+            ],
+          ),
           isThreeLine: showDeviceName,
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
@@ -1013,6 +1081,7 @@ class _ContactsListViewState extends State<ContactsListView> {
 
     // Narrow screen: two-row layout (name/status on top, icons on bottom)
     return Card(
+      key: Key('localPeerTile_$peerKey'),
       surfaceTintColor: Colors.transparent,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: InkWell(
@@ -1051,16 +1120,11 @@ class _ContactsListViewState extends State<ContactsListView> {
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontSize: 12,
-                              color: Colors.grey[600],
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                           ),
-                        Text(
-                          badgeText,
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: badgeColor,
-                          ),
-                        ),
+                        const SizedBox(height: 4),
+                        statusBadge,
                       ],
                     ),
                   ),
@@ -1084,6 +1148,7 @@ class _ContactsListViewState extends State<ContactsListView> {
     // For contacts (1 icon), keep simple ListTile layout
     if (!isNetwork) {
       return Card(
+        key: Key('memberTile_${member.id}'),
         surfaceTintColor: Colors.transparent,
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: ListTile(
@@ -1098,7 +1163,8 @@ class _ContactsListViewState extends State<ContactsListView> {
                 TranslationService.translate(context, 'contact_type_borrower'),
           ),
           trailing: IconButton(
-            icon: const Icon(Icons.delete, color: Colors.grey),
+            icon: Icon(Icons.delete_outline, color: Theme.of(context).colorScheme.error),
+            tooltip: TranslationService.translate(context, 'delete'),
             onPressed: () => _deleteMember(member),
           ),
           onTap: AppConstants.enableP2PFeatures
@@ -1117,6 +1183,8 @@ class _ContactsListViewState extends State<ContactsListView> {
     final statusText = isOnline
         ? TranslationService.translate(context, 'status_active')
         : TranslationService.translate(context, 'status_offline');
+    final statusColor = isOnline ? Colors.green : Colors.grey;
+    final statusBadge = _buildStatusBadge(statusText, statusColor);
 
     final VoidCallback? onTap = AppConstants.enableP2PFeatures && member.url != null
         ? () {
@@ -1178,7 +1246,8 @@ class _ContactsListViewState extends State<ContactsListView> {
         },
       ),
       IconButton(
-        icon: const Icon(Icons.delete, color: Colors.grey),
+        icon: Icon(Icons.delete_outline, color: Theme.of(context).colorScheme.error),
+        tooltip: TranslationService.translate(context, 'delete'),
         onPressed: () => _deleteMember(member),
       ),
     ];
@@ -1188,6 +1257,7 @@ class _ContactsListViewState extends State<ContactsListView> {
     if (!isCompact) {
       // Wide screen: standard ListTile with trailing icons
       return Card(
+        key: Key('memberTile_${member.id}'),
         surfaceTintColor: Colors.transparent,
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: ListTile(
@@ -1197,7 +1267,7 @@ class _ContactsListViewState extends State<ContactsListView> {
             child: const Icon(Icons.store, color: Colors.white),
           ),
           title: Text(member.displayName),
-          subtitle: Text(statusText),
+          subtitle: statusBadge,
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: actionButtons,
@@ -1208,9 +1278,8 @@ class _ContactsListViewState extends State<ContactsListView> {
     }
 
     // Narrow screen: two-row layout
-    final statusColor = isOnline ? Colors.green : Colors.grey;
-
     return Card(
+      key: Key('memberTile_${member.id}'),
       surfaceTintColor: Colors.transparent,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: InkWell(
@@ -1242,13 +1311,8 @@ class _ContactsListViewState extends State<ContactsListView> {
                             fontSize: 16,
                           ),
                         ),
-                        Text(
-                          statusText,
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: statusColor,
-                          ),
-                        ),
+                        const SizedBox(height: 4),
+                        statusBadge,
                       ],
                     ),
                   ),
@@ -1333,18 +1397,52 @@ class _ShareContactViewState extends State<ShareContactView> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           if (_qrData != null)
-            QrImageView(data: _qrData!, version: QrVersions.auto, size: 200.0)
+            QrImageView(
+              key: const Key('myQrCode'),
+              data: _qrData!,
+              version: QrVersions.auto,
+              size: 200.0,
+            )
           else
-            Text(TranslationService.translate(context, 'qr_error')),
-          const SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32),
-            child: Text(
-              TranslationService.translate(context, 'share_code_instruction'),
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey[600]),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.wifi_off,
+                    size: 48,
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    TranslationService.translate(context, 'qr_error'),
+                    style: Theme.of(context).textTheme.titleMedium,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    TranslationService.translate(context, 'qr_wifi_suggestion'),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
+          const SizedBox(height: 16),
+          if (_qrData != null)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: Text(
+                TranslationService.translate(context, 'share_code_instruction'),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
         ],
       ),
     );

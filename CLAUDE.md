@@ -330,39 +330,48 @@ CachedNetworkImage(
 
 > **CRITICAL RULE**: When adding ANY user-facing text, you MUST:
 >
-> 1. Add the translation key to `_localizedValues` in `translation_service.dart`
-> 2. Add translations for BOTH `'en'` AND `'fr'` locales
-> 3. Use `TranslationService.translate()` in the widget
+> 1. Add the translation key to `assets/i18n/en.po` and `assets/i18n/fr.po`
+> 2. Use `TranslationService.translate()` in the widget
 
 ### Adding New Text (Required Steps)
 
-```dart
-// Step 1: Add to translation_service.dart in _localizedValues
-static final Map<String, Map<String, String>> _localizedValues = {
-  'en': {
-    // ... existing keys ...
-    'new_feature_title': 'My New Feature',  // ADD THIS
-  },
-  'fr': {
-    // ... existing keys ...
-    'new_feature_title': 'Ma nouvelle fonctionnalité',  // AND THIS
-  },
-};
+```po
+# Step 1: Add to assets/i18n/en.po
+#. My New Feature
+msgid "new_feature_title"
+msgstr "My New Feature"
 
-// Step 2: Use in widget
+# Step 2: Add to assets/i18n/fr.po
+#. My New Feature
+msgid "new_feature_title"
+msgstr "Ma nouvelle fonctionnalité"
+```
+
+```dart
+// Step 3: Use in widget
 Text(TranslationService.translate(context, 'new_feature_title'))
 ```
 
 ### Key Naming Convention
 
-```dart
+```
 // Use snake_case with semantic prefixes
-'screen_name_element'      // e.g., 'book_list_empty_state'
-'action_verb'              // e.g., 'save_changes', 'delete_book'
-'error_context'            // e.g., 'error_network', 'error_save_failed'
-'label_field'              // e.g., 'label_title', 'label_author'
-'button_action'            // e.g., 'button_confirm', 'button_cancel'
-'dialog_purpose'           // e.g., 'dialog_delete_confirm'
+screen_name_element      // e.g., book_list_empty_state
+action_verb              // e.g., save_changes, delete_book
+error_context            // e.g., error_network, error_save_failed
+label_field              // e.g., label_title, label_author
+button_action            // e.g., button_confirm, button_cancel
+dialog_purpose           // e.g., dialog_delete_confirm
+```
+
+### Validation
+
+```bash
+# Check translation completeness
+dart tools/validate_po.dart
+
+# Detailed missing keys
+dart tools/validate_po.dart --verbose
 ```
 
 ### NEVER Do This
@@ -371,11 +380,10 @@ Text(TranslationService.translate(context, 'new_feature_title'))
 // BAD: Hardcoded string
 Text('My Feature')
 
-// BAD: Missing French translation
-'en': { 'key': 'Value' }  // Where is 'fr'?
+// BAD: Missing French translation — always add both en.po and fr.po entries
 
-// BAD: Using translate without adding to _localizedValues first
-TranslationService.translate(context, 'undefined_key')  // Will return null!
+// BAD: Using translate without adding to .po files first
+TranslationService.translate(context, 'undefined_key')  // Will return key as-is!
 ```
 
 ### Fallback Pattern (only when key might not exist yet)
@@ -471,7 +479,7 @@ When incrementing the version in `pubspec.yaml`, run the appropriate level of no
 3. **Missing debounce**: Search/filter operations lack debouncing in some screens
 4. **Edit deep linking broken**: EditBookScreen throws if navigated directly
 5. **Unbounded audio cache**: `AudioProvider._audioCache` can grow indefinitely
-6. **Incomplete i18n**: Spanish/German listed but not implemented
+6. **Italian i18n**: Italian `.po` file exists but is empty (0%). EN/FR/ES/DE are at 100%. See `dart tools/validate_po.dart`
 7. **ApiService bloat**: 3,700+ lines with mixed concerns (FFI routing, retry, health check)
 
 ---

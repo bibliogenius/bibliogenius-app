@@ -15,6 +15,7 @@ import '../services/auth_service.dart';
 import '../theme/app_design.dart';
 import '../themes/base/theme_registry.dart';
 import '../utils/app_constants.dart';
+import '../utils/language_constants.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -29,11 +30,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Map<String, dynamic>? _userInfo;
   Map<String, dynamic>? _userStatus;
   Map<String, bool> _searchPrefs = {};
+  String _googleBooksApiKey = '';
+  final _apiKeyController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _fetchSettings();
+  }
+
+  @override
+  void dispose() {
+    _apiKeyController.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchSettings() async {
@@ -76,6 +85,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 _searchPrefs[key.toString()] = value;
               }
             });
+          }
+          if (config['api_keys'] != null && config['api_keys'] is Map) {
+            final apiKeys = config['api_keys'] as Map;
+            _googleBooksApiKey =
+                apiKeys['google_books']?.toString() ?? '';
+            _apiKeyController.text = _googleBooksApiKey;
           }
         }
       }
@@ -179,6 +194,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
             // Text Size
             _buildTextScaleSlider(context, themeProvider),
+            const SizedBox(height: 24),
+
+            // Languages Section
+            _buildLanguageSection(context, themeProvider),
             const SizedBox(height: 24),
 
             // Quick Presets Section
@@ -902,6 +921,128 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  // All available reading languages with native names (shared constant)
+  static const Map<String, String> _availableLanguages = kLanguageNativeNames;
+
+  Widget _buildLanguageSection(
+    BuildContext context,
+    ThemeProvider themeProvider,
+  ) {
+    final userLangs = themeProvider.userLanguages;
+    final currentLocale = themeProvider.locale.languageCode;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          TranslationService.translate(context, 'languages_section') ??
+              'Languages',
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 16),
+
+        // Reading languages subtitle
+        Text(
+          TranslationService.translate(context, 'languages_reading') ??
+              'My reading languages',
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          TranslationService.translate(context, 'languages_reading_desc') ??
+              'Select the languages you read in',
+          style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+        ),
+        const SizedBox(height: 12),
+
+        // Language chips
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: _availableLanguages.entries.map((entry) {
+            final code = entry.key;
+            final name = entry.value;
+            final isSelected = userLangs.contains(code);
+
+            return FilterChip(
+              label: Text(name),
+              selected: isSelected,
+              onSelected: (selected) {
+                final newLangs = List<String>.from(userLangs);
+                if (selected) {
+                  newLangs.add(code);
+                } else {
+                  if (newLangs.length <= 1) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          TranslationService.translate(
+                                context,
+                                'languages_min_one',
+                              ) ??
+                              'At least one language required',
+                        ),
+                      ),
+                    );
+                    return;
+                  }
+                  newLangs.remove(code);
+                }
+                themeProvider.setUserLanguages(newLangs);
+              },
+            );
+          }).toList(),
+        ),
+
+        const SizedBox(height: 24),
+
+        // UI language dropdown
+        Text(
+          TranslationService.translate(context, 'languages_ui') ??
+              'Interface language',
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          TranslationService.translate(context, 'languages_ui_desc') ??
+              'The app will be displayed in this language',
+          style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+        ),
+        const SizedBox(height: 8),
+
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            color: Theme.of(context)
+                .colorScheme
+                .surface
+                .withValues(alpha: 0.8),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: Colors.grey.withValues(alpha: 0.3),
+            ),
+          ),
+          child: DropdownButton<String>(
+            value: currentLocale,
+            isExpanded: true,
+            underline: const SizedBox(),
+            items: ThemeProvider.supportedUILanguages
+                .map((code) => DropdownMenuItem<String>(
+                      value: code,
+                      child: Text(_availableLanguages[code] ?? code),
+                    ))
+                .toList(),
+            onChanged: (value) {
+              if (value != null) {
+                themeProvider.setLocale(Locale(value));
+              }
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
   String _themeDisplayName(BuildContext context, String themeId) {
     final key = 'theme_$themeId';
     return TranslationService.translate(context, key) ??
@@ -1003,6 +1144,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 (val) => _updateSearchPreference('google_books', val),
                 icon: Icons.search,
               ),
+              if (_searchPrefs['google_books'] ?? googleDefault)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                  child: TextField(
+                    controller: _apiKeyController,
+                    decoration: InputDecoration(
+                      labelText: TranslationService.translate(
+                            context,
+                            'google_api_key_label',
+                          ) ??
+                          'Google Books API Key',
+                      hintText: 'AIzaSy...',
+                      helperText: TranslationService.translate(
+                            context,
+                            'google_api_key_helper',
+                          ) ??
+                          'Get a free key at console.cloud.google.com',
+                      helperMaxLines: 2,
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.save),
+                        onPressed: _saveGoogleBooksApiKey,
+                      ),
+                      border: const OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                    obscureText: true,
+                    onSubmitted: (_) => _saveGoogleBooksApiKey(),
+                  ),
+                ),
             ],
           ),
         ),
@@ -1027,6 +1197,41 @@ class _SettingsScreenState extends State<SettingsScreen> {
       value: value,
       onChanged: onChanged,
     );
+  }
+
+  Future<void> _saveGoogleBooksApiKey() async {
+    final key = _apiKeyController.text.trim();
+    if (key == _googleBooksApiKey) return;
+
+    try {
+      final api = Provider.of<ApiService>(context, listen: false);
+      await api.updateProfile(data: {
+        'api_keys': {'google_books': key},
+      });
+
+      setState(() => _googleBooksApiKey = key);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              TranslationService.translate(context, 'api_key_saved') ??
+                  'API key saved',
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '${TranslationService.translate(context, 'error_update')}: $e',
+            ),
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _updateSearchPreference(String source, bool enabled) async {

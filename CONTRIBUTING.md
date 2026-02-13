@@ -2,6 +2,21 @@
 
 Merci de votre intérêt ! BiblioGenius est un projet Open Source et votre aide est précieuse.
 
+## 🆕 Nouveau contributeur ? Commencez ici
+
+Consultez nos issues avec le label **"good first issue"** — ce sont des tâches accessibles spécialement conçues pour vous accueillir :
+
+👉 [**Good First Issues — bibliogenius-app**](https://github.com/bibliogenius/bibliogenius-app/issues?q=is%3Aopen+label%3A%22good+first+issue%22)
+
+Exemples de contributions bienvenues :
+
+- 🌍 **Ajouter une traduction** (italien, portugais…)
+- 🧪 **Écrire des tests unitaires**
+- 📖 **Améliorer la documentation**
+- 🎨 **Corriger un bug UI**
+
+Pas besoin d'être expert en Rust ou Flutter — il y a des tâches pour tous les niveaux !
+
 ## Code de Conduite
 
 Restez bienveillants et constructifs.

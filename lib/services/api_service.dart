@@ -1449,6 +1449,10 @@ class ApiService {
                   prefs.getString('ffi_fallback_preferences') != null
                   ? jsonDecode(prefs.getString('ffi_fallback_preferences')!)
                   : <String, dynamic>{},
+              'api_keys':
+                  prefs.getString('ffi_api_keys') != null
+                  ? jsonDecode(prefs.getString('ffi_api_keys')!)
+                  : <String, dynamic>{},
             },
             'level': 'Member',
             'loans_count': activeLoans,
@@ -2912,20 +2916,14 @@ class ApiService {
         );
 
         // 3. Save peer locally (FFI mode)
-        try {
-          final localDio = Dio(
-            BaseOptions(baseUrl: 'http://localhost:${ApiService.httpPort}'),
-          );
-          await localDio.post(
-            '/api/peers/connect',
-            data: {'name': name, 'url': url, 'public_key': null},
-          );
-          debugPrint('✅ Peer saved locally: $name');
-        } catch (e) {
-          debugPrint('❌ Failed to save peer locally: $e');
-          // Depending on implementation, we might want to throw or return partial success.
-          // Given the UI reloads peers, if it fails to save, it won't show up.
-        }
+        final localDio = Dio(
+          BaseOptions(baseUrl: 'http://localhost:${ApiService.httpPort}'),
+        );
+        final saveResponse = await localDio.post(
+          '/api/peers/connect',
+          data: {'name': name, 'url': url, 'public_key': null},
+        );
+        debugPrint('✅ Peer saved locally: $name (status=${saveResponse.statusCode})');
 
         return response;
       } on DioException catch (e) {
@@ -3161,6 +3159,23 @@ class ApiService {
           'ffi_fallback_preferences',
           jsonEncode(data['fallback_preferences']),
         );
+      }
+      if (data['api_keys'] != null) {
+        final prefs = await SharedPreferences.getInstance();
+        // Merge with existing keys
+        final existing = prefs.getString('ffi_api_keys');
+        final Map<String, dynamic> merged =
+            existing != null
+                ? Map<String, dynamic>.from(jsonDecode(existing))
+                : <String, dynamic>{};
+        (data['api_keys'] as Map).forEach((key, value) {
+          if (value == null || value.toString().isEmpty) {
+            merged.remove(key);
+          } else {
+            merged[key.toString()] = value;
+          }
+        });
+        await prefs.setString('ffi_api_keys', jsonEncode(merged));
       }
       // Ensure server is running before making HTTP request
       final serverAvailable = await ensureServerRunning();
