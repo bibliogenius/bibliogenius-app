@@ -704,6 +704,10 @@ msgstr "Borrow from a contact"
 msgid "borrow_request_sent"
 msgstr "Request sent successfully!"
 
+#. A borrowed copy will be added to your existing book
+msgid "borrow_copy_added_to_existing"
+msgstr "A borrowed copy will be added to your existing book"
+
 #. Borrow Requests
 msgid "borrow_requests_title"
 msgstr "Borrow Requests"

@@ -2,7 +2,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import '../models/book.dart';
 import '../models/contact.dart';
+import '../data/repositories/book_repository.dart';
 import '../data/repositories/copy_repository.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
@@ -31,6 +33,7 @@ class _BorrowBookScreenState extends State<BorrowBookScreen> {
   bool _isSearching = false;
   bool _isSelectingSuggestion = false; // Flag to prevent onChanged loop
   Map<String, dynamic>? _foundBook;
+  Book? _existingBook; // Set when ISBN already exists in library
   List<Map<String, dynamic>> _suggestions = [];
   Timer? _debounce;
   String? _errorMessage;
@@ -66,9 +69,26 @@ class _BorrowBookScreenState extends State<BorrowBookScreen> {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
+      _existingBook = null;
     });
 
     try {
+      // Check if this ISBN already exists in library
+      final bookRepo = Provider.of<BookRepository>(context, listen: false);
+      final existing = await bookRepo.findBookByIsbn(isbn);
+      if (!mounted) return;
+      if (existing != null) {
+        _isSelectingSuggestion = true;
+        setState(() {
+          _existingBook = existing;
+          _titleController.text = existing.title;
+          _authorController.text = existing.author ?? '';
+          _isLoading = false;
+        });
+        _isSelectingSuggestion = false;
+        return;
+      }
+
       final api = Provider.of<ApiService>(context, listen: false);
       final bookData = await api.lookupBook(
         isbn,
@@ -78,7 +98,7 @@ class _BorrowBookScreenState extends State<BorrowBookScreen> {
       if (!mounted) return;
 
       if (bookData != null) {
-        _isSelectingSuggestion = true; // Prevent onChanged from triggering search
+        _isSelectingSuggestion = true;
         setState(() {
           _foundBook = bookData;
           _titleController.text = bookData['title'] ?? '';
@@ -173,33 +193,34 @@ class _BorrowBookScreenState extends State<BorrowBookScreen> {
     try {
       final api = Provider.of<ApiService>(context, listen: false);
 
-      // 1. Create the book with proper data
-      // Note: reading_status defaults to 'to_read' if not provided
-      // The 'borrowed' state is tracked via the Copy's status field
-      final bookData = {
-        'title': _titleController.text,
-        'author': _authorController.text.isEmpty ? null : _authorController.text,
-        'isbn': _isbnController.text.isEmpty ? null : _isbnController.text,
-        'cover': _foundBook?['cover'],
-        'publisher': _foundBook?['publisher'],
-        'year': _foundBook?['year'],
-        // Don't set reading_status - backend defaults to 'to_read'
-        'owned': false, // Important: not owned, just borrowed
-      };
+      // 1. Reuse existing book if detected during ISBN lookup
+      int? bookId = _existingBook?.id;
 
-      final bookResponse = await api.createBook(bookData);
-
-      // Extract book ID from response
-      int? bookId;
-      if (bookResponse.data is Map) {
-        bookId = bookResponse.data['id'] ?? bookResponse.data['book']?['id'];
-      }
-
+      // 2. Otherwise create a new book
       if (bookId == null) {
-        throw Exception('Failed to get book ID from response');
+        final isbn = _isbnController.text.trim();
+        final bookData = {
+          'title': _titleController.text,
+          'author': _authorController.text.isEmpty ? null : _authorController.text,
+          'isbn': isbn.isEmpty ? null : isbn,
+          'cover': _foundBook?['cover'],
+          'publisher': _foundBook?['publisher'],
+          'year': _foundBook?['year'],
+          'owned': false,
+        };
+
+        final bookResponse = await api.createBook(bookData);
+
+        if (bookResponse.data is Map) {
+          bookId = bookResponse.data['id'] ?? bookResponse.data['book']?['id'];
+        }
+
+        if (bookId == null) {
+          throw Exception('Failed to get book ID from response');
+        }
       }
 
-      // 2. Create temporary copy with borrowed status
+      // 3. Create temporary copy with borrowed status
       // The copy tracks who we borrowed from in the notes field
       final borrowedFrom = TranslationService.translate(context, 'borrowed_from');
       final copyRepo = Provider.of<CopyRepository>(context, listen: false);
@@ -317,6 +338,9 @@ class _BorrowBookScreenState extends State<BorrowBookScreen> {
 
               // Book preview if found
               if (_foundBook != null) _buildBookPreview(theme),
+
+              // Existing book alert
+              if (_existingBook != null) _buildExistingBookAlert(theme),
 
               // Error message
               if (_errorMessage != null)
@@ -600,6 +624,49 @@ class _BorrowBookScreenState extends State<BorrowBookScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildExistingBookAlert(ThemeData theme) {
+    return Container(
+      key: const Key('existingBookAlert'),
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.blue.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.blue, width: 1.5),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.info_outline, color: Colors.blue, size: 24),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  TranslationService.translate(context, 'isbn_already_exists'),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${_existingBook!.title}${_existingBook!.author != null ? ' — ${_existingBook!.author}' : ''}',
+                  style: TextStyle(color: Colors.grey[700], fontSize: 13),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  TranslationService.translate(context, 'borrow_copy_added_to_existing'),
+                  style: TextStyle(color: Colors.blue[700], fontSize: 13),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -26,7 +26,7 @@ class MockApiService extends ApiService {
 
   // Track calls
   final List<String> lookups = [];
-  final List<String> createdBooks = [];
+  final List<Map<String, dynamic>> createdBooks = [];
   final List<Map<String, dynamic>> createdCopies = [];
 
   // Mock Data
@@ -51,7 +51,7 @@ class MockApiService extends ApiService {
 
   @override
   Future<Response> createBook(Map<String, dynamic> bookData) async {
-    createdBooks.add(bookData['isbn']);
+    createdBooks.add(Map<String, dynamic>.from(bookData));
     return Response(
       requestOptions: RequestOptions(path: '/api/books'),
       statusCode: 201,

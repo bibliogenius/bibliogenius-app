@@ -2764,6 +2764,10 @@ msgstr "Temporäres Exemplar"
 msgid "isbn_already_exists"
 msgstr "Diese ISBN existiert bereits in deiner Bibliothek"
 
+#. Borrow book dedup
+msgid "borrow_copy_added_to_existing"
+msgstr "Ein ausgeliehenes Exemplar wird zu deinem vorhandenen Buch hinzugefügt"
+
 #. ISBN
 msgid "isbn_label"
 msgstr "ISBN"

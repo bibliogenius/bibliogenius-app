@@ -2764,6 +2764,10 @@ msgstr "Copia temporal"
 msgid "isbn_already_exists"
 msgstr "Este ISBN ya existe en tu biblioteca"
 
+#. Borrow book dedup
+msgid "borrow_copy_added_to_existing"
+msgstr "Se añadirá una copia prestada a tu libro existente"
+
 #. ISBN
 msgid "isbn_label"
 msgstr "ISBN"
@@ -4972,11 +4976,11 @@ msgstr "Disponible"
 
 #. Borrowed
 msgid "status_borrowed"
-msgstr "Prestado"
+msgstr "Tomado prestado"
 
 #. Checked Out
 msgid "status_checked_out"
-msgstr "Prestado"
+msgstr "Retirado"
 
 #. Connected
 msgid "status_connected"

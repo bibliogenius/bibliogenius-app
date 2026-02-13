@@ -2759,6 +2759,10 @@ msgstr ""
 msgid "isbn_already_exists"
 msgstr ""
 
+#. Borrow book dedup
+msgid "borrow_copy_added_to_existing"
+msgstr "Una copia in prestito verrà aggiunta al tuo libro esistente"
+
 #. ISBN
 msgid "isbn_label"
 msgstr ""

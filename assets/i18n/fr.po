@@ -704,6 +704,10 @@ msgstr "Emprunter à un contact"
 msgid "borrow_request_sent"
 msgstr "Demande envoyée avec succès !"
 
+#. A borrowed copy will be added to your existing book
+msgid "borrow_copy_added_to_existing"
+msgstr "Un exemplaire emprunté sera ajouté à votre livre existant"
+
 #. Borrow Requests
 msgid "borrow_requests_title"
 msgstr "Demandes d'emprunt"

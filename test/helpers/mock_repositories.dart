@@ -15,6 +15,8 @@ import 'package:bibliogenius/models/loan.dart';
 class MockBookRepository implements BookRepository {
   List<Book> mockBooks = [];
   Book? mockBook;
+  Book? mockFindByIsbnResult;
+  final List<String> calls = [];
 
   @override
   Future<List<Book>> getBooks({
@@ -29,9 +31,11 @@ class MockBookRepository implements BookRepository {
       mockBook ?? (throw Exception('Book not found'));
 
   @override
-  Future<Book> createBook(Map<String, dynamic> bookData) async =>
-      mockBook ??
+  Future<Book> createBook(Map<String, dynamic> bookData) async {
+    calls.add('createBook:${bookData['isbn']}');
+    return mockBook ??
       Book(id: 1, title: bookData['title'] ?? 'Test');
+  }
 
   @override
   Future<Book> updateBook(int id, Map<String, dynamic> bookData) async =>
@@ -45,7 +49,10 @@ class MockBookRepository implements BookRepository {
   Future<void> reorderBooks(List<int> bookIds) async {}
 
   @override
-  Future<Book?> findBookByIsbn(String isbn) async => mockBook;
+  Future<Book?> findBookByIsbn(String isbn) async {
+    calls.add('findBookByIsbn:$isbn');
+    return mockFindByIsbnResult;
+  }
 
   @override
   Future<List<String>> getAllAuthors() async =>
@@ -164,6 +171,7 @@ class MockCollectionRepository implements CollectionRepository {
 class MockCopyRepository implements CopyRepository {
   List<Copy> mockCopies = [];
   Copy? mockCopy;
+  final List<Map<String, dynamic>> createdCopies = [];
 
   @override
   Future<List<Copy>> getBookCopies(int bookId) async => mockCopies;
@@ -173,13 +181,15 @@ class MockCopyRepository implements CopyRepository {
       mockCopy ?? (throw Exception('Copy not found'));
 
   @override
-  Future<Copy> createCopy(Map<String, dynamic> copyData) async =>
-      mockCopy ??
+  Future<Copy> createCopy(Map<String, dynamic> copyData) async {
+    createdCopies.add(Map<String, dynamic>.from(copyData));
+    return mockCopy ??
       Copy(
         id: 1,
         bookId: copyData['book_id'] as int,
         libraryId: copyData['library_id'] as int? ?? 1,
       );
+  }
 
   @override
   Future<Copy> updateCopy(int copyId, Map<String, dynamic> data) async =>
