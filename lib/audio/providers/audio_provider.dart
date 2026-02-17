@@ -22,7 +22,8 @@ import '../services/audiobook_service.dart';
 /// if (audioProvider.isEnabled && audioProvider.isWifiConnected) { ... }
 /// ```
 class AudioProvider extends ChangeNotifier {
-  static const String _enabledKey = 'audio_module_enabled';
+  // Must match the key used by ThemeProvider.setAudioEnabled()
+  static const String _enabledKey = 'audioEnabled';
 
   final AudiobookService _service;
   final Connectivity _connectivity;
@@ -31,8 +32,8 @@ class AudioProvider extends ChangeNotifier {
   bool _isWifiConnected = false;
   bool _isInitialized = false;
 
-  // Cache of audio resources by bookId
-  final Map<int, AudioResource?> _audioCache = {};
+  // Cache of audio resources by bookId (list for multi-language results)
+  final Map<int, List<AudioResource>> _audioCache = {};
 
   // Track ongoing searches to avoid duplicates
   final Set<int> _searchingBookIds = {};
@@ -52,8 +53,13 @@ class AudioProvider extends ChangeNotifier {
   /// Check if a search is in progress for a specific book
   bool isSearching(int bookId) => _searchingBookIds.contains(bookId);
 
-  /// Get cached audio resource for a book (may be null if not found)
-  AudioResource? getAudioResource(int bookId) => _audioCache[bookId];
+  /// Get first cached audio resource for a book (retro-compatible)
+  AudioResource? getAudioResource(int bookId) =>
+      _audioCache[bookId]?.firstOrNull;
+
+  /// Get all cached audio resources for a book
+  List<AudioResource> getAudioResources(int bookId) =>
+      _audioCache[bookId] ?? [];
 
   /// Check if we've already searched for a book (regardless of result)
   bool hasSearched(int bookId) => _audioCache.containsKey(bookId);
@@ -98,7 +104,7 @@ class AudioProvider extends ChangeNotifier {
   /// Toggle the audio module on/off
   Future<void> toggle() => setEnabled(!_isEnabled);
 
-  /// Search for an audiobook for the given book
+  /// Search for an audiobook for the given book (single language, retro-compatible).
   ///
   /// This method:
   /// - Returns immediately if disabled or already cached
@@ -118,7 +124,7 @@ class AudioProvider extends ChangeNotifier {
 
     // Return cached result if available (unless force refresh)
     if (!forceRefresh && _audioCache.containsKey(bookId)) {
-      return _audioCache[bookId];
+      return _audioCache[bookId]?.firstOrNull;
     }
 
     // Don't start duplicate searches
@@ -137,17 +143,64 @@ class AudioProvider extends ChangeNotifier {
         preferredLanguage: preferredLanguage,
       );
 
-      _audioCache[bookId] = result;
+      _audioCache[bookId] = result != null ? [result] : [];
       _searchingBookIds.remove(bookId);
       notifyListeners();
 
       return result;
     } catch (e) {
       debugPrint('[AudioProvider] Search error: $e');
-      _audioCache[bookId] = null;
+      _audioCache[bookId] = [];
       _searchingBookIds.remove(bookId);
       notifyListeners();
       return null;
+    }
+  }
+
+  /// Search for audiobooks across multiple languages.
+  ///
+  /// Returns all matching results (deduplicated by sourceId).
+  /// Uses [languages] to search LibriVox per language, Litterature Audio
+  /// for French, and always Internet Archive as fallback.
+  Future<List<AudioResource>> searchAudiobookMultiLang({
+    required int bookId,
+    required String title,
+    String? author,
+    required List<String> languages,
+    bool forceRefresh = false,
+  }) async {
+    if (!_isEnabled) return [];
+
+    if (!forceRefresh && _audioCache.containsKey(bookId)) {
+      return _audioCache[bookId] ?? [];
+    }
+
+    if (_searchingBookIds.contains(bookId)) {
+      return [];
+    }
+
+    _searchingBookIds.add(bookId);
+    notifyListeners();
+
+    try {
+      final results = await _service.searchAllLanguages(
+        bookId: bookId,
+        title: title,
+        author: author,
+        languages: languages,
+      );
+
+      _audioCache[bookId] = results;
+      _searchingBookIds.remove(bookId);
+      notifyListeners();
+
+      return results;
+    } catch (e) {
+      debugPrint('[AudioProvider] Multi-lang search error: $e');
+      _audioCache[bookId] = [];
+      _searchingBookIds.remove(bookId);
+      notifyListeners();
+      return [];
     }
   }
 

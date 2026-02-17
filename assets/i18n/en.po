@@ -349,6 +349,30 @@ msgstr "Manage your audiobooks and read-aloud sessions."
 msgid "audio_module_title"
 msgstr "Audio Module"
 
+#. Searching for audiobook...
+msgid "audio_searching"
+msgstr "Searching for audiobook..."
+
+#. Audiobook Available
+msgid "audio_available"
+msgstr "Audiobook Available"
+
+#. Connect to WiFi to stream
+msgid "audio_wifi_required"
+msgstr "Connect to WiFi to stream"
+
+#. Refreshing audiobook search...
+msgid "audio_refreshing"
+msgstr "Refreshing audiobook search..."
+
+#. Refresh
+msgid "audio_refresh"
+msgstr "Refresh"
+
+#. Open
+msgid "audio_open"
+msgstr "Open"
+
 #. Automatically search for free audiobook versions
 msgid "audiobooks_auto_search"
 msgstr "Automatically search for free audiobook versions"
@@ -1051,6 +1075,14 @@ msgstr "Type"
 #. Lender
 msgid "contact_type_lender"
 msgstr "Lender"
+
+#. Friend, family member, colleague who borrows your books
+msgid "contact_type_person_hint"
+msgstr "Friend, family, colleague who borrows your books"
+
+#. Media library, school, association to exchange with
+msgid "contact_type_library_hint"
+msgstr "Media library, school, association to exchange with"
 
 #. Contact updated successfully
 msgid "contact_updated"
@@ -3353,13 +3385,6 @@ msgstr "Formats"
 msgid "module_digital_formats_desc"
 msgstr "Enable support for managing physical and digital formats."
 
-#. Edition Browser
-msgid "module_edition_browser"
-msgstr "Edition Browser"
-
-#. Browse and select from multiple editions when adding books.
-msgid "module_edition_browser_desc"
-msgstr "Browse and select from multiple editions when adding books."
 
 #. Gamification
 msgid "module_gamification"

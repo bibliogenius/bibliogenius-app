@@ -49,13 +49,13 @@ class AudiobookService {
     String? author,
     String? preferredLanguage,
   }) async {
-    final cacheKey = '${title.toLowerCase()}_${author?.toLowerCase() ?? ''}';
+    final cacheKey = '${title.toLowerCase()}_${author?.toLowerCase() ?? ''}_${preferredLanguage?.toLowerCase() ?? ''}';
 
     // Check negative result cache
     final cachedNotFound = _notFoundCache[cacheKey];
     if (cachedNotFound != null) {
       if (DateTime.now().difference(cachedNotFound) < _notFoundCacheDuration) {
-        debugPrint('[AudiobookService] Cached not-found for: $title');
+        debugPrint('[AudiobookService] Cached not-found for: $title (lang: $preferredLanguage)');
         return null;
       } else {
         _notFoundCache.remove(cacheKey);
@@ -101,32 +101,96 @@ class AudiobookService {
       }
     }
 
-    // Try Internet Archive as fallback (only if no preferred language,
-    // since Archive doesn't provide language info)
-    if (preferredLanguage == null || preferredLanguage.isEmpty) {
-      try {
-        final archiveResult = await _searchInternetArchive(
-          bookId,
-          title,
-          author,
-        );
-        if (archiveResult != null) {
-          debugPrint('[AudiobookService] Found on Internet Archive: $title');
-          return archiveResult;
-        }
-      } catch (e) {
-        debugPrint('[AudiobookService] Internet Archive error: $e');
-      }
-    } else {
-      debugPrint(
-        '[AudiobookService] Skipping Internet Archive (language filter active)',
+    // Try Internet Archive as fallback (always, regardless of language filter)
+    try {
+      final archiveResult = await _searchInternetArchive(
+        bookId,
+        title,
+        author,
       );
+      if (archiveResult != null) {
+        debugPrint('[AudiobookService] Found on Internet Archive: $title');
+        return archiveResult;
+      }
+    } catch (e) {
+      debugPrint('[AudiobookService] Internet Archive error: $e');
     }
 
     // Cache negative result
     _notFoundCache[cacheKey] = DateTime.now();
     debugPrint('[AudiobookService] No audiobook found for: $title');
     return null;
+  }
+
+  /// Search for audiobooks across multiple languages in parallel.
+  ///
+  /// For each language, searches LibriVox. Also searches Litterature Audio
+  /// if any language is French, and always searches Internet Archive as fallback.
+  /// Results are deduplicated by sourceId.
+  Future<List<AudioResource>> searchAllLanguages({
+    required int bookId,
+    required String title,
+    String? author,
+    required List<String> languages,
+  }) async {
+    final results = <AudioResource>[];
+    final seenSourceIds = <String>{};
+
+    void addIfNew(AudioResource resource) {
+      if (seenSourceIds.add(resource.sourceId)) {
+        results.add(resource);
+      }
+    }
+
+    // 1. Search LibriVox in parallel for each language
+    final librivoxFutures = languages.map((lang) async {
+      try {
+        return await _searchLibriVox(
+          bookId,
+          title,
+          author,
+          preferredLanguage: lang,
+        );
+      } catch (e) {
+        debugPrint('[AudiobookService] LibriVox error for lang=$lang: $e');
+        return null;
+      }
+    }).toList();
+
+    final librivoxResults = await Future.wait(librivoxFutures);
+    for (final result in librivoxResults) {
+      if (result != null) addIfNew(result);
+    }
+
+    // 2. Search Litterature Audio if any language is French
+    final hasFrench = languages.any((lang) {
+      final lower = lang.toLowerCase();
+      return lower == 'fr' || lower == 'fre' || lower == 'fra' || lower == 'french';
+    });
+    if (hasFrench) {
+      try {
+        final result = await _searchLitteratureAudio(bookId, title, author);
+        if (result != null) addIfNew(result);
+      } catch (e) {
+        debugPrint('[AudiobookService] Litteratureaudio error: $e');
+      }
+    }
+
+    // 3. Always search Internet Archive as fallback (filtered by user languages)
+    try {
+      final result = await _searchInternetArchive(
+        bookId, title, author,
+        languages: languages,
+      );
+      if (result != null) addIfNew(result);
+    } catch (e) {
+      debugPrint('[AudiobookService] Internet Archive error: $e');
+    }
+
+    debugPrint(
+      '[AudiobookService] searchAllLanguages: found ${results.length} result(s) for "$title" in languages $languages',
+    );
+    return results;
   }
 
   /// Search LibriVox API
@@ -453,7 +517,7 @@ class AudiobookService {
 
           chapters.add(
             AudioChapter(
-              id: 'ch_${index}',
+              id: 'ch_$index',
               title: title,
               url: url,
               durationSeconds: duration,
@@ -553,15 +617,33 @@ class AudiobookService {
   }
 
   /// Search Internet Archive
+  ///
+  /// [languages] optional list of ISO 639-1 codes to filter results.
+  /// When provided, builds a language filter (e.g. `language:(English OR French)`).
   Future<AudioResource?> _searchInternetArchive(
     int bookId,
     String title,
-    String? author,
-  ) async {
+    String? author, {
+    List<String>? languages,
+  }) async {
+    // Map ISO 639-1 codes to language names used by Internet Archive
+    const langNames = {
+      'fr': 'French', 'en': 'English', 'es': 'Spanish',
+      'de': 'German', 'it': 'Italian', 'pt': 'Portuguese',
+      'nl': 'Dutch', 'ru': 'Russian', 'zh': 'Chinese',
+      'ja': 'Japanese',
+    };
+
     // Build search query for audio items
     final searchTerms = <String>['title:($title)', 'mediatype:audio'];
     if (author != null && author.isNotEmpty) {
       searchTerms.add('creator:($author)');
+    }
+    if (languages != null && languages.isNotEmpty) {
+      final langFilter = languages
+          .map((l) => langNames[l.toLowerCase()] ?? l)
+          .join(' OR ');
+      searchTerms.add('language:($langFilter)');
     }
 
     final response = await _dio.get(
@@ -570,7 +652,7 @@ class AudiobookService {
         'q': searchTerms.join(' AND '),
         'output': 'json',
         'rows': 5,
-        'fl[]': 'identifier,title,creator,runtime',
+        'fl[]': 'identifier,title,creator,runtime,language',
       },
     );
 
@@ -596,12 +678,17 @@ class AudiobookService {
     final identifier = doc['identifier'] as String?;
     if (identifier == null) return null;
 
+    // Extract language from response
+    final docLang = doc['language'] is List
+        ? (doc['language'] as List).firstOrNull?.toString()
+        : doc['language']?.toString();
+
     return AudioResource(
       bookId: bookId,
       source: AudioSource.archive,
       sourceId: identifier,
       title: doc['title'] as String? ?? title,
-      language: null,
+      language: docLang,
       durationSeconds: _parseArchiveRuntime(doc['runtime']),
       streamUrl: 'https://archive.org/details/$identifier',
       rssUrl: null,
@@ -821,10 +908,12 @@ class AudiobookService {
 
     // One contains the other (but must be substantial - at least 70% of the shorter one)
     if (searchTitle.contains(bookTitle)) {
-      return bookTitle.length >= searchTitle.length * 0.7;
+      if (bookTitle.length >= searchTitle.length * 0.7) return true;
+      // Fall through to word-based matching
     }
     if (bookTitle.contains(searchTitle)) {
-      return searchTitle.length >= bookTitle.length * 0.7;
+      if (searchTitle.length >= bookTitle.length * 0.7) return true;
+      // Fall through to word-based matching
     }
 
     // Word-based matching for cases like "Lettres à un jeune poète" vs "Lettres de mon moulin"

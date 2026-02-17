@@ -1028,6 +1028,14 @@ msgstr ""
 msgid "contact_type_lender"
 msgstr ""
 
+#. Friend, family member, colleague who borrows your books
+msgid "contact_type_person_hint"
+msgstr ""
+
+#. Media library, school, association to exchange with
+msgid "contact_type_library_hint"
+msgstr ""
+
 #. Contact updated successfully
 msgid "contact_updated"
 msgstr ""
@@ -3324,13 +3332,6 @@ msgstr ""
 msgid "module_digital_formats_desc"
 msgstr ""
 
-#. Edition Browser
-msgid "module_edition_browser"
-msgstr ""
-
-#. Browse and select from multiple editions when adding books.
-msgid "module_edition_browser_desc"
-msgstr ""
 
 #. Gamification
 msgid "module_gamification"

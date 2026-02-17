@@ -84,9 +84,6 @@ class ThemeProvider with ChangeNotifier {
   bool _gamificationEnabled = true;
   bool get gamificationEnabled => _gamificationEnabled;
 
-  // Edition Browser: allows grouping search results by work with swipeable editions
-  bool _editionBrowserEnabled = true;
-  bool get editionBrowserEnabled => _editionBrowserEnabled;
 
   // Digital Formats Module
   bool _digitalFormatsEnabled = false;
@@ -264,7 +261,7 @@ class ThemeProvider with ChangeNotifier {
         prefs.getBool('shareGamificationStats') ?? false;
     _collectionsEnabled = prefs.getBool('collectionsEnabled') ?? false;
     _quotesEnabled = prefs.getBool('quotesEnabled') ?? true;
-    _editionBrowserEnabled = prefs.getBool('editionBrowserEnabled') ?? true;
+
     _digitalFormatsEnabled = prefs.getBool('digitalFormatsEnabled') ?? false;
     _audioEnabled = prefs.getBool('audioEnabled') ?? false;
     _mcpEnabled = prefs.getBool('mcpEnabled') ?? false;
@@ -366,13 +363,6 @@ class ThemeProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> setEditionBrowserEnabled(bool enabled) async {
-    _editionBrowserEnabled = enabled;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('editionBrowserEnabled', enabled);
-    await _updateEnabledModules();
-    notifyListeners();
-  }
 
   Future<void> setCurrency(String currency) async {
     _currency = currency;
@@ -676,12 +666,13 @@ class ThemeProvider with ChangeNotifier {
         await setCommerceEnabled(false);
         break;
       case 'librarian':
-        // Librarian preset: collections, network, no gamification
+        // Librarian preset: collections, network, no gamification, no borrowing
         await setGamificationEnabled(false);
         await setQuotesEnabled(false);
         await setCollectionsEnabled(true);
         await setNetworkEnabled(true);
         await setCommerceEnabled(false);
+        await setCanBorrowBooks(false);
         break;
       case 'bookseller':
         // Bookseller preset: commerce, collections, no gamification
@@ -871,7 +862,7 @@ class ThemeProvider with ChangeNotifier {
     if (gamificationEnabled) enabledModules.add('gamification');
     if (collectionsEnabled) enabledModules.add('collections');
     if (quotesEnabled) enabledModules.add('quotes');
-    if (editionBrowserEnabled) enabledModules.add('edition_browser');
+
     if (digitalFormatsEnabled) enabledModules.add('digital_formats');
     if (audioEnabled) enabledModules.add('audio');
     if (mcpEnabled) enabledModules.add('mcp');

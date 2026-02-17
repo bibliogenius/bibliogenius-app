@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../services/translation_service.dart';
 import '../screens/audio_webview_screen.dart';
 import '../models/audio_resource.dart';
 import '../providers/audio_provider.dart';
@@ -9,20 +10,20 @@ import 'audio_player_widget.dart';
 ///
 /// This widget handles all audio-related UI logic:
 /// - Checks if audio module is enabled
-/// - Triggers audiobook search if needed
+/// - Triggers audiobook search if needed (multi-language)
 /// - Shows appropriate state (searching, not found, WiFi required, player)
+/// - If multiple results, shows ChoiceChips to switch between versions
 ///
 /// Usage:
 /// ```dart
-/// // In book_details_screen.dart
 /// AudioSection(
 ///   bookId: book.id!,
 ///   bookTitle: book.title,
 ///   bookAuthor: book.author,
+///   bookLanguage: book.language,
+///   userLanguages: ['fr', 'en'],
 /// )
 /// ```
-///
-/// The widget is designed to be dropped into any screen with minimal integration.
 class AudioSection extends StatefulWidget {
   final int bookId;
   final String bookTitle;
@@ -32,12 +33,17 @@ class AudioSection extends StatefulWidget {
   /// Used to filter audiobook results to match the book's language.
   final String? bookLanguage;
 
+  /// User's reading languages (from ThemeProvider.userLanguages).
+  /// Combined with bookLanguage to search across all relevant languages.
+  final List<String> userLanguages;
+
   const AudioSection({
     super.key,
     required this.bookId,
     required this.bookTitle,
     this.bookAuthor,
     this.bookLanguage,
+    this.userLanguages = const [],
   });
 
   @override
@@ -46,22 +52,75 @@ class AudioSection extends StatefulWidget {
 
 class _AudioSectionState extends State<AudioSection> {
   bool _searchTriggered = false;
+  int _selectedIndex = 0;
+
+  /// Build the deduplicated list of search languages.
+  /// Combines book language + user languages, normalized to ISO 639-1.
+  List<String> get _searchLanguages {
+    final langs = <String>{};
+    if (widget.bookLanguage != null && widget.bookLanguage!.isNotEmpty) {
+      langs.add(_normalizeLanguageCode(widget.bookLanguage!));
+    }
+    for (final lang in widget.userLanguages) {
+      langs.add(_normalizeLanguageCode(lang));
+    }
+    if (langs.isEmpty) {
+      // Fallback: use UI locale
+      final uiLang = Localizations.localeOf(context).languageCode;
+      langs.add(uiLang);
+    }
+    return langs.toList();
+  }
+
+  /// Normalize ISO 639-2 (3-letter) codes to ISO 639-1 (2-letter).
+  String _normalizeLanguageCode(String code) {
+    final lower = code.toLowerCase().trim();
+    const iso639_2to1 = {
+      'fre': 'fr', 'fra': 'fr', 'french': 'fr',
+      'eng': 'en', 'english': 'en',
+      'spa': 'es', 'spanish': 'es',
+      'ger': 'de', 'deu': 'de', 'german': 'de',
+      'ita': 'it', 'italian': 'it',
+      'por': 'pt', 'portuguese': 'pt',
+      'dut': 'nl', 'nld': 'nl', 'dutch': 'nl',
+      'rus': 'ru', 'russian': 'ru',
+      'chi': 'zh', 'zho': 'zh', 'chinese': 'zh',
+      'jpn': 'ja', 'japanese': 'ja',
+    };
+    return iso639_2to1[lower] ?? lower;
+  }
 
   void _triggerSearchIfNeeded(AudioProvider provider) {
+    // Re-arm if cache was cleared externally (e.g. metadata refresh)
+    if (_searchTriggered &&
+        !provider.hasSearched(widget.bookId) &&
+        !provider.isSearching(widget.bookId)) {
+      _searchTriggered = false;
+    }
     if (_searchTriggered) return;
     if (!provider.isInitialized) return;
     if (!provider.isEnabled) return;
     if (provider.hasSearched(widget.bookId)) return;
 
     _searchTriggered = true;
-    // Use addPostFrameCallback to avoid setState during build
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      provider.searchAudiobook(
-        bookId: widget.bookId,
-        title: widget.bookTitle,
-        author: widget.bookAuthor,
-        preferredLanguage: widget.bookLanguage,
-      );
+      final languages = _searchLanguages;
+      debugPrint('[AudioSection] bookLanguage=${widget.bookLanguage}, userLanguages=${widget.userLanguages}, searchLanguages=$languages');
+      if (languages.length > 1) {
+        provider.searchAudiobookMultiLang(
+          bookId: widget.bookId,
+          title: widget.bookTitle,
+          author: widget.bookAuthor,
+          languages: languages,
+        );
+      } else {
+        provider.searchAudiobook(
+          bookId: widget.bookId,
+          title: widget.bookTitle,
+          author: widget.bookAuthor,
+          preferredLanguage: languages.firstOrNull,
+        );
+      }
     });
   }
 
@@ -69,15 +128,26 @@ class _AudioSectionState extends State<AudioSection> {
     final provider = context.read<AudioProvider>();
     provider.clearBookCache(widget.bookId);
     _searchTriggered = false;
-    setState(() {});
+    setState(() => _selectedIndex = 0);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      provider.searchAudiobook(
-        bookId: widget.bookId,
-        title: widget.bookTitle,
-        author: widget.bookAuthor,
-        preferredLanguage: widget.bookLanguage,
-        forceRefresh: true,
-      );
+      final languages = _searchLanguages;
+      if (languages.length > 1) {
+        provider.searchAudiobookMultiLang(
+          bookId: widget.bookId,
+          title: widget.bookTitle,
+          author: widget.bookAuthor,
+          languages: languages,
+          forceRefresh: true,
+        );
+      } else {
+        provider.searchAudiobook(
+          bookId: widget.bookId,
+          title: widget.bookTitle,
+          author: widget.bookAuthor,
+          preferredLanguage: languages.firstOrNull,
+          forceRefresh: true,
+        );
+      }
     });
   }
 
@@ -85,83 +155,120 @@ class _AudioSectionState extends State<AudioSection> {
   Widget build(BuildContext context) {
     final provider = context.watch<AudioProvider>();
 
-    // debugPrint('[AudioSection] build() - bookId: ${widget.bookId}');
-    // debugPrint('[AudioSection]   isEnabled: ${provider.isEnabled}');
-    // debugPrint('[AudioSection]   isInitialized: ${provider.isInitialized}');
-    // debugPrint('[AudioSection]   isWifiConnected: ${provider.isWifiConnected}');
-    // debugPrint(
-    //   '[AudioSection]   isSearching: ${provider.isSearching(widget.bookId)}',
-    // );
-    // debugPrint(
-    //   '[AudioSection]   hasSearched: ${provider.hasSearched(widget.bookId)}',
-    // );
-    // debugPrint(
-    //   '[AudioSection]   audioResource: ${provider.getAudioResource(widget.bookId)}',
-    // );
+    debugPrint('[AudioSection] build: bookId=${widget.bookId}, enabled=${provider.isEnabled}, initialized=${provider.isInitialized}, searching=${provider.isSearching(widget.bookId)}, hasSearched=${provider.hasSearched(widget.bookId)}');
 
     // Don't show anything if module is disabled
-    if (!provider.isEnabled) {
-      // debugPrint('[AudioSection] -> Hiding: module disabled');
-      return const SizedBox.shrink();
-    }
+    if (!provider.isEnabled) return const SizedBox.shrink();
 
     // Wait for initialization
-    if (!provider.isInitialized) {
-      // debugPrint('[AudioSection] -> Hiding: not initialized');
-      return const SizedBox.shrink();
-    }
+    if (!provider.isInitialized) return const SizedBox.shrink();
 
-    // Trigger search if not yet done (must be after isInitialized check)
+    // Trigger search if not yet done
     _triggerSearchIfNeeded(provider);
 
     // Check if searching
     if (provider.isSearching(widget.bookId)) {
-      // debugPrint('[AudioSection] -> Showing: searching state');
       return _buildSearchingState(context);
     }
 
-    // Get cached result
-    final audioResource = provider.getAudioResource(widget.bookId);
+    // Get all cached results
+    final audioResources = provider.getAudioResources(widget.bookId);
 
     // No audiobook found
-    if (audioResource == null) {
-      // Only show "not found" if we've actually searched
+    if (audioResources.isEmpty) {
       if (provider.hasSearched(widget.bookId)) {
-        // debugPrint('[AudioSection] -> Hiding: searched but not found');
         return const SizedBox.shrink(); // Silently hide if not found
       }
-      // debugPrint('[AudioSection] -> Hiding: not yet searched');
       return const SizedBox.shrink();
     }
 
+    // Clamp selected index
+    final safeIndex = _selectedIndex.clamp(0, audioResources.length - 1);
+    final selectedResource = audioResources[safeIndex];
+
     // Check WiFi for streaming
     if (!provider.isWifiConnected) {
-      // debugPrint('[AudioSection] -> Showing: WiFi required state');
-      return _buildWifiRequiredState(context, audioResource);
+      return _buildWifiRequiredState(context, selectedResource);
     }
 
-    // Show player
-    // debugPrint('[AudioSection] -> Showing: audio player!');
+    // Show player (with optional language/source selector)
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
-      child: GestureDetector(
-        onLongPress: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text('Refreshing audiobook search...'),
-              action: SnackBarAction(
-                label: 'Refresh',
-                onPressed: _forceRefresh,
-              ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (audioResources.length > 1)
+            _buildVersionSelector(context, audioResources, safeIndex),
+          GestureDetector(
+            onLongPress: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(TranslationService.translate(context, 'audio_refreshing')),
+                  action: SnackBarAction(
+                    label: TranslationService.translate(context, 'audio_refresh'),
+                    onPressed: _forceRefresh,
+                  ),
+                ),
+              );
+            },
+            child: AudioPlayerWidget(
+              key: ValueKey(selectedResource.sourceId),
+              audioResource: selectedResource,
+              onOpenInBrowser: () => _openInBrowser(selectedResource),
             ),
-          );
-        },
-        child: AudioPlayerWidget(
-          audioResource: audioResource,
-          onOpenInBrowser: () => _openInBrowser(audioResource),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVersionSelector(
+    BuildContext context,
+    List<AudioResource> resources,
+    int currentIndex,
+  ) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: SizedBox(
+        height: 36,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          itemCount: resources.length,
+          separatorBuilder: (_, _) => const SizedBox(width: 8),
+          itemBuilder: (context, index) {
+            final resource = resources[index];
+            final isSelected = index == currentIndex;
+            final label = _buildChipLabel(resource);
+            return ChoiceChip(
+              label: Text(label),
+              selected: isSelected,
+              onSelected: (selected) {
+                if (selected) setState(() => _selectedIndex = index);
+              },
+              labelStyle: TextStyle(
+                fontSize: 12,
+                color: isSelected
+                    ? colorScheme.onPrimary
+                    : colorScheme.onSurfaceVariant,
+              ),
+              selectedColor: colorScheme.primary,
+              backgroundColor: colorScheme.surfaceContainerHighest,
+              visualDensity: VisualDensity.compact,
+            );
+          },
         ),
       ),
     );
+  }
+
+  String _buildChipLabel(AudioResource resource) {
+    final lang = resource.language ?? '';
+    final source = resource.source.displayName;
+    if (lang.isNotEmpty) {
+      return '$lang - $source';
+    }
+    return source;
   }
 
   Widget _buildSearchingState(BuildContext context) {
@@ -173,9 +280,9 @@ class _AudioSectionState extends State<AudioSection> {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+          color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: colorScheme.outline.withOpacity(0.1)),
+          border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
         ),
         child: Row(
           children: [
@@ -190,7 +297,7 @@ class _AudioSectionState extends State<AudioSection> {
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                'Searching for audiobook...',
+                TranslationService.translate(context, 'audio_searching'),
                 style: TextStyle(
                   fontSize: 13,
                   color: colorScheme.onSurfaceVariant,
@@ -215,9 +322,9 @@ class _AudioSectionState extends State<AudioSection> {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: colorScheme.tertiaryContainer.withOpacity(0.3),
+          color: colorScheme.tertiaryContainer.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: colorScheme.outline.withOpacity(0.2)),
+          border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -228,7 +335,7 @@ class _AudioSectionState extends State<AudioSection> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Audiobook Available',
+                    TranslationService.translate(context, 'audio_available'),
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -240,7 +347,7 @@ class _AudioSectionState extends State<AudioSection> {
                   audioResource.source.displayName,
                   style: TextStyle(
                     fontSize: 11,
-                    color: colorScheme.onTertiaryContainer.withOpacity(0.7),
+                    color: colorScheme.onTertiaryContainer.withValues(alpha: 0.7),
                   ),
                 ),
               ],
@@ -251,22 +358,22 @@ class _AudioSectionState extends State<AudioSection> {
                 Icon(
                   Icons.wifi_off,
                   size: 16,
-                  color: colorScheme.onTertiaryContainer.withOpacity(0.7),
+                  color: colorScheme.onTertiaryContainer.withValues(alpha: 0.7),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Connect to WiFi to stream',
+                    TranslationService.translate(context, 'audio_wifi_required'),
                     style: TextStyle(
                       fontSize: 12,
-                      color: colorScheme.onTertiaryContainer.withOpacity(0.7),
+                      color: colorScheme.onTertiaryContainer.withValues(alpha: 0.7),
                     ),
                   ),
                 ),
                 TextButton.icon(
                   onPressed: () => _openInBrowser(audioResource),
                   icon: const Icon(Icons.open_in_new, size: 14),
-                  label: const Text('Open'),
+                  label: Text(TranslationService.translate(context, 'audio_open')),
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     minimumSize: const Size(0, 32),
@@ -282,7 +389,6 @@ class _AudioSectionState extends State<AudioSection> {
   }
 
   void _openInBrowser(AudioResource resource) {
-    // Use the direct stream URL if available, otherwise the source website
     final url = resource.streamUrl?.isNotEmpty == true
         ? resource.streamUrl!
         : resource.source.websiteUrl;

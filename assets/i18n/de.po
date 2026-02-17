@@ -337,6 +337,30 @@ msgstr "Hörbücher aus deiner Bibliothek anhören"
 msgid "audio_module_title"
 msgstr "Audio-Modul"
 
+#. Searching for audiobook...
+msgid "audio_searching"
+msgstr "Hörbuch wird gesucht..."
+
+#. Audiobook Available
+msgid "audio_available"
+msgstr "Hörbuch verfügbar"
+
+#. Connect to WiFi to stream
+msgid "audio_wifi_required"
+msgstr "WLAN verbinden zum Streamen"
+
+#. Refreshing audiobook search...
+msgid "audio_refreshing"
+msgstr "Hörbuchsuche wird aktualisiert..."
+
+#. Refresh
+msgid "audio_refresh"
+msgstr "Aktualisieren"
+
+#. Open
+msgid "audio_open"
+msgstr "Öffnen"
+
 #. Automatically search for free audiobook versions
 msgid "audiobooks_auto_search"
 msgstr "Automatisch nach kostenlosen Hörbuchversionen suchen"
@@ -1027,6 +1051,14 @@ msgstr "Kontakttyp"
 #. Lender
 msgid "contact_type_lender"
 msgstr "Verleiher"
+
+#. Friend, family member, colleague who borrows your books
+msgid "contact_type_person_hint"
+msgstr "Freund, Familie, Kollege, der Ihre Bücher ausleiht"
+
+#. Media library, school, association to exchange with
+msgid "contact_type_library_hint"
+msgstr "Mediathek, Schule, Verein zum Austauschen"
 
 #. Contact updated successfully
 msgid "contact_updated"
@@ -3329,13 +3361,6 @@ msgstr "Digitale Formate"
 msgid "module_digital_formats_desc"
 msgstr "E-Books und Hörbücher verwalten"
 
-#. Edition Browser
-msgid "module_edition_browser"
-msgstr "Ausgaben-Browser"
-
-#. Browse and select from multiple editions when adding books.
-msgid "module_edition_browser_desc"
-msgstr "Verschiedene Ausgaben eines Buches erkunden"
 
 #. Gamification
 msgid "module_gamification"

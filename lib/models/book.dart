@@ -15,6 +15,7 @@ class Book {
   final bool owned; // Whether I physically own this book (default: true)
   final double? price; // Book price (Bookseller profile)
   final List<String>? digitalFormats; // ["ebook", "audiobook"]
+  final String? language; // ISO language code or full name (e.g., 'fr', 'French')
 
   Book({
     this.id,
@@ -33,6 +34,7 @@ class Book {
     this.owned = true,
     this.price, // Optional price
     this.digitalFormats,
+    this.language,
   }) : _coverUrl = coverUrl;
 
   factory Book.fromJson(Map<String, dynamic> json) {
@@ -69,6 +71,7 @@ class Book {
       digitalFormats: json['digital_formats'] != null
           ? List<String>.from(json['digital_formats'])
           : null,
+      language: json['language'],
     );
   }
 
@@ -90,6 +93,7 @@ class Book {
       'owned': owned,
       'price': price, // Price for Bookseller profile
       'digital_formats': digitalFormats,
+      'language': language,
       'created_at': now,
       'updated_at': now,
     };
@@ -114,6 +118,7 @@ class Book {
       owned: owned,
       price: price, // Preserve price
       digitalFormats: digitalFormats, // Preserve formats
+      language: language,
     );
   }
 

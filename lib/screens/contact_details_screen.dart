@@ -93,6 +93,30 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
               ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
           ),
+          const SizedBox(height: 8),
+          Center(
+            child: Chip(
+              avatar: Icon(
+                _contact.type == 'borrower'
+                    ? Icons.person
+                    : Icons.library_books,
+                size: 18,
+                color: _contact.type == 'borrower'
+                    ? Colors.blue
+                    : Colors.purple,
+              ),
+              label: Text(
+                _contact.type == 'borrower'
+                    ? TranslationService.translate(context, 'role_borrower')
+                    : TranslationService.translate(context, 'role_library'),
+              ),
+              backgroundColor: (_contact.type == 'borrower'
+                      ? Colors.blue
+                      : Colors.purple)
+                  .withValues(alpha: 0.1),
+              side: BorderSide.none,
+            ),
+          ),
           const SizedBox(height: 24),
 
           // Action buttons
@@ -137,13 +161,6 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
           ),
 
           const SizedBox(height: 24),
-          _buildInfoCard(
-            context,
-            TranslationService.translate(context, 'contact_type_label'),
-            _contact.type == 'borrower'
-                ? TranslationService.translate(context, 'role_borrower')
-                : TranslationService.translate(context, 'role_library'),
-          ),
           _buildInfoCard(
             context,
             TranslationService.translate(context, 'contact_name_label'),

@@ -522,10 +522,9 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                         bookId: book.id!,
                         bookTitle: book.title,
                         bookAuthor: book.author,
-                        // Use app language as preferred audiobook language
-                        bookLanguage: Localizations.localeOf(
-                          context,
-                        ).languageCode,
+                        bookLanguage: book.language,
+                        userLanguages:
+                            context.read<ThemeProvider>().userLanguages,
                       ),
                     const SizedBox(height: 32),
                     if (book.summary != null && book.summary!.isNotEmpty) ...[
@@ -1690,6 +1689,9 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     if (book == null || book.isbn == null || book.id == null) return;
 
     setState(() => _isRefreshing = true);
+
+    // Also refresh audiobook search
+    context.read<AudioProvider>().clearBookCache(book.id!);
 
     try {
       final apiService = Provider.of<ApiService>(context, listen: false);

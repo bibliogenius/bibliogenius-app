@@ -349,6 +349,30 @@ msgstr "Gérez vos livres audio et lectures à voix haute."
 msgid "audio_module_title"
 msgstr "Module Audio"
 
+#. Searching for audiobook...
+msgid "audio_searching"
+msgstr "Recherche de livre audio..."
+
+#. Audiobook Available
+msgid "audio_available"
+msgstr "Livre audio disponible"
+
+#. Connect to WiFi to stream
+msgid "audio_wifi_required"
+msgstr "Connectez-vous au WiFi pour écouter"
+
+#. Refreshing audiobook search...
+msgid "audio_refreshing"
+msgstr "Actualisation de la recherche audio..."
+
+#. Refresh
+msgid "audio_refresh"
+msgstr "Actualiser"
+
+#. Open
+msgid "audio_open"
+msgstr "Ouvrir"
+
 #. Automatically search for free audiobook versions
 msgid "audiobooks_auto_search"
 msgstr "Recherche automatique de versions audio gratuites"
@@ -1051,6 +1075,14 @@ msgstr "Type"
 #. Lender
 msgid "contact_type_lender"
 msgstr "Prêteur"
+
+#. Friend, family member, colleague who borrows your books
+msgid "contact_type_person_hint"
+msgstr "Ami, famille, collègue qui emprunte vos livres"
+
+#. Media library, school, association to exchange with
+msgid "contact_type_library_hint"
+msgstr "Médiathèque, école, association avec qui échanger"
 
 #. Contact updated successfully
 msgid "contact_updated"
@@ -3353,13 +3385,6 @@ msgstr "Formats"
 msgid "module_digital_formats_desc"
 msgstr "Activer la gestion des formats physiques et numériques (papie, e-books, audio)."
 
-#. Edition Browser
-msgid "module_edition_browser"
-msgstr "Navigateur d'éditions"
-
-#. Browse and select from multiple editions when adding books.
-msgid "module_edition_browser_desc"
-msgstr "Parcourir et sélectionner parmi plusieurs éditions lors de l'ajout de livres."
 
 #. Gamification
 msgid "module_gamification"

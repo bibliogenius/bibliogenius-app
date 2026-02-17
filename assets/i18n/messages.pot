@@ -1027,6 +1027,14 @@ msgstr ""
 msgid "contact_type_lender"
 msgstr ""
 
+#. Friend, family member, colleague who borrows your books
+msgid "contact_type_person_hint"
+msgstr ""
+
+#. Media library, school, association to exchange with
+msgid "contact_type_library_hint"
+msgstr ""
+
 #. Contact updated successfully
 msgid "contact_updated"
 msgstr ""

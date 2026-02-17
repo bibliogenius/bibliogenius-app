@@ -5,7 +5,6 @@ import '../../models/collection.dart';
 import '../../services/translation_service.dart';
 import '../../data/repositories/collection_repository.dart';
 import '../../services/api_service.dart';
-import '../../providers/theme_provider.dart';
 import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../widgets/hierarchical_tag_selector.dart';
@@ -56,8 +55,7 @@ class _ImportFromSearchScreenState extends State<ImportFromSearchScreen>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final theme = Provider.of<ThemeProvider>(context, listen: false);
-    if (theme.editionBrowserEnabled && _tabController == null) {
+    if (_tabController == null) {
       _tabController = TabController(length: 2, vsync: this);
     }
   }
@@ -411,15 +409,12 @@ class _ImportFromSearchScreenState extends State<ImportFromSearchScreen>
 
   @override
   Widget build(BuildContext context) {
-    final theme = Provider.of<ThemeProvider>(context);
-    final useEditionBrowser = theme.editionBrowserEnabled;
-
     return Scaffold(
       appBar: AppBar(
         title: Text(
           TranslationService.translate(context, 'external_search_title'),
         ),
-        bottom: useEditionBrowser && _tabController != null
+        bottom: _tabController != null
             ? TabBar(
                 controller: _tabController,
                 labelColor: Colors.white,
@@ -663,8 +658,7 @@ class _ImportFromSearchScreenState extends State<ImportFromSearchScreen>
 
           // Control Bar (only for list view)
           if (_searchResults.isNotEmpty &&
-              (!useEditionBrowser ||
-                  _tabController == null ||
+              (_tabController == null ||
                   _tabController!.index == 0))
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -706,7 +700,7 @@ class _ImportFromSearchScreenState extends State<ImportFromSearchScreen>
 
           // Results Area
           Expanded(
-            child: useEditionBrowser && _tabController != null
+            child: _tabController != null
                 ? TabBarView(
                     controller: _tabController,
                     children: [_buildListView(), _buildEditionView()],
@@ -716,8 +710,7 @@ class _ImportFromSearchScreenState extends State<ImportFromSearchScreen>
 
           // Import Button (only for list view)
           if (_selectedIndices.isNotEmpty &&
-              (!useEditionBrowser ||
-                  _tabController == null ||
+              (_tabController == null ||
                   _tabController!.index == 0))
             SafeArea(
               child: Padding(

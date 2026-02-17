@@ -399,14 +399,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 _buildModuleToggle(
                   context,
-                  'module_edition_browser',
-                  'module_edition_browser_desc',
-                  Icons.layers,
-                  themeProvider.editionBrowserEnabled,
-                  (value) => themeProvider.setEditionBrowserEnabled(value),
-                ),
-                _buildModuleToggle(
-                  context,
                   'enable_borrowing_module',
                   'borrowing_module_desc',
                   Icons.swap_horiz,
