@@ -130,15 +130,6 @@ class ScaffoldWithNav extends StatelessWidget {
           label: Text(TranslationService.translate(context, 'nav_help')),
         ),
       ),
-      // TODO: Move to Settings after testing phase
-      _NavItem(
-        route: '/feedback',
-        isPush: true,
-        destination: NavigationRailDestination(
-          icon: const Icon(Icons.bug_report),
-          label: Text(TranslationService.translate(context, 'nav_report_bug')),
-        ),
-      ),
     ];
   }
 

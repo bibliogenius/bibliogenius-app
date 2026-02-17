@@ -100,16 +100,6 @@ class AppDrawer extends StatelessWidget {
             currentPath: currentPath,
             theme: theme,
           ),
-          // TODO: Move "Signaler un bug" to Settings after testing phase
-          _buildDrawerItem(
-            context,
-            icon: Icons.bug_report,
-            titleKey: 'nav_report_bug',
-            route: '/feedback',
-            currentPath: currentPath,
-            theme: theme,
-            isPush: true,
-          ),
         ],
       ),
     );
