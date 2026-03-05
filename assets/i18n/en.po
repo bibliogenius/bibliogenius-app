@@ -2381,7 +2381,7 @@ msgstr "Manage Shelves"
 
 #. Go to Migration
 msgid "help_cta_migrate"
-msgstr "Go to Migration"
+msgstr "Import my books"
 
 #. Play
 msgid "help_cta_play_memory"
@@ -2635,9 +2635,9 @@ msgstr "The Audio module lets you manage audiobooks and track listening progress
 msgid "help_desc_collections"
 msgstr "Collections let you group books into custom lists (sagas, themes, reading lists). Create a collection from the Collections tab, then add books from your library or import existing lists."
 
-#. Go to \"Connect Library\" to share your QR code or scan a friend's code.
+#. Connect with friends by scanning their QR code or sharing yours. Once connected, you can browse each other's shared books, send borrow requests, and stay in sync.
 msgid "help_desc_connect"
-msgstr "Go to \"Connect Library\" to share your QR code or scan a friend's code."
+msgstr "Connect with friends by scanning their QR code or sharing yours. Once connected, you can browse each other's shared books, send borrow requests, and stay in sync."
 
 #. Go to \"Network\" to add friends or libraries. You can add borrowers (who can borrow your books) or libraries (whose catalog you can browse).
 msgid "help_desc_contacts"
@@ -2659,13 +2659,13 @@ msgstr "You can import books from Gleeph, Goodreads, Babelio, or any CSV file. T
 msgid "help_desc_memory_game"
 msgstr "Test your memory with your book covers"
 
-#. View your statistics, badges, goals and leaderboard
+#. Your profile lets you customize the app: change themes, enable optional modules (audio, games, collections), configure external search sources (Google Books, BNF, OpenLibrary), and manage your account.
 msgid "help_desc_profile"
-msgstr "View your statistics, badges, goals and leaderboard"
+msgstr "Your profile lets you customize the app: change themes, enable optional modules (audio, games, collections), configure external search sources (Google Books, BNF, OpenLibrary), and manage your account."
 
-#. Find the book in your library, tap \"Manage Copies\", then \"Lend\". Select a contact to lend to.
+#. Open a book in your library and tap "Lend" in the copies section. Choose a contact from your list. BiblioGenius tracks the loan and reminds you to get your books back.
 msgid "help_desc_lend"
-msgstr "Find the book in your library, tap \"Manage Copies\", then \"Lend\". Select a contact to lend to."
+msgstr "Open a book in your library and tap \"Lend\" in the copies section. Choose a contact from your list. BiblioGenius tracks the loan and reminds you to get your books back."
 
 #. The \"Network\" section lets you discover and browse catalogs of libraries you've added. You can request to borrow books from there.
 msgid "help_desc_network"
@@ -2680,13 +2680,41 @@ msgstr ""
 "4. Drag books to your preferred order, or tap A→Z for auto-sort by author.\n"
 "5. Tap ✓ to save your custom arrangement!"
 
-#. Open a book and tap \"Mark as Reading\" to start tracking. Update your progress as you read. When finished, mark it as \"Read\" to earn XP and unlock achievements!
+#. Track your reading by marking books as "To Read", "Reading" or "Read". Each book read earns XP and can unlock achievements and badges visible on your profile. Set reading goals to stay motivated!
 msgid "help_desc_reading_progress"
-msgstr "Open a book and tap \"Mark as Reading\" to start tracking. Update your progress as you read. When finished, mark it as \"Read\" to earn XP and unlock achievements!"
+msgstr "Track your reading by marking books as \"To Read\", \"Reading\" or \"Read\". Each book read earns XP and can unlock achievements and badges visible on your profile. Set reading goals to stay motivated!"
 
 #. In \"Requests\", you can see all incoming borrow requests (people wanting your books) and outgoing ones (your requests to others). Accept, decline, or mark as returned.
 msgid "help_desc_requests"
 msgstr "In \"Requests\", you can see all incoming borrow requests (people wanting your books) and outgoing ones (your requests to others). Accept, decline, or mark as returned."
+
+#. Use the barcode scanner to instantly identify books. Point your camera at the ISBN barcode on the back cover. BiblioGenius will search multiple catalogs and auto-fill all metadata (title, author, cover, publisher).
+msgid "help_desc_scan"
+msgstr "Use the barcode scanner to instantly identify books. Point your camera at the ISBN barcode on the back cover. BiblioGenius will search multiple catalogs and auto-fill all metadata (title, author, cover, publisher)."
+
+#. View detailed stats about your reading habits: books read per month, favorite genres, top authors, publication years, and more. Track your progress over time and compare with friends on the leaderboard.
+msgid "help_desc_statistics"
+msgstr "View detailed stats about your reading habits: books read per month, favorite genres, top authors, publication years, and more. Track your progress over time and compare with friends on the leaderboard."
+
+#. How to scan a barcode?
+msgid "help_topic_scan"
+msgstr "How to scan a barcode?"
+
+#. My statistics and achievements
+msgid "help_topic_statistics"
+msgstr "My statistics and achievements"
+
+#. Scan a Book
+msgid "help_cta_scan"
+msgstr "Scan a book"
+
+#. Import my books
+msgid "help_cta_import"
+msgstr "Import my books"
+
+#. View my stats
+msgid "help_cta_go_to_stats"
+msgstr "View my stats"
 
 #. Frequently Asked Questions
 msgid "help_faq_title"
@@ -2732,9 +2760,9 @@ msgstr "How to use audio features?"
 msgid "help_topic_collections"
 msgstr "How to use Collections?"
 
-#. How to connect with friends?
+#. How to connect and share with friends?
 msgid "help_topic_connect"
-msgstr "How to connect with friends?"
+msgstr "How to connect and share with friends?"
 
 #. How to manage contacts?
 msgid "help_topic_contacts"
@@ -2756,13 +2784,13 @@ msgstr "Importing Books"
 msgid "help_topic_memory_game"
 msgstr "Memory Game"
 
-#. My Profile
+#. How to customize the app?
 msgid "help_topic_profile"
-msgstr "My Profile"
+msgstr "How to customize the app?"
 
-#. How to lend a book?
+#. How to lend my books?
 msgid "help_topic_lend"
-msgstr "How to lend a book?"
+msgstr "How to lend my books?"
 
 #. How to explore the network?
 msgid "help_topic_network"
@@ -2776,9 +2804,9 @@ msgstr "How to organize my shelves?"
 msgid "help_topic_reading_progress"
 msgstr "How to track reading progress?"
 
-#. How to manage requests?
+#. How to manage borrow requests?
 msgid "help_topic_requests"
-msgstr "How to manage requests?"
+msgstr "How to manage borrow requests?"
 
 #. Find answers to common questions about using BiblioGenius
 msgid "help_welcome_subtitle"
@@ -7309,3 +7337,31 @@ msgstr "Browse and select from multiple editions when adding books"
 
 msgid "confirm"
 msgstr "Confirm"
+
+#. Notifications / Activity Feed
+msgid "notifications_title"
+msgstr "Activity"
+
+msgid "notifications_empty"
+msgstr "No notifications yet"
+
+msgid "notifications_mark_all_read"
+msgstr "Mark all as read"
+
+msgid "notifications_dismiss"
+msgstr "Dismiss"
+
+msgid "notifications_filter_all"
+msgstr "All"
+
+msgid "notifications_filter_connections"
+msgstr "Connections"
+
+msgid "notifications_filter_loans"
+msgstr "Loans"
+
+msgid "notifications_filter_discoveries"
+msgstr "Discoveries"
+
+msgid "time_just_now"
+msgstr "Just now"

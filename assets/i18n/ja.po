@@ -5553,3 +5553,39 @@ msgstr ""
 msgid "your_progress"
 msgstr ""
 
+#. Notifications
+msgid "notifications_title"
+msgstr "通知"
+
+#. Notifications
+msgid "notifications_empty"
+msgstr "通知はありません"
+
+#. Notifications
+msgid "notifications_mark_all_read"
+msgstr "すべて既読にする"
+
+#. Notifications
+msgid "notifications_dismiss"
+msgstr "閉じる"
+
+#. Notifications
+msgid "notifications_filter_all"
+msgstr "すべて"
+
+#. Notifications
+msgid "notifications_filter_connections"
+msgstr "つながり"
+
+#. Notifications
+msgid "notifications_filter_loans"
+msgstr "貸出"
+
+#. Notifications
+msgid "notifications_filter_discoveries"
+msgstr "発見"
+
+#. Notifications
+msgid "time_just_now"
+msgstr "たった今"
+

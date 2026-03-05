@@ -5553,3 +5553,39 @@ msgstr ""
 msgid "your_progress"
 msgstr ""
 
+#. Notifications
+msgid "notifications_title"
+msgstr "Notifiche"
+
+#. Notifications
+msgid "notifications_empty"
+msgstr "Nessuna notifica"
+
+#. Notifications
+msgid "notifications_mark_all_read"
+msgstr "Segna tutto come letto"
+
+#. Notifications
+msgid "notifications_dismiss"
+msgstr "Ignora"
+
+#. Notifications
+msgid "notifications_filter_all"
+msgstr "Tutte"
+
+#. Notifications
+msgid "notifications_filter_connections"
+msgstr "Connessioni"
+
+#. Notifications
+msgid "notifications_filter_loans"
+msgstr "Prestiti"
+
+#. Notifications
+msgid "notifications_filter_discoveries"
+msgstr "Scoperte"
+
+#. Notifications
+msgid "time_just_now"
+msgstr "Proprio ora"
+

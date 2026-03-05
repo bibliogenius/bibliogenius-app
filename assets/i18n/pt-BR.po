@@ -5559,3 +5559,39 @@ msgstr "Seu nível atual"
 #. Your Progress
 msgid "your_progress"
 msgstr "Seu Progresso"
+
+#. Notifications
+msgid "notifications_title"
+msgstr "Notificacoes"
+
+#. Notifications
+msgid "notifications_empty"
+msgstr "Nenhuma notificacao"
+
+#. Notifications
+msgid "notifications_mark_all_read"
+msgstr "Marcar tudo como lido"
+
+#. Notifications
+msgid "notifications_dismiss"
+msgstr "Dispensar"
+
+#. Notifications
+msgid "notifications_filter_all"
+msgstr "Todas"
+
+#. Notifications
+msgid "notifications_filter_connections"
+msgstr "Conexoes"
+
+#. Notifications
+msgid "notifications_filter_loans"
+msgstr "Emprestimos"
+
+#. Notifications
+msgid "notifications_filter_discoveries"
+msgstr "Descobertas"
+
+#. Notifications
+msgid "time_just_now"
+msgstr "Agora mesmo"

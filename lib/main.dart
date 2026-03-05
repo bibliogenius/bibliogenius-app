@@ -82,8 +82,10 @@ import 'screens/sync_review_screen.dart';
 import 'screens/external_search_screen.dart';
 import 'screens/invite_acceptance_screen.dart';
 import 'screens/library_catalog_screen.dart';
+import 'screens/notifications_screen.dart';
 import 'providers/hub_directory_provider.dart';
 import 'providers/flash_message_provider.dart';
+import 'providers/notification_provider.dart';
 import 'package:app_links/app_links.dart';
 
 import 'services/wizard_service.dart';
@@ -406,6 +408,9 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider<FlashMessageProvider>(
           create: (_) => FlashMessageProvider(),
+        ),
+        ChangeNotifierProvider<NotificationProvider>(
+          create: (_) => NotificationProvider()..init(),
         ),
       ],
       child: const AppRouter(),
@@ -906,6 +911,10 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
                   },
                 ),
               ],
+            ),
+            GoRoute(
+              path: '/notifications',
+              builder: (context, state) => const NotificationsScreen(),
             ),
             GoRoute(
               path: '/help',

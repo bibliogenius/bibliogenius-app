@@ -5625,3 +5625,39 @@ msgstr "Mevcut seviyeniz"
 msgid "your_progress"
 msgstr "İlerlemeniz"
 
+#. Notifications
+msgid "notifications_title"
+msgstr "Bildirimler"
+
+#. Notifications
+msgid "notifications_empty"
+msgstr "Bildirim yok"
+
+#. Notifications
+msgid "notifications_mark_all_read"
+msgstr "Tumunu okundu olarak isaretle"
+
+#. Notifications
+msgid "notifications_dismiss"
+msgstr "Kapat"
+
+#. Notifications
+msgid "notifications_filter_all"
+msgstr "Tumu"
+
+#. Notifications
+msgid "notifications_filter_connections"
+msgstr "Baglantılar"
+
+#. Notifications
+msgid "notifications_filter_loans"
+msgstr "Odunc verme"
+
+#. Notifications
+msgid "notifications_filter_discoveries"
+msgstr "Kesfetler"
+
+#. Notifications
+msgid "time_just_now"
+msgstr "Az once"
+

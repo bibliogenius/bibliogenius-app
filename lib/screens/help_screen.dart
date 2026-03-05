@@ -29,7 +29,7 @@ class _HelpScreenState extends State<HelpScreen> {
     final slidingPuzzleEnabled = themeProvider.slidingPuzzleEnabled;
 
     _topics = [
-      // Getting Started
+      // --- Getting Started ---
       _HelpTopic(
         icon: Icons.add_circle_outline,
         titleKey: 'help_topic_add_book',
@@ -39,61 +39,52 @@ class _HelpScreenState extends State<HelpScreen> {
         ctaRoute: '/books',
       ),
       _HelpTopic(
-        icon: Icons.sort,
-        titleKey: 'help_topic_organize_shelf',
-        descKey: 'help_desc_organize_shelf',
+        icon: Icons.qr_code_scanner,
+        titleKey: 'help_topic_scan',
+        descKey: 'help_desc_scan',
         gradient: AppDesign.warningGradient,
-        ctaKey: 'help_cta_manage_shelves',
-        ctaRoute: '/shelves',
+        ctaKey: 'help_cta_scan',
+        ctaRoute: '/scan',
       ),
-      _HelpTopic(
-        icon: Icons.auto_stories,
-        titleKey: 'help_topic_reading_progress',
-        descKey: 'help_desc_reading_progress',
-        gradient: AppDesign.accentGradient,
-        ctaKey: 'help_cta_go_to_library',
-        ctaRoute: '/books',
-      ),
-      // Discovery
       _HelpTopic(
         icon: Icons.search,
         titleKey: 'help_topic_external_search',
         descKey: 'help_desc_external_search',
         gradient: AppDesign.oceanGradient,
         ctaKey: 'help_cta_search_catalogs',
-        ctaRoute: '/external-search',
+        ctaRoute: '/search/external',
       ),
-      // Social Features
+      _HelpTopic(
+        icon: Icons.sort,
+        titleKey: 'help_topic_organize_shelf',
+        descKey: 'help_desc_organize_shelf',
+        gradient: AppDesign.accentGradient,
+        ctaKey: 'help_cta_manage_shelves',
+        ctaRoute: '/shelves-management',
+      ),
+      _HelpTopic(
+        icon: Icons.auto_stories,
+        titleKey: 'help_topic_reading_progress',
+        descKey: 'help_desc_reading_progress',
+        gradient: AppDesign.primaryGradient,
+        ctaKey: 'help_cta_go_to_library',
+        ctaRoute: '/books',
+      ),
+
+      // --- Network & Sharing ---
       _HelpTopic(
         icon: Icons.qr_code,
         titleKey: 'help_topic_connect',
         descKey: 'help_desc_connect',
-        gradient: AppDesign.primaryGradient,
-        ctaKey: 'help_cta_connect_library',
-        ctaRoute: '/p2p',
-      ),
-      _HelpTopic(
-        icon: Icons.people,
-        titleKey: 'help_topic_contacts',
-        descKey: 'help_desc_contacts',
-        gradient: AppDesign.successGradient,
+        gradient: AppDesign.oceanGradient,
         ctaKey: 'help_cta_go_to_network',
         ctaRoute: '/network',
       ),
       _HelpTopic(
-        icon: Icons.cloud_sync,
-        titleKey: 'help_topic_network',
-        descKey: 'help_desc_network',
-        gradient: AppDesign.darkGradient,
-        ctaKey: 'help_cta_explore_network',
-        ctaRoute: '/network',
-      ),
-      // Lending & Borrowing
-      _HelpTopic(
         icon: Icons.import_contacts,
         titleKey: 'help_topic_lend',
         descKey: 'help_desc_lend',
-        gradient: AppDesign.oceanGradient,
+        gradient: AppDesign.successGradient,
         ctaKey: 'help_cta_go_to_library',
         ctaRoute: '/books',
       ),
@@ -105,7 +96,8 @@ class _HelpScreenState extends State<HelpScreen> {
         ctaKey: 'help_cta_view_requests',
         ctaRoute: '/requests',
       ),
-      // Advanced (conditional)
+
+      // --- Advanced (conditional) ---
       if (collectionsEnabled)
         _HelpTopic(
           icon: Icons.inventory_2_outlined,
@@ -146,7 +138,34 @@ class _HelpScreenState extends State<HelpScreen> {
           ctaKey: 'help_cta_play_puzzle',
           ctaRoute: '/sliding-puzzle',
         ),
-      // Data & Privacy
+
+      // --- Data & Settings ---
+      _HelpTopic(
+        icon: Icons.get_app_outlined,
+        titleKey: 'help_topic_import',
+        descKey: 'help_desc_import',
+        gradient: AppDesign.accentGradient,
+        ctaKey: 'help_cta_import',
+        ctaRoute: '/settings/migration-wizard',
+      ),
+      _HelpTopic(
+        icon: Icons.bar_chart,
+        titleKey: 'help_topic_statistics',
+        descKey: 'help_desc_statistics',
+        gradient: const LinearGradient(
+          colors: [Color(0xFF7C3AED), Color(0xFFA78BFA)],
+        ),
+        ctaKey: 'help_cta_go_to_stats',
+        ctaRoute: '/statistics',
+      ),
+      _HelpTopic(
+        icon: Icons.person_outline,
+        titleKey: 'help_topic_profile',
+        descKey: 'help_desc_profile',
+        gradient: AppDesign.darkGradient,
+        ctaKey: 'help_cta_profile',
+        ctaRoute: '/profile',
+      ),
       _HelpTopic(
         icon: Icons.shield_outlined,
         titleKey: 'help_topic_data_privacy',
@@ -154,26 +173,6 @@ class _HelpScreenState extends State<HelpScreen> {
         gradient: AppDesign.darkGradient,
         ctaKey: 'help_cta_go_to_profile',
         ctaRoute: '/profile',
-      ),
-      // Profile
-      _HelpTopic(
-        icon: Icons.person_outline,
-        titleKey: 'help_topic_profile',
-        descKey: 'help_desc_profile',
-        gradient: const LinearGradient(
-          colors: [Color(0xFF7C3AED), Color(0xFFA78BFA)],
-        ),
-        ctaKey: 'help_cta_profile',
-        ctaRoute: '/profile',
-      ),
-      // Import (FAQ)
-      _HelpTopic(
-        icon: Icons.get_app_outlined,
-        titleKey: 'help_topic_import',
-        descKey: 'help_desc_import',
-        gradient: AppDesign.primaryGradient,
-        ctaKey: 'help_cta_migrate',
-        ctaRoute: '/settings/migration-wizard',
       ),
     ];
   }

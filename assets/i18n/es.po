@@ -7036,3 +7036,39 @@ msgstr "Agrupar por coleccion"
 
 msgid "confirm"
 msgstr "Confirmar"
+
+#. Notifications
+msgid "notifications_title"
+msgstr "Notificaciones"
+
+#. Notifications
+msgid "notifications_empty"
+msgstr "Sin notificaciones"
+
+#. Notifications
+msgid "notifications_mark_all_read"
+msgstr "Marcar todo como leido"
+
+#. Notifications
+msgid "notifications_dismiss"
+msgstr "Descartar"
+
+#. Notifications
+msgid "notifications_filter_all"
+msgstr "Todas"
+
+#. Notifications
+msgid "notifications_filter_connections"
+msgstr "Conexiones"
+
+#. Notifications
+msgid "notifications_filter_loans"
+msgstr "Prestamos"
+
+#. Notifications
+msgid "notifications_filter_discoveries"
+msgstr "Descubrimientos"
+
+#. Notifications
+msgid "time_just_now"
+msgstr "Ahora mismo"

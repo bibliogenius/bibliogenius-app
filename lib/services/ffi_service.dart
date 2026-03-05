@@ -1268,4 +1268,68 @@ class FfiService {
       return {'total_peer': 0, 'total_follower': 0, 'total': 0, 'daily': []};
     }
   }
+
+  // ============ Activity Feed (Notifications) ============
+
+  Future<List<frb.FrbNotification>> notificationsList({
+    String? category,
+    int offset = 0,
+    int limit = 50,
+  }) async {
+    try {
+      return await frb.notificationsList(
+        category: category,
+        offset: BigInt.from(offset),
+        limit: BigInt.from(limit),
+      );
+    } catch (e) {
+      debugPrint('FFI notificationsList error: $e');
+      return [];
+    }
+  }
+
+  Future<int> notificationsUnreadCount({String? category}) async {
+    try {
+      return await frb.notificationsUnreadCount(category: category);
+    } catch (e) {
+      debugPrint('FFI notificationsUnreadCount error: $e');
+      return 0;
+    }
+  }
+
+  Future<bool> notificationsMarkRead(int id) async {
+    try {
+      return await frb.notificationsMarkRead(id: id);
+    } catch (e) {
+      debugPrint('FFI notificationsMarkRead error: $e');
+      return false;
+    }
+  }
+
+  Future<int> notificationsMarkAllRead() async {
+    try {
+      return await frb.notificationsMarkAllRead();
+    } catch (e) {
+      debugPrint('FFI notificationsMarkAllRead error: $e');
+      return 0;
+    }
+  }
+
+  Future<bool> notificationsDismiss(int id) async {
+    try {
+      return await frb.notificationsDismiss(id: id);
+    } catch (e) {
+      debugPrint('FFI notificationsDismiss error: $e');
+      return false;
+    }
+  }
+
+  Future<int> notificationsPrune() async {
+    try {
+      return await frb.notificationsPrune();
+    } catch (e) {
+      debugPrint('FFI notificationsPrune error: $e');
+      return 0;
+    }
+  }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/theme_provider.dart';
+import '../providers/notification_provider.dart';
 import '../services/translation_service.dart';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -176,6 +177,24 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
         },
       ),
       actions: [
+        // Notification bell with unread badge
+        Consumer<NotificationProvider>(
+          builder: (context, notifProvider, child) {
+            final count = notifProvider.unreadCount;
+            return IconButton(
+              icon: Badge(
+                isLabelVisible: count > 0,
+                label: Text(
+                  count > 99 ? '99+' : '$count',
+                  style: const TextStyle(fontSize: 10),
+                ),
+                child: const Icon(Icons.notifications_outlined, color: Colors.white),
+              ),
+              tooltip: TranslationService.translate(context, 'notifications_title'),
+              onPressed: () => context.push('/notifications'),
+            );
+          },
+        ),
         // Global Quick Actions Button (New)
         Semantics(
           button: true,

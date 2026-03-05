@@ -5553,3 +5553,39 @@ msgstr ""
 msgid "your_progress"
 msgstr ""
 
+#. Notifications
+msgid "notifications_title"
+msgstr "알림"
+
+#. Notifications
+msgid "notifications_empty"
+msgstr "알림이 없습니다"
+
+#. Notifications
+msgid "notifications_mark_all_read"
+msgstr "모두 읽음으로 표시"
+
+#. Notifications
+msgid "notifications_dismiss"
+msgstr "닫기"
+
+#. Notifications
+msgid "notifications_filter_all"
+msgstr "전체"
+
+#. Notifications
+msgid "notifications_filter_connections"
+msgstr "연결"
+
+#. Notifications
+msgid "notifications_filter_loans"
+msgstr "대출"
+
+#. Notifications
+msgid "notifications_filter_discoveries"
+msgstr "발견"
+
+#. Notifications
+msgid "time_just_now"
+msgstr "방금"
+

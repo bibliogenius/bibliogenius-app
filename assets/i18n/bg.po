@@ -5627,3 +5627,39 @@ msgstr "Промени трудност"
 #. Memory Game - Dashboard subtitle
 msgid "memory_game_dashboard_subtitle"
 msgstr "Намерете кориците на книгите си!"
+
+#. Notifications
+msgid "notifications_title"
+msgstr "Известия"
+
+#. Notifications
+msgid "notifications_empty"
+msgstr "Няма известия"
+
+#. Notifications
+msgid "notifications_mark_all_read"
+msgstr "Маркирай всички като прочетени"
+
+#. Notifications
+msgid "notifications_dismiss"
+msgstr "Отхвърли"
+
+#. Notifications
+msgid "notifications_filter_all"
+msgstr "Всички"
+
+#. Notifications
+msgid "notifications_filter_connections"
+msgstr "Връзки"
+
+#. Notifications
+msgid "notifications_filter_loans"
+msgstr "Заеми"
+
+#. Notifications
+msgid "notifications_filter_discoveries"
+msgstr "Открития"
+
+#. Notifications
+msgid "time_just_now"
+msgstr "Току-що"

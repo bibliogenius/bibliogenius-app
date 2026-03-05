@@ -126,6 +126,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FrbMemoryScore dco_decode_frb_memory_score(dynamic raw);
 
   @protected
+  FrbNotification dco_decode_frb_notification(dynamic raw);
+
+  @protected
   FrbOperationLogEntry dco_decode_frb_operation_log_entry(dynamic raw);
 
   @protected
@@ -224,6 +227,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<FrbMemoryScore> dco_decode_list_frb_memory_score(dynamic raw);
+
+  @protected
+  List<FrbNotification> dco_decode_list_frb_notification(dynamic raw);
 
   @protected
   List<FrbOperationLogEntry> dco_decode_list_frb_operation_log_entry(
@@ -437,6 +443,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FrbMemoryScore sse_decode_frb_memory_score(SseDeserializer deserializer);
 
   @protected
+  FrbNotification sse_decode_frb_notification(SseDeserializer deserializer);
+
+  @protected
   FrbOperationLogEntry sse_decode_frb_operation_log_entry(
     SseDeserializer deserializer,
   );
@@ -567,6 +576,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<FrbMemoryScore> sse_decode_list_frb_memory_score(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  List<FrbNotification> sse_decode_list_frb_notification(
     SseDeserializer deserializer,
   );
 
@@ -819,6 +833,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_frb_notification(
+    FrbNotification self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_frb_operation_log_entry(
     FrbOperationLogEntry self,
     SseSerializer serializer,
@@ -983,6 +1003,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_list_frb_memory_score(
     List<FrbMemoryScore> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_frb_notification(
+    List<FrbNotification> self,
     SseSerializer serializer,
   );
 

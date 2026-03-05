@@ -8,8 +8,8 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 part 'frb.freezed.dart';
 
-// These functions are ignored because they are not marked as `pub`: `db`, `device_pairing_svc`, `device_sync_svc`, `entries_to_frb`, `hub_db`, `hub_directory_svc`, `install_panic_hook`, `load_google_books_api_key`, `runtime`, `track_to_frb`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
+// These functions are ignored because they are not marked as `pub`: `db`, `device_pairing_svc`, `device_sync_svc`, `entries_to_frb`, `hub_db`, `hub_directory_svc`, `install_panic_hook`, `load_google_books_api_key`, `runtime`, `track_to_frb`, `upsert_directory_catalog_cache`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
 
 /// Initialize the FFI backend with database at the given path
 /// Must be called before any other FFI functions
@@ -559,7 +559,8 @@ Future<FrbHubProfile> hubDirectoryGetProfile({required String nodeId}) =>
     RustLib.instance.api.crateApiFrbHubDirectoryGetProfile(nodeId: nodeId);
 
 /// Gets the catalog of a library (public or approved follow).
-/// Returns enriched entries (ISBN + title + author) when available.
+/// Fetches from hub, upserts into local cache, and returns entries with first_seen_at.
+/// If the hub fetch fails, returns the cached entries (offline-first).
 Future<List<FrbCatalogEntry>> hubDirectoryGetCatalog({
   required String nodeId,
 }) => RustLib.instance.api.crateApiFrbHubDirectoryGetCatalog(nodeId: nodeId);
@@ -716,6 +717,37 @@ Future<void> updateBookCollections({
   bookId: bookId,
   collectionIds: collectionIds,
 );
+
+/// List notifications, optionally filtered by category.
+Future<List<FrbNotification>> notificationsList({
+  String? category,
+  required BigInt offset,
+  required BigInt limit,
+}) => RustLib.instance.api.crateApiFrbNotificationsList(
+  category: category,
+  offset: offset,
+  limit: limit,
+);
+
+/// Get unread notification count (optionally by category).
+Future<int> notificationsUnreadCount({String? category}) => RustLib.instance.api
+    .crateApiFrbNotificationsUnreadCount(category: category);
+
+/// Mark a single notification as read.
+Future<bool> notificationsMarkRead({required int id}) =>
+    RustLib.instance.api.crateApiFrbNotificationsMarkRead(id: id);
+
+/// Mark all notifications as read.
+Future<int> notificationsMarkAllRead() =>
+    RustLib.instance.api.crateApiFrbNotificationsMarkAllRead();
+
+/// Dismiss (hard delete) a single notification.
+Future<bool> notificationsDismiss({required int id}) =>
+    RustLib.instance.api.crateApiFrbNotificationsDismiss(id: id);
+
+/// Run pruning (TTL + cap). Call on app startup.
+Future<int> notificationsPrune() =>
+    RustLib.instance.api.crateApiFrbNotificationsPrune();
 
 /// Simplified book structure for FFI
 @freezed
@@ -1323,6 +1355,57 @@ class FrbMemoryScore {
           normalizedScore == other.normalizedScore &&
           playedAt == other.playedAt &&
           newAchievements == other.newAchievements;
+}
+
+class FrbNotification {
+  final int id;
+  final String eventType;
+  final String category;
+  final String title;
+  final String? body;
+  final String? refType;
+  final String? refId;
+  final String? readAt;
+  final String createdAt;
+
+  const FrbNotification({
+    required this.id,
+    required this.eventType,
+    required this.category,
+    required this.title,
+    this.body,
+    this.refType,
+    this.refId,
+    this.readAt,
+    required this.createdAt,
+  });
+
+  @override
+  int get hashCode =>
+      id.hashCode ^
+      eventType.hashCode ^
+      category.hashCode ^
+      title.hashCode ^
+      body.hashCode ^
+      refType.hashCode ^
+      refId.hashCode ^
+      readAt.hashCode ^
+      createdAt.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FrbNotification &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          eventType == other.eventType &&
+          category == other.category &&
+          title == other.title &&
+          body == other.body &&
+          refType == other.refType &&
+          refId == other.refId &&
+          readAt == other.readAt &&
+          createdAt == other.createdAt;
 }
 
 @freezed
