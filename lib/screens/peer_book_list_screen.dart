@@ -15,6 +15,7 @@ import '../widgets/shimmer_loading.dart';
 import '../services/translation_service.dart';
 import '../providers/hub_directory_provider.dart';
 import '../providers/theme_provider.dart';
+import '../utils/app_constants.dart';
 
 class PeerBookListScreen extends StatefulWidget {
   final int peerId;
@@ -53,6 +54,9 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
   /// Background refresh state (cache-first pattern)
   bool _isRefreshing = false;
+
+  /// IDs of books that are "new" (first_seen_at within threshold)
+  Set<int> _newBookIds = {};
 
   /// Relay sync state (ADR-012)
   bool _isRelayLoading = false;
@@ -135,6 +139,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
             if (booksData.isNotEmpty) {
               setState(() {
+                _newBookIds = _extractNewBookIds(booksData);
                 _books =
                     booksData.map((json) => Book.fromJson(json)).toList();
                 _filteredBooks = _books;
@@ -143,9 +148,6 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                 _isRefreshing = true;
               });
               cacheDisplayed = true;
-              debugPrint(
-                'Loaded ${_books.length} cached books, last_synced: $_lastSynced',
-              );
             }
           }
         } catch (e) {
@@ -253,6 +255,34 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     }
   }
 
+  /// Extract IDs of books whose first_seen_at is within the new-badge threshold
+  /// from the raw JSON list (peer_book models include first_seen_at).
+  Set<int> _extractNewBookIds(List<dynamic> booksData) {
+    final now = DateTime.now();
+    final ids = <int>{};
+    for (final json in booksData) {
+      if (json is Map) {
+        final firstSeen = json['first_seen_at'] as String?;
+        if (firstSeen == null) continue;
+        final parsed = DateTime.tryParse(firstSeen);
+        if (parsed != null &&
+            now.difference(parsed).inDays < AppConstants.newBadgeDays) {
+          final id = json['id'] as int?;
+          if (id != null) ids.add(id);
+        }
+      }
+    }
+    return ids;
+  }
+
+  bool _isEntryNew(FrbCatalogEntry entry) {
+    final firstSeen = entry.firstSeenAt;
+    if (firstSeen == null) return false;
+    final parsed = DateTime.tryParse(firstSeen);
+    if (parsed == null) return false;
+    return DateTime.now().difference(parsed).inDays < AppConstants.newBadgeDays;
+  }
+
   /// Load hub catalog as a last-resort fallback (title + author + ISBN only).
   /// Displays as BookSpines since we have no covers or full book data.
   Future<void> _loadHubCatalog() async {
@@ -264,7 +294,13 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       if (entries.isNotEmpty) {
         setState(() {
           _isHubOnly = true;
-          _hubEntries = entries;
+          // Sort: new entries first, then alphabetical by title
+          _hubEntries = entries..sort((a, b) {
+            final aNew = _isEntryNew(a);
+            final bNew = _isEntryNew(b);
+            if (aNew != bNew) return aNew ? -1 : 1;
+            return a.title.compareTo(b.title);
+          });
         });
       }
     } catch (e) {
@@ -510,21 +546,28 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   }
 
   void _filterBooks(String query) {
+    List<Book> result;
     if (query.isEmpty) {
-      setState(() {
-        _filteredBooks = _books;
-      });
-      return;
-    }
-    setState(() {
-      _filteredBooks = _books.where((book) {
+      result = List.of(_books);
+    } else {
+      final q = query.toLowerCase();
+      result = _books.where((book) {
         final title = book.title.toLowerCase();
         final author = book.author?.toLowerCase() ?? '';
         final isbn = book.isbn?.toLowerCase() ?? '';
-        final q = query.toLowerCase();
         return title.contains(q) || author.contains(q) || isbn.contains(q);
       }).toList();
-    });
+    }
+    // Sort: new books first, then alphabetical
+    if (_newBookIds.isNotEmpty) {
+      result.sort((a, b) {
+        final aNew = _newBookIds.contains(a.id);
+        final bNew = _newBookIds.contains(b.id);
+        if (aNew != bNew) return aNew ? -1 : 1;
+        return a.title.toLowerCase().compareTo(b.title.toLowerCase());
+      });
+    }
+    setState(() => _filteredBooks = result);
   }
 
   Future<void> _syncBooks({bool showFeedback = true}) async {
@@ -672,6 +715,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
               crossAxisAlignment: WrapCrossAlignment.end,
               children: _hubEntries.map((entry) {
                 final seed = entry.isbn.hashCode;
+                final isNew = _isEntryNew(entry);
                 return GestureDetector(
                   onTap: () => _showHubEntryDetails(entry),
                   child: BookSpine(
@@ -680,6 +724,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                     colorSeed: seed,
                     height: 220 + (seed.abs() % 4) * 12.0,
                     width: 60 + (seed.abs() % 3) * 6.0,
+                    showNewBand: isNew,
                   ),
                 );
               }).toList(),
@@ -1073,6 +1118,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                               ? BookshelfView(
                                   books: _filteredBooks,
                                   onBookTap: (book) => _showBookDetails(book),
+                                  newBookIds: _newBookIds,
                                 )
                               : ListView.separated(
                                   itemCount: _filteredBooks.length,
@@ -1114,14 +1160,47 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                                               )
                                             : null,
                                       ),
-                                      title: Text(
-                                        book.title,
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
+                                      title: Row(
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              book.title,
+                                              style: const TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                          if (_newBookIds
+                                              .contains(book.id)) ...[
+                                            const SizedBox(width: 6),
+                                            Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                horizontal: 6,
+                                                vertical: 2,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: const Color(0xFFC62828),
+                                                borderRadius:
+                                                    BorderRadius.circular(4),
+                                              ),
+                                              child: Text(
+                                                TranslationService.translate(
+                                                        context, 'badge_new')
+                                                    .toUpperCase(),
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 9,
+                                                  fontWeight: FontWeight.w800,
+                                                  letterSpacing: 0.5,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ],
                                       ),
                                       subtitle: Text(
                                         book.author ?? 'Unknown Author',

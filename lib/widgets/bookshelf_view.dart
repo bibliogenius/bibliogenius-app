@@ -5,11 +5,14 @@ import 'book_spine.dart';
 class BookshelfView extends StatelessWidget {
   final List<Book> books;
   final Function(Book) onBookTap;
+  /// Set of book IDs that should display a "new" band on their spine.
+  final Set<int> newBookIds;
 
   const BookshelfView({
     super.key,
     required this.books,
     required this.onBookTap,
+    this.newBookIds = const {},
   });
 
   @override
@@ -31,6 +34,7 @@ class BookshelfView extends StatelessWidget {
                   height:
                       220 + ((book.id ?? 0) % 4) * 12.0, // Vary height slightly
                   width: 60 + ((book.id ?? 0) % 3) * 6.0, // Vary width slightly
+                  showNewBand: newBookIds.contains(book.id),
                 ),
               );
             }).toList(),

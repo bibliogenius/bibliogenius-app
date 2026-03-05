@@ -166,6 +166,9 @@ class FlashMessageProvider extends ChangeNotifier {
   /// the outgoing connection screen (url.hashCode) and the incoming
   /// detection poll (DB id).
   void addEphemeralPeer(EphemeralPeerFlash flash) {
+    // Only show flash for pending connection requests, not accepted ones
+    if (!flash.isPending) return;
+
     if (_shownPeerIds.contains(flash.peerId)) return;
     if (flash.peerUrl != null && _shownPeerUrls.contains(flash.peerUrl)) return;
     if (flash.nodeId != null && _shownNodeIds.contains(flash.nodeId)) return;

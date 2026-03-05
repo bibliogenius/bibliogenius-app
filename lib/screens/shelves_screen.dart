@@ -4,7 +4,9 @@ import 'package:provider/provider.dart';
 import '../data/repositories/tag_repository.dart';
 import '../models/tag.dart';
 import '../widgets/genie_app_bar.dart';
+import '../widgets/configurable_action_card.dart';
 import '../widgets/contextual_help_sheet.dart';
+import '../widgets/quick_actions_sheet.dart';
 import '../services/translation_service.dart';
 import '../theme/app_design.dart';
 import '../providers/theme_provider.dart';
@@ -223,29 +225,46 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
           ),
         ],
         contextualQuickActions: [
-          ListTile(
-            leading: const Icon(Icons.add_circle_outline),
-            title: Text(
-              TranslationService.translate(context, 'create_shelf') ??
-                  'Create Shelf',
-            ),
-            onTap: () {
-              Navigator.pop(context); // Close Quick Actions sheet
+          Builder(builder: (sheetContext) {
+            final handlers = QuickActionsSheet.buildCommonHandlers(
+              sheetContext,
+              onDone: _refreshTags,
+            );
+            // Override create_shelf to use the local dialog with parent preselect
+            handlers['create_shelf'] = () {
+              Navigator.pop(sheetContext);
               _showCreateShelfDialog();
-            },
-          ),
-          const Divider(),
-          ListTile(
-            leading: const Icon(Icons.edit_note),
-            title: Text(
-              TranslationService.translate(context, 'manage_shelves') ??
-                  'Manage Shelves',
-            ),
-            onTap: () {
-              Navigator.pop(context);
-              context.push('/shelves-management');
-            },
-          ),
+            };
+            return Row(
+              children: [
+                Expanded(
+                  child: ConfigurableActionCard(
+                    slotKey: 'shelves_ctx_slot_1',
+                    defaultActionId: 'create_shelf',
+                    allowedActionIds: const [
+                      'create_shelf',
+                      'manage_shelves',
+                      'inventory',
+                    ],
+                    handlers: handlers,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ConfigurableActionCard(
+                    slotKey: 'shelves_ctx_slot_2',
+                    defaultActionId: 'manage_shelves',
+                    allowedActionIds: const [
+                      'manage_shelves',
+                      'create_shelf',
+                      'inventory',
+                    ],
+                    handlers: handlers,
+                  ),
+                ),
+              ],
+            );
+          }),
         ],
       ),
       body: Container(

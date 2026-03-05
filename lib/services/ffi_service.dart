@@ -1075,7 +1075,8 @@ class FfiService {
   /// Get the enriched catalog (ISBN + title + author) of a followed library.
   Future<List<frb.FrbCatalogEntry>> hubDirectoryGetCatalog(String nodeId) async {
     try {
-      return await frb.hubDirectoryGetCatalog(nodeId: nodeId);
+      final entries = await frb.hubDirectoryGetCatalog(nodeId: nodeId);
+      return entries;
     } catch (e) {
       debugPrint('FFI hubDirectoryGetCatalog error: $e');
       return [];

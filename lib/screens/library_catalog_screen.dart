@@ -10,6 +10,7 @@ import '../services/translation_service.dart';
 import '../src/rust/api/frb.dart' show FrbBook, FrbCatalogEntry;
 import '../theme/app_design.dart';
 import '../providers/theme_provider.dart';
+import '../utils/app_constants.dart';
 import '../widgets/book_spine.dart';
 import '../widgets/genie_app_bar.dart';
 
@@ -37,6 +38,18 @@ class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
   final Map<String, Map<String, String?>?> _lookupCache = {};
   Set<String> _localIsbns = {};
   String? _decryptedContact;
+  String _searchQuery = '';
+  final _searchController = TextEditingController();
+
+  List<FrbCatalogEntry> get _filteredEntries {
+    if (_searchQuery.isEmpty) return _entries;
+    final q = _searchQuery.toLowerCase();
+    return _entries.where((e) {
+      return e.title.toLowerCase().contains(q) ||
+          (e.author?.toLowerCase().contains(q) ?? false) ||
+          e.isbn.contains(q);
+    }).toList();
+  }
 
   @override
   void initState() {
@@ -44,11 +57,21 @@ class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
     _load();
   }
 
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
   Future<void> _load() async {
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
+    // Only show loading spinner on first load (no cached data yet)
+    final isFirstLoad = _entries.isEmpty;
+    if (isFirstLoad) {
+      setState(() {
+        _loading = true;
+        _error = null;
+      });
+    }
 
     try {
       final profileFrb = await _ffi.hubDirectoryGetProfile(widget.nodeId);
@@ -59,7 +82,13 @@ class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
       setState(() {
         _profile =
             profileFrb != null ? HubProfile.fromFrb(profileFrb) : null;
-        _entries = entries;
+        // Sort: new entries first, then alphabetical by title
+        _entries = entries..sort((a, b) {
+          final aNew = _isEntryNew(a);
+          final bNew = _isEntryNew(b);
+          if (aNew != bNew) return aNew ? -1 : 1;
+          return a.title.compareTo(b.title);
+        });
         _localIsbns = localBooks
             .where((b) => b.isbn != null && b.isbn!.isNotEmpty)
             .map((b) => b.isbn!)
@@ -69,7 +98,10 @@ class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
       _decryptContact();
     } catch (e) {
       if (!mounted) return;
-      setState(() => _error = e.toString());
+      // Only show error if we have no cached data to display
+      if (_entries.isEmpty) {
+        setState(() => _error = e.toString());
+      }
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -94,6 +126,14 @@ class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
     if (mounted && plaintext != null) {
       setState(() => _decryptedContact = plaintext);
     }
+  }
+
+  bool _isEntryNew(FrbCatalogEntry entry) {
+    final firstSeen = entry.firstSeenAt;
+    if (firstSeen == null) return false;
+    final parsed = DateTime.tryParse(firstSeen);
+    if (parsed == null) return false;
+    return DateTime.now().difference(parsed).inDays < AppConstants.newBadgeDays;
   }
 
   @override
@@ -190,6 +230,8 @@ class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
       );
     }
 
+    final filtered = _filteredEntries;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -200,10 +242,39 @@ class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
           ),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+          child: TextField(
+            controller: _searchController,
+            decoration: InputDecoration(
+              hintText: TranslationService.translate(
+                  context, 'directory_catalog_search'),
+              prefixIcon: const Icon(Icons.search, size: 20),
+              suffixIcon: _searchQuery.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.clear, size: 20),
+                      tooltip: TranslationService.translate(
+                          context, 'action_clear'),
+                      onPressed: () {
+                        _searchController.clear();
+                        setState(() => _searchQuery = '');
+                      },
+                    )
+                  : null,
+              isDense: true,
+              contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12, vertical: 8),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            onChanged: (v) => setState(() => _searchQuery = v),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
           child: Semantics(
             header: true,
             child: Text(
-              '${_entries.length} ${TranslationService.translate(context, 'directory_catalog_isbn_count')}',
+              '${filtered.length} ${TranslationService.translate(context, 'directory_catalog_isbn_count')}',
               style: Theme.of(context)
                   .textTheme
                   .titleSmall
@@ -221,8 +292,9 @@ class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
                 spacing: 0,
                 runSpacing: 20,
                 crossAxisAlignment: WrapCrossAlignment.end,
-                children: _entries.map((entry) {
+                children: filtered.map((entry) {
                   final seed = entry.isbn.hashCode;
+                  final isNew = _isEntryNew(entry);
                   return Semantics(
                     button: true,
                     child: GestureDetector(
@@ -235,6 +307,7 @@ class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
                         colorSeed: seed,
                         height: 220 + (seed.abs() % 4) * 12.0,
                         width: 60 + (seed.abs() % 3) * 6.0,
+                        showNewBand: isNew,
                       ),
                     ),
                   );

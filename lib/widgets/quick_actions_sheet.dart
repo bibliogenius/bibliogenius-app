@@ -3,14 +3,17 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../data/repositories/tag_repository.dart';
 import '../models/tag.dart';
+import '../services/quick_action_registry.dart';
 import '../services/translation_service.dart';
 import '../utils/app_constants.dart';
+import 'configurable_action_card.dart';
+import 'invite_share_sheet.dart';
 
 class QuickActionsSheet extends StatelessWidget {
   final List<Widget>? contextualActions;
   final bool hideGenericActions;
-  final VoidCallback? onBookAdded; // Callback when a book is added
-  final VoidCallback? onShelfCreated; // Callback when a shelf is created
+  final VoidCallback? onBookAdded;
+  final VoidCallback? onShelfCreated;
 
   const QuickActionsSheet({
     super.key,
@@ -22,16 +25,10 @@ class QuickActionsSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Determine if we are on mobile (bottom sheet) or desktop (dialog)
-    // The parent calling code handles the showModalBottomSheet vs showDialog logic.
-    // This widget just builds the content.
-    // However, for bottom sheet we often want a drag handle or specific padding.
-
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
     return Padding(
-      // Add SafeArea and keyboard padding
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom + 16,
         left: 16,
@@ -49,8 +46,8 @@ class QuickActionsSheet extends StatelessWidget {
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: isDark
-                      ? Colors.purple.withOpacity(0.2)
-                      : Colors.purple.withOpacity(0.1),
+                      ? Colors.purple.withValues(alpha: 0.2)
+                      : Colors.purple.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(Icons.bolt, color: Colors.purple, size: 20),
@@ -67,34 +64,11 @@ class QuickActionsSheet extends StatelessWidget {
           ),
           const SizedBox(height: 24),
 
-          // Search Bar (Generic)
-          if (!hideGenericActions) ...[
-            TextField(
-              decoration: InputDecoration(
-                hintText: TranslationService.translate(
-                  context,
-                  'search_library_placeholder',
-                ),
-                prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                filled: true,
-                fillColor: isDark ? Colors.grey[800] : const Color(0xFFF5F5F5),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-              ),
-              textInputAction: TextInputAction.search,
-              onSubmitted: (value) {
-                if (value.isNotEmpty) {
-                  Navigator.pop(context); // Close sheet
-                  // Navigate to book list with search query
-                  context.go('/books?q=${Uri.encodeComponent(value)}');
-                }
-              },
-            ),
-            const SizedBox(height: 16),
+          // Search Bar with action suggestions (always visible)
+          _ActionSearchBar(onBookAdded: onBookAdded),
+          const SizedBox(height: 16),
 
+          if (!hideGenericActions) ...[
             // Primary Button: Add Book
             SizedBox(
               height: 50,
@@ -119,7 +93,7 @@ class QuickActionsSheet extends StatelessWidget {
                     gradient: LinearGradient(
                       colors: [
                         Theme.of(context).primaryColor,
-                        Theme.of(context).primaryColor.withOpacity(0.8),
+                        Theme.of(context).primaryColor.withValues(alpha: 0.8),
                       ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
@@ -156,77 +130,79 @@ class QuickActionsSheet extends StatelessWidget {
           // Quick Actions Grid
           Row(
             children: [
-              _buildQuickActionCard(
-                context,
-                icon: Icons.qr_code_scanner,
-                color: Colors.orange,
-                label: 'quick_scan_barcode',
-                onTap: () async {
-                  // Capture the router BEFORE popping the sheet
-                  // This failsafe ensures we have a valid navigator even after the widget is disposed
-                  final router = GoRouter.of(context);
-                  Navigator.pop(context);
+              Expanded(
+                child: QuickActionCard(
+                  icon: Icons.qr_code_scanner,
+                  color: Colors.orange,
+                  label: TranslationService.translate(
+                      context, 'quick_scan_barcode'),
+                  onTap: () async {
+                    final router = GoRouter.of(context);
+                    Navigator.pop(context);
 
-                  // Use the captured router for the async sequence
-                  final isbn = await router.push<String>('/scan');
-                  if (isbn != null) {
-                    final result = await router.push(
-                      '/books/add',
-                      extra: {'isbn': isbn},
-                    );
-                    if (result != null) {
-                      if (onBookAdded != null) onBookAdded!();
-                      if (result is int) {
-                        router.push('/books/$result');
+                    final isbn = await router.push<String>('/scan');
+                    if (isbn != null) {
+                      final result = await router.push(
+                        '/books/add',
+                        extra: {'isbn': isbn},
+                      );
+                      if (result != null) {
+                        if (onBookAdded != null) onBookAdded!();
+                        if (result is int) {
+                          router.push('/books/$result');
+                        }
                       }
                     }
-                  }
-                },
+                  },
+                ),
               ),
               const SizedBox(width: 12),
-              _buildQuickActionCard(
-                context,
-                icon: Icons.travel_explore, // Globe with search
-                color: Colors.blue,
-                label: 'quick_search_online',
-                onTap: () async {
-                  final router = GoRouter.of(context);
-                  Navigator.pop(context);
-                  final result = await router.push('/search/external');
-                  if (result == true && onBookAdded != null) {
-                    onBookAdded!();
-                  }
-                },
+              Expanded(
+                child: QuickActionCard(
+                  icon: Icons.travel_explore,
+                  color: Colors.blue,
+                  label: TranslationService.translate(
+                      context, 'quick_search_online'),
+                  onTap: () async {
+                    final router = GoRouter.of(context);
+                    Navigator.pop(context);
+                    final result = await router.push('/search/external');
+                    if (result == true && onBookAdded != null) {
+                      onBookAdded!();
+                    }
+                  },
+                ),
               ),
               const SizedBox(width: 12),
-              _buildQuickActionCard(
-                context,
-                icon: Icons.local_library_outlined, // Book/Person
-                color: Colors.purple,
-                label: 'quick_borrow_book',
-                onTap: () {
-                  final router = GoRouter.of(context);
-                  Navigator.pop(context);
-                  router.push('/requests');
-                },
-              ),
-              const SizedBox(width: 12),
-              _buildQuickActionCard(
-                context,
-                icon: Icons.create_new_folder_outlined,
-                color: Colors.teal,
-                label: 'quick_create_shelf',
-                onTap: () => _showCreateShelfDialog(context),
+              Expanded(
+                child: ConfigurableActionCard(
+                  slotKey: 'quick_action_custom_slot',
+                  defaultActionId: 'inventory',
+                  allowedActionIds: const [
+                    'inventory',
+                    'create_shelf',
+                    'add_manual',
+                  ],
+                  handlers: {
+                    'inventory': () =>
+                        showShelfPickerForInventory(context, onBookAdded),
+                    'create_shelf': () =>
+                        showCreateShelfDialog(context, onShelfCreated),
+                    'add_manual': () {
+                      final router = GoRouter.of(context);
+                      Navigator.pop(context);
+                      router.push('/books/add');
+                    },
+                  },
+                ),
               ),
             ],
           ),
 
           // Contextual Actions
-          if (contextualActions != null && contextualActions!.isNotEmpty) ...[
-            const SizedBox(height: 24),
-            const Divider(),
-            const SizedBox(height: 8),
-            // We can wrap them in a Column or list
+          if (contextualActions != null &&
+              contextualActions!.isNotEmpty) ...[
+            const SizedBox(height: 16),
             ...contextualActions!,
           ],
           const SizedBox(height: 16),
@@ -235,67 +211,126 @@ class QuickActionsSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildQuickActionCard(
+  /// Builds a Map of VoidCallbacks for all common navigable actions.
+  /// Close the sheet and navigate. Page-specific handlers can override entries.
+  static Map<String, VoidCallback> buildCommonHandlers(
     BuildContext context, {
-    required IconData icon,
-    required Color color,
-    required String label,
-    required VoidCallback onTap,
+    VoidCallback? onDone,
   }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final router = GoRouter.of(context);
+    void go(String route, [Object? extra]) {
+      Navigator.pop(context);
+      router.push(route, extra: extra).then((_) {
+        onDone?.call();
+      });
+    }
 
-    return Expanded(
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(16),
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-            decoration: BoxDecoration(
-              color: isDark ? color.withOpacity(0.15) : color.withOpacity(0.05),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: color.withOpacity(0.2), width: 1),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
+    return {
+      'scan_barcode': () => go('/scan'),
+      'search_online': () => go('/search/external'),
+      'add_manual': () => go('/books/add'),
+      'batch_scan': () => go('/scan', {'batch': true}),
+      'import_csv': () => go('/migration-wizard'),
+      'import_gleeph': () => go('/migration-wizard'),
+      'import_goodreads': () => go('/migration-wizard'),
+      'manage_shelves': () => go('/shelves-management'),
+      'my_contacts': () => go('/contacts'),
+      'inventory': () => showShelfPickerForInventory(context, onDone),
+      'create_shelf': () => showCreateShelfDialog(context, onDone),
+      'share_library': () {
+        Navigator.pop(context);
+        showInviteShareSheet(context);
+      },
+    };
+  }
+
+  // --- Shared action dialogs (used by cards and search bar) ---
+
+  static void showShelfPickerForInventory(
+    BuildContext context,
+    VoidCallback? onBookAdded,
+  ) {
+    final tagRepo = Provider.of<TagRepository>(context, listen: false);
+    final router = GoRouter.of(context);
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return FutureBuilder<List<Tag>>(
+          future: tagRepo.getTags(),
+          builder: (ctx, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            final tags = snapshot.data ?? [];
+            if (tags.isEmpty) {
+              return AlertDialog(
+                title: Text(
+                  TranslationService.translate(context, 'quick_inventory') ??
+                      'Inventory',
+                ),
+                content: Text(
+                  TranslationService.translate(
+                          context, 'no_shelves_for_inventory') ??
+                      'Create a shelf first to use inventory mode.',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(dialogContext),
+                    child: Text(
+                      TranslationService.translate(context, 'ok') ?? 'OK',
+                    ),
+                  ),
+                ],
+              );
+            }
+            return SimpleDialog(
+              title: Text(
+                TranslationService.translate(
+                        context, 'choose_shelf_for_inventory') ??
+                    'Choose a shelf',
+              ),
+              children: tags.map((tag) {
+                final displayName = tag.fullPath ?? tag.name;
+                return SimpleDialogOption(
+                  onPressed: () {
+                    Navigator.pop(dialogContext);
+                    Navigator.pop(context);
+                    router.push('/scan', extra: {
+                      'shelfId': tag.name,
+                      'shelfName': displayName,
+                      'batch': true,
+                    });
+                  },
+                  child: Row(
+                    children: [
+                      Icon(Icons.label_outline,
+                          color: Colors.grey[600], size: 20),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(displayName,
+                            overflow: TextOverflow.ellipsis),
+                      ),
+                      Text(
+                        '${tag.count}',
+                        style:
+                            TextStyle(color: Colors.grey[500], fontSize: 13),
                       ),
                     ],
                   ),
-                  child: Icon(icon, color: color, size: 24),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  TranslationService.translate(context, label),
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.white70 : Colors.grey[800],
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
+                );
+              }).toList(),
+            );
+          },
+        );
+      },
     );
   }
 
-  void _showCreateShelfDialog(BuildContext context) {
+  static void showCreateShelfDialog(
+    BuildContext context,
+    VoidCallback? onShelfCreated,
+  ) {
     final controller = TextEditingController();
     final formKey = GlobalKey<FormState>();
     final api = Provider.of<TagRepository>(context, listen: false);
@@ -313,7 +348,8 @@ class QuickActionsSheet extends StatelessWidget {
               builder: (stateContext, setDialogState) {
                 return AlertDialog(
                   title: Text(
-                    TranslationService.translate(stateContext, 'create_shelf') ??
+                    TranslationService.translate(
+                            stateContext, 'create_shelf') ??
                         'Create Shelf',
                   ),
                   content: Form(
@@ -336,15 +372,16 @@ class QuickActionsSheet extends StatelessWidget {
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
                               return TranslationService.translate(
-                                    stateContext,
-                                    'field_required',
-                                  ) ??
+                                        stateContext,
+                                        'field_required',
+                                      ) ??
                                   'This field is required';
                             }
                             return null;
                           },
                         ),
-                        if (AppConstants.enableHierarchicalTags && shelves.isNotEmpty) ...[
+                        if (AppConstants.enableHierarchicalTags &&
+                            shelves.isNotEmpty) ...[
                           const SizedBox(height: 16),
                           DropdownButtonFormField<int?>(
                             value: selectedParentId,
@@ -388,24 +425,48 @@ class QuickActionsSheet extends StatelessWidget {
                     TextButton(
                       onPressed: () => Navigator.pop(dialogContext),
                       child: Text(
-                        TranslationService.translate(stateContext, 'cancel') ??
+                        TranslationService.translate(
+                                stateContext, 'cancel') ??
                             'Cancel',
                       ),
                     ),
                     ElevatedButton(
                       onPressed: () async {
                         if (formKey.currentState!.validate()) {
+                          final messenger = ScaffoldMessenger.of(context);
+                          final successText =
+                              TranslationService.translate(
+                                      context, 'shelf_created') ??
+                                  'Shelf created';
+
                           Navigator.pop(dialogContext);
-                          Navigator.pop(context); // Close the quick actions sheet
-                          await _createShelf(
-                            context,
-                            controller.text.trim(),
-                            parentId: selectedParentId,
-                          );
+                          Navigator.pop(context);
+
+                          try {
+                            await api.createTag(
+                              controller.text.trim(),
+                              parentId: selectedParentId,
+                            );
+                            messenger.showSnackBar(
+                              SnackBar(
+                                content: Text(successText),
+                                backgroundColor: Colors.green,
+                              ),
+                            );
+                            onShelfCreated?.call();
+                          } catch (e) {
+                            messenger.showSnackBar(
+                              SnackBar(
+                                content: Text(e.toString()),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
                         }
                       },
                       child: Text(
-                        TranslationService.translate(stateContext, 'create') ??
+                        TranslationService.translate(
+                                stateContext, 'create') ??
                             'Create',
                       ),
                     ),
@@ -418,30 +479,165 @@ class QuickActionsSheet extends StatelessWidget {
       },
     );
   }
+}
 
-  Future<void> _createShelf(BuildContext context, String name,
-      {int? parentId}) async {
-    try {
-      final api = Provider.of<TagRepository>(context, listen: false);
-      await api.createTag(name, parentId: parentId);
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              TranslationService.translate(context, 'shelf_created') ??
-                  'Shelf created',
-            ),
-            backgroundColor: Colors.green,
-          ),
-        );
-        onShelfCreated?.call();
+// --- Search bar with action suggestions (command palette) ---
+
+/// Route mapping for actions executable from the search bar.
+/// Actions needing complex flows (dialogs, pickers) are excluded.
+const _actionRoutes = <String, String>{
+  'scan_barcode': '/scan',
+  'search_online': '/search/external',
+  'add_manual': '/books/add',
+  'import_csv': '/migration-wizard',
+  'import_gleeph': '/migration-wizard',
+  'import_goodreads': '/migration-wizard',
+  'manage_shelves': '/shelves-management',
+  'my_contacts': '/contacts',
+  'share_library': '/migration-wizard',
+};
+
+const _actionExtras = <String, Map<String, dynamic>>{
+  'batch_scan': {'batch': true},
+};
+
+class _ActionSearchBar extends StatefulWidget {
+  final VoidCallback? onBookAdded;
+
+  const _ActionSearchBar({this.onBookAdded});
+
+  @override
+  State<_ActionSearchBar> createState() => _ActionSearchBarState();
+}
+
+class _ActionSearchBarState extends State<_ActionSearchBar> {
+  final _controller = TextEditingController();
+  List<QuickActionDef> _suggestions = [];
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _onChanged(String value) {
+    setState(() {
+      if (value.length < 2) {
+        _suggestions = [];
+      } else {
+        _suggestions = QuickActionRegistry.search(value)
+            .where((a) =>
+                _actionRoutes.containsKey(a.id) ||
+                _actionExtras.containsKey(a.id))
+            .take(4)
+            .toList();
       }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
-        );
+    });
+  }
+
+  void _executeAction(QuickActionDef action) {
+    final router = GoRouter.of(context);
+    Navigator.pop(context);
+
+    final route = _actionRoutes[action.id];
+    final extras = _actionExtras[action.id];
+
+    if (route != null) {
+      if (action.id == 'scan_barcode') {
+        // Scan has special flow: scan -> add book
+        router.push<String>('/scan').then((isbn) {
+          if (isbn != null) {
+            router.push('/books/add', extra: {'isbn': isbn}).then((result) {
+              if (result != null) widget.onBookAdded?.call();
+            });
+          }
+        });
+      } else {
+        router.push(route, extra: extras);
       }
+    } else if (extras != null) {
+      // batch_scan: route is /scan with extras
+      router.push('/scan', extra: extras);
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        TextField(
+          controller: _controller,
+          decoration: InputDecoration(
+            hintText: TranslationService.translate(
+              context,
+              'search_actions_placeholder',
+            ),
+            prefixIcon: const Icon(Icons.search, color: Colors.grey),
+            filled: true,
+            fillColor: isDark ? Colors.grey[800] : const Color(0xFFF5F5F5),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+          ),
+          textInputAction: TextInputAction.search,
+          onChanged: _onChanged,
+          onSubmitted: (value) {
+            if (value.isNotEmpty) {
+              Navigator.pop(context);
+              context.go('/books?q=${Uri.encodeComponent(value)}');
+            }
+          },
+        ),
+        if (_suggestions.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Container(
+              decoration: BoxDecoration(
+                color: isDark ? Colors.grey[850] : Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: isDark ? Colors.grey[700]! : Colors.grey[200]!,
+                ),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: _suggestions.map((action) {
+                  return InkWell(
+                    borderRadius: BorderRadius.circular(8),
+                    onTap: () => _executeAction(action),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 10),
+                      child: Row(
+                        children: [
+                          Icon(action.icon, color: action.color, size: 20),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              TranslationService.translate(
+                                  context, action.labelKey),
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: isDark ? Colors.white70 : Colors.grey[800],
+                              ),
+                            ),
+                          ),
+                          Icon(Icons.arrow_forward_ios,
+                              size: 12, color: Colors.grey[400]),
+                        ],
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
+      ],
+    );
   }
 }

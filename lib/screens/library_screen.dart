@@ -3,8 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../services/translation_service.dart';
 import '../widgets/genie_app_bar.dart';
+import '../widgets/configurable_action_card.dart';
 import '../widgets/contextual_help_sheet.dart';
 import '../widgets/invite_share_sheet.dart';
+import '../widgets/quick_actions_sheet.dart';
 import '../providers/theme_provider.dart';
 import 'book_list_screen.dart';
 import 'shelves_screen.dart';
@@ -209,67 +211,72 @@ class _LibraryScreenState extends State<LibraryScreen>
   }
 
   List<Widget> _buildQuickActions(BuildContext context) {
-    final batchScanTile = ListTile(
-      leading: const Icon(Icons.document_scanner, color: Colors.deepOrange),
-      title: Text(
-        TranslationService.translate(context, 'batch_scan_title') ??
-            'Batch Scan',
-      ),
-      subtitle: Text(
-        TranslationService.translate(context, 'batch_scan_desc') ??
-            'Scan multiple books in a row',
-        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-      ),
-      onTap: () async {
-        Navigator.pop(context);
-        final result = await context.push('/scan', extra: {'batch': true});
-        if (result == true) {
-          _refreshNotifier.value++;
-        }
-      },
-    );
-
-    final shareLibraryTile = ListTile(
-      leading: const Icon(Icons.share, color: Colors.teal),
-      title: Text(
-        TranslationService.translate(context, 'invite_card_title'),
-      ),
-      subtitle: Text(
-        TranslationService.translate(context, 'invite_card_subtitle'),
-        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-      ),
-      onTap: () {
-        Navigator.pop(context);
-        showInviteShareSheet(context);
-      },
-    );
-
-    // Books Tab (Index 0)
-    if (_tabController.index == 0) {
-      return [batchScanTile, shareLibraryTile];
-    }
-
-    // Shelves Tab (Index 1)
-    if (_tabController.index == 1) {
+    // Books Tab (Index 0) and Shelves Tab (Index 1): same layout
+    if (_tabController.index == 0 || _tabController.index == 1) {
       return [
-        batchScanTile,
-        shareLibraryTile,
-        ListTile(
-          leading: const Icon(Icons.settings, color: Colors.blueGrey),
-          title: Text(
-            TranslationService.translate(context, 'manage_shelves') ??
-                'Manage Shelves',
-          ),
-          subtitle: Text(
-            TranslationService.translate(context, 'manage_shelves_desc') ??
-                'Rename, delete or reorganize shelves',
-            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-          ),
-          onTap: () {
-            Navigator.pop(context);
-            context.push('/shelves-management');
-          },
-        ),
+        Builder(builder: (sheetContext) {
+          final handlers = QuickActionsSheet.buildCommonHandlers(
+            sheetContext,
+            onDone: () {
+              _refreshNotifier.value++;
+              _shelvesRefreshNotifier.value++;
+            },
+          );
+          final slotPrefix = _tabController.index == 0
+              ? 'library_books'
+              : 'library_shelves';
+          return Row(
+            children: [
+              Expanded(
+                child: ConfigurableActionCard(
+                  slotKey: '${slotPrefix}_slot_1',
+                  defaultActionId: 'batch_scan',
+                  allowedActionIds: const [
+                    'batch_scan',
+                    'share_library',
+                    'manage_shelves',
+                    'inventory',
+                    'create_shelf',
+                    'import_csv',
+                  ],
+                  handlers: handlers,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: ConfigurableActionCard(
+                  slotKey: '${slotPrefix}_slot_2',
+                  defaultActionId: 'share_library',
+                  allowedActionIds: const [
+                    'share_library',
+                    'batch_scan',
+                    'manage_shelves',
+                    'inventory',
+                    'create_shelf',
+                    'import_csv',
+                  ],
+                  handlers: handlers,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: ConfigurableActionCard(
+                  slotKey: '${slotPrefix}_slot_3',
+                  defaultActionId: 'manage_shelves',
+                  allowedActionIds: const [
+                    'manage_shelves',
+                    'batch_scan',
+                    'share_library',
+                    'inventory',
+                    'create_shelf',
+                    'import_csv',
+                  ],
+                  handlers: handlers,
+                ),
+              ),
+            ],
+          );
+        }),
       ];
     }
 
@@ -277,50 +284,60 @@ class _LibraryScreenState extends State<LibraryScreen>
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     if (themeProvider.collectionsEnabled && _tabController.index == 2) {
       return [
-        ListTile(
-          leading: const Icon(Icons.auto_awesome, color: Colors.purple),
-          title: Text(
-            TranslationService.translate(context, 'discover') ?? 'Discover',
-          ),
-          onTap: () async {
-            Navigator.pop(context);
-            final result = await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    const import_curated.ImportCuratedListScreen(),
+        Builder(builder: (sheetContext) {
+          return Row(
+            children: [
+              Expanded(
+                child: QuickActionCard(
+                  icon: Icons.auto_awesome,
+                  color: Colors.purple,
+                  label: TranslationService.translate(
+                      sheetContext, 'discover'),
+                  onTap: () async {
+                    Navigator.pop(sheetContext);
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            const import_curated.ImportCuratedListScreen(),
+                      ),
+                    );
+                    if (result == true && mounted) {
+                      _refreshNotifier.value++;
+                      setState(() {
+                        _collectionsRefreshKey++;
+                      });
+                    }
+                  },
+                ),
               ),
-            );
-            if (result == true && mounted) {
-              _refreshNotifier.value++; // Refresh book list
-              setState(() {
-                _collectionsRefreshKey++; // Refresh collections list
-              });
-            }
-          },
-        ),
-        ListTile(
-          leading: const Icon(Icons.file_open, color: Colors.blue),
-          title: Text(
-            TranslationService.translate(context, 'import_list') ??
-                'Import List',
-          ),
-          onTap: () async {
-            Navigator.pop(context);
-            final result = await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const ImportSharedListScreen(),
+              const SizedBox(width: 12),
+              Expanded(
+                child: QuickActionCard(
+                  icon: Icons.file_open,
+                  color: Colors.blue,
+                  label: TranslationService.translate(
+                      sheetContext, 'import_list'),
+                  onTap: () async {
+                    Navigator.pop(sheetContext);
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ImportSharedListScreen(),
+                      ),
+                    );
+                    if (result == true && mounted) {
+                      _refreshNotifier.value++;
+                      setState(() {
+                        _collectionsRefreshKey++;
+                      });
+                    }
+                  },
+                ),
               ),
-            );
-            if (result == true && mounted) {
-              _refreshNotifier.value++; // Refresh book list
-              setState(() {
-                _collectionsRefreshKey++; // Refresh collections list
-              });
-            }
-          },
-        ),
+            ],
+          );
+        }),
       ];
     }
 

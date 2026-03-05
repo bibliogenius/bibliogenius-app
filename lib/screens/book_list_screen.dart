@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../widgets/genie_app_bar.dart';
+import '../widgets/configurable_action_card.dart';
+import '../widgets/quick_actions_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../data/repositories/book_repository.dart';
@@ -452,83 +454,104 @@ class _BookListScreenState extends State<BookListScreen>
           ],
         ],
         contextualQuickActions: [
-          // Context-aware actions
-          if (_currentShelf != null) ...[
-            ListTile(
-              leading: const Icon(Icons.qr_code_scanner, color: Colors.orange),
-              title: Text(
-                '${TranslationService.translate(context, 'quick_scan_barcode')} ${TranslationService.translate(context, 'into_shelf') ?? 'into'} "${_currentShelf!.name}"',
-              ),
-              onTap: () async {
-                Navigator.pop(context);
-                final shelfId = _currentShelf!.id;
-                final shelfName = _currentShelf!.fullPath;
-                final isbn = await context.push<String>(
-                  '/scan',
-                  extra: {'shelfId': shelfId, 'shelfName': shelfName},
-                );
-                if (isbn != null && mounted) {
-                  // If single scan returns handled by scan screen usually, but if manual entry:
-                  // The scan screen logic might need to be "batch" aware or we pass it to add book
-                  // Here we assume standard scan flow but pre-filling shelf would be handled by /books/add
-                  // Actually, /scan usually returns ISBN.
-                  // We should pass shelf context to /books/add
-                  final result = await context.push(
-                    '/books/add',
-                    extra: {
-                      'isbn': isbn,
-                      'shelfId': shelfId, // Pass shelf context
-                    },
-                  );
-                  if (result != null && mounted) {
-                    _fetchBooks();
-                    if (result is int) {
-                      context.push('/books/$result');
+          Builder(builder: (sheetContext) {
+            final handlers = QuickActionsSheet.buildCommonHandlers(
+              sheetContext,
+              onDone: _fetchBooks,
+            );
+            final cards = <Widget>[];
+
+            // Shelf-specific: scan into shelf, search into shelf
+            if (_currentShelf != null) {
+              final shelfId = _currentShelf!.id;
+              final shelfName = _currentShelf!.fullPath;
+              cards.add(Expanded(
+                child: QuickActionCard(
+                  icon: Icons.qr_code_scanner,
+                  color: Colors.orange,
+                  label: '${TranslationService.translate(sheetContext, 'quick_scan_barcode')} → ${_currentShelf!.name}',
+                  onTap: () async {
+                    Navigator.pop(sheetContext);
+                    final isbn = await context.push<String>(
+                      '/scan',
+                      extra: {'shelfId': shelfId, 'shelfName': shelfName},
+                    );
+                    if (isbn != null && mounted) {
+                      final result = await context.push(
+                        '/books/add',
+                        extra: {'isbn': isbn, 'shelfId': shelfId},
+                      );
+                      if (result != null && mounted) {
+                        _fetchBooks();
+                        if (result is int) {
+                          context.push('/books/$result');
+                        }
+                      }
                     }
-                  }
-                }
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.travel_explore, color: Colors.blue),
-              title: Text(
-                '${TranslationService.translate(context, 'quick_search_online')} ${TranslationService.translate(context, 'into_shelf') ?? 'into'} "${_currentShelf!.name}"',
+                  },
+                ),
+              ));
+              cards.add(const SizedBox(width: 12));
+              cards.add(Expanded(
+                child: QuickActionCard(
+                  icon: Icons.travel_explore,
+                  color: Colors.blue,
+                  label: '${TranslationService.translate(sheetContext, 'quick_search_online')} → ${_currentShelf!.name}',
+                  onTap: () async {
+                    Navigator.pop(sheetContext);
+                    final result = await context.push(
+                      '/search/external',
+                      extra: {'shelfId': _currentShelf!.id},
+                    );
+                    if (result == true) {
+                      _fetchBooks();
+                    }
+                  },
+                ),
+              ));
+            }
+
+            // General actions row
+            final generalCards = <Widget>[
+              Expanded(
+                child: ConfigurableActionCard(
+                  slotKey: 'booklist_ctx_slot_1',
+                  defaultActionId: 'manage_shelves',
+                  allowedActionIds: const [
+                    'manage_shelves',
+                    'batch_scan',
+                    'inventory',
+                    'import_csv',
+                  ],
+                  handlers: handlers,
+                ),
               ),
-              onTap: () async {
-                Navigator.pop(context);
-                final result = await context.push(
-                  '/search/external',
-                  extra: {'shelfId': _currentShelf!.id},
-                );
-                if (result == true) {
-                  _fetchBooks();
-                }
-              },
-            ),
-            const Divider(),
-          ],
-          ListTile(
-            leading: const Icon(Icons.folder_special, color: Colors.blue),
-            title: Text(
-              TranslationService.translate(context, 'manage_shelves') ??
-                  'Manage Shelves',
-            ),
-            onTap: () {
-              Navigator.pop(context);
-              context.push('/shelves-management');
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.filter_list),
-            title: Text(
-              TranslationService.translate(context, 'filter_books') ??
-                  'Filter Books',
-            ),
-            onTap: () {
-              Navigator.pop(context); // Close Quick Actions sheet
-              _showTagFilterDialog();
-            },
-          ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: QuickActionCard(
+                  icon: Icons.filter_list,
+                  color: Colors.blueGrey,
+                  label: TranslationService.translate(
+                      sheetContext, 'filter_books'),
+                  onTap: () {
+                    Navigator.pop(sheetContext);
+                    _showTagFilterDialog();
+                  },
+                ),
+              ),
+            ];
+
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (cards.isNotEmpty) ...[
+                  Row(children: cards),
+                  const SizedBox(height: 12),
+                ],
+                Row(children: generalCards),
+              ],
+            );
+          }),
         ],
       ),
       body: Container(

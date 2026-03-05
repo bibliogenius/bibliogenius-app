@@ -7,6 +7,7 @@ import '../../services/collection_export_service.dart';
 import '../../services/translation_service.dart';
 import '../../widgets/app_snack_bar.dart';
 import '../../widgets/cached_book_cover.dart';
+import '../../widgets/configurable_action_card.dart';
 import '../../widgets/premium_empty_state.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -273,59 +274,84 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
         transparent: true, // 🌟 Transparent AppBar
         showQuickActions: false,
         contextualQuickActions: [
-          ListTile(
-            leading: const Icon(Icons.qr_code_scanner, color: Colors.orange),
-            title: Text(
-              TranslationService.translate(context, 'scan_into_collection') ??
-                  'Scan into Collection',
-            ),
-            onTap: () async {
-              Navigator.pop(context);
-              await context.push(
-                '/scan',
-                extra: {
-                  'collectionId': widget.collection.id,
-                  'collectionName': widget.collection.name,
-                  'batch': true,
-                },
-              );
-              _refreshBooks();
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.upload_file, color: Colors.blue),
-            title: Text(TranslationService.translate(context, 'import_books')),
-            onTap: () {
-              Navigator.pop(context);
-              _importBooks();
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.share, color: Colors.green),
-            title: Text(
-              TranslationService.translate(context, 'action_share') ?? 'Share',
-            ),
-            onTap: () {
-              Navigator.pop(context);
-              _shareCollection();
-            },
-          ),
-          const Divider(),
-          ListTile(
-            leading: const Icon(Icons.delete, color: Colors.red),
-            title: Text(
-              TranslationService.translate(
-                    context,
-                    'delete_collection_title',
-                  ) ??
-                  'Delete Collection',
-              style: const TextStyle(color: Colors.red),
-            ),
-            onTap: () {
-              Navigator.pop(context);
-              _deleteCollection();
-            },
-          ),
+          Builder(builder: (sheetContext) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: QuickActionCard(
+                        icon: Icons.qr_code_scanner,
+                        color: Colors.orange,
+                        label: TranslationService.translate(
+                            sheetContext, 'scan_into_collection'),
+                        onTap: () async {
+                          Navigator.pop(sheetContext);
+                          await context.push(
+                            '/scan',
+                            extra: {
+                              'collectionId': widget.collection.id,
+                              'collectionName': widget.collection.name,
+                              'batch': true,
+                            },
+                          );
+                          _refreshBooks();
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: QuickActionCard(
+                        icon: Icons.upload_file,
+                        color: Colors.blue,
+                        label: TranslationService.translate(
+                            sheetContext, 'import_books'),
+                        onTap: () {
+                          Navigator.pop(sheetContext);
+                          _importBooks();
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: QuickActionCard(
+                        icon: Icons.share,
+                        color: Colors.green,
+                        label: TranslationService.translate(
+                            sheetContext, 'action_share'),
+                        onTap: () {
+                          Navigator.pop(sheetContext);
+                          _shareCollection();
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: QuickActionCard(
+                        icon: Icons.delete,
+                        color: Colors.red,
+                        label: TranslationService.translate(
+                            sheetContext, 'delete_collection_title'),
+                        onTap: () {
+                          Navigator.pop(sheetContext);
+                          _deleteCollection();
+                        },
+                      ),
+                    ),
+                    // Spacers to keep card same width as others
+                    const Spacer(),
+                    const SizedBox(width: 12),
+                    const Spacer(),
+                  ],
+                ),
+              ],
+            );
+          }),
         ],
         actions: [],
       ),

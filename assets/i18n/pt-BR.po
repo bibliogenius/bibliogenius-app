@@ -515,6 +515,10 @@ msgstr "BiblioGenius"
 msgid "badge_collection"
 msgstr "Coleção de Emblemas"
 
+#. Publisher-style band on book spines for recently added books
+msgid "badge_new"
+msgstr "Novo"
+
 #. Reach Bronze in all tracks
 msgid "badge_desc_bibliophile"
 msgstr "Alcançar Bronze em todas as categorias"

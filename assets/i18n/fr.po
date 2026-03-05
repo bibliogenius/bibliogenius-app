@@ -596,6 +596,10 @@ msgstr "BiblioGenius"
 msgid "badge_collection"
 msgstr "Collection de Badges"
 
+#. Publisher-style band on book spines for recently added books
+msgid "badge_new"
+msgstr "Nouveau"
+
 #. Reach Bronze in all tracks
 msgid "badge_desc_bibliophile"
 msgstr "Atteignez Bronze dans tous les domaines"
@@ -4364,11 +4368,59 @@ msgstr "Actions rapides"
 
 #. Borrow a book
 msgid "quick_borrow_book"
-msgstr "Emprunter un livre"
+msgstr "Emprunter"
 
 #. Create shelf
 msgid "quick_create_shelf"
 msgstr "Créer étagère"
+
+#. My contacts
+msgid "quick_my_contacts"
+msgstr "Contacts"
+
+#. Inventory (batch scan into a shelf)
+msgid "quick_inventory"
+msgstr "Inventorier"
+
+#. Add book manually
+msgid "quick_add_manual"
+msgstr "Saisir"
+
+#. Choose shortcut (custom quick action picker)
+msgid "quick_action_choose"
+msgstr "Choisir le raccourci"
+
+#. Choose a shelf for inventory scan
+msgid "choose_shelf_for_inventory"
+msgstr "Choisir une étagère"
+
+#. No shelves exist yet for inventory
+msgid "no_shelves_for_inventory"
+msgstr "Créez d'abord une étagère pour utiliser le mode inventaire."
+
+#. Batch scan
+msgid "quick_batch_scan"
+msgstr "Scan en lot"
+
+#. Manage shelves
+msgid "quick_manage_shelves"
+msgstr "Gérer étagères"
+
+#. Import CSV file
+msgid "quick_import_csv"
+msgstr "Importer CSV"
+
+#. Import from Gleeph
+msgid "quick_import_gleeph"
+msgstr "Importer Gleeph"
+
+#. Import from Goodreads
+msgid "quick_import_goodreads"
+msgstr "Importer Goodreads"
+
+#. Share library
+msgid "quick_share_library"
+msgstr "Partager"
 
 #. Quick Presets
 msgid "quick_presets"
@@ -4380,11 +4432,11 @@ msgstr "Appliquer une configuration adaptée à votre usage :"
 
 #. Scan barcode
 msgid "quick_scan_barcode"
-msgstr "Scanner code-barres"
+msgstr "Scanner"
 
 #. Search online
 msgid "quick_search_online"
-msgstr "Recherche en ligne"
+msgstr "Rechercher"
 
 #. Quote of the Day
 msgid "quote_of_the_day"
@@ -4903,6 +4955,10 @@ msgstr "Rechercher dans ma bibliothèque"
 #. Search my library...
 msgid "search_library_placeholder"
 msgstr "Rechercher dans ma bibliothèque..."
+
+#. Search books or actions (import, scan...)
+msgid "search_actions_placeholder"
+msgstr "Rechercher livres ou actions..."
 
 #. Search Online
 msgid "search_open_library"
@@ -6997,6 +7053,10 @@ msgstr "Cette bibliothèque n'a encore partagé aucun livre."
 
 msgid "directory_catalog_isbn_count"
 msgstr "ISBN partagés"
+
+#. Search placeholder in followed library catalog
+msgid "directory_catalog_search"
+msgstr "Rechercher un titre, auteur ou ISBN..."
 
 msgid "directory_catalog_isbn_label"
 msgstr "ISBN"
