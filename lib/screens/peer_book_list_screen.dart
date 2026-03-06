@@ -73,11 +73,15 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   String? _decryptedContact;
   HubProfile? _hubProfile;
 
+  /// ISBNs with a pending outgoing borrow request (to disable the borrow button)
+  Set<String> _pendingBorrowIsbns = {};
+
   @override
   void initState() {
     super.initState();
     _loadCachedBooksFirst();
     _loadHubContactInfo();
+    _loadPendingBorrowRequests();
   }
 
   Future<void> _loadHubContactInfo() async {
@@ -656,11 +660,48 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     }
   }
 
+  Future<void> _loadPendingBorrowRequests() async {
+    final api = Provider.of<ApiService>(context, listen: false);
+    try {
+      final res = await api.getOutgoingRequests();
+      final requests = res.data as List<dynamic>? ?? [];
+      if (mounted) {
+        setState(() {
+          _pendingBorrowIsbns = requests
+              .where((r) => r['status'] == 'pending')
+              .map((r) => r['book_isbn']?.toString() ?? '')
+              .where((isbn) => isbn.isNotEmpty)
+              .toSet();
+        });
+      }
+    } catch (_) {
+      // Non-blocking: if we can't load, just don't disable any button
+    }
+  }
+
+  bool _hasPendingRequest(Book book) {
+    final isbn = book.isbn;
+    return isbn != null && isbn.isNotEmpty && _pendingBorrowIsbns.contains(isbn);
+  }
+
+  bool _hasNoCopiesAvailable(Book book) {
+    return book.availableCopies != null && book.availableCopies == 0;
+  }
+
+  bool _canBorrow(Book book) {
+    return !_hasPendingRequest(book) && !_hasNoCopiesAvailable(book);
+  }
+
   Future<void> _requestBorrow(Book book) async {
     final api = Provider.of<ApiService>(context, listen: false);
     try {
       await api.requestBookByUrl(widget.peerUrl, book.isbn ?? "", book.title);
       if (mounted) {
+        // Add ISBN to pending set to immediately disable the button
+        final isbn = book.isbn;
+        if (isbn != null && isbn.isNotEmpty) {
+          setState(() => _pendingBorrowIsbns.add(isbn));
+        }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -1215,8 +1256,9 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                       trailing: ElevatedButton(
-                                        onPressed: () =>
-                                            _requestBorrow(book),
+                                        onPressed: _canBorrow(book)
+                                            ? () => _requestBorrow(book)
+                                            : null,
                                         style: ElevatedButton.styleFrom(
                                           padding:
                                               const EdgeInsets.symmetric(
@@ -1229,10 +1271,20 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                                                   .shrinkWrap,
                                         ),
                                         child: Text(
-                                          TranslationService.translate(
-                                            context,
-                                            'borrow',
-                                          ),
+                                          _hasPendingRequest(book)
+                                              ? TranslationService.translate(
+                                                  context,
+                                                  'borrow_pending',
+                                                )
+                                              : _hasNoCopiesAvailable(book)
+                                                  ? TranslationService.translate(
+                                                      context,
+                                                      'borrow_unavailable',
+                                                    )
+                                                  : TranslationService.translate(
+                                                      context,
+                                                      'borrow',
+                                                    ),
                                         ),
                                       ),
                                       onTap: () => _showBookDetails(book),
@@ -1339,16 +1391,32 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _requestBorrow(book);
-                  },
-                  icon: const Icon(Icons.bookmark_add),
+                  onPressed: _canBorrow(book)
+                      ? () {
+                          Navigator.pop(context);
+                          _requestBorrow(book);
+                        }
+                      : null,
+                  icon: Icon(_canBorrow(book)
+                      ? Icons.bookmark_add
+                      : _hasPendingRequest(book)
+                          ? Icons.hourglass_top
+                          : Icons.block),
                   label: Text(
-                    TranslationService.translate(
-                      context,
-                      'request_to_borrow',
-                    ),
+                    _hasPendingRequest(book)
+                        ? TranslationService.translate(
+                            context,
+                            'borrow_pending',
+                          )
+                        : _hasNoCopiesAvailable(book)
+                            ? TranslationService.translate(
+                                context,
+                                'borrow_unavailable',
+                              )
+                            : TranslationService.translate(
+                                context,
+                                'request_to_borrow',
+                              ),
                   ),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),

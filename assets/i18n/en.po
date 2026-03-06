@@ -764,6 +764,14 @@ msgstr "Bookseller"
 msgid "borrow"
 msgstr "Borrow"
 
+#. Borrow request already pending
+msgid "borrow_pending"
+msgstr "Requested"
+
+#. No copies available to borrow
+msgid "borrow_unavailable"
+msgstr "Unavailable"
+
 #. Borrow a Book
 msgid "borrow_book_title"
 msgstr "Borrow a Book"
@@ -7392,6 +7400,10 @@ msgstr "Online"
 
 msgid "peer_status_unreachable"
 msgstr "Unreachable"
+
+#. Peer reachable via relay or hub (not direct WiFi)
+msgid "peer_status_indirect"
+msgstr "Via cloud"
 
 msgid "module_edition_browser"
 msgstr "Edition Browser"

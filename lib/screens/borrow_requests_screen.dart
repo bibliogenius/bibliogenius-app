@@ -354,7 +354,13 @@ class _LoansScreenState extends State<LoansScreen>
   /// Requests tab with nested tabs (Incoming/Outgoing/Connections)
   Widget _buildRequestsTab() {
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final hubProvider = Provider.of<HubDirectoryProvider>(context, listen: false);
     final showConnections = themeProvider.connectionValidationEnabled;
+
+    final incomingCount = _filterRecentP2pRequests(_incomingRequests).length
+        + _filterRecentHubRequests(hubProvider.incomingHubRequests).length;
+    final outgoingCount = _filterRecentP2pRequests(_outgoingRequests).length
+        + _filterRecentHubRequests(hubProvider.outgoingHubRequests).length;
 
     return Column(
       children: [
@@ -368,11 +374,11 @@ class _LoansScreenState extends State<LoansScreen>
             tabs: [
               Tab(
                 text:
-                    '${TranslationService.translate(context, 'tab_received')} (${_incomingRequests.length})',
+                    '${TranslationService.translate(context, 'tab_received')} ($incomingCount)',
               ),
               Tab(
                 text:
-                    '${TranslationService.translate(context, 'tab_sent')} (${_outgoingRequests.length})',
+                    '${TranslationService.translate(context, 'tab_sent')} ($outgoingCount)',
               ),
               if (showConnections)
                 Tab(
@@ -805,10 +811,33 @@ class _LoansScreenState extends State<LoansScreen>
 
   // === Request list builders (from original) ===
 
+  /// Filter out non-pending P2P requests resolved more than 30 days ago
+  List<dynamic> _filterRecentP2pRequests(List<dynamic> requests) {
+    final cutoff = DateTime.now().subtract(const Duration(days: 30));
+    return requests.where((req) {
+      if (req['status'] == 'pending') return true;
+      final dateStr = req['updated_at'] as String? ?? req['created_at'] as String? ?? '';
+      final date = DateTime.tryParse(dateStr);
+      return date == null || date.isAfter(cutoff);
+    }).toList();
+  }
+
+  /// Filter out non-pending Hub requests resolved more than 30 days ago
+  List<FrbHubBorrowRequest> _filterRecentHubRequests(List<FrbHubBorrowRequest> requests) {
+    final cutoff = DateTime.now().subtract(const Duration(days: 30));
+    return requests.where((req) {
+      if (req.status == 'pending') return true;
+      final dateStr = req.resolvedAt ?? req.createdAt;
+      final date = DateTime.tryParse(dateStr);
+      return date == null || date.isAfter(cutoff);
+    }).toList();
+  }
+
   Widget _buildIncomingList() {
     final hubProvider = Provider.of<HubDirectoryProvider>(context, listen: false);
-    final hubIncoming = hubProvider.incomingHubRequests;
-    final hasP2p = _incomingRequests.isNotEmpty;
+    final hubIncoming = _filterRecentHubRequests(hubProvider.incomingHubRequests);
+    final p2pFiltered = _filterRecentP2pRequests(_incomingRequests);
+    final hasP2p = p2pFiltered.isNotEmpty;
     final hasHub = hubIncoming.isNotEmpty;
 
     if (!hasP2p && !hasHub) {
@@ -818,7 +847,7 @@ class _LoansScreenState extends State<LoansScreen>
     }
     return Column(
       children: [
-        if (hasP2p)
+        if (_incomingRequests.isNotEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             child: Row(
@@ -837,10 +866,10 @@ class _LoansScreenState extends State<LoansScreen>
         Expanded(
           child: ListView(
             children: [
-              // P2P requests
-              for (final req in _incomingRequests)
+              // P2P requests (filtered: hides non-pending older than 30 days)
+              for (final req in p2pFiltered)
                 _buildRequestTile(req, isIncoming: true),
-              // Hub borrow requests (ADR-018)
+              // Hub borrow requests (filtered)
               for (final req in hubIncoming)
                 _buildHubRequestTile(req, isIncoming: true),
             ],
@@ -852,8 +881,9 @@ class _LoansScreenState extends State<LoansScreen>
 
   Widget _buildOutgoingList() {
     final hubProvider = Provider.of<HubDirectoryProvider>(context, listen: false);
-    final hubOutgoing = hubProvider.outgoingHubRequests;
-    final hasP2p = _outgoingRequests.isNotEmpty;
+    final hubOutgoing = _filterRecentHubRequests(hubProvider.outgoingHubRequests);
+    final p2pFiltered = _filterRecentP2pRequests(_outgoingRequests);
+    final hasP2p = p2pFiltered.isNotEmpty;
     final hasHub = hubOutgoing.isNotEmpty;
 
     if (!hasP2p && !hasHub) {
@@ -863,7 +893,7 @@ class _LoansScreenState extends State<LoansScreen>
     }
     return Column(
       children: [
-        if (hasP2p)
+        if (_outgoingRequests.isNotEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             child: Row(
@@ -882,10 +912,10 @@ class _LoansScreenState extends State<LoansScreen>
         Expanded(
           child: ListView(
             children: [
-              // P2P requests
-              for (final req in _outgoingRequests)
+              // P2P requests (filtered: hides non-pending older than 30 days)
+              for (final req in p2pFiltered)
                 _buildRequestTile(req, isIncoming: false),
-              // Hub borrow requests (ADR-018)
+              // Hub borrow requests (filtered)
               for (final req in hubOutgoing)
                 _buildHubRequestTile(req, isIncoming: false),
             ],

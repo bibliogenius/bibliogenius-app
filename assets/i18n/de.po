@@ -736,6 +736,14 @@ msgstr "Buchhändler"
 msgid "borrow"
 msgstr "Ausleihen"
 
+#. Borrow request already pending
+msgid "borrow_pending"
+msgstr "Angefragt"
+
+#. No copies available to borrow
+msgid "borrow_unavailable"
+msgstr "Nicht verfügbar"
+
 #. Borrow a Book
 msgid "borrow_book_title"
 msgstr "Buch ausleihen"
@@ -6567,6 +6575,10 @@ msgstr "Online"
 
 msgid "peer_status_unreachable"
 msgstr "Nicht erreichbar"
+
+#. Peer reachable via relay or hub (not direct WiFi)
+msgid "peer_status_indirect"
+msgstr "Via Cloud"
 
 msgid "pending_connections_banner"
 msgstr "Sie haben {count} ausstehende Verbindungsanfrage(n)"

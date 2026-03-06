@@ -2508,7 +2508,20 @@ class _LibraryRelationCard extends StatelessWidget {
                                 color: Colors.green,
                                 icon: Icons.circle,
                               ),
-                            if (isOnline == false)
+                            if (isOnline == false &&
+                                (relation.peer?.hasRelayCredentials == true ||
+                                 relation.isFollowing))
+                              _chip(
+                                context,
+                                label: TranslationService.translate(
+                                  context, 'peer_status_indirect',
+                                ),
+                                color: Colors.blueGrey,
+                                icon: Icons.cloud_outlined,
+                              ),
+                            if (isOnline == false &&
+                                relation.peer?.hasRelayCredentials != true &&
+                                !relation.isFollowing)
                               _chip(
                                 context,
                                 label: TranslationService.translate(

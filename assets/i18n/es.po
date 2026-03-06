@@ -736,6 +736,14 @@ msgstr "Librero"
 msgid "borrow"
 msgstr "Pedir prestado"
 
+#. Borrow request already pending
+msgid "borrow_pending"
+msgstr "Solicitado"
+
+#. No copies available to borrow
+msgid "borrow_unavailable"
+msgstr "No disponible"
+
 #. Borrow a Book
 msgid "borrow_book_title"
 msgstr "Tomar prestado un libro"
@@ -6567,6 +6575,10 @@ msgstr "En linea"
 
 msgid "peer_status_unreachable"
 msgstr "Inaccesible"
+
+#. Peer reachable via relay or hub (not direct WiFi)
+msgid "peer_status_indirect"
+msgstr "Via cloud"
 
 msgid "pending_connections_banner"
 msgstr "Tienes {count} solicitud(es) de conexion pendiente(s)"
