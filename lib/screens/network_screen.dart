@@ -7,9 +7,9 @@ import '../widgets/invite_share_sheet.dart';
 import '../utils/invite_payload.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../models/network_member.dart';
 import '../models/library_relation.dart';
 import '../data/repositories/contact_repository.dart';
@@ -39,33 +39,41 @@ class NetworkScreen extends StatefulWidget {
 
 class _NetworkScreenState extends State<NetworkScreen>
     with SingleTickerProviderStateMixin {
-  late TabController _mainTabController;
+  TabController? _mainTabController;
+  int _tabCount = 1;
   final GlobalKey<_MyNetworkViewState> _myNetworkKey =
       GlobalKey<_MyNetworkViewState>();
 
   @override
   void initState() {
     super.initState();
+  }
+
+  void _ensureTabController(int count) {
+    if (count == _tabCount && _mainTabController != null) return;
+    _mainTabController?.removeListener(_onTabChanged);
+    _mainTabController?.dispose();
+    _tabCount = count;
     _mainTabController = TabController(
-      length: 2,
+      length: count,
       vsync: this,
-      initialIndex: widget.initialIndex.clamp(0, 1),
+      initialIndex: widget.initialIndex.clamp(0, count - 1),
     );
-    _mainTabController.addListener(_onTabChanged);
+    _mainTabController!.addListener(_onTabChanged);
   }
 
   void _onTabChanged() {
     setState(() {});
     // Reload "Mon réseau" data when switching back to tab 0
-    if (_mainTabController.index == 0 && !_mainTabController.indexIsChanging) {
+    if (_mainTabController!.index == 0 && !_mainTabController!.indexIsChanging) {
       _myNetworkKey.currentState?.reloadMembers();
     }
   }
 
   @override
   void dispose() {
-    _mainTabController.removeListener(_onTabChanged);
-    _mainTabController.dispose();
+    _mainTabController?.removeListener(_onTabChanged);
+    _mainTabController?.dispose();
     super.dispose();
   }
 
@@ -192,6 +200,9 @@ class _NetworkScreenState extends State<NetworkScreen>
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final bool isMobile = width <= 600;
+    final hubEnabled = context.watch<HubDirectoryProvider>().isHubEnabled;
+    final tabCount = hubEnabled ? 2 : 1;
+    _ensureTabController(tabCount);
 
     return Scaffold(
       appBar: GenieAppBar(
@@ -230,42 +241,46 @@ class _NetworkScreenState extends State<NetworkScreen>
             ],
           ),
         ],
-        bottom: TabBar(
-          controller: _mainTabController,
-          indicatorColor: Colors.white,
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.white70,
-          tabs: [
-            Tab(
-              child: Consumer<HubDirectoryProvider>(
-                builder: (context, dirProvider, _) {
-                  final count = dirProvider.pendingCount;
-                  return Badge(
-                    isLabelVisible: count > 0,
-                    label: Text('$count'),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: Text(
-                        TranslationService.translate(
-                          context, 'network_tab_my_network',
-                        ),
-                      ),
+        bottom: tabCount > 1
+            ? TabBar(
+                controller: _mainTabController,
+                indicatorColor: Colors.white,
+                labelColor: Colors.white,
+                unselectedLabelColor: Colors.white70,
+                tabs: [
+                  Tab(
+                    child: Consumer<HubDirectoryProvider>(
+                      builder: (context, dirProvider, _) {
+                        final count = dirProvider.pendingCount;
+                        return Badge(
+                          isLabelVisible: count > 0,
+                          label: Text('$count'),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: Text(
+                              TranslationService.translate(
+                                context, 'network_tab_my_network',
+                              ),
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
-            ),
-            Tab(text: TranslationService.translate(context, 'network_tab_discover')),
-          ],
-        ),
+                  ),
+                  Tab(text: TranslationService.translate(context, 'network_tab_discover')),
+                ],
+              )
+            : null,
       ),
-      body: TabBarView(
-        controller: _mainTabController,
-        children: [
-          _MyNetworkView(key: _myNetworkKey),
-          const _DiscoverView(),
-        ],
-      ),
+      body: tabCount > 1
+          ? TabBarView(
+              controller: _mainTabController,
+              children: [
+                _MyNetworkView(key: _myNetworkKey),
+                const _DiscoverView(),
+              ],
+            )
+          : _MyNetworkView(key: _myNetworkKey),
       floatingActionButton: FloatingActionButton(
               key: const Key('networkAddFab'),
               heroTag: 'network_add_fab',
@@ -286,7 +301,6 @@ class _MyNetworkView extends StatefulWidget {
 
 class _MyNetworkViewState extends State<_MyNetworkView> {
   static const _bannerDismissedKey = 'invite_banner_dismissed';
-  static const _bannerDismissedAtKey = 'invite_banner_dismissed_at';
 
   List<NetworkMember> _borrowers = [];
   List<LibraryRelation> _relations = [];
@@ -326,16 +340,8 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
   Future<void> _checkBannerVisibility() async {
     final prefs = await SharedPreferences.getInstance();
     final dismissed = prefs.getBool(_bannerDismissedKey) ?? false;
-    if (!dismissed) {
-      if (mounted) setState(() => _bannerVisible = true);
-      return;
-    }
-    // Reappear after 30 days
-    final dismissedAt = prefs.getInt(_bannerDismissedAtKey) ?? 0;
-    final elapsed = DateTime.now().millisecondsSinceEpoch - dismissedAt;
-    final thirtyDays = const Duration(days: 30).inMilliseconds;
-    if (elapsed > thirtyDays) {
-      if (mounted) setState(() => _bannerVisible = true);
+    if (!dismissed && mounted) {
+      setState(() => _bannerVisible = true);
     }
   }
 
@@ -343,10 +349,6 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
     setState(() => _bannerVisible = false);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_bannerDismissedKey, true);
-    await prefs.setInt(
-      _bannerDismissedAtKey,
-      DateTime.now().millisecondsSinceEpoch,
-    );
   }
 
   @override
@@ -379,9 +381,11 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
   }
 
   /// Lightweight refresh: re-read MdnsService.peers without re-fetching API data.
+  /// Also cross-references mDNS names with saved peers for instant name updates.
   void _refreshLocalPeers() {
     if (!mounted) return;
-    final localPeers = MdnsService.peers
+    final allMdns = MdnsService.peers;
+    final localPeers = allMdns
         .where((p) {
           if (p.libraryId != null && _savedUuids.contains(p.libraryId)) {
             return false;
@@ -390,10 +394,42 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
           return true;
         })
         .toList();
-    // Only rebuild if the peer count changed or hosts differ
-    if (localPeers.length != _localPeers.length ||
-        !_sameHosts(localPeers, _localPeers)) {
-      setState(() => _localPeers = localPeers);
+
+    // Cross-reference mDNS names with saved peers for instant name updates
+    bool relationsChanged = false;
+    final mdnsNameByHost = <String, String>{};
+    final mdnsNameByUuid = <String, String>{};
+    for (final mp in allMdns) {
+      mdnsNameByHost[mp.host] = mp.name;
+      if (mp.libraryId != null) mdnsNameByUuid[mp.libraryId!] = mp.name;
+    }
+    final updatedRelations = _relations.map((r) {
+      final p = r.peer;
+      if (p == null) return r;
+      String? mdnsName;
+      if (p.libraryUuid != null) {
+        mdnsName = mdnsNameByUuid[p.libraryUuid];
+      }
+      if (mdnsName == null && p.url != null) {
+        try {
+          mdnsName = mdnsNameByHost[Uri.parse(p.url!).host];
+        } catch (_) {}
+      }
+      if (mdnsName != null && mdnsName != p.name && r.name != mdnsName) {
+        relationsChanged = true;
+        return r.withDisplayName(mdnsName);
+      }
+      return r;
+    }).toList();
+
+    final peersChanged = localPeers.length != _localPeers.length ||
+        !_sameHosts(localPeers, _localPeers);
+
+    if (peersChanged || relationsChanged) {
+      setState(() {
+        _localPeers = localPeers;
+        if (relationsChanged) _relations = updatedRelations;
+      });
     }
   }
 
@@ -434,7 +470,7 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
 
       // Load all data sources concurrently - each isolated so one failure
       // does not prevent the others from loading.
-      final libraryId = await authService.getLibraryId() ?? 1;
+      final libraryId = await authService.getLibraryId();
 
       List<dynamic> contactsList = [];
       List<dynamic> peersData = [];
@@ -510,6 +546,35 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
         }
       }
 
+      // Cross-reference mDNS names with saved peers: if an mDNS peer matches
+      // a saved peer by host or library_uuid and has a different name, update
+      // the displayed name immediately (the sync will persist it later).
+      final mdnsPeers = MdnsService.peers;
+      final mdnsNameByHost = <String, String>{};
+      final mdnsNameByUuid = <String, String>{};
+      for (final mp in mdnsPeers) {
+        mdnsNameByHost[mp.host] = mp.name;
+        if (mp.libraryId != null) {
+          mdnsNameByUuid[mp.libraryId!] = mp.name;
+        }
+      }
+      for (final entry in map.entries) {
+        final p = entry.value.peer;
+        if (p == null) continue;
+        String? mdnsName;
+        if (p.libraryUuid != null) {
+          mdnsName = mdnsNameByUuid[p.libraryUuid];
+        }
+        if (mdnsName == null && p.url != null) {
+          try {
+            mdnsName = mdnsNameByHost[Uri.parse(p.url!).host];
+          } catch (_) {}
+        }
+        if (mdnsName != null && mdnsName != p.name) {
+          map[entry.key] = entry.value.withDisplayName(mdnsName);
+        }
+      }
+
       final relations = map.values.toList()
         ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
 
@@ -527,7 +592,8 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
           })
           .whereType<String>()
           .toSet();
-      final localPeers = MdnsService.peers
+
+      final localPeers = mdnsPeers
           .where((p) {
             if (p.libraryId != null && _savedUuids.contains(p.libraryId)) {
               return false;
@@ -546,10 +612,6 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
         });
         // Check peer connectivity (fire-and-forget, non-blocking)
         _checkPeersConnectivity(relations);
-        // Reshow banner if 0 connections
-        if (relations.isEmpty && !_bannerVisible) {
-          _checkBannerVisibility();
-        }
       }
     } catch (e) {
       debugPrint('Error loading network: $e');
@@ -1009,6 +1071,7 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
           hintKey: 'no_nearby_peers_hint',
         );
       case LibraryFilter.following:
+        final hubOn = context.read<HubDirectoryProvider>().isHubEnabled;
         return _buildEmptyStateContent(
           context,
           key: 'networkEmptyFollowing',
@@ -1016,30 +1079,32 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
           iconColor: Colors.deepPurple,
           titleKey: 'no_following_yet',
           hintKey: 'no_following_hint',
-          actionWidget: ElevatedButton.icon(
-            onPressed: () {
-              final networkScreenState =
-                  context.findAncestorStateOfType<_NetworkScreenState>();
-              networkScreenState?._mainTabController.animateTo(1);
-            },
-            icon: const Icon(Icons.explore),
-            label: Text(
-              TranslationService.translate(context, 'browse_directory_btn'),
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 32,
-                vertical: 16,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
-          ),
+          actionWidget: hubOn
+              ? ElevatedButton.icon(
+                  onPressed: () {
+                    final networkScreenState =
+                        context.findAncestorStateOfType<_NetworkScreenState>();
+                    networkScreenState?._mainTabController?.animateTo(1);
+                  },
+                  icon: const Icon(Icons.explore),
+                  label: Text(
+                    TranslationService.translate(context, 'browse_directory_btn'),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 32,
+                      vertical: 16,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                )
+              : null,
         );
       case LibraryFilter.borrowers:
         return _buildEmptyStateContent(

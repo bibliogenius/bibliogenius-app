@@ -203,13 +203,12 @@ class ApiService {
   Future<Response> getMe() async {
     if (useFfi) {
       // Return mock data for FFI/Offline mode
+      // Don't hardcode IDs - backend resolves dynamically when null
       return Response(
         requestOptions: RequestOptions(path: '/api/auth/me'),
         statusCode: 200,
         data: {
-          'user_id': 1,
           'username': 'offline_user',
-          'library_id': 1, // Default to 1 for offline
           'role': 'admin',
         },
       );
@@ -439,7 +438,7 @@ class ApiService {
         }
       }
 
-      enrichedData['library_id'] = libraryId ?? 1; // Final fallback to 1
+      enrichedData['library_id'] = libraryId; // Backend resolves dynamically if null
     }
 
     // Add is_temporary if not provided (default to false)
@@ -447,7 +446,7 @@ class ApiService {
       enrichedData['is_temporary'] = false;
     }
 
-    Future<Response> attemptCreate(int libId) async {
+    Future<Response> attemptCreate(int? libId) async {
       enrichedData['library_id'] = libId;
       if (useFfi) {
         final localDio = Dio(
@@ -506,7 +505,7 @@ class ApiService {
         final loanId = await RustLib.instance.api.crateApiFrbCreateLoan(
           copyId: loanData['copy_id'] as int,
           contactId: loanData['contact_id'] as int,
-          libraryId: loanData['library_id'] as int? ?? 1,
+          libraryId: loanData['library_id'] as int? ?? 0,
           loanDate: loanData['loan_date'] as String,
           dueDate: loanData['due_date'] as String,
           notes: loanData['notes'] as String?,
@@ -1024,7 +1023,7 @@ class ApiService {
           longitude: (contactData['longitude'] as num?)?.toDouble(),
           notes: contactData['notes'],
           userId: contactData['user_id'],
-          libraryOwnerId: contactData['library_owner_id'] ?? 1,
+          libraryOwnerId: contactData['library_owner_id'],
           isActive: contactData['is_active'] ?? true,
         );
 
@@ -1072,7 +1071,7 @@ class ApiService {
           longitude: (contactData['longitude'] as num?)?.toDouble(),
           notes: contactData['notes'],
           userId: contactData['user_id'],
-          libraryOwnerId: contactData['library_owner_id'] ?? 1,
+          libraryOwnerId: contactData['library_owner_id'],
           isActive: contactData['is_active'] ?? true,
         );
 
@@ -2216,21 +2215,13 @@ class ApiService {
           );
         } on DioException catch (e) {
           if (e.response?.statusCode == 404) {
-            // Remote peer doesn't know us via LAN. Check if the peer has
-            // relay credentials before deleting: a peer reachable via relay
-            // should NOT be removed just because LAN sync fails (different
-            // WiFi, cellular, peer reset but relay still valid, etc.).
             // 404 means the remote doesn't recognize our URL (peer reset,
             // different WiFi, URL mismatch). This is NOT a disconnect signal.
-            // Never auto-delete peers - disconnection must be explicit.
+            // Don't return early - fall through to local backend sync which
+            // handles relay fallback for peers unreachable via LAN.
             debugPrint(
               'P2P Sync: Remote returned 404 for $normalizedUrl '
-              '(keeping peer, LAN URL mismatch is not a disconnect)',
-            );
-            return Response(
-              requestOptions: RequestOptions(path: '/api/peers/sync_by_url'),
-              statusCode: 200,
-              data: {'message': 'LAN sync skipped (404), peer kept'},
+              '(keeping peer, falling through to local sync/relay)',
             );
           }
           debugPrint('P2P remote sync error (non-fatal): $e');
@@ -2310,7 +2301,7 @@ class ApiService {
       final cleanUrl = peerUrl.endsWith('/')
           ? peerUrl.substring(0, peerUrl.length - 1)
           : peerUrl;
-      final targetUrl = '$cleanUrl/api/books';
+      final targetUrl = '$cleanUrl/api/books?owned_only=true';
       debugPrint('P2P: Fetching books from $targetUrl');
       final dio = Dio(BaseOptions(
         connectTimeout: const Duration(seconds: 5),

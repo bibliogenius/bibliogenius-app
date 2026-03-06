@@ -930,7 +930,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
         if (copies.isEmpty) {
           await copyRepo.createCopy({
             'book_id': book.bookId,
-            'library_id': 1, // Default library
+            // library_id resolved by backend
             'status': 'available',
             'is_temporary': false,
           });

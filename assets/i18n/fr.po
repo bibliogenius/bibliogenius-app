@@ -4733,15 +4733,16 @@ msgstr "Permettre a vos followers de demander a emprunter vos livres via le hub"
 msgid "hub_borrowing_disabled"
 msgstr "Cette bibliotheque n'accepte pas les demandes d'emprunt"
 
-#. Hub - Experimental toggle
-msgid "hub_experimental_toggle"
-msgstr "Annuaire public (Experimental)"
+#. Hub - Coming soon toggle
+msgid "hub_coming_soon_toggle"
+msgstr "Annuaire public"
 
-msgid "hub_experimental_desc"
+msgid "hub_coming_soon_desc"
 msgstr "Inscrivez votre bibliotheque dans l'annuaire public et decouvrez d'autres lecteurs"
 
-msgid "hub_experimental_chip"
-msgstr "Experimental"
+#. Generic coming soon chip
+msgid "coming_soon_chip"
+msgstr "A venir"
 
 #. Hub - Contact info
 msgid "hub_contact_label"
@@ -7492,6 +7493,12 @@ msgstr "Découvrir"
 
 msgid "notif_tap_wishlist"
 msgstr "Voir la liste de souhaits"
+
+msgid "notif_tap_library"
+msgstr "Voir la bibliothèque"
+
+msgid "settings_search_hint"
+msgstr "Rechercher dans les paramètres..."
 
 msgid "time_just_now"
 msgstr "À l'instant"

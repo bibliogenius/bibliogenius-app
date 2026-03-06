@@ -85,7 +85,7 @@ class _BookCopiesScreenState extends State<BookCopiesScreen>
       try {
         await copyRepo.createCopy({
           'book_id': widget.bookId,
-          'library_id': 1,
+          // library_id resolved by backend
           ...result,
         });
         _fetchCopies();

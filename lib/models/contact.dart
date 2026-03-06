@@ -14,7 +14,7 @@ class Contact {
   final double? longitude;
   final String? notes;
   final int? userId;
-  final int libraryOwnerId;
+  final int? libraryOwnerId;
   final bool isActive;
 
   Contact({
@@ -33,7 +33,7 @@ class Contact {
     this.longitude,
     this.notes,
     this.userId,
-    required this.libraryOwnerId,
+    this.libraryOwnerId,
     this.isActive = true,
   });
 
@@ -83,7 +83,7 @@ class Contact {
       longitude: (json['longitude'] as num?)?.toDouble(),
       notes: json['notes'] as String?,
       userId: json['user_id'] as int?,
-      libraryOwnerId: (json['library_owner_id'] as int?) ?? 1,
+      libraryOwnerId: json['library_owner_id'] as int?,
       isActive: json['is_active'] as bool? ?? true,
     );
   }

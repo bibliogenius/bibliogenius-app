@@ -84,7 +84,7 @@ class _AddContactScreenState extends State<AddContactScreen> {
     try {
       final authService = Provider.of<AuthService>(context, listen: false);
       final contactRepo = Provider.of<ContactRepository>(context, listen: false);
-      final libraryId = await authService.getLibraryId() ?? 1;
+      final libraryId = await authService.getLibraryId();
 
       final contactData = {
         'type': _type,

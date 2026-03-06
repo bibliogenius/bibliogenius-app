@@ -591,7 +591,7 @@ class FfiService {
       notes: fc.notes,
       isActive: fc.isActive,
       userId: fc.userId,
-      libraryOwnerId: fc.libraryOwnerId ?? 1,
+      libraryOwnerId: fc.libraryOwnerId,
     );
   }
 

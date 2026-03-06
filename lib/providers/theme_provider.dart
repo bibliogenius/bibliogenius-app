@@ -119,8 +119,8 @@ class ThemeProvider with ChangeNotifier {
   bool _operationLogViewerEnabled = false;
   bool get operationLogViewerEnabled => _operationLogViewerEnabled;
 
-  // Notifications: global toggle + per category (all ON by default)
-  bool _notificationsEnabled = true;
+  // Notifications: global toggle + per category (OFF by default, experimental)
+  bool _notificationsEnabled = false;
   bool get notificationsEnabled => _notificationsEnabled;
   bool _notifConnectionsEnabled = true;
   bool get notifConnectionsEnabled => _notifConnectionsEnabled;
@@ -330,7 +330,7 @@ class ThemeProvider with ChangeNotifier {
     _slidingPuzzleEnabled = prefs.getBool('slidingPuzzleEnabled') ?? true;
     _operationLogViewerEnabled = prefs.getBool('operationLogViewerEnabled') ?? false;
     _syncSafetyEnabled = prefs.getBool('syncSafetyEnabled') ?? true;
-    _notificationsEnabled = prefs.getBool('notificationsEnabled') ?? true;
+    _notificationsEnabled = prefs.getBool('notificationsEnabled') ?? false;
     _notifConnectionsEnabled = prefs.getBool('notifConnectionsEnabled') ?? true;
     _notifLoansEnabled = prefs.getBool('notifLoansEnabled') ?? true;
     _notifDiscoveriesEnabled = prefs.getBool('notifDiscoveriesEnabled') ?? true;
@@ -735,7 +735,7 @@ class ThemeProvider with ChangeNotifier {
     _networkGamificationEnabled = false;
     _canBorrowBooks = true;
     _syncSafetyEnabled = true;
-    _notificationsEnabled = true;
+    _notificationsEnabled = false;
     _notifConnectionsEnabled = true;
     _notifLoansEnabled = true;
     _notifDiscoveriesEnabled = true;

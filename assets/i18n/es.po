@@ -4791,6 +4791,10 @@ msgstr "Editar configuración"
 msgid "settings_saved"
 msgstr "Configuración guardada"
 
+#. Search settings...
+msgid "settings_search_hint"
+msgstr "Buscar en ajustes..."
+
 #. Back
 msgid "setup_btn_back"
 msgstr "Atrás"
@@ -6357,14 +6361,14 @@ msgstr "Datos de contacto (visibles para tus seguidores aprobados)"
 msgid "hub_disabled_discover"
 msgstr "Activa el directorio publico en Ajustes para descubrir otras bibliotecas"
 
-msgid "hub_experimental_chip"
-msgstr "Experimental"
+msgid "coming_soon_chip"
+msgstr "Proximamente"
 
-msgid "hub_experimental_desc"
+msgid "hub_coming_soon_desc"
 msgstr "Registra tu biblioteca en el directorio publico y descubre otros lectores"
 
-msgid "hub_experimental_toggle"
-msgstr "Directorio publico (Experimental)"
+msgid "hub_coming_soon_toggle"
+msgstr "Directorio publico"
 
 msgid "hub_only_detail_hint"
 msgstr "Conectate al mismo Wi-Fi o espera a que esta biblioteca este en linea para ver los detalles completos."

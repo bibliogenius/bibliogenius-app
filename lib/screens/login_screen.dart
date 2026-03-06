@@ -72,8 +72,12 @@ class _LoginScreenState extends State<LoginScreen>
       final meResponse = await apiService.getMe();
       if (meResponse.statusCode == 200) {
         final data = meResponse.data;
-        await authService.saveUserId(data['user_id']);
-        await authService.saveLibraryId(data['library_id']);
+        if (data['user_id'] is int) {
+          await authService.saveUserId(data['user_id']);
+        }
+        if (data['library_id'] is int) {
+          await authService.saveLibraryId(data['library_id']);
+        }
       }
     } catch (e) {
       debugPrint('Failed to fetch user context: $e');

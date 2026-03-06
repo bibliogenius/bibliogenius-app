@@ -12,7 +12,6 @@ import '../widgets/contextual_help_sheet.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
 import '../providers/theme_provider.dart';
-import '../providers/notification_provider.dart';
 import '../providers/hub_directory_provider.dart';
 import '../services/auth_service.dart';
 import '../services/ffi_service.dart';
@@ -46,6 +45,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   // Hub directory contact + website controllers
   final _hubContactController = TextEditingController();
   final _hubWebsiteController = TextEditingController();
+  // Settings search
+  String _settingsSearch = '';
+  final _settingsSearchController = TextEditingController();
 
   @override
   void initState() {
@@ -98,6 +100,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _relayUrlController.dispose();
     _hubContactController.dispose();
     _hubWebsiteController.dispose();
+    _settingsSearchController.dispose();
     super.dispose();
   }
 
@@ -243,6 +246,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  /// Returns true if any of the given i18n keys' translated text contains the search query.
+  bool _matchesSearch(List<String> keys) {
+    if (_settingsSearch.isEmpty) return true;
+    final q = _settingsSearch.toLowerCase();
+    for (final key in keys) {
+      final text = TranslationService.translate(context, key)?.toLowerCase() ?? '';
+      if (text.contains(q)) return true;
+    }
+    return false;
+  }
+
+  /// Whether a section should be visible during search.
+  /// Pass the section title key + all toggle keys inside the section.
+  bool _sectionVisible(List<String> keys) {
+    if (_settingsSearch.isEmpty) return true;
+    return _matchesSearch(keys);
+  }
+
+  bool get _isSearching => _settingsSearch.isNotEmpty;
+
   Widget _buildSettingsContent(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final hasPassword = _userInfo?['has_password'] ?? false;
@@ -256,68 +279,100 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Quick Presets Section
-            Text(
-              TranslationService.translate(context, 'quick_presets') ??
-                  'Quick Presets',
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              TranslationService.translate(context, 'quick_presets_desc') ??
-                  'Apply a configuration adapted to your usage:',
-              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildPresetButton(
-                    context,
-                    'reader',
-                    TranslationService.translate(context, 'preset_reader') ??
-                        'Reader',
-                    Icons.menu_book,
-                    Colors.teal,
-                    themeProvider,
-                  ),
+            // Search bar
+            TextField(
+              controller: _settingsSearchController,
+              decoration: InputDecoration(
+                hintText: TranslationService.translate(context, 'settings_search_hint'),
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: _settingsSearch.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        tooltip: TranslationService.translate(context, 'action_clear'),
+                        onPressed: () {
+                          _settingsSearchController.clear();
+                          setState(() => _settingsSearch = '');
+                        },
+                      )
+                    : null,
+                filled: true,
+                fillColor: Theme.of(context).cardColor,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _buildPresetButton(
-                    context,
-                    'librarian',
-                    TranslationService.translate(context, 'preset_librarian') ??
-                        'Librarian',
-                    Icons.local_library,
-                    Colors.indigo,
-                    themeProvider,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _buildPresetButton(
-                    context,
-                    'bookseller',
-                    TranslationService.translate(
-                          context,
-                          'preset_bookseller',
-                        ) ??
-                        'Bookseller',
-                    Icons.storefront,
-                    Colors.orange,
-                    themeProvider,
-                  ),
-                ),
-              ],
+                contentPadding: const EdgeInsets.symmetric(vertical: 0),
+              ),
+              onChanged: (v) => setState(() => _settingsSearch = v),
             ),
             const SizedBox(height: 16),
+            // Quick Presets Section (hidden during search)
+            if (!_isSearching) ...[
+              Text(
+                TranslationService.translate(context, 'quick_presets') ??
+                    'Quick Presets',
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                TranslationService.translate(context, 'quick_presets_desc') ??
+                    'Apply a configuration adapted to your usage:',
+                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildPresetButton(
+                      context,
+                      'reader',
+                      TranslationService.translate(context, 'preset_reader') ??
+                          'Reader',
+                      Icons.menu_book,
+                      Colors.teal,
+                      themeProvider,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _buildPresetButton(
+                      context,
+                      'librarian',
+                      TranslationService.translate(context, 'preset_librarian') ??
+                          'Librarian',
+                      Icons.local_library,
+                      Colors.indigo,
+                      themeProvider,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _buildPresetButton(
+                      context,
+                      'bookseller',
+                      TranslationService.translate(
+                            context,
+                            'preset_bookseller',
+                          ) ??
+                          'Bookseller',
+                      Icons.storefront,
+                      Colors.orange,
+                      themeProvider,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+            ],
 
             // Data Management
             // Content accordion
+            if (_sectionVisible(['content']))
             Card(
               margin: const EdgeInsets.only(bottom: 12),
               child: ExpansionTile(
+                key: ValueKey('content_$_isSearching'),
+                initiallyExpanded: _isSearching,
                 leading: const Icon(Icons.inventory_2_outlined),
                 title: Semantics(
                   header: true,
@@ -344,9 +399,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
 
             // Account accordion (security + session)
+            if (_sectionVisible(['account', 'password', 'two_factor_auth']))
             Card(
               margin: const EdgeInsets.only(bottom: 12),
               child: ExpansionTile(
+                key: ValueKey('account_$_isSearching'),
+                initiallyExpanded: _isSearching,
                 leading: const Icon(Icons.person_outlined),
                 title: Semantics(
                   header: true,
@@ -413,9 +471,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             // Theme accordion (theme + text size)
+            if (_sectionVisible(['theme_title']))
             Card(
               margin: const EdgeInsets.only(bottom: 12),
               child: ExpansionTile(
+                key: ValueKey('theme_$_isSearching'),
+                initiallyExpanded: _isSearching,
                 leading: const Icon(Icons.palette_outlined),
                 title: Semantics(
                   header: true,
@@ -444,9 +505,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
 
             // Languages accordion
+            if (_sectionVisible(['languages_section']))
             Card(
               margin: const EdgeInsets.only(bottom: 12),
               child: ExpansionTile(
+                key: ValueKey('languages_$_isSearching'),
+                initiallyExpanded: _isSearching,
                 leading: const Icon(Icons.translate),
                 title: Semantics(
                   header: true,
@@ -471,9 +535,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
 
             // Modules accordion
+            if (_sectionVisible([
+              'modules', 'simplified_mode', 'simplified_mode_desc',
+              'quotes_module', 'quotes_module_desc',
+              'gamification_module', 'gamification_desc',
+              'games_module', 'games_module_desc',
+              'memory_game_module', 'memory_game_module_desc',
+              'sliding_puzzle_module', 'sliding_puzzle_module_desc',
+              'network_gamification', 'network_gamification_desc',
+              'share_gamification_stats', 'share_gamification_stats_desc',
+              'collections_module', 'collections_module_desc',
+              'group_by_collections_title', 'group_by_collections_desc',
+              'commerce_module', 'commerce_module_desc',
+              'audio_module', 'audio_module_desc',
+              'auto_approve_loans_title', 'auto_approve_loans_desc',
+              'enable_borrowing_module', 'borrowing_module_desc',
+              'module_digital_formats', 'module_digital_formats_desc',
+              'mcp_integration', 'mcp_description',
+              'settings_linked_devices', 'settings_linked_devices_desc',
+              'settings_notif_enabled', 'settings_notif_enabled_desc',
+              'settings_notif_connections', 'settings_notif_connections_desc',
+              'settings_notif_loans', 'settings_notif_loans_desc',
+              'settings_notif_discoveries', 'settings_notif_discoveries_desc',
+              'module_operation_log_viewer', 'module_operation_log_desc',
+              'enable_taxonomy', 'settings_notifications',
+              'settings_developer_tools',
+            ]))
             Card(
               margin: const EdgeInsets.only(bottom: 12),
               child: ExpansionTile(
+                key: ValueKey('modules_$_isSearching'),
+                initiallyExpanded: _isSearching,
                 leading: const Icon(Icons.extension_outlined),
                 title: Semantics(
                   header: true,
@@ -705,47 +797,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   'settings_notif_enabled',
                   'settings_notif_enabled_desc',
                   Icons.notifications_outlined,
-                  themeProvider.notificationsEnabled,
-                  (value) {
-                    themeProvider.setNotificationsEnabled(value);
-                    context.read<NotificationProvider>().refreshUnreadCount();
-                  },
+                  false,
+                  null,
+                  tag: TranslationService.translate(
+                      context, 'coming_soon_chip'),
                 ),
-                if (themeProvider.notificationsEnabled) ...[
-                  _buildModuleToggle(
-                    context,
-                    'settings_notif_connections',
-                    'settings_notif_connections_desc',
-                    Icons.people,
-                    themeProvider.notifConnectionsEnabled,
-                    (value) {
-                      themeProvider.setNotifConnectionsEnabled(value);
-                      context.read<NotificationProvider>().refreshUnreadCount();
-                    },
-                  ),
-                  _buildModuleToggle(
-                    context,
-                    'settings_notif_loans',
-                    'settings_notif_loans_desc',
-                    Icons.swap_horiz,
-                    themeProvider.notifLoansEnabled,
-                    (value) {
-                      themeProvider.setNotifLoansEnabled(value);
-                      context.read<NotificationProvider>().refreshUnreadCount();
-                    },
-                  ),
-                  _buildModuleToggle(
-                    context,
-                    'settings_notif_discoveries',
-                    'settings_notif_discoveries_desc',
-                    Icons.auto_awesome,
-                    themeProvider.notifDiscoveriesEnabled,
-                    (value) {
-                      themeProvider.setNotifDiscoveriesEnabled(value);
-                      context.read<NotificationProvider>().refreshUnreadCount();
-                    },
-                  ),
-                ],
 
                 // Developer Tools section
                 const SizedBox(height: 16),
@@ -825,9 +881,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
 
             // Network accordion
+            if (_sectionVisible(['settings_network_title', 'settings_remote_reachable', 'settings_remote_reachable_desc']))
             Card(
               margin: const EdgeInsets.only(bottom: 12),
               child: ExpansionTile(
+                key: ValueKey('network_$_isSearching'),
+                initiallyExpanded: _isSearching,
                 leading: const Icon(Icons.wifi),
                 title: Semantics(
                   header: true,
@@ -852,9 +911,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
 
             // Search Sources accordion
+            if (_sectionVisible(['search_sources']))
             Card(
               margin: const EdgeInsets.only(bottom: 12),
               child: ExpansionTile(
+                key: ValueKey('search_sources_$_isSearching'),
+                initiallyExpanded: _isSearching,
                 leading: const Icon(Icons.saved_search),
                 title: Semantics(
                   header: true,
@@ -1036,24 +1098,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       Expanded(
                         child: Text(
                           TranslationService.translate(
-                                context, 'hub_experimental_toggle') ??
-                              'Public directory (Experimental)',
+                                context, 'hub_coming_soon_toggle') ??
+                              'Public directory',
                         ),
                       ),
                       Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: Colors.orange.withValues(alpha: 0.15),
+                          color: Colors.blueGrey.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
                           TranslationService.translate(
-                                context, 'hub_experimental_chip') ??
-                              'Experimental',
+                                context, 'coming_soon_chip') ??
+                              'Coming soon',
                           style: const TextStyle(
                             fontSize: 10,
-                            color: Colors.orange,
+                            color: Colors.blueGrey,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -1062,14 +1124,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   subtitle: Text(
                     TranslationService.translate(
-                          context, 'hub_experimental_desc') ??
+                          context, 'hub_coming_soon_desc') ??
                         'Register your library in the public directory and discover other readers nearby',
                   ),
-                  value: hubProvider.isHubEnabled,
-                  onChanged: (value) => hubProvider.setHubEnabled(value),
+                  value: false,
+                  onChanged: null,
                 ),
               ),
-              if (hubProvider.isHubEnabled) _buildDirectorySection(context),
             ],
           ),
         ),
@@ -1730,6 +1791,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _buildMcpModuleToggle() {
+    if (!_matchesSearch(['mcp_integration', 'mcp_description'])) {
+      return const SizedBox.shrink();
+    }
     return Consumer<ThemeProvider>(
       builder: (context, theme, _) {
         return Card(
@@ -2193,6 +2257,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     ValueChanged<bool>? onChanged, {
     String? tag,
   }) {
+    if (!_matchesSearch([titleKey, descKey])) return const SizedBox.shrink();
     return Card(
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
       child: SwitchListTile(
@@ -2207,7 +2272,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withValues(alpha: 0.15),
+                  color: Colors.blueGrey.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
@@ -2215,7 +2280,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   style: const TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
-                    color: Colors.orange,
+                    color: Colors.blueGrey,
                   ),
                 ),
               ),

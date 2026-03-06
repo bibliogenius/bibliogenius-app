@@ -177,13 +177,18 @@ class QuickActionsSheet extends StatelessWidget {
               Expanded(
                 child: ConfigurableActionCard(
                   slotKey: 'quick_action_custom_slot',
-                  defaultActionId: 'inventory',
+                  defaultActionId: 'share_library',
                   allowedActionIds: const [
+                    'share_library',
                     'inventory',
                     'create_shelf',
                     'add_manual',
                   ],
                   handlers: {
+                    'share_library': () {
+                      Navigator.pop(context);
+                      showInviteShareSheet(context);
+                    },
                     'inventory': () =>
                         showShelfPickerForInventory(context, onBookAdded),
                     'create_shelf': () =>

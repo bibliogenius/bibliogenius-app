@@ -195,7 +195,7 @@ class NetworkMember {
       latitude: latitude,
       longitude: longitude,
       notes: notes,
-      libraryOwnerId: 1, // Default library
+      libraryOwnerId: null, // Resolved by backend
       isActive: isActive ?? true,
     );
   }

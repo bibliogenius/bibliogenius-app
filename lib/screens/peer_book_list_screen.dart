@@ -534,15 +534,18 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       } else if (age.inMinutes < 60) {
         final label =
             TranslationService.translate(context, 'synced_minutes_ago');
-        return label.replaceAll('%d', age.inMinutes.toString());
+        final v = age.inMinutes.toString();
+        return label.replaceAll('%d', v).replaceAll('{count}', v);
       } else if (age.inHours < 24) {
         final label =
             TranslationService.translate(context, 'synced_hours_ago');
-        return label.replaceAll('%d', age.inHours.toString());
+        final v = age.inHours.toString();
+        return label.replaceAll('%d', v).replaceAll('{count}', v);
       } else {
         final label =
             TranslationService.translate(context, 'synced_days_ago');
-        return label.replaceAll('%d', age.inDays.toString());
+        final v = age.inDays.toString();
+        return label.replaceAll('%d', v).replaceAll('{count}', v);
       }
     } catch (_) {
       return _lastSynced ?? '';

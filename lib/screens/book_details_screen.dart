@@ -2015,7 +2015,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         // 2. Create a copy if none exists
         final newCopy = await copyRepo.createCopy({
           'book_id': _book!.id,
-          'library_id': 1, // Default library
+          // library_id resolved by backend
           'status': 'available',
           'is_temporary': false,
         });
@@ -2037,7 +2037,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       await loanRepo.createLoan({
         'copy_id': copyId,
         'contact_id': selectedContact.id,
-        'library_id': 1, // Default library
+        // library_id resolved by backend
         'loan_date': now.toIso8601String().split('T')[0],
         'due_date': dueDate.toIso8601String().split('T')[0],
       });
@@ -2217,7 +2217,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       final copyRepo = Provider.of<CopyRepository>(context, listen: false);
       await copyRepo.createCopy({
         'book_id': _book!.id,
-        'library_id': 1,
+        // library_id resolved by backend
         'status': 'borrowed',
         'is_temporary': false,
         'notes': '$borrowedFromLabel ${selectedContact.fullName}',

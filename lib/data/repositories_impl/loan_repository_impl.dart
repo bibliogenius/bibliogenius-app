@@ -37,7 +37,7 @@ class LoanRepositoryImpl implements LoanRepository {
           id: loanJson['id'] as int,
           copyId: loanData['copy_id'] as int,
           contactId: loanData['contact_id'] as int,
-          libraryId: loanData['library_id'] as int? ?? 1,
+          libraryId: loanData['library_id'] as int? ?? 0,
           loanDate: loanData['loan_date'] as String,
           dueDate: loanData['due_date'] as String,
           notes: loanData['notes'] as String?,

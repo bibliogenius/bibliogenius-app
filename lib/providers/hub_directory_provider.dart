@@ -73,7 +73,7 @@ class HubDirectoryProvider extends ChangeNotifier {
 
   // ── Experimental toggle ─────────────────────────────────────────────────
 
-  bool _hubEnabled = true;
+  bool _hubEnabled = false;
 
   /// Whether the hub directory feature is enabled by the user.
   bool get isHubEnabled => _hubEnabled;
@@ -81,7 +81,7 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// Load the toggle state from SharedPreferences. Call at app start.
   Future<void> loadHubEnabled() async {
     final prefs = await SharedPreferences.getInstance();
-    _hubEnabled = prefs.getBool(_kHubEnabledKey) ?? true;
+    _hubEnabled = prefs.getBool(_kHubEnabledKey) ?? false;
     notifyListeners();
   }
 

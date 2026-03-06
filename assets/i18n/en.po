@@ -4733,15 +4733,16 @@ msgstr "Let your followers request to borrow your books via the hub"
 msgid "hub_borrowing_disabled"
 msgstr "This library does not accept borrow requests"
 
-#. Hub - Experimental toggle
-msgid "hub_experimental_toggle"
-msgstr "Public directory (Experimental)"
+#. Hub - Coming soon toggle
+msgid "hub_coming_soon_toggle"
+msgstr "Public directory"
 
-msgid "hub_experimental_desc"
+msgid "hub_coming_soon_desc"
 msgstr "Register your library in the public directory and discover other readers nearby"
 
-msgid "hub_experimental_chip"
-msgstr "Experimental"
+#. Generic coming soon chip
+msgid "coming_soon_chip"
+msgstr "Coming soon"
 
 #. Hub - Contact info
 msgid "hub_contact_label"
@@ -7492,6 +7493,12 @@ msgstr "Discover"
 
 msgid "notif_tap_wishlist"
 msgstr "See wishlist"
+
+msgid "notif_tap_library"
+msgstr "See library"
+
+msgid "settings_search_hint"
+msgstr "Search settings..."
 
 msgid "time_just_now"
 msgstr "Just now"

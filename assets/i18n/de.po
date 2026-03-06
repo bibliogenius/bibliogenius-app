@@ -4791,6 +4791,10 @@ msgstr "Einstellungen bearbeiten"
 msgid "settings_saved"
 msgstr "Einstellungen gespeichert"
 
+#. Search settings...
+msgid "settings_search_hint"
+msgstr "Einstellungen durchsuchen..."
+
 #. Back
 msgid "setup_btn_back"
 msgstr "Zurück"
@@ -6357,14 +6361,14 @@ msgstr "Kontaktdaten (sichtbar für genehmigte Follower)"
 msgid "hub_disabled_discover"
 msgstr "Aktivieren Sie das öffentliche Verzeichnis in den Einstellungen, um andere Bibliotheken zu entdecken"
 
-msgid "hub_experimental_chip"
-msgstr "Experimentell"
+msgid "coming_soon_chip"
+msgstr "Demnachst"
 
-msgid "hub_experimental_desc"
+msgid "hub_coming_soon_desc"
 msgstr "Registrieren Sie Ihre Bibliothek im öffentlichen Verzeichnis und entdecken Sie andere Leser"
 
-msgid "hub_experimental_toggle"
-msgstr "Öffentliches Verzeichnis (Experimentell)"
+msgid "hub_coming_soon_toggle"
+msgstr "Offentliches Verzeichnis"
 
 msgid "hub_only_detail_hint"
 msgstr "Verbinden Sie sich mit demselben Wi-Fi oder warten Sie, bis diese Bibliothek online ist, um alle Details zu sehen."
