@@ -150,12 +150,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         context.push('/requests?tab=lent');
         break;
       case 'new_books':
-        // Go to network / discover
-        context.push('/network?tab=discover');
+        // Go to network / peers tab (notification title contains the peer name)
+        context.push('/network');
         break;
       case 'wishlist_match':
-        // Go to wishlist
-        context.push('/books?status=wishlist');
+        // Go to wishlist (reading_status = 'wanting')
+        context.push('/books?status=wanting');
         break;
       default:
         break;
@@ -322,7 +322,7 @@ class _NotificationTile extends StatelessWidget {
       case 'book_returned':
         return TranslationService.translate(context, 'notif_tap_requests');
       case 'new_books':
-        return TranslationService.translate(context, 'notif_tap_discover');
+        return TranslationService.translate(context, 'notif_tap_network');
       case 'wishlist_match':
         return TranslationService.translate(context, 'notif_tap_wishlist');
       default:

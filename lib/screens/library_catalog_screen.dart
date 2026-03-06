@@ -1013,7 +1013,20 @@ class _NotFollowingState extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             FilledButton.icon(
-              onPressed: () => provider.follow(nodeId),
+              onPressed: () async {
+                await provider.follow(nodeId);
+                if (context.mounted && provider.actionError != null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        TranslationService.translate(
+                          context, 'directory_follow_error',
+                        ),
+                      ),
+                    ),
+                  );
+                }
+              },
               icon: const Icon(Icons.add),
               label: Text(
                 requiresApproval
