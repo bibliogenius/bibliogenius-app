@@ -625,6 +625,13 @@ Future<FrbHubBorrowRequest> hubDirectoryResolveBorrowRequest({
   resolution: resolution,
 );
 
+/// Cancels a borrow request (requester only).
+Future<void> hubDirectoryCancelBorrowRequest({
+  required PlatformInt64 requestId,
+}) => RustLib.instance.api.crateApiFrbHubDirectoryCancelBorrowRequest(
+  requestId: requestId,
+);
+
 /// Encrypts plaintext for a recipient identified by their X25519 public key (hex-encoded).
 /// Returns a base64-encoded sealed blob suitable for hub storage.
 Future<String> sealBlob({
@@ -744,6 +751,10 @@ Future<int> notificationsMarkAllRead() =>
 /// Dismiss (hard delete) a single notification.
 Future<bool> notificationsDismiss({required int id}) =>
     RustLib.instance.api.crateApiFrbNotificationsDismiss(id: id);
+
+/// Dismiss (hard delete) all notifications. Returns count of deleted rows.
+Future<int> notificationsDismissAll() =>
+    RustLib.instance.api.crateApiFrbNotificationsDismissAll();
 
 /// Run pruning (TTL + cap). Call on app startup.
 Future<int> notificationsPrune() =>

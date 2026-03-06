@@ -198,6 +198,16 @@ void main([List<String>? args]) async {
   bool useFfi = await initializePlatform();
 
   if (useFfi) {
+    // Sync library name to Rust backend now that FFI is ready
+    // (fixes desync where SharedPrefs has the user's name but SQLite has the default)
+    if (themeProvider.libraryName != 'My Library') {
+      try {
+        await FfiService().updateLibraryName(themeProvider.libraryName);
+      } catch (e) {
+        debugPrint('Startup library name sync (non-fatal): $e');
+      }
+    }
+
     int httpPort = 8000;
     try {
       final startedPort = await FfiService().startServer(8000);

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -140,30 +139,59 @@ class _ScanContactViewState extends State<ScanContactView> {
     if (_isProcessingScan) return;
     final List<Barcode> barcodes = capture.barcodes;
     for (final barcode in barcodes) {
-      if (barcode.rawValue != null) {
-        try {
-          final raw = jsonDecode(barcode.rawValue!);
-          final data = normalizeInvitePayload(raw as Map<String, dynamic>);
-          if (data['name'] != null && data['url'] != null) {
-            _isProcessingScan = true;
-            setState(() {});
-            _controller?.stop();
-            // QR v2+ includes E2EE keys; v3 adds relay info for WAN; v4 uses short keys
-            _connect(
-              data['name'] as String,
-              data['url'] as String,
-              libraryUuid: data['library_uuid'] as String?,
-              ed25519PublicKey: data['ed25519_public_key'] as String?,
-              x25519PublicKey: data['x25519_public_key'] as String?,
-              relayUrl: data['relay_url'] as String?,
-              mailboxId: data['mailbox_id'] as String?,
-              relayWriteToken: data['relay_write_token'] as String?,
-            );
-            return;
-          }
-        } catch (_) {}
+      final raw = barcode.rawValue;
+      if (raw == null) continue;
+      debugPrint('📷 [SCAN] Barcode detected: ${raw.length > 80 ? '${raw.substring(0, 80)}...' : raw}');
+
+      final payload = parseScannedInvite(
+        raw,
+        onShortUrl: (shortUrl) {
+          _isProcessingScan = true;
+          setState(() {});
+          _controller?.stop();
+          _handleShortInvite(shortUrl);
+        },
+      );
+      if (payload != null) {
+        _isProcessingScan = true;
+        setState(() {});
+        _controller?.stop();
+        _connectFromPayload(payload);
+        return;
       }
+      // If onShortUrl was triggered, _isProcessingScan is already true
+      if (_isProcessingScan) return;
     }
+  }
+
+  Future<void> _handleShortInvite(String shortUrl) async {
+    final payload = await resolveShortInvite(shortUrl);
+    if (!mounted) return;
+    if (payload != null) {
+      _connectFromPayload(payload);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(
+          TranslationService.translate(context, 'connection_failed'),
+        )),
+      );
+      _isProcessingScan = false;
+      setState(() {});
+      _startCamera();
+    }
+  }
+
+  void _connectFromPayload(Map<String, dynamic> data) {
+    _connect(
+      data['name'] as String,
+      data['url'] as String? ?? '',
+      libraryUuid: data['library_uuid'] as String?,
+      ed25519PublicKey: data['ed25519_public_key'] as String?,
+      x25519PublicKey: data['x25519_public_key'] as String?,
+      relayUrl: data['relay_url'] as String?,
+      mailboxId: data['mailbox_id'] as String?,
+      relayWriteToken: data['relay_write_token'] as String?,
+    );
   }
 
   Future<void> _connect(

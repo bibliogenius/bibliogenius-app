@@ -5589,3 +5589,11 @@ msgstr "发现"
 msgid "time_just_now"
 msgstr "刚刚"
 
+#. Reading status picker
+msgid "reading_status_picker_title"
+msgstr "阅读状态"
+
+#. Quick actions button (short label for mobile)
+msgid "quick_actions_short"
+msgstr "操作"
+

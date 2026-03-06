@@ -2555,6 +2555,16 @@ class ApiService {
     return await _dio.delete('/api/peers/requests/outgoing/$requestId');
   }
 
+  Future<Response> clearOutgoingRequests() async {
+    final localDio = await _getLocalDio();
+    return await localDio.delete('/api/peers/requests/outgoing/clear');
+  }
+
+  Future<Response> clearIncomingRequests() async {
+    final localDio = await _getLocalDio();
+    return await localDio.delete('/api/peers/requests/clear');
+  }
+
   // P2P Connection Requests (Hub)
   Future<Response> getPendingPeers() async {
     if (useFfi) {

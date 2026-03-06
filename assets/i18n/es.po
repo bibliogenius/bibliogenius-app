@@ -682,7 +682,7 @@ msgstr "Libro actualizado con éxito"
 
 #. books
 msgid "books"
-msgstr "libros"
+msgstr "Libros"
 
 #. books added
 msgid "books_added"
@@ -1700,6 +1700,10 @@ msgstr "Error"
 #. No copies available
 msgid "error_409_conflict"
 msgstr "Conflicto: el recurso ya existe"
+
+#. No available copy for loan request
+msgid "error_no_available_copy"
+msgstr "Este libro no tiene ejemplares disponibles. Todos los ejemplares están prestados."
 
 #. Error adding
 msgid "error_adding"
@@ -4397,6 +4401,10 @@ msgstr "Solicitar"
 msgid "request_from"
 msgstr "De"
 
+#. Confirm delete request
+msgid "request_delete_confirm"
+msgstr "Eliminar esta solicitud?"
+
 #. Request sent
 msgid "request_sent"
 msgstr "Solicitud enviada"
@@ -7053,6 +7061,13 @@ msgstr "Marcar todo como leido"
 msgid "notifications_dismiss"
 msgstr "Descartar"
 
+#. Clear all notifications
+msgid "notifications_clear_all"
+msgstr "Borrar todo"
+
+msgid "notifications_clear_all_confirm"
+msgstr "¿Eliminar todas las notificaciones?"
+
 #. Notifications
 msgid "notifications_filter_all"
 msgstr "Todas"
@@ -7072,3 +7087,11 @@ msgstr "Descubrimientos"
 #. Notifications
 msgid "time_just_now"
 msgstr "Ahora mismo"
+
+#. Reading status picker
+msgid "reading_status_picker_title"
+msgstr "Estado de lectura"
+
+#. Quick actions button (short label for mobile)
+msgid "quick_actions_short"
+msgstr "Acciones"

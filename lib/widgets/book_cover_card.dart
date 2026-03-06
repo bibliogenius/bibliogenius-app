@@ -11,8 +11,14 @@ import 'cached_book_cover.dart';
 class BookCoverCard extends StatelessWidget {
   final Book book;
   final VoidCallback onTap;
+  final ValueChanged<String>? onStatusChanged;
 
-  const BookCoverCard({super.key, required this.book, required this.onTap});
+  const BookCoverCard({
+    super.key,
+    required this.book,
+    required this.onTap,
+    this.onStatusChanged,
+  });
 
   // Cyan palette for dark theme
   static const List<Color> _darkColors = [
@@ -78,34 +84,52 @@ class BookCoverCard extends StatelessWidget {
                   // Fallback cover already has color, but we can add specific styling here if needed
                 ),
 
-              // Reading Status Indicator
+              // Reading Status Indicator (tappable to edit)
               if (book.readingStatus != null)
                 Positioned(
                   top: 8,
                   right: 8,
                   child: Builder(builder: (context) {
+                    final isLibrarian =
+                        Provider.of<ThemeProvider>(context, listen: false)
+                            .isLibrarian;
                     final statusInfo = getStatusFromValue(
-                        context, book.readingStatus!, false);
+                        context, book.readingStatus!, isLibrarian);
                     final badgeColor =
                         statusInfo?.color ?? Colors.black;
-                    return Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: badgeColor.withValues(alpha: 0.85),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        TranslationService.translate(
-                          context,
-                          'reading_status_${book.readingStatus}',
-                        ).toUpperCase(),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
+                    return GestureDetector(
+                      onTap: onStatusChanged != null
+                          ? () async {
+                              final picked = await showReadingStatusPicker(
+                                context,
+                                currentStatus: book.readingStatus,
+                                isLibrarian: isLibrarian,
+                              );
+                              if (picked != null &&
+                                  picked != book.readingStatus) {
+                                onStatusChanged!(picked);
+                              }
+                            }
+                          : null,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: badgeColor.withValues(alpha: 0.85),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          TranslationService.translate(
+                            context,
+                            'reading_status_${book.readingStatus}',
+                          ).toUpperCase(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     );

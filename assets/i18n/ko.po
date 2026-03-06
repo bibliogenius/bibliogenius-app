@@ -5589,3 +5589,11 @@ msgstr "발견"
 msgid "time_just_now"
 msgstr "방금"
 
+#. Reading status picker
+msgid "reading_status_picker_title"
+msgstr "읽기 상태"
+
+#. Quick actions button (short label for mobile)
+msgid "quick_actions_short"
+msgstr "작업"
+

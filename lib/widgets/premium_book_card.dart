@@ -1,5 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:provider/provider.dart';
 import '../models/book.dart';
+import '../providers/theme_provider.dart';
 import '../services/translation_service.dart';
 import '../theme/app_design.dart';
 import '../utils/book_status.dart';
@@ -12,6 +14,7 @@ class PremiumBookCard extends StatefulWidget {
   final double height;
   final bool isHero;
   final bool showStatus;
+  final ValueChanged<String>? onStatusChanged;
 
   const PremiumBookCard({
     super.key,
@@ -20,6 +23,7 @@ class PremiumBookCard extends StatefulWidget {
     this.height = 240,
     this.isHero = false,
     this.showStatus = true,
+    this.onStatusChanged,
   });
 
   @override
@@ -243,33 +247,53 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Continue Reading badge
+                              // Continue Reading badge (tappable to edit)
                               if (widget.book.readingStatus != null) ...[
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 5,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        theme.primaryColor,
-                                        theme.colorScheme.secondary,
-                                      ],
+                                GestureDetector(
+                                  onTap: widget.onStatusChanged != null
+                                      ? () async {
+                                          final isLibrarian =
+                                              context.read<ThemeProvider>()
+                                                  .isLibrarian;
+                                          final picked =
+                                              await showReadingStatusPicker(
+                                            context,
+                                            currentStatus:
+                                                widget.book.readingStatus,
+                                            isLibrarian: isLibrarian,
+                                          );
+                                          if (picked != null &&
+                                              picked !=
+                                                  widget.book.readingStatus) {
+                                            widget.onStatusChanged!(picked);
+                                          }
+                                        }
+                                      : null,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 5,
                                     ),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Text(
-                                    // Use translated status directly as translate returns non-nullable
-                                    TranslationService.translate(
-                                      context,
-                                      'reading_status_${widget.book.readingStatus}',
-                                    ).toUpperCase(),
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 0.5,
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          theme.primaryColor,
+                                          theme.colorScheme.secondary,
+                                        ],
+                                      ),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      TranslationService.translate(
+                                        context,
+                                        'reading_status_${widget.book.readingStatus}',
+                                      ).toUpperCase(),
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 0.5,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -408,34 +432,54 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                         ),
                       ),
                     ),
-                    // Status Badge
+                    // Status Badge (tappable to edit)
                     if (widget.showStatus && widget.book.readingStatus != null)
                       Positioned(
                         top: 8,
                         right: 8,
                         child: Builder(builder: (context) {
+                          final isLibrarian =
+                              context.read<ThemeProvider>().isLibrarian;
                           final statusInfo = getStatusFromValue(
-                              context, widget.book.readingStatus!, false);
+                              context, widget.book.readingStatus!, isLibrarian);
                           final badgeColor =
                               statusInfo?.color ?? Colors.blueAccent;
-                          return Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: badgeColor.withValues(alpha: 0.85),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              TranslationService.translate(
-                                context,
-                                'reading_status_${widget.book.readingStatus}',
-                              ).toUpperCase(),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
+                          return GestureDetector(
+                            onTap: widget.onStatusChanged != null
+                                ? () async {
+                                    final picked =
+                                        await showReadingStatusPicker(
+                                      context,
+                                      currentStatus:
+                                          widget.book.readingStatus,
+                                      isLibrarian: isLibrarian,
+                                    );
+                                    if (picked != null &&
+                                        picked !=
+                                            widget.book.readingStatus) {
+                                      widget.onStatusChanged!(picked);
+                                    }
+                                  }
+                                : null,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: badgeColor.withValues(alpha: 0.85),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                TranslationService.translate(
+                                  context,
+                                  'reading_status_${widget.book.readingStatus}',
+                                ).toUpperCase(),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           );

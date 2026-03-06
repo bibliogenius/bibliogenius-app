@@ -5661,3 +5661,11 @@ msgstr "Kesfetler"
 msgid "time_just_now"
 msgstr "Az once"
 
+#. Reading status picker
+msgid "reading_status_picker_title"
+msgstr "Okuma durumu"
+
+#. Quick actions button (short label for mobile)
+msgid "quick_actions_short"
+msgstr "İşlemler"
+

@@ -1805,6 +1805,10 @@ msgstr "Erreur"
 msgid "error_409_conflict"
 msgstr "Aucun exemplaire disponible"
 
+#. No available copy for loan request
+msgid "error_no_available_copy"
+msgstr "Ce livre n'a plus d'exemplaire disponible. Tous les exemplaires sont actuellement en prêt."
+
 #. Error adding
 msgid "error_adding"
 msgstr "Erreur lors de l'ajout"
@@ -3256,6 +3260,14 @@ msgstr "bibliothèques trouvées"
 msgid "library"
 msgstr "Bibliothèque"
 
+#. Rename library dialog title
+msgid "rename_library_title"
+msgstr "Nom de la bibliothèque"
+
+#. Rename library hint
+msgid "rename_library_hint"
+msgstr "Ex : Bibliothèque de Marie"
+
 #. Library Insights
 msgid "library_insights"
 msgstr "Statistiques"
@@ -4668,6 +4680,10 @@ msgstr "Demander"
 #. From
 msgid "request_from"
 msgstr "De"
+
+#. Confirm delete request
+msgid "request_delete_confirm"
+msgstr "Supprimer cette demande ?"
 
 #. Request sent
 msgid "request_sent"
@@ -6830,7 +6846,39 @@ msgid "settings_linked_devices"
 msgstr "Appareils lies"
 
 msgid "settings_linked_devices_desc"
-msgstr "Gerer les appareils appaires pour la synchronisation"
+msgstr "Synchronisez votre bibliothèque entre plusieurs appareils"
+
+#. Notifications settings section header
+msgid "settings_notifications"
+msgstr "Notifications"
+
+#. Global notifications toggle
+msgid "settings_notif_enabled"
+msgstr "Activer les notifications"
+
+msgid "settings_notif_enabled_desc"
+msgstr "Afficher l'icône et recevoir les notifications"
+
+#. Notification toggle: connections
+msgid "settings_notif_connections"
+msgstr "Connexions"
+
+msgid "settings_notif_connections_desc"
+msgstr "Demandes de connexion et nouveaux contacts"
+
+#. Notification toggle: loans
+msgid "settings_notif_loans"
+msgstr "Prêts et emprunts"
+
+msgid "settings_notif_loans_desc"
+msgstr "Demandes d'emprunt, retours et rappels"
+
+#. Notification toggle: discoveries
+msgid "settings_notif_discoveries"
+msgstr "Découvertes"
+
+msgid "settings_notif_discoveries_desc"
+msgstr "Nouveautés dans les bibliothèques de vos contacts"
 
 #. Sync Review
 msgid "sync_review_title"
@@ -7240,6 +7288,22 @@ msgstr "Nom d'affichage"
 msgid "peer_display_name_hint"
 msgstr "Entrez un nom personnalisé pour cette bibliothèque"
 
+#. Caption (label to distinguish contacts with same name)
+msgid "peer_edit_caption"
+msgstr "Ajouter une légende"
+
+msgid "peer_caption_label"
+msgstr "Légende"
+
+msgid "peer_caption_hint"
+msgstr "Ex : Collègue, Voisine, Club de lecture..."
+
+msgid "peer_caption_saved"
+msgstr "Légende enregistrée"
+
+msgid "peer_caption_removed"
+msgstr "Légende supprimée"
+
 msgid "peer_e2ee_status"
 msgstr "Chiffrement de bout en bout"
 
@@ -7338,18 +7402,29 @@ msgstr "Parcourir et choisir parmi plusieurs editions lors de l'ajout de livres"
 msgid "confirm"
 msgstr "Confirmer"
 
-#. Notifications / Fil d'activite
+#. Notifications / Fil d'activité
 msgid "notifications_title"
-msgstr "Activite"
+msgstr "Activité"
 
 msgid "notifications_empty"
 msgstr "Aucune notification"
+
+#. Notifications empty state description
+msgid "notifications_empty_desc"
+msgstr "Vos notifications de connexions, prêts et découvertes apparaîtront ici."
 
 msgid "notifications_mark_all_read"
 msgstr "Tout marquer comme lu"
 
 msgid "notifications_dismiss"
 msgstr "Supprimer"
+
+#. Clear all notifications
+msgid "notifications_clear_all"
+msgstr "Tout effacer"
+
+msgid "notifications_clear_all_confirm"
+msgstr "Supprimer toutes les notifications ?"
 
 msgid "notifications_filter_all"
 msgstr "Tout"
@@ -7361,7 +7436,58 @@ msgid "notifications_filter_loans"
 msgstr "Emprunts"
 
 msgid "notifications_filter_discoveries"
-msgstr "Decouvertes"
+msgstr "Découvertes"
+
+#. Notification display - connection events
+msgid "notif_connection_request"
+msgstr "{name} souhaite se connecter"
+
+msgid "notif_connection_accepted"
+msgstr "Connexion acceptée avec {name}"
+
+msgid "notif_new_follower"
+msgstr "{name} vous suit"
+
+msgid "notif_follow_request"
+msgstr "{name} demande à vous suivre"
+
+#. Notification display - loan events
+msgid "notif_borrow_request"
+msgstr "{name} souhaite emprunter « {book} »"
+
+msgid "notif_borrow_accepted"
+msgstr "{name} a accepté le prêt de « {book} »"
+
+msgid "notif_book_returned"
+msgstr "{name} a rendu « {book} »"
+
+#. Notification display - discovery events
+msgid "notif_wishlist_match"
+msgstr "« {book} » disponible chez {source}"
+
+#. Notification tap hints
+msgid "notif_tap_network"
+msgstr "Voir le réseau"
+
+msgid "notif_tap_requests"
+msgstr "Voir les demandes"
+
+msgid "notif_tap_loans"
+msgstr "Voir les emprunts"
+
+msgid "notif_tap_discover"
+msgstr "Découvrir"
+
+msgid "notif_tap_wishlist"
+msgstr "Voir la liste de souhaits"
 
 msgid "time_just_now"
-msgstr "A l'instant"
+msgstr "À l'instant"
+
+#. Reading status picker
+msgid "reading_status_picker_title"
+msgstr "Statut de lecture"
+
+#. Quick actions button (short label for mobile)
+msgid "quick_actions_short"
+msgstr "Actions"

@@ -6,6 +6,7 @@ import '../utils/avatars.dart';
 import '../models/avatar_config.dart';
 import '../services/api_service.dart';
 import '../services/auth_service.dart';
+import '../services/ffi_service.dart';
 import '../services/mdns_service.dart';
 import '../services/translation_service.dart';
 import '../themes/base/theme_registry.dart';
@@ -117,6 +118,16 @@ class ThemeProvider with ChangeNotifier {
   // Operation Log Viewer (developer tool, disabled by default)
   bool _operationLogViewerEnabled = false;
   bool get operationLogViewerEnabled => _operationLogViewerEnabled;
+
+  // Notifications: global toggle + per category (all ON by default)
+  bool _notificationsEnabled = true;
+  bool get notificationsEnabled => _notificationsEnabled;
+  bool _notifConnectionsEnabled = true;
+  bool get notifConnectionsEnabled => _notifConnectionsEnabled;
+  bool _notifLoansEnabled = true;
+  bool get notifLoansEnabled => _notifLoansEnabled;
+  bool _notifDiscoveriesEnabled = true;
+  bool get notifDiscoveriesEnabled => _notifDiscoveriesEnabled;
 
   // Sync Safety: review incoming changes before applying (ON by default)
   bool _syncSafetyEnabled = true;
@@ -319,6 +330,10 @@ class ThemeProvider with ChangeNotifier {
     _slidingPuzzleEnabled = prefs.getBool('slidingPuzzleEnabled') ?? true;
     _operationLogViewerEnabled = prefs.getBool('operationLogViewerEnabled') ?? false;
     _syncSafetyEnabled = prefs.getBool('syncSafetyEnabled') ?? true;
+    _notificationsEnabled = prefs.getBool('notificationsEnabled') ?? true;
+    _notifConnectionsEnabled = prefs.getBool('notifConnectionsEnabled') ?? true;
+    _notifLoansEnabled = prefs.getBool('notifLoansEnabled') ?? true;
+    _notifDiscoveriesEnabled = prefs.getBool('notifDiscoveriesEnabled') ?? true;
 
     // Load gamification setting (default based on profile type)
     final savedGamification = prefs.getBool('gamificationEnabled');
@@ -464,6 +479,34 @@ class ThemeProvider with ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('syncSafetyEnabled', enabled);
     await _updateEnabledModules();
+    notifyListeners();
+  }
+
+  Future<void> setNotificationsEnabled(bool enabled) async {
+    _notificationsEnabled = enabled;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('notificationsEnabled', enabled);
+    notifyListeners();
+  }
+
+  Future<void> setNotifConnectionsEnabled(bool enabled) async {
+    _notifConnectionsEnabled = enabled;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('notifConnectionsEnabled', enabled);
+    notifyListeners();
+  }
+
+  Future<void> setNotifLoansEnabled(bool enabled) async {
+    _notifLoansEnabled = enabled;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('notifLoansEnabled', enabled);
+    notifyListeners();
+  }
+
+  Future<void> setNotifDiscoveriesEnabled(bool enabled) async {
+    _notifDiscoveriesEnabled = enabled;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('notifDiscoveriesEnabled', enabled);
     notifyListeners();
   }
 
@@ -692,6 +735,10 @@ class ThemeProvider with ChangeNotifier {
     _networkGamificationEnabled = false;
     _canBorrowBooks = true;
     _syncSafetyEnabled = true;
+    _notificationsEnabled = true;
+    _notifConnectionsEnabled = true;
+    _notifLoansEnabled = true;
+    _notifDiscoveriesEnabled = true;
     _simplifiedMode = false;
     _operationLogViewerEnabled = false;
     notifyListeners();
@@ -708,16 +755,11 @@ class ThemeProvider with ChangeNotifier {
     await prefs.setString('libraryName', name);
     notifyListeners();
 
-    // Sync with backend if ApiService provided
-    if (apiService != null) {
-      try {
-        // We only update the name here, keeping other fields as is usually requires fetching them first
-        // But for this simplified call, we assume the caller handles full update or we just update local state
-        // In this architecture, usually screens call API then update Provider.
-        // We'll leave the API call to the caller (ProfileScreen/Dashboard) for now to avoid circular dependencies or incomplete data updates.
-      } catch (e) {
-        debugPrint('Error syncing library name: $e');
-      }
+    // Sync with Rust backend so /api/config returns the updated name
+    try {
+      await FfiService().updateLibraryName(name);
+    } catch (e) {
+      debugPrint('Error syncing library name to backend: $e');
     }
   }
 

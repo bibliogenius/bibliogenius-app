@@ -12,6 +12,7 @@ import '../widgets/contextual_help_sheet.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
 import '../providers/theme_provider.dart';
+import '../providers/notification_provider.dart';
 import '../providers/hub_directory_provider.dart';
 import '../services/auth_service.dart';
 import '../services/ffi_service.dart';
@@ -632,7 +633,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   (value) => themeProvider.setDigitalFormatsEnabled(value),
                 ),
                 _buildMcpModuleToggle(),
-                // Linked Devices section
+                // Linked Devices section (coming soon)
                 const SizedBox(height: 16),
                 Semantics(
                   header: true,
@@ -645,30 +646,106 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 const SizedBox(height: 8),
                 Card(
-                  margin: const EdgeInsets.only(bottom: 12),
+                  margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                   child: ListTile(
-                    leading: const Icon(Icons.devices_rounded),
-                    title: Text(
-                      TranslationService.translate(
-                          context, 'settings_linked_devices'),
+                    leading: Icon(Icons.devices_rounded,
+                        color: Colors.grey[400]),
+                    title: Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            TranslationService.translate(
+                                context, 'settings_linked_devices'),
+                            style: TextStyle(color: Colors.grey[500]),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            TranslationService.translate(
+                                context, 'coming_soon'),
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     subtitle: Text(
                       TranslationService.translate(
                           context, 'settings_linked_devices_desc'),
+                      style: TextStyle(color: Colors.grey[400]),
                     ),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => context.go('/device-pairing'),
+                    enabled: false,
                   ),
                 ),
+
+                // Notifications section
+                const SizedBox(height: 16),
+                Semantics(
+                  header: true,
+                  child: Text(
+                    TranslationService.translate(
+                        context, 'settings_notifications'),
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                const SizedBox(height: 8),
                 _buildModuleToggle(
                   context,
-                  'sync_safety_title',
-                  'sync_safety_subtitle',
-                  Icons.verified_user_rounded,
-                  themeProvider.syncSafetyEnabled,
-                  (value) => themeProvider.setSyncSafetyEnabled(value),
+                  'settings_notif_enabled',
+                  'settings_notif_enabled_desc',
+                  Icons.notifications_outlined,
+                  themeProvider.notificationsEnabled,
+                  (value) {
+                    themeProvider.setNotificationsEnabled(value);
+                    context.read<NotificationProvider>().refreshUnreadCount();
+                  },
                 ),
-                // Public Directory moved to dedicated "Network" section below
+                if (themeProvider.notificationsEnabled) ...[
+                  _buildModuleToggle(
+                    context,
+                    'settings_notif_connections',
+                    'settings_notif_connections_desc',
+                    Icons.people,
+                    themeProvider.notifConnectionsEnabled,
+                    (value) {
+                      themeProvider.setNotifConnectionsEnabled(value);
+                      context.read<NotificationProvider>().refreshUnreadCount();
+                    },
+                  ),
+                  _buildModuleToggle(
+                    context,
+                    'settings_notif_loans',
+                    'settings_notif_loans_desc',
+                    Icons.swap_horiz,
+                    themeProvider.notifLoansEnabled,
+                    (value) {
+                      themeProvider.setNotifLoansEnabled(value);
+                      context.read<NotificationProvider>().refreshUnreadCount();
+                    },
+                  ),
+                  _buildModuleToggle(
+                    context,
+                    'settings_notif_discoveries',
+                    'settings_notif_discoveries_desc',
+                    Icons.auto_awesome,
+                    themeProvider.notifDiscoveriesEnabled,
+                    (value) {
+                      themeProvider.setNotifDiscoveriesEnabled(value);
+                      context.read<NotificationProvider>().refreshUnreadCount();
+                    },
+                  ),
+                ],
 
                 // Developer Tools section
                 const SizedBox(height: 16),

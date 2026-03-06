@@ -5589,3 +5589,11 @@ msgstr "発見"
 msgid "time_just_now"
 msgstr "たった今"
 
+#. Reading status picker
+msgid "reading_status_picker_title"
+msgstr "読書ステータス"
+
+#. Quick actions button (short label for mobile)
+msgid "quick_actions_short"
+msgstr "アクション"
+

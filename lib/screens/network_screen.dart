@@ -73,102 +73,115 @@ class _NetworkScreenState extends State<NetworkScreen>
   void _showAddConnectionSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (sheetContext) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+
         return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                child: Text(
-                  TranslationService.translate(context, 'add_connection_title'),
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              const Divider(height: 1),
-              ListTile(
-                key: const Key('actionEnterManually'),
-                leading: CircleAvatar(
-                  backgroundColor: Colors.orange.shade100,
-                  child: Icon(Icons.edit, color: Colors.orange.shade700),
-                ),
-                title: Text(
-                  TranslationService.translate(context, 'enter_manually'),
-                ),
-                subtitle: Text(
-                  TranslationService.translate(context, 'type_contact_details'),
-                ),
-                onTap: () async {
-                  Navigator.pop(sheetContext);
-                  final result = await context.push('/contacts/add');
-                  if (result == true) {
-                    _myNetworkKey.currentState?.reloadMembers();
-                  }
-                },
-              ),
-              const Divider(height: 1),
-              ListTile(
-                key: const Key('actionScanQr'),
-                leading: CircleAvatar(
-                  backgroundColor: Colors.blue.shade100,
-                  child: Icon(Icons.qr_code_scanner, color: Colors.blue.shade700),
-                ),
-                title: Text(
-                  TranslationService.translate(context, 'scan_qr_code'),
-                ),
-                subtitle: Text(
-                  TranslationService.translate(context, 'scan_friend_qr_code'),
-                ),
-                onTap: () async {
-                  Navigator.pop(sheetContext);
-                  final result = await context.push('/scan-qr');
-                  if (result == true) {
-                    _myNetworkKey.currentState?.reloadMembers();
-                  }
-                },
-              ),
-              const Divider(height: 1),
-              ListTile(
-                key: const Key('actionShowMyCode'),
-                leading: CircleAvatar(
-                  backgroundColor: Colors.purple.shade100,
-                  child: Icon(Icons.qr_code, color: Colors.purple.shade700),
-                ),
-                title: Text(
-                  TranslationService.translate(context, 'show_my_code'),
-                ),
-                subtitle: Text(
-                  TranslationService.translate(
-                    context,
-                    'let_someone_scan_your_library',
-                  ),
-                ),
-                onTap: () {
-                  Navigator.pop(sheetContext);
-                  showDialog(
-                    context: context,
-                    builder: (dialogContext) => AlertDialog(
-                      key: const Key('showMyCodeDialog'),
-                      title: Text(
-                        TranslationService.translate(context, 'show_my_code'),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Header
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? Colors.teal.withValues(alpha: 0.2)
+                            : Colors.teal.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      content: const ShareContactView(),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(dialogContext),
-                          child: Text(
-                            TranslationService.translate(context, 'close'),
-                          ),
-                        ),
-                      ],
+                      child: const Icon(Icons.people_alt, color: Colors.teal, size: 20),
                     ),
-                  );
-                },
-              ),
-              const SizedBox(height: 8),
-            ],
+                    const SizedBox(width: 12),
+                    Text(
+                      TranslationService.translate(context, 'add_connection_title'),
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                // Actions grid
+                Row(
+                  children: [
+                    Expanded(
+                      child: _ConnectionActionCard(
+                        key: const Key('actionEnterManually'),
+                        icon: Icons.edit,
+                        color: Colors.orange,
+                        label: TranslationService.translate(context, 'enter_manually'),
+                        isDark: isDark,
+                        onTap: () async {
+                          Navigator.pop(sheetContext);
+                          final result = await context.push('/contacts/add');
+                          if (result == true) {
+                            _myNetworkKey.currentState?.reloadMembers();
+                          }
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _ConnectionActionCard(
+                        key: const Key('actionScanQr'),
+                        icon: Icons.qr_code_scanner,
+                        color: Colors.blue,
+                        label: TranslationService.translate(context, 'scan_qr_code'),
+                        isDark: isDark,
+                        onTap: () async {
+                          Navigator.pop(sheetContext);
+                          final result = await context.push('/scan-qr');
+                          if (result == true) {
+                            _myNetworkKey.currentState?.reloadMembers();
+                          }
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _ConnectionActionCard(
+                        key: const Key('actionShowMyCode'),
+                        icon: Icons.qr_code,
+                        color: Colors.purple,
+                        label: TranslationService.translate(context, 'show_my_code'),
+                        isDark: isDark,
+                        onTap: () {
+                          Navigator.pop(sheetContext);
+                          showDialog(
+                            context: context,
+                            builder: (dialogContext) => AlertDialog(
+                              key: const Key('showMyCodeDialog'),
+                              title: Text(
+                                TranslationService.translate(context, 'show_my_code'),
+                              ),
+                              content: const ShareContactView(),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(dialogContext),
+                                  child: Text(
+                                    TranslationService.translate(context, 'close'),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
           ),
         );
       },
@@ -346,6 +359,14 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
 
   void reloadMembers() => _loadAll();
 
+  /// Optimistically remove a relation from the list by nodeId.
+  void _removeRelation(String nodeId) {
+    if (!mounted) return;
+    setState(() {
+      _relations.removeWhere((r) => r.nodeId == nodeId);
+    });
+  }
+
   /// Sync all peers then reload the list unconditionally.
   /// Detects remote disconnections (sync returns 404 -> peer deleted locally).
   /// Used by pull-to-refresh and periodic background timer.
@@ -390,14 +411,10 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
     bool changed = false;
     final updated = _relations.map((r) {
       if (r.isFollowing) {
-        final hasUserCustomName = r.peer?.customDisplayName != null &&
-            r.peer!.customDisplayName!.isNotEmpty;
-        if (!hasUserCustomName) {
-          final hubName = dirProvider.displayNameFor(r.nodeId);
-          if (hubName != null && r.name != hubName) {
-            changed = true;
-            return r.withDisplayName(hubName);
-          }
+        final hubName = dirProvider.displayNameFor(r.nodeId);
+        if (hubName != null && r.name != hubName) {
+          changed = true;
+          return r.withDisplayName(hubName);
         }
       }
       return r;
@@ -480,9 +497,7 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
         final existing = map[nodeId];
         if (existing != null) {
           var merged = existing.withFollow(follow);
-          final hasUserCustomName = existing.peer?.customDisplayName != null &&
-              existing.peer!.customDisplayName!.isNotEmpty;
-          if (hubName != null && !hasUserCustomName) {
+          if (hubName != null) {
             merged = merged.withDisplayName(hubName);
           }
           map[nodeId] = merged;
@@ -731,6 +746,7 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
                               (r) => _LibraryRelationCard(
                                 relation: r,
                                 onRefresh: _syncAndReload,
+                                onRemoved: _removeRelation,
                                 isOnline: _peerOnlineStatus[r.nodeId],
                               ),
                             ),
@@ -1163,6 +1179,77 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
               actionWidget,
             ],
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Card for connection actions (styled like QuickActionCard).
+class _ConnectionActionCard extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final String label;
+  final bool isDark;
+  final VoidCallback onTap;
+
+  const _ConnectionActionCard({
+    super.key,
+    required this.icon,
+    required this.color,
+    required this.label,
+    required this.isDark,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+          decoration: BoxDecoration(
+            color: isDark
+                ? color.withValues(alpha: 0.15)
+                : color.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: color.withValues(alpha: 0.2), width: 1),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: isDark ? Colors.grey[800] : Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Icon(icon, color: color, size: 24),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? Colors.white70 : Colors.grey[800],
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -2301,12 +2388,14 @@ class _FollowChip extends StatelessWidget {
 class _LibraryRelationCard extends StatelessWidget {
   final LibraryRelation relation;
   final VoidCallback onRefresh;
+  final ValueChanged<String> onRemoved;
   /// null = still checking, true = online, false = unreachable
   final bool? isOnline;
 
   const _LibraryRelationCard({
     required this.relation,
     required this.onRefresh,
+    required this.onRemoved,
     this.isOnline,
   });
 
@@ -2335,10 +2424,15 @@ class _LibraryRelationCard extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
-          onTap: () => context.push(
-            '/peers/${relation.peer?.id ?? 0}/details',
-            extra: relation,
-          ),
+          onTap: () async {
+            final result = await context.push(
+              '/peers/${relation.peer?.id ?? 0}/details',
+              extra: relation,
+            );
+            if (result == 'deleted') {
+              onRemoved(relation.nodeId);
+            }
+          },
           child: Padding(
           padding: const EdgeInsets.fromLTRB(12, 12, 4, 8),
           child: Column(
@@ -2365,6 +2459,17 @@ class _LibraryRelationCard extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
+                        if (relation.hasCaption)
+                          Text(
+                            relation.caption!,
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              fontStyle: FontStyle.italic,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         const SizedBox(height: 4),
                         Wrap(
                           spacing: 4,
@@ -2499,8 +2604,8 @@ class _LibraryRelationCard extends StatelessWidget {
             ),
             tooltip: TranslationService.translate(context, 'lib_unfollow'),
             onPressed: () async {
+              onRemoved(relation.nodeId);
               await dirProvider.unfollow(relation.nodeId);
-              onRefresh();
             },
           ),
         ),
@@ -2548,8 +2653,8 @@ class _LibraryRelationCard extends StatelessWidget {
                 ),
               );
               if (confirm == true && context.mounted) {
-                await api.deletePeer(relation.peer!.id);
-                onRefresh();
+                onRemoved(relation.nodeId);
+                api.deletePeer(relation.peer!.id);
               }
             },
           ),

@@ -1701,6 +1701,10 @@ msgstr "Fehler"
 msgid "error_409_conflict"
 msgstr "Konflikt: Ressource existiert bereits"
 
+#. No available copy for loan request
+msgid "error_no_available_copy"
+msgstr "Dieses Buch hat kein verfügbares Exemplar. Alle Exemplare sind derzeit ausgeliehen."
+
 #. Error adding
 msgid "error_adding"
 msgstr "Fehler beim Hinzufügen"
@@ -4397,6 +4401,10 @@ msgstr "Anfragen"
 msgid "request_from"
 msgstr "Von"
 
+#. Confirm delete request
+msgid "request_delete_confirm"
+msgstr "Diese Anfrage löschen?"
+
 #. Request sent
 msgid "request_sent"
 msgstr "Anfrage gesendet"
@@ -7053,6 +7061,13 @@ msgstr "Alle als gelesen markieren"
 msgid "notifications_dismiss"
 msgstr "Verwerfen"
 
+#. Clear all notifications
+msgid "notifications_clear_all"
+msgstr "Alle löschen"
+
+msgid "notifications_clear_all_confirm"
+msgstr "Alle Benachrichtigungen löschen?"
+
 #. Notifications
 msgid "notifications_filter_all"
 msgstr "Alle"
@@ -7072,3 +7087,11 @@ msgstr "Entdeckungen"
 #. Notifications
 msgid "time_just_now"
 msgstr "Gerade eben"
+
+#. Reading status picker
+msgid "reading_status_picker_title"
+msgstr "Lesestatus"
+
+#. Quick actions button (short label for mobile)
+msgid "quick_actions_short"
+msgstr "Aktionen"

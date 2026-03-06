@@ -58,35 +58,43 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
     } catch (_) {}
   }
 
-  Future<void> _editDisplayName() async {
+  Future<void> _editCaption() async {
     final api = context.read<ApiService>();
-    final controller = TextEditingController(text: _relation.name);
-    final newName = await showDialog<String>(
+    final controller = TextEditingController(text: _relation.caption ?? '');
+    final newCaption = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(
-          TranslationService.translate(ctx, 'peer_edit_display_name'),
+          TranslationService.translate(ctx, 'peer_edit_caption'),
         ),
         content: TextField(
           controller: controller,
           decoration: InputDecoration(
             labelText: TranslationService.translate(
               ctx,
-              'peer_display_name_label',
+              'peer_caption_label',
             ),
             hintText: TranslationService.translate(
               ctx,
-              'peer_display_name_hint',
+              'peer_caption_hint',
             ),
           ),
           autofocus: true,
-          textCapitalization: TextCapitalization.words,
+          textCapitalization: TextCapitalization.sentences,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: Text(TranslationService.translate(ctx, 'cancel')),
           ),
+          if (_relation.hasCaption)
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, ''),
+              child: Text(
+                TranslationService.translate(ctx, 'remove'),
+                style: TextStyle(color: Theme.of(ctx).colorScheme.error),
+              ),
+            ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, controller.text.trim()),
             child: Text(TranslationService.translate(ctx, 'save')),
@@ -95,23 +103,21 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
       ),
     );
     controller.dispose();
-    if (newName == null || newName.isEmpty) return;
+    if (newCaption == null) return; // Dialog dismissed
 
     final peer = _relation.peer;
     if (peer != null) {
-      await api.updatePeerDisplayName(peer.id, newName);
+      await api.updatePeerDisplayName(peer.id, newCaption);
     }
-    // Always persist custom name in SharedPreferences (works for all relation types)
-    final dirProvider = context.read<HubDirectoryProvider>();
-    await dirProvider.setFollowDisplayName(_relation.nodeId, newName);
 
     if (!mounted) return;
-    setState(() {
-      _relation = _relation.withDisplayName(newName);
-    });
+    // Reload to get updated peer data
+    setState(() {});
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(
-        TranslationService.translate(context, 'peer_name_saved'),
+        newCaption.isEmpty
+            ? TranslationService.translate(context, 'peer_caption_removed')
+            : TranslationService.translate(context, 'peer_caption_saved'),
       ),
     ));
   }
@@ -143,9 +149,9 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
             icon: const Icon(Icons.edit),
             tooltip: TranslationService.translate(
               context,
-              'peer_edit_display_name',
+              'peer_edit_caption',
             ),
-            onPressed: _editDisplayName,
+            onPressed: _editCaption,
           ),
         ],
       ),
@@ -168,35 +174,29 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
 
           // Name
           Center(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Flexible(
-                  child: Text(
-                    _relation.name,
-                    style: theme.textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                if (_relation.hasCustomName) ...[
-                  const SizedBox(width: 6),
-                  Tooltip(
-                    message: TranslationService.translate(
-                      context,
-                      'peer_custom_name_indicator',
-                    ),
-                    child: Icon(
-                      Icons.edit_note,
-                      size: 18,
-                      color: cs.outline,
-                    ),
-                  ),
-                ],
-              ],
+            child: Text(
+              _relation.name,
+              style: theme.textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
             ),
           ),
+          // Caption (user-defined label)
+          if (_relation.hasCaption)
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  _relation.caption!,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: cs.onSurfaceVariant,
+                    fontStyle: FontStyle.italic,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
           const SizedBox(height: 8),
 
           // Node ID (truncated, copiable)
@@ -614,8 +614,8 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
                   ),
                 );
                 if (confirm == true && context.mounted) {
-                  await api.deletePeer(peer!.id);
-                  if (context.mounted) context.pop();
+                  api.deletePeer(peer!.id);
+                  if (context.mounted) context.pop('deleted');
                 }
               },
             ),

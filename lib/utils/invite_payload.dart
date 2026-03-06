@@ -95,6 +95,94 @@ Future<String> createInviteLink(
   return encodeInviteLink(payload, hubBaseUrl: hubBaseUrl);
 }
 
+/// Parse a QR code / scanned string into a normalized invite payload.
+///
+/// Supports three formats:
+/// 1. Raw JSON payload (legacy): {"n":"Fred","u":"http://..."}
+/// 2. Long invite URL: https://.../invite?d=BASE64
+/// 3. Short invite URL: https://.../i/TOKEN (resolved via hub HTTP call)
+///
+/// Returns null if the string is not a recognized invite format.
+/// For short URLs (async resolution), returns null and calls [onShortUrl].
+Map<String, dynamic>? parseScannedInvite(
+  String raw, {
+  void Function(String shortUrl)? onShortUrl,
+}) {
+  // 1. Try JSON decode (legacy direct payload)
+  try {
+    final json = jsonDecode(raw);
+    if (json is Map<String, dynamic>) {
+      final data = normalizeInvitePayload(json);
+      if (data['name'] != null) return data;
+    }
+  } catch (_) {}
+
+  // 2. Try as URL with ?d= parameter (long invite link)
+  try {
+    final uri = Uri.tryParse(raw);
+    if (uri != null && uri.queryParameters.containsKey('d')) {
+      final b64 = uri.queryParameters['d']!;
+      final normalized = base64Url.normalize(b64);
+      final decoded = utf8.decode(base64Url.decode(normalized));
+      final json = jsonDecode(decoded);
+      if (json is Map<String, dynamic>) {
+        return normalizeInvitePayload(json);
+      }
+    }
+  } catch (_) {}
+
+  // 3. Short invite URL (/i/TOKEN) - delegate to async callback
+  try {
+    final uri = Uri.tryParse(raw);
+    if (uri != null &&
+        uri.pathSegments.length == 2 &&
+        uri.pathSegments[0] == 'i') {
+      onShortUrl?.call(raw);
+      return null;
+    }
+  } catch (_) {}
+
+  return null;
+}
+
+/// Resolve a short invite URL by fetching the landing page and extracting
+/// the deep link's d= parameter from the HTML.
+///
+/// Returns the normalized payload, or null if resolution fails.
+Future<Map<String, dynamic>?> resolveShortInvite(String shortUrl) async {
+  try {
+    final dio = Dio(BaseOptions(
+      connectTimeout: const Duration(seconds: 5),
+      receiveTimeout: const Duration(seconds: 5),
+    ));
+    debugPrint('resolveShortInvite: fetching $shortUrl');
+    final response = await dio.get(shortUrl);
+    final html = response.data.toString();
+    debugPrint('resolveShortInvite: got ${html.length} chars, status=${response.statusCode}');
+
+    // Extract the base64url payload from the hub landing page.
+    // Strategy 1: match the JS variable (current hub template builds the
+    //   deep link dynamically: var data = "BASE64"; ... + encodeURIComponent(data))
+    // Strategy 2 (legacy): match a complete deep link in the HTML source
+    final match =
+        RegExp(r'var\s+data\s*=\s*"([A-Za-z0-9_-]+)"').firstMatch(html)
+        ?? RegExp(r'bibliogenius://invite\?d=([A-Za-z0-9_-]+)').firstMatch(html);
+    if (match != null) {
+      final b64 = match.group(1)!;
+      final normalized = base64Url.normalize(b64);
+      final decoded = utf8.decode(base64Url.decode(normalized));
+      final json = jsonDecode(decoded);
+      if (json is Map<String, dynamic>) {
+        final payload = normalizeInvitePayload(json);
+        if (payload['name'] != null) return payload;
+      }
+    }
+  } catch (e) {
+    debugPrint('resolveShortInvite: $e');
+  }
+  return null;
+}
+
 /// Normalizes an invite payload to canonical (long) keys.
 ///
 /// Accepts both v3 (long keys) and v4 (short keys).

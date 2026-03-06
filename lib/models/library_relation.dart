@@ -30,16 +30,18 @@ class LibraryRelation {
   bool get isPeer => peer != null;
   bool get isFollowing => follow != null;
 
-  /// Display name: explicit > peer customDisplayName > peer name > truncated node_id.
+  /// Display name: explicit > peer original name > truncated node_id.
   String get name =>
       _displayName ??
       peer?.displayName ??
       (nodeId.length >= 8 ? '…${nodeId.substring(nodeId.length - 8)}' : nodeId);
 
-  /// Whether the display name has been customized by the user.
-  bool get hasCustomName =>
-      _displayName != null ||
-      (peer?.customDisplayName != null && peer!.customDisplayName!.isNotEmpty);
+  /// User-defined caption to help distinguish contacts with the same name.
+  String? get caption => peer?.caption;
+
+  /// Whether a user-defined caption has been set.
+  bool get hasCaption =>
+      peer?.caption != null && peer!.caption!.isNotEmpty;
 
   /// Can browse the catalog (active follow or any peer connection).
   bool get canBrowseCatalog =>

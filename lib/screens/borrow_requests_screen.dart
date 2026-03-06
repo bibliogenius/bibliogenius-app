@@ -963,6 +963,47 @@ class _LoansScreenState extends State<LoansScreen>
     }
   }
 
+  Future<bool> _confirmDeleteRequest(String id, String title) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(TranslationService.translate(context, 'delete')),
+        content: Text(
+          '${TranslationService.translate(context, 'request_delete_confirm')}\n"$title"',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(TranslationService.translate(context, 'cancel')),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            child: Text(TranslationService.translate(context, 'delete')),
+          ),
+        ],
+      ),
+    );
+    return confirmed == true;
+  }
+
+  Future<void> _deleteRequest(String id, {required bool isIncoming}) async {
+    final api = Provider.of<ApiService>(context, listen: false);
+    try {
+      if (isIncoming) {
+        await api.deleteRequest(id);
+      } else {
+        await api.deleteOutgoingRequest(id);
+      }
+      _fetchAllData(silent: true);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    }
+  }
+
   // === Hub borrow request tiles (ADR-018) ===
 
   Widget _buildHubRequestTile(FrbHubBorrowRequest req, {required bool isIncoming}) {
@@ -975,7 +1016,7 @@ class _LoansScreenState extends State<LoansScreen>
     final hubProvider = Provider.of<HubDirectoryProvider>(context, listen: false);
     final isPending = hubProvider.isBusy(busyKey);
 
-    return Card(
+    final card = Card(
       surfaceTintColor: Colors.transparent,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ListTile(
@@ -1004,44 +1045,101 @@ class _LoansScreenState extends State<LoansScreen>
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
             : _buildStatusChip(status),
-        onTap: (status != 'pending' || isPending || !isIncoming)
-            ? null
-            : () => _showHubRequestActions(req),
+        onTap: isPending ? null : () => _showHubRequestActions(req, isIncoming: isIncoming),
       ),
+    );
+
+    return Dismissible(
+      key: Key('hub_request_${req.id}'),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 24),
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.red,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Icon(Icons.delete, color: Colors.white),
+      ),
+      confirmDismiss: (_) => _confirmDeleteRequest(req.id.toString(), title),
+      onDismissed: (_) => _deleteHubRequest(req, isIncoming: isIncoming),
+      child: card,
     );
   }
 
-  void _showHubRequestActions(FrbHubBorrowRequest req) {
+  Future<void> _deleteHubRequest(FrbHubBorrowRequest req, {required bool isIncoming}) async {
+    final hubProvider = Provider.of<HubDirectoryProvider>(context, listen: false);
+    if (req.status == 'pending') {
+      // Try to cancel/reject on the Hub
+      bool success;
+      if (isIncoming) {
+        success = await hubProvider.resolveHubBorrowRequest(req.id.toInt(), 'reject');
+      } else {
+        success = await hubProvider.cancelHubBorrowRequest(req.id.toInt());
+      }
+      if (!mounted) return;
+      if (!success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(hubProvider.actionError ?? 'Error'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+    } else {
+      // Non-pending (accepted, rejected, cancelled) - just dismiss locally
+      hubProvider.dismissHubRequest(req.id.toInt());
+    }
+    if (mounted) setState(() {});
+  }
+
+  void _showHubRequestActions(FrbHubBorrowRequest req, {required bool isIncoming}) {
+    final status = req.status;
     showModalBottomSheet(
       context: context,
       builder: (ctx) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            if (status == 'pending' && isIncoming) ...[
+              ListTile(
+                leading: const Icon(Icons.check, color: Colors.green),
+                title: Text(
+                  TranslationService.translate(context, 'action_approve'),
+                ),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  final hubProvider = Provider.of<HubDirectoryProvider>(context, listen: false);
+                  hubProvider.resolveHubBorrowRequest(req.id.toInt(), 'accept').then((_) {
+                    if (mounted) setState(() {});
+                  });
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.close, color: Colors.red),
+                title: Text(
+                  TranslationService.translate(context, 'action_reject'),
+                ),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  final hubProvider = Provider.of<HubDirectoryProvider>(context, listen: false);
+                  hubProvider.resolveHubBorrowRequest(req.id.toInt(), 'reject').then((_) {
+                    if (mounted) setState(() {});
+                  });
+                },
+              ),
+            ],
+            // Delete/cancel option for all statuses
             ListTile(
-              leading: const Icon(Icons.check, color: Colors.green),
+              leading: const Icon(Icons.delete, color: Colors.red),
               title: Text(
-                TranslationService.translate(context, 'action_approve'),
+                TranslationService.translate(context, 'delete'),
               ),
               onTap: () {
                 Navigator.pop(ctx);
-                final hubProvider = Provider.of<HubDirectoryProvider>(context, listen: false);
-                hubProvider.resolveHubBorrowRequest(req.id.toInt(), 'accept').then((_) {
-                  if (mounted) setState(() {});
-                });
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.close, color: Colors.red),
-              title: Text(
-                TranslationService.translate(context, 'action_reject'),
-              ),
-              onTap: () {
-                Navigator.pop(ctx);
-                final hubProvider = Provider.of<HubDirectoryProvider>(context, listen: false);
-                hubProvider.resolveHubBorrowRequest(req.id.toInt(), 'reject').then((_) {
-                  if (mounted) setState(() {});
-                });
+                _deleteHubRequest(req, isIncoming: isIncoming);
               },
             ),
           ],
@@ -1108,8 +1206,10 @@ class _LoansScreenState extends State<LoansScreen>
     final status = req['status'] ?? 'pending';
     final id = req['id']?.toString() ?? '';
     final isPending = _pendingActions.contains(id);
+    final peerId = req['peer_id'];
+    final peerUrl = req['peer_url'] as String?;
 
-    return Card(
+    final card = Card(
       surfaceTintColor: Colors.transparent,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ListTile(
@@ -1118,10 +1218,11 @@ class _LoansScreenState extends State<LoansScreen>
           child: const Icon(Icons.book, color: Colors.white),
         ),
         title: Text(title),
-        subtitle: Text(
-          isIncoming
-              ? '${TranslationService.translate(context, 'request_from')}: $peerName'
-              : '${TranslationService.translate(context, 'request_to')}: $peerName',
+        subtitle: _buildPeerSubtitle(
+          isIncoming: isIncoming,
+          peerName: peerName,
+          peerId: peerId,
+          peerUrl: peerUrl,
         ),
         trailing: isPending
             ? const SizedBox(
@@ -1133,6 +1234,67 @@ class _LoansScreenState extends State<LoansScreen>
         onTap: isPending
             ? null
             : () => _showRequestActions(req, isIncoming: isIncoming),
+      ),
+    );
+
+    return Dismissible(
+      key: Key('request_$id'),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 24),
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.red,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Icon(Icons.delete, color: Colors.white),
+      ),
+      confirmDismiss: (_) => _confirmDeleteRequest(id, title),
+      onDismissed: (_) => _deleteRequest(id, isIncoming: isIncoming),
+    child: card,
+    );
+  }
+
+  Widget _buildPeerSubtitle({
+    required bool isIncoming,
+    required String peerName,
+    required dynamic peerId,
+    required String? peerUrl,
+  }) {
+    final label = isIncoming
+        ? '${TranslationService.translate(context, 'request_from')}: '
+        : '${TranslationService.translate(context, 'request_to')}: ';
+
+    final canNavigate = peerId != null && peerUrl != null && peerUrl.isNotEmpty;
+
+    if (!canNavigate) {
+      return Text('$label$peerName');
+    }
+
+    return GestureDetector(
+      onTap: () {
+        context.go('/peers/$peerId/books', extra: {
+          'id': peerId,
+          'name': peerName,
+          'url': peerUrl,
+          'hasRelayCredentials': false,
+          'nodeId': null,
+        });
+      },
+      child: Text.rich(
+        TextSpan(
+          text: label,
+          children: [
+            TextSpan(
+              text: peerName,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.primary,
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1196,7 +1358,7 @@ class _LoansScreenState extends State<LoansScreen>
     final id = req['id']?.toString() ?? '';
     final status = req['status'] ?? 'pending';
 
-    if (status != 'pending' || _pendingActions.contains(id)) return;
+    if (_pendingActions.contains(id)) return;
 
     showModalBottomSheet(
       context: context,
@@ -1204,7 +1366,7 @@ class _LoansScreenState extends State<LoansScreen>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (isIncoming) ...[
+            if (status == 'pending' && isIncoming) ...[
               ListTile(
                 leading: const Icon(Icons.check, color: Colors.green),
                 title: Text(
@@ -1225,37 +1387,36 @@ class _LoansScreenState extends State<LoansScreen>
                   _updateRequestStatus(id, 'rejected');
                 },
               ),
-            ] else ...[
+            ] else if (status == 'pending' && !isIncoming) ...[
               ListTile(
-                leading: const Icon(Icons.delete, color: Colors.red),
+                leading: const Icon(Icons.cancel, color: Colors.orange),
                 title: Text(
                   TranslationService.translate(context, 'action_cancel'),
                 ),
                 onTap: () {
                   Navigator.pop(ctx);
-                  _deleteRequest(id);
+                  _deleteRequest(id, isIncoming: false);
                 },
               ),
             ],
+            // Delete option for all statuses
+            ListTile(
+              leading: const Icon(Icons.delete, color: Colors.red),
+              title: Text(
+                TranslationService.translate(context, 'delete'),
+              ),
+              onTap: () {
+                Navigator.pop(ctx);
+                _deleteRequest(id, isIncoming: isIncoming);
+              },
+            ),
           ],
         ),
       ),
     );
   }
 
-  Future<void> _deleteRequest(String id) async {
-    final api = Provider.of<ApiService>(context, listen: false);
-    try {
-      await api.deleteRequest(id);
-      _fetchAllData();
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(_getFriendlyErrorMessage(e))));
-      }
-    }
-  }
+  // Replaced by _deleteRequest(id, isIncoming:) above
 
   Future<void> _acceptConnection(Map<String, dynamic> peer) async {
     final api = Provider.of<ApiService>(context, listen: false);
@@ -1288,6 +1449,10 @@ class _LoansScreenState extends State<LoansScreen>
   String _getFriendlyErrorMessage(Object error) {
     if (error is DioException) {
       if (error.response?.statusCode == 409) {
+        final body = error.response?.data?['error']?.toString() ?? '';
+        if (body.contains('No available copies') || body.contains('No copy found')) {
+          return TranslationService.translate(context, 'error_no_available_copy');
+        }
         return TranslationService.translate(context, 'error_409_conflict');
       }
       if (error.type == DioExceptionType.connectionTimeout ||

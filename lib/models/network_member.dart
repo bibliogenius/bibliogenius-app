@@ -80,16 +80,16 @@ class NetworkMember {
     this.linkedContactId,
   });
 
-  /// Get display name: customDisplayName > firstName + name > name
+  /// Get display name: always the original name (never overridden by caption).
   String get displayName {
-    if (customDisplayName != null && customDisplayName!.isNotEmpty) {
-      return customDisplayName!;
-    }
     if (firstName != null && firstName!.isNotEmpty) {
       return '$firstName $name';
     }
     return name;
   }
+
+  /// User-defined caption to distinguish contacts with the same name.
+  String? get caption => customDisplayName;
 
   /// Create a NetworkMember from a Contact model
   factory NetworkMember.fromContact(Contact contact) {

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/notification_provider.dart';
+import '../providers/theme_provider.dart';
 import '../services/translation_service.dart';
 import '../src/rust/api/frb.dart' show FrbNotification;
 import '../widgets/genie_app_bar.dart';
+import '../widgets/premium_empty_state.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -38,6 +41,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   context, 'notifications_mark_all_read'),
               onPressed: () => provider.markAllRead(),
             ),
+          if (provider.notifications.isNotEmpty)
+            IconButton(
+              icon: const Icon(Icons.delete_sweep),
+              tooltip: TranslationService.translate(
+                  context, 'notifications_clear_all'),
+              onPressed: () => _confirmClearAll(provider),
+            ),
         ],
       ),
       body: Column(
@@ -52,15 +62,22 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             child: provider.isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : provider.notifications.isEmpty
-                    ? Center(
-                        child: Text(
-                          TranslationService.translate(
-                              context, 'notifications_empty'),
-                          style: TextStyle(color: cs.onSurfaceVariant),
-                        ),
+                    ? PremiumEmptyState(
+                        icon: Icons.notifications_none_rounded,
+                        message: TranslationService.translate(
+                            context, 'notifications_empty'),
+                        description: TranslationService.translate(
+                            context, 'notifications_empty_desc'),
+                        colorOverride: cs.primary,
                       )
-                    : ListView.builder(
+                    : ListView.separated(
                         itemCount: provider.notifications.length,
+                        separatorBuilder: (context, index) => Divider(
+                          height: 1,
+                          thickness: 0.5,
+                          indent: 72,
+                          color: cs.outlineVariant.withValues(alpha: 0.4),
+                        ),
                         itemBuilder: (context, index) {
                           final notif = provider.notifications[index];
                           return _NotificationTile(
@@ -76,12 +93,73 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
+  void _confirmClearAll(NotificationProvider provider) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(TranslationService.translate(
+            context, 'notifications_clear_all_confirm')),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(TranslationService.translate(context, 'cancel')),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              provider.clearAll();
+            },
+            child: Text(
+              TranslationService.translate(context, 'notifications_clear_all'),
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _handleTap(FrbNotification notif, NotificationProvider provider) {
     // Mark as read on tap
     if (notif.readAt == null) {
       provider.markRead(notif.id);
     }
-    // Navigation to related screen can be added per event_type
+    // Navigate to relevant screen based on event type
+    _navigateForNotification(notif);
+  }
+
+  void _navigateForNotification(FrbNotification notif) {
+    switch (notif.eventType) {
+      case 'connection_request':
+      case 'connection_accepted':
+      case 'new_follower':
+      case 'follow_request':
+        // Go to network / contacts
+        context.push('/network');
+        break;
+      case 'borrow_request':
+        // Go to received requests tab
+        context.push('/requests?tab=lent');
+        break;
+      case 'borrow_accepted':
+        // Go to borrowing tab
+        context.push('/requests?tab=borrowed');
+        break;
+      case 'book_returned':
+        // Go to lent tab
+        context.push('/requests?tab=lent');
+        break;
+      case 'new_books':
+        // Go to network / discover
+        context.push('/network?tab=discover');
+        break;
+      case 'wishlist_match':
+        // Go to wishlist
+        context.push('/books?status=wishlist');
+        break;
+      default:
+        break;
+    }
   }
 }
 
@@ -93,28 +171,38 @@ class _FilterBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      child: Wrap(
-        spacing: 8,
+    final tp = context.watch<ThemeProvider>();
+    return SizedBox(
+      height: 48,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         children: [
           _chip(context, null,
               TranslationService.translate(context, 'notifications_filter_all')),
-          _chip(
-              context,
-              'connections',
-              TranslationService.translate(
-                  context, 'notifications_filter_connections')),
-          _chip(
-              context,
-              'loans',
-              TranslationService.translate(
-                  context, 'notifications_filter_loans')),
-          _chip(
-              context,
-              'discoveries',
-              TranslationService.translate(
-                  context, 'notifications_filter_discoveries')),
+          const SizedBox(width: 8),
+          if (tp.notifConnectionsEnabled) ...[
+            _chip(
+                context,
+                'connections',
+                TranslationService.translate(
+                    context, 'notifications_filter_connections')),
+            const SizedBox(width: 8),
+          ],
+          if (tp.notifLoansEnabled) ...[
+            _chip(
+                context,
+                'loans',
+                TranslationService.translate(
+                    context, 'notifications_filter_loans')),
+            const SizedBox(width: 8),
+          ],
+          if (tp.notifDiscoveriesEnabled)
+            _chip(
+                context,
+                'discoveries',
+                TranslationService.translate(
+                    context, 'notifications_filter_discoveries')),
         ],
       ),
     );
@@ -141,14 +229,26 @@ class _NotificationTile extends StatelessWidget {
     required this.onTap,
   });
 
-  IconData _iconForCategory(String category) {
-    switch (category) {
-      case 'connections':
-        return Icons.people;
-      case 'loans':
-        return Icons.swap_horiz;
-      case 'discoveries':
-        return Icons.auto_awesome;
+  IconData _iconForEvent(String eventType) {
+    switch (eventType) {
+      case 'connection_request':
+        return Icons.person_add;
+      case 'connection_accepted':
+        return Icons.how_to_reg;
+      case 'new_follower':
+        return Icons.person_add;
+      case 'follow_request':
+        return Icons.person_add_alt;
+      case 'borrow_request':
+        return Icons.menu_book;
+      case 'borrow_accepted':
+        return Icons.check_circle_outline;
+      case 'book_returned':
+        return Icons.assignment_return;
+      case 'new_books':
+        return Icons.library_add;
+      case 'wishlist_match':
+        return Icons.favorite;
       default:
         return Icons.notifications;
     }
@@ -164,6 +264,69 @@ class _NotificationTile extends StatelessWidget {
         return cs.secondary;
       default:
         return cs.outline;
+    }
+  }
+
+  /// Build a human-readable title based on event type.
+  String _displayTitle(BuildContext context) {
+    final t = notification.title;
+    final b = notification.body;
+    switch (notification.eventType) {
+      case 'connection_request':
+        return TranslationService.translate(context, 'notif_connection_request')
+            .replaceAll('{name}', t);
+      case 'connection_accepted':
+        return TranslationService.translate(context, 'notif_connection_accepted')
+            .replaceAll('{name}', t);
+      case 'new_follower':
+        return TranslationService.translate(context, 'notif_new_follower')
+            .replaceAll('{name}', t);
+      case 'follow_request':
+        return TranslationService.translate(context, 'notif_follow_request')
+            .replaceAll('{name}', t);
+      case 'borrow_request':
+        return TranslationService.translate(context, 'notif_borrow_request')
+            .replaceAll('{name}', b ?? '')
+            .replaceAll('{book}', t);
+      case 'borrow_accepted':
+        return TranslationService.translate(context, 'notif_borrow_accepted')
+            .replaceAll('{name}', b ?? '')
+            .replaceAll('{book}', t);
+      case 'book_returned':
+        return TranslationService.translate(context, 'notif_book_returned')
+            .replaceAll('{name}', b ?? '')
+            .replaceAll('{book}', t);
+      case 'new_books':
+        return t; // Already formatted: "Peer : X nouveaux livres"
+      case 'wishlist_match':
+        return TranslationService.translate(context, 'notif_wishlist_match')
+            .replaceAll('{book}', t)
+            .replaceAll('{source}', b ?? '');
+      default:
+        return t;
+    }
+  }
+
+  /// Build a subtitle hint about where tapping will navigate.
+  String? _displaySubtitle(BuildContext context) {
+    switch (notification.eventType) {
+      case 'connection_request':
+      case 'connection_accepted':
+      case 'new_follower':
+      case 'follow_request':
+        return TranslationService.translate(context, 'notif_tap_network');
+      case 'borrow_request':
+        return TranslationService.translate(context, 'notif_tap_requests');
+      case 'borrow_accepted':
+        return TranslationService.translate(context, 'notif_tap_loans');
+      case 'book_returned':
+        return TranslationService.translate(context, 'notif_tap_requests');
+      case 'new_books':
+        return TranslationService.translate(context, 'notif_tap_discover');
+      case 'wishlist_match':
+        return TranslationService.translate(context, 'notif_tap_wishlist');
+      default:
+        return null;
     }
   }
 
@@ -192,6 +355,9 @@ class _NotificationTile extends StatelessWidget {
     final isUnread = notification.readAt == null;
     final catColor = _colorForCategory(notification.category, cs);
 
+    final displayTitle = _displayTitle(context);
+    final subtitle = _displaySubtitle(context);
+
     return Dismissible(
       key: ValueKey(notification.id),
       direction: DismissDirection.endToStart,
@@ -208,25 +374,37 @@ class _NotificationTile extends StatelessWidget {
         leading: CircleAvatar(
           backgroundColor: catColor.withValues(alpha: 0.15),
           child: Icon(
-            _iconForCategory(notification.category),
+            _iconForEvent(notification.eventType),
             color: catColor,
             size: 20,
           ),
         ),
         title: Text(
-          notification.title,
+          displayTitle,
           style: TextStyle(
             fontWeight: isUnread ? FontWeight.w600 : FontWeight.normal,
+            fontSize: 14,
           ),
-          maxLines: 1,
+          maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),
-        subtitle: notification.body != null
-            ? Text(
-                notification.body!,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: cs.onSurfaceVariant),
+        subtitle: subtitle != null
+            ? Row(
+                children: [
+                  Icon(Icons.touch_app, size: 12, color: cs.onSurfaceVariant.withValues(alpha: 0.6)),
+                  const SizedBox(width: 4),
+                  Flexible(
+                    child: Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: cs.onSurfaceVariant.withValues(alpha: 0.7),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
               )
             : null,
         trailing: Row(

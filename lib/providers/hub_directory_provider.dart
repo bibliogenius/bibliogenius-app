@@ -184,8 +184,13 @@ class HubDirectoryProvider extends ChangeNotifier {
   List<frb.FrbHubBorrowRequest> _incomingHubRequests = [];
   List<frb.FrbHubBorrowRequest> _outgoingHubRequests = [];
 
-  List<frb.FrbHubBorrowRequest> get incomingHubRequests => _incomingHubRequests;
-  List<frb.FrbHubBorrowRequest> get outgoingHubRequests => _outgoingHubRequests;
+  /// IDs of hub borrow requests dismissed locally (non-pending, can't cancel on Hub).
+  final Set<int> _dismissedHubRequestIds = {};
+
+  List<frb.FrbHubBorrowRequest> get incomingHubRequests =>
+      _incomingHubRequests.where((r) => !_dismissedHubRequestIds.contains(r.id.toInt())).toList();
+  List<frb.FrbHubBorrowRequest> get outgoingHubRequests =>
+      _outgoingHubRequests.where((r) => !_dismissedHubRequestIds.contains(r.id.toInt())).toList();
 
   /// Number of pending incoming hub borrow requests - used for badge.
   int get pendingHubBorrowCount =>
@@ -649,6 +654,36 @@ class HubDirectoryProvider extends ChangeNotifier {
       _busyNodes.remove(key);
       notifyListeners();
     }
+  }
+
+  /// Cancel or dismiss a hub borrow request.
+  /// Tries to cancel on the Hub first (pending requests only).
+  /// If the Hub rejects (e.g. already accepted), dismisses locally instead.
+  Future<bool> cancelHubBorrowRequest(int requestId) async {
+    final key = 'hub_borrow_$requestId';
+    _busyNodes.add(key);
+    _actionError = null;
+    notifyListeners();
+
+    try {
+      await _ffi.hubDirectoryCancelBorrowRequest(requestId);
+      await loadOutgoingHubRequests();
+      return true;
+    } catch (e) {
+      // Hub rejects cancel for non-pending requests - dismiss locally
+      debugPrint('HubDirectoryProvider cancelHubBorrowRequest: $e - dismissing locally');
+      _dismissedHubRequestIds.add(requestId);
+      return true;
+    } finally {
+      _busyNodes.remove(key);
+      notifyListeners();
+    }
+  }
+
+  /// Dismiss a hub borrow request locally (incoming or outgoing, any status).
+  void dismissHubRequest(int requestId) {
+    _dismissedHubRequestIds.add(requestId);
+    notifyListeners();
   }
 
   // ---------------------------------------------------------------------------

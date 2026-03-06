@@ -553,6 +553,12 @@ try {
 
 ## Code Style
 
+### Single Responsibility & File Size
+
+- **Files over 500 lines**: Extract reusable logic into dedicated files in `lib/utils/` or `lib/services/`.
+- **Screens should stay focused on UI**: Network utilities, parsing, data transformation belong in `lib/utils/` or `lib/services/`, not in screen files.
+- **`api_service.dart` (3700+ lines) is legacy debt**: When adding new functionality, prefer creating focused utility files rather than growing it further.
+
 ### Dart Naming
 
 - Classes: `PascalCase` (e.g., `BookListScreen`, `ApiService`)

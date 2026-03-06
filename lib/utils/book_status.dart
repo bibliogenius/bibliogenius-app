@@ -122,3 +122,50 @@ BookStatus? getStatusFromValue(
 String getDefaultStatus(bool isLibrarian) {
   return isLibrarian ? 'available' : 'to_read';
 }
+
+/// Show a bottom sheet to pick a reading status.
+/// Returns the selected status value, or null if dismissed.
+Future<String?> showReadingStatusPicker(
+  BuildContext context, {
+  required String? currentStatus,
+  required bool isLibrarian,
+}) {
+  final options = getStatusOptions(context, isLibrarian);
+
+  return showModalBottomSheet<String>(
+    context: context,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+    ),
+    builder: (ctx) {
+      final cs = Theme.of(ctx).colorScheme;
+      return SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Text(
+                TranslationService.translate(context, 'reading_status_picker_title'),
+                style: Theme.of(ctx).textTheme.titleMedium,
+              ),
+            ),
+            const Divider(height: 1),
+            ...options.map((status) {
+              final isSelected = status.value == (currentStatus ?? '');
+              return ListTile(
+                leading: Icon(status.icon, color: status.color),
+                title: Text(status.label),
+                trailing: isSelected
+                    ? Icon(Icons.check, color: cs.primary)
+                    : null,
+                onTap: () => Navigator.of(ctx).pop(status.value),
+              );
+            }),
+            const SizedBox(height: 8),
+          ],
+        ),
+      );
+    },
+  );
+}

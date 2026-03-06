@@ -1832,6 +1832,23 @@ class _BookListScreenState extends State<BookListScreen>
     }
   }
 
+  Future<void> _onStatusChanged(Book book, String newStatus) async {
+    if (book.id == null) return;
+    final bookRepo = Provider.of<BookRepository>(context, listen: false);
+    try {
+      await bookRepo.updateBook(book.id!, {'reading_status': newStatus});
+      if (mounted) _fetchBooks();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(TranslationService.translate(
+            context, 'error_save_failed',
+          ))),
+        );
+      }
+    }
+  }
+
   ViewMode _getNextViewMode(ViewMode current) {
     final collectionsEnabled =
         context.read<ThemeProvider>().collectionsEnabled;
@@ -2052,7 +2069,11 @@ class _BookListScreenState extends State<BookListScreen>
       case ViewMode.coverGrid:
         return RefreshIndicator(
           onRefresh: _fetchBooks,
-          child: BookCoverGrid(books: _filteredBooks, onBookTap: _onBookTap),
+          child: BookCoverGrid(
+            books: _filteredBooks,
+            onBookTap: _onBookTap,
+            onStatusChanged: _onStatusChanged,
+          ),
         );
       case ViewMode.spineShelf:
         return RefreshIndicator(
@@ -2137,8 +2158,9 @@ class _BookListScreenState extends State<BookListScreen>
           padding: const EdgeInsets.only(bottom: 16),
           child: PremiumBookCard(
             book: book,
-            isHero: true, // Use hero layout (horizontal) for list items
+            isHero: true,
             width: double.infinity,
+            onStatusChanged: (status) => _onStatusChanged(book, status),
           ),
         );
       },

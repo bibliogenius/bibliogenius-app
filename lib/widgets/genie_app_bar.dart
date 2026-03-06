@@ -3,12 +3,60 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/theme_provider.dart';
 import '../providers/notification_provider.dart';
+import '../services/api_service.dart';
 import '../services/translation_service.dart';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'bibliogenius_logo.dart';
 import 'quick_actions_sheet.dart';
 import '../theme/app_design.dart';
+
+void _showRenameLibraryDialog(BuildContext context, ThemeProvider themeProvider) {
+  final controller = TextEditingController(text: themeProvider.libraryName);
+  showDialog(
+    context: context,
+    builder: (dialogContext) {
+      return AlertDialog(
+        title: Text(
+          TranslationService.translate(context, 'rename_library_title'),
+        ),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: InputDecoration(
+            hintText: TranslationService.translate(context, 'rename_library_hint'),
+            border: const OutlineInputBorder(),
+          ),
+          onSubmitted: (value) {
+            final name = value.trim();
+            if (name.isNotEmpty) {
+              final api = Provider.of<ApiService>(context, listen: false);
+              themeProvider.setLibraryName(name, apiService: api);
+              Navigator.pop(dialogContext);
+            }
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(TranslationService.translate(context, 'cancel')),
+          ),
+          FilledButton(
+            onPressed: () {
+              final name = controller.text.trim();
+              if (name.isNotEmpty) {
+                final api = Provider.of<ApiService>(context, listen: false);
+                themeProvider.setLibraryName(name, apiService: api);
+                Navigator.pop(dialogContext);
+              }
+            },
+            child: Text(TranslationService.translate(context, 'save')),
+          ),
+        ],
+      );
+    },
+  );
+}
 
 class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
   final dynamic title;
@@ -147,25 +195,45 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
                                   overflow: TextOverflow.fade,
                                   softWrap: false,
                                 ),
-                              // Subtitle (library name) - show even when title is null (mobile)
+                              // Subtitle (library name) - tappable to edit when it's the default libraryName
                               // When title is null, subtitle is the primary text: use hideTitle threshold
                               if ((title != null ? !hideSubtitle : !hideTitle) && displaySubtitle.isNotEmpty)
-                                Text(
-                                  displaySubtitle,
-                                  style: TextStyle(
-                                    fontWeight: title != null
-                                        ? FontWeight.w400
-                                        : FontWeight.w600,
-                                    fontSize: title != null
-                                        ? subtitleFontSize
-                                        : titleFontSize,
-                                    color: Colors.white.withValues(
-                                        alpha: title != null ? 0.8 : 1.0),
-                                    letterSpacing: 0.3,
+                                GestureDetector(
+                                  onTap: subtitle == null
+                                      ? () => _showRenameLibraryDialog(context, themeProvider)
+                                      : null,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Flexible(
+                                        child: Text(
+                                          displaySubtitle,
+                                          style: TextStyle(
+                                            fontWeight: title != null
+                                                ? FontWeight.w400
+                                                : FontWeight.w600,
+                                            fontSize: title != null
+                                                ? subtitleFontSize
+                                                : titleFontSize,
+                                            color: Colors.white.withValues(
+                                                alpha: title != null ? 0.8 : 1.0),
+                                            letterSpacing: 0.3,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.fade,
+                                          softWrap: false,
+                                        ),
+                                      ),
+                                      if (subtitle == null) ...[
+                                        const SizedBox(width: 4),
+                                        Icon(
+                                          Icons.edit,
+                                          size: subtitleFontSize - 1,
+                                          color: Colors.white.withValues(alpha: 0.5),
+                                        ),
+                                      ],
+                                    ],
                                   ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.fade,
-                                  softWrap: false,
                                 ),
                             ],
                           ),
@@ -177,24 +245,25 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
         },
       ),
       actions: [
-        // Notification bell with unread badge
-        Consumer<NotificationProvider>(
-          builder: (context, notifProvider, child) {
-            final count = notifProvider.unreadCount;
-            return IconButton(
-              icon: Badge(
-                isLabelVisible: count > 0,
-                label: Text(
-                  count > 99 ? '99+' : '$count',
-                  style: const TextStyle(fontSize: 10),
+        // Notification bell with unread badge (hidden when notifications disabled)
+        if (context.watch<ThemeProvider>().notificationsEnabled)
+          Consumer<NotificationProvider>(
+            builder: (context, notifProvider, child) {
+              final count = notifProvider.unreadCount;
+              return IconButton(
+                icon: Badge(
+                  isLabelVisible: count > 0,
+                  label: Text(
+                    count > 99 ? '99+' : '$count',
+                    style: const TextStyle(fontSize: 10),
+                  ),
+                  child: const Icon(Icons.notifications_outlined, color: Colors.white),
                 ),
-                child: const Icon(Icons.notifications_outlined, color: Colors.white),
-              ),
-              tooltip: TranslationService.translate(context, 'notifications_title'),
-              onPressed: () => context.push('/notifications'),
-            );
-          },
-        ),
+                tooltip: TranslationService.translate(context, 'notifications_title'),
+                onPressed: () => context.push('/notifications'),
+              );
+            },
+          ),
         // Global Quick Actions Button (New)
         Semantics(
           button: true,
@@ -262,7 +331,10 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
                               context,
                               'quick_actions_title',
                             )
-                          : 'Actions',
+                          : TranslationService.translate(
+                              context,
+                              'quick_actions_short',
+                            ),
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,

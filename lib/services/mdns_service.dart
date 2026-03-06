@@ -58,6 +58,9 @@ class MdnsService {
   /// Matches the Rust-side MAX_DISCOVERED_PEERS limit.
   static const int _maxPeers = 50;
 
+  /// Peers not re-discovered within this duration are considered stale.
+  static const Duration _staleTtl = Duration(seconds: 90);
+
   static BonsoirBroadcast? _broadcast;
   static BonsoirDiscovery? _discovery;
   static final Map<String, DiscoveredPeer> _peers = {};
@@ -69,8 +72,11 @@ class MdnsService {
   /// Check if mDNS service is active
   static bool get isActive => _isRunning;
 
-  /// Get discovered peers (excluding own service)
-  static List<DiscoveredPeer> get peers => _peers.values.toList();
+  /// Get discovered peers (excluding own service and stale entries).
+  static List<DiscoveredPeer> get peers {
+    _purgeStale();
+    return _peers.values.toList();
+  }
 
   /// Check if an IP address is a link-local address (169.254.x.x)
   /// These addresses are auto-assigned when DHCP fails and are not routable
@@ -291,6 +297,19 @@ class MdnsService {
     } catch (e) {
       debugPrint('❌ mDNS: Failed to start discovery - $e');
       return false;
+    }
+  }
+
+  /// Remove peers that haven't been re-discovered within the TTL window.
+  static void _purgeStale() {
+    final cutoff = DateTime.now().subtract(_staleTtl);
+    final staleKeys = _peers.entries
+        .where((e) => e.value.discoveredAt.isBefore(cutoff))
+        .map((e) => e.key)
+        .toList();
+    for (final key in staleKeys) {
+      debugPrint('🕐 mDNS: Purging stale peer "${_peers[key]?.name}" ($key)');
+      _peers.remove(key);
     }
   }
 

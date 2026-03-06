@@ -5663,3 +5663,11 @@ msgstr "Открития"
 #. Notifications
 msgid "time_just_now"
 msgstr "Току-що"
+
+#. Reading status picker
+msgid "reading_status_picker_title"
+msgstr "Статус на четене"
+
+#. Quick actions button (short label for mobile)
+msgid "quick_actions_short"
+msgstr "Действия"

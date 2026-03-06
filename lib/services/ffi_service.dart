@@ -1200,6 +1200,11 @@ class FfiService {
     );
   }
 
+  /// Cancel a borrow request (requester only).
+  Future<void> hubDirectoryCancelBorrowRequest(int requestId) async {
+    await frb.hubDirectoryCancelBorrowRequest(requestId: requestId);
+  }
+
   // ============ E2EE Sealed Blob ============
 
   /// Encrypt plaintext for a recipient identified by their X25519 public key (hex).
@@ -1321,6 +1326,15 @@ class FfiService {
     } catch (e) {
       debugPrint('FFI notificationsDismiss error: $e');
       return false;
+    }
+  }
+
+  Future<int> notificationsDismissAll() async {
+    try {
+      return await frb.notificationsDismissAll();
+    } catch (e) {
+      debugPrint('FFI notificationsDismissAll error: $e');
+      return 0;
     }
   }
 

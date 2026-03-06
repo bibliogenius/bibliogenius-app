@@ -5,11 +5,13 @@ import 'book_cover_card.dart';
 class BookCoverGrid extends StatelessWidget {
   final List<Book> books;
   final Function(Book) onBookTap;
+  final void Function(Book book, String newStatus)? onStatusChanged;
 
   const BookCoverGrid({
     super.key,
     required this.books,
     required this.onBookTap,
+    this.onStatusChanged,
   });
 
   @override
@@ -43,7 +45,13 @@ class BookCoverGrid extends StatelessWidget {
       itemCount: books.length,
       itemBuilder: (context, index) {
         final book = books[index];
-        return BookCoverCard(book: book, onTap: () => onBookTap(book));
+        return BookCoverCard(
+          book: book,
+          onTap: () => onBookTap(book),
+          onStatusChanged: onStatusChanged != null
+              ? (status) => onStatusChanged!(book, status)
+              : null,
+        );
       },
     );
   }

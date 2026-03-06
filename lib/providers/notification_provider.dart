@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../services/ffi_service.dart';
 import '../src/rust/api/frb.dart' show FrbNotification;
@@ -41,8 +42,16 @@ class NotificationProvider extends ChangeNotifier {
   }
 
   /// Refresh just the unread badge count (cheap).
+  /// If all notification categories are disabled, forces count to 0.
   Future<void> refreshUnreadCount() async {
-    final count = await _ffi.notificationsUnreadCount();
+    final prefs = await SharedPreferences.getInstance();
+    final globalEnabled = prefs.getBool('notificationsEnabled') ?? true;
+    final anyEnabled = globalEnabled &&
+        ((prefs.getBool('notifConnectionsEnabled') ?? true) ||
+         (prefs.getBool('notifLoansEnabled') ?? true) ||
+         (prefs.getBool('notifDiscoveriesEnabled') ?? true));
+
+    final count = anyEnabled ? await _ffi.notificationsUnreadCount() : 0;
     if (count != _unreadCount) {
       _unreadCount = count;
       notifyListeners();
@@ -50,6 +59,7 @@ class NotificationProvider extends ChangeNotifier {
   }
 
   /// Load notifications (full list), optionally filtered by category.
+  /// Respects per-category toggles from settings.
   Future<void> loadNotifications({String? category}) async {
     _isLoading = true;
     _activeCategory = category;
@@ -59,6 +69,17 @@ class NotificationProvider extends ChangeNotifier {
       category: category,
       limit: 100,
     );
+
+    // Filter out disabled categories
+    final prefs = await SharedPreferences.getInstance();
+    final enabledCategories = <String>{
+      if (prefs.getBool('notifConnectionsEnabled') ?? true) 'connections',
+      if (prefs.getBool('notifLoansEnabled') ?? true) 'loans',
+      if (prefs.getBool('notifDiscoveriesEnabled') ?? true) 'discoveries',
+    };
+    _notifications = _notifications
+        .where((n) => enabledCategories.contains(n.category))
+        .toList();
 
     _isLoading = false;
     notifyListeners();
@@ -87,6 +108,14 @@ class NotificationProvider extends ChangeNotifier {
     await _ffi.notificationsMarkAllRead();
     _unreadCount = 0;
     await loadNotifications(category: _activeCategory);
+    notifyListeners();
+  }
+
+  /// Clear (hard delete) all notifications.
+  Future<void> clearAll() async {
+    await _ffi.notificationsDismissAll();
+    _notifications = [];
+    _unreadCount = 0;
     notifyListeners();
   }
 
