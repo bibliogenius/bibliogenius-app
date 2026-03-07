@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../widgets/genie_app_bar.dart';
+import '../widgets/scaffold_with_nav.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:dio/dio.dart';
@@ -299,12 +300,7 @@ class _LoansScreenState extends State<LoansScreen>
     return Scaffold(
       appBar: GenieAppBar(
         title: TranslationService.translate(context, 'loans_menu'),
-        leading: isMobile
-            ? IconButton(
-                icon: const Icon(Icons.menu, color: Colors.white),
-                onPressed: () => Scaffold.of(context).openDrawer(),
-              )
-            : null,
+        leading: buildDrawerLeading(context),
         automaticallyImplyLeading: false,
         bottom: TabBar(
           controller: _mainTabController,

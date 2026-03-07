@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../widgets/genie_app_bar.dart';
+import '../widgets/scaffold_with_nav.dart';
 import '../widgets/configurable_action_card.dart';
 import '../widgets/quick_actions_sheet.dart';
 import 'package:provider/provider.dart';
@@ -347,13 +348,7 @@ class _BookListScreenState extends State<BookListScreen>
       appBar: GenieAppBar(
         title: titleWidget,
         // subtitle: _libraryName, // Handled by ThemeProvider
-        leading: isMobile
-            ? IconButton(
-                icon: const Icon(Icons.menu, color: Colors.white),
-                tooltip: TranslationService.translate(context, 'tooltip_open_menu'),
-                onPressed: () => Scaffold.of(context).openDrawer(),
-              )
-            : null,
+        leading: buildDrawerLeading(context),
         automaticallyImplyLeading: false,
         actions: [
           if (_isReordering) ...[

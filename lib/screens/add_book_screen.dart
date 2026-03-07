@@ -333,8 +333,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
   Future<void> _saveBook() async {
     if (!_formKey.currentState!.validate()) return;
 
-    // Check for pending author
-    if (_authorController.text.trim().isNotEmpty) {
+    // Sync authors: if user cleared the text field, clear the authors list too
+    if (_authorController.text.trim().isEmpty) {
+      _authors.clear();
+    } else {
       final pendingRaw = _authorController.text;
       // Only add if it's not already joined string of all authors (avoid duplication)
       if (pendingRaw != _authors.join(', ')) {
@@ -1161,6 +1163,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   onDeleted: () {
                     setState(() {
                       _authors.remove(author);
+                      _authorController.text = _authors.join(', ');
                     });
                   },
                 );

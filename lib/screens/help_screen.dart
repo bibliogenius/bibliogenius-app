@@ -3,6 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../widgets/genie_app_bar.dart';
+import '../widgets/scaffold_with_nav.dart';
 import '../services/translation_service.dart';
 import '../theme/app_design.dart';
 import 'package:provider/provider.dart';
@@ -179,19 +180,10 @@ class _HelpScreenState extends State<HelpScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    final bool isMobile = width <= 600;
-
     return Scaffold(
       appBar: GenieAppBar(
         title: TranslationService.translate(context, 'help_title'),
-        leading: isMobile
-            ? IconButton(
-                icon: const Icon(Icons.menu, color: Colors.white),
-                tooltip: TranslationService.translate(context, 'tooltip_open_menu'),
-                onPressed: () => Scaffold.of(context).openDrawer(),
-              )
-            : null,
+        leading: buildDrawerLeading(context),
         automaticallyImplyLeading: false,
       ),
       body: ListView(

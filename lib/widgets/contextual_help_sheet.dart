@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../services/translation_service.dart';
 
 /// A contextual help sheet that displays help content for a specific screen.
@@ -110,6 +111,20 @@ class ContextualHelpSheet extends StatelessWidget {
           ],
 
           const SizedBox(height: 16),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton.icon(
+              icon: const Icon(Icons.help_outline, size: 16),
+              label: Text(
+                TranslationService.translate(context, 'help_see_all') ??
+                    'See all help topics',
+              ),
+              onPressed: () {
+                Navigator.pop(context);
+                GoRouter.of(context).go('/help');
+              },
+            ),
+          ),
         ],
       ),
     );

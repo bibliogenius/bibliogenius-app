@@ -133,6 +133,10 @@ class ThemeProvider with ChangeNotifier {
   bool _syncSafetyEnabled = true;
   bool get syncSafetyEnabled => _syncSafetyEnabled;
 
+  // Bottom Navigation Bar (mobile only, alternative to drawer)
+  bool _bottomNavEnabled = true;
+  bool get bottomNavEnabled => _bottomNavEnabled;
+
   // Peer Offline Caching: allows viewing cached peer libraries when they're offline
   // Enabled by default for better UX (instant display on revisit)
   bool _peerOfflineCachingEnabled = true;
@@ -330,6 +334,7 @@ class ThemeProvider with ChangeNotifier {
     _slidingPuzzleEnabled = prefs.getBool('slidingPuzzleEnabled') ?? true;
     _operationLogViewerEnabled = prefs.getBool('operationLogViewerEnabled') ?? false;
     _syncSafetyEnabled = prefs.getBool('syncSafetyEnabled') ?? true;
+    _bottomNavEnabled = prefs.getBool('bottomNavEnabled') ?? true;
     _notificationsEnabled = prefs.getBool('notificationsEnabled') ?? false;
     _notifConnectionsEnabled = prefs.getBool('notifConnectionsEnabled') ?? true;
     _notifLoansEnabled = prefs.getBool('notifLoansEnabled') ?? true;
@@ -479,6 +484,13 @@ class ThemeProvider with ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('syncSafetyEnabled', enabled);
     await _updateEnabledModules();
+    notifyListeners();
+  }
+
+  Future<void> setBottomNavEnabled(bool enabled) async {
+    _bottomNavEnabled = enabled;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('bottomNavEnabled', enabled);
     notifyListeners();
   }
 
@@ -741,6 +753,7 @@ class ThemeProvider with ChangeNotifier {
     _notifDiscoveriesEnabled = true;
     _simplifiedMode = false;
     _operationLogViewerEnabled = false;
+    _bottomNavEnabled = true;
     notifyListeners();
   }
 

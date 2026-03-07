@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
 import '../services/translation_service.dart';
 import '../widgets/genie_app_bar.dart';
+import '../widgets/scaffold_with_nav.dart';
 
 class GamesHubScreen extends StatelessWidget {
   const GamesHubScreen({super.key});
@@ -12,19 +13,10 @@ class GamesHubScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final theme = Theme.of(context);
-    final width = MediaQuery.of(context).size.width;
-    final bool isMobile = width <= 600;
-
     return Scaffold(
       appBar: GenieAppBar(
         title: TranslationService.translate(context, 'games_hub_title'),
-        leading: isMobile
-            ? IconButton(
-                icon: const Icon(Icons.menu, color: Colors.white),
-                tooltip: TranslationService.translate(context, 'tooltip_open_menu'),
-                onPressed: () => Scaffold.of(context).openDrawer(),
-              )
-            : null,
+        leading: buildDrawerLeading(context),
         automaticallyImplyLeading: false,
       ),
       body: ListView(

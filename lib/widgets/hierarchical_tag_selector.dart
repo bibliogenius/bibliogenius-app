@@ -369,7 +369,7 @@ class _TagSelectionDialogState extends State<_TagSelectionDialog> {
         ),
       ),
       actions: [
-        TextButton(
+        ElevatedButton(
           onPressed: _finish,
           child: Text(TranslationService.translate(context, 'done')),
         ),

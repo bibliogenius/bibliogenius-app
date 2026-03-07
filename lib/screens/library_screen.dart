@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../services/translation_service.dart';
 import '../widgets/genie_app_bar.dart';
+import '../widgets/scaffold_with_nav.dart';
 import '../widgets/configurable_action_card.dart';
 import '../widgets/contextual_help_sheet.dart';
 import '../widgets/invite_share_sheet.dart';
@@ -86,13 +87,7 @@ class _LibraryScreenState extends State<LibraryScreen>
     return Scaffold(
       appBar: GenieAppBar(
         title: TranslationService.translate(context, 'library'),
-        leading: isMobile
-            ? IconButton(
-                icon: const Icon(Icons.menu, color: Colors.white),
-                tooltip: TranslationService.translate(context, 'tooltip_open_menu'),
-                onPressed: () => Scaffold.of(context).openDrawer(),
-              )
-            : null,
+        leading: buildDrawerLeading(context),
         automaticallyImplyLeading: false,
         actions: [
           ContextualHelpIconButton(

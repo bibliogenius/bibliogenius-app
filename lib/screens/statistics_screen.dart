@@ -16,6 +16,7 @@ import '../models/contact.dart';
 import '../models/tag.dart';
 import '../models/collection.dart';
 import '../widgets/genie_app_bar.dart';
+import '../widgets/scaffold_with_nav.dart';
 import '../widgets/goal_reached_animation.dart';
 import '../theme/app_design.dart';
 import '../providers/theme_provider.dart';
@@ -219,18 +220,11 @@ class _StatisticsScreenState extends State<StatisticsScreen>
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    final bool isMobile = width <= 600;
 
     return Scaffold(
       appBar: GenieAppBar(
         title: TranslationService.translate(context, 'library_insights'),
-        leading: isMobile
-            ? IconButton(
-                icon: const Icon(Icons.menu, color: Colors.white),
-                tooltip: TranslationService.translate(context, 'tooltip_open_menu'),
-                onPressed: () => Scaffold.of(context).openDrawer(),
-              )
-            : null,
+        leading: buildDrawerLeading(context),
         automaticallyImplyLeading: false,
         showQuickActions: true,
       ),

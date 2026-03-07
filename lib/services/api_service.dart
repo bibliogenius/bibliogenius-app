@@ -2092,7 +2092,7 @@ class ApiService {
         debugPrint('✅ getPeers: ${(response.data as Map)['data']?.length ?? 0} peers');
         return response;
       } catch (e) {
-        debugPrint('❌ getPeers error: $e');
+        // Expected timeout in FFI mode (no local HTTP server)
         return Response(
           requestOptions: RequestOptions(path: '/api/peers'),
           statusCode: 500,

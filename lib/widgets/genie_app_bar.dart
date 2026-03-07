@@ -70,6 +70,7 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showBackButton;
   final VoidCallback? onBookAdded; // Callback when a book is added via quick actions
   final VoidCallback? onShelfCreated; // Callback when a shelf is created via quick actions
+  final String? preSelectedShelfId;
 
   const GenieAppBar({
     super.key,
@@ -85,6 +86,7 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.showBackButton = true,
     this.onBookAdded,
     this.onShelfCreated,
+    this.preSelectedShelfId,
   });
 
   final bool transparent;
@@ -292,12 +294,6 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
             child: InkWell(
               borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
               onTap: () {
-                // Determine if we are on the main library screen to hide redundant actions
-                final currentPath = GoRouterState.of(context).uri.path;
-                final hideGenericActions =
-                    currentPath == '/books' ||
-                    currentPath.startsWith('/books?');
-
                 showModalBottomSheet(
                   context: context,
                   isScrollControlled: true,
@@ -309,9 +305,9 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
                   ),
                   builder: (sheetContext) => QuickActionsSheet(
                     contextualActions: contextualQuickActions,
-                    hideGenericActions: hideGenericActions,
                     onBookAdded: onBookAdded,
                     onShelfCreated: onShelfCreated,
+                    preSelectedShelfId: preSelectedShelfId,
                   ),
                 );
               },
@@ -384,6 +380,11 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ],
         if (actions != null) ...actions!,
+        IconButton(
+          icon: const Icon(Icons.settings_outlined, color: Colors.white),
+          tooltip: TranslationService.translate(context, 'tooltip_open_settings'),
+          onPressed: () => context.go('/settings'),
+        ),
         // Avatar
         if (avatarConfig?.style != 'initials')
           Semantics(

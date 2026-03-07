@@ -52,6 +52,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   bool _isLoadingCopies = true;
   bool _isLoadingBook = false;
   bool _hasChanges = false;
+  int _coverVersion = 0;
   bool _isRefreshing = false;
 
   @override
@@ -92,23 +93,17 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       final copiesFuture = copyRepo.getBookCopies(widget.bookId);
       final collectionsFuture = collectionRepo.getBookCollections(widget.bookId);
 
-      // Fetch book if we don't have it OR if forced refresh is requested
-      Future<Book>? bookFuture;
-      if (_book == null || forceRefresh) {
-        bookFuture = bookRepo.getBook(widget.bookId);
-      }
+      // Always fetch fresh book data from DB to get latest changes (e.g. rating)
+      final bookFuture = bookRepo.getBook(widget.bookId);
 
       final copies = await copiesFuture;
       final collections = await collectionsFuture;
-      final freshBook = bookFuture != null ? await bookFuture : null;
+      final freshBook = await bookFuture;
 
       if (mounted) {
         setState(() {
-          if (freshBook != null) {
-            _book = freshBook;
-            _isLoadingBook = false;
-          }
-
+          _book = freshBook;
+          _isLoadingBook = false;
           _copies = copies;
           _collections = collections;
           _isLoadingCopies = false;
@@ -145,17 +140,23 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
   Future<void> _updateRating(int? newRating) async {
     if (_book == null || _book!.id == null) return;
+    final previousRating = _book!.userRating;
+    // Optimistic UI update
+    setState(() {
+      _book = _book!.copyWithRating(newRating);
+    });
     final bookRepo = Provider.of<BookRepository>(context, listen: false);
     try {
       await bookRepo.updateBook(_book!.id!, {
         'title': _book!.title,
         'user_rating': newRating,
       });
-      setState(() {
-        _book = _book!.copyWithRating(newRating);
-      });
     } catch (e) {
+      // Revert on error
       if (mounted) {
+        setState(() {
+          _book = _book!.copyWithRating(previousRating);
+        });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -168,6 +169,16 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   }
 
   // ============ Cover management ============
+
+  /// Evict old cover image from Flutter's image cache so it doesn't persist
+  void _evictCoverFromCache(String? coverUrl) {
+    if (coverUrl == null || coverUrl.isEmpty) return;
+    if (!coverUrl.startsWith('http')) {
+      // Local file: evict from Flutter's image cache
+      final fileImage = FileImage(File(coverUrl));
+      imageCache.evict(fileImage);
+    }
+  }
 
   void _showCoverOptions(BuildContext context, Book book) {
     final bool hasCover = book.hasPersistedCover;
@@ -377,10 +388,14 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       // Only auto-apply if the result came from the ISBN search itself,
       // not from the title fallback (lower confidence).
       if (candidates.length == 1 && isbnResultCount == 1) {
-        await bookRepo.updateBook(
-            book.id!, {'cover_url': candidates.first.url});
-        await _fetchBookDetails(forceRefresh: true);
+        final newUrl = candidates.first.url;
+        _evictCoverFromCache(_book?.coverUrl);
+        await bookRepo.updateBook(book.id!, {'cover_url': newUrl});
         _hasChanges = true;
+        if (mounted) {
+          setState(() { _book = _book!.copyWithCoverUrl(newUrl); _coverVersion++; });
+        }
+        _fetchBookDetails(forceRefresh: true);
         messenger.showSnackBar(
           SnackBar(content: Text(foundText)),
         );
@@ -396,9 +411,13 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
       if (!mounted) return;
       if (selectedUrl != null) {
+        _evictCoverFromCache(_book?.coverUrl);
         await bookRepo.updateBook(book.id!, {'cover_url': selectedUrl});
-        await _fetchBookDetails(forceRefresh: true);
         _hasChanges = true;
+        if (mounted) {
+          setState(() { _book = _book!.copyWithCoverUrl(selectedUrl); _coverVersion++; });
+        }
+        _fetchBookDetails(forceRefresh: true);
         messenger.showSnackBar(
           SnackBar(content: Text(updatedText)),
         );
@@ -419,10 +438,14 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       final path = await CoverCameraHelper.takePhotoAndSave(bookId: book.id);
       if (path == null || !mounted) return;
 
+      _evictCoverFromCache(_book?.coverUrl);
       final bookRepo = Provider.of<BookRepository>(context, listen: false);
       await bookRepo.updateBook(book.id!, {'cover_url': path});
-      await _fetchBookDetails(forceRefresh: true);
       _hasChanges = true;
+      if (mounted) {
+        setState(() { _book = _book!.copyWithCoverUrl(path); _coverVersion++; });
+      }
+      _fetchBookDetails(forceRefresh: true);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -474,10 +497,14 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       await sourceFile.copy(targetPath);
 
       if (!mounted) return;
+      _evictCoverFromCache(_book?.coverUrl);
       final bookRepo = Provider.of<BookRepository>(context, listen: false);
       await bookRepo.updateBook(book.id!, {'cover_url': targetPath});
-      await _fetchBookDetails(forceRefresh: true);
       _hasChanges = true;
+      if (mounted) {
+        setState(() { _book = _book!.copyWithCoverUrl(targetPath); _coverVersion++; });
+      }
+      _fetchBookDetails(forceRefresh: true);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -517,10 +544,14 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       }
 
       if (!mounted) return;
+      _evictCoverFromCache(_book?.coverUrl);
       final bookRepo = Provider.of<BookRepository>(context, listen: false);
       await bookRepo.updateBook(book.id!, {'cover_url': null});
-      await _fetchBookDetails(forceRefresh: true);
       _hasChanges = true;
+      if (mounted) {
+        setState(() { _book = _book!.copyWithCoverUrl(null); _coverVersion++; });
+      }
+      _fetchBookDetails(forceRefresh: true);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -705,6 +736,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             // Layer 1: Network Image (if available)
             if (coverUrl != null && coverUrl.isNotEmpty)
               CachedBookCover(
+                key: ValueKey('bg_$_coverVersion'),
                 imageUrl: coverUrl,
                 fit: BoxFit.cover,
                 placeholder: const SizedBox.shrink(),
@@ -749,6 +781,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                         // Image on top
                         if (coverUrl != null && coverUrl.isNotEmpty)
                           CachedBookCover(
+                            key: ValueKey('hero_$_coverVersion'),
                             imageUrl: coverUrl,
                             fit: BoxFit.cover,
                             placeholder: const SizedBox.shrink(),
@@ -815,14 +848,14 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                       extra: _book,
                     );
                     if (result == true && context.mounted) {
+                      // Evict old cover so refreshed data shows new image
+                      _evictCoverFromCache(_book?.coverUrl);
                       // Refresh book data but STAY on the screen
                       await _fetchBookDetails(forceRefresh: true);
                       // Mark that we have changes so we can return true later
                       setState(() {
-                        // We track this via a member variable which we need to add to the State class
-                        // For now, let's just make sure the UI is up to date.
-                        // The list screen underneath will naturally refresh if we pop later with true.
                         _hasChanges = true;
+                        _coverVersion++;
                       });
                     }
                   },

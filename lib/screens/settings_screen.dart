@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../widgets/genie_app_bar.dart';
+import '../widgets/scaffold_with_nav.dart';
 import '../widgets/contextual_help_sheet.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
@@ -187,19 +188,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
-    final width = MediaQuery.of(context).size.width;
-    final isWide = width > 600;
 
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: GenieAppBar(
         title: TranslationService.translate(context, 'nav_settings'),
-        leading: isWide
-            ? null
-            : IconButton(
-                icon: const Icon(Icons.menu, color: Colors.white),
-                onPressed: () => Scaffold.of(context).openDrawer(),
-              ),
+        leading: buildDrawerLeading(context),
         automaticallyImplyLeading: false,
         showQuickActions: false,
         actions: [
@@ -471,7 +465,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             // Theme accordion (theme + text size)
-            if (_sectionVisible(['theme_title']))
+            if (_sectionVisible(['theme_title', 'nav_style_label', 'nav_style_side_menu', 'nav_style_bottom_bar']))
             Card(
               margin: const EdgeInsets.only(bottom: 12),
               child: ExpansionTile(
@@ -497,6 +491,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         _buildThemeSelector(context, themeProvider),
                         const SizedBox(height: 24),
                         _buildTextScaleSlider(context, themeProvider),
+                        const SizedBox(height: 24),
+                        _buildNavStyleSelector(context, themeProvider),
                       ],
                     ),
                   ),
@@ -1908,6 +1904,108 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  Widget _buildNavStyleSelector(BuildContext context, ThemeProvider themeProvider) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final bottomNav = themeProvider.bottomNavEnabled;
+
+    Widget navOption({
+      required bool selected,
+      required IconData icon,
+      required String labelKey,
+      required VoidCallback onTap,
+    }) {
+      return Expanded(
+        child: GestureDetector(
+          onTap: onTap,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+            decoration: BoxDecoration(
+              color: selected
+                  ? theme.colorScheme.primary.withValues(alpha: 0.12)
+                  : isDark
+                      ? theme.colorScheme.surface.withValues(alpha: 0.8)
+                      : Colors.grey.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: selected
+                    ? theme.colorScheme.primary
+                    : Colors.grey.withValues(alpha: 0.3),
+                width: selected ? 2 : 1,
+              ),
+            ),
+            child: Column(
+              children: [
+                Icon(
+                  icon,
+                  size: 28,
+                  color: selected
+                      ? theme.colorScheme.primary
+                      : theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  TranslationService.translate(context, labelKey),
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: selected ? FontWeight.bold : FontWeight.w500,
+                    color: selected
+                        ? theme.colorScheme.primary
+                        : theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          TranslationService.translate(context, 'nav_style_label'),
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: isDark ? Colors.white70 : Colors.grey[700],
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          TranslationService.translate(context, 'nav_style_desc'),
+          style: TextStyle(
+            fontSize: 12,
+            color: isDark ? Colors.white54 : Colors.grey[500],
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            navOption(
+              selected: !bottomNav,
+              icon: Icons.menu,
+              labelKey: 'nav_style_side_menu',
+              onTap: () => themeProvider.setBottomNavEnabled(false),
+            ),
+            const SizedBox(width: 12),
+            navOption(
+              selected: bottomNav,
+              icon: Icons.dock,
+              labelKey: 'nav_style_bottom_bar',
+              onTap: () => themeProvider.setBottomNavEnabled(true),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
   Widget _buildThemeSelector(BuildContext context, ThemeProvider themeProvider) {
     ThemeRegistry.initialize();
     final themes = ThemeRegistry.all;
@@ -2717,6 +2815,100 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
           actions: [
+            if (hasPassword)
+              TextButton(
+                onPressed: () async {
+                  // Ask for current password first
+                  if (currentPasswordController.text.isEmpty) {
+                    setState(
+                      () => errorText =
+                          TranslationService.translate(
+                            context,
+                            'password_required',
+                          ) ??
+                          'Password is required',
+                    );
+                    return;
+                  }
+                  final isValid = await authService.verifyPassword(
+                    currentPasswordController.text,
+                  );
+                  if (!isValid) {
+                    setState(
+                      () => errorText =
+                          TranslationService.translate(
+                            context,
+                            'password_incorrect',
+                          ) ??
+                          'Incorrect password',
+                    );
+                    return;
+                  }
+                  // Confirm removal
+                  final confirmed = await showDialog<bool>(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: Text(
+                        TranslationService.translate(ctx, 'remove_password') ??
+                            'Remove password',
+                      ),
+                      content: Text(
+                        TranslationService.translate(
+                              ctx,
+                              'remove_password_confirm',
+                            ) ??
+                            'Are you sure?',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx, false),
+                          child: Text(
+                            TranslationService.translate(ctx, 'cancel') ??
+                                'Cancel',
+                          ),
+                        ),
+                        ElevatedButton(
+                          onPressed: () => Navigator.pop(ctx, true),
+                          child: Text(
+                            TranslationService.translate(
+                                  ctx,
+                                  'remove_password',
+                                ) ??
+                                'Remove password',
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (confirmed == true) {
+                    await authService.removePassword(
+                      currentPasswordController.text,
+                    );
+                    if (mounted) {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            TranslationService.translate(
+                                  context,
+                                  'password_removed_success',
+                                ) ??
+                                'Password removed successfully',
+                          ),
+                        ),
+                      );
+                    }
+                  }
+                },
+                style: TextButton.styleFrom(
+                  foregroundColor: Theme.of(context).colorScheme.error,
+                ),
+                child: Text(
+                  TranslationService.translate(context, 'remove_password') ??
+                      'Remove password',
+                ),
+              ),
+            const SizedBox(width: 8),
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: Text(
@@ -2771,6 +2963,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 } else {
                   await authService.savePassword(newPasswordController.text);
                 }
+
+                // Invalidate session so next launch requires the new password
+                await authService.saveToken(
+                  'local-auto-token-${DateTime.now().millisecondsSinceEpoch}',
+                );
 
                 if (mounted) {
                   Navigator.pop(context);

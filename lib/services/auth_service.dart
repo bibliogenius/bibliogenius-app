@@ -189,6 +189,14 @@ class AuthService {
     return true;
   }
 
+  /// Remove password (requires current password verification)
+  Future<bool> removePassword(String currentPassword) async {
+    final isValid = await verifyPassword(currentPassword);
+    if (!isValid) return false;
+    await storage.delete(key: _passwordKey);
+    return true;
+  }
+
   /// Simple hash function for local password storage
   /// This is NOT cryptographically secure but sufficient for local-only protection
   String _simpleHash(String input) {

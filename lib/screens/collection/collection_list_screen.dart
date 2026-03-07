@@ -7,6 +7,7 @@ import '../../models/collection.dart';
 import 'import_curated_list_screen.dart' as import_curated;
 import 'import_shared_list_screen.dart';
 import '../../widgets/genie_app_bar.dart';
+import '../../widgets/scaffold_with_nav.dart';
 import '../../widgets/contextual_help_sheet.dart';
 import '../../widgets/collection_stack_widget.dart';
 
@@ -197,12 +198,7 @@ class _CollectionListScreenState extends State<CollectionListScreen> {
     if (!widget.isTabView) {
       appBar = GenieAppBar(
         title: TranslationService.translate(context, 'collections'),
-        leading: isMobile
-            ? IconButton(
-                icon: const Icon(Icons.menu, color: Colors.white),
-                onPressed: () => Scaffold.of(context).openDrawer(),
-              )
-            : null,
+        leading: buildDrawerLeading(context),
         automaticallyImplyLeading: false,
         showQuickActions: true,
         actions: [

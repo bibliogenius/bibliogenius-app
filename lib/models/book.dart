@@ -146,6 +146,30 @@ class Book {
   /// Whether this book has a cover URL explicitly persisted (not auto-derived from ISBN)
   bool get hasPersistedCover => _coverUrl != null && _coverUrl!.isNotEmpty;
 
+  /// Create a copy with updated cover URL
+  Book copyWithCoverUrl(String? newCoverUrl) {
+    return Book(
+      id: id,
+      title: title,
+      isbn: isbn,
+      summary: summary,
+      publisher: publisher,
+      publicationYear: publicationYear,
+      readingStatus: readingStatus,
+      finishedReadingAt: finishedReadingAt,
+      startedReadingAt: startedReadingAt,
+      author: author,
+      subjects: subjects,
+      coverUrl: newCoverUrl,
+      userRating: userRating,
+      owned: owned,
+      price: price,
+      digitalFormats: digitalFormats,
+      language: language,
+      availableCopies: availableCopies,
+    );
+  }
+
   /// Returns star rating (1-5) from internal 0-10 scale
   double? get starRating => userRating != null ? userRating! / 2.0 : null;
 }

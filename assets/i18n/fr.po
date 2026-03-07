@@ -2756,6 +2756,10 @@ msgstr "Outils développeur"
 msgid "help_tips_title"
 msgstr "Conseils"
 
+#. See all help topics
+msgid "help_see_all"
+msgstr "Voir tous les sujets d'aide"
+
 #. Help & Support
 msgid "help_title"
 msgstr "Aide & Support"
@@ -3706,6 +3710,26 @@ msgstr "Tableau de bord"
 msgid "nav_help"
 msgstr "Aide"
 
+#. More (bottom navigation)
+msgid "nav_more"
+msgstr "Plus"
+
+#. Bottom nav short labels
+msgid "btm_library"
+msgstr "Livres"
+
+msgid "btm_network"
+msgstr "Contacts"
+
+msgid "btm_loans"
+msgstr "Prêts"
+
+msgid "btm_profile"
+msgstr "Profil"
+
+msgid "btm_stats"
+msgstr "Aperçu"
+
 #. Loans
 msgid "nav_loans"
 msgstr "Prêts"
@@ -4109,6 +4133,22 @@ msgstr "Mot de passe"
 #. Password changed successfully
 msgid "password_changed_success"
 msgstr "Mot de passe changé avec succès"
+
+#. Enter your password to unlock the app
+msgid "login_local_password_subtitle"
+msgstr "Entrez votre mot de passe pour acceder a votre bibliotheque"
+
+#. Remove password
+msgid "remove_password"
+msgstr "Supprimer le mot de passe"
+
+#. Remove password confirmation
+msgid "remove_password_confirm"
+msgstr "Voulez-vous vraiment supprimer le mot de passe ? N'importe qui pourra acceder a votre bibliotheque."
+
+#. Password removed successfully
+msgid "password_removed_success"
+msgstr "Mot de passe supprime avec succes"
 
 #. Incorrect password
 msgid "password_incorrect"
@@ -5967,6 +6007,22 @@ msgstr "Minimal (Épuré)"
 msgid "theme_title"
 msgstr "Thème"
 
+#. Navigation style label
+msgid "nav_style_label"
+msgstr "Style de navigation (mobile)"
+
+#. Navigation style description
+msgid "nav_style_desc"
+msgstr "Choisissez comment naviguer entre les écrans sur mobile"
+
+#. Side menu option
+msgid "nav_style_side_menu"
+msgstr "Menu latéral"
+
+#. Bottom bar option
+msgid "nav_style_bottom_bar"
+msgstr "Barre en bas"
+
 #. Title *
 msgid "title_label"
 msgstr "Titre *"
@@ -6583,6 +6639,10 @@ msgstr "Jouer"
 #. Accessibility - Tooltip: open navigation menu
 msgid "tooltip_open_menu"
 msgstr "Ouvrir le menu"
+
+#. Accessibility - Tooltip: open settings
+msgid "tooltip_open_settings"
+msgstr "Ouvrir les paramètres"
 
 #. Accessibility - Tooltip: edit contact
 msgid "tooltip_edit_contact"

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'package:go_router/go_router.dart';
 import '../widgets/genie_app_bar.dart';
+import '../widgets/scaffold_with_nav.dart';
 import '../widgets/contextual_help_sheet.dart';
 import '../widgets/streak_celebration.dart';
 import '../data/repositories/book_repository.dart';
@@ -268,14 +269,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       extendBodyBehindAppBar: true,
       appBar: GenieAppBar(
         title: 'BiblioGenius',
-        leading: isWide
-            ? null
-            : IconButton(
-                key: _menuKey,
-                icon: const Icon(Icons.menu, color: Colors.white),
-                tooltip: TranslationService.translate(context, 'tooltip_open_menu'),
-                onPressed: () => Scaffold.of(context).openDrawer(),
-              ),
+        leading: buildDrawerLeading(context),
         automaticallyImplyLeading: false,
         showQuickActions: false,
         actions: [

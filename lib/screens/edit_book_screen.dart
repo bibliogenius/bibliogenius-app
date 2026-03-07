@@ -66,6 +66,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
   _originalReadingStatus; // Track original status to detect changes to 'read'
 
   String? _coverUrl;
+  int _coverVersion = 0;
   bool _isEditing = true; // Always start in edit mode
   bool _isSaving = false;
   bool _isFetchingDetails = false;
@@ -364,8 +365,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
       }
     }
 
-    // Check for pending author
-    if (_authorController.text.trim().isNotEmpty) {
+    // Sync authors: if user cleared the text field, clear the authors list too
+    if (_authorController.text.trim().isEmpty) {
+      _authors.clear();
+    } else {
       // Only add if explicit add wasn't clicked but text remains
       // Avoid duplicating the joined string if it matches
       if (_authorController.text != _authors.join(', ')) {
@@ -417,7 +420,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
       }
       await bookRepo.updateBook(widget.book.id!, bookData);
 
-      // If not owned anymore, delete all copies. Otherwise update copy status.
+      // If not owned anymore, delete all copies.
+      // If owned and copy exists, update its status.
+      // If owned and no copy exists, create one.
       final copyRepo = Provider.of<CopyRepository>(context, listen: false);
       if (!_owned) {
         try {
@@ -432,6 +437,13 @@ class _EditBookScreenState extends State<EditBookScreen> {
         }
       } else if (_copyId != null) {
         await copyRepo.updateCopy(_copyId!, {'status': _copyStatus});
+      } else {
+        // Owned but no copy exists yet - create one
+        final newCopy = await copyRepo.createCopy({
+          'book_id': widget.book.id!,
+          'status': _copyStatus,
+        });
+        _copyId = newCopy.id;
       }
 
       // Update collections
@@ -824,6 +836,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     onDeleted: () {
                       setState(() {
                         _authors.remove(author);
+                        _authorController.text = _authors.join(', ');
                       });
                     },
                   );
@@ -1345,6 +1358,14 @@ class _EditBookScreenState extends State<EditBookScreen> {
     );
   }
 
+  void _evictCoverFromCache(String? coverUrl) {
+    if (coverUrl == null || coverUrl.isEmpty) return;
+    if (!coverUrl.startsWith('http')) {
+      final fileImage = FileImage(File(coverUrl));
+      imageCache.evict(fileImage);
+    }
+  }
+
   Future<void> _takePhoto() async {
     try {
       final path = await CoverCameraHelper.takePhotoAndSave(
@@ -1352,11 +1373,12 @@ class _EditBookScreenState extends State<EditBookScreen> {
       );
       if (path == null || !mounted) return;
 
+      _evictCoverFromCache(_coverUrl);
       final bookRepo = Provider.of<BookRepository>(context, listen: false);
       await bookRepo.updateBook(widget.book.id!, {'cover_url': path});
 
       if (!mounted) return;
-      setState(() => _coverUrl = path);
+      setState(() { _coverUrl = path; _coverVersion++; });
       _hasChanges = true;
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -1403,11 +1425,12 @@ class _EditBookScreenState extends State<EditBookScreen> {
       await sourceFile.copy(targetPath);
 
       if (!mounted) return;
+      _evictCoverFromCache(_coverUrl);
       final bookRepo = Provider.of<BookRepository>(context, listen: false);
       await bookRepo.updateBook(widget.book.id!, {'cover_url': targetPath});
 
       if (!mounted) return;
-      setState(() => _coverUrl = targetPath);
+      setState(() { _coverUrl = targetPath; _coverVersion++; });
       _hasChanges = true;
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -1456,7 +1479,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   ? _coverUrl!.startsWith('/')
                       ? Image.file(
                           File(_coverUrl!),
-                          key: ValueKey(_coverUrl),
+                          key: ValueKey('$_coverUrl\_$_coverVersion'),
                           fit: BoxFit.cover,
                           errorBuilder: (_, __, ___) => Container(
                             color: Colors.grey[200],
@@ -1465,7 +1488,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                           ),
                         )
                       : CachedBookCover(
-                          key: ValueKey(_coverUrl),
+                          key: ValueKey('$_coverUrl\_$_coverVersion'),
                           imageUrl: _coverUrl!,
                           fit: BoxFit.cover,
                           placeholder: Container(

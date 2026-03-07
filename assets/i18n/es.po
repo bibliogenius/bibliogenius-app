@@ -2608,6 +2608,10 @@ msgstr "Herramientas de desarrollo"
 msgid "help_tips_title"
 msgstr "Consejos"
 
+#. See all help topics
+msgid "help_see_all"
+msgstr "Ver todos los temas de ayuda"
+
 #. Help & Support
 msgid "help_title"
 msgstr "Ayuda y Soporte"
@@ -3542,6 +3546,26 @@ msgstr "Panel de control"
 msgid "nav_help"
 msgstr "Ayuda"
 
+#. More (bottom navigation)
+msgid "nav_more"
+msgstr "Más"
+
+#. Bottom nav short labels
+msgid "btm_library"
+msgstr "Libros"
+
+msgid "btm_network"
+msgstr "Contactos"
+
+msgid "btm_loans"
+msgstr "Préstamos"
+
+msgid "btm_profile"
+msgstr "Perfil"
+
+msgid "btm_stats"
+msgstr "Resumen"
+
 #. Loans
 msgid "nav_loans"
 msgstr "Préstamos"
@@ -3945,6 +3969,22 @@ msgstr "Contraseña"
 #. Password changed successfully
 msgid "password_changed_success"
 msgstr "Contraseña cambiada con éxito"
+
+#. Enter your password to unlock the app
+msgid "login_local_password_subtitle"
+msgstr "Introduce tu contraseña para acceder a tu biblioteca"
+
+#. Remove password
+msgid "remove_password"
+msgstr "Eliminar contraseña"
+
+#. Remove password confirmation
+msgid "remove_password_confirm"
+msgstr "¿Seguro que quieres eliminar la contraseña? Cualquiera podrá acceder a tu biblioteca."
+
+#. Password removed successfully
+msgid "password_removed_success"
+msgstr "Contraseña eliminada con éxito"
 
 #. Incorrect password
 msgid "password_incorrect"
@@ -5425,6 +5465,22 @@ msgstr "Minimalista (Limpio)"
 #. Theme
 msgid "theme_title"
 msgstr "Tema"
+
+#. Navigation style label
+msgid "nav_style_label"
+msgstr "Estilo de navegación (móvil)"
+
+#. Navigation style description
+msgid "nav_style_desc"
+msgstr "Elige cómo navegar entre pantallas en el móvil"
+
+#. Side menu option
+msgid "nav_style_side_menu"
+msgstr "Menú lateral"
+
+#. Bottom bar option
+msgid "nav_style_bottom_bar"
+msgstr "Barra inferior"
 
 #. Title *
 msgid "title_label"
@@ -7030,6 +7086,9 @@ msgstr "Pagina siguiente"
 
 msgid "tooltip_open_menu"
 msgstr "Abrir menu"
+
+msgid "tooltip_open_settings"
+msgstr "Abrir configuración"
 
 msgid "tooltip_prev_page"
 msgstr "Pagina anterior"

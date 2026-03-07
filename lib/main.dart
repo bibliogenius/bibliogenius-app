@@ -519,15 +519,19 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
 
         // Auth check
         var isLoggedIn = await authService.isLoggedIn();
+        final hasPassword = await authService.hasPasswordSet();
 
-        if (!isLoggedIn) {
-          final hasPassword = await authService.hasPasswordSet();
-          if (hasPassword) {
-            // Password configured - must show login screen
+        if (hasPassword) {
+          // Password configured - check if user authenticated this session
+          final token = await authService.getToken();
+          final isAutoToken = token != null && token.startsWith('local-auto-token-');
+          if (!isLoggedIn || isAutoToken) {
+            // No token or auto-token: must authenticate with password
+            if (isAutoToken) await authService.logout();
             if (isLoginRoute) return null;
             return '/login';
           }
-
+        } else if (!isLoggedIn) {
           // No password - perform auto-login for seamless experience
           await authService.saveUsername('admin');
           await authService.saveToken(
@@ -535,7 +539,6 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
           );
           isLoggedIn = true;
           debugPrint('✅ Redirect: auto-logged in (no password set)');
-          // Continue to destination (now logged in)
         }
 
         // Logged in user trying to access login

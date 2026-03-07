@@ -24,6 +24,7 @@ class _LoginScreenState extends State<LoginScreen>
   bool _isLoading = false;
   bool _obscurePassword = true;
   String? _errorMessage;
+  bool _isLocalPassword = false;
 
   late AnimationController _animController;
   late Animation<double> _fadeAnimation;
@@ -48,6 +49,18 @@ class _LoginScreenState extends State<LoginScreen>
     ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeOut));
 
     _animController.forward();
+    _checkLocalPassword();
+  }
+
+  Future<void> _checkLocalPassword() async {
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final apiService = Provider.of<ApiService>(context, listen: false);
+    if (apiService.useFfi) {
+      final hasPassword = await authService.hasPasswordSet();
+      if (hasPassword && mounted) {
+        setState(() => _isLocalPassword = true);
+      }
+    }
   }
 
   @override
@@ -169,6 +182,11 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   Future<void> _login() async {
+    if (_isLocalPassword) {
+      await _loginLocal();
+      return;
+    }
+
     if (_usernameController.text.isEmpty || _passwordController.text.isEmpty) {
       setState(() => _errorMessage = 'Please fill in all fields');
       return;
@@ -216,6 +234,44 @@ class _LoginScreenState extends State<LoginScreen>
       if (mounted) {
         setState(() => _isLoading = false);
       }
+    }
+  }
+
+  Future<void> _loginLocal() async {
+    if (_passwordController.text.isEmpty) {
+      setState(() => _errorMessage =
+          TranslationService.translate(context, 'password_required'));
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final isValid = await authService.verifyPassword(_passwordController.text);
+
+    if (!mounted) return;
+
+    if (isValid) {
+      // Save a session token (not an auto-token) so the redirect guard
+      // recognizes this as an authenticated session
+      final username = await authService.getUsername() ?? 'admin';
+      await authService.saveToken(
+        'local-session-${DateTime.now().millisecondsSinceEpoch}',
+      );
+      await authService.saveUsername(username);
+
+      if (mounted) {
+        context.go('/books');
+      }
+    } else {
+      setState(() {
+        _isLoading = false;
+        _errorMessage =
+            TranslationService.translate(context, 'password_incorrect');
+      });
     }
   }
 
@@ -489,11 +545,17 @@ class _LoginScreenState extends State<LoginScreen>
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  TranslationService.translate(
-                                        context,
-                                        'login_subtitle',
-                                      ) ??
-                                      'Sign in to access your library',
+                                  _isLocalPassword
+                                      ? (TranslationService.translate(
+                                            context,
+                                            'login_local_password_subtitle',
+                                          ) ??
+                                          'Enter your password to unlock your library')
+                                      : (TranslationService.translate(
+                                            context,
+                                            'login_subtitle',
+                                          ) ??
+                                          'Sign in to access your library'),
                                   style: Theme.of(context).textTheme.bodyMedium
                                       ?.copyWith(
                                         color: Theme.of(context)
@@ -545,29 +607,31 @@ class _LoginScreenState extends State<LoginScreen>
                                     ),
                                   ),
 
-                                TextField(
-                                  key: const Key('usernameField'),
-                                  controller: _usernameController,
-                                  focusNode: _usernameFocus,
-                                  textInputAction: TextInputAction.next,
-                                  onSubmitted: (_) =>
-                                      _passwordFocus.requestFocus(),
-                                  decoration: InputDecoration(
-                                    labelText:
-                                        TranslationService.translate(
-                                          context,
-                                          'username',
-                                        ) ??
-                                        'Username',
-                                    prefixIcon: const Icon(
-                                      Icons.person_outline,
-                                    ),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
+                                if (!_isLocalPassword) ...[
+                                  TextField(
+                                    key: const Key('usernameField'),
+                                    controller: _usernameController,
+                                    focusNode: _usernameFocus,
+                                    textInputAction: TextInputAction.next,
+                                    onSubmitted: (_) =>
+                                        _passwordFocus.requestFocus(),
+                                    decoration: InputDecoration(
+                                      labelText:
+                                          TranslationService.translate(
+                                            context,
+                                            'username',
+                                          ) ??
+                                          'Username',
+                                      prefixIcon: const Icon(
+                                        Icons.person_outline,
+                                      ),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
                                     ),
                                   ),
-                                ),
-                                const SizedBox(height: 16),
+                                  const SizedBox(height: 16),
+                                ],
 
                                 // Password field
                                 TextField(
@@ -653,23 +717,24 @@ class _LoginScreenState extends State<LoginScreen>
 
                           const SizedBox(height: 24),
 
-                          // Server settings button
-                          TextButton.icon(
-                            onPressed: _showServerSettings,
-                            icon: const Icon(
-                              Icons.settings,
-                              color: Colors.white70,
-                              size: 18,
+                          // Server settings button (hidden for local password mode)
+                          if (!_isLocalPassword)
+                            TextButton.icon(
+                              onPressed: _showServerSettings,
+                              icon: const Icon(
+                                Icons.settings,
+                                color: Colors.white70,
+                                size: 18,
+                              ),
+                              label: Text(
+                                TranslationService.translate(
+                                      context,
+                                      'server_settings_title',
+                                    ) ??
+                                    'Server Settings',
+                                style: const TextStyle(color: Colors.white70),
+                              ),
                             ),
-                            label: Text(
-                              TranslationService.translate(
-                                    context,
-                                    'server_settings_title',
-                                  ) ??
-                                  'Server Settings',
-                              style: const TextStyle(color: Colors.white70),
-                            ),
-                          ),
                         ],
                       ),
                     ),

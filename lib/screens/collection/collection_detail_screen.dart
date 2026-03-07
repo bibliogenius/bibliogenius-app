@@ -356,6 +356,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
         actions: [],
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'collection_detail_fab',
         onPressed: _addBook,
         child: const Icon(Icons.add),
       ),

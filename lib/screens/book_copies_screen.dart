@@ -1277,38 +1277,6 @@ class _VintageAddCopySheetState extends State<_VintageAddCopySheet> {
               ),
               const SizedBox(height: 16),
 
-              // Temporary
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: const Color(0xFFD4AF37).withValues(alpha: 0.3),
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.schedule, color: Color(0xFFD4AF37)),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        TranslationService.translate(
-                          context,
-                          'is_temporary_copy',
-                        ),
-                        style: const TextStyle(color: Color(0xFFC4A35A)),
-                      ),
-                    ),
-                    Switch(
-                      value: _isTemporary,
-                      onChanged: (v) => setState(() => _isTemporary = v),
-                      activeThumbColor: const Color(0xFFD4AF37),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-
               // Notes
               _VintageTextField(
                 controller: _notesController,
@@ -1587,24 +1555,6 @@ class _StandardAddCopySheetState extends State<_StandardAddCopySheet> {
                       '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
                 }
               },
-            ),
-            const SizedBox(height: 16),
-            Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey.withValues(alpha: 0.5)),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: SwitchListTile(
-                title: Text(
-                  TranslationService.translate(context, 'is_temporary_copy') ??
-                      'Temporary Copy',
-                ),
-                value: _isTemporary,
-                onChanged: (v) => setState(() => _isTemporary = v),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
             ),
             const SizedBox(height: 16),
             TextFormField(

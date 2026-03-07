@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../data/repositories/tag_repository.dart';
 import '../models/tag.dart';
 import '../widgets/genie_app_bar.dart';
+import '../widgets/scaffold_with_nav.dart';
 import '../widgets/configurable_action_card.dart';
 import '../widgets/contextual_help_sheet.dart';
 import '../widgets/quick_actions_sheet.dart';
@@ -188,6 +189,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
         child: const Icon(Icons.add),
       ),
       appBar: GenieAppBar(
+        preSelectedShelfId: _currentParent?.name,
         title:
             _currentParent?.name ??
             (TranslationService.translate(context, 'shelves') ?? 'Shelves'),
@@ -196,12 +198,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                 icon: Icon(Icons.adaptive.arrow_back, color: Colors.white),
                 onPressed: _goBack,
               )
-            : (isMobile
-                  ? IconButton(
-                      icon: const Icon(Icons.menu, color: Colors.white),
-                      onPressed: () => Scaffold.of(context).openDrawer(),
-                    )
-                  : null),
+            : buildDrawerLeading(context),
         automaticallyImplyLeading: false,
         showQuickActions: true,
         actions: [
@@ -258,6 +255,19 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                       'manage_shelves',
                       'create_shelf',
                       'inventory',
+                    ],
+                    handlers: handlers,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ConfigurableActionCard(
+                    slotKey: 'shelves_ctx_slot_3',
+                    defaultActionId: 'scan_barcode',
+                    allowedActionIds: const [
+                      'scan_barcode',
+                      'add_manual',
+                      'search_online',
                     ],
                     handlers: handlers,
                   ),

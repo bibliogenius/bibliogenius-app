@@ -14,6 +14,7 @@ class QuickActionsSheet extends StatelessWidget {
   final bool hideGenericActions;
   final VoidCallback? onBookAdded;
   final VoidCallback? onShelfCreated;
+  final String? preSelectedShelfId;
 
   const QuickActionsSheet({
     super.key,
@@ -21,6 +22,7 @@ class QuickActionsSheet extends StatelessWidget {
     this.hideGenericActions = false,
     this.onBookAdded,
     this.onShelfCreated,
+    this.preSelectedShelfId,
   });
 
   @override
@@ -76,7 +78,11 @@ class QuickActionsSheet extends StatelessWidget {
                 onPressed: () async {
                   final router = GoRouter.of(context);
                   Navigator.pop(context);
-                  final result = await router.push('/books/add');
+                  final extra = preSelectedShelfId != null
+                      ? {'shelfId': preSelectedShelfId}
+                      : null;
+                  final result =
+                      await router.push('/books/add', extra: extra);
                   if (result is int) {
                     router.push('/books/$result');
                   }
@@ -177,10 +183,10 @@ class QuickActionsSheet extends StatelessWidget {
               Expanded(
                 child: ConfigurableActionCard(
                   slotKey: 'quick_action_custom_slot',
-                  defaultActionId: 'share_library',
+                  defaultActionId: 'inventory',
                   allowedActionIds: const [
-                    'share_library',
                     'inventory',
+                    'share_library',
                     'create_shelf',
                     'add_manual',
                   ],

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../theme/app_design.dart';
 import '../widgets/genie_app_bar.dart';
+import '../widgets/scaffold_with_nav.dart';
 import '../widgets/contextual_help_sheet.dart';
 import '../widgets/invite_share_sheet.dart';
 import '../utils/invite_payload.dart';
@@ -207,13 +208,7 @@ class _NetworkScreenState extends State<NetworkScreen>
     return Scaffold(
       appBar: GenieAppBar(
         title: TranslationService.translate(context, 'nav_network'),
-        leading: isMobile
-            ? IconButton(
-                icon: const Icon(Icons.menu, color: Colors.white),
-                tooltip: TranslationService.translate(context, 'tooltip_open_menu'),
-                onPressed: () => Scaffold.of(context).openDrawer(),
-              )
-            : null,
+        leading: buildDrawerLeading(context),
         automaticallyImplyLeading: false,
         actions: [
           ContextualHelpIconButton(

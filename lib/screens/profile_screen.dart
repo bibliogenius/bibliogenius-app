@@ -15,6 +15,7 @@ import '../services/translation_service.dart';
 import '../widgets/avatar_customizer.dart';
 import '../widgets/gamification_widgets.dart';
 import '../widgets/genie_app_bar.dart';
+import '../widgets/scaffold_with_nav.dart';
 import '../widgets/invite_share_sheet.dart';
 import '../widgets/network_leaderboard_card.dart';
 
@@ -291,18 +292,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    final bool isMobile = width <= 600;
-
     return Scaffold(
       appBar: GenieAppBar(
         title: TranslationService.translate(context, 'profile'),
-        leading: isMobile
-            ? IconButton(
-                icon: const Icon(Icons.menu, color: Colors.white),
-                onPressed: () => Scaffold.of(context).openDrawer(),
-              )
-            : null,
+        leading: buildDrawerLeading(context),
         automaticallyImplyLeading: false,
       ),
       body: _isLoading
