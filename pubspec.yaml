@@ -1,7 +1,7 @@
 name: bibliogenius
 description: "BiblioGenius flutter application."
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 0.8.5-beta.1+369
+version: 0.8.5-beta.2+370
 environment:
   sdk: ^3.10.1
 dependencies:
@@ -68,6 +68,7 @@ flutter:
     - assets/images/badges/
     - assets/images/
     - assets/logo.png
+    - assets/logo_white.png
     - assets/curated_lists/
     - assets/curated_lists/awards/
     - assets/curated_lists/genres/

@@ -312,15 +312,13 @@ class _BookListScreenState extends State<BookListScreen>
                   ),
                 ),
 
-              // Title / Search Bar for Tab View
-              if (!_isReordering)
+              // Search Bar for Tab View (toggled by icon in filter bar)
+              if (!_isReordering && _isSearching)
                 Container(
                   padding: const EdgeInsets.only(top: 8, bottom: 8),
                   child: Row(
                     children: [
                       Expanded(child: _buildSearchField()),
-
-                      // Action buttons removed (Moved to LibraryScreen AppBar)
                     ],
                   ),
                 ),
@@ -869,9 +867,10 @@ class _BookListScreenState extends State<BookListScreen>
   Widget _buildSearchField() {
     // Use a unique key to force complete disposal when search mode changes
     // This prevents Flutter's Autocomplete async semantics from accessing unmounted state
+    final isMobile = MediaQuery.of(context).size.width <= 600;
     return Container(
       key: const ValueKey('search_autocomplete'),
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      margin: EdgeInsets.symmetric(horizontal: 20, vertical: isMobile ? 5 : 10),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
@@ -916,9 +915,9 @@ class _BookListScreenState extends State<BookListScreen>
               hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4)),
               prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
               border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(
+              contentPadding: EdgeInsets.symmetric(
                 horizontal: 20,
-                vertical: 15,
+                vertical: isMobile ? 10 : 15,
               ),
             ),
             onChanged: (value) {
@@ -1071,6 +1070,55 @@ class _BookListScreenState extends State<BookListScreen>
                 _buildViewModeToggle(Icons.shelves, ViewMode.spineShelf),
                 _buildViewModeToggle(Icons.list, ViewMode.list),
               ],
+            ),
+          ),
+          const SizedBox(width: 6),
+          // Search toggle (separate block)
+          Tooltip(
+            message: TranslationService.translate(
+              context,
+              _isSearching ? 'cancel' : 'search_books',
+            ),
+            child: ScaleOnTap(
+              onTap: () {
+                setState(() {
+                  if (_isSearching) {
+                    _isSearching = false;
+                    _searchQuery = '';
+                    _searchController.clear();
+                    _filterBooks();
+                  } else {
+                    _isSearching = true;
+                  }
+                });
+              },
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: _isSearching
+                      ? theme.primaryColor
+                      : isDark
+                          ? Colors.white.withValues(alpha: 0.15)
+                          : theme.primaryColor.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: _isSearching
+                        ? theme.primaryColor
+                        : isDark
+                            ? Colors.white24
+                            : theme.primaryColor.withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Icon(
+                  _isSearching ? Icons.search_off : Icons.search,
+                  size: 20,
+                  color: _isSearching
+                      ? Colors.white
+                      : isDark
+                          ? Colors.white70
+                          : theme.primaryColor,
+                ),
+              ),
             ),
           ),
           const SizedBox(width: 12),
@@ -1577,10 +1625,11 @@ class _BookListScreenState extends State<BookListScreen>
 
   Widget _buildViewModeToggle(
     IconData icon,
-    ViewMode mode, {
+    ViewMode? mode, {
     String? tooltip,
+    VoidCallback? onTap,
   }) {
-    final bool isSelected = _viewMode == mode;
+    final bool isSelected = mode != null && _viewMode == mode;
     final isDarkTheme = Theme.of(context).brightness == Brightness.dark;
     final iconColor = isSelected
         ? Colors.white
@@ -1589,9 +1638,9 @@ class _BookListScreenState extends State<BookListScreen>
         : Colors.black54;
 
     Widget button = ScaleOnTap(
-      onTap: () {
+      onTap: onTap ?? () {
         setState(() {
-          _viewMode = mode;
+          _viewMode = mode!;
           if (mode == ViewMode.groupedCollections) {
             _fetchCollectionGroups();
           }

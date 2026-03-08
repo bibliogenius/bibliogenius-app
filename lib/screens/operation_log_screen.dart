@@ -20,6 +20,7 @@ class _OperationLogScreenState extends State<OperationLogScreen> {
   final Set<int> _expandedIds = {};
   final _searchController = TextEditingController();
   Timer? _debounce;
+  bool _isSearching = false;
 
   @override
   void initState() {
@@ -54,6 +55,26 @@ class _OperationLogScreenState extends State<OperationLogScreen> {
             TranslationService.translate(context, 'admin_operation_log_title'),
           ),
         ),
+        actions: [
+          IconButton(
+            icon: Icon(_isSearching ? Icons.close : Icons.search),
+            tooltip: TranslationService.translate(
+              context,
+              _isSearching ? 'cancel' : 'admin_log_search_hint',
+            ),
+            onPressed: () {
+              setState(() {
+                if (_isSearching) {
+                  _isSearching = false;
+                  _searchController.clear();
+                  _provider.setSearchQuery(null);
+                } else {
+                  _isSearching = true;
+                }
+              });
+            },
+          ),
+        ],
       ),
       body: Consumer<OperationLogProvider>(
         builder: (context, provider, _) {
@@ -63,8 +84,9 @@ class _OperationLogScreenState extends State<OperationLogScreen> {
               slivers: [
                 // Stats strip
                 SliverToBoxAdapter(child: _buildStatsStrip(provider, theme)),
-                // Search bar
-                SliverToBoxAdapter(child: _buildSearchBar(theme)),
+                // Search bar (toggled)
+                if (_isSearching)
+                  SliverToBoxAdapter(child: _buildSearchBar(theme)),
                 // Filter bar
                 SliverToBoxAdapter(child: _buildFilterBar(provider, theme)),
                 // Entries
@@ -551,11 +573,15 @@ class _OperationLogScreenState extends State<OperationLogScreen> {
   String _formatTime(String createdAt) {
     try {
       final dt = DateTime.parse(createdAt);
-      return '${dt.hour.toString().padLeft(2, '0')}:'
+      final date = '${dt.day.toString().padLeft(2, '0')}/'
+          '${dt.month.toString().padLeft(2, '0')}/'
+          '${dt.year}';
+      final time = '${dt.hour.toString().padLeft(2, '0')}:'
           '${dt.minute.toString().padLeft(2, '0')}:'
           '${dt.second.toString().padLeft(2, '0')}';
+      return '$date $time';
     } catch (_) {
-      return createdAt.length > 8 ? createdAt.substring(0, 8) : createdAt;
+      return createdAt;
     }
   }
 

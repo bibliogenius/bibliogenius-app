@@ -126,7 +126,16 @@ class ScaffoldWithNav extends StatelessWidget {
 
     return Semantics(
       label: TranslationService.translate(context, 'navigation'),
-      child: NavigationBarTheme(
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(
+              color: theme.dividerColor,
+              width: 0.5,
+            ),
+          ),
+        ),
+        child: NavigationBarTheme(
         data: NavigationBarThemeData(
           labelTextStyle: WidgetStateProperty.all(
             TextStyle(
@@ -181,6 +190,7 @@ class ScaffoldWithNav extends StatelessWidget {
             tooltip: TranslationService.translate(context, 'nav_more'),
           ),
         ],
+      ),
       ),
       ),
     );

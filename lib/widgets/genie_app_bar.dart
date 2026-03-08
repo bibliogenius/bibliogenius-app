@@ -153,30 +153,23 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
           final subtitleFontSize = isCompact ? 10.0 : 13.0;
           final spacing = isCompact ? 6.0 : 12.0;
 
-          // Mobile check: If screen width is small, hide the spark icon explicitly
-          // constraints.maxWidth refers to the Title widget constraint, not screen width.
-          // Using MediaQuery from parent context is safer for overall device type check.
-          final screenWidth = MediaQuery.of(context).size.width;
-          final isMobile = screenWidth <= 600;
-
           return MergeSemantics(
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (!isMobile)
-                  ExcludeSemantics(
-                    child: SizedBox(
-                      width: logoSize,
-                      height: logoSize,
-                      child: BiblioGeniusLogo(
-                        size: logoSize,
-                        color: Colors.white,
-                      ),
-                    ),
+                ExcludeSemantics(
+                child: SizedBox(
+                  width: logoSize,
+                  height: logoSize,
+                  child: BiblioGeniusLogo(
+                    size: logoSize,
+                    color: Colors.white,
                   ),
+                ),
+              ),
                 // Hide text entirely if space is too tight (don't truncate)
                 if (!hideTitle) ...[
-                  if (!isMobile) ExcludeSemantics(child: SizedBox(width: spacing)),
+                  ExcludeSemantics(child: SizedBox(width: spacing)),
                   Flexible(
                     child: title is Widget
                         ? title

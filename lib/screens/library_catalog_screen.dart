@@ -39,6 +39,7 @@ class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
   Set<String> _localIsbns = {};
   String? _decryptedContact;
   String _searchQuery = '';
+  bool _isSearching = false;
   final _searchController = TextEditingController();
 
   List<FrbCatalogEntry> get _filteredEntries {
@@ -143,7 +144,32 @@ class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
         TranslationService.translate(context, 'directory_catalog_title');
 
     return Scaffold(
-      appBar: GenieAppBar(title: title),
+      appBar: GenieAppBar(
+        title: title,
+        actions: [
+          IconButton(
+            icon: Icon(
+              _isSearching ? Icons.close : Icons.search,
+              color: Colors.white,
+            ),
+            tooltip: TranslationService.translate(
+              context,
+              _isSearching ? 'cancel' : 'search_books',
+            ),
+            onPressed: () {
+              setState(() {
+                if (_isSearching) {
+                  _isSearching = false;
+                  _searchController.clear();
+                  _searchQuery = '';
+                } else {
+                  _isSearching = true;
+                }
+              });
+            },
+          ),
+        ],
+      ),
       body: Container(
         decoration: BoxDecoration(
           gradient: AppDesign.pageGradientForTheme(themeProvider.themeStyle),
@@ -240,35 +266,37 @@ class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
             profile: _profile!,
             decryptedContact: _decryptedContact,
           ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-          child: TextField(
-            controller: _searchController,
-            decoration: InputDecoration(
-              hintText: TranslationService.translate(
-                  context, 'directory_catalog_search'),
-              prefixIcon: const Icon(Icons.search, size: 20),
-              suffixIcon: _searchQuery.isNotEmpty
-                  ? IconButton(
-                      icon: const Icon(Icons.clear, size: 20),
-                      tooltip: TranslationService.translate(
-                          context, 'action_clear'),
-                      onPressed: () {
-                        _searchController.clear();
-                        setState(() => _searchQuery = '');
-                      },
-                    )
-                  : null,
-              isDense: true,
-              contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 12, vertical: 8),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
+        if (_isSearching)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+            child: TextField(
+              controller: _searchController,
+              autofocus: true,
+              decoration: InputDecoration(
+                hintText: TranslationService.translate(
+                    context, 'directory_catalog_search'),
+                prefixIcon: const Icon(Icons.search, size: 20),
+                suffixIcon: _searchQuery.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear, size: 20),
+                        tooltip: TranslationService.translate(
+                            context, 'action_clear'),
+                        onPressed: () {
+                          _searchController.clear();
+                          setState(() => _searchQuery = '');
+                        },
+                      )
+                    : null,
+                isDense: true,
+                contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 12, vertical: 8),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
+              onChanged: (v) => setState(() => _searchQuery = v),
             ),
-            onChanged: (v) => setState(() => _searchQuery = v),
           ),
-        ),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
           child: Semantics(
