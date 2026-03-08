@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../models/avatar_config.dart';
@@ -500,6 +501,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 _buildReadingGoalsSection(),
                 const SizedBox(height: 16),
 
+                // Quick Statistics Summary
+                _buildStatsSummarySection(),
+                const SizedBox(height: 16),
+
                 // Network Leaderboard Card
                 Consumer<ThemeProvider>(
                   builder: (context, themeProvider, _) {
@@ -548,8 +553,194 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
 
         // TODO: Monthly goals per month (backlog)
-        // Example: "Goal for December 2024: 3 books"
       ],
+    );
+  }
+
+  Widget _buildStatsSummarySection() {
+    final tracks = _userStatus?['tracks'] as Map<String, dynamic>?;
+    final config = _userStatus?['config'] as Map<String, dynamic>?;
+    final streak = _userStatus?['streak'] as Map<String, dynamic>?;
+
+    final totalBooks =
+        (tracks?['collector']?['current'] as num?)?.toInt() ?? 0;
+    final booksRead = (config?['total_books_read'] as num?)?.toInt() ?? 0;
+    final currentStreak = (streak?['current'] as num?)?.toInt() ?? 0;
+    final booksThisYear =
+        (config?['reading_goal_progress'] as num?)?.toInt() ?? 0;
+
+    if (totalBooks == 0 && booksRead == 0) {
+      return const SizedBox.shrink();
+    }
+
+    final theme = Theme.of(context);
+
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.all(20.0),
+      decoration: BoxDecoration(
+        color: theme.cardColor,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 2,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      theme.colorScheme.primary.withValues(alpha: 0.2),
+                      theme.colorScheme.primary.withValues(alpha: 0.1),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(
+                  Icons.insights,
+                  color: theme.colorScheme.primary,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Text(
+                  TranslationService.translate(
+                    context,
+                    'profile_stats_title',
+                  ).toUpperCase(),
+                  style: TextStyle(
+                    color: theme.colorScheme.onSurfaceVariant,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Expanded(
+                child: _buildStatMiniCard(
+                  theme,
+                  Icons.menu_book,
+                  totalBooks.toString(),
+                  TranslationService.translate(context, 'my_books'),
+                  const Color(0xFF0EA5E9),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildStatMiniCard(
+                  theme,
+                  Icons.check_circle,
+                  booksRead.toString(),
+                  TranslationService.translate(context, 'stat_read'),
+                  const Color(0xFF10B981),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _buildStatMiniCard(
+                  theme,
+                  Icons.local_fire_department,
+                  currentStreak.toString(),
+                  TranslationService.translate(context, 'reading_streak'),
+                  const Color(0xFFEF4444),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildStatMiniCard(
+                  theme,
+                  Icons.calendar_today,
+                  booksThisYear.toString(),
+                  TranslationService.translate(
+                    context,
+                    'books_finished_year',
+                  ),
+                  const Color(0xFFF97316),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton.icon(
+              onPressed: () => context.push('/dashboard?tab=1'),
+              icon: const Icon(Icons.arrow_forward, size: 16),
+              label: Text(
+                TranslationService.translate(context, 'see_more_stats'),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatMiniCard(
+    ThemeData theme,
+    IconData icon,
+    String value,
+    String label,
+    Color color,
+  ) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: color, size: 20),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  value,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                Text(
+                  label,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 

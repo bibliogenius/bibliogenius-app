@@ -557,9 +557,17 @@ msgstr "Avg Duration"
 msgid "avg_rating"
 msgstr "Average Rating"
 
+#. Description for average rating insight
+msgid "avg_rating_desc"
+msgstr "Average across %1 rated books"
+
 #. Avg. Reading Time
 msgid "avg_reading_time"
 msgstr "Avg. Reading Time"
+
+#. Description for average reading time insight
+msgid "avg_reading_time_desc"
+msgstr "Based on %1 books with start and finish dates"
 
 #. Back to All
 msgid "back_to_all"
@@ -748,6 +756,14 @@ msgstr "books/month"
 msgid "books_per_year"
 msgstr "books/year"
 
+#. Books finished this year
+msgid "books_finished_year"
+msgstr "Finished This Year"
+
+#. Description for books finished this year insight
+msgid "books_finished_year_desc"
+msgstr "Books finished in %1"
+
 #. books read
 msgid "books_read"
 msgstr "books read"
@@ -755,6 +771,10 @@ msgstr "books read"
 #. {count} skipped.
 msgid "books_skipped_count"
 msgstr "{count} skipped."
+
+#. books (suffix)
+msgid "books_suffix"
+msgstr "books"
 
 #. Bookseller
 msgid "bookseller"
@@ -1410,6 +1430,18 @@ msgstr "Select Date"
 msgid "days"
 msgstr "days"
 
+#. days ago (suffix)
+msgid "days_ago_suffix"
+msgstr "d."
+
+#. Last book finished
+msgid "days_since_last"
+msgstr "Last Book Finished"
+
+#. Description for days since last finished book
+msgid "days_since_last_desc"
+msgstr "Time since your last finished book"
+
 #. day streak
 msgid "days_streak"
 msgstr "day streak"
@@ -1997,15 +2029,27 @@ msgstr "Failed to create copy."
 
 #. Fastest book
 msgid "fastest_book"
-msgstr "Fastest book"
+msgstr "Fastest read"
 
 #. Fastest Read
 msgid "fastest_read"
 msgstr "Fastest Read"
 
-#. Favorite book
+#. Description for fastest read insight
+msgid "fastest_read_desc"
+msgstr "Book finished in the shortest time"
+
+#. Highest rated book
 msgid "favorite_book"
-msgstr "Favorite book"
+msgstr "Highest rated book"
+
+#. Description for best rated insight
+msgid "best_rated_desc"
+msgstr "Your highest rated book"
+
+#. Empty state for insights with no data
+msgid "insight_no_data"
+msgstr "No data yet"
 
 #. Borrow
 msgid "feature_borrow"
@@ -2618,6 +2662,10 @@ msgstr "Number of books finished each month over the last year."
 #. Distribution of books by publication decade.
 msgid "help_ctx_stats_publication_year"
 msgstr "Distribution of books by publication decade."
+
+#. Average rating of your books grouped by shelf and collection. Only groups with at least 3 rated books are shown.
+msgid "help_ctx_stats_rating_by_group"
+msgstr "Average rating of your books grouped by shelf and collection. Only groups with at least 3 rated books are shown."
 
 #. Analyze your reading status distribution. \"Read\" means finished books, \"Reading\" are currently in progress.
 msgid "help_ctx_stats_reading_habits"
@@ -4122,6 +4170,10 @@ msgstr "P2P"
 msgid "p2p_title"
 msgstr "Connect Library"
 
+#. Pages (suffix)
+msgid "pages_suffix"
+msgstr "p."
+
 #. Parent Shelf (optional)
 msgid "parent_shelf"
 msgstr "Parent Shelf (optional)"
@@ -4538,6 +4590,22 @@ msgstr "Daily quotes"
 msgid "quotes_module_desc"
 msgstr "Show inspiring literary quotes"
 
+#. Ratings by Category
+msgid "rating_by_group"
+msgstr "Ratings by Category"
+
+#. By Collection
+msgid "rating_by_group_collections"
+msgstr "By Collection"
+
+#. %1 rated books
+msgid "rating_by_group_rated_books"
+msgstr "%1 rated books"
+
+#. By Shelf
+msgid "rating_by_group_shelves"
+msgstr "By Shelf"
+
 #. My Rating
 msgid "rating_label"
 msgstr "My Rating"
@@ -4565,6 +4633,18 @@ msgstr "Reading Insights"
 #. Reading List
 msgid "reading_list"
 msgstr "Reading List"
+
+#. Reading Streak
+msgid "reading_streak"
+msgstr "Reading Streak"
+
+#. Description for reading streak insight
+msgid "reading_streak_desc"
+msgstr "Consecutive days with a book in progress"
+
+#. Reading streak suffix
+msgid "reading_streak_suffix"
+msgstr "d."
 
 #. Abandoned
 msgid "reading_status_abandoned"
@@ -5580,6 +5660,10 @@ msgstr "Read"
 msgid "stat_borrowed"
 msgstr "Borrowed"
 
+#. Loans (active)
+msgid "stat_loans"
+msgstr "Loans"
+
 #. Completion
 msgid "stat_completion"
 msgstr "Completion"
@@ -5603,6 +5687,14 @@ msgstr "Books"
 #. Total Collections
 msgid "stat_total_collections"
 msgstr "Total Collections"
+
+#. Completed Collections
+msgid "stat_completed_collections"
+msgstr "Completed"
+
+#. Books read in collection
+msgid "stat_collection_read"
+msgstr "%1 read"
 
 #. Unique Authors
 msgid "stat_unique_authors"
@@ -5675,6 +5767,70 @@ msgstr "%1 failed operations"
 #. Operation log: view details link
 msgid "stat_oplog_view_details"
 msgstr "View operation log"
+
+#. Section subtitle: sales statistics
+msgid "stat_subtitle_sales"
+msgstr "Revenue and trends for your book sales"
+
+#. Section subtitle: monthly progress
+msgid "stat_subtitle_monthly_progress"
+msgstr "Books finished each month over the past year"
+
+#. Section subtitle: reading insights
+msgid "stat_subtitle_reading_insights"
+msgstr "Average reading time and yearly progress"
+
+#. Section subtitle: rating by group
+msgid "stat_subtitle_rating_by_group"
+msgstr "Average rating by shelf and collection"
+
+#. Section subtitle: reading habits
+msgid "stat_subtitle_reading_habits"
+msgstr "Distribution of your reading statuses"
+
+#. Section subtitle: top authors
+msgid "stat_subtitle_top_authors"
+msgstr "The most represented authors in your library"
+
+#. Section subtitle: publication timeline
+msgid "stat_subtitle_publication_timeline"
+msgstr "Distribution of your books by publication decade"
+
+#. Section subtitle: loan statistics
+msgid "stat_subtitle_loan_statistics"
+msgstr "Active loans and return history"
+
+#. Section subtitle: borrowed statistics
+msgid "stat_subtitle_borrowed_statistics"
+msgstr "Books borrowed from other libraries"
+
+#. Section subtitle: shelf statistics
+msgid "stat_subtitle_shelf_statistics"
+msgstr "Book distribution across your shelves"
+
+#. Section subtitle: collections with completion and read %
+msgid "stat_subtitle_collections_detail"
+msgstr "Completion: %1% - Read: %2%"
+
+#. Section subtitle: operation log
+msgid "stat_subtitle_operation_log"
+msgstr "Synchronization activity log"
+
+#. Section title: personal records
+msgid "personal_records"
+msgstr "Personal Records"
+
+#. Section subtitle: personal records
+msgid "stat_subtitle_personal_records"
+msgstr "Your best performances and reading streaks"
+
+#. Profile: statistics summary title
+msgid "profile_stats_title"
+msgstr "My Statistics"
+
+#. Profile: see more statistics link
+msgid "see_more_stats"
+msgstr "See more"
 
 #. Status
 msgid "status"
@@ -6055,6 +6211,14 @@ msgstr "Remove Library"
 msgid "tooltip_sync"
 msgstr "Sync Library"
 
+#. Top Author (insight card)
+msgid "top_author"
+msgstr "Top Author"
+
+#. Description for top author insight
+msgid "top_author_desc"
+msgstr "%1 books"
+
 #. Top Authors
 msgid "top_authors"
 msgstr "Top Authors"
@@ -6090,6 +6254,14 @@ msgstr "Total Revenue"
 #. Shelves
 msgid "total_shelves"
 msgstr "Shelves"
+
+#. Total pages read
+msgid "total_pages_read"
+msgstr "Pages Read"
+
+#. Description for total pages read insight
+msgid "total_pages_read_desc"
+msgstr "Total pages from finished books"
 
 #. Cataloguer
 msgid "track_cataloguer"
@@ -7570,3 +7742,25 @@ msgstr "Reading status"
 #. Quick actions button (short label for mobile)
 msgid "quick_actions_short"
 msgstr "Actions"
+
+#. Reorderable sections - edit mode
+msgid "sections_edit_mode"
+msgstr "Customize Sections"
+
+msgid "sections_edit_done"
+msgstr "Done"
+
+msgid "sections_reset"
+msgstr "Reset"
+
+msgid "sections_hidden"
+msgstr "Hidden"
+
+msgid "sections_drag_hint"
+msgstr "Hold to reorder"
+
+msgid "tooltip_toggle_section"
+msgstr "Show/hide this section"
+
+msgid "tooltip_edit_sections"
+msgstr "Customize layout"

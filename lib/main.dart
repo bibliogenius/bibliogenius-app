@@ -601,7 +601,12 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
           routes: [
             GoRoute(
               path: '/dashboard',
-              builder: (context, state) => const DashboardScreen(),
+              builder: (context, state) {
+                final tab = int.tryParse(
+                  state.uri.queryParameters['tab'] ?? '',
+                ) ?? 0;
+                return DashboardScreen(initialTab: tab);
+              },
             ),
             GoRoute(
               path: '/games',

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -18,10 +20,24 @@ import '../models/collection.dart';
 import '../widgets/genie_app_bar.dart';
 import '../widgets/scaffold_with_nav.dart';
 import '../widgets/goal_reached_animation.dart';
+import '../widgets/reorderable_sections.dart';
 import '../theme/app_design.dart';
 import '../providers/theme_provider.dart';
 import '../src/rust/api/frb.dart' as frb;
 import 'package:intl/intl.dart';
+
+/// Data for a rating group (shelf or collection)
+class _RatingGroup {
+  final String name;
+  final double avgRating;
+  final int ratedCount;
+
+  const _RatingGroup({
+    required this.name,
+    required this.avgRating,
+    required this.ratedCount,
+  });
+}
 
 class StatisticsScreen extends StatefulWidget {
   const StatisticsScreen({super.key});
@@ -886,6 +902,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
       ),
       child: Column(
         children: [
+          const SizedBox(height: 12),
           Semantics(
             label: '${TranslationService.translate(context, 'stat_a11y_reading_status_chart')}: $chartDescription',
             child: ExcludeSemantics(
@@ -901,7 +918,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
               ),
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 28),
           Wrap(
             spacing: 16,
             runSpacing: 12,
@@ -975,8 +992,8 @@ class _StatisticsScreenState extends State<StatisticsScreen>
     var sortedAuthors = authorCounts.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
-    if (sortedAuthors.length > 5) {
-      sortedAuthors = sortedAuthors.sublist(0, 5);
+    if (sortedAuthors.length > 10) {
+      sortedAuthors = sortedAuthors.sublist(0, 10);
     }
 
     if (sortedAuthors.isEmpty) {
@@ -993,104 +1010,122 @@ class _StatisticsScreenState extends State<StatisticsScreen>
       );
     }
 
+    final maxCount = sortedAuthors.first.value;
+    final theme = Theme.of(context);
     final authorsDescription = sortedAuthors
         .map((e) => '${e.key}: ${e.value}')
         .join(', ');
 
     return Semantics(
-      label: '${TranslationService.translate(context, 'stat_a11y_top_authors_chart')}: $authorsDescription',
+      label:
+          '${TranslationService.translate(context, 'stat_a11y_top_authors_chart')}: $authorsDescription',
       child: ExcludeSemantics(
         child: Container(
-          height: 280,
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
+            color: theme.cardColor,
             borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
             boxShadow: AppDesign.cardShadow,
           ),
-          child: BarChart(
-            BarChartData(
-              alignment: BarChartAlignment.spaceAround,
-              maxY: sortedAuthors.first.value.toDouble() + 1,
-          barTouchData: BarTouchData(
-            enabled: true,
-            touchTooltipData: BarTouchTooltipData(
-              getTooltipColor: (group) => const Color(0xFF1E293B),
-              getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                return BarTooltipItem(
-                  '${sortedAuthors[groupIndex].key}\n',
-                  const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                  ),
-                  children: [
-                    TextSpan(
-                      text: '${rod.toY.toInt()} ${TranslationService.translate(context, 'stat_chart_books_count')}',
-                      style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 11,
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
-          ),
-          titlesData: FlTitlesData(
-            show: true,
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                getTitlesWidget: (double value, TitleMeta meta) {
-                  if (value.toInt() >= sortedAuthors.length) {
-                    return const SizedBox.shrink();
-                  }
-                  final author = sortedAuthors[value.toInt()].key;
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Text(
-                      author.length > 10
-                          ? '${author.substring(0, 8)}...'
-                          : author,
-                      style: const TextStyle(fontSize: 10),
-                    ),
-                  );
-                },
-                reservedSize: 40,
-              ),
-            ),
-            leftTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-            topTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-            rightTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-          ),
-          gridData: const FlGridData(show: false),
-          borderData: FlBorderData(show: false),
-          barGroups: sortedAuthors.asMap().entries.map((e) {
-            final gradient = AppDesign.featureGradient(e.key);
-            return BarChartGroupData(
-              x: e.key,
-              barRods: [
-                BarChartRodData(
-                  toY: e.value.value.toDouble(),
-                  gradient: gradient,
-                  width: 24,
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(6),
-                  ),
+          child: Column(
+            children: [
+              for (var i = 0; i < sortedAuthors.length; i++) ...[
+                if (i > 0) const SizedBox(height: 6),
+                _buildAuthorLeaderboardRow(
+                  rank: i + 1,
+                  name: sortedAuthors[i].key,
+                  count: sortedAuthors[i].value,
+                  maxCount: maxCount,
+                  theme: theme,
                 ),
               ],
-            );
-          }).toList(),
+            ],
+          ),
         ),
       ),
-        ),
+    );
+  }
+
+  Widget _buildAuthorLeaderboardRow({
+    required int rank,
+    required String name,
+    required int count,
+    required int maxCount,
+    required ThemeData theme,
+  }) {
+    final fraction = maxCount > 0 ? count / maxCount : 0.0;
+    final podiumColors = [
+      const Color(0xFFF59E0B), // gold
+      const Color(0xFF94A3B8), // silver
+      const Color(0xFFCD7F32), // bronze
+    ];
+    final barColor =
+        rank <= 3 ? podiumColors[rank - 1] : theme.colorScheme.primary;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 28,
+            child: rank <= 3
+                ? Icon(
+                    Icons.emoji_events,
+                    size: 18,
+                    color: podiumColors[rank - 1],
+                  )
+                : Text(
+                    '$rank',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            flex: 3,
+            child: Text(
+              name,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: rank <= 3 ? FontWeight.w600 : FontWeight.normal,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            flex: 4,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: fraction,
+                minHeight: 14,
+                backgroundColor:
+                    theme.colorScheme.onSurface.withValues(alpha: 0.06),
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  barColor.withValues(alpha: 0.7),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          SizedBox(
+            width: 32,
+            child: Text(
+              '$count',
+              textAlign: TextAlign.end,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: barColor,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -2298,13 +2333,41 @@ class _StatisticsContentState extends State<StatisticsContent>
   Map<String, dynamic>? _salesStats;
   frb.FrbOperationLogStats? _opLogStats;
   List<String>? _opLogEntityTypes;
+  List<_RatingGroup> _tagRatings = [];
+  List<_RatingGroup> _collectionRatings = [];
+  Map<String, int> _collectionReadCounts = {};
   bool _isLoading = true;
   late AnimationController _animController;
   late Animation<double> _fadeAnim;
 
+  // Insight card ordering
+  static const _defaultInsightCardIds = [
+    'avg_reading_time',
+    'total_pages',
+    'books_finished_year',
+    'days_since_last',
+  ];
+  List<String> _insightCardOrder = List.from(_defaultInsightCardIds);
+  Set<String> _hiddenInsightCards = {};
+
+  // Summary card ordering
+  static const _defaultSummaryCardIds = [
+    'total_books',
+    'read_books',
+    'borrowed_books',
+    'unique_authors',
+    'completion',
+    'oldest_book',
+  ];
+  List<String> _summaryCardOrder = List.from(_defaultSummaryCardIds);
+  Set<String> _hiddenSummaryCards = {};
+  bool _summaryEditMode = false;
+
   @override
   void initState() {
     super.initState();
+    _loadInsightPrefs();
+    _loadSummaryPrefs();
     _animController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
@@ -2321,6 +2384,60 @@ class _StatisticsContentState extends State<StatisticsContent>
   void dispose() {
     _animController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadSummaryPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    final orderJson = prefs.getString('statistics_summary_order');
+    final hiddenJson = prefs.getString('statistics_summary_hidden');
+    if (!mounted) return;
+    setState(() {
+      if (orderJson != null) {
+        final saved = List<String>.from(json.decode(orderJson) as List);
+        final known = _defaultSummaryCardIds.toSet();
+        final valid = saved.where(known.contains).toList();
+        final newIds = known.difference(valid.toSet());
+        _summaryCardOrder = [...valid, ...newIds];
+      }
+      if (hiddenJson != null) {
+        _hiddenSummaryCards = Set<String>.from(json.decode(hiddenJson) as List);
+      }
+    });
+  }
+
+  Future<void> _saveSummaryOrder() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      'statistics_summary_order',
+      json.encode(_summaryCardOrder),
+    );
+  }
+
+  Future<void> _saveSummaryHidden() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      'statistics_summary_hidden',
+      json.encode(_hiddenSummaryCards.toList()),
+    );
+  }
+
+  Future<void> _loadInsightPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    final orderJson = prefs.getString('statistics_insight_order');
+    final hiddenJson = prefs.getString('statistics_insight_hidden');
+    if (!mounted) return;
+    setState(() {
+      if (orderJson != null) {
+        final saved = List<String>.from(json.decode(orderJson) as List);
+        final known = _defaultInsightCardIds.toSet();
+        final valid = saved.where(known.contains).toList();
+        final newIds = known.difference(valid.toSet());
+        _insightCardOrder = [...valid, ...newIds];
+      }
+      if (hiddenJson != null) {
+        _hiddenInsightCards = Set<String>.from(json.decode(hiddenJson) as List);
+      }
+    });
   }
 
   Future<void> _fetchData() async {
@@ -2394,6 +2511,73 @@ class _StatisticsContentState extends State<StatisticsContent>
         }
       }
 
+      // Compute average rating per tag (shelf)
+      final tagRatings = <_RatingGroup>[];
+      try {
+        final candidateTags = tags.where((t) => t.count >= 3).toList();
+        for (final tag in candidateTags) {
+          final tagBooks = await bookRepo.getBooks(tag: tag.name);
+          final rated = tagBooks.where(
+            (b) => b.userRating != null && b.userRating! > 0,
+          ).toList();
+          if (rated.length >= 3) {
+            final avg = rated.map((b) => b.userRating!).reduce((a, b) => a + b) /
+                rated.length;
+            tagRatings.add(_RatingGroup(
+              name: tag.name,
+              avgRating: avg,
+              ratedCount: rated.length,
+            ));
+          }
+        }
+      } catch (e) {
+        debugPrint('Error computing tag ratings: $e');
+      }
+
+      // Build book map for cross-referencing
+      final bookMap = <int, Book>{};
+      for (final b in books) {
+        if (b.id != null) bookMap[b.id!] = b;
+      }
+
+      // Compute average rating per collection and read counts
+      final collectionRatings = <_RatingGroup>[];
+      final collectionReadCounts = <String, int>{};
+      try {
+        for (final col in collections) {
+          final colBooks = await collectionRepo.getCollectionBooks(col.id);
+          // Count read books in this collection
+          final readCount = colBooks.where((cb) {
+            final book = bookMap[cb.bookId];
+            return book != null && book.readingStatus == 'read';
+          }).length;
+          collectionReadCounts[col.id] = readCount;
+
+          // Compute rating for collections with >= 3 rated books
+          if (col.totalBooks >= 3) {
+            final rated = colBooks.where((cb) {
+              final book = bookMap[cb.bookId];
+              return book != null &&
+                  book.userRating != null &&
+                  book.userRating! > 0;
+            }).toList();
+            if (rated.length >= 3) {
+              final avg = rated
+                      .map((cb) => bookMap[cb.bookId]!.userRating!)
+                      .reduce((a, b) => a + b) /
+                  rated.length;
+              collectionRatings.add(_RatingGroup(
+                name: col.name,
+                avgRating: avg,
+                ratedCount: rated.length,
+              ));
+            }
+          }
+        }
+      } catch (e) {
+        debugPrint('Error computing collection stats: $e');
+      }
+
       if (mounted) {
         setState(() {
           _books = books;
@@ -2404,6 +2588,9 @@ class _StatisticsContentState extends State<StatisticsContent>
           _salesStats = salesStats;
           _opLogStats = opLogStats;
           _opLogEntityTypes = opLogEntityTypes;
+          _tagRatings = tagRatings;
+          _collectionRatings = collectionRatings;
+          _collectionReadCounts = collectionReadCounts;
           _isLoading = false;
         });
         _animController.forward();
@@ -2454,6 +2641,218 @@ class _StatisticsContentState extends State<StatisticsContent>
       );
     }
 
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+
+    // Compute collection subtitle with completion % and read %
+    String? collectionSubtitle;
+    if (_collections.isNotEmpty) {
+      double totalCompletionRatio = 0;
+      int totalOwned = 0;
+      int totalRead = 0;
+      for (final col in _collections) {
+        if (col.totalBooks > 0) {
+          totalCompletionRatio += col.ownedBooks / col.totalBooks;
+        }
+        totalOwned += col.ownedBooks;
+        totalRead += _collectionReadCounts[col.id] ?? 0;
+      }
+      final avgCompletion =
+          (totalCompletionRatio / _collections.length * 100).toStringAsFixed(0);
+      final readPct = totalOwned > 0
+          ? (totalRead / totalOwned * 100).toStringAsFixed(0)
+          : '0';
+      collectionSubtitle = TranslationService.translate(
+        context,
+        'stat_subtitle_collections_detail',
+      ).replaceAll('%1', avgCompletion).replaceAll('%2', readPct);
+    }
+
+    // Build section list, filtering out sections with no data
+    final sections = <SectionConfig>[
+      if (_salesStats != null)
+        SectionConfig(
+          id: 'sales_statistics',
+          title: TranslationService.translate(context, 'sales_statistics'),
+          icon: Icons.monetization_on,
+          gradient: AppDesign.successGradient,
+          builder: (_) => _buildSalesStatisticsSection(),
+          helpText: TranslationService.translate(
+            context,
+            'help_ctx_stats_sales',
+          ),
+          subtitle: TranslationService.translate(
+            context,
+            'stat_subtitle_sales',
+          ),
+        ),
+      if (_hasReadingHistory())
+        SectionConfig(
+          id: 'monthly_progress',
+          title: TranslationService.translate(context, 'monthly_progress'),
+          icon: Icons.show_chart,
+          gradient: AppDesign.successGradient,
+          builder: (_) => _buildMonthlyProgressChart(),
+          helpText: TranslationService.translate(
+            context,
+            'help_ctx_stats_monthly_progress',
+          ),
+          subtitle: TranslationService.translate(
+            context,
+            'stat_subtitle_monthly_progress',
+          ),
+        ),
+      SectionConfig(
+        id: 'reading_insights',
+        title: TranslationService.translate(context, 'reading_insights'),
+        icon: Icons.insights,
+        gradient: AppDesign.primaryGradient,
+        builder: (_) => _buildReadingInsightsSection(),
+        helpText: TranslationService.translate(
+          context,
+          'help_ctx_stats_unique_stats',
+        ),
+        subtitle: TranslationService.translate(
+          context,
+          'stat_subtitle_reading_insights',
+        ),
+      ),
+      SectionConfig(
+        id: 'personal_records',
+        title: TranslationService.translate(context, 'personal_records'),
+        icon: Icons.emoji_events,
+        gradient: AppDesign.warningGradient,
+        builder: (_) => _buildPersonalRecordsSection(),
+        subtitle: TranslationService.translate(
+          context,
+          'stat_subtitle_personal_records',
+        ),
+      ),
+      if (_hasRatingByGroupData())
+        SectionConfig(
+          id: 'rating_by_group',
+          title: TranslationService.translate(context, 'rating_by_group'),
+          icon: Icons.star_rate,
+          gradient: AppDesign.warningGradient,
+          builder: (_) => _buildRatingByGroupSection(),
+          helpText: TranslationService.translate(
+            context,
+            'help_ctx_stats_rating_by_group',
+          ),
+          subtitle: TranslationService.translate(
+            context,
+            'stat_subtitle_rating_by_group',
+          ),
+        ),
+      SectionConfig(
+        id: 'reading_habits',
+        title: TranslationService.translate(context, 'reading_habits'),
+        icon: Icons.pie_chart,
+        gradient: AppDesign.primaryGradient,
+        builder: (_) => _buildStatusPieChart(),
+        helpText: TranslationService.translate(
+          context,
+          'help_ctx_stats_reading_habits',
+        ),
+        subtitle: TranslationService.translate(
+          context,
+          'stat_subtitle_reading_habits',
+        ),
+      ),
+      SectionConfig(
+        id: 'top_authors',
+        title: TranslationService.translate(context, 'top_authors'),
+        icon: Icons.person,
+        gradient: AppDesign.successGradient,
+        builder: (_) => _buildTopAuthorsChart(),
+        helpText: TranslationService.translate(
+          context,
+          'help_ctx_stats_top_authors',
+        ),
+        subtitle: TranslationService.translate(
+          context,
+          'stat_subtitle_top_authors',
+        ),
+      ),
+      SectionConfig(
+        id: 'publication_timeline',
+        title: TranslationService.translate(context, 'publication_timeline'),
+        icon: Icons.timeline,
+        gradient: AppDesign.oceanGradient,
+        builder: (_) => _buildPublicationYearChart(),
+        helpText: TranslationService.translate(
+          context,
+          'help_ctx_stats_publication_year',
+        ),
+        subtitle: TranslationService.translate(
+          context,
+          'stat_subtitle_publication_timeline',
+        ),
+      ),
+      SectionConfig(
+        id: 'loan_statistics',
+        title: TranslationService.translate(context, 'loan_statistics'),
+        icon: Icons.swap_horiz,
+        gradient: AppDesign.accentGradient,
+        builder: (_) => _buildLoanStatisticsSection(),
+        helpText: TranslationService.translate(
+          context,
+          'help_ctx_stats_loan_stats',
+        ),
+        subtitle: TranslationService.translate(
+          context,
+          'stat_subtitle_loan_statistics',
+        ),
+      ),
+      if (!themeProvider.isLibrarian)
+        SectionConfig(
+          id: 'borrowed_statistics',
+          title: TranslationService.translate(context, 'borrowed_statistics'),
+          icon: Icons.arrow_downward,
+          gradient: AppDesign.pastelPrimaryGradient,
+          builder: (_) => _buildBorrowedStatisticsSection(),
+          subtitle: TranslationService.translate(
+            context,
+            'stat_subtitle_borrowed_statistics',
+          ),
+        ),
+      if (_tags.isNotEmpty)
+        SectionConfig(
+          id: 'shelf_statistics',
+          title: TranslationService.translate(context, 'shelf_statistics'),
+          icon: Icons.shelves,
+          gradient: AppDesign.warningGradient,
+          builder: (_) => _buildShelfStatisticsSection(),
+          subtitle: TranslationService.translate(
+            context,
+            'stat_subtitle_shelf_statistics',
+          ),
+        ),
+      if (_collections.isNotEmpty)
+        SectionConfig(
+          id: 'collection_statistics',
+          title: TranslationService.translate(context, 'collection_statistics'),
+          icon: Icons.collections_bookmark,
+          gradient: AppDesign.darkGradient,
+          builder: (_) => _buildCollectionStatisticsSection(),
+          subtitle: collectionSubtitle,
+        ),
+      if (themeProvider.operationLogViewerEnabled && _opLogStats != null)
+        SectionConfig(
+          id: 'operation_log',
+          title: TranslationService.translate(
+            context,
+            'stat_operation_log_title',
+          ),
+          icon: Icons.sync,
+          gradient: AppDesign.primaryGradient,
+          builder: (_) => _buildOperationLogStatsSection(),
+          subtitle: TranslationService.translate(
+            context,
+            'stat_subtitle_operation_log',
+          ),
+        ),
+    ];
+
     return FadeTransition(
       opacity: _fadeAnim,
       child: RefreshIndicator(
@@ -2465,220 +2864,38 @@ class _StatisticsContentState extends State<StatisticsContent>
             right: 16.0,
             bottom: 16.0,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildSummaryCards(),
-              // Monthly Reading Progress
-              if (_hasReadingHistory()) ...[
-                const SizedBox(height: 32),
-                _buildSectionTitle(
-                  TranslationService.translate(context, 'monthly_progress'),
-                  Icons.show_chart,
-                  AppDesign.successGradient,
-                  helpText: TranslationService.translate(
-                    context,
-                    'help_ctx_stats_monthly_progress',
-                  ),
-                ),
+          child: ReorderableSections(
+            pageKey: 'statistics',
+            sections: sections,
+            onEditModeChanged: (editing) {
+              setState(() => _summaryEditMode = editing);
+            },
+            onReset: () async {
+              setState(() {
+                _summaryCardOrder = List.from(_defaultSummaryCardIds);
+                _hiddenSummaryCards = {};
+              });
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.remove('statistics_summary_order');
+              await prefs.remove('statistics_summary_hidden');
+            },
+            header: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildSummaryCards(),
                 const SizedBox(height: 16),
-                _buildMonthlyProgressChart(),
               ],
-              // Average Rating & Reading Speed
-              const SizedBox(height: 32),
-              _buildSectionTitle(
-                TranslationService.translate(context, 'reading_insights'),
-                Icons.insights,
-                AppDesign.primaryGradient,
-                helpText: TranslationService.translate(
-                  context,
-                  'help_ctx_stats_unique_stats',
-                ),
-              ),
-              const SizedBox(height: 16),
-              _buildReadingInsightsSection(),
-              // Sales Statistics (for booksellers)
-              if (_salesStats != null) ...[
-                const SizedBox(height: 32),
-                _buildSectionTitle(
-                  TranslationService.translate(context, 'sales_statistics'),
-                  Icons.monetization_on,
-                  AppDesign.successGradient,
-                  helpText: TranslationService.translate(
-                    context,
-                    'help_ctx_stats_sales',
-                  ),
-                ),
-                const SizedBox(height: 16),
-                _buildSalesStatisticsSection(),
-              ],
-              // Reading Habits
-              const SizedBox(height: 32),
-              _buildSectionTitle(
-                TranslationService.translate(context, 'reading_habits'),
-                Icons.pie_chart,
-                AppDesign.primaryGradient,
-                helpText: TranslationService.translate(
-                  context,
-                  'help_ctx_stats_reading_habits',
-                ),
-              ),
-              const SizedBox(height: 16),
-              _buildStatusPieChart(),
-              // Top Authors
-              const SizedBox(height: 32),
-              _buildSectionTitle(
-                TranslationService.translate(context, 'top_authors'),
-                Icons.person,
-                AppDesign.successGradient,
-                helpText: TranslationService.translate(
-                  context,
-                  'help_ctx_stats_top_authors',
-                ),
-              ),
-              const SizedBox(height: 16),
-              _buildTopAuthorsChart(),
-              // Publication Timeline
-              const SizedBox(height: 32),
-              _buildSectionTitle(
-                TranslationService.translate(context, 'publication_timeline'),
-                Icons.timeline,
-                AppDesign.oceanGradient,
-                helpText: TranslationService.translate(
-                  context,
-                  'help_ctx_stats_publication_year',
-                ),
-              ),
-              const SizedBox(height: 16),
-              _buildPublicationYearChart(),
-              // Loan Statistics
-              const SizedBox(height: 32),
-              _buildSectionTitle(
-                TranslationService.translate(context, 'loan_statistics'),
-                Icons.swap_horiz,
-                AppDesign.accentGradient,
-                helpText: TranslationService.translate(
-                  context,
-                  'help_ctx_stats_loan_stats',
-                ),
-              ),
-              const SizedBox(height: 16),
-              _buildLoanStatisticsSection(),
-              // Borrowed Statistics - hidden for librarians
-              if (!Provider.of<ThemeProvider>(
-                context,
-                listen: false,
-              ).isLibrarian) ...[
-                const SizedBox(height: 32),
-                _buildSectionTitle(
-                  TranslationService.translate(context, 'borrowed_statistics'),
-                  Icons.arrow_downward,
-                  AppDesign.pastelPrimaryGradient,
-                ),
-                const SizedBox(height: 16),
-                _buildBorrowedStatisticsSection(),
-              ],
-              // Shelf Statistics - only if shelves exist
-              if (_tags.isNotEmpty) ...[
-                const SizedBox(height: 32),
-                _buildSectionTitle(
-                  TranslationService.translate(context, 'shelf_statistics'),
-                  Icons.shelves,
-                  AppDesign.warningGradient,
-                ),
-                const SizedBox(height: 16),
-                _buildShelfStatisticsSection(),
-              ],
-              // Collection Statistics - only if collections exist
-              if (_collections.isNotEmpty) ...[
-                const SizedBox(height: 32),
-                _buildSectionTitle(
-                  TranslationService.translate(
-                    context,
-                    'collection_statistics',
-                  ),
-                  Icons.collections_bookmark,
-                  AppDesign.darkGradient,
-                ),
-                const SizedBox(height: 16),
-                _buildCollectionStatisticsSection(),
-              ],
-              // Operation Log Stats - only if module enabled
-              if (Provider.of<ThemeProvider>(context, listen: false).operationLogViewerEnabled && _opLogStats != null) ...[
-                const SizedBox(height: 32),
-                _buildSectionTitle(
-                  TranslationService.translate(context, 'stat_operation_log_title'),
-                  Icons.sync,
-                  AppDesign.primaryGradient,
-                ),
-                const SizedBox(height: 16),
-                _buildOperationLogStatsSection(),
-              ],
-              const SizedBox(height: 40),
-            ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildSectionTitle(
-    String title,
-    IconData icon,
-    Gradient gradient, {
-    String? helpText,
-  }) {
-    return Row(
-      children: [
-        ExcludeSemantics(
-          child: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              gradient: gradient,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, size: 18, color: Colors.white),
-          ),
-        ),
-        const SizedBox(width: 16),
-        Semantics(
-          header: true,
-          child: Text(
-            title,
-            style: Theme.of(
-              context,
-            ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-          ),
-        ),
-        if (helpText != null) ...[
-          const SizedBox(width: 8),
-          Tooltip(
-            message: helpText,
-            margin: const EdgeInsets.symmetric(horizontal: 20),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1E293B),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            textStyle: const TextStyle(color: Colors.white, fontSize: 13),
-            triggerMode: TooltipTriggerMode.tap,
-            child: Icon(
-              Icons.info_outline,
-              size: 18,
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.4),
-            ),
-          ),
-        ],
-      ],
-    );
-  }
-
   Widget _buildSummaryCards() {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     final totalBooks = _books.length;
     final readBooks = _books.where((b) => b.readingStatus == 'read').length;
-    final borrowedBooks = _books.where((b) => !b.owned).length;
     final uniqueAuthors = _books
         .where((b) => b.author != null && b.author!.isNotEmpty)
         .map((b) => b.author!)
@@ -2696,80 +2913,246 @@ class _StatisticsContentState extends State<StatisticsContent>
               .map((b) => b.publicationYear!)
               .reduce((a, b) => a < b ? a : b);
 
+    // Show borrowed count if borrowing is enabled, otherwise show loan count
+    final String thirdCardLabel;
+    final String thirdCardValue;
+    final IconData thirdCardIcon;
+    if (themeProvider.canBorrowBooks) {
+      final borrowedBooks = _books.where((b) => !b.owned).length;
+      thirdCardLabel = TranslationService.translate(context, 'stat_borrowed');
+      thirdCardValue = borrowedBooks.toString();
+      thirdCardIcon = Icons.people;
+    } else {
+      final activeLoans = _loans.where((l) => l.returnDate == null).length;
+      thirdCardLabel = TranslationService.translate(context, 'stat_loans');
+      thirdCardValue = activeLoans.toString();
+      thirdCardIcon = Icons.swap_horiz;
+    }
+
+    final cardWidgets = <String, Widget>{
+      'total_books': _buildStatCard(
+        TranslationService.translate(context, 'stat_total_books'),
+        totalBooks.toString(),
+        Icons.library_books,
+        Colors.transparent,
+        gradient: AppDesign.refinedPrimaryGradient,
+        textColor: Colors.white,
+      ),
+      'read_books': _buildStatCard(
+        TranslationService.translate(context, 'stat_read'),
+        readBooks.toString(),
+        Icons.check_circle,
+        Colors.transparent,
+        gradient: AppDesign.refinedSuccessGradient,
+        textColor: Colors.white,
+      ),
+      'borrowed_books': _buildStatCard(
+        thirdCardLabel,
+        thirdCardValue,
+        thirdCardIcon,
+        Colors.transparent,
+        gradient: AppDesign.refinedAccentGradient,
+        textColor: Colors.white,
+      ),
+      'unique_authors': _buildStatCard(
+        TranslationService.translate(context, 'stat_unique_authors'),
+        uniqueAuthors.toString(),
+        Icons.person_outline,
+        Colors.transparent,
+        gradient: AppDesign.refinedWarningGradient,
+        textColor: Colors.white,
+      ),
+      'completion': _buildStatCard(
+        TranslationService.translate(context, 'stat_completion'),
+        "$completionRate%",
+        Icons.trending_up,
+        Colors.transparent,
+        gradient: AppDesign.refinedOceanGradient,
+        textColor: Colors.white,
+      ),
+      'oldest_book': _buildStatCard(
+        TranslationService.translate(context, 'stat_oldest_book'),
+        oldestYear?.toString() ?? "N/A",
+        Icons.history,
+        Colors.transparent,
+        gradient: AppDesign.anthraciteGradient,
+        textColor: Colors.white,
+      ),
+    };
+
+    final cardLabels = <String, String>{
+      'total_books': TranslationService.translate(context, 'stat_total_books'),
+      'read_books': TranslationService.translate(context, 'stat_read'),
+      'borrowed_books': thirdCardLabel,
+      'unique_authors': TranslationService.translate(context, 'stat_unique_authors'),
+      'completion': TranslationService.translate(context, 'stat_completion'),
+      'oldest_book': TranslationService.translate(context, 'stat_oldest_book'),
+    };
+
+    final cardIcons = <String, IconData>{
+      'total_books': Icons.library_books,
+      'read_books': Icons.check_circle,
+      'borrowed_books': thirdCardIcon,
+      'unique_authors': Icons.person_outline,
+      'completion': Icons.trending_up,
+      'oldest_book': Icons.history,
+    };
+
+    final theme = Theme.of(context);
+
+    if (_summaryEditMode) {
+      return _buildCardEditMode(
+        order: _summaryCardOrder,
+        hidden: _hiddenSummaryCards,
+        labels: cardLabels,
+        icons: cardIcons,
+        onReorder: (oldIndex, newIndex) {
+          setState(() {
+            if (newIndex > oldIndex) newIndex -= 1;
+            final id = _summaryCardOrder.removeAt(oldIndex);
+            _summaryCardOrder.insert(newIndex, id);
+          });
+          _saveSummaryOrder();
+        },
+        onToggle: (id) {
+          setState(() {
+            if (_hiddenSummaryCards.contains(id)) {
+              _hiddenSummaryCards.remove(id);
+            } else {
+              _hiddenSummaryCards.add(id);
+            }
+          });
+          _saveSummaryHidden();
+        },
+        theme: theme,
+      );
+    }
+
+    // Normal mode: rows of 3
+    final visibleIds = _summaryCardOrder
+        .where((id) => !_hiddenSummaryCards.contains(id))
+        .toList();
+
+    final rows = <Widget>[];
+    for (var i = 0; i < visibleIds.length; i += 3) {
+      final children = <Widget>[];
+      for (var j = 0; j < 3; j++) {
+        if (j > 0) children.add(const SizedBox(width: 12));
+        if (i + j < visibleIds.length) {
+          children.add(
+            Expanded(child: cardWidgets[visibleIds[i + j]] ?? const SizedBox.shrink()),
+          );
+        } else {
+          children.add(const Expanded(child: SizedBox.shrink()));
+        }
+      }
+      rows.add(Row(children: children));
+    }
+
     return Column(
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: _buildStatCard(
-                TranslationService.translate(context, 'stat_total_books'),
-                totalBooks.toString(),
-                Icons.library_books,
-                Colors.transparent,
-                gradient: AppDesign.refinedPrimaryGradient,
-                textColor: Colors.white,
-              ),
+        for (var i = 0; i < rows.length; i++) ...[
+          if (i > 0) const SizedBox(height: 12),
+          rows[i],
+        ],
+      ],
+    );
+  }
+
+  /// Shared edit mode UI for card grids (summary cards, insight cards).
+  Widget _buildCardEditMode({
+    required List<String> order,
+    required Set<String> hidden,
+    required Map<String, String> labels,
+    required Map<String, IconData> icons,
+    required void Function(int, int) onReorder,
+    required void Function(String) onToggle,
+    required ThemeData theme,
+  }) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Text(
+            TranslationService.translate(context, 'sections_drag_hint'),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildStatCard(
-                TranslationService.translate(context, 'stat_read'),
-                readBooks.toString(),
-                Icons.check_circle,
-                Colors.transparent,
-                gradient: AppDesign.refinedSuccessGradient,
-                textColor: Colors.white,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildStatCard(
-                TranslationService.translate(context, 'stat_borrowed'),
-                borrowedBooks.toString(),
-                Icons.people,
-                Colors.transparent,
-                gradient: AppDesign.refinedAccentGradient,
-                textColor: Colors.white,
-              ),
-            ),
-          ],
+          ),
         ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: _buildStatCard(
-                TranslationService.translate(context, 'stat_unique_authors'),
-                uniqueAuthors.toString(),
-                Icons.person_outline,
-                Colors.transparent,
-                gradient: AppDesign.refinedWarningGradient,
-                textColor: Colors.white,
+        ReorderableListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          buildDefaultDragHandles: false,
+          itemCount: order.length,
+          onReorder: onReorder,
+          itemBuilder: (context, index) {
+            final id = order[index];
+            final isHidden = hidden.contains(id);
+            final isDark = theme.brightness == Brightness.dark;
+            return Opacity(
+              key: ValueKey(id),
+              opacity: isHidden ? 0.4 : 1.0,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 3),
+                child: Material(
+                  color: isDark
+                      ? theme.colorScheme.surfaceContainerHighest
+                      : theme.colorScheme.surfaceContainerLow,
+                  borderRadius: BorderRadius.circular(10),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 8,
+                    ),
+                    child: Row(
+                      children: [
+                        ReorderableDragStartListener(
+                          index: index,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 6),
+                            child: Icon(
+                              Icons.drag_handle,
+                              color: theme.colorScheme.onSurfaceVariant,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Icon(icons[id] ?? Icons.help_outline, size: 16),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            labels[id] ?? id,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            isHidden
+                                ? Icons.visibility_off_outlined
+                                : Icons.visibility_outlined,
+                            size: 20,
+                          ),
+                          tooltip: TranslationService.translate(
+                            context,
+                            'tooltip_toggle_section',
+                          ),
+                          onPressed: () => onToggle(id),
+                          color: isHidden
+                              ? theme.colorScheme.onSurfaceVariant
+                              : theme.colorScheme.primary,
+                          visualDensity: VisualDensity.compact,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildStatCard(
-                TranslationService.translate(context, 'stat_completion'),
-                "$completionRate%",
-                Icons.trending_up,
-                Colors.transparent,
-                gradient: AppDesign.refinedOceanGradient,
-                textColor: Colors.white,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildStatCard(
-                TranslationService.translate(context, 'stat_oldest_book'),
-                oldestYear?.toString() ?? "N/A",
-                Icons.history,
-                Colors.transparent,
-                gradient: AppDesign.anthraciteGradient,
-                textColor: Colors.white,
-              ),
-            ),
-          ],
+            );
+          },
         ),
       ],
     );
@@ -2825,6 +3208,7 @@ class _StatisticsContentState extends State<StatisticsContent>
       ),
       child: Column(
         children: [
+          const SizedBox(height: 12),
           Semantics(
             label: '${TranslationService.translate(context, 'stat_a11y_reading_status_chart')}: $chartDescription',
             child: ExcludeSemantics(
@@ -2840,7 +3224,7 @@ class _StatisticsContentState extends State<StatisticsContent>
               ),
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 28),
           Wrap(
             spacing: 16,
             runSpacing: 12,
@@ -2914,8 +3298,8 @@ class _StatisticsContentState extends State<StatisticsContent>
     var sortedAuthors = authorCounts.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
-    if (sortedAuthors.length > 5) {
-      sortedAuthors = sortedAuthors.sublist(0, 5);
+    if (sortedAuthors.length > 10) {
+      sortedAuthors = sortedAuthors.sublist(0, 10);
     }
 
     if (sortedAuthors.isEmpty) {
@@ -2932,104 +3316,122 @@ class _StatisticsContentState extends State<StatisticsContent>
       );
     }
 
+    final maxCount = sortedAuthors.first.value;
+    final theme = Theme.of(context);
     final authorsDescription = sortedAuthors
         .map((e) => '${e.key}: ${e.value}')
         .join(', ');
 
     return Semantics(
-      label: '${TranslationService.translate(context, 'stat_a11y_top_authors_chart')}: $authorsDescription',
+      label:
+          '${TranslationService.translate(context, 'stat_a11y_top_authors_chart')}: $authorsDescription',
       child: ExcludeSemantics(
         child: Container(
-          height: 280,
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
+            color: theme.cardColor,
             borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
             boxShadow: AppDesign.cardShadow,
           ),
-          child: BarChart(
-            BarChartData(
-              alignment: BarChartAlignment.spaceAround,
-              maxY: sortedAuthors.first.value.toDouble() + 1,
-          barTouchData: BarTouchData(
-            enabled: true,
-            touchTooltipData: BarTouchTooltipData(
-              getTooltipColor: (group) => const Color(0xFF1E293B),
-              getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                return BarTooltipItem(
-                  '${sortedAuthors[groupIndex].key}\n',
-                  const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                  ),
-                  children: [
-                    TextSpan(
-                      text: '${rod.toY.toInt()} ${TranslationService.translate(context, 'stat_chart_books_count')}',
-                      style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 11,
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
-          ),
-          titlesData: FlTitlesData(
-            show: true,
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                getTitlesWidget: (double value, TitleMeta meta) {
-                  if (value.toInt() >= sortedAuthors.length) {
-                    return const SizedBox.shrink();
-                  }
-                  final author = sortedAuthors[value.toInt()].key;
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Text(
-                      author.length > 10
-                          ? '${author.substring(0, 8)}...'
-                          : author,
-                      style: const TextStyle(fontSize: 10),
-                    ),
-                  );
-                },
-                reservedSize: 40,
-              ),
-            ),
-            leftTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-            topTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-            rightTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-          ),
-          gridData: const FlGridData(show: false),
-          borderData: FlBorderData(show: false),
-          barGroups: sortedAuthors.asMap().entries.map((e) {
-            final gradient = AppDesign.featureGradient(e.key);
-            return BarChartGroupData(
-              x: e.key,
-              barRods: [
-                BarChartRodData(
-                  toY: e.value.value.toDouble(),
-                  gradient: gradient,
-                  width: 24,
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(6),
-                  ),
+          child: Column(
+            children: [
+              for (var i = 0; i < sortedAuthors.length; i++) ...[
+                if (i > 0) const SizedBox(height: 6),
+                _buildAuthorLeaderboardRow(
+                  rank: i + 1,
+                  name: sortedAuthors[i].key,
+                  count: sortedAuthors[i].value,
+                  maxCount: maxCount,
+                  theme: theme,
                 ),
               ],
-            );
-          }).toList(),
+            ],
+          ),
         ),
       ),
-        ),
+    );
+  }
+
+  Widget _buildAuthorLeaderboardRow({
+    required int rank,
+    required String name,
+    required int count,
+    required int maxCount,
+    required ThemeData theme,
+  }) {
+    final fraction = maxCount > 0 ? count / maxCount : 0.0;
+    final podiumColors = [
+      const Color(0xFFF59E0B), // gold
+      const Color(0xFF94A3B8), // silver
+      const Color(0xFFCD7F32), // bronze
+    ];
+    final barColor =
+        rank <= 3 ? podiumColors[rank - 1] : theme.colorScheme.primary;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 28,
+            child: rank <= 3
+                ? Icon(
+                    Icons.emoji_events,
+                    size: 18,
+                    color: podiumColors[rank - 1],
+                  )
+                : Text(
+                    '$rank',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            flex: 3,
+            child: Text(
+              name,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: rank <= 3 ? FontWeight.w600 : FontWeight.normal,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            flex: 4,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: fraction,
+                minHeight: 14,
+                backgroundColor:
+                    theme.colorScheme.onSurface.withValues(alpha: 0.06),
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  barColor.withValues(alpha: 0.7),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          SizedBox(
+            width: 32,
+            child: Text(
+              '$count',
+              textAlign: TextAlign.end,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: barColor,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -3319,16 +3721,7 @@ class _StatisticsContentState extends State<StatisticsContent>
   }
 
   Widget _buildReadingInsightsSection() {
-    // Calculate average rating
-    final ratedBooks = _books
-        .where((b) => b.userRating != null && b.userRating! > 0)
-        .toList();
-    final avgRating = ratedBooks.isNotEmpty
-        ? ratedBooks.map((b) => b.userRating!).reduce((a, b) => a + b) /
-              ratedBooks.length
-        : 0.0;
-
-    // Calculate average reading duration
+    // Compute all card data
     final booksWithDuration = _books
         .where(
           (b) =>
@@ -3348,7 +3741,112 @@ class _StatisticsContentState extends State<StatisticsContent>
       avgDays = totalDays / booksWithDuration.length;
     }
 
-    // Fastest book read
+    final currentYear = DateTime.now().year;
+    final booksFinishedThisYear = _books
+        .where(
+          (b) =>
+              b.finishedReadingAt != null &&
+              b.finishedReadingAt!.year == currentYear,
+        )
+        .length;
+
+    DateTime? lastFinished;
+    for (final book in _books) {
+      if (book.finishedReadingAt != null) {
+        if (lastFinished == null ||
+            book.finishedReadingAt!.isAfter(lastFinished)) {
+          lastFinished = book.finishedReadingAt;
+        }
+      }
+    }
+    final int? daysSinceLast = lastFinished != null
+        ? DateTime.now().difference(lastFinished).inDays
+        : null;
+
+    // Card definitions keyed by ID
+    final cardWidgets = <String, Widget>{
+      'avg_reading_time': _buildInsightCard(
+        Icons.timer,
+        avgDays > 0 ? avgDays.toStringAsFixed(0) : null,
+        TranslationService.translate(context, 'avg_reading_time'),
+        TranslationService.translate(context, 'days'),
+        const Color(0xFF0EA5E9),
+        description: avgDays > 0
+            ? TranslationService.translate(context, 'avg_reading_time_desc')
+                .replaceAll('%1', '${booksWithDuration.length}')
+            : null,
+      ),
+      'total_pages': _buildInsightCard(
+        Icons.auto_stories,
+        null, // pageCount not yet in Book model
+        TranslationService.translate(context, 'total_pages_read'),
+        TranslationService.translate(context, 'pages_suffix'),
+        const Color(0xFF8B5CF6),
+      ),
+      'books_finished_year': _buildInsightCard(
+        Icons.calendar_today,
+        booksFinishedThisYear > 0 ? booksFinishedThisYear.toString() : null,
+        TranslationService.translate(context, 'books_finished_year'),
+        TranslationService.translate(context, 'books_suffix'),
+        const Color(0xFFF97316),
+        description: booksFinishedThisYear > 0
+            ? TranslationService.translate(context, 'books_finished_year_desc')
+                .replaceAll('%1', '$currentYear')
+            : null,
+      ),
+      'days_since_last': _buildInsightCard(
+        Icons.schedule,
+        daysSinceLast != null ? daysSinceLast.toString() : null,
+        TranslationService.translate(context, 'days_since_last'),
+        TranslationService.translate(context, 'days_ago_suffix'),
+        const Color(0xFF14B8A6),
+        description: daysSinceLast != null
+            ? TranslationService.translate(context, 'days_since_last_desc')
+            : null,
+      ),
+    };
+
+    // Render visible cards in user-defined order, rows of 2
+    final visibleIds = _insightCardOrder
+        .where((id) => !_hiddenInsightCards.contains(id))
+        .toList();
+
+    final rows = <Widget>[];
+    for (var i = 0; i < visibleIds.length; i += 2) {
+      final first = cardWidgets[visibleIds[i]];
+      final second =
+          i + 1 < visibleIds.length ? cardWidgets[visibleIds[i + 1]] : null;
+      rows.add(
+        Row(
+          children: [
+            Expanded(child: first ?? const SizedBox.shrink()),
+            const SizedBox(width: 12),
+            Expanded(child: second ?? const SizedBox.shrink()),
+          ],
+        ),
+      );
+    }
+
+    return Column(
+      children: [
+        for (var i = 0; i < rows.length; i++) ...[
+          if (i > 0) const SizedBox(height: 12),
+          rows[i],
+        ],
+      ],
+    );
+  }
+
+  Widget _buildPersonalRecordsSection() {
+    final booksWithDuration = _books
+        .where(
+          (b) =>
+              b.startedReadingAt != null &&
+              b.finishedReadingAt != null &&
+              b.finishedReadingAt!.isAfter(b.startedReadingAt!),
+        )
+        .toList();
+
     int? fastestDays;
     String? fastestBookTitle;
     int? fastestBookId;
@@ -3363,111 +3861,110 @@ class _StatisticsContentState extends State<StatisticsContent>
       }
     }
 
-    // Highest rated book - tie break with most recent finished date
-    Book? highestRatedBook;
-    for (var book in ratedBooks) {
-      if (highestRatedBook == null) {
-        highestRatedBook = book;
-      } else {
-        if ((book.userRating ?? 0) > (highestRatedBook.userRating ?? 0)) {
-          highestRatedBook = book;
-        } else if (book.userRating == highestRatedBook.userRating) {
-          // Tie break: most recently finished
-          if (book.finishedReadingAt != null &&
-              (highestRatedBook.finishedReadingAt == null ||
-                  book.finishedReadingAt!.isAfter(
-                    highestRatedBook.finishedReadingAt!,
-                  ))) {
-            highestRatedBook = book;
+    final readingStreak = _calculateReadingStreak();
+
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: _buildInsightCard(
+                Icons.speed,
+                fastestDays != null ? fastestDays.toString() : null,
+                TranslationService.translate(context, 'fastest_read'),
+                TranslationService.translate(context, 'days'),
+                const Color(0xFF10B981),
+                description: fastestDays != null
+                    ? TranslationService.translate(
+                        context,
+                        'fastest_read_desc',
+                      )
+                    : null,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildInsightCard(
+                Icons.local_fire_department,
+                readingStreak > 0 ? readingStreak.toString() : null,
+                TranslationService.translate(context, 'reading_streak'),
+                TranslationService.translate(
+                  context,
+                  'reading_streak_suffix',
+                ),
+                const Color(0xFFEF4444),
+                description: readingStreak > 0
+                    ? TranslationService.translate(
+                        context,
+                        'reading_streak_desc',
+                      )
+                    : null,
+              ),
+            ),
+          ],
+        ),
+        if (fastestBookTitle != null) ...[
+          const SizedBox(height: 12),
+          _buildBookMention(
+            context: context,
+            icon: Icons.speed,
+            label: TranslationService.translate(context, 'fastest_book'),
+            bookTitle: fastestBookTitle,
+            bookId: fastestBookId,
+            color: const Color(0xFF10B981),
+          ),
+        ],
+      ],
+    );
+  }
+
+  /// Calculates the current reading streak: consecutive days (counting
+  /// backwards from today) where at least one book was "in progress".
+  /// A book is in progress on a given day if:
+  ///   - startedReadingAt <= day <= finishedReadingAt, OR
+  ///   - readingStatus == 'reading' and startedReadingAt <= day (no end date)
+  int _calculateReadingStreak() {
+    final today = DateTime.now();
+    final todayDate = DateTime(today.year, today.month, today.day);
+
+    int streak = 0;
+    for (int offset = 0; offset < 365; offset++) {
+      final day = todayDate.subtract(Duration(days: offset));
+      bool hasBookInProgress = false;
+
+      for (final book in _books) {
+        if (book.startedReadingAt == null) continue;
+        final start = DateTime(
+          book.startedReadingAt!.year,
+          book.startedReadingAt!.month,
+          book.startedReadingAt!.day,
+        );
+
+        if (start.isAfter(day)) continue;
+
+        if (book.finishedReadingAt != null) {
+          final end = DateTime(
+            book.finishedReadingAt!.year,
+            book.finishedReadingAt!.month,
+            book.finishedReadingAt!.day,
+          );
+          if (!day.isAfter(end)) {
+            hasBookInProgress = true;
+            break;
           }
+        } else if (book.readingStatus == 'reading') {
+          hasBookInProgress = true;
+          break;
         }
       }
-    }
 
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
-        boxShadow: AppDesign.cardShadow,
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: _buildInsightCard(
-                  Icons.star_rate,
-                  avgRating > 0 ? avgRating.toStringAsFixed(1) : '-',
-                  TranslationService.translate(context, 'avg_rating'),
-                  avgRating > 0 ? ' ${TranslationService.translate(context, 'stat_chart_stars')}' : '',
-                  const Color(0xFFF59E0B),
-                  useStarDisplay: avgRating > 0,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildInsightCard(
-                  Icons.timer,
-                  avgDays > 0 ? avgDays.toStringAsFixed(0) : '-',
-                  TranslationService.translate(context, 'avg_reading_time'),
-                  TranslationService.translate(context, 'days'),
-                  const Color(0xFF0EA5E9),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _buildInsightCard(
-                  Icons.speed,
-                  fastestDays?.toString() ?? '-',
-                  TranslationService.translate(context, 'fastest_read'),
-                  TranslationService.translate(context, 'days'),
-                  const Color(0xFF10B981),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildInsightCard(
-                  Icons.workspace_premium,
-                  highestRatedBook?.userRating?.toString() ?? '-',
-                  TranslationService.translate(context, 'best_rated'),
-                  highestRatedBook != null ? ' ${TranslationService.translate(context, 'stat_chart_stars')}' : '',
-                  const Color(0xFFEC4899),
-                  useStarDisplay: highestRatedBook != null,
-                ),
-              ),
-            ],
-          ),
-          // Show book titles if available
-          if (fastestBookTitle != null || highestRatedBook != null) ...[
-            if (fastestBookTitle != null)
-              _buildBookMention(
-                context: context,
-                icon: Icons.speed,
-                label: TranslationService.translate(context, 'fastest_book'),
-                bookTitle: fastestBookTitle,
-                bookId: fastestBookId,
-                color: const Color(0xFF10B981),
-              ),
-            if (highestRatedBook != null) ...[
-              const SizedBox(height: 8),
-              _buildBookMention(
-                context: context,
-                icon: Icons.workspace_premium,
-                label: TranslationService.translate(context, 'favorite_book'),
-                bookTitle: highestRatedBook.title,
-                bookId: highestRatedBook.id,
-                color: const Color(0xFFEC4899),
-              ),
-            ],
-          ],
-        ],
-      ),
-    );
+      if (hasBookInProgress) {
+        streak++;
+      } else {
+        break;
+      }
+    }
+    return streak;
   }
 
   Widget _buildBookMention({
@@ -3515,14 +4012,16 @@ class _StatisticsContentState extends State<StatisticsContent>
 
   Widget _buildInsightCard(
     IconData icon,
-    String value,
+    String? value,
     String label,
     String suffix,
     Color color, {
     bool useStarDisplay = false,
     String? helpText,
+    String? description,
   }) {
-    final double? ratingValue = double.tryParse(value);
+    final bool isEmpty = value == null;
+    final double? ratingValue = isEmpty ? null : double.tryParse(value);
     final double starRating = useStarDisplay && ratingValue != null
         ? (ratingValue / 2.0).clamp(0.0, 5.0)
         : 0.0;
@@ -3532,16 +4031,28 @@ class _StatisticsContentState extends State<StatisticsContent>
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
-        boxShadow: AppDesign.cardShadow,
+        boxShadow: AppDesign.subtleShadow,
+        border: Border(
+          left: BorderSide(color: color.withValues(alpha: isEmpty ? 0.2 : 0.6), width: 3),
+        ),
       ),
       child: Stack(
         children: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(icon, color: color, size: 24),
-              const SizedBox(height: 12),
-              if (useStarDisplay && ratingValue != null)
+              Icon(icon, color: isEmpty ? Colors.grey[400] : color, size: 22),
+              const SizedBox(height: 10),
+              if (isEmpty)
+                Text(
+                  TranslationService.translate(context, 'insight_no_data'),
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontStyle: FontStyle.italic,
+                    color: Colors.grey[400],
+                  ),
+                )
+              else if (useStarDisplay && ratingValue != null)
                 Semantics(
                   label: TranslationService.translate(context, 'stat_a11y_star_rating').replaceAll('%1', starRating.toStringAsFixed(1)),
                   excludeSemantics: true,
@@ -3568,7 +4079,7 @@ class _StatisticsContentState extends State<StatisticsContent>
                       child: Text(
                         value,
                         style: TextStyle(
-                          fontSize: 28,
+                          fontSize: 26,
                           fontWeight: FontWeight.bold,
                           color: color,
                           height: 1.0,
@@ -3577,24 +4088,37 @@ class _StatisticsContentState extends State<StatisticsContent>
                     ),
                     const SizedBox(width: 4),
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 4),
+                      padding: const EdgeInsets.only(bottom: 3),
                       child: Text(
                         suffix,
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 13,
                           color: color.withValues(alpha: 0.7),
                         ),
                       ),
                     ),
                   ],
                 ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 6),
               Text(
                 label,
-                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[700],
+                ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
+              if (description != null) ...[
+                const SizedBox(height: 2),
+                Text(
+                  description,
+                  style: TextStyle(fontSize: 10, color: Colors.grey[500]),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ],
           ),
           if (helpText != null)
@@ -3623,45 +4147,381 @@ class _StatisticsContentState extends State<StatisticsContent>
     );
   }
 
+  bool _hasRatingByGroupData() {
+    return _tagRatings.length + _collectionRatings.length >= 2;
+  }
+
+  Widget _buildRatingByGroupSection() {
+    final sortedTagRatings = List<_RatingGroup>.from(_tagRatings)
+      ..sort((a, b) => b.avgRating.compareTo(a.avgRating));
+    final sortedCollectionRatings = List<_RatingGroup>.from(_collectionRatings)
+      ..sort((a, b) => b.avgRating.compareTo(a.avgRating));
+
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
+        boxShadow: AppDesign.cardShadow,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (sortedTagRatings.isNotEmpty) ...[
+            Text(
+              TranslationService.translate(context, 'rating_by_group_shelves'),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            ),
+            const SizedBox(height: 12),
+            ...sortedTagRatings.map(
+              (group) => _buildRatingGroupRow(group),
+            ),
+          ],
+          if (sortedTagRatings.isNotEmpty && sortedCollectionRatings.isNotEmpty)
+            const SizedBox(height: 20),
+          if (sortedCollectionRatings.isNotEmpty) ...[
+            Text(
+              TranslationService.translate(
+                context,
+                'rating_by_group_collections',
+              ),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            ),
+            const SizedBox(height: 12),
+            ...sortedCollectionRatings.map(
+              (group) => _buildRatingGroupRow(group),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRatingGroupRow(_RatingGroup group) {
+    final starRating = (group.avgRating / 2.0).clamp(0.0, 5.0);
+    const starColor = Color(0xFFF59E0B);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Semantics(
+        label:
+            '${group.name}, ${TranslationService.translate(context, 'stat_a11y_star_rating').replaceAll('%1', starRating.toStringAsFixed(1))}, ${TranslationService.translate(context, 'rating_by_group_rated_books').replaceAll('%1', '${group.ratedCount}')}',
+        excludeSemantics: true,
+        child: Row(
+          children: [
+            Expanded(
+              flex: 3,
+              child: Text(
+                group.name,
+                style: const TextStyle(fontSize: 13),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: List.generate(5, (index) {
+                final starIndex = index + 1;
+                IconData iconData;
+                if (starIndex <= starRating) {
+                  iconData = Icons.star;
+                } else if (starIndex - 0.5 <= starRating) {
+                  iconData = Icons.star_half;
+                } else {
+                  iconData = Icons.star_outline;
+                }
+                return Icon(iconData, size: 14, color: starColor);
+              }),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              starRating.toStringAsFixed(1),
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: starColor,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              TranslationService.translate(
+                context,
+                'rating_by_group_rated_books',
+              ).replaceAll('%1', '${group.ratedCount}'),
+              style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildShelfStatisticsSection() {
+    final totalShelves = _tags.length;
+    final totalBooksInShelves = _tags.fold<int>(
+      0,
+      (sum, tag) => sum + tag.count,
+    );
+
+    var topShelves = _tags.toList()
+      ..sort((a, b) => b.count.compareTo(a.count));
+    if (topShelves.length > 5) topShelves = topShelves.sublist(0, 5);
+
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
+        boxShadow: AppDesign.cardShadow,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: _buildMiniStat(
+                  TranslationService.translate(context, 'total_shelves'),
+                  totalShelves.toString(),
+                  Icons.shelves,
+                  const Color(0xFFF59E0B),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildMiniStat(
+                  TranslationService.translate(context, 'books_in_shelves'),
+                  totalBooksInShelves.toString(),
+                  Icons.menu_book,
+                  const Color(0xFFD97706),
+                ),
+              ),
+            ],
+          ),
+          if (topShelves.isNotEmpty) ...[
+            const SizedBox(height: 24),
+            Text(
+              TranslationService.translate(context, 'top_shelves'),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            ),
+            const SizedBox(height: 12),
+            ...topShelves.map(
+              (tag) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.label_outline,
+                      size: 18,
+                      color: Colors.grey,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        tag.name,
+                        style: const TextStyle(fontSize: 13),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFB45309).withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        '${tag.count}',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: Color(0xFFB45309),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
   Widget _buildCollectionStatisticsSection() {
     final collections = _collections;
     final totalCollections = collections.length;
     double avgCompletion = 0;
+    int completedCount = 0;
 
     if (collections.isNotEmpty) {
       final totalCompletion = collections.fold<double>(0, (sum, collection) {
         if (collection.totalBooks == 0) return sum;
-        return sum + (collection.ownedBooks / collection.totalBooks);
+        final ratio = collection.ownedBooks / collection.totalBooks;
+        if (ratio >= 1.0) completedCount++;
+        return sum + ratio;
       });
       avgCompletion = (totalCompletion / totalCollections) * 100;
     }
 
-    return Row(
+    final theme = Theme.of(context);
+
+    // Sort by owned ratio descending
+    final sorted = collections.toList()
+      ..sort((a, b) {
+        final ratioA = a.totalBooks > 0 ? a.ownedBooks / a.totalBooks : 0.0;
+        final ratioB = b.totalBooks > 0 ? b.ownedBooks / b.totalBooks : 0.0;
+        return ratioB.compareTo(ratioA);
+      });
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: _buildStatCard(
-            TranslationService.translate(context, 'stat_total_collections'),
-            totalCollections.toString(),
-            Icons.collections_bookmark,
-            Colors.transparent,
-            gradient: AppDesign.darkGradient,
-            textColor: Colors.white,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _buildStatCard(
-            TranslationService.translate(
-              context,
-              'stat_avg_collection_completion',
+        // Summary row: total, avg completion, completed
+        Row(
+          children: [
+            Expanded(
+              child: _buildStatCard(
+                TranslationService.translate(
+                    context, 'stat_total_collections'),
+                totalCollections.toString(),
+                Icons.collections_bookmark,
+                Colors.transparent,
+                gradient: AppDesign.darkGradient,
+                textColor: Colors.white,
+              ),
             ),
-            '${avgCompletion.toStringAsFixed(1)}%',
-            Icons.pie_chart_outline,
-            Colors.transparent,
-            gradient: AppDesign.refinedOceanGradient,
-            textColor: Colors.white,
-          ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildStatCard(
+                TranslationService.translate(
+                    context, 'stat_avg_collection_completion'),
+                '${avgCompletion.toStringAsFixed(1)}%',
+                Icons.pie_chart_outline,
+                Colors.transparent,
+                gradient: AppDesign.refinedOceanGradient,
+                textColor: Colors.white,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildStatCard(
+                TranslationService.translate(
+                    context, 'stat_completed_collections'),
+                completedCount.toString(),
+                Icons.check_circle_outline,
+                Colors.transparent,
+                gradient: AppDesign.refinedSuccessGradient,
+                textColor: Colors.white,
+              ),
+            ),
+          ],
         ),
+        if (sorted.isNotEmpty) ...[
+          const SizedBox(height: 20),
+          // Collection list with progress bars
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: theme.cardColor,
+              borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
+              boxShadow: AppDesign.cardShadow,
+            ),
+            child: Column(
+              children: [
+                for (var i = 0; i < sorted.length; i++) ...[
+                  if (i > 0) const SizedBox(height: 14),
+                  _buildCollectionProgressRow(sorted[i], theme),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildCollectionProgressRow(Collection col, ThemeData theme) {
+    final total = col.totalBooks;
+    final owned = col.ownedBooks;
+    final ratio = total > 0 ? owned / total : 0.0;
+    final readCount = _collectionReadCounts[col.id] ?? 0;
+    final isComplete = ratio >= 1.0;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              isComplete ? Icons.check_circle : Icons.bookmark_outline,
+              size: 16,
+              color: isComplete
+                  ? const Color(0xFF10B981)
+                  : theme.colorScheme.onSurfaceVariant,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                col.name,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            Text(
+              '$owned / $total',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        Row(
+          children: [
+            Expanded(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: ratio,
+                  minHeight: 6,
+                  backgroundColor:
+                      theme.colorScheme.onSurface.withValues(alpha: 0.08),
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    isComplete
+                        ? const Color(0xFF10B981)
+                        : const Color(0xFF0EA5E9),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              '${(ratio * 100).toStringAsFixed(0)}%',
+              style: theme.textTheme.bodySmall?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: isComplete
+                    ? const Color(0xFF10B981)
+                    : theme.colorScheme.onSurface,
+              ),
+            ),
+          ],
+        ),
+        if (readCount > 0) ...[
+          const SizedBox(height: 2),
+          Text(
+            TranslationService.translate(context, 'stat_collection_read')
+                .replaceAll('%1', readCount.toString()),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+              fontSize: 11,
+            ),
+          ),
+        ],
       ],
     );
   }
@@ -3987,99 +4847,6 @@ class _StatisticsContentState extends State<StatisticsContent>
               child: Text(
                 TranslationService.translate(context, 'no_borrowed_books'),
                 style: TextStyle(color: Colors.grey[600], fontSize: 13),
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildShelfStatisticsSection() {
-    final totalShelves = _tags.length;
-    final totalBooksInShelves = _tags.fold<int>(
-      0,
-      (sum, tag) => sum + tag.count,
-    );
-
-    var topShelves = _tags.toList()..sort((a, b) => b.count.compareTo(a.count));
-    if (topShelves.length > 5) topShelves = topShelves.sublist(0, 5);
-
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
-        boxShadow: AppDesign.cardShadow,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: _buildMiniStat(
-                  TranslationService.translate(context, 'total_shelves'),
-                  totalShelves.toString(),
-                  Icons.shelves,
-                  const Color(0xFFF59E0B),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildMiniStat(
-                  TranslationService.translate(context, 'books_in_shelves'),
-                  totalBooksInShelves.toString(),
-                  Icons.menu_book,
-                  const Color(0xFFD97706),
-                ),
-              ),
-            ],
-          ),
-          if (topShelves.isNotEmpty) ...[
-            const SizedBox(height: 24),
-            Text(
-              TranslationService.translate(context, 'top_shelves'),
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-            ),
-            const SizedBox(height: 12),
-            ...topShelves.map(
-              (tag) => Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.label_outline,
-                      size: 18,
-                      color: Colors.grey,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        tag.name,
-                        style: const TextStyle(fontSize: 13),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFB45309).withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        '${tag.count}',
-                        style: const TextStyle(
-                          fontSize: 11,
-                          color: Color(0xFFB45309),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
               ),
             ),
           ],

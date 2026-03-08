@@ -721,11 +721,24 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   }
 
   Widget _buildSliverAppBar(BuildContext context, Book book, String? coverUrl) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return SliverAppBar(
       expandedHeight: 400.0,
       pinned: true,
       stretch: true,
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      leading: IconButton(
+        icon: Container(
+          padding: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            color: isDark ? Colors.black45 : Colors.black26,
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
+        ),
+        tooltip: TranslationService.translate(context, 'back'),
+        onPressed: () => GoRouter.of(context).pop(),
+      ),
       flexibleSpace: FlexibleSpaceBar(
         background: ExcludeSemantics(child: Stack(
           fit: StackFit.expand,

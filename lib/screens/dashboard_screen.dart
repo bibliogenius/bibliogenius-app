@@ -25,7 +25,9 @@ import '../services/backup_reminder_service.dart';
 import 'statistics_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({super.key});
+  final int initialTab;
+
+  const DashboardScreen({super.key, this.initialTab = 0});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -54,7 +56,11 @@ class _DashboardScreenState extends State<DashboardScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(
+      length: 2,
+      vsync: this,
+      initialIndex: widget.initialTab.clamp(0, 1),
+    );
     _fetchDashboardData();
     Future.delayed(const Duration(seconds: 1), _checkWizard);
     _checkBackupReminder();
@@ -95,7 +101,10 @@ class _DashboardScreenState extends State<DashboardScreen>
     final bookRepo = Provider.of<BookRepository>(context, listen: false);
     final api = Provider.of<ApiService>(context, listen: false);
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
-    TranslationService.fetchTranslations(context);
+    // Dynamic translations from hub disabled: hub endpoint returns 500
+    // (Translation table not yet provisioned on hub PostgreSQL).
+    // Local .po files provide all translations. Re-enable when hub is ready.
+    // TranslationService.fetchTranslations(context);
 
     setState(() => _isLoading = true);
 
@@ -491,14 +500,15 @@ class _DashboardScreenState extends State<DashboardScreen>
                         Icons.menu_book,
                         onTap: () => context.push('/books'),
                       ),
-                      _buildStatCard(
-                        context,
-                        TranslationService.translate(context, 'lent_status'),
-                        (_stats['active_loans'] ?? 0).toString(),
-                        Icons.arrow_upward,
-                        isAccent: true,
-                        onTap: () => context.push('/requests?tab=lent'),
-                      ),
+                      if (!themeProvider.canBorrowBooks)
+                        _buildStatCard(
+                          context,
+                          TranslationService.translate(context, 'lent_status'),
+                          (_stats['active_loans'] ?? 0).toString(),
+                          Icons.arrow_upward,
+                          isAccent: true,
+                          onTap: () => context.push('/requests?tab=lent'),
+                        ),
                       if (!themeProvider.isLibrarian)
                         _buildStatCard(
                           context,

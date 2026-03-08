@@ -2507,6 +2507,10 @@ msgstr "Monatlicher Fortschritt"
 msgid "help_ctx_stats_publication_year"
 msgstr "Erscheinungsjahr"
 
+#. Average rating of your books grouped by shelf and collection. Only groups with at least 3 rated books are shown.
+msgid "help_ctx_stats_rating_by_group"
+msgstr "Durchschnittsbewertung Ihrer Bücher, gruppiert nach Regal und Sammlung. Nur Gruppen mit mindestens 3 bewerteten Büchern werden angezeigt."
+
 #. Analyze your reading status distribution. \"Read\" means finished books, \"Reading\" are currently in progress.
 msgid "help_ctx_stats_reading_habits"
 msgstr "Lesegewohnheiten"
@@ -4270,6 +4274,22 @@ msgstr "Tägliche Zitate"
 msgid "quotes_module_desc"
 msgstr "Inspirierende literarische Zitate anzeigen"
 
+#. Ratings by Category
+msgid "rating_by_group"
+msgstr "Bewertungen nach Kategorie"
+
+#. By Collection
+msgid "rating_by_group_collections"
+msgstr "Nach Sammlung"
+
+#. %1 rated books
+msgid "rating_by_group_rated_books"
+msgstr "%1 bewertete Bücher"
+
+#. By Shelf
+msgid "rating_by_group_shelves"
+msgstr "Nach Regal"
+
 #. My Rating
 msgid "rating_label"
 msgstr "Meine Bewertung"
@@ -5134,6 +5154,70 @@ msgstr "Sammlungen gesamt"
 #. Unique Authors
 msgid "stat_unique_authors"
 msgstr "Einzigartige Autoren"
+
+#. Section subtitle: sales statistics
+msgid "stat_subtitle_sales"
+msgstr "Einnahmen und Trends Ihrer Buchverkaeufe"
+
+#. Section subtitle: monthly progress
+msgid "stat_subtitle_monthly_progress"
+msgstr "Abgeschlossene Buecher pro Monat im letzten Jahr"
+
+#. Section subtitle: reading insights
+msgid "stat_subtitle_reading_insights"
+msgstr "Durchschnittliche Lesezeit und Jahresfortschritt"
+
+#. Section subtitle: rating by group
+msgid "stat_subtitle_rating_by_group"
+msgstr "Durchschnittsbewertung nach Regal und Sammlung"
+
+#. Section subtitle: reading habits
+msgid "stat_subtitle_reading_habits"
+msgstr "Verteilung Ihrer Lesestatus"
+
+#. Section subtitle: top authors
+msgid "stat_subtitle_top_authors"
+msgstr "Die am haeufigsten vertretenen Autoren in Ihrer Bibliothek"
+
+#. Section subtitle: publication timeline
+msgid "stat_subtitle_publication_timeline"
+msgstr "Verteilung Ihrer Buecher nach Erscheinungsjahrzehnt"
+
+#. Section subtitle: loan statistics
+msgid "stat_subtitle_loan_statistics"
+msgstr "Aktive Ausleihen und Rueckgabeverlauf"
+
+#. Section subtitle: borrowed statistics
+msgid "stat_subtitle_borrowed_statistics"
+msgstr "Aus anderen Bibliotheken geliehene Buecher"
+
+#. Section subtitle: shelf statistics
+msgid "stat_subtitle_shelf_statistics"
+msgstr "Buchverteilung auf Ihren Regalen"
+
+#. Section subtitle: collections with completion and read %
+msgid "stat_subtitle_collections_detail"
+msgstr "Vollstaendigkeit: %1% - Gelesen: %2%"
+
+#. Section subtitle: operation log
+msgid "stat_subtitle_operation_log"
+msgstr "Synchronisierungsaktivitaetsprotokoll"
+
+#. Section title: personal records
+msgid "personal_records"
+msgstr "Persoenliche Rekorde"
+
+#. Section subtitle: personal records
+msgid "stat_subtitle_personal_records"
+msgstr "Ihre besten Leistungen und Leseserien"
+
+#. Profile: statistics summary title
+msgid "profile_stats_title"
+msgstr "Meine Statistiken"
+
+#. Profile: see more statistics link
+msgid "see_more_stats"
+msgstr "Mehr anzeigen"
 
 #. Status
 msgid "status"
