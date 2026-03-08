@@ -71,4 +71,5 @@ const Map<String, String> kLanguageNativeNames = {
   'hu': 'Magyar',
   'ca': 'Català',
   'uk': 'Українська',
+  'bg': 'Български',
 };

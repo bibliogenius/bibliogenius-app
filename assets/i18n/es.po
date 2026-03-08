@@ -5219,6 +5219,14 @@ msgstr "Mis estadisticas"
 msgid "see_more_stats"
 msgstr "Ver mas"
 
+#. Profile section: gamification
+msgid "gamification"
+msgstr "Gamificacion"
+
+#. Profile section: leaderboard
+msgid "leaderboard"
+msgstr "Clasificacion de red"
+
 #. Status
 msgid "status"
 msgstr "Estado"

@@ -1,13 +1,17 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/avatar_config.dart';
 import '../models/gamification_status.dart';
 import '../models/leaderboard_entry.dart';
 import '../providers/hub_directory_provider.dart';
 import '../providers/theme_provider.dart';
+import '../theme/app_design.dart';
 import '../services/api_service.dart';
 import '../services/auth_service.dart';
 import '../services/ffi_service.dart';
@@ -16,6 +20,7 @@ import '../services/translation_service.dart';
 import '../widgets/avatar_customizer.dart';
 import '../widgets/gamification_widgets.dart';
 import '../widgets/genie_app_bar.dart';
+import '../widgets/reorderable_sections.dart';
 import '../widgets/scaffold_with_nav.dart';
 import '../widgets/invite_share_sheet.dart';
 import '../widgets/network_leaderboard_card.dart';
@@ -63,6 +68,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
   int _peerViews = 0;
   int _followerViews = 0;
   int _followerCount = 0;
+  Map<String, dynamic>? _salesStats;
+
+  // Stats summary card ordering
+  static const _defaultStatCardIds = [
+    'total_books',
+    'books_read',
+    'reading_streak',
+    'books_this_year',
+  ];
+  static const _salesCardIds = ['total_revenue', 'sales_count'];
+  List<String> _statCardOrder = List.from(_defaultStatCardIds);
+  Set<String> _hiddenStatCards = {};
+  bool _statsCardEditMode = false;
 
   @override
   void initState() {
@@ -70,6 +88,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _fetchStatus();
     _fetchViewStats();
     _fetchFollowerCount();
+    _loadStatCardPrefs();
   }
 
   Future<void> _fetchStatus() async {
@@ -134,6 +153,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (themeProvider.networkGamificationEnabled) {
         _fetchLeaderboard(apiService, themeProvider.libraryName);
       }
+
+      // Fetch sales stats for commerce-enabled profiles
+      if (themeProvider.commerceEnabled) {
+        _fetchSalesStats(apiService);
+      }
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -190,6 +214,59 @@ class _ProfileScreenState extends State<ProfileScreen> {
     } catch (e) {
       debugPrint('Leaderboard fetch failed: $e');
     }
+  }
+
+  Future<void> _fetchSalesStats(ApiService apiService) async {
+    try {
+      final res = await apiService.getSalesStatistics();
+      if (!mounted) return;
+      setState(() {
+        _salesStats = res.data as Map<String, dynamic>?;
+        // Ensure sales card IDs are in the order list
+        for (final id in _salesCardIds) {
+          if (!_statCardOrder.contains(id)) {
+            _statCardOrder.add(id);
+          }
+        }
+      });
+    } catch (e) {
+      debugPrint('Sales stats fetch failed: $e');
+    }
+  }
+
+  Future<void> _loadStatCardPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    final orderJson = prefs.getString('profile_stats_card_order');
+    final hiddenJson = prefs.getString('profile_stats_card_hidden');
+    if (!mounted) return;
+    setState(() {
+      if (orderJson != null) {
+        final saved = List<String>.from(json.decode(orderJson) as List);
+        final allKnown = {..._defaultStatCardIds, ..._salesCardIds};
+        final valid = saved.where(allKnown.contains).toList();
+        final newIds = allKnown.difference(valid.toSet());
+        _statCardOrder = [...valid, ...newIds];
+      }
+      if (hiddenJson != null) {
+        _hiddenStatCards = Set<String>.from(json.decode(hiddenJson) as List);
+      }
+    });
+  }
+
+  Future<void> _saveStatCardOrder() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      'profile_stats_card_order',
+      json.encode(_statCardOrder),
+    );
+  }
+
+  Future<void> _saveStatCardHidden() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      'profile_stats_card_hidden',
+      json.encode(_hiddenStatCards.toList()),
+    );
   }
 
   Future<void> _refreshStatus() async {
@@ -484,41 +561,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 // Follower count
                 _buildFollowerCountChip(context),
 
-                // Gamification Card
-                Consumer<ThemeProvider>(
-                  builder: (context, themeProvider, _) {
-                    if (!themeProvider.gamificationEnabled) {
-                      return const SizedBox.shrink();
-                    }
-                    return GamificationSummaryCard(
-                      status: GamificationStatus.fromJson(_userStatus!),
-                    );
-                  },
-                ),
-                const SizedBox(height: 16),
-
-                // Reading Goals
-                _buildReadingGoalsSection(),
-                const SizedBox(height: 16),
-
-                // Quick Statistics Summary
-                _buildStatsSummarySection(),
-                const SizedBox(height: 16),
-
-                // Network Leaderboard Card
-                Consumer<ThemeProvider>(
-                  builder: (context, themeProvider, _) {
-                    if (!themeProvider.networkGamificationEnabled ||
-                        _leaderboard == null) {
-                      return const SizedBox.shrink();
-                    }
-                    return NetworkLeaderboardCard(
-                      leaderboard: _leaderboard!,
-                      lastRefreshed: _lastRefreshed,
-                      onRefresh: _refreshStatus,
-                    );
-                  },
-                ),
+                // Reorderable profile sections
+                _buildProfileSections(context),
 
                 const SizedBox(height: 100),
               ],
@@ -528,6 +572,56 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
   }
+
+  Widget _buildProfileSections(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+
+    final sections = <SectionConfig>[
+      SectionConfig(
+        id: 'stats_summary',
+        title: TranslationService.translate(context, 'profile_stats_title'),
+        icon: Icons.insights,
+        gradient: AppDesign.oceanGradient,
+        builder: (_) => _buildStatsSummaryContent(),
+      ),
+      if (themeProvider.gamificationEnabled && _userStatus != null)
+        SectionConfig(
+          id: 'gamification',
+          title: TranslationService.translate(context, 'gamification'),
+          icon: Icons.emoji_events,
+          gradient: AppDesign.warningGradient,
+          builder: (_) => GamificationSummaryCard(
+            status: GamificationStatus.fromJson(_userStatus!),
+          ),
+        ),
+      SectionConfig(
+        id: 'reading_goals',
+        title: TranslationService.translate(context, 'reading_goals_title'),
+        icon: Icons.flag,
+        gradient: AppDesign.successGradient,
+        builder: (_) => _buildReadingGoalsContent(),
+      ),
+      if (themeProvider.networkGamificationEnabled && _leaderboard != null)
+        SectionConfig(
+          id: 'network_leaderboard',
+          title: TranslationService.translate(context, 'leaderboard'),
+          icon: Icons.leaderboard,
+          gradient: AppDesign.primaryGradient,
+          builder: (_) => NetworkLeaderboardCard(
+            leaderboard: _leaderboard!,
+            lastRefreshed: _lastRefreshed,
+            onRefresh: _refreshStatus,
+          ),
+        ),
+    ];
+
+    return ReorderableSections(
+      pageKey: 'profile',
+      sections: sections,
+    );
+  }
+
+  Widget _buildReadingGoalsContent() => _buildReadingGoalsSection();
 
   Widget _buildReadingGoalsSection() {
     // Get current goals from status
@@ -557,7 +651,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildStatsSummarySection() {
+  Widget _buildStatsSummaryContent() {
     final tracks = _userStatus?['tracks'] as Map<String, dynamic>?;
     final config = _userStatus?['config'] as Map<String, dynamic>?;
     final streak = _userStatus?['streak'] as Map<String, dynamic>?;
@@ -568,137 +662,282 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final currentStreak = (streak?['current'] as num?)?.toInt() ?? 0;
     final booksThisYear =
         (config?['reading_goal_progress'] as num?)?.toInt() ?? 0;
-
-    if (totalBooks == 0 && booksRead == 0) {
-      return const SizedBox.shrink();
-    }
+    final salesCount =
+        (_salesStats?['sales_count'] as num?)?.toInt() ?? 0;
+    final totalRevenue =
+        (_salesStats?['total_revenue'] as num?)?.toDouble() ?? 0.0;
 
     final theme = Theme.of(context);
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final showSales = themeProvider.commerceEnabled && _salesStats != null;
 
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8.0),
-      padding: const EdgeInsets.all(20.0),
-      decoration: BoxDecoration(
-        color: theme.cardColor,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 2,
-            offset: const Offset(0, 1),
-          ),
-        ],
+    // Card definitions: id -> (icon, value, label, color)
+    final cardDefs = <String, _StatCardDef>{
+      'total_books': _StatCardDef(
+        Icons.menu_book,
+        totalBooks.toString(),
+        TranslationService.translate(context, 'my_books'),
+        const Color(0xFF0EA5E9),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      theme.colorScheme.primary.withValues(alpha: 0.2),
-                      theme.colorScheme.primary.withValues(alpha: 0.1),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Icon(
-                  Icons.insights,
-                  color: theme.colorScheme.primary,
-                  size: 24,
-                ),
+      'books_read': _StatCardDef(
+        Icons.check_circle,
+        booksRead.toString(),
+        TranslationService.translate(context, 'stat_read'),
+        const Color(0xFF10B981),
+      ),
+      'reading_streak': _StatCardDef(
+        Icons.local_fire_department,
+        currentStreak.toString(),
+        TranslationService.translate(context, 'reading_streak'),
+        const Color(0xFFEF4444),
+      ),
+      'books_this_year': _StatCardDef(
+        Icons.calendar_today,
+        booksThisYear.toString(),
+        TranslationService.translate(context, 'books_finished_year'),
+        const Color(0xFFF97316),
+      ),
+      if (showSales) 'total_revenue': _StatCardDef(
+        Icons.attach_money,
+        '${totalRevenue.toStringAsFixed(2)} \u20ac',
+        TranslationService.translate(context, 'total_revenue'),
+        const Color(0xFF8B5CF6),
+      ),
+      if (showSales) 'sales_count': _StatCardDef(
+        Icons.receipt_long,
+        salesCount.toString(),
+        TranslationService.translate(context, 'sales_count'),
+        const Color(0xFF06B6D4),
+      ),
+    };
+
+    if (_statsCardEditMode) {
+      return _buildStatsCardEditMode(theme, cardDefs);
+    }
+
+    // Filter to visible cards in user order
+    final visibleIds = _statCardOrder
+        .where((id) => !_hiddenStatCards.contains(id) && cardDefs.containsKey(id))
+        .toList();
+
+    // Build rows of 2
+    final rows = <Widget>[];
+    for (var i = 0; i < visibleIds.length; i += 2) {
+      final first = visibleIds[i];
+      final second = (i + 1 < visibleIds.length) ? visibleIds[i + 1] : null;
+      rows.add(
+        Row(
+          children: [
+            Expanded(
+              child: _buildStatMiniCard(
+                theme,
+                cardDefs[first]!.icon,
+                cardDefs[first]!.value,
+                cardDefs[first]!.label,
+                cardDefs[first]!.color,
               ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Text(
-                  TranslationService.translate(
-                    context,
-                    'profile_stats_title',
-                  ).toUpperCase(),
-                  style: TextStyle(
-                    color: theme.colorScheme.onSurfaceVariant,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(
-                child: _buildStatMiniCard(
-                  theme,
-                  Icons.menu_book,
-                  totalBooks.toString(),
-                  TranslationService.translate(context, 'my_books'),
-                  const Color(0xFF0EA5E9),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildStatMiniCard(
-                  theme,
-                  Icons.check_circle,
-                  booksRead.toString(),
-                  TranslationService.translate(context, 'stat_read'),
-                  const Color(0xFF10B981),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
+            ),
+            const SizedBox(width: 12),
+            if (second != null)
               Expanded(
                 child: _buildStatMiniCard(
                   theme,
-                  Icons.local_fire_department,
-                  currentStreak.toString(),
-                  TranslationService.translate(context, 'reading_streak'),
-                  const Color(0xFFEF4444),
+                  cardDefs[second]!.icon,
+                  cardDefs[second]!.value,
+                  cardDefs[second]!.label,
+                  cardDefs[second]!.color,
                 ),
+              )
+            else
+              const Expanded(child: SizedBox()),
+          ],
+        ),
+      );
+    }
+
+    return Column(
+      children: [
+        ...rows.expand((row) => [row, const SizedBox(height: 12)]),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.edit_outlined, size: 18),
+              tooltip: TranslationService.translate(
+                context,
+                'tooltip_edit_sections',
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildStatMiniCard(
-                  theme,
-                  Icons.calendar_today,
-                  booksThisYear.toString(),
-                  TranslationService.translate(
-                    context,
-                    'books_finished_year',
-                  ),
-                  const Color(0xFFF97316),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Align(
-            alignment: Alignment.centerRight,
-            child: TextButton.icon(
+              onPressed: () => setState(() => _statsCardEditMode = true),
+            ),
+            TextButton.icon(
               onPressed: () => context.push('/dashboard?tab=1'),
               icon: const Icon(Icons.arrow_forward, size: 16),
               label: Text(
                 TranslationService.translate(context, 'see_more_stats'),
               ),
             ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatsCardEditMode(
+    ThemeData theme,
+    Map<String, _StatCardDef> cardDefs,
+  ) {
+    // Only show cards that exist in cardDefs (respects commerce toggle)
+    final availableOrder = _statCardOrder
+        .where(cardDefs.containsKey)
+        .toList();
+
+    final labels = <String, String>{};
+    final icons = <String, IconData>{};
+    for (final entry in cardDefs.entries) {
+      labels[entry.key] = entry.value.label;
+      icons[entry.key] = entry.value.icon;
+    }
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Text(
+            TranslationService.translate(context, 'sections_drag_hint'),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ),
-        ],
-      ),
+        ),
+        ReorderableListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          buildDefaultDragHandles: false,
+          itemCount: availableOrder.length,
+          onReorder: (oldIndex, newIndex) {
+            setState(() {
+              if (newIndex > oldIndex) newIndex -= 1;
+              final srcIdx = _statCardOrder.indexOf(availableOrder[oldIndex]);
+              final id = _statCardOrder.removeAt(srcIdx);
+              // Find the insertion point in the full order
+              if (newIndex >= availableOrder.length) {
+                _statCardOrder.add(id);
+              } else {
+                final targetIdx = _statCardOrder.indexOf(
+                  availableOrder[newIndex],
+                );
+                _statCardOrder.insert(targetIdx, id);
+              }
+            });
+            _saveStatCardOrder();
+          },
+          itemBuilder: (context, index) {
+            final id = availableOrder[index];
+            final isHidden = _hiddenStatCards.contains(id);
+            final isDark = theme.brightness == Brightness.dark;
+            return Opacity(
+              key: ValueKey(id),
+              opacity: isHidden ? 0.4 : 1.0,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 3),
+                child: Material(
+                  color: isDark
+                      ? theme.colorScheme.surfaceContainerHighest
+                      : theme.colorScheme.surfaceContainerLow,
+                  borderRadius: BorderRadius.circular(10),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 8,
+                    ),
+                    child: Row(
+                      children: [
+                        ReorderableDragStartListener(
+                          index: index,
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 6),
+                            child: Icon(
+                              Icons.drag_handle,
+                              color: theme.colorScheme.onSurfaceVariant,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Icon(icons[id] ?? Icons.help_outline, size: 16),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            labels[id] ?? id,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            isHidden
+                                ? Icons.visibility_off_outlined
+                                : Icons.visibility_outlined,
+                            size: 20,
+                          ),
+                          tooltip: TranslationService.translate(
+                            context,
+                            'tooltip_toggle_section',
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              if (isHidden) {
+                                _hiddenStatCards.remove(id);
+                              } else {
+                                _hiddenStatCards.add(id);
+                              }
+                            });
+                            _saveStatCardHidden();
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            TextButton(
+              onPressed: () async {
+                setState(() {
+                  _statCardOrder = List.from(_defaultStatCardIds);
+                  if (_salesStats != null) {
+                    _statCardOrder.addAll(_salesCardIds);
+                  }
+                  _hiddenStatCards = {};
+                  _statsCardEditMode = false;
+                });
+                final prefs = await SharedPreferences.getInstance();
+                await prefs.remove('profile_stats_card_order');
+                await prefs.remove('profile_stats_card_hidden');
+              },
+              child: Text(
+                TranslationService.translate(context, 'reset'),
+              ),
+            ),
+            const SizedBox(width: 8),
+            FilledButton(
+              onPressed: () =>
+                  setState(() => _statsCardEditMode = false),
+              child: Text(
+                TranslationService.translate(context, 'done'),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -1303,4 +1542,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
       },
     );
   }
+}
+
+class _StatCardDef {
+  final IconData icon;
+  final String value;
+  final String label;
+  final Color color;
+
+  const _StatCardDef(this.icon, this.value, this.label, this.color);
 }

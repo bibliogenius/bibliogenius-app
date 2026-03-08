@@ -58,7 +58,7 @@ class TranslationService {
 
   /// Single source of truth for supported UI languages.
   /// To add a language: add its code here and drop a .po file in assets/i18n/.
-  static const List<String> supportedLocales = ['en', 'fr', 'es', 'de', 'pt-BR'];
+  static const List<String> supportedLocales = ['en', 'fr', 'es', 'de', 'pt-BR', 'it', 'tr', 'bg'];
 
   static final Map<String, Map<String, String>> _poTranslations = {};
 

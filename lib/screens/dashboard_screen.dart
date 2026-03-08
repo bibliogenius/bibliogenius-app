@@ -509,7 +509,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                           isAccent: true,
                           onTap: () => context.push('/requests?tab=lent'),
                         ),
-                      if (!themeProvider.isLibrarian)
+                      if (themeProvider.canBorrowBooks)
                         _buildStatCard(
                           context,
                           TranslationService.translate(

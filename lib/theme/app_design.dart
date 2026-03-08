@@ -65,6 +65,27 @@ class AppDesign {
     colors: [Color(0xFFEC4899), Color(0xFFDB2777)],
   );
 
+  /// Flame gradient - Red (matches profile streak color)
+  static const flameGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFFEF4444), Color(0xFFDC2626)],
+  );
+
+  /// Orange gradient (matches profile "books this year" color)
+  static const orangeGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFFF97316), Color(0xFFEA580C)],
+  );
+
+  /// Cyan gradient (matches profile "sales count" color)
+  static const cyanGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFF06B6D4), Color(0xFF0891B2)],
+  );
+
   /// Dark gradient - Slate tones
   static const darkGradient = LinearGradient(
     begin: Alignment.topLeft,
