@@ -551,6 +551,9 @@ class ApiService {
                 'notes': l.notes,
                 'contact_name': l.contactName,
                 'book_title': l.bookTitle,
+                'book_id': l.bookId,
+                'cover_url': l.coverUrl,
+                'isbn': l.isbn,
               },
             )
             .toList();

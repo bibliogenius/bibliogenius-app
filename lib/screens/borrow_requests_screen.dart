@@ -474,6 +474,14 @@ class _LoansScreenState extends State<LoansScreen>
       return true;
     }).toList();
 
+    // Sort: active/overdue first, returned last
+    if (_lentStatusFilter == 'all') {
+      filtered.sort((a, b) {
+        if (a.isReturned != b.isReturned) return a.isReturned ? 1 : -1;
+        return 0;
+      });
+    }
+
     return RefreshIndicator(
       onRefresh: _fetchAllData,
       child: Column(

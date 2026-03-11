@@ -1248,6 +1248,9 @@ sealed class FrbLoan with _$FrbLoan {
     String? notes,
     required String contactName,
     required String bookTitle,
+    int? bookId,
+    String? coverUrl,
+    String? isbn,
   }) = _FrbLoan;
 }
 

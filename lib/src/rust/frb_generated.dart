@@ -4709,8 +4709,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   FrbLoan dco_decode_frb_loan(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 11)
-      throw Exception('unexpected arr length: expect 11 but see ${arr.length}');
+    if (arr.length != 14)
+      throw Exception('unexpected arr length: expect 14 but see ${arr.length}');
     return FrbLoan(
       id: dco_decode_i_32(arr[0]),
       copyId: dco_decode_i_32(arr[1]),
@@ -4723,6 +4723,9 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       notes: dco_decode_opt_String(arr[8]),
       contactName: dco_decode_String(arr[9]),
       bookTitle: dco_decode_String(arr[10]),
+      bookId: dco_decode_opt_box_autoadd_i_32(arr[11]),
+      coverUrl: dco_decode_opt_String(arr[12]),
+      isbn: dco_decode_opt_String(arr[13]),
     );
   }
 
@@ -5813,6 +5816,9 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_notes = sse_decode_opt_String(deserializer);
     var var_contactName = sse_decode_String(deserializer);
     var var_bookTitle = sse_decode_String(deserializer);
+    var var_bookId = sse_decode_opt_box_autoadd_i_32(deserializer);
+    var var_coverUrl = sse_decode_opt_String(deserializer);
+    var var_isbn = sse_decode_opt_String(deserializer);
     return FrbLoan(
       id: var_id,
       copyId: var_copyId,
@@ -5825,6 +5831,9 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       notes: var_notes,
       contactName: var_contactName,
       bookTitle: var_bookTitle,
+      bookId: var_bookId,
+      coverUrl: var_coverUrl,
+      isbn: var_isbn,
     );
   }
 
@@ -7027,6 +7036,9 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_opt_String(self.notes, serializer);
     sse_encode_String(self.contactName, serializer);
     sse_encode_String(self.bookTitle, serializer);
+    sse_encode_opt_box_autoadd_i_32(self.bookId, serializer);
+    sse_encode_opt_String(self.coverUrl, serializer);
+    sse_encode_opt_String(self.isbn, serializer);
   }
 
   @protected
