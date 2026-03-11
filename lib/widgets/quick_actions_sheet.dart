@@ -304,14 +304,19 @@ class QuickActionsSheet extends StatelessWidget {
               children: tags.map((tag) {
                 final displayName = tag.fullPath ?? tag.name;
                 return SimpleDialogOption(
-                  onPressed: () {
+                  onPressed: () async {
                     Navigator.pop(dialogContext);
                     Navigator.pop(context);
-                    router.push('/scan', extra: {
+                    final result = await router.push('/scan', extra: {
                       'shelfId': tag.name,
                       'shelfName': displayName,
                       'batch': true,
                     });
+                    if (result == true) {
+                      onBookAdded?.call();
+                      // Navigate to the shelf to show the result
+                      router.go('/shelves?tag=${Uri.encodeComponent(tag.name)}');
+                    }
                   },
                   child: Row(
                     children: [

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../data/repositories/book_repository.dart';
 import '../../services/curated_lists_service.dart';
 import '../../services/api_service.dart';
 import '../../services/collection_import_service.dart';
@@ -23,11 +24,31 @@ class _ImportCuratedListScreenState extends State<ImportCuratedListScreen> {
   String? _selectedCategoryId;
   List<CuratedList> _currentLists = [];
   String _profileType = 'individual';
+  Set<String> _libraryIsbns = {};
 
   @override
   void initState() {
     super.initState();
     _loadProfileAndCategories();
+    _loadLibraryIsbns();
+  }
+
+  Future<void> _loadLibraryIsbns() async {
+    try {
+      final bookRepo = Provider.of<BookRepository>(context, listen: false);
+      final books = await bookRepo.getBooks();
+      final isbns = <String>{};
+      for (final book in books) {
+        if (book.isbn != null && book.isbn!.isNotEmpty) {
+          isbns.add(book.isbn!.replaceAll(RegExp(r'[^0-9X]'), ''));
+        }
+      }
+      if (mounted) {
+        setState(() => _libraryIsbns = isbns);
+      }
+    } catch (e) {
+      debugPrint('Error loading library ISBNs: $e');
+    }
   }
 
   Future<void> _loadProfileAndCategories() async {
@@ -400,8 +421,13 @@ class _ImportCuratedListScreenState extends State<ImportCuratedListScreen> {
                   child: _isLoading
                       ? const Center(child: CircularProgressIndicator())
                       : _currentLists.isEmpty
-                      ? const Center(
-                          child: Text('Aucune liste dans cette catégorie'),
+                      ? Center(
+                          child: Text(
+                            TranslationService.translate(
+                              context,
+                              'curated_no_lists',
+                            ),
+                          ),
                         )
                       : LayoutBuilder(
                           builder: (context, constraints) {
@@ -462,9 +488,22 @@ class _ImportCuratedListScreenState extends State<ImportCuratedListScreen> {
     );
   }
 
+  int _countOwnedBooks(CuratedList list, String langCode) {
+    int count = 0;
+    for (final book in list.books) {
+      final isbn = book.getIsbnForLanguage(langCode);
+      final clean = isbn.replaceAll(RegExp(r'[^0-9X]'), '');
+      if (_libraryIsbns.contains(clean)) count++;
+    }
+    return count;
+  }
+
   Widget _buildListCard(CuratedList list, String langCode) {
     final title = list.getTitle(langCode);
     final description = list.getDescription(langCode);
+    final total = list.books.length;
+    final owned = _countOwnedBooks(list, langCode);
+    final progress = total > 0 ? owned / total : 0.0;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
@@ -537,9 +576,39 @@ class _ImportCuratedListScreenState extends State<ImportCuratedListScreen> {
                   ),
 
                 const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: LinearProgressIndicator(
+                          value: progress,
+                          minHeight: 6,
+                          backgroundColor:
+                              Theme.of(context).colorScheme.surfaceContainerHighest,
+                          color: owned == total
+                              ? Colors.green
+                              : Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      '$owned / $total',
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
                 Text(
-                  'Contient ${list.books.length} livres',
-                  style: Theme.of(context).textTheme.labelLarge,
+                  TranslationService.translate(
+                    context,
+                    'curated_progress_label',
+                    params: {'owned': '$owned', 'total': '$total'},
+                  ),
+                  style: Theme.of(context).textTheme.bodySmall,
                 ),
                 const SizedBox(height: 8),
 
@@ -573,7 +642,11 @@ class _ImportCuratedListScreenState extends State<ImportCuratedListScreen> {
                   Padding(
                     padding: const EdgeInsets.only(left: 24, top: 4),
                     child: Text(
-                      '+ ${list.books.length - 3} autres...',
+                      TranslationService.translate(
+                        context,
+                        'curated_more_books',
+                        params: {'count': '${list.books.length - 3}'},
+                      ),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ),

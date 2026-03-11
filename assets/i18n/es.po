@@ -1530,6 +1530,18 @@ msgstr "Descubrir colecciones"
 msgid "discover_collections_subtitle"
 msgstr "Explore listas curadas de libros"
 
+#. {owned} libros de esta colección en tu biblioteca
+msgid "curated_progress_label"
+msgstr "{owned} de {total} libros en tu biblioteca"
+
+#. Sin listas en esta categoría
+msgid "curated_no_lists"
+msgstr "Sin listas en esta categoría"
+
+#. + {count} más...
+msgid "curated_more_books"
+msgstr "+ {count} más..."
+
 #. Discover Curated Collections
 msgid "discover_collections_title"
 msgstr "Descubrir colecciones"

@@ -1433,6 +1433,18 @@ msgstr "Descubra Coleções"
 msgid "discover_collections_subtitle"
 msgstr "Explore clássicos literários, vencedores de prêmios e listas de leitura temáticas curadas por nossa equipe."
 
+#. {owned} livros desta coleção na sua biblioteca
+msgid "curated_progress_label"
+msgstr "{owned} de {total} livros na sua biblioteca"
+
+#. Nenhuma lista nesta categoria
+msgid "curated_no_lists"
+msgstr "Nenhuma lista nesta categoria"
+
+#. + {count} mais...
+msgid "curated_more_books"
+msgstr "+ {count} mais..."
+
 #. Discover Curated Collections
 msgid "discover_collections_title"
 msgstr "Descubra Coleções Curadas"

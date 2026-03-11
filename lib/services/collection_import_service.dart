@@ -53,20 +53,24 @@ class CollectionImportService {
         try {
           final isbn = book.getIsbnForLanguage(langCode);
 
-          // Prepare book data - include title from note for FFI mode
+          // Lookup metadata from external sources (cover, author, publisher...)
+          final lookup = await _apiService.lookupBook(isbn);
+
+          // Prepare book data: lookup results enriched with YAML overrides
           final bookData = {
             'isbn': isbn,
             'title':
                 book.note ??
-                'Untitled', // Use note as fallback title, or 'Untitled' if note is null
+                lookup?['title'] ??
+                'Untitled',
             'reading_status': readingStatus,
             'owned': shouldMarkAsOwned,
-            'publisher': book.publisher,
-            'publication_year': book
-                .publishedDate, // Map publishedDate string to publication_year
-            'description': book.description,
-            'authors': book.authors,
-            'cover_url': book.coverUrl,
+            'author': lookup?['author'] ?? book.authors?.join(', '),
+            'publisher': book.publisher ?? lookup?['publisher'],
+            'publication_year': book.publishedDate ??
+                lookup?['year'],
+            'description': book.description ?? lookup?['summary'],
+            'cover_url': book.coverUrl ?? lookup?['cover_url'],
           };
 
           // Try Create

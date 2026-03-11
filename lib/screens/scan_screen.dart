@@ -842,10 +842,9 @@ class _ScanScreenState extends State<ScanScreen> {
         },
       ),
     ).whenComplete(() {
-      titleCtrl.dispose();
-      authorCtrl.dispose();
-      publisherCtrl.dispose();
-      yearCtrl.dispose();
+      // Do NOT dispose controllers here: the modal's widget tree may still
+      // reference them during its closing animation (~300ms). They are local
+      // variables and will be garbage collected once the closure is released.
       if (shouldCommitOnClose) {
         _commitBatchedBooks();
       } else if (mounted && !_isCommitting) {

@@ -1485,6 +1485,18 @@ msgstr "Koleksiyonları Keşfet"
 msgid "discover_collections_subtitle"
 msgstr "Ekibimiz tarafından hazırlanan edebi klasikleri, ödüllüleri ve tematik okuma listelerini keşfedin."
 
+#. Kütüphanenizde bu koleksiyondan {owned} kitap
+msgid "curated_progress_label"
+msgstr "Kütüphanenizde {total} kitaptan {owned} tanesi mevcut"
+
+#. Bu kategoride liste yok
+msgid "curated_no_lists"
+msgstr "Bu kategoride liste yok"
+
+#. + {count} daha...
+msgid "curated_more_books"
+msgstr "+ {count} daha..."
+
 #. Discover Curated Collections
 msgid "discover_collections_title"
 msgstr "Hazırlanmış Koleksiyonları Keşfet"
