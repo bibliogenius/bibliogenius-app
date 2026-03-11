@@ -1,7 +1,7 @@
 # BiblioGenius App - Flutter
 
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/bibliogenius/bibliogenius-app/actions)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Platform](https://img.shields.io/badge/platform-iOS%20|%20Android%20|%20macOS%20|%20Windows%20|%20Linux-blue)](https://flutter.dev)
 
 **Cross-platform mobile and desktop application for managing your personal library.**
@@ -86,4 +86,4 @@ sudo apt-get install clang cmake pkg-config libgtk-3-dev
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the GNU Affero General Public License v3.0 - see the [LICENSE](LICENSE) file for details.

@@ -552,6 +552,62 @@ msgstr "Сканирайте множество книги подред"
 msgid "batch_scan_title"
 msgstr "Пакетно сканиране"
 
+#. Already scanned in this session
+msgid "batch_scan_duplicate"
+msgstr "Already scanned"
+
+#. Save scanned books
+msgid "batch_scan_save"
+msgstr "Save"
+
+#. Saving books progress
+msgid "batch_scan_saving"
+msgstr "Saving..."
+
+#. Batch save result
+msgid "batch_scan_result"
+msgstr "Result"
+
+#. Discard scanned books confirmation title
+msgid "batch_scan_discard_title"
+msgstr "Discard scanned books?"
+
+#. Discard scanned books confirmation message
+msgid "batch_scan_discard_message"
+msgstr "scanned books have not been saved yet. They will be lost."
+
+#. Discard button
+msgid "batch_scan_discard"
+msgstr "Discard"
+
+#. Book already in collection - dialog title
+msgid "batch_scan_existing_title"
+msgstr "Already in your library"
+
+#. Book already in collection - dialog message
+msgid "batch_scan_existing_message"
+msgstr "This book is already in your collection."
+
+#. Skip this book
+msgid "batch_scan_skip"
+msgstr "Skip"
+
+#. Add another copy
+msgid "batch_scan_add_copy"
+msgstr "Add a copy"
+
+#. Review scanned books before saving
+msgid "batch_scan_review"
+msgstr "Review before saving"
+
+#. Previous book in review
+msgid "batch_scan_prev"
+msgstr "Previous"
+
+#. Next book in review
+msgid "batch_scan_next"
+msgstr "Next"
+
 #. Best Rated
 msgid "best_rated"
 msgstr "Най-добре оценени"

@@ -612,6 +612,62 @@ msgstr "Escanea varios libros seguidos"
 msgid "batch_scan_title"
 msgstr "Escaneo por lotes"
 
+#. Already scanned in this session
+msgid "batch_scan_duplicate"
+msgstr "Ya escaneado"
+
+#. Save scanned books
+msgid "batch_scan_save"
+msgstr "Guardar"
+
+#. Saving books progress
+msgid "batch_scan_saving"
+msgstr "Guardando..."
+
+#. Batch save result
+msgid "batch_scan_result"
+msgstr "Resultado"
+
+#. Discard scanned books confirmation title
+msgid "batch_scan_discard_title"
+msgstr "¿Descartar los libros escaneados?"
+
+#. Discard scanned books confirmation message
+msgid "batch_scan_discard_message"
+msgstr "libros escaneados aún no se han guardado. Se perderán."
+
+#. Discard button
+msgid "batch_scan_discard"
+msgstr "Descartar"
+
+#. Book already in collection - dialog title
+msgid "batch_scan_existing_title"
+msgstr "Ya está en su biblioteca"
+
+#. Book already in collection - dialog message
+msgid "batch_scan_existing_message"
+msgstr "Este libro ya está en su colección."
+
+#. Skip this book
+msgid "batch_scan_skip"
+msgstr "Omitir"
+
+#. Add another copy
+msgid "batch_scan_add_copy"
+msgstr "Añadir un ejemplar"
+
+#. Review scanned books before saving
+msgid "batch_scan_review"
+msgstr "Revisar antes de guardar"
+
+#. Previous book in review
+msgid "batch_scan_prev"
+msgstr "Anterior"
+
+#. Next book in review
+msgid "batch_scan_next"
+msgstr "Siguiente"
+
 #. Best Rated
 msgid "best_rated"
 msgstr "Mejor calificado"

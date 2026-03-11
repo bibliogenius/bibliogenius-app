@@ -3724,6 +3724,15 @@ class ApiService {
     // In FFI mode, use the local HTTP server directly.
 
     try {
+      // Ensure embedded HTTP server is running (required for FFI mode)
+      if (useFfi) {
+        final serverAvailable = await ensureServerRunning();
+        if (!serverAvailable) {
+          debugPrint('❌ Lookup failed: embedded HTTP server not available');
+          return null;
+        }
+      }
+
       final currentLang = locale?.languageCode ?? 'en';
       // Use a dedicated Dio instance with longer timeout for lookups
       // The backend may chain BNF → Inventaire → OpenLibrary → Google Books,
@@ -3760,6 +3769,7 @@ class ApiService {
               ? int.tryParse(data['publication_year'].toString())
               : null,
           'cover_url': data['cover_url'],
+          'summary': data['summary'],
         };
       }
     } catch (e) {

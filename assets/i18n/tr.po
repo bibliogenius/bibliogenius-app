@@ -591,6 +591,62 @@ msgstr "Arka arkaya birden fazla kitap tara"
 msgid "batch_scan_title"
 msgstr "Toplu Tarama"
 
+#. Already scanned in this session
+msgid "batch_scan_duplicate"
+msgstr "Zaten tarandı"
+
+#. Save scanned books
+msgid "batch_scan_save"
+msgstr "Kaydet"
+
+#. Saving books progress
+msgid "batch_scan_saving"
+msgstr "Kaydediliyor..."
+
+#. Batch save result
+msgid "batch_scan_result"
+msgstr "Sonuç"
+
+#. Discard scanned books confirmation title
+msgid "batch_scan_discard_title"
+msgstr "Taranan kitaplar silinsin mi?"
+
+#. Discard scanned books confirmation message
+msgid "batch_scan_discard_message"
+msgstr "taranan kitap henüz kaydedilmedi. Kaybolacaklar."
+
+#. Discard button
+msgid "batch_scan_discard"
+msgstr "Sil"
+
+#. Book already in collection - dialog title
+msgid "batch_scan_existing_title"
+msgstr "Zaten kütüphanenizde"
+
+#. Book already in collection - dialog message
+msgid "batch_scan_existing_message"
+msgstr "Bu kitap zaten koleksiyonunuzda."
+
+#. Skip this book
+msgid "batch_scan_skip"
+msgstr "Atla"
+
+#. Add another copy
+msgid "batch_scan_add_copy"
+msgstr "Kopya ekle"
+
+#. Review scanned books before saving
+msgid "batch_scan_review"
+msgstr "Kaydetmeden önce incele"
+
+#. Previous book in review
+msgid "batch_scan_prev"
+msgstr "Önceki"
+
+#. Next book in review
+msgid "batch_scan_next"
+msgstr "Sonraki"
+
 #. Best Rated
 msgid "best_rated"
 msgstr "En İyi Puanlanan"

@@ -85,7 +85,10 @@ class _ScanScreenState extends State<ScanScreen> {
   int _batchCount = 0;
   String? _lastAddedTitle;
   bool _isProcessingBatch = false;
+  bool _isCommitting = false;
+  double _commitProgress = 0.0;
   final List<_BatchedBook> _batchedBooks = [];
+  final Set<String> _batchedIsbns = {};
 
   @override
   void dispose() {
@@ -160,7 +163,24 @@ class _ScanScreenState extends State<ScanScreen> {
   }
 
   Future<void> _handleBatchScan(String isbn) async {
-    if (_isProcessingBatch) return;
+    if (_isProcessingBatch || _isCommitting) return;
+
+    // Prevent duplicate ISBNs within the same batch session
+    if (_batchedIsbns.contains(isbn)) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              TranslationService.translate(context, 'batch_scan_duplicate'),
+            ),
+            duration: const Duration(seconds: 1),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        setState(() => _isScanning = true);
+      }
+      return;
+    }
 
     setState(() {
       _isScanning = false;
@@ -171,31 +191,26 @@ class _ScanScreenState extends State<ScanScreen> {
       final bookRepo = Provider.of<BookRepository>(context, listen: false);
       final api = Provider.of<ApiService>(context, listen: false);
 
-      int? bookId;
       String? bookTitle;
       String? bookCoverUrl;
+      Map<String, dynamic>? bookPayload;
 
       // 1. Check if book already exists in library
-      // This "findBookByIsbn" might be slow if library is huge, but safe for now.
       Book? existingBook = await bookRepo.findBookByIsbn(isbn);
 
       if (existingBook != null) {
-        bookId = existingBook.id;
         bookTitle = existingBook.title;
         bookCoverUrl = existingBook.coverUrl;
 
-        // If shelf (tag) is pre-selected, ensure book has it
-        if (widget.preSelectedShelfId != null && bookId != null) {
-          final currentSubjects = existingBook.subjects ?? <String>[];
-          if (!currentSubjects.contains(widget.preSelectedShelfId)) {
-            final newSubjects = List<String>.from(currentSubjects)
-              ..add(widget.preSelectedShelfId!);
-            await bookRepo.updateBook(bookId, {'subjects': newSubjects});
-          }
+        // Ask the user: add a copy or skip?
+        if (mounted) setState(() => _isProcessingBatch = false);
+        if (!mounted) return;
+        final action = await _showExistingBookDialog(existingBook);
+        if (action != _ExistingBookAction.addCopy) {
+          return; // finally block re-enables scanning
         }
       } else {
-        // 2. Not found locally, lookup metadata
-        // Re-check connectivity before network call
+        // 2. Not found locally, lookup metadata (needs network)
         final isOnline = await BookUrlHelper.isOnline();
         if (mounted) setState(() => _isOffline = !isOnline);
 
@@ -206,9 +221,10 @@ class _ScanScreenState extends State<ScanScreen> {
 
         if (bookData != null) {
           bookTitle = bookData['title'] ?? 'Unknown Title';
+          bookCoverUrl = bookData['cover_url'] as String?;
 
-          // Create the book
-          final bookPayload = {
+          // Build payload for deferred creation
+          bookPayload = {
             'title': bookTitle,
             'author': bookData['authors'] != null
                 ? (bookData['authors'] as List).join(', ')
@@ -222,10 +238,6 @@ class _ScanScreenState extends State<ScanScreen> {
             if (widget.preSelectedShelfId != null)
               'subjects': [widget.preSelectedShelfId],
           };
-
-          final createdBook = await bookRepo.createBook(bookPayload);
-          bookId = createdBook.id;
-          bookCoverUrl = bookData['cover_url'] as String?;
         } else {
           // Book not found in metadata sources
           if (mounted) {
@@ -235,61 +247,25 @@ class _ScanScreenState extends State<ScanScreen> {
               await _showBookNotFoundDialog(isbn);
             }
           }
-          return; // Stop here, don't show success snackbar
+          return;
         }
       }
 
-      // 3. Add to collection if specified
-      if (bookId != null) {
-        if (widget.preSelectedCollectionId != null) {
-          try {
-            // Use addBookToCollection to append, not replace!
-            await api.addBookToCollection(
-              widget.preSelectedCollectionId!.toString(),
-              bookId,
-            );
-          } catch (e) {
-            // Ignore if already in collection or other minor error,
-            // but log it.
-            debugPrint('Error adding to collection: $e');
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Erreur ajout collection: $e'),
-                  backgroundColor: Colors.red,
-                ),
-              );
-            }
-          }
-        }
-      } else {
-        // Book ID is null!
-        throw Exception("Impossible de créer ou récupérer le livre (ID null)");
-      }
-
-      // 4. Create copy for EXISTING OWNED books only
-      // New books already have a copy created by the backend when owned=true.
-      // For existing books, we create an additional copy only if book is owned
-      // (user may have multiple physical copies of books they own).
-      if (existingBook != null && existingBook.owned) {
-        final copyRepo = Provider.of<CopyRepository>(context, listen: false);
-        await copyRepo.createCopy({'book_id': bookId, 'status': 'available'});
-      }
-
-      // Mark catalog dirty so the hub gets updated on next sync
-      context.read<HubDirectoryProvider>().markCatalogDirty();
-
+      // 3. Cache the book locally (no DB write yet)
+      _batchedIsbns.add(isbn);
       setState(() {
         _batchCount++;
         _lastAddedTitle = bookTitle ?? isbn;
         _lastScannedIsbn = isbn;
         _batchedBooks.add(_BatchedBook(
+          isbn: isbn,
           title: bookTitle ?? isbn,
           coverUrl: bookCoverUrl,
+          bookPayload: bookPayload,
+          existingBook: existingBook,
         ));
       });
 
-      // Show success feedback
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -308,7 +284,6 @@ class _ScanScreenState extends State<ScanScreen> {
         );
       }
     } finally {
-      // Re-enable scanning after a short delay
       await Future.delayed(const Duration(milliseconds: 500));
       if (mounted) {
         setState(() {
@@ -317,6 +292,578 @@ class _ScanScreenState extends State<ScanScreen> {
         });
       }
     }
+  }
+
+  /// Persist all cached books to the database. Called when user taps "Done".
+  Future<void> _commitBatchedBooks() async {
+    if (_batchedBooks.isEmpty) {
+      context.pop(false);
+      return;
+    }
+
+    setState(() {
+      _isScanning = false;
+      _isCommitting = true;
+      _commitProgress = 0.0;
+    });
+
+    controller.stop();
+
+    final bookRepo = Provider.of<BookRepository>(context, listen: false);
+    final copyRepo = Provider.of<CopyRepository>(context, listen: false);
+    final api = Provider.of<ApiService>(context, listen: false);
+
+    int successCount = 0;
+    int errorCount = 0;
+
+    for (int i = 0; i < _batchedBooks.length; i++) {
+      final book = _batchedBooks[i];
+
+      try {
+        if (book.isNew) {
+          final createdBook = await bookRepo.createBook(book.bookPayload!);
+          final bookId = createdBook.id;
+
+          if (bookId != null && widget.preSelectedCollectionId != null) {
+            try {
+              await api.addBookToCollection(
+                widget.preSelectedCollectionId!.toString(),
+                bookId,
+              );
+            } catch (e) {
+              debugPrint('Error adding to collection: $e');
+            }
+          }
+        } else if (book.existingBook != null) {
+          final existing = book.existingBook!;
+          final bookId = existing.id;
+
+          // Add shelf tag if pre-selected
+          if (widget.preSelectedShelfId != null && bookId != null) {
+            final currentSubjects = existing.subjects ?? <String>[];
+            if (!currentSubjects.contains(widget.preSelectedShelfId)) {
+              final newSubjects = List<String>.from(currentSubjects)
+                ..add(widget.preSelectedShelfId!);
+              await bookRepo.updateBook(bookId, {'subjects': newSubjects});
+            }
+          }
+
+          // Add to collection if specified
+          if (bookId != null && widget.preSelectedCollectionId != null) {
+            try {
+              await api.addBookToCollection(
+                widget.preSelectedCollectionId!.toString(),
+                bookId,
+              );
+            } catch (e) {
+              debugPrint('Error adding to collection: $e');
+            }
+          }
+
+          // Create additional copy for existing owned books
+          if (existing.owned) {
+            await copyRepo.createCopy({
+              'book_id': bookId,
+              'status': 'available',
+            });
+          }
+        }
+
+        successCount++;
+      } catch (e) {
+        errorCount++;
+        debugPrint('Error committing book "${book.title}": $e');
+      }
+
+      if (mounted) {
+        setState(() {
+          _commitProgress = (i + 1) / _batchedBooks.length;
+        });
+      }
+    }
+
+    if (successCount > 0 && mounted) {
+      context.read<HubDirectoryProvider>().markCatalogDirty();
+      context.read<BookRefreshNotifier>().refresh();
+    }
+
+    if (mounted) {
+      if (errorCount > 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '${TranslationService.translate(context, 'batch_scan_result')}: '
+              '$successCount ✓, $errorCount ✗',
+            ),
+            backgroundColor: Colors.orange,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+      context.pop(successCount > 0);
+    }
+  }
+
+  Future<bool> _showDiscardConfirmation() async {
+    final count = _batchedBooks.length;
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(
+          TranslationService.translate(context, 'batch_scan_discard_title'),
+        ),
+        content: Text(
+          '$count ${TranslationService.translate(context, 'batch_scan_discard_message')}',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(TranslationService.translate(context, 'cancel')),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(
+              TranslationService.translate(context, 'batch_scan_discard'),
+              style: const TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
+    return result ?? false;
+  }
+
+  Future<_ExistingBookAction> _showExistingBookDialog(Book book) async {
+    final result = await showDialog<_ExistingBookAction>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Row(
+          children: [
+            const Icon(Icons.info_outline, color: Colors.blue),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                TranslationService.translate(
+                  context,
+                  'batch_scan_existing_title',
+                ),
+                style: const TextStyle(fontSize: 18),
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                if (book.coverUrl != null) ...[
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: Image.network(
+                      book.coverUrl!,
+                      width: 50,
+                      height: 70,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) =>
+                          const SizedBox(width: 50, height: 70),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                ],
+                Expanded(
+                  child: Text(
+                    book.title,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              TranslationService.translate(
+                context,
+                'batch_scan_existing_message',
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () =>
+                Navigator.pop(ctx, _ExistingBookAction.skip),
+            child: Text(
+              TranslationService.translate(context, 'batch_scan_skip'),
+            ),
+          ),
+          ElevatedButton.icon(
+            onPressed: () =>
+                Navigator.pop(ctx, _ExistingBookAction.addCopy),
+            icon: const Icon(Icons.add),
+            label: Text(
+              TranslationService.translate(
+                context,
+                'batch_scan_add_copy',
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+    return result ?? _ExistingBookAction.skip;
+  }
+
+  void _removeFromBatch(int index) {
+    final book = _batchedBooks[index];
+    setState(() {
+      _batchedBooks.removeAt(index);
+      _batchedIsbns.remove(book.isbn);
+      _batchCount = _batchedBooks.length;
+      _lastAddedTitle =
+          _batchedBooks.isNotEmpty ? _batchedBooks.last.title : null;
+    });
+  }
+
+  void _showBookEditSheet(int startIndex, {bool reviewMode = false}) {
+    int currentIndex = startIndex;
+    bool shouldCommitOnClose = false;
+    final titleCtrl = TextEditingController();
+    final authorCtrl = TextEditingController();
+    final publisherCtrl = TextEditingController();
+    final yearCtrl = TextEditingController();
+
+    void loadBook(int index) {
+      final book = _batchedBooks[index];
+      if (book.isNew) {
+        titleCtrl.text = book.bookPayload?['title'] ?? '';
+        authorCtrl.text = book.bookPayload?['author'] ?? '';
+        publisherCtrl.text = book.bookPayload?['publisher'] ?? '';
+        yearCtrl.text =
+            book.bookPayload?['publication_year']?.toString() ?? '';
+      } else {
+        titleCtrl.text = book.title;
+        authorCtrl.text = book.existingBook?.author ?? '';
+        publisherCtrl.text = book.existingBook?.publisher ?? '';
+        yearCtrl.text =
+            book.existingBook?.publicationYear?.toString() ?? '';
+      }
+    }
+
+    void saveBook(int index) {
+      if (index >= _batchedBooks.length) return;
+      final book = _batchedBooks[index];
+      if (book.isNew && book.bookPayload != null) {
+        book.bookPayload!['title'] = titleCtrl.text;
+        book.bookPayload!['author'] = authorCtrl.text;
+        book.bookPayload!['publisher'] =
+            publisherCtrl.text.isEmpty ? null : publisherCtrl.text;
+        final yearText = yearCtrl.text;
+        book.bookPayload!['publication_year'] =
+            yearText.isEmpty ? null : int.tryParse(yearText);
+        book.title =
+            titleCtrl.text.isNotEmpty ? titleCtrl.text : book.isbn;
+      }
+      setState(() {});
+    }
+
+    loadBook(currentIndex);
+
+    // Pause scanning while editing
+    setState(() => _isScanning = false);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheetState) {
+          final book = _batchedBooks[currentIndex];
+          final isFirst = currentIndex == 0;
+          final isLast = currentIndex == _batchedBooks.length - 1;
+          final isEditable = book.isNew;
+
+          return Container(
+            height: MediaQuery.of(ctx).size.height * 0.75,
+            decoration: BoxDecoration(
+              color: Theme.of(ctx).scaffoldBackgroundColor,
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(20),
+              ),
+            ),
+            child: Column(
+              children: [
+                // Handle bar
+                Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(top: 12, bottom: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade400,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                // Header
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  child: Row(
+                    children: [
+                      if (_batchedBooks.length > 1)
+                        Text(
+                          '${currentIndex + 1}/${_batchedBooks.length}',
+                          style: Theme.of(ctx)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                      const Spacer(),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () {
+                          saveBook(currentIndex);
+                          Navigator.pop(ctx);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                // Form content
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      left: 16,
+                      right: 16,
+                      bottom: MediaQuery.of(ctx).viewInsets.bottom,
+                    ),
+                    child: ListView(
+                      children: [
+                        // Cover + ISBN row
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: book.coverUrl != null
+                                  ? Image.network(
+                                      book.coverUrl!,
+                                      width: 70,
+                                      height: 100,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (_, __, ___) =>
+                                          _coverPlaceholder(),
+                                    )
+                                  : _coverPlaceholder(),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'ISBN: ${book.isbn}',
+                                    style: TextStyle(
+                                      color: Colors.grey.shade600,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                  if (!isEditable)
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                        top: 4,
+                                      ),
+                                      child: Container(
+                                        padding:
+                                            const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 2,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.blue.shade50,
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                        child: Text(
+                                          TranslationService.translate(
+                                            context,
+                                            'batch_scan_existing_title',
+                                          ),
+                                          style: TextStyle(
+                                            color: Colors.blue.shade700,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        // Editable fields for new books
+                        if (isEditable) ...[
+                          TextField(
+                            controller: titleCtrl,
+                            decoration: InputDecoration(
+                              labelText: TranslationService.translate(
+                                context,
+                                'title_label',
+                              ),
+                              border: const OutlineInputBorder(),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          TextField(
+                            controller: authorCtrl,
+                            decoration: InputDecoration(
+                              labelText: TranslationService.translate(
+                                context,
+                                'author_label',
+                              ),
+                              border: const OutlineInputBorder(),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          TextField(
+                            controller: publisherCtrl,
+                            decoration: InputDecoration(
+                              labelText: TranslationService.translate(
+                                context,
+                                'publisher_label',
+                              ),
+                              border: const OutlineInputBorder(),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          TextField(
+                            controller: yearCtrl,
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              labelText: TranslationService.translate(
+                                context,
+                                'year_label',
+                              ),
+                              border: const OutlineInputBorder(),
+                            ),
+                          ),
+                        ] else ...[
+                          // Read-only info for existing books
+                          Text(
+                            book.title,
+                            style: Theme.of(ctx).textTheme.titleLarge,
+                          ),
+                          if (book.existingBook?.author != null)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4),
+                              child: Text(
+                                book.existingBook!.author!,
+                                style:
+                                    Theme.of(ctx).textTheme.bodyLarge,
+                              ),
+                            ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+                // Prev/Next navigation (review mode)
+                if (reviewMode)
+                  SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          if (!isFirst)
+                            Expanded(
+                              child: OutlinedButton.icon(
+                                icon: const Icon(Icons.arrow_back),
+                                label: Text(
+                                  TranslationService.translate(
+                                    context,
+                                    'batch_scan_prev',
+                                  ),
+                                ),
+                                onPressed: () {
+                                  saveBook(currentIndex);
+                                  currentIndex--;
+                                  loadBook(currentIndex);
+                                  setSheetState(() {});
+                                },
+                              ),
+                            )
+                          else
+                            const Expanded(child: SizedBox()),
+                          const SizedBox(width: 12),
+                          if (!isLast)
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                icon: const Icon(Icons.arrow_forward),
+                                label: Text(
+                                  TranslationService.translate(
+                                    context,
+                                    'batch_scan_next',
+                                  ),
+                                ),
+                                onPressed: () {
+                                  saveBook(currentIndex);
+                                  currentIndex++;
+                                  loadBook(currentIndex);
+                                  setSheetState(() {});
+                                },
+                              ),
+                            )
+                          else
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                icon: const Icon(Icons.save),
+                                label: Text(
+                                  '${TranslationService.translate(context, 'batch_scan_save')} '
+                                  '(${_batchedBooks.length})',
+                                ),
+                                onPressed: () {
+                                  saveBook(currentIndex);
+                                  shouldCommitOnClose = true;
+                                  Navigator.pop(ctx);
+                                },
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          );
+        },
+      ),
+    ).whenComplete(() {
+      titleCtrl.dispose();
+      authorCtrl.dispose();
+      publisherCtrl.dispose();
+      yearCtrl.dispose();
+      if (shouldCommitOnClose) {
+        _commitBatchedBooks();
+      } else if (mounted && !_isCommitting) {
+        setState(() => _isScanning = true);
+      }
+    });
+  }
+
+  Widget _coverPlaceholder() {
+    return Container(
+      width: 70,
+      height: 100,
+      decoration: BoxDecoration(
+        color: Colors.grey.shade300,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: const Icon(Icons.book, size: 32),
+    );
   }
 
   Future<void> _showBookNotFoundDialog(String isbn) async {
@@ -538,7 +1085,18 @@ class _ScanScreenState extends State<ScanScreen> {
       height: 150,
     );
 
-    return Scaffold(
+    return PopScope(
+      canPop: !widget.batchMode || (_batchedBooks.isEmpty && !_isCommitting),
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop || _isCommitting) return;
+        if (_batchedBooks.isNotEmpty) {
+          final shouldDiscard = await _showDiscardConfirmation();
+          if (shouldDiscard && mounted) {
+            Navigator.of(context).pop(false);
+          }
+        }
+      },
+      child: Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: Text(
@@ -650,18 +1208,47 @@ class _ScanScreenState extends State<ScanScreen> {
                         horizontal: 6,
                         vertical: 4,
                       ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(4),
-                        child: book.coverUrl != null
-                            ? Image.network(
-                                book.coverUrl!,
-                                width: 58,
-                                height: 80,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) =>
-                                    _buildPlaceholder(book.title),
-                              )
-                            : _buildPlaceholder(book.title),
+                      child: GestureDetector(
+                        onTap: () => _showBookEditSheet(index),
+                        child: Stack(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(4),
+                              child: book.coverUrl != null
+                                  ? Image.network(
+                                      book.coverUrl!,
+                                      width: 58,
+                                      height: 80,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (_, __, ___) =>
+                                          _buildPlaceholder(book.title),
+                                    )
+                                  : _buildPlaceholder(book.title),
+                            ),
+                            Positioned(
+                              top: 0,
+                              right: 0,
+                              child: GestureDetector(
+                                onTap: () => _removeFromBatch(index),
+                                child: Container(
+                                  padding: const EdgeInsets.all(2),
+                                  decoration: const BoxDecoration(
+                                    color: Colors.black54,
+                                    borderRadius: BorderRadius.only(
+                                      topRight: Radius.circular(4),
+                                      bottomLeft: Radius.circular(8),
+                                    ),
+                                  ),
+                                  child: const Icon(
+                                    Icons.close,
+                                    size: 14,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     );
                   },
@@ -711,7 +1298,7 @@ class _ScanScreenState extends State<ScanScreen> {
               ),
             ),
 
-          // Processing indicator
+          // Processing indicator (single book lookup)
           if (_isProcessingBatch)
             Positioned.fill(
               child: Container(
@@ -722,9 +1309,37 @@ class _ScanScreenState extends State<ScanScreen> {
               ),
             ),
 
+          // Commit progress overlay (saving all books)
+          if (_isCommitting)
+            Positioned.fill(
+              child: Container(
+                color: Colors.black87,
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircularProgressIndicator(
+                        color: Colors.white,
+                        value: _commitProgress,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        '${TranslationService.translate(context, 'batch_scan_saving')} '
+                        '${(_commitProgress * _batchedBooks.length).ceil()}/${_batchedBooks.length}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
           // Scan instruction
           Positioned(
-            bottom: widget.batchMode ? 140 : 80,
+            bottom: widget.batchMode ? 190 : 80,
             left: 20,
             right: 20,
             child: Text(
@@ -747,7 +1362,7 @@ class _ScanScreenState extends State<ScanScreen> {
           // Batch mode: counter and last added
           if (widget.batchMode)
             Positioned(
-              bottom: 90,
+              bottom: 135,
               left: 20,
               right: 20,
               child: Container(
@@ -793,6 +1408,32 @@ class _ScanScreenState extends State<ScanScreen> {
               ),
             ),
 
+          // Review button
+          if (widget.batchMode && _batchedBooks.isNotEmpty)
+            Positioned(
+              bottom: 78,
+              left: 50,
+              right: 50,
+              child: OutlinedButton.icon(
+                icon: const Icon(Icons.checklist, size: 18),
+                label: Text(
+                  TranslationService.translate(
+                    context,
+                    'batch_scan_review',
+                  ),
+                ),
+                onPressed: _isCommitting
+                    ? null
+                    : () => _showBookEditSheet(0, reviewMode: true),
+                style: OutlinedButton.styleFrom(
+                  backgroundColor: Colors.white.withValues(alpha: 0.9),
+                  foregroundColor: Colors.black87,
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  side: const BorderSide(color: Colors.white70),
+                ),
+              ),
+            ),
+
           // Bottom button
           Positioned(
             bottom: 30,
@@ -800,16 +1441,23 @@ class _ScanScreenState extends State<ScanScreen> {
             right: 50,
             child: widget.batchMode
                 ? ElevatedButton.icon(
-                    icon: const Icon(Icons.done),
-                    label: Text(
-                      TranslationService.translate(context, 'done'),
+                    icon: Icon(
+                      _batchedBooks.isEmpty ? Icons.close : Icons.save,
                     ),
-                    onPressed: () {
-                      if (_batchCount > 0) {
-                        context.read<BookRefreshNotifier>().refresh();
-                      }
-                      context.pop(_batchCount > 0);
-                    },
+                    label: Text(
+                      _batchedBooks.isEmpty
+                          ? TranslationService.translate(context, 'done')
+                          : '${TranslationService.translate(context, 'batch_scan_save')} (${_batchedBooks.length})',
+                    ),
+                    onPressed: _isCommitting
+                        ? null
+                        : () {
+                            if (_batchedBooks.isEmpty) {
+                              context.pop(false);
+                            } else {
+                              _commitBatchedBooks();
+                            }
+                          },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
                       foregroundColor: Colors.black,
@@ -843,15 +1491,30 @@ class _ScanScreenState extends State<ScanScreen> {
           ),
         ],
       ),
+    ),
     );
   }
 }
 
 class _BatchedBook {
-  final String title;
+  final String isbn;
+  String title;
   final String? coverUrl;
-  const _BatchedBook({required this.title, this.coverUrl});
+  Map<String, dynamic>? bookPayload; // non-null for new books
+  final Book? existingBook; // non-null for books already in library
+
+  _BatchedBook({
+    required this.isbn,
+    required this.title,
+    this.coverUrl,
+    this.bookPayload,
+    this.existingBook,
+  });
+
+  bool get isNew => bookPayload != null;
 }
+
+enum _ExistingBookAction { skip, addCopy }
 
 class ScannerOverlayPainter extends CustomPainter {
   final Rect scanWindow;
