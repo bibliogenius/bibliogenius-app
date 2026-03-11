@@ -121,45 +121,23 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
           const SizedBox(height: 24),
 
           // Action buttons
-          Row(
-            children: [
-              if (!Provider.of<ThemeProvider>(context, listen: false).isLibrarian) ...[
-                Expanded(
-                  child: FilledButton.icon(
-                    onPressed: () => _borrowFromContact(context),
-                    icon: const Icon(Icons.book_outlined),
-                    label: Text(
-                      TranslationService.translate(
-                            context,
-                            'borrow_from_contact',
-                          ) ??
-                          'Borrow a book',
-                    ),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: Colors.teal,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-              ],
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () => _lendToContact(context),
-                  icon: const Icon(Icons.handshake_outlined),
-                  label: Text(
-                    TranslationService.translate(context, 'lend_to_contact') ??
-                        'Lend a book',
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.purple,
-                    side: const BorderSide(color: Colors.purple),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                  ),
-                ),
+          if (!Provider.of<ThemeProvider>(context, listen: false).isLibrarian)
+            FilledButton.icon(
+              onPressed: () => _borrowFromContact(context),
+              icon: const Icon(Icons.book_outlined),
+              label: Text(
+                TranslationService.translate(
+                      context,
+                      'borrow_from_contact',
+                    ) ??
+                    'Borrow a book',
               ),
-            ],
-          ),
+              style: FilledButton.styleFrom(
+                backgroundColor: Colors.teal,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                minimumSize: const Size(double.infinity, 0),
+              ),
+            ),
 
           const SizedBox(height: 24),
           _buildInfoCard(
@@ -258,8 +236,4 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
     }
   }
 
-  Future<void> _lendToContact(BuildContext context) async {
-    // Navigate to book list to select a book to lend
-    context.push('/books?action=select_for_loan&contact_id=${_contact.id}');
-  }
 }

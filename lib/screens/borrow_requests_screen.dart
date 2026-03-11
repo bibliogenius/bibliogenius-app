@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../widgets/genie_app_bar.dart';
@@ -28,7 +29,10 @@ class LoansScreen extends StatefulWidget {
   /// Initial tab to show: 'requests', 'lent', or 'borrowed'
   final String? initialTab;
 
-  const LoansScreen({super.key, this.isTabView = false, this.initialTab});
+  /// Initial status filter: 'active', 'overdue', 'returned'
+  final String? initialStatusFilter;
+
+  const LoansScreen({super.key, this.isTabView = false, this.initialTab, this.initialStatusFilter});
 
   @override
   State<LoansScreen> createState() => _LoansScreenState();
@@ -54,9 +58,27 @@ class _LoansScreenState extends State<LoansScreen>
   List<Loan> _activeLoans = []; // Books I lent to others
   List<dynamic> _borrowedBooks = []; // Books I borrowed from others
 
+  // Search & filters
+  final _lentSearchController = TextEditingController();
+  final _borrowedSearchController = TextEditingController();
+  String _lentSearchQuery = '';
+  String _borrowedSearchQuery = '';
+  late String _lentStatusFilter; // all, active, overdue, returned
+  late String _borrowedStatusFilter; // all, active, overdue
+  String? _lentMonthFilter; // 'YYYY-MM' or null (all)
+  String? _borrowedMonthFilter;
+
   @override
   void initState() {
     super.initState();
+    // Apply initial status filter if provided (e.g. from dashboard "en cours" tap)
+    final statusFilter = widget.initialStatusFilter;
+    _lentStatusFilter = (statusFilter != null && ['active', 'overdue', 'returned'].contains(statusFilter))
+        ? statusFilter
+        : 'all';
+    _borrowedStatusFilter = (statusFilter != null && ['active', 'overdue'].contains(statusFilter))
+        ? statusFilter
+        : 'all';
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     final hubProvider = Provider.of<HubDirectoryProvider>(context, listen: false);
     // Show "Demandes" tab if LAN discovery, relay sharing, or hub is active
@@ -103,6 +125,8 @@ class _LoansScreenState extends State<LoansScreen>
     _refreshTimer?.cancel();
     _mainTabController.dispose();
     _requestsTabController.dispose();
+    _lentSearchController.dispose();
+    _borrowedSearchController.dispose();
     super.dispose();
   }
 
@@ -136,9 +160,9 @@ class _LoansScreenState extends State<LoansScreen>
         ]);
       }
 
-      // Fetch active loans (books I lent)
+      // Fetch all loans (books I lent) - enables filtering by status
       final loanRepo = Provider.of<LoanRepository>(context, listen: false);
-      final activeLoans = await loanRepo.getLoans(status: 'active');
+      final activeLoans = await loanRepo.getLoans();
 
       List<dynamic> borrowedBooks = [];
       if (themeProvider.canBorrowBooks) {
@@ -421,12 +445,55 @@ class _LoansScreenState extends State<LoansScreen>
         onAction: () => context.go('/books'),
       );
     }
+
+    final query = _lentSearchQuery.toLowerCase();
+    final filtered = _activeLoans.where((loan) {
+      // Status filter
+      if (_lentStatusFilter == 'active') {
+        if (loan.isReturned) return false;
+        final overdue = loan.dueDate.isNotEmpty &&
+            DateTime.tryParse(loan.dueDate)?.isBefore(DateTime.now()) == true;
+        if (overdue) return false;
+      } else if (_lentStatusFilter == 'overdue') {
+        if (loan.isReturned) return false;
+        final overdue = loan.dueDate.isNotEmpty &&
+            DateTime.tryParse(loan.dueDate)?.isBefore(DateTime.now()) == true;
+        if (!overdue) return false;
+      } else if (_lentStatusFilter == 'returned') {
+        if (!loan.isReturned) return false;
+      }
+      // Month filter
+      if (_lentMonthFilter != null) {
+        if (!loan.loanDate.startsWith(_lentMonthFilter!)) return false;
+      }
+      // Text search
+      if (query.isNotEmpty) {
+        return loan.bookTitle.toLowerCase().contains(query) ||
+            loan.contactName.toLowerCase().contains(query);
+      }
+      return true;
+    }).toList();
+
     return RefreshIndicator(
       onRefresh: _fetchAllData,
       child: Column(
         children: [
+          _buildSearchField(
+            controller: _lentSearchController,
+            onChanged: (v) => setState(() => _lentSearchQuery = v),
+          ),
+          _buildStatusChips(
+            current: _lentStatusFilter,
+            options: const ['all', 'active', 'overdue', 'returned'],
+            onSelected: (v) => setState(() => _lentStatusFilter = v),
+          ),
+          _buildMonthFilter(
+            dates: _activeLoans.map((l) => l.loanDate).toList(),
+            current: _lentMonthFilter,
+            onSelected: (v) => setState(() => _lentMonthFilter = v),
+          ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -441,13 +508,19 @@ class _LoansScreenState extends State<LoansScreen>
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              itemCount: _activeLoans.length,
-              itemBuilder: (context, index) {
-                final loan = _activeLoans[index];
-                return _buildLoanTile(loan);
-              },
-            ),
+            child: filtered.isEmpty
+                ? Center(
+                    child: Text(
+                      TranslationService.translate(context, 'no_results'),
+                      style: TextStyle(color: Colors.grey[500]),
+                    ),
+                  )
+                : ListView.builder(
+                    itemCount: filtered.length,
+                    itemBuilder: (context, index) {
+                      return _buildLoanTile(filtered[index]);
+                    },
+                  ),
           ),
         ],
       ),
@@ -524,15 +597,34 @@ class _LoansScreenState extends State<LoansScreen>
     final dueDate = loan.dueDate;
     final loanId = loan.id;
     final bookId = loan.bookId;
+    final returned = loan.isReturned;
+    final cover = loan.resolvedCoverUrl;
 
-    final isOverdue =
+    final isOverdue = !returned &&
         dueDate.isNotEmpty &&
         DateTime.tryParse(dueDate)?.isBefore(DateTime.now()) == true;
 
+    // Status badge
+    final Color statusColor;
+    final String statusLabel;
+    if (returned) {
+      statusColor = Colors.grey;
+      statusLabel = TranslationService.translate(context, 'mark_returned');
+    } else if (isOverdue) {
+      statusColor = Colors.red;
+      statusLabel = TranslationService.translate(context, 'filter_overdue');
+    } else {
+      statusColor = Colors.green;
+      statusLabel = TranslationService.translate(context, 'filter_active');
+    }
+
+    final theme = Theme.of(context);
+
     return Card(
       surfaceTintColor: Colors.transparent,
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: ListTile(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
         onTap: () {
           if (bookId != null) {
             GoRouter.of(context).push('/books/$bookId');
@@ -540,49 +632,117 @@ class _LoansScreenState extends State<LoansScreen>
             _navigateToLoanBook(loan);
           }
         },
-        leading: CircleAvatar(
-          backgroundColor: isOverdue ? Colors.red : Colors.green,
-          child: Icon(
-            isOverdue ? Icons.warning : Icons.book,
-            color: Colors.white,
-          ),
-        ),
-        title: Text(
-          bookTitle,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '${TranslationService.translate(context, 'lent_to')}: $contactName',
-            ),
-            if (loanDate.isNotEmpty)
-              Text(
-                '${TranslationService.translate(context, 'loan_date')}: ${_formatDate(loanDate)}',
-                style: TextStyle(color: Colors.grey[600], fontSize: 12),
-              ),
-            if (dueDate.isNotEmpty)
-              Text(
-                '${TranslationService.translate(context, 'due_date')}: ${_formatDate(dueDate)}',
-                style: TextStyle(
-                  color: isOverdue ? Colors.red : Colors.grey[600],
-                  fontSize: 12,
-                  fontWeight: isOverdue ? FontWeight.bold : FontWeight.normal,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Book cover
+              ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: SizedBox(
+                  width: 52,
+                  height: 72,
+                  child: cover != null
+                      ? CachedNetworkImage(
+                          imageUrl: cover,
+                          fit: BoxFit.cover,
+                          placeholder: (_, __) => Container(
+                            color: theme.colorScheme.surfaceContainerHighest,
+                            child: Icon(Icons.menu_book, color: theme.colorScheme.onSurfaceVariant, size: 24),
+                          ),
+                          errorWidget: (_, __, ___) => Container(
+                            color: theme.colorScheme.surfaceContainerHighest,
+                            child: Icon(Icons.menu_book, color: theme.colorScheme.onSurfaceVariant, size: 24),
+                          ),
+                        )
+                      : Container(
+                          color: theme.colorScheme.surfaceContainerHighest,
+                          child: Icon(Icons.menu_book, color: theme.colorScheme.onSurfaceVariant, size: 24),
+                        ),
                 ),
               ),
-          ],
-        ),
-        trailing: FilledButton.icon(
-          onPressed: () => _returnLoan(loanId),
-          icon: const Icon(Icons.check, size: 18),
-          label: Text(TranslationService.translate(context, 'mark_returned')),
-          style: FilledButton.styleFrom(
-            backgroundColor: Colors.green,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
+              const SizedBox(width: 12),
+              // Content
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      bookTitle,
+                      style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${TranslationService.translate(context, 'lent_to')}: $contactName',
+                      style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        if (loanDate.isNotEmpty)
+                          Text(
+                            _formatDate(loanDate),
+                            style: TextStyle(color: Colors.grey[600], fontSize: 11),
+                          ),
+                        if (loanDate.isNotEmpty && dueDate.isNotEmpty)
+                          Text(' - ', style: TextStyle(color: Colors.grey[600], fontSize: 11)),
+                        if (dueDate.isNotEmpty)
+                          Text(
+                            _formatDate(dueDate),
+                            style: TextStyle(
+                              color: isOverdue ? Colors.red : Colors.grey[600],
+                              fontSize: 11,
+                              fontWeight: isOverdue ? FontWeight.bold : FontWeight.normal,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              // Status + action
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: statusColor.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: statusColor.withValues(alpha: 0.3)),
+                    ),
+                    child: Text(
+                      statusLabel,
+                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: statusColor),
+                    ),
+                  ),
+                  if (!returned) ...[
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      height: 30,
+                      child: FilledButton.icon(
+                        onPressed: () => _returnLoan(loanId),
+                        icon: const Icon(Icons.check, size: 14),
+                        label: Text(
+                          TranslationService.translate(context, 'btn_mark_returned'),
+                          style: const TextStyle(fontSize: 11),
+                        ),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ],
           ),
         ),
-        isThreeLine: true,
       ),
     );
   }
@@ -640,6 +800,147 @@ class _LoansScreenState extends State<LoansScreen>
     }
   }
 
+  /// Status filter chips (Tous / En cours / En retard / Rendus)
+  Widget _buildStatusChips({
+    required String current,
+    required List<String> options,
+    required ValueChanged<String> onSelected,
+  }) {
+    const labelKeys = {
+      'all': 'filter_all',
+      'active': 'filter_active',
+      'overdue': 'filter_overdue',
+      'returned': 'filter_returned',
+    };
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: SizedBox(
+        height: 38,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          itemCount: options.length,
+          separatorBuilder: (_, __) => const SizedBox(width: 8),
+          itemBuilder: (context, index) {
+            final value = options[index];
+            final selected = value == current;
+            return FilterChip(
+              label: Text(
+                TranslationService.translate(
+                  context,
+                  labelKeys[value] ?? value,
+                ),
+                style: const TextStyle(fontSize: 12),
+              ),
+              selected: selected,
+              onSelected: (_) => onSelected(value),
+              showCheckmark: false,
+              visualDensity: VisualDensity.compact,
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  /// Month/year dropdown filter built from actual loan dates
+  Widget _buildMonthFilter({
+    required List<String> dates,
+    required String? current,
+    required ValueChanged<String?> onSelected,
+  }) {
+    // Extract unique YYYY-MM values, sorted descending
+    final months = <String>{};
+    for (final d in dates) {
+      if (d.length >= 7) months.add(d.substring(0, 7));
+    }
+    if (months.length <= 1) return const SizedBox.shrink();
+
+    final sorted = months.toList()..sort((a, b) => b.compareTo(a));
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: [
+          Icon(Icons.calendar_month, size: 18, color: Colors.grey[600]),
+          const SizedBox(width: 6),
+          Expanded(
+            child: DropdownButton<String?>(
+              value: current,
+              isExpanded: true,
+              isDense: true,
+              underline: const SizedBox.shrink(),
+              hint: Text(
+                TranslationService.translate(context, 'filter_all_months'),
+                style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+              ),
+              items: [
+                DropdownMenuItem<String?>(
+                  value: null,
+                  child: Text(
+                    TranslationService.translate(context, 'filter_all_months'),
+                    style: const TextStyle(fontSize: 13),
+                  ),
+                ),
+                ...sorted.map((m) {
+                  final label = _formatMonth(m);
+                  return DropdownMenuItem<String?>(
+                    value: m,
+                    child: Text(label, style: const TextStyle(fontSize: 13)),
+                  );
+                }),
+              ],
+              onChanged: onSelected,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Format 'YYYY-MM' into a localized month name + year
+  String _formatMonth(String yearMonth) {
+    try {
+      final date = DateTime.parse('$yearMonth-01');
+      final locale = Localizations.localeOf(context).toString();
+      return DateFormat.yMMMM(locale).format(date);
+    } catch (_) {
+      return yearMonth;
+    }
+  }
+
+  Widget _buildSearchField({
+    required TextEditingController controller,
+    required ValueChanged<String> onChanged,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+      child: TextField(
+        controller: controller,
+        onChanged: onChanged,
+        decoration: InputDecoration(
+          hintText: TranslationService.translate(context, 'search_loans'),
+          prefixIcon: const Icon(Icons.search, size: 20),
+          suffixIcon: controller.text.isNotEmpty
+              ? IconButton(
+                  icon: const Icon(Icons.clear, size: 20),
+                  tooltip: TranslationService.translate(context, 'clear'),
+                  onPressed: () {
+                    controller.clear();
+                    onChanged('');
+                  },
+                )
+              : null,
+          isDense: true,
+          contentPadding: const EdgeInsets.symmetric(vertical: 8),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+        ),
+      ),
+    );
+  }
+
   String _formatDate(String dateStr) {
     try {
       final date = DateTime.parse(dateStr);
@@ -660,14 +961,68 @@ class _LoansScreenState extends State<LoansScreen>
         icon: Icons.arrow_downward,
       );
     }
+
+    final query = _borrowedSearchQuery.toLowerCase();
+    final filtered = _borrowedBooks.where((book) {
+      // Status filter
+      if (_borrowedStatusFilter == 'overdue') {
+        final notes = (book['notes'] ?? '').toString();
+        final dateMatch = RegExp(r"jusqu'au\s+(\S+)").firstMatch(notes);
+        final dueDate = dateMatch?.group(1) ?? '';
+        final overdue = dueDate.isNotEmpty &&
+            DateTime.tryParse(dueDate)?.isBefore(DateTime.now()) == true;
+        if (!overdue) return false;
+      }
+      // Month filter
+      if (_borrowedMonthFilter != null) {
+        final dateStr = (book['acquisition_date'] ?? '').toString();
+        if (!dateStr.startsWith(_borrowedMonthFilter!)) return false;
+      }
+      // Text search
+      if (query.isNotEmpty) {
+        final title = (book['title'] ?? '').toString().toLowerCase();
+        final notes = (book['notes'] ?? '').toString().toLowerCase();
+        return title.contains(query) || notes.contains(query);
+      }
+      return true;
+    }).toList();
+
     return RefreshIndicator(
       onRefresh: _fetchAllData,
-      child: ListView.builder(
-        itemCount: _borrowedBooks.length,
-        itemBuilder: (context, index) {
-          final book = _borrowedBooks[index];
-          return _buildBorrowedBookTile(book);
-        },
+      child: Column(
+        children: [
+          _buildSearchField(
+            controller: _borrowedSearchController,
+            onChanged: (v) => setState(() => _borrowedSearchQuery = v),
+          ),
+          _buildStatusChips(
+            current: _borrowedStatusFilter,
+            options: const ['all', 'overdue'],
+            onSelected: (v) => setState(() => _borrowedStatusFilter = v),
+          ),
+          _buildMonthFilter(
+            dates: _borrowedBooks
+                .map((b) => (b['acquisition_date'] ?? '').toString())
+                .toList(),
+            current: _borrowedMonthFilter,
+            onSelected: (v) => setState(() => _borrowedMonthFilter = v),
+          ),
+          Expanded(
+            child: filtered.isEmpty
+                ? Center(
+                    child: Text(
+                      TranslationService.translate(context, 'no_results'),
+                      style: TextStyle(color: Colors.grey[500]),
+                    ),
+                  )
+                : ListView.builder(
+                    itemCount: filtered.length,
+                    itemBuilder: (context, index) {
+                      return _buildBorrowedBookTile(filtered[index]);
+                    },
+                  ),
+          ),
+        ],
       ),
     );
   }
@@ -698,56 +1053,130 @@ class _LoansScreenState extends State<LoansScreen>
       }
     }
 
+    final isOverdue = dueDate.isNotEmpty &&
+        DateTime.tryParse(dueDate)?.isBefore(DateTime.now()) == true;
+
+    final theme = Theme.of(context);
+
     return Card(
       surfaceTintColor: Colors.transparent,
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: ListTile(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
         onTap: () =>
             bookId != null ? GoRouter.of(context).push('/books/$bookId') : null,
-        leading: cover != null && cover.isNotEmpty
-            ? ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: Image.network(
-                  cover,
-                  width: 40,
-                  height: 56,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => CircleAvatar(
-                    backgroundColor: Colors.blue,
-                    child: const Icon(Icons.book, color: Colors.white),
-                  ),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Book cover
+              ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: SizedBox(
+                  width: 52,
+                  height: 72,
+                  child: cover != null && cover.isNotEmpty
+                      ? CachedNetworkImage(
+                          imageUrl: cover,
+                          fit: BoxFit.cover,
+                          placeholder: (_, __) => Container(
+                            color: theme.colorScheme.surfaceContainerHighest,
+                            child: Icon(Icons.menu_book, color: theme.colorScheme.onSurfaceVariant, size: 24),
+                          ),
+                          errorWidget: (_, __, ___) => Container(
+                            color: theme.colorScheme.surfaceContainerHighest,
+                            child: Icon(Icons.menu_book, color: theme.colorScheme.onSurfaceVariant, size: 24),
+                          ),
+                        )
+                      : Container(
+                          color: theme.colorScheme.surfaceContainerHighest,
+                          child: Icon(Icons.menu_book, color: theme.colorScheme.onSurfaceVariant, size: 24),
+                        ),
                 ),
-              )
-            : CircleAvatar(
-                backgroundColor: Colors.blue,
-                child: const Icon(Icons.book, color: Colors.white),
               ),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (borrowedFrom.isNotEmpty)
-              Text(
-                '${TranslationService.translate(context, 'borrowed_from')}: $borrowedFrom',
-                style: TextStyle(color: Colors.blue[700], fontSize: 12),
+              const SizedBox(width: 12),
+              // Content
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (borrowedFrom.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        '${TranslationService.translate(context, 'borrowed_from')}: $borrowedFrom',
+                        style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                      ),
+                    ],
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        if (acquisitionDate.isNotEmpty)
+                          Text(
+                            _formatDate(acquisitionDate),
+                            style: TextStyle(color: Colors.grey[600], fontSize: 11),
+                          ),
+                        if (acquisitionDate.isNotEmpty && dueDate.isNotEmpty)
+                          Text(' - ', style: TextStyle(color: Colors.grey[600], fontSize: 11)),
+                        if (dueDate.isNotEmpty)
+                          Text(
+                            _formatDate(dueDate),
+                            style: TextStyle(
+                              color: isOverdue ? Colors.red : Colors.grey[600],
+                              fontSize: 11,
+                              fontWeight: isOverdue ? FontWeight.bold : FontWeight.normal,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            if (acquisitionDate.isNotEmpty)
-              Text(
-                '${TranslationService.translate(context, 'loan_date')}: ${_formatDate(acquisitionDate)}',
-                style: TextStyle(color: Colors.grey[500], fontSize: 12),
+              const SizedBox(width: 8),
+              // Action
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: (isOverdue ? Colors.red : Colors.blue).withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: (isOverdue ? Colors.red : Colors.blue).withValues(alpha: 0.3)),
+                    ),
+                    child: Text(
+                      isOverdue
+                          ? TranslationService.translate(context, 'filter_overdue')
+                          : TranslationService.translate(context, 'filter_active'),
+                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: isOverdue ? Colors.red : Colors.blue),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    height: 30,
+                    child: FilledButton.icon(
+                      onPressed: () => _returnBorrowedBook(book),
+                      icon: const Icon(Icons.check, size: 14),
+                      label: Text(
+                        TranslationService.translate(context, 'btn_mark_returned'),
+                        style: const TextStyle(fontSize: 11),
+                      ),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            if (dueDate.isNotEmpty)
-              Text(
-                '${TranslationService.translate(context, 'due_date')}: ${_formatDate(dueDate)}',
-                style: TextStyle(color: Colors.grey[500], fontSize: 12),
-              ),
-          ],
-        ),
-        isThreeLine: borrowedFrom.isNotEmpty || acquisitionDate.isNotEmpty || dueDate.isNotEmpty,
-        trailing: IconButton(
-          icon: const Icon(Icons.check_circle_outline, color: Colors.green),
-          tooltip: TranslationService.translate(context, 'mark_returned'),
-          onPressed: () => _returnBorrowedBook(book),
+            ],
+          ),
         ),
       ),
     );
@@ -1234,14 +1663,46 @@ class _LoansScreenState extends State<LoansScreen>
     final isPending = _pendingActions.contains(id);
     final peerId = req['peer_id'];
     final peerUrl = req['peer_url'] as String?;
+    final coverUrl = req['cover_url'] as String?;
+    final bookIsbn = req['book_isbn'] as String?;
+
+    // Resolve cover: explicit URL, or OpenLibrary fallback from ISBN
+    String? resolvedCover = coverUrl;
+    if ((resolvedCover == null || resolvedCover.isEmpty) &&
+        bookIsbn != null && bookIsbn.isNotEmpty) {
+      resolvedCover = 'https://covers.openlibrary.org/b/isbn/$bookIsbn-M.jpg';
+    }
 
     final card = Card(
       surfaceTintColor: Colors.transparent,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: _getStatusColor(status),
-          child: const Icon(Icons.book, color: Colors.white),
+        leading: SizedBox(
+          width: 40,
+          height: 56,
+          child: resolvedCover != null
+              ? ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: CachedNetworkImage(
+                    imageUrl: resolvedCover,
+                    fit: BoxFit.cover,
+                    placeholder: (_, __) => Container(
+                      color: _getStatusColor(status).withValues(alpha: 0.2),
+                      child: Icon(Icons.book, color: _getStatusColor(status), size: 20),
+                    ),
+                    errorWidget: (_, __, ___) => Container(
+                      color: _getStatusColor(status).withValues(alpha: 0.2),
+                      child: Icon(Icons.book, color: _getStatusColor(status), size: 20),
+                    ),
+                  ),
+                )
+              : Container(
+                  decoration: BoxDecoration(
+                    color: _getStatusColor(status).withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Icon(Icons.book, color: _getStatusColor(status), size: 20),
+                ),
         ),
         title: Text(title),
         subtitle: _buildPeerSubtitle(
@@ -1383,6 +1844,7 @@ class _LoansScreenState extends State<LoansScreen>
   }) {
     final id = req['id']?.toString() ?? '';
     final status = req['status'] ?? 'pending';
+    final bookId = req['book_id'] as int?;
 
     if (_pendingActions.contains(id)) return;
 
@@ -1392,6 +1854,18 @@ class _LoansScreenState extends State<LoansScreen>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // View book (only if the book exists locally)
+            if (bookId != null)
+              ListTile(
+                leading: Icon(Icons.menu_book, color: Theme.of(context).colorScheme.primary),
+                title: Text(
+                  TranslationService.translate(context, 'action_view_book'),
+                ),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  context.push('/books/$bookId');
+                },
+              ),
             if (status == 'pending' && isIncoming) ...[
               ListTile(
                 leading: const Icon(Icons.check, color: Colors.green),

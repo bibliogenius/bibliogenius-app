@@ -11,18 +11,24 @@ import 'invite_share_sheet.dart';
 
 class QuickActionsSheet extends StatelessWidget {
   final List<Widget>? contextualActions;
-  final bool hideGenericActions;
   final VoidCallback? onBookAdded;
   final VoidCallback? onShelfCreated;
   final String? preSelectedShelfId;
+  final String? preSelectedCollectionId;
+  final String? preSelectedCollectionName;
+  final String? destinationName;
+  final Widget? thirdSlotOverride;
 
   const QuickActionsSheet({
     super.key,
     this.contextualActions,
-    this.hideGenericActions = false,
     this.onBookAdded,
     this.onShelfCreated,
     this.preSelectedShelfId,
+    this.preSelectedCollectionId,
+    this.preSelectedCollectionName,
+    this.destinationName,
+    this.thirdSlotOverride,
   });
 
   @override
@@ -70,19 +76,27 @@ class QuickActionsSheet extends StatelessWidget {
           _ActionSearchBar(onBookAdded: onBookAdded),
           const SizedBox(height: 16),
 
-          if (!hideGenericActions) ...[
-            // Primary Button: Add Book
+          // Primary Button: Add Book
+          ...[
             SizedBox(
               height: 50,
               child: ElevatedButton(
                 onPressed: () async {
                   final router = GoRouter.of(context);
                   Navigator.pop(context);
-                  final extra = preSelectedShelfId != null
-                      ? {'shelfId': preSelectedShelfId}
-                      : null;
-                  final result =
-                      await router.push('/books/add', extra: extra);
+                  final extra = <String, dynamic>{};
+                  if (preSelectedShelfId != null) {
+                    extra['shelfId'] = preSelectedShelfId;
+                    extra['shelfName'] = destinationName;
+                  }
+                  if (preSelectedCollectionId != null) {
+                    extra['collectionId'] = preSelectedCollectionId;
+                    extra['collectionName'] = preSelectedCollectionName;
+                  }
+                  final result = await router.push(
+                    '/books/add',
+                    extra: extra.isNotEmpty ? extra : null,
+                  );
                   if (result is int) {
                     router.push('/books/$result');
                   }
@@ -113,15 +127,21 @@ class QuickActionsSheet extends StatelessWidget {
                       children: [
                         const Icon(Icons.add, color: Colors.white),
                         const SizedBox(width: 8),
-                        Text(
-                          TranslationService.translate(
-                            context,
-                            'add_book_button',
-                          ),
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                        Flexible(
+                          child: Text(
+                            destinationName != null
+                                ? '${TranslationService.translate(context, 'add_book_to_title')} $destinationName'
+                                : TranslationService.translate(
+                                    context,
+                                    'add_book_button',
+                                  ),
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
@@ -148,9 +168,18 @@ class QuickActionsSheet extends StatelessWidget {
 
                     final isbn = await router.push<String>('/scan');
                     if (isbn != null) {
+                      final addExtra = <String, dynamic>{'isbn': isbn};
+                      if (preSelectedShelfId != null) {
+                        addExtra['shelfId'] = preSelectedShelfId;
+                        addExtra['shelfName'] = destinationName;
+                      }
+                      if (preSelectedCollectionId != null) {
+                        addExtra['collectionId'] = preSelectedCollectionId;
+                        addExtra['collectionName'] = preSelectedCollectionName;
+                      }
                       final result = await router.push(
                         '/books/add',
-                        extra: {'isbn': isbn},
+                        extra: addExtra,
                       );
                       if (result != null) {
                         if (onBookAdded != null) onBookAdded!();
@@ -181,7 +210,7 @@ class QuickActionsSheet extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: ConfigurableActionCard(
+                child: thirdSlotOverride ?? ConfigurableActionCard(
                   slotKey: 'quick_action_custom_slot',
                   defaultActionId: 'inventory',
                   allowedActionIds: const [

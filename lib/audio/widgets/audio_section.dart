@@ -73,8 +73,10 @@ class _AudioSectionState extends State<AudioSection> {
   }
 
   /// Normalize ISO 639-2 (3-letter) codes to ISO 639-1 (2-letter).
+  /// Also strips region suffixes (e.g., 'fr-FR' -> 'fr').
   String _normalizeLanguageCode(String code) {
-    final lower = code.toLowerCase().trim();
+    // Strip region suffix (e.g., 'fr-FR' -> 'fr', 'pt-BR' -> 'pt')
+    final lower = code.toLowerCase().trim().split(RegExp(r'[-_]')).first;
     const iso639_2to1 = {
       'fre': 'fr', 'fra': 'fr', 'french': 'fr',
       'eng': 'en', 'english': 'en',
@@ -101,7 +103,6 @@ class _AudioSectionState extends State<AudioSection> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       final languages = _searchLanguages;
-      debugPrint('[AudioSection] bookLanguage=${widget.bookLanguage}, userLanguages=${widget.userLanguages}, searchLanguages=$languages');
       if (languages.length > 1) {
         provider.searchAudiobookMultiLang(
           bookId: widget.bookId,
@@ -150,8 +151,6 @@ class _AudioSectionState extends State<AudioSection> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<AudioProvider>();
-
-    debugPrint('[AudioSection] build: bookId=${widget.bookId}, enabled=${provider.isEnabled}, initialized=${provider.isInitialized}, searching=${provider.isSearching(widget.bookId)}, hasSearched=${provider.hasSearched(widget.bookId)}');
 
     // Don't show anything if module is disabled
     if (!provider.isEnabled) return const SizedBox.shrink();

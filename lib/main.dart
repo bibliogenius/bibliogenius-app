@@ -106,7 +106,6 @@ class AppScrollBehavior extends MaterialScrollBehavior {
 
 void main([List<String>? args]) async {
   WidgetsFlutterBinding.ensureInitialized();
-
   // Custom error widget to display errors visibly for debugging
   ErrorWidget.builder = (FlutterErrorDetails details) {
     return MaterialApp(
@@ -672,11 +671,17 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
 
                     final preSelectedShelfId =
                         extra?['shelfId'] ?? queryParams['shelfId'];
+                    final preSelectedShelfName =
+                        extra?['shelfName'] ?? queryParams['shelfName'];
+                    final preSelectedCollectionName =
+                        extra?['collectionName'] ?? queryParams['collectionName'];
 
                     return AddBookScreen(
                       isbn: isbn,
                       preSelectedCollectionId: preSelectedCollectionId,
+                      preSelectedCollectionName: preSelectedCollectionName,
                       preSelectedShelfId: preSelectedShelfId,
+                      preSelectedShelfName: preSelectedShelfName,
                     );
                   },
                 ),
@@ -845,7 +850,8 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
               path: '/requests',
               builder: (context, state) {
                 final tab = state.uri.queryParameters['tab'];
-                return LoansScreen(isTabView: false, initialTab: tab);
+                final status = state.uri.queryParameters['status'];
+                return LoansScreen(isTabView: false, initialTab: tab, initialStatusFilter: status);
               },
             ),
             GoRoute(

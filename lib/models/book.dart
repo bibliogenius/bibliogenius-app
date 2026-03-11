@@ -97,6 +97,7 @@ class Book {
       'price': price, // Price for Bookseller profile
       'digital_formats': digitalFormats,
       'language': language,
+      'available_copies': availableCopies,
       'created_at': now,
       'updated_at': now,
     };

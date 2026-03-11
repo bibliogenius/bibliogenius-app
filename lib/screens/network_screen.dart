@@ -716,24 +716,9 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
           ),
         // Invite banner
         if (_bannerVisible)
-          Stack(
-            children: [
-              _InviteBanner(onTap: () => showInviteShareSheet(context)),
-              Positioned(
-                right: 4,
-                top: 0,
-                child: IconButton(
-                  icon: const Icon(Icons.close, size: 16),
-                  tooltip: TranslationService.translate(context, 'close'),
-                  onPressed: _dismissBanner,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(
-                    minWidth: 28,
-                    minHeight: 28,
-                  ),
-                ),
-              ),
-            ],
+          _InviteBanner(
+            onTap: () => shareInviteLinkDirect(context),
+            onDismiss: _dismissBanner,
           ),
         // Filter chips
         Padding(
@@ -1661,15 +1646,13 @@ class _PendingBanner extends StatelessWidget {
 
 class _InviteBanner extends StatelessWidget {
   final VoidCallback onTap;
-  const _InviteBanner({required this.onTap});
+  final VoidCallback? onDismiss;
+  const _InviteBanner({required this.onTap, this.onDismiss});
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bg = isDark ? const Color(0xFF0D2020) : const Color(0xFFE6F4F2);
-    final border = isDark ? const Color(0xFF1B4D47) : const Color(0xFFB2D8D4);
-    final titleColor = isDark ? const Color(0xFF80CBC4) : const Color(0xFF1A4E48);
-    final subtitleColor = isDark ? const Color(0xFF4DB6AC) : const Color(0xFF2E7D72);
+    final primary = Theme.of(context).colorScheme.primary;
 
     return Semantics(
       button: true,
@@ -1678,41 +1661,37 @@ class _InviteBanner extends StatelessWidget {
         onTap: onTap,
         child: Container(
           margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+          padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: bg,
-            borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
-            border: Border.all(color: border),
-            boxShadow: AppDesign.subtleShadow,
+            gradient: LinearGradient(
+              colors: isDark
+                  ? [primary.withValues(alpha: 0.15), primary.withValues(alpha: 0.08)]
+                  : [primary.withValues(alpha: 0.08), primary.withValues(alpha: 0.03)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
+            border: Border.all(
+              color: primary.withValues(alpha: isDark ? 0.25 : 0.15),
+            ),
           ),
           child: Row(
             children: [
-              // Left accent bar
+              // Icon with gradient background
               Container(
-                width: 4,
-                height: 60,
+                width: 44,
+                height: 44,
                 decoration: BoxDecoration(
-                  gradient: AppDesign.refinedSuccessGradient,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(AppDesign.radiusMedium),
-                    bottomLeft: Radius.circular(AppDesign.radiusMedium),
+                  gradient: LinearGradient(
+                    colors: [primary, primary.withValues(alpha: 0.8)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
+                  borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
                 ),
+                child: const Icon(Icons.person_add_alt_1, color: Colors.white, size: 22),
               ),
-              const SizedBox(width: 12),
-              // Icon
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  gradient: AppDesign.refinedSuccessGradient,
-                  borderRadius: BorderRadius.circular(AppDesign.radiusSmall),
-                  boxShadow: AppDesign.glowShadow(
-                    AppDesign.refinedSuccessGradient.colors.first,
-                  ),
-                ),
-                child: const Icon(Icons.person_add, color: Colors.white, size: 22),
-              ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 14),
               // Text
               Expanded(
                 child: Column(
@@ -1723,19 +1702,56 @@ class _InviteBanner extends StatelessWidget {
                       style: TextStyle(
                         fontWeight: FontWeight.w700,
                         fontSize: 14,
-                        color: titleColor,
+                        color: isDark ? Colors.white : const Color(0xFF1A2E35),
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       TranslationService.translate(context, 'invite_card_subtitle'),
-                      style: TextStyle(fontSize: 12, color: subtitleColor),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.6)
+                            : const Color(0xFF5A7A82),
+                      ),
                     ),
                   ],
                 ),
               ),
-              Icon(Icons.share, size: 16, color: subtitleColor),
-              const SizedBox(width: 14),
+              // CTA arrow
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: primary.withValues(alpha: isDark ? 0.2 : 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.arrow_forward_rounded,
+                  size: 18,
+                  color: primary,
+                ),
+              ),
+              // Dismiss button
+              if (onDismiss != null) ...[
+                const SizedBox(width: 4),
+                SizedBox(
+                  width: 28,
+                  height: 28,
+                  child: IconButton(
+                    icon: Icon(
+                      Icons.close,
+                      size: 14,
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.4)
+                          : Colors.black.withValues(alpha: 0.3),
+                    ),
+                    tooltip: TranslationService.translate(context, 'close'),
+                    onPressed: onDismiss,
+                    padding: EdgeInsets.zero,
+                  ),
+                ),
+              ],
             ],
           ),
         ),

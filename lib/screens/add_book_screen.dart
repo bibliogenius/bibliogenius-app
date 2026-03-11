@@ -36,13 +36,17 @@ import '../widgets/app_snack_bar.dart';
 class AddBookScreen extends StatefulWidget {
   final String? isbn;
   final String? preSelectedCollectionId;
+  final String? preSelectedCollectionName;
   final String? preSelectedShelfId;
+  final String? preSelectedShelfName;
 
   const AddBookScreen({
     super.key,
     this.isbn,
     this.preSelectedCollectionId,
+    this.preSelectedCollectionName,
     this.preSelectedShelfId,
+    this.preSelectedShelfName,
   });
 
   @override
@@ -125,6 +129,16 @@ class _AddBookScreenState extends State<AddBookScreen> {
     } catch (e) {
       debugPrint('Error loading pre-selected collection: $e');
     }
+  }
+
+  String _buildTitle(BuildContext context) {
+    final destination =
+        widget.preSelectedCollectionName ?? widget.preSelectedShelfName;
+    if (destination != null) {
+      final addTo = TranslationService.translate(context, 'add_book_to_title');
+      return '$addTo $destination';
+    }
+    return TranslationService.translate(context, 'add_book_title');
   }
 
   Future<void> _loadAuthors() async {
@@ -499,7 +513,11 @@ class _AddBookScreenState extends State<AddBookScreen> {
             }
           },
         ),
-        title: Text(TranslationService.translate(context, 'add_book_title')),
+        title: Text(
+          _buildTitle(context),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
         actions: [
           // Online search button - icon only on mobile, with label on desktop
           if (isMobile)

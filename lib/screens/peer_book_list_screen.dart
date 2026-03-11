@@ -698,8 +698,19 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   Future<void> _requestBorrow(Book book) async {
     final api = Provider.of<ApiService>(context, listen: false);
     try {
-      await api.requestBookByUrl(widget.peerUrl, book.isbn ?? "", book.title);
-      if (mounted) {
+      final response = await api.requestBookByUrl(widget.peerUrl, book.isbn ?? "", book.title);
+      if (!mounted) return;
+      final data = response.data;
+      // Check if lender auto-rejected (no available copy)
+      if (data is Map && data['status'] == 'rejected') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              TranslationService.translate(context, 'borrow_request_rejected_no_copy'),
+            ),
+          ),
+        );
+      } else {
         // Add ISBN to pending set to immediately disable the button
         final isbn = book.isbn;
         if (isbn != null && isbn.isNotEmpty) {

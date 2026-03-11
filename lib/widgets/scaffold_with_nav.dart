@@ -123,6 +123,7 @@ class ScaffoldWithNav extends StatelessWidget {
     final selectedIndex = _calculateBottomNavIndex(context, bottomItems);
 
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Semantics(
       label: TranslationService.translate(context, 'navigation'),
@@ -130,7 +131,9 @@ class ScaffoldWithNav extends StatelessWidget {
         decoration: BoxDecoration(
           border: Border(
             top: BorderSide(
-              color: theme.dividerColor,
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.15)
+                  : Colors.black.withValues(alpha: 0.12),
               width: 0.5,
             ),
           ),

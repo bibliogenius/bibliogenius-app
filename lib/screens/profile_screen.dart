@@ -74,7 +74,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   static const _defaultStatCardIds = [
     'total_books',
     'books_read',
-    'reading_streak',
+    'books_lent',
     'books_this_year',
   ];
   static const _salesCardIds = ['total_revenue', 'sales_count'];
@@ -654,12 +654,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildStatsSummaryContent() {
     final tracks = _userStatus?['tracks'] as Map<String, dynamic>?;
     final config = _userStatus?['config'] as Map<String, dynamic>?;
-    final streak = _userStatus?['streak'] as Map<String, dynamic>?;
 
     final totalBooks =
         (tracks?['collector']?['current'] as num?)?.toInt() ?? 0;
     final booksRead = (config?['total_books_read'] as num?)?.toInt() ?? 0;
-    final currentStreak = (streak?['current'] as num?)?.toInt() ?? 0;
+    final booksLent = (tracks?['lender']?['current'] as num?)?.toInt() ?? 0;
     final booksThisYear =
         (config?['reading_goal_progress'] as num?)?.toInt() ?? 0;
     final salesCount =
@@ -685,10 +684,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         TranslationService.translate(context, 'stat_read'),
         const Color(0xFF10B981),
       ),
-      'reading_streak': _StatCardDef(
-        Icons.local_fire_department,
-        currentStreak.toString(),
-        TranslationService.translate(context, 'reading_streak'),
+      'books_lent': _StatCardDef(
+        Icons.handshake_outlined,
+        booksLent.toString(),
+        TranslationService.translate(context, 'stat_lent'),
         const Color(0xFFEF4444),
       ),
       'books_this_year': _StatCardDef(

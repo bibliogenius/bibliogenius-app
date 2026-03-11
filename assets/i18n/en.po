@@ -162,6 +162,10 @@ msgstr "Add book manually"
 msgid "add_book_title"
 msgstr "Add Book"
 
+#. Contextual add book title (with destination name)
+msgid "add_book_to_title"
+msgstr "Add to"
+
 #. Add Books
 msgid "add_books"
 msgstr "Add Books"
@@ -867,6 +871,10 @@ msgstr "Borrow from a contact"
 #. Request sent successfully!
 msgid "borrow_request_sent"
 msgstr "Request sent successfully!"
+
+#. Borrow request auto-rejected
+msgid "borrow_request_rejected_no_copy"
+msgstr "Request rejected: no copy available from this library."
 
 #. A borrowed copy will be added to your existing book
 msgid "borrow_copy_added_to_existing"
@@ -1793,6 +1801,10 @@ msgstr "No books currently lent"
 msgid "empty_no_loans_hint"
 msgstr "Lend a book from your library to get started"
 
+#. Search placeholder in loans tabs
+msgid "search_loans"
+msgstr "Search by title or name..."
+
 #. Clear returned loans history
 msgid "clean_returned_loans"
 msgstr "Clear history"
@@ -2270,6 +2282,22 @@ msgstr "Please fill in all fields"
 #. All
 msgid "filter_all"
 msgstr "All"
+
+#. Active loans (not overdue)
+msgid "filter_active"
+msgstr "Active"
+
+#. Overdue loans
+msgid "filter_overdue"
+msgstr "Overdue"
+
+#. Returned loans
+msgid "filter_returned"
+msgstr "Returned"
+
+#. All months (date filter placeholder)
+msgid "filter_all_months"
+msgstr "All periods"
 
 #. All my books
 msgid "filter_all_books"
@@ -5740,6 +5768,30 @@ msgstr "Completion"
 msgid "stat_oldest_book"
 msgstr "Oldest Book"
 
+#. View book action
+msgid "action_view_book"
+msgstr "View book"
+
+#. Active (in progress)
+msgid "stat_active_count"
+msgstr "{count} active"
+
+#. Lent
+msgid "stat_lent"
+msgstr "Lent"
+
+#. Dashboard card label: loans
+msgid "dashboard_lent"
+msgstr "Loan"
+
+#. Dashboard card label: borrows
+msgid "dashboard_borrowed"
+msgstr "Borrow"
+
+#. Dashboard card subtitle: in progress
+msgid "stat_in_progress"
+msgstr "active"
+
 #. Read
 msgid "stat_read"
 msgstr "Read"
@@ -7007,6 +7059,10 @@ msgstr "Share invite link"
 msgid "invite_share_message"
 msgstr "Join {name} on BiblioGenius to share books: {link}"
 
+#. Loading snackbar while generating invite link
+msgid "generating_invite_link"
+msgstr "Generating invite link..."
+
 #. Profile screen - share invite link
 msgid "profile_share_invite"
 msgstr "Share my library"
@@ -7712,7 +7768,7 @@ msgstr "Unreachable"
 
 #. Peer reachable via relay or hub (not direct WiFi)
 msgid "peer_status_indirect"
-msgstr "Via cloud"
+msgstr "Online"
 
 msgid "module_edition_browser"
 msgstr "Edition Browser"

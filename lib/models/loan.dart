@@ -11,6 +11,8 @@ class Loan {
   final String contactName;
   final String bookTitle;
   final int? bookId;
+  final String? coverUrl;
+  final String? isbn;
 
   Loan({
     required this.id,
@@ -25,6 +27,8 @@ class Loan {
     required this.contactName,
     required this.bookTitle,
     this.bookId,
+    this.coverUrl,
+    this.isbn,
   });
 
   factory Loan.fromJson(Map<String, dynamic> json) {
@@ -41,6 +45,8 @@ class Loan {
       contactName: json['contact_name'] as String? ?? '',
       bookTitle: json['book_title'] as String? ?? '',
       bookId: json['book_id'] as int?,
+      coverUrl: json['cover_url'] as String?,
+      isbn: json['isbn'] as String?,
     );
   }
 
@@ -63,4 +69,13 @@ class Loan {
 
   bool get isActive => status == 'active';
   bool get isReturned => returnDate != null || status == 'returned';
+
+  /// Resolved cover URL: explicit cover_url, or OpenLibrary fallback from ISBN.
+  String? get resolvedCoverUrl {
+    if (coverUrl != null && coverUrl!.isNotEmpty) return coverUrl;
+    if (isbn != null && isbn!.isNotEmpty) {
+      return 'https://covers.openlibrary.org/b/isbn/$isbn-M.jpg';
+    }
+    return null;
+  }
 }

@@ -162,6 +162,10 @@ msgstr "Ajouter le livre manuellement"
 msgid "add_book_title"
 msgstr "Ajouter un livre"
 
+#. Contextual add book title (with destination name)
+msgid "add_book_to_title"
+msgstr "Ajouter dans"
+
 #. Add Books
 msgid "add_books"
 msgstr "Ajouter des livres"
@@ -867,6 +871,10 @@ msgstr "Emprunter à un contact"
 #. Request sent successfully!
 msgid "borrow_request_sent"
 msgstr "Demande envoyée avec succès !"
+
+#. Borrow request auto-rejected
+msgid "borrow_request_rejected_no_copy"
+msgstr "Demande rejetée : aucun exemplaire disponible dans cette bibliothèque."
 
 #. A borrowed copy will be added to your existing book
 msgid "borrow_copy_added_to_existing"
@@ -1793,6 +1801,10 @@ msgstr "Aucun livre prêté actuellement"
 msgid "empty_no_loans_hint"
 msgstr "Prêtez un livre de votre bibliothèque pour commencer"
 
+#. Search placeholder in loans tabs
+msgid "search_loans"
+msgstr "Rechercher par titre ou nom..."
+
 #. Clear returned loans history
 msgid "clean_returned_loans"
 msgstr "Nettoyer l'historique"
@@ -2270,6 +2282,22 @@ msgstr "Veuillez remplir tous les champs"
 #. All
 msgid "filter_all"
 msgstr "Tous"
+
+#. Active loans (not overdue)
+msgid "filter_active"
+msgstr "En cours"
+
+#. Overdue loans
+msgid "filter_overdue"
+msgstr "En retard"
+
+#. Returned loans
+msgid "filter_returned"
+msgstr "Rendus"
+
+#. All months (date filter placeholder)
+msgid "filter_all_months"
+msgstr "Toutes les periodes"
 
 #. All my books
 msgid "filter_all_books"
@@ -5740,6 +5768,30 @@ msgstr "Complétion"
 msgid "stat_oldest_book"
 msgstr "Livre le plus ancien"
 
+#. View book action
+msgid "action_view_book"
+msgstr "Voir le livre"
+
+#. Active (in progress)
+msgid "stat_active_count"
+msgstr "{count} en cours"
+
+#. Lent
+msgid "stat_lent"
+msgstr "Prêtés"
+
+#. Dashboard card label: loans
+msgid "dashboard_lent"
+msgstr "Prêt"
+
+#. Dashboard card label: borrows
+msgid "dashboard_borrowed"
+msgstr "Emprunt"
+
+#. Dashboard card subtitle: in progress
+msgid "stat_in_progress"
+msgstr "en cours"
+
 #. Read
 msgid "stat_read"
 msgstr "Lus"
@@ -7007,6 +7059,10 @@ msgstr "Partager le lien d'invitation"
 msgid "invite_share_message"
 msgstr "Rejoins {name} sur BiblioGenius pour partager des livres : {link}"
 
+#. Loading snackbar while generating invite link
+msgid "generating_invite_link"
+msgstr "Preparation du lien d'invitation..."
+
 #. Profile screen - share invite link
 msgid "profile_share_invite"
 msgstr "Partager ma bibliothèque"
@@ -7712,7 +7768,7 @@ msgstr "Inactif"
 
 #. Peer reachable via relay or hub (not direct WiFi)
 msgid "peer_status_indirect"
-msgstr "Via cloud"
+msgstr "En ligne"
 
 msgid "module_edition_browser"
 msgstr "Explorateur d'editions"

@@ -22,6 +22,7 @@ import '../models/collection.dart';
 import '../models/contact.dart';
 import '../models/copy.dart';
 import '../models/cover_candidate.dart';
+import '../providers/book_refresh_notifier.dart';
 import '../providers/hub_directory_provider.dart';
 import '../providers/theme_provider.dart';
 import '../services/api_service.dart';
@@ -583,6 +584,9 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
     return WillPopScope(
       onWillPop: () async {
+        if (_hasChanges) {
+          context.read<BookRefreshNotifier>().refresh();
+        }
         Navigator.of(context).pop(_hasChanges);
         return false;
       },
@@ -2341,9 +2345,10 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             backgroundColor: Colors.green,
           ),
         );
-        // Backend deletes copy + potentially the book if no remaining copies.
-        // Refresh to reflect the new state (or navigate back if book was deleted).
-        _fetchBookDetails();
+        // Backend deleted the borrowed copy (and the book if no remaining copies).
+        // Navigate back - the book is no longer in the user's library.
+        context.read<BookRefreshNotifier>().refresh();
+        Navigator.of(context).pop(true);
       }
     } catch (e) {
       if (context.mounted) {

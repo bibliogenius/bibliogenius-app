@@ -1122,7 +1122,7 @@ class _GamificationSummaryCardState extends State<GamificationSummaryCard> {
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: const Icon(
-                              Icons.emoji_events,
+                              Icons.trending_up,
                               color: Colors.white,
                               size: 18,
                             ),

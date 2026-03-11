@@ -154,6 +154,8 @@ class _LibraryScreenState extends State<LibraryScreen>
         contextualQuickActions: _buildQuickActions(context),
         onBookAdded: () => _refreshNotifier.value++,
         onShelfCreated: () => _shelvesRefreshNotifier.value++,
+        preSelectedShelfId: widget.shelfTagFilter,
+        destinationName: widget.shelfTagFilter,
       ),
       body: IndexedStack(
         index: _tabController.index,
@@ -186,12 +188,22 @@ class _LibraryScreenState extends State<LibraryScreen>
             ),
         ],
       ),
-      floatingActionButton: _tabController.index == 0
+      floatingActionButton: _tabController.index == 0 ||
+              (_tabController.index == 1 && widget.shelfTagFilter != null)
           ? FloatingActionButton(
               heroTag: 'library_add_fab',
               key: const Key('addBookButton'),
               onPressed: () async {
-                final result = await context.push('/books/add');
+                final extra = <String, dynamic>{};
+                if (_tabController.index == 1 &&
+                    widget.shelfTagFilter != null) {
+                  extra['shelfId'] = widget.shelfTagFilter;
+                  extra['shelfName'] = widget.shelfTagFilter;
+                }
+                final result = await context.push(
+                  '/books/add',
+                  extra: extra.isNotEmpty ? extra : null,
+                );
                 if (result != null) {
                   _refreshNotifier.value++;
                   if (result is int) {

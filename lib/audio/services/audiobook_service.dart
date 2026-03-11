@@ -203,7 +203,7 @@ class AudiobookService {
     // Build search query - LibriVox uses separate title and author params
     final normalizedTitle = _normalizeTitle(title);
     final queryParams = <String, dynamic>{
-      'title': '^$normalizedTitle',
+      'title': normalizedTitle,
       'format': 'json',
       'extended': '1',
     };
@@ -215,11 +215,8 @@ class AudiobookService {
       }
     }
 
-    debugPrint('[AudiobookService] LibriVox query: title="^$normalizedTitle"');
-
     // 1. Try LibriVox with exact match (Title + Author)
     try {
-      debugPrint('[AudiobookService] LibriVox try 1: exact match');
       final response = await _dio.get(
         '$_librivoxBaseUrl/audiobooks',
         queryParameters: queryParams,
@@ -234,14 +231,13 @@ class AudiobookService {
         );
         if (result != null) return result;
       }
-    } catch (e) {
-      debugPrint('[AudiobookService] LibriVox try 1 error: $e');
+    } catch (_) {
+      // Try 1 failed (common for titles not in LibriVox)
     }
 
     // 2. Try with simplified title (no accents)
     if (_removeDiacritics(normalizedTitle) != normalizedTitle) {
       try {
-        debugPrint('[AudiobookService] LibriVox try 2: simplified title');
         queryParams['title'] = _removeDiacritics(normalizedTitle);
 
         final response = await _dio.get(
@@ -257,15 +253,14 @@ class AudiobookService {
           );
           if (result != null) return result;
         }
-      } catch (e) {
-        debugPrint('[AudiobookService] LibriVox try 2 error: $e');
+      } catch (_) {
+        // Try 2 failed
       }
     }
 
     // 3. Try WITHOUT author (sometimes author names differ)
     if (queryParams.containsKey('author')) {
       try {
-        debugPrint('[AudiobookService] LibriVox try 3: no author');
         queryParams.remove('author');
         // Reset title to simplified (from step 2) or normalized
         queryParams['title'] = _removeDiacritics(normalizedTitle);
@@ -283,19 +278,15 @@ class AudiobookService {
           );
           if (result != null) return result;
         }
-      } catch (e) {
-        debugPrint('[AudiobookService] LibriVox try 3 error: $e');
+      } catch (_) {
+        // Try 3 failed
       }
     }
 
-    // 4. Try broad search (first word of title only)
+    // 4. Try broad search (first word of title only, with ^ prefix)
     try {
       final firstWord = normalizedTitle.split(' ').first;
       if (firstWord.length > 3 && firstWord != normalizedTitle) {
-        // Only try if first word is substantial and different from full title
-        debugPrint(
-          '[AudiobookService] LibriVox try 4: broad search "^$firstWord"',
-        );
         queryParams.remove('author'); // Ensure author is gone
         queryParams['title'] = '^$firstWord';
 
@@ -313,8 +304,8 @@ class AudiobookService {
           if (result != null) return result;
         }
       }
-    } catch (e) {
-      debugPrint('[AudiobookService] LibriVox try 4 error: $e');
+    } catch (_) {
+      // Try 4 failed
     }
 
     return null;
@@ -348,7 +339,6 @@ class AudiobookService {
 
     // Normalize the search title for comparison
     final normalizedSearchTitle = _normalizeForComparison(title);
-    debugPrint('[AudiobookService] Searching for: "$normalizedSearchTitle"');
 
     // Filter/sort books by preferred language AND title similarity
     Map<String, dynamic>? book;
@@ -386,29 +376,11 @@ class AudiobookService {
         // Check title similarity - must be a good match, not just partial
         if (_isTitleMatch(normalizedSearchTitle, normalizedBookTitle)) {
           book = b;
-          debugPrint(
-            '[AudiobookService] Found matching book: "$bookTitle" (lang: $bookLang)',
-          );
           break;
-        } else {
-          debugPrint(
-            '[AudiobookService] Skipping non-matching title: "$bookTitle"',
-          );
         }
       }
 
-      // If no match in preferred language, don't fallback - return null
-      if (book == null) {
-        final availableTitles = books
-            .whereType<Map<String, dynamic>>()
-            .map((b) => b['title'] as String?)
-            .where((t) => t != null)
-            .toList();
-        debugPrint(
-          '[AudiobookService] No matching book found. Available titles: $availableTitles',
-        );
-        return null; // Don't show audiobooks that don't match
-      }
+      if (book == null) return null;
     } else {
       // No preferred language specified - find first title match
       for (final b in books) {
@@ -421,10 +393,7 @@ class AudiobookService {
           break;
         }
       }
-      if (book == null) {
-        debugPrint('[AudiobookService] No title match found in results');
-        return null;
-      }
+      if (book == null) return null;
     }
 
     // Fetch chapters from RSS if available
@@ -433,18 +402,13 @@ class AudiobookService {
     String? streamUrl;
 
     if (rssUrl != null && rssUrl.isNotEmpty) {
-      debugPrint('[AudiobookService] Fetching RSS for chapters: $rssUrl');
       try {
         chapters = await _fetchLibriVoxChapters(rssUrl);
-        // Use first chapter URL as streamUrl if available
         if (chapters.isNotEmpty) {
           streamUrl = chapters.first.url;
-          debugPrint(
-            '[AudiobookService] Got ${chapters.length} chapters. Stream URL: $streamUrl',
-          );
         }
-      } catch (e) {
-        debugPrint('[AudiobookService] Failed to fetch RSS: $e');
+      } catch (_) {
+        // RSS fetch failed, player will fall back to web view
       }
     }
 
@@ -560,15 +524,6 @@ class AudiobookService {
     final meta = post['meta'] as Map<String, dynamic>? ?? {};
     final titleRendered = post['title'] as Map<String, dynamic>?;
 
-    // Debug: print meta contents
-    debugPrint('[AudiobookService] post id: ${post['id']}');
-    debugPrint(
-      '[AudiobookService] stream raw: "${meta['stream']}" (${meta['stream'].runtimeType})',
-    );
-    debugPrint(
-      '[AudiobookService] download_url raw: "${meta['download_url']}" (${meta['download_url'].runtimeType})',
-    );
-
     // Get stream URL (try multiple fields)
     String? streamUrl = meta['stream'] as String?;
     if (streamUrl == null || streamUrl.isEmpty) {
@@ -577,8 +532,6 @@ class AudiobookService {
     if (streamUrl == null || streamUrl.isEmpty) {
       streamUrl = meta['stream_url'] as String?;
     }
-
-    debugPrint('[AudiobookService] Final streamUrl: $streamUrl');
 
     // Parse chapters from meta.items
     List<AudioChapter>? chapters;
@@ -850,9 +803,6 @@ class AudiobookService {
       final normalizedPostTitle = _normalizeForComparison(postTitleRaw);
 
       if (_isTitleMatch(normalizedSearchTitle, normalizedPostTitle)) {
-        debugPrint(
-          '[AudiobookService] Found match with audio: id=${post['id']}, title=$postTitleRaw',
-        );
         return post;
       }
     }
@@ -866,15 +816,10 @@ class AudiobookService {
       final normalizedPostTitle = _normalizeForComparison(postTitleRaw);
 
       if (_isTitleMatch(normalizedSearchTitle, normalizedPostTitle)) {
-        debugPrint(
-          '[AudiobookService] Title match but no stream URL: id=${post['id']}',
-        );
         return post;
       }
     }
 
-    // No matching posts found
-    debugPrint('[AudiobookService] No matching posts found');
     return null;
   }
 
@@ -940,12 +885,6 @@ class AudiobookService {
 
     // For longer titles, require at least 50% word overlap
     final matchRatio = matchingWords.length / searchWords.length;
-    debugPrint(
-      '[AudiobookService] Title comparison: "$searchTitle" vs "$bookTitle" '
-      '- matching: ${matchingWords.length}/${searchWords.length} (${(matchRatio * 100).toInt()}%), '
-      'similarity: ${(similarity * 100).toInt()}%',
-    );
-
     return matchRatio >= 0.5 && similarity >= 0.4;
   }
 }

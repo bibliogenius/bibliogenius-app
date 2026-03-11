@@ -500,25 +500,23 @@ class _DashboardScreenState extends State<DashboardScreen>
                         Icons.menu_book,
                         onTap: () => context.push('/books'),
                       ),
-                      if (!themeProvider.canBorrowBooks)
-                        _buildStatCard(
-                          context,
-                          TranslationService.translate(context, 'lent_status'),
-                          (_stats['active_loans'] ?? 0).toString(),
-                          Icons.arrow_upward,
-                          isAccent: true,
-                          onTap: () => context.push('/requests?tab=lent'),
-                        ),
+                      _buildStatCard(
+                        context,
+                        TranslationService.translate(context, 'dashboard_lent'),
+                        (_stats['active_loans'] ?? 0).toString(),
+                        Icons.arrow_upward,
+                        isAccent: true,
+                        subtitle: TranslationService.translate(context, 'stat_in_progress'),
+                        onTap: () => context.push('/requests?tab=lent&status=active'),
+                      ),
                       if (themeProvider.canBorrowBooks)
                         _buildStatCard(
                           context,
-                          TranslationService.translate(
-                            context,
-                            'borrowed_status',
-                          ),
+                          TranslationService.translate(context, 'dashboard_borrowed'),
                           (_stats['borrowed_count'] ?? 0).toString(),
                           Icons.arrow_downward,
-                          onTap: () => context.push('/requests?tab=borrowed'),
+                          subtitle: TranslationService.translate(context, 'stat_in_progress'),
+                          onTap: () => context.push('/requests?tab=borrowed&status=active'),
                         ),
                       if (!isKid)
                         _buildStatCard(
@@ -543,45 +541,54 @@ class _DashboardScreenState extends State<DashboardScreen>
                       final secondRow = statCards.skip(2).toList();
                       return Column(
                         children: [
-                          Row(
-                            children:
-                                firstRow
-                                    .expand(
-                                      (w) => [
-                                        Expanded(child: w),
-                                        const SizedBox(width: 12),
-                                      ],
-                                    )
-                                    .toList()
-                                  ..removeLast(),
+                          IntrinsicHeight(
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children:
+                                  firstRow
+                                      .expand(
+                                        (w) => [
+                                          Expanded(child: w),
+                                          const SizedBox(width: 12),
+                                        ],
+                                      )
+                                      .toList()
+                                    ..removeLast(),
+                            ),
                           ),
                           const SizedBox(height: 12),
-                          Row(
-                            children:
-                                secondRow
-                                    .expand(
-                                      (w) => [
-                                        Expanded(child: w),
-                                        const SizedBox(width: 12),
-                                      ],
-                                    )
-                                    .toList()
-                                  ..removeLast(),
+                          IntrinsicHeight(
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children:
+                                  secondRow
+                                      .expand(
+                                        (w) => [
+                                          Expanded(child: w),
+                                          const SizedBox(width: 12),
+                                        ],
+                                      )
+                                      .toList()
+                                    ..removeLast(),
+                            ),
                           ),
                         ],
                       );
                     }
-                    return Row(
-                      children:
-                          statCards
-                              .expand(
-                                (w) => [
-                                  Expanded(child: w),
-                                  const SizedBox(width: 12),
-                                ],
-                              )
-                              .toList()
-                            ..removeLast(),
+                    return IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children:
+                            statCards
+                                .expand(
+                                  (w) => [
+                                    Expanded(child: w),
+                                    const SizedBox(width: 12),
+                                  ],
+                                )
+                                .toList()
+                              ..removeLast(),
+                      ),
                     );
                   },
                 ),
@@ -1189,6 +1196,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     IconData icon, {
     bool isAccent = false,
     VoidCallback? onTap,
+    String? subtitle,
   }) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
@@ -1265,6 +1273,19 @@ class _DashboardScreenState extends State<DashboardScreen>
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
+                if (subtitle != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: isDesktop ? 11 : 9,
+                      fontWeight: FontWeight.w500,
+                      color: labelClr.withValues(alpha: 0.7),
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
               ],
             );
           },

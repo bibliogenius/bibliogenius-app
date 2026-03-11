@@ -258,9 +258,12 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
   Future<void> _addBook() async {
     final result = await context.push(
       '/books/add',
-      extra: {'collectionId': widget.collection.id},
+      extra: {
+        'collectionId': widget.collection.id,
+        'collectionName': widget.collection.name,
+      },
     );
-    if (result == true) {
+    if (result != null) {
       _refreshBooks();
     }
   }
@@ -273,6 +276,29 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
         title: widget.collection.name,
         transparent: true, // 🌟 Transparent AppBar
         showQuickActions: false,
+        preSelectedCollectionId: widget.collection.id,
+        preSelectedCollectionName: widget.collection.name,
+        destinationName: widget.collection.name,
+        thirdSlotOverride: Builder(builder: (sheetContext) {
+          return QuickActionCard(
+            icon: Icons.document_scanner_outlined,
+            color: Colors.deepOrange,
+            label: TranslationService.translate(
+                sheetContext, 'quick_batch_scan'),
+            onTap: () async {
+              Navigator.pop(sheetContext);
+              await context.push(
+                '/scan',
+                extra: {
+                  'collectionId': widget.collection.id,
+                  'collectionName': widget.collection.name,
+                  'batch': true,
+                },
+              );
+              _refreshBooks();
+            },
+          );
+        }),
         contextualQuickActions: [
           Builder(builder: (sheetContext) {
             return Column(
@@ -280,27 +306,6 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
               children: [
                 Row(
                   children: [
-                    Expanded(
-                      child: QuickActionCard(
-                        icon: Icons.qr_code_scanner,
-                        color: Colors.orange,
-                        label: TranslationService.translate(
-                            sheetContext, 'scan_into_collection'),
-                        onTap: () async {
-                          Navigator.pop(sheetContext);
-                          await context.push(
-                            '/scan',
-                            extra: {
-                              'collectionId': widget.collection.id,
-                              'collectionName': widget.collection.name,
-                              'batch': true,
-                            },
-                          );
-                          _refreshBooks();
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 12),
                     Expanded(
                       child: QuickActionCard(
                         icon: Icons.upload_file,
@@ -326,11 +331,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                         },
                       ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
+                    const SizedBox(width: 12),
                     Expanded(
                       child: QuickActionCard(
                         icon: Icons.delete,
@@ -343,10 +344,6 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                         },
                       ),
                     ),
-                    // Spacers to keep card same width as others
-                    const Spacer(),
-                    const SizedBox(width: 12),
-                    const Spacer(),
                   ],
                 ),
               ],

@@ -13,6 +13,92 @@ import '../services/mdns_service.dart';
 import '../services/translation_service.dart';
 import '../utils/invite_payload.dart';
 
+/// Generates the invite link and opens the native share sheet directly.
+///
+/// Shows a brief loading snackbar while generating. Falls back to the
+/// full bottom sheet (with QR code + error state) if generation fails.
+Future<void> shareInviteLinkDirect(BuildContext context) async {
+  // Capture everything from context before any await
+  final messenger = ScaffoldMessenger.of(context);
+  final apiService = Provider.of<ApiService>(context, listen: false);
+  final libraryName = Provider.of<ThemeProvider>(context, listen: false).libraryName;
+  final loadingText = TranslationService.translate(context, 'generating_invite_link');
+  final messageTemplate = TranslationService.translate(context, 'invite_share_message');
+
+  messenger.showSnackBar(
+    SnackBar(
+      content: Row(
+        children: [
+          const SizedBox(
+            width: 16,
+            height: 16,
+            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+          ),
+          const SizedBox(width: 12),
+          Text(loadingText),
+        ],
+      ),
+      duration: const Duration(seconds: 10),
+    ),
+  );
+
+  try {
+    // Resolve local IP (best-effort for LAN connections)
+    String? localIp;
+    try {
+      final info = NetworkInfo();
+      final wifiIp = await info.getWifiIP();
+      if (wifiIp != null && !wifiIp.startsWith('169.254.')) {
+        localIp = wifiIp;
+      }
+    } catch (_) {}
+    localIp ??= await MdnsService.getValidLanIp();
+
+    final configRes = await apiService.getLibraryConfig();
+    final libraryUuid = configRes.data['library_uuid'] as String?;
+    final ed25519Key = configRes.data['ed25519_public_key'] as String?;
+    final x25519Key = configRes.data['x25519_public_key'] as String?;
+    final relayUrl = configRes.data['relay_url'] as String?;
+    final mailboxId = configRes.data['mailbox_id'] as String?;
+    final relayWriteToken = configRes.data['relay_write_token'] as String?;
+
+    if (localIp == null && (relayUrl == null || mailboxId == null)) {
+      messenger.hideCurrentSnackBar();
+      // Cannot generate link - fall back to bottom sheet (shows error state)
+      if (context.mounted) showInviteShareSheet(context);
+      return;
+    }
+
+    final peerUrl = localIp != null
+        ? "http://$localIp:${ApiService.httpPort}"
+        : "";
+
+    final payload = buildInvitePayload(
+      name: libraryName,
+      url: peerUrl,
+      libraryUuid: libraryUuid,
+      ed25519PublicKey: ed25519Key,
+      x25519PublicKey: x25519Key,
+      relayUrl: relayUrl,
+      mailboxId: mailboxId,
+      relayWriteToken: relayWriteToken,
+    );
+
+    final link = await createInviteLink(payload, hubBaseUrl: ApiService.hubUrl);
+
+    messenger.hideCurrentSnackBar();
+
+    final message = messageTemplate
+        .replaceAll('{name}', libraryName)
+        .replaceAll('{link}', link);
+    Share.share(message);
+  } catch (e) {
+    debugPrint('shareInviteLinkDirect: error: $e');
+    messenger.hideCurrentSnackBar();
+    if (context.mounted) showInviteShareSheet(context);
+  }
+}
+
 /// Shows the invite share bottom sheet.
 ///
 /// Call this from any context to display the invite link + QR code sheet.

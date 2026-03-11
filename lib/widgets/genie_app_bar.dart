@@ -5,11 +5,16 @@ import '../providers/theme_provider.dart';
 import '../providers/notification_provider.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
+import '../utils/app_constants.dart';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'bibliogenius_logo.dart';
 import 'quick_actions_sheet.dart';
 import '../theme/app_design.dart';
+
+/// Whether the current app version is a beta release.
+/// Reads from [AppConstants.isBeta].
+bool isBetaVersion = AppConstants.isBeta;
 
 void _showRenameLibraryDialog(BuildContext context, ThemeProvider themeProvider) {
   final controller = TextEditingController(text: themeProvider.libraryName);
@@ -71,6 +76,10 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? onBookAdded; // Callback when a book is added via quick actions
   final VoidCallback? onShelfCreated; // Callback when a shelf is created via quick actions
   final String? preSelectedShelfId;
+  final String? preSelectedCollectionId;
+  final String? preSelectedCollectionName;
+  final String? destinationName;
+  final Widget? thirdSlotOverride;
 
   const GenieAppBar({
     super.key,
@@ -87,6 +96,10 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.onBookAdded,
     this.onShelfCreated,
     this.preSelectedShelfId,
+    this.preSelectedCollectionId,
+    this.preSelectedCollectionName,
+    this.destinationName,
+    this.thirdSlotOverride,
   });
 
   final bool transparent;
@@ -157,16 +170,44 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                ExcludeSemantics(
-                child: SizedBox(
-                  width: logoSize,
-                  height: logoSize,
-                  child: BiblioGeniusLogo(
-                    size: logoSize,
-                    color: Colors.white,
+                Semantics(
+                  button: true,
+                  label: TranslationService.translate(context, 'go_to_library'),
+                  child: GestureDetector(
+                    onTap: () => context.go('/books'),
+                    child: SizedBox(
+                      width: logoSize,
+                      height: logoSize,
+                      child: BiblioGeniusLogo(
+                        size: logoSize,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
                 ),
-              ),
+                if (isBetaVersion) ...[
+                  const SizedBox(width: 4),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.25),
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.5),
+                        width: 0.5,
+                      ),
+                    ),
+                    child: Text(
+                      'BETA',
+                      style: TextStyle(
+                        fontSize: isCompact ? 8.0 : 9.0,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white.withValues(alpha: 0.9),
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                ],
                 // Hide text entirely if space is too tight (don't truncate)
                 if (!hideTitle) ...[
                   ExcludeSemantics(child: SizedBox(width: spacing)),
@@ -178,17 +219,24 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               if (title != null)
-                                Text(
-                                  title.toString(),
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: titleFontSize,
-                                    color: Colors.white,
-                                    letterSpacing: 0.5,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.fade,
-                                  softWrap: false,
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Flexible(
+                                      child: Text(
+                                        title.toString(),
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: titleFontSize,
+                                          color: Colors.white,
+                                          letterSpacing: 0.5,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.fade,
+                                        softWrap: false,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               // Subtitle (library name) - tappable to edit when it's the default libraryName
                               // When title is null, subtitle is the primary text: use hideTitle threshold
@@ -301,6 +349,10 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
                     onBookAdded: onBookAdded,
                     onShelfCreated: onShelfCreated,
                     preSelectedShelfId: preSelectedShelfId,
+                    preSelectedCollectionId: preSelectedCollectionId,
+                    preSelectedCollectionName: preSelectedCollectionName,
+                    destinationName: destinationName,
+                    thirdSlotOverride: thirdSlotOverride,
                   ),
                 );
               },
