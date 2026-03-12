@@ -3,12 +3,9 @@
 #
 msgid ""
 msgstr ""
-"Language: tr
-"
-"Content-Type: text/plain; charset=UTF-8
-"
-"Content-Transfer-Encoding: 8bit
-"
+"Language: tr\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
 
 #. Collector Bronze
 msgid "achievement_collector_bronze"
@@ -717,7 +714,7 @@ msgstr "Kitap başarıyla güncellendi"
 
 #. books
 msgid "books"
-msgstr "kitaplar"
+msgstr "Kitaplar"
 
 #. books added
 msgid "books_added"
@@ -5037,6 +5034,10 @@ msgstr "Birinci sınıf işbirlikçi açık veritabanı"
 #. Great coverage, especially for English books
 msgid "source_openlibrary_desc"
 msgstr "Özellikle İngilizce kitaplar için harika kapsam"
+
+#. All sources
+msgid "source_filter_all"
+msgstr "Tüm kaynaklar"
 
 #. Start Reading
 msgid "start_reading"

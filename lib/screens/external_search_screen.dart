@@ -162,7 +162,7 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
 
     // Build source options list based on enabled sources
     final options = <Map<String, dynamic>>[
-      {'value': null, 'label': 'Toutes les sources'},
+      {'value': null, 'label': TranslationService.translate(context, 'source_filter_all')},
     ];
 
     if (inventaireEnabled) {
@@ -239,58 +239,31 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
     return false;
   }
 
-  /// Calculate title relevance score (how well title matches search query)
-  int _titleRelevanceScore(String title, String searchQuery) {
-    if (searchQuery.isEmpty) return 0;
-
-    final normalizedTitle = _normalizeTitle(title);
-    final normalizedQuery = _normalizeTitle(searchQuery);
-
-    // Exact match
-    if (normalizedTitle == normalizedQuery) return 1000;
-
-    // Title starts with query (e.g., "Martin Eden" starts with "Martin Eden")
-    if (normalizedTitle.startsWith(normalizedQuery)) return 800;
-
-    // Query is contained in title as a complete phrase
-    if (normalizedTitle.contains(normalizedQuery)) return 600;
-
-    // All query words are in title
-    final queryWords = normalizedQuery
-        .split(' ')
-        .where((w) => w.length > 2)
-        .toSet();
-    final titleWords = normalizedTitle.split(' ').toSet();
-    if (queryWords.isNotEmpty &&
-        queryWords.every((w) => titleWords.any((t) => t.contains(w)))) {
-      return 400;
-    }
-
-    // Some query words match
-    final matchingWords = queryWords
-        .where((w) => titleWords.any((t) => t.contains(w)))
-        .length;
-    if (matchingWords > 0) {
-      return (matchingWords * 100) ~/ queryWords.length;
-    }
-
-    return 0;
-  }
-
   /// Group search results by work (title + author combination)
   List<Map<String, dynamic>> _groupResultsByWork(
     List<Map<String, dynamic>> results,
-    String searchQuery,
   ) {
     final Map<String, Map<String, dynamic>> workMap = {};
+
+    // Normalize author for grouping: extract last name to handle format
+    // differences across sources ("Jean-Paul Sartre" vs "Sartre, Jean-Paul")
+    String normalizeAuthorForGrouping(String author) {
+      final a = author.toLowerCase().trim();
+      if (a.isEmpty) return '';
+      // If "Last, First" format, take part before comma
+      if (a.contains(',')) return a.split(',').first.trim();
+      // Otherwise take last word (surname)
+      final parts = a.split(RegExp(r'\s+'));
+      return parts.last;
+    }
 
     for (final book in results) {
       final title = book['title'] as String? ?? '';
       final author = book['author'] as String? ?? '';
       final normalizedTitle = _normalizeTitle(title);
-      final normalizedAuthor = author.toLowerCase().trim();
+      final normalizedAuthor = normalizeAuthorForGrouping(author);
 
-      // Create a key from normalized title and author
+      // Create a key from normalized title and author surname
       final workKey = '$normalizedTitle|$normalizedAuthor';
 
       if (workMap.containsKey(workKey)) {
@@ -307,8 +280,69 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
       }
     }
 
+    // Cross-language work merging: merge works by the same author whose titles
+    // are translations of each other (e.g. "El túnel" and "Le tunnel" by Sabato).
+    // Compare significant words with fuzzy matching.
+    {
+      final keys = workMap.keys.toList();
+      final mergedInto = <String, String>{}; // key -> target key
+      for (int i = 0; i < keys.length; i++) {
+        if (mergedInto.containsKey(keys[i])) continue;
+        final partsI = keys[i].split('|');
+        final authorI = partsI.length > 1 ? partsI[1] : '';
+        if (authorI.isEmpty) continue;
+        for (int j = i + 1; j < keys.length; j++) {
+          if (mergedInto.containsKey(keys[j])) continue;
+          final partsJ = keys[j].split('|');
+          final authorJ = partsJ.length > 1 ? partsJ[1] : '';
+          // Same author surname
+          if (authorI != authorJ) continue;
+          // Fuzzy title match on significant words
+          final titleI = partsI[0];
+          final titleJ = partsJ[0];
+          final wordsI = titleI.split(RegExp(r'\s+')).where((w) => w.length > 2).toList();
+          final wordsJ = titleJ.split(RegExp(r'\s+')).where((w) => w.length > 2).toList();
+          if (wordsI.isEmpty || wordsJ.isEmpty) continue;
+          // Check if the shorter set of words fuzzy-matches the longer
+          final shorter = wordsI.length <= wordsJ.length ? wordsI : wordsJ;
+          final longer = wordsI.length <= wordsJ.length ? wordsJ : wordsI;
+          final allMatch = shorter.every((sw) => longer.any((lw) {
+            if (sw == lw) return true;
+            // Simple char-level similarity for cross-language title words
+            int common = 0;
+            for (int c = 0; c < sw.length && c < lw.length; c++) {
+              if (sw[c] == lw[c]) common++;
+            }
+            return common / (sw.length > lw.length ? sw.length : lw.length) > 0.7;
+          }));
+          if (allMatch) {
+            // Merge j into i: pick the work with best relevance as target
+            final editionsI = (workMap[keys[i]]!['editions'] as List).cast<Map<String, dynamic>>();
+            final editionsJ = (workMap[keys[j]]!['editions'] as List).cast<Map<String, dynamic>>();
+            final bestI = editionsI.fold<int>(0, (best, e) {
+              final s = (e['relevance_score'] as num?)?.toInt() ?? 0;
+              return s > best ? s : best;
+            });
+            final bestJ = editionsJ.fold<int>(0, (best, e) {
+              final s = (e['relevance_score'] as num?)?.toInt() ?? 0;
+              return s > best ? s : best;
+            });
+            final targetKey = bestI >= bestJ ? keys[i] : keys[j];
+            final sourceKey = targetKey == keys[i] ? keys[j] : keys[i];
+            (workMap[targetKey]!['editions'] as List).addAll(
+              workMap[sourceKey]!['editions'] as List,
+            );
+            mergedInto[sourceKey] = targetKey;
+          }
+        }
+      }
+      for (final key in mergedInto.keys) {
+        workMap.remove(key);
+      }
+    }
+
     // Sort editions within each work using a quality score
-    // Score: language match (100) + cover (30) + publisher (20) + ISBN (10)
+    // Score: language match (100) + cover (80) + publisher (20) + ISBN (10)
     // Language priority: use selected language if set, otherwise all user reading languages
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     final List<String> langsForSorting;
@@ -336,8 +370,8 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
         }
       }
 
-      // Metadata completeness
-      if ((edition['cover_url'] as String?)?.isNotEmpty == true) score += 30;
+      // Metadata completeness - cover is important for visual display
+      if ((edition['cover_url'] as String?)?.isNotEmpty == true) score += 80;
       if ((edition['isbn'] as String?)?.isNotEmpty == true) score += 10;
 
       // Publisher scoring: reward good publishers, penalize self-publishing
@@ -363,20 +397,41 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
       return score;
     }
 
-    // Helper to create a unique key for deduplication
-    // Priority: ISBN (if available) > visual attributes
-    String editionKey(Map<String, dynamic> edition) {
-      final isbn = (edition['isbn'] as String?)?.replaceAll('-', '').trim() ?? '';
-      // If ISBN is available, use it as primary key (same ISBN = same edition)
-      if (isbn.isNotEmpty && isbn.length >= 10) {
-        return 'isbn:$isbn';
+    // Normalize ISBN: strip dashes, reduce ISBN-13 to ISBN-10 core for matching
+    // ISBN-13 "978-2-07-036024-8" and ISBN-10 "2-07-036024-X" share digits 4..12
+    String normalizeIsbn(String raw) {
+      final digits = raw.replaceAll(RegExp(r'[^0-9Xx]'), '');
+      if (digits.length == 13 && digits.startsWith('978')) {
+        return digits.substring(3, 12); // 9 shared digits (drop prefix + check)
       }
-      // Fallback: visual attributes for editions without ISBN
-      final title = (edition['title'] as String?)?.toLowerCase().trim() ?? '';
-      final publisher =
-          (edition['publisher'] as String?)?.toLowerCase().trim() ?? '';
-      final year = edition['publication_year']?.toString() ?? '';
-      return 'visual:$title|$publisher|$year';
+      if (digits.length == 10) {
+        return digits.substring(0, 9); // 9 digits (drop check digit)
+      }
+      return digits;
+    }
+
+    // Helper to create unique keys for deduplication.
+    // Returns a list: ISBN key + cover key (both checked independently)
+    List<String> editionKeys(Map<String, dynamic> edition) {
+      final keys = <String>[];
+      final isbn = (edition['isbn'] as String?)?.trim() ?? '';
+      if (isbn.isNotEmpty && isbn.length >= 10) {
+        keys.add('isbn:${normalizeIsbn(isbn)}');
+      }
+      // Cover URL as secondary dedup key (same visual = same edition in carousel)
+      final cover = (edition['cover_url'] as String?)?.trim() ?? '';
+      if (cover.isNotEmpty) {
+        keys.add('cover:$cover');
+      }
+      // Fallback: visual attributes for editions without ISBN or cover
+      if (keys.isEmpty) {
+        final title = (edition['title'] as String?)?.toLowerCase().trim() ?? '';
+        final publisher =
+            (edition['publisher'] as String?)?.toLowerCase().trim() ?? '';
+        final year = edition['publication_year']?.toString() ?? '';
+        keys.add('visual:$title|$publisher|$year');
+      }
+      return keys;
     }
 
     for (final work in workMap.values) {
@@ -399,88 +454,79 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
         return yearB.compareTo(yearA);
       });
 
-      // Then deduplicate: keep first occurrence (best quality) of each unique edition
+      // Then deduplicate: keep first occurrence (best quality) of each unique edition.
+      // An edition is duplicate if ANY of its keys (ISBN, cover URL) was already seen.
       final seenKeys = <String>{};
       editions.removeWhere((edition) {
-        final key = editionKey(edition);
-        if (seenKeys.contains(key)) {
+        final keys = editionKeys(edition);
+        final isDuplicate = keys.any((k) => seenKeys.contains(k));
+        if (isDuplicate) {
           return true; // Remove duplicate
         }
-        seenKeys.add(key);
+        seenKeys.addAll(keys);
         return false; // Keep first occurrence
       });
     }
 
-    // Sort works by: 1) title relevance, 2) language match, 3) quality score, 4) editions count
+    // Sort works by combining:
+    // - Backend relevance_score (includes fuzzy matching, notoriety, stop-words,
+    //   accent folding, language - computed once in Rust, no duplication here)
+    // - Flutter-side language check (for post-search UI filter changes)
+    // - Edition quality (cover, publisher - UI concerns)
     final worksList = workMap.values.toList();
 
+    /// Best relevance_score among a work's editions (from Rust backend).
+    int bestRelevanceScore(List<Map<String, dynamic>> editions) {
+      int best = 0;
+      for (final ed in editions) {
+        final s = (ed['relevance_score'] as num?)?.toInt() ?? 0;
+        if (s > best) best = s;
+      }
+      return best;
+    }
+
     // Debug: log scores before sorting
-    debugPrint('🔄 SORTING WORKS (langs=$langsForSorting):');
+    debugPrint('🔄 SORTING WORKS v2 (langs=$langsForSorting):');
     for (final work in worksList.take(5)) {
       final editions = (work['editions'] as List).cast<Map<String, dynamic>>();
       if (editions.isNotEmpty) {
         final bestEd = editions.first;
-        final score = editionScore(bestEd);
         final lang = bestEd['language'] ?? 'NULL';
-        debugPrint('  📖 "${work['title']}" → lang=$lang, score=$score');
+        final rs = bestRelevanceScore(editions);
+        debugPrint('  📖 "${work['title']}" → lang=$lang, relevance=$rs');
       }
     }
 
     worksList.sort((a, b) {
-      final titleA = a['title'] as String? ?? '';
-      final titleB = b['title'] as String? ?? '';
       final editionsA = (a['editions'] as List).cast<Map<String, dynamic>>();
       final editionsB = (b['editions'] as List).cast<Map<String, dynamic>>();
 
-      // Calculate scores upfront
-      final titleScoreA = _titleRelevanceScore(titleA, searchQuery);
-      final titleScoreB = _titleRelevanceScore(titleB, searchQuery);
+      // Backend relevance score is the primary signal (includes notoriety,
+      // title match, language as a soft signal - all computed in Rust)
+      final rsA = bestRelevanceScore(editionsA);
+      final rsB = bestRelevanceScore(editionsB);
 
-      int qualityScoreA = 0;
-      int qualityScoreB = 0;
-      if (editionsA.isNotEmpty) qualityScoreA = editionScore(editionsA.first);
-      if (editionsB.isNotEmpty) qualityScoreB = editionScore(editionsB.first);
-
-      // When language prioritization is active (not "All languages"),
-      // prioritize language matching FIRST, then title relevance
+      // Language match adds a soft bonus (not a hard partition), so a famous
+      // book in another language can still rank above an obscure local match
+      int effectiveA = rsA;
+      int effectiveB = rsB;
       if (langsForSorting.isNotEmpty) {
-        // Check if one has matching language and the other doesn't
-        // Language match gives +100 points, non-match gives -50
-        // So a book with matching lang has score >= 100, non-matching has score < 100
-        final aMatchesLang = qualityScoreA >= 100;
-        final bMatchesLang = qualityScoreB >= 100;
-
-        if (aMatchesLang != bMatchesLang) {
-          return aMatchesLang ? -1 : 1; // Matching language comes first
-        }
-        // Both match or both don't match → fall through to title relevance
+        int qualityA = 0;
+        int qualityB = 0;
+        if (editionsA.isNotEmpty) qualityA = editionScore(editionsA.first);
+        if (editionsB.isNotEmpty) qualityB = editionScore(editionsB.first);
+        if (qualityA >= 100) effectiveA += 80;
+        if (qualityB >= 100) effectiveB += 80;
       }
 
-      // Title relevance (primary criterion when no explicit language selected,
-      // or secondary when both have same language match status)
-      if (titleScoreA != titleScoreB) {
-        return titleScoreB.compareTo(
-          titleScoreA,
-        ); // Higher title relevance first
-      }
+      if (effectiveA != effectiveB) return effectiveB.compareTo(effectiveA);
 
-      // SECOND: Language match (more detailed comparison for same language category)
-      // This handles cases where both match or both don't match the selected language
-      final langDiff = (qualityScoreA - qualityScoreB).abs();
-      if (langDiff >= 50) {
-        return qualityScoreB.compareTo(qualityScoreA);
-      }
-
-      // THIRD: Number of editions (popularity indicator) - but only as tie-breaker
-      final editionCountA = editionsA.length;
-      final editionCountB = editionsB.length;
-
-      if (editionCountA != editionCountB) {
-        return editionCountB.compareTo(editionCountA); // More editions first
-      }
-
-      // FOURTH: Full quality score comparison for remaining ties
-      return qualityScoreB.compareTo(qualityScoreA); // Higher quality first
+      // Tie-breaker: edition quality (cover, publisher)
+      int qualityA = 0;
+      int qualityB = 0;
+      if (editionsA.isNotEmpty) qualityA = editionScore(editionsA.first);
+      if (editionsB.isNotEmpty) qualityB = editionScore(editionsB.first);
+      return qualityB.compareTo(qualityA);
     });
 
     return worksList;
@@ -547,9 +593,7 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
       if (!mounted) return;
       setState(() {
         _searchResults = results;
-        // Use title search query for relevance sorting
-        final searchQuery = _titleController.text;
-        _groupedWorks = _groupResultsByWork(results, searchQuery);
+        _groupedWorks = _groupResultsByWork(results);
         _availableSources = sources;
         // Debug: Print grouping info
         debugPrint('🔍 Search returned ${results.length} results');

@@ -257,18 +257,19 @@ class ThemeProvider with ChangeNotifier {
     if (userLangsJson != null) {
       try {
         final decoded = List<String>.from(jsonDecode(userLangsJson));
+        // Normalize saved tags to known keys (fixes fr-FR → fr mismatch)
         _userLanguages = decoded.isNotEmpty
-            ? decoded.toSet().toList()
-            : [localeToTag(_locale)];
+            ? decoded.map(normalizeToKnownLanguage).toSet().toList()
+            : [normalizeToKnownLanguage(localeToTag(_locale))];
       } catch (e) {
         debugPrint('Error loading userLanguages: $e');
-        _userLanguages = [localeToTag(_locale)];
+        _userLanguages = [normalizeToKnownLanguage(localeToTag(_locale))];
       }
     } else {
       // First launch: default to UI locale + system locale if different
-      final systemTag = localeToTag(
-          WidgetsBinding.instance.platformDispatcher.locale);
-      _userLanguages = {localeToTag(_locale), systemTag}.toList();
+      final systemTag = normalizeToKnownLanguage(
+          localeToTag(WidgetsBinding.instance.platformDispatcher.locale));
+      _userLanguages = {normalizeToKnownLanguage(localeToTag(_locale)), systemTag}.toList();
     }
 
     // If UI locale is no longer reachable, auto-switch and persist

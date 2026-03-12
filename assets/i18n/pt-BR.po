@@ -4973,6 +4973,10 @@ msgstr "Banco colaborativo aberto primário"
 msgid "source_openlibrary_desc"
 msgstr "Excelente cobertura, especialmente para livros em inglês"
 
+#. All sources
+msgid "source_filter_all"
+msgstr "Todas as fontes"
+
 #. Start Reading
 msgid "start_reading"
 msgstr "Começar a Ler"

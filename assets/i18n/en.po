@@ -5724,6 +5724,10 @@ msgstr "Primary collaborative open database"
 msgid "source_openlibrary_desc"
 msgstr "Great coverage, especially for English books"
 
+#. All sources
+msgid "source_filter_all"
+msgstr "All sources"
+
 #. Start Reading
 msgid "start_reading"
 msgstr "Start Reading"

@@ -5321,6 +5321,10 @@ msgstr "Principale database collaborativo e aperto"
 msgid "source_openlibrary_desc"
 msgstr "Ottima copertura, specialmente per libri in inglese"
 
+#. All sources
+msgid "source_filter_all"
+msgstr "Tutte le fonti"
+
 #. Start Reading
 msgid "start_reading"
 msgstr "Inizia a leggere"

@@ -58,6 +58,9 @@ class _LoansScreenState extends State<LoansScreen>
   List<Loan> _activeLoans = []; // Books I lent to others
   List<dynamic> _borrowedBooks = []; // Books I borrowed from others
 
+  /// ISBN -> local book ID mapping for hub requests "View book" links
+  Map<String, int> _isbnToLocalBookId = {};
+
   // Search & filters
   final _lentSearchController = TextEditingController();
   final _borrowedSearchController = TextEditingController();
@@ -158,6 +161,20 @@ class _LoansScreenState extends State<LoansScreen>
           hubProvider.loadIncomingHubRequests(),
           hubProvider.loadOutgoingHubRequests(),
         ]);
+
+        // Resolve local book IDs for hub requests (enables "View book" link)
+        final allHubIsbns = <String>{
+          ...hubProvider.incomingHubRequests.map((r) => r.isbn),
+          ...hubProvider.outgoingHubRequests.map((r) => r.isbn),
+        }.where((isbn) => isbn.isNotEmpty);
+        final resolvedMap = <String, int>{};
+        for (final isbn in allHubIsbns) {
+          final book = await api.findBookByIsbn(isbn);
+          if (book != null && book.id != null) {
+            resolvedMap[isbn] = book.id!;
+          }
+        }
+        _isbnToLocalBookId = resolvedMap;
       }
 
       // Fetch all loans (books I lent) - enables filtering by status
@@ -1560,12 +1577,25 @@ class _LoansScreenState extends State<LoansScreen>
 
   void _showHubRequestActions(FrbHubBorrowRequest req, {required bool isIncoming}) {
     final status = req.status;
+    final localBookId = _isbnToLocalBookId[req.isbn];
     showModalBottomSheet(
       context: context,
       builder: (ctx) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // View book (only if the book exists locally)
+            if (localBookId != null)
+              ListTile(
+                leading: Icon(Icons.menu_book, color: Theme.of(context).colorScheme.primary),
+                title: Text(
+                  TranslationService.translate(context, 'action_view_book'),
+                ),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  context.push('/books/$localBookId');
+                },
+              ),
             if (status == 'pending' && isIncoming) ...[
               ListTile(
                 leading: const Icon(Icons.check, color: Colors.green),

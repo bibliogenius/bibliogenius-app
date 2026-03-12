@@ -35,6 +35,19 @@ String localeToTag(Locale locale) {
   return locale.languageCode;
 }
 
+/// Normalize a locale tag to the closest key in [kLanguageNativeNames].
+/// 'fr-FR' → 'fr' (exact 'fr-FR' not in map, but 'fr' is).
+/// 'pt-BR' → 'pt-BR' (exact match exists).
+/// 'zh-Hans-CN' → 'zh-CN' (fallback to base-region).
+/// Returns the original tag if no mapping is found.
+String normalizeToKnownLanguage(String tag) {
+  if (kLanguageNativeNames.containsKey(tag)) return tag;
+  // Try base language code
+  final base = tag.split(RegExp(r'[-_]')).first.toLowerCase();
+  if (kLanguageNativeNames.containsKey(base)) return base;
+  return tag;
+}
+
 /// Shared map of language codes to their native display names.
 /// Used by settings_screen.dart and external_search_screen.dart.
 ///

@@ -4969,6 +4969,10 @@ msgstr "Основна съвместна отворена база данни"
 msgid "source_openlibrary_desc"
 msgstr "Отлично покритие, особено за английски книги"
 
+#. All sources
+msgid "source_filter_all"
+msgstr "Всички източници"
+
 #. Start Reading
 msgid "start_reading"
 msgstr "Начало на четене"

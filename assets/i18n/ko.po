@@ -4966,6 +4966,10 @@ msgstr ""
 msgid "source_openlibrary_desc"
 msgstr ""
 
+#. All sources
+msgid "source_filter_all"
+msgstr "All sources"
+
 #. Start Reading
 msgid "start_reading"
 msgstr ""

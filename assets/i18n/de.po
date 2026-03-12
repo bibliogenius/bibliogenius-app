@@ -5163,6 +5163,10 @@ msgstr "Inventaire (Wikidata-basiert)"
 msgid "source_openlibrary_desc"
 msgstr "Open Library"
 
+#. All sources
+msgid "source_filter_all"
+msgstr "Alle Quellen"
+
 #. Start Reading
 msgid "start_reading"
 msgstr "Anfangen zu lesen"
