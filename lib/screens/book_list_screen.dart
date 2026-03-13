@@ -1483,10 +1483,7 @@ class _BookListScreenState extends State<BookListScreen>
             ),
           ),
 
-          // 4. Book count
-          ),
-
-          // 5. Reset Filters Button - visible when any filter is active
+          // 4. Reset Filters Button - visible when any filter is active
           if (_selectedStatus != null ||
               _tagFilter != null ||
               _searchQuery.isNotEmpty) ...[
