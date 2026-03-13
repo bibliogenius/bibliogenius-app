@@ -190,28 +190,29 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     return true;
   }
 
-  /// Resolve a real hub nodeId (UUID) for a peer by searching the hub directory
-  /// by display name. Returns null if no match or hub unreachable.
-  Future<String?> _resolveNodeIdFromHub(String peerName) async {
-    try {
-      final ffi = FfiService();
-      final profiles = await ffi.hubDirectoryList(
-        limit: 5,
-        offset: 0,
-        search: peerName,
-      );
-      if (profiles.isNotEmpty) {
-        // Exact name match preferred, otherwise take first result
-        final exact = profiles.where(
-          (p) => p.displayName.toLowerCase() == peerName.toLowerCase(),
-        );
-        final match = exact.isNotEmpty ? exact.first : profiles.first;
-        debugPrint('Hub directory: resolved "$peerName" → ${match.nodeId}');
-        return match.nodeId;
+  /// Try to backfill library_uuid for peers that don't have one yet.
+  /// Fetches /api/config from the peer's LAN URL (deterministic, unique).
+  /// This handles legacy peers connected before library_uuid was introduced.
+  Future<String?> _backfillLibraryUuid() async {
+    final api = Provider.of<ApiService>(context, listen: false);
+    // Only attempt from LAN URL — relay URLs can't be HTTP-fetched
+    final url = _lanUrl ?? (widget.peerUrl.startsWith('relay://') ? null : widget.peerUrl);
+    if (url == null) return null;
+
+    final uuid = await api.fetchPeerLibraryUuid(url);
+    if (uuid != null && uuid.isNotEmpty) {
+      debugPrint('Backfill: resolved library_uuid=$uuid from $url');
+      // Persist so this lookup never has to happen again
+      if (widget.peerId > 0) {
+        api.updatePeerUrl(widget.peerId, url, libraryUuid: uuid).then((_) {
+          debugPrint('Backfill: library_uuid persisted');
+        }).onError((e, _) {
+          debugPrint('Backfill: failed to persist library_uuid: $e');
+        });
       }
-    } catch (e) {
-      debugPrint('Hub directory lookup failed for "$peerName": $e');
+      return uuid;
     }
+    debugPrint('Backfill: could not resolve library_uuid from $url');
     return null;
   }
 
@@ -268,14 +269,14 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       var nodeId = _effectiveNodeId;
       debugPrint('Hub catalog: nodeId=$nodeId, books=${_books.length}');
 
-      // If nodeId is a placeholder (peer_XX), try resolving the real UUID
-      // from the hub directory by searching for the peer's display name.
+      // If nodeId is a placeholder (peer_XX), try to backfill from the
+      // peer's /api/config (deterministic, no name ambiguity).
       if (nodeId == null || nodeId.startsWith('peer_')) {
-        final resolved = await _resolveNodeIdFromHub(widget.peerName);
+        final resolved = await _backfillLibraryUuid();
         if (resolved != null) {
           _resolvedNodeId = resolved;
           nodeId = resolved;
-          debugPrint('Hub catalog: resolved nodeId=$nodeId from hub directory');
+          debugPrint('Hub catalog: backfilled nodeId=$nodeId from peer config');
         }
       }
 

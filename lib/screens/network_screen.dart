@@ -475,14 +475,23 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
       if (match != null && reason != null) {
         final lanUrl = 'http://${match.host}:${match.port}';
         _relayUpgradedPeerIds.add(p.id);
-        debugPrint('mDNS: $reason "${r.name}" → $lanUrl');
         final api = Provider.of<ApiService>(context, listen: false);
-        api.updatePeerUrl(p.id, lanUrl, libraryUuid: match.libraryId).then((_) {
-          debugPrint('mDNS: $reason persisted for "${r.name}"');
-          if (mounted) _loadAll();
-        }).catchError((e) {
-          debugPrint('mDNS: $reason failed for "${r.name}": $e');
-          _relayUpgradedPeerIds.remove(p.id);
+        // Verify connectivity before upgrading — stale mDNS entries
+        // (peer left WiFi) would otherwise overwrite a working relay URL.
+        // Keep the ID in the set on failure to avoid retrying every cycle.
+        api.checkPeerConnectivity(lanUrl, timeoutMs: 2000).then((reachable) {
+          if (!reachable) {
+            debugPrint('mDNS: $reason "${r.name}" → $lanUrl SKIPPED (unreachable)');
+            return;
+          }
+          debugPrint('mDNS: $reason "${r.name}" → $lanUrl');
+          api.updatePeerUrl(p.id, lanUrl, libraryUuid: match!.libraryId).then((_) {
+            debugPrint('mDNS: $reason persisted for "${r.name}"');
+            if (mounted) _loadAll();
+          }).catchError((e) {
+            debugPrint('mDNS: $reason failed for "${r.name}": $e');
+            _relayUpgradedPeerIds.remove(p.id);
+          });
         });
       }
     }
@@ -1181,6 +1190,9 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
                         await api.connectPeer(
                           displayName,
                           'http://${peer.host}:${peer.port}',
+                          libraryUuid: peer.libraryId,
+                          ed25519PublicKey: peer.ed25519PublicKey,
+                          x25519PublicKey: peer.x25519PublicKey,
                         );
                         if (context.mounted) {
                           context
@@ -1526,12 +1538,6 @@ class _ShareContactViewState extends State<ShareContactView> {
       localIp ??= await MdnsService.getValidLanIp();
       debugPrint('📱 [QR] Final localIp = $localIp');
 
-      if (localIp == null) {
-        debugPrint('⚠️ QR: No valid LAN IP found for QR code');
-        if (mounted) setState(() => _isLoading = false);
-        return;
-      }
-
       final configRes = await apiService.getLibraryConfig();
       // Library name from ThemeProvider (single source of truth)
       String libraryName = Provider.of<ThemeProvider>(context, listen: false).libraryName;
@@ -1543,9 +1549,23 @@ class _ShareContactViewState extends State<ShareContactView> {
       final relayWriteToken = configRes.data['relay_write_token'] as String?;
       debugPrint('📱 [QR] libraryName=$libraryName, hasKeys=${ed25519Key != null}, hasRelay=${relayUrl != null}');
 
+      // Build the connection URL: prefer LAN IP, fall back to relay URL
+      final String connectUrl;
+      if (localIp != null) {
+        connectUrl = "http://$localIp:${ApiService.httpPort}";
+      } else if (relayUrl != null && mailboxId != null) {
+        // No WiFi (e.g. 5G) — use relay URL so the QR code still works
+        connectUrl = "relay://$mailboxId";
+        debugPrint('📱 [QR] No LAN IP, using relay URL for QR code');
+      } else {
+        debugPrint('⚠️ QR: No valid LAN IP and no relay configured');
+        if (mounted) setState(() => _isLoading = false);
+        return;
+      }
+
       final data = buildInvitePayload(
         name: libraryName,
-        url: "http://$localIp:${ApiService.httpPort}",
+        url: connectUrl,
         libraryUuid: libraryUuid,
         ed25519PublicKey: ed25519Key,
         x25519PublicKey: x25519Key,

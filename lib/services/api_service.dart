@@ -3069,7 +3069,7 @@ class ApiService {
         // 1. Get my own details
         String myName = 'My Library';
         final myUrl = await _getMyUrl();
-        final peerHasLanUrl = url.isNotEmpty;
+        final peerHasLanUrl = url.isNotEmpty && !url.startsWith('relay://');
         final hasRelayCredentials = relayUrl != null && mailboxId != null;
 
         // Relay-only path: either we have no LAN IP, or the peer has no LAN URL
@@ -3083,11 +3083,12 @@ class ApiService {
               baseUrl: 'http://localhost:${ApiService.httpPort}',
             ));
             debugPrint('P2P relay-only: saving peer "$name" locally (mailbox=$mailboxId)');
+            // Send empty URL — Rust generates a unique relay:// placeholder
             final saveResponse = await localDio.post(
               '/api/peers/connect',
               data: {
                 'name': name,
-                'url': url,
+                'url': '',
                 if (libraryUuid != null) 'library_uuid': libraryUuid,
                 if (ed25519PublicKey != null)
                   'ed25519_public_key': ed25519PublicKey,
