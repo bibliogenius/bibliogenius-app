@@ -2152,7 +2152,11 @@ class ApiService {
   }
 
   /// Update a peer's URL (for mDNS IP changes)
-  Future<Response> updatePeerUrl(int peerId, String newUrl) async {
+  Future<Response> updatePeerUrl(int peerId, String newUrl, {String? libraryUuid}) async {
+    final body = <String, dynamic>{'url': newUrl};
+    if (libraryUuid != null) {
+      body['library_uuid'] = libraryUuid;
+    }
     if (useFfi) {
       try {
         final localDio = Dio(
@@ -2163,14 +2167,14 @@ class ApiService {
         );
         return await localDio.put(
           '/api/peers/$peerId/url',
-          data: {'url': newUrl},
+          data: body,
         );
       } catch (e) {
         debugPrint('❌ updatePeerUrl error: $e');
         rethrow;
       }
     }
-    return await _dio.put('/api/peers/$peerId/url', data: {'url': newUrl});
+    return await _dio.put('/api/peers/$peerId/url', data: body);
   }
 
   Future<Response> syncPeer(String peerUrl) async {

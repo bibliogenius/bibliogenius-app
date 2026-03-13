@@ -190,6 +190,31 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     return true;
   }
 
+  /// Resolve a real hub nodeId (UUID) for a peer by searching the hub directory
+  /// by display name. Returns null if no match or hub unreachable.
+  Future<String?> _resolveNodeIdFromHub(String peerName) async {
+    try {
+      final ffi = FfiService();
+      final profiles = await ffi.hubDirectoryList(
+        limit: 5,
+        offset: 0,
+        search: peerName,
+      );
+      if (profiles.isNotEmpty) {
+        // Exact name match preferred, otherwise take first result
+        final exact = profiles.where(
+          (p) => p.displayName.toLowerCase() == peerName.toLowerCase(),
+        );
+        final match = exact.isNotEmpty ? exact.first : profiles.first;
+        debugPrint('Hub directory: resolved "$peerName" → ${match.nodeId}');
+        return match.nodeId;
+      }
+    } catch (e) {
+      debugPrint('Hub directory lookup failed for "$peerName": $e');
+    }
+    return null;
+  }
+
   /// Check if offline caching is enabled in settings
   bool get _offlineCachingEnabled {
     try {
@@ -240,8 +265,20 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       // 2. Hub catalog + connectivity check IN PARALLEL
       //    Hub enriches with new books; connectivity determines if we can go live.
       Future<void>? hubFuture;
-      final nodeId = _effectiveNodeId;
+      var nodeId = _effectiveNodeId;
       debugPrint('Hub catalog: nodeId=$nodeId, books=${_books.length}');
+
+      // If nodeId is a placeholder (peer_XX), try resolving the real UUID
+      // from the hub directory by searching for the peer's display name.
+      if (nodeId == null || nodeId.startsWith('peer_')) {
+        final resolved = await _resolveNodeIdFromHub(widget.peerName);
+        if (resolved != null) {
+          _resolvedNodeId = resolved;
+          nodeId = resolved;
+          debugPrint('Hub catalog: resolved nodeId=$nodeId from hub directory');
+        }
+      }
+
       if (nodeId != null && !nodeId.startsWith('peer_')) {
         // Fire-and-forget: hub updates UI via setState when done
         hubFuture = _books.isNotEmpty
@@ -296,7 +333,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       // Persist LAN URL upgrade in background (so future opens are fast)
       if (isOnline && _lanUrl != null && _lanUrlTrusted && widget.peerId > 0) {
         debugPrint('Persisting LAN URL upgrade: ${widget.peerUrl} → $_lanUrl');
-        api.updatePeerUrl(widget.peerId, _lanUrl!).then((_) {
+        api.updatePeerUrl(widget.peerId, _lanUrl!, libraryUuid: _resolvedNodeId).then((_) {
           debugPrint('LAN URL persisted successfully');
         }).catchError((e) {
           debugPrint('Failed to persist LAN URL: $e');

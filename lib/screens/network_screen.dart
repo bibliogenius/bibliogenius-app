@@ -477,7 +477,7 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
         _relayUpgradedPeerIds.add(p.id);
         debugPrint('mDNS: $reason "${r.name}" → $lanUrl');
         final api = Provider.of<ApiService>(context, listen: false);
-        api.updatePeerUrl(p.id, lanUrl).then((_) {
+        api.updatePeerUrl(p.id, lanUrl, libraryUuid: match.libraryId).then((_) {
           debugPrint('mDNS: $reason persisted for "${r.name}"');
           if (mounted) _loadAll();
         }).catchError((e) {
