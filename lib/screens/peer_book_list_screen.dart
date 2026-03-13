@@ -477,6 +477,10 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
       if (newEntries.isEmpty) {
         debugPrint('Hub catalog: no new books (${entries.length} total, all known)');
+        // Hub confirms nothing new — clear false "new" badges from stale cache
+        if (_newBookIds.isNotEmpty) {
+          setState(() => _newBookIds = {});
+        }
         return;
       }
 
