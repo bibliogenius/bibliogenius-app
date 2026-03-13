@@ -1102,6 +1102,8 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
   bool _canBorrow(Book book) {
     // Can't borrow a book the peer doesn't own (e.g. they borrowed it themselves)
+    // For hub catalog books, owned defaults to true (unknown = allow request,
+    // server auto-rejects if no available copy).
     if (!book.owned) return false;
     return !_hasPendingRequest(book) && !_hasNoCopiesAvailable(book);
   }
@@ -1115,7 +1117,9 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
     final api = Provider.of<ApiService>(context, listen: false);
     try {
-      final response = await api.requestBookByUrl(_effectiveUrl, isbn ?? "", book.title);
+      // Use the DB peer URL (not _effectiveUrl which may be a stale mDNS LAN IP).
+      // The Rust backend resolves relay:// URLs via E2EE transport.
+      final response = await api.requestBookByUrl(widget.peerUrl, isbn ?? "", book.title);
       if (!mounted) return;
       final data = response.data;
       // Check if lender auto-rejected (no available copy)
@@ -1347,12 +1351,16 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
             ? TextField(
                 controller: _searchController,
                 autofocus: true,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   hintText: 'Search books...',
                   border: InputBorder.none,
-                  hintStyle: TextStyle(color: Colors.white70),
+                  hintStyle: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                  ),
                 ),
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
                 onChanged: _filterBooks,
               )
             : FittedBox(
