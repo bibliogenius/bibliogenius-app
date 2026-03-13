@@ -1101,17 +1101,29 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   }
 
   bool _canBorrow(Book book) {
+    // Can't borrow a book the peer doesn't own (e.g. they borrowed it themselves)
+    if (!book.owned) return false;
     return !_hasPendingRequest(book) && !_hasNoCopiesAvailable(book);
   }
 
   Future<void> _requestBorrow(Book book) async {
+    // Immediately disable the button to prevent double-tap
+    final isbn = book.isbn;
+    if (isbn != null && isbn.isNotEmpty) {
+      setState(() => _pendingBorrowIsbns.add(isbn));
+    }
+
     final api = Provider.of<ApiService>(context, listen: false);
     try {
-      final response = await api.requestBookByUrl(_effectiveUrl, book.isbn ?? "", book.title);
+      final response = await api.requestBookByUrl(_effectiveUrl, isbn ?? "", book.title);
       if (!mounted) return;
       final data = response.data;
       // Check if lender auto-rejected (no available copy)
       if (data is Map && data['status'] == 'rejected') {
+        // Remove from pending since the request was rejected
+        if (isbn != null && isbn.isNotEmpty) {
+          setState(() => _pendingBorrowIsbns.remove(isbn));
+        }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -1120,11 +1132,6 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
           ),
         );
       } else {
-        // Add ISBN to pending set to immediately disable the button
-        final isbn = book.isbn;
-        if (isbn != null && isbn.isNotEmpty) {
-          setState(() => _pendingBorrowIsbns.add(isbn));
-        }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -1134,6 +1141,10 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
         );
       }
     } catch (e) {
+      // Re-enable button on error so user can retry
+      if (isbn != null && isbn.isNotEmpty && mounted) {
+        setState(() => _pendingBorrowIsbns.remove(isbn));
+      }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

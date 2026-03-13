@@ -640,8 +640,6 @@ class _BookListScreenState extends State<BookListScreen>
     }
   }
 
-  bool _showAllBooks = false;
-
   // Triggered when filters change or search query changes
   void _filterBooks() {
     List<Book> tempBooks = List.from(_books);
@@ -649,41 +647,44 @@ class _BookListScreenState extends State<BookListScreen>
       '🔍 _filterBooks: Starting with ${tempBooks.length} books, _selectedStatus=$_selectedStatus',
     );
 
-    // Apply "Owned only" default filter
-    // Exception: If user explicitly selects "wanting" (Wishlist), show them regardless of ownership
-    if (!_showAllBooks && _selectedStatus != 'wanting') {
-      tempBooks = tempBooks.where((b) => b.owned).toList();
+    // Default view (no status selected): show books I physically have
+    // (owned + borrowed). Wanting/wishlist excluded unless explicitly selected.
+    if (_selectedStatus == null) {
+      tempBooks = tempBooks.where((b) => b.owned || b.readingStatus == 'borrowed').toList();
+      // Apply "show borrowed" config: hide borrowed if user disabled it in settings
+      if (!_showBorrowedConfig) {
+        tempBooks = tempBooks.where((b) => b.readingStatus != 'borrowed').toList();
+      }
       debugPrint(
-        '🔍 _filterBooks: After owned filter: ${tempBooks.length} books',
+        '🔍 _filterBooks: After default filter: ${tempBooks.length} books',
       );
-    }
-
-    // Apply "show borrowed" config logic:
-    // If config says hide borrowed books, ONLY hide them if the user hasn't explicitly asked to see them.
-    if (!_showBorrowedConfig && _selectedStatus != 'borrowed') {
-      tempBooks = tempBooks
-          .where((b) => b.readingStatus != 'borrowed')
-          .toList();
-    }
-
-    // Apply status filter
-    if (_selectedStatus != null) {
+    } else {
+      // Explicit status selected via dropdown
       debugPrint('🔍 _filterBooks: Filtering by status=$_selectedStatus');
-      debugPrint(
-        '🔍 _filterBooks: Books statuses before filter: ${tempBooks.map((b) => "${b.title}: ${b.readingStatus}").take(5).toList()}',
-      );
 
       if (_selectedStatus == 'owned') {
         // "Non classés" = books with no reading status (null or empty)
         tempBooks = tempBooks
             .where(
               (book) =>
-                  book.readingStatus == null || book.readingStatus!.isEmpty,
+                  book.owned &&
+                  (book.readingStatus == null || book.readingStatus!.isEmpty),
             )
             .toList();
-      } else {
+      } else if (_selectedStatus == 'wanting') {
+        // Wishlist: not owned, wanting status
         tempBooks = tempBooks
-            .where((book) => book.readingStatus == _selectedStatus)
+            .where((book) => book.readingStatus == 'wanting')
+            .toList();
+      } else if (_selectedStatus == 'borrowed') {
+        // Borrowed: all books with borrowed status regardless of owned flag
+        tempBooks = tempBooks
+            .where((book) => book.readingStatus == 'borrowed')
+            .toList();
+      } else {
+        // Other statuses (reading, to_read, read): owned books with that status
+        tempBooks = tempBooks
+            .where((book) => book.owned && book.readingStatus == _selectedStatus)
             .toList();
       }
       debugPrint(
@@ -1008,11 +1009,7 @@ class _BookListScreenState extends State<BookListScreen>
 
     bool isFilterActive = false;
 
-    if (_showAllBooks) {
-      filterLabel = TranslationService.translate(context, 'filter_all');
-      filterIcon = Icons.visibility;
-      isFilterActive = true;
-    } else if (_selectedStatus != null) {
+    if (_selectedStatus != null) {
       isFilterActive = true;
       // Map status to label
       if (_selectedStatus == 'reading') {
@@ -1037,6 +1034,11 @@ class _BookListScreenState extends State<BookListScreen>
         );
       } else if (_selectedStatus == 'owned') {
         filterLabel = TranslationService.translate(context, 'owned_status');
+      } else if (_selectedStatus == 'borrowed') {
+        filterLabel = TranslationService.translate(
+          context,
+          'reading_status_borrowed',
+        );
       }
     }
 
@@ -1398,6 +1400,38 @@ class _BookListScreenState extends State<BookListScreen>
                     ],
                   ),
                 ),
+                // Empruntés (only if borrow module is enabled)
+                if (Provider.of<ThemeProvider>(context, listen: false).canBorrowBooks)
+                  PopupMenuItem(
+                    value: 'borrowed',
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.swap_horiz,
+                          color: _selectedStatus == 'borrowed'
+                              ? Colors.purple
+                              : theme.iconTheme.color,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          TranslationService.translate(
+                                context,
+                                'reading_status_borrowed',
+                              ) ??
+                              'Empruntés',
+                          style: TextStyle(
+                            fontWeight: _selectedStatus == 'borrowed'
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                            color: _selectedStatus == 'borrowed'
+                                ? Colors.purple
+                                : null,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
 
               ];
             },
@@ -1449,91 +1483,13 @@ class _BookListScreenState extends State<BookListScreen>
             ),
           ),
 
-          // 4. Ownership Toggle "J'ai" / "Tous"
-          const SizedBox(width: 8),
-          Container(
-            height: 36,
-            decoration: BoxDecoration(
-              color: isDark ? theme.cardColor : Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: isDark ? Colors.white24 : Colors.grey.withOpacity(0.3),
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // "J'ai" option
-                GestureDetector(
-                  onTap: () {
-                    if (_showAllBooks) {
-                      setState(() {
-                        _showAllBooks = false;
-                        _filterBooks();
-                      });
-                    }
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
-                    decoration: BoxDecoration(
-                      color: !_showAllBooks
-                          ? theme.primaryColor
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      TranslationService.translate(context, 'filter_owned') ?? "J'ai",
-                      style: TextStyle(
-                        color: !_showAllBooks
-                            ? Colors.white
-                            : (isDark ? Colors.white70 : Colors.black54),
-                        fontWeight: FontWeight.w600,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ),
-                ),
-                // "Tous" option
-                GestureDetector(
-                  onTap: () {
-                    if (!_showAllBooks) {
-                      setState(() {
-                        _showAllBooks = true;
-                        _filterBooks();
-                      });
-                    }
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
-                    decoration: BoxDecoration(
-                      color: _showAllBooks
-                          ? theme.primaryColor
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      TranslationService.translate(context, 'filter_all') ?? 'Tous',
-                      style: TextStyle(
-                        color: _showAllBooks
-                            ? Colors.white
-                            : (isDark ? Colors.white70 : Colors.black54),
-                        fontWeight: FontWeight.w600,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+          // 4. Book count
           ),
 
           // 5. Reset Filters Button - visible when any filter is active
           if (_selectedStatus != null ||
               _tagFilter != null ||
-              _searchQuery.isNotEmpty ||
-              _showAllBooks) ...[
+              _searchQuery.isNotEmpty) ...[
             const SizedBox(width: 8),
             ScaleOnTap(
               onTap: _resetAllFilters,
@@ -1617,7 +1573,6 @@ class _BookListScreenState extends State<BookListScreen>
       _currentShelf = null;
       _searchQuery = '';
       _isSearching = false;
-      _showAllBooks = false;
       _searchController.clear();
       _filterBooks();
     });
