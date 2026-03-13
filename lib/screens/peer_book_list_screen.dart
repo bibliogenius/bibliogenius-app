@@ -227,6 +227,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                 _lastSynced = data['last_synced'];
                 _isLoading = false;
                 _isRefreshing = true;
+                _isHubOnly = false;
               });
               cacheDisplayed = true;
             }
@@ -351,6 +352,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
               _allBooksLoaded = !parsed.hasMore;
               _isLoading = false;
               _isRefreshing = false;
+              _isHubOnly = false;
             });
 
             debugPrint(
@@ -521,6 +523,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
           _allBooksLoaded = true;
           _currentPage = page - 1;
           _isRefreshing = false;
+          _isHubOnly = false;
         });
 
         if (_offlineCachingEnabled && widget.peerId > 0) {
@@ -717,6 +720,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
           _books = previewBooks;
           _filteredBooks = _books;
           _isLoading = false;
+          _isHubOnly = false;
         });
         debugPrint(
           'Relay: showing ${previewBooks.length} preview books from manifest',
@@ -771,6 +775,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
           _filteredBooks = _books;
           _relayBooksLoaded = allBooks.length;
           _isLoading = false;
+          _isHubOnly = false;
         });
       }
 
@@ -980,6 +985,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
         _currentPage = 0;
         _allBooksLoaded = !parsed.hasMore;
         _isSyncing = false;
+        _isHubOnly = false;
       });
 
       if (showFeedback) {

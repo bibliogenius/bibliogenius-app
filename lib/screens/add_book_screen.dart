@@ -193,15 +193,17 @@ class _AddBookScreenState extends State<AddBookScreen> {
       _lastLookedUpIsbn = null;
     }
 
-    // Only lookup if valid length, not currently fetching, and not already looked up
-    if ((isbn.length == 10 || isbn.length == 13) &&
+    // Only lookup if valid ISBN (checksum OK), not currently fetching, and not already looked up.
+    // Using isValid() instead of just checking length prevents premature lookups when
+    // the user is still typing a 13-digit ISBN and the first 10 digits happen to match length==10.
+    if (IsbnValidator.isValid(isbn) &&
         !_isFetchingDetails &&
         isbn != _lastLookedUpIsbn) {
       _fetchBookDetails(isbn);
-      // Non-blocking validation feedback
-      if (!IsbnValidator.isValid(isbn)) {
-        AppSnackBar.info(context, TranslationService.translate(context, 'isbn_checksum_warning'));
-      }
+    } else if ((isbn.length == 10 || isbn.length == 13) &&
+        !IsbnValidator.isValid(isbn) &&
+        !_isFetchingDetails) {
+      AppSnackBar.info(context, TranslationService.translate(context, 'isbn_checksum_warning'));
     }
   }
 
