@@ -163,8 +163,7 @@ class ThemeProvider with ChangeNotifier {
   bool get autoApproveLoanRequests => _autoApproveLoanRequests;
 
   // Network Gamification: compare progress with connected peers
-  // Disabled by default (opt-in)
-  bool _networkGamificationEnabled = false;
+  bool _networkGamificationEnabled = true;
   bool get networkGamificationEnabled => _networkGamificationEnabled;
 
   // Share Gamification Stats: allow peers to see your gamification progress
@@ -318,7 +317,7 @@ class ThemeProvider with ChangeNotifier {
     _autoApproveLoanRequests =
         prefs.getBool('autoApproveLoanRequests') ?? true;
     _networkGamificationEnabled =
-        prefs.getBool('networkGamificationEnabled') ?? false;
+        prefs.getBool('networkGamificationEnabled') ?? true;
     _shareGamificationStats =
         prefs.getBool('shareGamificationStats') ?? false;
     _showViewCount = prefs.getBool('showViewCount') ?? true;
