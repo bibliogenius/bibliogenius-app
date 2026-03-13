@@ -421,7 +421,7 @@ class HubDirectoryProvider extends ChangeNotifier {
         displayName: libraryName,
         bookCount: bookCount,
         isListed: false,
-        requiresApproval: true,
+        requiresApproval: false,
         acceptFrom: 'anyone',
         allowBorrowing: false,
         x25519PublicKey: x25519Key,

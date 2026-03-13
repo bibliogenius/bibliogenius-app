@@ -2812,7 +2812,8 @@ class ApiService {
       await dio.get('$url/api/books?limit=1');
       return true; // If no exception (due to validateStatus), it's reachable
     } catch (e) {
-      debugPrint('⚠️ Peer connectivity check failed for $url: $e');
+      // Expected when peer is offline — not a warning
+      debugPrint('Peer unreachable: $url');
       return false;
     }
   }

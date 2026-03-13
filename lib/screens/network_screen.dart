@@ -540,9 +540,28 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
           .toList();
       final follows = dirProvider.following;
 
+      // Deduplicate peers by libraryUuid (same device may have multiple
+      // entries due to port changes from hot restarts). Keep the most recent.
+      final dedupedPeers = <NetworkMember>[];
+      final seenUuids = <String, int>{}; // uuid → index in dedupedPeers
+      for (final peer in peers) {
+        if (peer.libraryUuid != null) {
+          final idx = seenUuids[peer.libraryUuid!];
+          if (idx != null) {
+            // Same UUID already seen — keep the one with higher id (newer)
+            if (peer.id > dedupedPeers[idx].id) {
+              dedupedPeers[idx] = peer;
+            }
+            continue;
+          }
+          seenUuids[peer.libraryUuid!] = dedupedPeers.length;
+        }
+        dedupedPeers.add(peer);
+      }
+
       // Merge peers + follows by nodeId
       final Map<String, LibraryRelation> map = {};
-      for (final peer in peers) {
+      for (final peer in dedupedPeers) {
         final nodeId = peer.libraryUuid ?? 'peer_${peer.id}';
         map[nodeId] = LibraryRelation(nodeId: nodeId, peer: peer);
       }
@@ -599,8 +618,8 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
 
       // Cache saved peer identifiers for the periodic mDNS refresh
       _savedUuids =
-          peers.map((p) => p.libraryUuid).whereType<String>().toSet();
-      _savedHosts = peers
+          dedupedPeers.map((p) => p.libraryUuid).whereType<String>().toSet();
+      _savedHosts = dedupedPeers
           .map((p) {
             if (p.url == null) return null;
             try {
