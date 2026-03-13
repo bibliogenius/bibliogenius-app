@@ -4328,7 +4328,7 @@ msgstr "Hors ligne"
 
 #. Hub-only data hint shown when only ISBN/title/author available
 msgid "hub_only_hint"
-msgstr "Cette bibliothèque est hors ligne. Affichage des livres partagés uniquement."
+msgstr "Aperçu du catalogue. Connectez-vous au même réseau Wi-Fi pour voir tous les détails."
 
 #. Detail hint for hub-only entries
 msgid "hub_only_detail_hint"

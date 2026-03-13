@@ -6594,7 +6594,7 @@ msgid "hub_only_detail_hint"
 msgstr "Verbinden Sie sich mit demselben Wi-Fi oder warten Sie, bis diese Bibliothek online ist, um alle Details zu sehen."
 
 msgid "hub_only_hint"
-msgstr "Diese Bibliothek ist offline. Es werden nur geteilte Bücher angezeigt."
+msgstr "Katalogvorschau. Verbinden Sie sich mit demselben Wi-Fi-Netzwerk, um alle Details zu sehen."
 
 msgid "hub_website_label"
 msgstr "Webseite (optional)"

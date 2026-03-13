@@ -6594,7 +6594,7 @@ msgid "hub_only_detail_hint"
 msgstr "Conectate al mismo Wi-Fi o espera a que esta biblioteca este en linea para ver los detalles completos."
 
 msgid "hub_only_hint"
-msgstr "Esta biblioteca esta sin conexion. Mostrando solo los libros compartidos."
+msgstr "Vista previa del catalogo. Conectate a la misma red Wi-Fi para ver todos los detalles."
 
 msgid "hub_website_label"
 msgstr "Sitio web (opcional)"

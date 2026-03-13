@@ -2818,6 +2818,25 @@ class ApiService {
     }
   }
 
+  /// Fetch a remote peer's /api/config to retrieve its library_uuid.
+  /// Returns the library_uuid if reachable, null otherwise.
+  Future<String?> fetchPeerLibraryUuid(String peerUrl, {int timeoutMs = 2000}) async {
+    if (peerUrl.startsWith('relay://')) return null;
+    try {
+      final dio = Dio(BaseOptions(
+        connectTimeout: Duration(milliseconds: timeoutMs),
+        receiveTimeout: Duration(milliseconds: timeoutMs),
+      ));
+      final resp = await dio.get('$peerUrl/api/config');
+      if (resp.statusCode == 200 && resp.data is Map) {
+        return resp.data['library_uuid'] as String?;
+      }
+    } catch (e) {
+      debugPrint('fetchPeerLibraryUuid failed for $peerUrl: $e');
+    }
+    return null;
+  }
+
   // ============================================
   // Relay Library Sync (ADR-012)
   // ============================================

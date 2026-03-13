@@ -13,6 +13,7 @@ import '../widgets/shimmer_loading.dart';
 import '../services/translation_service.dart';
 import '../providers/hub_directory_provider.dart';
 import '../providers/theme_provider.dart';
+import '../services/mdns_service.dart';
 import '../utils/app_constants.dart';
 
 class PeerBookListScreen extends StatefulWidget {
@@ -81,6 +82,18 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   bool _allBooksLoaded = false;
   static const int _pageSize = 20;
 
+  /// LAN URL resolved from mDNS (overrides relay:// URL for this session)
+  String? _lanUrl;
+  /// Node ID resolved from mDNS (overrides peer_XX fallback)
+  String? _resolvedNodeId;
+  /// True when _lanUrl was resolved by UUID (trusted), false = name match (needs validation)
+  bool _lanUrlTrusted = false;
+
+  /// Effective peer URL: mDNS LAN URL if resolved, otherwise saved URL.
+  String get _effectiveUrl => _lanUrl ?? widget.peerUrl;
+  /// Effective node ID: mDNS libraryId if resolved, otherwise widget.nodeId.
+  String? get _effectiveNodeId => _resolvedNodeId ?? widget.nodeId;
+
   @override
   void initState() {
     super.initState();
@@ -121,6 +134,62 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     super.dispose();
   }
 
+  /// Try to resolve a LAN URL from mDNS when the saved URL is relay://.
+  /// UUID-based matches are trusted immediately. Name-based matches are
+  /// stored as candidates and validated after connectivity check by fetching
+  /// the peer's /api/config to confirm identity.
+  void _tryResolveLanUrl() {
+    if (!widget.peerUrl.startsWith('relay://')) return;
+
+    DiscoveredPeer? nameCandidate;
+
+    for (final p in MdnsService.peers) {
+      // 1. Match by libraryId (UUID) — trusted, no validation needed
+      if (widget.nodeId != null &&
+          !widget.nodeId!.startsWith('peer_') &&
+          p.libraryId == widget.nodeId) {
+        _lanUrl = 'http://${p.host}:${p.port}';
+        _lanUrlTrusted = true;
+        debugPrint('mDNS: resolved relay → LAN $_lanUrl (by UUID)');
+        return;
+      }
+      // 2. Name-based candidate (needs validation)
+      if (nameCandidate == null && p.name == widget.peerName) {
+        nameCandidate = p;
+      }
+    }
+
+    // Store name candidate for validation during connectivity check
+    if (nameCandidate != null) {
+      _lanUrl = 'http://${nameCandidate.host}:${nameCandidate.port}';
+      _lanUrlTrusted = false;
+      if (nameCandidate.libraryId != null) {
+        _resolvedNodeId = nameCandidate.libraryId;
+      }
+      debugPrint('mDNS: LAN candidate by name: $_lanUrl (pending validation)');
+    } else {
+      debugPrint('mDNS: no LAN match for relay peer "${widget.peerName}"');
+    }
+  }
+
+  /// Validate a name-matched mDNS candidate by fetching /api/config from the
+  /// LAN URL via ApiService. Confirms this is a BiblioGenius peer and captures
+  /// the library_uuid for hub catalog and future UUID-based matching.
+  Future<bool> _validateLanCandidate(ApiService api, String lanUrl) async {
+    final uuid = await api.fetchPeerLibraryUuid(lanUrl);
+    if (uuid != null && uuid.isNotEmpty) {
+      _resolvedNodeId = uuid;
+      _lanUrlTrusted = true;
+      debugPrint('mDNS: validated candidate, library_uuid=$uuid');
+      return true;
+    }
+    // fetchPeerLibraryUuid returned null — peer might be unreachable at
+    // /api/config or might be an old version without library_uuid.
+    // Since connectivity check already passed, accept the candidate.
+    _lanUrlTrusted = true;
+    return true;
+  }
+
   /// Check if offline caching is enabled in settings
   bool get _offlineCachingEnabled {
     try {
@@ -135,6 +204,9 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   Future<void> _loadCachedBooksFirst() async {
     final api = Provider.of<ApiService>(context, listen: false);
     bool cacheDisplayed = false;
+
+    // 0. Try to resolve a LAN URL from mDNS (relay peers on same WiFi)
+    _tryResolveLanUrl();
 
     try {
       // 1. Try loading from cache FIRST (instant display, no network)
@@ -167,20 +239,22 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       // 2. Hub catalog + connectivity check IN PARALLEL
       //    Hub enriches with new books; connectivity determines if we can go live.
       Future<void>? hubFuture;
-      debugPrint('Hub catalog: nodeId=${widget.nodeId}, books=${_books.length}');
-      if (widget.nodeId != null) {
+      final nodeId = _effectiveNodeId;
+      debugPrint('Hub catalog: nodeId=$nodeId, books=${_books.length}');
+      if (nodeId != null && !nodeId.startsWith('peer_')) {
         // Fire-and-forget: hub updates UI via setState when done
         hubFuture = _books.isNotEmpty
             ? _refreshFromHubCatalog()
             : _loadHubCatalog();
       } else {
-        debugPrint('Hub catalog: SKIPPED (nodeId is null)');
+        debugPrint('Hub catalog: SKIPPED (nodeId=$nodeId)');
       }
 
       // 3. Check WiFi/LAN connectivity (runs in parallel with hub)
-      debugPrint('Checking connectivity for ${widget.peerUrl}');
+      var url = _effectiveUrl;
+      debugPrint('Checking connectivity for $url');
       bool isOnline = false;
-      if (widget.peerUrl.startsWith('relay://')) {
+      if (url.startsWith('relay://')) {
         isOnline = false;
       } else {
         final connectivity = await Connectivity().checkConnectivity();
@@ -191,10 +265,41 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
           isOnline = false;
         } else {
           isOnline = await api.checkPeerConnectivity(
-            widget.peerUrl,
+            url,
             timeoutMs: 2000,
           );
         }
+      }
+
+      // Validate name-matched mDNS candidate: fetch /api/config to get UUID
+      if (isOnline && _lanUrl != null && !_lanUrlTrusted) {
+        final valid = await _validateLanCandidate(api, _lanUrl!);
+        if (!valid) {
+          // Candidate unreachable or not a BiblioGenius peer — discard
+          debugPrint('mDNS: discarding invalid LAN candidate');
+          _lanUrl = null;
+          _resolvedNodeId = null;
+          url = widget.peerUrl;
+          isOnline = false;
+        } else {
+          // Validated — re-trigger hub catalog with the real nodeId
+          final validNodeId = _effectiveNodeId;
+          if (hubFuture == null && validNodeId != null && !validNodeId.startsWith('peer_')) {
+            hubFuture = _books.isNotEmpty
+                ? _refreshFromHubCatalog()
+                : _loadHubCatalog();
+          }
+        }
+      }
+
+      // Persist LAN URL upgrade in background (so future opens are fast)
+      if (isOnline && _lanUrl != null && _lanUrlTrusted && widget.peerId > 0) {
+        debugPrint('Persisting LAN URL upgrade: ${widget.peerUrl} → $_lanUrl');
+        api.updatePeerUrl(widget.peerId, _lanUrl!).then((_) {
+          debugPrint('LAN URL persisted successfully');
+        }).catchError((e) {
+          debugPrint('Failed to persist LAN URL: $e');
+        });
       }
 
       if (!mounted) return;
@@ -202,12 +307,12 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
       // 4. If ONLINE on LAN: fetch live with pagination (full data + covers)
       if (isOnline) {
-        debugPrint('Peer online - fetching books live from ${widget.peerUrl}');
+        debugPrint('Peer online - fetching books live from $url');
         try {
           if (cacheDisplayed || _books.isNotEmpty) {
             // Cache or hub data already shown — quick background check via page 0
             final checkRes = await api.getPeerBooksPage(
-              widget.peerUrl,
+              url,
               page: 0,
               limit: _pageSize,
             );
@@ -226,7 +331,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
           } else {
             // No cache, no hub data — paginated first page for instant display
             final liveRes = await api.getPeerBooksPage(
-              widget.peerUrl,
+              url,
               page: 0,
               limit: _pageSize,
             );
@@ -336,7 +441,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     try {
       final nextPage = _currentPage + 1;
       final res = await api.getPeerBooksPage(
-        widget.peerUrl,
+        _effectiveUrl,
         page: nextPage,
         limit: _pageSize,
       );
@@ -391,7 +496,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
       while (hasMore && mounted) {
         final res = await api.getPeerBooksPage(
-          widget.peerUrl,
+          _effectiveUrl,
           page: page,
           limit: _pageSize,
         );
@@ -460,10 +565,11 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   /// Unlike _loadHubCatalog (full fallback), this enriches the existing
   /// cache/list with any books present in the hub but missing locally.
   Future<void> _refreshFromHubCatalog() async {
-    if (widget.nodeId == null) return;
+    final nodeId = _effectiveNodeId;
+    if (nodeId == null || nodeId.startsWith('peer_')) return;
     try {
       final ffi = FfiService();
-      final entries = await ffi.hubDirectoryGetCatalog(widget.nodeId!);
+      final entries = await ffi.hubDirectoryGetCatalog(nodeId);
       if (!mounted || entries.isEmpty) return;
 
       // Find books in hub catalog that are NOT in our current list (by ISBN)
@@ -507,11 +613,12 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   /// Load hub catalog and convert entries to Book objects for unified rendering.
   /// Books get covers via explicit cover_url or OpenLibrary ISBN fallback.
   Future<void> _loadHubCatalog() async {
-    if (widget.nodeId == null) return;
+    final nodeId = _effectiveNodeId;
+    if (nodeId == null || nodeId.startsWith('peer_')) return;
     try {
       final ffi = FfiService();
-      debugPrint('Hub catalog: fetching for ${widget.nodeId}');
-      final entries = await ffi.hubDirectoryGetCatalog(widget.nodeId!);
+      debugPrint('Hub catalog: fetching for $nodeId');
+      final entries = await ffi.hubDirectoryGetCatalog(nodeId);
       debugPrint('Hub catalog: got ${entries.length} entries');
       if (!mounted || entries.isEmpty) return;
       // Don't override if live/cached data arrived while we were fetching
@@ -807,10 +914,14 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   Future<void> _syncBooks({bool showFeedback = true}) async {
     if (_isSyncing) return;
 
+    // Re-resolve mDNS in case WiFi state changed since init
+    _tryResolveLanUrl();
+
     // Check if peer is online before attempting sync
     if (!_isPeerOnline) {
       // Prefer hub catalog refresh (fast, <1s) over relay (~20s)
-      if (widget.nodeId != null) {
+      final nodeId = _effectiveNodeId;
+      if (nodeId != null && !nodeId.startsWith('peer_')) {
         setState(() => _isSyncing = true);
         await _refreshFromHubCatalog();
         if (mounted) {
@@ -851,7 +962,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     try {
       // Fetch first page quickly, then load remaining in background
       final liveRes = await api.getPeerBooksPage(
-        widget.peerUrl,
+        _effectiveUrl,
         page: 0,
         limit: _pageSize,
       );
@@ -888,7 +999,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
       // Background sync to update cache (if peer allows caching)
       if (_offlineCachingEnabled) {
-        api.syncPeer(widget.peerUrl).then((_) {
+        api.syncPeer(_effectiveUrl).then((_) {
           debugPrint('Background cache sync completed');
         }).catchError((e) {
           debugPrint(
@@ -952,7 +1063,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   Future<void> _requestBorrow(Book book) async {
     final api = Provider.of<ApiService>(context, listen: false);
     try {
-      final response = await api.requestBookByUrl(widget.peerUrl, book.isbn ?? "", book.title);
+      final response = await api.requestBookByUrl(_effectiveUrl, book.isbn ?? "", book.title);
       if (!mounted) return;
       final data = response.data;
       // Check if lender auto-rejected (no available copy)

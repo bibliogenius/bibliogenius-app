@@ -309,6 +309,8 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
   // Cached identifiers from saved peers, used to filter mDNS duplicates
   Set<String> _savedUuids = {};
   Set<String> _savedHosts = {};
+  // Peers whose relay URL has already been upgraded to LAN this session
+  final Set<int> _relayUpgradedPeerIds = {};
   // Peer online status: nodeId -> true (online) / false (unreachable)
   // null (absent) = not yet checked
   final Map<String, bool> _peerOnlineStatus = {};
@@ -435,6 +437,55 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
       }
       return r;
     }).toList();
+
+    // Upgrade relay peers to LAN when mDNS discovers them on the same WiFi.
+    // Build a lookup: mDNS peer by UUID and by name for matching.
+    final mdnsByUuid = <String, DiscoveredPeer>{};
+    final mdnsByName = <String, DiscoveredPeer>{};
+    for (final mp in allMdns) {
+      if (mp.libraryId != null) mdnsByUuid[mp.libraryId!] = mp;
+      mdnsByName[mp.name] = mp;
+    }
+    for (final r in _relations) {
+      final p = r.peer;
+      if (p == null || p.url == null) continue;
+      if (_relayUpgradedPeerIds.contains(p.id)) continue;
+
+      DiscoveredPeer? match;
+      String? reason;
+
+      if (p.url!.startsWith('relay://')) {
+        // Relay peer: match by UUID (strong) then by name (fallback)
+        if (p.libraryUuid != null) match = mdnsByUuid[p.libraryUuid];
+        match ??= mdnsByName[p.displayName];
+        if (match != null) reason = 'relay→LAN';
+      } else if (p.libraryUuid != null) {
+        // LAN peer: fix port mismatch if UUID matches an mDNS peer
+        match = mdnsByUuid[p.libraryUuid];
+        if (match != null) {
+          final lanUrl = 'http://${match.host}:${match.port}';
+          if (lanUrl == p.url) {
+            match = null; // Already correct
+          } else {
+            reason = 'port update';
+          }
+        }
+      }
+
+      if (match != null && reason != null) {
+        final lanUrl = 'http://${match.host}:${match.port}';
+        _relayUpgradedPeerIds.add(p.id);
+        debugPrint('mDNS: $reason "${r.name}" → $lanUrl');
+        final api = Provider.of<ApiService>(context, listen: false);
+        api.updatePeerUrl(p.id, lanUrl).then((_) {
+          debugPrint('mDNS: $reason persisted for "${r.name}"');
+          if (mounted) _loadAll();
+        }).catchError((e) {
+          debugPrint('mDNS: $reason failed for "${r.name}": $e');
+          _relayUpgradedPeerIds.remove(p.id);
+        });
+      }
+    }
 
     final peersChanged = localPeers.length != _localPeers.length ||
         !_sameHosts(localPeers, _localPeers);

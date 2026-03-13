@@ -4328,7 +4328,7 @@ msgstr "Offline"
 
 #. Hub-only data hint shown when only ISBN/title/author available
 msgid "hub_only_hint"
-msgstr "This library is offline. Showing shared books data only."
+msgstr "Catalog preview. Connect to the same Wi-Fi network for full details."
 
 #. Detail hint for hub-only entries
 msgid "hub_only_detail_hint"
