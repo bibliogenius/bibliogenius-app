@@ -805,7 +805,25 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
     // Check if peer is online before attempting sync
     if (!_isPeerOnline) {
-      // Try relay sync instead (ADR-012)
+      // Prefer hub catalog refresh (fast, <1s) over relay (~20s)
+      if (widget.nodeId != null) {
+        setState(() => _isSyncing = true);
+        await _refreshFromHubCatalog();
+        if (mounted) {
+          setState(() => _isSyncing = false);
+          if (showFeedback) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  TranslationService.translate(context, 'library_synced'),
+                ),
+              ),
+            );
+          }
+        }
+        return;
+      }
+      // No hub — fall back to relay sync (ADR-012)
       _tryRelaySync();
       if (showFeedback && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
