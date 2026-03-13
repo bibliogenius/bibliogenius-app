@@ -7,12 +7,15 @@ class BookshelfView extends StatelessWidget {
   final Function(Book) onBookTap;
   /// Set of book IDs that should display a "new" band on their spine.
   final Set<int> newBookIds;
+  /// Optional widget shown below the book grid (e.g. loading indicator).
+  final Widget? footer;
 
   const BookshelfView({
     super.key,
     required this.books,
     required this.onBookTap,
     this.newBookIds = const {},
+    this.footer,
   });
 
   @override
@@ -21,23 +24,28 @@ class BookshelfView extends StatelessWidget {
       builder: (context, constraints) {
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
-          child: Wrap(
-            spacing: 0, // No spacing between books on the same shelf
-            runSpacing: 20, // Spacing between shelves
-            alignment: WrapAlignment.start,
-            crossAxisAlignment: WrapCrossAlignment.end,
-            children: books.map((book) {
-              return GestureDetector(
-                onTap: () => onBookTap(book),
-                child: BookSpine.fromBook(
-                  book: book,
-                  height:
-                      220 + ((book.id ?? 0) % 4) * 12.0, // Vary height slightly
-                  width: 60 + ((book.id ?? 0) % 3) * 6.0, // Vary width slightly
-                  showNewBand: newBookIds.contains(book.id),
-                ),
-              );
-            }).toList(),
+          child: Column(
+            children: [
+              Wrap(
+                spacing: 0, // No spacing between books on the same shelf
+                runSpacing: 20, // Spacing between shelves
+                alignment: WrapAlignment.start,
+                crossAxisAlignment: WrapCrossAlignment.end,
+                children: books.map((book) {
+                  final seed = book.id ?? book.isbn?.hashCode ?? 0;
+                  return GestureDetector(
+                    onTap: () => onBookTap(book),
+                    child: BookSpine.fromBook(
+                      book: book,
+                      height: 220 + (seed.abs() % 4) * 12.0,
+                      width: 60 + (seed.abs() % 3) * 6.0,
+                      showNewBand: book.id != null && newBookIds.contains(book.id),
+                    ),
+                  );
+                }).toList(),
+              ),
+              if (footer != null) footer!,
+            ],
           ),
         );
       },

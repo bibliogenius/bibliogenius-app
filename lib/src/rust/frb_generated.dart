@@ -4443,13 +4443,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   FrbCatalogEntry dco_decode_frb_catalog_entry(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 4)
-      throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
+    if (arr.length != 5)
+      throw Exception('unexpected arr length: expect 5 but see ${arr.length}');
     return FrbCatalogEntry(
       isbn: dco_decode_String(arr[0]),
       title: dco_decode_String(arr[1]),
       author: dco_decode_opt_String(arr[2]),
-      firstSeenAt: dco_decode_opt_String(arr[3]),
+      coverUrl: dco_decode_opt_String(arr[3]),
+      firstSeenAt: dco_decode_opt_String(arr[4]),
     );
   }
 
@@ -5456,11 +5457,13 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_isbn = sse_decode_String(deserializer);
     var var_title = sse_decode_String(deserializer);
     var var_author = sse_decode_opt_String(deserializer);
+    var var_coverUrl = sse_decode_opt_String(deserializer);
     var var_firstSeenAt = sse_decode_opt_String(deserializer);
     return FrbCatalogEntry(
       isbn: var_isbn,
       title: var_title,
       author: var_author,
+      coverUrl: var_coverUrl,
       firstSeenAt: var_firstSeenAt,
     );
   }
@@ -6804,6 +6807,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_String(self.isbn, serializer);
     sse_encode_String(self.title, serializer);
     sse_encode_opt_String(self.author, serializer);
+    sse_encode_opt_String(self.coverUrl, serializer);
     sse_encode_opt_String(self.firstSeenAt, serializer);
   }
 

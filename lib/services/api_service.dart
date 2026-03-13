@@ -2211,11 +2211,13 @@ class ApiService {
           'P2P Sync: Requesting sync from $normalizedUrl/api/peers/sync_by_url with my URL $myUrl',
         );
         Response? remoteRes;
+        bool remoteOk = false;
         try {
           remoteRes = await dio.post(
             '$normalizedUrl/api/peers/sync_by_url',
             data: {'url': myUrl},
           );
+          remoteOk = true;
         } on DioException catch (e) {
           if (e.response?.statusCode == 404) {
             // 404 means the remote doesn't recognize our URL (peer reset,
@@ -2233,20 +2235,27 @@ class ApiService {
         }
 
         // 2. Sync locally from the remote peer via local backend (handles E2EE)
+        bool localOk = false;
         try {
           final localDio = Dio(
             BaseOptions(
               baseUrl: 'http://127.0.0.1:${ApiService.httpPort}',
-              connectTimeout: const Duration(seconds: 10),
-              receiveTimeout: const Duration(seconds: 30),
+              connectTimeout: const Duration(seconds: 5),
+              receiveTimeout: const Duration(seconds: 10),
             ),
           );
           await localDio.post(
             '/api/peers/sync_by_url',
             data: {'url': normalizedUrl},
           );
+          localOk = true;
         } catch (e) {
           debugPrint('P2P local sync error (non-fatal): $e');
+        }
+
+        // If BOTH steps failed, throw so SyncService backoff kicks in
+        if (!remoteOk && !localOk) {
+          throw Exception('Both remote and local sync failed for $normalizedUrl');
         }
 
         return remoteRes ?? Response(
@@ -2256,11 +2265,8 @@ class ApiService {
         );
       } catch (e) {
         debugPrint('P2P Sync Error: $e');
-        return Response(
-          requestOptions: RequestOptions(path: '/api/peers/sync_by_url'),
-          statusCode: 502,
-          data: {'error': e.toString()},
-        );
+        // Rethrow so SyncService backoff can catch it
+        rethrow;
       }
     }
     return await _dio.post('/api/peers/sync_by_url', data: {'url': peerUrl});
@@ -2313,6 +2319,54 @@ class ApiService {
       return await dio.get(targetUrl);
     } catch (e) {
       debugPrint('P2P: Error fetching books from $peerUrl - $e');
+      rethrow;
+    }
+  }
+
+  /// Fetch a single page of a peer's library with pagination.
+  /// Returns { "books": [...], "total": N, "has_more": bool } when the remote
+  /// peer supports pagination, or a flat array (legacy) for older peers.
+  Future<Response> getPeerBooksPage(
+    String peerUrl, {
+    int page = 0,
+    int limit = 20,
+  }) async {
+    if (useFfi) {
+      try {
+        final dio = Dio(BaseOptions(
+          baseUrl: 'http://127.0.0.1:$httpPort',
+          connectTimeout: const Duration(seconds: 5),
+          receiveTimeout: const Duration(seconds: 15),
+        ));
+        final response = await dio.post(
+          '/api/peers/proxy_search',
+          data: {
+            'peer_url': peerUrl,
+            'query': '',
+            'page': page,
+            'limit': limit,
+          },
+        );
+        return response;
+      } catch (e) {
+        debugPrint('Paginated peer books via backend failed: $e');
+        rethrow;
+      }
+    }
+    // HTTP mode: direct P2P call with pagination
+    try {
+      final cleanUrl = peerUrl.endsWith('/')
+          ? peerUrl.substring(0, peerUrl.length - 1)
+          : peerUrl;
+      final targetUrl =
+          '$cleanUrl/api/books?owned_only=true&page=$page&limit=$limit';
+      final dio = Dio(BaseOptions(
+        connectTimeout: const Duration(seconds: 5),
+        receiveTimeout: const Duration(seconds: 10),
+      ));
+      return await dio.get(targetUrl);
+    } catch (e) {
+      debugPrint('P2P paginated: Error fetching books from $peerUrl - $e');
       rethrow;
     }
   }

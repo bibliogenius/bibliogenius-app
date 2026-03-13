@@ -520,14 +520,26 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
                 TranslationService.translate(context, 'tooltip_sync'),
               ),
               onPressed: () async {
-                await api.syncPeer(peer!.url!);
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text(
-                      TranslationService.translate(
-                          context, 'sync_started'),
-                    ),
-                  ));
+                try {
+                  await api.syncPeer(peer!.url!);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text(
+                        TranslationService.translate(
+                            context, 'sync_started'),
+                      ),
+                    ));
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text(
+                        TranslationService.translate(
+                            context, 'sync_failed'),
+                      ),
+                      backgroundColor: Colors.orange,
+                    ));
+                  }
                 }
               },
             ),

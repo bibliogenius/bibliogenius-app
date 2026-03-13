@@ -596,7 +596,7 @@ as String?,
 /// @nodoc
 mixin _$FrbCatalogEntry {
 
- String get isbn; String get title; String? get author; String? get firstSeenAt;
+ String get isbn; String get title; String? get author; String? get coverUrl; String? get firstSeenAt;
 /// Create a copy of FrbCatalogEntry
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -607,16 +607,16 @@ $FrbCatalogEntryCopyWith<FrbCatalogEntry> get copyWith => _$FrbCatalogEntryCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbCatalogEntry&&(identical(other.isbn, isbn) || other.isbn == isbn)&&(identical(other.title, title) || other.title == title)&&(identical(other.author, author) || other.author == author)&&(identical(other.firstSeenAt, firstSeenAt) || other.firstSeenAt == firstSeenAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbCatalogEntry&&(identical(other.isbn, isbn) || other.isbn == isbn)&&(identical(other.title, title) || other.title == title)&&(identical(other.author, author) || other.author == author)&&(identical(other.coverUrl, coverUrl) || other.coverUrl == coverUrl)&&(identical(other.firstSeenAt, firstSeenAt) || other.firstSeenAt == firstSeenAt));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,isbn,title,author,firstSeenAt);
+int get hashCode => Object.hash(runtimeType,isbn,title,author,coverUrl,firstSeenAt);
 
 @override
 String toString() {
-  return 'FrbCatalogEntry(isbn: $isbn, title: $title, author: $author, firstSeenAt: $firstSeenAt)';
+  return 'FrbCatalogEntry(isbn: $isbn, title: $title, author: $author, coverUrl: $coverUrl, firstSeenAt: $firstSeenAt)';
 }
 
 
@@ -627,7 +627,7 @@ abstract mixin class $FrbCatalogEntryCopyWith<$Res>  {
   factory $FrbCatalogEntryCopyWith(FrbCatalogEntry value, $Res Function(FrbCatalogEntry) _then) = _$FrbCatalogEntryCopyWithImpl;
 @useResult
 $Res call({
- String isbn, String title, String? author, String? firstSeenAt
+ String isbn, String title, String? author, String? coverUrl, String? firstSeenAt
 });
 
 
@@ -644,11 +644,12 @@ class _$FrbCatalogEntryCopyWithImpl<$Res>
 
 /// Create a copy of FrbCatalogEntry
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? isbn = null,Object? title = null,Object? author = freezed,Object? firstSeenAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? isbn = null,Object? title = null,Object? author = freezed,Object? coverUrl = freezed,Object? firstSeenAt = freezed,}) {
   return _then(_self.copyWith(
 isbn: null == isbn ? _self.isbn : isbn // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,author: freezed == author ? _self.author : author // ignore: cast_nullable_to_non_nullable
+as String?,coverUrl: freezed == coverUrl ? _self.coverUrl : coverUrl // ignore: cast_nullable_to_non_nullable
 as String?,firstSeenAt: freezed == firstSeenAt ? _self.firstSeenAt : firstSeenAt // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
@@ -732,10 +733,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String isbn,  String title,  String? author,  String? firstSeenAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String isbn,  String title,  String? author,  String? coverUrl,  String? firstSeenAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _FrbCatalogEntry() when $default != null:
-return $default(_that.isbn,_that.title,_that.author,_that.firstSeenAt);case _:
+return $default(_that.isbn,_that.title,_that.author,_that.coverUrl,_that.firstSeenAt);case _:
   return orElse();
 
 }
@@ -753,10 +754,10 @@ return $default(_that.isbn,_that.title,_that.author,_that.firstSeenAt);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String isbn,  String title,  String? author,  String? firstSeenAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String isbn,  String title,  String? author,  String? coverUrl,  String? firstSeenAt)  $default,) {final _that = this;
 switch (_that) {
 case _FrbCatalogEntry():
-return $default(_that.isbn,_that.title,_that.author,_that.firstSeenAt);}
+return $default(_that.isbn,_that.title,_that.author,_that.coverUrl,_that.firstSeenAt);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -770,10 +771,10 @@ return $default(_that.isbn,_that.title,_that.author,_that.firstSeenAt);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String isbn,  String title,  String? author,  String? firstSeenAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String isbn,  String title,  String? author,  String? coverUrl,  String? firstSeenAt)?  $default,) {final _that = this;
 switch (_that) {
 case _FrbCatalogEntry() when $default != null:
-return $default(_that.isbn,_that.title,_that.author,_that.firstSeenAt);case _:
+return $default(_that.isbn,_that.title,_that.author,_that.coverUrl,_that.firstSeenAt);case _:
   return null;
 
 }
@@ -785,12 +786,13 @@ return $default(_that.isbn,_that.title,_that.author,_that.firstSeenAt);case _:
 
 
 class _FrbCatalogEntry implements FrbCatalogEntry {
-  const _FrbCatalogEntry({required this.isbn, required this.title, this.author, this.firstSeenAt});
+  const _FrbCatalogEntry({required this.isbn, required this.title, this.author, this.coverUrl, this.firstSeenAt});
   
 
 @override final  String isbn;
 @override final  String title;
 @override final  String? author;
+@override final  String? coverUrl;
 @override final  String? firstSeenAt;
 
 /// Create a copy of FrbCatalogEntry
@@ -803,16 +805,16 @@ _$FrbCatalogEntryCopyWith<_FrbCatalogEntry> get copyWith => __$FrbCatalogEntryCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbCatalogEntry&&(identical(other.isbn, isbn) || other.isbn == isbn)&&(identical(other.title, title) || other.title == title)&&(identical(other.author, author) || other.author == author)&&(identical(other.firstSeenAt, firstSeenAt) || other.firstSeenAt == firstSeenAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbCatalogEntry&&(identical(other.isbn, isbn) || other.isbn == isbn)&&(identical(other.title, title) || other.title == title)&&(identical(other.author, author) || other.author == author)&&(identical(other.coverUrl, coverUrl) || other.coverUrl == coverUrl)&&(identical(other.firstSeenAt, firstSeenAt) || other.firstSeenAt == firstSeenAt));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,isbn,title,author,firstSeenAt);
+int get hashCode => Object.hash(runtimeType,isbn,title,author,coverUrl,firstSeenAt);
 
 @override
 String toString() {
-  return 'FrbCatalogEntry(isbn: $isbn, title: $title, author: $author, firstSeenAt: $firstSeenAt)';
+  return 'FrbCatalogEntry(isbn: $isbn, title: $title, author: $author, coverUrl: $coverUrl, firstSeenAt: $firstSeenAt)';
 }
 
 
@@ -823,7 +825,7 @@ abstract mixin class _$FrbCatalogEntryCopyWith<$Res> implements $FrbCatalogEntry
   factory _$FrbCatalogEntryCopyWith(_FrbCatalogEntry value, $Res Function(_FrbCatalogEntry) _then) = __$FrbCatalogEntryCopyWithImpl;
 @override @useResult
 $Res call({
- String isbn, String title, String? author, String? firstSeenAt
+ String isbn, String title, String? author, String? coverUrl, String? firstSeenAt
 });
 
 
@@ -840,11 +842,12 @@ class __$FrbCatalogEntryCopyWithImpl<$Res>
 
 /// Create a copy of FrbCatalogEntry
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? isbn = null,Object? title = null,Object? author = freezed,Object? firstSeenAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? isbn = null,Object? title = null,Object? author = freezed,Object? coverUrl = freezed,Object? firstSeenAt = freezed,}) {
   return _then(_FrbCatalogEntry(
 isbn: null == isbn ? _self.isbn : isbn // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,author: freezed == author ? _self.author : author // ignore: cast_nullable_to_non_nullable
+as String?,coverUrl: freezed == coverUrl ? _self.coverUrl : coverUrl // ignore: cast_nullable_to_non_nullable
 as String?,firstSeenAt: freezed == firstSeenAt ? _self.firstSeenAt : firstSeenAt // ignore: cast_nullable_to_non_nullable
 as String?,
   ));

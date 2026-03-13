@@ -8,9 +8,7 @@ import '../services/api_service.dart';
 import '../services/ffi_service.dart';
 import '../models/book.dart';
 import '../models/hub_directory.dart';
-import '../src/rust/api/frb.dart' show FrbCatalogEntry;
 import '../widgets/bookshelf_view.dart';
-import '../widgets/book_spine.dart';
 import '../widgets/shimmer_loading.dart';
 import '../services/translation_service.dart';
 import '../providers/hub_directory_provider.dart';
@@ -65,9 +63,8 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   Timer? _pollTimer;
   bool _pollRequestInFlight = false;
 
-  /// Hub catalog fallback state (hub-only data: title + author + ISBN)
+  /// Hub catalog fallback: true when books come from hub (limited metadata)
   bool _isHubOnly = false;
-  List<FrbCatalogEntry> _hubEntries = [];
 
   /// Hub contact info (decrypted)
   String? _decryptedContact;
@@ -75,6 +72,14 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
   /// ISBNs with a pending outgoing borrow request (to disable the borrow button)
   Set<String> _pendingBorrowIsbns = {};
+
+  /// Pagination state for live P2P loading
+  int _currentPage = 0;
+  int _totalBooks = 0;
+  bool _hasMorePages = false;
+  bool _isLoadingMore = false;
+  bool _allBooksLoaded = false;
+  static const int _pageSize = 20;
 
   @override
   void initState() {
@@ -159,7 +164,17 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
         }
       }
 
-      // 2. Check connectivity - skip LAN attempt if not on WiFi (avoids 3s timeout)
+      // 2. Hub catalog + connectivity check IN PARALLEL
+      //    Hub enriches with new books; connectivity determines if we can go live.
+      Future<void>? hubFuture;
+      if (widget.nodeId != null) {
+        // Fire-and-forget: hub updates UI via setState when done
+        hubFuture = _books.isNotEmpty
+            ? _refreshFromHubCatalog()
+            : _loadHubCatalog();
+      }
+
+      // 3. Check WiFi/LAN connectivity (runs in parallel with hub)
       debugPrint('Checking connectivity for ${widget.peerUrl}');
       bool isOnline = false;
       if (widget.peerUrl.startsWith('relay://')) {
@@ -182,44 +197,70 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       if (!mounted) return;
       setState(() => _isPeerOnline = isOnline);
 
-      // 3. If ONLINE: fetch live (background refresh if cache was shown)
+      // 4. If ONLINE on LAN: fetch live with pagination (full data + covers)
       if (isOnline) {
         debugPrint('Peer online - fetching books live from ${widget.peerUrl}');
         try {
-          final liveRes = await api.getPeerBooksByUrl(widget.peerUrl);
+          if (cacheDisplayed || _books.isNotEmpty) {
+            // Cache or hub data already shown — quick background check via page 0
+            final checkRes = await api.getPeerBooksPage(
+              widget.peerUrl,
+              page: 0,
+              limit: _pageSize,
+            );
+            if (!mounted) return;
 
-          if (!mounted) return;
+            final total = _parsePaginatedTotal(checkRes.data);
+            if (total != null && total == _books.length) {
+              // Library unchanged — stop refreshing
+              debugPrint('Peer library unchanged ($total books), skipping full refresh');
+              setState(() => _isRefreshing = false);
+            } else {
+              // Library changed — full background refresh
+              debugPrint('Peer library changed (cached=${_books.length}, remote total=$total), refreshing');
+              await _fullBackgroundRefresh(api);
+            }
+          } else {
+            // No cache, no hub data — paginated first page for instant display
+            final liveRes = await api.getPeerBooksPage(
+              widget.peerUrl,
+              page: 0,
+              limit: _pageSize,
+            );
+            if (!mounted) return;
 
-          List<dynamic> booksData = [];
-          if (liveRes.data is Map && liveRes.data['books'] != null) {
-            booksData = liveRes.data['books'];
-          } else if (liveRes.data is List) {
-            booksData = liveRes.data;
-          }
+            final parsed = _parsePaginatedResponse(liveRes.data);
 
-          setState(() {
-            _books = booksData.map((json) => Book.fromJson(json)).toList();
-            _filteredBooks = _books;
-            _isLoading = false;
-            _isRefreshing = false;
-          });
-
-          debugPrint('Loaded ${_books.length} books live from peer');
-
-          // Cache displayed books locally (avoids redundant re-fetch from syncPeer)
-          // Skip caching for unsaved mDNS peers (peerId == 0)
-          if (_offlineCachingEnabled && widget.peerId > 0) {
-            api.cachePeerBooks(widget.peerId, _books).then((_) {
-              debugPrint('Cached ${_books.length} live books for peer ${widget.peerId}');
-            }).catchError((e) {
-              debugPrint('Failed to cache live books: $e');
+            setState(() {
+              _newBookIds = _extractNewBookIds(parsed.booksData);
+              _books = parsed.booksData
+                  .map((json) => Book.fromJson(json))
+                  .toList();
+              _filteredBooks = _books;
+              _totalBooks = parsed.total;
+              _hasMorePages = parsed.hasMore;
+              _currentPage = 0;
+              _allBooksLoaded = !parsed.hasMore;
+              _isLoading = false;
+              _isRefreshing = false;
             });
+
+            debugPrint(
+              'Loaded ${_books.length}/${parsed.total} books (page 0, hasMore=${parsed.hasMore})',
+            );
+
+            // Cache first page
+            if (_offlineCachingEnabled && widget.peerId > 0) {
+              api.cachePeerBooks(widget.peerId, _books).catchError((e) {
+                debugPrint('Failed to cache live books: $e');
+              });
+            }
           }
           return;
         } catch (e) {
           debugPrint('Live fetch failed: $e');
-          // If cache was displayed, stop refreshing indicator
-          if (cacheDisplayed && mounted) {
+          // If data was displayed, stop refreshing indicator
+          if (_books.isNotEmpty && mounted) {
             setState(() => _isRefreshing = false);
             return;
           }
@@ -227,25 +268,23 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
         }
       }
 
-      // 4. Offline (or live fetch failed without cache) - try relay if available
+      // 5. Offline — wait for hub future before deciding next step
+      if (hubFuture != null) {
+        await hubFuture;
+        if (!mounted) return;
+      }
+      // Hub may have populated _books — check again
+      if (_books.isNotEmpty) {
+        if (mounted) setState(() { _isRefreshing = false; _isLoading = false; });
+        return;
+      }
+
+      // 6. No data yet — try relay if available
       if (!widget.hasRelayCredentials) {
-        // Peer has no relay - try hub catalog fallback if nodeId is available
-        if (widget.nodeId != null && _books.isEmpty) {
-          await _loadHubCatalog();
-        } else {
-        }
         if (mounted) setState(() { _isLoading = false; _isRefreshing = false; });
         return;
       }
 
-      if (cacheDisplayed) {
-        // Cache is already shown - try relay in background for updates
-        if (mounted) setState(() => _isRefreshing = false);
-        _tryRelaySync();
-        return;
-      }
-
-      // 5. No cache, but relay available - try relay sync (ADR-012)
       setState(() => _isLoading = false);
       _tryRelaySync();
     } catch (e) {
@@ -257,6 +296,140 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
         });
       }
     }
+  }
+
+  // ── Pagination helpers ──────────────────────────────────────────────
+
+  /// Parse a paginated response: { books, total, has_more } or legacy flat array.
+  ({List<dynamic> booksData, int total, bool hasMore}) _parsePaginatedResponse(
+    dynamic data,
+  ) {
+    if (data is Map) {
+      final booksData = (data['books'] as List<dynamic>?) ?? [];
+      final total = (data['total'] as int?) ?? booksData.length;
+      final hasMore = (data['has_more'] as bool?) ?? false;
+      return (booksData: booksData, total: total, hasMore: hasMore);
+    } else if (data is List) {
+      // Legacy peer returned flat array (no pagination support)
+      return (booksData: data, total: data.length, hasMore: false);
+    }
+    return (booksData: <dynamic>[], total: 0, hasMore: false);
+  }
+
+  /// Extract just the total from a paginated response (for quick cache-vs-live check).
+  int? _parsePaginatedTotal(dynamic data) {
+    if (data is Map) return data['total'] as int?;
+    if (data is List) return data.length;
+    return null;
+  }
+
+  /// Load the next page of books (infinite scroll).
+  Future<void> _loadMoreBooks() async {
+    if (_isLoadingMore || !_hasMorePages || !_isPeerOnline) return;
+
+    setState(() => _isLoadingMore = true);
+    final api = Provider.of<ApiService>(context, listen: false);
+
+    try {
+      final nextPage = _currentPage + 1;
+      final res = await api.getPeerBooksPage(
+        widget.peerUrl,
+        page: nextPage,
+        limit: _pageSize,
+      );
+
+      if (!mounted) return;
+
+      final parsed = _parsePaginatedResponse(res.data);
+      final newBooks =
+          parsed.booksData.map((json) => Book.fromJson(json)).toList();
+      final newIds = _extractNewBookIds(parsed.booksData);
+
+      setState(() {
+        _books.addAll(newBooks);
+        _newBookIds.addAll(newIds);
+        _filteredBooks = _isSearching
+            ? _books
+                .where(
+                  (b) => _matchesSearch(b, _searchController.text),
+                )
+                .toList()
+            : _books;
+        _currentPage = nextPage;
+        _hasMorePages = parsed.hasMore;
+        _allBooksLoaded = !parsed.hasMore;
+        _isLoadingMore = false;
+      });
+
+      // Update cache with growing book list
+      if (_offlineCachingEnabled && widget.peerId > 0) {
+        api.cachePeerBooks(widget.peerId, _books).catchError((_) {});
+      }
+    } catch (e) {
+      debugPrint('Load more books failed: $e');
+      if (mounted) setState(() => _isLoadingMore = false);
+    }
+  }
+
+  /// Eagerly load all remaining pages (for search completeness or background refresh).
+  Future<void> _loadAllRemainingBooks() async {
+    while (_hasMorePages && mounted && _isPeerOnline) {
+      await _loadMoreBooks();
+    }
+  }
+
+  /// Full background refresh: fetch all pages and replace current data.
+  Future<void> _fullBackgroundRefresh(ApiService api) async {
+    try {
+      final allBooks = <Book>[];
+      final allNewIds = <int>{};
+      int page = 0;
+      bool hasMore = true;
+
+      while (hasMore && mounted) {
+        final res = await api.getPeerBooksPage(
+          widget.peerUrl,
+          page: page,
+          limit: _pageSize,
+        );
+        if (!mounted) return;
+
+        final parsed = _parsePaginatedResponse(res.data);
+        allBooks.addAll(
+          parsed.booksData.map((json) => Book.fromJson(json)).toList(),
+        );
+        allNewIds.addAll(_extractNewBookIds(parsed.booksData));
+        hasMore = parsed.hasMore;
+        page++;
+      }
+
+      if (mounted) {
+        setState(() {
+          _books = allBooks;
+          _newBookIds = allNewIds;
+          _filteredBooks = _books;
+          _totalBooks = allBooks.length;
+          _hasMorePages = false;
+          _allBooksLoaded = true;
+          _currentPage = page - 1;
+          _isRefreshing = false;
+        });
+
+        if (_offlineCachingEnabled && widget.peerId > 0) {
+          api.cachePeerBooks(widget.peerId, _books).catchError((_) {});
+        }
+      }
+    } catch (e) {
+      debugPrint('Full background refresh failed: $e');
+      if (mounted) setState(() => _isRefreshing = false);
+    }
+  }
+
+  bool _matchesSearch(Book book, String query) {
+    if (query.isEmpty) return true;
+    final q = query.toLowerCase();
+    return book.title.toLowerCase().contains(q) ||
+        (book.author?.toLowerCase().contains(q) ?? false);
   }
 
   /// Extract IDs of books whose first_seen_at is within the new-badge threshold
@@ -279,34 +452,76 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     return ids;
   }
 
-  bool _isEntryNew(FrbCatalogEntry entry) {
-    final firstSeen = entry.firstSeenAt;
-    if (firstSeen == null) return false;
-    final parsed = DateTime.tryParse(firstSeen);
-    if (parsed == null) return false;
-    return DateTime.now().difference(parsed).inDays < AppConstants.newBadgeDays;
+  /// Refresh from hub catalog: if the peer pushed updates to the hub while
+  /// offline, detect new books and merge them into the displayed list.
+  /// Unlike _loadHubCatalog (full fallback), this enriches the existing
+  /// cache/list with any books present in the hub but missing locally.
+  Future<void> _refreshFromHubCatalog() async {
+    if (widget.nodeId == null) return;
+    try {
+      final ffi = FfiService();
+      final entries = await ffi.hubDirectoryGetCatalog(widget.nodeId!);
+      if (!mounted || entries.isEmpty) return;
+
+      // Find books in hub catalog that are NOT in our current list (by ISBN)
+      final knownIsbns = _books
+          .map((b) => b.isbn)
+          .whereType<String>()
+          .toSet();
+      final newEntries = entries
+          .where((e) => e.isbn.isNotEmpty && !knownIsbns.contains(e.isbn))
+          .toList();
+
+      if (newEntries.isEmpty) {
+        debugPrint('Hub catalog: no new books (${entries.length} total, all known)');
+        return;
+      }
+
+      debugPrint('Hub catalog: found ${newEntries.length} new books not in cache');
+
+      // Convert hub entries to Book objects (partial data: title, author, ISBN, cover)
+      final newBooks = newEntries.map((e) => Book(
+        title: e.title,
+        author: e.author,
+        isbn: e.isbn.isNotEmpty ? e.isbn : null,
+        coverUrl: e.coverUrl,
+      )).toList();
+
+      setState(() {
+        _books.addAll(newBooks);
+        _filteredBooks = _books;
+        _isRefreshing = false;
+      });
+    } catch (e) {
+      debugPrint('Hub catalog refresh failed: $e');
+    }
   }
 
-  /// Load hub catalog as a last-resort fallback (title + author + ISBN only).
-  /// Displays as BookSpines since we have no covers or full book data.
+  /// Load hub catalog and convert entries to Book objects for unified rendering.
+  /// Books get covers via explicit cover_url or OpenLibrary ISBN fallback.
   Future<void> _loadHubCatalog() async {
     if (widget.nodeId == null) return;
     try {
       final ffi = FfiService();
       final entries = await ffi.hubDirectoryGetCatalog(widget.nodeId!);
-      if (!mounted) return;
-      if (entries.isNotEmpty) {
-        setState(() {
-          _isHubOnly = true;
-          // Sort: new entries first, then alphabetical by title
-          _hubEntries = entries..sort((a, b) {
-            final aNew = _isEntryNew(a);
-            final bNew = _isEntryNew(b);
-            if (aNew != bNew) return aNew ? -1 : 1;
-            return a.title.compareTo(b.title);
-          });
-        });
-      }
+      if (!mounted || entries.isEmpty) return;
+      // Don't override if live/cached data arrived while we were fetching
+      if (_books.isNotEmpty) return;
+
+      final books = entries.map((e) => Book(
+        title: e.title,
+        author: e.author,
+        isbn: e.isbn.isNotEmpty ? e.isbn : null,
+        coverUrl: e.coverUrl,
+      )).toList();
+
+      setState(() {
+        _books = books;
+        _filteredBooks = _books;
+        _isHubOnly = true;
+        _lastSynced = DateTime.now().toIso8601String();
+        _isLoading = false;
+      });
     } catch (e) {
       debugPrint('Hub catalog fallback failed: $e');
     }
@@ -604,21 +819,25 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     final api = Provider.of<ApiService>(context, listen: false);
 
     try {
-      // Fetch books live from peer (no caching consent required)
-      final liveRes = await api.getPeerBooksByUrl(widget.peerUrl);
+      // Fetch first page quickly, then load remaining in background
+      final liveRes = await api.getPeerBooksPage(
+        widget.peerUrl,
+        page: 0,
+        limit: _pageSize,
+      );
 
       if (!mounted) return;
 
-      List<dynamic> booksData = [];
-      if (liveRes.data is Map && liveRes.data['books'] != null) {
-        booksData = liveRes.data['books'];
-      } else if (liveRes.data is List) {
-        booksData = liveRes.data;
-      }
+      final parsed = _parsePaginatedResponse(liveRes.data);
 
       setState(() {
-        _books = booksData.map((json) => Book.fromJson(json)).toList();
+        _newBookIds = _extractNewBookIds(parsed.booksData);
+        _books = parsed.booksData.map((json) => Book.fromJson(json)).toList();
         _filteredBooks = _books;
+        _totalBooks = parsed.total;
+        _hasMorePages = parsed.hasMore;
+        _currentPage = 0;
+        _allBooksLoaded = !parsed.hasMore;
         _isSyncing = false;
       });
 
@@ -630,6 +849,11 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
             ),
           ),
         );
+      }
+
+      // Load remaining pages in background
+      if (parsed.hasMore) {
+        _loadAllRemainingBooks();
       }
 
       // Background sync to update cache (if peer allows caching)
@@ -735,100 +959,6 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
         );
       }
     }
-  }
-
-  /// Full-page view shown when peer is offline and no books available
-  Widget _buildHubOnlyView() {
-    return Column(
-      children: [
-        // Info banner
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          color: Colors.indigo.withValues(alpha: 0.08),
-          child: Row(
-            children: [
-              Icon(Icons.info_outline, size: 18, color: Colors.indigo[400]),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  TranslationService.translate(context, 'hub_only_hint'),
-                  style: TextStyle(fontSize: 13, color: Colors.indigo[600]),
-                ),
-              ),
-            ],
-          ),
-        ),
-        // BookSpine shelf view
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Wrap(
-              spacing: 0,
-              runSpacing: 20,
-              alignment: WrapAlignment.start,
-              crossAxisAlignment: WrapCrossAlignment.end,
-              children: _hubEntries.map((entry) {
-                final seed = entry.isbn.hashCode;
-                final isNew = _isEntryNew(entry);
-                return GestureDetector(
-                  onTap: () => _showHubEntryDetails(entry),
-                  child: BookSpine(
-                    title: entry.title,
-                    subtitle: entry.author,
-                    colorSeed: seed,
-                    height: 220 + (seed.abs() % 4) * 12.0,
-                    width: 60 + (seed.abs() % 3) * 6.0,
-                    showNewBand: isNew,
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  void _showHubEntryDetails(FrbCatalogEntry entry) {
-    showModalBottomSheet(
-      context: context,
-      builder: (ctx) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                entry.title,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              if (entry.author != null) ...[
-                const SizedBox(height: 8),
-                Text(
-                  entry.author!,
-                  style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-                ),
-              ],
-              const SizedBox(height: 8),
-              Text(
-                'ISBN: ${entry.isbn}',
-                style: const TextStyle(fontFamily: 'monospace', fontSize: 14),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                TranslationService.translate(context, 'hub_only_detail_hint'),
-                style: TextStyle(fontSize: 13, color: Colors.grey[500]),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 
   Widget _buildOfflineNotAvailableView() {
@@ -954,44 +1084,47 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   }
 
   Widget _buildStalenessBar() {
-    final isRelay = !_isPeerOnline && _books.isNotEmpty;
+    // Hub-only: data from hub directory, not a direct peer connection
+    if (_isHubOnly && _books.isNotEmpty) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        color: Colors.indigo.withValues(alpha: 0.1),
+        child: Row(
+          children: [
+            Icon(Icons.cloud_queue, size: 16, color: Colors.indigo[400]),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                _formatStaleness(),
+                style: TextStyle(fontSize: 12, color: Colors.indigo[600]),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       color: _isPeerOnline
           ? Colors.green.withValues(alpha: 0.1)
-          : isRelay
-              ? Colors.blue.withValues(alpha: 0.1)
-              : Colors.orange.withValues(alpha: 0.1),
+          : Colors.grey.withValues(alpha: 0.08),
       child: Row(
         children: [
           Icon(
-            _isPeerOnline
-                ? Icons.cloud_done
-                : isRelay
-                    ? Icons.cloud_sync
-                    : Icons.cloud_off,
+            _isPeerOnline ? Icons.check_circle_outline : Icons.cloud_queue,
             size: 16,
-            color: _isPeerOnline
-                ? Colors.green
-                : isRelay
-                    ? Colors.blue
-                    : Colors.orange,
+            color: _isPeerOnline ? Colors.green : Colors.grey[600],
           ),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              _isPeerOnline
-                  ? _formatStaleness()
-                  : _isRelayLoading
-                      ? '${TranslationService.translate(context, 'syncing_via_relay')}...'
-                      : '${TranslationService.translate(context, 'peer_offline')} - ${_formatStaleness()}',
+              _isRelayLoading
+                  ? '${TranslationService.translate(context, 'syncing_via_relay')}...'
+                  : _formatStaleness(),
               style: TextStyle(
                 fontSize: 12,
-                color: _isPeerOnline
-                    ? Colors.green[700]
-                    : isRelay
-                        ? Colors.blue[700]
-                        : Colors.orange[700],
+                color: _isPeerOnline ? Colors.green[700] : Colors.grey[600],
               ),
             ),
           ),
@@ -1005,11 +1138,6 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
               '$_relayBooksLoaded/$_relayBooksTotal',
               style: TextStyle(fontSize: 12, color: Colors.blue[600]),
             )
-          else if (!_isPeerOnline && _books.isNotEmpty)
-            Text(
-              TranslationService.translate(context, 'showing_cached'),
-              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-            ),
         ],
       ),
     );
@@ -1045,6 +1173,10 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                   _filterBooks('');
                 } else {
                   _isSearching = true;
+                  // Eagerly load all remaining books for search completeness
+                  if (!_allBooksLoaded && _isPeerOnline) {
+                    _loadAllRemainingBooks();
+                  }
                 }
               });
             },
@@ -1084,17 +1216,32 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          // Hub-only fallback: display BookSpines from hub catalog data
-          : (_isHubOnly && _hubEntries.isNotEmpty && _books.isEmpty)
-              ? _buildHubOnlyView()
-          // If peer offline, no books, no caching, and not relay loading
-              : (!_isPeerOnline &&
+          : (!_isPeerOnline &&
                       !_offlineCachingEnabled &&
                       _books.isEmpty &&
                       !_isRelayLoading)
                   ? _buildOfflineNotAvailableView()
               : Column(
                   children: [
+                    // Hub-only info banner
+                    if (_isHubOnly && _books.isNotEmpty)
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        color: Colors.indigo.withValues(alpha: 0.08),
+                        child: Row(
+                          children: [
+                            Icon(Icons.info_outline, size: 18, color: Colors.indigo[400]),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                TranslationService.translate(context, 'hub_only_hint'),
+                                style: TextStyle(fontSize: 13, color: Colors.indigo[600]),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     // Hub contact info bar
                     _buildHubContactBar(),
                     // Staleness indicator bar
@@ -1169,142 +1316,180 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                                     ],
                                   ),
                                 )
-                          : _isShelfView
-                              ? BookshelfView(
-                                  books: _filteredBooks,
-                                  onBookTap: (book) => _showBookDetails(book),
-                                  newBookIds: _newBookIds,
-                                )
-                              : ListView.separated(
-                                  itemCount: _filteredBooks.length,
-                                  separatorBuilder: (context, index) =>
-                                      const Divider(
-                                    height: 1,
-                                    indent: 16,
-                                    endIndent: 16,
-                                  ),
-                                  itemBuilder: (context, index) {
-                                    final book = _filteredBooks[index];
-                                    return ListTile(
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                        vertical: 8,
-                                      ),
-                                      leading: Container(
-                                        width: 40,
-                                        height: 60,
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(4),
-                                          color: Colors.grey[200],
-                                          image: book.coverUrl != null
-                                              ? DecorationImage(
-                                                  image: NetworkImage(
-                                                    book.coverUrl!,
-                                                  ),
-                                                  fit: BoxFit.cover,
+                          : NotificationListener<ScrollNotification>(
+                              onNotification: (notification) {
+                                if (notification is ScrollUpdateNotification &&
+                                    notification.metrics.pixels >=
+                                        notification.metrics.maxScrollExtent - 200) {
+                                  _loadMoreBooks();
+                                }
+                                return false;
+                              },
+                              child: _isShelfView
+                                  ? BookshelfView(
+                                      books: _filteredBooks,
+                                      onBookTap: (book) => _showBookDetails(book),
+                                      newBookIds: _newBookIds,
+                                      footer: _hasMorePages
+                                          ? _isLoadingMore
+                                              ? const Padding(
+                                                  padding: EdgeInsets.all(16),
+                                                  child: Center(child: CircularProgressIndicator()),
                                                 )
-                                              : null,
-                                        ),
-                                        child: book.coverUrl == null
-                                            ? const Icon(
-                                                Icons.book,
-                                                color: Colors.grey,
-                                                size: 20,
-                                              )
-                                            : null,
-                                      ),
-                                      title: Row(
-                                        children: [
-                                          Expanded(
-                                            child: Text(
-                                              book.title,
-                                              style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
+                                              : Padding(
+                                                  padding: const EdgeInsets.all(8),
+                                                  child: Text(
+                                                    '${_books.length} / $_totalBooks',
+                                                    style: TextStyle(
+                                                      color: Colors.grey[500],
+                                                      fontSize: 12,
+                                                    ),
+                                                  ),
+                                                )
+                                          : null,
+                                    )
+                                  : ListView.separated(
+                                      itemCount: _filteredBooks.length + (_hasMorePages ? 1 : 0),
+                                      separatorBuilder: (context, index) =>
+                                          index < _filteredBooks.length - 1
+                                              ? const Divider(
+                                                  height: 1,
+                                                  indent: 16,
+                                                  endIndent: 16,
+                                                )
+                                              : const SizedBox.shrink(),
+                                      itemBuilder: (context, index) {
+                                        if (index == _filteredBooks.length) {
+                                          // Loading indicator at the bottom
+                                          return const Padding(
+                                            padding: EdgeInsets.all(16),
+                                            child: Center(
+                                              child: CircularProgressIndicator(),
                                             ),
-                                          ),
-                                          if (_newBookIds
-                                              .contains(book.id)) ...[
-                                            const SizedBox(width: 6),
-                                            Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                horizontal: 6,
-                                                vertical: 2,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                color: const Color(0xFFC62828),
-                                                borderRadius:
-                                                    BorderRadius.circular(4),
-                                              ),
-                                              child: Text(
-                                                TranslationService.translate(
-                                                        context, 'badge_new')
-                                                    .toUpperCase(),
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 9,
-                                                  fontWeight: FontWeight.w800,
-                                                  letterSpacing: 0.5,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ],
-                                      ),
-                                      subtitle: Text(
-                                        book.author ?? 'Unknown Author',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          color: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall
-                                              ?.color,
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      trailing: ElevatedButton(
-                                        onPressed: _canBorrow(book)
-                                            ? () => _requestBorrow(book)
-                                            : null,
-                                        style: ElevatedButton.styleFrom(
-                                          padding:
+                                          );
+                                        }
+                                        final book = _filteredBooks[index];
+                                        return ListTile(
+                                          contentPadding:
                                               const EdgeInsets.symmetric(
-                                            horizontal: 12,
+                                            horizontal: 16,
                                             vertical: 8,
                                           ),
-                                          minimumSize: Size.zero,
-                                          tapTargetSize:
-                                              MaterialTapTargetSize
-                                                  .shrinkWrap,
-                                        ),
-                                        child: Text(
-                                          _hasPendingRequest(book)
-                                              ? TranslationService.translate(
-                                                  context,
-                                                  'borrow_pending',
-                                                )
-                                              : _hasNoCopiesAvailable(book)
+                                          leading: Container(
+                                            width: 40,
+                                            height: 60,
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                              color: Colors.grey[200],
+                                              image: book.coverUrl != null
+                                                  ? DecorationImage(
+                                                      image: NetworkImage(
+                                                        book.coverUrl!,
+                                                      ),
+                                                      fit: BoxFit.cover,
+                                                    )
+                                                  : null,
+                                            ),
+                                            child: book.coverUrl == null
+                                                ? const Icon(
+                                                    Icons.book,
+                                                    color: Colors.grey,
+                                                    size: 20,
+                                                  )
+                                                : null,
+                                          ),
+                                          title: Row(
+                                            children: [
+                                              Expanded(
+                                                child: Text(
+                                                  book.title,
+                                                  style: const TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                  maxLines: 1,
+                                                  overflow: TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                              if (_newBookIds
+                                                  .contains(book.id)) ...[
+                                                const SizedBox(width: 6),
+                                                Container(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                    horizontal: 6,
+                                                    vertical: 2,
+                                                  ),
+                                                  decoration: BoxDecoration(
+                                                    color: const Color(0xFFC62828),
+                                                    borderRadius:
+                                                        BorderRadius.circular(4),
+                                                  ),
+                                                  child: Text(
+                                                    TranslationService.translate(
+                                                            context, 'badge_new')
+                                                        .toUpperCase(),
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 9,
+                                                      fontWeight: FontWeight.w800,
+                                                      letterSpacing: 0.5,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ],
+                                          ),
+                                          subtitle: Text(
+                                            book.author ?? 'Unknown Author',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: Theme.of(context)
+                                                  .textTheme
+                                                  .bodySmall
+                                                  ?.color,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          trailing: ElevatedButton(
+                                            onPressed: _canBorrow(book)
+                                                ? () => _requestBorrow(book)
+                                                : null,
+                                            style: ElevatedButton.styleFrom(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                horizontal: 12,
+                                                vertical: 8,
+                                              ),
+                                              minimumSize: Size.zero,
+                                              tapTargetSize:
+                                                  MaterialTapTargetSize
+                                                      .shrinkWrap,
+                                            ),
+                                            child: Text(
+                                              _hasPendingRequest(book)
                                                   ? TranslationService.translate(
                                                       context,
-                                                      'borrow_unavailable',
+                                                      'borrow_pending',
                                                     )
-                                                  : TranslationService.translate(
-                                                      context,
-                                                      'borrow',
-                                                    ),
-                                        ),
-                                      ),
-                                      onTap: () => _showBookDetails(book),
-                                    );
-                                  },
-                                ),
+                                                  : _hasNoCopiesAvailable(book)
+                                                      ? TranslationService.translate(
+                                                          context,
+                                                          'borrow_unavailable',
+                                                        )
+                                                      : TranslationService.translate(
+                                                          context,
+                                                          'borrow',
+                                                        ),
+                                            ),
+                                          ),
+                                          onTap: () => _showBookDetails(book),
+                                        );
+                                      },
+                                    ),
+                            ),
                     ),
                   ],
                 ),

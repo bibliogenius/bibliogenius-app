@@ -27,7 +27,7 @@ class BookSpine extends StatelessWidget {
     this.showNewBand = false,
   })  : title = book.title,
         subtitle = book.publisher,
-        colorSeed = book.id ?? 0,
+        colorSeed = book.id ?? book.isbn?.hashCode ?? 0,
         opacity = book.owned ? 1.0 : 0.5;
 
   /// Creates a spine from minimal data (title + optional author/subtitle).

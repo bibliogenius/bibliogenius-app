@@ -807,6 +807,7 @@ sealed class FrbCatalogEntry with _$FrbCatalogEntry {
     required String isbn,
     required String title,
     String? author,
+    String? coverUrl,
     String? firstSeenAt,
   }) = _FrbCatalogEntry;
 }
