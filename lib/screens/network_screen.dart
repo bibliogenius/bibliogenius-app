@@ -504,15 +504,20 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
         debugPrint('Error loading peers: $e');
       }
 
-      // Hub: load config, ensure keys published, load follows
+      // Hub: load config, auto-register if needed, push catalog
       try {
         await dirProvider.loadConfig();
+        if (!dirProvider.isRegistered) {
+          // Auto-register so catalog is always available for known peers
+          await dirProvider.ensureRegistered();
+        }
         if (dirProvider.isRegistered) {
           final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
           final name = themeProvider.libraryName.isNotEmpty
               ? themeProvider.libraryName
               : 'My Library';
           dirProvider.ensureKeysPublished(name);
+          dirProvider.syncCatalogIfDirty();
         }
       } catch (e) { debugPrint('Error loading hub config: $e'); }
       try {

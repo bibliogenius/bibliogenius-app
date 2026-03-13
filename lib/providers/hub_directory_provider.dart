@@ -226,6 +226,26 @@ class HubDirectoryProvider extends ChangeNotifier {
   // ---------------------------------------------------------------------------
 
   /// Load the local config from SQLite. Call once at app start / settings open.
+  /// Load config, auto-register if needed, push catalog.
+  /// Called at app startup so the catalog is always available for known peers.
+  Future<void> initAndSyncCatalog() async {
+    try {
+      debugPrint('HubDirectory: initAndSyncCatalog starting');
+      await loadConfig();
+      debugPrint('HubDirectory: config loaded, isRegistered=$isRegistered');
+      if (!isRegistered) {
+        debugPrint('HubDirectory: not registered, auto-registering...');
+        await ensureRegistered();
+        debugPrint('HubDirectory: after ensureRegistered, isRegistered=$isRegistered');
+      }
+      if (isRegistered) {
+        syncCatalogIfDirty();
+      }
+    } catch (e) {
+      debugPrint('HubDirectory: initAndSyncCatalog error: $e');
+    }
+  }
+
   Future<void> loadConfig() async {
     _configLoading = true;
     _configError = null;
@@ -412,6 +432,15 @@ class HubDirectoryProvider extends ChangeNotifier {
     }
   }
 
+  /// Auto-register with is_listed=false if not yet registered.
+  /// Enables catalog push for known peers without public listing.
+  Future<bool> ensureRegistered() async {
+    if (isRegistered) return true;
+    final ok = await _ensureSilentRegistration();
+    if (ok) await loadConfig();
+    return ok;
+  }
+
   /// Follow (or request to follow) a library identified by [nodeId].
   /// Updates the following list on success.
   Future<bool> follow(String nodeId) async {
@@ -585,7 +614,10 @@ class HubDirectoryProvider extends ChangeNotifier {
 
   /// Push catalog only if dirty and registered. Intended for lifecycle hooks.
   Future<void> syncCatalogIfDirty() async {
-    if (!_catalogDirty || !isRegistered || !isListed) return;
+    // Push catalog when registered, regardless of isListed.
+    // isListed controls discoverability by strangers; catalog push enables
+    // browsing by known peers who have the nodeId (via invite link).
+    if (!_catalogDirty || !isRegistered) return;
     await syncCatalog();
   }
 

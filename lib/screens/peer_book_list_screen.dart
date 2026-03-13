@@ -167,11 +167,14 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       // 2. Hub catalog + connectivity check IN PARALLEL
       //    Hub enriches with new books; connectivity determines if we can go live.
       Future<void>? hubFuture;
+      debugPrint('Hub catalog: nodeId=${widget.nodeId}, books=${_books.length}');
       if (widget.nodeId != null) {
         // Fire-and-forget: hub updates UI via setState when done
         hubFuture = _books.isNotEmpty
             ? _refreshFromHubCatalog()
             : _loadHubCatalog();
+      } else {
+        debugPrint('Hub catalog: SKIPPED (nodeId is null)');
       }
 
       // 3. Check WiFi/LAN connectivity (runs in parallel with hub)
@@ -503,10 +506,15 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     if (widget.nodeId == null) return;
     try {
       final ffi = FfiService();
+      debugPrint('Hub catalog: fetching for ${widget.nodeId}');
       final entries = await ffi.hubDirectoryGetCatalog(widget.nodeId!);
+      debugPrint('Hub catalog: got ${entries.length} entries');
       if (!mounted || entries.isEmpty) return;
       // Don't override if live/cached data arrived while we were fetching
-      if (_books.isNotEmpty) return;
+      if (_books.isNotEmpty) {
+        debugPrint('Hub catalog: skipped (live data already loaded: ${_books.length} books)');
+        return;
+      }
 
       final books = entries.map((e) => Book(
         title: e.title,

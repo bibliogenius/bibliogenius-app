@@ -449,6 +449,12 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
 
+    // Hub catalog: auto-register + push at startup (post-frame to avoid
+    // notifyListeners during build)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<HubDirectoryProvider>().initAndSyncCatalog();
+    });
+
     _router = GoRouter(
       initialLocation: '/books',
       refreshListenable: themeProvider,
