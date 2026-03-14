@@ -810,7 +810,8 @@ void _navigateForNotification(BuildContext context, FrbNotification notif) {
       context.push('/requests?tab=lent');
       break;
     case 'wishlist_match':
-      context.push('/books?status=wanting');
+      // Open full notifications screen for rich navigation (peer library + search)
+      context.push('/notifications');
       break;
     default:
       context.push('/notifications');

@@ -28,6 +28,8 @@ class PeerBookListScreen extends StatefulWidget {
   final String? nodeId;
   /// User-defined caption (légende) for this peer, shown as subtitle.
   final String? caption;
+  /// Pre-fill search field on open (e.g. from wishlist_match notification).
+  final String? initialSearch;
 
   const PeerBookListScreen({
     super.key,
@@ -37,6 +39,7 @@ class PeerBookListScreen extends StatefulWidget {
     this.hasRelayCredentials = false,
     this.nodeId,
     this.caption,
+    this.initialSearch,
   });
 
   @override
@@ -100,6 +103,10 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   @override
   void initState() {
     super.initState();
+    if (widget.initialSearch != null && widget.initialSearch!.isNotEmpty) {
+      _isSearching = true;
+      _searchController.text = widget.initialSearch!;
+    }
     _loadCachedBooksFirst();
     _loadHubContactInfo();
     _loadPendingBorrowRequests();
@@ -252,7 +259,9 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                 _newBookIds = _extractNewBookIds(booksData);
                 _books =
                     booksData.map((json) => Book.fromJson(json)).toList();
-                _filteredBooks = _books;
+                _filteredBooks = _isSearching && _searchController.text.isNotEmpty
+                    ? _books.where((b) => _matchesSearch(b, _searchController.text)).toList()
+                    : _books;
                 _lastSynced = data['last_synced'];
                 _isLoading = false;
                 _isRefreshing = true;

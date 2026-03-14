@@ -3076,17 +3076,9 @@ class ApiService {
   }) async {
     if (useFfi) {
       try {
-        // 1. Get my own details
-        String myName = 'My Library';
-        try {
-          final config = await getLibraryConfig();
-          if (config.data is Map) {
-            myName =
-                config.data['library_name'] ?? config.data['name'] ?? myName;
-          }
-        } catch (e) {
-          debugPrint('Error getting own config for handshake: $e');
-        }
+        // 1. Get my own details (SharedPreferences is the source of truth for library name)
+        final prefs = await SharedPreferences.getInstance();
+        String myName = prefs.getString('libraryName') ?? 'My Library';
         final myUrl = await _getMyUrl();
         final peerHasLanUrl = url.isNotEmpty && !url.startsWith('relay://');
         final hasRelayCredentials = relayUrl != null && mailboxId != null;

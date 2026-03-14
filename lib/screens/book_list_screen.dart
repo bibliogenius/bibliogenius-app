@@ -1882,110 +1882,119 @@ class _BookListScreenState extends State<BookListScreen>
         _searchQuery.isEmpty &&
         _tagFilter == null &&
         _selectedStatus == null) {
-      return RefreshIndicator(
-        onRefresh: _fetchBooks,
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 60, 24, 24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: Theme.of(
-                      context,
-                    ).primaryColor.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.menu_book_rounded,
-                    size: 64,
-                    color: Theme.of(context).primaryColor,
-                  ),
+      return LayoutBuilder(
+        builder: (context, constraints) => RefreshIndicator(
+          onRefresh: _fetchBooks,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: Theme.of(
+                          context,
+                        ).primaryColor.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.menu_book_rounded,
+                        size: 64,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      TranslationService.translate(context, 'welcome_title'),
+                      style:
+                          Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      TranslationService.translate(
+                          context, 'welcome_subtitle'),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey[600],
+                        height: 1.5,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    ElevatedButton.icon(
+                      onPressed: () async {
+                        final isbn = await context.push<String>('/scan');
+                        if (isbn != null && mounted) {
+                          final result = await context.push(
+                            '/books/add',
+                            extra: {'isbn': isbn},
+                          );
+                          if (result == true && mounted) {
+                            _fetchBooks();
+                          }
+                        }
+                      },
+                      icon: const Icon(Icons.qr_code_scanner),
+                      label: Text(
+                        TranslationService.translate(
+                            context, 'scan_first_book'),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 32,
+                          vertical: 16,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    OutlinedButton.icon(
+                      onPressed: () async {
+                        final result =
+                            await context.push('/search/external');
+                        if (result == true) {
+                          _fetchBooks();
+                        }
+                      },
+                      icon: const Icon(Icons.travel_explore),
+                      label: Text(
+                        TranslationService.translate(
+                          context,
+                          'btn_search_book_online',
+                        ),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 32,
+                          vertical: 16,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 24),
-                Text(
-                  TranslationService.translate(context, 'welcome_title'),
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).primaryColor,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  TranslationService.translate(context, 'welcome_subtitle'),
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey[600],
-                    height: 1.5,
-                  ),
-                ),
-                const SizedBox(height: 32),
-                ElevatedButton.icon(
-                  onPressed: () async {
-                    final isbn = await context.push<String>('/scan');
-                    if (isbn != null && mounted) {
-                      final result = await context.push(
-                        '/books/add',
-                        extra: {'isbn': isbn},
-                      );
-                      if (result == true && mounted) {
-                        _fetchBooks(); // Refresh list after book was added
-                      }
-                    }
-                  },
-                  icon: const Icon(Icons.qr_code_scanner),
-                  label: Text(
-                    TranslationService.translate(context, 'scan_first_book'),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 32,
-                      vertical: 16,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                OutlinedButton.icon(
-                  onPressed: () async {
-                    final result = await context.push('/search/external');
-                    if (result == true) {
-                      _fetchBooks();
-                    }
-                  },
-                  icon: const Icon(Icons.travel_explore),
-                  label: Text(
-                    TranslationService.translate(
-                      context,
-                      'btn_search_book_online',
-                    ),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 32,
-                      vertical: 16,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ),

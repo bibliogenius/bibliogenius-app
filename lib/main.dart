@@ -217,12 +217,12 @@ void main([List<String>? args]) async {
   bool useFfi = await initializePlatform();
 
   if (useFfi) {
-    // If library name is the default, replace with device name
+    // If library name is the default, replace with device name or random name
     if (themeProvider.libraryName == 'My Library') {
       try {
         final deviceName = await _getDeviceName();
         if (deviceName != null && deviceName.isNotEmpty) {
-          await themeProvider.setLibraryName(deviceName);
+          await themeProvider.setLibraryName('Library of $deviceName');
           debugPrint('Library name set from device: $deviceName');
         }
       } catch (e) {
@@ -230,14 +230,11 @@ void main([List<String>? args]) async {
       }
     }
 
-    // Sync library name to Rust backend now that FFI is ready
-    // (fixes desync where SharedPrefs has the user's name but SQLite has the default)
-    if (themeProvider.libraryName != 'My Library') {
-      try {
-        await FfiService().updateLibraryName(themeProvider.libraryName);
-      } catch (e) {
-        debugPrint('Startup library name sync (non-fatal): $e');
-      }
+    // Always sync library name to Rust backend (fixes SharedPrefs ↔ SQLite desync)
+    try {
+      await FfiService().updateLibraryName(themeProvider.libraryName);
+    } catch (e) {
+      debugPrint('Startup library name sync (non-fatal): $e');
     }
 
     int httpPort = 8000;
@@ -931,6 +928,7 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
                           peer['hasRelayCredentials'] as bool? ?? false,
                       nodeId: peer['nodeId'] as String?,
                       caption: peer['caption'] as String?,
+                      initialSearch: peer['initialSearch'] as String?,
                     );
                   },
                 ),
@@ -1047,7 +1045,8 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
         icon: Icons.edit_outlined,
         condition: (ctx) {
           final tp = Provider.of<ThemeProvider>(ctx, listen: false);
-          return tp.libraryName == 'My Library';
+          return tp.libraryName == 'My Library' ||
+              tp.libraryName.startsWith('Library of ');
         },
         excludedRoutes: ['/settings', '/setup', '/onboarding', '/profile'],
         contentBuilder: (ctx, dismiss) => _FlashLibraryNameEditor(
@@ -1349,15 +1348,17 @@ class _FlashLibraryNameEditorState extends State<_FlashLibraryNameEditor> {
         ),
         const SizedBox(width: 12),
         SizedBox(
-          width: 160,
+          width: 220,
           height: 34,
           child: TextField(
             controller: _controller,
+            maxLength: 30,
             style: TextStyle(
               fontSize: 13,
               color: colorScheme.onSurface,
             ),
             decoration: InputDecoration(
+              counterText: '',
               isDense: true,
               filled: true,
               fillColor: colorScheme.onSurface.withValues(alpha: 0.05),

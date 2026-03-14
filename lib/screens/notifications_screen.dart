@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../providers/notification_provider.dart';
 import '../providers/theme_provider.dart';
+import '../services/api_service.dart';
 import '../services/translation_service.dart';
 import '../src/rust/api/frb.dart' show FrbNotification;
 import '../widgets/genie_app_bar.dart';
@@ -155,14 +156,68 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         context.push('/requests?tab=lent');
         break;
       case 'wishlist_match':
-        // Go to wishlist (reading_status = 'wanting')
-        context.push('/books?status=wanting');
+        // Navigate to the peer's library, filtered by the book title
+        await _navigateToWishlistMatch(notif);
         break;
       default:
         break;
     }
   }
 
+  /// Navigate to the peer's library filtered by the matched book.
+  /// ref_id format: "{peer_id}:{isbn}", ref_type: "peer" or "directory"
+  Future<void> _navigateToWishlistMatch(FrbNotification notif) async {
+    if (notif.refId == null || !notif.refId!.contains(':')) {
+      // Fallback: go to wishlist
+      if (mounted) context.push('/books?status=wanting');
+      return;
+    }
+
+    final parts = notif.refId!.split(':');
+    final sourceId = parts[0];
+    final bookTitle = notif.title; // The book title is stored in notification.title
+
+    if (notif.refType == 'peer') {
+      final peerId = int.tryParse(sourceId);
+      if (peerId == null) {
+        if (mounted) context.push('/books?status=wanting');
+        return;
+      }
+
+      // Look up peer info
+      try {
+        final api = context.read<ApiService>();
+        final response = await api.getPeers();
+        final peers = (response.data as Map?)?['data'] as List?;
+        if (peers != null) {
+          for (final p in peers) {
+            if (p is Map && p['id'] == peerId) {
+              if (mounted) {
+                context.push(
+                  '/peers/$peerId/books',
+                  extra: {
+                    'id': peerId,
+                    'name': p['name'] ?? '',
+                    'url': p['url'] ?? '',
+                    'hasRelayCredentials':
+                        p['has_relay_credentials'] == true,
+                    'nodeId': p['node_id'] as String?,
+                    'initialSearch': bookTitle,
+                  },
+                );
+              }
+              return;
+            }
+          }
+        }
+      } catch (e) {
+        debugPrint('Wishlist match navigation error: $e');
+      }
+    }
+
+    // Fallback
+    if (mounted) context.push('/books?status=wanting');
+  }
 }
 
 class _FilterBar extends StatelessWidget {
