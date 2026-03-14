@@ -128,13 +128,14 @@ jobs:
           flutter build apk --release
           BUILD_NUMBER=$((${{ github.run_number }} + 200))
           flutter build appbundle --release --build-number=$BUILD_NUMBER
+          cp build/app/outputs/flutter-apk/app-release.apk BiblioGenius-Android.apk
 
       - name: Upload APK & AAB
         uses: actions/upload-artifact@v4
         with:
           name: bibliogenius-android
           path: |
-            build/app/outputs/flutter-apk/app-release.apk
+            BiblioGenius-Android.apk
             build/app/outputs/bundle/release/app-release.aab
 
       - name: Upload to Google Play
@@ -875,6 +876,6 @@ jobs:
             
           files: |
             artifacts/bibliogenius-macos/*
-            artifacts/bibliogenius-android/*
+            artifacts/bibliogenius-android/BiblioGenius-Android.apk
             artifacts/bibliogenius-windows/*
             artifacts/bibliogenius-linux/*
