@@ -291,10 +291,12 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: [
         // Notification bell with unread badge (hidden when notifications disabled)
         if (context.watch<ThemeProvider>().notificationsEnabled)
-          Consumer<NotificationProvider>(
-            builder: (context, notifProvider, child) {
-              final count = notifProvider.unreadCount;
-              return IconButton(
+          Padding(
+            padding: const EdgeInsets.only(left: 5),
+            child: Consumer<NotificationProvider>(
+              builder: (context, notifProvider, child) {
+                final count = notifProvider.unreadCount;
+                return IconButton(
                 icon: Badge(
                   isLabelVisible: count > 0,
                   label: Text(
@@ -307,6 +309,7 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
                 onPressed: () => _showNotificationPopover(context, notifProvider),
               );
             },
+          ),
           ),
         // Global Quick Actions Button (New)
         Semantics(

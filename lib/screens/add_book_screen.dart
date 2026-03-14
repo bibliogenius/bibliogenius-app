@@ -72,6 +72,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
   bool _isSaving = false;
   bool _isAutocompleteFetching = false;
   String? _lastLookedUpIsbn; // Prevent duplicate lookups
+  String? _lastChecksumWarningIsbn; // Prevent repeated checksum warnings
   final List<String> _selectedTags = [];
   List<Collection> _selectedCollections = [];
   final List<String> _authors = []; // Multiple authors support
@@ -193,17 +194,16 @@ class _AddBookScreenState extends State<AddBookScreen> {
       _lastLookedUpIsbn = null;
     }
 
-    // Only lookup if valid ISBN (checksum OK), not currently fetching, and not already looked up.
-    // Using isValid() instead of just checking length prevents premature lookups when
-    // the user is still typing a 13-digit ISBN and the first 10 digits happen to match length==10.
-    if (IsbnValidator.isValid(isbn) &&
+    // Lookup when ISBN reaches valid length (10 or 13), not currently fetching,
+    // and not already looked up. Checksum is non-blocking (warn only).
+    if ((isbn.length == 10 || isbn.length == 13) &&
         !_isFetchingDetails &&
         isbn != _lastLookedUpIsbn) {
+      if (!IsbnValidator.isValid(isbn) && isbn != _lastChecksumWarningIsbn) {
+        _lastChecksumWarningIsbn = isbn;
+        AppSnackBar.info(context, TranslationService.translate(context, 'isbn_checksum_warning'));
+      }
       _fetchBookDetails(isbn);
-    } else if ((isbn.length == 10 || isbn.length == 13) &&
-        !IsbnValidator.isValid(isbn) &&
-        !_isFetchingDetails) {
-      AppSnackBar.info(context, TranslationService.translate(context, 'isbn_checksum_warning'));
     }
   }
 

@@ -70,6 +70,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
   bool _isEditing = true; // Always start in edit mode
   bool _isSaving = false;
   bool _isFetchingDetails = false;
+  String? _lastChecksumWarningIsbn;
   bool _hasChanges = false;
 
   // Copy availability management
@@ -249,11 +250,11 @@ class _EditBookScreenState extends State<EditBookScreen> {
     if (!mounted || _isSaving) return;
     final isbn = IsbnValidator.clean(_isbnController.text).replaceAll(RegExp(r'[^0-9X]'), '');
     if ((isbn.length == 10 || isbn.length == 13) && !_isFetchingDetails) {
-      _fetchBookDetails(isbn);
-      // Non-blocking validation feedback
-      if (!IsbnValidator.isValid(isbn)) {
+      if (!IsbnValidator.isValid(isbn) && isbn != _lastChecksumWarningIsbn) {
+        _lastChecksumWarningIsbn = isbn;
         AppSnackBar.info(context, TranslationService.translate(context, 'isbn_checksum_warning'));
       }
+      _fetchBookDetails(isbn);
     }
   }
 

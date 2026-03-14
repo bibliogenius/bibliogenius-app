@@ -1135,44 +1135,7 @@ class _BookListScreenState extends State<BookListScreen>
             ),
             // Reorder button - only visible when viewing a shelf (tag filter active)
             if (!_isReordering) _buildReorderButton(context),
-          ] else
-            // Otherwise show "Shelves" button
-            Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: ScaleOnTap(
-                onTap: () => _showTagFilterDialog(),
-                child: Container(
-                  height: 36,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  decoration: BoxDecoration(
-                    color: isDark ? theme.cardColor : Colors.white,
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(
-                      color: isDark
-                          ? Colors.white24
-                          : Colors.grey.withOpacity(0.3),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.label_outline,
-                        size: 16,
-                        color: theme.primaryColor,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        TranslationService.translate(context, 'tags'),
-                        style: TextStyle(
-                          color: isDark ? Colors.white : Colors.black87,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+          ],
           const SizedBox(width: 4),
 
           // 3. Consolidated Status Filter Dropdown
