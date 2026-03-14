@@ -24,9 +24,12 @@ The official frontend for BiblioGenius, built with Flutter. It embeds the Rust b
 ## ⚡ Quick Start
 
 ```bash
-# Clone repository
-git clone https://github.com/bibliogenius/bibliogenius-app.git
+# Clone repository (--recursive fetches the Rust backend)
+git clone --recursive https://github.com/bibliogenius/bibliogenius-app.git
 cd bibliogenius-app
+
+# If you already cloned without --recursive:
+git submodule update --init
 
 # Get dependencies
 flutter pub get
