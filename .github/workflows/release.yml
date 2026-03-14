@@ -307,16 +307,14 @@ jobs:
           echo "App bundle structure:"
           ls -la "$APP_PATH/Contents"
 
-      - name: Inject Rust Binary
+      - name: Inject Rust Binary (Universal)
         run: |
-          ARCH=$(uname -m)
           mkdir -p build/macos/Build/Products/Release/bibliogenius.app/Contents/Resources/backend
-          if [ "$ARCH" == "arm64" ]; then
-            cp backend-arm64/bibliogenius build/macos/Build/Products/Release/bibliogenius.app/Contents/Resources/backend/
-          else
-            cp backend-x64/bibliogenius build/macos/Build/Products/Release/bibliogenius.app/Contents/Resources/backend/
-          fi
+          lipo -create backend-arm64/bibliogenius backend-x64/bibliogenius \
+            -output build/macos/Build/Products/Release/bibliogenius.app/Contents/Resources/backend/bibliogenius
           chmod +x build/macos/Build/Products/Release/bibliogenius.app/Contents/Resources/backend/bibliogenius
+          echo "✅ Universal backend binary created:"
+          file build/macos/Build/Products/Release/bibliogenius.app/Contents/Resources/backend/bibliogenius
 
       # === TESTFLIGHT UPLOAD (before Developer ID re-signing) ===
       # The app is already signed with Apple Distribution from flutter build
@@ -382,7 +380,12 @@ jobs:
           api-private-key: private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8
 
       # === DMG DISTRIBUTION (with Developer ID for notarization) ===
-        
+
+      - name: Remove App Store provisioning profile for DMG
+        run: |
+          rm -f build/macos/Build/Products/Release/bibliogenius.app/Contents/embedded.provisionprofile
+          echo "✅ Removed App Store provisioning profile from bundle (not needed for Developer ID distribution)"
+
       - name: Decode Auth Key
         run: |
           mkdir -p private_keys
@@ -855,13 +858,7 @@ jobs:
             ## 🚀 Getting Started
             
             1. Download the appropriate file for your platform
-            2. **macOS**: 
-               - Open the .dmg, drag to Applications
-               - **Important**: The app is unsigned. To run it, open Terminal and execute:
-                 ```bash
-                 xattr -cr /Applications/bibliogenius.app
-                 ```
-               - Then launch the app normally from Applications
+            2. **macOS**: Open the .dmg, drag to Applications, launch normally (app is signed and notarized)
             3. **Android**: Enable "Install from unknown sources", install APK
             4. **Windows**: Extract ZIP, run `bibliogenius.exe`
             5. **Linux**: Extract tarball, run `./bibliogenius`
@@ -869,7 +866,7 @@ jobs:
             ## 🐛 Known Limitations
             - P2P works on local network only (global P2P coming in v2.0)
             - No iOS build (requires Apple Developer account)
-            - **macOS app is unsigned**: You must remove quarantine flag with `xattr -cr` (see instructions above)
+            - P2P relay requires internet connection
             
             ## 📝 Feedback
             Please report issues on [GitHub Issues](https://github.com/bibliogenius/bibliogenius-app/issues)
