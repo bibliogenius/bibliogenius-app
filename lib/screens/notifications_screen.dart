@@ -193,15 +193,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           for (final p in peers) {
             if (p is Map && p['id'] == peerId) {
               if (mounted) {
+                final hasRelay = p['relay_url'] != null &&
+                    p['mailbox_id'] != null;
                 context.push(
                   '/peers/$peerId/books',
                   extra: {
                     'id': peerId,
                     'name': p['name'] ?? '',
                     'url': p['url'] ?? '',
-                    'hasRelayCredentials':
-                        p['has_relay_credentials'] == true,
-                    'nodeId': p['node_id'] as String?,
+                    'hasRelayCredentials': hasRelay,
+                    'nodeId': p['library_uuid'] as String?,
                     'initialSearch': bookTitle,
                   },
                 );
