@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'config/platform_init.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -104,6 +105,25 @@ class AppScrollBehavior extends MaterialScrollBehavior {
   };
 }
 
+/// Get device name for library name fallback.
+/// Returns a human-friendly name like "iPhone de Federico" or "MacBook Pro".
+Future<String?> _getDeviceName() async {
+  try {
+    final deviceInfo = DeviceInfoPlugin();
+    if (Platform.isIOS) {
+      final ios = await deviceInfo.iosInfo;
+      return ios.name; // e.g. "iPhone de Federico"
+    } else if (Platform.isAndroid) {
+      final android = await deviceInfo.androidInfo;
+      return android.model; // e.g. "Pixel 7"
+    } else if (Platform.isMacOS) {
+      final macos = await deviceInfo.macOsInfo;
+      return macos.computerName; // e.g. "MacBook Pro de Federico"
+    }
+  } catch (_) {}
+  return null;
+}
+
 void main([List<String>? args]) async {
   WidgetsFlutterBinding.ensureInitialized();
   // Custom error widget to display errors visibly for debugging
@@ -197,6 +217,19 @@ void main([List<String>? args]) async {
   bool useFfi = await initializePlatform();
 
   if (useFfi) {
+    // If library name is the default, replace with device name
+    if (themeProvider.libraryName == 'My Library') {
+      try {
+        final deviceName = await _getDeviceName();
+        if (deviceName != null && deviceName.isNotEmpty) {
+          await themeProvider.setLibraryName(deviceName);
+          debugPrint('Library name set from device: $deviceName');
+        }
+      } catch (e) {
+        debugPrint('Device name fallback (non-fatal): $e');
+      }
+    }
+
     // Sync library name to Rust backend now that FFI is ready
     // (fixes desync where SharedPrefs has the user's name but SQLite has the default)
     if (themeProvider.libraryName != 'My Library') {
@@ -512,49 +545,57 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
         // Never redirect away from invite screen
         if (isInviteRoute) return null;
 
-        // Auto-init if setup not complete (e.g., after resetSetup)
-        if (!themeProvider.isSetupComplete) {
-          await themeProvider.initializeDefaults();
-          await authService.saveUsername('admin');
-          await authService.saveToken(
-            'local-auto-token-${DateTime.now().millisecondsSinceEpoch}',
-          );
-          debugPrint('✅ Redirect: auto-initialized and logged in');
-        }
-
-        // Auth check
-        var isLoggedIn = await authService.isLoggedIn();
-        final hasPassword = await authService.hasPasswordSet();
-
-        if (hasPassword) {
-          // Password configured - check if user authenticated this session
-          final token = await authService.getToken();
-          final isAutoToken = token != null && token.startsWith('local-auto-token-');
-          if (!isLoggedIn || isAutoToken) {
-            // No token or auto-token: must authenticate with password
-            if (isAutoToken) await authService.logout();
-            if (isLoginRoute) return null;
-            return '/login';
+        try {
+          // Auto-init if setup not complete (e.g., after resetSetup)
+          if (!themeProvider.isSetupComplete) {
+            await themeProvider.initializeDefaults();
+            await authService.saveUsername('admin');
+            await authService.saveToken(
+              'local-auto-token-${DateTime.now().millisecondsSinceEpoch}',
+            );
+            debugPrint('✅ Redirect: auto-initialized and logged in');
           }
-        } else if (!isLoggedIn) {
-          // No password - perform auto-login for seamless experience
-          await authService.saveUsername('admin');
-          await authService.saveToken(
-            'local-auto-token-${DateTime.now().millisecondsSinceEpoch}',
-          );
-          isLoggedIn = true;
-          debugPrint('✅ Redirect: auto-logged in (no password set)');
-        }
 
-        // Logged in user trying to access login
-        if (isLoggedIn && isLoginRoute) {
+          // Auth check
+          var isLoggedIn = await authService.isLoggedIn();
+          final hasPassword = await authService.hasPasswordSet();
+
+          if (hasPassword) {
+            // Password configured - check if user authenticated this session
+            final token = await authService.getToken();
+            final isAutoToken = token != null && token.startsWith('local-auto-token-');
+            if (!isLoggedIn || isAutoToken) {
+              // No token or auto-token: must authenticate with password
+              if (isAutoToken) await authService.logout();
+              if (isLoginRoute) return null;
+              return '/login';
+            }
+          } else if (!isLoggedIn) {
+            // No password - perform auto-login for seamless experience
+            await authService.saveUsername('admin');
+            await authService.saveToken(
+              'local-auto-token-${DateTime.now().millisecondsSinceEpoch}',
+            );
+            isLoggedIn = true;
+            debugPrint('✅ Redirect: auto-logged in (no password set)');
+          }
+
+          // Logged in user trying to access login
+          if (isLoggedIn && isLoginRoute) {
+            return '/books';
+          }
+
+          // Onboarding check (only if logged in)
+          if (isLoggedIn && state.uri.path == '/books') {
+            final hasSeenTour = await WizardService.hasSeenOnboardingTour();
+            if (!hasSeenTour) return '/onboarding';
+          }
+        } catch (e) {
+          // Secure storage unavailable (e.g., missing keyring on Linux)
+          // Treat as not logged in — auto-login to avoid blocking the user
+          debugPrint('⚠️ Redirect: secure storage error ($e), falling back to auto-login');
+          if (isLoginRoute) return null;
           return '/books';
-        }
-
-        // Onboarding check (only if logged in)
-        if (isLoggedIn && state.uri.path == '/books') {
-          final hasSeenTour = await WizardService.hasSeenOnboardingTour();
-          if (!hasSeenTour) return '/onboarding';
         }
 
         return null;
@@ -889,6 +930,7 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
                       hasRelayCredentials:
                           peer['hasRelayCredentials'] as bool? ?? false,
                       nodeId: peer['nodeId'] as String?,
+                      caption: peer['caption'] as String?,
                     );
                   },
                 ),
