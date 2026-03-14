@@ -427,20 +427,22 @@ jobs:
           
           echo "Using identity: $IDENTITY"
           
-          echo "Prepare entitlements..."
-          sed "s/\$(AppIdentifierPrefix)/$APPLE_TEAM_ID./g; s/\$(CFBundleIdentifier)/com.bibliogenius.app/g" macos/Runner/Release.entitlements > macos/Runner/Release.processed.entitlements
-          
+          # Use DMG-specific entitlements (no restricted entitlements, no sandbox)
+          # Release.entitlements is for App Store/TestFlight only
+          DMG_ENTITLEMENTS="macos/Runner/DMG.entitlements"
+          echo "Using DMG entitlements: $DMG_ENTITLEMENTS"
+
           echo "Signing inner libraries and frameworks..."
           find "$APP_PATH/Contents/Frameworks" -depth \( -name "*.framework" -o -name "*.dylib" \) | while read file; do
              echo "Signing $file..."
              codesign --force --verbose --timestamp --options runtime --sign "$IDENTITY" "$file"
           done
-          
+
           echo "Signing backend binary with hardened runtime and entitlements..."
-          codesign --force --verbose --timestamp --options runtime --sign "$IDENTITY" --entitlements macos/Runner/Release.processed.entitlements "$BACKEND_PATH"
-          
+          codesign --force --verbose --timestamp --options runtime --sign "$IDENTITY" --entitlements "$DMG_ENTITLEMENTS" "$BACKEND_PATH"
+
           echo "Signing main app bundle with hardened runtime and entitlements..."
-          codesign --force --verbose --timestamp --options runtime --sign "$IDENTITY" --entitlements macos/Runner/Release.processed.entitlements "$APP_PATH"
+          codesign --force --verbose --timestamp --options runtime --sign "$IDENTITY" --entitlements "$DMG_ENTITLEMENTS" "$APP_PATH"
           
           # Verify signing
           echo "Verifying signature..."
