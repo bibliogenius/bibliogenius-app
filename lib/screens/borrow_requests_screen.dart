@@ -143,6 +143,16 @@ class _LoansScreenState extends State<LoansScreen>
       final hasPeerNetwork =
           themeProvider.networkEnabled || themeProvider.remoteReachableEnabled;
       if (hasPeerNetwork) {
+        // On silent polls, sync pending outgoing requests with lenders first
+        // to detect status changes that may have been missed (cross-network)
+        if (silent) {
+          try {
+            await api.syncOutgoingRequests();
+          } catch (_) {
+            // Sync is best-effort, don't block the fetch
+          }
+        }
+
         final inRes = await api.getIncomingRequests();
         final outRes = await api.getOutgoingRequests();
         final connRes = await api.getPendingPeers();

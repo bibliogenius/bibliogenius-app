@@ -2550,6 +2550,16 @@ class ApiService {
     return await _dio.get('/api/peers/requests/outgoing');
   }
 
+  /// Sync pending outgoing requests by querying lenders for current status.
+  /// Returns { synced: N, updated: N }.
+  Future<Response> syncOutgoingRequests() async {
+    if (useFfi) {
+      final localDio = Dio(BaseOptions(baseUrl: 'http://127.0.0.1:$httpPort'));
+      return await localDio.post('/api/peers/requests/outgoing/sync');
+    }
+    return await _dio.post('/api/peers/requests/outgoing/sync');
+  }
+
   Future<Response> updateRequestStatus(String requestId, String status) async {
     debugPrint(
       '📝 updateRequestStatus: id=$requestId, status=$status, useFfi=$useFfi',
