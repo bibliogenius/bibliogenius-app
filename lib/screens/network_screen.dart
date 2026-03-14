@@ -297,6 +297,11 @@ class _MyNetworkView extends StatefulWidget {
 class _MyNetworkViewState extends State<_MyNetworkView> {
   static const _bannerDismissedKey = 'invite_banner_dismissed';
 
+  // Static cache: survives widget recreation during tab navigation
+  static List<NetworkMember> _cachedBorrowers = [];
+  static List<LibraryRelation> _cachedRelations = [];
+  static List<DiscoveredPeer> _cachedLocalPeers = [];
+
   List<NetworkMember> _borrowers = [];
   List<LibraryRelation> _relations = [];
   List<DiscoveredPeer> _localPeers = [];
@@ -322,10 +327,20 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
   @override
   void initState() {
     super.initState();
+    // Restore from static cache to prevent flicker during tab navigation
+    final hasCache = _cachedRelations.isNotEmpty ||
+        _cachedBorrowers.isNotEmpty ||
+        _cachedLocalPeers.isNotEmpty;
+    if (hasCache) {
+      _borrowers = List.of(_cachedBorrowers);
+      _relations = List.of(_cachedRelations);
+      _localPeers = List.of(_cachedLocalPeers);
+      _isLoading = false;
+    }
     _dirProvider = Provider.of<HubDirectoryProvider>(context, listen: false);
     _dirProvider.addListener(_onDirectoryChanged);
     _checkBannerVisibility();
-    _loadAll(showLoading: true);
+    _loadAll(showLoading: !hasCache);
     // Poll mDNS peers every 3s (discovery is async, no callback available)
     _mdnsRefreshTimer = Timer.periodic(
       const Duration(seconds: 3),
@@ -708,6 +723,10 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
           _localPeers = localPeers;
           _isLoading = false;
         });
+        // Update static cache for instant restore on tab switch
+        _cachedBorrowers = borrowers;
+        _cachedRelations = relations;
+        _cachedLocalPeers = localPeers;
         // Check peer connectivity (fire-and-forget, non-blocking)
         _checkPeersConnectivity(relations);
       }
@@ -921,7 +940,7 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
                 ),
         ),
         Expanded(
-          child: _isLoading
+          child: _isLoading && _relations.isEmpty && _localPeers.isEmpty && _borrowers.isEmpty
               ? const Center(child: CircularProgressIndicator())
               : RefreshIndicator(
                   onRefresh: _pullToRefresh,
@@ -2819,6 +2838,7 @@ class _LibraryRelationCard extends StatelessWidget {
             'url': peer.url,
             'hasRelayCredentials': peer.hasRelayCredentials,
             'nodeId': relation.nodeId,
+            'caption': relation.caption,
           },
         ),
       ));

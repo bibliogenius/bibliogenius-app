@@ -4362,6 +4362,10 @@ msgstr "ID: %s"
 msgid "peer_search_hint"
 msgstr "Ex: Thomas"
 
+#. Title, author, ISBN...
+msgid "peer_library_search_hint"
+msgstr "Title, author, ISBN..."
+
 #. Postal Code
 msgid "postal_code_label"
 msgstr "Postal Code"
@@ -7800,6 +7804,9 @@ msgstr "Mark all as read"
 msgid "notifications_dismiss"
 msgstr "Dismiss"
 
+msgid "notifications_see_all"
+msgstr "See all notifications"
+
 #. Clear all notifications
 msgid "notifications_clear_all"
 msgstr "Clear all"
@@ -7824,7 +7831,7 @@ msgid "notif_connection_request"
 msgstr "{name} wants to connect"
 
 msgid "notif_connection_accepted"
-msgstr "Connected with {name}"
+msgstr "{name} is now in your contacts"
 
 msgid "notif_new_follower"
 msgstr "{name} is now following you"

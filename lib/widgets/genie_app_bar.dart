@@ -5,6 +5,7 @@ import '../providers/theme_provider.dart';
 import '../providers/notification_provider.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
+import '../src/rust/api/frb.dart' show FrbNotification;
 import '../utils/app_constants.dart';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -303,7 +304,7 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
                   child: const Icon(Icons.notifications_outlined, color: Colors.white),
                 ),
                 tooltip: TranslationService.translate(context, 'notifications_title'),
-                onPressed: () => context.push('/notifications'),
+                onPressed: () => _showNotificationPopover(context, notifProvider),
               );
             },
           ),
@@ -486,4 +487,332 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize =>
       Size.fromHeight(kToolbarHeight + (bottom?.preferredSize.height ?? 0.0));
+}
+
+void _showNotificationPopover(
+    BuildContext context, NotificationProvider provider) {
+  provider.loadNotifications();
+  showDialog(
+    context: context,
+    barrierColor: Colors.black26,
+    builder: (ctx) {
+      return _NotificationPopover(provider: provider);
+    },
+  );
+}
+
+class _NotificationPopover extends StatelessWidget {
+  final NotificationProvider provider;
+
+  const _NotificationPopover({required this.provider});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tp = context.read<ThemeProvider>();
+    final gradient = AppDesign.appBarGradientForTheme(tp.themeStyle);
+    final gradientColors = gradient.colors;
+    final accentColor = gradientColors.first;
+
+    return Align(
+      alignment: Alignment.topRight,
+      child: Padding(
+        padding: const EdgeInsets.only(top: kToolbarHeight + 8, right: 8),
+        child: Material(
+          elevation: 12,
+          shadowColor: accentColor.withValues(alpha: 0.4),
+          borderRadius: BorderRadius.circular(14),
+          color: cs.surface,
+          clipBehavior: Clip.antiAlias,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 360, maxHeight: 420),
+            child: ListenableBuilder(
+              listenable: provider,
+              builder: (context, _) {
+                final notifs = provider.notifications.take(5).toList();
+
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Header with app gradient
+                    Container(
+                      decoration: BoxDecoration(gradient: gradient),
+                      padding: const EdgeInsets.fromLTRB(16, 14, 8, 12),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.notifications_outlined,
+                              color: Colors.white, size: 18),
+                          const SizedBox(width: 8),
+                          Text(
+                            TranslationService.translate(
+                                context, 'notifications_title'),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const Spacer(),
+                          if (provider.unreadCount > 0)
+                            GestureDetector(
+                              onTap: () => provider.markAllRead(),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.2),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  TranslationService.translate(
+                                      context, 'notifications_mark_all_read'),
+                                  style: const TextStyle(
+                                      fontSize: 11, color: Colors.white),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    // Notifications list
+                    if (provider.isLoading)
+                      const Padding(
+                        padding: EdgeInsets.all(24),
+                        child: Center(
+                            child: SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                    strokeWidth: 2))),
+                      )
+                    else if (notifs.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          children: [
+                            Icon(Icons.notifications_none_rounded,
+                                size: 32,
+                                color: cs.onSurfaceVariant
+                                    .withValues(alpha: 0.4)),
+                            const SizedBox(height: 8),
+                            Text(
+                              TranslationService.translate(
+                                  context, 'notifications_empty'),
+                              style:
+                                  TextStyle(color: cs.onSurfaceVariant),
+                            ),
+                          ],
+                        ),
+                      )
+                    else
+                      ...notifs.asMap().entries.map((entry) {
+                        final idx = entry.key;
+                        final n = entry.value;
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            _PopoverNotifTile(
+                              notification: n,
+                              accentColor: accentColor,
+                              onTap: () {
+                                Navigator.of(context).pop();
+                                _navigateForNotification(context, n);
+                              },
+                            ),
+                            if (idx < notifs.length - 1)
+                              Divider(
+                                height: 1,
+                                indent: 46,
+                                color: cs.outlineVariant
+                                    .withValues(alpha: 0.3),
+                              ),
+                          ],
+                        );
+                      }),
+                    // "See all" footer
+                    Divider(
+                        height: 1,
+                        color:
+                            cs.outlineVariant.withValues(alpha: 0.3)),
+                    InkWell(
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        context.push('/notifications');
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        padding:
+                            const EdgeInsets.symmetric(vertical: 12),
+                        child: Center(
+                          child: Text(
+                            TranslationService.translate(
+                                context, 'notifications_see_all'),
+                            style: TextStyle(
+                              color: accentColor,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PopoverNotifTile extends StatelessWidget {
+  final FrbNotification notification;
+  final Color accentColor;
+  final VoidCallback onTap;
+
+  const _PopoverNotifTile({
+    required this.notification,
+    required this.accentColor,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final isUnread = notification.readAt == null;
+
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        color: isUnread ? accentColor.withValues(alpha: 0.06) : null,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        child: Row(
+          children: [
+            Container(
+              width: 30,
+              height: 30,
+              decoration: BoxDecoration(
+                color: accentColor.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                _iconForEvent(notification.eventType),
+                size: 16,
+                color: accentColor,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                _formatTitle(context, notification),
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: isUnread ? FontWeight.w600 : FontWeight.normal,
+                  color: cs.onSurface,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              _relativeTime(notification.createdAt),
+              style: TextStyle(
+                fontSize: 11,
+                color: cs.onSurfaceVariant.withValues(alpha: 0.7),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+IconData _iconForEvent(String eventType) {
+  switch (eventType) {
+    case 'connection_request':
+      return Icons.person_add;
+    case 'connection_accepted':
+      return Icons.how_to_reg;
+    case 'borrow_request':
+      return Icons.menu_book;
+    case 'borrow_accepted':
+      return Icons.check_circle_outline;
+    case 'book_returned':
+      return Icons.assignment_return;
+    case 'wishlist_match':
+      return Icons.favorite;
+    default:
+      return Icons.notifications;
+  }
+}
+
+String _formatTitle(BuildContext context, FrbNotification n) {
+  final t = n.title;
+  final b = n.body;
+  switch (n.eventType) {
+    case 'connection_request':
+      return TranslationService.translate(context, 'notif_connection_request')
+          .replaceAll('{name}', t);
+    case 'connection_accepted':
+      return TranslationService.translate(context, 'notif_connection_accepted')
+          .replaceAll('{name}', t);
+    case 'borrow_request':
+      return TranslationService.translate(context, 'notif_borrow_request')
+          .replaceAll('{name}', b ?? '')
+          .replaceAll('{book}', t);
+    case 'borrow_accepted':
+      return TranslationService.translate(context, 'notif_borrow_accepted')
+          .replaceAll('{name}', b ?? '')
+          .replaceAll('{book}', t);
+    case 'book_returned':
+      return TranslationService.translate(context, 'notif_book_returned')
+          .replaceAll('{name}', b ?? '')
+          .replaceAll('{book}', t);
+    case 'wishlist_match':
+      return TranslationService.translate(context, 'notif_wishlist_match')
+          .replaceAll('{book}', t)
+          .replaceAll('{source}', b ?? '');
+    default:
+      return t;
+  }
+}
+
+String _relativeTime(String isoDate) {
+  final date = DateTime.tryParse(isoDate);
+  if (date == null) return '';
+  final diff = DateTime.now().difference(date);
+  if (diff.inMinutes < 1) return 'now';
+  if (diff.inMinutes < 60) return '${diff.inMinutes}m';
+  if (diff.inHours < 24) return '${diff.inHours}h';
+  if (diff.inDays < 7) return '${diff.inDays}d';
+  return '${date.day}/${date.month}';
+}
+
+void _navigateForNotification(BuildContext context, FrbNotification notif) {
+  switch (notif.eventType) {
+    case 'connection_request':
+    case 'connection_accepted':
+    case 'new_follower':
+    case 'follow_request':
+      context.push('/network');
+      break;
+    case 'borrow_request':
+      context.push('/requests?tab=lent');
+      break;
+    case 'borrow_accepted':
+      context.push('/requests?tab=borrowed');
+      break;
+    case 'book_returned':
+      context.push('/requests?tab=lent');
+      break;
+    case 'wishlist_match':
+      context.push('/books?status=wanting');
+      break;
+    default:
+      context.push('/notifications');
+  }
 }

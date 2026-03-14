@@ -4362,6 +4362,10 @@ msgstr "ID : %s"
 msgid "peer_search_hint"
 msgstr "Ex: Bibliothèque de Thomas"
 
+#. Titre, auteur, ISBN...
+msgid "peer_library_search_hint"
+msgstr "Titre, auteur, ISBN..."
+
 #. Postal Code
 msgid "postal_code_label"
 msgstr "Code postal"
@@ -7800,6 +7804,9 @@ msgstr "Tout marquer comme lu"
 msgid "notifications_dismiss"
 msgstr "Supprimer"
 
+msgid "notifications_see_all"
+msgstr "Voir toutes les notifications"
+
 #. Clear all notifications
 msgid "notifications_clear_all"
 msgstr "Tout effacer"
@@ -7824,7 +7831,7 @@ msgid "notif_connection_request"
 msgstr "{name} souhaite se connecter"
 
 msgid "notif_connection_accepted"
-msgstr "Connexion acceptée avec {name}"
+msgstr "{name} fait partie de vos contacts"
 
 msgid "notif_new_follower"
 msgstr "{name} vous suit"

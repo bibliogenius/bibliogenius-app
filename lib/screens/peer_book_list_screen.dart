@@ -26,6 +26,8 @@ class PeerBookListScreen extends StatefulWidget {
   /// Hub directory node ID for this library. When set and P2P/cache/relay all
   /// fail, the screen falls back to displaying the hub catalog as BookSpines.
   final String? nodeId;
+  /// User-defined caption (légende) for this peer, shown as subtitle.
+  final String? caption;
 
   const PeerBookListScreen({
     super.key,
@@ -34,6 +36,7 @@ class PeerBookListScreen extends StatefulWidget {
     required this.peerUrl,
     this.hasRelayCredentials = false,
     this.nodeId,
+    this.caption,
   });
 
   @override
@@ -1352,7 +1355,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                 controller: _searchController,
                 autofocus: true,
                 decoration: InputDecoration(
-                  hintText: 'Search books...',
+                  hintText: TranslationService.translate(context, 'peer_library_search_hint'),
                   border: InputBorder.none,
                   hintStyle: TextStyle(
                     color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
@@ -1363,8 +1366,25 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                 ),
                 onChanged: _filterBooks,
               )
-            : FittedBox(
-                fit: BoxFit.scaleDown, child: Text(widget.peerName)),
+            : Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(widget.peerName)),
+                  if (widget.caption != null && widget.caption!.isNotEmpty)
+                    Text(
+                      widget.caption!,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontStyle: FontStyle.italic,
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurfaceVariant,
+                      ),
+                    ),
+                ],
+              ),
         actions: [
           IconButton(
             icon: Icon(_isSearching ? Icons.close : Icons.search),

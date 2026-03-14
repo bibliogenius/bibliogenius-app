@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 
 import '../providers/notification_provider.dart';
 import '../providers/theme_provider.dart';
-import '../services/api_service.dart';
 import '../services/translation_service.dart';
 import '../src/rust/api/frb.dart' show FrbNotification;
 import '../widgets/genie_app_bar.dart';
@@ -155,21 +154,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         // Go to lent tab
         context.push('/requests?tab=lent');
         break;
-      case 'new_books':
-        // Try to navigate directly to the peer's library
-        if (notif.refType == 'peer' && notif.refId != null) {
-          final peerId = int.tryParse(notif.refId!);
-          if (peerId != null) {
-            final peer = await _findPeerById(peerId);
-            if (peer != null && mounted) {
-              context.push('/peers/$peerId/books', extra: peer);
-              break;
-            }
-          }
-        }
-        // Fallback to network tab
-        if (mounted) context.push('/network');
-        break;
       case 'wishlist_match':
         // Go to wishlist (reading_status = 'wanting')
         context.push('/books?status=wanting');
@@ -179,28 +163,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     }
   }
 
-  Future<Map<String, dynamic>?> _findPeerById(int peerId) async {
-    try {
-      final api = context.read<ApiService>();
-      final response = await api.getPeers();
-      final peers = (response.data as Map?)?['data'] as List?;
-      if (peers == null) return null;
-      for (final p in peers) {
-        if (p is Map && p['id'] == peerId) {
-          return {
-            'id': p['id'],
-            'name': p['name'] ?? '',
-            'url': p['url'] ?? '',
-            'hasRelayCredentials': p['has_relay_credentials'] == true,
-            'nodeId': p['node_id'] as String?,
-          };
-        }
-      }
-    } catch (e) {
-      debugPrint('Notification: failed to find peer $peerId: $e');
-    }
-    return null;
-  }
 }
 
 class _FilterBar extends StatelessWidget {
@@ -285,8 +247,6 @@ class _NotificationTile extends StatelessWidget {
         return Icons.check_circle_outline;
       case 'book_returned':
         return Icons.assignment_return;
-      case 'new_books':
-        return Icons.library_add;
       case 'wishlist_match':
         return Icons.favorite;
       default:
@@ -336,37 +296,12 @@ class _NotificationTile extends StatelessWidget {
         return TranslationService.translate(context, 'notif_book_returned')
             .replaceAll('{name}', b ?? '')
             .replaceAll('{book}', t);
-      case 'new_books':
-        return t; // Already formatted: "Peer : X nouveaux livres"
       case 'wishlist_match':
         return TranslationService.translate(context, 'notif_wishlist_match')
             .replaceAll('{book}', t)
             .replaceAll('{source}', b ?? '');
       default:
         return t;
-    }
-  }
-
-  /// Build a subtitle hint about where tapping will navigate.
-  String? _displaySubtitle(BuildContext context) {
-    switch (notification.eventType) {
-      case 'connection_request':
-      case 'connection_accepted':
-      case 'new_follower':
-      case 'follow_request':
-        return TranslationService.translate(context, 'notif_tap_network');
-      case 'borrow_request':
-        return TranslationService.translate(context, 'notif_tap_requests');
-      case 'borrow_accepted':
-        return TranslationService.translate(context, 'notif_tap_loans');
-      case 'book_returned':
-        return TranslationService.translate(context, 'notif_tap_requests');
-      case 'new_books':
-        return TranslationService.translate(context, 'notif_tap_library');
-      case 'wishlist_match':
-        return TranslationService.translate(context, 'notif_tap_wishlist');
-      default:
-        return null;
     }
   }
 
@@ -396,7 +331,6 @@ class _NotificationTile extends StatelessWidget {
     final catColor = _colorForCategory(notification.category, cs);
 
     final displayTitle = _displayTitle(context);
-    final subtitle = _displaySubtitle(context);
 
     return Dismissible(
       key: ValueKey(notification.id),
@@ -428,25 +362,6 @@ class _NotificationTile extends StatelessWidget {
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),
-        subtitle: subtitle != null
-            ? Row(
-                children: [
-                  Icon(Icons.touch_app, size: 12, color: cs.onSurfaceVariant.withValues(alpha: 0.6)),
-                  const SizedBox(width: 4),
-                  Flexible(
-                    child: Text(
-                      subtitle,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: cs.onSurfaceVariant.withValues(alpha: 0.7),
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              )
-            : null,
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [

@@ -793,11 +793,39 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   'settings_notif_enabled',
                   'settings_notif_enabled_desc',
                   Icons.notifications_outlined,
-                  false,
-                  null,
-                  tag: TranslationService.translate(
-                      context, 'coming_soon_chip'),
+                  themeProvider.notificationsEnabled,
+                  (value) =>
+                      themeProvider.setNotificationsEnabled(value),
                 ),
+                if (themeProvider.notificationsEnabled) ...[
+                  _buildModuleToggle(
+                    context,
+                    'settings_notif_connections',
+                    'settings_notif_connections_desc',
+                    Icons.people_outline,
+                    themeProvider.notifConnectionsEnabled,
+                    (value) =>
+                        themeProvider.setNotifConnectionsEnabled(value),
+                  ),
+                  _buildModuleToggle(
+                    context,
+                    'settings_notif_loans',
+                    'settings_notif_loans_desc',
+                    Icons.menu_book_outlined,
+                    themeProvider.notifLoansEnabled,
+                    (value) =>
+                        themeProvider.setNotifLoansEnabled(value),
+                  ),
+                  _buildModuleToggle(
+                    context,
+                    'settings_notif_discoveries',
+                    'settings_notif_discoveries_desc',
+                    Icons.explore_outlined,
+                    themeProvider.notifDiscoveriesEnabled,
+                    (value) =>
+                        themeProvider.setNotifDiscoveriesEnabled(value),
+                  ),
+                ],
 
                 // Developer Tools section
                 const SizedBox(height: 16),
