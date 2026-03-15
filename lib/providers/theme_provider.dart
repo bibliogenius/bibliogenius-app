@@ -710,9 +710,15 @@ class ThemeProvider with ChangeNotifier {
       await prefs.setString('languageCode', 'en');
     }
 
-    // Set sensible defaults
-    _libraryName = 'My Library';
-    await prefs.setString('libraryName', _libraryName);
+    // Set sensible defaults — preserve existing name if already customized
+    // (e.g. device name was set earlier in main() before this runs again)
+    final existingName = prefs.getString('libraryName');
+    if (existingName == null || existingName.isEmpty) {
+      _libraryName = 'My Library';
+      await prefs.setString('libraryName', _libraryName);
+    } else {
+      _libraryName = existingName;
+    }
 
     _profileType = 'individual';
     await prefs.setString('profileType', _profileType);

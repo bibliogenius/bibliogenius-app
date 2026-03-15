@@ -170,6 +170,7 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
           return MergeSemantics(
             child: Row(
               mainAxisSize: MainAxisSize.min,
+              clipBehavior: Clip.hardEdge,
               children: [
                 Semantics(
                   button: true,

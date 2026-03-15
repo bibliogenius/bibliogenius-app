@@ -28,22 +28,40 @@ class LibraryScreen extends StatefulWidget {
 class _LibraryScreenState extends State<LibraryScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  late bool _collectionsEnabled;
 
   @override
   void initState() {
     super.initState();
-    final collectionEnabled = Provider.of<ThemeProvider>(
+    _collectionsEnabled = Provider.of<ThemeProvider>(
       context,
       listen: false,
     ).collectionsEnabled;
-    // 3 tabs if collections enabled, else 2
-    final length = collectionEnabled ? 3 : 2;
+    _createTabController(widget.initialIndex);
+  }
+
+  void _createTabController(int initialIndex) {
+    final length = _collectionsEnabled ? 3 : 2;
     _tabController = TabController(
       length: length,
       vsync: this,
-      initialIndex: widget.initialIndex < length ? widget.initialIndex : 0,
+      initialIndex: initialIndex < length ? initialIndex : 0,
     );
     _tabController.addListener(_handleTabSelection);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final newEnabled = Provider.of<ThemeProvider>(context).collectionsEnabled;
+    if (newEnabled != _collectionsEnabled) {
+      _collectionsEnabled = newEnabled;
+      final currentIndex = _tabController.index;
+      _tabController.removeListener(_handleTabSelection);
+      _tabController.dispose();
+      _createTabController(currentIndex);
+      setState(() {});
+    }
   }
 
   @override
@@ -52,7 +70,6 @@ class _LibraryScreenState extends State<LibraryScreen>
     if (widget.initialIndex != oldWidget.initialIndex) {
       _tabController.animateTo(widget.initialIndex, duration: Duration.zero);
     }
-    // Trigger rebuild when shelfTagFilter changes
     if (widget.shelfTagFilter != oldWidget.shelfTagFilter) {
       setState(() {});
     }
