@@ -625,37 +625,70 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       final entries = await ffi.hubDirectoryGetCatalog(nodeId);
       if (!mounted || entries.isEmpty) return;
 
-      // Find books in hub catalog that are NOT in our current list (by ISBN)
-      final knownIsbns = _books
-          .map((b) => b.isbn)
-          .whereType<String>()
-          .toSet();
-      final newEntries = entries
-          .where((e) => e.isbn.isNotEmpty && !knownIsbns.contains(e.isbn))
-          .toList();
+      // Hub catalog is an enrichment layer — it may lag behind the cache
+      // (peer added books but hasn't pushed to hub yet).  So we only ADD
+      // new books and UPDATE metadata for known books.  We never REMOVE
+      // books based on hub — only live P2P or relay sync are authoritative
+      // for deletions.
 
-      if (newEntries.isEmpty) {
-        debugPrint('Hub catalog: no new books (${entries.length} total, all known)');
-        // Hub confirms nothing new — clear false "new" badges from stale cache
+      final knownIsbns = <String, Book>{};
+      for (final b in _books) {
+        if (b.isbn != null && b.isbn!.isNotEmpty) knownIsbns[b.isbn!] = b;
+      }
+
+      bool changed = false;
+      final updatedBooks = List<Book>.from(_books);
+
+      for (final e in entries) {
+        if (e.isbn.isEmpty) continue;
+        final existing = knownIsbns[e.isbn];
+        if (existing != null) {
+          // Update title/author if hub has newer metadata
+          final newTitle = e.title.isNotEmpty ? e.title : existing.title;
+          final newAuthor = (e.author?.isNotEmpty == true) ? e.author : existing.author;
+          if (newTitle != existing.title || newAuthor != existing.author) {
+            final idx = updatedBooks.indexOf(existing);
+            if (idx >= 0) {
+              updatedBooks[idx] = Book(
+                id: existing.id,
+                title: newTitle,
+                author: newAuthor,
+                isbn: existing.isbn,
+                coverUrl: e.coverUrl ?? existing.coverUrl,
+                summary: existing.summary,
+              );
+              changed = true;
+            }
+          }
+        } else {
+          // New book from hub — not in our current list
+          updatedBooks.add(Book(
+            title: e.title,
+            author: e.author,
+            isbn: e.isbn,
+            coverUrl: e.coverUrl,
+          ));
+          changed = true;
+        }
+      }
+
+      if (!changed) {
+        debugPrint('Hub catalog: no changes (${entries.length} entries, ${_books.length} books)');
         if (_newBookIds.isNotEmpty) {
           setState(() => _newBookIds = {});
         }
         return;
       }
 
-      debugPrint('Hub catalog: found ${newEntries.length} new books not in cache');
-
-      // Convert hub entries to Book objects (partial data: title, author, ISBN, cover)
-      final newBooks = newEntries.map((e) => Book(
-        title: e.title,
-        author: e.author,
-        isbn: e.isbn.isNotEmpty ? e.isbn : null,
-        coverUrl: e.coverUrl,
-      )).toList();
+      debugPrint('Hub catalog: enriched to ${updatedBooks.length} books (was ${_books.length})');
 
       setState(() {
-        _books.addAll(newBooks);
-        _filteredBooks = _books;
+        _books = updatedBooks;
+        _filteredBooks = _isSearching && _searchController.text.isNotEmpty
+            ? _books.where((b) => _matchesSearch(b, _searchController.text)).toList()
+            : _books;
+        _newBookIds = {};
+        _lastSynced = DateTime.now().toIso8601String();
         _isRefreshing = false;
       });
     } catch (e) {
@@ -974,10 +1007,35 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
     // Check if peer is online before attempting sync
     if (!_isPeerOnline) {
-      // Prefer hub catalog refresh (fast, <1s) over relay (~20s)
+      setState(() => _isSyncing = true);
+
+      // Reload from backend cache first (may have been updated by background sync)
+      if (_offlineCachingEnabled) {
+        try {
+          final api = Provider.of<ApiService>(context, listen: false);
+          final cachedRes = await api.getCachedPeerBooks(widget.peerUrl);
+          if (mounted) {
+            final data = cachedRes.data;
+            final booksData = (data['books'] as List<dynamic>?) ?? [];
+            if (booksData.isNotEmpty) {
+              setState(() {
+                _newBookIds = _extractNewBookIds(booksData);
+                _books = booksData.map((json) => Book.fromJson(json)).toList();
+                _filteredBooks = _isSearching && _searchController.text.isNotEmpty
+                    ? _books.where((b) => _matchesSearch(b, _searchController.text)).toList()
+                    : _books;
+                _lastSynced = data['last_synced'] as String?;
+              });
+            }
+          }
+        } catch (e) {
+          debugPrint('Cache reload on refresh failed: $e');
+        }
+      }
+
+      // Then enrich with hub catalog (fast, <1s)
       final nodeId = _effectiveNodeId;
       if (nodeId != null && !nodeId.startsWith('peer_')) {
-        setState(() => _isSyncing = true);
         await _refreshFromHubCatalog();
         if (mounted) {
           setState(() => _isSyncing = false);
@@ -994,6 +1052,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
         return;
       }
       // No hub — fall back to relay sync (ADR-012)
+      if (mounted) setState(() => _isSyncing = false);
       _tryRelaySync();
       if (showFeedback && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

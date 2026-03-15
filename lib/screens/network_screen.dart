@@ -378,6 +378,32 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
 
   void reloadMembers() => _loadAll();
 
+  /// Reconstruct peersData from the current UI state when getPeers() fails.
+  /// Preserves displayed peers instead of showing an empty list.
+  List<Map<String, dynamic>> _peersDataFromRelations() {
+    return _relations
+        .where((r) => r.peer != null)
+        .map((r) => <String, dynamic>{
+              'id': r.peer!.id,
+              'name': r.peer!.name,
+              'url': r.peer!.url,
+              'library_uuid': r.peer!.libraryUuid,
+              'status': r.peer!.status,
+              'connection_status':
+                  r.peer!.status == 'pending' ? 'pending' : 'accepted',
+              'last_seen': r.peer!.lastSeen,
+              'key_exchange_done': r.peer!.keyExchangeDone,
+              'relay_url':
+                  r.peer!.hasRelayCredentials ? 'present' : null,
+              'mailbox_id':
+                  r.peer!.hasRelayCredentials ? 'present' : null,
+              'relay_write_token':
+                  r.peer!.hasRelayCredentials ? 'present' : null,
+              'display_name': r.peer!.customDisplayName,
+            })
+        .toList();
+  }
+
   /// Optimistically remove a relation from the list by nodeId.
   void _removeRelation(String nodeId) {
     if (!mounted) return;
@@ -571,12 +597,18 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
 
       try {
         final peersRes = await api.getPeers();
-        peersData =
-            ((peersRes.data as Map<String, dynamic>?)?['data']
-                    as List<dynamic>?) ??
-                [];
+        if (peersRes.statusCode == 200) {
+          peersData =
+              ((peersRes.data as Map<String, dynamic>?)?['data']
+                      as List<dynamic>?) ??
+                  [];
+        } else {
+          debugPrint('getPeers returned ${peersRes.statusCode}, preserving existing peers');
+          peersData = _peersDataFromRelations();
+        }
       } catch (e) {
         debugPrint('Error loading peers: $e');
+        peersData = _peersDataFromRelations();
       }
 
       // Hub: load config, auto-register if needed, push catalog

@@ -1288,10 +1288,23 @@ class _FlashLibraryNameEditorState extends State<_FlashLibraryNameEditor> {
       await prefs.setString('ffi_library_name', name);
       if (!mounted) return;
       // 2. Persist to Rust DB via FFI (so HTTP /api/config also returns it)
-      try {
-        await FfiService().updateLibraryName(name);
-      } catch (e) {
-        debugPrint('FFI library name update failed (non-fatal): $e');
+      //    Retry once on failure — DB may not be fully ready on fresh install.
+      bool ffiOk = false;
+      for (var attempt = 0; attempt < 2 && !ffiOk; attempt++) {
+        try {
+          await FfiService().updateLibraryName(name);
+          ffiOk = true;
+        } catch (e) {
+          debugPrint('FFI library name update attempt ${attempt + 1} failed: $e');
+          if (attempt == 0) {
+            await Future.delayed(const Duration(milliseconds: 500));
+            if (!mounted) return;
+          }
+        }
+      }
+      if (!ffiOk) {
+        debugPrint('⚠️ Library name saved to SharedPreferences but NOT to Rust DB — '
+            'will be synced on next app restart');
       }
       if (!mounted) return;
       // 3. Update hub profile with new name (if registered)
