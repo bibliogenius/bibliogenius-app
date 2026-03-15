@@ -1095,6 +1095,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
         _allBooksLoaded = !parsed.hasMore;
         _isSyncing = false;
         _isHubOnly = false;
+        _lastSynced = DateTime.now().toIso8601String();
       });
 
       if (showFeedback) {
