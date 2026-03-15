@@ -1344,91 +1344,96 @@ class _FlashLibraryNameEditorState extends State<_FlashLibraryNameEditor> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Flexible(
-          child: Text(
-            TranslationService.translate(
-              context,
-              'flash_customize_library_name',
-            ),
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: colorScheme.onSurface,
-            ),
+        Text(
+          TranslationService.translate(
+            context,
+            'flash_customize_library_name',
+          ),
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: colorScheme.onSurface,
           ),
         ),
-        const SizedBox(width: 12),
-        SizedBox(
-          width: 220,
-          height: 34,
-          child: TextField(
-            controller: _controller,
-            maxLength: 30,
-            style: TextStyle(
-              fontSize: 13,
-              color: colorScheme.onSurface,
-            ),
-            decoration: InputDecoration(
-              counterText: '',
-              isDense: true,
-              filled: true,
-              fillColor: colorScheme.onSurface.withValues(alpha: 0.05),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 8,
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide.none,
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide.none,
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(
-                  color: colorScheme.primary.withValues(alpha: 0.5),
-                  width: 1.5,
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: SizedBox(
+                height: 34,
+                child: TextField(
+                  controller: _controller,
+                  maxLength: 30,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: colorScheme.onSurface,
+                  ),
+                  decoration: InputDecoration(
+                    counterText: '',
+                    isDense: true,
+                    filled: true,
+                    fillColor: colorScheme.onSurface.withValues(alpha: 0.05),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide.none,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(
+                        color: colorScheme.primary.withValues(alpha: 0.5),
+                        width: 1.5,
+                      ),
+                    ),
+                    hintText: TranslationService.translate(
+                      context,
+                      'flash_library_name_hint',
+                    ),
+                    hintStyle: TextStyle(
+                      fontSize: 12,
+                      color: colorScheme.onSurface.withValues(alpha: 0.4),
+                    ),
+                  ),
                 ),
               ),
-              hintText: TranslationService.translate(
-                context,
-                'flash_library_name_hint',
-              ),
-              hintStyle: TextStyle(
-                fontSize: 12,
-                color: colorScheme.onSurface.withValues(alpha: 0.4),
-              ),
             ),
-          ),
+            if (_dirty) ...[
+              const SizedBox(width: 6),
+              SizedBox(
+                height: 34,
+                child: FilledButton.tonal(
+                  onPressed: _save,
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    minimumSize: const Size(0, 34),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    'OK',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ],
         ),
-        if (_dirty) ...[
-          const SizedBox(width: 6),
-          SizedBox(
-            height: 34,
-            child: FilledButton.tonal(
-              onPressed: _save,
-              style: FilledButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 14),
-                minimumSize: const Size(0, 34),
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: const Text(
-                'OK',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ),
-        ],
       ],
     );
   }
