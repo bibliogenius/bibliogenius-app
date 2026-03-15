@@ -71,6 +71,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
   bool _isFetchingDetails = false;
   bool _isSaving = false;
   bool _isAutocompleteFetching = false;
+  bool _skipAutocomplete = false; // Suppress autocomplete when title is set programmatically
   String? _lastLookedUpIsbn; // Prevent duplicate lookups
   String? _lastChecksumWarningIsbn; // Prevent repeated checksum warnings
   final List<String> _selectedTags = [];
@@ -84,6 +85,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
   final List<String> _selectedDigitalFormats = ['paper']; // Default to paper
   bool _isOwned = true; // Ownership status
   Timer? _debounce;
+  Timer? _isbnDebounce;
 
   @override
   void initState() {
@@ -170,6 +172,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
   void dispose() {
     CoverCameraHelper.cleanupTempCover(_tempCoverPath);
     _debounce?.cancel();
+    _isbnDebounce?.cancel();
     _isbnController.removeListener(_onIsbnChanged);
     _titleController.dispose();
     _authorController.dispose();
@@ -195,15 +198,23 @@ class _AddBookScreenState extends State<AddBookScreen> {
     }
 
     // Lookup when ISBN reaches valid length (10 or 13), not currently fetching,
-    // and not already looked up. Checksum is non-blocking (warn only).
+    // and not already looked up. Debounce to let the user finish typing
+    // (e.g. typing a 13-digit ISBN shouldn't trigger at 10 digits).
     if ((isbn.length == 10 || isbn.length == 13) &&
         !_isFetchingDetails &&
         isbn != _lastLookedUpIsbn) {
-      if (!IsbnValidator.isValid(isbn) && isbn != _lastChecksumWarningIsbn) {
-        _lastChecksumWarningIsbn = isbn;
-        AppSnackBar.info(context, TranslationService.translate(context, 'isbn_checksum_warning'));
-      }
-      _fetchBookDetails(isbn);
+      _isbnDebounce?.cancel();
+      _isbnDebounce = Timer(const Duration(milliseconds: 800), () {
+        if (!mounted || _isSaving) return;
+        final current = IsbnValidator.clean(_isbnController.text).replaceAll(RegExp(r'[^0-9X]'), '');
+        // Re-check: user may have kept typing during the debounce
+        if (current != isbn) return;
+        if (!IsbnValidator.isValid(isbn) && isbn != _lastChecksumWarningIsbn) {
+          _lastChecksumWarningIsbn = isbn;
+          AppSnackBar.info(context, TranslationService.translate(context, 'isbn_checksum_warning'));
+        }
+        _fetchBookDetails(isbn);
+      });
     }
   }
 
@@ -240,8 +251,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
       if (bookData != null && mounted) {
         setState(() {
-          if (_titleController.text.isEmpty)
+          if (_titleController.text.isEmpty) {
+            _skipAutocomplete = true;
             _titleController.text = bookData['title'] ?? '';
+          }
 
           // Handle authors - only if user hasn't entered any
           if (_authors.isEmpty && _authorController.text.trim().isEmpty) {
@@ -790,6 +803,13 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   textEditingController: _titleController,
                   focusNode: _titleFocusNode,
                   optionsBuilder: (TextEditingValue textEditingValue) async {
+                    // Skip autocomplete when title was set programmatically
+                    // (ISBN lookup or edition selection)
+                    if (_skipAutocomplete) {
+                      _skipAutocomplete = false;
+                      return const Iterable<Map<String, dynamic>>.empty();
+                    }
+
                     if (textEditingValue.text.isEmpty ||
                         textEditingValue.text.length < 3) {
                       return const Iterable<Map<String, dynamic>>.empty();
@@ -2014,6 +2034,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
   void _fillFormFromSelection(Map<String, dynamic> selection) {
     setState(() {
       if (selection['title'] != null) {
+        _skipAutocomplete = true;
         _titleController.text = selection['title'];
       }
 
