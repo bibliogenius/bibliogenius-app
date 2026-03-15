@@ -168,9 +168,9 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
           final spacing = isCompact ? 6.0 : 12.0;
 
           return MergeSemantics(
+            child: ClipRect(
             child: Row(
               mainAxisSize: MainAxisSize.min,
-              clipBehavior: Clip.hardEdge,
               children: [
                 Semantics(
                   button: true,
@@ -285,6 +285,7 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
                   ),
                 ],
               ],
+            ),
             ),
           );
         },
