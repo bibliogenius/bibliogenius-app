@@ -430,7 +430,9 @@ jobs:
           
           # Use DMG-specific entitlements (no restricted entitlements, no sandbox)
           # Release.entitlements is for App Store/TestFlight only
-          DMG_ENTITLEMENTS="macos/Runner/DMG.entitlements"
+          # Process Xcode variables (keychain-access-groups needs team ID prefix)
+          sed "s/\$(AppIdentifierPrefix)/$APPLE_TEAM_ID./g; s/\$(CFBundleIdentifier)/com.bibliogenius.app/g" macos/Runner/DMG.entitlements > macos/Runner/DMG.processed.entitlements
+          DMG_ENTITLEMENTS="macos/Runner/DMG.processed.entitlements"
           echo "Using DMG entitlements: $DMG_ENTITLEMENTS"
 
           echo "Signing inner libraries, frameworks, and bundles..."
