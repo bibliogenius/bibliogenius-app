@@ -5669,3 +5669,7 @@ msgstr "읽기 상태"
 msgid "quick_actions_short"
 msgstr "작업"
 
+
+#. Default library name with device name (e.g. "Library of iPhone")
+msgid "library_of_device"
+msgstr "%s의 서재"

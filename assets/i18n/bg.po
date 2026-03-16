@@ -5743,3 +5743,7 @@ msgstr "Статус на четене"
 #. Quick actions button (short label for mobile)
 msgid "quick_actions_short"
 msgstr "Действия"
+
+#. Default library name with device name (e.g. "Library of iPhone")
+msgid "library_of_device"
+msgstr "Библиотека на %s"

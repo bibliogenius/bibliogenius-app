@@ -7907,3 +7907,7 @@ msgstr "Afficher/masquer cette section"
 
 msgid "tooltip_edit_sections"
 msgstr "Personnaliser l'affichage"
+
+#. Default library name with device name (e.g. "Library of iPhone")
+msgid "library_of_device"
+msgstr "Bibliothèque de %s"

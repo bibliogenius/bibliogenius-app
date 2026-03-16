@@ -5669,3 +5669,7 @@ msgstr "阅读状态"
 msgid "quick_actions_short"
 msgstr "操作"
 
+
+#. Default library name with device name (e.g. "Library of iPhone")
+msgid "library_of_device"
+msgstr "%s的书房"

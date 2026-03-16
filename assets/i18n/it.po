@@ -6952,3 +6952,6 @@ msgstr "Segui questa biblioteca per accedere al catalogo."
 
 msgid "action_retry"
 msgstr "Riprova"
+#. Default library name with device name (e.g. "Library of iPhone")
+msgid "library_of_device"
+msgstr "Biblioteca di %s"

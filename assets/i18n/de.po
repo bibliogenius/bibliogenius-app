@@ -7334,3 +7334,7 @@ msgstr "Lesestatus"
 #. Quick actions button (short label for mobile)
 msgid "quick_actions_short"
 msgstr "Aktionen"
+
+#. Default library name with device name (e.g. "Library of iPhone")
+msgid "library_of_device"
+msgstr "Bibliothek von %s"

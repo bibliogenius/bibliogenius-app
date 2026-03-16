@@ -5738,3 +5738,7 @@ msgstr "Okuma durumu"
 msgid "quick_actions_short"
 msgstr "İşlemler"
 
+
+#. Default library name with device name (e.g. "Library of iPhone")
+msgid "library_of_device"
+msgstr "%s Kütüphanesi"
