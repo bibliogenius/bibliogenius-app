@@ -91,6 +91,35 @@ class NetworkMember {
   /// User-defined caption to distinguish contacts with the same name.
   String? get caption => customDisplayName;
 
+  /// Return a copy with an updated caption.
+  NetworkMember withCaption(String? newCaption) => NetworkMember(
+        id: id,
+        name: name,
+        firstName: firstName,
+        type: type,
+        source: source,
+        email: email,
+        phone: phone,
+        notes: notes,
+        address: address,
+        streetAddress: streetAddress,
+        postalCode: postalCode,
+        city: city,
+        country: country,
+        latitude: latitude,
+        longitude: longitude,
+        isActive: isActive,
+        url: url,
+        status: status,
+        lastSeen: lastSeen,
+        keyExchangeDone: keyExchangeDone,
+        libraryUuid: libraryUuid,
+        hasRelayCredentials: hasRelayCredentials,
+        customDisplayName: newCaption,
+        linkedPeerId: linkedPeerId,
+        linkedContactId: linkedContactId,
+      );
+
   /// Create a NetworkMember from a Contact model
   factory NetworkMember.fromContact(Contact contact) {
     return NetworkMember(

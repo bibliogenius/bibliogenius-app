@@ -5,6 +5,7 @@ import '../widgets/genie_app_bar.dart';
 import '../widgets/scaffold_with_nav.dart';
 import '../widgets/contextual_help_sheet.dart';
 import '../widgets/invite_share_sheet.dart';
+import '../widgets/configurable_action_card.dart';
 import '../utils/invite_payload.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';

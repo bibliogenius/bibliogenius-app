@@ -361,6 +361,7 @@ class ThemeProvider with ChangeNotifier {
     }
 
     _libraryName = prefs.getString('libraryName') ?? 'My Library';
+    _libraryNameCustomized = prefs.getBool('libraryNameCustomized') ?? false;
 
     // If local pref is false, check with backend (in case it's a new device/browser)
     if (!_isSetupComplete) {
@@ -766,6 +767,16 @@ class ThemeProvider with ChangeNotifier {
   // Library Name
   String _libraryName = 'My Library';
   String get libraryName => _libraryName;
+
+  bool _libraryNameCustomized = false;
+  bool get libraryNameCustomized => _libraryNameCustomized;
+
+  /// Mark the library name as explicitly chosen by the user.
+  Future<void> markLibraryNameCustomized() async {
+    _libraryNameCustomized = true;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('libraryNameCustomized', true);
+  }
 
   Future<void> setLibraryName(String name, {ApiService? apiService}) async {
     if (_libraryName == name) return;

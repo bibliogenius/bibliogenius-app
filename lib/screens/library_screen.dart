@@ -175,6 +175,7 @@ class _LibraryScreenState extends State<LibraryScreen>
         destinationName: widget.shelfTagFilter,
       ),
       body: IndexedStack(
+        sizing: StackFit.expand,
         index: _tabController.index,
         children: [
           BookListScreen(

@@ -212,10 +212,10 @@ class QuickActionsSheet extends StatelessWidget {
               Expanded(
                 child: thirdSlotOverride ?? ConfigurableActionCard(
                   slotKey: 'quick_action_custom_slot',
-                  defaultActionId: 'inventory',
+                  defaultActionId: 'share_library',
                   allowedActionIds: const [
-                    'inventory',
                     'share_library',
+                    'inventory',
                     'create_shelf',
                     'add_manual',
                   ],

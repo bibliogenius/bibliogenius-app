@@ -108,10 +108,17 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
     final peer = _relation.peer;
     if (peer != null) {
       await api.updatePeerDisplayName(peer.id, newCaption);
+      // Update the in-memory relation so the UI reflects the change immediately
+      final updatedPeer = peer.withCaption(newCaption.isEmpty ? null : newCaption);
+      _relation = LibraryRelation(
+        nodeId: _relation.nodeId,
+        displayName: _relation.name,
+        peer: updatedPeer,
+        follow: _relation.follow,
+      );
     }
 
     if (!mounted) return;
-    // Reload to get updated peer data
     setState(() {});
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(

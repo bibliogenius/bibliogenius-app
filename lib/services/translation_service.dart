@@ -178,6 +178,14 @@ class TranslationService {
     return buf.toString();
   }
 
+  /// Translate a key for a given locale code without requiring a BuildContext.
+  /// Falls back to English, then returns the key itself.
+  static String translateByLocale(String langCode, String key) {
+    return _poTranslations[langCode]?[key]
+        ?? _poTranslations['en']?[key]
+        ?? key;
+  }
+
   static String translate(
     BuildContext context,
     String key, {

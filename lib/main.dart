@@ -120,7 +120,9 @@ Future<String?> _getDeviceName() async {
       final macos = await deviceInfo.macOsInfo;
       return macos.computerName; // e.g. "MacBook Pro de Federico"
     }
-  } catch (_) {}
+  } catch (e) {
+    debugPrint('_getDeviceName error: $e');
+  }
   return null;
 }
 
@@ -217,13 +219,16 @@ void main([List<String>? args]) async {
   bool useFfi = await initializePlatform();
 
   if (useFfi) {
-    // If library name is the default, replace with device name or random name
-    if (themeProvider.libraryName == 'My Library') {
+    // If library name hasn't been customized, set from device name
+    if (!themeProvider.libraryNameCustomized) {
       try {
         final deviceName = await _getDeviceName();
         if (deviceName != null && deviceName.isNotEmpty) {
-          await themeProvider.setLibraryName('Library of $deviceName');
-          debugPrint('Library name set from device: $deviceName');
+          final lang = themeProvider.locale.languageCode;
+          final template = TranslationService.translateByLocale(lang, 'library_of_device');
+          final localizedName = template.replaceAll('%s', deviceName);
+          await themeProvider.setLibraryName(localizedName);
+          debugPrint('Library name set from device: $localizedName');
         }
       } catch (e) {
         debugPrint('Device name fallback (non-fatal): $e');
@@ -1045,8 +1050,7 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
         icon: Icons.edit_outlined,
         condition: (ctx) {
           final tp = Provider.of<ThemeProvider>(ctx, listen: false);
-          return tp.libraryName == 'My Library' ||
-              tp.libraryName.startsWith('Library of ');
+          return !tp.libraryNameCustomized;
         },
         excludedRoutes: ['/settings', '/setup', '/onboarding', '/profile'],
         contentBuilder: (ctx, dismiss) => _FlashLibraryNameEditor(
@@ -1284,6 +1288,7 @@ class _FlashLibraryNameEditorState extends State<_FlashLibraryNameEditor> {
       // 1. Persist to SharedPreferences FIRST (frontend reads from here)
       final tp = context.read<ThemeProvider>();
       await tp.setLibraryName(name);
+      await tp.markLibraryNameCustomized();
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('ffi_library_name', name);
       if (!mounted) return;
