@@ -3877,7 +3877,7 @@ class __$FrbRegisterParamsCopyWithImpl<$Res>
 
 /// Create a copy of FrbRegisterParams
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? nodeId = null,Object? displayName = null,Object? bookCount = null,Object? isListed = null,Object? requiresApproval = null,Object? acceptFrom = null,Object? description = freezed,Object? locationCountry = freezed,Object? allowBorrowing = null,Object? x25519PublicKey = freezed,Object? website = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? nodeId = null,Object? displayName = null,Object? bookCount = null,Object? isListed = null,Object? requiresApproval = null,Object? acceptFrom = null,Object? description = freezed,Object? locationCountry = freezed,Object? allowBorrowing = null,Object? x25519PublicKey = freezed,Object? website = freezed,Object? deviceModel = freezed,Object? deviceFingerprint = freezed,}) {
   return _then(_FrbRegisterParams(
 nodeId: null == nodeId ? _self.nodeId : nodeId // ignore: cast_nullable_to_non_nullable
 as String,displayName: null == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable
@@ -3890,6 +3890,8 @@ as String?,locationCountry: freezed == locationCountry ? _self.locationCountry :
 as String?,allowBorrowing: null == allowBorrowing ? _self.allowBorrowing : allowBorrowing // ignore: cast_nullable_to_non_nullable
 as bool,x25519PublicKey: freezed == x25519PublicKey ? _self.x25519PublicKey : x25519PublicKey // ignore: cast_nullable_to_non_nullable
 as String?,website: freezed == website ? _self.website : website // ignore: cast_nullable_to_non_nullable
+as String?,deviceModel: freezed == deviceModel ? _self.deviceModel : deviceModel // ignore: cast_nullable_to_non_nullable
+as String?,deviceFingerprint: freezed == deviceFingerprint ? _self.deviceFingerprint : deviceFingerprint // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
