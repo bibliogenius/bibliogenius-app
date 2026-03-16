@@ -1111,6 +1111,8 @@ sealed class FrbHubProfile with _$FrbHubProfile {
     String? lastSeenAt,
     String? x25519PublicKey,
     String? website,
+    String? deviceModel,
+    String? deviceFingerprint,
   }) = _FrbHubProfile;
 }
 
@@ -1703,6 +1705,8 @@ sealed class FrbRegisterParams with _$FrbRegisterParams {
     required bool allowBorrowing,
     String? x25519PublicKey,
     String? website,
+    String? deviceModel,
+    String? deviceFingerprint,
   }) = _FrbRegisterParams;
 }
 

@@ -5730,6 +5730,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_lastSeenAt = sse_decode_opt_String(deserializer);
     var var_x25519PublicKey = sse_decode_opt_String(deserializer);
     var var_website = sse_decode_opt_String(deserializer);
+    var var_deviceModel = sse_decode_opt_String(deserializer);
+    var var_deviceFingerprint = sse_decode_opt_String(deserializer);
     return FrbHubProfile(
       nodeId: var_nodeId,
       displayName: var_displayName,
@@ -5741,6 +5743,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       lastSeenAt: var_lastSeenAt,
       x25519PublicKey: var_x25519PublicKey,
       website: var_website,
+      deviceModel: var_deviceModel,
+      deviceFingerprint: var_deviceFingerprint,
     );
   }
 
@@ -6101,6 +6105,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_allowBorrowing = sse_decode_bool(deserializer);
     var var_x25519PublicKey = sse_decode_opt_String(deserializer);
     var var_website = sse_decode_opt_String(deserializer);
+    var var_deviceModel = sse_decode_opt_String(deserializer);
+    var var_deviceFingerprint = sse_decode_opt_String(deserializer);
     return FrbRegisterParams(
       nodeId: var_nodeId,
       displayName: var_displayName,
@@ -6113,6 +6119,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       allowBorrowing: var_allowBorrowing,
       x25519PublicKey: var_x25519PublicKey,
       website: var_website,
+      deviceModel: var_deviceModel,
+      deviceFingerprint: var_deviceFingerprint,
     );
   }
 
@@ -6982,6 +6990,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_opt_String(self.lastSeenAt, serializer);
     sse_encode_opt_String(self.x25519PublicKey, serializer);
     sse_encode_opt_String(self.website, serializer);
+    sse_encode_opt_String(self.deviceModel, serializer);
+    sse_encode_opt_String(self.deviceFingerprint, serializer);
   }
 
   @protected
@@ -7234,6 +7244,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_bool(self.allowBorrowing, serializer);
     sse_encode_opt_String(self.x25519PublicKey, serializer);
     sse_encode_opt_String(self.website, serializer);
+    sse_encode_opt_String(self.deviceModel, serializer);
+    sse_encode_opt_String(self.deviceFingerprint, serializer);
   }
 
   @protected

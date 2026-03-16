@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/hub_directory.dart';
 import '../services/auth_service.dart';
+import '../services/device_service.dart';
 import '../services/ffi_service.dart';
 import '../src/rust/api/frb.dart' as frb;
 
@@ -35,6 +36,7 @@ const String _kFollowNamesKey = 'hub_follow_custom_names';
 
 class HubDirectoryProvider extends ChangeNotifier {
   final FfiService _ffi = FfiService();
+  final DeviceService _deviceService = DeviceService();
 
   // ── Custom follow display names ──────────────────────────────────────────
 
@@ -284,6 +286,8 @@ class HubDirectoryProvider extends ChangeNotifier {
     debugPrint('[CONTACT-SYNC] ensureKeysPublished: key=${x25519Key.substring(0, 8)}..., registering');
 
     final bookCount = await _ffi.countBooks();
+    final deviceModel = await _deviceService.getDeviceModel();
+    final deviceFingerprint = await _deviceService.getDeviceFingerprint();
     await register(
       nodeId: cfg.nodeId,
       displayName: displayName,
@@ -294,6 +298,8 @@ class HubDirectoryProvider extends ChangeNotifier {
       allowBorrowing: cfg.allowBorrowing,
       x25519PublicKey: x25519Key,
       website: _websiteUrl.isNotEmpty ? _websiteUrl : null,
+      deviceModel: deviceModel,
+      deviceFingerprint: deviceFingerprint,
     );
     debugPrint('HubDirectoryProvider: ensured X25519 key published');
 
@@ -318,6 +324,8 @@ class HubDirectoryProvider extends ChangeNotifier {
     String? locationCountry,
     String? x25519PublicKey,
     String? website,
+    String? deviceModel,
+    String? deviceFingerprint,
   }) async {
     _configLoading = true;
     _configError = null;
@@ -336,6 +344,8 @@ class HubDirectoryProvider extends ChangeNotifier {
         locationCountry: locationCountry,
         x25519PublicKey: x25519PublicKey,
         website: website,
+        deviceModel: deviceModel,
+        deviceFingerprint: deviceFingerprint,
       );
       final result = await _ffi.hubDirectoryRegister(params);
       if (result != null) {
@@ -416,6 +426,9 @@ class HubDirectoryProvider extends ChangeNotifier {
         x25519Key = await _ffi.getLocalX25519PublicKey();
       } catch (_) {}
 
+      final deviceModel = await _deviceService.getDeviceModel();
+      final deviceFingerprint = await _deviceService.getDeviceFingerprint();
+
       return await register(
         nodeId: libraryUuid,
         displayName: libraryName,
@@ -425,6 +438,8 @@ class HubDirectoryProvider extends ChangeNotifier {
         acceptFrom: 'anyone',
         allowBorrowing: false,
         x25519PublicKey: x25519Key,
+        deviceModel: deviceModel,
+        deviceFingerprint: deviceFingerprint,
       );
     } catch (e) {
       debugPrint('HubDirectoryProvider _ensureSilentRegistration error: $e');

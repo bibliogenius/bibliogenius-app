@@ -119,6 +119,12 @@ Future<String?> _getDeviceName() async {
     } else if (Platform.isMacOS) {
       final macos = await deviceInfo.macOsInfo;
       return macos.computerName; // e.g. "MacBook Pro de Federico"
+    } else if (Platform.isLinux) {
+      final linux = await deviceInfo.linuxInfo;
+      return linux.prettyName; // e.g. "Ubuntu 22.04"
+    } else if (Platform.isWindows) {
+      final windows = await deviceInfo.windowsInfo;
+      return windows.productName; // e.g. "Windows 11"
     }
   } catch (e) {
     debugPrint('_getDeviceName error: $e');

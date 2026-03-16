@@ -51,6 +51,8 @@ class HubProfile {
   final String? lastSeenAt;
   final String? x25519PublicKey;
   final String? website;
+  final String? deviceModel;
+  final String? deviceFingerprint;
 
   const HubProfile({
     required this.nodeId,
@@ -63,6 +65,8 @@ class HubProfile {
     this.lastSeenAt,
     this.x25519PublicKey,
     this.website,
+    this.deviceModel,
+    this.deviceFingerprint,
   });
 
   factory HubProfile.fromFrb(frb.FrbHubProfile f) => HubProfile(
@@ -76,6 +80,8 @@ class HubProfile {
         lastSeenAt: f.lastSeenAt,
         x25519PublicKey: f.x25519PublicKey,
         website: f.website,
+        deviceModel: f.deviceModel,
+        deviceFingerprint: f.deviceFingerprint,
       );
 }
 
