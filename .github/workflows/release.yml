@@ -433,8 +433,9 @@ jobs:
           DMG_ENTITLEMENTS="macos/Runner/DMG.entitlements"
           echo "Using DMG entitlements: $DMG_ENTITLEMENTS"
 
-          echo "Signing inner libraries and frameworks..."
-          find "$APP_PATH/Contents/Frameworks" -depth \( -name "*.framework" -o -name "*.dylib" \) | while read file; do
+          echo "Signing inner libraries, frameworks, and bundles..."
+          # Sign all code artifacts: frameworks, dylibs, and bundles (some plugins produce .bundle)
+          find "$APP_PATH/Contents/Frameworks" -depth \( -name "*.framework" -o -name "*.dylib" -o -name "*.bundle" \) | while read file; do
              echo "Signing $file..."
              codesign --force --verbose --timestamp --options runtime --sign "$IDENTITY" "$file"
           done
