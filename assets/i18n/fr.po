@@ -876,6 +876,9 @@ msgstr "Demande envoyée avec succès !"
 msgid "borrow_request_rejected_no_copy"
 msgstr "Demande rejetée : aucun exemplaire disponible dans cette bibliothèque."
 
+msgid "borrow_request_accepted"
+msgstr "Emprunt accepté ! Le livre a été ajouté à votre bibliothèque."
+
 #. A borrowed copy will be added to your existing book
 msgid "borrow_copy_added_to_existing"
 msgstr "Un exemplaire emprunté sera ajouté à votre livre existant"

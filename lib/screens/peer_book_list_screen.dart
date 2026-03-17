@@ -1194,7 +1194,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       final response = await api.requestBookByUrl(widget.peerUrl, isbn ?? "", book.title);
       if (!mounted) return;
       final data = response.data;
-      // Check if lender auto-rejected (no available copy)
+      // Check lender's response status
       if (data is Map && data['status'] == 'rejected') {
         // Remove from pending since the request was rejected
         if (isbn != null && isbn.isNotEmpty) {
@@ -1204,6 +1204,14 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
           SnackBar(
             content: Text(
               TranslationService.translate(context, 'borrow_request_rejected_no_copy'),
+            ),
+          ),
+        );
+      } else if (data is Map && data['status'] == 'accepted') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              TranslationService.translate(context, 'borrow_request_accepted'),
             ),
           ),
         );

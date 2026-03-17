@@ -876,6 +876,9 @@ msgstr "Request sent successfully!"
 msgid "borrow_request_rejected_no_copy"
 msgstr "Request rejected: no copy available from this library."
 
+msgid "borrow_request_accepted"
+msgstr "Borrow accepted! The book has been added to your library."
+
 #. A borrowed copy will be added to your existing book
 msgid "borrow_copy_added_to_existing"
 msgstr "A borrowed copy will be added to your existing book"
