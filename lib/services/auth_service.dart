@@ -2,7 +2,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:uuid/uuid.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io' show Platform;
-import 'package:flutter/foundation.dart' show kDebugMode;
+import 'package:flutter/foundation.dart' show debugPrint, kDebugMode;
+import 'package:flutter/services.dart' show PlatformException;
 
 abstract class SecureStorageInterface {
   Future<void> write({required String key, required String? value});
@@ -19,6 +20,65 @@ class RealSecureStorage implements SecureStorageInterface {
   Future<String?> read({required String key}) => _storage.read(key: key);
   @override
   Future<void> delete({required String key}) => _storage.delete(key: key);
+}
+
+/// Wraps [RealSecureStorage] and automatically falls back to
+/// [SharedPreferencesStorage] when the Keychain is unavailable.
+/// This happens on macOS DMG builds (hardened runtime, no sandbox,
+/// no keychain-access-groups entitlement → errSecMissingEntitlement -34018).
+class ResilientSecureStorage implements SecureStorageInterface {
+  SecureStorageInterface _delegate = RealSecureStorage();
+  bool _didFallback = false;
+
+  void _fallback() {
+    if (!_didFallback) {
+      _didFallback = true;
+      _delegate = SharedPreferencesStorage();
+      debugPrint('⚠️ Keychain unavailable, using SharedPreferences fallback');
+    }
+  }
+
+  @override
+  Future<void> write({required String key, required String? value}) async {
+    try {
+      await _delegate.write(key: key, value: value);
+    } on PlatformException catch (e) {
+      if (e.code == 'Unexpected security result code' || e.message?.contains('-34018') == true) {
+        _fallback();
+        await _delegate.write(key: key, value: value);
+      } else {
+        rethrow;
+      }
+    }
+  }
+
+  @override
+  Future<String?> read({required String key}) async {
+    try {
+      return await _delegate.read(key: key);
+    } on PlatformException catch (e) {
+      if (e.code == 'Unexpected security result code' || e.message?.contains('-34018') == true) {
+        _fallback();
+        return await _delegate.read(key: key);
+      } else {
+        rethrow;
+      }
+    }
+  }
+
+  @override
+  Future<void> delete({required String key}) async {
+    try {
+      await _delegate.delete(key: key);
+    } on PlatformException catch (e) {
+      if (e.code == 'Unexpected security result code' || e.message?.contains('-34018') == true) {
+        _fallback();
+        await _delegate.delete(key: key);
+      } else {
+        rethrow;
+      }
+    }
+  }
 }
 
 /// Fallback storage using SharedPreferences for macOS debug builds
@@ -69,6 +129,12 @@ class AuthService {
       // Use SharedPreferences fallback on macOS debug builds
       // This avoids keychain entitlement issues without Apple Developer account
       return SharedPreferencesStorage();
+    }
+    if (Platform.isMacOS) {
+      // DMG builds have hardened runtime but no keychain entitlement.
+      // ResilientSecureStorage tries Keychain first, falls back to
+      // SharedPreferences on -34018 (errSecMissingEntitlement).
+      return ResilientSecureStorage();
     }
     return RealSecureStorage();
   }
