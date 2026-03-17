@@ -187,29 +187,6 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
                     ),
                   ),
                 ),
-                if (isBetaVersion) ...[
-                  const SizedBox(width: 4),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.25),
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.5),
-                        width: 0.5,
-                      ),
-                    ),
-                    child: Text(
-                      'BETA',
-                      style: TextStyle(
-                        fontSize: isCompact ? 8.0 : 9.0,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white.withValues(alpha: 0.9),
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                  ),
-                ],
                 // Hide text entirely if space is too tight (don't truncate)
                 if (!hideTitle) ...[
                   ExcludeSemantics(child: SizedBox(width: spacing)),
