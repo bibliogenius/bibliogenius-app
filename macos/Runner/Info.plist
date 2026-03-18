@@ -51,6 +51,8 @@
 	</array>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>BiblioGenius discovers other libraries on your local network to share books</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsLocalNetworking</key>
