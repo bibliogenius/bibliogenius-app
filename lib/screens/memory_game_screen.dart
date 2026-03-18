@@ -78,12 +78,8 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> {
       _provider.loadDifficulties();
       return;
     }
-    // From setup, navigate back
-    if (Navigator.canPop(context)) {
-      context.pop();
-    } else {
-      context.go('/books');
-    }
+    // From setup, navigate back to games hub
+    context.go('/games');
   }
 
   @override

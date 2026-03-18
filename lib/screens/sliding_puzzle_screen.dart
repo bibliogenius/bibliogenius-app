@@ -74,11 +74,7 @@ class _SlidingPuzzleScreenState extends State<SlidingPuzzleScreen> {
       _provider.loadDifficulties();
       return;
     }
-    if (Navigator.canPop(context)) {
-      context.pop();
-    } else {
-      context.go('/books');
-    }
+    context.go('/games');
   }
 
   @override
