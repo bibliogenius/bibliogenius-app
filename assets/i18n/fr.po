@@ -7926,8 +7926,11 @@ msgstr "Pendu"
 msgid "hangman_dashboard_subtitle"
 msgstr "Devinez vos titres de livres lettre par lettre"
 
+msgid "hangman_not_enough_books_title"
+msgstr "Enrichissez votre bibliothèque !"
+
 msgid "hangman_not_enough_books"
-msgstr "Il faut au moins 15 livres dans votre biblioth\u00e8que pour jouer au Pendu."
+msgstr "Ajoutez au moins 10 livres pour débloquer ce jeu. Scannez un code-barres ou ajoutez vos livres manuellement."
 
 msgid "hangman_visual_style"
 msgstr "Style visuel"
@@ -7938,17 +7941,65 @@ msgstr "Classique"
 msgid "hangman_style_books"
 msgstr "Livres"
 
+msgid "hangman_select_difficulty"
+msgstr "Choisissez un niveau"
+
+msgid "hangman_difficulty_easy"
+msgstr "Facile"
+
+msgid "hangman_difficulty_medium"
+msgstr "Moyen"
+
+msgid "hangman_difficulty_hard"
+msgstr "Difficile"
+
+msgid "hangman_difficulty_easy_desc"
+msgstr "2 indices, 5 min -- pour se lancer"
+
+msgid "hangman_difficulty_medium_desc"
+msgstr "1 indice, 3 min -- un bon challenge"
+
+msgid "hangman_difficulty_hard_desc"
+msgstr "Aucun indice, 2 min -- pour les experts"
+
+msgid "hangman_start"
+msgstr "Jouer"
+
 msgid "hangman_errors"
 msgstr "Erreurs"
 
 msgid "hangman_hints"
 msgstr "Indices"
 
+msgid "hangman_score"
+msgstr "Score"
+
+msgid "hangman_time"
+msgstr "Temps"
+
+msgid "hangman_rank"
+msgstr "Classement"
+
 msgid "hangman_won"
 msgstr "Bravo !"
 
 msgid "hangman_lost"
 msgstr "Perdu !"
+
+msgid "hangman_play_again"
+msgstr "Rejouer"
+
+msgid "hangman_back_to_menu"
+msgstr "Menu"
+
+msgid "hangman_leaderboard"
+msgstr "Classement"
+
+msgid "hangman_new_best"
+msgstr "Nouveau record personnel !"
+
+msgid "hangman_no_scores"
+msgstr "Aucun score. Lancez une partie !"
 
 msgid "achievement_hangman_first_game"
 msgstr "Premier Pendu"
@@ -7957,4 +8008,4 @@ msgid "achievement_hangman_perfect"
 msgstr "Pendu parfait"
 
 msgid "achievement_hangman_master"
-msgstr "Ma\u00eetre du Pendu"
+msgstr "Maître du Pendu"

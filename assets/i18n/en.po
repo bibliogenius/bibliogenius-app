@@ -7926,8 +7926,11 @@ msgstr "Hangman"
 msgid "hangman_dashboard_subtitle"
 msgstr "Guess your book titles letter by letter"
 
+msgid "hangman_not_enough_books_title"
+msgstr "Grow your library first!"
+
 msgid "hangman_not_enough_books"
-msgstr "You need at least 15 books in your library to play Hangman."
+msgstr "Add at least 10 books to unlock this game. Scan a barcode or add books manually to get started."
 
 msgid "hangman_visual_style"
 msgstr "Visual style"
@@ -7938,17 +7941,65 @@ msgstr "Classic"
 msgid "hangman_style_books"
 msgstr "Books"
 
+msgid "hangman_select_difficulty"
+msgstr "Choose a difficulty"
+
+msgid "hangman_difficulty_easy"
+msgstr "Easy"
+
+msgid "hangman_difficulty_medium"
+msgstr "Medium"
+
+msgid "hangman_difficulty_hard"
+msgstr "Hard"
+
+msgid "hangman_difficulty_easy_desc"
+msgstr "2 hints, 5 min -- ideal for beginners"
+
+msgid "hangman_difficulty_medium_desc"
+msgstr "1 hint, 3 min -- a fair challenge"
+
+msgid "hangman_difficulty_hard_desc"
+msgstr "No hints, 2 min -- for experts only"
+
+msgid "hangman_start"
+msgstr "Start"
+
 msgid "hangman_errors"
 msgstr "Errors"
 
 msgid "hangman_hints"
 msgstr "Hints"
 
+msgid "hangman_score"
+msgstr "Score"
+
+msgid "hangman_time"
+msgstr "Time"
+
+msgid "hangman_rank"
+msgstr "Rank"
+
 msgid "hangman_won"
 msgstr "Well done!"
 
 msgid "hangman_lost"
 msgstr "Game over!"
+
+msgid "hangman_play_again"
+msgstr "Play again"
+
+msgid "hangman_back_to_menu"
+msgstr "Menu"
+
+msgid "hangman_leaderboard"
+msgstr "Leaderboard"
+
+msgid "hangman_new_best"
+msgstr "New personal best!"
+
+msgid "hangman_no_scores"
+msgstr "No scores yet. Play a game!"
 
 msgid "achievement_hangman_first_game"
 msgstr "First Hangman"

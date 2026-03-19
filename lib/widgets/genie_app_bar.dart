@@ -237,8 +237,7 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
                                             fontSize: title != null
                                                 ? subtitleFontSize
                                                 : titleFontSize,
-                                            color: Colors.white.withValues(
-                                                alpha: title != null ? 0.8 : 1.0),
+                                            color: Colors.white,
                                             letterSpacing: 0.3,
                                           ),
                                           maxLines: 1,

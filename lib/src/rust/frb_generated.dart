@@ -248,6 +248,7 @@ abstract class RustLibApi extends BaseApi {
   Future<List<String>> crateApiFrbHangmanAvailableDifficulties();
 
   Future<FrbHangmanScore> crateApiFrbHangmanFinish({
+    required int bookId,
     required String difficulty,
     required double elapsedSeconds,
     required int errors,
@@ -2292,6 +2293,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @override
   Future<FrbHangmanScore> crateApiFrbHangmanFinish({
+    required int bookId,
     required String difficulty,
     required double elapsedSeconds,
     required int errors,
@@ -2302,6 +2304,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       NormalTask(
         callFfi: (port_) {
           final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_i_32(bookId, serializer);
           sse_encode_String(difficulty, serializer);
           sse_encode_f_64(elapsedSeconds, serializer);
           sse_encode_i_32(errors, serializer);
@@ -2319,7 +2322,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData: sse_decode_String,
         ),
         constMeta: kCrateApiFrbHangmanFinishConstMeta,
-        argValues: [difficulty, elapsedSeconds, errors, hintsUsed, won],
+        argValues: [bookId, difficulty, elapsedSeconds, errors, hintsUsed, won],
         apiImpl: this,
       ),
     );
@@ -2327,7 +2330,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   TaskConstMeta get kCrateApiFrbHangmanFinishConstMeta => const TaskConstMeta(
     debugName: "hangman_finish",
-    argNames: ["difficulty", "elapsedSeconds", "errors", "hintsUsed", "won"],
+    argNames: [
+      "bookId",
+      "difficulty",
+      "elapsedSeconds",
+      "errors",
+      "hintsUsed",
+      "won",
+    ],
   );
 
   @override
@@ -4922,16 +4932,17 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   FrbHangmanSetup dco_decode_frb_hangman_setup(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 7)
-      throw Exception('unexpected arr length: expect 7 but see ${arr.length}');
+    if (arr.length != 8)
+      throw Exception('unexpected arr length: expect 8 but see ${arr.length}');
     return FrbHangmanSetup(
-      title: dco_decode_String(arr[0]),
-      display: dco_decode_list_frb_hangman_char(arr[1]),
-      author: dco_decode_String(arr[2]),
-      coverUrl: dco_decode_opt_String(arr[3]),
-      maxErrors: dco_decode_u_8(arr[4]),
-      hintsAvailable: dco_decode_u_8(arr[5]),
-      difficulty: dco_decode_String(arr[6]),
+      bookId: dco_decode_i_32(arr[0]),
+      title: dco_decode_String(arr[1]),
+      display: dco_decode_list_frb_hangman_char(arr[2]),
+      author: dco_decode_String(arr[3]),
+      coverUrl: dco_decode_opt_String(arr[4]),
+      maxErrors: dco_decode_u_8(arr[5]),
+      hintsAvailable: dco_decode_u_8(arr[6]),
+      difficulty: dco_decode_String(arr[7]),
     );
   }
 
@@ -6118,6 +6129,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   @protected
   FrbHangmanSetup sse_decode_frb_hangman_setup(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_bookId = sse_decode_i_32(deserializer);
     var var_title = sse_decode_String(deserializer);
     var var_display = sse_decode_list_frb_hangman_char(deserializer);
     var var_author = sse_decode_String(deserializer);
@@ -6126,6 +6138,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_hintsAvailable = sse_decode_u_8(deserializer);
     var var_difficulty = sse_decode_String(deserializer);
     return FrbHangmanSetup(
+      bookId: var_bookId,
       title: var_title,
       display: var_display,
       author: var_author,
@@ -7546,6 +7559,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.bookId, serializer);
     sse_encode_String(self.title, serializer);
     sse_encode_list_frb_hangman_char(self.display, serializer);
     sse_encode_String(self.author, serializer);

@@ -407,12 +407,14 @@ Future<FrbHangmanSetup> hangmanSetup({required String difficulty}) =>
 
 /// Submit a completed hangman game and get the score back
 Future<FrbHangmanScore> hangmanFinish({
+  required int bookId,
   required String difficulty,
   required double elapsedSeconds,
   required int errors,
   required int hintsUsed,
   required bool won,
 }) => RustLib.instance.api.crateApiFrbHangmanFinish(
+  bookId: bookId,
   difficulty: difficulty,
   elapsedSeconds: elapsedSeconds,
   errors: errors,
@@ -1241,6 +1243,7 @@ class FrbHangmanScore {
 
 /// Game setup returned to Flutter (FFI-safe)
 class FrbHangmanSetup {
+  final int bookId;
   final String title;
   final List<FrbHangmanChar> display;
   final String author;
@@ -1250,6 +1253,7 @@ class FrbHangmanSetup {
   final String difficulty;
 
   const FrbHangmanSetup({
+    required this.bookId,
     required this.title,
     required this.display,
     required this.author,
@@ -1261,6 +1265,7 @@ class FrbHangmanSetup {
 
   @override
   int get hashCode =>
+      bookId.hashCode ^
       title.hashCode ^
       display.hashCode ^
       author.hashCode ^
@@ -1274,6 +1279,7 @@ class FrbHangmanSetup {
       identical(this, other) ||
       other is FrbHangmanSetup &&
           runtimeType == other.runtimeType &&
+          bookId == other.bookId &&
           title == other.title &&
           display == other.display &&
           author == other.author &&

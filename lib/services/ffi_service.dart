@@ -782,6 +782,7 @@ class FfiService {
 
   /// Submit a completed hangman game and get the score back
   Future<frb.FrbHangmanScore> finishHangman({
+    required int bookId,
     required String difficulty,
     required double elapsedSeconds,
     required int errors,
@@ -790,6 +791,7 @@ class FfiService {
   }) async {
     try {
       return await frb.hangmanFinish(
+        bookId: bookId,
         difficulty: difficulty,
         elapsedSeconds: elapsedSeconds,
         errors: errors,

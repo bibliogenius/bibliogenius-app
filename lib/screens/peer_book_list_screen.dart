@@ -1444,6 +1444,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                 onChanged: _filterBooks,
               )
             : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   FittedBox(
@@ -1457,11 +1458,13 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                         fontStyle: FontStyle.italic,
                         color: Theme.of(context)
                             .colorScheme
-                            .onSurfaceVariant,
+                            .onSurface
+                            .withValues(alpha: 0.6),
                       ),
                     ),
                 ],
               ),
+        centerTitle: false,
         actions: [
           IconButton(
             icon: Icon(_isSearching ? Icons.close : Icons.search),
