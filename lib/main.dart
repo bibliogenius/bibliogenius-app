@@ -29,6 +29,7 @@ import 'providers/memory_game_provider.dart';
 import 'providers/device_sync_provider.dart';
 import 'providers/operation_log_provider.dart';
 import 'providers/sliding_puzzle_provider.dart';
+import 'providers/hangman_provider.dart';
 import 'data/repositories/book_repository.dart';
 import 'data/repositories/tag_repository.dart';
 import 'data/repositories/contact_repository.dart';
@@ -64,6 +65,7 @@ import 'screens/search_peer_screen.dart';
 import 'screens/memory_game_screen.dart';
 import 'screens/operation_log_screen.dart';
 import 'screens/sliding_puzzle_screen.dart';
+import 'screens/hangman_screen.dart';
 import 'screens/games_hub_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/statistics_screen.dart';
@@ -444,6 +446,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<SlidingPuzzleProvider>(
           create: (_) => SlidingPuzzleProvider(),
         ),
+        ChangeNotifierProvider<HangmanProvider>(
+          create: (_) => HangmanProvider(),
+        ),
         ChangeNotifierProvider<OperationLogProvider>(
           create: (_) => OperationLogProvider(),
         ),
@@ -688,6 +693,15 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
                 return null;
               },
               builder: (context, state) => const SlidingPuzzleScreen(),
+            ),
+            GoRoute(
+              path: '/hangman',
+              redirect: (context, state) {
+                final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+                if (!themeProvider.hangmanEnabled) return '/games';
+                return null;
+              },
+              builder: (context, state) => const HangmanScreen(),
             ),
             GoRoute(
               path: '/operation-log',

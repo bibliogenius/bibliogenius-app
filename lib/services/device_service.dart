@@ -43,18 +43,31 @@ class DeviceService {
     return null;
   }
 
-  /// Returns a SHA-256 fingerprint that survives app reinstallation.
+  /// Returns a SHA-256 fingerprint for hub profile deduplication.
   ///
-  /// - Android: `sha256(ANDROID_ID)` via MethodChannel
+  /// - Android: `sha256(ANDROID_ID)` via MethodChannel (survives reinstall)
+  /// - iOS: `sha256(identifierForVendor)` (stable per install, resets on reinstall)
+  /// - macOS: `sha256(serialNumber)` (stable hardware ID)
   /// - Linux: `sha256(machineId)`
   /// - Windows: `sha256(deviceId)`
-  /// - iOS/macOS: `null` (keychain persists library_uuid)
   Future<String?> getDeviceFingerprint() async {
     try {
       if (Platform.isAndroid) {
         final androidId = await _channel.invokeMethod<String>('getAndroidId');
         if (androidId != null && androidId.isNotEmpty) {
           return _sha256(androidId);
+        }
+      } else if (Platform.isIOS) {
+        final info = await _deviceInfo.iosInfo;
+        final vendorId = info.identifierForVendor;
+        if (vendorId != null && vendorId.isNotEmpty) {
+          return _sha256(vendorId);
+        }
+      } else if (Platform.isMacOS) {
+        final info = await _deviceInfo.macOsInfo;
+        final guid = info.systemGUID;
+        if (guid != null && guid.isNotEmpty) {
+          return _sha256(guid);
         }
       } else if (Platform.isLinux) {
         final info = await _deviceInfo.linuxInfo;

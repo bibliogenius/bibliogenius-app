@@ -57,11 +57,18 @@ class CollectionImportService {
           final lookup = await _apiService.lookupBook(isbn);
 
           // Prepare book data: lookup results enriched with YAML overrides
+          // Prefer lookup title over note (note may contain "Title - Author (Year)")
+          String? noteTitle;
+          if (book.note != null) {
+            // Parse "Title - Author (Year)" or "Title - Author" format
+            final dashIdx = book.note!.indexOf(' - ');
+            noteTitle = dashIdx > 0 ? book.note!.substring(0, dashIdx).trim() : book.note;
+          }
           final bookData = {
             'isbn': isbn,
             'title':
-                book.note ??
                 lookup?['title'] ??
+                noteTitle ??
                 'Untitled',
             'reading_status': readingStatus,
             'owned': shouldMarkAsOwned,

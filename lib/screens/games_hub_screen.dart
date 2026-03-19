@@ -45,6 +45,14 @@ class GamesHubScreen extends StatelessWidget {
               subtitleKey: 'sliding_puzzle_dashboard_subtitle',
               route: '/sliding-puzzle',
             ),
+          if (themeProvider.hangmanEnabled)
+            _buildGameCard(
+              context,
+              icon: Icons.text_fields,
+              titleKey: 'hangman_title',
+              subtitleKey: 'hangman_dashboard_subtitle',
+              route: '/hangman',
+            ),
         ],
       ),
     );

@@ -1527,20 +1527,34 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                   ? _buildOfflineNotAvailableView()
               : Column(
                   children: [
-                    // Hub-only info banner
-                    if (_isHubOnly && _books.isNotEmpty)
+                    // Connection channel indicator
+                    if (_books.isNotEmpty)
                       Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                        color: Colors.indigo.withValues(alpha: 0.08),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                         child: Row(
                           children: [
-                            Icon(Icons.info_outline, size: 18, color: Colors.indigo[400]),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                TranslationService.translate(context, 'hub_only_hint'),
-                                style: TextStyle(fontSize: 13, color: Colors.indigo[600]),
+                            Icon(
+                              _isPeerOnline
+                                  ? Icons.wifi
+                                  : _isRelayLoading || _isHubOnly
+                                      ? Icons.cloud_queue
+                                      : Icons.cloud_off,
+                              size: 14,
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              _isPeerOnline
+                                  ? 'Wi-Fi'
+                                  : _isRelayLoading
+                                      ? 'Relay'
+                                      : _isHubOnly
+                                          ? 'Hub'
+                                          : 'Offline',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
                               ),
                             ),
                           ],
