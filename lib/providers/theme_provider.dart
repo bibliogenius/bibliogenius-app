@@ -158,8 +158,8 @@ class ThemeProvider with ChangeNotifier {
   bool get connectionValidationEnabled => _connectionValidationEnabled;
 
   // Auto-approve loan requests from approved contacts
-  // Enabled by default (like a public library — borrow freely once connected)
-  bool _autoApproveLoanRequests = true;
+  // Disabled by default: owner should validate each borrow request
+  bool _autoApproveLoanRequests = false;
   bool get autoApproveLoanRequests => _autoApproveLoanRequests;
 
   // Network Gamification: compare progress with connected peers
@@ -315,7 +315,7 @@ class ThemeProvider with ChangeNotifier {
     _connectionValidationEnabled =
         prefs.getBool('connectionValidationEnabled') ?? false;
     _autoApproveLoanRequests =
-        prefs.getBool('autoApproveLoanRequests') ?? true;
+        prefs.getBool('autoApproveLoanRequests') ?? false;
     _networkGamificationEnabled =
         prefs.getBool('networkGamificationEnabled') ?? true;
     _shareGamificationStats =
