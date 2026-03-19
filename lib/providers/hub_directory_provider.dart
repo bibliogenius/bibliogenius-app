@@ -234,7 +234,6 @@ class HubDirectoryProvider extends ChangeNotifier {
   bool _initSyncing = false;
 
   Future<void> initAndSyncCatalog() async {
-    if (!_hubEnabled) return;
     if (_initSyncing) {
       debugPrint('HubDirectory: initAndSyncCatalog already running, skip');
       return;
@@ -669,7 +668,6 @@ class HubDirectoryProvider extends ChangeNotifier {
 
   /// Push catalog only if dirty and registered. Intended for lifecycle hooks.
   Future<void> syncCatalogIfDirty() async {
-    if (!_hubEnabled) return;
     // Push catalog when registered, regardless of isListed.
     // isListed controls discoverability by strangers; catalog push enables
     // browsing by known peers who have the nodeId (via invite link).

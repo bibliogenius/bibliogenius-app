@@ -1365,58 +1365,50 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
   Widget _buildStalenessBar() {
     // Hub-only: data from hub directory, not a direct peer connection
-    if (_isHubOnly && _books.isNotEmpty) {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        color: Colors.indigo.withValues(alpha: 0.1),
-        child: Row(
-          children: [
-            Icon(Icons.cloud_queue, size: 16, color: Colors.indigo[400]),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                _formatStaleness(),
-                style: TextStyle(fontSize: 12, color: Colors.indigo[600]),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
+    final channelIcon = _isPeerOnline
+        ? Icons.wifi
+        : _isRelayLoading || _isHubOnly
+            ? Icons.cloud_queue
+            : Icons.cloud_off;
+    final channelLabel = _isPeerOnline
+        ? 'Wi-Fi'
+        : _isRelayLoading
+            ? 'Relay'
+            : _isHubOnly
+                ? 'Hub'
+                : 'Offline';
+    final subtleColor = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      color: _isPeerOnline
-          ? Colors.green.withValues(alpha: 0.1)
-          : Colors.grey.withValues(alpha: 0.08),
       child: Row(
         children: [
-          Icon(
-            _isPeerOnline ? Icons.check_circle_outline : Icons.cloud_queue,
-            size: 16,
-            color: _isPeerOnline ? Colors.green : Colors.grey[600],
+          Icon(channelIcon, size: 14, color: subtleColor),
+          const SizedBox(width: 6),
+          Text(
+            channelLabel,
+            style: TextStyle(fontSize: 11, color: subtleColor),
           ),
+          const SizedBox(width: 8),
+          Text('\u00b7', style: TextStyle(fontSize: 11, color: subtleColor)),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               _isRelayLoading
                   ? '${TranslationService.translate(context, 'syncing_via_relay')}...'
                   : _formatStaleness(),
-              style: TextStyle(
-                fontSize: 12,
-                color: _isPeerOnline ? Colors.green[700] : Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 11, color: subtleColor),
             ),
           ),
           if (_isRefreshing)
             Text(
               TranslationService.translate(context, 'refreshing_library'),
-              style: TextStyle(fontSize: 12, color: Colors.blue[600]),
+              style: TextStyle(fontSize: 11, color: Colors.blue[600]),
             )
           else if (_isRelayLoading && _relayBooksTotal > 0)
             Text(
               '$_relayBooksLoaded/$_relayBooksTotal',
-              style: TextStyle(fontSize: 12, color: Colors.blue[600]),
+              style: TextStyle(fontSize: 11, color: Colors.blue[600]),
             )
         ],
       ),
@@ -1527,39 +1519,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                   ? _buildOfflineNotAvailableView()
               : Column(
                   children: [
-                    // Connection channel indicator
-                    if (_books.isNotEmpty)
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                        child: Row(
-                          children: [
-                            Icon(
-                              _isPeerOnline
-                                  ? Icons.wifi
-                                  : _isRelayLoading || _isHubOnly
-                                      ? Icons.cloud_queue
-                                      : Icons.cloud_off,
-                              size: 14,
-                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              _isPeerOnline
-                                  ? 'Wi-Fi'
-                                  : _isRelayLoading
-                                      ? 'Relay'
-                                      : _isHubOnly
-                                          ? 'Hub'
-                                          : 'Offline',
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                    // Sync status bar (includes channel indicator)
                     // Hub contact info bar
                     _buildHubContactBar(),
                     // Staleness indicator bar

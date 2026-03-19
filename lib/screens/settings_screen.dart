@@ -1099,65 +1099,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ),
 
-        // --- Extended network sub-group ---
-        const SizedBox(height: 12),
-        Semantics(
-          header: true,
-          child: Text(
-            t('settings_network_extended'),
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Consumer<HubDirectoryProvider>(
-          builder: (context, hubProvider, _) => Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                child: SwitchListTile(
-                  secondary: const Icon(Icons.public),
-                  title: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          TranslationService.translate(
-                                context, 'hub_coming_soon_toggle') ??
-                              'Public directory',
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: Colors.blueGrey.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          TranslationService.translate(
-                                context, 'coming_soon_chip') ??
-                              'Coming soon',
-                          style: const TextStyle(
-                            fontSize: 10,
-                            color: Colors.blueGrey,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  subtitle: Text(
-                    TranslationService.translate(
-                          context, 'hub_coming_soon_desc') ??
-                        'Register your library in the public directory and discover other readers nearby',
-                  ),
-                  value: false,
-                  onChanged: null,
-                ),
-              ),
-            ],
-          ),
-        ),
+        // Extended network (public directory) hidden until feature is ready
 
         // --- Privacy & cache sub-group ---
         const SizedBox(height: 12),
@@ -2258,7 +2200,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     ThemeProvider themeProvider,
   ) {
     final userLangs = themeProvider.userLanguages;
-    final currentLocale = themeProvider.localeTag;
+    // Normalize locale tag to match dropdown items (e.g. fr-FR -> fr)
+    final rawLocale = themeProvider.localeTag;
+    final currentLocale = ThemeProvider.supportedUILanguages.contains(rawLocale)
+        ? rawLocale
+        : ThemeProvider.supportedUILanguages.contains(rawLocale.split('-').first)
+            ? rawLocale.split('-').first
+            : 'en';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
