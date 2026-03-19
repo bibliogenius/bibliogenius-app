@@ -145,7 +145,8 @@ class _HangmanScreenState extends State<HangmanScreen> {
                           child: Text(
                             provider.formattedTime,
                             style: theme.textTheme.titleMedium?.copyWith(
-                              color: theme.colorScheme.onSurface,
+                              color: theme.appBarTheme.foregroundColor ??
+                                  theme.colorScheme.onPrimary,
                               fontFeatures: [
                                 const FontFeature.tabularFigures()
                               ],
@@ -394,23 +395,59 @@ class _HangmanScreenState extends State<HangmanScreen> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
             child: Row(
               children: [
-                Text(
-                  '${TranslationService.translate(context, 'hangman_errors')}: ${provider.errors}/${provider.maxErrors}',
-                  style: theme.textTheme.bodyMedium,
-                ),
+                // Error dots + count, compact
+                ...List.generate(provider.maxErrors, (i) {
+                  final isError = i < provider.errors;
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 5),
+                    child: Container(
+                      width: 10,
+                      height: 10,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: isError
+                            ? theme.colorScheme.error
+                            : theme.colorScheme.surfaceContainerHighest,
+                        border: Border.all(
+                          color: isError
+                              ? theme.colorScheme.error
+                              : theme.colorScheme.outline
+                                  .withValues(alpha: 0.3),
+                          width: 1.5,
+                        ),
+                      ),
+                    ),
+                  );
+                }),
                 const Spacer(),
                 if (provider.hintsAvailable > 0)
-                  TextButton.icon(
-                    onPressed: provider.authorHintAvailable ||
+                  GestureDetector(
+                    onTap: provider.authorHintAvailable ||
                             provider.coverHintAvailable
                         ? provider.useHint
                         : null,
-                    icon: const Icon(Icons.lightbulb_outline, size: 18),
-                    label: Text(
-                      '${provider.hintsAvailable - provider.hintsUsed}',
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.lightbulb_outline,
+                          size: 16,
+                          color: (provider.authorHintAvailable ||
+                                  provider.coverHintAvailable)
+                              ? theme.colorScheme.primary
+                              : theme.colorScheme.outline,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${provider.hintsAvailable - provider.hintsUsed}',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
               ],

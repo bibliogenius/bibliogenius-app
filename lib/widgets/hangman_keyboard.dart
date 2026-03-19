@@ -30,21 +30,35 @@ class HangmanKeyboard extends StatelessWidget {
     const row2 = 'QSDFGHJKLM';
     const row3 = 'WXCVBN';
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _buildRow(context, theme, digits),
-        const SizedBox(height: 4),
-        _buildRow(context, theme, row1),
-        const SizedBox(height: 4),
-        _buildRow(context, theme, row2),
-        const SizedBox(height: 4),
-        _buildRow(context, theme, row3),
-      ],
+    // Longest row determines key size
+    const maxKeysPerRow = 11; // QSDFGHJKLM
+    const gap = 4.0;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final availableWidth = constraints.maxWidth - 8; // horizontal padding
+        final keyWidth = (availableWidth - gap * (maxKeysPerRow - 1)) / maxKeysPerRow;
+        final keySize = keyWidth.clamp(28.0, 44.0);
+        final keyHeight = (keySize * 1.2).clamp(36.0, 48.0);
+
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildRow(theme, digits, keySize, keyHeight, gap),
+            SizedBox(height: gap),
+            _buildRow(theme, row1, keySize, keyHeight, gap),
+            SizedBox(height: gap),
+            _buildRow(theme, row2, keySize, keyHeight, gap),
+            SizedBox(height: gap),
+            _buildRow(theme, row3, keySize, keyHeight, gap),
+          ],
+        );
+      },
     );
   }
 
-  Widget _buildRow(BuildContext context, ThemeData theme, String chars) {
+  Widget _buildRow(ThemeData theme, String chars, double keySize,
+      double keyHeight, double gap) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: chars.split('').map((char) {
@@ -67,10 +81,10 @@ class HangmanKeyboard extends StatelessWidget {
         }
 
         return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 2),
+          padding: EdgeInsets.symmetric(horizontal: gap / 2),
           child: SizedBox(
-            width: 32,
-            height: 40,
+            width: keySize,
+            height: keyHeight,
             child: Material(
               color: bgColor,
               borderRadius: BorderRadius.circular(6),
@@ -83,6 +97,7 @@ class HangmanKeyboard extends StatelessWidget {
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: textColor,
                       fontWeight: FontWeight.w600,
+                      fontSize: keySize > 36 ? 16 : 14,
                     ),
                   ),
                 ),
