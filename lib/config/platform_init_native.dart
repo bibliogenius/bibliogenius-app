@@ -28,8 +28,6 @@ Future<bool> initializePlatform() async {
 
     // Resolve database path (with auto-migration from Documents → Application Support)
     final dbPath = await _resolveDatabasePath();
-    debugPrint('FFI: Database path: $dbPath');
-
     // Initialize Rust backend with database
     debugPrint('FFI: Calling initBackend...');
     final result = await frb.initBackend(dbPath: dbPath);
@@ -57,7 +55,6 @@ Future<String> _resolveDatabasePath() async {
   if (prefs.getBool(_migrationFlag) == true) {
     final appSupportDir = await getApplicationSupportDirectory();
     final newPath = '${appSupportDir.path}/$_dbName';
-    debugPrint('DB Migration: Already completed, using $newPath');
     return newPath;
   }
 
