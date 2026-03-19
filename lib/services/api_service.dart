@@ -3340,6 +3340,9 @@ class ApiService {
   ///
   /// Called from Flutter (Dio) instead of Rust (reqwest) because reqwest+rustls
   /// fails on iOS FFI. Dio uses the native HTTP stack which works everywhere.
+  ///
+  /// Ensures our own relay is configured before depositing, so the remote
+  /// peer receives our relay credentials and can reach us back.
   Future<void> _depositConnectionRequest({
     required Dio localDio,
     required String peerRelayUrl,
@@ -3348,14 +3351,33 @@ class ApiService {
   }) async {
     try {
       // 1. Load our own config (name, E2EE keys, relay credentials)
-      final configResp = await localDio.get('/api/config');
+      var configResp = await localDio.get('/api/config');
       if (configResp.statusCode != 200 || configResp.data is! Map) {
         debugPrint('Relay deposit: could not load local config');
         return;
       }
-      final config = configResp.data as Map<String, dynamic>;
+      var config = configResp.data as Map<String, dynamic>;
 
-      // 2. Build the connection_request payload (same format as Rust)
+      // 2. Ensure our relay is configured before depositing. Without our
+      //    relay credentials in the payload the remote peer cannot reach us.
+      //    Relay auto-setup runs in main() but may not have completed yet.
+      if (config['relay_url'] == null || config['mailbox_id'] == null) {
+        debugPrint('Relay deposit: local relay not configured, auto-setup');
+        try {
+          await localDio.post(
+            '/api/peers/relay/setup',
+            data: {'relay_url': ApiService.hubUrl},
+          );
+          configResp = await localDio.get('/api/config');
+          if (configResp.statusCode == 200 && configResp.data is Map) {
+            config = configResp.data as Map<String, dynamic>;
+          }
+        } catch (e) {
+          debugPrint('Relay deposit: relay auto-setup failed: $e');
+        }
+      }
+
+      // 3. Build the connection_request payload (same format as Rust)
       final payload = <String, dynamic>{
         'type': 'connection_request',
         'name': config['library_name'] ?? 'BiblioGenius User',
@@ -3381,7 +3403,16 @@ class ApiService {
         payload['relay_write_token'] = config['relay_write_token'];
       }
 
-      // 3. Deposit in remote peer's mailbox via hub
+      final hasRelayCreds = payload.containsKey('relay_url')
+          && payload.containsKey('mailbox_id');
+      if (!hasRelayCreds) {
+        debugPrint(
+          'Relay deposit: WARNING local relay credentials missing, '
+          'peer will not be able to reach us via relay',
+        );
+      }
+
+      // 4. Deposit in remote peer's mailbox via hub
       final depositUrl =
           '${peerRelayUrl.replaceAll(RegExp(r'/+$'), '')}/api/relay/mailbox/$peerMailboxId/messages';
       debugPrint('Relay deposit: POST $depositUrl');
@@ -3403,7 +3434,10 @@ class ApiService {
           responseType: ResponseType.json,
         ),
       );
-      debugPrint('Relay deposit: ${resp.statusCode} - ${resp.data}');
+      debugPrint(
+        'Relay deposit: ${resp.statusCode} '
+        '(relay_creds_included=$hasRelayCreds)',
+      );
     } catch (e) {
       debugPrint('Relay deposit failed: $e');
     }
