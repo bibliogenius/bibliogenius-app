@@ -525,6 +525,12 @@ Future<int> deviceSyncRejectAll() =>
 Future<FrbDirectoryConfig?> hubDirectoryGetConfig() =>
     RustLib.instance.api.crateApiFrbHubDirectoryGetConfig();
 
+/// Returns the local relay configuration (relay_url, mailbox_uuid, write_token).
+/// Returns None if relay is not configured yet.
+/// Note: read_token is intentionally excluded (S2: never leaves the device).
+Future<FrbRelayConfig?> getRelayConfigFfi() =>
+    RustLib.instance.api.crateApiFrbGetRelayConfigFfi();
+
 /// Registers with the hub directory (first call) or updates the profile.
 /// On first registration, the write_token is persisted automatically.
 Future<FrbDirectoryConfig> hubDirectoryRegister({
@@ -1707,7 +1713,20 @@ sealed class FrbRegisterParams with _$FrbRegisterParams {
     String? website,
     String? deviceModel,
     String? deviceFingerprint,
+    String? relayUrl,
+    String? relayMailboxId,
+    String? relayWriteToken,
   }) = _FrbRegisterParams;
+}
+
+/// Relay config exposed via FFI. Excludes read_token (S2).
+@freezed
+sealed class FrbRelayConfig with _$FrbRelayConfig {
+  const factory FrbRelayConfig({
+    required String relayUrl,
+    required String mailboxUuid,
+    required String writeToken,
+  }) = _FrbRelayConfig;
 }
 
 /// Streak info (FFI-safe)

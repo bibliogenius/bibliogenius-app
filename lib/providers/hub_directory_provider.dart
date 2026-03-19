@@ -326,6 +326,9 @@ class HubDirectoryProvider extends ChangeNotifier {
     String? website,
     String? deviceModel,
     String? deviceFingerprint,
+    String? relayUrl,
+    String? relayMailboxId,
+    String? relayWriteToken,
   }) async {
     _configLoading = true;
     _configError = null;
@@ -346,6 +349,9 @@ class HubDirectoryProvider extends ChangeNotifier {
         website: website,
         deviceModel: deviceModel,
         deviceFingerprint: deviceFingerprint,
+        relayUrl: relayUrl,
+        relayMailboxId: relayMailboxId,
+        relayWriteToken: relayWriteToken,
       );
       final result = await _ffi.hubDirectoryRegister(params);
       if (result != null) {
@@ -429,6 +435,20 @@ class HubDirectoryProvider extends ChangeNotifier {
       final deviceModel = await _deviceService.getDeviceModel();
       final deviceFingerprint = await _deviceService.getDeviceFingerprint();
 
+      // Include relay credentials so peers can refresh stale relay info
+      // via the hub when our mailbox is recreated.
+      String? relayUrl;
+      String? relayMailboxId;
+      String? relayWriteToken;
+      try {
+        final relayConfig = await _ffi.getRelayConfig();
+        if (relayConfig != null) {
+          relayUrl = relayConfig.relayUrl;
+          relayMailboxId = relayConfig.mailboxUuid;
+          relayWriteToken = relayConfig.writeToken;
+        }
+      } catch (_) {}
+
       return await register(
         nodeId: libraryUuid,
         displayName: libraryName,
@@ -440,6 +460,9 @@ class HubDirectoryProvider extends ChangeNotifier {
         x25519PublicKey: x25519Key,
         deviceModel: deviceModel,
         deviceFingerprint: deviceFingerprint,
+        relayUrl: relayUrl,
+        relayMailboxId: relayMailboxId,
+        relayWriteToken: relayWriteToken,
       );
     } catch (e) {
       debugPrint('HubDirectoryProvider _ensureSilentRegistration error: $e');

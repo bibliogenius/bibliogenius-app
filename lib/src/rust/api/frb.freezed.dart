@@ -2704,7 +2704,7 @@ return $default(_that.nodeId,_that.displayName,_that.description,_that.bookCount
 
 class _FrbHubProfile implements FrbHubProfile {
   const _FrbHubProfile({required this.nodeId, required this.displayName, this.description, required this.bookCount, this.locationCountry, required this.requiresApproval, this.allowBorrowing, this.lastSeenAt, this.x25519PublicKey, this.website, this.deviceModel, this.deviceFingerprint});
-
+  
 
 @override final  String nodeId;
 @override final  String displayName;
@@ -3615,7 +3615,7 @@ as BigInt,
 /// @nodoc
 mixin _$FrbRegisterParams {
 
- String get nodeId; String get displayName; int get bookCount; bool get isListed; bool get requiresApproval; String get acceptFrom; String? get description; String? get locationCountry; bool get allowBorrowing; String? get x25519PublicKey; String? get website; String? get deviceModel; String? get deviceFingerprint;
+ String get nodeId; String get displayName; int get bookCount; bool get isListed; bool get requiresApproval; String get acceptFrom; String? get description; String? get locationCountry; bool get allowBorrowing; String? get x25519PublicKey; String? get website; String? get deviceModel; String? get deviceFingerprint; String? get relayUrl; String? get relayMailboxId; String? get relayWriteToken;
 /// Create a copy of FrbRegisterParams
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -3626,16 +3626,16 @@ $FrbRegisterParamsCopyWith<FrbRegisterParams> get copyWith => _$FrbRegisterParam
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbRegisterParams&&(identical(other.nodeId, nodeId) || other.nodeId == nodeId)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.bookCount, bookCount) || other.bookCount == bookCount)&&(identical(other.isListed, isListed) || other.isListed == isListed)&&(identical(other.requiresApproval, requiresApproval) || other.requiresApproval == requiresApproval)&&(identical(other.acceptFrom, acceptFrom) || other.acceptFrom == acceptFrom)&&(identical(other.description, description) || other.description == description)&&(identical(other.locationCountry, locationCountry) || other.locationCountry == locationCountry)&&(identical(other.allowBorrowing, allowBorrowing) || other.allowBorrowing == allowBorrowing)&&(identical(other.x25519PublicKey, x25519PublicKey) || other.x25519PublicKey == x25519PublicKey)&&(identical(other.website, website) || other.website == website)&&(identical(other.deviceModel, deviceModel) || other.deviceModel == deviceModel)&&(identical(other.deviceFingerprint, deviceFingerprint) || other.deviceFingerprint == deviceFingerprint));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbRegisterParams&&(identical(other.nodeId, nodeId) || other.nodeId == nodeId)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.bookCount, bookCount) || other.bookCount == bookCount)&&(identical(other.isListed, isListed) || other.isListed == isListed)&&(identical(other.requiresApproval, requiresApproval) || other.requiresApproval == requiresApproval)&&(identical(other.acceptFrom, acceptFrom) || other.acceptFrom == acceptFrom)&&(identical(other.description, description) || other.description == description)&&(identical(other.locationCountry, locationCountry) || other.locationCountry == locationCountry)&&(identical(other.allowBorrowing, allowBorrowing) || other.allowBorrowing == allowBorrowing)&&(identical(other.x25519PublicKey, x25519PublicKey) || other.x25519PublicKey == x25519PublicKey)&&(identical(other.website, website) || other.website == website)&&(identical(other.deviceModel, deviceModel) || other.deviceModel == deviceModel)&&(identical(other.deviceFingerprint, deviceFingerprint) || other.deviceFingerprint == deviceFingerprint)&&(identical(other.relayUrl, relayUrl) || other.relayUrl == relayUrl)&&(identical(other.relayMailboxId, relayMailboxId) || other.relayMailboxId == relayMailboxId)&&(identical(other.relayWriteToken, relayWriteToken) || other.relayWriteToken == relayWriteToken));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,nodeId,displayName,bookCount,isListed,requiresApproval,acceptFrom,description,locationCountry,allowBorrowing,x25519PublicKey,website,deviceModel,deviceFingerprint);
+int get hashCode => Object.hash(runtimeType,nodeId,displayName,bookCount,isListed,requiresApproval,acceptFrom,description,locationCountry,allowBorrowing,x25519PublicKey,website,deviceModel,deviceFingerprint,relayUrl,relayMailboxId,relayWriteToken);
 
 @override
 String toString() {
-  return 'FrbRegisterParams(nodeId: $nodeId, displayName: $displayName, bookCount: $bookCount, isListed: $isListed, requiresApproval: $requiresApproval, acceptFrom: $acceptFrom, description: $description, locationCountry: $locationCountry, allowBorrowing: $allowBorrowing, x25519PublicKey: $x25519PublicKey, website: $website, deviceModel: $deviceModel, deviceFingerprint: $deviceFingerprint)';
+  return 'FrbRegisterParams(nodeId: $nodeId, displayName: $displayName, bookCount: $bookCount, isListed: $isListed, requiresApproval: $requiresApproval, acceptFrom: $acceptFrom, description: $description, locationCountry: $locationCountry, allowBorrowing: $allowBorrowing, x25519PublicKey: $x25519PublicKey, website: $website, deviceModel: $deviceModel, deviceFingerprint: $deviceFingerprint, relayUrl: $relayUrl, relayMailboxId: $relayMailboxId, relayWriteToken: $relayWriteToken)';
 }
 
 
@@ -3646,7 +3646,7 @@ abstract mixin class $FrbRegisterParamsCopyWith<$Res>  {
   factory $FrbRegisterParamsCopyWith(FrbRegisterParams value, $Res Function(FrbRegisterParams) _then) = _$FrbRegisterParamsCopyWithImpl;
 @useResult
 $Res call({
- String nodeId, String displayName, int bookCount, bool isListed, bool requiresApproval, String acceptFrom, String? description, String? locationCountry, bool allowBorrowing, String? x25519PublicKey, String? website, String? deviceModel, String? deviceFingerprint
+ String nodeId, String displayName, int bookCount, bool isListed, bool requiresApproval, String acceptFrom, String? description, String? locationCountry, bool allowBorrowing, String? x25519PublicKey, String? website, String? deviceModel, String? deviceFingerprint, String? relayUrl, String? relayMailboxId, String? relayWriteToken
 });
 
 
@@ -3663,7 +3663,7 @@ class _$FrbRegisterParamsCopyWithImpl<$Res>
 
 /// Create a copy of FrbRegisterParams
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? nodeId = null,Object? displayName = null,Object? bookCount = null,Object? isListed = null,Object? requiresApproval = null,Object? acceptFrom = null,Object? description = freezed,Object? locationCountry = freezed,Object? allowBorrowing = null,Object? x25519PublicKey = freezed,Object? website = freezed,Object? deviceModel = freezed,Object? deviceFingerprint = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? nodeId = null,Object? displayName = null,Object? bookCount = null,Object? isListed = null,Object? requiresApproval = null,Object? acceptFrom = null,Object? description = freezed,Object? locationCountry = freezed,Object? allowBorrowing = null,Object? x25519PublicKey = freezed,Object? website = freezed,Object? deviceModel = freezed,Object? deviceFingerprint = freezed,Object? relayUrl = freezed,Object? relayMailboxId = freezed,Object? relayWriteToken = freezed,}) {
   return _then(_self.copyWith(
 nodeId: null == nodeId ? _self.nodeId : nodeId // ignore: cast_nullable_to_non_nullable
 as String,displayName: null == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable
@@ -3678,6 +3678,9 @@ as bool,x25519PublicKey: freezed == x25519PublicKey ? _self.x25519PublicKey : x2
 as String?,website: freezed == website ? _self.website : website // ignore: cast_nullable_to_non_nullable
 as String?,deviceModel: freezed == deviceModel ? _self.deviceModel : deviceModel // ignore: cast_nullable_to_non_nullable
 as String?,deviceFingerprint: freezed == deviceFingerprint ? _self.deviceFingerprint : deviceFingerprint // ignore: cast_nullable_to_non_nullable
+as String?,relayUrl: freezed == relayUrl ? _self.relayUrl : relayUrl // ignore: cast_nullable_to_non_nullable
+as String?,relayMailboxId: freezed == relayMailboxId ? _self.relayMailboxId : relayMailboxId // ignore: cast_nullable_to_non_nullable
+as String?,relayWriteToken: freezed == relayWriteToken ? _self.relayWriteToken : relayWriteToken // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -3760,10 +3763,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String nodeId,  String displayName,  int bookCount,  bool isListed,  bool requiresApproval,  String acceptFrom,  String? description,  String? locationCountry,  bool allowBorrowing,  String? x25519PublicKey,  String? website,  String? deviceModel,  String? deviceFingerprint)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String nodeId,  String displayName,  int bookCount,  bool isListed,  bool requiresApproval,  String acceptFrom,  String? description,  String? locationCountry,  bool allowBorrowing,  String? x25519PublicKey,  String? website,  String? deviceModel,  String? deviceFingerprint,  String? relayUrl,  String? relayMailboxId,  String? relayWriteToken)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _FrbRegisterParams() when $default != null:
-return $default(_that.nodeId,_that.displayName,_that.bookCount,_that.isListed,_that.requiresApproval,_that.acceptFrom,_that.description,_that.locationCountry,_that.allowBorrowing,_that.x25519PublicKey,_that.website,_that.deviceModel,_that.deviceFingerprint);case _:
+return $default(_that.nodeId,_that.displayName,_that.bookCount,_that.isListed,_that.requiresApproval,_that.acceptFrom,_that.description,_that.locationCountry,_that.allowBorrowing,_that.x25519PublicKey,_that.website,_that.deviceModel,_that.deviceFingerprint,_that.relayUrl,_that.relayMailboxId,_that.relayWriteToken);case _:
   return orElse();
 
 }
@@ -3781,10 +3784,10 @@ return $default(_that.nodeId,_that.displayName,_that.bookCount,_that.isListed,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String nodeId,  String displayName,  int bookCount,  bool isListed,  bool requiresApproval,  String acceptFrom,  String? description,  String? locationCountry,  bool allowBorrowing,  String? x25519PublicKey,  String? website,  String? deviceModel,  String? deviceFingerprint)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String nodeId,  String displayName,  int bookCount,  bool isListed,  bool requiresApproval,  String acceptFrom,  String? description,  String? locationCountry,  bool allowBorrowing,  String? x25519PublicKey,  String? website,  String? deviceModel,  String? deviceFingerprint,  String? relayUrl,  String? relayMailboxId,  String? relayWriteToken)  $default,) {final _that = this;
 switch (_that) {
 case _FrbRegisterParams():
-return $default(_that.nodeId,_that.displayName,_that.bookCount,_that.isListed,_that.requiresApproval,_that.acceptFrom,_that.description,_that.locationCountry,_that.allowBorrowing,_that.x25519PublicKey,_that.website,_that.deviceModel,_that.deviceFingerprint);}
+return $default(_that.nodeId,_that.displayName,_that.bookCount,_that.isListed,_that.requiresApproval,_that.acceptFrom,_that.description,_that.locationCountry,_that.allowBorrowing,_that.x25519PublicKey,_that.website,_that.deviceModel,_that.deviceFingerprint,_that.relayUrl,_that.relayMailboxId,_that.relayWriteToken);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -3798,10 +3801,10 @@ return $default(_that.nodeId,_that.displayName,_that.bookCount,_that.isListed,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String nodeId,  String displayName,  int bookCount,  bool isListed,  bool requiresApproval,  String acceptFrom,  String? description,  String? locationCountry,  bool allowBorrowing,  String? x25519PublicKey,  String? website,  String? deviceModel,  String? deviceFingerprint)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String nodeId,  String displayName,  int bookCount,  bool isListed,  bool requiresApproval,  String acceptFrom,  String? description,  String? locationCountry,  bool allowBorrowing,  String? x25519PublicKey,  String? website,  String? deviceModel,  String? deviceFingerprint,  String? relayUrl,  String? relayMailboxId,  String? relayWriteToken)?  $default,) {final _that = this;
 switch (_that) {
 case _FrbRegisterParams() when $default != null:
-return $default(_that.nodeId,_that.displayName,_that.bookCount,_that.isListed,_that.requiresApproval,_that.acceptFrom,_that.description,_that.locationCountry,_that.allowBorrowing,_that.x25519PublicKey,_that.website,_that.deviceModel,_that.deviceFingerprint);case _:
+return $default(_that.nodeId,_that.displayName,_that.bookCount,_that.isListed,_that.requiresApproval,_that.acceptFrom,_that.description,_that.locationCountry,_that.allowBorrowing,_that.x25519PublicKey,_that.website,_that.deviceModel,_that.deviceFingerprint,_that.relayUrl,_that.relayMailboxId,_that.relayWriteToken);case _:
   return null;
 
 }
@@ -3813,8 +3816,8 @@ return $default(_that.nodeId,_that.displayName,_that.bookCount,_that.isListed,_t
 
 
 class _FrbRegisterParams implements FrbRegisterParams {
-  const _FrbRegisterParams({required this.nodeId, required this.displayName, required this.bookCount, required this.isListed, required this.requiresApproval, required this.acceptFrom, this.description, this.locationCountry, required this.allowBorrowing, this.x25519PublicKey, this.website, this.deviceModel, this.deviceFingerprint});
-
+  const _FrbRegisterParams({required this.nodeId, required this.displayName, required this.bookCount, required this.isListed, required this.requiresApproval, required this.acceptFrom, this.description, this.locationCountry, required this.allowBorrowing, this.x25519PublicKey, this.website, this.deviceModel, this.deviceFingerprint, this.relayUrl, this.relayMailboxId, this.relayWriteToken});
+  
 
 @override final  String nodeId;
 @override final  String displayName;
@@ -3829,6 +3832,9 @@ class _FrbRegisterParams implements FrbRegisterParams {
 @override final  String? website;
 @override final  String? deviceModel;
 @override final  String? deviceFingerprint;
+@override final  String? relayUrl;
+@override final  String? relayMailboxId;
+@override final  String? relayWriteToken;
 
 /// Create a copy of FrbRegisterParams
 /// with the given fields replaced by the non-null parameter values.
@@ -3840,16 +3846,16 @@ _$FrbRegisterParamsCopyWith<_FrbRegisterParams> get copyWith => __$FrbRegisterPa
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbRegisterParams&&(identical(other.nodeId, nodeId) || other.nodeId == nodeId)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.bookCount, bookCount) || other.bookCount == bookCount)&&(identical(other.isListed, isListed) || other.isListed == isListed)&&(identical(other.requiresApproval, requiresApproval) || other.requiresApproval == requiresApproval)&&(identical(other.acceptFrom, acceptFrom) || other.acceptFrom == acceptFrom)&&(identical(other.description, description) || other.description == description)&&(identical(other.locationCountry, locationCountry) || other.locationCountry == locationCountry)&&(identical(other.allowBorrowing, allowBorrowing) || other.allowBorrowing == allowBorrowing)&&(identical(other.x25519PublicKey, x25519PublicKey) || other.x25519PublicKey == x25519PublicKey)&&(identical(other.website, website) || other.website == website)&&(identical(other.deviceModel, deviceModel) || other.deviceModel == deviceModel)&&(identical(other.deviceFingerprint, deviceFingerprint) || other.deviceFingerprint == deviceFingerprint));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbRegisterParams&&(identical(other.nodeId, nodeId) || other.nodeId == nodeId)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.bookCount, bookCount) || other.bookCount == bookCount)&&(identical(other.isListed, isListed) || other.isListed == isListed)&&(identical(other.requiresApproval, requiresApproval) || other.requiresApproval == requiresApproval)&&(identical(other.acceptFrom, acceptFrom) || other.acceptFrom == acceptFrom)&&(identical(other.description, description) || other.description == description)&&(identical(other.locationCountry, locationCountry) || other.locationCountry == locationCountry)&&(identical(other.allowBorrowing, allowBorrowing) || other.allowBorrowing == allowBorrowing)&&(identical(other.x25519PublicKey, x25519PublicKey) || other.x25519PublicKey == x25519PublicKey)&&(identical(other.website, website) || other.website == website)&&(identical(other.deviceModel, deviceModel) || other.deviceModel == deviceModel)&&(identical(other.deviceFingerprint, deviceFingerprint) || other.deviceFingerprint == deviceFingerprint)&&(identical(other.relayUrl, relayUrl) || other.relayUrl == relayUrl)&&(identical(other.relayMailboxId, relayMailboxId) || other.relayMailboxId == relayMailboxId)&&(identical(other.relayWriteToken, relayWriteToken) || other.relayWriteToken == relayWriteToken));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,nodeId,displayName,bookCount,isListed,requiresApproval,acceptFrom,description,locationCountry,allowBorrowing,x25519PublicKey,website,deviceModel,deviceFingerprint);
+int get hashCode => Object.hash(runtimeType,nodeId,displayName,bookCount,isListed,requiresApproval,acceptFrom,description,locationCountry,allowBorrowing,x25519PublicKey,website,deviceModel,deviceFingerprint,relayUrl,relayMailboxId,relayWriteToken);
 
 @override
 String toString() {
-  return 'FrbRegisterParams(nodeId: $nodeId, displayName: $displayName, bookCount: $bookCount, isListed: $isListed, requiresApproval: $requiresApproval, acceptFrom: $acceptFrom, description: $description, locationCountry: $locationCountry, allowBorrowing: $allowBorrowing, x25519PublicKey: $x25519PublicKey, website: $website, deviceModel: $deviceModel, deviceFingerprint: $deviceFingerprint)';
+  return 'FrbRegisterParams(nodeId: $nodeId, displayName: $displayName, bookCount: $bookCount, isListed: $isListed, requiresApproval: $requiresApproval, acceptFrom: $acceptFrom, description: $description, locationCountry: $locationCountry, allowBorrowing: $allowBorrowing, x25519PublicKey: $x25519PublicKey, website: $website, deviceModel: $deviceModel, deviceFingerprint: $deviceFingerprint, relayUrl: $relayUrl, relayMailboxId: $relayMailboxId, relayWriteToken: $relayWriteToken)';
 }
 
 
@@ -3860,7 +3866,7 @@ abstract mixin class _$FrbRegisterParamsCopyWith<$Res> implements $FrbRegisterPa
   factory _$FrbRegisterParamsCopyWith(_FrbRegisterParams value, $Res Function(_FrbRegisterParams) _then) = __$FrbRegisterParamsCopyWithImpl;
 @override @useResult
 $Res call({
- String nodeId, String displayName, int bookCount, bool isListed, bool requiresApproval, String acceptFrom, String? description, String? locationCountry, bool allowBorrowing, String? x25519PublicKey, String? website, String? deviceModel, String? deviceFingerprint
+ String nodeId, String displayName, int bookCount, bool isListed, bool requiresApproval, String acceptFrom, String? description, String? locationCountry, bool allowBorrowing, String? x25519PublicKey, String? website, String? deviceModel, String? deviceFingerprint, String? relayUrl, String? relayMailboxId, String? relayWriteToken
 });
 
 
@@ -3877,7 +3883,7 @@ class __$FrbRegisterParamsCopyWithImpl<$Res>
 
 /// Create a copy of FrbRegisterParams
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? nodeId = null,Object? displayName = null,Object? bookCount = null,Object? isListed = null,Object? requiresApproval = null,Object? acceptFrom = null,Object? description = freezed,Object? locationCountry = freezed,Object? allowBorrowing = null,Object? x25519PublicKey = freezed,Object? website = freezed,Object? deviceModel = freezed,Object? deviceFingerprint = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? nodeId = null,Object? displayName = null,Object? bookCount = null,Object? isListed = null,Object? requiresApproval = null,Object? acceptFrom = null,Object? description = freezed,Object? locationCountry = freezed,Object? allowBorrowing = null,Object? x25519PublicKey = freezed,Object? website = freezed,Object? deviceModel = freezed,Object? deviceFingerprint = freezed,Object? relayUrl = freezed,Object? relayMailboxId = freezed,Object? relayWriteToken = freezed,}) {
   return _then(_FrbRegisterParams(
 nodeId: null == nodeId ? _self.nodeId : nodeId // ignore: cast_nullable_to_non_nullable
 as String,displayName: null == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable
@@ -3892,7 +3898,267 @@ as bool,x25519PublicKey: freezed == x25519PublicKey ? _self.x25519PublicKey : x2
 as String?,website: freezed == website ? _self.website : website // ignore: cast_nullable_to_non_nullable
 as String?,deviceModel: freezed == deviceModel ? _self.deviceModel : deviceModel // ignore: cast_nullable_to_non_nullable
 as String?,deviceFingerprint: freezed == deviceFingerprint ? _self.deviceFingerprint : deviceFingerprint // ignore: cast_nullable_to_non_nullable
+as String?,relayUrl: freezed == relayUrl ? _self.relayUrl : relayUrl // ignore: cast_nullable_to_non_nullable
+as String?,relayMailboxId: freezed == relayMailboxId ? _self.relayMailboxId : relayMailboxId // ignore: cast_nullable_to_non_nullable
+as String?,relayWriteToken: freezed == relayWriteToken ? _self.relayWriteToken : relayWriteToken // ignore: cast_nullable_to_non_nullable
 as String?,
+  ));
+}
+
+
+}
+
+/// @nodoc
+mixin _$FrbRelayConfig {
+
+ String get relayUrl; String get mailboxUuid; String get writeToken;
+/// Create a copy of FrbRelayConfig
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$FrbRelayConfigCopyWith<FrbRelayConfig> get copyWith => _$FrbRelayConfigCopyWithImpl<FrbRelayConfig>(this as FrbRelayConfig, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbRelayConfig&&(identical(other.relayUrl, relayUrl) || other.relayUrl == relayUrl)&&(identical(other.mailboxUuid, mailboxUuid) || other.mailboxUuid == mailboxUuid)&&(identical(other.writeToken, writeToken) || other.writeToken == writeToken));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,relayUrl,mailboxUuid,writeToken);
+
+@override
+String toString() {
+  return 'FrbRelayConfig(relayUrl: $relayUrl, mailboxUuid: $mailboxUuid, writeToken: $writeToken)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $FrbRelayConfigCopyWith<$Res>  {
+  factory $FrbRelayConfigCopyWith(FrbRelayConfig value, $Res Function(FrbRelayConfig) _then) = _$FrbRelayConfigCopyWithImpl;
+@useResult
+$Res call({
+ String relayUrl, String mailboxUuid, String writeToken
+});
+
+
+
+
+}
+/// @nodoc
+class _$FrbRelayConfigCopyWithImpl<$Res>
+    implements $FrbRelayConfigCopyWith<$Res> {
+  _$FrbRelayConfigCopyWithImpl(this._self, this._then);
+
+  final FrbRelayConfig _self;
+  final $Res Function(FrbRelayConfig) _then;
+
+/// Create a copy of FrbRelayConfig
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? relayUrl = null,Object? mailboxUuid = null,Object? writeToken = null,}) {
+  return _then(_self.copyWith(
+relayUrl: null == relayUrl ? _self.relayUrl : relayUrl // ignore: cast_nullable_to_non_nullable
+as String,mailboxUuid: null == mailboxUuid ? _self.mailboxUuid : mailboxUuid // ignore: cast_nullable_to_non_nullable
+as String,writeToken: null == writeToken ? _self.writeToken : writeToken // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [FrbRelayConfig].
+extension FrbRelayConfigPatterns on FrbRelayConfig {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _FrbRelayConfig value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _FrbRelayConfig() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _FrbRelayConfig value)  $default,){
+final _that = this;
+switch (_that) {
+case _FrbRelayConfig():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _FrbRelayConfig value)?  $default,){
+final _that = this;
+switch (_that) {
+case _FrbRelayConfig() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String relayUrl,  String mailboxUuid,  String writeToken)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _FrbRelayConfig() when $default != null:
+return $default(_that.relayUrl,_that.mailboxUuid,_that.writeToken);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String relayUrl,  String mailboxUuid,  String writeToken)  $default,) {final _that = this;
+switch (_that) {
+case _FrbRelayConfig():
+return $default(_that.relayUrl,_that.mailboxUuid,_that.writeToken);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String relayUrl,  String mailboxUuid,  String writeToken)?  $default,) {final _that = this;
+switch (_that) {
+case _FrbRelayConfig() when $default != null:
+return $default(_that.relayUrl,_that.mailboxUuid,_that.writeToken);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _FrbRelayConfig implements FrbRelayConfig {
+  const _FrbRelayConfig({required this.relayUrl, required this.mailboxUuid, required this.writeToken});
+  
+
+@override final  String relayUrl;
+@override final  String mailboxUuid;
+@override final  String writeToken;
+
+/// Create a copy of FrbRelayConfig
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$FrbRelayConfigCopyWith<_FrbRelayConfig> get copyWith => __$FrbRelayConfigCopyWithImpl<_FrbRelayConfig>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbRelayConfig&&(identical(other.relayUrl, relayUrl) || other.relayUrl == relayUrl)&&(identical(other.mailboxUuid, mailboxUuid) || other.mailboxUuid == mailboxUuid)&&(identical(other.writeToken, writeToken) || other.writeToken == writeToken));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,relayUrl,mailboxUuid,writeToken);
+
+@override
+String toString() {
+  return 'FrbRelayConfig(relayUrl: $relayUrl, mailboxUuid: $mailboxUuid, writeToken: $writeToken)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$FrbRelayConfigCopyWith<$Res> implements $FrbRelayConfigCopyWith<$Res> {
+  factory _$FrbRelayConfigCopyWith(_FrbRelayConfig value, $Res Function(_FrbRelayConfig) _then) = __$FrbRelayConfigCopyWithImpl;
+@override @useResult
+$Res call({
+ String relayUrl, String mailboxUuid, String writeToken
+});
+
+
+
+
+}
+/// @nodoc
+class __$FrbRelayConfigCopyWithImpl<$Res>
+    implements _$FrbRelayConfigCopyWith<$Res> {
+  __$FrbRelayConfigCopyWithImpl(this._self, this._then);
+
+  final _FrbRelayConfig _self;
+  final $Res Function(_FrbRelayConfig) _then;
+
+/// Create a copy of FrbRelayConfig
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? relayUrl = null,Object? mailboxUuid = null,Object? writeToken = null,}) {
+  return _then(_FrbRelayConfig(
+relayUrl: null == relayUrl ? _self.relayUrl : relayUrl // ignore: cast_nullable_to_non_nullable
+as String,mailboxUuid: null == mailboxUuid ? _self.mailboxUuid : mailboxUuid // ignore: cast_nullable_to_non_nullable
+as String,writeToken: null == writeToken ? _self.writeToken : writeToken // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 

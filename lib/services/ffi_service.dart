@@ -998,6 +998,19 @@ class FfiService {
     }
   }
 
+  // ============ Relay Config (FFI direct) ============
+
+  /// Get the local relay config (relay_url, mailbox_uuid, write_token).
+  /// Returns null if relay is not configured. read_token excluded (S2).
+  Future<frb.FrbRelayConfig?> getRelayConfig() async {
+    try {
+      return await frb.getRelayConfigFfi();
+    } catch (e) {
+      debugPrint('FFI getRelayConfig error: $e');
+      return null;
+    }
+  }
+
   // ============ Hub Directory (FFI direct) ============
 
   /// Get the local hub directory config, or null if not yet registered.

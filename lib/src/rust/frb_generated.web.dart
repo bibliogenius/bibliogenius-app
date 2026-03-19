@@ -51,6 +51,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FrbRegisterParams dco_decode_box_autoadd_frb_register_params(dynamic raw);
 
   @protected
+  FrbRelayConfig dco_decode_box_autoadd_frb_relay_config(dynamic raw);
+
+  @protected
   int dco_decode_box_autoadd_i_32(dynamic raw);
 
   @protected
@@ -158,6 +161,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbRegisterParams dco_decode_frb_register_params(dynamic raw);
+
+  @protected
+  FrbRelayConfig dco_decode_frb_relay_config(dynamic raw);
 
   @protected
   FrbStreakInfo dco_decode_frb_streak_info(dynamic raw);
@@ -288,6 +294,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  FrbRelayConfig? dco_decode_opt_box_autoadd_frb_relay_config(dynamic raw);
+
+  @protected
   int? dco_decode_opt_box_autoadd_i_32(dynamic raw);
 
   @protected
@@ -346,6 +355,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbRegisterParams sse_decode_box_autoadd_frb_register_params(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  FrbRelayConfig sse_decode_box_autoadd_frb_relay_config(
     SseDeserializer deserializer,
   );
 
@@ -485,6 +499,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FrbRegisterParams sse_decode_frb_register_params(
     SseDeserializer deserializer,
   );
+
+  @protected
+  FrbRelayConfig sse_decode_frb_relay_config(SseDeserializer deserializer);
 
   @protected
   FrbStreakInfo sse_decode_frb_streak_info(SseDeserializer deserializer);
@@ -649,6 +666,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  FrbRelayConfig? sse_decode_opt_box_autoadd_frb_relay_config(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   int? sse_decode_opt_box_autoadd_i_32(SseDeserializer deserializer);
 
   @protected
@@ -714,6 +736,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_box_autoadd_frb_register_params(
     FrbRegisterParams self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_frb_relay_config(
+    FrbRelayConfig self,
     SseSerializer serializer,
   );
 
@@ -891,6 +919,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_frb_register_params(
     FrbRegisterParams self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_frb_relay_config(
+    FrbRelayConfig self,
     SseSerializer serializer,
   );
 
@@ -1092,6 +1126,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_opt_box_autoadd_frb_directory_config(
     FrbDirectoryConfig? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_frb_relay_config(
+    FrbRelayConfig? self,
     SseSerializer serializer,
   );
 
