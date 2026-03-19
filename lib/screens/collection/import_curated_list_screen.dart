@@ -26,6 +26,15 @@ class _ImportCuratedListScreenState extends State<ImportCuratedListScreen> {
   String _profileType = 'individual';
   Set<String> _libraryIsbns = {};
 
+  /// Extract display title from a curated book note.
+  /// Notes may contain "Title - Author (Year)" format; return just the title.
+  String _displayTitle(CuratedBook b) {
+    final note = b.note;
+    if (note == null) return b.isbn;
+    final dashIdx = note.indexOf(' - ');
+    return dashIdx > 0 ? note.substring(0, dashIdx).trim() : note;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -628,7 +637,7 @@ class _ImportCuratedListScreenState extends State<ImportCuratedListScreen> {
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
-                                b.note ?? b.isbn,
+                                _displayTitle(b),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: Theme.of(context).textTheme.bodyMedium,

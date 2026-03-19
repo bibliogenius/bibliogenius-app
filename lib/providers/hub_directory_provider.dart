@@ -280,6 +280,7 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// Re-registers with the current config to ensure the X25519 public key
   /// is published on the hub profile. Call at app start for existing users.
   Future<void> ensureKeysPublished(String displayName) async {
+    if (!_hubEnabled) return;
     if (_config == null) {
       debugPrint('[CONTACT-SYNC] ensureKeysPublished: config is null, skip');
       return;
