@@ -230,7 +230,15 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// Load the local config from SQLite. Call once at app start / settings open.
   /// Load config, auto-register if needed, push catalog.
   /// Called at app startup so the catalog is always available for known peers.
+  /// Re-entrant safe: concurrent callers are ignored (not queued).
+  bool _initSyncing = false;
+
   Future<void> initAndSyncCatalog() async {
+    if (_initSyncing) {
+      debugPrint('HubDirectory: initAndSyncCatalog already running, skip');
+      return;
+    }
+    _initSyncing = true;
     try {
       debugPrint('HubDirectory: initAndSyncCatalog starting');
       await loadConfig();
@@ -245,6 +253,8 @@ class HubDirectoryProvider extends ChangeNotifier {
       }
     } catch (e) {
       debugPrint('HubDirectory: initAndSyncCatalog error: $e');
+    } finally {
+      _initSyncing = false;
     }
   }
 
@@ -335,6 +345,11 @@ class HubDirectoryProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      // Always include device info for hub deduplication, even if the
+      // caller did not provide it (settings screen, profile rename, etc.)
+      final effectiveModel = deviceModel ?? await _deviceService.getDeviceModel();
+      final effectiveFp = deviceFingerprint ?? await _deviceService.getDeviceFingerprint();
+
       final params = frb.FrbRegisterParams(
         nodeId: nodeId,
         displayName: displayName,
@@ -347,8 +362,8 @@ class HubDirectoryProvider extends ChangeNotifier {
         locationCountry: locationCountry,
         x25519PublicKey: x25519PublicKey,
         website: website,
-        deviceModel: deviceModel,
-        deviceFingerprint: deviceFingerprint,
+        deviceModel: effectiveModel,
+        deviceFingerprint: effectiveFp,
         relayUrl: relayUrl,
         relayMailboxId: relayMailboxId,
         relayWriteToken: relayWriteToken,

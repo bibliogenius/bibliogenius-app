@@ -1,7 +1,9 @@
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:uuid/uuid.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:async' show Completer;
 import 'dart:io' show Platform;
+
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 import 'package:flutter/foundation.dart' show debugPrint, kDebugMode;
 import 'package:flutter/services.dart' show PlatformException;
 
@@ -181,21 +183,44 @@ class AuthService {
   // ============ Library UUID (for P2P deduplication) ============
   static const _libraryUuidKey = 'library_uuid';
 
+  /// In-memory cache to avoid concurrent reads generating different UUIDs.
+  /// Prevents TOCTOU race when multiple callers invoke getOrCreateLibraryUuid
+  /// before the first write has flushed to storage.
+  static String? _cachedUuid;
+  static Completer<String>? _uuidCompleter;
+
   /// Get or create a stable UUID for this library instance.
   /// This UUID persists across app restarts and is used for P2P peer deduplication.
+  /// Thread-safe: concurrent callers wait on the same Completer.
   Future<String> getOrCreateLibraryUuid() async {
-    var uuid = await storage.read(key: _libraryUuidKey);
-    if (uuid == null) {
-      uuid = const Uuid().v4();
-      await storage.write(key: _libraryUuidKey, value: uuid);
+    // Fast path: already resolved in this process
+    if (_cachedUuid != null) return _cachedUuid!;
+
+    // Serialize concurrent callers: only the first one does the read/write
+    if (_uuidCompleter != null) return _uuidCompleter!.future;
+    _uuidCompleter = Completer<String>();
+
+    try {
+      var uuid = await storage.read(key: _libraryUuidKey);
+      if (uuid == null) {
+        uuid = const Uuid().v4();
+        await storage.write(key: _libraryUuidKey, value: uuid);
+      }
+      _cachedUuid = uuid;
+      _uuidCompleter!.complete(uuid);
+      return uuid;
+    } catch (e) {
+      _uuidCompleter!.completeError(e);
+      _uuidCompleter = null;
+      rethrow;
     }
-    return uuid;
   }
 
   /// Adopt a library UUID from another device during P2P pairing.
   /// This overwrites the local UUID, effectively joining the source library.
   Future<void> setLibraryUuid(String uuid) async {
     await storage.write(key: _libraryUuidKey, value: uuid);
+    _cachedUuid = uuid;
   }
 
   Future<void> logout() async {

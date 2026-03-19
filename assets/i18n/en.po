@@ -7856,6 +7856,10 @@ msgstr "{name} returned \"{book}\""
 msgid "notif_wishlist_match"
 msgstr "\"{book}\" available from {source}"
 
+#. Notification display - system events
+msgid "notif_welcome"
+msgstr "Welcome to BiblioGenius! Explore the app to manage your library."
+
 #. Notification tap hints
 msgid "notif_tap_network"
 msgstr "See network"
@@ -7914,3 +7918,43 @@ msgstr "Customize layout"
 #. Default library name with device name (e.g. "Library of iPhone")
 msgid "library_of_device"
 msgstr "Library of %s"
+
+#. Hangman game
+msgid "hangman_title"
+msgstr "Hangman"
+
+msgid "hangman_dashboard_subtitle"
+msgstr "Guess your book titles letter by letter"
+
+msgid "hangman_not_enough_books"
+msgstr "You need at least 15 books in your library to play Hangman."
+
+msgid "hangman_visual_style"
+msgstr "Visual style"
+
+msgid "hangman_style_classic"
+msgstr "Classic"
+
+msgid "hangman_style_books"
+msgstr "Books"
+
+msgid "hangman_errors"
+msgstr "Errors"
+
+msgid "hangman_hints"
+msgstr "Hints"
+
+msgid "hangman_won"
+msgstr "Well done!"
+
+msgid "hangman_lost"
+msgstr "Game over!"
+
+msgid "achievement_hangman_first_game"
+msgstr "First Hangman"
+
+msgid "achievement_hangman_perfect"
+msgstr "Perfect Hangman"
+
+msgid "achievement_hangman_master"
+msgstr "Hangman Master"

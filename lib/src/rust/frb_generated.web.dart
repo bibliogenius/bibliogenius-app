@@ -99,6 +99,20 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FrbGamificationStatus dco_decode_frb_gamification_status(dynamic raw);
 
   @protected
+  FrbHangmanChar dco_decode_frb_hangman_char(dynamic raw);
+
+  @protected
+  FrbHangmanLeaderboardEntry dco_decode_frb_hangman_leaderboard_entry(
+    dynamic raw,
+  );
+
+  @protected
+  FrbHangmanScore dco_decode_frb_hangman_score(dynamic raw);
+
+  @protected
+  FrbHangmanSetup dco_decode_frb_hangman_setup(dynamic raw);
+
+  @protected
   FrbHubBorrowRequest dco_decode_frb_hub_borrow_request(dynamic raw);
 
   @protected
@@ -206,6 +220,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<FrbDiscoveredPeer> dco_decode_list_frb_discovered_peer(dynamic raw);
+
+  @protected
+  List<FrbHangmanChar> dco_decode_list_frb_hangman_char(dynamic raw);
+
+  @protected
+  List<FrbHangmanLeaderboardEntry>
+  dco_decode_list_frb_hangman_leaderboard_entry(dynamic raw);
+
+  @protected
+  List<FrbHangmanScore> dco_decode_list_frb_hangman_score(dynamic raw);
 
   @protected
   List<FrbHubBorrowRequest> dco_decode_list_frb_hub_borrow_request(dynamic raw);
@@ -421,6 +445,20 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  FrbHangmanChar sse_decode_frb_hangman_char(SseDeserializer deserializer);
+
+  @protected
+  FrbHangmanLeaderboardEntry sse_decode_frb_hangman_leaderboard_entry(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  FrbHangmanScore sse_decode_frb_hangman_score(SseDeserializer deserializer);
+
+  @protected
+  FrbHangmanSetup sse_decode_frb_hangman_setup(SseDeserializer deserializer);
+
+  @protected
   FrbHubBorrowRequest sse_decode_frb_hub_borrow_request(
     SseDeserializer deserializer,
   );
@@ -552,6 +590,20 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<FrbDiscoveredPeer> sse_decode_list_frb_discovered_peer(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  List<FrbHangmanChar> sse_decode_list_frb_hangman_char(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  List<FrbHangmanLeaderboardEntry>
+  sse_decode_list_frb_hangman_leaderboard_entry(SseDeserializer deserializer);
+
+  @protected
+  List<FrbHangmanScore> sse_decode_list_frb_hangman_score(
     SseDeserializer deserializer,
   );
 
@@ -815,6 +867,30 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_frb_hangman_char(
+    FrbHangmanChar self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_frb_hangman_leaderboard_entry(
+    FrbHangmanLeaderboardEntry self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_frb_hangman_score(
+    FrbHangmanScore self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_frb_hangman_setup(
+    FrbHangmanSetup self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_frb_hub_borrow_request(
     FrbHubBorrowRequest self,
     SseSerializer serializer,
@@ -988,6 +1064,24 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_list_frb_discovered_peer(
     List<FrbDiscoveredPeer> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_frb_hangman_char(
+    List<FrbHangmanChar> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_frb_hangman_leaderboard_entry(
+    List<FrbHangmanLeaderboardEntry> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_frb_hangman_score(
+    List<FrbHangmanScore> self,
     SseSerializer serializer,
   );
 

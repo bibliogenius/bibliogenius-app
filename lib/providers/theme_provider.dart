@@ -8,6 +8,7 @@ import '../services/api_service.dart';
 import '../services/auth_service.dart';
 import '../services/ffi_service.dart';
 import '../services/mdns_service.dart';
+import '../src/rust/api/frb.dart' as frb;
 import '../services/translation_service.dart';
 import '../themes/base/theme_registry.dart';
 import '../utils/language_constants.dart';
@@ -99,6 +100,10 @@ class ThemeProvider with ChangeNotifier {
   // Sliding Puzzle Module
   bool _slidingPuzzleEnabled = true;
   bool get slidingPuzzleEnabled => _slidingPuzzleEnabled;
+
+  // Hangman Module
+  bool _hangmanEnabled = true;
+  bool get hangmanEnabled => _hangmanEnabled;
 
   // Digital Formats Module
   bool _digitalFormatsEnabled = false;
@@ -332,6 +337,7 @@ class ThemeProvider with ChangeNotifier {
     _gamesEnabled = prefs.getBool('gamesEnabled') ?? true;
     _memoryGameEnabled = prefs.getBool('memoryGameEnabled') ?? true;
     _slidingPuzzleEnabled = prefs.getBool('slidingPuzzleEnabled') ?? true;
+    _hangmanEnabled = prefs.getBool('hangmanEnabled') ?? true;
     _operationLogViewerEnabled = prefs.getBool('operationLogViewerEnabled') ?? false;
     _syncSafetyEnabled = prefs.getBool('syncSafetyEnabled') ?? true;
     _bottomNavEnabled = prefs.getBool('bottomNavEnabled') ?? true;
@@ -444,13 +450,17 @@ class ThemeProvider with ChangeNotifier {
     if (!enabled) {
       _memoryGameEnabled = false;
       _slidingPuzzleEnabled = false;
+      _hangmanEnabled = false;
       await prefs.setBool('memoryGameEnabled', false);
       await prefs.setBool('slidingPuzzleEnabled', false);
+      await prefs.setBool('hangmanEnabled', false);
     } else {
       _memoryGameEnabled = true;
       _slidingPuzzleEnabled = true;
+      _hangmanEnabled = true;
       await prefs.setBool('memoryGameEnabled', true);
       await prefs.setBool('slidingPuzzleEnabled', true);
+      await prefs.setBool('hangmanEnabled', true);
     }
     await _updateEnabledModules();
     notifyListeners();
@@ -468,6 +478,14 @@ class ThemeProvider with ChangeNotifier {
     _slidingPuzzleEnabled = enabled;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('slidingPuzzleEnabled', enabled);
+    await _updateEnabledModules();
+    notifyListeners();
+  }
+
+  Future<void> setHangmanEnabled(bool enabled) async {
+    _hangmanEnabled = enabled;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('hangmanEnabled', enabled);
     await _updateEnabledModules();
     notifyListeners();
   }
@@ -692,6 +710,13 @@ class ThemeProvider with ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isSetupComplete', true);
     notifyListeners();
+
+    // Emit welcome notification (idempotent: fires at most once per install)
+    try {
+      await frb.emitWelcomeNotification();
+    } catch (e) {
+      debugPrint('Welcome notification failed (non-blocking): $e');
+    }
   }
 
   /// Initialize defaults for first launch (skip setup wizard).
@@ -748,6 +773,7 @@ class ThemeProvider with ChangeNotifier {
     _gamesEnabled = true;
     _memoryGameEnabled = true;
     _slidingPuzzleEnabled = true;
+    _hangmanEnabled = true;
     _commerceEnabled = false;
     _audioEnabled = false;
     _networkDiscoveryEnabled = false;
@@ -1140,6 +1166,7 @@ class ThemeProvider with ChangeNotifier {
     if (gamesEnabled) enabledModules.add('games');
     if (memoryGameEnabled) enabledModules.add('memory_game');
     if (slidingPuzzleEnabled) enabledModules.add('sliding_puzzle');
+    if (hangmanEnabled) enabledModules.add('hangman');
     if (networkGamificationEnabled) {
       enabledModules.add('network_gamification');
     }

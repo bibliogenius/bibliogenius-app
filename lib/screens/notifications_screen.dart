@@ -356,6 +356,8 @@ class _NotificationTile extends StatelessWidget {
         return TranslationService.translate(context, 'notif_wishlist_match')
             .replaceAll('{book}', t)
             .replaceAll('{source}', b ?? '');
+      case 'welcome':
+        return TranslationService.translate(context, 'notif_welcome');
       default:
         return t;
     }

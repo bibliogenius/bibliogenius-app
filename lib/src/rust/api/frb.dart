@@ -397,6 +397,41 @@ Future<List<FrbPuzzleLeaderboardEntry>> puzzleGameLeaderboard() =>
 Future<List<FrbPuzzleLeaderboardEntry>> puzzleGameRefreshLeaderboard() =>
     RustLib.instance.api.crateApiFrbPuzzleGameRefreshLeaderboard();
 
+/// Get available hangman difficulty levels based on valid titles count
+Future<List<String>> hangmanAvailableDifficulties() =>
+    RustLib.instance.api.crateApiFrbHangmanAvailableDifficulties();
+
+/// Set up a new hangman game with the given difficulty
+Future<FrbHangmanSetup> hangmanSetup({required String difficulty}) =>
+    RustLib.instance.api.crateApiFrbHangmanSetup(difficulty: difficulty);
+
+/// Submit a completed hangman game and get the score back
+Future<FrbHangmanScore> hangmanFinish({
+  required String difficulty,
+  required double elapsedSeconds,
+  required int errors,
+  required int hintsUsed,
+  required bool won,
+}) => RustLib.instance.api.crateApiFrbHangmanFinish(
+  difficulty: difficulty,
+  elapsedSeconds: elapsedSeconds,
+  errors: errors,
+  hintsUsed: hintsUsed,
+  won: won,
+);
+
+/// Get top hangman scores
+Future<List<FrbHangmanScore>> hangmanTopScores() =>
+    RustLib.instance.api.crateApiFrbHangmanTopScores();
+
+/// Get hangman leaderboard (peer scores + local user's best)
+Future<List<FrbHangmanLeaderboardEntry>> hangmanLeaderboard() =>
+    RustLib.instance.api.crateApiFrbHangmanLeaderboard();
+
+/// Refresh the hangman leaderboard by syncing with all accepted peers
+Future<List<FrbHangmanLeaderboardEntry>> hangmanRefreshLeaderboard() =>
+    RustLib.instance.api.crateApiFrbHangmanRefreshLeaderboard();
+
 /// Get full gamification status via FFI (replaces HTTP getUserStatus)
 Future<FrbGamificationStatus> gamificationGetStatus() =>
     RustLib.instance.api.crateApiFrbGamificationGetStatus();
@@ -766,6 +801,11 @@ Future<int> notificationsDismissAll() =>
 Future<int> notificationsPrune() =>
     RustLib.instance.api.crateApiFrbNotificationsPrune();
 
+/// Emit a one-time welcome notification after setup. Uses emit_unique
+/// so it fires at most once per install (idempotent on re-call).
+Future<void> emitWelcomeNotification() =>
+    RustLib.instance.api.crateApiFrbEmitWelcomeNotification();
+
 /// Simplified book structure for FFI
 @freezed
 sealed class FrbBook with _$FrbBook {
@@ -1071,6 +1111,176 @@ class FrbGamificationStatus {
           editsCount == other.editsCount &&
           nextLevelProgress == other.nextLevelProgress &&
           badgeUrl == other.badgeUrl;
+}
+
+/// A character in the hangman display (FFI-safe)
+class FrbHangmanChar {
+  final String character;
+  final String baseChar;
+  final bool revealed;
+  final bool isGuessable;
+
+  const FrbHangmanChar({
+    required this.character,
+    required this.baseChar,
+    required this.revealed,
+    required this.isGuessable,
+  });
+
+  @override
+  int get hashCode =>
+      character.hashCode ^
+      baseChar.hashCode ^
+      revealed.hashCode ^
+      isGuessable.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FrbHangmanChar &&
+          runtimeType == other.runtimeType &&
+          character == other.character &&
+          baseChar == other.baseChar &&
+          revealed == other.revealed &&
+          isGuessable == other.isGuessable;
+}
+
+/// A hangman leaderboard entry (FFI-safe)
+class FrbHangmanLeaderboardEntry {
+  final int peerId;
+  final String libraryName;
+  final double bestScore;
+  final String difficulty;
+  final String playedAt;
+  final bool isSelf;
+
+  const FrbHangmanLeaderboardEntry({
+    required this.peerId,
+    required this.libraryName,
+    required this.bestScore,
+    required this.difficulty,
+    required this.playedAt,
+    required this.isSelf,
+  });
+
+  @override
+  int get hashCode =>
+      peerId.hashCode ^
+      libraryName.hashCode ^
+      bestScore.hashCode ^
+      difficulty.hashCode ^
+      playedAt.hashCode ^
+      isSelf.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FrbHangmanLeaderboardEntry &&
+          runtimeType == other.runtimeType &&
+          peerId == other.peerId &&
+          libraryName == other.libraryName &&
+          bestScore == other.bestScore &&
+          difficulty == other.difficulty &&
+          playedAt == other.playedAt &&
+          isSelf == other.isSelf;
+}
+
+/// A saved hangman score (FFI-safe)
+class FrbHangmanScore {
+  final int? id;
+  final String difficulty;
+  final double elapsedSeconds;
+  final int errors;
+  final int hintsUsed;
+  final bool won;
+  final double normalizedScore;
+  final String playedAt;
+
+  /// Achievements unlocked after this game (empty if none)
+  final List<String> newAchievements;
+
+  const FrbHangmanScore({
+    this.id,
+    required this.difficulty,
+    required this.elapsedSeconds,
+    required this.errors,
+    required this.hintsUsed,
+    required this.won,
+    required this.normalizedScore,
+    required this.playedAt,
+    required this.newAchievements,
+  });
+
+  @override
+  int get hashCode =>
+      id.hashCode ^
+      difficulty.hashCode ^
+      elapsedSeconds.hashCode ^
+      errors.hashCode ^
+      hintsUsed.hashCode ^
+      won.hashCode ^
+      normalizedScore.hashCode ^
+      playedAt.hashCode ^
+      newAchievements.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FrbHangmanScore &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          difficulty == other.difficulty &&
+          elapsedSeconds == other.elapsedSeconds &&
+          errors == other.errors &&
+          hintsUsed == other.hintsUsed &&
+          won == other.won &&
+          normalizedScore == other.normalizedScore &&
+          playedAt == other.playedAt &&
+          newAchievements == other.newAchievements;
+}
+
+/// Game setup returned to Flutter (FFI-safe)
+class FrbHangmanSetup {
+  final String title;
+  final List<FrbHangmanChar> display;
+  final String author;
+  final String? coverUrl;
+  final int maxErrors;
+  final int hintsAvailable;
+  final String difficulty;
+
+  const FrbHangmanSetup({
+    required this.title,
+    required this.display,
+    required this.author,
+    this.coverUrl,
+    required this.maxErrors,
+    required this.hintsAvailable,
+    required this.difficulty,
+  });
+
+  @override
+  int get hashCode =>
+      title.hashCode ^
+      display.hashCode ^
+      author.hashCode ^
+      coverUrl.hashCode ^
+      maxErrors.hashCode ^
+      hintsAvailable.hashCode ^
+      difficulty.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FrbHangmanSetup &&
+          runtimeType == other.runtimeType &&
+          title == other.title &&
+          display == other.display &&
+          author == other.author &&
+          coverUrl == other.coverUrl &&
+          maxErrors == other.maxErrors &&
+          hintsAvailable == other.hintsAvailable &&
+          difficulty == other.difficulty;
 }
 
 @freezed

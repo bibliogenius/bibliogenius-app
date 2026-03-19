@@ -727,6 +727,8 @@ IconData _iconForEvent(String eventType) {
       return Icons.assignment_return;
     case 'wishlist_match':
       return Icons.favorite;
+    case 'welcome':
+      return Icons.waving_hand;
     default:
       return Icons.notifications;
   }
@@ -758,6 +760,8 @@ String _formatTitle(BuildContext context, FrbNotification n) {
       return TranslationService.translate(context, 'notif_wishlist_match')
           .replaceAll('{book}', t)
           .replaceAll('{source}', b ?? '');
+    case 'welcome':
+      return TranslationService.translate(context, 'notif_welcome');
     default:
       return t;
   }

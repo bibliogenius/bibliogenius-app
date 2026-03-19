@@ -7856,6 +7856,10 @@ msgstr "{name} a rendu « {book} »"
 msgid "notif_wishlist_match"
 msgstr "« {book} » disponible chez {source}"
 
+#. Notification display - system events
+msgid "notif_welcome"
+msgstr "Bienvenue sur BiblioGenius ! Explorez l'application pour gerer votre bibliotheque."
+
 #. Notification tap hints
 msgid "notif_tap_network"
 msgstr "Voir le réseau"
@@ -7914,3 +7918,43 @@ msgstr "Personnaliser l'affichage"
 #. Default library name with device name (e.g. "Library of iPhone")
 msgid "library_of_device"
 msgstr "Bibliothèque de %s"
+
+#. Hangman game
+msgid "hangman_title"
+msgstr "Pendu"
+
+msgid "hangman_dashboard_subtitle"
+msgstr "Devinez vos titres de livres lettre par lettre"
+
+msgid "hangman_not_enough_books"
+msgstr "Il faut au moins 15 livres dans votre biblioth\u00e8que pour jouer au Pendu."
+
+msgid "hangman_visual_style"
+msgstr "Style visuel"
+
+msgid "hangman_style_classic"
+msgstr "Classique"
+
+msgid "hangman_style_books"
+msgstr "Livres"
+
+msgid "hangman_errors"
+msgstr "Erreurs"
+
+msgid "hangman_hints"
+msgstr "Indices"
+
+msgid "hangman_won"
+msgstr "Bravo !"
+
+msgid "hangman_lost"
+msgstr "Perdu !"
+
+msgid "achievement_hangman_first_game"
+msgstr "Premier Pendu"
+
+msgid "achievement_hangman_perfect"
+msgstr "Pendu parfait"
+
+msgid "achievement_hangman_master"
+msgstr "Ma\u00eetre du Pendu"

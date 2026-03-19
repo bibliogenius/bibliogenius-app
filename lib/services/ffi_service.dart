@@ -758,6 +758,82 @@ class FfiService {
     }
   }
 
+  // ============ Hangman (FFI direct) ============
+
+  /// Get available hangman difficulty levels
+  Future<List<String>> getHangmanDifficulties() async {
+    try {
+      return await frb.hangmanAvailableDifficulties();
+    } catch (e) {
+      debugPrint('FFI hangmanAvailableDifficulties error: $e');
+      rethrow;
+    }
+  }
+
+  /// Set up a new hangman game with the given difficulty
+  Future<frb.FrbHangmanSetup> setupHangman(String difficulty) async {
+    try {
+      return await frb.hangmanSetup(difficulty: difficulty);
+    } catch (e) {
+      debugPrint('FFI hangmanSetup error: $e');
+      rethrow;
+    }
+  }
+
+  /// Submit a completed hangman game and get the score back
+  Future<frb.FrbHangmanScore> finishHangman({
+    required String difficulty,
+    required double elapsedSeconds,
+    required int errors,
+    required int hintsUsed,
+    required bool won,
+  }) async {
+    try {
+      return await frb.hangmanFinish(
+        difficulty: difficulty,
+        elapsedSeconds: elapsedSeconds,
+        errors: errors,
+        hintsUsed: hintsUsed,
+        won: won,
+      );
+    } catch (e) {
+      debugPrint('FFI hangmanFinish error: $e');
+      rethrow;
+    }
+  }
+
+  /// Get top hangman scores
+  Future<List<frb.FrbHangmanScore>> getHangmanTopScores() async {
+    try {
+      return await frb.hangmanTopScores();
+    } catch (e) {
+      debugPrint('FFI hangmanTopScores error: $e');
+      return [];
+    }
+  }
+
+  /// Get hangman leaderboard
+  Future<List<frb.FrbHangmanLeaderboardEntry>>
+      getHangmanLeaderboard() async {
+    try {
+      return await frb.hangmanLeaderboard();
+    } catch (e) {
+      debugPrint('FFI hangmanLeaderboard error: $e');
+      return [];
+    }
+  }
+
+  /// Refresh hangman leaderboard: sync with peers then return merged leaderboard
+  Future<List<frb.FrbHangmanLeaderboardEntry>>
+      refreshHangmanLeaderboard() async {
+    try {
+      return await frb.hangmanRefreshLeaderboard();
+    } catch (e) {
+      debugPrint('FFI hangmanRefreshLeaderboard error: $e');
+      return [];
+    }
+  }
+
   // ============ Gamification (FFI direct) ============
 
   /// Get full gamification status (tracks, streak, achievements, config)
