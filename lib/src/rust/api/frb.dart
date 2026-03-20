@@ -574,6 +574,15 @@ Future<int> deviceSyncApproveAll() =>
 Future<int> deviceSyncRejectAll() =>
     RustLib.instance.api.crateApiFrbDeviceSyncRejectAll();
 
+/// Backfill the operation_log with INSERT ops for all existing books, authors, tags, copies.
+/// This allows syncing a library that was created before operation logging was added.
+Future<int> deviceSyncBackfill() =>
+    RustLib.instance.api.crateApiFrbDeviceSyncBackfill();
+
+/// Purge the entire operation log and reset sync timestamps on all linked devices
+Future<int> deviceSyncReset() =>
+    RustLib.instance.api.crateApiFrbDeviceSyncReset();
+
 /// Returns the local hub directory settings, or None if not yet registered.
 Future<FrbDirectoryConfig?> hubDirectoryGetConfig() =>
     RustLib.instance.api.crateApiFrbHubDirectoryGetConfig();

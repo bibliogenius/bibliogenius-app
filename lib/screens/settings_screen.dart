@@ -721,7 +721,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   (value) => themeProvider.setDigitalFormatsEnabled(value),
                 ),
                 _buildMcpModuleToggle(),
-                // Linked Devices section (disabled — E2EE sync under development)
+                // Linked Devices section
                 const SizedBox(height: 16),
                 Semantics(
                   header: true,
@@ -736,20 +736,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Card(
                   margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                   child: ListTile(
-                    leading: Icon(Icons.devices_rounded,
-                        color: theme.disabledColor),
+                    leading: const Icon(Icons.devices_rounded),
                     title: Text(
                       TranslationService.translate(
                           context, 'settings_linked_devices'),
-                      style: TextStyle(color: theme.disabledColor),
                     ),
                     subtitle: Text(
                       TranslationService.translate(
                           context, 'settings_linked_devices_desc'),
                     ),
-                    trailing: Icon(Icons.lock_outline,
-                        color: theme.disabledColor, size: 20),
-                    enabled: false,
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => context.push('/device-pairing'),
                   ),
                 ),
 

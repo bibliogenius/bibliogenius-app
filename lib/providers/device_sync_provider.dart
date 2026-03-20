@@ -21,7 +21,8 @@ class DeviceSyncProvider extends ChangeNotifier {
   /// Trigger sync with a linked device via the local HTTP endpoint
   /// which handles the actual E2EE transport.
   /// [peerUrl] is the LAN URL of the peer (from mDNS discovery).
-  Future<void> triggerSync(int deviceId, {String? peerUrl}) async {
+  /// [direction] is "push" (master→slave), "pull" (slave←master), or "both" (default).
+  Future<void> triggerSync(int deviceId, {String? peerUrl, String direction = 'both'}) async {
     _isSyncing = true;
     _error = null;
     notifyListeners();
@@ -35,7 +36,10 @@ class DeviceSyncProvider extends ChangeNotifier {
       ));
       final response = await dio.post(
         '/api/devices/sync/$deviceId',
-        data: {if (peerUrl != null) 'peer_url': peerUrl},
+        data: {
+          if (peerUrl != null) 'peer_url': peerUrl,
+          'direction': direction,
+        },
       );
       final data = response.data as Map<String, dynamic>;
 
@@ -125,6 +129,21 @@ class DeviceSyncProvider extends ChangeNotifier {
     } catch (e) {
       _error = e.toString();
       debugPrint('DeviceSyncProvider.approveAll error: $e');
+      notifyListeners();
+      return 0;
+    }
+  }
+
+  /// Reset: purge the entire operation log
+  Future<int> resetOperationLog() async {
+    try {
+      final count = await frb.deviceSyncReset();
+      _pendingReview.clear();
+      notifyListeners();
+      return count.toInt();
+    } catch (e) {
+      _error = e.toString();
+      debugPrint('DeviceSyncProvider.resetOperationLog error: $e');
       notifyListeners();
       return 0;
     }

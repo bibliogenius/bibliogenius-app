@@ -7264,10 +7264,10 @@ msgid "tooltip_cancel_pairing"
 msgstr "Cancel pairing"
 
 msgid "settings_linked_devices"
-msgstr "Linked Devices"
+msgstr "Linked Devices (experimental)"
 
 msgid "settings_linked_devices_desc"
-msgstr "Sync your library across multiple devices"
+msgstr "Sync your library across multiple devices via E2EE"
 
 msgid "settings_auto_backup"
 msgstr "Auto-backup"
@@ -8058,3 +8058,18 @@ msgstr "%d pending review"
 
 msgid "pairing_last_paired"
 msgstr "Paired %s"
+
+msgid "sync_push"
+msgstr "Push to device"
+
+msgid "sync_pull"
+msgstr "Pull from device"
+
+msgid "sync_both"
+msgstr "Sync both ways"
+
+msgid "sync_reset_all"
+msgstr "Reset sync log"
+
+msgid "sync_reset_confirm"
+msgstr "This will delete all pending, applied, and failed sync operations. Your books are not affected. Continue?"

@@ -78,10 +78,20 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
     super.dispose();
   }
 
+  bool _backfillDone = false;
+
   Future<void> _loadDevices() async {
     setState(() => _isLoadingDevices = true);
     try {
       final devices = await frb.deviceListLinked();
+      // Backfill operation_log once if there are linked devices
+      if (!_backfillDone && devices.isNotEmpty) {
+        _backfillDone = true;
+        final count = await frb.deviceSyncBackfill();
+        if (count > 0) {
+          debugPrint('DevicePairing: backfilled $count operations');
+        }
+      }
       if (mounted) {
         setState(() {
           _devices = devices;
@@ -321,15 +331,15 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
     return null;
   }
 
-  Future<void> _syncDevice(frb.FrbLinkedDevice device) async {
+  Future<void> _syncDevice(frb.FrbLinkedDevice device, {String direction = 'both'}) async {
     final syncProvider = context.read<DeviceSyncProvider>();
     // Always restart mDNS discovery before sync to get fresh peers
     await MdnsService.startDiscovery();
     await Future.delayed(const Duration(seconds: 3));
     final peerUrl = _findPeerUrl(device);
-    debugPrint('DevicePairing: sync device="${device.name}" peerUrl=$peerUrl '
+    debugPrint('DevicePairing: sync device="${device.name}" peerUrl=$peerUrl direction=$direction '
         'peers=${MdnsService.peers.map((p) => '${p.name}(${p.deviceName})').toList()}');
-    await syncProvider.triggerSync(device.id, peerUrl: peerUrl);
+    await syncProvider.triggerSync(device.id, peerUrl: peerUrl, direction: direction);
     if (!mounted) return;
 
     final result = syncProvider.lastResult;
@@ -374,6 +384,49 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
 
     // Refresh device list to update lastSynced timestamp
     _loadDevices();
+  }
+
+  void _showPendingActions(BuildContext ctx, DeviceSyncProvider provider, int count) {
+    showModalBottomSheet(
+      context: ctx,
+      builder: (sheetCtx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.check_circle_outline, color: Colors.green),
+              title: Text(TranslationService.translate(ctx, 'sync_review_approve_all')),
+              subtitle: Text('$count operations'),
+              onTap: () async {
+                Navigator.pop(sheetCtx);
+                final approved = await provider.approveAll();
+                if (mounted) {
+                  ScaffoldMessenger.of(ctx).showSnackBar(
+                    SnackBar(content: Text('$approved operations approved')),
+                  );
+                  _loadDevices();
+                }
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete_sweep_rounded, color: Colors.red),
+              title: Text(TranslationService.translate(ctx, 'sync_reset_all')),
+              subtitle: Text(TranslationService.translate(ctx, 'sync_reset_confirm')),
+              onTap: () async {
+                Navigator.pop(sheetCtx);
+                final deleted = await provider.resetOperationLog();
+                if (mounted) {
+                  ScaffoldMessenger.of(ctx).showSnackBar(
+                    SnackBar(content: Text('$deleted operations deleted')),
+                  );
+                  _loadDevices();
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> _removeDevice(frb.FrbLinkedDevice device) async {
@@ -721,7 +774,7 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
                     if (pendingCount > 0) ...[
                       const SizedBox(height: 4),
                       GestureDetector(
-                        onTap: () => context.go('/sync-review'),
+                        onTap: () => _showPendingActions(context, syncProvider, pendingCount),
                         child: Text(
                           TranslationService.translate(
                                   context, 'pairing_pending_review')
@@ -758,11 +811,41 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
                       ),
                     )
                   else
-                    IconButton(
+                    PopupMenuButton<String>(
                       icon: const Icon(Icons.sync_rounded),
                       tooltip: TranslationService.translate(
                           context, 'tooltip_sync_device'),
-                      onPressed: () => _syncDevice(device),
+                      onSelected: (direction) =>
+                          _syncDevice(device, direction: direction),
+                      itemBuilder: (context) => [
+                        PopupMenuItem(
+                          value: 'push',
+                          child: Row(children: [
+                            const Icon(Icons.upload_rounded, size: 20),
+                            const SizedBox(width: 8),
+                            Text(TranslationService.translate(
+                                context, 'sync_push')),
+                          ]),
+                        ),
+                        PopupMenuItem(
+                          value: 'pull',
+                          child: Row(children: [
+                            const Icon(Icons.download_rounded, size: 20),
+                            const SizedBox(width: 8),
+                            Text(TranslationService.translate(
+                                context, 'sync_pull')),
+                          ]),
+                        ),
+                        PopupMenuItem(
+                          value: 'both',
+                          child: Row(children: [
+                            const Icon(Icons.sync_rounded, size: 20),
+                            const SizedBox(width: 8),
+                            Text(TranslationService.translate(
+                                context, 'sync_both')),
+                          ]),
+                        ),
+                      ],
                     ),
                   IconButton(
                     icon: Icon(

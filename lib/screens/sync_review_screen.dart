@@ -113,59 +113,71 @@ class _SyncReviewScreenState extends State<SyncReviewScreen> {
   }
 
   Widget _buildActionBar(DeviceSyncProvider provider, ThemeData theme) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        children: [
-          Expanded(
-            child: Tooltip(
-              message: TranslationService.translate(
-                context,
-                'sync_review_approve_all',
-              ),
-              child: FilledButton.icon(
-                onPressed: () => _approveAll(provider),
-                icon: const Icon(Icons.check_circle_outline, size: 18),
-                label: Text(
-                  TranslationService.translate(
-                    context,
-                    'sync_review_approve_all',
-                  ),
+    return Column(children: [
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          children: [
+            Expanded(
+              child: Tooltip(
+                message: TranslationService.translate(
+                  context,
+                  'sync_review_approve_all',
                 ),
-                style: FilledButton.styleFrom(
-                  backgroundColor: Colors.green.shade700,
-                  foregroundColor: Colors.white,
+                child: FilledButton.icon(
+                  onPressed: () => _approveAll(provider),
+                  icon: const Icon(Icons.check_circle_outline, size: 18),
+                  label: Text(
+                    TranslationService.translate(
+                      context,
+                      'sync_review_approve_all',
+                    ),
+                  ),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: Colors.green.shade700,
+                    foregroundColor: Colors.white,
+                  ),
                 ),
               ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Tooltip(
-              message: TranslationService.translate(
-                context,
-                'sync_review_reject_all',
-              ),
-              child: OutlinedButton.icon(
-                onPressed: () => _rejectAll(provider),
-                icon: Icon(Icons.cancel_outlined,
-                    size: 18, color: theme.colorScheme.error),
-                label: Text(
-                  TranslationService.translate(
-                    context,
-                    'sync_review_reject_all',
-                  ),
-                  style: TextStyle(color: theme.colorScheme.error),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Tooltip(
+                message: TranslationService.translate(
+                  context,
+                  'sync_review_reject_all',
                 ),
-                style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: theme.colorScheme.error),
+                child: OutlinedButton.icon(
+                  onPressed: () => _rejectAll(provider),
+                  icon: Icon(Icons.cancel_outlined,
+                      size: 18, color: theme.colorScheme.error),
+                  label: Text(
+                    TranslationService.translate(
+                      context,
+                      'sync_review_reject_all',
+                    ),
+                    style: TextStyle(color: theme.colorScheme.error),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: theme.colorScheme.error),
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    );
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: TextButton.icon(
+          onPressed: () => _resetAll(provider),
+          icon: const Icon(Icons.delete_sweep_rounded, size: 18),
+          label: Text(
+            TranslationService.translate(context, 'sync_reset_all'),
+          ),
+        ),
+      ),
+    ]);
   }
 
   Widget _buildOpCard(frb.FrbPendingReviewOp op, ThemeData theme) {
@@ -417,6 +429,36 @@ class _SyncReviewScreenState extends State<SyncReviewScreen> {
               .replaceFirst('%d', count.toString()),
         ),
       ),
+    );
+  }
+
+  Future<void> _resetAll(DeviceSyncProvider provider) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(TranslationService.translate(context, 'sync_reset_all')),
+        content: Text(TranslationService.translate(context, 'sync_reset_confirm')),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(TranslationService.translate(context, 'cancel')),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(
+              TranslationService.translate(context, 'delete'),
+              style: const TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    final count = await provider.resetOperationLog();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Reset $count operations')),
     );
   }
 

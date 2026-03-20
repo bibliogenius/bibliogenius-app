@@ -7264,10 +7264,10 @@ msgid "tooltip_cancel_pairing"
 msgstr "Annuler l'appairage"
 
 msgid "settings_linked_devices"
-msgstr "Appareils lies"
+msgstr "Appareils liés (expérimental)"
 
 msgid "settings_linked_devices_desc"
-msgstr "Synchronisez votre bibliothèque entre plusieurs appareils"
+msgstr "Synchronisez votre bibliothèque entre plusieurs appareils via E2EE"
 
 msgid "settings_auto_backup"
 msgstr "Sauvegarde automatique"
@@ -8058,3 +8058,18 @@ msgstr "%d en attente de validation"
 
 msgid "pairing_last_paired"
 msgstr "Appairé le %s"
+
+msgid "sync_push"
+msgstr "Envoyer vers l'appareil"
+
+msgid "sync_pull"
+msgstr "Recevoir de l'appareil"
+
+msgid "sync_both"
+msgstr "Synchroniser dans les deux sens"
+
+msgid "sync_reset_all"
+msgstr "Réinitialiser le journal de synchro"
+
+msgid "sync_reset_confirm"
+msgstr "Ceci supprimera toutes les opérations de synchro (en attente, appliquées et échouées). Vos livres ne sont pas affectés. Continuer ?"
