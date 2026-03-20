@@ -6940,10 +6940,10 @@ msgid "settings_developer_tools"
 msgstr "Herramientas de desarrollador"
 
 msgid "settings_linked_devices"
-msgstr "Dispositivos vinculados"
+msgstr "Dispositivos vinculados (experimental)"
 
 msgid "settings_linked_devices_desc"
-msgstr "Gestiona los dispositivos vinculados para la sincronizacion"
+msgstr "Sincroniza tu biblioteca entre varios dispositivos via E2EE"
 
 msgid "settings_mode_directory_desc"
 msgstr "Estar listada para que otros puedan descubrirte y seguirte."
@@ -7338,3 +7338,24 @@ msgstr "Acciones"
 #. Default library name with device name (e.g. "Library of iPhone")
 msgid "library_of_device"
 msgstr "Biblioteca de %s"
+
+msgid "pairing_pending_review"
+msgstr "%d pendientes de validación"
+
+msgid "pairing_last_paired"
+msgstr "Vinculado el %s"
+
+msgid "sync_push"
+msgstr "Enviar al dispositivo"
+
+msgid "sync_pull"
+msgstr "Recibir del dispositivo"
+
+msgid "sync_both"
+msgstr "Sincronizar en ambos sentidos"
+
+msgid "sync_reset_all"
+msgstr "Reiniciar registro de sincronización"
+
+msgid "sync_reset_confirm"
+msgstr "Esto eliminará todas las operaciones de sincronización (pendientes, aplicadas y fallidas). Tus libros no se verán afectados. ¿Continuar?"
