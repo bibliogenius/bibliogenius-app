@@ -7264,7 +7264,7 @@ msgid "tooltip_cancel_pairing"
 msgstr "Annuler l'appairage"
 
 msgid "settings_linked_devices"
-msgstr "Appareils liés (expérimental)"
+msgstr "Appareils liés"
 
 msgid "settings_linked_devices_desc"
 msgstr "Synchronisez votre bibliothèque entre plusieurs appareils via E2EE"

@@ -386,6 +386,70 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
     _loadDevices();
   }
 
+  void _showSyncMenu(frb.FrbLinkedDevice device, DeviceSyncProvider provider) {
+    showModalBottomSheet(
+      context: context,
+      builder: (sheetCtx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: Text(device.name,
+                  style: Theme.of(sheetCtx).textTheme.titleMedium),
+            ),
+            ListTile(
+              leading: const Icon(Icons.upload_rounded),
+              title: Text(TranslationService.translate(context, 'sync_push')),
+              onTap: () {
+                Navigator.pop(sheetCtx);
+                _syncDevice(device, direction: 'push');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.download_rounded),
+              title: Text(TranslationService.translate(context, 'sync_pull')),
+              onTap: () {
+                Navigator.pop(sheetCtx);
+                _syncDevice(device, direction: 'pull');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.sync_rounded),
+              title: Text(TranslationService.translate(context, 'sync_both')),
+              onTap: () {
+                Navigator.pop(sheetCtx);
+                _syncDevice(device, direction: 'both');
+              },
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.delete_sweep_rounded),
+              title: Text(TranslationService.translate(context, 'sync_reset_all')),
+              onTap: () {
+                Navigator.pop(sheetCtx);
+                _resetSync(context);
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _resetSync(BuildContext ctx) async {
+    final syncProvider = ctx.read<DeviceSyncProvider>();
+    final count = await syncProvider.resetOperationLog();
+    _backfillDone = false; // Allow backfill to run again
+    if (mounted) {
+      ScaffoldMessenger.of(ctx).showSnackBar(
+        SnackBar(content: Text('Reset $count operations')),
+      );
+      _loadDevices();
+    }
+  }
+
   void _showPendingActions(BuildContext ctx, DeviceSyncProvider provider, int count) {
     showModalBottomSheet(
       context: ctx,
@@ -732,29 +796,37 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
         ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Leading icon
-              Container(
-                width: 40,
-                height: 40,
-                margin: const EdgeInsets.only(top: 4),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(AppDesign.radiusSmall),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
+          onTap: isSyncing ? null : () => _showSyncMenu(device, syncProvider),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Leading icon
+                Container(
+                  width: 40,
+                  height: 40,
+                  margin: const EdgeInsets.only(top: 4),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(AppDesign.radiusSmall),
+                  ),
+                  child: isSyncing
+                      ? const Padding(
+                          padding: EdgeInsets.all(10),
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Icon(
+                          Icons.devices_rounded,
+                          color: theme.colorScheme.onPrimaryContainer,
+                          size: 20,
+                        ),
                 ),
-                child: Icon(
-                  Icons.devices_rounded,
-                  color: theme.colorScheme.onPrimaryContainer,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 12),
-              // Content
-              Expanded(
+                const SizedBox(width: 12),
+                // Content
+                Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -797,69 +869,19 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
                   ],
                 ),
               ),
-              // Trailing actions
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (isSyncing)
-                    const Padding(
-                      padding: EdgeInsets.all(12),
-                      child: SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
-                    )
-                  else
-                    PopupMenuButton<String>(
-                      icon: const Icon(Icons.sync_rounded),
-                      tooltip: TranslationService.translate(
-                          context, 'tooltip_sync_device'),
-                      onSelected: (direction) =>
-                          _syncDevice(device, direction: direction),
-                      itemBuilder: (context) => [
-                        PopupMenuItem(
-                          value: 'push',
-                          child: Row(children: [
-                            const Icon(Icons.upload_rounded, size: 20),
-                            const SizedBox(width: 8),
-                            Text(TranslationService.translate(
-                                context, 'sync_push')),
-                          ]),
-                        ),
-                        PopupMenuItem(
-                          value: 'pull',
-                          child: Row(children: [
-                            const Icon(Icons.download_rounded, size: 20),
-                            const SizedBox(width: 8),
-                            Text(TranslationService.translate(
-                                context, 'sync_pull')),
-                          ]),
-                        ),
-                        PopupMenuItem(
-                          value: 'both',
-                          child: Row(children: [
-                            const Icon(Icons.sync_rounded, size: 20),
-                            const SizedBox(width: 8),
-                            Text(TranslationService.translate(
-                                context, 'sync_both')),
-                          ]),
-                        ),
-                      ],
-                    ),
-                  IconButton(
-                    icon: Icon(
-                      Icons.delete_outline,
-                      color: theme.colorScheme.error,
-                    ),
-                    tooltip: TranslationService.translate(
-                        context, 'tooltip_remove_device'),
-                    onPressed: () => _removeDevice(device),
-                  ),
-                ],
+              // Trailing: just delete button (sync actions via card tap)
+              IconButton(
+                icon: Icon(
+                  Icons.delete_outline,
+                  color: theme.colorScheme.error,
+                ),
+                tooltip: TranslationService.translate(
+                    context, 'tooltip_remove_device'),
+                onPressed: () => _removeDevice(device),
               ),
             ],
           ),
+        ),
         ),
       ),
     );

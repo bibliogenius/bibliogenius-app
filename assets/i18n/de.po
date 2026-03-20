@@ -6940,7 +6940,7 @@ msgid "settings_developer_tools"
 msgstr "Entwicklertools"
 
 msgid "settings_linked_devices"
-msgstr "Verknüpfte Geräte (experimentell)"
+msgstr "Verknüpfte Geräte"
 
 msgid "settings_linked_devices_desc"
 msgstr "Bibliothek über mehrere Geräte via E2EE synchronisieren"

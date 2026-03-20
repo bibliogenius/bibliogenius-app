@@ -7264,7 +7264,7 @@ msgid "tooltip_cancel_pairing"
 msgstr "Cancel pairing"
 
 msgid "settings_linked_devices"
-msgstr "Linked Devices (experimental)"
+msgstr "Linked Devices"
 
 msgid "settings_linked_devices_desc"
 msgstr "Sync your library across multiple devices via E2EE"
