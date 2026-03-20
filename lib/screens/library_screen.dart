@@ -208,28 +208,71 @@ class _LibraryScreenState extends State<LibraryScreen>
       ),
       floatingActionButton: _tabController.index == 0 ||
               (_tabController.index == 1 && widget.shelfTagFilter != null)
-          ? FloatingActionButton(
-              heroTag: 'library_add_fab',
-              key: const Key('addBookButton'),
-              onPressed: () async {
-                final extra = <String, dynamic>{};
-                if (_tabController.index == 1 &&
-                    widget.shelfTagFilter != null) {
-                  extra['shelfId'] = widget.shelfTagFilter;
-                  extra['shelfName'] = widget.shelfTagFilter;
-                }
-                final result = await context.push(
-                  '/books/add',
-                  extra: extra.isNotEmpty ? extra : null,
-                );
-                if (result != null) {
-                  _refreshNotifier.value++;
-                  if (result is int) {
-                    context.push('/books/$result');
-                  }
-                }
-              },
-              child: const Icon(Icons.add),
+          ? Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  width: 48,
+                  height: 48,
+                  child: FloatingActionButton(
+                  heroTag: 'library_scan_fab',
+                  onPressed: () async {
+                    final router = GoRouter.of(context);
+                    final extra = <String, dynamic>{};
+                    if (_tabController.index == 1 &&
+                        widget.shelfTagFilter != null) {
+                      extra['shelfId'] = widget.shelfTagFilter;
+                      extra['shelfName'] = widget.shelfTagFilter;
+                    }
+                    final isbn = await router.push<String>(
+                      '/scan',
+                      extra: extra.isNotEmpty ? extra : null,
+                    );
+                    if (isbn != null && mounted) {
+                      extra['isbn'] = isbn;
+                      final result = await router.push(
+                        '/books/add',
+                        extra: extra,
+                      );
+                      if (result != null && mounted) {
+                        _refreshNotifier.value++;
+                        if (result is int) {
+                          router.push('/books/$result');
+                        }
+                      }
+                    }
+                  },
+                  child: const Icon(Icons.qr_code_scanner, size: 22),
+                )),
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: 48,
+                  height: 48,
+                  child: FloatingActionButton(
+                  heroTag: 'library_add_fab',
+                  key: const Key('addBookButton'),
+                  onPressed: () async {
+                    final router = GoRouter.of(context);
+                    final extra = <String, dynamic>{};
+                    if (_tabController.index == 1 &&
+                        widget.shelfTagFilter != null) {
+                      extra['shelfId'] = widget.shelfTagFilter;
+                      extra['shelfName'] = widget.shelfTagFilter;
+                    }
+                    final result = await router.push(
+                      '/books/add',
+                      extra: extra.isNotEmpty ? extra : null,
+                    );
+                    if (result != null && mounted) {
+                      _refreshNotifier.value++;
+                      if (result is int) {
+                        router.push('/books/$result');
+                      }
+                    }
+                  },
+                  child: const Icon(Icons.add, size: 22),
+                )),
+              ],
             )
           : null,
     );

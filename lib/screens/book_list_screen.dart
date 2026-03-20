@@ -465,19 +465,20 @@ class _BookListScreenState extends State<BookListScreen>
                   label: '${TranslationService.translate(sheetContext, 'quick_scan_barcode')} → ${_currentShelf!.name}',
                   onTap: () async {
                     Navigator.pop(sheetContext);
-                    final isbn = await context.push<String>(
+                    final router = GoRouter.of(context);
+                    final isbn = await router.push<String>(
                       '/scan',
                       extra: {'shelfId': shelfId, 'shelfName': shelfName},
                     );
                     if (isbn != null && mounted) {
-                      final result = await context.push(
+                      final result = await router.push(
                         '/books/add',
                         extra: {'isbn': isbn, 'shelfId': shelfId},
                       );
                       if (result != null && mounted) {
                         _fetchBooks();
                         if (result is int) {
-                          context.push('/books/$result');
+                          router.push('/books/$result');
                         }
                       }
                     }
@@ -584,15 +585,42 @@ class _BookListScreenState extends State<BookListScreen>
 
   bool _showBorrowedConfig = true; // Store config value
 
+  Future<void> _scanBook() async {
+    final router = GoRouter.of(context);
+    final isbn = await router.push<String>(
+      '/scan',
+      extra: {
+        if (_currentShelf != null) 'shelfId': _currentShelf!.id,
+        if (_currentShelf != null) 'shelfName': _currentShelf!.fullPath,
+      },
+    );
+    if (isbn != null && mounted) {
+      final result = await router.push(
+        '/books/add',
+        extra: {
+          'isbn': isbn,
+          if (_currentShelf != null) 'shelfId': _currentShelf!.id,
+        },
+      );
+      if (result != null && mounted) {
+        _fetchBooks();
+        if (result is int) {
+          router.push('/books/$result');
+        }
+      }
+    }
+  }
+
   Future<void> _addBook() async {
-    final result = await context.push(
+    final router = GoRouter.of(context);
+    final result = await router.push(
       '/books/add',
       extra: {'shelfId': _currentShelf?.name ?? _tagFilter},
     );
     if (result != null) {
       _handleRefreshTrigger(); // Use central refresh trigger
       if (result is int) {
-        context.push('/books/$result');
+        router.push('/books/$result');
       }
     }
   }
@@ -1895,9 +1923,10 @@ class _BookListScreenState extends State<BookListScreen>
                     const SizedBox(height: 32),
                     ElevatedButton.icon(
                       onPressed: () async {
-                        final isbn = await context.push<String>('/scan');
+                        final router = GoRouter.of(context);
+                        final isbn = await router.push<String>('/scan');
                         if (isbn != null && mounted) {
-                          final result = await context.push(
+                          final result = await router.push(
                             '/books/add',
                             extra: {'isbn': isbn},
                           );
