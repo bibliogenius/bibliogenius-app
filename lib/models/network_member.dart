@@ -191,7 +191,7 @@ class NetworkMember {
         case 'pending':
           return 'En attente';
         default:
-          return 'Hors ligne';
+          return '';
       }
     } else {
       return isActive == true ? 'Actif' : 'Inactif';
