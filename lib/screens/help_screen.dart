@@ -28,6 +28,7 @@ class _HelpScreenState extends State<HelpScreen> {
     final audioEnabled = themeProvider.audioEnabled;
     final memoryGameEnabled = themeProvider.memoryGameEnabled;
     final slidingPuzzleEnabled = themeProvider.slidingPuzzleEnabled;
+    final hangmanEnabled = themeProvider.hangmanEnabled;
 
     _topics = [
       // --- Getting Started ---
@@ -138,6 +139,17 @@ class _HelpScreenState extends State<HelpScreen> {
           ),
           ctaKey: 'help_cta_play_puzzle',
           ctaRoute: '/sliding-puzzle',
+        ),
+      if (hangmanEnabled)
+        _HelpTopic(
+          icon: Icons.text_fields,
+          titleKey: 'help_topic_hangman',
+          descKey: 'help_desc_hangman',
+          gradient: const LinearGradient(
+            colors: [Color(0xFF7C3AED), Color(0xFFA78BFA)],
+          ),
+          ctaKey: 'help_cta_play_hangman',
+          ctaRoute: '/hangman',
         ),
 
       // --- Data & Settings ---

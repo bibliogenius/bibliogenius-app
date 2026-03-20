@@ -549,7 +549,7 @@ class _ShelfManagementScreenState extends State<ShelfManagementScreen> {
     // Filter out the tag itself and its descendants (can't move to self or child)
     final descendants = Tag.getDescendantIds(tag.id, _allTags);
     final validParents = _allTags
-        .where((t) => t.id != tag.id && !descendants.contains(t.id) && t.id > 0)
+        .where((t) => t.id != tag.id && !descendants.contains(t.id))
         .toList();
 
     showDialog(
@@ -729,12 +729,15 @@ class _ShelfManagementScreenState extends State<ShelfManagementScreen> {
       final api = Provider.of<TagRepository>(context, listen: false);
 
       // Legacy tags have negative IDs - they exist in book subjects but not in tags table
-      // We need to create them first before we can set their parent
+      // Create the tag in DB, then rename subjects in books if name changed
       if (id < 0) {
-        // Find the original tag to get its name
         final originalTag = _allTags.firstWhere((t) => t.id == id);
-        // Create the tag in the database (with the new parent if specified)
-        await api.createTag(originalTag.name, parentId: parentId);
+        // Create with the OLD name first (so subjects match)
+        final created = await api.createTag(originalTag.name, parentId: parentId);
+        // If renamed, update the tag AND rename subjects in all books
+        if (originalTag.name != name) {
+          await api.updateTag(created.id, name, parentId: parentId);
+        }
         _showSuccess(
           TranslationService.translate(context, 'shelf_updated') ??
               'Shelf updated',

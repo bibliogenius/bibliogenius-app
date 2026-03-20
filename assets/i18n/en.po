@@ -6947,6 +6947,34 @@ msgstr "Reconstruct a book cover by sliding tiles"
 msgid "help_cta_play_puzzle"
 msgstr "Play"
 
+#. Help - Hangman Topic
+msgid "help_topic_hangman"
+msgstr "Hangman"
+
+#. Help - Hangman Description
+msgid "help_desc_hangman"
+msgstr "Guess the title of a book from your library letter by letter"
+
+#. Help - Hangman CTA
+msgid "help_cta_play_hangman"
+msgstr "Play"
+
+#. Backup - Save dialog title (desktop)
+msgid "save_backup_dialog_title"
+msgstr "Save backup"
+
+#. Backup - Share text (mobile)
+msgid "backup_share_text"
+msgstr "My BiblioGenius backup"
+
+#. Backup - Export success
+msgid "backup_export_success"
+msgstr "Backup exported successfully"
+
+#. Backup - Export error
+msgid "backup_export_error"
+msgstr "Export error"
+
 #. Accessibility - Tooltip: open navigation menu
 msgid "tooltip_open_menu"
 msgstr "Open menu"
@@ -7191,7 +7219,16 @@ msgid "pairing_code_expired"
 msgstr "Code expired"
 
 msgid "pairing_enter_instruction"
-msgstr "Enter the 6-digit code from the other device"
+msgstr "Select the device on your Wi-Fi network then enter its 6-digit code"
+
+msgid "pairing_no_peers"
+msgstr "No devices found on the Wi-Fi network"
+
+msgid "pairing_mdns_hint"
+msgstr "Both devices must be on the same Wi-Fi with network discovery enabled (Settings > Network)"
+
+msgid "pairing_select_device"
+msgstr "Device to pair"
 
 msgid "pairing_button_pair"
 msgstr "Pair"
@@ -7231,6 +7268,12 @@ msgstr "Linked Devices"
 
 msgid "settings_linked_devices_desc"
 msgstr "Sync your library across multiple devices"
+
+msgid "settings_auto_backup"
+msgstr "Auto-backup"
+
+msgid "settings_auto_backup_desc"
+msgstr "Push your data to linked devices on the same Wi-Fi at startup"
 
 #. Notifications settings section header
 msgid "settings_notifications"
@@ -8009,3 +8052,9 @@ msgstr "Perfect Hangman"
 
 msgid "achievement_hangman_master"
 msgstr "Hangman Master"
+
+msgid "pairing_pending_review"
+msgstr "%d pending review"
+
+msgid "pairing_last_paired"
+msgstr "Paired %s"

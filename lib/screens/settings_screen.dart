@@ -721,7 +721,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   (value) => themeProvider.setDigitalFormatsEnabled(value),
                 ),
                 _buildMcpModuleToggle(),
-                // Linked Devices section (coming soon)
+                // Linked Devices section (disabled — E2EE sync under development)
                 const SizedBox(height: 16),
                 Semantics(
                   header: true,
@@ -737,43 +737,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                   child: ListTile(
                     leading: Icon(Icons.devices_rounded,
-                        color: Colors.grey[400]),
-                    title: Row(
-                      children: [
-                        Flexible(
-                          child: Text(
-                            TranslationService.translate(
-                                context, 'settings_linked_devices'),
-                            style: TextStyle(color: Colors.grey[500]),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: Colors.blue.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            TranslationService.translate(
-                                context, 'coming_soon'),
-                            style: const TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue,
-                            ),
-                          ),
-                        ),
-                      ],
+                        color: theme.disabledColor),
+                    title: Text(
+                      TranslationService.translate(
+                          context, 'settings_linked_devices'),
+                      style: TextStyle(color: theme.disabledColor),
                     ),
                     subtitle: Text(
                       TranslationService.translate(
                           context, 'settings_linked_devices_desc'),
-                      style: TextStyle(color: Colors.grey[400]),
                     ),
+                    trailing: Icon(Icons.lock_outline,
+                        color: theme.disabledColor, size: 20),
                     enabled: false,
                   ),
+                ),
+
+                _buildModuleToggle(
+                  context,
+                  'settings_auto_backup',
+                  'settings_auto_backup_desc',
+                  Icons.backup_outlined,
+                  themeProvider.autoBackupEnabled,
+                  (value) => themeProvider.setAutoBackupEnabled(value),
                 ),
 
                 // Notifications section

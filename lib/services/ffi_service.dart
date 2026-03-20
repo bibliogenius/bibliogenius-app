@@ -770,10 +770,15 @@ class FfiService {
     }
   }
 
-  /// Set up a new hangman game with the given difficulty
-  Future<frb.FrbHangmanSetup> setupHangman(String difficulty) async {
+  /// Set up a new hangman game with the given difficulty.
+  /// [excludeBookIds] -- book IDs already played in the current session.
+  Future<frb.FrbHangmanSetup> setupHangman(
+    String difficulty, {
+    List<int> excludeBookIds = const [],
+  }) async {
     try {
-      return await frb.hangmanSetup(difficulty: difficulty);
+      return await frb.hangmanSetup(
+          difficulty: difficulty, excludeBookIds: excludeBookIds);
     } catch (e) {
       debugPrint('FFI hangmanSetup error: $e');
       rethrow;
@@ -1098,6 +1103,33 @@ class FfiService {
     } catch (e) {
       debugPrint('FFI hubDirectoryGetConfig error: $e');
       return null;
+    }
+  }
+
+  /// Export the hub write_token for Keychain backup (reinstall recovery).
+  Future<String?> hubDirectoryExportWriteToken() async {
+    try {
+      return await frb.hubDirectoryExportWriteToken();
+    } catch (e) {
+      debugPrint('FFI hubDirectoryExportWriteToken error: $e');
+      return null;
+    }
+  }
+
+  /// Import a write_token recovered from Keychain after reinstall.
+  Future<bool> hubDirectoryImportWriteToken({
+    required String nodeId,
+    required String writeToken,
+  }) async {
+    try {
+      await frb.hubDirectoryImportWriteToken(
+        nodeId: nodeId,
+        writeToken: writeToken,
+      );
+      return true;
+    } catch (e) {
+      debugPrint('FFI hubDirectoryImportWriteToken error: $e');
+      return false;
     }
   }
 

@@ -180,6 +180,19 @@ class AuthService {
     return str != null ? int.tryParse(str) : null;
   }
 
+  // ============ Hub Write Token (Keychain backup for reinstall recovery) ===
+  static const _hubWriteTokenKey = 'hub_write_token';
+
+  /// Back up the hub write_token to Keychain so it survives reinstalls.
+  Future<void> saveHubWriteToken(String token) async {
+    await storage.write(key: _hubWriteTokenKey, value: token);
+  }
+
+  /// Retrieve the hub write_token from Keychain (post-reinstall recovery).
+  Future<String?> getHubWriteToken() async {
+    return await storage.read(key: _hubWriteTokenKey);
+  }
+
   // ============ Library UUID (for P2P deduplication) ============
   static const _libraryUuidKey = 'library_uuid';
 
@@ -238,6 +251,7 @@ class AuthService {
     await storage.delete(key: _userIdKey);
     await storage.delete(key: _libraryIdKey);
     await storage.delete(key: _libraryUuidKey); // Regenerate UUID on full reset
+    await storage.delete(key: _hubWriteTokenKey); // Clear hub token on full reset
     await storage.delete(key: _passwordKey);
   }
 

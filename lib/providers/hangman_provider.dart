@@ -28,6 +28,9 @@ class HangmanProvider extends ChangeNotifier {
   // --- Visual mode (persisted) ---
   HangmanVisualMode _visualMode = HangmanVisualMode.classic;
 
+  // --- Session-level exclusion (avoids same series within app session) ---
+  final List<int> _sessionPlayedBookIds = [];
+
   // --- Game state ---
   HangmanPhase _phase = HangmanPhase.setup;
   String _fullTitle = '';
@@ -154,8 +157,12 @@ class HangmanProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final setup = await _ffi.setupHangman(_selectedDifficulty!);
+      final setup = await _ffi.setupHangman(
+        _selectedDifficulty!,
+        excludeBookIds: _sessionPlayedBookIds,
+      );
       _bookId = setup.bookId;
+      _sessionPlayedBookIds.add(setup.bookId);
       _fullTitle = setup.title;
       _display = setup.display
           .map((c) => HangmanChar(

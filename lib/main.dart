@@ -499,6 +499,7 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
     // notifyListeners during build)
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<HubDirectoryProvider>().initAndSyncCatalog();
+      _triggerAutoBackup(themeProvider);
     });
 
     _router = GoRouter(
@@ -1056,6 +1057,46 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
 
     _initDeepLinks();
     _registerFlashMessages();
+  }
+
+  /// Fire-and-forget: push local data to linked devices found on mDNS.
+  void _triggerAutoBackup(ThemeProvider themeProvider) {
+    if (!themeProvider.autoBackupEnabled) return;
+
+    () async {
+      try {
+        // 1. Load linked devices
+        final linkedDevices = await frb.deviceListLinked();
+        if (linkedDevices.isEmpty) return;
+
+        // 2. Wait for mDNS to populate peers
+        await Future.delayed(const Duration(seconds: 5));
+        final peers = MdnsService.peers;
+        if (peers.isEmpty) return;
+
+        // 3. Build a set of linked ed25519 public keys (hex)
+        final linkedKeys = <String, bool>{};
+        for (final device in linkedDevices) {
+          final hexKey = device.ed25519PublicKey
+              .map((b) => b.toRadixString(16).padLeft(2, '0'))
+              .join();
+          linkedKeys[hexKey] = true;
+        }
+
+        // 4. Match peers and push
+        final apiService = ApiService(AuthService());
+        for (final peer in peers) {
+          if (peer.ed25519PublicKey != null &&
+              linkedKeys.containsKey(peer.ed25519PublicKey)) {
+            final peerUrl = 'http://${peer.addresses.first}:${peer.port}';
+            debugPrint('Auto-backup: pushing to ${peer.name} ($peerUrl)');
+            apiService.pushBackupToPeer(peerUrl);
+          }
+        }
+      } catch (e) {
+        debugPrint('Auto-backup: error: $e');
+      }
+    }();
   }
 
   void _registerFlashMessages() {

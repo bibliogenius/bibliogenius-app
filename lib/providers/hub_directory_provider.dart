@@ -264,7 +264,10 @@ class HubDirectoryProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final frbConfig = await _ffi.hubDirectoryGetConfig();
+      var frbConfig = await _ffi.hubDirectoryGetConfig();
+      // Post-reinstall recovery: SQLite is gone but Keychain survives (iOS).
+      // Restore the write_token so the next register() can authenticate.
+      frbConfig ??= await _tryRecoverFromKeychain();
       _config =
           frbConfig != null ? DirectoryConfig.fromFrb(frbConfig) : null;
     } catch (e) {
@@ -273,6 +276,29 @@ class HubDirectoryProvider extends ChangeNotifier {
     } finally {
       _configLoading = false;
       notifyListeners();
+    }
+  }
+
+  /// Attempts to restore hub config from Keychain after a reinstall.
+  /// Returns the restored config if successful, null otherwise.
+  Future<frb.FrbDirectoryConfig?> _tryRecoverFromKeychain() async {
+    try {
+      final auth = AuthService();
+      final writeToken = await auth.getHubWriteToken();
+      if (writeToken == null) return null;
+
+      final nodeId = await auth.getOrCreateLibraryUuid();
+      final ok = await _ffi.hubDirectoryImportWriteToken(
+        nodeId: nodeId,
+        writeToken: writeToken,
+      );
+      if (!ok) return null;
+
+      debugPrint('HubDirectoryProvider: recovered write_token from Keychain');
+      return await _ffi.hubDirectoryGetConfig();
+    } catch (e) {
+      debugPrint('HubDirectoryProvider: Keychain recovery failed: $e');
+      return null;
     }
   }
 
@@ -372,6 +398,15 @@ class HubDirectoryProvider extends ChangeNotifier {
       final result = await _ffi.hubDirectoryRegister(params);
       if (result != null) {
         _config = DirectoryConfig.fromFrb(result);
+        // Back up write_token to Keychain for reinstall recovery (iOS)
+        try {
+          final token = await _ffi.hubDirectoryExportWriteToken();
+          if (token != null) {
+            await AuthService().saveHubWriteToken(token);
+          }
+        } catch (e) {
+          debugPrint('HubDirectoryProvider: write_token backup failed: $e');
+        }
         return true;
       }
       return false;

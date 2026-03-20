@@ -13,6 +13,7 @@ import '../data/repositories/tag_repository.dart';
 import '../services/api_service.dart';
 import '../services/auth_service.dart';
 import '../theme/app_design.dart';
+import '../services/translation_service.dart';
 import '../providers/flash_message_provider.dart';
 import '../providers/theme_provider.dart';
 
@@ -279,21 +280,37 @@ class _MigrationWizardScreenState extends State<MigrationWizardScreen> {
           ..click();
         html.Url.revokeObjectUrl(url);
       } else {
-        final directory = await getTemporaryDirectory();
         final filename =
             'bibliogenius_backup_${DateTime.now().toIso8601String().split('T')[0]}.json';
-        final file = io.File('${directory.path}/$filename');
-        await file.writeAsBytes(response.data);
-        await Share.shareXFiles([
-          XFile(file.path),
-        ], text: 'Ma sauvegarde BiblioGenius');
+        final isDesktop = io.Platform.isMacOS ||
+            io.Platform.isWindows ||
+            io.Platform.isLinux;
+        if (isDesktop) {
+          final path = await FilePicker.platform.saveFile(
+            dialogTitle: TranslationService.translate(context, 'save_backup_dialog_title'),
+            fileName: filename,
+            type: FileType.custom,
+            allowedExtensions: ['json'],
+          );
+          if (path != null) {
+            final file = io.File(path);
+            await file.writeAsBytes(response.data);
+          }
+        } else {
+          final directory = await getTemporaryDirectory();
+          final file = io.File('${directory.path}/$filename');
+          await file.writeAsBytes(response.data);
+          await Share.shareXFiles([
+            XFile(file.path),
+          ], text: TranslationService.translate(context, 'backup_share_text'));
+        }
       }
 
       if (mounted) {
         setState(() => _isProcessing = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Sauvegarde exportée avec succès !'),
+          SnackBar(
+            content: Text(TranslationService.translate(context, 'backup_export_success')),
             backgroundColor: Colors.green,
           ),
         );
@@ -303,7 +320,7 @@ class _MigrationWizardScreenState extends State<MigrationWizardScreen> {
         setState(() => _isProcessing = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erreur d\'export : $e'),
+            content: Text('${TranslationService.translate(context, 'backup_export_error')} : $e'),
             backgroundColor: Colors.red,
           ),
         );

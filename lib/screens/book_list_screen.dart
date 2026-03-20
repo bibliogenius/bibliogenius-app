@@ -678,10 +678,10 @@ class _BookListScreenState extends State<BookListScreen>
     // Default view (no status selected): show books I physically have
     // (owned + borrowed). Wanting/wishlist excluded unless explicitly selected.
     if (_selectedStatus == null) {
-      tempBooks = tempBooks.where((b) => b.owned || b.readingStatus == 'borrowed').toList();
-      // Apply "show borrowed" config: hide borrowed if user disabled it in settings
+      tempBooks = tempBooks.where((b) => b.owned || b.readingStatus == 'borrowed' || b.readingStatus == 'lent').toList();
+      // Apply "show borrowed" config: hide borrowed/lent if user disabled it in settings
       if (!_showBorrowedConfig) {
-        tempBooks = tempBooks.where((b) => b.readingStatus != 'borrowed').toList();
+        tempBooks = tempBooks.where((b) => b.readingStatus != 'borrowed' && b.readingStatus != 'lent').toList();
       }
       debugPrint(
         '🔍 _filterBooks: After default filter: ${tempBooks.length} books',
@@ -690,8 +690,8 @@ class _BookListScreenState extends State<BookListScreen>
       // Explicit status selected via dropdown
       debugPrint('🔍 _filterBooks: Filtering by status=$_selectedStatus');
 
-      if (_selectedStatus == 'owned') {
-        // "Non classés" = books with no reading status (null or empty)
+      if (_selectedStatus == 'uncategorized') {
+        // "Non classés" = owned books with no reading status (null or empty)
         tempBooks = tempBooks
             .where(
               (book) =>
@@ -705,9 +705,14 @@ class _BookListScreenState extends State<BookListScreen>
             .where((book) => book.readingStatus == 'wanting')
             .toList();
       } else if (_selectedStatus == 'borrowed') {
-        // Borrowed: all books with borrowed status regardless of owned flag
+        // Borrowed: books I borrowed from someone
         tempBooks = tempBooks
             .where((book) => book.readingStatus == 'borrowed')
+            .toList();
+      } else if (_selectedStatus == 'lent') {
+        // Lent: books I lent to someone (own copy with status "borrowed")
+        tempBooks = tempBooks
+            .where((book) => book.readingStatus == 'lent')
             .toList();
       } else {
         // Other statuses (reading, to_read, read): owned books with that status
@@ -1060,12 +1065,17 @@ class _BookListScreenState extends State<BookListScreen>
           context,
           'reading_status_read',
         );
-      } else if (_selectedStatus == 'owned') {
-        filterLabel = TranslationService.translate(context, 'owned_status');
+      } else if (_selectedStatus == 'uncategorized') {
+        filterLabel = TranslationService.translate(context, 'status_uncategorized');
       } else if (_selectedStatus == 'borrowed') {
         filterLabel = TranslationService.translate(
           context,
           'reading_status_borrowed',
+        );
+      } else if (_selectedStatus == 'lent') {
+        filterLabel = TranslationService.translate(
+          context,
+          'reading_status_lent',
         );
       }
     }
@@ -1331,12 +1341,12 @@ class _BookListScreenState extends State<BookListScreen>
                 ),
                 // Sans statut (books without reading status)
                 PopupMenuItem(
-                  value: 'owned',
+                  value: 'uncategorized',
                   child: Row(
                     children: [
                       Icon(
                         Icons.inventory_2_outlined,
-                        color: _selectedStatus == 'owned'
+                        color: _selectedStatus == 'uncategorized'
                             ? Colors.blueGrey
                             : Colors.blueGrey,
                         size: 20,
@@ -1349,10 +1359,10 @@ class _BookListScreenState extends State<BookListScreen>
                             ) ??
                             'Non classés',
                         style: TextStyle(
-                          fontWeight: _selectedStatus == 'owned'
+                          fontWeight: _selectedStatus == 'uncategorized'
                               ? FontWeight.bold
                               : FontWeight.normal,
-                          color: _selectedStatus == 'owned'
+                          color: _selectedStatus == 'uncategorized'
                               ? Colors.blueGrey
                               : null,
                         ),
@@ -1417,6 +1427,38 @@ class _BookListScreenState extends State<BookListScreen>
                                 : FontWeight.normal,
                             color: _selectedStatus == 'borrowed'
                                 ? Colors.purple
+                                : null,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                // Prêtés (only if borrow module is enabled)
+                if (Provider.of<ThemeProvider>(context, listen: false).canBorrowBooks)
+                  PopupMenuItem(
+                    value: 'lent',
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.output,
+                          color: _selectedStatus == 'lent'
+                              ? Colors.orange
+                              : theme.iconTheme.color,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          TranslationService.translate(
+                                context,
+                                'reading_status_lent',
+                              ) ??
+                              'Prêtés',
+                          style: TextStyle(
+                            fontWeight: _selectedStatus == 'lent'
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                            color: _selectedStatus == 'lent'
+                                ? Colors.orange
                                 : null,
                           ),
                         ),
@@ -1881,7 +1923,7 @@ class _BookListScreenState extends State<BookListScreen>
             child: ConstrainedBox(
               constraints: BoxConstraints(minHeight: constraints.maxHeight),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
+                padding: const EdgeInsets.only(left: 24, right: 24, bottom: 80),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

@@ -1,4 +1,6 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import '../services/api_service.dart';
 import '../src/rust/api/frb.dart' as frb;
 
 class DeviceSyncProvider extends ChangeNotifier {
@@ -16,17 +18,38 @@ class DeviceSyncProvider extends ChangeNotifier {
   bool get isLoadingReview => _isLoadingReview;
   int get pendingReviewCount => _pendingReview.length;
 
-  /// Trigger sync with a linked device
-  Future<void> triggerSync(int deviceId) async {
+  /// Trigger sync with a linked device via the local HTTP endpoint
+  /// which handles the actual E2EE transport.
+  /// [peerUrl] is the LAN URL of the peer (from mDNS discovery).
+  Future<void> triggerSync(int deviceId, {String? peerUrl}) async {
     _isSyncing = true;
     _error = null;
     notifyListeners();
 
     try {
-      final result = await frb.deviceTriggerSync(deviceId: deviceId);
-      _lastResult = result;
+      // Call the real HTTP endpoint that handles E2EE transport
+      final dio = Dio(BaseOptions(
+        baseUrl: 'http://127.0.0.1:${ApiService.httpPort}',
+        connectTimeout: const Duration(seconds: 30),
+        receiveTimeout: const Duration(seconds: 30),
+      ));
+      final response = await dio.post(
+        '/api/devices/sync/$deviceId',
+        data: {if (peerUrl != null) 'peer_url': peerUrl},
+      );
+      final data = response.data as Map<String, dynamic>;
+
+      _lastResult = frb.FrbSyncResult(
+        sentCount: (data['sent_count'] as num?)?.toInt() ?? 0,
+        receivedCount: (data['received_count'] as num?)?.toInt() ?? 0,
+        pendingReviewCount: (data['pending_review_count'] as num?)?.toInt() ?? 0,
+      );
       // Refresh pending review list after sync
       await _loadPendingReviewSilent();
+    } on DioException catch (e) {
+      final responseData = e.response?.data;
+      _error = responseData is Map ? responseData['error']?.toString() ?? e.message : e.message;
+      debugPrint('DeviceSyncProvider.triggerSync error: status=${e.response?.statusCode} body=$responseData');
     } catch (e) {
       _error = e.toString();
       debugPrint('DeviceSyncProvider.triggerSync error: $e');

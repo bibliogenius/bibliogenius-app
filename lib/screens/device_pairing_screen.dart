@@ -3,13 +3,17 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/device_sync_provider.dart';
+import '../services/api_service.dart';
 import '../services/auth_service.dart';
+import '../services/mdns_service.dart';
+import '../providers/theme_provider.dart';
 import '../services/translation_service.dart';
 import '../src/rust/api/frb.dart' as frb;
 import '../theme/app_design.dart';
@@ -40,15 +44,36 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
   final _codeController = TextEditingController();
   bool _isPairing = false;
 
+  // mDNS peers for target selection
+  List<DiscoveredPeer> _localPeers = [];
+  DiscoveredPeer? _selectedPeer;
+
+  // Auto-refresh timer
+  Timer? _refreshTimer;
+
   @override
   void initState() {
     super.initState();
     _loadDevices();
+    _ensureMdnsDiscovery();
+    _refreshTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+      if (mounted && _view == _PairingView.devices) {
+        _loadDevices();
+      }
+    });
+  }
+
+  /// Ensure mDNS discovery is running so we can resolve peer URLs for sync.
+  Future<void> _ensureMdnsDiscovery() async {
+    if (!MdnsService.isActive) {
+      await MdnsService.startDiscovery();
+    }
   }
 
   @override
   void dispose() {
     _countdownTimer?.cancel();
+    _refreshTimer?.cancel();
     _codeController.dispose();
     super.dispose();
   }
@@ -62,6 +87,8 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
           _devices = devices;
           _isLoadingDevices = false;
         });
+        // Refresh pending review count for badge display
+        context.read<DeviceSyncProvider>().loadPendingReview();
       }
     } catch (e) {
       debugPrint('DevicePairing: loadDevices error: $e');
@@ -142,15 +169,40 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
     });
   }
 
+  bool _isScanning = false;
+
+  Future<void> _loadLocalPeers() async {
+    setState(() => _isScanning = true);
+    // Always restart discovery to get fresh peers (stale cache is common)
+    await MdnsService.startDiscovery();
+    await Future.delayed(const Duration(seconds: 3));
+    if (!mounted) return;
+    final peers = MdnsService.peers;
+    setState(() {
+      _localPeers = peers;
+      _selectedPeer = null;
+      _isScanning = false;
+    });
+  }
+
+  String? _getPeerUrl(DiscoveredPeer peer) {
+    final ip = peer.addresses.isNotEmpty ? peer.addresses.first : peer.host;
+    if (ip.isEmpty) return null;
+    return 'http://$ip:${peer.port}';
+  }
+
   Future<void> _acceptCode() async {
     final code = _codeController.text.trim();
-    if (code.length != 6) return;
+    if (code.length != 6 || _selectedPeer == null) return;
+
+    final peerUrl = _getPeerUrl(_selectedPeer!);
+    if (peerUrl == null) return;
 
     setState(() => _isPairing = true);
     try {
       final deviceName = Platform.localHostname;
 
-      // Fetch our crypto keys for E2EE exchange
+      // Fetch our crypto keys for E2EE exchange (keys are hex-encoded)
       Uint8List ed25519Bytes = Uint8List(0);
       Uint8List x25519Bytes = Uint8List(0);
       try {
@@ -160,18 +212,51 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
         );
         final ed25519 = keys['ed25519'] as String?;
         final x25519 = keys['x25519'] as String?;
-        if (ed25519 != null) ed25519Bytes = base64.decode(ed25519);
-        if (x25519 != null) x25519Bytes = base64.decode(x25519);
+        if (ed25519 != null) ed25519Bytes = _hexDecode(ed25519);
+        if (x25519 != null) x25519Bytes = _hexDecode(x25519);
       } catch (e) {
         debugPrint('DevicePairing: Could not fetch crypto keys: $e');
       }
 
-      await frb.deviceAcceptPairing(
+      debugPrint('DevicePairing: acceptCode ed25519=${ed25519Bytes.length}B x25519=${x25519Bytes.length}B device=$deviceName');
+      if (ed25519Bytes.isEmpty || x25519Bytes.isEmpty) {
+        debugPrint('DevicePairing: WARNING - empty crypto keys, pairing will be incomplete');
+      }
+
+      // Send code to the remote peer's HTTP server
+      final apiService = Provider.of<ApiService>(context, listen: false);
+      final pairingResponse = await apiService.sendPairingCode(
+        peerUrl: peerUrl,
         code: code,
         deviceName: deviceName,
-        ed25519PublicKey: ed25519Bytes,
-        x25519PublicKey: x25519Bytes,
+        ed25519PublicKey: ed25519Bytes.toList(),
+        x25519PublicKey: x25519Bytes.toList(),
       );
+
+      // Register the offerer (the device that generated the code) locally
+      // so that sync works bidirectionally.
+      try {
+        final offererEd25519 = pairingResponse['offerer_ed25519'];
+        final offererX25519 = pairingResponse['offerer_x25519'];
+        final offererName = _selectedPeer?.name ?? 'Unknown Device';
+
+        if (offererEd25519 is List && offererX25519 is List) {
+          final dio = Dio(BaseOptions(
+            baseUrl: 'http://127.0.0.1:${ApiService.httpPort}',
+            connectTimeout: const Duration(seconds: 5),
+          ));
+          await dio.post('/api/devices/register', data: {
+            'name': offererName,
+            'ed25519_public_key': offererEd25519,
+            'x25519_public_key': offererX25519,
+          });
+          debugPrint('DevicePairing: registered offerer "$offererName" as linked device');
+        } else {
+          debugPrint('DevicePairing: WARNING - offerer keys missing from pairing response');
+        }
+      } catch (e) {
+        debugPrint('DevicePairing: failed to register offerer: $e');
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -185,6 +270,7 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
         _codeController.clear();
         setState(() {
           _isPairing = false;
+          _selectedPeer = null;
           _view = _PairingView.devices;
         });
         _loadDevices();
@@ -205,12 +291,50 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
     }
   }
 
+  /// Try to find the mDNS LAN URL for a linked device.
+  /// Matches by hostname (deviceName), library name, or partial name match.
+  String? _findPeerUrl(frb.FrbLinkedDevice device) {
+    final peers = MdnsService.peers;
+    final deviceNameLower = device.name.toLowerCase();
+    for (final peer in peers) {
+      // Exact match on hostname attribute
+      if (peer.deviceName != null &&
+          peer.deviceName!.toLowerCase() == deviceNameLower) {
+        return _getPeerUrl(peer);
+      }
+      // Exact match on mDNS service name (library name)
+      if (peer.name.toLowerCase() == deviceNameLower) {
+        return _getPeerUrl(peer);
+      }
+      // Partial: mDNS service name contains the device name
+      if (peer.name.toLowerCase().contains(deviceNameLower) ||
+          deviceNameLower.contains(peer.name.toLowerCase())) {
+        return _getPeerUrl(peer);
+      }
+      // Partial: hostname contains the device name
+      if (peer.deviceName != null &&
+          (peer.deviceName!.toLowerCase().contains(deviceNameLower) ||
+              deviceNameLower.contains(peer.deviceName!.toLowerCase()))) {
+        return _getPeerUrl(peer);
+      }
+    }
+    return null;
+  }
+
   Future<void> _syncDevice(frb.FrbLinkedDevice device) async {
     final syncProvider = context.read<DeviceSyncProvider>();
-    await syncProvider.triggerSync(device.id);
+    // Always restart mDNS discovery before sync to get fresh peers
+    await MdnsService.startDiscovery();
+    await Future.delayed(const Duration(seconds: 3));
+    final peerUrl = _findPeerUrl(device);
+    debugPrint('DevicePairing: sync device="${device.name}" peerUrl=$peerUrl '
+        'peers=${MdnsService.peers.map((p) => '${p.name}(${p.deviceName})').toList()}');
+    await syncProvider.triggerSync(device.id, peerUrl: peerUrl);
     if (!mounted) return;
 
     final result = syncProvider.lastResult;
+    debugPrint('DevicePairing: sync result sent=${result?.sentCount} received=${result?.receivedCount} pending=${result?.pendingReviewCount} error=${syncProvider.error}');
+
     if (syncProvider.error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -231,6 +355,8 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
         .replaceFirst('%d', sent.toString())
         .replaceFirst('%d', received.toString());
 
+    // Capture navigator before showing snackbar (context may become invalid in snackbar action)
+    final navigator = GoRouter.of(context);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
@@ -240,11 +366,14 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
                   context,
                   'sync_pending_review_action',
                 ),
-                onPressed: () => context.go('/sync-review'),
+                onPressed: () => navigator.go('/sync-review'),
               )
             : null,
       ),
     );
+
+    // Refresh device list to update lastSynced timestamp
+    _loadDevices();
   }
 
   Future<void> _removeDevice(frb.FrbLinkedDevice device) async {
@@ -296,6 +425,61 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
         );
       }
     }
+  }
+
+  Widget _buildMdnsToggle(ThemeData theme) {
+    return Builder(builder: (context) {
+      final themeProvider = Provider.of<ThemeProvider>(context);
+      final isEnabled = themeProvider.networkDiscoveryEnabled;
+      return Card(
+        color: isEnabled
+            ? theme.colorScheme.surfaceContainerHighest
+            : theme.colorScheme.errorContainer,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.wifi, size: 20,
+                      color: isEnabled
+                          ? theme.colorScheme.primary
+                          : theme.colorScheme.onErrorContainer),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      TranslationService.translate(
+                          context, 'settings_network_discovery'),
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  Switch(
+                    value: isEnabled,
+                    onChanged: (value) async {
+                      await themeProvider.setNetworkEnabled(value);
+                      if (value && mounted) {
+                        await Future.delayed(const Duration(seconds: 2));
+                        if (mounted) _loadLocalPeers();
+                      }
+                    },
+                  ),
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Text(
+                  TranslationService.translate(
+                      context, 'pairing_mdns_hint'),
+                  style: theme.textTheme.bodySmall,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    });
   }
 
   void _cancelPairing() {
@@ -419,8 +603,10 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
                     message: TranslationService.translate(
                         context, 'tooltip_enter_pairing'),
                     child: OutlinedButton.icon(
-                      onPressed: () =>
-                          setState(() => _view = _PairingView.enterCode),
+                      onPressed: () {
+                        _loadLocalPeers();
+                        setState(() => _view = _PairingView.enterCode);
+                      },
                       icon: const Icon(Icons.keyboard),
                       label: Text(
                         TranslationService.translate(
@@ -476,61 +662,118 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
   }
 
   Widget _buildDeviceCard(frb.FrbLinkedDevice device, ThemeData theme) {
+    final syncProvider = context.watch<DeviceSyncProvider>();
+    final isSyncing = syncProvider.isSyncing;
+    final pendingCount = syncProvider.pendingReviewCount;
+
+    final lastSyncedLabel = _formatLastSynced(device.lastSynced);
     final pairedDate = _formatDate(device.createdAt ?? '');
-    final pairedLabel = TranslationService.translate(context, 'pairing_paired_on')
+    final pairedLabel = TranslationService.translate(context, 'pairing_last_paired')
         .replaceFirst('%s', pairedDate);
 
     return Semantics(
       button: true,
-      label: '${device.name}, $pairedLabel',
+      label: '${device.name}, $lastSyncedLabel',
       child: Card(
         margin: const EdgeInsets.only(bottom: 8),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
         ),
-        child: ListTile(
-          leading: Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: theme.colorScheme.primaryContainer,
-              borderRadius: BorderRadius.circular(AppDesign.radiusSmall),
-            ),
-            child: Icon(
-              Icons.devices_rounded,
-              color: theme.colorScheme.onPrimaryContainer,
-              size: 20,
-            ),
-          ),
-          title: Text(
-            device.name,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          subtitle: Text(
-            pairedLabel,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              IconButton(
-                icon: const Icon(Icons.sync_rounded),
-                tooltip: TranslationService.translate(
-                    context, 'tooltip_sync_device'),
-                onPressed: () => _syncDevice(device),
-              ),
-              IconButton(
-                icon: Icon(
-                  Icons.delete_outline,
-                  color: theme.colorScheme.error,
+              // Leading icon
+              Container(
+                width: 40,
+                height: 40,
+                margin: const EdgeInsets.only(top: 4),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(AppDesign.radiusSmall),
                 ),
-                tooltip: TranslationService.translate(
-                    context, 'tooltip_remove_device'),
-                onPressed: () => _removeDevice(device),
+                child: Icon(
+                  Icons.devices_rounded,
+                  color: theme.colorScheme.onPrimaryContainer,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              // Content
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      device.name,
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      lastSyncedLabel,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    if (pendingCount > 0) ...[
+                      const SizedBox(height: 4),
+                      GestureDetector(
+                        onTap: () => context.go('/sync-review'),
+                        child: Text(
+                          TranslationService.translate(
+                                  context, 'pairing_pending_review')
+                              .replaceFirst('%d', pendingCount.toString()),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 2),
+                    Text(
+                      pairedLabel,
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant
+                            .withValues(alpha: 0.6),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Trailing actions
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (isSyncing)
+                    const Padding(
+                      padding: EdgeInsets.all(12),
+                      child: SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    )
+                  else
+                    IconButton(
+                      icon: const Icon(Icons.sync_rounded),
+                      tooltip: TranslationService.translate(
+                          context, 'tooltip_sync_device'),
+                      onPressed: () => _syncDevice(device),
+                    ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.delete_outline,
+                      color: theme.colorScheme.error,
+                    ),
+                    tooltip: TranslationService.translate(
+                        context, 'tooltip_remove_device'),
+                    onPressed: () => _removeDevice(device),
+                  ),
+                ],
               ),
             ],
           ),
@@ -611,6 +854,8 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
                 TranslationService.translate(context, 'copy'),
               ),
             ),
+            const SizedBox(height: 24),
+            _buildMdnsToggle(theme),
             const SizedBox(height: 24),
             // Countdown
             SizedBox(
@@ -736,7 +981,72 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 16),
+            _buildMdnsToggle(theme),
+            const SizedBox(height: 16),
+            // Peer selection
+            if (_isScanning)
+              const Padding(
+                padding: EdgeInsets.all(24),
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else if (_localPeers.isEmpty)
+              Card(
+                color: theme.colorScheme.errorContainer,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      Icon(Icons.wifi_off, color: theme.colorScheme.onErrorContainer),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          TranslationService.translate(context, 'pairing_no_peers'),
+                          style: TextStyle(color: theme.colorScheme.onErrorContainer),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.refresh),
+                        onPressed: _loadLocalPeers,
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            else
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    TranslationService.translate(context, 'pairing_select_device'),
+                    style: theme.textTheme.titleSmall,
+                  ),
+                  const SizedBox(height: 8),
+                  ..._localPeers.map((peer) => Card(
+                    color: _selectedPeer == peer
+                        ? theme.colorScheme.primaryContainer
+                        : null,
+                    child: ListTile(
+                      leading: Icon(
+                        Icons.devices_rounded,
+                        color: _selectedPeer == peer
+                            ? theme.colorScheme.onPrimaryContainer
+                            : null,
+                      ),
+                      title: Text(peer.name),
+                      subtitle: Text(peer.addresses.isNotEmpty
+                          ? peer.addresses.first
+                          : peer.host),
+                      trailing: _selectedPeer == peer
+                          ? Icon(Icons.check_circle,
+                              color: theme.colorScheme.primary)
+                          : null,
+                      onTap: () => setState(() => _selectedPeer = peer),
+                    ),
+                  )),
+                ],
+              ),
+            const SizedBox(height: 24),
             // Code input
             SizedBox(
               width: 280,
@@ -779,7 +1089,7 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
               width: double.infinity,
               child: FilledButton(
                 onPressed:
-                    _codeController.text.length == 6 && !_isPairing
+                    _codeController.text.length == 6 && !_isPairing && _selectedPeer != null
                         ? _acceptCode
                         : null,
                 style: FilledButton.styleFrom(
@@ -820,6 +1130,39 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
   // ─────────────────────────────────────────────────────────────────────────
   // Helpers
   // ─────────────────────────────────────────────────────────────────────────
+
+  /// Decode a hex string to bytes.
+  static Uint8List _hexDecode(String hex) {
+    final bytes = Uint8List(hex.length ~/ 2);
+    for (var i = 0; i < bytes.length; i++) {
+      bytes[i] = int.parse(hex.substring(i * 2, i * 2 + 2), radix: 16);
+    }
+    return bytes;
+  }
+
+  String _formatLastSynced(String? lastSynced) {
+    if (lastSynced == null || lastSynced.isEmpty) {
+      return TranslationService.translate(context, 'never_synced');
+    }
+    try {
+      final dt = DateTime.parse(lastSynced);
+      final diff = DateTime.now().difference(dt);
+      if (diff.inMinutes < 1) {
+        return TranslationService.translate(context, 'synced_just_now');
+      } else if (diff.inMinutes < 60) {
+        return TranslationService.translate(context, 'synced_minutes_ago')
+            .replaceFirst('%d', diff.inMinutes.toString());
+      } else if (diff.inHours < 24) {
+        return TranslationService.translate(context, 'synced_hours_ago')
+            .replaceFirst('%d', diff.inHours.toString());
+      } else {
+        return TranslationService.translate(context, 'synced_days_ago')
+            .replaceFirst('%d', diff.inDays.toString());
+      }
+    } catch (_) {
+      return TranslationService.translate(context, 'never_synced');
+    }
+  }
 
   String _formatDate(String isoDate) {
     try {

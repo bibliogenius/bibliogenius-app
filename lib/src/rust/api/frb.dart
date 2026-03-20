@@ -8,8 +8,9 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 part 'frb.freezed.dart';
 
-// These functions are ignored because they are not marked as `pub`: `db`, `device_pairing_svc`, `device_sync_svc`, `entries_to_frb`, `hub_db`, `hub_directory_svc`, `install_panic_hook`, `load_google_books_api_key`, `runtime`, `track_to_frb`, `upsert_directory_catalog_cache`
+// These functions are ignored because they are not marked as `pub`: `db`, `device_pairing_svc`, `device_sync_svc`, `entries_to_frb`, `hub_db`, `hub_directory_svc`, `install_panic_hook`, `load_google_books_api_key`, `rename_subject_in_books`, `runtime`, `track_to_frb`, `upsert_directory_catalog_cache`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
+// These functions are ignored (category: IgnoreBecauseExplicitAttribute): `shared_device_pairing_svc`
 
 /// Initialize the FFI backend with database at the given path
 /// Must be called before any other FFI functions
@@ -218,6 +219,15 @@ Future<FrbTag> updateTag({
   parentId: parentId,
 );
 
+/// Public FFI entry point: rename a subject in all books.
+Future<void> renameSubject({
+  required String oldName,
+  required String newName,
+}) => RustLib.instance.api.crateApiFrbRenameSubject(
+  oldName: oldName,
+  newName: newName,
+);
+
 /// Delete a tag
 Future<void> deleteTag({required int id}) =>
     RustLib.instance.api.crateApiFrbDeleteTag(id: id);
@@ -401,9 +411,15 @@ Future<List<FrbPuzzleLeaderboardEntry>> puzzleGameRefreshLeaderboard() =>
 Future<List<String>> hangmanAvailableDifficulties() =>
     RustLib.instance.api.crateApiFrbHangmanAvailableDifficulties();
 
-/// Set up a new hangman game with the given difficulty
-Future<FrbHangmanSetup> hangmanSetup({required String difficulty}) =>
-    RustLib.instance.api.crateApiFrbHangmanSetup(difficulty: difficulty);
+/// Set up a new hangman game with the given difficulty.
+/// `exclude_book_ids` -- book IDs already played in the current session (avoids same series).
+Future<FrbHangmanSetup> hangmanSetup({
+  required String difficulty,
+  required List<int> excludeBookIds,
+}) => RustLib.instance.api.crateApiFrbHangmanSetup(
+  difficulty: difficulty,
+  excludeBookIds: excludeBookIds,
+);
 
 /// Submit a completed hangman game and get the score back
 Future<FrbHangmanScore> hangmanFinish({
@@ -567,6 +583,23 @@ Future<FrbDirectoryConfig?> hubDirectoryGetConfig() =>
 /// Note: read_token is intentionally excluded (S2: never leaves the device).
 Future<FrbRelayConfig?> getRelayConfigFfi() =>
     RustLib.instance.api.crateApiFrbGetRelayConfigFfi();
+
+/// Exports the hub directory write_token for Keychain backup.
+/// Used by Flutter to persist the token in platform-secure storage
+/// so it survives app reinstalls (critical on iOS).
+/// Returns None if not yet registered.
+Future<String?> hubDirectoryExportWriteToken() =>
+    RustLib.instance.api.crateApiFrbHubDirectoryExportWriteToken();
+
+/// Imports a write_token recovered from Keychain after app reinstall.
+/// Restores hub authentication without requiring a new registration.
+Future<void> hubDirectoryImportWriteToken({
+  required String nodeId,
+  required String writeToken,
+}) => RustLib.instance.api.crateApiFrbHubDirectoryImportWriteToken(
+  nodeId: nodeId,
+  writeToken: writeToken,
+);
 
 /// Registers with the hub directory (first call) or updates the profile.
 /// On first registration, the write_token is persisted automatically.

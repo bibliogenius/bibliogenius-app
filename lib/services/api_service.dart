@@ -1490,81 +1490,13 @@ class ApiService {
 
   // Export
   Future<Response> exportData() async {
-    // In FFI mode, generate JSON backup from local data
     if (useFfi) {
+      // Delegate to local HTTP server for complete backup with all entities
       try {
-        // Gather all data for backup
-        final books = await FfiService().getBooks();
-        final contacts = await FfiService().getContacts();
-        final tags = await FfiService().getTags();
-
-        // Get collections via local HTTP server
-        List<dynamic> collections = [];
-        try {
-          final localDio = await _getLocalDio();
-          final collectionsResponse = await localDio.get('/api/collections');
-          if (collectionsResponse.statusCode == 200) {
-            collections = collectionsResponse.data as List<dynamic>;
-          }
-        } catch (e) {
-          debugPrint('Could not fetch collections for export: $e');
-        }
-
-        // Build JSON backup structure
-        final backupData = {
-          'version': '1.0',
-          'exported_at': DateTime.now().toIso8601String(),
-          'books': books
-              .map(
-                (book) => {
-                  'id': book.id,
-                  'title': book.title,
-                  'author': book.author,
-                  'isbn': book.isbn,
-                  'publisher': book.publisher,
-                  'publication_year': book.publicationYear,
-                  'summary': book.summary,
-                  'cover_url': book.coverUrl,
-                  'reading_status': book.readingStatus,
-                  'user_rating': book.userRating,
-                  'started_reading_at': book.startedReadingAt,
-                  'finished_reading_at': book.finishedReadingAt,
-                  'owned': book.owned,
-                  'price': book.price,
-                  'subjects': book.subjects,
-                },
-              )
-              .toList(),
-          'contacts': contacts
-              .map(
-                (contact) => {
-                  'id': contact.id,
-                  'name': contact.name,
-                  'email': contact.email,
-                  'phone': contact.phone,
-                  'type': contact.type,
-                  'notes': contact.notes,
-                },
-              )
-              .toList(),
-          'tags': tags
-              .map(
-                (tag) => {
-                  'id': tag.id,
-                  'name': tag.name,
-                  'parent_id': tag.parentId,
-                },
-              )
-              .toList(),
-          'collections': collections,
-        };
-
-        final jsonContent = jsonEncode(backupData);
-        final bytes = utf8.encode(jsonContent);
-        return Response(
-          requestOptions: RequestOptions(path: '/api/export'),
-          statusCode: 200,
-          data: bytes,
+        final localDio = await _getLocalDio();
+        return await localDio.get(
+          '/api/export',
+          options: Options(responseType: ResponseType.bytes),
         );
       } catch (e) {
         debugPrint('FFI export error: $e');
@@ -1605,6 +1537,43 @@ class ApiService {
         statusCode: 500,
         data: {'error': 'Failed to parse backup file: $e'},
       );
+    }
+  }
+
+  /// Push local backup data to a linked peer via upsert.
+  /// [peerBaseUrl] is the full base URL of the peer (e.g. "http://192.168.1.42:8000").
+  Future<bool> pushBackupToPeer(String peerBaseUrl) async {
+    try {
+      // 1. Export local data
+      final localDio = await _getLocalDio();
+      final exportResp = await localDio.get('/api/export');
+      if (exportResp.statusCode != 200 || exportResp.data == null) {
+        debugPrint('Auto-backup: export failed (status=${exportResp.statusCode})');
+        return false;
+      }
+
+      // 2. Push to peer's upsert endpoint
+      final peerDio = Dio(
+        BaseOptions(
+          baseUrl: peerBaseUrl,
+          connectTimeout: const Duration(seconds: 10),
+          receiveTimeout: const Duration(seconds: 30),
+        ),
+      );
+      final importResp = await peerDio.post(
+        '/api/import-upsert',
+        data: exportResp.data,
+      );
+      debugPrint(
+        'Auto-backup: pushed to $peerBaseUrl -> ${importResp.data?['message'] ?? importResp.statusCode}',
+      );
+      return importResp.statusCode == 200;
+    } on DioException catch (e) {
+      debugPrint('Auto-backup: push to $peerBaseUrl failed: ${e.message}');
+      return false;
+    } catch (e) {
+      debugPrint('Auto-backup: push to $peerBaseUrl failed: $e');
+      return false;
     }
   }
 
@@ -3060,6 +3029,29 @@ class ApiService {
       return null;
     }
     return 'http://$myIp:${ApiService.httpPort}';
+  }
+
+  /// Send a pairing code to a remote peer's HTTP server.
+  /// The peer must have generated the code first.
+  Future<Map<String, dynamic>> sendPairingCode({
+    required String peerUrl,
+    required String code,
+    required String deviceName,
+    required List<int> ed25519PublicKey,
+    required List<int> x25519PublicKey,
+  }) async {
+    final dio = Dio(BaseOptions(
+      baseUrl: peerUrl,
+      connectTimeout: const Duration(seconds: 10),
+      receiveTimeout: const Duration(seconds: 10),
+    ));
+    final response = await dio.post('/api/devices/pair/accept', data: {
+      'code': code,
+      'device_name': deviceName,
+      'ed25519_public_key': ed25519PublicKey,
+      'x25519_public_key': x25519PublicKey,
+    });
+    return response.data as Map<String, dynamic>;
   }
 
   /// Connect to a locally discovered peer by URL.

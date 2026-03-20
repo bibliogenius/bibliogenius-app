@@ -6947,6 +6947,34 @@ msgstr "Reconstituez une couverture en faisant glisser les tuiles"
 msgid "help_cta_play_puzzle"
 msgstr "Jouer"
 
+#. Help - Hangman Topic
+msgid "help_topic_hangman"
+msgstr "Pendu"
+
+#. Help - Hangman Description
+msgid "help_desc_hangman"
+msgstr "Devinez le titre d'un livre de votre bibliotheque lettre par lettre"
+
+#. Help - Hangman CTA
+msgid "help_cta_play_hangman"
+msgstr "Jouer"
+
+#. Backup - Save dialog title (desktop)
+msgid "save_backup_dialog_title"
+msgstr "Enregistrer la sauvegarde"
+
+#. Backup - Share text (mobile)
+msgid "backup_share_text"
+msgstr "Ma sauvegarde BiblioGenius"
+
+#. Backup - Export success
+msgid "backup_export_success"
+msgstr "Sauvegarde exportee avec succes"
+
+#. Backup - Export error
+msgid "backup_export_error"
+msgstr "Erreur d'export"
+
 #. Accessibility - Tooltip: open navigation menu
 msgid "tooltip_open_menu"
 msgstr "Ouvrir le menu"
@@ -7191,7 +7219,16 @@ msgid "pairing_code_expired"
 msgstr "Code expire"
 
 msgid "pairing_enter_instruction"
-msgstr "Entrez le code a 6 chiffres de l'autre appareil"
+msgstr "Selectionnez l'appareil sur votre reseau Wi-Fi puis entrez son code a 6 chiffres"
+
+msgid "pairing_no_peers"
+msgstr "Aucun appareil detecte sur le reseau Wi-Fi"
+
+msgid "pairing_mdns_hint"
+msgstr "Les deux appareils doivent etre connectes au meme Wi-Fi avec la decouverte reseau activee (Parametres > Reseau)"
+
+msgid "pairing_select_device"
+msgstr "Appareil a appairer"
 
 msgid "pairing_button_pair"
 msgstr "Appairer"
@@ -7231,6 +7268,12 @@ msgstr "Appareils lies"
 
 msgid "settings_linked_devices_desc"
 msgstr "Synchronisez votre bibliothèque entre plusieurs appareils"
+
+msgid "settings_auto_backup"
+msgstr "Sauvegarde automatique"
+
+msgid "settings_auto_backup_desc"
+msgstr "Envoyer vos donnees aux appareils lies sur le meme Wi-Fi au demarrage"
 
 #. Notifications settings section header
 msgid "settings_notifications"
@@ -8009,3 +8052,9 @@ msgstr "Pendu parfait"
 
 msgid "achievement_hangman_master"
 msgstr "Maître du Pendu"
+
+msgid "pairing_pending_review"
+msgstr "%d en attente de validation"
+
+msgid "pairing_last_paired"
+msgstr "Appairé le %s"
