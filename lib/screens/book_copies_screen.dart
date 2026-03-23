@@ -265,7 +265,7 @@ class _BookCopiesScreenState extends State<BookCopiesScreen>
               ),
             ),
             title: Text(
-              '${TranslationService.translate(context, 'copy_label')} #${copy.id}',
+              '${TranslationService.translate(context, 'copy_label')} #${index + 1}',
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             subtitle: Column(

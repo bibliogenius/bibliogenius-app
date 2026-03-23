@@ -79,6 +79,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
   final List<String> _authors = []; // Multiple authors support
   Book? _duplicateBook; // Existing book with same ISBN
   bool _isDuplicate = false;
+  bool _isAddingCopy = false; // Guard against double-tap on "Add copy"
   late TextEditingController _tagsController;
   final FocusNode _titleFocusNode = FocusNode();
   List<String> _allAuthors = []; // For autocomplete
@@ -586,7 +587,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 : isMobile
                 // Mobile: shorter button with just "Enregistrer"
                 ? TextButton(
-                    onPressed: (_isAutocompleteFetching || _isFetchingDetails)
+                    onPressed: (_isAutocompleteFetching || _isFetchingDetails || _isDuplicate)
                         ? null
                         : _saveBook,
                     key: const Key('saveBookButton'),
@@ -613,7 +614,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   )
                 // Desktop: full button
                 : ElevatedButton(
-                    onPressed: (_isAutocompleteFetching || _isFetchingDetails)
+                    onPressed: (_isAutocompleteFetching || _isFetchingDetails || _isDuplicate)
                         ? null
                         : _saveBook,
                     key: const Key('saveBookButton'),
@@ -739,7 +740,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: ElevatedButton.icon(
-                            onPressed: () async {
+                            onPressed: _isAddingCopy ? null : () async {
+                              setState(() => _isAddingCopy = true);
                               final copyRepo = Provider.of<CopyRepository>(
                                 context,
                                 listen: false,
@@ -766,6 +768,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                                 }
                               } catch (e) {
                                 if (mounted) {
+                                  setState(() => _isAddingCopy = false);
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text('Error: $e'),
@@ -775,7 +778,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
                                 }
                               }
                             },
-                            icon: const Icon(Icons.add),
+                            icon: _isAddingCopy
+                                ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                                : const Icon(Icons.add),
                             label: Text(
                               TranslationService.translate(
                                     context,

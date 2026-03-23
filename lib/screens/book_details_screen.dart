@@ -137,7 +137,45 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     return _copies.any((copy) => copy.status == 'borrowed');
   }
 
-  // ... existing build methods ...
+  Future<void> _quickAddCopy() async {
+    if (_book == null || _book!.id == null) return;
+    final copyRepo = Provider.of<CopyRepository>(context, listen: false);
+    try {
+      await copyRepo.createCopy({
+        'book_id': _book!.id,
+        'status': 'available',
+        'is_temporary': false,
+      });
+      await _fetchCopies();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${TranslationService.translate(context, 'error')}: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _quickRemoveCopy() async {
+    if (_copies.length <= 1) return;
+    // Remove the last available copy (prefer removing available over loaned/borrowed)
+    final target = _copies.lastWhere(
+      (c) => c.status == 'available',
+      orElse: () => _copies.last,
+    );
+    if (target.id == null) return;
+    final copyRepo = Provider.of<CopyRepository>(context, listen: false);
+    try {
+      await copyRepo.deleteCopy(target.id!);
+      await _fetchCopies();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${TranslationService.translate(context, 'error')}: $e')),
+        );
+      }
+    }
+  }
 
   Future<void> _updateRating(int? newRating) async {
     if (_book == null || _book!.id == null) return;
@@ -895,37 +933,73 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: Tooltip(
-                message:
-                    TranslationService.translate(
-                      context,
-                      'menu_manage_copies',
-                    ) ??
-                    'Manage Copies',
-                child: OutlinedButton.icon(
-                  onPressed: () {
-                    if (_book == null) return;
-                    context.push(
-                      '/books/${_book!.id}/copies',
-                      extra: {'bookId': _book!.id, 'bookTitle': _book!.title},
-                    );
-                  },
-                  icon: const Icon(Icons.library_books_outlined),
-                  label: Text(
-                    TranslationService.translate(
-                          context,
-                          'menu_copies_short',
-                        ) ??
-                        'Copies',
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+              child: Row(
+                children: [
+                  if (_copies.length > 1)
+                    SizedBox(
+                      width: 36,
+                      height: 36,
+                      child: IconButton.outlined(
+                        onPressed: _quickRemoveCopy,
+                        icon: const Icon(Icons.remove, size: 18),
+                        padding: EdgeInsets.zero,
+                        style: IconButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                    ),
+                  if (_copies.length > 1) const SizedBox(width: 4),
+                  Expanded(
+                    child: Tooltip(
+                      message:
+                          TranslationService.translate(
+                            context,
+                            'menu_manage_copies',
+                          ) ??
+                          'Manage Copies',
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          if (_book == null) return;
+                          context.push(
+                            '/books/${_book!.id}/copies',
+                            extra: {'bookId': _book!.id, 'bookTitle': _book!.title},
+                          );
+                        },
+                        icon: const Icon(Icons.library_books_outlined),
+                        label: Text(
+                          _copies.length > 1
+                              ? '${TranslationService.translate(context, 'menu_copies_short') ?? 'Copies'} (${_copies.length})'
+                              : TranslationService.translate(context, 'menu_copies_short') ?? 'Copies',
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        key: const Key('manageCopiesButton'),
+                      ),
                     ),
                   ),
-                  key: const Key('manageCopiesButton'),
-                ),
+                  if (_copies.length > 1) const SizedBox(width: 4),
+                  if (_copies.length > 1)
+                    SizedBox(
+                      width: 36,
+                      height: 36,
+                      child: IconButton.outlined(
+                        onPressed: _quickAddCopy,
+                        icon: const Icon(Icons.add, size: 18),
+                        padding: EdgeInsets.zero,
+                        style: IconButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
             if (book.isbn != null) ...[
