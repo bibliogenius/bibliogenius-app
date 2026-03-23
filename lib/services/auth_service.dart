@@ -14,20 +14,33 @@ abstract class SecureStorageInterface {
 }
 
 class RealSecureStorage implements SecureStorageInterface {
+  // On Android, resetOnError: true auto-resets EncryptedSharedPreferences
+  // when the Keystore key is invalidated (e.g., after app reinstall with
+  // Auto Backup restoring encrypted data but not the Keystore key).
+  // Data is lost but was unreadable anyway; the app will re-create tokens.
+  static const _androidOptions = AndroidOptions(
+    resetOnError: true,
+  );
+
   final _storage = const FlutterSecureStorage();
+
   @override
   Future<void> write({required String key, required String? value}) =>
-      _storage.write(key: key, value: value);
+      _storage.write(key: key, value: value, aOptions: _androidOptions);
   @override
-  Future<String?> read({required String key}) => _storage.read(key: key);
+  Future<String?> read({required String key}) =>
+      _storage.read(key: key, aOptions: _androidOptions);
   @override
-  Future<void> delete({required String key}) => _storage.delete(key: key);
+  Future<void> delete({required String key}) =>
+      _storage.delete(key: key, aOptions: _androidOptions);
 }
 
 /// Wraps [RealSecureStorage] and automatically falls back to
 /// [SharedPreferencesStorage] when the Keychain is unavailable.
 /// This happens on macOS DMG builds (hardened runtime, no sandbox,
-/// no keychain-access-groups entitlement → errSecMissingEntitlement -34018).
+/// no keychain-access-groups entitlement -> errSecMissingEntitlement -34018).
+/// On Android, Keystore issues are handled by AndroidOptions(resetOnError: true)
+/// in [RealSecureStorage] instead, keeping data encrypted.
 class ResilientSecureStorage implements SecureStorageInterface {
   SecureStorageInterface _delegate = RealSecureStorage();
   bool _didFallback = false;

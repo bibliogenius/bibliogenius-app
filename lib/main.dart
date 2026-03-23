@@ -605,9 +605,18 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
             if (!hasSeenTour) return '/onboarding';
           }
         } catch (e) {
-          // Secure storage unavailable (e.g., missing keyring on Linux)
-          // Treat as not logged in — auto-login to avoid blocking the user
-          debugPrint('⚠️ Redirect: secure storage error ($e), falling back to auto-login');
+          // Secure storage unavailable (e.g., missing keyring on Linux,
+          // or Android Keystore wiped after reinstall with backup restore)
+          debugPrint('⚠️ Redirect: secure storage error ($e), performing auto-login');
+          try {
+            await authService.saveUsername('admin');
+            await authService.saveToken(
+              'local-auto-token-${DateTime.now().millisecondsSinceEpoch}',
+            );
+            debugPrint('✅ Redirect: recovery auto-login succeeded');
+          } catch (e2) {
+            debugPrint('⚠️ Redirect: recovery auto-login also failed ($e2)');
+          }
           if (isLoginRoute) return null;
           return '/books';
         }
