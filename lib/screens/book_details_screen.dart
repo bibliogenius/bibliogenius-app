@@ -673,6 +673,36 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                       ),
                       const SizedBox(height: 32),
                     ],
+                    // Private book toggle - at the bottom of the page
+                    Consumer<ThemeProvider>(
+                      builder: (context, theme, _) {
+                        if (!theme.allowPrivateBooks)
+                          return const SizedBox.shrink();
+                        return Card(
+                          child: SwitchListTile(
+                            secondary: Icon(
+                              book.private
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                              color: book.private
+                                  ? Theme.of(context).colorScheme.error
+                                  : null,
+                            ),
+                            title: Text(
+                              TranslationService.translate(
+                                  context, 'book_private'),
+                            ),
+                            subtitle: Text(
+                              TranslationService.translate(
+                                  context, 'book_private_desc'),
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                            value: book.private,
+                            onChanged: (value) => _togglePrivate(value),
+                          ),
+                        );
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -1168,36 +1198,6 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             ),
           ),
         ],
-        // Private book toggle - only visible if allowPrivateBooks is enabled
-        Consumer<ThemeProvider>(
-          builder: (context, theme, _) {
-            if (!theme.allowPrivateBooks) return const SizedBox.shrink();
-            return Padding(
-              padding: const EdgeInsets.only(top: 12),
-              child: SwitchListTile(
-                secondary: Icon(
-                  book.private ? Icons.visibility_off : Icons.visibility,
-                  color: book.private
-                      ? Theme.of(context).colorScheme.error
-                      : null,
-                ),
-                title: Text(
-                  TranslationService.translate(context, 'book_private'),
-                ),
-                subtitle: Text(
-                  TranslationService.translate(context, 'book_private_desc'),
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-                value: book.private,
-                onChanged: (value) => _togglePrivate(value),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 4),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            );
-          },
-        ),
       ],
     );
   }

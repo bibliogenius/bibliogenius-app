@@ -116,6 +116,9 @@ class FlashMessageProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Check if a flash message has been dismissed.
+  bool isDismissed(String key) => _dismissed.contains(key);
+
   /// Dismiss a flash message permanently.
   Future<void> dismiss(String key) async {
     _dismissed.add(key);

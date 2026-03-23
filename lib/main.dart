@@ -1129,11 +1129,14 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
       ));
 
       // Flash B: Inline preset selector chips
+      // Only shown after Flash A (library name) has been dismissed or completed
       flashProvider.register(FlashMessageDefinition(
         key: 'flash_discover_presets',
         textKey: 'flash_discover_presets',
         icon: Icons.tune,
-        condition: (_) => true,
+        condition: (ctx) {
+          return flashProvider.isDismissed('flash_customize_library_name');
+        },
         allowedRoutes: ['/books', '/dashboard', '/shelves', '/collections'],
         contentBuilder: (ctx, dismiss) => _FlashPresetSelector(
           onDismiss: dismiss,

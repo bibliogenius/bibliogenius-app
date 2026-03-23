@@ -2607,9 +2607,9 @@ msgstr "Una vez activado, el módulo de Audio busca automáticamente versiones d
 msgid "help_desc_collections"
 msgstr "Las Colecciones te permiten agrupar libros en listas personalizadas (sagas, temas, listas de lectura). Crea una colección desde la pestaña Colecciones, luego añade libros de tu biblioteca o importa listas existentes."
 
-#. Go to \"Connect Library\" to share your QR code or scan a friend's code.
+#. Connect with friends by scanning their QR code, sharing an invite link, or using the hub directory. Once connected, you can browse each other's catalogs, send borrow requests, and stay in sync.
 msgid "help_desc_connect"
-msgstr "Ve a \"Conectar biblioteca\" para compartir tu código QR o escanear el de un amigo."
+msgstr "Conéctate con tus amigos escaneando su código QR, compartiendo un enlace de invitación o a través del directorio. Una vez conectados, puedes consultar sus catálogos, enviar solicitudes de préstamo y mantenerte sincronizado."
 
 #. Go to \"Network\" to add friends or libraries. You can add borrowers (who can borrow your books) or libraries (whose catalog you can browse).
 msgid "help_desc_contacts"
@@ -2617,7 +2617,7 @@ msgstr "Ve a \"Red\" para añadir amigos o bibliotecas. Puedes añadir prestatar
 
 #. Your library data is stored locally on your device. When you connect with friends, your catalog is visible to them. You can mark specific books as private to hide them from the network. You can export a backup anytime from your Profile.
 msgid "help_desc_data_privacy"
-msgstr "Los datos de tu biblioteca se almacenan localmente en tu dispositivo. Cuando te conectas con amigos, tu catalogo les es visible. Puedes marcar ciertos libros como privados para ocultarlos de la red. Puedes exportar una copia de seguridad en cualquier momento desde tu Perfil."
+msgstr "Los datos de tu biblioteca se almacenan localmente en tu dispositivo. Cuando te conectas con amigos, tu catálogo les es visible. Puedes marcar ciertos libros como privados para ocultarlos de la red. Puedes exportar una copia de seguridad en cualquier momento desde tu Perfil."
 
 #. Use the search icon to find books in external catalogs like BNF (French National Library), OpenLibrary, and Inventaire. When you find a book, tap it to add it to your library with all its metadata.
 msgid "help_desc_external_search"
@@ -7374,7 +7374,7 @@ msgstr "Libro privado"
 
 #. This book will not be visible to your contacts on the network
 msgid "book_private_desc"
-msgstr "Este libro no sera visible por tus contactos en la red"
+msgstr "Este libro no será visible por tus contactos en la red"
 
 #. Tooltip for private book toggle
 msgid "tooltip_private_book"

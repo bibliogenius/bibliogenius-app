@@ -985,29 +985,6 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 controlAffinity: ListTileControlAffinity.leading,
                 contentPadding: EdgeInsets.zero,
               ),
-              Consumer<ThemeProvider>(
-                builder: (context, theme, _) {
-                  if (!theme.allowPrivateBooks)
-                    return const SizedBox.shrink();
-                  return CheckboxListTile(
-                    title: Text(
-                      TranslationService.translate(context, 'book_private'),
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                    subtitle: Text(
-                      TranslationService.translate(
-                          context, 'book_private_desc'),
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                    value: _private,
-                    onChanged: (value) {
-                      setState(() => _private = value ?? false);
-                    },
-                    controlAffinity: ListTileControlAffinity.leading,
-                    contentPadding: EdgeInsets.zero,
-                  );
-                },
-              ),
               const SizedBox(height: 16),
 
               // Formats Selection (Unified)
@@ -1354,11 +1331,30 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   });
                 },
               ),
+              Consumer<ThemeProvider>(
+                builder: (context, theme, _) {
+                  if (!theme.allowPrivateBooks)
+                    return const SizedBox.shrink();
+                  return CheckboxListTile(
+                    title: Text(
+                      TranslationService.translate(context, 'book_private'),
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                    subtitle: Text(
+                      TranslationService.translate(
+                          context, 'book_private_desc'),
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    value: _private,
+                    onChanged: (value) {
+                      setState(() => _private = value ?? false);
+                    },
+                    controlAffinity: ListTileControlAffinity.leading,
+                    contentPadding: EdgeInsets.zero,
+                  );
+                },
+              ),
               const SizedBox(height: 32),
-
-              // Save Button
-              // Save Button moved to AppBar
-              const SizedBox(height: 16),
 
               // Delete Button
               SizedBox(

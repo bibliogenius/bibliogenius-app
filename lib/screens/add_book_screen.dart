@@ -85,6 +85,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
   List<String> _allAuthors = []; // For autocomplete
   final List<String> _selectedDigitalFormats = ['paper']; // Default to paper
   bool _isOwned = true; // Ownership status
+  bool _private = false; // Whether this book is hidden from network peers
   Timer? _debounce;
   Timer? _isbnDebounce;
 
@@ -400,6 +401,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
       digitalFormats: _selectedDigitalFormats.isNotEmpty
           ? _selectedDigitalFormats
           : null,
+      private: _private,
     );
 
     try {
@@ -1719,6 +1721,29 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 setState(() {
                   _selectedCollections = collections;
                 });
+              },
+            ),
+            Consumer<ThemeProvider>(
+              builder: (context, theme, _) {
+                if (!theme.allowPrivateBooks)
+                  return const SizedBox.shrink();
+                return CheckboxListTile(
+                  title: Text(
+                    TranslationService.translate(context, 'book_private'),
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                  subtitle: Text(
+                    TranslationService.translate(
+                        context, 'book_private_desc'),
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  value: _private,
+                  onChanged: (value) {
+                    setState(() => _private = value ?? false);
+                  },
+                  controlAffinity: ListTileControlAffinity.leading,
+                  contentPadding: EdgeInsets.zero,
+                );
               },
             ),
             const SizedBox(height: 32),
