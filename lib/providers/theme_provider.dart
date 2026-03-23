@@ -85,6 +85,11 @@ class ThemeProvider with ChangeNotifier {
   bool _canBorrowBooks = true;
   bool get canBorrowBooks => _canBorrowBooks;
 
+  // Private books: allows marking individual books as hidden from peers.
+  // Disabled for librarian/bookseller (all books must be visible).
+  bool _allowPrivateBooks = true;
+  bool get allowPrivateBooks => _allowPrivateBooks;
+
   // Gamification: disabled by default for librarians and booksellers
   bool _gamificationEnabled = true;
   bool get gamificationEnabled => _gamificationEnabled;
@@ -310,6 +315,14 @@ class ThemeProvider with ChangeNotifier {
       _canBorrowBooks = !isLibrarian;
     }
 
+    // Private books: default true for readers, false for librarian/bookseller
+    final savedAllowPrivate = prefs.getBool('allowPrivateBooks');
+    if (savedAllowPrivate != null) {
+      _allowPrivateBooks = savedAllowPrivate;
+    } else {
+      _allowPrivateBooks = !isLibrarian && !isBookseller;
+    }
+
     _commerceEnabled = prefs.getBool('commerceEnabled') ?? false;
     // Default to false (opt-in) for privacy
     _networkDiscoveryEnabled =
@@ -437,6 +450,14 @@ class ThemeProvider with ChangeNotifier {
     _canBorrowBooks = enabled;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('canBorrowBooks', enabled);
+    notifyListeners();
+  }
+
+  Future<void> setAllowPrivateBooks(bool enabled) async {
+    _allowPrivateBooks = enabled;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('allowPrivateBooks', enabled);
+    await _updateEnabledModules();
     notifyListeners();
   }
 
@@ -785,6 +806,7 @@ class ThemeProvider with ChangeNotifier {
     _autoBackupEnabled = false;
     _networkGamificationEnabled = false;
     _canBorrowBooks = true;
+    _allowPrivateBooks = true;
     _syncSafetyEnabled = true;
     _notificationsEnabled = true;
     _notifConnectionsEnabled = true;
@@ -890,31 +912,34 @@ class ThemeProvider with ChangeNotifier {
   Future<void> applyPreset(String presetName) async {
     switch (presetName) {
       case 'reader':
-        // Reader preset: gamification, quotes, collections, audio, borrowing
+        // Reader preset: gamification, quotes, collections, audio, borrowing, private books
         await setGamificationEnabled(true);
         await setQuotesEnabled(true);
         await setCollectionsEnabled(true);
         await setAudioEnabled(true);
         await setCommerceEnabled(false);
         await setCanBorrowBooks(true);
+        await setAllowPrivateBooks(true);
         break;
       case 'librarian':
-        // Librarian preset: collections, network, no gamification, no borrowing
+        // Librarian preset: collections, network, no gamification, no borrowing, no private books
         await setGamificationEnabled(false);
         await setQuotesEnabled(false);
         await setCollectionsEnabled(true);
         await setNetworkEnabled(true);
         await setCommerceEnabled(false);
         await setCanBorrowBooks(false);
+        await setAllowPrivateBooks(false);
         break;
       case 'bookseller':
-        // Bookseller preset: commerce, collections, no gamification, no borrowing
+        // Bookseller preset: commerce, collections, no gamification, no borrowing, no private books
         await setCommerceEnabled(true);
         await setCollectionsEnabled(true);
         await setGamificationEnabled(false);
         await setQuotesEnabled(false);
         await setAudioEnabled(false);
         await setCanBorrowBooks(false);
+        await setAllowPrivateBooks(false);
         break;
     }
     notifyListeners();
@@ -1191,6 +1216,9 @@ class ThemeProvider with ChangeNotifier {
     }
     if (syncSafetyEnabled) {
       enabledModules.add('sync_safety');
+    }
+    if (allowPrivateBooks) {
+      enabledModules.add('allow_private_books');
     }
 
     try {

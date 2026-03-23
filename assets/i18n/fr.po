@@ -2786,9 +2786,9 @@ msgstr "Faits amusants sur votre vitesse de lecture et vos préférences."
 msgid "help_desc_add_book"
 msgstr "Allez dans \"Ma Bibliothèque\" et appuyez sur \"+\". Vous pouvez scanner un code-barres ou chercher par titre/ISBN."
 
-#. The Audio module lets you manage audiobooks and track listening progress. Enable it in your profile settings, then add audiobook versions to any book in your library.
+#. When enabled, the Audio module automatically searches for free audiobook versions of your books on LibriVox, Littérature Audio, and Archive.org. Enable it in your profile settings, then listen directly from each book's details page.
 msgid "help_desc_audio"
-msgstr "Le module Audio vous permet de gérer vos livres audio et de suivre votre progression d'écoute. Activez-le dans les paramètres de votre profil, puis ajoutez des versions audio à n'importe quel livre de votre bibliothèque."
+msgstr "Une fois activé, le module Audio recherche automatiquement des versions audio gratuites de vos livres sur LibriVox, Littérature Audio et Archive.org. Activez-le dans les paramètres de votre profil, puis écoutez directement depuis la fiche de chaque livre."
 
 #. Collections let you group books into custom lists (sagas, themes, reading lists). Create a collection from the Collections tab, then add books from your library or import existing lists.
 msgid "help_desc_collections"
@@ -2802,9 +2802,9 @@ msgstr "Connectez-vous avec vos amis en scannant leur QR code ou en partageant l
 msgid "help_desc_contacts"
 msgstr "Allez dans \"Réseau\" pour ajouter des amis ou bibliothèques. Vous pouvez ajouter des emprunteurs ou des bibliothèques dont vous pouvez consulter les livres partagés."
 
-#. Your library data is stored locally on your device. When you connect with friends, only the books you choose to share are visible to them. You can export a backup anytime from your Profile.
+#. Your library data is stored locally on your device. When you connect with friends, your catalog is visible to them. You can mark specific books as private to hide them from the network. You can export a backup anytime from your Profile.
 msgid "help_desc_data_privacy"
-msgstr "Les données de votre bibliothèque sont stockées localement sur votre appareil. Quand vous vous connectez avec des amis, seuls les livres que vous choisissez de partager leur sont visibles. Vous pouvez exporter une sauvegarde à tout moment depuis votre Profil."
+msgstr "Les donnees de votre bibliotheque sont stockees localement sur votre appareil. Quand vous vous connectez avec des amis, votre catalogue leur est visible. Vous pouvez marquer certains livres comme prives pour les masquer du reseau. Vous pouvez exporter une sauvegarde a tout moment depuis votre Profil."
 
 #. Use the search icon to find books in external catalogs like BNF (French National Library), OpenLibrary, and Inventaire. When you find a book, tap it to add it to your library with all its metadata.
 msgid "help_desc_external_search"
@@ -8073,3 +8073,23 @@ msgstr "Réinitialiser le journal de synchro"
 
 msgid "sync_reset_confirm"
 msgstr "Ceci supprimera toutes les opérations de synchro (en attente, appliquées et échouées). Vos livres ne sont pas affectés. Continuer ?"
+
+#. Private Books
+msgid "settings_allow_private_books"
+msgstr "Livres prives"
+
+#. Allow hiding specific books from network peers
+msgid "settings_allow_private_books_desc"
+msgstr "Permet de masquer certains livres pour qu'ils ne soient pas visibles par vos contacts sur le reseau"
+
+#. Private book
+msgid "book_private"
+msgstr "Livre prive"
+
+#. This book will not be visible to your contacts on the network
+msgid "book_private_desc"
+msgstr "Ce livre ne sera pas visible par vos contacts sur le reseau"
+
+#. Tooltip for private book toggle
+msgid "tooltip_private_book"
+msgstr "Masquer ce livre du reseau"

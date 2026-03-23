@@ -546,6 +546,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               'audio_module', 'audio_module_desc',
               'auto_approve_loans_title', 'auto_approve_loans_desc',
               'enable_borrowing_module', 'borrowing_module_desc',
+              'settings_allow_private_books', 'settings_allow_private_books_desc',
               'module_digital_formats', 'module_digital_formats_desc',
               'mcp_integration', 'mcp_description',
               'settings_linked_devices', 'settings_linked_devices_desc',
@@ -712,6 +713,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   themeProvider.canBorrowBooks,
                   (value) => themeProvider.setCanBorrowBooks(value),
                 ),
+                if (themeProvider.networkEnabled)
+                  _buildModuleToggle(
+                    context,
+                    'settings_allow_private_books',
+                    'settings_allow_private_books_desc',
+                    Icons.visibility_off,
+                    themeProvider.allowPrivateBooks,
+                    (value) => themeProvider.setAllowPrivateBooks(value),
+                  ),
                 _buildModuleToggle(
                   context,
                   'module_digital_formats',

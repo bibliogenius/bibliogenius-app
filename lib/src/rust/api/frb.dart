@@ -874,6 +874,7 @@ sealed class FrbBook with _$FrbBook {
     required bool owned,
     double? price,
     List<String>? digitalFormats,
+    required bool private,
   }) = _FrbBook;
 }
 

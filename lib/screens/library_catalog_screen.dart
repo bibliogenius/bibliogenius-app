@@ -454,6 +454,7 @@ class _BookDetailSheetState extends State<_BookDetailSheet> {
         publicationYear: yearStr != null ? int.tryParse(yearStr) : null,
         coverUrl: _meta?['cover_url'],
         owned: true,
+        private: false,
       ));
 
       widget.onAdded(widget.entry.isbn);

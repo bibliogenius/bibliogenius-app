@@ -242,6 +242,7 @@ class ApiService {
           price: bookData['price'] is num
               ? (bookData['price'] as num).toDouble()
               : null,
+          private: bookData['private'] ?? false,
         );
 
         final createdBook = await FfiService().createBook(frbBookInput);
@@ -359,6 +360,9 @@ class ApiService {
                     ? (bookData['price'] as num).toDouble()
                     : null)
               : currentBook.price,
+          private: bookData.containsKey('private')
+              ? bookData['private'] as bool
+              : currentBook.private,
         );
 
         final result = await FfiService().updateBook(id, updatedFrbBook);
@@ -1698,6 +1702,7 @@ class ApiService {
                   ? int.tryParse(values[yearIdx].trim())
                   : null,
               owned: true,
+              private: false,
             );
             await FfiService().createBook(book);
             imported++;
@@ -2016,6 +2021,7 @@ class ApiService {
             readingStatus: readingStatus,
             owned: owned,
             subjects: shelfName != null ? jsonEncode([shelfName]) : null,
+            private: false,
           );
 
           await FfiService().createBook(book);

@@ -2687,9 +2687,9 @@ msgstr "Curiosità sulla tua velocità di lettura e preferenze."
 msgid "help_desc_add_book"
 msgstr "Vai su "La mia biblioteca" e tocca il pulsante "+". Puoi scansionare un codice a barre o cercare per titolo/ISBN."
 
-#. The Audio module lets you manage audiobooks and track listening progress. Enable it in your profile settings, then add audiobook versions to any book in your library.
+#. When enabled, the Audio module automatically searches for free audiobook versions of your books on LibriVox, Littérature Audio, and Archive.org. Enable it in your profile settings, then listen directly from each book's details page.
 msgid "help_desc_audio"
-msgstr "Il modulo Audio ti permette di gestire gli audiolibri e monitorare i progressi di ascolto. Attivalo nelle impostazioni del profilo, poi aggiungi versioni audiolibro a qualsiasi libro della tua biblioteca."
+msgstr "Una volta attivato, il modulo Audio cerca automaticamente versioni audio gratuite dei tuoi libri su LibriVox, Littérature Audio e Archive.org. Attivalo nelle impostazioni del profilo, poi ascolta direttamente dalla scheda di ogni libro."
 
 #. Collections let you group books into custom lists (sagas, themes, reading lists). Create a collection from the Collections tab, then add books from your library or import existing lists.
 msgid "help_desc_collections"

@@ -77,6 +77,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
   String _copyStatus = 'available';
   int? _copyId;
   bool _owned = true; // Whether I own this book (controls copy creation)
+  bool _private = false; // Whether this book is hidden from network peers
 
   // FocusNodes - must be created once and disposed
   late FocusNode _titleFocusNode;
@@ -223,6 +224,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
           : getDefaultStatus(isLibrarian);
       _originalReadingStatus = _readingStatus;
       _owned = widget.book.owned;
+      _private = widget.book.private;
       _loadCopyStatus();
     }
   }
@@ -409,6 +411,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
           ? null
           : _selectedTags, // Ensure null if empty for cleaner JSON
       'owned': _owned,
+      'private': _private,
       'price': _priceController.text.isNotEmpty
           ? double.tryParse(_priceController.text.replaceAll(',', '.'))
           : null, // Price for Bookseller profile
@@ -981,6 +984,29 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 },
                 controlAffinity: ListTileControlAffinity.leading,
                 contentPadding: EdgeInsets.zero,
+              ),
+              Consumer<ThemeProvider>(
+                builder: (context, theme, _) {
+                  if (!theme.allowPrivateBooks)
+                    return const SizedBox.shrink();
+                  return CheckboxListTile(
+                    title: Text(
+                      TranslationService.translate(context, 'book_private'),
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                    subtitle: Text(
+                      TranslationService.translate(
+                          context, 'book_private_desc'),
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    value: _private,
+                    onChanged: (value) {
+                      setState(() => _private = value ?? false);
+                    },
+                    controlAffinity: ListTileControlAffinity.leading,
+                    contentPadding: EdgeInsets.zero,
+                  );
+                },
               ),
               const SizedBox(height: 16),
 

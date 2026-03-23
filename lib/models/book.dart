@@ -17,6 +17,7 @@ class Book {
   final List<String>? digitalFormats; // ["ebook", "audiobook"]
   final String? language; // ISO language code or full name (e.g., 'fr', 'French')
   final int? availableCopies; // Number of copies with status "available" (from peer)
+  final bool private; // When true, hidden from network peers
 
   Book({
     this.id,
@@ -37,6 +38,7 @@ class Book {
     this.digitalFormats,
     this.language,
     this.availableCopies,
+    this.private = false,
   }) : _coverUrl = coverUrl;
 
   factory Book.fromJson(Map<String, dynamic> json) {
@@ -75,6 +77,7 @@ class Book {
           : null,
       language: json['language'],
       availableCopies: json['available_copies'],
+      private: json['private'] ?? false,
     );
   }
 
@@ -98,6 +101,7 @@ class Book {
       'digital_formats': digitalFormats,
       'language': language,
       'available_copies': availableCopies,
+      'private': private,
       'created_at': now,
       'updated_at': now,
     };
@@ -120,10 +124,11 @@ class Book {
       coverUrl: _coverUrl,
       userRating: newRating,
       owned: owned,
-      price: price, // Preserve price
-      digitalFormats: digitalFormats, // Preserve formats
+      price: price,
+      digitalFormats: digitalFormats,
       language: language,
       availableCopies: availableCopies,
+      private: private,
     );
   }
 
@@ -168,6 +173,7 @@ class Book {
       digitalFormats: digitalFormats,
       language: language,
       availableCopies: availableCopies,
+      private: private,
     );
   }
 

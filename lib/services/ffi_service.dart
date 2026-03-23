@@ -569,6 +569,7 @@ class FfiService {
       subjects: fb.subjects != null ? _parseSubjects(fb.subjects!) : null,
       owned: fb.owned,
       price: fb.price,
+      private: fb.private,
     );
   }
 

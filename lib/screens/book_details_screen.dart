@@ -1168,8 +1168,53 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             ),
           ),
         ],
+        // Private book toggle - only visible if allowPrivateBooks is enabled
+        Consumer<ThemeProvider>(
+          builder: (context, theme, _) {
+            if (!theme.allowPrivateBooks) return const SizedBox.shrink();
+            return Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: SwitchListTile(
+                secondary: Icon(
+                  book.private ? Icons.visibility_off : Icons.visibility,
+                  color: book.private
+                      ? Theme.of(context).colorScheme.error
+                      : null,
+                ),
+                title: Text(
+                  TranslationService.translate(context, 'book_private'),
+                ),
+                subtitle: Text(
+                  TranslationService.translate(context, 'book_private_desc'),
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                value: book.private,
+                onChanged: (value) => _togglePrivate(value),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            );
+          },
+        ),
       ],
     );
+  }
+
+  Future<void> _togglePrivate(bool value) async {
+    if (_book == null || _book!.id == null) return;
+    final bookRepo = Provider.of<BookRepository>(context, listen: false);
+    try {
+      await bookRepo.updateBook(_book!.id!, {
+        'title': _book!.title,
+        'private': value,
+      });
+      _hasChanges = true;
+      await _fetchBookDetails(forceRefresh: true);
+    } catch (e) {
+      debugPrint('Error toggling private: $e');
+    }
   }
 
   Future<void> _sellBook(BuildContext context) async {
