@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import '../models/book_note.dart';
 import '../services/translation_service.dart';
 
-/// Displays a single reading note with edit/delete actions.
+/// Displays a single reading note.
+/// Tap to edit, swipe left to delete.
 class BookNoteTile extends StatelessWidget {
   final BookNote note;
   final VoidCallback? onEdit;
@@ -32,30 +33,29 @@ class BookNoteTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Semantics(
-      label: note.content,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        child: Card(
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: BorderSide(
-              color: theme.colorScheme.outlineVariant.withAlpha(80),
-            ),
+    Widget card = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: Card(
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(
+            color: theme.colorScheme.outlineVariant.withAlpha(80),
           ),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: onEdit,
           child: Padding(
             padding: const EdgeInsets.all(12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Content
                 Text(
                   note.content,
                   style: theme.textTheme.bodyMedium,
                 ),
                 const SizedBox(height: 8),
-                // Footer: page + date + actions
                 Row(
                   children: [
                     if (note.page != null) ...[
@@ -79,31 +79,6 @@ class BookNoteTile extends StatelessWidget {
                         color: theme.colorScheme.onSurface.withAlpha(100),
                       ),
                     ),
-                    const Spacer(),
-                    if (onEdit != null)
-                      IconButton(
-                        onPressed: onEdit,
-                        icon: const Icon(Icons.edit_outlined, size: 18),
-                        tooltip: TranslationService.translate(
-                                context, 'tooltip_edit_note'),
-                        constraints: const BoxConstraints(),
-                        padding: const EdgeInsets.all(4),
-                        visualDensity: VisualDensity.compact,
-                      ),
-                    if (onDelete != null)
-                      IconButton(
-                        onPressed: onDelete,
-                        icon: Icon(
-                          Icons.delete_outline,
-                          size: 18,
-                          color: theme.colorScheme.error,
-                        ),
-                        tooltip: TranslationService.translate(
-                                context, 'tooltip_delete_note'),
-                        constraints: const BoxConstraints(),
-                        padding: const EdgeInsets.all(4),
-                        visualDensity: VisualDensity.compact,
-                      ),
                   ],
                 ),
               ],
@@ -112,5 +87,51 @@ class BookNoteTile extends StatelessWidget {
         ),
       ),
     );
+
+    if (onDelete != null) {
+      card = Dismissible(
+        key: ValueKey(note.id),
+        direction: DismissDirection.endToStart,
+        confirmDismiss: (_) async {
+          final confirm = await showDialog<bool>(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              title: Text(
+                TranslationService.translate(context, 'delete_note_confirm'),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx, false),
+                  child:
+                      Text(MaterialLocalizations.of(ctx).cancelButtonLabel),
+                ),
+                FilledButton(
+                  onPressed: () => Navigator.pop(ctx, true),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: theme.colorScheme.error,
+                  ),
+                  child: Text(MaterialLocalizations.of(ctx).okButtonLabel),
+                ),
+              ],
+            ),
+          );
+          return confirm == true;
+        },
+        onDismissed: (_) => onDelete!(),
+        background: Container(
+          alignment: Alignment.centerRight,
+          padding: const EdgeInsets.only(right: 24),
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.error,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: const Icon(Icons.delete_outline, color: Colors.white),
+        ),
+        child: card,
+      );
+    }
+
+    return Semantics(label: note.content, child: card);
   }
 }

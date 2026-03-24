@@ -22,8 +22,10 @@ import '../models/collection.dart';
 import '../models/contact.dart';
 import '../models/copy.dart';
 import '../models/cover_candidate.dart';
+import '../models/book_note.dart';
 import '../providers/book_note_provider.dart' show BookNoteProvider, maxNoteContentLength;
 import '../providers/book_refresh_notifier.dart';
+import '../widgets/book_note_tile.dart';
 import '../providers/hub_directory_provider.dart';
 import '../providers/theme_provider.dart';
 import '../services/api_service.dart';
@@ -2533,6 +2535,71 @@ class _BookNotesSectionState extends State<_BookNotesSection> {
     }
   }
 
+  Future<void> _editNote(BookNote note) async {
+    final contentCtrl = TextEditingController(text: note.content);
+    final pageCtrl =
+        TextEditingController(text: note.page?.toString() ?? '');
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(
+          TranslationService.translate(context, 'edit_note'),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: contentCtrl,
+              maxLines: 4,
+              maxLength: maxNoteContentLength,
+              decoration: InputDecoration(
+                hintText: TranslationService.translate(
+                    context, 'add_note_placeholder'),
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: pageCtrl,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                hintText: TranslationService.translate(
+                    context, 'note_page_label'),
+                prefixIcon: const Icon(Icons.bookmark_outline, size: 20),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(MaterialLocalizations.of(ctx).cancelButtonLabel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(MaterialLocalizations.of(ctx).okButtonLabel),
+          ),
+        ],
+      ),
+    );
+
+    if (result == true && mounted) {
+      final newContent = contentCtrl.text.trim();
+      if (newContent.isEmpty) return;
+      await context.read<BookNoteProvider>().updateNote(
+            id: note.id,
+            content: newContent,
+            page: int.tryParse(pageCtrl.text.trim()),
+          );
+    }
+    contentCtrl.dispose();
+    pageCtrl.dispose();
+  }
+
+  Future<void> _deleteNote(BookNote note) async {
+    await context.read<BookNoteProvider>().deleteNote(note.id);
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = TranslationService.translate;
@@ -2553,21 +2620,55 @@ class _BookNotesSectionState extends State<_BookNotesSection> {
                 ),
               ),
             ),
+            const SizedBox(height: 4),
+            Text(
+              t(
+                context,
+                context.watch<ThemeProvider>().speechToTextEnabled
+                    ? 'notes_section_hint_speech'
+                    : 'notes_section_hint',
+              ),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurface.withAlpha(120),
+              ),
+            ),
             const SizedBox(height: 12),
             // Quick add bar
             Row(
               children: [
                 SizedBox(
-                  width: 52,
+                  width: 64,
                   child: TextField(
                     controller: _pageController,
                     keyboardType: TextInputType.number,
                     textAlign: TextAlign.center,
+                    style: theme.textTheme.bodyMedium,
                     decoration: InputDecoration(
-                      hintText: t(context, 'note_page_label'),
+                      hintText: 'p.',
                       isDense: true,
+                      prefixIcon: Icon(
+                        Icons.bookmark_outline,
+                        size: 16,
+                        color: theme.colorScheme.onSurface.withAlpha(100),
+                      ),
+                      prefixIconConstraints: const BoxConstraints(
+                        minWidth: 24,
+                        minHeight: 0,
+                      ),
                       contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 10),
+                          horizontal: 4, vertical: 10),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: theme.colorScheme.outline.withAlpha(60),
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: theme.colorScheme.outline.withAlpha(60),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -2579,12 +2680,23 @@ class _BookNotesSectionState extends State<_BookNotesSection> {
                     maxLength: maxNoteContentLength,
                     onSubmitted: (_) => _addNote(),
                     decoration: InputDecoration(
-                      hintText:
-                          t(context, 'add_note_placeholder'),
+                      hintText: t(context, 'add_note_placeholder'),
                       isDense: true,
                       counterText: '',
                       contentPadding: const EdgeInsets.symmetric(
                           horizontal: 12, vertical: 10),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: theme.colorScheme.outline.withAlpha(60),
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: theme.colorScheme.outline.withAlpha(60),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -2617,57 +2729,10 @@ class _BookNotesSectionState extends State<_BookNotesSection> {
               )
             else ...[
               ...provider.notes.take(_previewLimit).map(
-                    (note) => Padding(
-                      padding: const EdgeInsets.only(bottom: 6),
-                      child: Card(
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          side: BorderSide(
-                            color:
-                                theme.colorScheme.outlineVariant.withAlpha(80),
-                          ),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 10),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(note.content,
-                                  style: theme.textTheme.bodyMedium),
-                              const SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  if (note.page != null) ...[
-                                    Icon(Icons.bookmark_outline,
-                                        size: 13,
-                                        color: theme.colorScheme.onSurface
-                                            .withAlpha(100)),
-                                    const SizedBox(width: 2),
-                                    Text(
-                                      'p. ${note.page}',
-                                      style:
-                                          theme.textTheme.bodySmall?.copyWith(
-                                        color: theme.colorScheme.onSurface
-                                            .withAlpha(100),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                  ],
-                                  Text(
-                                    _formatDate(note.createdDateTime),
-                                    style: theme.textTheme.bodySmall?.copyWith(
-                                      color: theme.colorScheme.onSurface
-                                          .withAlpha(80),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                    (note) => BookNoteTile(
+                      note: note,
+                      onEdit: () => _editNote(note),
+                      onDelete: () => _deleteNote(note),
                     ),
                   ),
               if (provider.notes.length > _previewLimit)

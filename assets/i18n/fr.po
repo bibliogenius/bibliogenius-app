@@ -8104,6 +8104,14 @@ msgstr "Masquer ce livre du réseau"
 msgid "notes_section_title"
 msgstr "Notes de lecture"
 
+#. Subtitle hint for reading notes section
+msgid "notes_section_hint"
+msgstr "Notez vos impressions, citations ou passages marquants"
+
+#. Subtitle hint for reading notes section (when speech-to-text is enabled)
+msgid "notes_section_hint_speech"
+msgstr "Tapez ou dictez vos impressions, citations ou passages marquants"
+
 #. Placeholder for the note input field
 msgid "add_note_placeholder"
 msgstr "Ajouter une note..."

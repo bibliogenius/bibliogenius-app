@@ -129,30 +129,7 @@ class _BookNotesScreenState extends State<BookNotesScreen> {
   }
 
   Future<void> _deleteNote(BookNote note) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(
-          TranslationService.translate(context, 'delete_note_confirm'),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text(MaterialLocalizations.of(ctx).cancelButtonLabel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
-            ),
-            child: Text(MaterialLocalizations.of(ctx).okButtonLabel),
-          ),
-        ],
-      ),
-    );
-    if (confirm == true && mounted) {
-      await context.read<BookNoteProvider>().deleteNote(note.id);
-    }
+    await context.read<BookNoteProvider>().deleteNote(note.id);
   }
 
   @override
@@ -178,16 +155,47 @@ class _BookNotesScreenState extends State<BookNotesScreen> {
                 child: Row(
                   children: [
                     SizedBox(
-                      width: 56,
+                      width: 64,
                       child: TextField(
                         controller: _pageController,
                         keyboardType: TextInputType.number,
                         textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodyMedium,
                         decoration: InputDecoration(
-                          hintText: t(context, 'note_page_label'),
+                          hintText: 'p.',
                           isDense: true,
+                          prefixIcon: Icon(
+                            Icons.bookmark_outline,
+                            size: 16,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withAlpha(100),
+                          ),
+                          prefixIconConstraints: const BoxConstraints(
+                            minWidth: 24,
+                            minHeight: 0,
+                          ),
                           contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 10),
+                              horizontal: 4, vertical: 10),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .outline
+                                  .withAlpha(60),
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .outline
+                                  .withAlpha(60),
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -205,6 +213,24 @@ class _BookNotesScreenState extends State<BookNotesScreen> {
                           counterText: '',
                           contentPadding: const EdgeInsets.symmetric(
                               horizontal: 12, vertical: 10),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .outline
+                                  .withAlpha(60),
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .outline
+                                  .withAlpha(60),
+                            ),
+                          ),
                         ),
                       ),
                     ),

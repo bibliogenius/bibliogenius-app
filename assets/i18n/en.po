@@ -8104,6 +8104,14 @@ msgstr "Hide this book from the network"
 msgid "notes_section_title"
 msgstr "Reading notes"
 
+#. Subtitle hint for reading notes section
+msgid "notes_section_hint"
+msgstr "Jot down your thoughts, quotes, or memorable passages"
+
+#. Subtitle hint for reading notes section (when speech-to-text is enabled)
+msgid "notes_section_hint_speech"
+msgstr "Type or dictate your thoughts, quotes, or memorable passages"
+
 #. Placeholder for the note input field
 msgid "add_note_placeholder"
 msgstr "Add a note..."
