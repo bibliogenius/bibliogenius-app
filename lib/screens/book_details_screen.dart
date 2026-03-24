@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -216,7 +217,12 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   /// Evict old cover image from Flutter's image cache so it doesn't persist
   void _evictCoverFromCache(String? coverUrl) {
     if (coverUrl == null || coverUrl.isEmpty) return;
-    if (!coverUrl.startsWith('http')) {
+    if (coverUrl.startsWith('http')) {
+      // Network image: evict from disk cache and in-memory image cache
+      BookCoverCacheManager.instance.removeFile(coverUrl);
+      imageCache.evict(CachedNetworkImageProvider(coverUrl,
+          cacheManager: BookCoverCacheManager.instance));
+    } else {
       // Local file: evict from Flutter's image cache
       final fileImage = FileImage(File(coverUrl));
       imageCache.evict(fileImage);

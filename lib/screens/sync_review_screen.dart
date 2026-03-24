@@ -20,7 +20,9 @@ class _SyncReviewScreenState extends State<SyncReviewScreen> {
   void initState() {
     super.initState();
     _provider = context.read<DeviceSyncProvider>();
-    _provider.loadPendingReview();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _provider.loadPendingReview();
+    });
   }
 
   @override
