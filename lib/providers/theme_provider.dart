@@ -125,6 +125,10 @@ class ThemeProvider with ChangeNotifier {
   // Network Module (Alias for network discovery for UI consistency)
   bool get networkEnabled => _networkDiscoveryEnabled;
 
+  // Speech-to-text for note dictation (opt-in, disabled by default)
+  bool _speechToTextEnabled = true;
+  bool get speechToTextEnabled => _speechToTextEnabled;
+
   // Operation Log Viewer (developer tool, disabled by default)
   bool _operationLogViewerEnabled = false;
   bool get operationLogViewerEnabled => _operationLogViewerEnabled;
@@ -357,6 +361,13 @@ class ThemeProvider with ChangeNotifier {
     _slidingPuzzleEnabled = prefs.getBool('slidingPuzzleEnabled') ?? true;
     _hangmanEnabled = prefs.getBool('hangmanEnabled') ?? true;
     _operationLogViewerEnabled = prefs.getBool('operationLogViewerEnabled') ?? false;
+    // Speech-to-text: disabled for librarians/booksellers (catalog focus, not personal reading)
+    final savedSpeechToText = prefs.getBool('speechToTextEnabled');
+    if (savedSpeechToText != null) {
+      _speechToTextEnabled = savedSpeechToText;
+    } else {
+      _speechToTextEnabled = !isLibrarian && !isBookseller;
+    }
     _syncSafetyEnabled = prefs.getBool('syncSafetyEnabled') ?? true;
     _bottomNavEnabled = prefs.getBool('bottomNavEnabled') ?? true;
     _notificationsEnabled = prefs.getBool('notificationsEnabled') ?? true;
@@ -524,6 +535,13 @@ class ThemeProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> setSpeechToTextEnabled(bool enabled) async {
+    _speechToTextEnabled = enabled;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('speechToTextEnabled', enabled);
+    notifyListeners();
+  }
+
   Future<void> setSyncSafetyEnabled(bool enabled) async {
     _syncSafetyEnabled = enabled;
     final prefs = await SharedPreferences.getInstance();
@@ -584,6 +602,12 @@ class ThemeProvider with ChangeNotifier {
     final savedCanBorrow = prefs.getBool('canBorrowBooks');
     if (savedCanBorrow == null) {
       _canBorrowBooks = !isLibrarian;
+    }
+
+    // Reset speech-to-text to profile-based default if not explicitly set
+    final savedSpeechToText = prefs.getBool('speechToTextEnabled');
+    if (savedSpeechToText == null) {
+      _speechToTextEnabled = !isLibrarian && !isBookseller;
     }
 
     // Auto-enable commerce module only if switching TO bookseller for the first time
@@ -788,6 +812,8 @@ class ThemeProvider with ChangeNotifier {
 
   Future<void> resetSetup() async {
     _isSetupComplete = false;
+    _libraryNameCustomized = false;
+    _libraryName = 'My Library';
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
     resetSetupState();
@@ -814,6 +840,7 @@ class ThemeProvider with ChangeNotifier {
     _notifDiscoveriesEnabled = true;
     _simplifiedMode = false;
     _operationLogViewerEnabled = false;
+    _speechToTextEnabled = true;
     _bottomNavEnabled = true;
     notifyListeners();
   }

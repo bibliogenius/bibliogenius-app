@@ -7662,6 +7662,10 @@ msgstr "Personnalisez le nom de votre bibliothèque :"
 msgid "flash_library_name_hint"
 msgstr "Nom de la bibliothèque"
 
+#. Flash message: library name saved confirmation
+msgid "flash_library_name_saved"
+msgstr "Nom de la bibliothèque enregistré"
+
 #. Flash message: discover configuration profiles
 msgid "flash_discover_presets"
 msgstr "Configuration rapide - choisissez votre profil :"

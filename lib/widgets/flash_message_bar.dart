@@ -173,21 +173,46 @@ class _FlashBar extends StatelessWidget {
       );
     }
 
+    final Widget inner;
+    if (definition.fullWidthContent) {
+      // Close button floats top-right; content gets full width.
+      inner = Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: content,
+          ),
+          Positioned(
+            top: -4,
+            right: -2,
+            child: _flashCloseButton(context, dismiss),
+          ),
+        ],
+      );
+    } else {
+      inner = Row(
+        children: [
+          _flashIconBadge(colorScheme, iconData),
+          const SizedBox(width: 12),
+          Expanded(child: content),
+          const SizedBox(width: 4),
+          _flashCloseButton(context, dismiss),
+        ],
+      );
+    }
+
     return Semantics(
       liveRegion: true,
       child: Container(
         margin: const EdgeInsets.fromLTRB(12, 8, 12, 0),
-        padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
-        decoration: _flashCardDecoration(colorScheme, isDark),
-        child: Row(
-          children: [
-            _flashIconBadge(colorScheme, iconData),
-            const SizedBox(width: 12),
-            Expanded(child: content),
-            const SizedBox(width: 4),
-            _flashCloseButton(context, dismiss),
-          ],
+        padding: EdgeInsets.fromLTRB(
+          14,
+          12,
+          definition.fullWidthContent ? 14 : 8,
+          12,
         ),
+        decoration: _flashCardDecoration(colorScheme, isDark),
+        child: inner,
       ),
     );
   }

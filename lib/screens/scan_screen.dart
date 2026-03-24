@@ -12,6 +12,7 @@ import '../utils/isbn_validator.dart';
 import '../utils/book_url_helper.dart';
 import '../models/book.dart';
 import '../providers/book_refresh_notifier.dart';
+import '../providers/flash_message_provider.dart';
 
 /// Scan screen with optional batch mode and pre-selected destination.
 ///
@@ -385,6 +386,7 @@ class _ScanScreenState extends State<ScanScreen> {
     if (successCount > 0 && mounted) {
       context.read<HubDirectoryProvider>().markCatalogDirty();
       context.read<BookRefreshNotifier>().refresh();
+      context.read<FlashMessageProvider>().markHasBooks();
     }
 
     if (mounted) {

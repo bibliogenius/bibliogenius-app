@@ -7654,6 +7654,10 @@ msgstr ""
 msgid "flash_library_name_hint"
 msgstr ""
 
+#. Flash message: library name saved confirmation
+msgid "flash_library_name_saved"
+msgstr ""
+
 #. Flash message: discover configuration profiles
 msgid "flash_discover_presets"
 msgstr ""

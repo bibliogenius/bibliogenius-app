@@ -122,7 +122,10 @@ Future<String?> _getDeviceName() async {
       return android.model; // e.g. "Pixel 7"
     } else if (Platform.isMacOS) {
       final macos = await deviceInfo.macOsInfo;
-      return macos.computerName; // e.g. "MacBook Pro de Federico"
+      final name = macos.computerName;
+      if (name.isNotEmpty) return name;
+      // Fallback to hostname if computerName is empty
+      return Platform.localHostname;
     } else if (Platform.isLinux) {
       final linux = await deviceInfo.linuxInfo;
       return linux.prettyName; // e.g. "Ubuntu 22.04"
@@ -132,6 +135,11 @@ Future<String?> _getDeviceName() async {
     }
   } catch (e) {
     debugPrint('_getDeviceName error: $e');
+    // Fallback to hostname on any platform
+    try {
+      final hostname = Platform.localHostname;
+      if (hostname.isNotEmpty) return hostname;
+    } catch (_) {}
   }
   return null;
 }
@@ -230,12 +238,16 @@ void main([List<String>? args]) async {
 
   if (useFfi) {
     // If library name hasn't been customized, set from device name
+    debugPrint('Library name: customized=${themeProvider.libraryNameCustomized}, '
+        'current="${themeProvider.libraryName}"');
     if (!themeProvider.libraryNameCustomized) {
       try {
         final deviceName = await _getDeviceName();
+        debugPrint('Device name result: "$deviceName"');
         if (deviceName != null && deviceName.isNotEmpty) {
           final lang = themeProvider.locale.languageCode;
           final template = TranslationService.translateByLocale(lang, 'library_of_device');
+          debugPrint('Library name template ($lang): "$template"');
           final localizedName = template.replaceAll('%s', deviceName);
           await themeProvider.setLibraryName(localizedName);
           debugPrint('Library name set from device: $localizedName');
@@ -568,6 +580,23 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
           // Auto-init if setup not complete (e.g., after resetSetup)
           if (!themeProvider.isSetupComplete) {
             await themeProvider.initializeDefaults();
+            // Re-apply device name (resetSetup clears libraryNameCustomized)
+            if (!themeProvider.libraryNameCustomized) {
+              try {
+                final deviceName = await _getDeviceName();
+                if (deviceName != null && deviceName.isNotEmpty) {
+                  final lang = themeProvider.locale.languageCode;
+                  final template = TranslationService.translateByLocale(
+                    lang,
+                    'library_of_device',
+                  );
+                  final localizedName = template.replaceAll('%s', deviceName);
+                  await themeProvider.setLibraryName(localizedName);
+                }
+              } catch (e) {
+                debugPrint('Redirect device name fallback: $e');
+              }
+            }
             await authService.saveUsername('admin');
             await authService.saveToken(
               'local-auto-token-${DateTime.now().millisecondsSinceEpoch}',
@@ -1132,11 +1161,14 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
           Provider.of<FlashMessageProvider>(context, listen: false);
 
       // Flash A: Inline library name editor
+      // Only shown after the user has added at least one book
       flashProvider.register(FlashMessageDefinition(
         key: 'flash_customize_library_name',
         textKey: 'flash_customize_library_name',
         icon: Icons.edit_outlined,
+        fullWidthContent: true,
         condition: (ctx) {
+          if (!flashProvider.hasBooks) return false;
           final tp = Provider.of<ThemeProvider>(ctx, listen: false);
           return !tp.libraryNameCustomized;
         },
@@ -1152,10 +1184,18 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
         key: 'flash_discover_presets',
         textKey: 'flash_discover_presets',
         icon: Icons.tune,
+        fullWidthContent: true,
         condition: (ctx) {
-          return flashProvider.isDismissed('flash_customize_library_name');
+          if (!flashProvider.hasBooks) return false;
+          // Show when Flash A is done: either explicitly dismissed,
+          // or its purpose already fulfilled (name was customized externally)
+          if (flashProvider.isDismissed('flash_customize_library_name')) {
+            return true;
+          }
+          final tp = Provider.of<ThemeProvider>(ctx, listen: false);
+          return tp.libraryNameCustomized;
         },
-        allowedRoutes: ['/books', '/dashboard', '/shelves', '/collections'],
+        excludedRoutes: ['/settings', '/setup', '/onboarding', '/profile'],
         contentBuilder: (ctx, dismiss) => _FlashPresetSelector(
           onDismiss: dismiss,
         ),
@@ -1353,38 +1393,57 @@ class _FlashLibraryNameEditor extends StatefulWidget {
 
 class _FlashLibraryNameEditorState extends State<_FlashLibraryNameEditor> {
   late final TextEditingController _controller;
+  // Captured early so they remain valid during dispose.
+  late final ThemeProvider _tp;
+  HubDirectoryProvider? _hubProvider;
+  ScaffoldMessengerState? _scaffoldMessenger;
   bool _dirty = false;
+  bool _saved = false;
 
   @override
   void initState() {
     super.initState();
-    final tp = context.read<ThemeProvider>();
-    _controller = TextEditingController(text: tp.libraryName);
+    _tp = context.read<ThemeProvider>();
+    try {
+      _hubProvider = context.read<HubDirectoryProvider>();
+    } catch (_) {}
+    _controller = TextEditingController(text: _tp.libraryName);
     _controller.addListener(_onChanged);
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _scaffoldMessenger = ScaffoldMessenger.maybeOf(context);
+  }
+
   void _onChanged() {
-    final current = context.read<ThemeProvider>().libraryName;
-    final dirty = _controller.text.trim() != current &&
+    final dirty = _controller.text.trim() != _tp.libraryName &&
         _controller.text.trim().isNotEmpty;
     if (dirty != _dirty) {
       setState(() => _dirty = dirty);
     }
   }
 
-  Future<void> _save() async {
+  Future<void> _save({bool showFeedback = false}) async {
+    if (_saved) return;
     final name = _controller.text.trim();
     if (name.isEmpty) return;
+    _saved = true;
+
+    // Dismiss FIRST so the dismissed state is recorded immediately.
+    // This ensures Flash B's condition is satisfied before any async
+    // operation can trigger a rebuild that unmounts this widget.
+    widget.onDismiss();
+
+    // Background persistence (uses captured refs, safe after unmount).
     try {
-      // 1. Persist to SharedPreferences FIRST (frontend reads from here)
-      final tp = context.read<ThemeProvider>();
-      await tp.setLibraryName(name);
-      await tp.markLibraryNameCustomized();
+      await _tp.setLibraryName(name);
+      await _tp.markLibraryNameCustomized();
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('ffi_library_name', name);
-      if (!mounted) return;
-      // 2. Persist to Rust DB via FFI (so HTTP /api/config also returns it)
-      //    Retry once on failure — DB may not be fully ready on fresh install.
+
+      // Persist to Rust DB (retry once on fresh install)
       bool ffiOk = false;
       for (var attempt = 0; attempt < 2 && !ffiOk; attempt++) {
         try {
@@ -1394,22 +1453,19 @@ class _FlashLibraryNameEditorState extends State<_FlashLibraryNameEditor> {
           debugPrint('FFI library name update attempt ${attempt + 1} failed: $e');
           if (attempt == 0) {
             await Future.delayed(const Duration(milliseconds: 500));
-            if (!mounted) return;
           }
         }
       }
       if (!ffiOk) {
-        debugPrint('⚠️ Library name saved to SharedPreferences but NOT to Rust DB — '
-            'will be synced on next app restart');
+        debugPrint('Library name saved to SharedPreferences but NOT to Rust DB');
       }
-      if (!mounted) return;
-      // 3. Update hub profile with new name (if registered)
-      try {
-        final hubProvider = context.read<HubDirectoryProvider>();
-        final hubConfig = hubProvider.config;
-        if (hubConfig != null) {
+
+      // Update hub profile with new name (if registered)
+      final hubConfig = _hubProvider?.config;
+      if (hubConfig != null) {
+        try {
           final bookCount = await FfiService().countBooks();
-          await hubProvider.register(
+          await _hubProvider!.register(
             nodeId: hubConfig.nodeId,
             displayName: name,
             bookCount: bookCount,
@@ -1418,21 +1474,34 @@ class _FlashLibraryNameEditorState extends State<_FlashLibraryNameEditor> {
             acceptFrom: hubConfig.acceptFrom,
             allowBorrowing: hubConfig.allowBorrowing,
           );
+        } catch (e) {
+          debugPrint('Hub name update failed: $e');
         }
-      } catch (e) {
-        debugPrint('Hub name update failed: $e');
       }
-      if (!mounted) return;
-      widget.onDismiss();
     } catch (e) {
       debugPrint('Flash name save failed: $e');
-      if (!mounted) return;
-      widget.onDismiss();
+    }
+
+    if (showFeedback && _scaffoldMessenger != null) {
+      _scaffoldMessenger!.showSnackBar(
+        SnackBar(
+          content: Text(
+            TranslationService.translateByLocale(
+              _tp.locale.languageCode,
+              'flash_library_name_saved',
+            ),
+          ),
+        ),
+      );
     }
   }
 
   @override
   void dispose() {
+    // Auto-save if the user modified the name but didn't press Enter
+    if (_dirty) {
+      _save(showFeedback: true);
+    }
     _controller.dispose();
     super.dispose();
   }
@@ -1440,95 +1509,110 @@ class _FlashLibraryNameEditorState extends State<_FlashLibraryNameEditor> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          TranslationService.translate(
-            context,
-            'flash_customize_library_name',
-          ),
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
-            color: colorScheme.onSurface,
-          ),
-        ),
-        const SizedBox(height: 8),
         Row(
           children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: colorScheme.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                Icons.edit_outlined,
+                size: 16,
+                color: colorScheme.primary,
+              ),
+            ),
+            const SizedBox(width: 10),
             Expanded(
-              child: SizedBox(
-                height: 34,
-                child: TextField(
-                  controller: _controller,
-                  maxLength: 30,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: colorScheme.onSurface,
-                  ),
-                  decoration: InputDecoration(
-                    counterText: '',
-                    isDense: true,
-                    filled: true,
-                    fillColor: colorScheme.onSurface.withValues(alpha: 0.05),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(
-                        color: colorScheme.primary.withValues(alpha: 0.5),
-                        width: 1.5,
-                      ),
-                    ),
-                    hintText: TranslationService.translate(
-                      context,
-                      'flash_library_name_hint',
-                    ),
-                    hintStyle: TextStyle(
-                      fontSize: 12,
-                      color: colorScheme.onSurface.withValues(alpha: 0.4),
-                    ),
-                  ),
+              child: Text(
+                TranslationService.translate(
+                  context,
+                  'flash_customize_library_name',
+                ),
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: colorScheme.onSurface,
                 ),
               ),
             ),
-            if (_dirty) ...[
-              const SizedBox(width: 6),
-              SizedBox(
-                height: 34,
-                child: FilledButton.tonal(
-                  onPressed: _save,
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
-                    minimumSize: const Size(0, 34),
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: const Text(
-                    'OK',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        SizedBox(
+          height: 38,
+          child: TextField(
+            controller: _controller,
+            maxLength: 30,
+            textCapitalization: TextCapitalization.words,
+            textInputAction: TextInputAction.done,
+            onSubmitted: (_) {
+              if (_dirty) _save();
+            },
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: colorScheme.onSurface,
+            ),
+            decoration: InputDecoration(
+              counterText: '',
+              isDense: true,
+              filled: true,
+              fillColor: isDark
+                  ? colorScheme.surfaceContainerHighest
+                      .withValues(alpha: 0.5)
+                  : colorScheme.surface,
+              prefixIcon: Padding(
+                padding: const EdgeInsets.only(left: 10, right: 6),
+                child: Icon(
+                  Icons.auto_stories_outlined,
+                  size: 18,
+                  color: colorScheme.primary.withValues(alpha: 0.7),
                 ),
               ),
-            ],
-          ],
+              prefixIconConstraints: const BoxConstraints(
+                minWidth: 34,
+                minHeight: 0,
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 9,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(
+                  color: colorScheme.outline.withValues(alpha: 0.15),
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(
+                  color: colorScheme.outline.withValues(alpha: 0.15),
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(
+                  color: colorScheme.primary.withValues(alpha: 0.6),
+                  width: 1.5,
+                ),
+              ),
+              hintText: TranslationService.translate(
+                context,
+                'flash_library_name_hint',
+              ),
+              hintStyle: TextStyle(
+                fontSize: 13,
+                color: colorScheme.onSurface.withValues(alpha: 0.35),
+              ),
+            ),
+          ),
         ),
       ],
     );
@@ -1536,24 +1620,38 @@ class _FlashLibraryNameEditorState extends State<_FlashLibraryNameEditor> {
 }
 
 /// Inline preset selector for Flash B.
-/// Shows a compact text followed by wrapping chips with tooltips.
+/// Responsive: vertical list on mobile, horizontal cards on wide screens.
 class _FlashPresetSelector extends StatelessWidget {
   final VoidCallback onDismiss;
   const _FlashPresetSelector({required this.onDismiss});
 
   static const _presets = [
-    (key: 'reader', icon: Icons.menu_book),
-    (key: 'librarian', icon: Icons.local_library),
-    (key: 'bookseller', icon: Icons.storefront),
+    (key: 'reader', icon: Icons.auto_stories, color: Color(0xFF4CAF50)),
+    (key: 'librarian', icon: Icons.account_balance, color: Color(0xFF5C6BC0)),
+    (key: 'bookseller', icon: Icons.storefront, color: Color(0xFFFF8F00)),
   ];
+
+  Future<void> _apply(BuildContext context, String key) async {
+    final tp = context.read<ThemeProvider>();
+    await tp.applyPreset(key);
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          TranslationService.translate(context, 'preset_applied'),
+        ),
+      ),
+    );
+    onDismiss();
+  }
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    return Wrap(
-      spacing: 8,
-      runSpacing: 6,
-      crossAxisAlignment: WrapCrossAlignment.center,
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
         Text(
           TranslationService.translate(context, 'flash_discover_presets'),
@@ -1563,57 +1661,188 @@ class _FlashPresetSelector extends StatelessWidget {
             color: colorScheme.onSurface,
           ),
         ),
-        ..._presets.map((preset) {
-          final label = TranslationService.translate(
-            context,
-            'preset_${preset.key}',
-          );
-          final legend = TranslationService.translate(
-            context,
-            'preset_${preset.key}_legend',
-          );
-          return Tooltip(
-            message: legend,
-            child: ActionChip(
-              avatar: Icon(preset.icon, size: 15, color: colorScheme.primary),
-              label: Text(
-                label,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: colorScheme.onSurface,
+        const SizedBox(height: 10),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final useWideLayout = constraints.maxWidth > 400;
+            if (useWideLayout) {
+              return _buildHorizontalCards(context, colorScheme, isDark);
+            }
+            return _buildVerticalList(context, colorScheme, isDark);
+          },
+        ),
+      ],
+    );
+  }
+
+  /// Wide layout: 3 columns with icon + name + legend.
+  Widget _buildHorizontalCards(
+    BuildContext context,
+    ColorScheme colorScheme,
+    bool isDark,
+  ) {
+    return Row(
+      children: _presets.map((preset) {
+        final label = TranslationService.translate(
+          context,
+          'preset_${preset.key}',
+        );
+        final legend = TranslationService.translate(
+          context,
+          'preset_${preset.key}_legend',
+        );
+        final accent = isDark
+            ? Color.lerp(preset.color, Colors.white, 0.2)!
+            : preset.color;
+        return Expanded(
+          child: Padding(
+            padding: EdgeInsets.only(
+              right: preset.key != _presets.last.key ? 8 : 0,
+            ),
+            child: Material(
+              color: accent.withValues(alpha: isDark ? 0.12 : 0.07),
+              borderRadius: BorderRadius.circular(10),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(10),
+                onTap: () => _apply(context, preset.key),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 10,
+                    horizontal: 8,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: accent.withValues(
+                            alpha: isDark ? 0.2 : 0.12,
+                          ),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(preset.icon, size: 22, color: accent),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        label,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: colorScheme.onSurface,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        legend,
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: colorScheme.onSurface.withValues(alpha: 0.6),
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              backgroundColor: colorScheme.primary.withValues(alpha: 0.06),
-              side: BorderSide(
-                color: colorScheme.primary.withValues(alpha: 0.15),
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              visualDensity: VisualDensity.compact,
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              onPressed: () async {
-                final tp = context.read<ThemeProvider>();
-                await tp.applyPreset(preset.key);
-                if (!context.mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      TranslationService.translate(
-                        context,
-                        'preset_applied',
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  /// Mobile layout: vertical list with icon, name, and legend in a row.
+  Widget _buildVerticalList(
+    BuildContext context,
+    ColorScheme colorScheme,
+    bool isDark,
+  ) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: _presets.map((preset) {
+        final label = TranslationService.translate(
+          context,
+          'preset_${preset.key}',
+        );
+        final legend = TranslationService.translate(
+          context,
+          'preset_${preset.key}_legend',
+        );
+        final accent = isDark
+            ? Color.lerp(preset.color, Colors.white, 0.2)!
+            : preset.color;
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: preset.key != _presets.last.key ? 6 : 0,
+          ),
+          child: Material(
+            color: accent.withValues(alpha: isDark ? 0.12 : 0.07),
+            borderRadius: BorderRadius.circular(10),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(10),
+              onTap: () => _apply(context, preset.key),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 10,
+                  horizontal: 12,
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: accent.withValues(
+                          alpha: isDark ? 0.2 : 0.12,
+                        ),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(preset.icon, size: 20, color: accent),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            label,
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: colorScheme.onSurface,
+                            ),
+                          ),
+                          const SizedBox(height: 1),
+                          Text(
+                            legend,
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: colorScheme.onSurface
+                                  .withValues(alpha: 0.55),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                );
-                onDismiss();
-              },
+                    const SizedBox(width: 8),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      size: 18,
+                      color: colorScheme.onSurface.withValues(alpha: 0.3),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          );
-        }),
-      ],
+          ),
+        );
+      }).toList(),
     );
   }
 }

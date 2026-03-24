@@ -32,6 +32,11 @@ class FlashMessageDefinition {
   /// Optional icon to display instead of the default info_outline.
   final IconData? icon;
 
+  /// When true, the flash bar hides the leading icon badge and gives the
+  /// full width to the content. Useful for rich content builders that
+  /// provide their own visual elements (e.g. preset cards with icons).
+  final bool fullWidthContent;
+
   const FlashMessageDefinition({
     required this.key,
     required this.textKey,
@@ -42,6 +47,7 @@ class FlashMessageDefinition {
     this.excludedRoutes,
     this.allowedRoutes,
     this.icon,
+    this.fullWidthContent = false,
   });
 }
 
@@ -75,6 +81,17 @@ class FlashMessageProvider extends ChangeNotifier {
   final List<FlashMessageDefinition> _definitions = [];
   final Set<String> _dismissed = {};
   bool _loaded = false;
+  bool _hasBooks = false;
+
+  /// Whether the library contains at least one book.
+  bool get hasBooks => _hasBooks;
+
+  /// Mark that the library now has books (called after first book added).
+  void markHasBooks() {
+    if (_hasBooks) return;
+    _hasBooks = true;
+    notifyListeners();
+  }
 
   // -- Ephemeral peer connection flashes --
   static const int maxEphemeralVisible = 3;
@@ -109,6 +126,7 @@ class FlashMessageProvider extends ChangeNotifier {
   /// Keeps _loaded = true since we know the state is clean.
   void reset() {
     _dismissed.clear();
+    _hasBooks = false;
     _ephemeralFlashes.clear();
     _shownPeerIds.clear();
     _shownPeerUrls.clear();

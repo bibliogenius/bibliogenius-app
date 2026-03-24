@@ -18,6 +18,7 @@ import '../services/api_service.dart';
 import '../services/translation_service.dart';
 import '../services/sync_service.dart';
 import '../providers/book_refresh_notifier.dart';
+import '../providers/flash_message_provider.dart';
 import '../providers/hub_directory_provider.dart';
 import '../providers/theme_provider.dart';
 import '../utils/book_status.dart';
@@ -449,6 +450,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         await Future.delayed(const Duration(milliseconds: 400));
         if (mounted) {
           context.read<BookRefreshNotifier>().refresh();
+          context.read<FlashMessageProvider>().markHasBooks();
           context.pop(newBookId); // Return the new book ID
         }
         // No need to clear controllers - they are disposed with the screen.

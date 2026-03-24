@@ -6473,6 +6473,10 @@ msgstr "Ausblenden"
 msgid "flash_library_name_hint"
 msgstr "Bibliotheksname"
 
+#. Flash message: library name saved confirmation
+msgid "flash_library_name_saved"
+msgstr "Bibliotheksname gespeichert"
+
 msgid "flash_peer_browse"
 msgstr "Durchsuchen"
 

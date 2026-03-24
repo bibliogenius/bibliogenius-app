@@ -13,6 +13,7 @@ import '../services/api_service.dart';
 import '../services/translation_service.dart';
 import '../providers/theme_provider.dart';
 import '../providers/book_refresh_notifier.dart';
+import '../providers/flash_message_provider.dart';
 import '../providers/hub_directory_provider.dart';
 import 'package:go_router/go_router.dart';
 import '../theme/app_design.dart';
@@ -741,6 +742,7 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
       // Trigger global book list refresh
       if (mounted) {
         context.read<BookRefreshNotifier>().refresh();
+        context.read<FlashMessageProvider>().markHasBooks();
         context.read<HubDirectoryProvider>().markCatalogDirty();
       }
 
