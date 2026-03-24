@@ -41,6 +41,18 @@ class AppDelegate: FlutterAppDelegate {
     )
   }
 
+  override func applicationDidFinishLaunching(_ notification: Notification) {
+    // Screenshot mode: enforce exact content size for App Store screenshots.
+    // Activate with: SCREENSHOT_MODE=1 flutter test ...
+    // 1280×800 points × pixelRatio 2.0 = 2560×1600 px (App Store requirement)
+    if ProcessInfo.processInfo.environment["SCREENSHOT_MODE"] != nil,
+       let window = NSApplication.shared.windows.first {
+      window.setContentSize(NSSize(width: 1280, height: 800))
+      window.center()
+    }
+    super.applicationDidFinishLaunching(notification)
+  }
+
   override func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
     return true
   }

@@ -1,8 +1,15 @@
 /// Screenshot Tour — Automated UI walkthrough for UX/UI review.
 ///
 /// Navigates through every major screen and captures a screenshot.
-/// Run with:
+///
+/// Standard run (UX review):
 ///   flutter test integration_test/screenshot_tour.dart -d macos
+///
+/// App Store screenshots (exact 2560×1600 px):
+///   SCREENSHOT_MODE=1 flutter test integration_test/screenshot_tour.dart -d macos
+///
+/// App Store screenshots in English:
+///   SCREENSHOT_MODE=1 APP_LOCALE=en flutter test integration_test/screenshot_tour.dart -d macos
 ///
 /// Screenshots are saved to: integration_test/screenshots/
 library;
@@ -15,6 +22,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:bibliogenius/main.dart' as app;
 import 'package:bibliogenius/services/auth_service.dart';
@@ -161,6 +169,13 @@ void main() {
   }
 
   testWidgets('Screenshot Tour', (WidgetTester tester) async {
+    // Override locale if APP_LOCALE env var is set (e.g. APP_LOCALE=en)
+    final appLocale = Platform.environment['APP_LOCALE'];
+    if (appLocale != null) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('languageCode', appLocale);
+    }
+
     // Launch the app
     app.main();
     await tester.pumpAndSettle();
@@ -174,7 +189,12 @@ void main() {
     // ==========================================
     // 1. DASHBOARD
     // ==========================================
+    // Extra settle time for initial navigation (Scaffold may not be ready yet)
+    await Future.delayed(const Duration(seconds: 2));
+    await tester.pumpAndSettle();
     await navigateTo(tester, '/dashboard');
+    await Future.delayed(const Duration(seconds: 1));
+    await tester.pumpAndSettle();
     await takeScreenshot(tester, 'dashboard');
 
     // ==========================================
@@ -219,8 +239,9 @@ void main() {
     // ==========================================
     // 6. EDIT BOOK — from the first book
     // ==========================================
-    // Tap "Modifier" button on book details screen
-    final editButton = find.text('Modifier');
+    // Tap edit button on book details screen
+    final editLabel = (appLocale == 'en') ? 'Edit' : 'Modifier';
+    final editButton = find.text(editLabel);
     if (editButton.evaluate().isNotEmpty) {
       await tester.tap(editButton.first);
       await tester.pumpAndSettle();
@@ -254,9 +275,10 @@ void main() {
     await takeScreenshot(tester, 'network_contacts');
 
     // ==========================================
-    // 10. LOANS TAB (Prêts & Emprunts)
+    // 10. LOANS TAB
     // ==========================================
-    final loansTab = find.text('Prêts & Emprunts');
+    final loansLabel = (appLocale == 'en') ? 'Loans & Borrows' : 'Prêts & Emprunts';
+    final loansTab = find.text(loansLabel);
     if (loansTab.evaluate().isNotEmpty) {
       await tester.tap(loansTab);
       await tester.pumpAndSettle();
