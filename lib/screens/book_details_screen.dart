@@ -212,6 +212,20 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     }
   }
 
+  // ============ Navigation ============
+
+  /// Shared back-navigation logic: notify library of changes and pop.
+  void _navigateBack() {
+    if (_hasChanges) {
+      // Evict the current cover from Flutter's image cache so the library
+      // reloads the (possibly overwritten) file instead of showing a stale
+      // cached bitmap.
+      _evictCoverFromCache(_book?.coverUrl);
+      context.read<BookRefreshNotifier>().refresh();
+    }
+    Navigator.of(context).pop(_hasChanges);
+  }
+
   // ============ Cover management ============
 
   /// Evict old cover image from Flutter's image cache so it doesn't persist
@@ -632,10 +646,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
     return WillPopScope(
       onWillPop: () async {
-        if (_hasChanges) {
-          context.read<BookRefreshNotifier>().refresh();
-        }
-        Navigator.of(context).pop(_hasChanges);
+        _navigateBack();
         return false;
       },
       child: Scaffold(
@@ -822,7 +833,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           child: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
         ),
         tooltip: TranslationService.translate(context, 'back'),
-        onPressed: () => GoRouter.of(context).pop(),
+        onPressed: _navigateBack,
       ),
       flexibleSpace: FlexibleSpaceBar(
         background: ExcludeSemantics(child: Stack(
