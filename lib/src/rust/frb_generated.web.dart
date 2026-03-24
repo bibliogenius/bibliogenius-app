@@ -72,6 +72,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FrbBookMetadata dco_decode_frb_book_metadata(dynamic raw);
 
   @protected
+  FrbBookNote dco_decode_frb_book_note(dynamic raw);
+
+  @protected
   FrbCatalogEntry dco_decode_frb_catalog_entry(dynamic raw);
 
   @protected
@@ -202,6 +205,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<FrbBook> dco_decode_list_frb_book(dynamic raw);
+
+  @protected
+  List<FrbBookNote> dco_decode_list_frb_book_note(dynamic raw);
 
   @protected
   List<FrbCatalogEntry> dco_decode_list_frb_catalog_entry(dynamic raw);
@@ -406,6 +412,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FrbBookMetadata sse_decode_frb_book_metadata(SseDeserializer deserializer);
 
   @protected
+  FrbBookNote sse_decode_frb_book_note(SseDeserializer deserializer);
+
+  @protected
   FrbCatalogEntry sse_decode_frb_catalog_entry(SseDeserializer deserializer);
 
   @protected
@@ -564,6 +573,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<FrbBook> sse_decode_list_frb_book(SseDeserializer deserializer);
+
+  @protected
+  List<FrbBookNote> sse_decode_list_frb_book_note(SseDeserializer deserializer);
 
   @protected
   List<FrbCatalogEntry> sse_decode_list_frb_catalog_entry(
@@ -819,6 +831,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_frb_book_note(FrbBookNote self, SseSerializer serializer);
+
+  @protected
   void sse_encode_frb_catalog_entry(
     FrbCatalogEntry self,
     SseSerializer serializer,
@@ -1030,6 +1045,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_list_frb_book(List<FrbBook> self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_list_frb_book_note(
+    List<FrbBookNote> self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_list_frb_catalog_entry(

@@ -47,6 +47,7 @@ import 'screens/login_screen.dart';
 import 'screens/add_book_screen.dart';
 import 'screens/book_copies_screen.dart';
 import 'screens/book_details_screen.dart';
+import 'screens/book_notes_screen.dart';
 import 'screens/edit_book_screen.dart';
 import 'screens/add_contact_screen.dart';
 import 'screens/contact_details_screen.dart';
@@ -86,6 +87,7 @@ import 'screens/external_search_screen.dart';
 import 'screens/invite_acceptance_screen.dart';
 import 'screens/library_catalog_screen.dart';
 import 'screens/notifications_screen.dart';
+import 'providers/book_note_provider.dart';
 import 'providers/hub_directory_provider.dart';
 import 'providers/flash_message_provider.dart';
 import 'providers/notification_provider.dart';
@@ -449,6 +451,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<HangmanProvider>(
           create: (_) => HangmanProvider(),
         ),
+        ChangeNotifierProvider<BookNoteProvider>(
+          create: (_) => BookNoteProvider(),
+        ),
         ChangeNotifierProvider<OperationLogProvider>(
           create: (_) => OperationLogProvider(),
         ),
@@ -801,6 +806,19 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
                       );
                     }
                     return EditBookScreen(book: book);
+                  },
+                ),
+                GoRoute(
+                  path: ':id/notes',
+                  builder: (context, state) {
+                    final bookId =
+                        int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
+                    final extra = state.extra as Map<String, dynamic>?;
+                    final bookTitle = extra?['bookTitle'] as String? ?? '';
+                    return BookNotesScreen(
+                      bookId: bookId,
+                      bookTitle: bookTitle,
+                    );
                   },
                 ),
                 GoRoute(

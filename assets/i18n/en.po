@@ -8093,3 +8093,75 @@ msgstr "This book will not be visible to your contacts on the network"
 #. Tooltip for private book toggle
 msgid "tooltip_private_book"
 msgstr "Hide this book from the network"
+
+#. ── Book Notes ──────────────────────────────────────────────────────
+
+#. Section title for reading notes
+msgid "notes_section_title"
+msgstr "Reading notes"
+
+#. Placeholder for the note input field
+msgid "add_note_placeholder"
+msgstr "Add a note..."
+
+#. Hint for page number field
+msgid "note_page_label"
+msgstr "Page"
+
+#. Link to see all notes
+msgid "view_all_notes"
+msgstr "View all notes"
+
+#. Confirmation before deleting a note
+msgid "delete_note_confirm"
+msgstr "Delete this note?"
+
+#. Shown when there are no notes yet
+msgid "no_notes_yet"
+msgstr "No notes yet"
+
+#. Note updated confirmation
+msgid "note_updated"
+msgstr "Note updated"
+
+#. Note deleted confirmation
+msgid "note_deleted"
+msgstr "Note deleted"
+
+#. Edit note dialog title
+msgid "edit_note"
+msgstr "Edit note"
+
+#. Tooltip for add note button
+msgid "tooltip_add_note"
+msgstr "Add a note"
+
+#. Tooltip for delete note button
+msgid "tooltip_delete_note"
+msgstr "Delete note"
+
+#. Tooltip for edit note button
+msgid "tooltip_edit_note"
+msgstr "Edit note"
+
+#. ── Speech-to-text ──────────────────────────────────────────────────
+
+#. Settings label for speech-to-text toggle
+msgid "speech_to_text_setting"
+msgstr "Voice dictation for notes"
+
+#. Description for speech-to-text setting
+msgid "speech_to_text_setting_desc"
+msgstr "Add a microphone button to dictate your reading notes"
+
+#. Tooltip for microphone button
+msgid "tooltip_dictate_note"
+msgstr "Dictate a note"
+
+#. Shown when speech recognition is not available on device
+msgid "speech_not_available"
+msgstr "Speech recognition not available on this device"
+
+#. Shown while listening
+msgid "speech_listening"
+msgstr "Listening..."

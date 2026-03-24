@@ -9,7 +9,7 @@ import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 part 'frb.freezed.dart';
 
 // These functions are ignored because they are not marked as `pub`: `db`, `device_pairing_svc`, `device_sync_svc`, `entries_to_frb`, `hub_db`, `hub_directory_svc`, `install_panic_hook`, `load_google_books_api_key`, `rename_subject_in_books`, `runtime`, `track_to_frb`, `upsert_directory_catalog_cache`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
 // These functions are ignored (category: IgnoreBecauseExplicitAttribute): `shared_device_pairing_svc`
 
 /// Initialize the FFI backend with database at the given path
@@ -850,6 +850,36 @@ Future<int> notificationsPrune() =>
 Future<void> emitWelcomeNotification() =>
     RustLib.instance.api.crateApiFrbEmitWelcomeNotification();
 
+/// Get all notes for a book, ordered by creation date (newest first).
+Future<List<FrbBookNote>> getBookNotes({required int bookId}) =>
+    RustLib.instance.api.crateApiFrbGetBookNotes(bookId: bookId);
+
+/// Create a new note for a book.
+Future<FrbBookNote> createBookNote({
+  required int bookId,
+  required String content,
+  int? page,
+}) => RustLib.instance.api.crateApiFrbCreateBookNote(
+  bookId: bookId,
+  content: content,
+  page: page,
+);
+
+/// Update an existing note.
+Future<FrbBookNote> updateBookNote({
+  required int id,
+  required String content,
+  int? page,
+}) => RustLib.instance.api.crateApiFrbUpdateBookNote(
+  id: id,
+  content: content,
+  page: page,
+);
+
+/// Delete a note by ID.
+Future<void> deleteBookNote({required int id}) =>
+    RustLib.instance.api.crateApiFrbDeleteBookNote(id: id);
+
 /// Simplified book structure for FFI
 @freezed
 sealed class FrbBook with _$FrbBook {
@@ -890,6 +920,46 @@ sealed class FrbBookMetadata with _$FrbBookMetadata {
     String? coverUrl,
     String? summary,
   }) = _FrbBookMetadata;
+}
+
+/// FFI-safe book note representation.
+class FrbBookNote {
+  final int id;
+  final int bookId;
+  final String content;
+  final int? page;
+  final String createdAt;
+  final String updatedAt;
+
+  const FrbBookNote({
+    required this.id,
+    required this.bookId,
+    required this.content,
+    this.page,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  @override
+  int get hashCode =>
+      id.hashCode ^
+      bookId.hashCode ^
+      content.hashCode ^
+      page.hashCode ^
+      createdAt.hashCode ^
+      updatedAt.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FrbBookNote &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          bookId == other.bookId &&
+          content == other.content &&
+          page == other.page &&
+          createdAt == other.createdAt &&
+          updatedAt == other.updatedAt;
 }
 
 @freezed

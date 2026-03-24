@@ -695,6 +695,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   themeProvider.audioEnabled,
                   (value) => themeProvider.setAudioEnabled(value),
                 ),
+                _buildModuleToggle(
+                  context,
+                  'speech_to_text_setting',
+                  'speech_to_text_setting_desc',
+                  Icons.mic,
+                  themeProvider.speechToTextEnabled,
+                  (value) => themeProvider.setSpeechToTextEnabled(value),
+                ),
                 // Network module moved to dedicated "Network" section below
                 _buildModuleToggle(
                   context,

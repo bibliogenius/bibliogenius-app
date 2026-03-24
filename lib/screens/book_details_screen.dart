@@ -22,6 +22,7 @@ import '../models/collection.dart';
 import '../models/contact.dart';
 import '../models/copy.dart';
 import '../models/cover_candidate.dart';
+import '../providers/book_note_provider.dart' show BookNoteProvider, maxNoteContentLength;
 import '../providers/book_refresh_notifier.dart';
 import '../providers/hub_directory_provider.dart';
 import '../providers/theme_provider.dart';
@@ -33,6 +34,7 @@ import '../widgets/plus_one_animation.dart';
 import '../widgets/cover_picker_dialog.dart';
 import '../widgets/loan_dialog.dart';
 import '../widgets/metadata_refresh_dialog.dart';
+import '../widgets/speech_note_button.dart';
 import '../widgets/star_rating_widget.dart';
 import 'record_sale_screen.dart';
 
@@ -673,6 +675,9 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                       ),
                       const SizedBox(height: 32),
                     ],
+                    // Reading notes section
+                    if (book.id != null)
+                      _BookNotesSection(bookId: book.id!, bookTitle: book.title),
                     // Private book toggle - at the bottom of the page
                     Consumer<ThemeProvider>(
                       builder: (context, theme, _) {
@@ -2480,5 +2485,220 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         );
       }
     }
+  }
+}
+
+/// Inline section showing the latest reading notes on the book detail page.
+class _BookNotesSection extends StatefulWidget {
+  final int bookId;
+  final String bookTitle;
+
+  const _BookNotesSection({required this.bookId, required this.bookTitle});
+
+  @override
+  State<_BookNotesSection> createState() => _BookNotesSectionState();
+}
+
+class _BookNotesSectionState extends State<_BookNotesSection> {
+  final _contentController = TextEditingController();
+  final _pageController = TextEditingController();
+  static const _previewLimit = 5;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<BookNoteProvider>().loadNotes(widget.bookId);
+    });
+  }
+
+  @override
+  void dispose() {
+    _contentController.dispose();
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _addNote() async {
+    final content = _contentController.text.trim();
+    if (content.isEmpty) return;
+    final page = int.tryParse(_pageController.text.trim());
+    final success = await context
+        .read<BookNoteProvider>()
+        .createNote(content: content, page: page);
+    if (success && mounted) {
+      _contentController.clear();
+      _pageController.clear();
+      FocusScope.of(context).unfocus();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = TranslationService.translate;
+    final theme = Theme.of(context);
+
+    return Consumer<BookNoteProvider>(
+      builder: (context, provider, _) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Section header
+            Semantics(
+              header: true,
+              child: Text(
+                t(context, 'notes_section_title'),
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            // Quick add bar
+            Row(
+              children: [
+                SizedBox(
+                  width: 52,
+                  child: TextField(
+                    controller: _pageController,
+                    keyboardType: TextInputType.number,
+                    textAlign: TextAlign.center,
+                    decoration: InputDecoration(
+                      hintText: t(context, 'note_page_label'),
+                      isDense: true,
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 10),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: TextField(
+                    controller: _contentController,
+                    textInputAction: TextInputAction.send,
+                    maxLength: maxNoteContentLength,
+                    onSubmitted: (_) => _addNote(),
+                    decoration: InputDecoration(
+                      hintText:
+                          t(context, 'add_note_placeholder'),
+                      isDense: true,
+                      counterText: '',
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 10),
+                    ),
+                  ),
+                ),
+                if (context.watch<ThemeProvider>().speechToTextEnabled)
+                  SpeechNoteButton(controller: _contentController),
+                const SizedBox(width: 4),
+                IconButton(
+                  onPressed: _addNote,
+                  icon: const Icon(Icons.send, size: 20),
+                  tooltip: t(context, 'tooltip_add_note'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            // Notes preview
+            if (provider.isLoading)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 16),
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else if (provider.notes.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Text(
+                  t(context, 'no_notes_yet'),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurface.withAlpha(128),
+                  ),
+                ),
+              )
+            else ...[
+              ...provider.notes.take(_previewLimit).map(
+                    (note) => Padding(
+                      padding: const EdgeInsets.only(bottom: 6),
+                      child: Card(
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          side: BorderSide(
+                            color:
+                                theme.colorScheme.outlineVariant.withAlpha(80),
+                          ),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(note.content,
+                                  style: theme.textTheme.bodyMedium),
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  if (note.page != null) ...[
+                                    Icon(Icons.bookmark_outline,
+                                        size: 13,
+                                        color: theme.colorScheme.onSurface
+                                            .withAlpha(100)),
+                                    const SizedBox(width: 2),
+                                    Text(
+                                      'p. ${note.page}',
+                                      style:
+                                          theme.textTheme.bodySmall?.copyWith(
+                                        color: theme.colorScheme.onSurface
+                                            .withAlpha(100),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                  ],
+                                  Text(
+                                    _formatDate(note.createdDateTime),
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: theme.colorScheme.onSurface
+                                          .withAlpha(80),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              if (provider.notes.length > _previewLimit)
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () => context.push(
+                      '/books/${widget.bookId}/notes',
+                      extra: {'bookTitle': widget.bookTitle},
+                    ),
+                    child: Text(
+                      t(context, 'view_all_notes'),
+                    ),
+                  ),
+                ),
+            ],
+            const SizedBox(height: 16),
+          ],
+        );
+      },
+    );
+  }
+
+  String _formatDate(DateTime? dt) {
+    if (dt == null) return '';
+    final now = DateTime.now();
+    final diff = now.difference(dt);
+    if (diff.inMinutes < 1) return 'now';
+    if (diff.inMinutes < 60) return '${diff.inMinutes}min';
+    if (diff.inHours < 24) return '${diff.inHours}h';
+    if (diff.inDays < 30) return '${diff.inDays}d';
+    return '${dt.day}/${dt.month}/${dt.year}';
   }
 }

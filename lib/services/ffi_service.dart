@@ -1470,4 +1470,54 @@ class FfiService {
       return 0;
     }
   }
+
+  // ── Book Notes ──────────────────────────────────────────────────────
+
+  Future<List<frb.FrbBookNote>> getBookNotes(int bookId) async {
+    try {
+      return await frb.getBookNotes(bookId: bookId);
+    } catch (e) {
+      debugPrint('FFI getBookNotes error: $e');
+      return [];
+    }
+  }
+
+  Future<frb.FrbBookNote> createBookNote({
+    required int bookId,
+    required String content,
+    int? page,
+  }) async {
+    try {
+      return await frb.createBookNote(
+        bookId: bookId,
+        content: content,
+        page: page,
+      );
+    } catch (e) {
+      debugPrint('FFI createBookNote error: $e');
+      rethrow;
+    }
+  }
+
+  Future<frb.FrbBookNote> updateBookNote({
+    required int id,
+    required String content,
+    int? page,
+  }) async {
+    try {
+      return await frb.updateBookNote(id: id, content: content, page: page);
+    } catch (e) {
+      debugPrint('FFI updateBookNote error: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> deleteBookNote(int id) async {
+    try {
+      await frb.deleteBookNote(id: id);
+    } catch (e) {
+      debugPrint('FFI deleteBookNote error: $e');
+      rethrow;
+    }
+  }
 }
