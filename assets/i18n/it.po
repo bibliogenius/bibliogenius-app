@@ -6321,6 +6321,14 @@ msgstr "Puzzle a scorrimento"
 msgid "sliding_puzzle_module_desc"
 msgstr "Muovi le tessere per ricostruire una copertina di un libro"
 
+#. Hangman Module
+msgid "hangman_module"
+msgstr "Impiccato"
+
+#. Hangman Module Description
+msgid "hangman_module_desc"
+msgstr "Indovina i titoli dei tuoi libri lettera per lettera"
+
 #. Sliding Puzzle - Dashboard subtitle
 msgid "sliding_puzzle_dashboard_subtitle"
 msgstr "Ricostruisci le tue copertine!"

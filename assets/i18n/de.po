@@ -7063,6 +7063,14 @@ msgstr "Schiebepuzzle"
 msgid "sliding_puzzle_module_desc"
 msgstr "Verschieben Sie Kacheln, um ein Buchcover zusammenzusetzen"
 
+#. Hangman Module
+msgid "hangman_module"
+msgstr "Galgenmännchen"
+
+#. Hangman Module Description
+msgid "hangman_module_desc"
+msgstr "Erraten Sie Ihre Buchtitel Buchstabe für Buchstabe"
+
 msgid "sliding_puzzle_moves"
 msgstr "Züge"
 

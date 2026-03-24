@@ -7063,6 +7063,14 @@ msgstr "Puzle deslizante"
 msgid "sliding_puzzle_module_desc"
 msgstr "Desliza las piezas para reconstruir una portada"
 
+#. Hangman Module
+msgid "hangman_module"
+msgstr "Ahorcado"
+
+#. Hangman Module Description
+msgid "hangman_module_desc"
+msgstr "Adivina los títulos de tus libros letra por letra"
+
 msgid "sliding_puzzle_moves"
 msgstr "Movimientos"
 

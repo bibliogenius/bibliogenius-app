@@ -633,6 +633,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       (value) => themeProvider.setSlidingPuzzleEnabled(value),
                     ),
                   ),
+                if (themeProvider.gamesEnabled)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16.0),
+                    child: _buildModuleToggle(
+                      context,
+                      'hangman_module',
+                      'hangman_module_desc',
+                      Icons.text_fields,
+                      themeProvider.hangmanEnabled,
+                      (value) => themeProvider.setHangmanEnabled(value),
+                    ),
+                  ),
                 if (themeProvider.gamificationEnabled &&
                     themeProvider.networkEnabled)
                   Padding(

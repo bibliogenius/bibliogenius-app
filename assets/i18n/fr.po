@@ -6871,6 +6871,14 @@ msgstr "Taquin"
 msgid "sliding_puzzle_module_desc"
 msgstr "Faites glisser les tuiles pour reconstituer une couverture"
 
+#. Hangman Module
+msgid "hangman_module"
+msgstr "Pendu"
+
+#. Hangman Module Description
+msgid "hangman_module_desc"
+msgstr "Devinez vos titres de livres lettre par lettre"
+
 #. Sliding Puzzle - Dashboard subtitle
 msgid "sliding_puzzle_dashboard_subtitle"
 msgstr "Reconstituez vos couvertures !"

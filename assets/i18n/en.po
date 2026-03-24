@@ -6871,6 +6871,14 @@ msgstr "Sliding Puzzle"
 msgid "sliding_puzzle_module_desc"
 msgstr "Slide tiles to reconstruct a book cover"
 
+#. Hangman Module
+msgid "hangman_module"
+msgstr "Hangman"
+
+#. Hangman Module Description
+msgid "hangman_module_desc"
+msgstr "Guess your book titles letter by letter"
+
 #. Sliding Puzzle - Dashboard subtitle
 msgid "sliding_puzzle_dashboard_subtitle"
 msgstr "Reconstruct your covers!"
