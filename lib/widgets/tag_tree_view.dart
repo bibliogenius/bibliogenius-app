@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import '../models/tag.dart';
+import '../services/translation_service.dart';
 import '../utils/app_constants.dart';
 
-/// Widget for displaying tags in a hierarchical tree structure
-/// Only shown when [AppConstants.enableHierarchicalTags] is true
+/// Widget for displaying tags in a hierarchical tree structure.
+/// Only shown when [AppConstants.enableHierarchicalTags] is true.
+///
+/// Supports optional [searchQuery] to filter and highlight matching nodes.
 class TagTreeView extends StatefulWidget {
   final List<Tag> tags;
   final Set<int> selectedTagIds;
   final Function(Tag) onTagSelected;
   final Function(Tag)? onTagLongPress;
   final bool multiSelect;
+  final String? searchQuery;
 
   const TagTreeView({
     super.key,
@@ -18,6 +22,7 @@ class TagTreeView extends StatefulWidget {
     required this.onTagSelected,
     this.onTagLongPress,
     this.multiSelect = true,
+    this.searchQuery,
   });
 
   @override
@@ -25,26 +30,93 @@ class TagTreeView extends StatefulWidget {
 }
 
 class _TagTreeViewState extends State<TagTreeView> {
-  final Set<int> _expandedNodeIds = {};
+  final Set<int> _userExpandedIds = {};
+
+  bool get _isSearching =>
+      widget.searchQuery != null && widget.searchQuery!.isNotEmpty;
+
+  bool _isExpanded(int id) {
+    if (_isSearching) return true;
+    return _userExpandedIds.contains(id);
+  }
+
+  void _toggleExpansion(int id) {
+    if (_isSearching) return;
+    setState(() {
+      if (_userExpandedIds.contains(id)) {
+        _userExpandedIds.remove(id);
+      } else {
+        _userExpandedIds.add(id);
+      }
+    });
+  }
+
+  bool _tagMatchesSearch(Tag tag) {
+    if (!_isSearching) return true;
+    final query = widget.searchQuery!.toLowerCase();
+    return tag.name.toLowerCase().contains(query);
+  }
+
+  bool _subtreeHasMatch(Tag tag) {
+    if (!_isSearching) return true;
+    if (_tagMatchesSearch(tag)) return true;
+    return tag.children.any(_subtreeHasMatch);
+  }
 
   @override
   Widget build(BuildContext context) {
-    // If hierarchical tags not enabled, show flat list
     if (!AppConstants.enableHierarchicalTags) {
       return _buildFlatList();
     }
 
-    // Build tree structure from flat list
     final rootTags = _buildTree(widget.tags);
 
     if (rootTags.isEmpty) {
-      return const Center(child: Text('Aucun tag disponible'));
+      return Center(
+        child: Text(
+          TranslationService.translate(context, 'no_shelves_yet'),
+        ),
+      );
+    }
+
+    final displayRoots =
+        _isSearching ? rootTags.where(_subtreeHasMatch).toList() : rootTags;
+
+    if (displayRoots.isEmpty) {
+      return _buildNoMatchState();
     }
 
     return ListView.builder(
       shrinkWrap: true,
-      itemCount: rootTags.length,
-      itemBuilder: (context, index) => _buildTreeNode(rootTags[index], 0),
+      itemCount: displayRoots.length,
+      itemBuilder: (context, index) => _buildTreeNode(displayRoots[index], 0),
+    );
+  }
+
+  Widget _buildNoMatchState() {
+    final theme = Theme.of(context);
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.search_off_rounded,
+              size: 36,
+              color:
+                  theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              TranslationService.translate(context, 'no_shelves_match'),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -84,8 +156,13 @@ class _TagTreeViewState extends State<TagTreeView> {
 
   /// Build a single tree node with expand/collapse
   Widget _buildTreeNode(Tag tag, int depth) {
+    // During search, skip subtrees with no matches
+    if (_isSearching && !_subtreeHasMatch(tag)) {
+      return const SizedBox.shrink();
+    }
+
     final hasChildren = tag.children.isNotEmpty;
-    final isExpanded = _expandedNodeIds.contains(tag.id);
+    final isExpanded = _isExpanded(tag.id);
     final isSelected = widget.selectedTagIds.contains(tag.id);
     final theme = Theme.of(context);
 
@@ -117,23 +194,17 @@ class _TagTreeViewState extends State<TagTreeView> {
                 // Expand/collapse button for parents
                 if (hasChildren)
                   GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        if (isExpanded) {
-                          _expandedNodeIds.remove(tag.id);
-                        } else {
-                          _expandedNodeIds.add(tag.id);
-                        }
-                      });
-                    },
+                    onTap: () => _toggleExpansion(tag.id),
                     child: Padding(
                       padding: const EdgeInsets.only(right: 8.0),
-                      child: Icon(
-                        isExpanded
-                            ? Icons.keyboard_arrow_down
-                            : Icons.keyboard_arrow_right,
-                        size: 20,
-                        color: theme.colorScheme.onSurfaceVariant,
+                      child: AnimatedRotation(
+                        turns: isExpanded ? 0.25 : 0.0,
+                        duration: const Duration(milliseconds: 200),
+                        child: Icon(
+                          Icons.keyboard_arrow_right,
+                          size: 20,
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
                       ),
                     ),
                   )
@@ -150,20 +221,8 @@ class _TagTreeViewState extends State<TagTreeView> {
                 ),
                 const SizedBox(width: 12),
 
-                // Tag name
-                Expanded(
-                  child: Text(
-                    tag.name,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: isSelected
-                          ? FontWeight.w600
-                          : FontWeight.normal,
-                      color: isSelected
-                          ? theme.colorScheme.primary
-                          : theme.colorScheme.onSurface,
-                    ),
-                  ),
-                ),
+                // Tag name (with search highlighting)
+                Expanded(child: _buildTagName(tag.name, theme, isSelected)),
 
                 // Count badge
                 Container(
@@ -183,14 +242,19 @@ class _TagTreeViewState extends State<TagTreeView> {
                   ),
                 ),
 
-                // Selection indicator for multiselect
-                if (widget.multiSelect && isSelected)
+                // Selection indicator (always visible in multiSelect)
+                if (widget.multiSelect)
                   Padding(
                     padding: const EdgeInsets.only(left: 8),
                     child: Icon(
-                      Icons.check_circle,
-                      size: 18,
-                      color: theme.colorScheme.primary,
+                      isSelected
+                          ? Icons.check_circle_rounded
+                          : Icons.circle_outlined,
+                      size: 20,
+                      color: isSelected
+                          ? theme.colorScheme.primary
+                          : theme.colorScheme.onSurfaceVariant
+                              .withValues(alpha: 0.3),
                     ),
                   ),
               ],
@@ -205,10 +269,53 @@ class _TagTreeViewState extends State<TagTreeView> {
     );
   }
 
+  /// Build tag name with optional search highlight
+  Widget _buildTagName(String name, ThemeData theme, bool isSelected) {
+    final baseStyle = theme.textTheme.bodyMedium?.copyWith(
+      fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+      color: isSelected
+          ? theme.colorScheme.primary
+          : theme.colorScheme.onSurface,
+    );
+
+    if (!_isSearching) {
+      return Text(name, style: baseStyle);
+    }
+
+    final query = widget.searchQuery!.toLowerCase();
+    final nameLower = name.toLowerCase();
+    final matchStart = nameLower.indexOf(query);
+
+    if (matchStart < 0) {
+      return Text(name, style: baseStyle);
+    }
+
+    return RichText(
+      text: TextSpan(
+        style: baseStyle,
+        children: [
+          TextSpan(text: name.substring(0, matchStart)),
+          TextSpan(
+            text: name.substring(matchStart, matchStart + query.length),
+            style: TextStyle(
+              backgroundColor: theme.colorScheme.primaryContainer,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          TextSpan(text: name.substring(matchStart + query.length)),
+        ],
+      ),
+    );
+  }
+
   /// Fallback: flat list when hierarchical tags disabled
   Widget _buildFlatList() {
     if (widget.tags.isEmpty) {
-      return const Center(child: Text('Aucun tag disponible'));
+      return Center(
+        child: Text(
+          TranslationService.translate(context, 'no_shelves_yet'),
+        ),
+      );
     }
 
     return ListView.builder(

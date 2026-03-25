@@ -5105,6 +5105,22 @@ msgstr ""
 msgid "root_tag"
 msgstr ""
 
+#. Shelf Picker
+msgid "search_shelves_hint"
+msgstr ""
+
+#. Shelf Picker
+msgid "shelves_selected"
+msgstr ""
+
+#. Shelf Picker - Empty state
+msgid "no_shelves_yet"
+msgstr ""
+
+#. Shelf Picker - Search empty
+msgid "no_shelves_match"
+msgstr ""
+
 msgid "sale_date"
 msgstr ""
 

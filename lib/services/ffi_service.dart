@@ -570,6 +570,7 @@ class FfiService {
       owned: fb.owned,
       price: fb.price,
       private: fb.private,
+      pageCount: fb.pageCount,
     );
   }
 
