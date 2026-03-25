@@ -243,6 +243,12 @@ class ApiService {
               ? (bookData['price'] as num).toDouble()
               : null,
           private: bookData['private'] ?? false,
+          pageCount: bookData['page_count'] is int
+              ? bookData['page_count']
+              : int.tryParse(bookData['page_count']?.toString() ?? ''),
+          digitalFormats: bookData['digital_formats'] is List
+              ? List<String>.from(bookData['digital_formats'])
+              : null,
         );
 
         final createdBook = await FfiService().createBook(frbBookInput);
@@ -363,6 +369,18 @@ class ApiService {
           private: bookData.containsKey('private')
               ? bookData['private'] as bool
               : currentBook.private,
+          pageCount: bookData.containsKey('page_count')
+              ? (bookData['page_count'] is int
+                    ? bookData['page_count']
+                    : int.tryParse(
+                        bookData['page_count']?.toString() ?? '',
+                      ))
+              : currentBook.pageCount,
+          digitalFormats: bookData.containsKey('digital_formats')
+              ? (bookData['digital_formats'] is List
+                    ? List<String>.from(bookData['digital_formats'])
+                    : null)
+              : currentBook.digitalFormats,
         );
 
         final result = await FfiService().updateBook(id, updatedFrbBook);
