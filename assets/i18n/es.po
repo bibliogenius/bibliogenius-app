@@ -5191,6 +5191,9 @@ msgstr "Cuándo empezaste este libro"
 msgid "started_reading_label"
 msgstr "Empezado a leer"
 
+msgid "started_on"
+msgstr "Empezado el"
+
 #. Avg. Completion
 msgid "stat_avg_collection_completion"
 msgstr "Compleción media de colecciones"

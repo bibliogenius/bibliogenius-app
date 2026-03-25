@@ -5789,6 +5789,9 @@ msgstr "When you started this book"
 msgid "started_reading_label"
 msgstr "Started Reading"
 
+msgid "started_on"
+msgstr "Started on"
+
 #. Avg. Completion
 msgid "stat_avg_collection_completion"
 msgstr "Avg. Completion"

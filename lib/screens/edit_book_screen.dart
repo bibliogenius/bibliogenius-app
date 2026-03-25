@@ -757,7 +757,6 @@ class _EditBookScreenState extends State<EditBookScreen> {
                         ? TranslationService.translate(context, 'enter_title_error')
                         : null,
                   ),
-                  const SizedBox(height: 16),
 
                   // Author
                   _buildLabel(
@@ -833,7 +832,6 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       }).toList(),
                     ),
                   ],
-                  const SizedBox(height: 16),
 
                   // ISBN
                   _buildLabel(TranslationService.translate(context, 'isbn_label'), icon: Icons.qr_code),
@@ -858,7 +856,6 @@ class _EditBookScreenState extends State<EditBookScreen> {
                           : null,
                     ),
                   ),
-                  const SizedBox(height: 16),
 
                   // Cover
                   _buildCoverSection(),
@@ -908,7 +905,6 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
 
                   // Summary
                   _buildLabel(TranslationService.translate(context, 'summary_label'), icon: Icons.notes),
@@ -920,7 +916,6 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     ),
                     maxLines: 4,
                   ),
-                  const SizedBox(height: 16),
 
                   // Page count
                   _buildLabel(TranslationService.translate(context, 'page_count_label'), icon: Icons.menu_book_outlined),
@@ -941,8 +936,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const SizedBox(height: 16),
-                          _buildLabel(
+                                  _buildLabel(
                             TranslationService.translate(context, 'price_label') ?? 'Price (EUR)',
                             icon: Icons.sell_outlined,
                           ),
@@ -980,8 +974,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const SizedBox(height: 16),
-                          _buildLabel(
+                                  _buildLabel(
                             TranslationService.translate(context, 'digital_formats_label') ?? 'Formats',
                             helperText: TranslationService.translate(context, 'digital_formats_helper'),
                             icon: Icons.layers_outlined,
@@ -1029,7 +1022,6 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       );
                     },
                   ),
-                  const SizedBox(height: 16),
 
                   // Status
                   _buildLabel(
@@ -1077,8 +1069,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
                   // Copy Availability Status
                   if (_copyId != null) ...[
-                    const SizedBox(height: 16),
-                    _buildLabel(
+                      _buildLabel(
                       TranslationService.translate(context, 'availability_label') ?? 'Availability',
                       helperText: TranslationService.translate(context, 'availability_helper'),
                       icon: Icons.inventory_2_outlined,
@@ -1121,8 +1112,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
                   // Reading Dates (Conditional)
                   if (_readingStatus != 'to_read' && _readingStatus != 'wanting' && _readingStatus.isNotEmpty) ...[
-                    const SizedBox(height: 16),
-                    _buildLabel(
+                      _buildLabel(
                       TranslationService.translate(context, 'started_reading_label'),
                       helperText: TranslationService.translate(context, 'started_reading_helper'),
                       icon: Icons.play_arrow_outlined,
@@ -1145,8 +1135,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   ],
 
                   if (_readingStatus == 'read') ...[
-                    const SizedBox(height: 16),
-                    _buildLabel(
+                      _buildLabel(
                       TranslationService.translate(context, 'finished_reading_label'),
                       helperText: TranslationService.translate(context, 'finished_reading_helper'),
                       icon: Icons.check_circle_outline,
@@ -1183,7 +1172,6 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       });
                     },
                   ),
-                  const SizedBox(height: 16),
 
                   // Collections
                   CollectionSelector(
@@ -1200,17 +1188,14 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   Consumer<ThemeProvider>(
                     builder: (context, theme, _) {
                       if (!theme.allowPrivateBooks) return const SizedBox.shrink();
-                      return Padding(
-                        padding: const EdgeInsets.only(top: 16),
-                        child: _buildToggleTile(
-                          activeIcon: Icons.visibility_off_rounded,
-                          inactiveIcon: Icons.visibility_rounded,
-                          titleKey: 'book_private',
-                          subtitleKey: 'book_private_desc',
-                          value: _private,
-                          activeColor: Colors.amber.shade700,
-                          onChanged: (v) => setState(() => _private = v),
-                        ),
+                      return _buildToggleTile(
+                        activeIcon: Icons.visibility_off_rounded,
+                        inactiveIcon: Icons.visibility_rounded,
+                        titleKey: 'book_private',
+                        subtitleKey: 'book_private_desc',
+                        value: _private,
+                        activeColor: Colors.amber.shade700,
+                        onChanged: (v) => setState(() => _private = v),
                       );
                     },
                   ),
@@ -1486,7 +1471,25 @@ class _EditBookScreenState extends State<EditBookScreen> {
     );
   }
 
-  Widget _buildSection({required List<Widget> children}) {
+  static const _fieldSpacing = SizedBox(height: 20);
+
+  Widget _buildSection({required List<Widget> children, double spacing = 20}) {
+    // Auto-insert spacing between children.
+    // A _buildLabel widget (Padding > Row) is considered the start of a
+    // label+field pair: spacing goes BEFORE the label, never between the
+    // label and its field.
+    final spaced = <Widget>[];
+    bool _isLabel(Widget w) => w is Padding && w.child is Row;
+    for (var i = 0; i < children.length; i++) {
+      final child = children[i];
+      if (child is SizedBox) continue; // drop leftover manual spacers
+      // Add spacing before this widget unless it's the first, or if the
+      // previous widget was a label (label and its field stay tight).
+      if (spaced.isNotEmpty && !_isLabel(spaced.last)) {
+        spaced.add(SizedBox(height: spacing));
+      }
+      spaced.add(child);
+    }
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       padding: const EdgeInsets.all(16),
@@ -1499,7 +1502,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: children,
+        children: spaced,
       ),
     );
   }

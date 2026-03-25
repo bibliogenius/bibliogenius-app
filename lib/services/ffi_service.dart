@@ -567,6 +567,13 @@ class FfiService {
       readingStatus: fb.readingStatus ?? 'to_read',
       userRating: fb.userRating,
       subjects: fb.subjects != null ? _parseSubjects(fb.subjects!) : null,
+      startedReadingAt: fb.startedReadingAt != null
+          ? DateTime.tryParse(fb.startedReadingAt!)
+          : null,
+      finishedReadingAt: fb.finishedReadingAt != null
+          ? DateTime.tryParse(fb.finishedReadingAt!)
+          : null,
+      digitalFormats: fb.digitalFormats,
       owned: fb.owned,
       price: fb.price,
       private: fb.private,
