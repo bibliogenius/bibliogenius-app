@@ -62,6 +62,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
   List<Collection> _selectedCollections = []; // Add this
   List<String> _authors = []; // Multiple authors support
   List<String> _allAuthors = []; // For autocomplete
+  TextEditingController? _authorAutocompleteController; // Autocomplete's own controller
 
   String _readingStatus = 'to_read';
   String?
@@ -284,15 +285,17 @@ class _EditBookScreenState extends State<EditBookScreen> {
             filled.add('title');
           }
 
-          // Handle authors in fetch details
-          if (bookData['authors'] != null && bookData['authors'] is List) {
-            _authors = List<String>.from(bookData['authors']);
-            filled.add('author');
-          } else if (bookData['author'] != null) {
-            _authors = [bookData['author']];
-            filled.add('author');
+          // Handle authors in fetch details (only if none set yet)
+          if (_authors.isEmpty) {
+            if (bookData['authors'] != null && bookData['authors'] is List) {
+              _authors = List<String>.from(bookData['authors']);
+              filled.add('author');
+            } else if (bookData['author'] != null) {
+              _authors = [bookData['author']];
+              filled.add('author');
+            }
+            _authorController.text = _authors.join(', ');
           }
-          _authorController.text = _authors.join(', ');
 
           if (_publisherController.text.isEmpty && (bookData['publisher'] ?? '').isNotEmpty) {
             _publisherController.text = bookData['publisher']!;
@@ -401,18 +404,13 @@ class _EditBookScreenState extends State<EditBookScreen> {
       }
     }
 
-    // Sync authors: if user cleared the text field, clear the authors list too
-    if (_authorController.text.trim().isEmpty) {
-      _authors.clear();
-    } else {
-      // Only add if explicit add wasn't clicked but text remains
-      // Avoid duplicating the joined string if it matches
-      if (_authorController.text != _authors.join(', ')) {
-        final pending = _authorController.text.trim();
-        if (!_authors.contains(pending)) {
-          setState(() => _authors.add(pending));
-        }
-      }
+    // Sync authors: capture any pending text in the Autocomplete field
+    final pendingAuthor = _authorAutocompleteController?.text.trim() ?? '';
+    if (pendingAuthor.isNotEmpty && !_authors.contains(pendingAuthor)) {
+      setState(() {
+        _authors.add(pendingAuthor);
+        _authorAutocompleteController?.clear();
+      });
     }
 
     if (!_formKey.currentState!.validate()) return;
@@ -434,7 +432,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
       'cover_url': _coverUrl,
       'author': _authors.isNotEmpty
           ? _authors.join(', ')
-          : _authorController.text, // Use joined authors
+          : '', // _authors is the source of truth
       'started_reading_at': _startedDateController.text.isNotEmpty
           ? DateTime.parse(_startedDateController.text).toIso8601String()
           : null,
@@ -776,6 +774,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       });
                     },
                     fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
+                      _authorAutocompleteController = textEditingController;
                       return TextFormField(
                         controller: textEditingController,
                         focusNode: focusNode,
@@ -813,9 +812,11 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       );
                     },
                   ),
-                  if (_authors.isNotEmpty) ...[
-                    const SizedBox(height: 8),
-                    Wrap(
+                  if (_authors.isNotEmpty)
+                    Padding(
+                      key: const ValueKey('_attached_author_chips'),
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Wrap(
                       spacing: 8,
                       runSpacing: 8,
                       children: _authors.map((author) {
@@ -831,7 +832,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                         );
                       }).toList(),
                     ),
-                  ],
+                    ),
 
                   // ISBN
                   _buildLabel(TranslationService.translate(context, 'isbn_label'), icon: Icons.qr_code),
@@ -864,6 +865,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
               // === Section 2: Publication Details ===
               _buildSection(
+                bottomPadding: 0,
                 children: [
                   // Publisher & Year
                   Row(
@@ -955,6 +957,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
               // === Section 3: Status & Ownership ===
               _buildSection(
+                spacing: 28,
+                bottomPadding: 10,
                 children: [
                   // Ownership toggle
                   _buildToggleTile(
@@ -967,8 +971,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     onChanged: (v) => setState(() => _owned = v),
                   ),
 
-                  // Formats Selection
-                  Consumer<ThemeProvider>(
+                  // Formats Selection (attached: no extra spacing when hidden)
+                  KeyedSubtree(
+                    key: const ValueKey('_attached_formats'),
+                    child: Consumer<ThemeProvider>(
                     builder: (context, theme, _) {
                       if (!theme.digitalFormatsEnabled) return const SizedBox.shrink();
                       return Column(
@@ -1021,6 +1027,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                         ],
                       );
                     },
+                  ),
                   ),
 
                   // Status
@@ -1188,7 +1195,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   Consumer<ThemeProvider>(
                     builder: (context, theme, _) {
                       if (!theme.allowPrivateBooks) return const SizedBox.shrink();
-                      return _buildToggleTile(
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: _buildToggleTile(
                         activeIcon: Icons.visibility_off_rounded,
                         inactiveIcon: Icons.visibility_rounded,
                         titleKey: 'book_private',
@@ -1196,6 +1205,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                         value: _private,
                         activeColor: Colors.amber.shade700,
                         onChanged: (v) => setState(() => _private = v),
+                      ),
                       );
                     },
                   ),
@@ -1327,99 +1337,135 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
   Widget _buildCoverSection() {
     final hasCover = _coverUrl != null && _coverUrl!.isNotEmpty;
-    final borderColor = hasCover ? Colors.green : Colors.grey;
-    final bgColor = hasCover
-        ? Colors.green.withValues(alpha: 0.05)
-        : Colors.grey.withValues(alpha: 0.05);
+    final theme = Theme.of(context);
 
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: borderColor.withValues(alpha: 0.4)),
-      ),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 60,
-            height: 90,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(6),
-              child: hasCover
-                  ? _coverUrl!.startsWith('/')
-                      ? Image.file(
-                          File(_coverUrl!),
-                          key: ValueKey('$_coverUrl\_$_coverVersion'),
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Container(
-                            color: Colors.grey[200],
-                            child: const Icon(Icons.broken_image,
-                                color: Colors.grey),
-                          ),
-                        )
-                      : CachedBookCover(
-                          key: ValueKey('$_coverUrl\_$_coverVersion'),
-                          imageUrl: _coverUrl!,
-                          fit: BoxFit.cover,
-                          placeholder: Container(
-                            color: Colors.grey[200],
-                            child: const Icon(Icons.image, color: Colors.grey),
-                          ),
-                          errorWidget: Container(
-                            color: Colors.grey[200],
-                            child: const Icon(Icons.broken_image,
-                                color: Colors.grey),
-                          ),
-                        )
-                  : Container(
-                      color: Colors.grey[200],
-                      child: const Icon(Icons.image_not_supported,
-                          color: Colors.grey),
-                    ),
-            ),
+    Widget coverImage = hasCover
+        ? _coverUrl!.startsWith('/')
+            ? Image.file(
+                File(_coverUrl!),
+                key: ValueKey('$_coverUrl\_$_coverVersion'),
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => _buildCoverPlaceholder(),
+              )
+            : CachedBookCover(
+                key: ValueKey('$_coverUrl\_$_coverVersion'),
+                imageUrl: _coverUrl!,
+                fit: BoxFit.cover,
+                placeholder: _buildCoverPlaceholder(),
+                errorWidget: _buildCoverPlaceholder(),
+              )
+        : _buildCoverPlaceholder();
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Cover thumbnail with shadow
+        Container(
+          width: 72,
+          height: 108,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.12),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (!hasCover)
-                  Text(
-                    TranslationService.translate(
-                            context, 'no_cover_available') ??
-                        'No cover',
-                    style: TextStyle(
-                      color: Colors.grey.shade600,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                if (!hasCover) const SizedBox(height: 8),
-                Row(
-                  children: [
-                    if (CoverCameraHelper.isCameraAvailable)
-                      IconButton(
-                        icon: const Icon(Icons.camera_alt, size: 20),
-                        tooltip: TranslationService.translate(
-                                context, 'cover_take_photo_tooltip') ??
-                            'Take a photo of the cover',
-                        onPressed: _takePhoto,
-                        visualDensity: VisualDensity.compact,
-                      ),
-                    IconButton(
-                      icon: const Icon(Icons.photo_library, size: 20),
-                      tooltip: TranslationService.translate(
-                              context, 'cover_choose_file') ??
-                          'Choose from files',
-                      onPressed: _pickCoverFromFile,
-                      visualDensity: VisualDensity.compact,
-                    ),
-                  ],
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: coverImage,
+          ),
+        ),
+        const SizedBox(width: 16),
+        // Action buttons
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 4),
+              Text(
+                TranslationService.translate(context, 'cover_label') ??
+                    'Cover',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: theme.colorScheme.onSurfaceVariant,
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  if (CoverCameraHelper.isCameraAvailable)
+                    _buildCoverAction(
+                      icon: Icons.camera_alt_outlined,
+                      label: TranslationService.translate(
+                              context, 'cover_take_photo_short') ??
+                          'Photo',
+                      onTap: _takePhoto,
+                    ),
+                  _buildCoverAction(
+                    icon: Icons.photo_library_outlined,
+                    label: TranslationService.translate(
+                            context, 'cover_choose_short') ??
+                        'Gallery',
+                    onTap: _pickCoverFromFile,
+                  ),
+                ],
+              ),
+            ],
           ),
-        ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCoverPlaceholder() {
+    return Container(
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      child: Icon(
+        Icons.menu_book_rounded,
+        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
+        size: 28,
+      ),
+    );
+  }
+
+  Widget _buildCoverAction({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    final theme = Theme.of(context);
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: theme.colorScheme.outline.withValues(alpha: 0.3),
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 16, color: theme.colorScheme.primary),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: theme.colorScheme.primary,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1427,6 +1473,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
   Widget _buildLabel(String label, {String? helperText, IconData? icon}) {
     final accentColor = Theme.of(context).colorScheme.primary;
     return Padding(
+      key: ValueKey('$_labelKeyPrefix$label'),
       padding: const EdgeInsets.only(top: 5, bottom: 8.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1462,6 +1509,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                           ?.withValues(alpha: 0.85),
                     ),
                   ),
+                  const SizedBox(height: 4),
                 ],
               ],
             ),
@@ -1471,28 +1519,40 @@ class _EditBookScreenState extends State<EditBookScreen> {
     );
   }
 
-  static const _fieldSpacing = SizedBox(height: 20);
+  static const _fieldSpacing = SizedBox(height: 28);
+  static const _labelKeyPrefix = '_formLabel_';
 
-  Widget _buildSection({required List<Widget> children, double spacing = 20}) {
+  Widget _buildSection({required List<Widget> children, double spacing = 28, double bottomPadding = 10}) {
     // Auto-insert spacing between children.
-    // A _buildLabel widget (Padding > Row) is considered the start of a
-    // label+field pair: spacing goes BEFORE the label, never between the
-    // label and its field.
+    // Labels created by _buildLabel use a _labelKeyPrefix so we can identify them
+    // and keep them tight with the field that follows.
+    bool _isLabel(Widget w) =>
+        w.key is ValueKey<String> &&
+        (w.key as ValueKey<String>).value.startsWith(_labelKeyPrefix);
+    bool _isAttached(Widget w) =>
+        w.key is ValueKey<String> &&
+        (w.key as ValueKey<String>).value.startsWith('_attached');
     final spaced = <Widget>[];
-    bool _isLabel(Widget w) => w is Padding && w.child is Row;
-    for (var i = 0; i < children.length; i++) {
-      final child = children[i];
-      if (child is SizedBox) continue; // drop leftover manual spacers
-      // Add spacing before this widget unless it's the first, or if the
-      // previous widget was a label (label and its field stay tight).
-      if (spaced.isNotEmpty && !_isLabel(spaced.last)) {
+    bool seenFirst = false;
+    for (final child in children) {
+      if (child is SizedBox) continue;
+      if (_isAttached(child)) {
+        // Attached widgets (e.g. author chips) stick to the previous field
+        spaced.add(child);
+        continue;
+      }
+      final isLabel = _isLabel(child);
+      // Spacing before each new group (label or standalone widget),
+      // except the very first child
+      if (seenFirst && (isLabel || (!isLabel && spaced.isNotEmpty && !_isLabel(spaced.last)))) {
         spaced.add(SizedBox(height: spacing));
       }
       spaced.add(child);
+      seenFirst = true;
     }
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.fromLTRB(16, 16, 16, bottomPadding),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(12),
@@ -1575,6 +1635,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
     return Semantics(
       toggled: value,
       label: TranslationService.translate(context, titleKey),
+      child: MouseRegion(
+      cursor: SystemMouseCursors.click,
       child: GestureDetector(
       onTap: () => onChanged(!value),
       child: AnimatedContainer(
@@ -1635,6 +1697,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
         ),
       ),
       ),
+      ),
     );
   }
 
@@ -1665,3 +1728,4 @@ class _EditBookScreenState extends State<EditBookScreen> {
     );
   }
 }
+

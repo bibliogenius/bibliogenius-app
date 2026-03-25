@@ -1312,6 +1312,15 @@ msgstr "Tomar una foto"
 msgid "cover_take_photo_tooltip"
 msgstr "Fotografiar la portada"
 
+msgid "cover_label"
+msgstr "Portada"
+
+msgid "cover_take_photo_short"
+msgstr "Foto"
+
+msgid "cover_choose_short"
+msgstr "Galeria"
+
 #. Use
 msgid "cover_use_button"
 msgstr "Usar esta portada"
@@ -4016,7 +4025,7 @@ msgstr "Tengo este libro"
 
 #. Uncheck for wishlist items
 msgid "own_this_book_hint"
-msgstr "Marcar como poseído en tu biblioteca"
+msgstr "Desactivar para los libros de la lista de deseos"
 
 #. In Collection
 msgid "owned_status"

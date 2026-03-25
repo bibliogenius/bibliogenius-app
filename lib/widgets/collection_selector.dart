@@ -213,6 +213,11 @@ class _CollectionSelectorState extends State<CollectionSelector> {
           runSpacing: 8,
           children: _currentSelection.map((collection) {
             return Chip(
+              avatar: Icon(
+                Icons.folder_outlined,
+                size: 16,
+                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.6),
+              ),
               label: Text(collection.name),
               deleteIcon: const Icon(Icons.close, size: 18),
               onDeleted: () => _removeCollection(collection),

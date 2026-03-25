@@ -1423,6 +1423,15 @@ msgstr "Take a photo"
 msgid "cover_take_photo_tooltip"
 msgstr "Take a photo of the cover"
 
+msgid "cover_label"
+msgstr "Cover"
+
+msgid "cover_take_photo_short"
+msgstr "Photo"
+
+msgid "cover_choose_short"
+msgstr "Gallery"
+
 #. Use
 msgid "cover_use_button"
 msgstr "Use"
@@ -4263,7 +4272,7 @@ msgstr "I own this book"
 
 #. Uncheck for wishlist items
 msgid "own_this_book_hint"
-msgstr "Uncheck for wishlist items"
+msgstr "Disable for wishlist books"
 
 #. In Collection
 msgid "owned_status"
