@@ -1,5 +1,9 @@
+import 'dart:io' show Platform;
+
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../services/translation_service.dart';
 import '../screens/audio_webview_screen.dart';
 import '../models/audio_resource.dart';
@@ -388,11 +392,19 @@ class _AudioSectionState extends State<AudioSection> {
         ? resource.streamUrl!
         : resource.source.websiteUrl;
 
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) =>
-            AudioWebViewScreen(url: url, title: resource.title),
-      ),
-    );
+    final isDesktop = !kIsWeb &&
+        (Platform.isMacOS || Platform.isWindows || Platform.isLinux);
+
+    if (isDesktop) {
+      // Use external browser on desktop (WebView has mouse_tracker issues on macOS)
+      launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+    } else {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) =>
+              AudioWebViewScreen(url: url, title: resource.title),
+        ),
+      );
+    }
   }
 }
