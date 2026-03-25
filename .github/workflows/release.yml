@@ -284,8 +284,12 @@ jobs:
           BASE_VERSION=$(echo "$FULL_VERSION" | sed 's/-.*$//')
           echo "Using CFBundleShortVersionString: $BASE_VERSION"
           
+          # Build number must be higher than previously uploaded version
+          BUILD_NUMBER=$((${{ github.run_number }} + 200))
+          echo "Using CFBundleVersion (build number): $BUILD_NUMBER"
+
           # Build the app with Apple Distribution signing (for TestFlight/App Store)
-          flutter build macos --release --build-name=$BASE_VERSION
+          flutter build macos --release --build-name=$BASE_VERSION --build-number=$BUILD_NUMBER
       
       - name: Validate app bundle
         run: |
@@ -699,8 +703,12 @@ jobs:
           BASE_VERSION=$(echo "$FULL_VERSION" | sed 's/-.*$//')
           echo "Using CFBundleShortVersionString: $BASE_VERSION"
           
+          # Build number must be higher than previously uploaded version
+          BUILD_NUMBER=$((${{ github.run_number }} + 200))
+          echo "Using CFBundleVersion (build number): $BUILD_NUMBER"
+
           # Build IPA
-          flutter build ipa --release --build-name=$BASE_VERSION --export-options-plist=ios/Runner/ExportOptions.plist
+          flutter build ipa --release --build-name=$BASE_VERSION --build-number=$BUILD_NUMBER --export-options-plist=ios/Runner/ExportOptions.plist
 
       - name: Debug Build Directory
         if: always()
