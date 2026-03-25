@@ -574,7 +574,9 @@ Future<int> deviceSyncApproveAll() =>
 Future<int> deviceSyncRejectAll() =>
     RustLib.instance.api.crateApiFrbDeviceSyncRejectAll();
 
-/// Backfill the operation_log with INSERT ops for all existing books, authors, tags, copies.
+/// Backfill the operation_log with INSERT ops for all existing entities
+/// (books, authors, book_authors, tags, book_tags, contacts, copies, loans,
+/// collections, collection_books, book_notes).
 /// This allows syncing a library that was created before operation logging was added.
 Future<int> deviceSyncBackfill() =>
     RustLib.instance.api.crateApiFrbDeviceSyncBackfill();
@@ -905,6 +907,7 @@ sealed class FrbBook with _$FrbBook {
     double? price,
     List<String>? digitalFormats,
     required bool private,
+    int? pageCount,
   }) = _FrbBook;
 }
 
@@ -919,6 +922,7 @@ sealed class FrbBookMetadata with _$FrbBookMetadata {
     String? publicationYear,
     String? coverUrl,
     String? summary,
+    int? pageCount,
   }) = _FrbBookMetadata;
 }
 

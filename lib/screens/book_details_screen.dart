@@ -1370,6 +1370,31 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                   ],
                 ),
               ),
+              if (book.pageCount != null) ...[
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        (TranslationService.translate(context, 'page_count_label') ??
+                                'PAGES')
+                            .toUpperCase(),
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.0,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '${book.pageCount}',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ],
           ),
           if (Provider.of<ThemeProvider>(context).isBookseller) ...[
@@ -2698,6 +2723,9 @@ class _BookNotesSectionState extends State<_BookNotesSection> {
                     onSubmitted: (_) => _addNote(),
                     decoration: InputDecoration(
                       hintText: t(context, 'add_note_placeholder'),
+                      hintStyle: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurface.withAlpha(100),
+                      ),
                       isDense: true,
                       counterText: '',
                       contentPadding: const EdgeInsets.symmetric(

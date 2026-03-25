@@ -574,7 +574,7 @@ class _BookListScreenState extends State<BookListScreen>
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: _isZeroState ? null : FloatingActionButton(
         heroTag: 'add_book_fab',
         key: const Key('addBookButton'),
         onPressed: _addBook,
@@ -1908,13 +1908,17 @@ class _BookListScreenState extends State<BookListScreen>
     }
   }
 
+  /// True when the library has no books and no filters are active.
+  bool get _isZeroState =>
+      _books.isEmpty &&
+      !_isLoading &&
+      _searchQuery.isEmpty &&
+      _tagFilter == null &&
+      _selectedStatus == null;
+
   Widget _buildBody() {
     // 1. Zero State: No books in the library at all (not just filtered out)
-    if (_books.isEmpty &&
-        !_isLoading &&
-        _searchQuery.isEmpty &&
-        _tagFilter == null &&
-        _selectedStatus == null) {
+    if (_isZeroState) {
       return LayoutBuilder(
         builder: (context, constraints) => RefreshIndicator(
           onRefresh: _fetchBooks,

@@ -4725,6 +4725,9 @@ msgstr "By Shelf"
 msgid "rating_label"
 msgstr "My Rating"
 
+msgid "page_count_label"
+msgstr "Pages"
+
 #. Read
 msgid "read_status"
 msgstr "Read"

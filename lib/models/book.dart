@@ -18,6 +18,7 @@ class Book {
   final String? language; // ISO language code or full name (e.g., 'fr', 'French')
   final int? availableCopies; // Number of copies with status "available" (from peer)
   final bool private; // When true, hidden from network peers
+  final int? pageCount;
 
   Book({
     this.id,
@@ -39,6 +40,7 @@ class Book {
     this.language,
     this.availableCopies,
     this.private = false,
+    this.pageCount,
   }) : _coverUrl = coverUrl;
 
   factory Book.fromJson(Map<String, dynamic> json) {
@@ -78,6 +80,7 @@ class Book {
       language: json['language'],
       availableCopies: json['available_copies'],
       private: json['private'] ?? false,
+      pageCount: json['page_count'],
     );
   }
 
@@ -102,6 +105,7 @@ class Book {
       'language': language,
       'available_copies': availableCopies,
       'private': private,
+      'page_count': pageCount,
       'created_at': now,
       'updated_at': now,
     };
@@ -129,6 +133,7 @@ class Book {
       language: language,
       availableCopies: availableCopies,
       private: private,
+      pageCount: pageCount,
     );
   }
 
@@ -174,6 +179,7 @@ class Book {
       language: language,
       availableCopies: availableCopies,
       private: private,
+      pageCount: pageCount,
     );
   }
 

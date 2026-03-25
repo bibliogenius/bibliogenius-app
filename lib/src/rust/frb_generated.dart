@@ -4974,6 +4974,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  int dco_decode_box_autoadd_u_32(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as int;
+  }
+
+  @protected
   BigInt dco_decode_box_autoadd_u_64(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return dco_decode_u_64(raw);
@@ -4995,8 +5001,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   FrbBook dco_decode_frb_book(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 21)
-      throw Exception('unexpected arr length: expect 21 but see ${arr.length}');
+    if (arr.length != 22)
+      throw Exception('unexpected arr length: expect 22 but see ${arr.length}');
     return FrbBook(
       id: dco_decode_opt_box_autoadd_i_32(arr[0]),
       title: dco_decode_String(arr[1]),
@@ -5019,6 +5025,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       price: dco_decode_opt_box_autoadd_f_64(arr[18]),
       digitalFormats: dco_decode_opt_list_String(arr[19]),
       private: dco_decode_bool(arr[20]),
+      pageCount: dco_decode_opt_box_autoadd_i_32(arr[21]),
     );
   }
 
@@ -5026,8 +5033,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   FrbBookMetadata dco_decode_frb_book_metadata(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 6)
-      throw Exception('unexpected arr length: expect 6 but see ${arr.length}');
+    if (arr.length != 7)
+      throw Exception('unexpected arr length: expect 7 but see ${arr.length}');
     return FrbBookMetadata(
       title: dco_decode_opt_String(arr[0]),
       author: dco_decode_opt_String(arr[1]),
@@ -5035,6 +5042,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       publicationYear: dco_decode_opt_String(arr[3]),
       coverUrl: dco_decode_opt_String(arr[4]),
       summary: dco_decode_opt_String(arr[5]),
+      pageCount: dco_decode_opt_box_autoadd_u_32(arr[6]),
     );
   }
 
@@ -5988,6 +5996,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  int? dco_decode_opt_box_autoadd_u_32(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_u_32(raw);
+  }
+
+  @protected
   BigInt? dco_decode_opt_box_autoadd_u_64(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw == null ? null : dco_decode_box_autoadd_u_64(raw);
@@ -6113,6 +6127,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  int sse_decode_box_autoadd_u_32(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_u_32(deserializer));
+  }
+
+  @protected
   BigInt sse_decode_box_autoadd_u_64(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return (sse_decode_u_64(deserializer));
@@ -6154,6 +6174,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_price = sse_decode_opt_box_autoadd_f_64(deserializer);
     var var_digitalFormats = sse_decode_opt_list_String(deserializer);
     var var_private = sse_decode_bool(deserializer);
+    var var_pageCount = sse_decode_opt_box_autoadd_i_32(deserializer);
     return FrbBook(
       id: var_id,
       title: var_title,
@@ -6176,6 +6197,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       price: var_price,
       digitalFormats: var_digitalFormats,
       private: var_private,
+      pageCount: var_pageCount,
     );
   }
 
@@ -6188,6 +6210,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_publicationYear = sse_decode_opt_String(deserializer);
     var var_coverUrl = sse_decode_opt_String(deserializer);
     var var_summary = sse_decode_opt_String(deserializer);
+    var var_pageCount = sse_decode_opt_box_autoadd_u_32(deserializer);
     return FrbBookMetadata(
       title: var_title,
       author: var_author,
@@ -6195,6 +6218,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       publicationYear: var_publicationYear,
       coverUrl: var_coverUrl,
       summary: var_summary,
+      pageCount: var_pageCount,
     );
   }
 
@@ -7555,6 +7579,17 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  int? sse_decode_opt_box_autoadd_u_32(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_u_32(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
   BigInt? sse_decode_opt_box_autoadd_u_64(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
@@ -7696,6 +7731,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_box_autoadd_u_32(int self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_u_32(self, serializer);
+  }
+
+  @protected
   void sse_encode_box_autoadd_u_64(BigInt self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_u_64(self, serializer);
@@ -7737,6 +7778,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_opt_box_autoadd_f_64(self.price, serializer);
     sse_encode_opt_list_String(self.digitalFormats, serializer);
     sse_encode_bool(self.private, serializer);
+    sse_encode_opt_box_autoadd_i_32(self.pageCount, serializer);
   }
 
   @protected
@@ -7751,6 +7793,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_opt_String(self.publicationYear, serializer);
     sse_encode_opt_String(self.coverUrl, serializer);
     sse_encode_opt_String(self.summary, serializer);
+    sse_encode_opt_box_autoadd_u_32(self.pageCount, serializer);
   }
 
   @protected
@@ -8788,6 +8831,16 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_bool(self != null, serializer);
     if (self != null) {
       sse_encode_box_autoadd_i_32(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_box_autoadd_u_32(int? self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_u_32(self, serializer);
     }
   }
 

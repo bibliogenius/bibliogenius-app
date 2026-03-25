@@ -209,6 +209,9 @@ class _BookNotesScreenState extends State<BookNotesScreen> {
                         onSubmitted: (_) => _addNote(),
                         decoration: InputDecoration(
                           hintText: t(context, 'add_note_placeholder'),
+                          hintStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurface.withAlpha(100),
+                          ),
                           isDense: true,
                           counterText: '',
                           contentPadding: const EdgeInsets.symmetric(

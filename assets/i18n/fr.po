@@ -4725,6 +4725,9 @@ msgstr "Par étagère"
 msgid "rating_label"
 msgstr "Ma Note"
 
+msgid "page_count_label"
+msgstr "Pages"
+
 #. Read
 msgid "read_status"
 msgstr "Lu"
