@@ -864,6 +864,10 @@ msgstr "Камерата не е налична"
 msgid "camera_loading"
 msgstr "Стартиране на камерата..."
 
+#. Change (action button)
+msgid "change"
+msgstr "Промяна"
+
 #. Cancel
 msgid "cancel"
 msgstr "Отказ"
@@ -3895,6 +3899,14 @@ msgstr "Родителска полица (по желание)"
 #. Password
 msgid "password"
 msgstr "Парола"
+
+#. Hint text for password in local (FFI) mode
+msgid "password_hint_local"
+msgstr "По избор. Защитава достъпа до вашата библиотека при стартиране на приложението."
+
+#. Hint text for password in server mode
+msgid "password_hint_server"
+msgstr "Използва се за удостоверяване в сървъра BiblioGenius."
 
 #. Password changed successfully
 msgid "password_changed_success"

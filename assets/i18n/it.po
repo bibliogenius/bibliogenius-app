@@ -952,6 +952,10 @@ msgstr "Fotocamera non disponibile"
 msgid "camera_loading"
 msgstr "Avvio fotocamera..."
 
+#. Change (action button)
+msgid "change"
+msgstr "Modifica"
+
 #. Cancel
 msgid "cancel"
 msgstr "Annulla"
@@ -4119,6 +4123,14 @@ msgstr "Scaffale principale (opzionale)"
 #. Password
 msgid "password"
 msgstr "Password"
+
+#. Hint text for password in local (FFI) mode
+msgid "password_hint_local"
+msgstr "Opzionale. Protegge l'accesso alla tua biblioteca all'avvio dell'applicazione."
+
+#. Hint text for password in server mode
+msgid "password_hint_server"
+msgstr "Utilizzata per autenticarsi al server BiblioGenius."
 
 #. Password changed successfully
 msgid "password_changed_success"

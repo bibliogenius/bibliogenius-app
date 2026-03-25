@@ -871,6 +871,10 @@ msgstr "Câmera indisponível"
 msgid "camera_loading"
 msgstr "Iniciando câmera..."
 
+#. Change (action button)
+msgid "change"
+msgstr "Alterar"
+
 #. Cancel
 msgid "cancel"
 msgstr "Cancelar"
@@ -3899,6 +3903,14 @@ msgstr "Prateleira Pai (opcional)"
 #. Password
 msgid "password"
 msgstr "Senha"
+
+#. Hint text for password in local (FFI) mode
+msgid "password_hint_local"
+msgstr "Opcional. Protege o acesso à sua biblioteca ao iniciar o aplicativo."
+
+#. Hint text for password in server mode
+msgid "password_hint_server"
+msgstr "Usada para se autenticar no servidor BiblioGenius."
 
 #. Password changed successfully
 msgid "password_changed_success"

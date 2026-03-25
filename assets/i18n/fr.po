@@ -995,6 +995,10 @@ msgstr "Caméra indisponible"
 msgid "camera_loading"
 msgstr "Démarrage de la caméra..."
 
+#. Change (action button)
+msgid "change"
+msgstr "Modifier"
+
 #. Cancel
 msgid "cancel"
 msgstr "Annuler"
@@ -4281,6 +4285,14 @@ msgstr "Étagère parente (optionnel)"
 msgid "password"
 msgstr "Mot de passe"
 
+#. Hint text for password in local (FFI) mode
+msgid "password_hint_local"
+msgstr "Optionnel. Protège l'accès à votre bibliothèque au démarrage de l'application."
+
+#. Hint text for password in server mode
+msgid "password_hint_server"
+msgstr "Utilisé pour vous authentifier auprès du serveur BiblioGenius."
+
 #. Password changed successfully
 msgid "password_changed_success"
 msgstr "Mot de passe changé avec succès"
@@ -7116,7 +7128,7 @@ msgstr "Partager ma bibliothèque"
 
 #. Operation Log Viewer - screen title
 msgid "admin_operation_log_title"
-msgstr "Journal des operations"
+msgstr "Journal des opérations"
 
 #. Operation Log Viewer - stats
 msgid "admin_log_stat_total"
@@ -7179,14 +7191,14 @@ msgstr "Page suivante"
 
 #. Operation Log Viewer - module toggle
 msgid "module_operation_log_viewer"
-msgstr "Journal des operations"
+msgstr "Journal des opérations"
 
 msgid "module_operation_log_desc"
 msgstr "Consulter l'historique des mutations"
 
 #. Settings - developer tools section
 msgid "settings_developer_tools"
-msgstr "Outils developpeur"
+msgstr "Outils pour développeur"
 
 #. Operation Log Viewer - search
 msgid "admin_log_search_hint"

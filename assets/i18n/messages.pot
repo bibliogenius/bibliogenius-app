@@ -994,6 +994,10 @@ msgstr ""
 msgid "camera_loading"
 msgstr ""
 
+#. Change (action button)
+msgid "change"
+msgstr ""
+
 #. Cancel
 msgid "cancel"
 msgstr ""
@@ -4272,6 +4276,14 @@ msgstr ""
 
 #. Password
 msgid "password"
+msgstr ""
+
+#. Hint text for password in local (FFI) mode
+msgid "password_hint_local"
+msgstr ""
+
+#. Hint text for password in server mode
+msgid "password_hint_server"
 msgstr ""
 
 #. Password changed successfully

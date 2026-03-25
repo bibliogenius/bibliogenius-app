@@ -932,6 +932,10 @@ msgstr "Kamerafehler"
 msgid "camera_loading"
 msgstr "Kamera wird geladen..."
 
+#. Change (action button)
+msgid "change"
+msgstr "Ändern"
+
 #. Cancel
 msgid "cancel"
 msgstr "Abbrechen"
@@ -4037,6 +4041,14 @@ msgstr "Übergeordnetes Regal"
 #. Password
 msgid "password"
 msgstr "Passwort"
+
+#. Hint text for password in local (FFI) mode
+msgid "password_hint_local"
+msgstr "Optional. Schützt den Zugang zu Ihrer Bibliothek beim Start der Anwendung."
+
+#. Hint text for password in server mode
+msgid "password_hint_server"
+msgstr "Wird zur Authentifizierung beim BiblioGenius-Server verwendet."
 
 #. Password changed successfully
 msgid "password_changed_success"

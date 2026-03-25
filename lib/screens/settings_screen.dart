@@ -431,6 +431,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ),
                   ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                    ),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        Provider.of<ApiService>(context, listen: false).useFfi
+                            ? (TranslationService.translate(
+                                    context, 'password_hint_local') ??
+                                'Optional. Protects access to your library when the app starts.')
+                            : (TranslationService.translate(
+                                    context, 'password_hint_server') ??
+                                'Used to authenticate to the BiblioGenius server.'),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant
+                                  .withValues(alpha: 0.7),
+                            ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
                   if (!Provider.of<ApiService>(context, listen: false).useFfi)
                     ListTile(
                       leading: const Icon(Icons.security),
@@ -879,7 +903,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
                 Card(
-                  margin: const EdgeInsets.only(bottom: 12),
+                  margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                   child: SwitchListTile(
                     secondary: const Icon(Icons.account_tree),
                     title: Text(
@@ -1776,7 +1800,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Consumer<ThemeProvider>(
       builder: (context, theme, _) {
         return Card(
-          margin: const EdgeInsets.only(bottom: 12),
+          margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
           child: Column(
             children: [
               SwitchListTile(

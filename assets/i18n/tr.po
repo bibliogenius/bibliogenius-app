@@ -904,6 +904,10 @@ msgstr "Kamera kullanılamıyor"
 msgid "camera_loading"
 msgstr "Kamera başlatılıyor..."
 
+#. Change (action button)
+msgid "change"
+msgstr "Değiştir"
+
 #. Cancel
 msgid "cancel"
 msgstr "İptal"
@@ -3945,6 +3949,14 @@ msgstr "Üst Raf (isteğe bağlı)"
 #. Password
 msgid "password"
 msgstr "Şifre"
+
+#. Hint text for password in local (FFI) mode
+msgid "password_hint_local"
+msgstr "İsteğe bağlı. Uygulama başlatıldığında kitaplığınıza erişimi korur."
+
+#. Hint text for password in server mode
+msgid "password_hint_server"
+msgstr "BiblioGenius sunucusunda kimlik doğrulama için kullanılır."
 
 #. Password changed successfully
 msgid "password_changed_success"

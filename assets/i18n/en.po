@@ -995,6 +995,10 @@ msgstr "Camera unavailable"
 msgid "camera_loading"
 msgstr "Starting camera..."
 
+#. Change (action button)
+msgid "change"
+msgstr "Change"
+
 #. Cancel
 msgid "cancel"
 msgstr "Cancel"
@@ -4280,6 +4284,14 @@ msgstr "Parent Shelf (optional)"
 #. Password
 msgid "password"
 msgstr "Password"
+
+#. Hint text for password in local (FFI) mode
+msgid "password_hint_local"
+msgstr "Optional. Protects access to your library when the app starts."
+
+#. Hint text for password in server mode
+msgid "password_hint_server"
+msgstr "Used to authenticate to the BiblioGenius server."
 
 #. Password changed successfully
 msgid "password_changed_success"

@@ -14,6 +14,7 @@ import '../services/api_service.dart';
 import '../services/auth_service.dart';
 import '../theme/app_design.dart';
 import '../services/translation_service.dart';
+import '../providers/book_refresh_notifier.dart';
 import '../providers/flash_message_provider.dart';
 import '../providers/theme_provider.dart';
 
@@ -572,6 +573,7 @@ class _MigrationWizardScreenState extends State<MigrationWizardScreen> {
       }
 
       if (mounted) {
+        context.read<BookRefreshNotifier>().refresh();
         setState(() => _isProcessing = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -621,6 +623,7 @@ class _MigrationWizardScreenState extends State<MigrationWizardScreen> {
       }
 
       if (mounted) {
+        context.read<BookRefreshNotifier>().refresh();
         setState(() => _isProcessing = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -655,6 +658,11 @@ class _MigrationWizardScreenState extends State<MigrationWizardScreen> {
       // Clear flash message dismissed state so they reappear after reset
       if (mounted) {
         Provider.of<FlashMessageProvider>(context, listen: false).reset();
+      }
+
+      // Trigger UI refresh so book_list_screen reloads (empty) data from DB
+      if (mounted) {
+        context.read<BookRefreshNotifier>().refresh();
       }
 
       if (mounted) {
