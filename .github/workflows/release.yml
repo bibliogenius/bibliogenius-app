@@ -358,9 +358,10 @@ jobs:
             codesign --force --verbose --timestamp --options runtime --sign "$APPLE_DIST" "$item"
           done
 
-          # 2. Sign the injected backend binary (no entitlements = no application-identifier)
-          echo "Signing backend binary..."
-          codesign --force --verbose --timestamp --options runtime --sign "$APPLE_DIST" "$BACKEND_PATH"
+          # 2. Sign the backend binary with sandbox entitlements (no application-identifier)
+          # Apple requires app-sandbox on ALL executables for TestFlight/App Store
+          echo "Signing backend binary with sandbox entitlements..."
+          codesign --force --verbose --timestamp --options runtime --sign "$APPLE_DIST" --entitlements macos/Runner/BackendSandbox.entitlements "$BACKEND_PATH"
 
           # 3. Sign the main app bundle LAST with full entitlements
           echo "Signing main app bundle..."
