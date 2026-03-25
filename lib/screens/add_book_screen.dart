@@ -11,7 +11,6 @@ import 'package:path_provider/path_provider.dart';
 
 import '../data/repositories/book_repository.dart';
 import '../utils/cover_camera_helper.dart';
-import '../data/repositories/tag_repository.dart';
 import '../data/repositories/collection_repository.dart';
 import '../data/repositories/copy_repository.dart';
 import '../services/api_service.dart';
@@ -28,6 +27,7 @@ import '../services/search_cache.dart';
 import '../widgets/plus_one_animation.dart';
 import '../widgets/cached_book_cover.dart';
 import '../widgets/collection_selector.dart';
+import '../widgets/hierarchical_tag_selector.dart';
 import '../widgets/shimmer_loading.dart';
 import '../widgets/edition_picker_sheet.dart';
 import '../models/collection.dart';
@@ -63,6 +63,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
   final _publicationYearController = TextEditingController();
   final _isbnController = TextEditingController();
   final _summaryController = TextEditingController();
+  final _pageCountController = TextEditingController();
   final _priceController = TextEditingController(); // For Bookseller profile
   final _authorController = TextEditingController();
   String? _readingStatus; // Initialized in didChangeDependencies
@@ -81,7 +82,6 @@ class _AddBookScreenState extends State<AddBookScreen> {
   Book? _duplicateBook; // Existing book with same ISBN
   bool _isDuplicate = false;
   bool _isAddingCopy = false; // Guard against double-tap on "Add copy"
-  late TextEditingController _tagsController;
   final FocusNode _titleFocusNode = FocusNode();
   List<String> _allAuthors = []; // For autocomplete
   final List<String> _selectedDigitalFormats = ['paper']; // Default to paper
@@ -98,7 +98,6 @@ class _AddBookScreenState extends State<AddBookScreen> {
       _fetchBookDetails(widget.isbn!);
     }
     _isbnController.addListener(_onIsbnChanged);
-    _tagsController = TextEditingController();
 
     // Pre-select shelf/tag
     if (widget.preSelectedShelfId != null) {
@@ -183,17 +182,22 @@ class _AddBookScreenState extends State<AddBookScreen> {
     _publicationYearController.dispose();
     _isbnController.dispose();
     _summaryController.dispose();
+    _pageCountController.dispose();
     _priceController.dispose();
-    // _tagsController is not disposed here because it gets reassigned to the
-    // Autocomplete widget's internal controller (in fieldViewBuilder), which
-    // Autocomplete manages and disposes itself.
     _titleFocusNode.dispose();
     super.dispose();
   }
 
+  String _prevIsbnText = '';
+
   void _onIsbnChanged() {
     if (!mounted || _isSaving) return;
-    final isbn = IsbnValidator.clean(_isbnController.text).replaceAll(RegExp(r'[^0-9X]'), '');
+    // Skip selection-only changes (e.g. field focus without typing)
+    final currentText = _isbnController.text;
+    if (currentText == _prevIsbnText) return;
+    _prevIsbnText = currentText;
+
+    final isbn = IsbnValidator.clean(currentText).replaceAll(RegExp(r'[^0-9X]'), '');
 
     // Reset last lookup if ISBN changed significantly (not just adding digits)
     if (_lastLookedUpIsbn != null && !isbn.startsWith(_lastLookedUpIsbn!)) {
@@ -319,6 +323,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 bookData['year']?.toString() ?? '';
           if (_summaryController.text.isEmpty)
             _summaryController.text = bookData['summary'] ?? '';
+          if (_pageCountController.text.isEmpty && bookData['page_count'] != null)
+            _pageCountController.text = bookData['page_count'].toString();
           if (_coverUrl == null && bookData['cover_url'] != null) {
             _coverUrl = bookData['cover_url'];
           }
@@ -403,6 +409,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
           ? _selectedDigitalFormats
           : null,
       private: _private,
+      pageCount: int.tryParse(_pageCountController.text),
     );
 
     try {
@@ -805,7 +812,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
               ),
 
             // Title
-            _buildLabel(TranslationService.translate(context, 'title_label')),
+            _buildLabel(TranslationService.translate(context, 'title_label'), icon: Icons.auto_stories),
             LayoutBuilder(
               builder: (context, constraints) {
                 return RawAutocomplete<Map<String, dynamic>>(
@@ -1137,7 +1144,11 @@ class _AddBookScreenState extends State<AddBookScreen> {
             const SizedBox(height: 24),
 
             // Author
-            _buildLabel(TranslationService.translate(context, 'author_label')),
+            _buildLabel(
+              TranslationService.translate(context, 'author_label'),
+              helperText: TranslationService.translate(context, 'author_helper'),
+              icon: Icons.person_outline,
+            ),
             Autocomplete<String>(
               optionsBuilder: (TextEditingValue textEditingValue) {
                 if (textEditingValue.text.isEmpty) {
@@ -1168,7 +1179,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                       decoration: _buildInputDecoration(
                         hint: TranslationService.translate(
                           context,
-                          'author_hint',
+                          _authors.isNotEmpty ? 'author_hint_add' : 'author_hint',
                         ),
                         suffixIcon: IconButton(
                           icon: const Icon(Icons.add),
@@ -1303,10 +1314,14 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
             const SizedBox(height: 24),
 
-            _buildLabel(TranslationService.translate(context, 'isbn_label')),
+            _buildLabel(TranslationService.translate(context, 'isbn_label'), icon: Icons.qr_code),
             TextFormField(
               key: const Key('isbnField'),
               controller: _isbnController,
+              style: const TextStyle(
+                fontFamily: 'monospace',
+                letterSpacing: 2.0,
+              ),
               decoration: _buildInputDecoration(
                 hint: TranslationService.translate(
                   context,
@@ -1363,10 +1378,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildLabel(
-                        TranslationService.translate(
-                          context,
-                          'publisher_label',
-                        ),
+                        TranslationService.translate(context, 'publisher_label'),
+                        icon: Icons.business,
                       ),
                       TextFormField(
                         controller: _publisherController,
@@ -1388,6 +1401,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                     children: [
                       _buildLabel(
                         TranslationService.translate(context, 'year_label'),
+                        icon: Icons.calendar_today,
                       ),
                       TextFormField(
                         controller: _publicationYearController,
@@ -1408,7 +1422,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
             const SizedBox(height: 24),
 
             // Summary
-            _buildLabel(TranslationService.translate(context, 'summary_label')),
+            _buildLabel(TranslationService.translate(context, 'summary_label'), icon: Icons.notes),
             TextFormField(
               key: const Key('summaryField'),
               controller: _summaryController,
@@ -1416,6 +1430,18 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 hint: TranslationService.translate(context, 'summary_hint'),
               ),
               maxLines: 4,
+            ),
+            const SizedBox(height: 24),
+
+            // Page count
+            _buildLabel(TranslationService.translate(context, 'page_count_label'), icon: Icons.menu_book_outlined),
+            TextFormField(
+              key: const Key('pageCountField'),
+              controller: _pageCountController,
+              decoration: _buildInputDecoration(
+                hint: TranslationService.translate(context, 'page_count_hint'),
+              ),
+              keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 24),
 
@@ -1429,6 +1455,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   children: [
                     _buildLabel(
                       TranslationService.translate(context, 'price_label'),
+                      icon: Icons.sell_outlined,
                     ),
                     TextFormField(
                       controller: _priceController,
@@ -1445,24 +1472,15 @@ class _AddBookScreenState extends State<AddBookScreen> {
               },
             ),
 
-            // Owned Checkbox
-            CheckboxListTile(
-              title: Text(
-                TranslationService.translate(context, 'own_this_book') ??
-                    'I own this book',
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
-              subtitle: Text(
-                TranslationService.translate(context, 'own_this_book_hint') ??
-                    'Uncheck for wishlist items',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
+            // Ownership toggle
+            _buildToggleTile(
+              activeIcon: Icons.library_books_rounded,
+              inactiveIcon: Icons.bookmark_add_outlined,
+              titleKey: 'own_this_book',
+              subtitleKey: 'own_this_book_hint',
               value: _isOwned,
-              onChanged: (value) {
-                setState(() => _isOwned = value ?? true);
-              },
-              controlAffinity: ListTileControlAffinity.leading,
-              contentPadding: EdgeInsets.zero,
+              activeColor: Theme.of(context).colorScheme.primary,
+              onChanged: (v) => setState(() => _isOwned = v),
             ),
             const SizedBox(height: 16),
 
@@ -1579,6 +1597,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
             _buildLabel(
               TranslationService.translate(context, 'status_label'),
               helperText: TranslationService.translate(context, 'status_helper'),
+              icon: Icons.flag_outlined,
             ),
             Builder(
               builder: (context) {
@@ -1595,124 +1614,34 @@ class _AddBookScreenState extends State<AddBookScreen> {
                     ? _readingStatus
                     : statusOptions.first.value;
                 if (validValue != _readingStatus) {
-                  // Update in next frame to avoid setState during build
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     if (mounted) setState(() => _readingStatus = validValue);
                   });
                 }
 
-                return DropdownButtonFormField<String>(
-                  value: validValue,
-                  decoration: _buildInputDecoration(),
-                  items: statusOptions.map((status) {
-                    return DropdownMenuItem<String>(
-                      value: status.value,
-                      child: Row(
-                        children: [
-                          Icon(status.icon, size: 20, color: status.color),
-                          const SizedBox(width: 12),
-                          Text(status.label),
-                        ],
-                      ),
-                    );
+                return Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: statusOptions
+                      .where((s) => s.value.isNotEmpty)
+                      .map((status) {
+                    final isActive = status.value == validValue;
+                    return _buildStatusChip(status, isActive);
                   }).toList(),
-                  onChanged: (value) => setState(() => _readingStatus = value),
                 );
               },
             ),
             const SizedBox(height: 24),
 
-            // Tags
-            _buildLabel(
-              TranslationService.translate(context, 'tags'),
-              helperText: TranslationService.translate(context, 'tags_helper'),
-            ),
-            Autocomplete<String>(
-              optionsBuilder: (TextEditingValue textEditingValue) async {
-                if (textEditingValue.text == '') {
-                  return const Iterable<String>.empty();
-                }
-
-                try {
-                  final tagRepo = Provider.of<TagRepository>(context, listen: false);
-                  final tags = await tagRepo.getTags();
-                  final tagNames = tags.map((t) => t.name).toList();
-
-                  return tagNames.where((String option) {
-                    return option.toLowerCase().contains(
-                          textEditingValue.text.toLowerCase(),
-                        ) &&
-                        !_selectedTags.contains(option);
-                  });
-                } catch (e) {
-                  return const Iterable<String>.empty();
-                }
-              },
-              onSelected: (String selection) {
+            // Tags (shelves)
+            HierarchicalTagSelector(
+              selectedTags: _selectedTags,
+              onTagsChanged: (tags) {
                 setState(() {
-                  final trimmed = selection.trim();
-                  if (trimmed.isNotEmpty && !_selectedTags.contains(trimmed)) {
-                    _selectedTags.add(trimmed);
-                  }
-                  _tagsController.clear();
+                  _selectedTags.clear();
+                  _selectedTags.addAll(tags);
                 });
               },
-              fieldViewBuilder:
-                  (context, controller, focusNode, onFieldSubmitted) {
-                    _tagsController = controller;
-                    return TextFormField(
-                      controller: controller,
-                      focusNode: focusNode,
-                      decoration: _buildInputDecoration(
-                        hint: TranslationService.translate(
-                          context,
-                          'add_tag_hint',
-                        ),
-                        suffixIcon: IconButton(
-                          icon: const Icon(Icons.add),
-                          onPressed: () {
-                            if (controller.text.trim().isNotEmpty) {
-                              setState(() {
-                                final val = controller.text.trim();
-                                if (!_selectedTags.contains(val)) {
-                                  _selectedTags.add(val);
-                                }
-                                controller.clear();
-                              });
-                            }
-                          },
-                        ),
-                      ),
-                      onFieldSubmitted: (String value) {
-                        final trimmed = value.trim();
-                        if (trimmed.isNotEmpty) {
-                          setState(() {
-                            if (!_selectedTags.contains(trimmed)) {
-                              _selectedTags.add(trimmed);
-                            }
-                            controller.clear();
-                          });
-                          focusNode.requestFocus();
-                        }
-                      },
-                    );
-                  },
-            ),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: _selectedTags.map((tag) {
-                return Chip(
-                  label: Text(tag),
-                  deleteIcon: const Icon(Icons.close, size: 18),
-                  onDeleted: () {
-                    setState(() {
-                      _selectedTags.remove(tag);
-                    });
-                  },
-                );
-              }).toList(),
             ),
             const SizedBox(height: 24),
 
@@ -1729,22 +1658,14 @@ class _AddBookScreenState extends State<AddBookScreen> {
               builder: (context, theme, _) {
                 if (!theme.allowPrivateBooks)
                   return const SizedBox.shrink();
-                return CheckboxListTile(
-                  title: Text(
-                    TranslationService.translate(context, 'book_private'),
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
-                  subtitle: Text(
-                    TranslationService.translate(
-                        context, 'book_private_desc'),
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
+                return _buildToggleTile(
+                  activeIcon: Icons.visibility_off_rounded,
+                  inactiveIcon: Icons.visibility_rounded,
+                  titleKey: 'book_private',
+                  subtitleKey: 'book_private_desc',
                   value: _private,
-                  onChanged: (value) {
-                    setState(() => _private = value ?? false);
-                  },
-                  controlAffinity: ListTileControlAffinity.leading,
-                  contentPadding: EdgeInsets.zero,
+                  activeColor: Colors.amber.shade700,
+                  onChanged: (v) => setState(() => _private = v),
                 );
               },
             ),
@@ -1884,27 +1805,22 @@ class _AddBookScreenState extends State<AddBookScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    isLoading
-                        ? TranslationService.translate(
-                                context, 'looking_up_isbn') ??
-                            'Looking up...'
-                        : hasCover
-                            ? TranslationService.translate(
-                                    context, 'cover_found') ??
-                                'Cover found!'
-                            : TranslationService.translate(
-                                    context, 'no_cover_available') ??
-                                'No cover',
-                    style: TextStyle(
-                      color: isLoading
-                          ? Colors.blue.shade700
-                          : hasCover
-                              ? Colors.green.shade700
-                              : Colors.grey.shade600,
-                      fontWeight: FontWeight.w600,
+                  if (isLoading || !hasCover)
+                    Text(
+                      isLoading
+                          ? TranslationService.translate(
+                                  context, 'looking_up_isbn') ??
+                              'Looking up...'
+                          : TranslationService.translate(
+                                  context, 'no_cover_available') ??
+                              'No cover',
+                      style: TextStyle(
+                        color: isLoading
+                            ? Colors.blue.shade700
+                            : Colors.grey.shade600,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  ),
                   const SizedBox(height: 8),
                   Row(
                     children: [
@@ -1940,29 +1856,48 @@ class _AddBookScreenState extends State<AddBookScreen> {
     return _ShimmerBox(key: const ValueKey('shimmer'));
   }
 
-  Widget _buildLabel(String label, {String? helperText}) {
+  Widget _buildLabel(String label, {String? helperText, IconData? icon}) {
+    final accentColor = Theme.of(context).colorScheme.primary;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: Column(
+      padding: const EdgeInsets.only(top: 5, bottom: 8.0),
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-              color: Theme.of(context).textTheme.bodyLarge?.color,
+          if (icon != null) ...[
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Icon(icon, size: 20, color: accentColor.withValues(alpha: 0.5)),
+            ),
+            const SizedBox(width: 6),
+          ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Color.lerp(accentColor, Colors.black, 0.25),
+                  ),
+                ),
+                if (helperText != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    helperText,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.color
+                          ?.withValues(alpha: 0.85),
+                    ),
+                  ),
+                ],
+              ],
             ),
           ),
-          if (helperText != null) ...[
-            const SizedBox(height: 2),
-            Text(
-              helperText,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7),
-              ),
-            ),
-          ],
         ],
       ),
     );
@@ -1993,6 +1928,135 @@ class _AddBookScreenState extends State<AddBookScreen> {
       ),
       filled: true,
       fillColor: null, // Uses theme InputDecorationTheme
+    );
+  }
+
+  /// Styled toggle tile with icon, title, subtitle, and switch.
+  Widget _buildToggleTile({
+    required IconData activeIcon,
+    required IconData inactiveIcon,
+    required String titleKey,
+    required String subtitleKey,
+    required bool value,
+    required Color activeColor,
+    required ValueChanged<bool> onChanged,
+  }) {
+    final theme = Theme.of(context);
+    return Semantics(
+      toggled: value,
+      label: TranslationService.translate(context, titleKey),
+      child: GestureDetector(
+        onTap: () => onChanged(!value),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            color: value
+                ? activeColor.withValues(alpha: 0.08)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: value
+                  ? activeColor.withValues(alpha: 0.4)
+                  : theme.dividerColor,
+            ),
+          ),
+          child: Row(
+            children: [
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                child: Icon(
+                  value ? activeIcon : inactiveIcon,
+                  key: ValueKey(value),
+                  color: value
+                      ? activeColor
+                      : theme.colorScheme.onSurfaceVariant,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      TranslationService.translate(context, titleKey),
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Text(
+                      TranslationService.translate(context, subtitleKey),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.textTheme.bodySmall?.color
+                            ?.withValues(alpha: 0.7),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Switch.adaptive(
+                value: value,
+                onChanged: onChanged,
+                activeTrackColor: activeColor.withValues(alpha: 0.5),
+                activeThumbColor: activeColor,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Styled status selection chip.
+  Widget _buildStatusChip(BookStatus status, bool isActive) {
+    final theme = Theme.of(context);
+    return Semantics(
+      button: true,
+      selected: isActive,
+      label: status.label,
+      child: GestureDetector(
+        onTap: () => setState(() {
+          _readingStatus = isActive ? '' : status.value;
+        }),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: isActive
+                ? status.color.withValues(alpha: 0.12)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: isActive ? status.color : theme.dividerColor,
+              width: isActive ? 1.5 : 1.0,
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                status.icon,
+                size: 18,
+                color: isActive
+                    ? status.color
+                    : theme.colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                status.label,
+                style: TextStyle(
+                  color: isActive
+                      ? status.color
+                      : theme.colorScheme.onSurface,
+                  fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
+                  fontSize: 13,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

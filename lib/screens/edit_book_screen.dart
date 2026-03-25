@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
@@ -50,6 +51,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
   late TextEditingController _yearController;
   late TextEditingController _isbnController;
   late TextEditingController _summaryController;
+  late TextEditingController _pageCountController;
   late TextEditingController _startedDateController;
   late TextEditingController _finishedDateController;
   late TextEditingController _tagsController; // Add this
@@ -78,6 +80,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
   int? _copyId;
   bool _owned = true; // Whether I own this book (controls copy creation)
   bool _private = false; // Whether this book is hidden from network peers
+  Set<String> _highlightedFields = {};
+  Timer? _highlightTimer;
 
   // FocusNodes - must be created once and disposed
   late FocusNode _titleFocusNode;
@@ -114,6 +118,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
       text: widget.book.publicationYear?.toString() ?? '',
     );
     _summaryController = TextEditingController(text: widget.book.summary ?? '');
+    _pageCountController = TextEditingController(
+      text: widget.book.pageCount?.toString() ?? '',
+    );
     _tagsController =
         TextEditingController(); // Initialize tags input controller
     _startedDateController = TextEditingController(
@@ -270,25 +277,49 @@ class _EditBookScreenState extends State<EditBookScreen> {
       );
 
       if (bookData != null && mounted) {
+        final filled = <String>{};
         setState(() {
-          if (_titleController.text.isEmpty)
-            _titleController.text = bookData['title'] ?? '';
+          if (_titleController.text.isEmpty && (bookData['title'] ?? '').isNotEmpty) {
+            _titleController.text = bookData['title']!;
+            filled.add('title');
+          }
 
           // Handle authors in fetch details
           if (bookData['authors'] != null && bookData['authors'] is List) {
             _authors = List<String>.from(bookData['authors']);
+            filled.add('author');
           } else if (bookData['author'] != null) {
             _authors = [bookData['author']];
+            filled.add('author');
           }
           _authorController.text = _authors.join(', ');
 
-          if (_publisherController.text.isEmpty)
-            _publisherController.text = bookData['publisher'] ?? '';
-          if (_yearController.text.isEmpty)
-            _yearController.text = bookData['year']?.toString() ?? '';
-          if (_summaryController.text.isEmpty)
-            _summaryController.text = bookData['summary'] ?? '';
+          if (_publisherController.text.isEmpty && (bookData['publisher'] ?? '').isNotEmpty) {
+            _publisherController.text = bookData['publisher']!;
+            filled.add('publisher');
+          }
+          if (_yearController.text.isEmpty && bookData['year'] != null) {
+            _yearController.text = bookData['year'].toString();
+            filled.add('year');
+          }
+          if (_summaryController.text.isEmpty && (bookData['summary'] ?? '').isNotEmpty) {
+            _summaryController.text = bookData['summary']!;
+            filled.add('summary');
+          }
+          if (_pageCountController.text.isEmpty && bookData['page_count'] != null) {
+            _pageCountController.text = bookData['page_count'].toString();
+            filled.add('pageCount');
+          }
+
+          _highlightedFields = filled;
         });
+
+        // Clear highlights after 2.5s
+        _highlightTimer?.cancel();
+        _highlightTimer = Timer(const Duration(milliseconds: 2500), () {
+          if (mounted) setState(() => _highlightedFields = {});
+        });
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -314,6 +345,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
     _yearController.dispose();
     _isbnController.dispose();
     _summaryController.dispose();
+    _pageCountController.dispose();
     _startedDateController.dispose();
     _finishedDateController.dispose();
     _priceController.dispose();
@@ -321,6 +353,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
     // Dispose FocusNodes
     _titleFocusNode.dispose();
     _authorFocusNode.dispose();
+    _highlightTimer?.cancel();
     super.dispose();
   }
 
@@ -396,6 +429,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
       'publication_year': int.tryParse(_yearController.text),
       'isbn': IsbnValidator.clean(_isbnController.text),
       'summary': _summaryController.text,
+      'page_count': int.tryParse(_pageCountController.text),
       'reading_status': _readingStatus,
       'cover_url': _coverUrl,
       'author': _authors.isNotEmpty
@@ -482,6 +516,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
             _yearController.text =
                 updatedBook.publicationYear?.toString() ?? '';
             _summaryController.text = updatedBook.summary ?? '';
+            _pageCountController.text =
+                updatedBook.pageCount?.toString() ?? '';
             _readingStatus = updatedBook.readingStatus ?? 'to_read';
             _coverUrl = updatedBook.coverUrl;
             _selectedTags = updatedBook.subjects ?? [];
@@ -606,44 +642,6 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
   // Deprecated view mode removed for brevity and correctness
 
-  Widget _buildStatusChip(String? status) {
-    Color color;
-    String label;
-    switch (status) {
-      case 'reading':
-        color = Colors.blue;
-        label = TranslationService.translate(context, 'currently_reading');
-        break;
-      case 'read':
-        color = Colors.green;
-        label = TranslationService.translate(context, 'read_status');
-        break;
-      case 'wanting':
-        color = Colors.red;
-        label = TranslationService.translate(context, 'wishlist_status');
-        break;
-      case 'borrowed':
-        color = Colors.purple;
-        label = TranslationService.translate(context, 'borrowed_label');
-        break;
-      default:
-        color = Colors.grey;
-        label = TranslationService.translate(context, 'to_read_status');
-    }
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(color: color, fontWeight: FontWeight.bold),
-      ),
-    );
-  }
-
   Widget _buildEditMode() {
     final isMobile = MediaQuery.of(context).size.width < 600;
 
@@ -742,67 +740,54 @@ class _EditBookScreenState extends State<EditBookScreen> {
             children: [
               const SizedBox(height: 8),
 
-              // Title - Simple TextFormField (autocomplete not needed for edit, book already exists)
-              _buildLabel(TranslationService.translate(context, 'title_label')),
-              TextFormField(
-                controller: _titleController,
-                focusNode: _titleFocusNode,
-                decoration: _buildInputDecoration(
-                  hint: TranslationService.translate(
-                    context,
-                    'enter_book_title',
+              // === Section 1: Identity ===
+              _buildSection(
+                children: [
+                  // Title
+                  _buildLabel(TranslationService.translate(context, 'title_label'), icon: Icons.auto_stories),
+                  TextFormField(
+                    controller: _titleController,
+                    focusNode: _titleFocusNode,
+                    textInputAction: TextInputAction.next,
+                    decoration: _buildInputDecoration(
+                      hint: TranslationService.translate(context, 'enter_book_title'),
+                      fieldKey: 'title',
+                    ),
+                    validator: (value) => value == null || value.isEmpty
+                        ? TranslationService.translate(context, 'enter_title_error')
+                        : null,
                   ),
-                ),
-                validator: (value) => value == null || value.isEmpty
-                    ? TranslationService.translate(context, 'enter_title_error')
-                    : null,
-              ),
-              const SizedBox(height: 24),
+                  const SizedBox(height: 16),
 
-              // Author
-              _buildLabel(
-                TranslationService.translate(context, 'author_label') ??
-                    'Author',
-              ),
-              Autocomplete<String>(
-                optionsBuilder: (TextEditingValue textEditingValue) {
-                  if (textEditingValue.text.isEmpty) {
-                    return const Iterable<String>.empty();
-                  }
-                  return _allAuthors.where((String option) {
-                    return option.toLowerCase().contains(
-                      textEditingValue.text.toLowerCase(),
-                    );
-                  });
-                },
-                fieldViewBuilder:
-                    (
-                      context,
-                      textEditingController,
-                      focusNode,
-                      onFieldSubmitted,
-                    ) {
-                      if (_authorController != textEditingController) {
-                        // Sync logic if needed, but usually we just let Autocomplete handle its internal controller
-                        // or we could assign it. But existing logic uses _authorController.
-                        // Let's just use the one passed here.
+                  // Author
+                  _buildLabel(
+                    TranslationService.translate(context, 'author_label') ?? 'Author',
+                    helperText: TranslationService.translate(context, 'author_helper'),
+                    icon: Icons.person_outline,
+                  ),
+                  Autocomplete<String>(
+                    optionsBuilder: (TextEditingValue textEditingValue) {
+                      if (textEditingValue.text.isEmpty) {
+                        return const Iterable<String>.empty();
                       }
+                      return _allAuthors.where((String option) {
+                        return option.toLowerCase().contains(
+                          textEditingValue.text.toLowerCase(),
+                        );
+                      });
+                    },
+                    fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
                       return TextFormField(
                         controller: textEditingController,
                         focusNode: focusNode,
                         decoration: _buildInputDecoration(
-                          hint:
-                              TranslationService.translate(
-                                context,
-                                'enter_author',
-                              ) ??
-                              'Enter author name',
+                          hint: _authors.isNotEmpty
+                              ? TranslationService.translate(context, 'author_hint_add') ?? 'Add another author...'
+                              : TranslationService.translate(context, 'enter_author') ?? 'Enter author name',
                           suffixIcon: IconButton(
                             icon: const Icon(Icons.add),
                             onPressed: () {
-                              if (textEditingController.text
-                                  .trim()
-                                  .isNotEmpty) {
+                              if (textEditingController.text.trim().isNotEmpty) {
                                 setState(() {
                                   final val = textEditingController.text.trim();
                                   if (!_authors.contains(val)) {
@@ -828,264 +813,212 @@ class _EditBookScreenState extends State<EditBookScreen> {
                         },
                       );
                     },
-              ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: _authors.map((author) {
-                  return Chip(
-                    label: Text(author),
-                    deleteIcon: const Icon(Icons.close, size: 18),
-                    onDeleted: () {
-                      setState(() {
-                        _authors.remove(author);
-                        _authorController.text = _authors.join(', ');
-                      });
-                    },
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 24),
+                  ),
+                  if (_authors.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: _authors.map((author) {
+                        return Chip(
+                          label: Text(author),
+                          deleteIcon: const Icon(Icons.close, size: 18),
+                          onDeleted: () {
+                            setState(() {
+                              _authors.remove(author);
+                              _authorController.text = _authors.join(', ');
+                            });
+                          },
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                  const SizedBox(height: 16),
 
-              // ISBN
-              _buildLabel(TranslationService.translate(context, 'isbn_label')),
-              TextFormField(
-                controller: _isbnController,
-                decoration: _buildInputDecoration(
-                  hint: TranslationService.translate(context, 'enter_isbn'),
-                  suffixIcon: _isFetchingDetails
-                      ? const Padding(
-                          padding: EdgeInsets.all(12.0),
-                          child: SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          ),
-                        )
-                      : null,
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Cover
-              _buildCoverSection(),
-              const SizedBox(height: 24),
-
-              // Publisher & Year
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildLabel(
-                          TranslationService.translate(
-                            context,
-                            'publisher_label',
-                          ),
-                        ),
-                        TextFormField(
-                          controller: _publisherController,
-                          decoration: _buildInputDecoration(
-                            hint: TranslationService.translate(
-                              context,
-                              'publisher_hint',
-                            ),
-                          ),
-                        ),
-                      ],
+                  // ISBN
+                  _buildLabel(TranslationService.translate(context, 'isbn_label'), icon: Icons.qr_code),
+                  TextFormField(
+                    controller: _isbnController,
+                    textInputAction: TextInputAction.next,
+                    style: const TextStyle(
+                      fontFamily: 'monospace',
+                      letterSpacing: 2.0,
+                    ),
+                    decoration: _buildInputDecoration(
+                      hint: TranslationService.translate(context, 'enter_isbn'),
+                      suffixIcon: _isFetchingDetails
+                          ? const Padding(
+                              padding: EdgeInsets.all(12.0),
+                              child: SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              ),
+                            )
+                          : null,
                     ),
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildLabel(
-                          TranslationService.translate(context, 'year_label'),
-                        ),
-                        TextFormField(
-                          controller: _yearController,
-                          decoration: _buildInputDecoration(
-                            hint: TranslationService.translate(
-                              context,
-                              'year_hint',
+                  const SizedBox(height: 16),
+
+                  // Cover
+                  _buildCoverSection(),
+                ],
+              ),
+
+              // === Section 2: Publication Details ===
+              _buildSection(
+                children: [
+                  // Publisher & Year
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildLabel(TranslationService.translate(context, 'publisher_label'), icon: Icons.business),
+                            TextFormField(
+                              controller: _publisherController,
+                              textInputAction: TextInputAction.next,
+                              decoration: _buildInputDecoration(
+                                hint: TranslationService.translate(context, 'publisher_hint'),
+                                fieldKey: 'publisher',
+                              ),
                             ),
-                          ),
-                          keyboardType: TextInputType.number,
+                          ],
                         ),
-                      ],
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildLabel(TranslationService.translate(context, 'year_label'), icon: Icons.calendar_today),
+                            TextFormField(
+                              controller: _yearController,
+                              textInputAction: TextInputAction.next,
+                              decoration: _buildInputDecoration(
+                                hint: TranslationService.translate(context, 'year_hint'),
+                                fieldKey: 'year',
+                              ),
+                              keyboardType: TextInputType.number,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Summary
+                  _buildLabel(TranslationService.translate(context, 'summary_label'), icon: Icons.notes),
+                  TextFormField(
+                    controller: _summaryController,
+                    decoration: _buildInputDecoration(
+                      hint: TranslationService.translate(context, 'summary_hint'),
+                    fieldKey: 'summary',
                     ),
+                    maxLines: 4,
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Page count
+                  _buildLabel(TranslationService.translate(context, 'page_count_label'), icon: Icons.menu_book_outlined),
+                  TextFormField(
+                    controller: _pageCountController,
+                    textInputAction: TextInputAction.done,
+                    decoration: _buildInputDecoration(
+                      hint: TranslationService.translate(context, 'page_count_hint'),
+                      fieldKey: 'pageCount',
+                    ),
+                    keyboardType: TextInputType.number,
+                  ),
+
+                  // Price field (Bookseller profile only)
+                  Consumer<ThemeProvider>(
+                    builder: (context, themeProvider, child) {
+                      if (!themeProvider.hasCommerce) return const SizedBox.shrink();
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 16),
+                          _buildLabel(
+                            TranslationService.translate(context, 'price_label') ?? 'Price (EUR)',
+                            icon: Icons.sell_outlined,
+                          ),
+                          TextFormField(
+                            controller: _priceController,
+                            decoration: _buildInputDecoration(hint: '0.00')
+                                .copyWith(suffixText: themeProvider.currency),
+                            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          ),
+                        ],
+                      );
+                    },
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
 
-              // Summary
-              _buildLabel(
-                TranslationService.translate(context, 'summary_label'),
-              ),
-              TextFormField(
-                controller: _summaryController,
-                decoration: _buildInputDecoration(
-                  hint: TranslationService.translate(context, 'summary_hint'),
-                ),
-                maxLines: 4,
-              ),
-              const SizedBox(height: 24),
+              // === Section 3: Status & Ownership ===
+              _buildSection(
+                children: [
+                  // Ownership toggle
+                  _buildToggleTile(
+                    activeIcon: Icons.library_books_rounded,
+                    inactiveIcon: Icons.bookmark_add_outlined,
+                    titleKey: 'own_this_book',
+                    subtitleKey: 'own_this_book_hint',
+                    value: _owned,
+                    activeColor: Theme.of(context).colorScheme.primary,
+                    onChanged: (v) => setState(() => _owned = v),
+                  ),
 
-              // Price field (Bookseller profile only)
-              Consumer<ThemeProvider>(
-                builder: (context, themeProvider, child) {
-                  if (!themeProvider.hasCommerce)
-                    return const SizedBox.shrink();
-
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildLabel(
-                        TranslationService.translate(context, 'price_label') ??
-                            'Price (EUR)',
-                      ),
-                      TextFormField(
-                        controller: _priceController,
-                        decoration: _buildInputDecoration(
-                          hint: '0.00',
-                        ).copyWith(suffixText: themeProvider.currency),
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                    ],
-                  );
-                },
-              ),
-
-              // Owned checkbox - controls copy creation
-
-              // Owned checkbox - controls copy creation
-              CheckboxListTile(
-                title: Text(
-                  TranslationService.translate(context, 'own_this_book') ??
-                      'I own this book',
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-                subtitle: Text(
-                  TranslationService.translate(context, 'own_this_book_hint') ??
-                      'Uncheck for wishlist items',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-                value: _owned,
-                onChanged: (value) {
-                  setState(() => _owned = value ?? true);
-                },
-                controlAffinity: ListTileControlAffinity.leading,
-                contentPadding: EdgeInsets.zero,
-              ),
-              const SizedBox(height: 16),
-
-              // Formats Selection (Unified)
-              Consumer<ThemeProvider>(
-                builder: (context, theme, _) {
-                  if (!theme.digitalFormatsEnabled)
-                    return const SizedBox.shrink();
-
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 24),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
+                  // Formats Selection
+                  Consumer<ThemeProvider>(
+                    builder: (context, theme, _) {
+                      if (!theme.digitalFormatsEnabled) return const SizedBox.shrink();
+                      return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            TranslationService.translate(
-                                  context,
-                                  'digital_formats_label',
-                                ) ??
-                                'Formats',
-                            style: Theme.of(context).textTheme.titleMedium,
+                          const SizedBox(height: 16),
+                          _buildLabel(
+                            TranslationService.translate(context, 'digital_formats_label') ?? 'Formats',
+                            helperText: TranslationService.translate(context, 'digital_formats_helper'),
+                            icon: Icons.layers_outlined,
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            TranslationService.translate(context, 'digital_formats_helper'),
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7),
-                            ),
-                          ),
-                          const SizedBox(height: 12),
                           Wrap(
                             spacing: 12,
                             runSpacing: 12,
                             children: [
-                              // Paper Chip
                               FilterChip(
-                                label: Text(
-                                  TranslationService.translate(
-                                        context,
-                                        'format_paper',
-                                      ) ??
-                                      'Paper',
-                                ),
-                                selected: _selectedDigitalFormats.contains(
-                                  'paper',
-                                ),
+                                label: Text(TranslationService.translate(context, 'format_paper') ?? 'Paper'),
+                                selected: _selectedDigitalFormats.contains('paper'),
                                 onSelected: (bool selected) {
                                   setState(() {
-                                    if (selected) {
-                                      _selectedDigitalFormats.add('paper');
-                                    } else {
-                                      _selectedDigitalFormats.remove('paper');
-                                    }
+                                    if (selected) { _selectedDigitalFormats.add('paper'); }
+                                    else { _selectedDigitalFormats.remove('paper'); }
                                   });
                                 },
                                 avatar: const Icon(Icons.menu_book, size: 18),
                               ),
-                              // Digital Formats
                               FilterChip(
-                                label: Text(
-                                  TranslationService.translate(
-                                        context,
-                                        'format_ebook',
-                                      ) ??
-                                      'Ebook',
-                                ),
-                                selected: _selectedDigitalFormats.contains(
-                                  'ebook',
-                                ),
+                                label: Text(TranslationService.translate(context, 'format_ebook') ?? 'Ebook'),
+                                selected: _selectedDigitalFormats.contains('ebook'),
                                 onSelected: (bool selected) {
                                   setState(() {
-                                    if (selected) {
-                                      _selectedDigitalFormats.add('ebook');
-                                    } else {
-                                      _selectedDigitalFormats.remove('ebook');
-                                    }
+                                    if (selected) { _selectedDigitalFormats.add('ebook'); }
+                                    else { _selectedDigitalFormats.remove('ebook'); }
                                   });
                                 },
                                 avatar: const Icon(Icons.tablet_mac, size: 18),
                               ),
                               FilterChip(
-                                label: Text(
-                                  TranslationService.translate(
-                                        context,
-                                        'format_audiobook',
-                                      ) ??
-                                      'Audiobook',
-                                ),
-                                selected: _selectedDigitalFormats.contains(
-                                  'audiobook',
-                                ),
+                                label: Text(TranslationService.translate(context, 'format_audiobook') ?? 'Audiobook'),
+                                selected: _selectedDigitalFormats.contains('audiobook'),
                                 onSelected: (bool selected) {
                                   setState(() {
-                                    if (selected) {
-                                      _selectedDigitalFormats.add('audiobook');
-                                    } else {
-                                      _selectedDigitalFormats.remove(
-                                        'audiobook',
-                                      );
-                                    }
+                                    if (selected) { _selectedDigitalFormats.add('audiobook'); }
+                                    else { _selectedDigitalFormats.remove('audiobook'); }
                                   });
                                 },
                                 avatar: const Icon(Icons.headset, size: 18),
@@ -1093,283 +1026,213 @@ class _EditBookScreenState extends State<EditBookScreen> {
                             ],
                           ),
                         ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-
-              // Status
-              _buildLabel(
-                TranslationService.translate(context, 'status_label'),
-                helperText: TranslationService.translate(context, 'status_helper'),
-              ),
-              Builder(
-                builder: (context) {
-                  final themeProvider = Provider.of<ThemeProvider>(context);
-                  final isLibrarian = themeProvider.isLibrarian;
-                  final statusOptions = getStatusOptions(context, isLibrarian);
-
-                  // Safety check: ensure current value exists in options
-                  if (!statusOptions.any((s) => s.value == _readingStatus)) {
-                    // If mismatch, add a temporary option to prevent crash
-                    statusOptions.add(
-                      BookStatus(
-                        value: _readingStatus,
-                        label: _readingStatus,
-                        icon: Icons.help_outline,
-                        color: Colors.grey,
-                      ),
-                    );
-                  }
-
-                  return DropdownButtonFormField<String>(
-                    value: _readingStatus,
-                    decoration: _buildInputDecoration(),
-                    items: statusOptions.map((status) {
-                      return DropdownMenuItem<String>(
-                        value: status.value,
-                        child: Row(
-                          children: [
-                            Icon(status.icon, size: 20, color: status.color),
-                            const SizedBox(width: 12),
-                            Text(status.label),
-                          ],
-                        ),
                       );
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        _readingStatus = value!;
-                      });
                     },
-                  );
-                },
-              ),
-              const SizedBox(height: 24),
+                  ),
+                  const SizedBox(height: 16),
 
-              // Copy Availability Status
-              if (_copyId != null) ...[
-                _buildLabel(
-                  TranslationService.translate(context, 'availability_label') ??
-                      'Availability',
-                  helperText: TranslationService.translate(context, 'availability_helper'),
-                ),
-                DropdownButtonFormField<String>(
-                  value: _copyStatus,
-                  decoration: _buildInputDecoration(),
-                  items: [
-                    DropdownMenuItem(
-                      value: 'available',
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.check_circle,
-                            size: 20,
-                            color: Colors.green,
+                  // Status
+                  _buildLabel(
+                    TranslationService.translate(context, 'status_label'),
+                    helperText: TranslationService.translate(context, 'status_helper'),
+                    icon: Icons.flag_outlined,
+                  ),
+                  Builder(
+                    builder: (context) {
+                      final themeProvider = Provider.of<ThemeProvider>(context);
+                      final isLibrarian = themeProvider.isLibrarian;
+                      final statusOptions = getStatusOptions(context, isLibrarian);
+
+                      if (!statusOptions.any((s) => s.value == _readingStatus)) {
+                        statusOptions.add(
+                          BookStatus(
+                            value: _readingStatus,
+                            label: _readingStatus,
+                            icon: Icons.help_outline,
+                            color: Colors.grey,
                           ),
-                          const SizedBox(width: 12),
-                          Text(
-                            TranslationService.translate(
-                                  context,
-                                  'availability_available',
-                                ) ??
-                                'Available',
-                          ),
-                        ],
-                      ),
+                        );
+                      }
+
+                      return Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: statusOptions
+                            .where((s) => s.value.isNotEmpty)
+                            .map((status) {
+                          final isActive = status.value == _readingStatus;
+                          return _buildStatusChip(
+                            label: status.label,
+                            icon: status.icon,
+                            color: status.color,
+                            isActive: isActive,
+                            onTap: () => setState(() {
+                              _readingStatus = isActive ? '' : status.value;
+                            }),
+                          );
+                        }).toList(),
+                      );
+                    },
+                  ),
+
+                  // Copy Availability Status
+                  if (_copyId != null) ...[
+                    const SizedBox(height: 16),
+                    _buildLabel(
+                      TranslationService.translate(context, 'availability_label') ?? 'Availability',
+                      helperText: TranslationService.translate(context, 'availability_helper'),
+                      icon: Icons.inventory_2_outlined,
                     ),
-                    DropdownMenuItem(
-                      value: 'loaned',
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.call_made,
-                            size: 20,
-                            color: Colors.orange,
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            TranslationService.translate(
-                                  context,
-                                  'availability_loaned',
-                                ) ??
-                                'Lent',
-                          ),
-                        ],
-                      ),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        _buildStatusChip(
+                          label: TranslationService.translate(context, 'availability_available') ?? 'Available',
+                          icon: Icons.check_circle,
+                          color: Colors.green,
+                          isActive: _copyStatus == 'available',
+                          onTap: () => setState(() => _copyStatus = 'available'),
+                        ),
+                        _buildStatusChip(
+                          label: TranslationService.translate(context, 'availability_loaned') ?? 'Lent',
+                          icon: Icons.call_made,
+                          color: Colors.orange,
+                          isActive: _copyStatus == 'loaned',
+                          onTap: () => setState(() => _copyStatus = 'loaned'),
+                        ),
+                        _buildStatusChip(
+                          label: TranslationService.translate(context, 'availability_borrowed') ?? 'Borrowed',
+                          icon: Icons.call_received,
+                          color: Colors.purple,
+                          isActive: _copyStatus == 'borrowed',
+                          onTap: () => setState(() => _copyStatus = 'borrowed'),
+                        ),
+                        _buildStatusChip(
+                          label: TranslationService.translate(context, 'availability_lost') ?? 'Lost',
+                          icon: Icons.help_outline,
+                          color: Colors.red,
+                          isActive: _copyStatus == 'lost',
+                          onTap: () => setState(() => _copyStatus = 'lost'),
+                        ),
+                      ],
                     ),
-                    DropdownMenuItem(
-                      value: 'borrowed',
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.call_received,
-                            size: 20,
-                            color: Colors.purple,
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            TranslationService.translate(
-                                  context,
-                                  'availability_borrowed',
-                                ) ??
-                                'Borrowed',
-                          ),
-                        ],
-                      ),
+                  ],
+
+                  // Reading Dates (Conditional)
+                  if (_readingStatus != 'to_read' && _readingStatus != 'wanting' && _readingStatus.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    _buildLabel(
+                      TranslationService.translate(context, 'started_reading_label'),
+                      helperText: TranslationService.translate(context, 'started_reading_helper'),
+                      icon: Icons.play_arrow_outlined,
                     ),
-                    DropdownMenuItem(
-                      value: 'lost',
-                      child: Row(
-                        children: [
-                          Icon(Icons.help_outline, size: 20, color: Colors.red),
-                          const SizedBox(width: 12),
-                          Text(
-                            TranslationService.translate(
-                                  context,
-                                  'availability_lost',
-                                ) ??
-                                'Lost',
+                    GestureDetector(
+                      onTap: () => _selectDate(context, _startedDateController),
+                      child: AbsorbPointer(
+                        child: TextFormField(
+                          controller: TextEditingController(
+                            text: _formatDateForDisplay(_startedDateController.text),
                           ),
-                        ],
+                          decoration: _buildInputDecoration(
+                            hint: TranslationService.translate(context, 'select_date'),
+                            suffixIcon: const Icon(Icons.calendar_today),
+                          ),
+                          readOnly: true,
+                        ),
                       ),
                     ),
                   ],
-                  onChanged: (value) {
-                    setState(() {
-                      _copyStatus = value!;
-                    });
-                  },
-                ),
-                const SizedBox(height: 24),
-              ],
 
-              // Reading Dates (Conditional)
-              if (_readingStatus != 'to_read' &&
-                  _readingStatus != 'wanting') ...[
-                _buildLabel(
-                  TranslationService.translate(
-                    context,
-                    'started_reading_label',
-                  ),
-                  helperText: TranslationService.translate(context, 'started_reading_helper'),
-                ),
-                GestureDetector(
-                  onTap: () => _selectDate(context, _startedDateController),
-                  child: AbsorbPointer(
-                    child: TextFormField(
-                      controller: TextEditingController(
-                        text: _formatDateForDisplay(
-                          _startedDateController.text,
-                        ),
-                      ),
-                      decoration: _buildInputDecoration(
-                        hint: TranslationService.translate(
-                          context,
-                          'select_date',
-                        ),
-                        suffixIcon: const Icon(Icons.calendar_today),
-                      ),
-                      readOnly: true,
+                  if (_readingStatus == 'read') ...[
+                    const SizedBox(height: 16),
+                    _buildLabel(
+                      TranslationService.translate(context, 'finished_reading_label'),
+                      helperText: TranslationService.translate(context, 'finished_reading_helper'),
+                      icon: Icons.check_circle_outline,
                     ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-              ],
-
-              if (_readingStatus == 'read') ...[
-                _buildLabel(
-                  TranslationService.translate(
-                    context,
-                    'finished_reading_label',
-                  ),
-                  helperText: TranslationService.translate(context, 'finished_reading_helper'),
-                ),
-                GestureDetector(
-                  onTap: () => _selectDate(context, _finishedDateController),
-                  child: AbsorbPointer(
-                    child: TextFormField(
-                      controller: TextEditingController(
-                        text: _formatDateForDisplay(
-                          _finishedDateController.text,
+                    GestureDetector(
+                      onTap: () => _selectDate(context, _finishedDateController),
+                      child: AbsorbPointer(
+                        child: TextFormField(
+                          controller: TextEditingController(
+                            text: _formatDateForDisplay(_finishedDateController.text),
+                          ),
+                          decoration: _buildInputDecoration(
+                            hint: TranslationService.translate(context, 'select_date'),
+                            suffixIcon: const Icon(Icons.calendar_today),
+                          ),
+                          readOnly: true,
                         ),
                       ),
-                      decoration: _buildInputDecoration(
-                        hint: TranslationService.translate(
-                          context,
-                          'select_date',
-                        ),
-                        suffixIcon: const Icon(Icons.calendar_today),
-                      ),
-                      readOnly: true,
                     ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-              ],
-
-              // Tags
-              HierarchicalTagSelector(
-                selectedTags: _selectedTags,
-                onTagsChanged: (tags) {
-                  setState(() {
-                    _selectedTags = tags;
-                    _hasChanges = true;
-                  });
-                },
+                  ],
+                ],
               ),
-              const SizedBox(height: 24),
 
-              // Collections
-              CollectionSelector(
-                selectedCollections: _selectedCollections,
-                onChanged: (collections) {
-                  setState(() {
-                    _selectedCollections = collections;
-                    _hasChanges = true;
-                  });
-                },
-              ),
-              Consumer<ThemeProvider>(
-                builder: (context, theme, _) {
-                  if (!theme.allowPrivateBooks)
-                    return const SizedBox.shrink();
-                  return CheckboxListTile(
-                    title: Text(
-                      TranslationService.translate(context, 'book_private'),
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                    subtitle: Text(
-                      TranslationService.translate(
-                          context, 'book_private_desc'),
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                    value: _private,
-                    onChanged: (value) {
-                      setState(() => _private = value ?? false);
+              // === Section 4: Organization ===
+              _buildSection(
+                children: [
+                  // Tags
+                  HierarchicalTagSelector(
+                    selectedTags: _selectedTags,
+                    onTagsChanged: (tags) {
+                      setState(() {
+                        _selectedTags = tags;
+                        _hasChanges = true;
+                      });
                     },
-                    controlAffinity: ListTileControlAffinity.leading,
-                    contentPadding: EdgeInsets.zero,
-                  );
-                },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Collections
+                  CollectionSelector(
+                    selectedCollections: _selectedCollections,
+                    onChanged: (collections) {
+                      setState(() {
+                        _selectedCollections = collections;
+                        _hasChanges = true;
+                      });
+                    },
+                  ),
+
+                  // Private toggle
+                  Consumer<ThemeProvider>(
+                    builder: (context, theme, _) {
+                      if (!theme.allowPrivateBooks) return const SizedBox.shrink();
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 16),
+                        child: _buildToggleTile(
+                          activeIcon: Icons.visibility_off_rounded,
+                          inactiveIcon: Icons.visibility_rounded,
+                          titleKey: 'book_private',
+                          subtitleKey: 'book_private_desc',
+                          value: _private,
+                          activeColor: Colors.amber.shade700,
+                          onChanged: (v) => setState(() => _private = v),
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
+
               const SizedBox(height: 32),
 
               // Delete Button
-              SizedBox(
-                height: 50,
-                child: OutlinedButton.icon(
+              Center(
+                child: TextButton.icon(
                   onPressed: _isSaving ? null : _deleteBook,
-                  icon: const Icon(Icons.delete, color: Colors.red),
+                  icon: Icon(
+                    Icons.delete_outline_rounded,
+                    size: 18,
+                    color: Theme.of(context).colorScheme.error.withValues(alpha: 0.7),
+                  ),
                   label: Text(
                     TranslationService.translate(context, 'delete_book_btn'),
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Colors.red),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error.withValues(alpha: 0.7),
+                      fontSize: 13,
                     ),
                   ),
                 ),
@@ -1536,22 +1399,17 @@ class _EditBookScreenState extends State<EditBookScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  hasCover
-                      ? TranslationService.translate(
-                              context, 'cover_found') ??
-                          'Cover found!'
-                      : TranslationService.translate(
-                              context, 'no_cover_available') ??
-                          'No cover',
-                  style: TextStyle(
-                    color: hasCover
-                        ? Colors.green.shade700
-                        : Colors.grey.shade600,
-                    fontWeight: FontWeight.w600,
+                if (!hasCover)
+                  Text(
+                    TranslationService.translate(
+                            context, 'no_cover_available') ??
+                        'No cover',
+                    style: TextStyle(
+                      color: Colors.grey.shade600,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 8),
+                if (!hasCover) const SizedBox(height: 8),
                 Row(
                   children: [
                     if (CoverCameraHelper.isCameraAvailable)
@@ -1581,39 +1439,211 @@ class _EditBookScreenState extends State<EditBookScreen> {
     );
   }
 
-  Widget _buildLabel(String label, {String? helperText}) {
+  Widget _buildLabel(String label, {String? helperText, IconData? icon}) {
+    final accentColor = Theme.of(context).colorScheme.primary;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: Column(
+      padding: const EdgeInsets.only(top: 5, bottom: 8.0),
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-              color: Theme.of(context).textTheme.bodyLarge?.color,
+          if (icon != null) ...[
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Icon(icon, size: 20, color: accentColor.withValues(alpha: 0.5)),
+            ),
+            const SizedBox(width: 6),
+          ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Color.lerp(accentColor, Colors.black, 0.25),
+                  ),
+                ),
+                if (helperText != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    helperText,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.color
+                          ?.withValues(alpha: 0.85),
+                    ),
+                  ),
+                ],
+              ],
             ),
           ),
-          if (helperText != null) ...[
-            const SizedBox(height: 2),
-            Text(
-              helperText,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7),
-              ),
-            ),
-          ],
         ],
       ),
     );
   }
 
-  InputDecoration _buildInputDecoration({String? hint, Widget? suffixIcon}) {
-    final borderColor = Theme.of(context).colorScheme.outline;
+  Widget _buildSection({required List<Widget> children}) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Theme.of(context).dividerColor.withValues(alpha: 0.4),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: children,
+      ),
+    );
+  }
+
+  Widget _buildStatusChip({
+    required String label,
+    required IconData icon,
+    required Color color,
+    required bool isActive,
+    required VoidCallback onTap,
+  }) {
+    final theme = Theme.of(context);
+    return Semantics(
+      button: true,
+      selected: isActive,
+      label: label,
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: isActive
+                ? color.withValues(alpha: 0.12)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: isActive ? color : theme.dividerColor,
+              width: isActive ? 1.5 : 1.0,
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                size: 18,
+                color: isActive
+                    ? color
+                    : theme.colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: TextStyle(
+                  color: isActive
+                      ? color
+                      : theme.colorScheme.onSurface,
+                  fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
+                  fontSize: 13,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildToggleTile({
+    required IconData activeIcon,
+    required IconData inactiveIcon,
+    required String titleKey,
+    required String subtitleKey,
+    required bool value,
+    required Color activeColor,
+    required ValueChanged<bool> onChanged,
+  }) {
+    final theme = Theme.of(context);
+    return Semantics(
+      toggled: value,
+      label: TranslationService.translate(context, titleKey),
+      child: GestureDetector(
+      onTap: () => onChanged(!value),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: value
+              ? activeColor.withValues(alpha: 0.08)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: value
+                ? activeColor.withValues(alpha: 0.4)
+                : theme.dividerColor,
+          ),
+        ),
+        child: Row(
+          children: [
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              child: Icon(
+                value ? activeIcon : inactiveIcon,
+                key: ValueKey(value),
+                color: value
+                    ? activeColor
+                    : theme.colorScheme.onSurfaceVariant,
+                size: 22,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    TranslationService.translate(context, titleKey),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Text(
+                    TranslationService.translate(context, subtitleKey),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.textTheme.bodySmall?.color
+                          ?.withValues(alpha: 0.7),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Switch.adaptive(
+              value: value,
+              onChanged: onChanged,
+              activeTrackColor: activeColor.withValues(alpha: 0.5),
+              activeThumbColor: activeColor,
+            ),
+          ],
+        ),
+      ),
+      ),
+    );
+  }
+
+  InputDecoration _buildInputDecoration({String? hint, Widget? suffixIcon, String? fieldKey}) {
+    final isHighlighted = fieldKey != null && _highlightedFields.contains(fieldKey);
+    final borderColor = isHighlighted ? Colors.green : Theme.of(context).colorScheme.outline;
     return InputDecoration(
       hintText: hint,
-      suffixIcon: suffixIcon,
+      hintStyle: TextStyle(color: Colors.grey.shade600),
+      suffixIcon: isHighlighted
+          ? const Icon(Icons.check_circle_outline, color: Colors.green, size: 20)
+          : suffixIcon,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
@@ -1621,7 +1651,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: borderColor),
+        borderSide: BorderSide(color: borderColor, width: isHighlighted ? 1.5 : 1.0),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),

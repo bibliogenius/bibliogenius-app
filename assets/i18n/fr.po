@@ -437,9 +437,17 @@ msgstr "Découvrez des livres audio gratuits sur LibriVox & autres"
 msgid "author_hint"
 msgstr "Nom de l'auteur"
 
+#. Author - when authors already added
+msgid "author_hint_add"
+msgstr "Ajouter un auteur..."
+
 #. Author
 msgid "author_label"
 msgstr "Auteur"
+
+#. Helper text for author field
+msgid "author_helper"
+msgstr "Ajoutez plusieurs auteurs un par un"
 
 #. Available
 msgid "availability_available"
@@ -4728,6 +4736,9 @@ msgstr "Ma Note"
 msgid "page_count_label"
 msgstr "Pages"
 
+msgid "page_count_hint"
+msgstr "Nombre de pages"
+
 #. Read
 msgid "read_status"
 msgstr "Lu"
@@ -5114,6 +5125,22 @@ msgstr "Niveau racine (sans parent)"
 
 msgid "root_tag"
 msgstr "Racine (sans parent)"
+
+#. Shelf Picker
+msgid "search_shelves_hint"
+msgstr "Rechercher une etagere..."
+
+#. Shelf Picker
+msgid "shelves_selected"
+msgstr "selectionnee(s)"
+
+#. Shelf Picker - Empty state
+msgid "no_shelves_yet"
+msgstr "Aucune etagere pour le moment"
+
+#. Shelf Picker - Search empty
+msgid "no_shelves_match"
+msgstr "Aucune etagere trouvee"
 
 msgid "sale_date"
 msgstr "Date de vente"

@@ -107,23 +107,40 @@ class _CollectionSelectorState extends State<CollectionSelector> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Label
-        Text(
-          TranslationService.translate(context, 'collections_label'),
-          style: Theme.of(context)
-              .textTheme
-              .bodyMedium
-              ?.copyWith(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          TranslationService.translate(context, 'collections_helper'),
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context)
-                    .textTheme
-                    .bodySmall
-                    ?.color
-                    ?.withValues(alpha: 0.7),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 2),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Icon(Icons.folder_outlined, size: 20, color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5)),
               ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      TranslationService.translate(context, 'collections_label'),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Color.lerp(Theme.of(context).colorScheme.primary, Colors.black, 0.25),
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      TranslationService.translate(context, 'collections_helper'),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.85),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
         const SizedBox(height: 8),
 

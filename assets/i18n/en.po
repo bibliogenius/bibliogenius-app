@@ -437,9 +437,17 @@ msgstr "Discover free audiobooks from LibriVox & others"
 msgid "author_hint"
 msgstr "Author name"
 
+#. Author - when authors already added
+msgid "author_hint_add"
+msgstr "Add another author..."
+
 #. Author
 msgid "author_label"
 msgstr "Author"
+
+#. Helper text for author field
+msgid "author_helper"
+msgstr "Add multiple authors one at a time"
 
 #. Available
 msgid "availability_available"
@@ -4728,6 +4736,9 @@ msgstr "My Rating"
 msgid "page_count_label"
 msgstr "Pages"
 
+msgid "page_count_hint"
+msgstr "Number of pages"
+
 #. Read
 msgid "read_status"
 msgstr "Read"
@@ -5114,6 +5125,22 @@ msgstr "Root Level (No Parent)"
 
 msgid "root_tag"
 msgstr "Root (no parent)"
+
+#. Shelf Picker
+msgid "search_shelves_hint"
+msgstr "Search shelves..."
+
+#. Shelf Picker
+msgid "shelves_selected"
+msgstr "selected"
+
+#. Shelf Picker - Empty state
+msgid "no_shelves_yet"
+msgstr "No shelves yet"
+
+#. Shelf Picker - Search empty
+msgid "no_shelves_match"
+msgstr "No matching shelves"
 
 msgid "sale_date"
 msgstr "Sale Date"
