@@ -126,7 +126,7 @@ jobs:
           ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
         run: |
           flutter build apk --release
-          BUILD_NUMBER=$((${{ github.run_number }} + 200))
+          BUILD_NUMBER=$((${{ github.run_number }} + 500))
           flutter build appbundle --release --build-number=$BUILD_NUMBER
           cp build/app/outputs/flutter-apk/app-release.apk BiblioGenius-Android.apk
 
@@ -285,7 +285,7 @@ jobs:
           echo "Using CFBundleShortVersionString: $BASE_VERSION"
           
           # Build number must be higher than previously uploaded version
-          BUILD_NUMBER=$((${{ github.run_number }} + 200))
+          BUILD_NUMBER=$((${{ github.run_number }} + 500))
           echo "Using CFBundleVersion (build number): $BUILD_NUMBER"
 
           # Build the app with Apple Distribution signing (for TestFlight/App Store)
@@ -705,7 +705,7 @@ jobs:
           echo "Using CFBundleShortVersionString: $BASE_VERSION"
           
           # Build number must be higher than previously uploaded version
-          BUILD_NUMBER=$((${{ github.run_number }} + 200))
+          BUILD_NUMBER=$((${{ github.run_number }} + 500))
           echo "Using CFBundleVersion (build number): $BUILD_NUMBER"
 
           # Build IPA
