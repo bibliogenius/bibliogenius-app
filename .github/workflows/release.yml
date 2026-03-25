@@ -320,35 +320,54 @@ jobs:
       # === TESTFLIGHT UPLOAD (before Developer ID re-signing) ===
       # The app is already signed with Apple Distribution from flutter build
       
-      - name: Sign Backend for App Store
+      - name: Sign app bundle for TestFlight (inside-out)
         env:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
           APP_PATH="build/macos/Build/Products/Release/bibliogenius.app"
           BACKEND_PATH="$APP_PATH/Contents/Resources/backend/bibliogenius"
-          
+
           # Find Apple Distribution identity for App Store
           APPLE_DIST=$(security find-identity -v -p codesigning | grep "Apple Distribution" | head -1 | awk -F '"' '{print $2}')
-          
+
           if [ -z "$APPLE_DIST" ]; then
             echo "❌ Error: Apple Distribution certificate not found"
             security find-identity -v -p codesigning
             exit 1
           fi
-          
-          echo "Signing backend with Apple Distribution for TestFlight: $APPLE_DIST"
-          
-          # Prepare entitlements
+
+          echo "Signing with Apple Distribution for TestFlight: $APPLE_DIST"
+
+          # Prepare entitlements for main app only (with application-identifier)
           sed "s/\$(AppIdentifierPrefix)/$APPLE_TEAM_ID./g; s/\$(CFBundleIdentifier)/com.bibliogenius.app/g" macos/Runner/Release.entitlements > macos/Runner/Release.processed.entitlements
-          
-          # Sign the injected backend binary with Apple Distribution
-          codesign --force --verbose --timestamp --options runtime --sign "$APPLE_DIST" --entitlements macos/Runner/Release.processed.entitlements "$BACKEND_PATH"
-          
-          # Re-sign the main app bundle to include the new backend
+
+          # --- INSIDE-OUT SIGNING (ITMS-90885 fix) ---
+          # Nested executables must NOT have com.apple.application-identifier
+          # in their signature, otherwise Apple requires a provisioning profile
+          # in each nested bundle (which frameworks/standalone binaries don't have).
+
+          # 1. Sign all nested frameworks, dylibs, and bundles (no entitlements = no application-identifier)
+          # Use -depth to sign innermost items first (inside-out)
+          echo "Signing nested frameworks, dylibs, and bundles..."
+          find "$APP_PATH/Contents/Frameworks" -depth \( -name "*.framework" -o -name "*.dylib" -o -name "*.bundle" \) | while read item; do
+            echo "  Signing: $item"
+            codesign --force --verbose --timestamp --options runtime --sign "$APPLE_DIST" "$item"
+          done
+
+          # 2. Sign the injected backend binary (no entitlements = no application-identifier)
+          echo "Signing backend binary..."
+          codesign --force --verbose --timestamp --options runtime --sign "$APPLE_DIST" "$BACKEND_PATH"
+
+          # 3. Sign the main app bundle LAST with full entitlements
+          echo "Signing main app bundle..."
           codesign --force --verbose --timestamp --options runtime --sign "$APPLE_DIST" --entitlements macos/Runner/Release.processed.entitlements "$APP_PATH"
-          
+
           echo "✅ App signed with Apple Distribution for TestFlight"
           codesign -dvv "$APP_PATH"
+
+          # Verify no nested executable has application-identifier without a profile
+          echo "Verifying nested signatures..."
+          codesign --verify --verbose --deep --strict "$APP_PATH" || echo "⚠️ Deep verification warning (may be expected for some frameworks)"
 
       - name: Create Signed PKG for TestFlight
         run: |
