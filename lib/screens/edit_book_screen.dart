@@ -738,466 +738,459 @@ class _EditBookScreenState extends State<EditBookScreen> {
             children: [
               const SizedBox(height: 8),
 
-              // === Section 1: Identity ===
-              _buildSection(
-                children: [
-                  // Title
-                  _buildLabel(TranslationService.translate(context, 'title_label'), icon: Icons.auto_stories),
-                  TextFormField(
-                    controller: _titleController,
-                    focusNode: _titleFocusNode,
-                    textInputAction: TextInputAction.next,
-                    decoration: _buildInputDecoration(
-                      hint: TranslationService.translate(context, 'enter_book_title'),
-                      fieldKey: 'title',
-                    ),
-                    validator: (value) => value == null || value.isEmpty
-                        ? TranslationService.translate(context, 'enter_title_error')
-                        : null,
-                  ),
+              // Title
+              _buildLabel(TranslationService.translate(context, 'title_label'), icon: Icons.auto_stories),
+              TextFormField(
+                controller: _titleController,
+                focusNode: _titleFocusNode,
+                textInputAction: TextInputAction.next,
+                decoration: _buildInputDecoration(
+                  hint: TranslationService.translate(context, 'enter_book_title'),
+                  fieldKey: 'title',
+                ),
+                validator: (value) => value == null || value.isEmpty
+                    ? TranslationService.translate(context, 'enter_title_error')
+                    : null,
+              ),
+              _buildSectionDivider(),
 
-                  // Author
-                  _buildLabel(
-                    TranslationService.translate(context, 'author_label') ?? 'Author',
-                    helperText: TranslationService.translate(context, 'author_helper'),
-                    icon: Icons.person_outline,
-                  ),
-                  Autocomplete<String>(
-                    optionsBuilder: (TextEditingValue textEditingValue) {
-                      if (textEditingValue.text.isEmpty) {
-                        return const Iterable<String>.empty();
-                      }
-                      return _allAuthors.where((String option) {
-                        return option.toLowerCase().contains(
-                          textEditingValue.text.toLowerCase(),
-                        );
-                      });
-                    },
-                    fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
-                      _authorAutocompleteController = textEditingController;
-                      return TextFormField(
-                        controller: textEditingController,
-                        focusNode: focusNode,
-                        decoration: _buildInputDecoration(
-                          hint: _authors.isNotEmpty
-                              ? TranslationService.translate(context, 'author_hint_add') ?? 'Add another author...'
-                              : TranslationService.translate(context, 'enter_author') ?? 'Enter author name',
-                          suffixIcon: IconButton(
-                            icon: const Icon(Icons.add),
-                            onPressed: () {
-                              if (textEditingController.text.trim().isNotEmpty) {
-                                setState(() {
-                                  final val = textEditingController.text.trim();
-                                  if (!_authors.contains(val)) {
-                                    _authors.add(val);
-                                  }
-                                  textEditingController.clear();
-                                });
-                              }
-                            },
-                          ),
-                        ),
-                        onFieldSubmitted: (String value) {
-                          final trimmed = value.trim();
-                          if (trimmed.isNotEmpty) {
+              // Author
+              _buildLabel(
+                TranslationService.translate(context, 'author_label') ?? 'Author',
+                helperText: TranslationService.translate(context, 'author_helper'),
+                icon: Icons.person_outline,
+              ),
+              Autocomplete<String>(
+                optionsBuilder: (TextEditingValue textEditingValue) {
+                  if (textEditingValue.text.isEmpty) {
+                    return const Iterable<String>.empty();
+                  }
+                  return _allAuthors.where((String option) {
+                    return option.toLowerCase().contains(
+                      textEditingValue.text.toLowerCase(),
+                    );
+                  });
+                },
+                fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
+                  _authorAutocompleteController = textEditingController;
+                  return TextFormField(
+                    controller: textEditingController,
+                    focusNode: focusNode,
+                    decoration: _buildInputDecoration(
+                      hint: _authors.isNotEmpty
+                          ? TranslationService.translate(context, 'author_hint_add') ?? 'Add another author...'
+                          : TranslationService.translate(context, 'enter_author') ?? 'Enter author name',
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.add),
+                        onPressed: () {
+                          if (textEditingController.text.trim().isNotEmpty) {
                             setState(() {
-                              if (!_authors.contains(trimmed)) {
-                                _authors.add(trimmed);
+                              final val = textEditingController.text.trim();
+                              if (!_authors.contains(val)) {
+                                _authors.add(val);
                               }
                               textEditingController.clear();
                             });
-                            focusNode.requestFocus();
                           }
                         },
-                      );
-                    },
-                  ),
-                  if (_authors.isNotEmpty)
-                    Padding(
-                      key: const ValueKey('_attached_author_chips'),
-                      padding: const EdgeInsets.only(top: 10),
-                      child: Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: _authors.map((author) {
-                        return Chip(
-                          label: Text(author),
-                          deleteIcon: const Icon(Icons.close, size: 18),
-                          onDeleted: () {
-                            setState(() {
-                              _authors.remove(author);
-                              _authorController.text = _authors.join(', ');
-                            });
-                          },
-                        );
-                      }).toList(),
-                    ),
-                    ),
-
-                  // ISBN
-                  _buildLabel(TranslationService.translate(context, 'isbn_label'), icon: Icons.qr_code),
-                  TextFormField(
-                    controller: _isbnController,
-                    textInputAction: TextInputAction.next,
-                    style: const TextStyle(
-                      fontFamily: 'monospace',
-                      letterSpacing: 2.0,
-                    ),
-                    decoration: _buildInputDecoration(
-                      hint: TranslationService.translate(context, 'enter_isbn'),
-                      suffixIcon: _isFetchingDetails
-                          ? const Padding(
-                              padding: EdgeInsets.all(12.0),
-                              child: SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(strokeWidth: 2),
-                              ),
-                            )
-                          : null,
-                    ),
-                  ),
-
-                  // Cover
-                  _buildCoverSection(),
-                ],
-              ),
-
-              // === Section 2: Publication Details ===
-              _buildSection(
-                bottomPadding: 0,
-                children: [
-                  // Publisher & Year
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _buildLabel(TranslationService.translate(context, 'publisher_label'), icon: Icons.business),
-                            TextFormField(
-                              controller: _publisherController,
-                              textInputAction: TextInputAction.next,
-                              decoration: _buildInputDecoration(
-                                hint: TranslationService.translate(context, 'publisher_hint'),
-                                fieldKey: 'publisher',
-                              ),
-                            ),
-                          ],
-                        ),
                       ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _buildLabel(TranslationService.translate(context, 'year_label'), icon: Icons.calendar_today),
-                            TextFormField(
-                              controller: _yearController,
-                              textInputAction: TextInputAction.next,
-                              decoration: _buildInputDecoration(
-                                hint: TranslationService.translate(context, 'year_hint'),
-                                fieldKey: 'year',
-                              ),
-                              keyboardType: TextInputType.number,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  // Summary
-                  _buildLabel(TranslationService.translate(context, 'summary_label'), icon: Icons.notes),
-                  TextFormField(
-                    controller: _summaryController,
-                    decoration: _buildInputDecoration(
-                      hint: TranslationService.translate(context, 'summary_hint'),
-                    fieldKey: 'summary',
                     ),
-                    maxLines: 4,
-                  ),
-
-                  // Page count
-                  _buildLabel(TranslationService.translate(context, 'page_count_label'), icon: Icons.menu_book_outlined),
-                  TextFormField(
-                    controller: _pageCountController,
-                    textInputAction: TextInputAction.done,
-                    decoration: _buildInputDecoration(
-                      hint: TranslationService.translate(context, 'page_count_hint'),
-                      fieldKey: 'pageCount',
-                    ),
-                    keyboardType: TextInputType.number,
-                  ),
-
-                  // Price field (Bookseller profile only)
-                  Consumer<ThemeProvider>(
-                    builder: (context, themeProvider, child) {
-                      if (!themeProvider.hasCommerce) return const SizedBox.shrink();
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                                  _buildLabel(
-                            TranslationService.translate(context, 'price_label') ?? 'Price (EUR)',
-                            icon: Icons.sell_outlined,
-                          ),
-                          TextFormField(
-                            controller: _priceController,
-                            decoration: _buildInputDecoration(hint: '0.00')
-                                .copyWith(suffixText: themeProvider.currency),
-                            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                ],
-              ),
-
-              // === Section 3: Status & Ownership ===
-              _buildSection(
-                spacing: 28,
-                bottomPadding: 10,
-                children: [
-                  // Ownership toggle
-                  _buildToggleTile(
-                    activeIcon: Icons.library_books_rounded,
-                    inactiveIcon: Icons.bookmark_add_outlined,
-                    titleKey: 'own_this_book',
-                    subtitleKey: 'own_this_book_hint',
-                    value: _owned,
-                    activeColor: Theme.of(context).colorScheme.primary,
-                    onChanged: (v) => setState(() => _owned = v),
-                  ),
-
-                  // Formats Selection (attached: no extra spacing when hidden)
-                  KeyedSubtree(
-                    key: const ValueKey('_attached_formats'),
-                    child: Consumer<ThemeProvider>(
-                    builder: (context, theme, _) {
-                      if (!theme.digitalFormatsEnabled) return const SizedBox.shrink();
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                                  _buildLabel(
-                            TranslationService.translate(context, 'digital_formats_label') ?? 'Formats',
-                            helperText: TranslationService.translate(context, 'digital_formats_helper'),
-                            icon: Icons.layers_outlined,
-                          ),
-                          Wrap(
-                            spacing: 12,
-                            runSpacing: 12,
-                            children: [
-                              FilterChip(
-                                label: Text(TranslationService.translate(context, 'format_paper') ?? 'Paper'),
-                                selected: _selectedDigitalFormats.contains('paper'),
-                                onSelected: (bool selected) {
-                                  setState(() {
-                                    if (selected) { _selectedDigitalFormats.add('paper'); }
-                                    else { _selectedDigitalFormats.remove('paper'); }
-                                  });
-                                },
-                                avatar: const Icon(Icons.menu_book, size: 18),
-                              ),
-                              FilterChip(
-                                label: Text(TranslationService.translate(context, 'format_ebook') ?? 'Ebook'),
-                                selected: _selectedDigitalFormats.contains('ebook'),
-                                onSelected: (bool selected) {
-                                  setState(() {
-                                    if (selected) { _selectedDigitalFormats.add('ebook'); }
-                                    else { _selectedDigitalFormats.remove('ebook'); }
-                                  });
-                                },
-                                avatar: const Icon(Icons.tablet_mac, size: 18),
-                              ),
-                              FilterChip(
-                                label: Text(TranslationService.translate(context, 'format_audiobook') ?? 'Audiobook'),
-                                selected: _selectedDigitalFormats.contains('audiobook'),
-                                onSelected: (bool selected) {
-                                  setState(() {
-                                    if (selected) { _selectedDigitalFormats.add('audiobook'); }
-                                    else { _selectedDigitalFormats.remove('audiobook'); }
-                                  });
-                                },
-                                avatar: const Icon(Icons.headset, size: 18),
-                              ),
-                            ],
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                  ),
-
-                  // Status
-                  _buildLabel(
-                    TranslationService.translate(context, 'status_label'),
-                    helperText: TranslationService.translate(context, 'status_helper'),
-                    icon: Icons.flag_outlined,
-                  ),
-                  Builder(
-                    builder: (context) {
-                      final themeProvider = Provider.of<ThemeProvider>(context);
-                      final isLibrarian = themeProvider.isLibrarian;
-                      final statusOptions = getStatusOptions(context, isLibrarian);
-
-                      if (!statusOptions.any((s) => s.value == _readingStatus)) {
-                        statusOptions.add(
-                          BookStatus(
-                            value: _readingStatus,
-                            label: _readingStatus,
-                            icon: Icons.help_outline,
-                            color: Colors.grey,
-                          ),
-                        );
+                    onFieldSubmitted: (String value) {
+                      final trimmed = value.trim();
+                      if (trimmed.isNotEmpty) {
+                        setState(() {
+                          if (!_authors.contains(trimmed)) {
+                            _authors.add(trimmed);
+                          }
+                          textEditingController.clear();
+                        });
+                        focusNode.requestFocus();
                       }
-
-                      return Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: statusOptions
-                            .where((s) => s.value.isNotEmpty)
-                            .map((status) {
-                          final isActive = status.value == _readingStatus;
-                          return _buildStatusChip(
-                            label: status.label,
-                            icon: status.icon,
-                            color: status.color,
-                            isActive: isActive,
-                            onTap: () => setState(() {
-                              _readingStatus = isActive ? '' : status.value;
-                            }),
-                          );
-                        }).toList(),
-                      );
                     },
+                  );
+                },
+              ),
+              if (_authors.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: _authors.map((author) {
+                      return Chip(
+                        label: Text(author),
+                        deleteIcon: const Icon(Icons.close, size: 18),
+                        onDeleted: () {
+                          setState(() {
+                            _authors.remove(author);
+                            _authorController.text = _authors.join(', ');
+                          });
+                        },
+                      );
+                    }).toList(),
                   ),
+                ),
+              _buildSectionDivider(),
 
-                  // Copy Availability Status
-                  if (_copyId != null) ...[
-                      _buildLabel(
-                      TranslationService.translate(context, 'availability_label') ?? 'Availability',
-                      helperText: TranslationService.translate(context, 'availability_helper'),
-                      icon: Icons.inventory_2_outlined,
-                    ),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
+              // ISBN
+              _buildLabel(TranslationService.translate(context, 'isbn_label'), icon: Icons.qr_code),
+              TextFormField(
+                controller: _isbnController,
+                textInputAction: TextInputAction.next,
+                style: const TextStyle(
+                  fontFamily: 'monospace',
+                  letterSpacing: 2.0,
+                ),
+                decoration: _buildInputDecoration(
+                  hint: TranslationService.translate(context, 'enter_isbn'),
+                  suffixIcon: _isFetchingDetails
+                      ? const Padding(
+                          padding: EdgeInsets.all(12.0),
+                          child: SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        )
+                      : null,
+                ),
+              ),
+              _buildSectionDivider(),
+
+              // Cover
+              _buildCoverSection(),
+              _buildSectionDivider(),
+
+              // Publisher & Year
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildStatusChip(
-                          label: TranslationService.translate(context, 'availability_available') ?? 'Available',
-                          icon: Icons.check_circle,
-                          color: Colors.green,
-                          isActive: _copyStatus == 'available',
-                          onTap: () => setState(() => _copyStatus = 'available'),
-                        ),
-                        _buildStatusChip(
-                          label: TranslationService.translate(context, 'availability_loaned') ?? 'Lent',
-                          icon: Icons.call_made,
-                          color: Colors.orange,
-                          isActive: _copyStatus == 'loaned',
-                          onTap: () => setState(() => _copyStatus = 'loaned'),
-                        ),
-                        _buildStatusChip(
-                          label: TranslationService.translate(context, 'availability_borrowed') ?? 'Borrowed',
-                          icon: Icons.call_received,
-                          color: Colors.purple,
-                          isActive: _copyStatus == 'borrowed',
-                          onTap: () => setState(() => _copyStatus = 'borrowed'),
-                        ),
-                        _buildStatusChip(
-                          label: TranslationService.translate(context, 'availability_lost') ?? 'Lost',
-                          icon: Icons.help_outline,
-                          color: Colors.red,
-                          isActive: _copyStatus == 'lost',
-                          onTap: () => setState(() => _copyStatus = 'lost'),
+                        _buildLabel(TranslationService.translate(context, 'publisher_label'), icon: Icons.business),
+                        TextFormField(
+                          controller: _publisherController,
+                          textInputAction: TextInputAction.next,
+                          decoration: _buildInputDecoration(
+                            hint: TranslationService.translate(context, 'publisher_hint'),
+                            fieldKey: 'publisher',
+                          ),
                         ),
                       ],
                     ),
-                  ],
-
-                  // Reading Dates (Conditional)
-                  if (_readingStatus != 'to_read' && _readingStatus != 'wanting' && _readingStatus.isNotEmpty) ...[
-                      _buildLabel(
-                      TranslationService.translate(context, 'started_reading_label'),
-                      helperText: TranslationService.translate(context, 'started_reading_helper'),
-                      icon: Icons.play_arrow_outlined,
-                    ),
-                    GestureDetector(
-                      onTap: () => _selectDate(context, _startedDateController),
-                      child: AbsorbPointer(
-                        child: TextFormField(
-                          controller: TextEditingController(
-                            text: _formatDateForDisplay(_startedDateController.text),
-                          ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildLabel(TranslationService.translate(context, 'year_label'), icon: Icons.calendar_today),
+                        TextFormField(
+                          controller: _yearController,
+                          textInputAction: TextInputAction.next,
                           decoration: _buildInputDecoration(
-                            hint: TranslationService.translate(context, 'select_date'),
-                            suffixIcon: const Icon(Icons.calendar_today),
+                            hint: TranslationService.translate(context, 'year_hint'),
+                            fieldKey: 'year',
                           ),
-                          readOnly: true,
+                          keyboardType: TextInputType.number,
                         ),
-                      ),
+                      ],
                     ),
-                  ],
-
-                  if (_readingStatus == 'read') ...[
-                      _buildLabel(
-                      TranslationService.translate(context, 'finished_reading_label'),
-                      helperText: TranslationService.translate(context, 'finished_reading_helper'),
-                      icon: Icons.check_circle_outline,
-                    ),
-                    GestureDetector(
-                      onTap: () => _selectDate(context, _finishedDateController),
-                      child: AbsorbPointer(
-                        child: TextFormField(
-                          controller: TextEditingController(
-                            text: _formatDateForDisplay(_finishedDateController.text),
-                          ),
-                          decoration: _buildInputDecoration(
-                            hint: TranslationService.translate(context, 'select_date'),
-                            suffixIcon: const Icon(Icons.calendar_today),
-                          ),
-                          readOnly: true,
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ],
               ),
+              _buildSectionDivider(),
+
+              // Summary
+              _buildLabel(TranslationService.translate(context, 'summary_label'), icon: Icons.notes),
+              TextFormField(
+                controller: _summaryController,
+                decoration: _buildInputDecoration(
+                  hint: TranslationService.translate(context, 'summary_hint'),
+                  fieldKey: 'summary',
+                ),
+                maxLines: 4,
+              ),
+              _buildSectionDivider(),
+
+              // Page count
+              _buildLabel(TranslationService.translate(context, 'page_count_label'), icon: Icons.menu_book_outlined),
+              TextFormField(
+                controller: _pageCountController,
+                textInputAction: TextInputAction.done,
+                decoration: _buildInputDecoration(
+                  hint: TranslationService.translate(context, 'page_count_hint'),
+                  fieldKey: 'pageCount',
+                ),
+                keyboardType: TextInputType.number,
+              ),
+
+              // Price field (Bookseller profile only)
+              Consumer<ThemeProvider>(
+                builder: (context, themeProvider, child) {
+                  if (!themeProvider.hasCommerce) return const SizedBox.shrink();
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildSectionDivider(),
+                      _buildLabel(
+                        TranslationService.translate(context, 'price_label') ?? 'Price (EUR)',
+                        icon: Icons.sell_outlined,
+                      ),
+                      TextFormField(
+                        controller: _priceController,
+                        decoration: _buildInputDecoration(hint: '0.00')
+                            .copyWith(suffixText: themeProvider.currency),
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      ),
+                    ],
+                  );
+                },
+              ),
+              _buildSectionDivider(),
+
+              // Ownership toggle
+              _buildToggleTile(
+                activeIcon: Icons.library_books_rounded,
+                inactiveIcon: Icons.bookmark_add_outlined,
+                titleKey: 'own_this_book',
+                subtitleKey: 'own_this_book_hint',
+                value: _owned,
+                activeColor: Theme.of(context).colorScheme.primary,
+                onChanged: (v) => setState(() => _owned = v),
+              ),
+
+              // Formats Selection
+              Consumer<ThemeProvider>(
+                builder: (context, theme, _) {
+                  if (!theme.digitalFormatsEnabled) return const SizedBox.shrink();
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildSectionDivider(),
+                      _buildLabel(
+                        TranslationService.translate(context, 'digital_formats_label') ?? 'Formats',
+                        helperText: TranslationService.translate(context, 'digital_formats_helper'),
+                        icon: Icons.layers_outlined,
+                      ),
+                      Wrap(
+                        spacing: 12,
+                        runSpacing: 12,
+                        children: [
+                          FilterChip(
+                            label: Text(TranslationService.translate(context, 'format_paper') ?? 'Paper'),
+                            selected: _selectedDigitalFormats.contains('paper'),
+                            onSelected: (bool selected) {
+                              setState(() {
+                                if (selected) { _selectedDigitalFormats.add('paper'); }
+                                else { _selectedDigitalFormats.remove('paper'); }
+                              });
+                            },
+                            avatar: const Icon(Icons.menu_book, size: 18),
+                          ),
+                          FilterChip(
+                            label: Text(TranslationService.translate(context, 'format_ebook') ?? 'Ebook'),
+                            selected: _selectedDigitalFormats.contains('ebook'),
+                            onSelected: (bool selected) {
+                              setState(() {
+                                if (selected) { _selectedDigitalFormats.add('ebook'); }
+                                else { _selectedDigitalFormats.remove('ebook'); }
+                              });
+                            },
+                            avatar: const Icon(Icons.tablet_mac, size: 18),
+                          ),
+                          FilterChip(
+                            label: Text(TranslationService.translate(context, 'format_audiobook') ?? 'Audiobook'),
+                            selected: _selectedDigitalFormats.contains('audiobook'),
+                            onSelected: (bool selected) {
+                              setState(() {
+                                if (selected) { _selectedDigitalFormats.add('audiobook'); }
+                                else { _selectedDigitalFormats.remove('audiobook'); }
+                              });
+                            },
+                            avatar: const Icon(Icons.headset, size: 18),
+                          ),
+                        ],
+                      ),
+                    ],
+                  );
+                },
+              ),
+              _buildSectionDivider(),
+
+              // Status
+              _buildLabel(
+                TranslationService.translate(context, 'status_label'),
+                helperText: TranslationService.translate(context, 'status_helper'),
+                icon: Icons.flag_outlined,
+              ),
+              Builder(
+                builder: (context) {
+                  final themeProvider = Provider.of<ThemeProvider>(context);
+                  final isLibrarian = themeProvider.isLibrarian;
+                  final statusOptions = getStatusOptions(context, isLibrarian);
+
+                  if (!statusOptions.any((s) => s.value == _readingStatus)) {
+                    statusOptions.add(
+                      BookStatus(
+                        value: _readingStatus,
+                        label: _readingStatus,
+                        icon: Icons.help_outline,
+                        color: Colors.grey,
+                      ),
+                    );
+                  }
+
+                  return Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: statusOptions
+                        .where((s) => s.value.isNotEmpty)
+                        .map((status) {
+                      final isActive = status.value == _readingStatus;
+                      return _buildStatusChip(
+                        label: status.label,
+                        icon: status.icon,
+                        color: status.color,
+                        isActive: isActive,
+                        onTap: () => setState(() {
+                          _readingStatus = isActive ? '' : status.value;
+                        }),
+                      );
+                    }).toList(),
+                  );
+                },
+              ),
+
+              // Copy Availability Status
+              if (_copyId != null) ...[
+                _buildSectionDivider(),
+                _buildLabel(
+                  TranslationService.translate(context, 'availability_label') ?? 'Availability',
+                  helperText: TranslationService.translate(context, 'availability_helper'),
+                  icon: Icons.inventory_2_outlined,
+                ),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    _buildStatusChip(
+                      label: TranslationService.translate(context, 'availability_available') ?? 'Available',
+                      icon: Icons.check_circle,
+                      color: Colors.green,
+                      isActive: _copyStatus == 'available',
+                      onTap: () => setState(() => _copyStatus = 'available'),
+                    ),
+                    _buildStatusChip(
+                      label: TranslationService.translate(context, 'availability_loaned') ?? 'Lent',
+                      icon: Icons.call_made,
+                      color: Colors.orange,
+                      isActive: _copyStatus == 'loaned',
+                      onTap: () => setState(() => _copyStatus = 'loaned'),
+                    ),
+                    _buildStatusChip(
+                      label: TranslationService.translate(context, 'availability_borrowed') ?? 'Borrowed',
+                      icon: Icons.call_received,
+                      color: Colors.purple,
+                      isActive: _copyStatus == 'borrowed',
+                      onTap: () => setState(() => _copyStatus = 'borrowed'),
+                    ),
+                    _buildStatusChip(
+                      label: TranslationService.translate(context, 'availability_lost') ?? 'Lost',
+                      icon: Icons.help_outline,
+                      color: Colors.red,
+                      isActive: _copyStatus == 'lost',
+                      onTap: () => setState(() => _copyStatus = 'lost'),
+                    ),
+                  ],
+                ),
+              ],
+
+              // Reading Dates (Conditional)
+              if (_readingStatus != 'to_read' && _readingStatus != 'wanting' && _readingStatus.isNotEmpty) ...[
+                _buildSectionDivider(),
+                _buildLabel(
+                  TranslationService.translate(context, 'started_reading_label'),
+                  helperText: TranslationService.translate(context, 'started_reading_helper'),
+                  icon: Icons.play_arrow_outlined,
+                ),
+                GestureDetector(
+                  onTap: () => _selectDate(context, _startedDateController),
+                  child: AbsorbPointer(
+                    child: TextFormField(
+                      controller: TextEditingController(
+                        text: _formatDateForDisplay(_startedDateController.text),
+                      ),
+                      decoration: _buildInputDecoration(
+                        hint: TranslationService.translate(context, 'select_date'),
+                        suffixIcon: const Icon(Icons.calendar_today),
+                      ),
+                      readOnly: true,
+                    ),
+                  ),
+                ),
+              ],
+
+              if (_readingStatus == 'read') ...[
+                _buildSectionDivider(),
+                _buildLabel(
+                  TranslationService.translate(context, 'finished_reading_label'),
+                  helperText: TranslationService.translate(context, 'finished_reading_helper'),
+                  icon: Icons.check_circle_outline,
+                ),
+                GestureDetector(
+                  onTap: () => _selectDate(context, _finishedDateController),
+                  child: AbsorbPointer(
+                    child: TextFormField(
+                      controller: TextEditingController(
+                        text: _formatDateForDisplay(_finishedDateController.text),
+                      ),
+                      decoration: _buildInputDecoration(
+                        hint: TranslationService.translate(context, 'select_date'),
+                        suffixIcon: const Icon(Icons.calendar_today),
+                      ),
+                      readOnly: true,
+                    ),
+                  ),
+                ),
+              ],
 
               // === Section 4: Organization ===
-              _buildSection(
-                children: [
-                  // Tags
-                  HierarchicalTagSelector(
-                    selectedTags: _selectedTags,
-                    onTagsChanged: (tags) {
-                      setState(() {
-                        _selectedTags = tags;
-                        _hasChanges = true;
-                      });
-                    },
-                  ),
+              _buildSectionDivider(),
 
-                  // Collections
-                  CollectionSelector(
-                    selectedCollections: _selectedCollections,
-                    onChanged: (collections) {
-                      setState(() {
-                        _selectedCollections = collections;
-                        _hasChanges = true;
-                      });
-                    },
-                  ),
+              // Tags
+              HierarchicalTagSelector(
+                selectedTags: _selectedTags,
+                onTagsChanged: (tags) {
+                  setState(() {
+                    _selectedTags = tags;
+                    _hasChanges = true;
+                  });
+                },
+              ),
+              _buildSectionDivider(),
 
-                  // Private toggle
-                  Consumer<ThemeProvider>(
-                    builder: (context, theme, _) {
-                      if (!theme.allowPrivateBooks) return const SizedBox.shrink();
-                      return Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: _buildToggleTile(
+              // Collections
+              CollectionSelector(
+                selectedCollections: _selectedCollections,
+                onChanged: (collections) {
+                  setState(() {
+                    _selectedCollections = collections;
+                    _hasChanges = true;
+                  });
+                },
+              ),
+
+              // Private toggle
+              Consumer<ThemeProvider>(
+                builder: (context, theme, _) {
+                  if (!theme.allowPrivateBooks) return const SizedBox.shrink();
+                  return Column(
+                    children: [
+                      _buildSectionDivider(),
+                      _buildToggleTile(
                         activeIcon: Icons.visibility_off_rounded,
                         inactiveIcon: Icons.visibility_rounded,
                         titleKey: 'book_private',
@@ -1206,10 +1199,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
                         activeColor: Colors.amber.shade700,
                         onChanged: (v) => setState(() => _private = v),
                       ),
-                      );
-                    },
-                  ),
-                ],
+                    ],
+                  );
+                },
               ),
 
               const SizedBox(height: 32),
@@ -1519,50 +1511,16 @@ class _EditBookScreenState extends State<EditBookScreen> {
     );
   }
 
-  static const _fieldSpacing = SizedBox(height: 28);
   static const _labelKeyPrefix = '_formLabel_';
 
-  Widget _buildSection({required List<Widget> children, double spacing = 28, double bottomPadding = 10}) {
-    // Auto-insert spacing between children.
-    // Labels created by _buildLabel use a _labelKeyPrefix so we can identify them
-    // and keep them tight with the field that follows.
-    bool _isLabel(Widget w) =>
-        w.key is ValueKey<String> &&
-        (w.key as ValueKey<String>).value.startsWith(_labelKeyPrefix);
-    bool _isAttached(Widget w) =>
-        w.key is ValueKey<String> &&
-        (w.key as ValueKey<String>).value.startsWith('_attached');
-    final spaced = <Widget>[];
-    bool seenFirst = false;
-    for (final child in children) {
-      if (child is SizedBox) continue;
-      if (_isAttached(child)) {
-        // Attached widgets (e.g. author chips) stick to the previous field
-        spaced.add(child);
-        continue;
-      }
-      final isLabel = _isLabel(child);
-      // Spacing before each new group (label or standalone widget),
-      // except the very first child
-      if (seenFirst && (isLabel || (!isLabel && spaced.isNotEmpty && !_isLabel(spaced.last)))) {
-        spaced.add(SizedBox(height: spacing));
-      }
-      spaced.add(child);
-      seenFirst = true;
-    }
-    return Container(
-      margin: const EdgeInsets.only(bottom: 20),
-      padding: EdgeInsets.fromLTRB(16, 16, 16, bottomPadding),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).dividerColor.withValues(alpha: 0.4),
+  Widget _buildSectionDivider() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 14),
+      child: CustomPaint(
+        size: const Size(double.infinity, 1),
+        painter: _DottedLinePainter(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
         ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: spaced,
       ),
     );
   }
@@ -1727,5 +1685,30 @@ class _EditBookScreenState extends State<EditBookScreen> {
       fillColor: null, // Uses theme InputDecorationTheme
     );
   }
+}
+
+class _DottedLinePainter extends CustomPainter {
+  final Color color;
+
+  _DottedLinePainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 1
+      ..strokeCap = StrokeCap.round;
+
+    const dashWidth = 5.0;
+    const dashSpace = 5.0;
+    double x = 0;
+    while (x < size.width) {
+      canvas.drawLine(Offset(x, 0), Offset(x + dashWidth, 0), paint);
+      x += dashWidth + dashSpace;
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DottedLinePainter oldDelegate) => color != oldDelegate.color;
 }
 

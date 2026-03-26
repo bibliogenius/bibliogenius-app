@@ -1141,7 +1141,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 );
               },
             ),
-            const SizedBox(height: 24),
+            _buildSectionDivider(),
 
             // Author
             _buildLabel(
@@ -1212,23 +1212,25 @@ class _AddBookScreenState extends State<AddBookScreen> {
                     );
                   },
             ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: _authors.map((author) {
-                return Chip(
-                  label: Text(author),
-                  deleteIcon: const Icon(Icons.close, size: 18),
-                  onDeleted: () {
-                    setState(() {
-                      _authors.remove(author);
-                      _authorController.text = _authors.join(', ');
-                    });
-                  },
-                );
-              }).toList(),
-            ),
+            if (_authors.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: _authors.map((author) {
+                  return Chip(
+                    label: Text(author),
+                    deleteIcon: const Icon(Icons.close, size: 18),
+                    onDeleted: () {
+                      setState(() {
+                        _authors.remove(author);
+                        _authorController.text = _authors.join(', ');
+                      });
+                    },
+                  );
+                }).toList(),
+              ),
+            ],
             if (_authorsData != null &&
                 _authorsData!.isNotEmpty &&
                 (_authors.isNotEmpty ||
@@ -1310,9 +1312,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 );
               }),
             ],
-            const SizedBox(height: 24),
-
-            const SizedBox(height: 24),
+            _buildSectionDivider(),
 
             _buildLabel(TranslationService.translate(context, 'isbn_label'), icon: Icons.qr_code),
             TextFormField(
@@ -1364,10 +1364,11 @@ class _AddBookScreenState extends State<AddBookScreen> {
               ),
               keyboardType: TextInputType.number,
             ),
-            const SizedBox(height: 12),
-            if (_coverUrl != null || _titleController.text.isNotEmpty || _isbnController.text.isNotEmpty)
+            if (_coverUrl != null || _titleController.text.isNotEmpty || _isbnController.text.isNotEmpty) ...[
+              _buildSectionDivider(),
               _buildCoverPreview(),
-            const SizedBox(height: 12),
+            ],
+            _buildSectionDivider(),
 
             // Publisher & Year
             Row(
@@ -1419,7 +1420,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            _buildSectionDivider(),
 
             // Summary
             _buildLabel(TranslationService.translate(context, 'summary_label'), icon: Icons.notes),
@@ -1431,7 +1432,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
               ),
               maxLines: 4,
             ),
-            const SizedBox(height: 24),
+            _buildSectionDivider(),
 
             // Page count
             _buildLabel(TranslationService.translate(context, 'page_count_label'), icon: Icons.menu_book_outlined),
@@ -1443,8 +1444,6 @@ class _AddBookScreenState extends State<AddBookScreen> {
               ),
               keyboardType: TextInputType.number,
             ),
-            const SizedBox(height: 24),
-
             // Price field (Bookseller profile only)
             Consumer<ThemeProvider>(
               builder: (context, themeProvider, child) {
@@ -1453,6 +1452,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    _buildSectionDivider(),
                     _buildLabel(
                       TranslationService.translate(context, 'price_label'),
                       icon: Icons.sell_outlined,
@@ -1466,11 +1466,12 @@ class _AddBookScreenState extends State<AddBookScreen> {
                         decimal: true,
                       ),
                     ),
-                    const SizedBox(height: 24),
                   ],
                 );
               },
             ),
+
+            _buildSectionDivider(),
 
             // Ownership toggle
             _buildToggleTile(
@@ -1482,8 +1483,6 @@ class _AddBookScreenState extends State<AddBookScreen> {
               activeColor: Theme.of(context).colorScheme.primary,
               onChanged: (v) => setState(() => _isOwned = v),
             ),
-            const SizedBox(height: 16),
-
             // Formats Selection (Unified)
             Consumer<ThemeProvider>(
               builder: (context, theme, _) {
@@ -1594,6 +1593,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
               },
             ),
 
+            _buildSectionDivider(),
+
             _buildLabel(
               TranslationService.translate(context, 'status_label'),
               helperText: TranslationService.translate(context, 'status_helper'),
@@ -1631,7 +1632,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 );
               },
             ),
-            const SizedBox(height: 24),
+            _buildSectionDivider(),
 
             // Tags (shelves)
             HierarchicalTagSelector(
@@ -1643,7 +1644,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 });
               },
             ),
-            const SizedBox(height: 24),
+            _buildSectionDivider(),
 
             // Collections
             CollectionSelector(
@@ -1658,14 +1659,19 @@ class _AddBookScreenState extends State<AddBookScreen> {
               builder: (context, theme, _) {
                 if (!theme.allowPrivateBooks)
                   return const SizedBox.shrink();
-                return _buildToggleTile(
-                  activeIcon: Icons.visibility_off_rounded,
-                  inactiveIcon: Icons.visibility_rounded,
-                  titleKey: 'book_private',
-                  subtitleKey: 'book_private_desc',
-                  value: _private,
-                  activeColor: Colors.amber.shade700,
-                  onChanged: (v) => setState(() => _private = v),
+                return Column(
+                  children: [
+                    _buildSectionDivider(),
+                    _buildToggleTile(
+                      activeIcon: Icons.visibility_off_rounded,
+                      inactiveIcon: Icons.visibility_rounded,
+                      titleKey: 'book_private',
+                      subtitleKey: 'book_private_desc',
+                      value: _private,
+                      activeColor: Colors.amber.shade700,
+                      onChanged: (v) => setState(() => _private = v),
+                    ),
+                  ],
                 );
               },
             ),
@@ -1899,6 +1905,18 @@ class _AddBookScreenState extends State<AddBookScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSectionDivider() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 14),
+      child: CustomPaint(
+        size: const Size(double.infinity, 1),
+        painter: _DottedLinePainter(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
+        ),
       ),
     );
   }
@@ -2214,6 +2232,31 @@ class _AddBookScreenState extends State<AddBookScreen> {
 }
 
 /// Pulsing shimmer placeholder for cover preview during ISBN lookup.
+class _DottedLinePainter extends CustomPainter {
+  final Color color;
+
+  _DottedLinePainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 1
+      ..strokeCap = StrokeCap.round;
+
+    const dashWidth = 5.0;
+    const dashSpace = 5.0;
+    double x = 0;
+    while (x < size.width) {
+      canvas.drawLine(Offset(x, 0), Offset(x + dashWidth, 0), paint);
+      x += dashWidth + dashSpace;
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DottedLinePainter oldDelegate) => color != oldDelegate.color;
+}
+
 class _ShimmerBox extends StatelessWidget {
   const _ShimmerBox({super.key});
 
