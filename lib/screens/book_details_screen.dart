@@ -30,6 +30,7 @@ import '../widgets/book_note_tile.dart';
 import '../providers/hub_directory_provider.dart';
 import '../providers/theme_provider.dart';
 import '../services/api_service.dart';
+import '../services/ffi_service.dart';
 import '../services/translation_service.dart';
 import '../utils/book_status.dart';
 import '../widgets/cached_book_cover.dart';
@@ -60,6 +61,10 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   bool _hasChanges = false;
   int _coverVersion = 0;
   bool _isRefreshing = false;
+  // Per-book loan duration
+  bool _perBookDurationEnabled = false;
+  int? _bookLoanDurationDays;
+  int _defaultLoanDurationDays = 21;
 
   @override
   void initState() {
@@ -105,6 +110,22 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       final copies = await copiesFuture;
       final collections = await collectionsFuture;
       final freshBook = await bookFuture;
+
+      // Load loan settings for per-book duration
+      try {
+        final ffi = FfiService();
+        if (ffi.isInitialized) {
+          final settings = await ffi.getLoanSettings();
+          _perBookDurationEnabled = settings.perBookDurationEnabled;
+          _defaultLoanDurationDays = settings.defaultLoanDurationDays;
+          if (_perBookDurationEnabled) {
+            _bookLoanDurationDays =
+                await ffi.getBookLoanDuration(widget.bookId);
+          }
+        }
+      } catch (e) {
+        debugPrint('Error loading loan settings: $e');
+      }
 
       if (mounted) {
         setState(() {
@@ -1105,6 +1126,11 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             ),
           ],
         ),
+        // Per-book loan duration - only visible when per-book customization is enabled
+        if (_perBookDurationEnabled && book.owned) ...[
+          const SizedBox(height: 12),
+          _buildPerBookLoanDuration(context),
+        ],
         // Lend book button - only visible when there are available copies and book is owned
         if (_hasAvailableCopies && book.owned) ...[
           const SizedBox(height: 12),
@@ -2212,6 +2238,92 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     }
   }
 
+  Widget _buildPerBookLoanDuration(BuildContext context) {
+    final daysLabel =
+        TranslationService.translate(context, 'loan_duration_days_suffix');
+    final hintText = TranslationService.translate(
+            context, 'loan_duration_book_default_hint')
+        .replaceAll('%d', '$_defaultLoanDurationDays');
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            const Icon(Icons.timer_outlined, size: 20),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    TranslationService.translate(
+                        context, 'loan_duration_book_custom'),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
+                  ),
+                  if (_bookLoanDurationDays == null)
+                    Text(
+                      hintText,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.grey[600],
+                          ),
+                    ),
+                ],
+              ),
+            ),
+            if (_bookLoanDurationDays != null) ...[
+              IconButton(
+                icon: const Icon(Icons.remove_circle_outline, size: 20),
+                tooltip: '-1',
+                onPressed: _bookLoanDurationDays! > 1
+                    ? () => _setBookLoanDuration(_bookLoanDurationDays! - 1)
+                    : null,
+              ),
+              Text(
+                '$_bookLoanDurationDays $daysLabel',
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.add_circle_outline, size: 20),
+                tooltip: '+1',
+                onPressed: _bookLoanDurationDays! < 365
+                    ? () => _setBookLoanDuration(_bookLoanDurationDays! + 1)
+                    : null,
+              ),
+              IconButton(
+                icon: const Icon(Icons.close, size: 18),
+                tooltip: TranslationService.translate(
+                    context, 'tooltip_clear_book_loan_duration'),
+                onPressed: () => _setBookLoanDuration(null),
+              ),
+            ] else
+              IconButton(
+                icon: const Icon(Icons.edit_outlined, size: 20),
+                tooltip: TranslationService.translate(
+                    context, 'loan_duration_book_custom'),
+                onPressed: () =>
+                    _setBookLoanDuration(_defaultLoanDurationDays),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _setBookLoanDuration(int? days) async {
+    setState(() => _bookLoanDurationDays = days);
+    try {
+      final ffi = FfiService();
+      await ffi.setBookLoanDuration(widget.bookId, days);
+    } catch (e) {
+      debugPrint('Error setting book loan duration: $e');
+    }
+  }
+
   Future<void> _lendBook(BuildContext context) async {
     final selectedContact = await showDialog<Contact>(
       context: context,
@@ -2247,9 +2359,16 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         copyId = availableCopy.id!;
       }
 
-      // 3. Calculate due date (30 days from now)
+      // 3. Calculate due date from effective loan duration
+      int durationDays = _defaultLoanDurationDays;
+      try {
+        final ffi = FfiService();
+        if (ffi.isInitialized) {
+          durationDays = await ffi.getEffectiveLoanDuration(_book!.id!);
+        }
+      } catch (_) {}
       final now = DateTime.now();
-      final dueDate = now.add(const Duration(days: 30));
+      final dueDate = now.add(Duration(days: durationDays));
 
       // 4. Create the loan with correct fields
       await loanRepo.createLoan({

@@ -357,13 +357,16 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
       return;
     }
 
-    final sent = result?.sentCount ?? 0;
-    final received = result?.receivedCount ?? 0;
     final pendingReview = result?.pendingReviewCount ?? 0;
 
-    final message = TranslationService.translate(context, 'sync_result_message')
-        .replaceFirst('%d', sent.toString())
-        .replaceFirst('%d', received.toString());
+    // Build a clear, user-friendly message
+    final String message;
+    if (pendingReview > 0) {
+      message = TranslationService.translate(context, 'sync_done_with_pending')
+          .replaceFirst('%d', pendingReview.toString());
+    } else {
+      message = TranslationService.translate(context, 'sync_done');
+    }
 
     // Capture navigator before showing snackbar (context may become invalid in snackbar action)
     final navigator = GoRouter.of(context);

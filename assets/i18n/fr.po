@@ -7409,6 +7409,12 @@ msgstr "Synchroniser"
 msgid "sync_result_message"
 msgstr "%d envoyees, %d recues"
 
+msgid "sync_done"
+msgstr "Synchronisation terminee"
+
+msgid "sync_done_with_pending"
+msgstr "Synchronisation terminee - %d modifications a valider"
+
 msgid "sync_pending_review_action"
 msgstr "Voir"
 
@@ -8239,3 +8245,45 @@ msgstr "Reconnaissance vocale non disponible sur cet appareil"
 #. Shown while listening
 msgid "speech_listening"
 msgstr "Parlez..."
+
+#. ── Loan duration settings ──────────────────────────────────────────
+
+#. Settings section title for loan duration
+msgid "loan_duration_settings_title"
+msgstr "Duree de pret"
+
+#. Label for global default loan duration
+msgid "loan_duration_default_label"
+msgstr "Duree par defaut"
+
+#. Unit suffix for days
+msgid "loan_duration_days_suffix"
+msgstr "jours"
+
+#. Toggle label for per-book duration customization
+msgid "loan_duration_per_book_toggle"
+msgstr "Personnalisation par livre"
+
+#. Description for per-book duration toggle
+msgid "loan_duration_per_book_desc"
+msgstr "Permet de definir une duree de pret differente pour chaque livre"
+
+#. Label for per-book loan duration field in book detail
+msgid "loan_duration_book_custom"
+msgstr "Duree de pret personnalisee"
+
+#. Hint when per-book duration is not set (uses global default)
+msgid "loan_duration_book_default_hint"
+msgstr "Utilise la duree par defaut (%d jours)"
+
+#. Tooltip for clearing per-book duration
+msgid "tooltip_clear_book_loan_duration"
+msgstr "Reinitialiser a la duree par defaut"
+
+#. Snackbar confirmation when loan settings are saved
+msgid "loan_settings_saved"
+msgstr "Parametres de pret enregistres"
+
+#. Label for due date in loan dialog
+msgid "loan_due_date_label"
+msgstr "Date de retour prevue"

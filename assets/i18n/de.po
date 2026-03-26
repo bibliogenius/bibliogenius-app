@@ -7188,6 +7188,12 @@ msgstr "%d zur Überprüfung ausstehend"
 msgid "sync_result_message"
 msgstr "%d gesendet, %d Vorgänge empfangen"
 
+msgid "sync_done"
+msgstr "Synchronisation abgeschlossen"
+
+msgid "sync_done_with_pending"
+msgstr "Synchronisation abgeschlossen - %d Änderungen zu prüfen"
+
 msgid "sync_review_approve"
 msgstr "Genehmigen"
 

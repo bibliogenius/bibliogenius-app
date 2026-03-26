@@ -7376,6 +7376,12 @@ msgstr ""
 msgid "sync_result_message"
 msgstr ""
 
+msgid "sync_done"
+msgstr ""
+
+msgid "sync_done_with_pending"
+msgstr ""
+
 msgid "sync_pending_review_action"
 msgstr ""
 

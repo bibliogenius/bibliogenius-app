@@ -1528,4 +1528,62 @@ class FfiService {
       rethrow;
     }
   }
+
+  // ============ Loan Settings ============
+
+  /// Get the current loan settings (global duration + per-book toggle)
+  Future<frb.FrbLoanSettings> getLoanSettings() async {
+    try {
+      return await frb.getLoanSettings();
+    } catch (e) {
+      debugPrint('FFI getLoanSettings error: $e');
+      rethrow;
+    }
+  }
+
+  /// Update the global loan settings
+  Future<frb.FrbLoanSettings> updateLoanSettings({
+    required int defaultLoanDurationDays,
+    required bool perBookDurationEnabled,
+  }) async {
+    try {
+      return await frb.updateLoanSettings(
+        defaultLoanDurationDays: defaultLoanDurationDays,
+        perBookDurationEnabled: perBookDurationEnabled,
+      );
+    } catch (e) {
+      debugPrint('FFI updateLoanSettings error: $e');
+      rethrow;
+    }
+  }
+
+  /// Get the effective loan duration for a specific book (in days)
+  Future<int> getEffectiveLoanDuration(int bookId) async {
+    try {
+      return await frb.getEffectiveLoanDuration(bookId: bookId);
+    } catch (e) {
+      debugPrint('FFI getEffectiveLoanDuration error: $e');
+      rethrow;
+    }
+  }
+
+  /// Get the per-book loan duration override (null = uses global default)
+  Future<int?> getBookLoanDuration(int bookId) async {
+    try {
+      return await frb.getBookLoanDuration(bookId: bookId);
+    } catch (e) {
+      debugPrint('FFI getBookLoanDuration error: $e');
+      rethrow;
+    }
+  }
+
+  /// Set the per-book loan duration override (null = clear, use global default)
+  Future<void> setBookLoanDuration(int bookId, int? days) async {
+    try {
+      await frb.setBookLoanDuration(bookId: bookId, days: days);
+    } catch (e) {
+      debugPrint('FFI setBookLoanDuration error: $e');
+      rethrow;
+    }
+  }
 }

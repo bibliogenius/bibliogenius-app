@@ -38,6 +38,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   String _googleBooksApiKey = '';
   String _appVersion = '';
   final _apiKeyController = TextEditingController();
+  // Loan settings
+  int _defaultLoanDurationDays = 21;
+  bool _perBookDurationEnabled = false;
+  bool _loanSettingsLoaded = false;
   // Relay Hub state
   String? _relayMailboxUuid;
   bool _relayConnected = false;
@@ -55,6 +59,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     super.initState();
     _fetchSettings();
     _initPackageInfo();
+    _loadLoanSettings();
     // Load hub directory config + preferences (non-blocking)
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final hubProvider = context.read<HubDirectoryProvider>();
@@ -103,6 +108,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _hubWebsiteController.dispose();
     _settingsSearchController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadLoanSettings() async {
+    try {
+      final ffi = FfiService();
+      final settings = await ffi.getLoanSettings();
+      if (mounted) {
+        setState(() {
+          _defaultLoanDurationDays = settings.defaultLoanDurationDays;
+          _perBookDurationEnabled = settings.perBookDurationEnabled;
+          _loanSettingsLoaded = true;
+        });
+      }
+      return;
+    } catch (e) {
+      debugPrint('Error loading loan settings: $e');
+    }
+    // Show section with defaults even if FFI fails
+    if (mounted) {
+      setState(() => _loanSettingsLoaded = true);
+    }
   }
 
   Future<void> _fetchSettings() async {
@@ -173,6 +199,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       } catch (_) {
         _relayUrlController.text = ApiService.hubUrl;
       }
+
+      // Loan settings loaded separately in _loadLoanSettings()
 
       if (mounted) {
         setState(() => _isLoading = false);
@@ -749,6 +777,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   (value) =>
                       themeProvider.setAutoApproveLoanRequests(value),
                 ),
+                if (_loanSettingsLoaded)
+                  _buildLoanDurationSection(context),
                 _buildModuleToggle(
                   context,
                   'enable_borrowing_module',
@@ -2358,6 +2388,117 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   // _buildRelayHubCard removed - relay details now inline in _buildRelayDetails
+
+  Widget _buildLoanDurationSection(BuildContext context) {
+    if (!_matchesSearch([
+      'loan_duration_settings_title',
+      'loan_duration_default_label',
+      'loan_duration_per_book_toggle',
+    ])) {
+      return const SizedBox.shrink();
+    }
+
+    final daysLabel =
+        TranslationService.translate(context, 'loan_duration_days_suffix');
+
+    return Card(
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Column(
+          children: [
+            // Global default duration stepper
+            Row(
+              children: [
+                const Icon(Icons.timer_outlined),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Text(
+                    TranslationService.translate(
+                        context, 'loan_duration_default_label'),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.remove_circle_outline),
+                  tooltip: '-1',
+                  onPressed: _defaultLoanDurationDays > 1
+                      ? () => _updateLoanDuration(_defaultLoanDurationDays - 1)
+                      : null,
+                ),
+                GestureDetector(
+                  onLongPress: () {
+                    final newVal =
+                        (_defaultLoanDurationDays - 7).clamp(1, 365);
+                    _updateLoanDuration(newVal);
+                  },
+                  child: SizedBox(
+                    width: 80,
+                    child: Text(
+                      '$_defaultLoanDurationDays $daysLabel',
+                      textAlign: TextAlign.center,
+                      style:
+                          Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.add_circle_outline),
+                  tooltip: '+1',
+                  onPressed: _defaultLoanDurationDays < 365
+                      ? () => _updateLoanDuration(_defaultLoanDurationDays + 1)
+                      : null,
+                ),
+              ],
+            ),
+            const Divider(),
+            // Per-book toggle
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              secondary: const Icon(Icons.auto_stories),
+              title: Text(
+                TranslationService.translate(
+                    context, 'loan_duration_per_book_toggle'),
+              ),
+              subtitle: Text(
+                TranslationService.translate(
+                    context, 'loan_duration_per_book_desc'),
+              ),
+              value: _perBookDurationEnabled,
+              onChanged: (value) => _updatePerBookToggle(value),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _updateLoanDuration(int days) async {
+    setState(() => _defaultLoanDurationDays = days);
+    try {
+      final ffi = FfiService();
+      await ffi.updateLoanSettings(
+        defaultLoanDurationDays: days,
+        perBookDurationEnabled: _perBookDurationEnabled,
+      );
+    } catch (e) {
+      debugPrint('Error updating loan duration: $e');
+    }
+  }
+
+  Future<void> _updatePerBookToggle(bool enabled) async {
+    setState(() => _perBookDurationEnabled = enabled);
+    try {
+      final ffi = FfiService();
+      await ffi.updateLoanSettings(
+        defaultLoanDurationDays: _defaultLoanDurationDays,
+        perBookDurationEnabled: enabled,
+      );
+    } catch (e) {
+      debugPrint('Error updating per-book toggle: $e');
+    }
+  }
 
   Widget _buildModuleToggle(
     BuildContext context,

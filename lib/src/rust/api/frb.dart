@@ -325,6 +325,34 @@ Future<BigInt> deleteClosedOutgoingRequests() =>
 Future<String> returnLoan({required int id}) =>
     RustLib.instance.api.crateApiFrbReturnLoan(id: id);
 
+/// Get the current loan settings
+Future<FrbLoanSettings> getLoanSettings() =>
+    RustLib.instance.api.crateApiFrbGetLoanSettings();
+
+/// Update the global loan settings
+Future<FrbLoanSettings> updateLoanSettings({
+  required int defaultLoanDurationDays,
+  required bool perBookDurationEnabled,
+}) => RustLib.instance.api.crateApiFrbUpdateLoanSettings(
+  defaultLoanDurationDays: defaultLoanDurationDays,
+  perBookDurationEnabled: perBookDurationEnabled,
+);
+
+/// Get the effective loan duration for a specific book (in days).
+/// Returns the per-book override if enabled and set, otherwise the global default.
+Future<int> getEffectiveLoanDuration({required int bookId}) =>
+    RustLib.instance.api.crateApiFrbGetEffectiveLoanDuration(bookId: bookId);
+
+/// Get the per-book loan duration override (None = uses global default)
+Future<int?> getBookLoanDuration({required int bookId}) =>
+    RustLib.instance.api.crateApiFrbGetBookLoanDuration(bookId: bookId);
+
+/// Set the per-book loan duration override (pass None to clear and use global default)
+Future<void> setBookLoanDuration({required int bookId, int? days}) => RustLib
+    .instance
+    .api
+    .crateApiFrbSetBookLoanDuration(bookId: bookId, days: days);
+
 /// Reset the entire application - deletes all data from all tables
 /// This is irreversible and should be used with caution
 Future<String> resetApp() => RustLib.instance.api.crateApiFrbResetApp();
@@ -1594,6 +1622,15 @@ sealed class FrbLoan with _$FrbLoan {
     String? coverUrl,
     String? isbn,
   }) = _FrbLoan;
+}
+
+/// Loan settings for FFI
+@freezed
+sealed class FrbLoanSettings with _$FrbLoanSettings {
+  const factory FrbLoanSettings({
+    required int defaultLoanDurationDays,
+    required bool perBookDurationEnabled,
+  }) = _FrbLoanSettings;
 }
 
 /// A card in the memory game (FFI-safe)

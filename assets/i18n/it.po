@@ -6778,6 +6778,12 @@ msgstr "Sincronizza"
 msgid "sync_result_message"
 msgstr "Inviate %d, ricevute %d operazioni"
 
+msgid "sync_done"
+msgstr "Sincronizzazione completata"
+
+msgid "sync_done_with_pending"
+msgstr "Sincronizzazione completata - %d modifiche da verificare"
+
 msgid "sync_pending_review_action"
 msgstr "Rivedi"
 

@@ -7409,6 +7409,12 @@ msgstr "Sync"
 msgid "sync_result_message"
 msgstr "Sent %d, received %d operations"
 
+msgid "sync_done"
+msgstr "Sync complete"
+
+msgid "sync_done_with_pending"
+msgstr "Sync complete - %d changes to review"
+
 msgid "sync_pending_review_action"
 msgstr "Review"
 
@@ -8239,3 +8245,45 @@ msgstr "Speech recognition not available on this device"
 #. Shown while listening
 msgid "speech_listening"
 msgstr "Listening..."
+
+#. ── Loan duration settings ──────────────────────────────────────────
+
+#. Settings section title for loan duration
+msgid "loan_duration_settings_title"
+msgstr "Loan duration"
+
+#. Label for global default loan duration
+msgid "loan_duration_default_label"
+msgstr "Default duration"
+
+#. Unit suffix for days
+msgid "loan_duration_days_suffix"
+msgstr "days"
+
+#. Toggle label for per-book duration customization
+msgid "loan_duration_per_book_toggle"
+msgstr "Per-book customization"
+
+#. Description for per-book duration toggle
+msgid "loan_duration_per_book_desc"
+msgstr "Set a different loan duration for each book"
+
+#. Label for per-book loan duration field in book detail
+msgid "loan_duration_book_custom"
+msgstr "Custom loan duration"
+
+#. Hint when per-book duration is not set (uses global default)
+msgid "loan_duration_book_default_hint"
+msgstr "Uses default duration (%d days)"
+
+#. Tooltip for clearing per-book duration
+msgid "tooltip_clear_book_loan_duration"
+msgstr "Reset to default duration"
+
+#. Snackbar confirmation when loan settings are saved
+msgid "loan_settings_saved"
+msgstr "Loan settings saved"
+
+#. Label for due date in loan dialog
+msgid "loan_due_date_label"
+msgstr "Expected return date"

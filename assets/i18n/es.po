@@ -7188,6 +7188,12 @@ msgstr "%d pendiente(s) de revision"
 msgid "sync_result_message"
 msgstr "%d enviadas, %d recibidas"
 
+msgid "sync_done"
+msgstr "Sincronizacion completada"
+
+msgid "sync_done_with_pending"
+msgstr "Sincronizacion completada - %d cambios por revisar"
+
 msgid "sync_review_approve"
 msgstr "Aprobar"
 

@@ -138,6 +138,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FrbLoan dco_decode_frb_loan(dynamic raw);
 
   @protected
+  FrbLoanSettings dco_decode_frb_loan_settings(dynamic raw);
+
+  @protected
   FrbMemoryCard dco_decode_frb_memory_card(dynamic raw);
 
   @protected
@@ -500,6 +503,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbLoan sse_decode_frb_loan(SseDeserializer deserializer);
+
+  @protected
+  FrbLoanSettings sse_decode_frb_loan_settings(SseDeserializer deserializer);
 
   @protected
   FrbMemoryCard sse_decode_frb_memory_card(SseDeserializer deserializer);
@@ -950,6 +956,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_frb_loan(FrbLoan self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_frb_loan_settings(
+    FrbLoanSettings self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_frb_memory_card(FrbMemoryCard self, SseSerializer serializer);

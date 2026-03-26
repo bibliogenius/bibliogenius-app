@@ -16,7 +16,9 @@ import '../theme/app_design.dart';
 import '../services/translation_service.dart';
 import '../providers/book_refresh_notifier.dart';
 import '../providers/flash_message_provider.dart';
+import '../providers/notification_provider.dart';
 import '../providers/theme_provider.dart';
+import '../services/mdns_service.dart';
 
 class MigrationWizardScreen extends StatefulWidget {
   const MigrationWizardScreen({super.key});
@@ -659,6 +661,14 @@ class _MigrationWizardScreenState extends State<MigrationWizardScreen> {
       if (mounted) {
         Provider.of<FlashMessageProvider>(context, listen: false).reset();
       }
+
+      // Clear in-memory notification state (DB rows already wiped by resetApp)
+      if (mounted) {
+        Provider.of<NotificationProvider>(context, listen: false).clearAll();
+      }
+
+      // Stop mDNS so peers no longer see the old library name
+      await MdnsService.stop();
 
       // Trigger UI refresh so book_list_screen reloads (empty) data from DB
       if (mounted) {

@@ -3087,6 +3087,260 @@ as String?,
 }
 
 /// @nodoc
+mixin _$FrbLoanSettings {
+
+ int get defaultLoanDurationDays; bool get perBookDurationEnabled;
+/// Create a copy of FrbLoanSettings
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$FrbLoanSettingsCopyWith<FrbLoanSettings> get copyWith => _$FrbLoanSettingsCopyWithImpl<FrbLoanSettings>(this as FrbLoanSettings, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbLoanSettings&&(identical(other.defaultLoanDurationDays, defaultLoanDurationDays) || other.defaultLoanDurationDays == defaultLoanDurationDays)&&(identical(other.perBookDurationEnabled, perBookDurationEnabled) || other.perBookDurationEnabled == perBookDurationEnabled));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,defaultLoanDurationDays,perBookDurationEnabled);
+
+@override
+String toString() {
+  return 'FrbLoanSettings(defaultLoanDurationDays: $defaultLoanDurationDays, perBookDurationEnabled: $perBookDurationEnabled)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $FrbLoanSettingsCopyWith<$Res>  {
+  factory $FrbLoanSettingsCopyWith(FrbLoanSettings value, $Res Function(FrbLoanSettings) _then) = _$FrbLoanSettingsCopyWithImpl;
+@useResult
+$Res call({
+ int defaultLoanDurationDays, bool perBookDurationEnabled
+});
+
+
+
+
+}
+/// @nodoc
+class _$FrbLoanSettingsCopyWithImpl<$Res>
+    implements $FrbLoanSettingsCopyWith<$Res> {
+  _$FrbLoanSettingsCopyWithImpl(this._self, this._then);
+
+  final FrbLoanSettings _self;
+  final $Res Function(FrbLoanSettings) _then;
+
+/// Create a copy of FrbLoanSettings
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? defaultLoanDurationDays = null,Object? perBookDurationEnabled = null,}) {
+  return _then(_self.copyWith(
+defaultLoanDurationDays: null == defaultLoanDurationDays ? _self.defaultLoanDurationDays : defaultLoanDurationDays // ignore: cast_nullable_to_non_nullable
+as int,perBookDurationEnabled: null == perBookDurationEnabled ? _self.perBookDurationEnabled : perBookDurationEnabled // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [FrbLoanSettings].
+extension FrbLoanSettingsPatterns on FrbLoanSettings {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _FrbLoanSettings value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _FrbLoanSettings() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _FrbLoanSettings value)  $default,){
+final _that = this;
+switch (_that) {
+case _FrbLoanSettings():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _FrbLoanSettings value)?  $default,){
+final _that = this;
+switch (_that) {
+case _FrbLoanSettings() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int defaultLoanDurationDays,  bool perBookDurationEnabled)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _FrbLoanSettings() when $default != null:
+return $default(_that.defaultLoanDurationDays,_that.perBookDurationEnabled);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int defaultLoanDurationDays,  bool perBookDurationEnabled)  $default,) {final _that = this;
+switch (_that) {
+case _FrbLoanSettings():
+return $default(_that.defaultLoanDurationDays,_that.perBookDurationEnabled);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int defaultLoanDurationDays,  bool perBookDurationEnabled)?  $default,) {final _that = this;
+switch (_that) {
+case _FrbLoanSettings() when $default != null:
+return $default(_that.defaultLoanDurationDays,_that.perBookDurationEnabled);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _FrbLoanSettings implements FrbLoanSettings {
+  const _FrbLoanSettings({required this.defaultLoanDurationDays, required this.perBookDurationEnabled});
+  
+
+@override final  int defaultLoanDurationDays;
+@override final  bool perBookDurationEnabled;
+
+/// Create a copy of FrbLoanSettings
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$FrbLoanSettingsCopyWith<_FrbLoanSettings> get copyWith => __$FrbLoanSettingsCopyWithImpl<_FrbLoanSettings>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbLoanSettings&&(identical(other.defaultLoanDurationDays, defaultLoanDurationDays) || other.defaultLoanDurationDays == defaultLoanDurationDays)&&(identical(other.perBookDurationEnabled, perBookDurationEnabled) || other.perBookDurationEnabled == perBookDurationEnabled));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,defaultLoanDurationDays,perBookDurationEnabled);
+
+@override
+String toString() {
+  return 'FrbLoanSettings(defaultLoanDurationDays: $defaultLoanDurationDays, perBookDurationEnabled: $perBookDurationEnabled)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$FrbLoanSettingsCopyWith<$Res> implements $FrbLoanSettingsCopyWith<$Res> {
+  factory _$FrbLoanSettingsCopyWith(_FrbLoanSettings value, $Res Function(_FrbLoanSettings) _then) = __$FrbLoanSettingsCopyWithImpl;
+@override @useResult
+$Res call({
+ int defaultLoanDurationDays, bool perBookDurationEnabled
+});
+
+
+
+
+}
+/// @nodoc
+class __$FrbLoanSettingsCopyWithImpl<$Res>
+    implements _$FrbLoanSettingsCopyWith<$Res> {
+  __$FrbLoanSettingsCopyWithImpl(this._self, this._then);
+
+  final _FrbLoanSettings _self;
+  final $Res Function(_FrbLoanSettings) _then;
+
+/// Create a copy of FrbLoanSettings
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? defaultLoanDurationDays = null,Object? perBookDurationEnabled = null,}) {
+  return _then(_FrbLoanSettings(
+defaultLoanDurationDays: null == defaultLoanDurationDays ? _self.defaultLoanDurationDays : defaultLoanDurationDays // ignore: cast_nullable_to_non_nullable
+as int,perBookDurationEnabled: null == perBookDurationEnabled ? _self.perBookDurationEnabled : perBookDurationEnabled // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+
+}
+
+/// @nodoc
 mixin _$FrbOperationLogEntry {
 
  int get id; String get entityType; int get entityId; String get operation; String? get payload; String get status; String? get errorMessage; bool get pinned; String get createdAt;

@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -63,7 +64,6 @@ class CollectionStackWidget extends StatefulWidget {
 
 class _CollectionStackWidgetState extends State<CollectionStackWidget> {
   bool _pressed = false;
-  bool _isHovering = false;
 
   void _onTapDown(TapDownDetails _) => setState(() => _pressed = true);
   void _onTapUp(TapUpDetails _) => setState(() => _pressed = false);
@@ -104,18 +104,16 @@ class _CollectionStackWidgetState extends State<CollectionStackWidget> {
       button: true,
       label: semanticLabel,
       excludeSemantics: true,
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        onEnter: (_) => setState(() => _isHovering = true),
-        onExit: (_) => setState(() => _isHovering = false),
-        child: Tooltip(
-          message: tooltipMessage,
-          preferBelow: false,
-          child: GestureDetector(
-            onTapDown: _onTapDown,
-            onTapUp: _onTapUp,
-            onTapCancel: _onTapCancel,
-            onTap: _onTap,
+      child: Tooltip(
+        message: tooltipMessage,
+        preferBelow: false,
+        child: GestureDetector(
+          onTapDown: _onTapDown,
+          onTapUp: _onTapUp,
+          onTapCancel: _onTapCancel,
+          onTap: _onTap,
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
             child: AnimatedScale(
               scale: _pressed ? 0.93 : 1.0,
               duration: const Duration(milliseconds: 120),
@@ -123,7 +121,6 @@ class _CollectionStackWidgetState extends State<CollectionStackWidget> {
               child: _StackedCovers(
                 covers: group.stackCoverUrls,
                 bookCount: bookCount,
-                isHovering: _isHovering,
                 ownedCount: group.ownedCount,
               ),
             ),
@@ -150,13 +147,11 @@ const _kLayerConfigs = [
 class _StackedCovers extends StatelessWidget {
   final List<String?> covers;
   final int bookCount;
-  final bool isHovering;
   final int ownedCount;
 
   const _StackedCovers({
     required this.covers,
     required this.bookCount,
-    this.isHovering = false,
     this.ownedCount = 0,
   });
 
@@ -233,24 +228,15 @@ class _StackedCovers extends StatelessWidget {
                 child: _CountBadge(count: bookCount),
               ),
 
-            // Progress bar overlay on hover.
+            // Progress bar overlay (always visible).
             if (bookCount > 0)
               Positioned(
                 bottom: (availH - coverH) / 2,
-                left: (availW - coverW) / 2,
-                width: coverW,
-                child: AnimatedOpacity(
-                  opacity: isHovering ? 1.0 : 0.0,
-                  duration: const Duration(milliseconds: 200),
-                  child: ClipRRect(
-                    borderRadius: const BorderRadius.vertical(
-                      bottom: Radius.circular(6),
-                    ),
-                    child: _ProgressOverlay(
-                      owned: ownedCount,
-                      total: bookCount,
-                    ),
-                  ),
+                left: 0,
+                right: 0,
+                child: _ProgressOverlay(
+                  owned: ownedCount,
+                  total: bookCount,
                 ),
               ),
           ],
@@ -732,7 +718,6 @@ class CollectionCoverCard extends StatefulWidget {
 
 class _CollectionCoverCardState extends State<CollectionCoverCard> {
   bool _pressed = false;
-  bool _isHovering = false;
 
   /// Generate a stable color from the collection name.
   Color _colorFromName(String name) {
@@ -758,16 +743,14 @@ class _CollectionCoverCardState extends State<CollectionCoverCard> {
       button: true,
       label: semanticLabel,
       excludeSemantics: true,
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        onEnter: (_) => setState(() => _isHovering = true),
-        onExit: (_) => setState(() => _isHovering = false),
-        child: GestureDetector(
-          onTapDown: (_) => setState(() => _pressed = true),
-          onTapUp: (_) => setState(() => _pressed = false),
-          onTapCancel: () => setState(() => _pressed = false),
-          onTap: widget.onTap,
-          onLongPress: widget.onLongPress,
+      child: GestureDetector(
+        onTapDown: (_) => setState(() => _pressed = true),
+        onTapUp: (_) => setState(() => _pressed = false),
+        onTapCancel: () => setState(() => _pressed = false),
+        onTap: widget.onTap,
+        onLongPress: widget.onLongPress,
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
           child: AnimatedScale(
             scale: _pressed ? 0.93 : 1.0,
             duration: const Duration(milliseconds: 120),
@@ -782,7 +765,6 @@ class _CollectionCoverCardState extends State<CollectionCoverCard> {
                       : _StackedCovers(
                           covers: widget.coverUrls,
                           bookCount: bookCount,
-                          isHovering: _isHovering,
                           ownedCount: widget.collection.ownedBooks,
                         ),
                 ),
@@ -851,7 +833,7 @@ class _CollectionCoverCardState extends State<CollectionCoverCard> {
 }
 
 // ---------------------------------------------------------------------------
-// _ProgressOverlay - shown on hover over collection teasers
+// _ProgressOverlay - always visible on collection teasers
 // ---------------------------------------------------------------------------
 
 class _ProgressOverlay extends StatelessWidget {
@@ -862,50 +844,86 @@ class _ProgressOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final progress = total > 0 ? owned / total : 0.0;
+    final progress = total > 0 ? owned.toDouble() / total : 0.0;
     final isComplete = owned == total && total > 0;
 
-    final barColor = isComplete
-        ? const Color(0xFF4CAF50)
-        : Colors.white.withValues(alpha: 0.92);
-
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.only(bottom: 4),
       child: Center(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-          decoration: BoxDecoration(
-            color: Colors.black.withValues(alpha: 0.55),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Progress bar as a rounded pill
-              SizedBox(
-                width: 40,
-                height: 5,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(3),
-                  child: LinearProgressIndicator(
-                    value: progress,
-                    backgroundColor: Colors.white.withValues(alpha: 0.2),
-                    color: barColor,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: BackdropFilter(
+            filter: ui.ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.28),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.10),
+                  width: 0.5,
+                ),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    width: 40,
+                    child: _buildBar(progress, isComplete),
                   ),
-                ),
+                  const SizedBox(width: 6),
+                  Text(
+                    '$owned/$total',
+                    style: TextStyle(
+                      color: isComplete
+                          ? const Color(0xFF6EE7B7)
+                          : Colors.white.withValues(alpha: 0.88),
+                      fontSize: 9,
+                      fontWeight: FontWeight.w700,
+                      height: 1,
+                      letterSpacing: -0.2,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 5),
-              Text(
-                '$owned/$total',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 9,
-                  fontWeight: FontWeight.w700,
-                  height: 1,
-                ),
-              ),
-            ],
+            ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBar(double progress, bool isComplete) {
+    return SizedBox(
+      height: 3.5,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(2),
+        child: Stack(
+          children: [
+            Container(color: Colors.white.withValues(alpha: 0.15)),
+            FractionallySizedBox(
+              alignment: Alignment.centerLeft,
+              widthFactor: progress.clamp(0.0, 1.0),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: isComplete
+                        ? const [Color(0xFF34D399), Color(0xFF10B981)]
+                        : const [Color(0xFFE0E7FF), Color(0xFFA5B4FC)],
+                  ),
+                  boxShadow: isComplete
+                      ? [
+                          BoxShadow(
+                            color:
+                                const Color(0xFF10B981).withValues(alpha: 0.5),
+                            blurRadius: 4,
+                          ),
+                        ]
+                      : null,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
