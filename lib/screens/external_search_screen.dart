@@ -534,6 +534,13 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
   }
 
   Future<void> _search() async {
+    // Guard: prevent concurrent searches (a 2nd call would overwrite the 1st
+    // results with partial data from a slower/filtered response).
+    if (_isSearching) {
+      debugPrint('⚠️ _search() blocked: already searching (source=$_upstreamSource)');
+      return;
+    }
+
     if (_titleController.text.isEmpty &&
         _authorController.text.isEmpty &&
         _subjectController.text.isEmpty) {
