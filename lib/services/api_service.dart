@@ -3946,20 +3946,21 @@ class ApiService {
       if (autocomplete) queryParams['autocomplete'] = true;
 
       // Use a new Dio instance with longer timeout for external search
-      // External sources (Inventaire, OpenLibrary, BNF) can take 10+ seconds
+      // External sources (Inventaire, OpenLibrary, BNF) can take 12+ seconds
+      // OpenLibrary in particular averages 7-18s for some queries
       final searchDio = useFfi
           ? Dio(
               BaseOptions(
                 baseUrl: 'http://127.0.0.1:$httpPort',
                 connectTimeout: const Duration(seconds: 10),
-                receiveTimeout: const Duration(seconds: 15),
+                receiveTimeout: const Duration(seconds: 20),
               ),
             )
           : Dio(
               BaseOptions(
                 baseUrl: _dio.options.baseUrl,
                 connectTimeout: const Duration(seconds: 10),
-                receiveTimeout: const Duration(seconds: 15),
+                receiveTimeout: const Duration(seconds: 20),
               ),
             );
 
