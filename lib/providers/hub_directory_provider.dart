@@ -8,6 +8,7 @@ import '../models/hub_directory.dart';
 import '../services/auth_service.dart';
 import '../services/device_service.dart';
 import '../services/ffi_service.dart';
+import '../services/translation_service.dart';
 import '../src/rust/api/frb.dart' as frb;
 
 /// Page size for directory listing.
@@ -249,6 +250,10 @@ class HubDirectoryProvider extends ChangeNotifier {
         debugPrint('HubDirectory: after ensureRegistered, isRegistered=$isRegistered');
       }
       if (isRegistered) {
+        // Ensure relay credentials are published on the hub profile.
+        // Fixes ~50% of installs where relay was missing due to race condition
+        // or ensureKeysPublished overwriting without relay params.
+        await _ensureRelayPublished();
         syncCatalogIfDirty();
       }
     } catch (e) {
@@ -256,6 +261,48 @@ class HubDirectoryProvider extends ChangeNotifier {
     } finally {
       _initSyncing = false;
     }
+  }
+
+  /// Re-registers with relay credentials if the local relay config is available.
+  /// This repairs hub profiles that were registered without relay (race condition
+  /// at first launch or ensureKeysPublished overwrite).
+  /// All profile fields are passed to avoid hub overwriting them with null
+  /// (hub uses array_key_exists for device_model, relay_url, etc.).
+  Future<void> _ensureRelayPublished() async {
+    if (_config == null) return;
+    final relay = await _getRelayCredentials();
+    if (relay.relayUrl == null) {
+      debugPrint('HubDirectory: no local relay config, skip relay publish');
+      return;
+    }
+    final cfg = _config!;
+    final prefs = await SharedPreferences.getInstance();
+    final libraryName = prefs.getString('libraryName') ??
+        TranslationService.translateByLocale(
+            prefs.getString('languageCode') ?? 'en', 'my_library_title');
+    final bookCount = await _ffi.countBooks();
+    String? x25519Key;
+    try {
+      x25519Key = await _ffi.getLocalX25519PublicKey();
+    } catch (_) {}
+    final deviceModel = await _deviceService.getDeviceModel();
+    final deviceFingerprint = await _deviceService.getDeviceFingerprint();
+    debugPrint('HubDirectory: publishing relay credentials to hub');
+    await register(
+      nodeId: cfg.nodeId,
+      displayName: libraryName,
+      bookCount: bookCount,
+      isListed: cfg.isListed,
+      requiresApproval: cfg.requiresApproval,
+      acceptFrom: cfg.acceptFrom,
+      allowBorrowing: cfg.allowBorrowing,
+      x25519PublicKey: x25519Key,
+      deviceModel: deviceModel,
+      deviceFingerprint: deviceFingerprint,
+      relayUrl: relay.relayUrl,
+      relayMailboxId: relay.mailboxId,
+      relayWriteToken: relay.writeToken,
+    );
   }
 
   Future<void> loadConfig() async {
@@ -302,8 +349,25 @@ class HubDirectoryProvider extends ChangeNotifier {
     }
   }
 
+  /// Read relay credentials from local SQLite (single source of truth).
+  /// Returns (relayUrl, mailboxId, writeToken), all nullable.
+  Future<({String? relayUrl, String? mailboxId, String? writeToken})>
+      _getRelayCredentials() async {
+    try {
+      final relayConfig = await _ffi.getRelayConfig();
+      if (relayConfig != null) {
+        return (
+          relayUrl: relayConfig.relayUrl,
+          mailboxId: relayConfig.mailboxUuid,
+          writeToken: relayConfig.writeToken,
+        );
+      }
+    } catch (_) {}
+    return (relayUrl: null, mailboxId: null, writeToken: null);
+  }
+
   /// Re-registers with the current config to ensure the X25519 public key
-  /// is published on the hub profile. Call at app start for existing users.
+  /// and relay credentials are published on the hub profile.
   Future<void> ensureKeysPublished(String displayName) async {
     if (!_hubEnabled) return;
     if (_config == null) {
@@ -325,6 +389,7 @@ class HubDirectoryProvider extends ChangeNotifier {
     final bookCount = await _ffi.countBooks();
     final deviceModel = await _deviceService.getDeviceModel();
     final deviceFingerprint = await _deviceService.getDeviceFingerprint();
+    final relay = await _getRelayCredentials();
     await register(
       nodeId: cfg.nodeId,
       displayName: displayName,
@@ -337,8 +402,11 @@ class HubDirectoryProvider extends ChangeNotifier {
       website: _websiteUrl.isNotEmpty ? _websiteUrl : null,
       deviceModel: deviceModel,
       deviceFingerprint: deviceFingerprint,
+      relayUrl: relay.relayUrl,
+      relayMailboxId: relay.mailboxId,
+      relayWriteToken: relay.writeToken,
     );
-    debugPrint('HubDirectoryProvider: ensured X25519 key published');
+    debugPrint('HubDirectoryProvider: ensured keys + relay published');
 
     // Now that our key is on the hub, sync contact blobs to followers
     if (_contactInfo.isNotEmpty) {
@@ -475,7 +543,9 @@ class HubDirectoryProvider extends ChangeNotifier {
     try {
       final libraryUuid = await AuthService().getOrCreateLibraryUuid();
       final prefs = await SharedPreferences.getInstance();
-      final libraryName = prefs.getString('libraryName') ?? 'My Library';
+      final libraryName = prefs.getString('libraryName') ??
+          TranslationService.translateByLocale(
+              prefs.getString('languageCode') ?? 'en', 'my_library_title');
       final bookCount = await _ffi.countBooks();
 
       String? x25519Key;
@@ -486,19 +556,7 @@ class HubDirectoryProvider extends ChangeNotifier {
       final deviceModel = await _deviceService.getDeviceModel();
       final deviceFingerprint = await _deviceService.getDeviceFingerprint();
 
-      // Include relay credentials so peers can refresh stale relay info
-      // via the hub when our mailbox is recreated.
-      String? relayUrl;
-      String? relayMailboxId;
-      String? relayWriteToken;
-      try {
-        final relayConfig = await _ffi.getRelayConfig();
-        if (relayConfig != null) {
-          relayUrl = relayConfig.relayUrl;
-          relayMailboxId = relayConfig.mailboxUuid;
-          relayWriteToken = relayConfig.writeToken;
-        }
-      } catch (_) {}
+      final relay = await _getRelayCredentials();
 
       return await register(
         nodeId: libraryUuid,
@@ -511,9 +569,9 @@ class HubDirectoryProvider extends ChangeNotifier {
         x25519PublicKey: x25519Key,
         deviceModel: deviceModel,
         deviceFingerprint: deviceFingerprint,
-        relayUrl: relayUrl,
-        relayMailboxId: relayMailboxId,
-        relayWriteToken: relayWriteToken,
+        relayUrl: relay.relayUrl,
+        relayMailboxId: relay.mailboxId,
+        relayWriteToken: relay.writeToken,
       );
     } catch (e) {
       debugPrint('HubDirectoryProvider _ensureSilentRegistration error: $e');

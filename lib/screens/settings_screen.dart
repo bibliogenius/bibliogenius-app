@@ -67,10 +67,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       hubProvider.loadConfig().then((_) {
         // Ensure X25519 key is published on hub for E2EE contact sharing
         if (hubProvider.isRegistered) {
-          final name = themeProvider.libraryName.isNotEmpty
-              ? themeProvider.libraryName
-              : 'My Library';
-          hubProvider.ensureKeysPublished(name);
+          hubProvider.ensureKeysPublished(themeProvider.libraryName);
         }
       });
       hubProvider.loadHubEnabled();
@@ -1715,7 +1712,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     final authService = Provider.of<AuthService>(context, listen: false);
     final libraryName =
-        themeProvider.libraryName.isNotEmpty ? themeProvider.libraryName : 'My Library';
+        themeProvider.libraryName;
 
     final config = dirProvider.config;
     // Use existing node_id, or fall back to the stable library UUID (first registration).
@@ -1784,7 +1781,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     final libraryName =
-        themeProvider.libraryName.isNotEmpty ? themeProvider.libraryName : 'My Library';
+        themeProvider.libraryName;
 
     final ffi = FfiService();
     final bookCount = await ffi.countBooks();

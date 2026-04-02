@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -395,8 +396,20 @@ class ThemeProvider with ChangeNotifier {
       _avatarConfig = AvatarConfig.defaultConfig;
     }
 
-    _libraryName = prefs.getString('libraryName') ?? 'My Library';
+    await _ensureLibraryTag(prefs);
     _libraryNameCustomized = prefs.getBool('libraryNameCustomized') ?? false;
+    final storedName = prefs.getString('libraryName');
+    if (storedName == null || storedName.isEmpty) {
+      // First launch: use localized default with tag
+      _libraryName = localizedDefaultName;
+      await prefs.setString('libraryName', _libraryName);
+    } else if (storedName == 'My Library' && !_libraryNameCustomized) {
+      // Migration: replace hardcoded English default with localized name + tag
+      _libraryName = localizedDefaultName;
+      await prefs.setString('libraryName', _libraryName);
+    } else {
+      _libraryName = storedName;
+    }
 
     // If local pref is false, check with backend (in case it's a new device/browser)
     if (!_isSetupComplete) {
@@ -786,11 +799,14 @@ class ThemeProvider with ChangeNotifier {
       await prefs.setString('languageCode', 'en');
     }
 
-    // Set sensible defaults — preserve existing name if already customized
+    // Ensure unique tag exists for this install
+    await _ensureLibraryTag(prefs);
+
+    // Set sensible defaults -- preserve existing name if already customized
     // (e.g. device name was set earlier in main() before this runs again)
     final existingName = prefs.getString('libraryName');
-    if (existingName == null || existingName.isEmpty) {
-      _libraryName = 'My Library';
+    if (existingName == null || existingName.isEmpty || existingName == 'My Library') {
+      _libraryName = localizedDefaultName;
       await prefs.setString('libraryName', _libraryName);
     } else {
       _libraryName = existingName;
@@ -813,9 +829,12 @@ class ThemeProvider with ChangeNotifier {
   Future<void> resetSetup() async {
     _isSetupComplete = false;
     _libraryNameCustomized = false;
-    _libraryName = 'My Library';
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
+    // Regenerate tag after clear, then set localized default
+    _libraryTag = generateTag();
+    await prefs.setString('libraryTag', _libraryTag!);
+    _libraryName = localizedDefaultName;
     resetSetupState();
     // Reset in-memory state to defaults
     _gamificationEnabled = true;
@@ -846,11 +865,53 @@ class ThemeProvider with ChangeNotifier {
   }
 
   // Library Name
-  String _libraryName = 'My Library';
-  String get libraryName => _libraryName;
+  String _libraryName = '';
+  String get libraryName => _libraryName.isNotEmpty ? _libraryName : localizedDefaultName;
 
   bool _libraryNameCustomized = false;
   bool get libraryNameCustomized => _libraryNameCustomized;
+
+  // Unique tag per install (4 chars, generated once, persisted)
+  String? _libraryTag;
+  String? get libraryTag => _libraryTag;
+
+  /// Single source of truth for generating a default library name.
+  /// Without [deviceName]: "Ma Bibliotheque #A7K2"
+  /// With [deviceName]:    "Bibliotheque de iPhone #A7K2"
+  String buildDefaultLibraryName({String? deviceName}) {
+    final lang = _locale.languageCode;
+    final String base;
+    if (deviceName != null && deviceName.isNotEmpty) {
+      final template =
+          TranslationService.translateByLocale(lang, 'library_of_device');
+      base = template.replaceAll('%s', deviceName);
+    } else {
+      base = TranslationService.translateByLocale(lang, 'my_library_title');
+    }
+    return _libraryTag != null ? '$base #$_libraryTag' : base;
+  }
+
+  /// Shortcut: default name without device name.
+  String get localizedDefaultName => buildDefaultLibraryName();
+
+  /// Generate a 4-char tag (uppercase letters + digits, no ambiguous O/0/I/1/L).
+  static String generateTag() {
+    const chars = 'ABCDEFGHJKMNPQRSTVWXYZ23456789';
+    final random = Random();
+    return String.fromCharCodes(
+      Iterable.generate(
+          4, (_) => chars.codeUnitAt(random.nextInt(chars.length))),
+    );
+  }
+
+  /// Load or create the unique library tag from SharedPreferences.
+  Future<void> _ensureLibraryTag(SharedPreferences prefs) async {
+    _libraryTag = prefs.getString('libraryTag');
+    if (_libraryTag == null) {
+      _libraryTag = generateTag();
+      await prefs.setString('libraryTag', _libraryTag!);
+    }
+  }
 
   /// Mark the library name as explicitly chosen by the user.
   Future<void> markLibraryNameCustomized() async {
@@ -997,7 +1058,7 @@ class ThemeProvider with ChangeNotifier {
       if (libraryId != null && port != null) {
         try {
           await MdnsService.startAnnouncing(
-            _libraryName.isNotEmpty ? _libraryName : 'BiblioGenius Library',
+            libraryName,
             port,
             libraryId: libraryId,
           );

@@ -19,6 +19,7 @@ import '../src/rust/frb_generated.dart';
 import 'auth_service.dart';
 import 'ffi_service.dart';
 import 'mdns_service.dart';
+import 'translation_service.dart';
 
 class ApiService {
   final Dio _dio;
@@ -491,7 +492,11 @@ class ApiService {
 
         try {
           // Lazy Initialization: Run setup with defaults since it wasn't run at startup
-          await setup(libraryName: 'My Library', profileType: 'individual');
+          final prefs = await SharedPreferences.getInstance();
+          final fallbackName = prefs.getString('libraryName') ??
+              TranslationService.translateByLocale(
+                  prefs.getString('languageCode') ?? 'en', 'my_library_title');
+          await setup(libraryName: fallbackName, profileType: 'individual');
 
           // After setup, library_id should be saved in AuthService (by setup method)
           // But let's verify and retry the copy creation
@@ -1282,8 +1287,11 @@ class ApiService {
         final configResp = await localDio.get('/api/config');
         if (configResp.data is Map) {
           final remote = configResp.data as Map;
-          data['library_name'] = remote['name'] ?? 'My Library';
-          data['name'] = remote['name'] ?? 'My Library';
+          final configFallback = prefs.getString('libraryName') ??
+              TranslationService.translateByLocale(
+                  prefs.getString('languageCode') ?? 'en', 'my_library_title');
+          data['library_name'] = remote['name'] ?? configFallback;
+          data['name'] = remote['name'] ?? configFallback;
           data['description'] = remote['description'] ?? '';
           data['show_borrowed_books'] = remote['show_borrowed_books'] ?? true;
           data['share_location'] = remote['share_location'] ?? false;
@@ -1301,8 +1309,11 @@ class ApiService {
         }
       } catch (_) {
         // HTTP server not ready yet - fall back to SharedPreferences
-        data['library_name'] = prefs.getString('ffi_library_name') ?? 'My Library';
-        data['name'] = prefs.getString('ffi_library_name') ?? 'My Library';
+        final prefsFallback = prefs.getString('libraryName') ??
+            TranslationService.translateByLocale(
+                prefs.getString('languageCode') ?? 'en', 'my_library_title');
+        data['library_name'] = prefs.getString('ffi_library_name') ?? prefsFallback;
+        data['name'] = prefs.getString('ffi_library_name') ?? prefsFallback;
         data['description'] = prefs.getString('ffi_library_description') ?? '';
         data['show_borrowed_books'] = prefs.getBool('ffi_show_borrowed_books') ?? true;
         data['share_location'] = prefs.getBool('ffi_share_location') ?? false;
@@ -3094,7 +3105,9 @@ class ApiService {
       try {
         // 1. Get my own details (SharedPreferences is the source of truth for library name)
         final prefs = await SharedPreferences.getInstance();
-        String myName = prefs.getString('libraryName') ?? 'My Library';
+        String myName = prefs.getString('libraryName') ??
+            TranslationService.translateByLocale(
+                prefs.getString('languageCode') ?? 'en', 'my_library_title');
         final myUrl = await _getMyUrl();
         final peerHasLanUrl = url.isNotEmpty && !url.startsWith('relay://');
         final hasRelayCredentials = relayUrl != null && mailboxId != null;

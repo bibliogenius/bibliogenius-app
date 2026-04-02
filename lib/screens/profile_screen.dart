@@ -192,7 +192,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   );
                   // Override self entry name with ThemeProvider name
                   // (DB may be stale in FFI mode)
-                  if (entry.isSelf && localName != 'My Library') {
+                  if (entry.isSelf) {
                     return LeaderboardEntry(
                       libraryName: localName,
                       level: entry.level,

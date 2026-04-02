@@ -245,10 +245,8 @@ void main([List<String>? args]) async {
         final deviceName = await _getDeviceName();
         debugPrint('Device name result: "$deviceName"');
         if (deviceName != null && deviceName.isNotEmpty) {
-          final lang = themeProvider.locale.languageCode;
-          final template = TranslationService.translateByLocale(lang, 'library_of_device');
-          debugPrint('Library name template ($lang): "$template"');
-          final localizedName = template.replaceAll('%s', deviceName);
+          final localizedName =
+              themeProvider.buildDefaultLibraryName(deviceName: deviceName);
           await themeProvider.setLibraryName(localizedName);
           debugPrint('Library name set from device: $localizedName');
         }
@@ -315,9 +313,7 @@ void main([List<String>? args]) async {
 
         // Use clean library name for mDNS (no hostname suffix).
         // Disambiguation is handled by short library_id in the UI.
-        final libraryName = themeProvider.libraryName.isNotEmpty
-            ? themeProvider.libraryName
-            : 'BiblioGenius Library';
+        final libraryName = themeProvider.libraryName;
         await MdnsService.startAnnouncing(
           libraryName,
           httpPort,
@@ -358,7 +354,20 @@ void main([List<String>? args]) async {
             '/api/peers/relay/setup',
             data: {'relay_url': ApiService.hubUrl},
           );
-          debugPrint('Relay: Auto-configured with ${ApiService.hubUrl}');
+          // Verify config is persisted in SQLite before continuing
+          // (prevents race condition with hub registration reading it too early)
+          for (var i = 0; i < 3; i++) {
+            try {
+              final verifyRes = await localDio.get('/api/peers/relay/config');
+              if (verifyRes.statusCode == 200 &&
+                  verifyRes.data is Map &&
+                  verifyRes.data['relay_url'] != null) {
+                debugPrint('Relay: Auto-configured with ${ApiService.hubUrl}');
+                break;
+              }
+            } catch (_) {}
+            if (i < 2) await Future.delayed(const Duration(milliseconds: 300));
+          }
         }
       } catch (e) {
         debugPrint('Relay: Auto-setup failed (non-blocking): $e');
@@ -585,13 +594,9 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
               try {
                 final deviceName = await _getDeviceName();
                 if (deviceName != null && deviceName.isNotEmpty) {
-                  final lang = themeProvider.locale.languageCode;
-                  final template = TranslationService.translateByLocale(
-                    lang,
-                    'library_of_device',
+                  await themeProvider.setLibraryName(
+                    themeProvider.buildDefaultLibraryName(deviceName: deviceName),
                   );
-                  final localizedName = template.replaceAll('%s', deviceName);
-                  await themeProvider.setLibraryName(localizedName);
                 }
               } catch (e) {
                 debugPrint('Redirect device name fallback: $e');

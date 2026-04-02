@@ -621,9 +621,7 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
         }
         if (dirProvider.isRegistered) {
           final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
-          final name = themeProvider.libraryName.isNotEmpty
-              ? themeProvider.libraryName
-              : 'My Library';
+          final name = themeProvider.libraryName;
           dirProvider.ensureKeysPublished(name);
           dirProvider.syncCatalogIfDirty();
         }
