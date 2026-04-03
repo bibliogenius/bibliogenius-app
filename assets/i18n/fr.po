@@ -7824,6 +7824,13 @@ msgstr "Connexion"
 msgid "peer_node_id"
 msgstr "Identifiant du noeud"
 
+#. Bottom sheet: peer actions menu
+msgid "peer_actions"
+msgstr "Actions"
+
+msgid "view_profile"
+msgstr "Voir la fiche"
+
 msgid "peer_name_saved"
 msgstr "Nom enregistré"
 

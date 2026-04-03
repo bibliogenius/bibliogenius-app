@@ -2787,15 +2787,7 @@ class _LibraryRelationCard extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
-          onTap: () async {
-            final result = await context.push(
-              '/peers/${relation.peer?.id ?? 0}/details',
-              extra: relation,
-            );
-            if (result == 'deleted') {
-              onRemoved(relation.nodeId);
-            }
-          },
+          onTap: () => _onCardTap(context),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             child: Row(
@@ -2853,8 +2845,15 @@ class _LibraryRelationCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                // Compact action icons
-                ..._buildActions(context),
+                // Actions menu
+                IconButton(
+                  icon: const Icon(Icons.more_vert, size: 20),
+                  tooltip: TranslationService.translate(context, 'peer_actions'),
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.zero,
+                  constraints: _actionConstraints,
+                  onPressed: () => _showActionsSheet(context),
+                ),
               ],
             ),
           ),
@@ -2865,161 +2864,171 @@ class _LibraryRelationCard extends StatelessWidget {
 
   static const _actionConstraints = BoxConstraints(minWidth: 32, minHeight: 32);
 
-  List<Widget> _buildActions(BuildContext context) {
-    final actions = <Widget>[];
-
-    // Browse catalog - P2P peer
+  /// Primary tap: navigate to peer library. Fallback to detail screen if no
+  /// library is browsable (no URL and not an active follow).
+  void _onCardTap(BuildContext context) {
     if (relation.isPeer && relation.peer?.url != null) {
       final peer = relation.peer!;
-      actions.add(IconButton(
-        icon: const Icon(Icons.menu_book, size: 20),
-        tooltip: TranslationService.translate(context, 'browse_library'),
-        visualDensity: VisualDensity.compact,
-        padding: EdgeInsets.zero,
-        constraints: _actionConstraints,
-        onPressed: () => context.push(
-          '/peers/${peer.id}/books',
-          extra: {
-            'id': peer.id,
-            'name': relation.name,
-            'url': peer.url,
-            'hasRelayCredentials': peer.hasRelayCredentials,
-            'nodeId': relation.nodeId,
-            'caption': relation.caption,
-          },
-        ),
-      ));
-    }
-
-    // Browse catalog - active hub follow (no direct peer)
-    if (!relation.isPeer &&
-        relation.isFollowing &&
-        relation.follow!.isActive) {
-      actions.add(IconButton(
-        icon: const Icon(Icons.menu_book, size: 20),
-        tooltip: TranslationService.translate(context, 'browse_library'),
-        visualDensity: VisualDensity.compact,
-        padding: EdgeInsets.zero,
-        constraints: _actionConstraints,
-        onPressed: () =>
-            context.push('/directory/${Uri.encodeComponent(relation.nodeId)}'),
-      ));
-    }
-
-    // Sync (peers only)
-    if (relation.isPeer && relation.peer?.url != null) {
-      actions.add(
-        Consumer<ApiService>(
-          builder: (context, api, _) => IconButton(
-            icon: const Icon(Icons.sync, size: 20),
-            tooltip: TranslationService.translate(context, 'tooltip_sync'),
-            visualDensity: VisualDensity.compact,
-            padding: EdgeInsets.zero,
-            constraints: _actionConstraints,
-            onPressed: () async {
-              try {
-                await api.syncPeer(relation.peer!.url!);
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text(
-                      TranslationService.translate(context, 'sync_started'),
-                    ),
-                  ));
-                }
-              } catch (e) {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text(
-                      TranslationService.translate(context, 'sync_failed'),
-                    ),
-                    backgroundColor: Colors.orange,
-                  ));
-                }
-              }
-            },
-          ),
-        ),
+      context.push(
+        '/peers/${peer.id}/books',
+        extra: {
+          'id': peer.id,
+          'name': relation.name,
+          'url': peer.url,
+          'hasRelayCredentials': peer.hasRelayCredentials,
+          'nodeId': relation.nodeId,
+          'caption': relation.caption,
+        },
+      );
+    } else if (relation.isFollowing && relation.follow!.isActive) {
+      context.push('/directory/${Uri.encodeComponent(relation.nodeId)}');
+    } else {
+      // No browsable library -- fall back to profile
+      context.push(
+        '/peers/${relation.peer?.id ?? 0}/details',
+        extra: relation,
       );
     }
+  }
 
-    // Unfollow (active follows only)
-    if (relation.isFollowing && !relation.followPending) {
-      actions.add(
-        Consumer<HubDirectoryProvider>(
-          builder: (context, dirProvider, _) => IconButton(
-            icon: Icon(
-              Icons.bookmark_remove,
-              size: 20,
-              color: Theme.of(context).colorScheme.error,
-            ),
-            tooltip: TranslationService.translate(context, 'lib_unfollow'),
-            visualDensity: VisualDensity.compact,
-            padding: EdgeInsets.zero,
-            constraints: _actionConstraints,
-            onPressed: () async {
-              onRemoved(relation.nodeId);
-              await dirProvider.unfollow(relation.nodeId);
-            },
-          ),
-        ),
-      );
-    }
+  /// Bottom sheet with contextual actions for this peer.
+  void _showActionsSheet(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
 
-    // Disconnect peer
-    if (relation.isPeer) {
-      actions.add(
-        Consumer<ApiService>(
-          builder: (context, api, _) => IconButton(
-            icon: Icon(
-              Icons.link_off,
-              size: 20,
-              color: Theme.of(context).colorScheme.error,
-            ),
-            tooltip: TranslationService.translate(context, 'delete'),
-            visualDensity: VisualDensity.compact,
-            padding: EdgeInsets.zero,
-            constraints: _actionConstraints,
-            onPressed: () async {
-              final confirm = await showDialog<bool>(
-                context: context,
-                builder: (ctx) => AlertDialog(
-                  title: Text(
-                    TranslationService.translate(ctx, 'delete_contact_title'),
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Header
+                Text(
+                  relation.name,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
                   ),
-                  content: Text(
-                    '${TranslationService.translate(ctx, 'confirm_delete')} '
-                    '${relation.name}?',
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(ctx, false),
-                      child: Text(
-                        TranslationService.translate(ctx, 'cancel'),
-                      ),
-                    ),
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        foregroundColor: Colors.red,
-                      ),
-                      onPressed: () => Navigator.pop(ctx, true),
-                      child: Text(
-                        TranslationService.translate(ctx, 'delete_contact_btn'),
-                      ),
-                    ),
-                  ],
                 ),
-              );
-              if (confirm == true && context.mounted) {
-                onRemoved(relation.nodeId);
-                api.deletePeer(relation.peer!.id);
-              }
-            },
-          ),
-        ),
-      );
-    }
+                const SizedBox(height: 12),
 
-    return actions;
+                // View profile
+                ListTile(
+                  leading: const Icon(Icons.person),
+                  title: Text(TranslationService.translate(
+                      context, 'view_profile')),
+                  onTap: () async {
+                    Navigator.pop(sheetContext);
+                    final result = await context.push(
+                      '/peers/${relation.peer?.id ?? 0}/details',
+                      extra: relation,
+                    );
+                    if (result == 'deleted') {
+                      onRemoved(relation.nodeId);
+                    }
+                  },
+                ),
+
+                // Sync (P2P peers only)
+                if (relation.isPeer && relation.peer?.url != null)
+                  ListTile(
+                    leading: const Icon(Icons.sync),
+                    title: Text(TranslationService.translate(
+                        context, 'tooltip_sync')),
+                    onTap: () async {
+                      Navigator.pop(sheetContext);
+                      try {
+                        final api = context.read<ApiService>();
+                        await api.syncPeer(relation.peer!.url!);
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text(TranslationService.translate(
+                                context, 'sync_started')),
+                          ));
+                        }
+                      } catch (e) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text(TranslationService.translate(
+                                context, 'sync_failed')),
+                            backgroundColor: Colors.orange,
+                          ));
+                        }
+                      }
+                    },
+                  ),
+
+                // Unfollow (active follows only)
+                if (relation.isFollowing && !relation.followPending)
+                  ListTile(
+                    leading: Icon(Icons.bookmark_remove, color: cs.error),
+                    title: Text(
+                      TranslationService.translate(context, 'lib_unfollow'),
+                      style: TextStyle(color: cs.error),
+                    ),
+                    onTap: () {
+                      Navigator.pop(sheetContext);
+                      onRemoved(relation.nodeId);
+                      context.read<HubDirectoryProvider>()
+                          .unfollow(relation.nodeId);
+                    },
+                  ),
+
+                // Disconnect peer
+                if (relation.isPeer)
+                  ListTile(
+                    leading: Icon(Icons.link_off, color: cs.error),
+                    title: Text(
+                      TranslationService.translate(
+                          context, 'delete_contact_title'),
+                      style: TextStyle(color: cs.error),
+                    ),
+                    onTap: () async {
+                      Navigator.pop(sheetContext);
+                      final confirm = await showDialog<bool>(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: Text(TranslationService.translate(
+                              ctx, 'delete_contact_title')),
+                          content: Text(
+                            '${TranslationService.translate(ctx, 'confirm_delete')} '
+                            '${relation.name}?',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(ctx, false),
+                              child: Text(TranslationService.translate(
+                                  ctx, 'cancel')),
+                            ),
+                            TextButton(
+                              style: TextButton.styleFrom(
+                                foregroundColor: Colors.red,
+                              ),
+                              onPressed: () => Navigator.pop(ctx, true),
+                              child: Text(TranslationService.translate(
+                                  ctx, 'delete_contact_btn')),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (confirm == true && context.mounted) {
+                        onRemoved(relation.nodeId);
+                        context.read<ApiService>()
+                            .deletePeer(relation.peer!.id);
+                      }
+                    },
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   /// Build the peer avatar: custom DiceBear if available, DiceBear initials fallback.

@@ -7824,6 +7824,13 @@ msgstr "Connection"
 msgid "peer_node_id"
 msgstr "Node ID"
 
+#. Bottom sheet: peer actions menu
+msgid "peer_actions"
+msgstr "Actions"
+
+msgid "view_profile"
+msgstr "View profile"
+
 msgid "peer_name_saved"
 msgstr "Name saved"
 
