@@ -1480,6 +1480,7 @@ sealed class FrbHubProfile with _$FrbHubProfile {
     String? website,
     String? deviceModel,
     String? deviceFingerprint,
+    String? avatarConfig,
   }) = _FrbHubProfile;
 }
 
@@ -2086,6 +2087,7 @@ sealed class FrbRegisterParams with _$FrbRegisterParams {
     String? relayUrl,
     String? relayMailboxId,
     String? relayWriteToken,
+    String? avatarConfig,
   }) = _FrbRegisterParams;
 }
 

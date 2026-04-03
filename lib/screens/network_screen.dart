@@ -684,7 +684,11 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
       final Map<String, LibraryRelation> map = {};
       for (final peer in dedupedPeers) {
         final nodeId = peer.libraryUuid ?? 'peer_${peer.id}';
-        map[nodeId] = LibraryRelation(nodeId: nodeId, peer: peer);
+        map[nodeId] = LibraryRelation(
+          nodeId: nodeId,
+          peer: peer,
+          hubAvatarConfig: dirProvider.avatarConfigFor(nodeId),
+        );
       }
       for (final follow in follows) {
         final nodeId = follow.followedNodeId;
@@ -705,6 +709,7 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
             nodeId: nodeId,
             displayName: hubName,
             follow: follow,
+            hubAvatarConfig: dirProvider.avatarConfigFor(nodeId),
           );
         }
       }
@@ -2798,7 +2803,7 @@ class _LibraryRelationCard extends StatelessWidget {
                 // Avatar with status dot
                 Stack(
                   children: [
-                    _peerAvatar(relation, avatarColor),
+                    _peerAvatar(context, relation, avatarColor),
                     if (statusColor != null)
                       Positioned(
                         right: 0,
@@ -3018,13 +3023,28 @@ class _LibraryRelationCard extends StatelessWidget {
   }
 
   /// Build the peer avatar: custom DiceBear if available, DiceBear initials fallback.
-  Widget _peerAvatar(LibraryRelation relation, Color fallbackColor) {
-    final config = relation.avatarConfig;
+  /// Uses Selector to rebuild only when the hub avatar for this specific node changes.
+  Widget _peerAvatar(BuildContext context, LibraryRelation relation, Color fallbackColor) {
+    // If the relation already has an avatar (from P2P sync), use it directly — no need for Selector.
+    if (relation.avatarConfig != null) {
+      return _buildAvatarWidget(relation.avatarConfig!, relation, fallbackColor);
+    }
+    // Otherwise, reactively wait for the hub avatar cache to be populated.
+    return Selector<HubDirectoryProvider, bool>(
+      selector: (_, p) => p.avatarConfigFor(relation.nodeId) != null,
+      builder: (context, _, __) {
+        final config = Provider.of<HubDirectoryProvider>(context, listen: false)
+            .avatarConfigFor(relation.nodeId);
+        return _buildAvatarWidget(config, relation, fallbackColor);
+      },
+    );
+  }
+
+  Widget _buildAvatarWidget(AvatarConfig? config, LibraryRelation relation, Color fallbackColor) {
     final String url;
     if (config != null && !config.isAsset) {
       url = config.toUrl(size: 72);
     } else {
-      // DiceBear initials: multi-letter initials with deterministic color per name
       url = AvatarConfig(seed: relation.name, style: 'initials')
           .toUrl(size: 72);
     }

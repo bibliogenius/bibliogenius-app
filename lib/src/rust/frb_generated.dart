@@ -5506,8 +5506,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   FrbHubProfile dco_decode_frb_hub_profile(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 12)
-      throw Exception('unexpected arr length: expect 12 but see ${arr.length}');
+    if (arr.length != 13)
+      throw Exception('unexpected arr length: expect 13 but see ${arr.length}');
     return FrbHubProfile(
       nodeId: dco_decode_String(arr[0]),
       displayName: dco_decode_String(arr[1]),
@@ -5521,6 +5521,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       website: dco_decode_opt_String(arr[9]),
       deviceModel: dco_decode_opt_String(arr[10]),
       deviceFingerprint: dco_decode_opt_String(arr[11]),
+      avatarConfig: dco_decode_opt_String(arr[12]),
     );
   }
 
@@ -5812,8 +5813,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   FrbRegisterParams dco_decode_frb_register_params(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 16)
-      throw Exception('unexpected arr length: expect 16 but see ${arr.length}');
+    if (arr.length != 17)
+      throw Exception('unexpected arr length: expect 17 but see ${arr.length}');
     return FrbRegisterParams(
       nodeId: dco_decode_String(arr[0]),
       displayName: dco_decode_String(arr[1]),
@@ -5831,6 +5832,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       relayUrl: dco_decode_opt_String(arr[13]),
       relayMailboxId: dco_decode_opt_String(arr[14]),
       relayWriteToken: dco_decode_opt_String(arr[15]),
+      avatarConfig: dco_decode_opt_String(arr[16]),
     );
   }
 
@@ -6790,6 +6792,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_website = sse_decode_opt_String(deserializer);
     var var_deviceModel = sse_decode_opt_String(deserializer);
     var var_deviceFingerprint = sse_decode_opt_String(deserializer);
+    var var_avatarConfig = sse_decode_opt_String(deserializer);
     return FrbHubProfile(
       nodeId: var_nodeId,
       displayName: var_displayName,
@@ -6803,6 +6806,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       website: var_website,
       deviceModel: var_deviceModel,
       deviceFingerprint: var_deviceFingerprint,
+      avatarConfig: var_avatarConfig,
     );
   }
 
@@ -7179,6 +7183,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_relayUrl = sse_decode_opt_String(deserializer);
     var var_relayMailboxId = sse_decode_opt_String(deserializer);
     var var_relayWriteToken = sse_decode_opt_String(deserializer);
+    var var_avatarConfig = sse_decode_opt_String(deserializer);
     return FrbRegisterParams(
       nodeId: var_nodeId,
       displayName: var_displayName,
@@ -7196,6 +7201,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       relayUrl: var_relayUrl,
       relayMailboxId: var_relayMailboxId,
       relayWriteToken: var_relayWriteToken,
+      avatarConfig: var_avatarConfig,
     );
   }
 
@@ -8247,6 +8253,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_opt_String(self.website, serializer);
     sse_encode_opt_String(self.deviceModel, serializer);
     sse_encode_opt_String(self.deviceFingerprint, serializer);
+    sse_encode_opt_String(self.avatarConfig, serializer);
   }
 
   @protected
@@ -8514,6 +8521,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_opt_String(self.relayUrl, serializer);
     sse_encode_opt_String(self.relayMailboxId, serializer);
     sse_encode_opt_String(self.relayWriteToken, serializer);
+    sse_encode_opt_String(self.avatarConfig, serializer);
   }
 
   @protected

@@ -21,11 +21,15 @@ class LibraryRelation {
   /// Hub follow relationship. Null if peer only.
   final HubFollow? follow;
 
+  /// Avatar from the hub directory profile (fallback when peer avatar is null).
+  final AvatarConfig? hubAvatarConfig;
+
   const LibraryRelation({
     required this.nodeId,
     String? displayName,
     this.peer,
     this.follow,
+    this.hubAvatarConfig,
   }) : _displayName = displayName;
 
   bool get isPeer => peer != null;
@@ -51,8 +55,8 @@ class LibraryRelation {
   /// Can send real-time book requests (needs a peer connection).
   bool get canRequestBooks => isPeer;
 
-  /// Avatar configuration from the peer's profile, if available.
-  AvatarConfig? get avatarConfig => peer?.avatarConfig;
+  /// Avatar configuration: peer P2P avatar first, then hub directory fallback.
+  AvatarConfig? get avatarConfig => peer?.avatarConfig ?? hubAvatarConfig;
 
   /// Follow is pending approval.
   bool get followPending => follow?.isPending ?? false;
@@ -62,6 +66,7 @@ class LibraryRelation {
         displayName: name,
         peer: peer,
         follow: follow,
+        hubAvatarConfig: hubAvatarConfig,
       );
 
   LibraryRelation withFollow(HubFollow f) => LibraryRelation(
@@ -69,5 +74,14 @@ class LibraryRelation {
         displayName: _displayName,
         peer: peer,
         follow: f,
+        hubAvatarConfig: hubAvatarConfig,
+      );
+
+  LibraryRelation withHubAvatarConfig(AvatarConfig? config) => LibraryRelation(
+        nodeId: nodeId,
+        displayName: _displayName,
+        peer: peer,
+        follow: follow,
+        hubAvatarConfig: config,
       );
 }

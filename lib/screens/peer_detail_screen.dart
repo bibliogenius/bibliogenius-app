@@ -1,8 +1,12 @@
+import 'dart:convert';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../models/avatar_config.dart';
 import '../models/hub_directory.dart';
 import '../models/library_relation.dart';
 import '../services/api_service.dart';
@@ -48,16 +52,72 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
       }
     }
 
-    // Fetch hub profile for website and refresh cached display name
+    // Fetch hub profile for website and refresh cached display name + avatar
     try {
       final frbProfile =
           await FfiService().hubDirectoryGetProfile(_relation.nodeId);
       if (mounted && frbProfile != null) {
-        setState(() => _hubProfile = HubProfile.fromFrb(frbProfile));
+        final hp = HubProfile.fromFrb(frbProfile);
+        setState(() {
+          _hubProfile = hp;
+          // Use hub avatar as fallback when peer avatar is missing
+          if (_relation.avatarConfig == null && hp.avatarConfig != null) {
+            try {
+              final parsed = AvatarConfig.fromJson(
+                jsonDecode(hp.avatarConfig!) as Map<String, dynamic>,
+              );
+              _relation = _relation.withHubAvatarConfig(parsed);
+            } catch (_) {}
+          }
+        });
       }
       // Refresh hub name cache so the network list picks up name changes
       provider.refreshName(_relation.nodeId);
     } catch (_) {}
+  }
+
+  Widget _buildAvatar(Color fallbackColor) {
+    final config = _relation.avatarConfig;
+    final String url;
+    if (config != null && !config.isAsset) {
+      url = config.toUrl(size: 192);
+    } else {
+      url = AvatarConfig(seed: _relation.name, style: 'initials')
+          .toUrl(size: 192);
+    }
+    final letter = _relation.name.isNotEmpty
+        ? _relation.name[0].toUpperCase()
+        : '?';
+    return CircleAvatar(
+      radius: 48,
+      backgroundColor: fallbackColor.withValues(alpha: 0.15),
+      child: ClipOval(
+        child: CachedNetworkImage(
+          imageUrl: url,
+          width: 96,
+          height: 96,
+          fit: BoxFit.cover,
+          placeholder: (_, _) => CircleAvatar(
+            radius: 48,
+            backgroundColor: fallbackColor,
+            child: Text(letter,
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 32)),
+          ),
+          errorWidget: (_, _, _) => CircleAvatar(
+            radius: 48,
+            backgroundColor: fallbackColor,
+            child: Text(letter,
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 32)),
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> _editCaption() async {
@@ -139,16 +199,12 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
 
     // Avatar color encodes connection type
     final Color avatarColor;
-    final IconData avatarIcon;
     if (_relation.isPeer && _relation.isFollowing) {
       avatarColor = Colors.teal;
-      avatarIcon = Icons.wifi;
     } else if (_relation.isPeer) {
       avatarColor = Colors.blue;
-      avatarIcon = Icons.wifi;
     } else {
       avatarColor = Colors.deepPurple;
-      avatarIcon = Icons.library_books;
     }
 
     return Scaffold(
@@ -172,11 +228,7 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
             child: Semantics(
               image: true,
               label: _relation.name,
-              child: CircleAvatar(
-                radius: 48,
-                backgroundColor: avatarColor,
-                child: Icon(avatarIcon, color: Colors.white, size: 40),
-              ),
+              child: _buildAvatar(avatarColor),
             ),
           ),
           const SizedBox(height: 16),

@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../models/avatar_config.dart';
 import '../models/hub_directory.dart';
 import '../services/auth_service.dart';
 import '../services/device_service.dart';
@@ -204,12 +205,16 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// nodeId -> display name, populated lazily from hub profile lookups.
   final Map<String, String> _nameCache = {};
 
+  /// nodeId -> parsed AvatarConfig, populated alongside _nameCache.
+  final Map<String, AvatarConfig> _avatarCache = {};
+
   /// Re-fetch a single node's display name from the hub and update the cache.
   Future<void> refreshName(String nodeId) async {
     try {
       final profile = await _ffi.hubDirectoryGetProfile(nodeId);
       if (profile != null) {
         _nameCache[nodeId] = profile.displayName;
+        _cacheAvatar(nodeId, profile.avatarConfig);
         notifyListeners();
       }
     } catch (e) {
@@ -221,7 +226,22 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// all names from the hub. Does NOT clear user-custom names.
   void invalidateNameCache() {
     _nameCache.clear();
+    _avatarCache.clear();
   }
+
+  /// Parse and cache an avatar_config JSON string for a node.
+  void _cacheAvatar(String nodeId, String? avatarConfigJson) {
+    if (avatarConfigJson == null || avatarConfigJson.isEmpty) return;
+    try {
+      final parsed = AvatarConfig.fromJson(
+        jsonDecode(avatarConfigJson) as Map<String, dynamic>,
+      );
+      _avatarCache[nodeId] = parsed;
+    } catch (_) {}
+  }
+
+  /// Returns the cached hub avatar for [nodeId], if available.
+  AvatarConfig? avatarConfigFor(String nodeId) => _avatarCache[nodeId];
 
   // ── Catalog sync ────────────────────────────────────────────────────────
 
@@ -368,6 +388,12 @@ class HubDirectoryProvider extends ChangeNotifier {
     }
   }
 
+  /// Read the local avatar config JSON string from SharedPreferences.
+  Future<String?> _getLocalAvatarConfigJson() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('avatarConfig');
+  }
+
   /// Read relay credentials from local SQLite (single source of truth).
   /// Returns (relayUrl, mailboxId, writeToken), all nullable.
   Future<({String? relayUrl, String? mailboxId, String? writeToken})>
@@ -453,6 +479,7 @@ class HubDirectoryProvider extends ChangeNotifier {
     String? relayUrl,
     String? relayMailboxId,
     String? relayWriteToken,
+    String? avatarConfig,
   }) async {
     _configLoading = true;
     _configError = null;
@@ -463,6 +490,9 @@ class HubDirectoryProvider extends ChangeNotifier {
       // caller did not provide it (settings screen, profile rename, etc.)
       final effectiveModel = deviceModel ?? await _deviceService.getDeviceModel();
       final effectiveFp = deviceFingerprint ?? await _deviceService.getDeviceFingerprint();
+
+      // Auto-include local avatar config if the caller didn't provide one
+      final effectiveAvatar = avatarConfig ?? await _getLocalAvatarConfigJson();
 
       final params = frb.FrbRegisterParams(
         nodeId: nodeId,
@@ -481,6 +511,7 @@ class HubDirectoryProvider extends ChangeNotifier {
         relayUrl: relayUrl,
         relayMailboxId: relayMailboxId,
         relayWriteToken: relayWriteToken,
+        avatarConfig: effectiveAvatar,
       );
       final result = await _ffi.hubDirectoryRegister(params);
       if (result != null) {
@@ -1015,6 +1046,7 @@ class HubDirectoryProvider extends ChangeNotifier {
       _ffi.hubDirectoryGetProfile(id).then((profile) {
         if (profile != null) {
           _nameCache[id] = profile.displayName;
+          _cacheAvatar(id, profile.avatarConfig);
           notifyListeners();
         }
       }).catchError((e) {

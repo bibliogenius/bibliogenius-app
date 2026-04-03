@@ -53,6 +53,7 @@ class HubProfile {
   final String? website;
   final String? deviceModel;
   final String? deviceFingerprint;
+  final String? avatarConfig;
 
   const HubProfile({
     required this.nodeId,
@@ -67,6 +68,7 @@ class HubProfile {
     this.website,
     this.deviceModel,
     this.deviceFingerprint,
+    this.avatarConfig,
   });
 
   factory HubProfile.fromFrb(frb.FrbHubProfile f) => HubProfile(
@@ -82,6 +84,7 @@ class HubProfile {
         website: f.website,
         deviceModel: f.deviceModel,
         deviceFingerprint: f.deviceFingerprint,
+        avatarConfig: f.avatarConfig,
       );
 }
 
