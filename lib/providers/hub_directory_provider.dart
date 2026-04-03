@@ -149,6 +149,44 @@ class HubDirectoryProvider extends ChangeNotifier {
   bool _configLoading = false;
   String? _configError;
 
+  // ── 401 back-off state ──────────────────────────────────────────────────
+  int _consecutive401Count = 0;
+  DateTime? _last401At;
+
+  /// Cooldown durations for consecutive 401 failures: 1 min, 5 min, 15 min.
+  static const _cooldown401Minutes = [1, 5, 15];
+
+  /// True when a recent 401 failure means we should wait before retrying.
+  bool get _isIn401Cooldown {
+    if (_consecutive401Count == 0 || _last401At == null) return false;
+    final idx = (_consecutive401Count - 1).clamp(0, _cooldown401Minutes.length - 1);
+    final cooldown = Duration(minutes: _cooldown401Minutes[idx]);
+    return DateTime.now().difference(_last401At!) < cooldown;
+  }
+
+  /// Number of consecutive 401 failures (exposed for UI/dialog decisions).
+  int get consecutive401Count => _consecutive401Count;
+
+  // ── Keychain backup state ───────────────────────────────────────────────
+  bool _keychainBackupPending = false;
+
+  /// Attempts to back up the hub write_token to Keychain.
+  /// Returns true on success, false on failure (logged, never throws).
+  Future<bool> _tryBackupWriteToken() async {
+    try {
+      final token = await _ffi.hubDirectoryExportWriteToken();
+      if (token == null) return false;
+      await AuthService().saveHubWriteToken(token);
+      return true;
+    } catch (e) {
+      debugPrint(
+        'HubDirectoryProvider: write_token Keychain backup FAILED: $e. '
+        'Will retry on next profile update.',
+      );
+      return false;
+    }
+  }
+
   DirectoryConfig? get config => _config;
   bool get configLoading => _configLoading;
   String? get configError => _configError;
@@ -485,6 +523,14 @@ class HubDirectoryProvider extends ChangeNotifier {
     _configError = null;
     notifyListeners();
 
+    // Retry a previously failed Keychain backup before making a new hub call.
+    if (_keychainBackupPending) {
+      if (await _tryBackupWriteToken()) {
+        _keychainBackupPending = false;
+        debugPrint('HubDirectoryProvider: pending Keychain backup succeeded');
+      }
+    }
+
     try {
       // Always include device info for hub deduplication, even if the
       // caller did not provide it (settings screen, profile rename, etc.)
@@ -516,20 +562,26 @@ class HubDirectoryProvider extends ChangeNotifier {
       final result = await _ffi.hubDirectoryRegister(params);
       if (result != null) {
         _config = DirectoryConfig.fromFrb(result);
-        // Back up write_token to Keychain for reinstall recovery (iOS)
-        try {
-          final token = await _ffi.hubDirectoryExportWriteToken();
-          if (token != null) {
-            await AuthService().saveHubWriteToken(token);
-          }
-        } catch (e) {
-          debugPrint('HubDirectoryProvider: write_token backup failed: $e');
-        }
+        // Registration succeeded: reset 401 back-off state.
+        _consecutive401Count = 0;
+        _last401At = null;
+        // Back up write_token to Keychain for reinstall recovery.
+        _keychainBackupPending = !await _tryBackupWriteToken();
         return true;
       }
       return false;
     } catch (e) {
       _configError = e.toString();
+      // Track 401 failures for exponential back-off.
+      // Rust formats as "Hub error 401: <message>".
+      if (e.toString().contains('Hub error 401:')) {
+        _consecutive401Count++;
+        _last401At = DateTime.now();
+        debugPrint(
+          'HubDirectoryProvider: 401 failure #$_consecutive401Count, '
+          'next retry after ${_cooldown401Minutes[(_consecutive401Count - 1).clamp(0, _cooldown401Minutes.length - 1)]} min',
+        );
+      }
       debugPrint('HubDirectoryProvider register error: $e');
       return false;
     } finally {
@@ -631,8 +683,13 @@ class HubDirectoryProvider extends ChangeNotifier {
 
   /// Auto-register with is_listed=false if not yet registered.
   /// Enables catalog push for known peers without public listing.
+  /// Skips silently when in 401 cooldown to avoid hammering the hub.
   Future<bool> ensureRegistered() async {
     if (isRegistered) return true;
+    if (_isIn401Cooldown) {
+      debugPrint('HubDirectory: ensureRegistered skipped (401 cooldown)');
+      return false;
+    }
     final ok = await _ensureSilentRegistration();
     if (ok) await loadConfig();
     return ok;
