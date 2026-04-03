@@ -1,3 +1,4 @@
+import '../models/avatar_config.dart';
 import 'network_member.dart';
 import 'hub_directory.dart';
 
@@ -49,6 +50,9 @@ class LibraryRelation {
 
   /// Can send real-time book requests (needs a peer connection).
   bool get canRequestBooks => isPeer;
+
+  /// Avatar configuration from the peer's profile, if available.
+  AvatarConfig? get avatarConfig => peer?.avatarConfig;
 
   /// Follow is pending approval.
   bool get followPending => follow?.isPending ?? false;

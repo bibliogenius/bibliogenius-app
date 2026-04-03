@@ -128,12 +128,14 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       }
     }
 
-    // Fetch hub profile for website
+    // Fetch hub profile for website and refresh cached display name
     try {
       final frbProfile = await FfiService().hubDirectoryGetProfile(nodeId);
       if (mounted && frbProfile != null) {
         setState(() => _hubProfile = HubProfile.fromFrb(frbProfile));
       }
+      // Refresh hub name cache so the network list picks up name changes
+      provider.refreshName(nodeId);
     } catch (_) {}
   }
 

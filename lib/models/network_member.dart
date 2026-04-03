@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import '../models/avatar_config.dart';
 import '../models/contact.dart';
 
 /// Enum representing the type of network member
@@ -48,6 +51,9 @@ class NetworkMember {
   /// User-defined display name (overrides name in the UI)
   final String? customDisplayName;
 
+  /// Avatar configuration from the remote peer's profile (JSON)
+  final AvatarConfig? avatarConfig;
+
   // V4 Future: Association link
   final int? linkedPeerId;
   final int? linkedContactId;
@@ -76,6 +82,7 @@ class NetworkMember {
     this.libraryUuid,
     this.hasRelayCredentials = false,
     this.customDisplayName,
+    this.avatarConfig,
     this.linkedPeerId,
     this.linkedContactId,
   });
@@ -116,6 +123,7 @@ class NetworkMember {
         libraryUuid: libraryUuid,
         hasRelayCredentials: hasRelayCredentials,
         customDisplayName: newCaption,
+        avatarConfig: avatarConfig,
         linkedPeerId: linkedPeerId,
         linkedContactId: linkedContactId,
       );
@@ -167,7 +175,23 @@ class NetworkMember {
           (peer['mailbox_id'] as String?)?.isNotEmpty == true &&
           (peer['relay_write_token'] as String?)?.isNotEmpty == true,
       customDisplayName: peer['display_name'] as String?,
+      avatarConfig: _parseAvatarConfig(peer['avatar_config']),
     );
+  }
+
+  static AvatarConfig? _parseAvatarConfig(dynamic raw) {
+    if (raw == null) return null;
+    try {
+      if (raw is String) {
+        return AvatarConfig.fromJson(
+          jsonDecode(raw) as Map<String, dynamic>,
+        );
+      }
+      if (raw is Map<String, dynamic>) {
+        return AvatarConfig.fromJson(raw);
+      }
+    } catch (_) {}
+    return null;
   }
 
   /// Check if this is an online peer

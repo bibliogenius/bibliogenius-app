@@ -48,13 +48,15 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
       }
     }
 
-    // Fetch hub profile for website
+    // Fetch hub profile for website and refresh cached display name
     try {
       final frbProfile =
           await FfiService().hubDirectoryGetProfile(_relation.nodeId);
       if (mounted && frbProfile != null) {
         setState(() => _hubProfile = HubProfile.fromFrb(frbProfile));
       }
+      // Refresh hub name cache so the network list picks up name changes
+      provider.refreshName(_relation.nodeId);
     } catch (_) {}
   }
 

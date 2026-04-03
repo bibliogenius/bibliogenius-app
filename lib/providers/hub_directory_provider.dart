@@ -204,6 +204,25 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// nodeId -> display name, populated lazily from hub profile lookups.
   final Map<String, String> _nameCache = {};
 
+  /// Re-fetch a single node's display name from the hub and update the cache.
+  Future<void> refreshName(String nodeId) async {
+    try {
+      final profile = await _ffi.hubDirectoryGetProfile(nodeId);
+      if (profile != null) {
+        _nameCache[nodeId] = profile.displayName;
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('HubDirectoryProvider refreshName($nodeId): $e');
+    }
+  }
+
+  /// Clear the auto-resolved name cache so the next [loadFollowing] re-fetches
+  /// all names from the hub. Does NOT clear user-custom names.
+  void invalidateNameCache() {
+    _nameCache.clear();
+  }
+
   // ── Catalog sync ────────────────────────────────────────────────────────
 
   /// True when the local book list has changed since the last catalog push.

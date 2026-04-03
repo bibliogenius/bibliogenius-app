@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../theme/app_design.dart';
@@ -12,6 +13,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 import 'dart:convert';
+import '../models/avatar_config.dart';
 import '../models/network_member.dart';
 import '../models/library_relation.dart';
 import '../data/repositories/contact_repository.dart';
@@ -428,6 +430,9 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
   /// in the background and reload again when sync completes.
   Future<void> _pullToRefresh() async {
     if (!mounted) return;
+    // Invalidate hub name cache so loadFollowing re-fetches fresh names
+    final dirProvider = Provider.of<HubDirectoryProvider>(context, listen: false);
+    dirProvider.invalidateNameCache();
     // 1. Reload from local DB/API instantly — the user sees fresh data right away
     await _loadAll();
     if (!mounted) return;
@@ -563,10 +568,20 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
     bool changed = false;
     final updated = _relations.map((r) {
       if (r.isFollowing) {
-        final hubName = dirProvider.displayNameFor(r.nodeId);
-        if (hubName != null && r.name != hubName) {
-          changed = true;
-          return r.withDisplayName(hubName);
+        if (r.isPeer) {
+          // Peer+follow: only apply user-custom names, not auto-resolved hub names.
+          final customName = dirProvider.customFollowName(r.nodeId);
+          if (customName != null && r.name != customName) {
+            changed = true;
+            return r.withDisplayName(customName);
+          }
+        } else {
+          // Follow-only: hub name is the only source.
+          final hubName = dirProvider.displayNameFor(r.nodeId);
+          if (hubName != null && r.name != hubName) {
+            changed = true;
+            return r.withDisplayName(hubName);
+          }
         }
       }
       return r;
@@ -673,15 +688,19 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
       }
       for (final follow in follows) {
         final nodeId = follow.followedNodeId;
-        final hubName = dirProvider.displayNameFor(nodeId);
         final existing = map[nodeId];
         if (existing != null) {
+          // Peer+follow: peer's own name (from P2P sync) is authoritative.
+          // Only override with user-set custom name, not auto-resolved hub name.
           var merged = existing.withFollow(follow);
-          if (hubName != null) {
-            merged = merged.withDisplayName(hubName);
+          final customName = dirProvider.customFollowName(nodeId);
+          if (customName != null) {
+            merged = merged.withDisplayName(customName);
           }
           map[nodeId] = merged;
         } else {
+          // Hub-follow only: hub name is the only source available.
+          final hubName = dirProvider.displayNameFor(nodeId);
           map[nodeId] = LibraryRelation(
             nodeId: nodeId,
             displayName: hubName,
@@ -2733,16 +2752,12 @@ class _LibraryRelationCard extends StatelessWidget {
   Widget build(BuildContext context) {
     // Avatar color encodes the dominant connection type
     final Color avatarColor;
-    final IconData avatarIcon;
     if (relation.isPeer && relation.isFollowing) {
       avatarColor = Colors.teal;
-      avatarIcon = Icons.menu_book;
     } else if (relation.isPeer) {
       avatarColor = Colors.blue;
-      avatarIcon = Icons.menu_book;
     } else {
       avatarColor = Colors.deepPurple;
-      avatarIcon = Icons.library_books;
     }
 
     // Status dot color
@@ -2783,11 +2798,7 @@ class _LibraryRelationCard extends StatelessWidget {
                 // Avatar with status dot
                 Stack(
                   children: [
-                    CircleAvatar(
-                      radius: 18,
-                      backgroundColor: avatarColor,
-                      child: Icon(avatarIcon, color: Colors.white, size: 16),
-                    ),
+                    _peerAvatar(relation, avatarColor),
                     if (statusColor != null)
                       Positioned(
                         right: 0,
@@ -3006,4 +3017,48 @@ class _LibraryRelationCard extends StatelessWidget {
     return actions;
   }
 
+  /// Build the peer avatar: custom DiceBear if available, DiceBear initials fallback.
+  Widget _peerAvatar(LibraryRelation relation, Color fallbackColor) {
+    final config = relation.avatarConfig;
+    final String url;
+    if (config != null && !config.isAsset) {
+      url = config.toUrl(size: 72);
+    } else {
+      // DiceBear initials: multi-letter initials with deterministic color per name
+      url = AvatarConfig(seed: relation.name, style: 'initials')
+          .toUrl(size: 72);
+    }
+    return CircleAvatar(
+      radius: 18,
+      backgroundColor: fallbackColor.withValues(alpha: 0.15),
+      child: ClipOval(
+        child: CachedNetworkImage(
+          imageUrl: url,
+          width: 36,
+          height: 36,
+          fit: BoxFit.cover,
+          placeholder: (_, _) => _initialLetterFallback(relation, fallbackColor),
+          errorWidget: (_, _, _) => _initialLetterFallback(relation, fallbackColor),
+        ),
+      ),
+    );
+  }
+
+  /// Synchronous single-letter fallback shown while CachedNetworkImage loads.
+  Widget _initialLetterFallback(LibraryRelation relation, Color bgColor) {
+    final name = relation.name;
+    final letter = name.isNotEmpty ? name[0].toUpperCase() : '?';
+    return CircleAvatar(
+      radius: 18,
+      backgroundColor: bgColor,
+      child: Text(
+        letter,
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 14,
+        ),
+      ),
+    );
+  }
 }
