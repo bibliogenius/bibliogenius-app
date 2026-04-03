@@ -182,7 +182,6 @@ class NetworkMember {
   }
 
   static AvatarConfig? _parseAvatarConfig(dynamic raw) {
-    debugPrint('🎭 avatar_config raw: ${raw?.runtimeType} = $raw');
     if (raw == null) return null;
     try {
       if (raw is String) {

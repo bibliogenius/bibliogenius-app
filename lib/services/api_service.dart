@@ -1400,13 +1400,19 @@ class ApiService {
           data: _frbLeaderboardToJson(lb),
         );
       } catch (e) {
-        debugPrint('FFI getLeaderboard error: $e');
+        if (!e.toString().contains('gamification is disabled')) {
+          debugPrint('FFI getLeaderboard error: $e');
+        }
       }
     }
     try {
       return await _dio.get('/api/gamification/leaderboard');
     } catch (e) {
-      debugPrint('Leaderboard: server unavailable, returning empty ($e)');
+      final msg = e.toString();
+      if (!msg.contains('gamification is disabled') &&
+          !msg.contains("Unsupported scheme 'ffi'")) {
+        debugPrint('Leaderboard: server unavailable, returning empty ($e)');
+      }
       return Response(
         requestOptions: RequestOptions(path: '/api/gamification/leaderboard'),
         statusCode: 200,
@@ -1427,7 +1433,9 @@ class ApiService {
         options: Options(receiveTimeout: const Duration(seconds: 15)),
       );
     } catch (e) {
-      debugPrint('Refresh leaderboard failed, falling back to cached ($e)');
+      if (e is! DioException || e.response?.statusCode != 403) {
+        debugPrint('Refresh leaderboard failed, falling back to cached ($e)');
+      }
       return getLeaderboard();
     }
   }
