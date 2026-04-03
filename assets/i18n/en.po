@@ -5502,6 +5502,12 @@ msgstr "Makes your library visible to nearby devices on the same Wi-Fi"
 msgid "settings_network_peers_detected"
 msgstr "Libraries detected"
 
+msgid "settings_reshow_invite_banner"
+msgstr "Show invite banner again"
+
+msgid "settings_reshow_invite_banner_done"
+msgstr "Invite banner will reappear on next visit"
+
 #. Extended network
 msgid "settings_network_extended"
 msgstr "Extended network"
@@ -6224,6 +6230,19 @@ msgstr "Sync Library"
 #. Sync started
 msgid "sync_started"
 msgstr "Sync started"
+
+msgid "sync_completed"
+msgstr "Network updated"
+
+#. Last refresh timestamp
+msgid "last_updated_just_now"
+msgstr "Updated just now"
+
+msgid "last_updated_minutes"
+msgstr "Updated %d min ago"
+
+msgid "last_updated_hours"
+msgstr "Updated %d h ago"
 
 #. Prices synced
 msgid "sync_success"
@@ -7830,6 +7849,16 @@ msgstr "Actions"
 
 msgid "view_profile"
 msgstr "View profile"
+
+#. Avatar tooltip: connection type
+msgid "peer_type_both"
+msgstr "Direct peer & following"
+
+msgid "peer_type_direct"
+msgstr "Direct peer"
+
+msgid "peer_type_following"
+msgstr "Following via hub"
 
 msgid "peer_name_saved"
 msgstr "Name saved"

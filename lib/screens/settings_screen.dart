@@ -1159,6 +1159,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
               ],
+              const Divider(height: 1),
+              ListTile(
+                leading: const Icon(Icons.mail_outline),
+                title: Text(t('settings_reshow_invite_banner')),
+                onTap: () async {
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.remove('invite_banner_dismissed');
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text(t('settings_reshow_invite_banner_done')),
+                      duration: const Duration(seconds: 2),
+                    ));
+                  }
+                },
+              ),
             ],
           ),
         ),

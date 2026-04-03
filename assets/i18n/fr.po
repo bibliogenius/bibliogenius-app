@@ -5502,6 +5502,12 @@ msgstr "Rend votre bibliothèque visible aux appareils proches sur le même Wi-F
 msgid "settings_network_peers_detected"
 msgstr "Bibliothèques détectées"
 
+msgid "settings_reshow_invite_banner"
+msgstr "Réafficher le bandeau d'invitation"
+
+msgid "settings_reshow_invite_banner_done"
+msgstr "Le bandeau réapparaîtra à la prochaine visite"
+
 #. Extended network
 msgid "settings_network_extended"
 msgstr "Réseau étendu"
@@ -6224,6 +6230,19 @@ msgstr "Synchroniser la bibliothèque"
 #. Sync started
 msgid "sync_started"
 msgstr "Synchronisation démarrée"
+
+msgid "sync_completed"
+msgstr "Réseau mis à jour"
+
+#. Last refresh timestamp
+msgid "last_updated_just_now"
+msgstr "Mis à jour à l'instant"
+
+msgid "last_updated_minutes"
+msgstr "Mis à jour il y a %d min"
+
+msgid "last_updated_hours"
+msgstr "Mis à jour il y a %d h"
 
 #. Prices synced
 msgid "sync_success"
@@ -7830,6 +7849,16 @@ msgstr "Actions"
 
 msgid "view_profile"
 msgstr "Voir la fiche"
+
+#. Avatar tooltip: connection type
+msgid "peer_type_both"
+msgstr "Pair direct et suivi"
+
+msgid "peer_type_direct"
+msgstr "Pair direct"
+
+msgid "peer_type_following"
+msgstr "Suivi via le hub"
 
 msgid "peer_name_saved"
 msgstr "Nom enregistré"

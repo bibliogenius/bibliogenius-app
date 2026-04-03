@@ -324,6 +324,7 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
   List<DiscoveredPeer> _localPeers = [];
   bool _isLoading = true;
   bool _bannerVisible = false;
+  DateTime? _lastRefreshTime;
   LibraryFilter _filter = LibraryFilter.all;
   late final HubDirectoryProvider _dirProvider;
   Timer? _mdnsRefreshTimer;
@@ -453,7 +454,15 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
     // 2. Sync peers in background, then reload when done
     final syncService = Provider.of<SyncService>(context, listen: false);
     syncService.syncAllPeers().then((_) {
-      if (mounted) _loadAll();
+      if (mounted) {
+        _loadAll();
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(
+            TranslationService.translate(context, 'sync_completed'),
+          ),
+          duration: const Duration(seconds: 2),
+        ));
+      }
     });
   }
 
@@ -791,6 +800,7 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
           _relations = relations;
           _localPeers = localPeers;
           _isLoading = false;
+          _lastRefreshTime = DateTime.now();
         });
         // Update static cache for instant restore on tab switch
         _cachedBorrowers = borrowers;
@@ -986,28 +996,43 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
                       _buildFilterChip(
                         LibraryFilter.all, 'network_filter_all',
                         const Key('netFilterAll'),
+                        icon: Icons.people,
                       ),
                       const SizedBox(width: 8),
                       _buildFilterChip(
                         LibraryFilter.nearby, 'lib_filter_nearby',
                         const Key('netFilterNearby'),
+                        icon: Icons.near_me,
                       ),
                       if (hubDirProvider.isHubEnabled) ...[
                         const SizedBox(width: 8),
                         _buildFilterChip(
                           LibraryFilter.following, 'lib_filter_following',
                           const Key('netFilterFollowing'),
+                          icon: Icons.bookmark,
                         ),
                       ],
                       const SizedBox(width: 8),
                       _buildFilterChip(
                         LibraryFilter.borrowers, 'network_filter_borrowers',
                         const Key('netFilterBorrowers'),
+                        icon: Icons.person,
                       ),
                     ],
                   ),
                 ),
         ),
+        if (_lastRefreshTime != null)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+            child: Text(
+              _formatLastRefresh(_lastRefreshTime!),
+              style: TextStyle(
+                fontSize: 11,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
         Expanded(
           child: _isLoading && _relations.isEmpty && _localPeers.isEmpty && _borrowers.isEmpty
               ? const NetworkLoadingSkeleton()
@@ -1060,18 +1085,36 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
     );
   }
 
-  Widget _buildFilterChip(LibraryFilter filter, String labelKey, Key key) {
+  Widget _buildFilterChip(
+    LibraryFilter filter, String labelKey, Key key, {IconData? icon}) {
     final selected = _filter == filter;
     return FilterChip(
       key: key,
+      avatar: icon != null
+          ? Icon(icon, size: 16, color: selected ? Colors.white : null)
+          : null,
       label: Text(TranslationService.translate(context, labelKey)),
       selected: selected,
+      showCheckmark: false,
       onSelected: (_) => setState(() => _filter = filter),
       selectedColor: Theme.of(context).colorScheme.primary,
       labelStyle: TextStyle(
         color: selected ? Colors.white : null,
       ),
     );
+  }
+
+  String _formatLastRefresh(DateTime time) {
+    final diff = DateTime.now().difference(time);
+    if (diff.inMinutes < 1) {
+      return TranslationService.translate(context, 'last_updated_just_now');
+    } else if (diff.inHours < 1) {
+      return TranslationService.translate(context, 'last_updated_minutes')
+          .replaceFirst('%d', '${diff.inMinutes}');
+    } else {
+      return TranslationService.translate(context, 'last_updated_hours')
+          .replaceFirst('%d', '${diff.inHours}');
+    }
   }
 
   Widget _buildBorrowerTile(NetworkMember member) {
@@ -1199,7 +1242,7 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
       child: Card(
         surfaceTintColor: Colors.transparent,
         key: Key('localPeerTile_${peer.host}_${peer.port}'),
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
           onTap: () => context.push(
@@ -1213,23 +1256,25 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
             },
           ),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(12, 8, 4, 8),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             child: Row(
               children: [
                 const CircleAvatar(
+                  radius: 18,
                   backgroundColor: Colors.green,
-                  child: Icon(Icons.menu_book, color: Colors.white, size: 20),
+                  child: Icon(Icons.menu_book, color: Colors.white, size: 18),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
                         displayName,
                         style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -2771,12 +2816,16 @@ class _LibraryRelationCard extends StatelessWidget {
   Widget build(BuildContext context) {
     // Avatar color encodes the dominant connection type
     final Color avatarColor;
+    final String avatarTooltipKey;
     if (relation.isPeer && relation.isFollowing) {
       avatarColor = Colors.teal;
+      avatarTooltipKey = 'peer_type_both';
     } else if (relation.isPeer) {
       avatarColor = Colors.blue;
+      avatarTooltipKey = 'peer_type_direct';
     } else {
       avatarColor = Colors.deepPurple;
+      avatarTooltipKey = 'peer_type_following';
     }
 
     // Status dot color
@@ -2807,7 +2856,10 @@ class _LibraryRelationCard extends StatelessWidget {
             child: Row(
               children: [
                 // Avatar with status dot
-                Stack(
+                Tooltip(
+                  message: TranslationService.translate(
+                      context, avatarTooltipKey),
+                  child: Stack(
                   children: [
                     _peerAvatar(context, relation, avatarColor),
                     if (statusColor != null)
@@ -2826,8 +2878,25 @@ class _LibraryRelationCard extends StatelessWidget {
                             ),
                           ),
                         ),
+                      )
+                    else if (isOnline == null)
+                      Positioned(
+                        right: 0,
+                        bottom: 0,
+                        child: SizedBox(
+                          width: 12,
+                          height: 12,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withValues(alpha: 0.3),
+                          ),
+                        ),
                       ),
                   ],
+                ),
                 ),
                 const SizedBox(width: 10),
                 // Name + caption
@@ -2876,7 +2945,7 @@ class _LibraryRelationCard extends StatelessWidget {
     );
   }
 
-  static const _actionConstraints = BoxConstraints(minWidth: 32, minHeight: 32);
+  static const _actionConstraints = BoxConstraints(minWidth: 44, minHeight: 44);
 
   /// Primary tap: navigate to peer library. Fallback to detail screen if no
   /// library is browsable (no URL and not an active follow).
