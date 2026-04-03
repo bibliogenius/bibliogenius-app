@@ -458,13 +458,10 @@ void main() {
 
       await takeScreenshot(tester, 'network_gina_show_my_qr_code');
 
-      // Close dialog
-      final closeBtn = find.text('Close');
-      final closeBtnFr = find.text('Fermer');
+      // Close full-screen dialog via AppBar close button
+      final closeBtn = find.byKey(const Key('closeShowMyCode'));
       if (closeBtn.evaluate().isNotEmpty) {
         await tester.tap(closeBtn);
-      } else if (closeBtnFr.evaluate().isNotEmpty) {
-        await tester.tap(closeBtnFr);
       }
       await tester.pumpAndSettle();
     }

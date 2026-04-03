@@ -227,3 +227,56 @@ class BookshelfSkeleton extends StatelessWidget {
     );
   }
 }
+
+/// Skeleton card matching the shape of _LibraryRelationCard (peer list item).
+class NetworkCardSkeleton extends StatelessWidget {
+  const NetworkCardSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      surfaceTintColor: Colors.transparent,
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        child: Row(
+          children: [
+            // Avatar placeholder
+            const ShimmerBone(width: 36, height: 36, borderRadius: 18),
+            const SizedBox(width: 10),
+            // Name + caption placeholders
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  ShimmerBone(width: 120, height: 14),
+                  SizedBox(height: 6),
+                  ShimmerBone(width: 80, height: 10),
+                ],
+              ),
+            ),
+            // Menu icon placeholder
+            const ShimmerBone(width: 20, height: 20, borderRadius: 10),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// A list of skeleton cards for the network screen loading state.
+class NetworkLoadingSkeleton extends StatelessWidget {
+  final int count;
+
+  const NetworkLoadingSkeleton({super.key, this.count = 6});
+
+  @override
+  Widget build(BuildContext context) {
+    return ShimmerLoading(
+      child: Column(
+        children: List.generate(count, (_) => const NetworkCardSkeleton()),
+      ),
+    );
+  }
+}

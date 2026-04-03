@@ -7,6 +7,7 @@ import '../widgets/scaffold_with_nav.dart';
 import '../widgets/contextual_help_sheet.dart';
 import '../widgets/invite_share_sheet.dart';
 import '../widgets/configurable_action_card.dart';
+import '../widgets/shimmer_loading.dart';
 import '../utils/invite_payload.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
@@ -168,22 +169,35 @@ class _NetworkScreenState extends State<NetworkScreen>
                         isDark: isDark,
                         onTap: () {
                           Navigator.pop(sheetContext);
-                          showDialog(
+                          showGeneralDialog(
                             context: context,
-                            builder: (dialogContext) => AlertDialog(
+                            barrierDismissible: true,
+                            barrierLabel: MaterialLocalizations.of(context)
+                                .modalBarrierDismissLabel,
+                            transitionDuration:
+                                const Duration(milliseconds: 300),
+                            pageBuilder: (dialogContext, _, _) => Scaffold(
                               key: const Key('showMyCodeDialog'),
-                              title: Text(
-                                TranslationService.translate(context, 'show_my_code'),
-                              ),
-                              content: const ShareContactView(),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(dialogContext),
-                                  child: Text(
-                                    TranslationService.translate(context, 'close'),
-                                  ),
+                              appBar: AppBar(
+                                title: Text(
+                                  TranslationService.translate(
+                                      context, 'show_my_code'),
                                 ),
-                              ],
+                                leading: IconButton(
+                                  key: const Key('closeShowMyCode'),
+                                  icon: const Icon(Icons.close),
+                                  tooltip: TranslationService.translate(
+                                      context, 'close'),
+                                  onPressed: () =>
+                                      Navigator.pop(dialogContext),
+                                ),
+                              ),
+                              body: const SafeArea(
+                                child: SingleChildScrollView(
+                                  padding: EdgeInsets.all(24),
+                                  child: ShareContactView(),
+                                ),
+                              ),
                             ),
                           );
                         },
@@ -996,7 +1010,7 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
         ),
         Expanded(
           child: _isLoading && _relations.isEmpty && _localPeers.isEmpty && _borrowers.isEmpty
-              ? const Center(child: CircularProgressIndicator())
+              ? const NetworkLoadingSkeleton()
               : RefreshIndicator(
                   onRefresh: _pullToRefresh,
                   child: _isEmpty
@@ -2801,8 +2815,8 @@ class _LibraryRelationCard extends StatelessWidget {
                         right: 0,
                         bottom: 0,
                         child: Container(
-                          width: 10,
-                          height: 10,
+                          width: 12,
+                          height: 12,
                           decoration: BoxDecoration(
                             color: statusColor,
                             shape: BoxShape.circle,
