@@ -695,6 +695,49 @@ class HubDirectoryProvider extends ChangeNotifier {
     return ok;
   }
 
+  /// Returns the locally stored recovery code for display in settings.
+  Future<String?> getRecoveryCode() async {
+    return await _ffi.hubDirectoryGetRecoveryCode();
+  }
+
+  /// Formats a raw 12-char recovery code as XXXX-XXXX-XXXX for display.
+  static String formatRecoveryCode(String code) {
+    final clean = code.replaceAll(RegExp(r'[\s\-]'), '').toUpperCase();
+    if (clean.length != 12) return clean;
+    return '${clean.substring(0, 4)}-${clean.substring(4, 8)}-${clean.substring(8, 12)}';
+  }
+
+  /// Recovers a hub profile using a one-time recovery code.
+  /// On success: reloads config, resets 401 state, backs up token to Keychain.
+  Future<bool> recoverWithCode(String nodeId, String recoveryCode) async {
+    _configLoading = true;
+    _configError = null;
+    notifyListeners();
+
+    try {
+      final result = await _ffi.hubDirectoryRecover(
+        nodeId: nodeId,
+        recoveryCode: recoveryCode,
+      );
+      if (result != null) {
+        _config = DirectoryConfig.fromFrb(result);
+        _consecutive401Count = 0;
+        _last401At = null;
+        _keychainBackupPending = !await _tryBackupWriteToken();
+        notifyListeners();
+        return true;
+      }
+      return false;
+    } catch (e) {
+      _configError = e.toString();
+      debugPrint('HubDirectoryProvider recoverWithCode error: $e');
+      return false;
+    } finally {
+      _configLoading = false;
+      notifyListeners();
+    }
+  }
+
   /// Follow (or request to follow) a library identified by [nodeId].
   /// Updates the following list on success.
   Future<bool> follow(String nodeId) async {

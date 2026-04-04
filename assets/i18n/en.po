@@ -8323,3 +8323,107 @@ msgstr "Loan settings saved"
 #. Label for due date in loan dialog
 msgid "loan_due_date_label"
 msgstr "Expected return date"
+
+#. Recovery code - settings row
+msgid "recovery_code_title"
+msgstr "Recovery code"
+
+#. Recovery code - settings row subtitle
+msgid "recovery_code_subtitle"
+msgstr "Recover your profile after reinstalling the app"
+
+#. Recovery code - display screen title
+msgid "recovery_code_display_title"
+msgstr "Recovery code"
+
+#. Recovery code - display screen explanation
+msgid "recovery_code_display_explanation"
+msgstr "This code lets you recover your profile, followers and subscriptions if you reinstall the app."
+
+#. Recovery code - display screen save advice
+msgid "recovery_code_save_advice"
+msgstr "Keep it in a safe place. It can only be used once: a new code will be generated after each use."
+
+#. Recovery code - copy button tooltip
+msgid "recovery_code_copy"
+msgstr "Copy recovery code"
+
+#. Recovery code - copied confirmation
+msgid "recovery_code_copied"
+msgstr "Recovery code copied"
+
+#. Recovery code - first display title
+msgid "recovery_code_first_title"
+msgstr "Recovery code"
+
+#. Recovery code - first display explanation
+msgid "recovery_code_first_explanation"
+msgstr "This code lets you recover your profile in the directory if you reinstall the app."
+
+#. Recovery code - first display save notice
+msgid "recovery_code_first_save_notice"
+msgstr "Save it in a safe place (password manager, handwritten note...)."
+
+#. Recovery code - first display auto notice
+msgid "recovery_code_first_auto_notice"
+msgstr "This code will not be shown automatically again. You can find it in Settings > Directory."
+
+#. Recovery code - first display confirm button
+msgid "recovery_code_first_confirm"
+msgstr "I have saved my code"
+
+#. Connection lost - dialog title
+msgid "connection_lost_title"
+msgstr "Directory connection lost"
+
+#. Connection lost - dialog body
+msgid "connection_lost_body"
+msgstr "After reinstalling, your profile in the directory is no longer accessible. Your books and local contacts are not affected."
+
+#. Connection lost - recovery option
+msgid "connection_lost_recovery_option"
+msgstr "I have a recovery code"
+
+#. Connection lost - recovery option subtitle
+msgid "connection_lost_recovery_subtitle"
+msgstr "Recover your profile, followers and subscriptions"
+
+#. Connection lost - new profile option
+msgid "connection_lost_new_profile"
+msgstr "Create a new profile"
+
+#. Connection lost - new profile warning
+msgid "connection_lost_new_profile_warning"
+msgstr "Your current followers and subscriptions will be lost. People who follow you will need to find you again."
+
+#. Connection lost - later button
+msgid "connection_lost_later"
+msgstr "Later"
+
+#. Recovery input - screen title
+msgid "recovery_input_title"
+msgstr "Recover your profile"
+
+#. Recovery input - instructions
+msgid "recovery_input_instructions"
+msgstr "Enter the recovery code you saved when you registered in the directory."
+
+#. Recovery input - submit button
+msgid "recovery_input_submit"
+msgstr "Recover my profile"
+
+#. Recovery input - success message
+msgid "recovery_input_success"
+msgstr "Profile recovered! Your followers and subscriptions are intact."
+
+#. Recovery input - success new code notice
+msgid "recovery_input_success_new_code"
+msgstr "A new recovery code has been generated."
+
+#. Recovery input - error message
+msgid "recovery_input_error"
+msgstr "This code is not valid. Check that it matches the one you saved."
+
+#. Recovery code - not available (registered before feature)
+msgid "recovery_code_not_available"
+msgstr "Not available. Re-register to generate one."

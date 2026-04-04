@@ -1142,6 +1142,33 @@ class FfiService {
     }
   }
 
+  /// Returns the locally stored recovery code, if any.
+  Future<String?> hubDirectoryGetRecoveryCode() async {
+    try {
+      return await frb.hubDirectoryGetRecoveryCode();
+    } catch (e) {
+      debugPrint('FFI hubDirectoryGetRecoveryCode error: $e');
+      return null;
+    }
+  }
+
+  /// Recovers a hub profile using a one-time recovery code.
+  /// On success: returns the new config (write_token + recovery_code stored locally).
+  Future<frb.FrbDirectoryConfig?> hubDirectoryRecover({
+    required String nodeId,
+    required String recoveryCode,
+  }) async {
+    try {
+      return await frb.hubDirectoryRecover(
+        nodeId: nodeId,
+        recoveryCode: recoveryCode,
+      );
+    } catch (e) {
+      debugPrint('FFI hubDirectoryRecover error: $e');
+      return null;
+    }
+  }
+
   /// Register or update the library profile on the hub directory.
   Future<frb.FrbDirectoryConfig?> hubDirectoryRegister(
     frb.FrbRegisterParams params,

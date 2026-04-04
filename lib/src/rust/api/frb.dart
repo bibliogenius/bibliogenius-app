@@ -640,6 +640,21 @@ Future<void> hubDirectoryImportWriteToken({
   writeToken: writeToken,
 );
 
+/// Returns the locally stored recovery code for display in settings.
+/// Returns None if not yet registered or if registration predates recovery codes.
+Future<String?> hubDirectoryGetRecoveryCode() =>
+    RustLib.instance.api.crateApiFrbHubDirectoryGetRecoveryCode();
+
+/// Recovers a hub profile using a one-time recovery code.
+/// On success: stores the new write_token + recovery_code locally and returns the config.
+Future<FrbDirectoryConfig> hubDirectoryRecover({
+  required String nodeId,
+  required String recoveryCode,
+}) => RustLib.instance.api.crateApiFrbHubDirectoryRecover(
+  nodeId: nodeId,
+  recoveryCode: recoveryCode,
+);
+
 /// Registers with the hub directory (first call) or updates the profile.
 /// On first registration, the write_token is persisted automatically.
 Future<FrbDirectoryConfig> hubDirectoryRegister({

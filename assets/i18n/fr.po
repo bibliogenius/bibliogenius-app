@@ -8323,3 +8323,107 @@ msgstr "Parametres de pret enregistres"
 #. Label for due date in loan dialog
 msgid "loan_due_date_label"
 msgstr "Date de retour prevue"
+
+#. Recovery code - settings row
+msgid "recovery_code_title"
+msgstr "Code de recuperation"
+
+#. Recovery code - settings row subtitle
+msgid "recovery_code_subtitle"
+msgstr "Retrouvez votre profil apres une reinstallation"
+
+#. Recovery code - display screen title
+msgid "recovery_code_display_title"
+msgstr "Code de recuperation"
+
+#. Recovery code - display screen explanation
+msgid "recovery_code_display_explanation"
+msgstr "Ce code vous permet de retrouver votre profil, vos abonnes et abonnements si vous reinstallez l'application."
+
+#. Recovery code - display screen save advice
+msgid "recovery_code_save_advice"
+msgstr "Conservez-le dans un endroit sur. Il ne fonctionnera qu'une seule fois : un nouveau code sera genere apres chaque utilisation."
+
+#. Recovery code - copy button tooltip
+msgid "recovery_code_copy"
+msgstr "Copier le code de recuperation"
+
+#. Recovery code - copied confirmation
+msgid "recovery_code_copied"
+msgstr "Code de recuperation copie"
+
+#. Recovery code - first display title
+msgid "recovery_code_first_title"
+msgstr "Code de recuperation"
+
+#. Recovery code - first display explanation
+msgid "recovery_code_first_explanation"
+msgstr "Ce code vous permet de retrouver votre profil dans l'annuaire si vous reinstallez l'application."
+
+#. Recovery code - first display save notice
+msgid "recovery_code_first_save_notice"
+msgstr "Notez-le dans un endroit sur (gestionnaire de mots de passe, note papier...)."
+
+#. Recovery code - first display auto notice
+msgid "recovery_code_first_auto_notice"
+msgstr "Ce code ne sera plus affiche automatiquement. Vous pourrez le retrouver dans Reglages > Annuaire."
+
+#. Recovery code - first display confirm button
+msgid "recovery_code_first_confirm"
+msgstr "J'ai sauvegarde mon code"
+
+#. Connection lost - dialog title
+msgid "connection_lost_title"
+msgstr "Connexion a l'annuaire perdue"
+
+#. Connection lost - dialog body
+msgid "connection_lost_body"
+msgstr "Apres la reinstallation, votre profil dans l'annuaire n'est plus accessible. Vos livres et contacts locaux ne sont pas affectes."
+
+#. Connection lost - recovery option
+msgid "connection_lost_recovery_option"
+msgstr "J'ai un code de recuperation"
+
+#. Connection lost - recovery option subtitle
+msgid "connection_lost_recovery_subtitle"
+msgstr "Retrouvez votre profil, vos abonnes et abonnements"
+
+#. Connection lost - new profile option
+msgid "connection_lost_new_profile"
+msgstr "Creer un nouveau profil"
+
+#. Connection lost - new profile warning
+msgid "connection_lost_new_profile_warning"
+msgstr "Vos abonnes et abonnements actuels seront perdus. Les personnes qui vous suivaient devront vous retrouver."
+
+#. Connection lost - later button
+msgid "connection_lost_later"
+msgstr "Plus tard"
+
+#. Recovery input - screen title
+msgid "recovery_input_title"
+msgstr "Recuperation du profil"
+
+#. Recovery input - instructions
+msgid "recovery_input_instructions"
+msgstr "Saisissez le code de recuperation que vous avez sauvegarde lors de votre inscription a l'annuaire."
+
+#. Recovery input - submit button
+msgid "recovery_input_submit"
+msgstr "Recuperer mon profil"
+
+#. Recovery input - success message
+msgid "recovery_input_success"
+msgstr "Profil recupere ! Vos abonnes et abonnements sont intacts."
+
+#. Recovery input - success new code notice
+msgid "recovery_input_success_new_code"
+msgstr "Un nouveau code de recuperation a ete genere."
+
+#. Recovery input - error message
+msgid "recovery_input_error"
+msgstr "Ce code n'est pas valide. Verifiez qu'il correspond bien a celui que vous aviez sauvegarde."
+
+#. Recovery code - not available (registered before feature)
+msgid "recovery_code_not_available"
+msgstr "Non disponible. Re-inscrivez-vous pour en generer un."

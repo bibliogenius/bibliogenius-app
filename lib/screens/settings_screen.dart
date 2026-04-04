@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../widgets/genie_app_bar.dart';
+import '../widgets/recovery_code_widgets.dart';
 import '../widgets/scaffold_with_nav.dart';
 import '../widgets/contextual_help_sheet.dart';
 import '../services/api_service.dart';
@@ -1556,6 +1557,52 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               value,
                             ),
                   ),
+
+                  // Recovery code row (visible when registered, regardless of listed status)
+                  if (config != null) ...[
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(Icons.key),
+                      title: Text(
+                        TranslationService.translate(
+                              context,
+                              'recovery_code_title',
+                            ) ??
+                            'Recovery code',
+                      ),
+                      subtitle: Text(
+                        TranslationService.translate(
+                              context,
+                              'recovery_code_subtitle',
+                            ) ??
+                            'Recover your profile after reinstalling the app',
+                      ),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () async {
+                        final code = await dirProvider.getRecoveryCode();
+                        if (!context.mounted) return;
+                        if (code != null) {
+                          showModalBottomSheet(
+                            context: context,
+                            builder: (_) =>
+                                RecoveryCodeDisplaySheet(recoveryCode: code),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                TranslationService.translate(
+                                      context,
+                                      'recovery_code_not_available',
+                                    ) ??
+                                    'Not available. Re-register to generate one.',
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                  ],
 
                   if (isListed) ...[
                     const Divider(height: 1),
