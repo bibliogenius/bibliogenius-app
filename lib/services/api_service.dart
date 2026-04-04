@@ -2932,15 +2932,25 @@ class ApiService {
       if (limit != null) data['limit'] = limit;
       if (query != null) data['query'] = query;
 
-      return await localDio.post(
+      debugPrint('relayLibraryRequest: peer=$peerId type=$requestType cursor=$cursor');
+      final response = await localDio.post(
         '/api/peers/relay/library_request',
         data: data,
       );
+      debugPrint(
+        'relayLibraryRequest: peer=$peerId type=$requestType '
+        'status=${response.statusCode}',
+      );
+      return response;
     } catch (e) {
-      if (e is DioException && e.response?.data != null) {
-        debugPrint('relayLibraryRequest error: HTTP ${e.response?.statusCode} - ${e.response?.data}');
+      if (e is DioException) {
+        debugPrint(
+          'relayLibraryRequest error: peer=$peerId type=$requestType '
+          'HTTP ${e.response?.statusCode} - ${e.response?.data} '
+          'dioType=${e.type}',
+        );
       } else {
-        debugPrint('relayLibraryRequest error: $e');
+        debugPrint('relayLibraryRequest error: peer=$peerId type=$requestType $e');
       }
       rethrow;
     }
@@ -2948,6 +2958,9 @@ class ApiService {
 
   /// Request peer library manifest (book count + catalog hash).
   /// If LAN: returns immediately. If relay: starts async flow.
+  /// Returns `{'error': 'peer_unreachable'}` on 502 so the caller can
+  /// stop retrying without needing Dio imports. Returns null on 202
+  /// (relay_pending).
   Future<Map<String, dynamic>?> requestPeerManifest(int peerId) async {
     try {
       final response = await relayLibraryRequest(
@@ -2960,13 +2973,23 @@ class ApiService {
             : null;
       }
       // 202 = relay_pending, response will come via polling
+      debugPrint('requestPeerManifest: peer=$peerId status=${response.statusCode} (relay_pending)');
+      return null;
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 502) {
+        // Peer unreachable (mailbox expired, credential refresh failed).
+        // Return sentinel map so the caller can break out of retry loops.
+        debugPrint(
+          'requestPeerManifest: peer=$peerId 502 peer_unreachable - ${e.response?.data}',
+        );
+        return {'error': 'peer_unreachable'};
+      }
+      debugPrint(
+        'requestPeerManifest error: peer=$peerId HTTP ${e.response?.statusCode} - ${e.response?.data}',
+      );
       return null;
     } catch (e) {
-      if (e is DioException && e.response?.data != null) {
-        debugPrint('requestPeerManifest error: HTTP ${e.response?.statusCode} - ${e.response?.data}');
-      } else {
-        debugPrint('requestPeerManifest error: $e');
-      }
+      debugPrint('requestPeerManifest error: peer=$peerId $e');
       return null;
     }
   }
@@ -2989,9 +3012,16 @@ class ApiService {
             ? response.data
             : null;
       }
+      debugPrint('requestPeerPage: peer=$peerId cursor=$cursor status=${response.statusCode}');
+      return null;
+    } on DioException catch (e) {
+      debugPrint(
+        'requestPeerPage error: peer=$peerId cursor=$cursor '
+        'HTTP ${e.response?.statusCode} - ${e.response?.data}',
+      );
       return null;
     } catch (e) {
-      debugPrint('requestPeerPage error: $e');
+      debugPrint('requestPeerPage error: peer=$peerId cursor=$cursor $e');
       return null;
     }
   }

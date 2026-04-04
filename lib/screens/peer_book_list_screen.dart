@@ -750,6 +750,16 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       final manifest = await api.requestPeerManifest(widget.peerId);
 
       if (manifest != null && mounted) {
+        // Check for peer_unreachable (502) returned as error in manifest
+        if (manifest['error'] == 'peer_unreachable') {
+          debugPrint(
+            'Relay: peer ${widget.peerId} unreachable (mailbox expired), '
+            'stopping relay sync',
+          );
+          if (mounted) setState(() => _isRelayLoading = false);
+          return;
+        }
+
         // Skip re-fetch if catalog is unchanged (hash match)
         final newHash = manifest['catalog_hash'] as String?;
         if (newHash != null && _books.isNotEmpty) {
@@ -900,6 +910,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   /// Gives up after 3 minutes (ADR-012).
   /// Uses _pollRequestInFlight guard to prevent concurrent requests that
   /// would flood the relay with different correlation IDs.
+  /// Circuit breaker: stops immediately on 502 (peer unreachable).
   void _startAdaptivePolling() {
     _pollTimer?.cancel();
     _pollRequestInFlight = false;
@@ -931,12 +942,24 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
         // 2. Retry manifest - if the relay response arrived, we get data
         final manifest = await api.requestPeerManifest(widget.peerId);
         if (manifest != null && mounted) {
+          // Circuit breaker: peer_unreachable means mailbox expired and
+          // credential refresh failed. Stop polling immediately.
+          if (manifest['error'] == 'peer_unreachable') {
+            debugPrint(
+              'Relay: peer ${widget.peerId} unreachable, '
+              'stopping adaptive polling at tick $pollCount',
+            );
+            timer.cancel();
+            if (mounted) setState(() => _isRelayLoading = false);
+            return;
+          }
+
           debugPrint('Relay: manifest received after ${pollCount * 5}s');
           timer.cancel();
           await _fetchRelayPages(api, manifest);
         }
       } catch (e) {
-        debugPrint('Adaptive poll error: $e');
+        debugPrint('Adaptive poll error: peer=${widget.peerId} tick=$pollCount $e');
       } finally {
         _pollRequestInFlight = false;
       }
