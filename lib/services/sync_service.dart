@@ -19,9 +19,11 @@ class _PeerBackoff {
 
 class SyncService {
   final ApiService _apiService;
+  final bool Function() _isLanEnabled;
   final Map<String, _PeerBackoff> _backoff = {};
 
-  SyncService(this._apiService);
+  SyncService(this._apiService, {required bool Function() isLanEnabled})
+      : _isLanEnabled = isLanEnabled;
 
   /// Reset backoff for a specific peer (e.g. on manual refresh).
   void resetBackoff(String url) {
@@ -48,7 +50,7 @@ class SyncService {
             }
 
             try {
-              await _apiService.syncPeer(url);
+              await _apiService.syncPeer(url, skipLan: !_isLanEnabled());
               _backoff.remove(url);
               debugPrint("Synced peer $name");
             } catch (e) {

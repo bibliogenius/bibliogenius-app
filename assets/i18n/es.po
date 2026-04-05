@@ -1312,14 +1312,8 @@ msgstr "Tomar una foto"
 msgid "cover_take_photo_tooltip"
 msgstr "Fotografiar la portada"
 
-msgid "cover_label"
-msgstr "Portada"
 
-msgid "cover_take_photo_short"
-msgstr "Foto"
 
-msgid "cover_choose_short"
-msgstr "Galeria"
 
 #. Use
 msgid "cover_use_button"
@@ -5200,8 +5194,6 @@ msgstr "Cuándo empezaste este libro"
 msgid "started_reading_label"
 msgstr "Empezado a leer"
 
-msgid "started_on"
-msgstr "Empezado el"
 
 #. Avg. Completion
 msgid "stat_avg_collection_completion"
@@ -6810,6 +6802,10 @@ msgstr "Editar nombre"
 msgid "peer_has_relay"
 msgstr "Accesible via relay"
 
+#. Relay mailbox expired error
+msgid "peer_relay_mailbox_expired"
+msgstr "El buzon relay del par ya no existe. Pidele que reenvie su invitacion."
+
 msgid "peer_last_seen"
 msgstr "Ultima conexion"
 
@@ -7421,3 +7417,840 @@ msgstr "Este libro no será visible por tus contactos en la red"
 #. Tooltip for private book toggle
 msgid "tooltip_private_book"
 msgstr "Ocultar este libro de la red"
+
+#. Hangman - First Game achievement
+msgid "achievement_hangman_first_game"
+msgstr "Primer Ahorcado"
+
+#. Hangman - Master achievement
+msgid "achievement_hangman_master"
+msgstr "Maestro del Ahorcado"
+
+#. Hangman - Perfect achievement
+msgid "achievement_hangman_perfect"
+msgstr "Ahorcado perfecto"
+
+#. View book action
+msgid "action_view_book"
+msgstr "Ver el libro"
+
+#. Contextual add book title (with destination name)
+msgid "add_book_to_title"
+msgstr "Agregar en"
+
+#. Description for average rating insight
+msgid "avg_rating_desc"
+msgstr "Promedio de tus notas en %1 libros calificados"
+
+#. Description for average reading time insight
+msgid "avg_reading_time_desc"
+msgstr "Basado en %1 libros con fechas de inicio y fin"
+
+#. Backup - Export error
+msgid "backup_export_error"
+msgstr "Error de exportacion"
+
+#. Backup - Export success
+msgid "backup_export_success"
+msgstr "Copia de seguridad exportada con exito"
+
+#. Backup - Share text (mobile)
+msgid "backup_share_text"
+msgstr "Mi copia de seguridad BiblioGenius"
+
+#. Description for best rated insight
+msgid "best_rated_desc"
+msgstr "La nota mas alta entre tus libros"
+
+#. Books finished this year
+msgid "books_finished_year"
+msgstr "Terminados este ano"
+
+#. Description for books finished this year insight
+msgid "books_finished_year_desc"
+msgstr "Libros terminados en %1"
+
+#. books (suffix)
+msgid "books_suffix"
+msgstr "libros"
+
+#. Borrow request accepted
+msgid "borrow_request_accepted"
+msgstr "Prestamo aceptado. El libro se ha anadido a tu biblioteca."
+
+#. Borrow request auto-rejected
+msgid "borrow_request_rejected_no_copy"
+msgstr "Solicitud rechazada: ningun ejemplar disponible en esta biblioteca."
+
+#. Choose a shelf for inventory scan
+msgid "choose_shelf_for_inventory"
+msgstr "Elegir una estanteria"
+
+#. Dashboard card label: borrows
+msgid "dashboard_borrowed"
+msgstr "Prestamo"
+
+#. Dashboard card label: loans
+msgid "dashboard_lent"
+msgstr "Prestamo"
+
+#. days ago (suffix)
+msgid "days_ago_suffix"
+msgstr "d."
+
+#. Last book finished
+msgid "days_since_last"
+msgstr "Ultimo libro terminado"
+
+#. Description for days since last finished book
+msgid "days_since_last_desc"
+msgstr "Tiempo transcurrido desde tu ultima lectura"
+
+#. Search placeholder in followed library catalog
+msgid "directory_catalog_search"
+msgstr "Buscar un titulo, autor o ISBN..."
+
+#. Your library
+msgid "directory_your_library"
+msgstr "Tu biblioteca"
+
+#. Description for fastest read insight
+msgid "fastest_read_desc"
+msgstr "Libro terminado en el menor tiempo"
+
+#. Active loans (not overdue)
+msgid "filter_active"
+msgstr "En curso"
+
+#. All months (date filter placeholder)
+msgid "filter_all_months"
+msgstr "Todos los periodos"
+
+#. Overdue loans
+msgid "filter_overdue"
+msgstr "Vencidos"
+
+#. Returned loans
+msgid "filter_returned"
+msgstr "Devueltos"
+
+#. Loading snackbar while generating invite link
+msgid "generating_invite_link"
+msgstr "Generando enlace de invitacion..."
+
+#. Hangman - Back to menu
+msgid "hangman_back_to_menu"
+msgstr "Menu"
+
+#. Hangman - Dashboard subtitle
+msgid "hangman_dashboard_subtitle"
+msgstr "Adivina los titulos de tus libros letra por letra"
+
+#. Hangman - Easy difficulty
+msgid "hangman_difficulty_easy"
+msgstr "Facil"
+
+#. Hangman - Easy difficulty description
+msgid "hangman_difficulty_easy_desc"
+msgstr "2 pistas, 5 min -- ideal para principiantes"
+
+#. Hangman - Hard difficulty
+msgid "hangman_difficulty_hard"
+msgstr "Dificil"
+
+#. Hangman - Hard difficulty description
+msgid "hangman_difficulty_hard_desc"
+msgstr "Sin pistas, 2 min -- solo para expertos"
+
+#. Hangman - Medium difficulty
+msgid "hangman_difficulty_medium"
+msgstr "Medio"
+
+#. Hangman - Medium difficulty description
+msgid "hangman_difficulty_medium_desc"
+msgstr "1 pista, 3 min -- un buen desafio"
+
+#. Hangman - Errors
+msgid "hangman_errors"
+msgstr "Errores"
+
+#. Hangman - Hints
+msgid "hangman_hints"
+msgstr "Pistas"
+
+#. Hangman - Leaderboard
+msgid "hangman_leaderboard"
+msgstr "Clasificacion"
+
+#. Hangman - Lost
+msgid "hangman_lost"
+msgstr "Fin de la partida!"
+
+#. Hangman - New best score
+msgid "hangman_new_best"
+msgstr "Nuevo record personal!"
+
+#. Hangman - No scores
+msgid "hangman_no_scores"
+msgstr "Sin puntuacion. Juega una partida!"
+
+#. Hangman - Not enough books
+msgid "hangman_not_enough_books"
+msgstr "Anade al menos 10 libros para desbloquear este juego. Escanea un codigo de barras o anade tus libros manualmente."
+
+#. Hangman - Not enough books title
+msgid "hangman_not_enough_books_title"
+msgstr "Enriquece tu biblioteca primero!"
+
+#. Hangman - Play again
+msgid "hangman_play_again"
+msgstr "Jugar de nuevo"
+
+#. Hangman - Rank
+msgid "hangman_rank"
+msgstr "Clasificacion"
+
+#. Hangman - Score
+msgid "hangman_score"
+msgstr "Puntuacion"
+
+#. Hangman - Select difficulty
+msgid "hangman_select_difficulty"
+msgstr "Elige un nivel"
+
+#. Hangman - Start
+msgid "hangman_start"
+msgstr "Jugar"
+
+#. Hangman - Books style
+msgid "hangman_style_books"
+msgstr "Libros"
+
+#. Hangman - Classic style
+msgid "hangman_style_classic"
+msgstr "Clasico"
+
+#. Hangman - Time
+msgid "hangman_time"
+msgstr "Tiempo"
+
+#. Hangman game
+msgid "hangman_title"
+msgstr "Ahorcado"
+
+#. Hangman - Visual style
+msgid "hangman_visual_style"
+msgstr "Estilo visual"
+
+#. Hangman - Won
+msgid "hangman_won"
+msgstr "Bien hecho!"
+
+#. View my stats
+msgid "help_cta_go_to_stats"
+msgstr "Ver mis estadisticas"
+
+#. Import my books
+msgid "help_cta_import"
+msgstr "Importar mis libros"
+
+#. Help - Hangman CTA
+msgid "help_cta_play_hangman"
+msgstr "Jugar"
+
+#. Scan a Book
+msgid "help_cta_scan"
+msgstr "Escanear un libro"
+
+#. Help - Hangman Description
+msgid "help_desc_hangman"
+msgstr "Adivina el titulo de un libro de tu biblioteca letra por letra"
+
+#. Help - Scan Description
+msgid "help_desc_scan"
+msgstr "Usa el escaner para identificar un libro al instante. Apunta tu camara al codigo de barras ISBN en la contraportada. BiblioGenius consulta varios catalogos y completa automaticamente los metadatos (titulo, autor, portada, editorial)."
+
+#. Help - Statistics Description
+msgid "help_desc_statistics"
+msgstr "Consulta estadisticas detalladas sobre tus habitos de lectura: libros leidos por mes, generos favoritos, autores mas leidos, anos de publicacion y mas. Sigue tu progreso a lo largo del tiempo y comparate con tus amigos en la clasificacion."
+
+#. Help - Hangman Topic
+msgid "help_topic_hangman"
+msgstr "Ahorcado"
+
+#. How to scan a barcode?
+msgid "help_topic_scan"
+msgstr "Como escanear un codigo de barras?"
+
+#. My statistics and achievements
+msgid "help_topic_statistics"
+msgstr "Mis estadisticas y logros"
+
+#. Empty state for insights with no data
+msgid "insight_no_data"
+msgstr "Sin datos por ahora"
+
+#. No shelves exist yet for inventory
+msgid "no_shelves_for_inventory"
+msgstr "Crea una estanteria primero para usar el modo inventario."
+
+#. Shelf Picker - Search empty
+msgid "no_shelves_match"
+msgstr "Ninguna estanteria encontrada"
+
+#. Shelf Picker - Empty state
+msgid "no_shelves_yet"
+msgstr "Ninguna estanteria por ahora"
+
+#. Notification - book returned
+msgid "notif_book_returned"
+msgstr "{name} ha devuelto \"{book}\""
+
+#. Notification - borrow accepted
+msgid "notif_borrow_accepted"
+msgstr "{name} ha aceptado el prestamo de \"{book}\""
+
+#. Notification display - loan events
+msgid "notif_borrow_request"
+msgstr "{name} quiere tomar prestado \"{book}\""
+
+#. Notification - connection accepted
+msgid "notif_connection_accepted"
+msgstr "{name} ya forma parte de tus contactos"
+
+#. Notification display - connection events
+msgid "notif_connection_request"
+msgstr "{name} desea conectarse"
+
+#. Notification - follow request
+msgid "notif_follow_request"
+msgstr "{name} quiere seguirte"
+
+#. Notification - new follower
+msgid "notif_new_follower"
+msgstr "{name} te sigue"
+
+#. Notification tap hint - Discover
+msgid "notif_tap_discover"
+msgstr "Descubrir"
+
+#. Notification tap hint - Library
+msgid "notif_tap_library"
+msgstr "Ver la biblioteca"
+
+#. Notification tap hint - Loans
+msgid "notif_tap_loans"
+msgstr "Ver los prestamos"
+
+#. Notification tap hints
+msgid "notif_tap_network"
+msgstr "Ver la red"
+
+#. Notification tap hint - Requests
+msgid "notif_tap_requests"
+msgstr "Ver las solicitudes"
+
+#. Notification tap hint - Wishlist
+msgid "notif_tap_wishlist"
+msgstr "Ver la lista de deseos"
+
+#. Notification display - system events
+msgid "notif_welcome"
+msgstr "Bienvenido a BiblioGenius! Explora la aplicacion para gestionar tu biblioteca."
+
+#. Notification display - discovery events
+msgid "notif_wishlist_match"
+msgstr "\"{book}\" disponible en {source}"
+
+#. Notifications empty state description
+msgid "notifications_empty_desc"
+msgstr "Tus notificaciones de conexiones, prestamos y descubrimientos apareceran aqui."
+
+#. See all notifications
+msgid "notifications_see_all"
+msgstr "Ver todas las notificaciones"
+
+#. Pages (suffix)
+msgid "pages_suffix"
+msgstr "p."
+
+#. Pairing - mDNS hint
+msgid "pairing_mdns_hint"
+msgstr "Ambos dispositivos deben estar en la misma red Wi-Fi con la deteccion de red activada (Ajustes > Red)"
+
+#. Pairing - No peers
+msgid "pairing_no_peers"
+msgstr "Ningun dispositivo detectado en la red Wi-Fi"
+
+#. Pairing - Select device
+msgid "pairing_select_device"
+msgstr "Dispositivo a emparejar"
+
+#. Peer caption hint
+msgid "peer_caption_hint"
+msgstr "Ej.: Colega, Vecina, Club de lectura..."
+
+#. Peer caption label
+msgid "peer_caption_label"
+msgstr "Leyenda"
+
+#. Peer caption removed
+msgid "peer_caption_removed"
+msgstr "Leyenda eliminada"
+
+#. Peer caption saved
+msgid "peer_caption_saved"
+msgstr "Leyenda guardada"
+
+#. Caption (label to distinguish contacts with same name)
+msgid "peer_edit_caption"
+msgstr "Agregar una leyenda"
+
+#. Titre, auteur, ISBN...
+msgid "peer_library_search_hint"
+msgstr "Titulo, autor, ISBN..."
+
+#. Choose shortcut (custom quick action picker)
+msgid "quick_action_choose"
+msgstr "Elegir el atajo"
+
+#. Add book manually
+msgid "quick_add_manual"
+msgstr "Introducir"
+
+#. Batch scan
+msgid "quick_batch_scan"
+msgstr "Escaneo en lote"
+
+#. Import CSV file
+msgid "quick_import_csv"
+msgstr "Importar CSV"
+
+#. Import from Gleeph
+msgid "quick_import_gleeph"
+msgstr "Importar Gleeph"
+
+#. Import from Goodreads
+msgid "quick_import_goodreads"
+msgstr "Importar Goodreads"
+
+#. Inventory (batch scan into a shelf)
+msgid "quick_inventory"
+msgstr "Inventariar"
+
+#. Manage shelves
+msgid "quick_manage_shelves"
+msgstr "Gestionar estanterias"
+
+#. My contacts
+msgid "quick_my_contacts"
+msgstr "Contactos"
+
+#. Share library
+msgid "quick_share_library"
+msgstr "Compartir"
+
+#. Reading Streak
+msgid "reading_streak"
+msgstr "Racha de lectura"
+
+#. Description for reading streak insight
+msgid "reading_streak_desc"
+msgstr "Dias consecutivos con un libro en curso"
+
+#. Reading streak suffix
+msgid "reading_streak_suffix"
+msgstr "d."
+
+#. Rename library hint
+msgid "rename_library_hint"
+msgstr "Ej.: Biblioteca de Maria"
+
+#. Rename library dialog title
+msgid "rename_library_title"
+msgstr "Nombre de la biblioteca"
+
+#. Backup - Save dialog title (desktop)
+msgid "save_backup_dialog_title"
+msgstr "Guardar la copia de seguridad"
+
+#. Search books or actions (import, scan...)
+msgid "search_actions_placeholder"
+msgstr "Buscar libros o acciones..."
+
+#. Search placeholder in loans tabs
+msgid "search_loans"
+msgstr "Buscar por titulo o nombre..."
+
+#. Shelf Picker
+msgid "search_shelves_hint"
+msgstr "Buscar una estanteria..."
+
+#. Sections - Drag hint
+msgid "sections_drag_hint"
+msgstr "Mantener pulsado para reordenar"
+
+#. Sections - Edit done
+msgid "sections_edit_done"
+msgstr "Listo"
+
+#. Reorderable sections - edit mode
+msgid "sections_edit_mode"
+msgstr "Personalizar secciones"
+
+#. Sections - Hidden
+msgid "sections_hidden"
+msgstr "Oculta"
+
+#. Sections - Reset
+msgid "sections_reset"
+msgstr "Restablecer"
+
+#. Settings - Auto-backup
+msgid "settings_auto_backup"
+msgstr "Copia de seguridad automatica"
+
+#. Settings - Auto-backup description
+msgid "settings_auto_backup_desc"
+msgstr "Enviar tus datos a los dispositivos vinculados en la misma red Wi-Fi al iniciar"
+
+#. Notification toggle: connections
+msgid "settings_notif_connections"
+msgstr "Conexiones"
+
+#. Notification toggle: connections description
+msgid "settings_notif_connections_desc"
+msgstr "Solicitudes de conexion y nuevos contactos"
+
+#. Notification toggle: discoveries
+msgid "settings_notif_discoveries"
+msgstr "Descubrimientos"
+
+#. Notification toggle: discoveries description
+msgid "settings_notif_discoveries_desc"
+msgstr "Novedades en las bibliotecas de tus contactos"
+
+#. Global notifications toggle
+msgid "settings_notif_enabled"
+msgstr "Activar notificaciones"
+
+#. Global notifications toggle description
+msgid "settings_notif_enabled_desc"
+msgstr "Mostrar el icono y recibir notificaciones"
+
+#. Notification toggle: loans
+msgid "settings_notif_loans"
+msgstr "Prestamos"
+
+#. Notification toggle: loans description
+msgid "settings_notif_loans_desc"
+msgstr "Solicitudes de prestamo, devoluciones y recordatorios"
+
+#. Notifications settings section header
+msgid "settings_notifications"
+msgstr "Notificaciones"
+
+#. Shelf Picker
+msgid "shelves_selected"
+msgstr "seleccionada(s)"
+
+#. Active (in progress)
+msgid "stat_active_count"
+msgstr "{count} en curso"
+
+#. Books read in collection
+msgid "stat_collection_read"
+msgstr "%1 leido(s)"
+
+#. Completed Collections
+msgid "stat_completed_collections"
+msgstr "Completadas"
+
+#. Dashboard card subtitle: in progress
+msgid "stat_in_progress"
+msgstr "en curso"
+
+#. Lent
+msgid "stat_lent"
+msgstr "Prestados"
+
+#. Loans (active)
+msgid "stat_loans"
+msgstr "Prestamos"
+
+#. Customize layout tooltip
+msgid "tooltip_edit_sections"
+msgstr "Personalizar el diseno"
+
+#. Show/hide this section tooltip
+msgid "tooltip_toggle_section"
+msgstr "Mostrar/ocultar esta seccion"
+
+#. Top Author (insight card)
+msgid "top_author"
+msgstr "Autor favorito"
+
+#. Description for top author insight
+msgid "top_author_desc"
+msgstr "%1 libros"
+
+#. Total pages read
+msgid "total_pages_read"
+msgstr "Paginas leidas"
+
+#. Description for total pages read insight
+msgid "total_pages_read_desc"
+msgstr "Total de paginas de los libros terminados"
+
+
+#. Add a note placeholder
+msgid "add_note_placeholder"
+msgstr "Agregar una nota..."
+
+#. Author helper text
+msgid "author_helper"
+msgstr "Agregue varios autores uno por uno"
+
+#. Add another author hint
+msgid "author_hint_add"
+msgstr "Agregar un autor..."
+
+#. Connection lost - body
+msgid "connection_lost_body"
+msgstr "Despues de reinstalar, tu perfil en el directorio ya no es accesible. Tus libros y contactos locales no se ven afectados."
+
+#. Connection lost - Later
+msgid "connection_lost_later"
+msgstr "Mas tarde"
+
+#. Connection lost - New profile warning
+msgid "connection_lost_new_profile_warning"
+msgstr "Tus seguidores y suscripciones actuales se perderan. Las personas que te siguen tendran que buscarte de nuevo."
+
+#. Connection lost - Create new profile
+msgid "connection_lost_new_profile"
+msgstr "Crear un nuevo perfil"
+
+#. Connection lost - Recovery option
+msgid "connection_lost_recovery_option"
+msgstr "Tengo un codigo de recuperacion"
+
+#. Connection lost - Recovery subtitle
+msgid "connection_lost_recovery_subtitle"
+msgstr "Recupera tu perfil, seguidores y suscripciones"
+
+#. Connection lost - Title
+msgid "connection_lost_title"
+msgstr "Conexion al directorio perdida"
+
+#. Delete note confirmation
+msgid "delete_note_confirm"
+msgstr "Eliminar esta nota?"
+
+#. Edit note
+msgid "edit_note"
+msgstr "Modificar la nota"
+
+#. Last updated hours ago
+msgid "last_updated_hours"
+msgstr "Actualizado hace %d h"
+
+#. Last updated just now
+msgid "last_updated_just_now"
+msgstr "Actualizado hace un momento"
+
+#. Last updated minutes ago
+msgid "last_updated_minutes"
+msgstr "Actualizado hace %d min"
+
+#. Custom loan duration for a book
+msgid "loan_duration_book_custom"
+msgstr "Duracion de prestamo personalizada"
+
+#. Default loan duration hint
+msgid "loan_duration_book_default_hint"
+msgstr "Usa la duracion por defecto (%d dias)"
+
+#. Loan duration days suffix
+msgid "loan_duration_days_suffix"
+msgstr "dias"
+
+#. Default duration label
+msgid "loan_duration_default_label"
+msgstr "Duracion por defecto"
+
+#. Per-book loan duration description
+msgid "loan_duration_per_book_desc"
+msgstr "Permite definir una duracion de prestamo diferente para cada libro"
+
+#. Per-book customization toggle
+msgid "loan_duration_per_book_toggle"
+msgstr "Personalizacion por libro"
+
+#. Loan duration settings title
+msgid "loan_duration_settings_title"
+msgstr "Duracion de prestamo"
+
+#. No notes yet
+msgid "no_notes_yet"
+msgstr "Ninguna nota por ahora"
+
+#. Note page label
+msgid "note_page_label"
+msgstr "Pagina"
+
+#. Notes section hint (with speech)
+msgid "notes_section_hint_speech"
+msgstr "Escriba o dicte sus impresiones, citas o pasajes memorables"
+
+#. Notes section hint
+msgid "notes_section_hint"
+msgstr "Anote sus impresiones, citas o pasajes memorables"
+
+#. Notes section title
+msgid "notes_section_title"
+msgstr "Notas de lectura"
+
+#. Page count hint
+msgid "page_count_hint"
+msgstr "Numero de paginas"
+
+#. Page count label
+msgid "page_count_label"
+msgstr "Paginas"
+
+#. Peer actions
+msgid "peer_actions"
+msgstr "Acciones"
+
+#. Peer type: both
+msgid "peer_type_both"
+msgstr "Par directo y seguido"
+
+#. Peer type: direct
+msgid "peer_type_direct"
+msgstr "Par directo"
+
+#. Peer type: following
+msgid "peer_type_following"
+msgstr "Seguido por el hub"
+
+#. Recovery code copied
+msgid "recovery_code_copied"
+msgstr "Codigo de recuperacion copiado"
+
+#. Copy recovery code
+msgid "recovery_code_copy"
+msgstr "Copiar el codigo de recuperacion"
+
+#. Recovery code display explanation
+msgid "recovery_code_display_explanation"
+msgstr "Este codigo le permite recuperar su perfil, seguidores y suscripciones si reinstala la aplicacion."
+
+#. Recovery code display title
+msgid "recovery_code_display_title"
+msgstr "Codigo de recuperacion"
+
+#. Recovery code first auto notice
+msgid "recovery_code_first_auto_notice"
+msgstr "Este codigo no se mostrara automaticamente de nuevo. Podra encontrarlo en Ajustes > Directorio."
+
+#. Recovery code first confirm
+msgid "recovery_code_first_confirm"
+msgstr "He guardado mi codigo"
+
+#. Recovery code first explanation
+msgid "recovery_code_first_explanation"
+msgstr "Este codigo le permite recuperar su perfil en el directorio si reinstala la aplicacion."
+
+#. Recovery code first save notice
+msgid "recovery_code_first_save_notice"
+msgstr "Guardelo en un lugar seguro (gestor de contrasenas, nota en papel...)."
+
+#. Recovery code first title
+msgid "recovery_code_first_title"
+msgstr "Codigo de recuperacion"
+
+#. Recovery code not available
+msgid "recovery_code_not_available"
+msgstr "No disponible. Vuelva a registrarse para generar uno."
+
+#. Recovery code save advice
+msgid "recovery_code_save_advice"
+msgstr "Guardelo en un lugar seguro. Solo funcionara una vez: se generara un nuevo codigo despues de cada uso."
+
+#. Recovery code subtitle
+msgid "recovery_code_subtitle"
+msgstr "Recupere su perfil despues de reinstalar la aplicacion"
+
+#. Recovery code title
+msgid "recovery_code_title"
+msgstr "Codigo de recuperacion"
+
+#. Recovery input error
+msgid "recovery_input_error"
+msgstr "Este codigo no es valido. Verifique que corresponda al que habia guardado."
+
+#. Recovery input instructions
+msgid "recovery_input_instructions"
+msgstr "Introduzca el codigo de recuperacion que guardo al registrarse en el directorio."
+
+#. Recovery input submit
+msgid "recovery_input_submit"
+msgstr "Recuperar mi perfil"
+
+#. Recovery input title
+msgid "recovery_input_title"
+msgstr "Recuperacion del perfil"
+
+#. Settings - Show invite banner again
+msgid "settings_reshow_invite_banner"
+msgstr "Volver a mostrar el banner de invitacion"
+
+#. Settings - Invite banner reshow done
+msgid "settings_reshow_invite_banner_done"
+msgstr "El banner reaparecera en la proxima visita"
+
+#. Speech listening
+msgid "speech_listening"
+msgstr "Escuchando..."
+
+#. Speech not available
+msgid "speech_not_available"
+msgstr "Reconocimiento de voz no disponible en este dispositivo"
+
+#. Speech to text setting description
+msgid "speech_to_text_setting_desc"
+msgstr "Agregar un boton de microfono para dictar sus notas de lectura"
+
+#. Speech to text setting
+msgid "speech_to_text_setting"
+msgstr "Dictado por voz de notas"
+
+#. Started on
+msgid "started_on"
+msgstr "Comenzado el"
+
+#. Sync completed
+msgid "sync_completed"
+msgstr "Red actualizada"
+
+#. Add a note tooltip
+msgid "tooltip_add_note"
+msgstr "Agregar una nota"
+
+#. Clear book loan duration tooltip
+msgid "tooltip_clear_book_loan_duration"
+msgstr "Restablecer a la duracion por defecto"
+
+#. Dictate a note tooltip
+msgid "tooltip_dictate_note"
+msgstr "Dictar una nota"
+
+#. View all notes
+msgid "view_all_notes"
+msgstr "Ver todas las notas"
+
+#. View profile
+msgid "view_profile"
+msgstr "Ver la ficha"

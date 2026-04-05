@@ -457,7 +457,12 @@ class MyApp extends StatelessWidget {
         Provider<LoanRepository>.value(
           value: LoanRepositoryImpl(apiService),
         ),
-        Provider<SyncService>(create: (_) => SyncService(apiService)),
+        Provider<SyncService>(
+          create: (_) => SyncService(
+            apiService,
+            isLanEnabled: () => themeProvider.networkDiscoveryEnabled,
+          ),
+        ),
         // Audio module (decoupled, can be removed without breaking the app)
         ChangeNotifierProvider<AudioProvider>(create: (_) => AudioProvider()),
         ChangeNotifierProvider<PendingPeersProvider>(

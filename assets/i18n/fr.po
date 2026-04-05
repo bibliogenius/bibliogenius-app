@@ -7837,6 +7837,10 @@ msgstr "Dernière connexion"
 msgid "peer_has_relay"
 msgstr "Joignable meme hors Wi-Fi local"
 
+#. Relay mailbox expired error
+msgid "peer_relay_mailbox_expired"
+msgstr "La boite relay du pair n'existe plus. Demandez-lui de renvoyer son invitation."
+
 msgid "peer_connection_info"
 msgstr "Connexion"
 

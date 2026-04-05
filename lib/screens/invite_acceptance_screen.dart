@@ -91,9 +91,10 @@ class _InviteAcceptanceScreenState extends State<InviteAcceptanceScreen> {
 
       // connectLocalPeer returns error responses instead of throwing
       if (response.statusCode != null && response.statusCode! >= 400) {
-        final errorMsg = response.data is Map
+        final rawMsg = response.data is Map
             ? response.data['error'] ?? 'Connection failed'
             : response.data?.toString() ?? 'Connection failed';
+        final errorMsg = TranslationService.translate(context, rawMsg);
         throw Exception(errorMsg);
       }
 

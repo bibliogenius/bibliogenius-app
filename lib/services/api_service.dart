@@ -2189,7 +2189,7 @@ class ApiService {
     return await _dio.put('/api/peers/$peerId/url', data: body);
   }
 
-  Future<Response> syncPeer(String peerUrl) async {
+  Future<Response> syncPeer(String peerUrl, {bool skipLan = false}) async {
     // relay:// URLs are relay-only peers - skip direct HTTP sync
     if (peerUrl.startsWith('relay://')) {
       return Response(
@@ -2207,6 +2207,24 @@ class ApiService {
     if (useFfi) {
       // FFI mode: Direct P2P sync (bidirectional)
       try {
+        // When mDNS is disabled, skip LAN attempt (stale URL, 30s timeout).
+        // Go directly to local backend which handles relay fallback.
+        if (skipLan) {
+          debugPrint('P2P Sync: LAN skipped (mDNS off), relay via backend for $normalizedUrl');
+          final localDio = Dio(
+            BaseOptions(
+              baseUrl: 'http://127.0.0.1:${ApiService.httpPort}',
+              connectTimeout: const Duration(seconds: 5),
+              receiveTimeout: const Duration(seconds: 15),
+            ),
+          );
+          final res = await localDio.post(
+            '/api/peers/sync_by_url',
+            data: {'url': normalizedUrl},
+          );
+          return res;
+        }
+
         final myUrl = await _getMyUrl();
         if (myUrl == null) {
           return Response(
@@ -3139,6 +3157,12 @@ class ApiService {
     String? mailboxId,
     String? relayWriteToken,
   }) async {
+    debugPrint(
+      'P2P connectLocalPeer: name="$name" url="$url" '
+      'libraryUuid=$libraryUuid e2ee=${ed25519PublicKey != null} '
+      'relay=${relayUrl != null} mailbox=$mailboxId',
+    );
+
     if (useFfi) {
       try {
         // 1. Get my own details (SharedPreferences is the source of truth for library name)
@@ -3185,12 +3209,37 @@ class ApiService {
             // on iOS FFI, so Flutter handles the hub deposit directly.
             final wt = relayWriteToken;
             if (wt != null) {
-              await _depositConnectionRequest(
-                localDio: localDio,
-                peerRelayUrl: relayUrl,
-                peerMailboxId: mailboxId,
-                peerWriteToken: wt,
-              );
+              try {
+                await _depositConnectionRequest(
+                  localDio: localDio,
+                  peerRelayUrl: relayUrl,
+                  peerMailboxId: mailboxId,
+                  peerWriteToken: wt,
+                );
+              } on DioException catch (depositErr) {
+                if (depositErr.response?.statusCode == 404) {
+                  debugPrint(
+                    'P2P relay-only: deposit 404 -- peer mailbox stale, '
+                    'removing ghost peer',
+                  );
+                  final peerId = saveResponse.data is Map
+                      ? saveResponse.data['id']
+                      : null;
+                  if (peerId != null) {
+                    try {
+                      await localDio.delete('/api/peers/$peerId');
+                    } catch (_) {}
+                  }
+                  return Response(
+                    requestOptions:
+                        RequestOptions(path: '/api/peers/connect'),
+                    statusCode: 404,
+                    data: {
+                      'error': 'peer_relay_mailbox_expired',
+                    },
+                  );
+                }
+              }
             }
 
             return saveResponse;
@@ -3309,13 +3358,19 @@ class ApiService {
 
         return response;
       } on DioException catch (e) {
-        debugPrint('P2P Connect DioException: ${e.type} - ${e.message}');
+        debugPrint(
+          'P2P Connect DioException: type=${e.type} status=${e.response?.statusCode} '
+          'message=${e.message}',
+        );
 
         // LAN handshake failed (different network, peer offline, etc.).
         // If relay credentials are available, fall back to relay-only path
         // so the remote peer still gets our connection_request.
         if (relayUrl != null && mailboxId != null) {
-          debugPrint('P2P Connect: LAN failed, falling back to relay-only');
+          debugPrint(
+            'P2P Connect: LAN failed (${e.type}), falling back to relay-only '
+            '(mailbox=$mailboxId)',
+          );
           try {
             final localDio = Dio(BaseOptions(
               baseUrl: 'http://localhost:${ApiService.httpPort}',
@@ -3342,12 +3397,37 @@ class ApiService {
 
             final wt = relayWriteToken;
             if (wt != null) {
-              await _depositConnectionRequest(
-                localDio: localDio,
-                peerRelayUrl: relayUrl,
-                peerMailboxId: mailboxId,
-                peerWriteToken: wt,
-              );
+              try {
+                await _depositConnectionRequest(
+                  localDio: localDio,
+                  peerRelayUrl: relayUrl,
+                  peerMailboxId: mailboxId,
+                  peerWriteToken: wt,
+                );
+              } on DioException catch (depositErr) {
+                if (depositErr.response?.statusCode == 404) {
+                  debugPrint(
+                    'P2P relay fallback: deposit 404 -- peer mailbox '
+                    'stale, removing ghost peer',
+                  );
+                  final peerId = saveResponse.data is Map
+                      ? saveResponse.data['id']
+                      : null;
+                  if (peerId != null) {
+                    try {
+                      await localDio.delete('/api/peers/$peerId');
+                    } catch (_) {}
+                  }
+                  return Response(
+                    requestOptions:
+                        RequestOptions(path: '/api/peers/connect'),
+                    statusCode: 404,
+                    data: {
+                      'error': 'peer_relay_mailbox_expired',
+                    },
+                  );
+                }
+              }
             }
 
             return saveResponse;
@@ -3482,7 +3562,11 @@ class ApiService {
       // 4. Deposit in remote peer's mailbox via hub
       final depositUrl =
           '${peerRelayUrl.replaceAll(RegExp(r'/+$'), '')}/api/relay/mailbox/$peerMailboxId/messages';
-      debugPrint('Relay deposit: POST $depositUrl');
+      debugPrint(
+        'Relay deposit: POST $depositUrl '
+        '(name=${payload['name']}, e2ee=${payload.containsKey('ed25519_public_key')}, '
+        'relay_creds=$hasRelayCreds, library_uuid=${payload['library_uuid']})',
+      );
 
       final hubDio = Dio(BaseOptions(
         connectTimeout: const Duration(seconds: 15),
@@ -3505,6 +3589,18 @@ class ApiService {
         'Relay deposit: ${resp.statusCode} '
         '(relay_creds_included=$hasRelayCreds)',
       );
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) {
+        // 404 = mailbox no longer exists on the hub (definitive error).
+        // Rethrow so the caller can inform the user.
+        debugPrint(
+          'Relay deposit: 404 mailbox $peerMailboxId not found '
+          '-- peer relay credentials are stale',
+        );
+        rethrow;
+      }
+      // Transient errors (timeout, 500, network) -- log and swallow.
+      debugPrint('Relay deposit failed (transient): $e');
     } catch (e) {
       debugPrint('Relay deposit failed: $e');
     }
@@ -4242,19 +4338,29 @@ class ApiService {
 
   /// Set up a relay mailbox on the given hub URL.
   Future<Response> setupRelay({required String relayUrl}) async {
-    if (useFfi) {
-      final localDio = Dio(
-        BaseOptions(baseUrl: 'http://localhost:${ApiService.httpPort}'),
-      );
-      return localDio.post(
-        '/api/peers/relay/setup',
-        data: {'relay_url': relayUrl},
-      );
+    debugPrint('Relay setup: POST /api/peers/relay/setup (relay_url=$relayUrl)');
+    try {
+      final Response resp;
+      if (useFfi) {
+        final localDio = Dio(
+          BaseOptions(baseUrl: 'http://localhost:${ApiService.httpPort}'),
+        );
+        resp = await localDio.post(
+          '/api/peers/relay/setup',
+          data: {'relay_url': relayUrl},
+        );
+      } else {
+        resp = await _dio.post(
+          '/api/peers/relay/setup',
+          data: {'relay_url': relayUrl},
+        );
+      }
+      debugPrint('Relay setup: ${resp.statusCode} ${resp.data}');
+      return resp;
+    } catch (e) {
+      debugPrint('Relay setup failed: $e');
+      rethrow;
     }
-    return _dio.post(
-      '/api/peers/relay/setup',
-      data: {'relay_url': relayUrl},
-    );
   }
 
   /// Get current relay configuration (if any).

@@ -920,11 +920,18 @@ class ThemeProvider with ChangeNotifier {
     await prefs.setBool('libraryNameCustomized', true);
   }
 
-  Future<void> setLibraryName(String name, {ApiService? apiService}) async {
+  Future<void> setLibraryName(
+    String name, {
+    ApiService? apiService,
+    bool userInitiated = false,
+  }) async {
     if (_libraryName == name) return;
     _libraryName = name;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('libraryName', name);
+    if (userInitiated) {
+      await markLibraryNameCustomized();
+    }
     notifyListeners();
 
     // Sync with Rust backend so /api/config returns the updated name

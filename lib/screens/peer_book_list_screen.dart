@@ -417,6 +417,11 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                 debugPrint('Failed to cache live books: $e');
               });
             }
+
+            // Load remaining pages in background for complete library
+            if (parsed.hasMore) {
+              _loadAllRemainingBooks();
+            }
           }
           return;
         } catch (e) {

@@ -1365,7 +1365,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             context,
             listen: false,
           );
-          themeProvider.setLibraryName(result);
+          themeProvider.setLibraryName(result, userInitiated: true);
           // Restart mDNS with updated library name
           if (themeProvider.networkDiscoveryEnabled) {
             try {

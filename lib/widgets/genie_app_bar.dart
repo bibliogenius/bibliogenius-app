@@ -37,7 +37,7 @@ void _showRenameLibraryDialog(BuildContext context, ThemeProvider themeProvider)
             final name = value.trim();
             if (name.isNotEmpty) {
               final api = Provider.of<ApiService>(context, listen: false);
-              themeProvider.setLibraryName(name, apiService: api);
+              themeProvider.setLibraryName(name, apiService: api, userInitiated: true);
               Navigator.pop(dialogContext);
             }
           },
@@ -52,7 +52,7 @@ void _showRenameLibraryDialog(BuildContext context, ThemeProvider themeProvider)
               final name = controller.text.trim();
               if (name.isNotEmpty) {
                 final api = Provider.of<ApiService>(context, listen: false);
-                themeProvider.setLibraryName(name, apiService: api);
+                themeProvider.setLibraryName(name, apiService: api, userInitiated: true);
                 Navigator.pop(dialogContext);
               }
             },

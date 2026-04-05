@@ -7837,6 +7837,10 @@ msgstr "Last seen"
 msgid "peer_has_relay"
 msgstr "Reachable even outside local Wi-Fi"
 
+#. Relay mailbox expired error
+msgid "peer_relay_mailbox_expired"
+msgstr "Peer relay mailbox no longer exists. Ask the peer to resend their invitation."
+
 msgid "peer_connection_info"
 msgstr "Connection"
 
