@@ -18,7 +18,13 @@ jobs:
         with:
           fetch-depth: 0 # Fetch all history for all tags and branches
           
-      - name: Gitleaks
-        uses: gitleaks/gitleaks-action@v2
+      - name: Install Gitleaks
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION=$(gh api repos/gitleaks/gitleaks/releases/latest --jq '.tag_name | ltrimstr("v")')
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${VERSION}/gitleaks_${VERSION}_linux_x64.tar.gz" | tar xz
+          sudo mv gitleaks /usr/local/bin/
+
+      - name: Gitleaks
+        run: gitleaks detect --source=. --verbose --redact
