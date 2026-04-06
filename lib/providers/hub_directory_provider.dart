@@ -349,7 +349,7 @@ class HubDirectoryProvider extends ChangeNotifier {
     if (_config == null) return;
     final relay = await _getRelayCredentials();
     if (relay.relayUrl == null) {
-      debugPrint('HubDirectory: no local relay config, skip relay publish');
+      if (kDebugMode) debugPrint('HubDirectory: no local relay config, skip relay publish');
       return;
     }
     final cfg = _config!;
@@ -364,7 +364,7 @@ class HubDirectoryProvider extends ChangeNotifier {
     } catch (_) {}
     final deviceModel = await _deviceService.getDeviceModel();
     final deviceFingerprint = await _deviceService.getDeviceFingerprint();
-    debugPrint('HubDirectory: publishing relay credentials to hub');
+    if (kDebugMode) debugPrint('HubDirectory: publishing relay credentials to hub');
     await register(
       nodeId: cfg.nodeId,
       displayName: libraryName,
@@ -489,7 +489,7 @@ class HubDirectoryProvider extends ChangeNotifier {
       relayMailboxId: relay.mailboxId,
       relayWriteToken: relay.writeToken,
     );
-    debugPrint('HubDirectoryProvider: ensured keys + relay published');
+    if (kDebugMode) debugPrint('HubDirectoryProvider: ensured keys + relay published');
 
     // Now that our key is on the hub, sync contact blobs to followers
     if (_contactInfo.isNotEmpty) {

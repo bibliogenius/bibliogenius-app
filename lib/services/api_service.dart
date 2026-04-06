@@ -2210,7 +2210,7 @@ class ApiService {
         // When mDNS is disabled, skip LAN attempt (stale URL, 30s timeout).
         // Go directly to local backend which handles relay fallback.
         if (skipLan) {
-          debugPrint('P2P Sync: LAN skipped (mDNS off), relay via backend for $normalizedUrl');
+          if (kDebugMode) debugPrint('P2P Sync: LAN skipped (mDNS off), relay via backend for $normalizedUrl');
           final localDio = Dio(
             BaseOptions(
               baseUrl: 'http://127.0.0.1:${ApiService.httpPort}',
@@ -2950,25 +2950,29 @@ class ApiService {
       if (limit != null) data['limit'] = limit;
       if (query != null) data['query'] = query;
 
-      debugPrint('relayLibraryRequest: peer=$peerId type=$requestType cursor=$cursor');
+      if (kDebugMode) debugPrint('relayLibraryRequest: peer=$peerId type=$requestType cursor=$cursor');
       final response = await localDio.post(
         '/api/peers/relay/library_request',
         data: data,
       );
-      debugPrint(
-        'relayLibraryRequest: peer=$peerId type=$requestType '
-        'status=${response.statusCode}',
-      );
+      if (kDebugMode) {
+        debugPrint(
+          'relayLibraryRequest: peer=$peerId type=$requestType '
+          'status=${response.statusCode}',
+        );
+      }
       return response;
     } catch (e) {
       if (e is DioException) {
-        debugPrint(
-          'relayLibraryRequest error: peer=$peerId type=$requestType '
-          'HTTP ${e.response?.statusCode} - ${e.response?.data} '
-          'dioType=${e.type}',
-        );
+        if (kDebugMode) {
+          debugPrint(
+            'relayLibraryRequest error: peer=$peerId type=$requestType '
+            'HTTP ${e.response?.statusCode} '
+            'dioType=${e.type}',
+          );
+        }
       } else {
-        debugPrint('relayLibraryRequest error: peer=$peerId type=$requestType $e');
+        if (kDebugMode) debugPrint('relayLibraryRequest error: peer=$peerId type=$requestType $e');
       }
       rethrow;
     }
@@ -2991,7 +2995,7 @@ class ApiService {
             : null;
       }
       // 202 = relay_pending, response will come via polling
-      debugPrint('requestPeerManifest: peer=$peerId status=${response.statusCode} (relay_pending)');
+      if (kDebugMode) debugPrint('requestPeerManifest: peer=$peerId status=${response.statusCode}');
       return null;
     } on DioException catch (e) {
       if (e.response?.statusCode == 502) {
@@ -3030,16 +3034,18 @@ class ApiService {
             ? response.data
             : null;
       }
-      debugPrint('requestPeerPage: peer=$peerId cursor=$cursor status=${response.statusCode}');
+      if (kDebugMode) debugPrint('requestPeerPage: peer=$peerId cursor=$cursor status=${response.statusCode}');
       return null;
     } on DioException catch (e) {
-      debugPrint(
-        'requestPeerPage error: peer=$peerId cursor=$cursor '
-        'HTTP ${e.response?.statusCode} - ${e.response?.data}',
-      );
+      if (kDebugMode) {
+        debugPrint(
+          'requestPeerPage error: peer=$peerId cursor=$cursor '
+          'HTTP ${e.response?.statusCode}',
+        );
+      }
       return null;
     } catch (e) {
-      debugPrint('requestPeerPage error: peer=$peerId cursor=$cursor $e');
+      if (kDebugMode) debugPrint('requestPeerPage error: peer=$peerId cursor=$cursor $e');
       return null;
     }
   }
@@ -3177,14 +3183,16 @@ class ApiService {
         // Relay-only path: either we have no LAN IP, or the peer has no LAN URL
         // (per ADR-004: relay fallback when direct LAN is unavailable)
         if ((myUrl == null || !peerHasLanUrl) && hasRelayCredentials) {
-          debugPrint(
-            'P2P: relay-only connection (myUrl=${myUrl != null}, peerUrl=$peerHasLanUrl)',
-          );
+          if (kDebugMode) {
+            debugPrint(
+              'P2P: relay-only connection (myUrl=${myUrl != null}, peerUrl=$peerHasLanUrl)',
+            );
+          }
           try {
             final localDio = Dio(BaseOptions(
               baseUrl: 'http://localhost:${ApiService.httpPort}',
             ));
-            debugPrint('P2P relay-only: saving peer "$name" locally (mailbox=$mailboxId)');
+            if (kDebugMode) debugPrint('P2P relay-only: saving peer locally');
             // Send empty URL — Rust generates a unique relay:// placeholder
             final saveResponse = await localDio.post(
               '/api/peers/connect',
@@ -3202,7 +3210,7 @@ class ApiService {
                   'relay_write_token': relayWriteToken,
               },
             );
-            debugPrint('P2P relay-only: peer saved HTTP ${saveResponse.statusCode}');
+            if (kDebugMode) debugPrint('P2P relay-only: peer saved HTTP ${saveResponse.statusCode}');
 
             // Deposit connection_request in remote peer's relay mailbox
             // via Dio (native HTTP stack). Rust's reqwest+rustls fails
@@ -3509,7 +3517,7 @@ class ApiService {
       //    relay credentials in the payload the remote peer cannot reach us.
       //    Relay auto-setup runs in main() but may not have completed yet.
       if (config['relay_url'] == null || config['mailbox_id'] == null) {
-        debugPrint('Relay deposit: local relay not configured, auto-setup');
+        if (kDebugMode) debugPrint('Relay deposit: local relay not configured, auto-setup');
         try {
           await localDio.post(
             '/api/peers/relay/setup',
@@ -3520,7 +3528,7 @@ class ApiService {
             config = configResp.data as Map<String, dynamic>;
           }
         } catch (e) {
-          debugPrint('Relay deposit: relay auto-setup failed: $e');
+          if (kDebugMode) debugPrint('Relay deposit: relay auto-setup failed: $e');
         }
       }
 
@@ -3552,7 +3560,7 @@ class ApiService {
 
       final hasRelayCreds = payload.containsKey('relay_url')
           && payload.containsKey('mailbox_id');
-      if (!hasRelayCreds) {
+      if (!hasRelayCreds && kDebugMode) {
         debugPrint(
           'Relay deposit: WARNING local relay credentials missing, '
           'peer will not be able to reach us via relay',
@@ -3562,11 +3570,13 @@ class ApiService {
       // 4. Deposit in remote peer's mailbox via hub
       final depositUrl =
           '${peerRelayUrl.replaceAll(RegExp(r'/+$'), '')}/api/relay/mailbox/$peerMailboxId/messages';
-      debugPrint(
-        'Relay deposit: POST $depositUrl '
-        '(name=${payload['name']}, e2ee=${payload.containsKey('ed25519_public_key')}, '
-        'relay_creds=$hasRelayCreds, library_uuid=${payload['library_uuid']})',
-      );
+      if (kDebugMode) {
+        debugPrint(
+          'Relay deposit: POST '
+          '(e2ee=${payload.containsKey('ed25519_public_key')}, '
+          'relay_creds=$hasRelayCreds)',
+        );
+      }
 
       final hubDio = Dio(BaseOptions(
         connectTimeout: const Duration(seconds: 15),
@@ -3585,24 +3595,22 @@ class ApiService {
           responseType: ResponseType.json,
         ),
       );
-      debugPrint(
-        'Relay deposit: ${resp.statusCode} '
-        '(relay_creds_included=$hasRelayCreds)',
-      );
+      if (kDebugMode) {
+        debugPrint('Relay deposit: ${resp.statusCode}');
+      }
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) {
         // 404 = mailbox no longer exists on the hub (definitive error).
         // Rethrow so the caller can inform the user.
-        debugPrint(
-          'Relay deposit: 404 mailbox $peerMailboxId not found '
-          '-- peer relay credentials are stale',
-        );
+        if (kDebugMode) {
+          debugPrint('Relay deposit: 404 mailbox not found (stale credentials)');
+        }
         rethrow;
       }
       // Transient errors (timeout, 500, network) -- log and swallow.
-      debugPrint('Relay deposit failed (transient): $e');
+      if (kDebugMode) debugPrint('Relay deposit failed (transient): $e');
     } catch (e) {
-      debugPrint('Relay deposit failed: $e');
+      if (kDebugMode) debugPrint('Relay deposit failed: $e');
     }
   }
 
@@ -4338,7 +4346,7 @@ class ApiService {
 
   /// Set up a relay mailbox on the given hub URL.
   Future<Response> setupRelay({required String relayUrl}) async {
-    debugPrint('Relay setup: POST /api/peers/relay/setup (relay_url=$relayUrl)');
+    if (kDebugMode) debugPrint('Relay setup: POST /api/peers/relay/setup');
     try {
       final Response resp;
       if (useFfi) {

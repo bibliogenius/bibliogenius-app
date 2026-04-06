@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:go_router/go_router.dart';
@@ -206,7 +207,7 @@ class _ScanContactViewState extends State<ScanContactView> {
   }) async {
     final api = Provider.of<ApiService>(context, listen: false);
     try {
-      debugPrint('QR Connect: connectPeer($name, $url, hasKeys=${ed25519PublicKey != null}, hasRelay=${relayUrl != null})');
+      if (kDebugMode) debugPrint('QR Connect: connectPeer(hasKeys=${ed25519PublicKey != null}, hasRelay=${relayUrl != null})');
       final response = await api.connectPeer(
         name,
         url,

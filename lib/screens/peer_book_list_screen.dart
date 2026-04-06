@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -162,7 +163,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
           p.libraryId == widget.nodeId) {
         _lanUrl = 'http://${p.host}:${p.port}';
         _lanUrlTrusted = true;
-        debugPrint('mDNS: resolved relay → LAN $_lanUrl (by UUID)');
+        if (kDebugMode) debugPrint('mDNS: resolved relay peer via LAN (by UUID)');
         return;
       }
       // 2. Name-based candidate (needs validation)
@@ -178,9 +179,9 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       if (nameCandidate.libraryId != null) {
         _resolvedNodeId = nameCandidate.libraryId;
       }
-      debugPrint('mDNS: LAN candidate by name: $_lanUrl (pending validation)');
+      if (kDebugMode) debugPrint('mDNS: LAN candidate by name (pending validation)');
     } else {
-      debugPrint('mDNS: no LAN match for relay peer "${widget.peerName}"');
+      if (kDebugMode) debugPrint('mDNS: no LAN match for relay peer');
     }
   }
 
@@ -192,7 +193,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     if (uuid != null && uuid.isNotEmpty) {
       _resolvedNodeId = uuid;
       _lanUrlTrusted = true;
-      debugPrint('mDNS: validated candidate, library_uuid=$uuid');
+      if (kDebugMode) debugPrint('mDNS: validated candidate');
       return true;
     }
     // fetchPeerLibraryUuid returned null — peer might be unreachable at
@@ -213,18 +214,18 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
     final uuid = await api.fetchPeerLibraryUuid(url);
     if (uuid != null && uuid.isNotEmpty) {
-      debugPrint('Backfill: resolved library_uuid=$uuid from $url');
+      if (kDebugMode) debugPrint('Backfill: resolved library_uuid');
       // Persist so this lookup never has to happen again
       if (widget.peerId > 0) {
         api.updatePeerUrl(widget.peerId, url, libraryUuid: uuid).then((_) {
-          debugPrint('Backfill: library_uuid persisted');
+          if (kDebugMode) debugPrint('Backfill: library_uuid persisted');
         }).onError((e, _) {
-          debugPrint('Backfill: failed to persist library_uuid: $e');
+          if (kDebugMode) debugPrint('Backfill: failed to persist library_uuid: $e');
         });
       }
       return uuid;
     }
-    debugPrint('Backfill: could not resolve library_uuid from $url');
+    if (kDebugMode) debugPrint('Backfill: could not resolve library_uuid');
     return null;
   }
 
@@ -889,9 +890,9 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     // Save relay-fetched books to local cache for instant display next visit
     if (_offlineCachingEnabled && allBooks.isNotEmpty) {
       api.cachePeerBooks(widget.peerId, allBooks).then((_) {
-        debugPrint('Cached ${allBooks.length} relay books for peer ${widget.peerId}');
+        if (kDebugMode) debugPrint('Cached ${allBooks.length} books for peer');
       }).catchError((e) {
-        debugPrint('Failed to cache relay books: $e');
+        if (kDebugMode) debugPrint('Failed to cache books: $e');
       });
     }
 
@@ -964,7 +965,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
           await _fetchRelayPages(api, manifest);
         }
       } catch (e) {
-        debugPrint('Adaptive poll error: peer=${widget.peerId} tick=$pollCount $e');
+        if (kDebugMode) debugPrint('Adaptive poll error: tick=$pollCount $e');
       } finally {
         _pollRequestInFlight = false;
       }

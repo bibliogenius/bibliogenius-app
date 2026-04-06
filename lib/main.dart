@@ -344,7 +344,7 @@ void main([List<String>? args]) async {
               configRes.data is Map &&
               configRes.data['relay_url'] != null) {
             needsSetup = false;
-            debugPrint('Relay: Already configured (${configRes.data['relay_url']})');
+            if (kDebugMode) debugPrint('Relay: Already configured');
           }
         } on DioException {
           // 404 = no config yet - needs setup
@@ -362,7 +362,7 @@ void main([List<String>? args]) async {
               if (verifyRes.statusCode == 200 &&
                   verifyRes.data is Map &&
                   verifyRes.data['relay_url'] != null) {
-                debugPrint('Relay: Auto-configured with ${ApiService.hubUrl}');
+                if (kDebugMode) debugPrint('Relay: Auto-configured');
                 break;
               }
             } catch (_) {}

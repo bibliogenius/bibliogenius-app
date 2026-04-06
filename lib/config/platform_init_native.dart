@@ -36,7 +36,7 @@ Future<bool> initializePlatform() async {
     // Bridge hub URL from Flutter dotenv to Rust process environment.
     // Rust reads HUB_URL via std::env::var and cannot see Flutter's dotenv map.
     await frb.setHubUrlFfi(hubUrl: ApiService.hubUrl);
-    debugPrint('FFI: HUB_URL set to ${ApiService.hubUrl}');
+    if (kDebugMode) debugPrint('FFI: HUB_URL configured');
     debugPrint('FFI: useFfi set to TRUE');
 
     return true; // useFfi = true

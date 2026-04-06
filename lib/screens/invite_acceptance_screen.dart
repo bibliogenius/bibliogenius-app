@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -131,7 +132,7 @@ class _InviteAcceptanceScreenState extends State<InviteAcceptanceScreen> {
   /// Fire-and-forget: prefetch peer library via relay so it's cached
   /// when the user navigates to the peer's book list.
   void _prefetchPeerLibrary(ApiService api, int peerId) {
-    debugPrint('Prefetch: starting background library fetch for peer $peerId');
+    if (kDebugMode) debugPrint('Prefetch: starting background library fetch');
     () async {
       try {
         final manifest = await api.requestPeerManifest(peerId);
@@ -141,7 +142,7 @@ class _InviteAcceptanceScreenState extends State<InviteAcceptanceScreen> {
           await Future.delayed(const Duration(seconds: 5));
           final retry = await api.requestPeerManifest(peerId);
           if (retry == null) {
-            debugPrint('Prefetch: manifest not available yet, will load on browse');
+            if (kDebugMode) debugPrint('Prefetch: manifest not available yet, will load on browse');
             return;
           }
           await _prefetchPages(api, peerId, retry);
@@ -149,7 +150,7 @@ class _InviteAcceptanceScreenState extends State<InviteAcceptanceScreen> {
           await _prefetchPages(api, peerId, manifest);
         }
       } catch (e) {
-        debugPrint('Prefetch error: $e');
+        if (kDebugMode) debugPrint('Prefetch error: $e');
       }
     }();
   }
@@ -181,7 +182,7 @@ class _InviteAcceptanceScreenState extends State<InviteAcceptanceScreen> {
           .map((json) => Book.fromJson(json))
           .toList();
       await api.cachePeerBooks(peerId, books);
-      debugPrint('Prefetch: cached ${books.length} books for peer $peerId');
+      if (kDebugMode) debugPrint('Prefetch: cached ${books.length} books');
     }
   }
 
