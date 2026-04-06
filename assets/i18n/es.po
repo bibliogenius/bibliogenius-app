@@ -8254,3 +8254,47 @@ msgstr "Ver todas las notas"
 #. View profile
 msgid "view_profile"
 msgstr "Ver la ficha"
+
+#. Gallery (cover picker)
+msgid "cover_choose_short"
+msgstr "Galeria"
+
+#. Cover label
+msgid "cover_label"
+msgstr "Portada"
+
+#. Take photo (cover picker)
+msgid "cover_take_photo_short"
+msgstr "Foto"
+
+#. Loan due date label
+msgid "loan_due_date_label"
+msgstr "Fecha de devolucion prevista"
+
+#. Loan settings saved
+msgid "loan_settings_saved"
+msgstr "Ajustes de prestamo guardados"
+
+#. Note deleted
+msgid "note_deleted"
+msgstr "Nota eliminada"
+
+#. Note updated
+msgid "note_updated"
+msgstr "Nota actualizada"
+
+#. Recovery input success - new code generated
+msgid "recovery_input_success_new_code"
+msgstr "Se ha generado un nuevo codigo de recuperacion."
+
+#. Recovery input success
+msgid "recovery_input_success"
+msgstr "Perfil recuperado! Tus seguidores y suscripciones estan intactos."
+
+#. Delete note tooltip
+msgid "tooltip_delete_note"
+msgstr "Eliminar la nota"
+
+#. Edit note tooltip
+msgid "tooltip_edit_note"
+msgstr "Modificar la nota"
