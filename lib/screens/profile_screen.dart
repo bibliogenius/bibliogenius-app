@@ -1393,6 +1393,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             final hubConfig = hubProvider.config;
             if (hubConfig != null) {
               final bookCount = await FfiService().countBooks();
+              final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
               await hubProvider.register(
                 nodeId: hubConfig.nodeId,
                 displayName: result,
@@ -1401,6 +1402,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 requiresApproval: hubConfig.requiresApproval,
                 acceptFrom: hubConfig.acceptFrom,
                 allowBorrowing: hubConfig.allowBorrowing,
+                locationCountry: themeProvider.country,
               );
             }
           } catch (e) {

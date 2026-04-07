@@ -43,7 +43,10 @@ class ThemeProvider with ChangeNotifier {
   AvatarConfig? _avatarConfig;
   AvatarConfig? get avatarConfig => _avatarConfig;
 
-  // Currency
+  // Country / market (ISO 3166-1 alpha-2, derived from device locale on first launch)
+  String _country = '';
+  String get country => _country;
+
   // Currency
   String _currency = 'EUR';
   String get currency => _currency;
@@ -297,6 +300,16 @@ class ThemeProvider with ChangeNotifier {
 
     _currentAvatarId = prefs.getString('avatarId') ?? 'individual';
     _currency = prefs.getString('currency') ?? 'EUR';
+
+    // Load country (derive from device locale on first launch)
+    final storedCountry = prefs.getString('country');
+    if (storedCountry != null) {
+      _country = storedCountry;
+    } else {
+      final systemLocale = WidgetsBinding.instance.platformDispatcher.locale;
+      _country = systemLocale.countryCode?.toUpperCase() ?? 'FR';
+      await prefs.setString('country', _country);
+    }
 
     // Load and normalize profile type to handle legacy values
     String rawProfileType = prefs.getString('profileType') ?? 'individual';
@@ -595,6 +608,13 @@ class ThemeProvider with ChangeNotifier {
     _notifDiscoveriesEnabled = enabled;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('notifDiscoveriesEnabled', enabled);
+    notifyListeners();
+  }
+
+  Future<void> setCountry(String country) async {
+    _country = country.toUpperCase();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('country', _country);
     notifyListeners();
   }
 

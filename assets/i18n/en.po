@@ -4694,6 +4694,14 @@ msgstr "Import Goodreads"
 msgid "quick_share_library"
 msgstr "Share library"
 
+#. Country / Market
+msgid "settings_country"
+msgstr "Country"
+
+#. Country picker description
+msgid "settings_country_desc"
+msgstr "Used for book prices and local recommendations"
+
 #. Quick Presets
 msgid "quick_presets"
 msgstr "Quick Presets"

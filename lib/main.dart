@@ -1475,6 +1475,7 @@ class _FlashLibraryNameEditorState extends State<_FlashLibraryNameEditor> {
       if (hubConfig != null) {
         try {
           final bookCount = await FfiService().countBooks();
+          final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
           await _hubProvider!.register(
             nodeId: hubConfig.nodeId,
             displayName: name,
@@ -1483,6 +1484,7 @@ class _FlashLibraryNameEditorState extends State<_FlashLibraryNameEditor> {
             requiresApproval: hubConfig.requiresApproval,
             acceptFrom: hubConfig.acceptFrom,
             allowBorrowing: hubConfig.allowBorrowing,
+            locationCountry: themeProvider.country,
           );
         } catch (e) {
           debugPrint('Hub name update failed: $e');

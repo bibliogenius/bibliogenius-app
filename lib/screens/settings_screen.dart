@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'dart:convert';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:country_picker/country_picker.dart';
 
 import '../widgets/genie_app_bar.dart';
 import '../widgets/recovery_code_widgets.dart';
@@ -326,6 +327,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onChanged: (v) => setState(() => _settingsSearch = v),
             ),
             const SizedBox(height: 16),
+            // Country / Market (hidden during search)
+            if (!_isSearching) ...[
+              _buildCountryPicker(context, themeProvider),
+              const SizedBox(height: 16),
+            ],
+
             // Quick Presets Section (hidden during search)
             if (!_isSearching) ...[
               Text(
@@ -1801,6 +1808,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       requiresApproval: config?.requiresApproval ?? false,
       acceptFrom: config?.acceptFrom ?? 'everyone',
       allowBorrowing: config?.allowBorrowing ?? true,
+      locationCountry: themeProvider.country,
       x25519PublicKey: x25519PublicKey,
       website: website,
     );
@@ -1865,6 +1873,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       requiresApproval: requiresApproval ?? config.requiresApproval,
       acceptFrom: acceptFrom ?? config.acceptFrom,
       allowBorrowing: allowBorrowing ?? config.allowBorrowing,
+      locationCountry: themeProvider.country,
       x25519PublicKey: x25519PublicKey,
       website: website,
     );
@@ -1946,6 +1955,58 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ],
             ],
           ),
+        );
+      },
+    );
+  }
+
+  Widget _buildCountryPicker(BuildContext context, ThemeProvider themeProvider) {
+    final countryCode = themeProvider.country;
+    Country? current;
+    try {
+      current = CountryParser.parseCountryCode(countryCode);
+    } catch (_) {
+      // Unknown code, will show just the code
+    }
+
+    return ListTile(
+      leading: Text(
+        current?.flagEmoji ?? '',
+        style: const TextStyle(fontSize: 24),
+      ),
+      title: Text(
+        TranslationService.translate(context, 'settings_country') ?? 'Country',
+      ),
+      subtitle: Text(
+        TranslationService.translate(context, 'settings_country_desc') ??
+            'Used for book prices and local recommendations',
+        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+      ),
+      trailing: Text(
+        current?.name ?? countryCode,
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.primary,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      onTap: () {
+        showCountryPicker(
+          context: context,
+          showPhoneCode: false,
+          favorite: ['FR', 'BE', 'CH', 'CA'],
+          countryListTheme: CountryListThemeData(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+            inputDecoration: InputDecoration(
+              hintText: TranslationService.translate(context, 'search') ?? 'Search',
+              prefixIcon: const Icon(Icons.search),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+          onSelect: (Country selected) async {
+            await themeProvider.setCountry(selected.countryCode);
+          },
         );
       },
     );
