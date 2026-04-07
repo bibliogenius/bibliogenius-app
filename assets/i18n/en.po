@@ -1103,6 +1103,22 @@ msgstr "Commerce"
 msgid "commerce_module_desc"
 msgstr "Enable book selling features"
 
+#. Show market prices
+msgid "show_external_prices"
+msgstr "Market prices"
+
+#. Show market prices description
+msgid "show_external_prices_desc"
+msgstr "Display book prices from online sources"
+
+#. Market price label
+msgid "market_price"
+msgstr "Market price"
+
+#. Price attribution
+msgid "price_attribution"
+msgstr "Price: %s"
+
 #. Commerce Module
 msgid "commerce_module_label"
 msgstr "Commerce Module"

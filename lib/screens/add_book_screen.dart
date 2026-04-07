@@ -332,6 +332,18 @@ class _AddBookScreenState extends State<AddBookScreen> {
             _authorsData = bookData['authors_data'];
           }
         });
+
+        // Auto-fetch market price if enabled and price field is empty
+        final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+        if (themeProvider.showExternalPrices && _priceController.text.isEmpty) {
+          api.fetchHubPrice(isbn, market: themeProvider.country).then((priceData) {
+            if (mounted && priceData != null && _priceController.text.isEmpty) {
+              final cents = priceData['price_cents'] as int;
+              _priceController.text = (cents / 100.0).toStringAsFixed(2);
+            }
+          });
+        }
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(

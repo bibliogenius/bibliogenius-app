@@ -4066,6 +4066,27 @@ class ApiService {
     return null;
   }
 
+  /// Fetches the market price for an ISBN from the hub (nudger.fr data, ODbL).
+  /// Returns null if the price is not found or the request fails.
+  Future<Map<String, dynamic>?> fetchHubPrice(String isbn, {String market = 'FR'}) async {
+    try {
+      final dio = Dio(BaseOptions(
+        connectTimeout: const Duration(seconds: 5),
+        receiveTimeout: const Duration(seconds: 5),
+      ));
+      final response = await dio.get(
+        '$hubUrl/api/prices/$isbn',
+        queryParameters: {'market': market},
+      );
+      if (response.statusCode == 200 && response.data is Map) {
+        return Map<String, dynamic>.from(response.data);
+      }
+    } catch (e) {
+      debugPrint('Hub price fetch failed for $isbn: $e');
+    }
+    return null;
+  }
+
   Future<List<Map<String, dynamic>>> searchBooks({
     String? query,
     String? title,

@@ -61,6 +61,9 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   bool _hasChanges = false;
   int _coverVersion = 0;
   bool _isRefreshing = false;
+  // External market price (from hub)
+  Map<String, dynamic>? _marketPrice;
+
   // Per-book loan duration
   bool _perBookDurationEnabled = false;
   int? _bookLoanDurationDays;
@@ -135,6 +138,16 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           _collections = collections;
           _isLoadingCopies = false;
         });
+      }
+
+      // Fetch external market price in background (non-blocking)
+      final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+      if (themeProvider.showExternalPrices && freshBook?.isbn != null && freshBook!.isbn!.isNotEmpty) {
+        final api = Provider.of<ApiService>(context, listen: false);
+        final priceData = await api.fetchHubPrice(freshBook.isbn!, market: themeProvider.country);
+        if (mounted && priceData != null) {
+          setState(() => _marketPrice = priceData);
+        }
       }
     } catch (e) {
       debugPrint('Error fetching book details: $e');
@@ -1470,6 +1483,27 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                 ],
               );
             }(),
+          ],
+          if (_marketPrice != null) ...[
+            const Divider(height: 32),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildMetadataItem(
+                    context,
+                    TranslationService.translate(context, 'market_price') ?? 'Market price',
+                    '${(_marketPrice!['price_cents'] as int) / 100.0} ${_marketPrice!['currency'] ?? 'EUR'}',
+                  ),
+                ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                _marketPrice!['attribution'] as String? ?? 'nudger.fr (ODbL)',
+                style: TextStyle(fontSize: 10, color: Colors.grey[500]),
+              ),
+            ),
           ],
           if ((book.readingStatus == 'reading' ||
                   book.readingStatus == 'read') &&

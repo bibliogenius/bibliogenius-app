@@ -600,6 +600,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               'collections_module', 'collections_module_desc',
               'group_by_collections_title', 'group_by_collections_desc',
               'commerce_module', 'commerce_module_desc',
+              'show_external_prices', 'show_external_prices_desc',
               'audio_module', 'audio_module_desc',
               'auto_approve_loans_title', 'auto_approve_loans_desc',
               'enable_borrowing_module', 'borrowing_module_desc',
@@ -755,6 +756,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Icons.storefront,
                   themeProvider.commerceEnabled,
                   (value) => themeProvider.setCommerceEnabled(value),
+                ),
+                _buildModuleToggle(
+                  context,
+                  'show_external_prices',
+                  'show_external_prices_desc',
+                  Icons.sell_outlined,
+                  themeProvider.showExternalPrices,
+                  (value) => themeProvider.setShowExternalPrices(value),
                 ),
                 _buildModuleToggle(
                   context,
