@@ -2215,7 +2215,10 @@ class ApiService {
             BaseOptions(
               baseUrl: 'http://127.0.0.1:${ApiService.httpPort}',
               connectTimeout: const Duration(seconds: 5),
-              receiveTimeout: const Duration(seconds: 15),
+              // Backend may spend up to ~110s total: config fetch (5s) +
+              // direct E2EE attempt (10s) + relay await (90s) + overhead.
+              // Consistent with relayLibraryRequest timeout.
+              receiveTimeout: const Duration(seconds: 110),
             ),
           );
           final res = await localDio.post(

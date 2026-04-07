@@ -772,6 +772,19 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
           return;
         }
 
+        // Update nodeId from manifest if the peer sent their library_uuid.
+        // This fixes stale nodeId when the peer was reset/reinstalled.
+        final remoteUuid = manifest['library_uuid'] as String?;
+        if (remoteUuid != null && remoteUuid != _effectiveNodeId) {
+          debugPrint(
+            'Relay: peer library_uuid updated: '
+            '$_effectiveNodeId -> $remoteUuid',
+          );
+          _resolvedNodeId = remoteUuid;
+          // Trigger hub catalog refresh with corrected nodeId
+          _refreshFromHubCatalog();
+        }
+
         // Skip re-fetch if catalog is unchanged (hash match)
         final newHash = manifest['catalog_hash'] as String?;
         if (newHash != null && _books.isNotEmpty) {
@@ -968,6 +981,16 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
           debugPrint('Relay: manifest received after ${pollCount * 5}s');
           timer.cancel();
+          // Update stale nodeId if the peer sent their library_uuid
+          final remoteUuid = manifest['library_uuid'] as String?;
+          if (remoteUuid != null && remoteUuid != _effectiveNodeId) {
+            debugPrint(
+              'Relay poll: peer library_uuid updated: '
+              '$_effectiveNodeId -> $remoteUuid',
+            );
+            _resolvedNodeId = remoteUuid;
+            _refreshFromHubCatalog();
+          }
           await _fetchRelayPages(api, manifest);
         }
       } catch (e) {
