@@ -47,10 +47,6 @@ class ThemeProvider with ChangeNotifier {
   String _country = '';
   String get country => _country;
 
-  // Show external market prices (from hub, e.g. nudger.fr)
-  bool _showExternalPrices = false;
-  bool get showExternalPrices => _showExternalPrices;
-
   // Currency
   String _currency = 'EUR';
   String get currency => _currency;
@@ -314,8 +310,6 @@ class ThemeProvider with ChangeNotifier {
       _country = systemLocale.countryCode?.toUpperCase() ?? 'FR';
       await prefs.setString('country', _country);
     }
-
-    _showExternalPrices = prefs.getBool('showExternalPrices') ?? false;
 
     // Load and normalize profile type to handle legacy values
     String rawProfileType = prefs.getString('profileType') ?? 'individual';
@@ -621,13 +615,6 @@ class ThemeProvider with ChangeNotifier {
     _country = country.toUpperCase();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('country', _country);
-    notifyListeners();
-  }
-
-  Future<void> setShowExternalPrices(bool enabled) async {
-    _showExternalPrices = enabled;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('showExternalPrices', enabled);
     notifyListeners();
   }
 

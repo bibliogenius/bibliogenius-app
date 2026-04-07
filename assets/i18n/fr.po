@@ -1103,22 +1103,6 @@ msgstr "Commerce"
 msgid "commerce_module_desc"
 msgstr "Activer les fonctionnalités de vente de livres"
 
-#. Show market prices
-msgid "show_external_prices"
-msgstr "Prix du marche"
-
-#. Show market prices description
-msgid "show_external_prices_desc"
-msgstr "Afficher les prix des livres depuis les sources en ligne"
-
-#. Market price label
-msgid "market_price"
-msgstr "Prix du marche"
-
-#. Price attribution
-msgid "price_attribution"
-msgstr "Prix : %s"
-
 #. Commerce Module
 msgid "commerce_module_label"
 msgstr "Module Commerce"
