@@ -15,6 +15,16 @@ import '../src/rust/api/frb.dart' as frb;
 /// Page size for directory listing.
 const int _kPageSize = 20;
 
+/// Max retry attempts for relay credential publishing.
+const int _kRelayPublishMaxAttempts = 3;
+
+/// Delay between relay publish retries.
+const Duration _kRelayPublishRetryDelay = Duration(seconds: 5);
+
+/// Cooldown before retrying relay publish from periodic sync (avoids hammering
+/// the hub when the network is persistently down).
+const Duration _kRelayPublishCooldown = Duration(seconds: 90);
+
 /// State manager for the public hub directory feature (ADR-015).
 ///
 /// Responsibilities:
@@ -37,8 +47,20 @@ const String _kWebsiteKey = 'hub_website';
 const String _kFollowNamesKey = 'hub_follow_custom_names';
 
 class HubDirectoryProvider extends ChangeNotifier {
-  final FfiService _ffi = FfiService();
-  final DeviceService _deviceService = DeviceService();
+  final FfiService _ffi;
+  final DeviceService _deviceService;
+
+  /// Retry delay between relay publish attempts. Override in tests.
+  @visibleForTesting
+  Duration relayRetryDelay = _kRelayPublishRetryDelay;
+
+  /// Cooldown between periodic relay publish retry cycles. Override in tests.
+  @visibleForTesting
+  Duration relayCooldown = _kRelayPublishCooldown;
+
+  HubDirectoryProvider({FfiService? ffi, DeviceService? deviceService})
+      : _ffi = ffi ?? FfiService(),
+        _deviceService = deviceService ?? DeviceService();
 
   // ── Custom follow display names ──────────────────────────────────────────
 
@@ -221,6 +243,15 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// Number of pending incoming follow requests - used for badge.
   int get pendingCount => _pendingRequests.length;
 
+  // ── Relay publish state ─────────────────────────────────────────────────
+
+  /// Whether relay credentials have been successfully published to the hub.
+  bool _relayPublished = false;
+
+  /// Timestamp of the last relay publish attempt (success or failure).
+  /// Used to enforce [_kRelayPublishCooldown] between periodic retries.
+  DateTime? _lastRelayAttempt;
+
   // ── Hub borrow requests (ADR-018) ──────────────────────────────────────
 
   List<frb.FrbHubBorrowRequest> _incomingHubRequests = [];
@@ -345,41 +376,77 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// at first launch or ensureKeysPublished overwrite).
   /// All profile fields are passed to avoid hub overwriting them with null
   /// (hub uses array_key_exists for device_model, relay_url, etc.).
+  ///
+  /// Retries up to [_kRelayPublishMaxAttempts] times with a delay between
+  /// attempts to handle transient network failures (5G, tunnel, etc.).
   Future<void> ensureRelayPublished() async {
     if (_config == null) return;
-    final relay = await _getRelayCredentials();
-    if (relay.relayUrl == null) {
+    // Read relay credentials upfront to check availability.
+    final initialRelay = await _getRelayCredentials();
+    if (initialRelay.relayUrl == null) {
       if (kDebugMode) debugPrint('HubDirectory: no local relay config, skip relay publish');
       return;
     }
-    final cfg = _config!;
-    final prefs = await SharedPreferences.getInstance();
-    final libraryName = prefs.getString('libraryName') ??
-        TranslationService.translateByLocale(
-            prefs.getString('languageCode') ?? 'en', 'my_library_title');
-    final bookCount = await _ffi.countBooks();
-    String? x25519Key;
-    try {
-      x25519Key = await _ffi.getLocalX25519PublicKey();
-    } catch (_) {}
-    final deviceModel = await _deviceService.getDeviceModel();
-    final deviceFingerprint = await _deviceService.getDeviceFingerprint();
-    if (kDebugMode) debugPrint('HubDirectory: publishing relay credentials to hub');
-    await register(
-      nodeId: cfg.nodeId,
-      displayName: libraryName,
-      bookCount: bookCount,
-      isListed: cfg.isListed,
-      requiresApproval: cfg.requiresApproval,
-      acceptFrom: cfg.acceptFrom,
-      allowBorrowing: cfg.allowBorrowing,
-      x25519PublicKey: x25519Key,
-      deviceModel: deviceModel,
-      deviceFingerprint: deviceFingerprint,
-      relayUrl: relay.relayUrl,
-      relayMailboxId: relay.mailboxId,
-      relayWriteToken: relay.writeToken,
-    );
+
+    _lastRelayAttempt = DateTime.now();
+    for (var attempt = 1; attempt <= _kRelayPublishMaxAttempts; attempt++) {
+      // Re-read credentials and profile data on each attempt so that a
+      // concurrent settings change (user connects a new relay mid-retry)
+      // is picked up immediately instead of publishing stale values.
+      final relay = await _getRelayCredentials();
+      if (relay.relayUrl == null) return; // relay removed between attempts
+      final cfg = _config!;
+      final prefs = await SharedPreferences.getInstance();
+      final libraryName = prefs.getString('libraryName') ??
+          TranslationService.translateByLocale(
+              prefs.getString('languageCode') ?? 'en', 'my_library_title');
+      final bookCount = await _ffi.countBooks();
+      String? x25519Key;
+      try {
+        x25519Key = await _ffi.getLocalX25519PublicKey();
+      } catch (_) {}
+      final deviceModel = await _deviceService.getDeviceModel();
+      final deviceFingerprint = await _deviceService.getDeviceFingerprint();
+
+      if (kDebugMode) {
+        debugPrint('HubDirectory: publishing relay credentials to hub '
+            '(attempt $attempt/$_kRelayPublishMaxAttempts)');
+      }
+      final ok = await register(
+        nodeId: cfg.nodeId,
+        displayName: libraryName,
+        bookCount: bookCount,
+        isListed: cfg.isListed,
+        requiresApproval: cfg.requiresApproval,
+        acceptFrom: cfg.acceptFrom,
+        allowBorrowing: cfg.allowBorrowing,
+        x25519PublicKey: x25519Key,
+        deviceModel: deviceModel,
+        deviceFingerprint: deviceFingerprint,
+        relayUrl: relay.relayUrl,
+        relayMailboxId: relay.mailboxId,
+        relayWriteToken: relay.writeToken,
+      );
+      if (ok) {
+        _relayPublished = true;
+        debugPrint('HubDirectory: relay credentials published successfully');
+        return;
+      }
+      // 401 = auth problem, retrying won't help (and would triple-penalize
+      // the consecutive401Count backoff counter).
+      if (_configError != null && _configError!.contains('Hub error 401:')) {
+        debugPrint('HubDirectory: relay publish got 401, aborting retries');
+        return;
+      }
+      // Don't delay after the last failed attempt
+      if (attempt < _kRelayPublishMaxAttempts) {
+        debugPrint('HubDirectory: relay publish failed, retrying in '
+            '${relayRetryDelay.inSeconds}s...');
+        await Future.delayed(relayRetryDelay);
+      }
+    }
+    debugPrint('HubDirectory: relay publish failed after '
+        '$_kRelayPublishMaxAttempts attempts, will retry on next catalog sync');
   }
 
   Future<void> loadConfig() async {
@@ -489,6 +556,7 @@ class HubDirectoryProvider extends ChangeNotifier {
       relayMailboxId: relay.mailboxId,
       relayWriteToken: relay.writeToken,
     );
+    if (relay.relayUrl != null) _relayPublished = true;
     if (kDebugMode) debugPrint('HubDirectoryProvider: ensured keys + relay published');
 
     // Now that our key is on the hub, sync contact blobs to followers
@@ -910,11 +978,24 @@ class HubDirectoryProvider extends ChangeNotifier {
   }
 
   /// Push catalog only if dirty and registered. Intended for lifecycle hooks.
+  /// Also retries relay credential publishing if it failed at startup.
   Future<void> syncCatalogIfDirty() async {
     // Push catalog when registered, regardless of isListed.
     // isListed controls discoverability by strangers; catalog push enables
     // browsing by known peers who have the nodeId (via invite link).
-    if (!_catalogDirty || !isRegistered) return;
+    if (!isRegistered) return;
+
+    // Retry relay publish if it failed during startup (network instability).
+    // Enforces a cooldown to avoid hammering the hub every 30s.
+    if (!_relayPublished) {
+      final last = _lastRelayAttempt;
+      if (last == null ||
+          DateTime.now().difference(last) >= relayCooldown) {
+        await ensureRelayPublished();
+      }
+    }
+
+    if (!_catalogDirty) return;
     await syncCatalog();
   }
 

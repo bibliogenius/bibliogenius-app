@@ -1,3 +1,4 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'api_service.dart';
 
@@ -20,10 +21,16 @@ class _PeerBackoff {
 class SyncService {
   final ApiService _apiService;
   final bool Function() _isLanEnabled;
+  final Future<List<ConnectivityResult>> Function() _checkConnectivity;
   final Map<String, _PeerBackoff> _backoff = {};
 
-  SyncService(this._apiService, {required bool Function() isLanEnabled})
-      : _isLanEnabled = isLanEnabled;
+  SyncService(
+    this._apiService, {
+    required bool Function() isLanEnabled,
+    Future<List<ConnectivityResult>> Function()? checkConnectivity,
+  })  : _isLanEnabled = isLanEnabled,
+        _checkConnectivity =
+            checkConnectivity ?? (() => Connectivity().checkConnectivity());
 
   /// Reset backoff for a specific peer (e.g. on manual refresh).
   void resetBackoff(String url) {
@@ -36,6 +43,23 @@ class SyncService {
       if (response.statusCode == 200) {
         final List peers = response.data['data'] ?? [];
         final now = DateTime.now();
+
+        // Check actual network type: skip direct LAN when not on WiFi/ethernet
+        // (avoids 15s timeouts per peer on mobile data).
+        // On error, default to allowing LAN (previous behavior).
+        bool hasLan = true;
+        try {
+          final connectivity = await _checkConnectivity();
+          hasLan = connectivity.contains(ConnectivityResult.wifi) ||
+              connectivity.contains(ConnectivityResult.ethernet);
+        } catch (e) {
+          debugPrint('SyncService: connectivity check failed ($e), assuming LAN available');
+        }
+        final skipLan = !hasLan || !_isLanEnabled();
+        if (!hasLan) {
+          debugPrint('SyncService: not on WiFi/ethernet, skipping direct LAN sync');
+        }
+
         // Sync all peers in parallel to avoid one offline peer blocking the rest
         await Future.wait(
           peers.map((peer) async {
@@ -50,7 +74,7 @@ class SyncService {
             }
 
             try {
-              await _apiService.syncPeer(url, skipLan: !_isLanEnabled());
+              await _apiService.syncPeer(url, skipLan: skipLan);
               _backoff.remove(url);
               debugPrint("Synced peer $name");
             } catch (e) {

@@ -20,6 +20,10 @@ class FfiService {
   factory FfiService() => _instance;
   FfiService._internal();
 
+  /// Constructor for testing: allows subclassing without the singleton.
+  @visibleForTesting
+  FfiService.forTest();
+
   bool _isInitialized = false;
 
   bool get isInitialized => _isInitialized;
