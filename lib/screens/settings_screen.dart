@@ -1345,6 +1345,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _relayMailboxUuid = res.data['mailbox_uuid'] as String?;
           _relayUrlController.text = url;
         });
+        // Publish new relay credentials to hub so peers can reach this mailbox.
+        if (mounted) {
+          await context.read<HubDirectoryProvider>().ensureRelayPublished();
+        }
       }
     } catch (e) {
       debugPrint('Auto-connect relay failed: $e');
@@ -1460,6 +1464,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   _relayMailboxUuid =
                                       res.data['mailbox_uuid'] as String?;
                                 });
+                                // Publish new relay credentials to hub
+                                // so peers can reach this mailbox.
+                                if (context.mounted) {
+                                  await context
+                                      .read<HubDirectoryProvider>()
+                                      .ensureRelayPublished();
+                                }
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(

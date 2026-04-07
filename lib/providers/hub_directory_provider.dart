@@ -330,7 +330,7 @@ class HubDirectoryProvider extends ChangeNotifier {
         // Ensure relay credentials are published on the hub profile.
         // Fixes ~50% of installs where relay was missing due to race condition
         // or ensureKeysPublished overwriting without relay params.
-        await _ensureRelayPublished();
+        await ensureRelayPublished();
         syncCatalogIfDirty();
       }
     } catch (e) {
@@ -345,7 +345,7 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// at first launch or ensureKeysPublished overwrite).
   /// All profile fields are passed to avoid hub overwriting them with null
   /// (hub uses array_key_exists for device_model, relay_url, etc.).
-  Future<void> _ensureRelayPublished() async {
+  Future<void> ensureRelayPublished() async {
     if (_config == null) return;
     final relay = await _getRelayCredentials();
     if (relay.relayUrl == null) {

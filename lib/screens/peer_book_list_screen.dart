@@ -444,6 +444,12 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       // Hub may have populated _books — check again
       if (_books.isNotEmpty) {
         if (mounted) setState(() { _isRefreshing = false; _isLoading = false; });
+        // Cache/hub data displayed, but it may be stale. When offline with
+        // relay credentials, trigger a background relay sync so peers get
+        // fresh books even when not on the same WiFi (ADR-012 fallback).
+        if (!isOnline && widget.hasRelayCredentials) {
+          _tryRelaySync();
+        }
         return;
       }
 
