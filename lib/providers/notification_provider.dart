@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../services/ffi_service.dart';
-import '../src/rust/api/frb.dart' show FrbNotification;
+import '../src/rust/api/frb.dart' show FrbNotification, FrbNudgeEvent, subscribeRelayNudges;
 
 /// Provider for the activity feed (notifications).
 ///
@@ -17,27 +17,56 @@ class NotificationProvider extends ChangeNotifier {
   String? _activeCategory; // null = all
   bool _isLoading = false;
   Timer? _pollTimer;
+  StreamSubscription<FrbNudgeEvent>? _nudgeSub;
 
   List<FrbNotification> get notifications => _notifications;
   int get unreadCount => _unreadCount;
   String? get activeCategory => _activeCategory;
   bool get isLoading => _isLoading;
 
-  /// Initialize: prune old entries, load unread count, start polling.
+  /// Initialize: prune old entries, load unread count, start polling and
+  /// subscribe to the relay nudge stream for instant refreshes (ADR-017
+  /// Phase 3a). The 30s timer remains as a fallback while the stream is
+  /// being soak-tested in production.
   Future<void> init() async {
     await _ffi.notificationsPrune();
     await refreshUnreadCount();
-    // Poll unread count every 30s (lightweight query)
+    // Poll unread count every 30s (lightweight query, fallback safety net)
     _pollTimer?.cancel();
     _pollTimer = Timer.periodic(
       const Duration(seconds: 30),
       (_) => refreshUnreadCount(),
     );
+    _subscribeNudgeStream();
+  }
+
+  /// Subscribe to the FFI relay nudge stream. Each event triggers an
+  /// immediate badge refresh, replacing the 30s polling latency with a
+  /// near-instant update (1 to 3 seconds end to end).
+  void _subscribeNudgeStream() {
+    _nudgeSub?.cancel();
+    try {
+      _nudgeSub = subscribeRelayNudges().listen(
+        _onNudgeEvent,
+        onError: (Object e) {
+          debugPrint('NotificationProvider: nudge stream error: $e');
+        },
+        cancelOnError: false,
+      );
+    } catch (e) {
+      debugPrint('NotificationProvider: failed to subscribe to nudge stream: $e');
+    }
+  }
+
+  void _onNudgeEvent(FrbNudgeEvent event) {
+    // Fire-and-forget: refreshUnreadCount handles its own state updates.
+    refreshUnreadCount();
   }
 
   @override
   void dispose() {
     _pollTimer?.cancel();
+    _nudgeSub?.cancel();
     super.dispose();
   }
 
