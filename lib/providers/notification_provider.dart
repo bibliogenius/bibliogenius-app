@@ -18,6 +18,7 @@ class NotificationProvider extends ChangeNotifier {
   bool _isLoading = false;
   Timer? _pollTimer;
   StreamSubscription<FrbNudgeEvent>? _nudgeSub;
+  bool _listEverLoaded = false;
 
   List<FrbNotification> get notifications => _notifications;
   int get unreadCount => _unreadCount;
@@ -61,6 +62,13 @@ class NotificationProvider extends ChangeNotifier {
   void _onNudgeEvent(FrbNudgeEvent event) {
     // Fire-and-forget: refreshUnreadCount handles its own state updates.
     refreshUnreadCount();
+    // Also keep the detailed list in sync if it has been loaded at least
+    // once during this session. Avoids preloading the list for users who
+    // never open the notifications screen, while keeping it fresh for
+    // those who do (no pull-to-refresh needed).
+    if (_listEverLoaded) {
+      _silentReloadList();
+    }
   }
 
   @override
@@ -90,6 +98,7 @@ class NotificationProvider extends ChangeNotifier {
   /// Load notifications (full list), optionally filtered by category.
   /// Respects per-category toggles from settings.
   Future<void> loadNotifications({String? category}) async {
+    _listEverLoaded = true;
     _isLoading = true;
     _activeCategory = category;
     notifyListeners();
@@ -112,6 +121,30 @@ class NotificationProvider extends ChangeNotifier {
 
     _isLoading = false;
     notifyListeners();
+  }
+
+  /// Background reload triggered by the relay nudge stream. Same query as
+  /// [loadNotifications] but does NOT toggle [_isLoading] (no UI flicker)
+  /// and only notifies once at the end.
+  Future<void> _silentReloadList() async {
+    try {
+      final fetched = await _ffi.notificationsList(
+        category: _activeCategory,
+        limit: 100,
+      );
+      final prefs = await SharedPreferences.getInstance();
+      final enabledCategories = <String>{
+        if (prefs.getBool('notifConnectionsEnabled') ?? true) 'connections',
+        if (prefs.getBool('notifLoansEnabled') ?? true) 'loans',
+        if (prefs.getBool('notifDiscoveriesEnabled') ?? true) 'discoveries',
+      };
+      _notifications = fetched
+          .where((n) => enabledCategories.contains(n.category))
+          .toList();
+      notifyListeners();
+    } catch (e) {
+      debugPrint('NotificationProvider: silent reload failed: $e');
+    }
   }
 
   /// Set active filter and reload.
