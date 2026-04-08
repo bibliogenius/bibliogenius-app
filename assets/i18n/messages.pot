@@ -7004,6 +7004,22 @@ msgstr ""
 msgid "backup_export_error"
 msgstr ""
 
+#. Backup - Mobile export choice dialog title
+msgid "backup_export_choice_title"
+msgstr ""
+
+#. Backup - Mobile export choice dialog message
+msgid "backup_export_choice_message"
+msgstr ""
+
+#. Backup - Mobile export choice: save on device
+msgid "backup_export_save_to_device"
+msgstr ""
+
+#. Backup - Mobile export choice: share via system sheet
+msgid "backup_export_share"
+msgstr ""
+
 #. Accessibility - Tooltip: open navigation menu
 msgid "tooltip_open_menu"
 msgstr ""

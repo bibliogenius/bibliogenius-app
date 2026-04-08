@@ -7064,6 +7064,22 @@ msgstr "Sauvegarde exportee avec succes"
 msgid "backup_export_error"
 msgstr "Erreur d'export"
 
+#. Backup - Mobile export choice dialog title
+msgid "backup_export_choice_title"
+msgstr "Exporter la sauvegarde"
+
+#. Backup - Mobile export choice dialog message
+msgid "backup_export_choice_message"
+msgstr "Comment souhaitez-vous exporter votre sauvegarde ?"
+
+#. Backup - Mobile export choice: save on device
+msgid "backup_export_save_to_device"
+msgstr "Enregistrer sur l'appareil"
+
+#. Backup - Mobile export choice: share via system sheet
+msgid "backup_export_share"
+msgstr "Partager"
+
 #. Accessibility - Tooltip: open navigation menu
 msgid "tooltip_open_menu"
 msgstr "Ouvrir le menu"
@@ -7353,10 +7369,10 @@ msgid "tooltip_cancel_pairing"
 msgstr "Annuler l'appairage"
 
 msgid "settings_linked_devices"
-msgstr "Appareils liés"
+msgstr "Synchroniser mes appareils"
 
 msgid "settings_linked_devices_desc"
-msgstr "Synchronisez votre bibliothèque entre plusieurs appareils via E2EE"
+msgstr "Gardez votre bibliothèque à jour sur tous vos appareils (mobile / tablette / bureau) connectés au même réseau Wi-Fi. Transfert chiffré de bout en bout."
 
 msgid "settings_auto_backup"
 msgstr "Sauvegarde automatique"

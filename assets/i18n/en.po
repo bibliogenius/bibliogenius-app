@@ -7064,6 +7064,22 @@ msgstr "Backup exported successfully"
 msgid "backup_export_error"
 msgstr "Export error"
 
+#. Backup - Mobile export choice dialog title
+msgid "backup_export_choice_title"
+msgstr "Export backup"
+
+#. Backup - Mobile export choice dialog message
+msgid "backup_export_choice_message"
+msgstr "How do you want to export your backup?"
+
+#. Backup - Mobile export choice: save on device
+msgid "backup_export_save_to_device"
+msgstr "Save to device"
+
+#. Backup - Mobile export choice: share via system sheet
+msgid "backup_export_share"
+msgstr "Share"
+
 #. Accessibility - Tooltip: open navigation menu
 msgid "tooltip_open_menu"
 msgstr "Open menu"
@@ -7353,10 +7369,10 @@ msgid "tooltip_cancel_pairing"
 msgstr "Cancel pairing"
 
 msgid "settings_linked_devices"
-msgstr "Linked Devices"
+msgstr "Sync my devices"
 
 msgid "settings_linked_devices_desc"
-msgstr "Sync your library across multiple devices via E2EE"
+msgstr "Keep your library up to date across all your devices (mobile / tablet / desktop) connected to the same Wi-Fi network. End-to-end encrypted transfer."
 
 msgid "settings_auto_backup"
 msgstr "Auto-backup"

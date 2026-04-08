@@ -267,30 +267,42 @@ class _MigrationWizardScreenState extends State<MigrationWizardScreen> {
   }
 
   Future<void> _handleExport() async {
+    // Capture context-dependent values up-front to avoid using BuildContext
+    // across async gaps (lint: use_build_context_synchronously).
+    final apiService = Provider.of<ApiService>(context, listen: false);
+    final saveDialogTitle =
+        TranslationService.translate(context, 'save_backup_dialog_title');
+    final shareText =
+        TranslationService.translate(context, 'backup_share_text');
+    final successMsg =
+        TranslationService.translate(context, 'backup_export_success');
+    final errorMsg =
+        TranslationService.translate(context, 'backup_export_error');
+
     try {
       setState(() => _isProcessing = true);
-      final apiService = Provider.of<ApiService>(context, listen: false);
       final response = await apiService.exportData();
+
+      final filename =
+          'bibliogenius_backup_${DateTime.now().toIso8601String().split('T')[0]}.json';
+
+      bool exported = false;
 
       if (kIsWeb) {
         final blob = html.Blob([response.data]);
         final url = html.Url.createObjectUrlFromBlob(blob);
         html.AnchorElement(href: url)
-          ..setAttribute(
-            'download',
-            'bibliogenius_backup_${DateTime.now().toIso8601String().split('T')[0]}.json',
-          )
+          ..setAttribute('download', filename)
           ..click();
         html.Url.revokeObjectUrl(url);
+        exported = true;
       } else {
-        final filename =
-            'bibliogenius_backup_${DateTime.now().toIso8601String().split('T')[0]}.json';
         final isDesktop = io.Platform.isMacOS ||
             io.Platform.isWindows ||
             io.Platform.isLinux;
         if (isDesktop) {
           final path = await FilePicker.platform.saveFile(
-            dialogTitle: TranslationService.translate(context, 'save_backup_dialog_title'),
+            dialogTitle: saveDialogTitle,
             fileName: filename,
             type: FileType.custom,
             allowedExtensions: ['json'],
@@ -298,37 +310,104 @@ class _MigrationWizardScreenState extends State<MigrationWizardScreen> {
           if (path != null) {
             final file = io.File(path);
             await file.writeAsBytes(response.data);
+            exported = true;
           }
         } else {
-          final directory = await getTemporaryDirectory();
-          final file = io.File('${directory.path}/$filename');
-          await file.writeAsBytes(response.data);
-          await Share.shareXFiles([
-            XFile(file.path),
-          ], text: TranslationService.translate(context, 'backup_share_text'));
+          // Mobile (Android / iOS): let the user choose between saving the
+          // backup directly to the device (via SAF / Files app) or sharing it
+          // through the system share sheet.
+          if (!mounted) return;
+          final choice = await _showMobileExportChoice();
+          if (choice == _MobileExportChoice.save) {
+            final Uint8List bytes = response.data is Uint8List
+                ? response.data as Uint8List
+                : Uint8List.fromList(List<int>.from(response.data as List));
+            final path = await FilePicker.platform.saveFile(
+              dialogTitle: saveDialogTitle,
+              fileName: filename,
+              type: FileType.custom,
+              allowedExtensions: ['json'],
+              bytes: bytes,
+            );
+            exported = path != null;
+          } else if (choice == _MobileExportChoice.share) {
+            final directory = await getTemporaryDirectory();
+            final file = io.File('${directory.path}/$filename');
+            await file.writeAsBytes(response.data);
+            await Share.shareXFiles(
+              [XFile(file.path)],
+              text: shareText,
+            );
+            exported = true;
+          }
         }
       }
 
       if (mounted) {
         setState(() => _isProcessing = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(TranslationService.translate(context, 'backup_export_success')),
-            backgroundColor: Colors.green,
-          ),
-        );
+        if (exported) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(successMsg),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
       }
     } catch (e) {
       if (mounted) {
         setState(() => _isProcessing = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${TranslationService.translate(context, 'backup_export_error')} : $e'),
+            content: Text('$errorMsg : $e'),
             backgroundColor: Colors.red,
           ),
         );
       }
     }
+  }
+
+  Future<_MobileExportChoice?> _showMobileExportChoice() {
+    return showDialog<_MobileExportChoice>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(
+            TranslationService.translate(
+                dialogContext, 'backup_export_choice_title'),
+          ),
+          content: Text(
+            TranslationService.translate(
+                dialogContext, 'backup_export_choice_message'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text(
+                  TranslationService.translate(dialogContext, 'cancel')),
+            ),
+            TextButton.icon(
+              onPressed: () =>
+                  Navigator.pop(dialogContext, _MobileExportChoice.share),
+              icon: const Icon(Icons.share),
+              label: Text(
+                TranslationService.translate(
+                    dialogContext, 'backup_export_share'),
+              ),
+            ),
+            ElevatedButton.icon(
+              onPressed: () =>
+                  Navigator.pop(dialogContext, _MobileExportChoice.save),
+              icon: const Icon(Icons.save_alt),
+              label: Text(
+                TranslationService.translate(
+                    dialogContext, 'backup_export_save_to_device'),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _showRestoreWarning() {
@@ -745,3 +824,5 @@ class _MigrationWizardScreenState extends State<MigrationWizardScreen> {
     }
   }
 }
+
+enum _MobileExportChoice { save, share }
