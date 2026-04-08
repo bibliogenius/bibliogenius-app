@@ -36,7 +36,10 @@ class NotificationProvider extends ChangeNotifier {
     _pollTimer?.cancel();
     _pollTimer = Timer.periodic(
       const Duration(seconds: 30),
-      (_) => refreshUnreadCount(),
+      (_) async {
+        await refreshUnreadCount();
+        if (_listEverLoaded) await _silentReloadList();
+      },
     );
     _subscribeNudgeStream();
   }
