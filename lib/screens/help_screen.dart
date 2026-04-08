@@ -4,13 +4,15 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../widgets/genie_app_bar.dart';
 import '../widgets/scaffold_with_nav.dart';
+import '../services/help_registry.dart';
 import '../services/translation_service.dart';
 import '../theme/app_design.dart';
-import 'package:provider/provider.dart';
-import '../providers/theme_provider.dart';
 
 class HelpScreen extends StatefulWidget {
-  const HelpScreen({super.key});
+  /// Optional topic id to expand on first display (deep link target).
+  final String? initialTopicId;
+
+  const HelpScreen({super.key, this.initialTopicId});
 
   @override
   State<HelpScreen> createState() => _HelpScreenState();
@@ -18,176 +20,45 @@ class HelpScreen extends StatefulWidget {
 
 class _HelpScreenState extends State<HelpScreen> {
   int? _expandedIndex;
-  late List<_HelpTopic> _topics;
+  late List<HelpTopic> _topics;
+  final ScrollController _scrollController = ScrollController();
+  final Map<int, GlobalKey> _cardKeys = {};
+  bool _initialScrollScheduled = false;
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final themeProvider = Provider.of<ThemeProvider>(context);
-    final collectionsEnabled = themeProvider.collectionsEnabled;
-    final audioEnabled = themeProvider.audioEnabled;
-    final memoryGameEnabled = themeProvider.memoryGameEnabled;
-    final slidingPuzzleEnabled = themeProvider.slidingPuzzleEnabled;
-    final hangmanEnabled = themeProvider.hangmanEnabled;
+    _topics = HelpRegistry.getAllForUser(context);
 
-    _topics = [
-      // --- Getting Started ---
-      _HelpTopic(
-        icon: Icons.add_circle_outline,
-        titleKey: 'help_topic_add_book',
-        descKey: 'help_desc_add_book',
-        gradient: AppDesign.successGradient,
-        ctaKey: 'help_cta_go_to_library',
-        ctaRoute: '/books',
-      ),
-      _HelpTopic(
-        icon: Icons.qr_code_scanner,
-        titleKey: 'help_topic_scan',
-        descKey: 'help_desc_scan',
-        gradient: AppDesign.warningGradient,
-        ctaKey: 'help_cta_scan',
-        ctaRoute: '/scan',
-      ),
-      _HelpTopic(
-        icon: Icons.search,
-        titleKey: 'help_topic_external_search',
-        descKey: 'help_desc_external_search',
-        gradient: AppDesign.oceanGradient,
-        ctaKey: 'help_cta_search_catalogs',
-        ctaRoute: '/search/external',
-      ),
-      _HelpTopic(
-        icon: Icons.sort,
-        titleKey: 'help_topic_organize_shelf',
-        descKey: 'help_desc_organize_shelf',
-        gradient: AppDesign.accentGradient,
-        ctaKey: 'help_cta_manage_shelves',
-        ctaRoute: '/shelves-management',
-      ),
-      _HelpTopic(
-        icon: Icons.auto_stories,
-        titleKey: 'help_topic_reading_progress',
-        descKey: 'help_desc_reading_progress',
-        gradient: AppDesign.primaryGradient,
-        ctaKey: 'help_cta_go_to_library',
-        ctaRoute: '/books',
-      ),
+    if (!_initialScrollScheduled && widget.initialTopicId != null) {
+      final index =
+          _topics.indexWhere((t) => t.id == widget.initialTopicId);
+      if (index >= 0) {
+        _initialScrollScheduled = true;
+        _expandedIndex = index;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _scrollToCard(index);
+        });
+      }
+    }
+  }
 
-      // --- Network & Sharing ---
-      _HelpTopic(
-        icon: Icons.qr_code,
-        titleKey: 'help_topic_connect',
-        descKey: 'help_desc_connect',
-        gradient: AppDesign.oceanGradient,
-        ctaKey: 'help_cta_go_to_network',
-        ctaRoute: '/network',
-      ),
-      _HelpTopic(
-        icon: Icons.import_contacts,
-        titleKey: 'help_topic_lend',
-        descKey: 'help_desc_lend',
-        gradient: AppDesign.successGradient,
-        ctaKey: 'help_cta_go_to_library',
-        ctaRoute: '/books',
-      ),
-      _HelpTopic(
-        icon: Icons.swap_horiz,
-        titleKey: 'help_topic_requests',
-        descKey: 'help_desc_requests',
-        gradient: AppDesign.warningGradient,
-        ctaKey: 'help_cta_view_requests',
-        ctaRoute: '/requests',
-      ),
-
-      // --- Advanced (conditional) ---
-      if (collectionsEnabled)
-        _HelpTopic(
-          icon: Icons.inventory_2_outlined,
-          titleKey: 'help_topic_collections',
-          descKey: 'help_desc_collections',
-          gradient: AppDesign.primaryGradient,
-          ctaKey: 'help_cta_go_to_collections',
-          ctaRoute: '/collections',
-        ),
-      if (audioEnabled)
-        _HelpTopic(
-          icon: Icons.headphones,
-          titleKey: 'help_topic_audio',
-          descKey: 'help_desc_audio',
-          gradient: AppDesign.accentGradient,
-          ctaKey: 'help_cta_go_to_profile',
-          ctaRoute: '/profile',
-        ),
-      if (memoryGameEnabled)
-        _HelpTopic(
-          icon: Icons.grid_view_rounded,
-          titleKey: 'help_topic_memory_game',
-          descKey: 'help_desc_memory_game',
-          gradient: const LinearGradient(
-            colors: [Color(0xFFEA580C), Color(0xFFFB923C)],
-          ),
-          ctaKey: 'help_cta_play_memory',
-          ctaRoute: '/memory-game',
-        ),
-      if (slidingPuzzleEnabled)
-        _HelpTopic(
-          icon: Icons.grid_view,
-          titleKey: 'help_topic_sliding_puzzle',
-          descKey: 'help_desc_sliding_puzzle',
-          gradient: const LinearGradient(
-            colors: [Color(0xFF2563EB), Color(0xFF60A5FA)],
-          ),
-          ctaKey: 'help_cta_play_puzzle',
-          ctaRoute: '/sliding-puzzle',
-        ),
-      if (hangmanEnabled)
-        _HelpTopic(
-          icon: Icons.text_fields,
-          titleKey: 'help_topic_hangman',
-          descKey: 'help_desc_hangman',
-          gradient: const LinearGradient(
-            colors: [Color(0xFF7C3AED), Color(0xFFA78BFA)],
-          ),
-          ctaKey: 'help_cta_play_hangman',
-          ctaRoute: '/hangman',
-        ),
-
-      // --- Data & Settings ---
-      _HelpTopic(
-        icon: Icons.get_app_outlined,
-        titleKey: 'help_topic_import',
-        descKey: 'help_desc_import',
-        gradient: AppDesign.accentGradient,
-        ctaKey: 'help_cta_import',
-        ctaRoute: '/settings/migration-wizard',
-      ),
-      _HelpTopic(
-        icon: Icons.bar_chart,
-        titleKey: 'help_topic_statistics',
-        descKey: 'help_desc_statistics',
-        gradient: const LinearGradient(
-          colors: [Color(0xFF7C3AED), Color(0xFFA78BFA)],
-        ),
-        ctaKey: 'help_cta_go_to_stats',
-        ctaRoute: '/statistics',
-      ),
-      _HelpTopic(
-        icon: Icons.person_outline,
-        titleKey: 'help_topic_profile',
-        descKey: 'help_desc_profile',
-        gradient: AppDesign.darkGradient,
-        ctaKey: 'help_cta_profile',
-        ctaRoute: '/profile',
-      ),
-      _HelpTopic(
-        icon: Icons.shield_outlined,
-        titleKey: 'help_topic_data_privacy',
-        descKey: 'help_desc_data_privacy',
-        gradient: AppDesign.darkGradient,
-        ctaKey: 'help_cta_go_to_profile',
-        ctaRoute: '/profile',
-      ),
-    ];
+  void _scrollToCard(int index) {
+    final key = _cardKeys[index];
+    final ctx = key?.currentContext;
+    if (ctx == null) return;
+    Scrollable.ensureVisible(
+      ctx,
+      duration: AppDesign.standardDuration,
+      curve: AppDesign.standardCurve,
+      alignment: 0.1,
+    );
   }
 
   @override
@@ -199,6 +70,7 @@ class _HelpScreenState extends State<HelpScreen> {
         automaticallyImplyLeading: false,
       ),
       body: ListView(
+        controller: _scrollController,
         padding: const EdgeInsets.all(16),
         children: [
           // Header Card
@@ -265,8 +137,10 @@ class _HelpScreenState extends State<HelpScreen> {
           ...List.generate(_topics.length, (index) {
             final topic = _topics[index];
             final isExpanded = _expandedIndex == index;
+            final cardKey = _cardKeys.putIfAbsent(index, () => GlobalKey());
 
             return Padding(
+              key: cardKey,
               padding: const EdgeInsets.only(bottom: 12),
               child: _buildHelpCard(context, topic, index, isExpanded),
             );
@@ -283,7 +157,7 @@ class _HelpScreenState extends State<HelpScreen> {
 
   Widget _buildHelpCard(
     BuildContext context,
-    _HelpTopic topic,
+    HelpTopic topic,
     int index,
     bool isExpanded,
   ) {
@@ -556,20 +430,3 @@ class _HelpScreenState extends State<HelpScreen> {
   }
 }
 
-class _HelpTopic {
-  final IconData icon;
-  final String titleKey;
-  final String descKey;
-  final LinearGradient gradient;
-  final String? ctaKey; // Translation key for CTA button
-  final String? ctaRoute; // Route to navigate to
-
-  const _HelpTopic({
-    required this.icon,
-    required this.titleKey,
-    required this.descKey,
-    required this.gradient,
-    this.ctaKey,
-    this.ctaRoute,
-  });
-}

@@ -2956,6 +2956,18 @@ msgstr "How to manage contacts?"
 msgid "help_topic_data_privacy"
 msgstr "Where is my data stored?"
 
+#. Sync multiple devices
+msgid "help_topic_device_sync"
+msgstr "Sync multiple devices"
+
+#. Sync multiple devices
+msgid "help_desc_device_sync"
+msgstr "BiblioGenius can keep your library in sync across multiple devices you own (phone, tablet, desktop). Sync happens over your local Wi-Fi network: all devices must be connected to the same network. Transfers are end-to-end encrypted, so neither your internet provider nor any intermediary can read your data.\n\nTo pair a new device:\n1. On your first device, generate a 6-digit code.\n2. On the second device, enter that code within 5 minutes.\n3. Both devices exchange keys and start syncing.\n\nFor 3 devices or more, repeat the operation between each pair."
+
+#. Sync multiple devices CTA
+msgid "help_cta_open_device_sync"
+msgstr "Manage my devices"
+
 #. How to search external catalogs?
 msgid "help_topic_external_search"
 msgstr "How to search external catalogs?"

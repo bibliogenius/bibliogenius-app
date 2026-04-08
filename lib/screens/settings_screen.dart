@@ -834,7 +834,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       TranslationService.translate(
                           context, 'settings_linked_devices_desc'),
                     ),
-                    trailing: const Icon(Icons.chevron_right),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: const [
+                        HelpAffordance(topicId: 'device_sync'),
+                        SizedBox(width: 4),
+                        Icon(Icons.chevron_right),
+                      ],
+                    ),
                     onTap: () => context.push('/device-pairing'),
                   ),
                 ),

@@ -5759,3 +5759,9 @@ msgstr "Действия"
 #. Default library name with device name (e.g. "Library of iPhone")
 msgid "library_of_device"
 msgstr "Библиотека на %s"
+
+msgid "settings_linked_devices"
+msgstr "Синхронизирай моите устройства"
+
+msgid "settings_linked_devices_desc"
+msgstr "Поддържайте библиотеката си актуална на всички ваши устройства (мобилно / таблет / настолен), свързани към същата Wi-Fi мрежа. Криптиран от край до край трансфер."

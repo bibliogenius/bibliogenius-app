@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../services/help_registry.dart';
 import '../services/translation_service.dart';
 
 /// A contextual help sheet that displays help content for a specific screen.
@@ -14,11 +15,17 @@ class ContextualHelpSheet extends StatelessWidget {
   /// Optional list of help tips with icon and text
   final List<HelpTip>? tips;
 
+  /// Optional [HelpRegistry] topic id. When provided, the "See all help"
+  /// link deep-links to `/help?topic=<id>` so the matching accordion is
+  /// expanded and scrolled into view.
+  final String? topicId;
+
   const ContextualHelpSheet({
     super.key,
     required this.titleKey,
     required this.contentKey,
     this.tips,
+    this.topicId,
   });
 
   @override
@@ -121,7 +128,10 @@ class ContextualHelpSheet extends StatelessWidget {
               ),
               onPressed: () {
                 Navigator.pop(context);
-                GoRouter.of(context).go('/help');
+                final target = topicId == null
+                    ? '/help'
+                    : '/help?topic=$topicId';
+                GoRouter.of(context).go(target);
               },
             ),
           ),
@@ -202,6 +212,7 @@ void showContextualHelp(
   required String titleKey,
   required String contentKey,
   List<HelpTip>? tips,
+  String? topicId,
 }) {
   showModalBottomSheet(
     context: context,
@@ -214,8 +225,51 @@ void showContextualHelp(
       titleKey: titleKey,
       contentKey: contentKey,
       tips: tips,
+      topicId: topicId,
     ),
   );
+}
+
+/// Opens the contextual help sheet for a registered [HelpRegistry] topic.
+/// Looks up the topic by [topicId] and forwards its title/desc keys.
+/// If the id is unknown, the call is a no-op.
+void showHelpForTopic(BuildContext context, String topicId) {
+  final topic = HelpRegistry.findById(topicId);
+  if (topic == null) return;
+  showContextualHelp(
+    context,
+    titleKey: topic.titleKey,
+    contentKey: topic.descKey,
+    topicId: topic.id,
+  );
+}
+
+/// A small "?" affordance designed to live next to a settings entry
+/// (typically inside a [ListTile]'s `trailing`). Tapping it opens the
+/// contextual help sheet for the matching [HelpRegistry] topic.
+///
+/// If the topic id is unknown, the widget renders an empty SizedBox.
+class HelpAffordance extends StatelessWidget {
+  final String topicId;
+
+  const HelpAffordance({super.key, required this.topicId});
+
+  @override
+  Widget build(BuildContext context) {
+    final topic = HelpRegistry.findById(topicId);
+    if (topic == null) return const SizedBox.shrink();
+
+    final tooltip = TranslationService.translate(context, 'help');
+    return IconButton(
+      icon: const Icon(Icons.help_outline, size: 20),
+      tooltip: tooltip,
+      visualDensity: VisualDensity.compact,
+      padding: EdgeInsets.zero,
+      constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+      color: Theme.of(context).colorScheme.primary,
+      onPressed: () => showHelpForTopic(context, topicId),
+    );
+  }
 }
 
 /// A floating help button that can be added to any screen

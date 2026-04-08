@@ -5685,3 +5685,9 @@ msgstr "アクション"
 #. Default library name with device name (e.g. "Library of iPhone")
 msgid "library_of_device"
 msgstr "%sの本棚"
+
+msgid "settings_linked_devices"
+msgstr "デバイスを同期"
+
+msgid "settings_linked_devices_desc"
+msgstr "同じ Wi-Fi ネットワークに接続されたすべてのデバイス（モバイル / タブレット / デスクトップ）でライブラリを最新の状態に保ちます。エンドツーエンドで暗号化された転送。"

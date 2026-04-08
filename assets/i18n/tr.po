@@ -5754,3 +5754,9 @@ msgstr "İşlemler"
 #. Default library name with device name (e.g. "Library of iPhone")
 msgid "library_of_device"
 msgstr "%s Kütüphanesi"
+
+msgid "settings_linked_devices"
+msgstr "Cihazlarımı senkronize et"
+
+msgid "settings_linked_devices_desc"
+msgstr "Aynı Wi-Fi ağına bağlı tüm cihazlarınızda (mobil / tablet / masaüstü) kütüphanenizi güncel tutun. Uçtan uca şifreli aktarım."

@@ -1080,7 +1080,10 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
             ),
             GoRoute(
               path: '/help',
-              builder: (context, state) => const HelpScreen(),
+              builder: (context, state) {
+                final topicId = state.uri.queryParameters['topic'];
+                return HelpScreen(initialTopicId: topicId);
+              },
             ),
             GoRoute(
               path: '/network-search',

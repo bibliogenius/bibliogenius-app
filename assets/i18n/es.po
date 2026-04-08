@@ -2719,6 +2719,18 @@ msgstr "¿Cómo gestionar contactos?"
 msgid "help_topic_data_privacy"
 msgstr "¿Dónde se almacenan mis datos?"
 
+#. Sync multiple devices
+msgid "help_topic_device_sync"
+msgstr "Sincronizar varios dispositivos"
+
+#. Sync multiple devices
+msgid "help_desc_device_sync"
+msgstr "BiblioGenius puede sincronizar tu biblioteca entre varios dispositivos que poseas (móvil, tableta, ordenador). La sincronización se realiza por Wi-Fi local: todos tus dispositivos deben estar conectados a la misma red. Las transferencias están cifradas de extremo a extremo: ni tu proveedor de Internet ni ningún intermediario pueden leer tus datos.\n\nPara vincular un nuevo dispositivo:\n1. En el primer dispositivo, genera un código de 6 dígitos.\n2. En el segundo dispositivo, introduce ese código en los próximos 5 minutos.\n3. Ambos dispositivos intercambian sus claves y comienzan la sincronización.\n\nPara 3 dispositivos o más, repite la operación entre cada par."
+
+#. Sync multiple devices CTA
+msgid "help_cta_open_device_sync"
+msgstr "Gestionar mis dispositivos"
+
 #. How to search external catalogs?
 msgid "help_topic_external_search"
 msgstr "¿Cómo buscar en catálogos externos?"
@@ -6964,10 +6976,10 @@ msgid "settings_developer_tools"
 msgstr "Herramientas de desarrollador"
 
 msgid "settings_linked_devices"
-msgstr "Dispositivos vinculados"
+msgstr "Sincronizar mis dispositivos"
 
 msgid "settings_linked_devices_desc"
-msgstr "Sincroniza tu biblioteca entre varios dispositivos via E2EE"
+msgstr "Mantén tu biblioteca actualizada en todos tus dispositivos (móvil / tableta / escritorio) conectados a la misma red Wi-Fi. Transferencia cifrada de extremo a extremo."
 
 msgid "settings_mode_directory_desc"
 msgstr "Estar listada para que otros puedan descubrirte y seguirte."

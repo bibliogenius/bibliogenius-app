@@ -5691,3 +5691,9 @@ msgstr "Ações"
 #. Default library name with device name (e.g. "Library of iPhone")
 msgid "library_of_device"
 msgstr "Biblioteca de %s"
+
+msgid "settings_linked_devices"
+msgstr "Sincronizar meus dispositivos"
+
+msgid "settings_linked_devices_desc"
+msgstr "Mantenha sua biblioteca atualizada em todos os seus dispositivos (celular / tablet / desktop) conectados à mesma rede Wi-Fi. Transferência criptografada de ponta a ponta."

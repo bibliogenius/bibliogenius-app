@@ -5685,3 +5685,9 @@ msgstr "작업"
 #. Default library name with device name (e.g. "Library of iPhone")
 msgid "library_of_device"
 msgstr "%s의 서재"
+
+msgid "settings_linked_devices"
+msgstr "내 기기 동기화"
+
+msgid "settings_linked_devices_desc"
+msgstr "동일한 Wi-Fi 네트워크에 연결된 모든 기기(모바일 / 태블릿 / 데스크톱)에서 라이브러리를 최신 상태로 유지하세요. 종단 간 암호화 전송."

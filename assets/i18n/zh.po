@@ -5685,3 +5685,9 @@ msgstr "操作"
 #. Default library name with device name (e.g. "Library of iPhone")
 msgid "library_of_device"
 msgstr "%s的书房"
+
+msgid "settings_linked_devices"
+msgstr "同步我的设备"
+
+msgid "settings_linked_devices_desc"
+msgstr "在连接到同一 Wi-Fi 网络的所有设备（手机 / 平板 / 电脑）上保持您的图书馆同步更新。端到端加密传输。"

@@ -2956,6 +2956,18 @@ msgstr "Comment gérer mes contacts ?"
 msgid "help_topic_data_privacy"
 msgstr "Où sont stockées mes données ?"
 
+#. Sync multiple devices
+msgid "help_topic_device_sync"
+msgstr "Synchroniser plusieurs appareils"
+
+#. Sync multiple devices
+msgid "help_desc_device_sync"
+msgstr "BiblioGenius peut synchroniser votre bibliothèque entre plusieurs appareils que vous possédez (mobile, tablette, ordinateur). La synchronisation se fait par Wi-Fi local : tous vos appareils doivent être connectés au même réseau. Les transferts sont chiffrés de bout en bout : ni votre fournisseur d'accès, ni un éventuel intermédiaire ne peut lire vos données.\n\nPour appairer un nouvel appareil :\n1. Sur le premier appareil, génère un code à 6 chiffres.\n2. Sur le second appareil, saisis ce code dans les 5 minutes.\n3. Les deux appareils s'échangent leurs clés et démarrent la synchronisation.\n\nPour 3 appareils ou plus, répète l'opération entre chaque paire."
+
+#. Sync multiple devices CTA
+msgid "help_cta_open_device_sync"
+msgstr "Gérer mes appareils"
+
 #. How to search external catalogs?
 msgid "help_topic_external_search"
 msgstr "Comment chercher dans les catalogues externes ?"
