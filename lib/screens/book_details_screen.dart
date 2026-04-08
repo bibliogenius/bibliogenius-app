@@ -2491,8 +2491,10 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     try {
       if (_book == null) return;
 
-      // 1. Fetch contacts to let user pick who they're borrowing from
-      final contactsList = await contactRepo.getContacts();
+      // 1. Fetch contacts, annotating with has_book if the book has an ISBN.
+      final contactsList = await contactRepo.getContacts(
+        bookIsbn: _book?.isbn,
+      );
 
       if (contactsList.isEmpty) {
         if (context.mounted) {
@@ -2511,34 +2513,60 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         return;
       }
 
+      // Sort: contacts who have the book first, then alphabetically within each group.
+      final sorted = [...contactsList]..sort((a, b) {
+          final aHas = a.hasBook == true;
+          final bHas = b.hasBook == true;
+          if (aHas != bHas) return aHas ? -1 : 1;
+          return a.displayName.compareTo(b.displayName);
+        });
+
       // 2. Show contact picker dialog
+      if (!context.mounted) return;
       final selectedContact = await showDialog<Contact>(
         context: context,
-        builder: (context) => AlertDialog(
+        builder: (dialogContext) => AlertDialog(
           title: Text(
-            TranslationService.translate(context, 'select_lender') ??
+            TranslationService.translate(dialogContext, 'select_lender') ??
                 'Who are you borrowing from?',
           ),
           content: SizedBox(
             width: double.maxFinite,
             child: ListView.builder(
               shrinkWrap: true,
-              itemCount: contactsList.length,
-              itemBuilder: (context, index) {
-                final contact = contactsList[index];
+              itemCount: sorted.length,
+              itemBuilder: (_, index) {
+                final contact = sorted[index];
+                final hasBook = contact.hasBook == true;
                 return ListTile(
                   leading: const Icon(Icons.person),
                   title: Text(contact.displayName),
-                  onTap: () => Navigator.pop(context, contact),
+                  subtitle: hasBook
+                      ? Text(
+                          TranslationService.translate(
+                                dialogContext,
+                                'contact_has_book',
+                              ) ??
+                              'Has this book',
+                          style: TextStyle(
+                            color: Theme.of(
+                              dialogContext,
+                            ).colorScheme.primary,
+                            fontSize: 12,
+                          ),
+                        )
+                      : null,
+                  onTap: () => Navigator.pop(dialogContext, contact),
                 );
               },
             ),
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.pop(dialogContext),
               child: Text(
-                TranslationService.translate(context, 'cancel') ?? 'Cancel',
+                TranslationService.translate(dialogContext, 'cancel') ??
+                    'Cancel',
               ),
             ),
           ],
@@ -2571,15 +2599,17 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         _fetchBookDetails();
       }
     } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '${TranslationService.translate(context, 'error_borrowing_book') ?? 'Error borrowing book'}: $e',
-            ),
-          ),
-        );
-      }
+      if (!context.mounted) return;
+      final isBorrowSetup = e.toString().contains('BORROW_SETUP');
+      final msg = isBorrowSetup
+          ? TranslationService.translate(
+              context,
+              'error_borrow_setup_incomplete',
+            )
+          : TranslationService.translate(context, 'error_borrowing_book');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(msg ?? '')),
+      );
     }
   }
 

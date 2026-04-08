@@ -16,6 +16,9 @@ class Contact {
   final int? userId;
   final int? libraryOwnerId;
   final bool isActive;
+  /// True when the contact's peer owns the book requested in the borrow dialog.
+  /// Null when no book context was provided (e.g. regular contact list fetch).
+  final bool? hasBook;
 
   Contact({
     this.id,
@@ -35,6 +38,7 @@ class Contact {
     this.userId,
     this.libraryOwnerId,
     this.isActive = true,
+    this.hasBook,
   });
 
   /// Returns display name: firstName if available, otherwise name
@@ -85,6 +89,7 @@ class Contact {
       userId: json['user_id'] as int?,
       libraryOwnerId: json['library_owner_id'] as int?,
       isActive: json['is_active'] as bool? ?? true,
+      hasBook: json['has_book'] as bool?,
     );
   }
 
@@ -107,6 +112,7 @@ class Contact {
       'user_id': userId,
       'library_owner_id': libraryOwnerId,
       'is_active': isActive,
+      if (hasBook != null) 'has_book': hasBook,
     };
   }
 }

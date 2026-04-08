@@ -728,6 +728,14 @@ msgstr "Meilleure série"
 msgid "book"
 msgstr "livre"
 
+#. Contact has this book in their library
+msgid "contact_has_book"
+msgstr "Possède ce livre"
+
+#. Error borrowing book - library not initialized
+msgid "error_borrow_setup_incomplete"
+msgstr "Impossible d'enregistrer l'emprunt. Allez dans Réglages pour terminer la configuration."
+
 #. Book borrowed from
 msgid "book_borrowed_from"
 msgstr "Livre emprunté à"

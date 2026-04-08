@@ -719,6 +719,14 @@ msgstr ""
 msgid "book"
 msgstr ""
 
+#. Contact has this book in their library
+msgid "contact_has_book"
+msgstr ""
+
+#. Error borrowing book - library not initialized
+msgid "error_borrow_setup_incomplete"
+msgstr ""
+
 #. Book borrowed from
 msgid "book_borrowed_from"
 msgstr ""

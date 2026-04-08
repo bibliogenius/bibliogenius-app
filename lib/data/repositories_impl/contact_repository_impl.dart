@@ -8,10 +8,15 @@ class ContactRepositoryImpl implements ContactRepository {
   ContactRepositoryImpl(this._apiService);
 
   @override
-  Future<List<Contact>> getContacts({int? libraryId, String? type}) async {
+  Future<List<Contact>> getContacts({
+    int? libraryId,
+    String? type,
+    String? bookIsbn,
+  }) async {
     final response = await _apiService.getContacts(
       libraryId: libraryId,
       type: type,
+      bookIsbn: bookIsbn,
     );
     if (response.statusCode == 200 && response.data != null) {
       final data = response.data;

@@ -511,9 +511,7 @@ class ApiService {
           debugPrint('❌ Auto-Setup Failed: $setupError');
         }
 
-        throw Exception(
-          'Database corrupted and Auto-Repair failed. Please go to Settings -> Reset App.',
-        );
+        throw Exception('BORROW_SETUP');
       }
 
       // If recovery failed or not applicable, log and rethrow original
@@ -985,9 +983,14 @@ class ApiService {
   }
 
   // Contact methods
-  Future<Response> getContacts({int? libraryId, String? type}) async {
-    // In FFI mode, use FfiService and return mock Response
-    if (useFfi) {
+  Future<Response> getContacts({
+    int? libraryId,
+    String? type,
+    String? bookIsbn,
+  }) async {
+    // When bookIsbn is provided in FFI mode, use the local HTTP server so we
+    // get the has_book annotation from the backend (no FFI binding change needed).
+    if (useFfi && bookIsbn == null) {
       try {
         final contacts = await FfiService().getContacts(
           libraryId: libraryId,
@@ -1011,6 +1014,13 @@ class ApiService {
     Map<String, dynamic> params = {};
     if (libraryId != null) params['library_id'] = libraryId;
     if (type != null) params['type'] = type;
+    if (bookIsbn != null) params['book_isbn'] = bookIsbn;
+
+    if (useFfi) {
+      // bookIsbn case in FFI mode: hit the local HTTP server to get has_book.
+      final localDio = Dio(BaseOptions(baseUrl: 'http://127.0.0.1:$httpPort'));
+      return await localDio.get('/api/contacts', queryParameters: params);
+    }
     return await _dio.get('/api/contacts', queryParameters: params);
   }
 

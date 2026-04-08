@@ -728,6 +728,14 @@ msgstr "Best Streak"
 msgid "book"
 msgstr "book"
 
+#. Contact has this book in their library
+msgid "contact_has_book"
+msgstr "Has this book"
+
+#. Error borrowing book - library not initialized
+msgid "error_borrow_setup_incomplete"
+msgstr "Could not save the borrow. Go to Settings to finish your library setup."
+
 #. Book borrowed from
 msgid "book_borrowed_from"
 msgstr "Book borrowed from"
