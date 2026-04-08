@@ -86,7 +86,7 @@ class MockContactRepository implements ContactRepository {
   Contact? mockContact;
 
   @override
-  Future<List<Contact>> getContacts({int? libraryId, String? type}) async =>
+  Future<List<Contact>> getContacts({int? libraryId, String? type, String? bookIsbn}) async =>
       mockContacts;
 
   @override
