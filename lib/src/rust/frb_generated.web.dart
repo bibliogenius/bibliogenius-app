@@ -21,6 +21,14 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   });
 
   @protected
+  AnyhowException dco_decode_AnyhowException(dynamic raw);
+
+  @protected
+  RustStreamSink<FrbNudgeEvent> dco_decode_StreamSink_frb_nudge_event_Sse(
+    dynamic raw,
+  );
+
+  @protected
   String dco_decode_String(dynamic raw);
 
   @protected
@@ -155,6 +163,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbNotification dco_decode_frb_notification(dynamic raw);
+
+  @protected
+  FrbNudgeEvent dco_decode_frb_nudge_event(dynamic raw);
 
   @protected
   FrbOperationLogEntry dco_decode_frb_operation_log_entry(dynamic raw);
@@ -360,6 +371,14 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void dco_decode_unit(dynamic raw);
 
   @protected
+  AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
+
+  @protected
+  RustStreamSink<FrbNudgeEvent> sse_decode_StreamSink_frb_nudge_event_Sse(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   String sse_decode_String(SseDeserializer deserializer);
 
   @protected
@@ -522,6 +541,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbNotification sse_decode_frb_notification(SseDeserializer deserializer);
+
+  @protected
+  FrbNudgeEvent sse_decode_frb_nudge_event(SseDeserializer deserializer);
 
   @protected
   FrbOperationLogEntry sse_decode_frb_operation_log_entry(
@@ -777,6 +799,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_decode_unit(SseDeserializer deserializer);
 
   @protected
+  void sse_encode_AnyhowException(
+    AnyhowException self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_StreamSink_frb_nudge_event_Sse(
+    RustStreamSink<FrbNudgeEvent> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_String(String self, SseSerializer serializer);
 
   @protected
@@ -985,6 +1019,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
     FrbNotification self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_frb_nudge_event(FrbNudgeEvent self, SseSerializer serializer);
 
   @protected
   void sse_encode_frb_operation_log_entry(

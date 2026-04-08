@@ -8,7 +8,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 part 'frb.freezed.dart';
 
-// These functions are ignored because they are not marked as `pub`: `db`, `device_pairing_svc`, `device_sync_svc`, `entries_to_frb`, `hub_db`, `hub_directory_svc`, `install_panic_hook`, `load_google_books_api_key`, `rename_subject_in_books`, `runtime`, `track_to_frb`, `upsert_directory_catalog_cache`
+// These functions are ignored because they are not marked as `pub`: `db`, `device_pairing_svc`, `device_sync_svc`, `entries_to_frb`, `hub_db`, `hub_directory_svc`, `install_panic_hook`, `load_google_books_api_key`, `nudge_source_label`, `rename_subject_in_books`, `runtime`, `track_to_frb`, `upsert_directory_catalog_cache`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
 // These functions are ignored (category: IgnoreBecauseExplicitAttribute): `shared_device_pairing_svc`
 
@@ -362,6 +362,18 @@ Future<String> resetApp() => RustLib.instance.api.crateApiFrbResetApp();
 /// If the specified port is occupied, tries the next 10 ports automatically
 Future<int> startServer({required int port}) =>
     RustLib.instance.api.crateApiFrbStartServer(port: port);
+
+/// Subscribe to the relay nudge event stream.
+///
+/// Each emitted event indicates that `poll_once()` finished processing at
+/// least one message and persisted it to the local DB. Flutter consumers
+/// should refresh the relevant providers (notifications, loan requests,
+/// peer libraries) on receipt.
+///
+/// The function returns immediately after spawning a forwarding task. The
+/// task lives until the Dart side drops the StreamSink.
+Stream<FrbNudgeEvent> subscribeRelayNudges() =>
+    RustLib.instance.api.crateApiFrbSubscribeRelayNudges();
 
 /// Get available difficulty levels based on books with covers
 Future<List<String>> memoryGameAvailableDifficulties() =>
@@ -1815,6 +1827,18 @@ class FrbNotification {
           refId == other.refId &&
           readAt == other.readAt &&
           createdAt == other.createdAt;
+}
+
+/// FFI-safe view of a relay nudge event.
+///
+/// `source` is one of: "websocket" (instant nudge), "polling" (fallback timer),
+/// "manual" (user-triggered or peer.rs request-response).
+@freezed
+sealed class FrbNudgeEvent with _$FrbNudgeEvent {
+  const factory FrbNudgeEvent({
+    required String mailboxId,
+    required String source,
+  }) = _FrbNudgeEvent;
 }
 
 @freezed

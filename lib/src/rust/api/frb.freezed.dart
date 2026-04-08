@@ -3344,6 +3344,260 @@ as bool,
 }
 
 /// @nodoc
+mixin _$FrbNudgeEvent {
+
+ String get mailboxId; String get source;
+/// Create a copy of FrbNudgeEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$FrbNudgeEventCopyWith<FrbNudgeEvent> get copyWith => _$FrbNudgeEventCopyWithImpl<FrbNudgeEvent>(this as FrbNudgeEvent, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbNudgeEvent&&(identical(other.mailboxId, mailboxId) || other.mailboxId == mailboxId)&&(identical(other.source, source) || other.source == source));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,mailboxId,source);
+
+@override
+String toString() {
+  return 'FrbNudgeEvent(mailboxId: $mailboxId, source: $source)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $FrbNudgeEventCopyWith<$Res>  {
+  factory $FrbNudgeEventCopyWith(FrbNudgeEvent value, $Res Function(FrbNudgeEvent) _then) = _$FrbNudgeEventCopyWithImpl;
+@useResult
+$Res call({
+ String mailboxId, String source
+});
+
+
+
+
+}
+/// @nodoc
+class _$FrbNudgeEventCopyWithImpl<$Res>
+    implements $FrbNudgeEventCopyWith<$Res> {
+  _$FrbNudgeEventCopyWithImpl(this._self, this._then);
+
+  final FrbNudgeEvent _self;
+  final $Res Function(FrbNudgeEvent) _then;
+
+/// Create a copy of FrbNudgeEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? mailboxId = null,Object? source = null,}) {
+  return _then(_self.copyWith(
+mailboxId: null == mailboxId ? _self.mailboxId : mailboxId // ignore: cast_nullable_to_non_nullable
+as String,source: null == source ? _self.source : source // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [FrbNudgeEvent].
+extension FrbNudgeEventPatterns on FrbNudgeEvent {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _FrbNudgeEvent value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _FrbNudgeEvent() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _FrbNudgeEvent value)  $default,){
+final _that = this;
+switch (_that) {
+case _FrbNudgeEvent():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _FrbNudgeEvent value)?  $default,){
+final _that = this;
+switch (_that) {
+case _FrbNudgeEvent() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String mailboxId,  String source)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _FrbNudgeEvent() when $default != null:
+return $default(_that.mailboxId,_that.source);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String mailboxId,  String source)  $default,) {final _that = this;
+switch (_that) {
+case _FrbNudgeEvent():
+return $default(_that.mailboxId,_that.source);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String mailboxId,  String source)?  $default,) {final _that = this;
+switch (_that) {
+case _FrbNudgeEvent() when $default != null:
+return $default(_that.mailboxId,_that.source);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _FrbNudgeEvent implements FrbNudgeEvent {
+  const _FrbNudgeEvent({required this.mailboxId, required this.source});
+  
+
+@override final  String mailboxId;
+@override final  String source;
+
+/// Create a copy of FrbNudgeEvent
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$FrbNudgeEventCopyWith<_FrbNudgeEvent> get copyWith => __$FrbNudgeEventCopyWithImpl<_FrbNudgeEvent>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbNudgeEvent&&(identical(other.mailboxId, mailboxId) || other.mailboxId == mailboxId)&&(identical(other.source, source) || other.source == source));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,mailboxId,source);
+
+@override
+String toString() {
+  return 'FrbNudgeEvent(mailboxId: $mailboxId, source: $source)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$FrbNudgeEventCopyWith<$Res> implements $FrbNudgeEventCopyWith<$Res> {
+  factory _$FrbNudgeEventCopyWith(_FrbNudgeEvent value, $Res Function(_FrbNudgeEvent) _then) = __$FrbNudgeEventCopyWithImpl;
+@override @useResult
+$Res call({
+ String mailboxId, String source
+});
+
+
+
+
+}
+/// @nodoc
+class __$FrbNudgeEventCopyWithImpl<$Res>
+    implements _$FrbNudgeEventCopyWith<$Res> {
+  __$FrbNudgeEventCopyWithImpl(this._self, this._then);
+
+  final _FrbNudgeEvent _self;
+  final $Res Function(_FrbNudgeEvent) _then;
+
+/// Create a copy of FrbNudgeEvent
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? mailboxId = null,Object? source = null,}) {
+  return _then(_FrbNudgeEvent(
+mailboxId: null == mailboxId ? _self.mailboxId : mailboxId // ignore: cast_nullable_to_non_nullable
+as String,source: null == source ? _self.source : source // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
 mixin _$FrbOperationLogEntry {
 
  int get id; String get entityType; int get entityId; String get operation; String? get payload; String get status; String? get errorMessage; bool get pinned; String get createdAt;
