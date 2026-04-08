@@ -3282,7 +3282,7 @@ msgstr "Sélectionnez les langues dans lesquelles vous lisez"
 
 #. Languages
 msgid "languages_section"
-msgstr "Langues"
+msgstr "Langues et pays"
 
 #. Interface language
 msgid "languages_ui"
@@ -4709,10 +4709,6 @@ msgstr "Partager"
 #. Country / Market
 msgid "settings_country"
 msgstr "Pays"
-
-#. Country picker description
-msgid "settings_country_desc"
-msgstr "Utilise pour les prix des livres et recommandations locales"
 
 #. Quick Presets
 msgid "quick_presets"
@@ -8467,3 +8463,72 @@ msgstr "Ce code n'est pas valide. Verifiez qu'il correspond bien a celui que vou
 #. Recovery code - not available (registered before feature)
 msgid "recovery_code_not_available"
 msgstr "Non disponible. Re-inscrivez-vous pour en generer un."
+
+# --- Inline help for Settings > Modules toggles (Phase 1) ---
+
+msgid "simplified_mode_help"
+msgstr "Active une interface épurée, adaptée aux jeunes lecteurs ou aux personnes peu à l'aise avec le numérique. Masque les options avancées et privilégie les grands boutons."
+
+msgid "quotes_module_help"
+msgstr "Affiche des citations littéraires inspirantes sur l'écran d'accueil. Purement décoratif : peut être désactivé sans impact sur les fonctionnalités."
+
+msgid "gamification_module_help"
+msgstr "Transforme la lecture en jeu avec des badges, des niveaux et un suivi des statistiques. Compte les livres lus, les pages et les séries de lecture consécutives."
+
+msgid "games_module_help"
+msgstr "Active une sélection de mini-jeux utilisant les couvertures et titres de ta bibliothèque. Chaque jeu peut ensuite être activé ou désactivé individuellement."
+
+msgid "network_gamification_help"
+msgstr "Affiche un classement comparant ta progression à celle des bibliothèques de ton réseau local. Chaque participant choisit indépendamment ce qu'il accepte de partager."
+
+msgid "share_gamification_stats_help"
+msgstr "Autorise les autres bibliothèques de ton réseau à voir tes statistiques (livres lus, badges, niveaux). Sans cette option, tu restes anonyme dans le classement."
+
+msgid "group_by_collections_help"
+msgstr "Dans la vue bibliothèque, les livres sont regroupés par collection plutôt qu'affichés à plat. Utile si tu as beaucoup de collections thématiques."
+
+msgid "commerce_module_help"
+msgstr "Active des fonctionnalités dédiées aux libraires : gestion de stock, prix de vente, état des livres. Recommandé uniquement si tu vends des livres."
+
+msgid "speech_to_text_setting_help"
+msgstr "Ajoute un bouton micro dans les champs de saisie de notes et citations. Utilise la reconnaissance vocale du système pour convertir la parole en texte."
+
+msgid "auto_approve_loans_help"
+msgstr "Quand un contact de confiance te demande un livre, le prêt est accepté automatiquement sans confirmation. Tu peux toujours annuler après coup depuis l'écran des prêts."
+
+msgid "enable_borrowing_module_help"
+msgstr "Active le système de prêts : tu peux prêter tes livres à tes contacts et leur emprunter les leurs. Chaque prêt a une durée configurable et génère des rappels automatiques."
+
+msgid "settings_allow_private_books_help"
+msgstr "Débloque l'option 'Privé' sur chaque livre. Un livre privé reste dans ta bibliothèque mais n'apparaît jamais aux autres utilisateurs, ni sur ton profil public, ni dans les recherches du réseau."
+
+msgid "module_digital_formats_help"
+msgstr "Active la distinction entre formats (papier, e-book, audio) pour un même livre. Pratique si tu possèdes plusieurs éditions et veux suivre laquelle tu as lue."
+
+# --- Inline help for Settings > Notifications toggles (Phase 1) ---
+
+msgid "notif_enabled_help"
+msgstr "Active ou désactive toutes les notifications de l'application. Quand désactivé, aucune alerte ne s'affiche, quelle que soit la catégorie."
+
+msgid "notif_connections_help"
+msgstr "T'avertit quand quelqu'un t'envoie une demande de connexion ou accepte la tienne."
+
+msgid "notif_loans_help"
+msgstr "T'avertit des demandes d'emprunt reçues, des livres retournés et des rappels de retour pour tes prêts en cours."
+
+msgid "notif_discoveries_help"
+msgstr "T'informe quand tes contacts ajoutent de nouveaux livres à leur bibliothèque."
+
+# --- Inline help for Settings > Account / Data / Search (Phase 1) ---
+
+msgid "settings_auto_backup_help"
+msgstr "Sauvegarde automatiquement ta bibliothèque à intervalles réguliers. Te permet de restaurer tes données en cas de problème sur l'appareil."
+
+msgid "search_sources_help"
+msgstr "Sélectionne les bases de données interrogées lors d'une recherche par titre ou auteur. Activer plusieurs sources améliore les résultats mais peut légèrement ralentir la recherche."
+
+msgid "settings_password_help"
+msgstr "Protège l'accès à ta bibliothèque au démarrage de l'application. En mode local, ce mot de passe reste sur l'appareil et n'est jamais transmis."
+
+msgid "two_factor_auth_help"
+msgstr "Ajoute une deuxième vérification à la connexion (code SMS ou application d'authentification). Renforce la sécurité si tu utilises BiblioGenius avec un compte serveur."

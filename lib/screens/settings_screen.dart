@@ -327,11 +327,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onChanged: (v) => setState(() => _settingsSearch = v),
             ),
             const SizedBox(height: 16),
-            // Country / Market (hidden during search)
-            if (!_isSearching) ...[
-              _buildCountryPicker(context, themeProvider),
-              const SizedBox(height: 16),
-            ],
 
             // Quick Presets Section (hidden during search)
             if (!_isSearching) ...[
@@ -456,12 +451,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           : (TranslationService.translate(context, 'not_set') ??
                                 'Not set'),
                     ),
-                    trailing: TextButton(
-                      onPressed: _showChangePasswordDialog,
-                      child: Text(
-                        TranslationService.translate(context, 'change') ??
-                            'Change',
-                      ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const HelpAffordance(topicId: 'password_setting'),
+                        TextButton(
+                          onPressed: _showChangePasswordDialog,
+                          child: Text(
+                            TranslationService.translate(context, 'change') ??
+                                'Change',
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   Padding(
@@ -509,13 +510,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   ) ??
                                   'Disabled'),
                       ),
-                      trailing: Switch(
-                        value: mfaEnabled,
-                        onChanged: (val) {
-                          if (val) {
-                            _setupMfa();
-                          }
-                        },
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const HelpAffordance(topicId: 'two_factor_auth_setting'),
+                          const SizedBox(width: 4),
+                          Switch(
+                            value: mfaEnabled,
+                            onChanged: (val) {
+                              if (val) {
+                                _setupMfa();
+                              }
+                            },
+                          ),
+                        ],
                       ),
                     ),
                 ],
@@ -558,7 +566,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
 
             // Languages accordion
-            if (_sectionVisible(['languages_section']))
+            if (_sectionVisible([
+              'languages_section',
+              'languages_reading',
+              'languages_ui',
+              'settings_country',
+            ]))
             Card(
               margin: const EdgeInsets.only(bottom: 12),
               child: ExpansionTile(
@@ -641,6 +654,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   false,
                   null,
                   tag: TranslationService.translate(context, 'coming_soon'),
+                  helpTopicId: 'simplified_mode',
                 ),
                 _buildModuleToggle(
                   context,
@@ -649,6 +663,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Icons.format_quote,
                   themeProvider.quotesEnabled,
                   (value) => themeProvider.setQuotesEnabled(value),
+                  helpTopicId: 'quotes_module',
                 ),
                 _buildModuleToggle(
                   context,
@@ -657,6 +672,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Icons.emoji_events,
                   themeProvider.gamificationEnabled,
                   (value) => themeProvider.setGamificationEnabled(value),
+                  helpTopicId: 'gamification_module',
                 ),
                 _buildModuleToggle(
                   context,
@@ -665,6 +681,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Icons.sports_esports,
                   themeProvider.gamesEnabled,
                   (value) => themeProvider.setGamesEnabled(value),
+                  helpTopicId: 'games_module',
                 ),
                 if (themeProvider.gamesEnabled)
                   Padding(
@@ -676,6 +693,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       Icons.auto_stories,
                       themeProvider.memoryGameEnabled,
                       (value) => themeProvider.setMemoryGameEnabled(value),
+                      helpTopicId: 'memory_game',
                     ),
                   ),
                 if (themeProvider.gamesEnabled)
@@ -688,6 +706,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       Icons.grid_view,
                       themeProvider.slidingPuzzleEnabled,
                       (value) => themeProvider.setSlidingPuzzleEnabled(value),
+                      helpTopicId: 'sliding_puzzle',
                     ),
                   ),
                 if (themeProvider.gamesEnabled)
@@ -700,6 +719,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       Icons.text_fields,
                       themeProvider.hangmanEnabled,
                       (value) => themeProvider.setHangmanEnabled(value),
+                      helpTopicId: 'hangman',
                     ),
                   ),
                 if (themeProvider.gamificationEnabled &&
@@ -714,6 +734,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       themeProvider.networkGamificationEnabled,
                       (value) =>
                           themeProvider.setNetworkGamificationEnabled(value),
+                      helpTopicId: 'network_gamification',
                     ),
                   ),
                 if (themeProvider.networkGamificationEnabled &&
@@ -729,6 +750,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       themeProvider.shareGamificationStats,
                       (value) =>
                           themeProvider.setShareGamificationStats(value),
+                      helpTopicId: 'share_gamification_stats',
                     ),
                   ),
                 _buildModuleToggle(
@@ -738,6 +760,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Icons.collections_bookmark,
                   themeProvider.collectionsEnabled,
                   (value) => themeProvider.setCollectionsEnabled(value),
+                  helpTopicId: 'collections',
                 ),
                 if (themeProvider.collectionsEnabled)
                   _buildModuleToggle(
@@ -747,6 +770,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     Icons.auto_stories,
                     themeProvider.groupByCollections,
                     (value) => themeProvider.setGroupByCollections(value),
+                    helpTopicId: 'group_by_collections',
                   ),
                 _buildModuleToggle(
                   context,
@@ -755,6 +779,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Icons.storefront,
                   themeProvider.commerceEnabled,
                   (value) => themeProvider.setCommerceEnabled(value),
+                  helpTopicId: 'commerce_module',
                 ),
                 _buildModuleToggle(
                   context,
@@ -763,6 +788,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Icons.headphones,
                   themeProvider.audioEnabled,
                   (value) => themeProvider.setAudioEnabled(value),
+                  helpTopicId: 'audio',
                 ),
                 _buildModuleToggle(
                   context,
@@ -771,6 +797,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Icons.mic,
                   themeProvider.speechToTextEnabled,
                   (value) => themeProvider.setSpeechToTextEnabled(value),
+                  helpTopicId: 'speech_to_text',
                 ),
                 // Network module moved to dedicated "Network" section below
                 _buildModuleToggle(
@@ -781,6 +808,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   themeProvider.autoApproveLoanRequests,
                   (value) =>
                       themeProvider.setAutoApproveLoanRequests(value),
+                  helpTopicId: 'auto_approve_loans',
                 ),
                 if (_loanSettingsLoaded)
                   _buildLoanDurationSection(context),
@@ -791,6 +819,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Icons.swap_horiz,
                   themeProvider.canBorrowBooks,
                   (value) => themeProvider.setCanBorrowBooks(value),
+                  helpTopicId: 'enable_borrowing',
                 ),
                 if (themeProvider.networkEnabled)
                   _buildModuleToggle(
@@ -800,6 +829,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     Icons.visibility_off,
                     themeProvider.allowPrivateBooks,
                     (value) => themeProvider.setAllowPrivateBooks(value),
+                    helpTopicId: 'allow_private_books',
                   ),
                 _buildModuleToggle(
                   context,
@@ -808,6 +838,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Icons.tablet_mac,
                   themeProvider.digitalFormatsEnabled,
                   (value) => themeProvider.setDigitalFormatsEnabled(value),
+                  helpTopicId: 'digital_formats',
                 ),
                 _buildMcpModuleToggle(),
                 // Linked Devices section
@@ -853,6 +884,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Icons.backup_outlined,
                   themeProvider.autoBackupEnabled,
                   (value) => themeProvider.setAutoBackupEnabled(value),
+                  helpTopicId: 'auto_backup',
                 ),
 
                 // Notifications section
@@ -875,6 +907,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   themeProvider.notificationsEnabled,
                   (value) =>
                       themeProvider.setNotificationsEnabled(value),
+                  helpTopicId: 'notif_enabled',
                 ),
                 if (themeProvider.notificationsEnabled) ...[
                   _buildModuleToggle(
@@ -885,6 +918,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     themeProvider.notifConnectionsEnabled,
                     (value) =>
                         themeProvider.setNotifConnectionsEnabled(value),
+                    helpTopicId: 'notif_connections',
                   ),
                   _buildModuleToggle(
                     context,
@@ -894,6 +928,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     themeProvider.notifLoansEnabled,
                     (value) =>
                         themeProvider.setNotifLoansEnabled(value),
+                    helpTopicId: 'notif_loans',
                   ),
                   _buildModuleToggle(
                     context,
@@ -903,6 +938,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     themeProvider.notifDiscoveriesEnabled,
                     (value) =>
                         themeProvider.setNotifDiscoveriesEnabled(value),
+                    helpTopicId: 'notif_discoveries',
                   ),
                 ],
 
@@ -1021,15 +1057,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 key: ValueKey('search_sources_$_isSearching'),
                 initiallyExpanded: _isSearching,
                 leading: const Icon(Icons.saved_search),
-                title: Semantics(
-                  header: true,
-                  child: Text(
-                    TranslationService.translate(context, 'search_sources'),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                title: Row(
+                  children: [
+                    Semantics(
+                      header: true,
+                      child: Text(
+                        TranslationService.translate(context, 'search_sources'),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
-                  ),
+                    const SizedBox(width: 4),
+                    const HelpAffordance(topicId: 'search_sources'),
+                  ],
                 ),
                 children: [
                   Padding(
@@ -1987,46 +2029,67 @@ class _SettingsScreenState extends State<SettingsScreen> {
       // Unknown code, will show just the code
     }
 
-    return ListTile(
-      leading: Text(
-        current?.flagEmoji ?? '',
-        style: const TextStyle(fontSize: 24),
-      ),
-      title: Text(
-        TranslationService.translate(context, 'settings_country') ?? 'Country',
-      ),
-      subtitle: Text(
-        TranslationService.translate(context, 'settings_country_desc') ??
-            'Used for book prices and local recommendations',
-        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-      ),
-      trailing: Text(
-        current?.name ?? countryCode,
-        style: TextStyle(
-          color: Theme.of(context).colorScheme.primary,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      onTap: () {
-        showCountryPicker(
-          context: context,
-          showPhoneCode: false,
-          favorite: ['FR', 'BE', 'CH', 'CA'],
-          countryListTheme: CountryListThemeData(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-            inputDecoration: InputDecoration(
-              hintText: TranslationService.translate(context, 'search') ?? 'Search',
-              prefixIcon: const Icon(Icons.search),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+    final primary = Theme.of(context).colorScheme.primary;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () {
+          showCountryPicker(
+            context: context,
+            showPhoneCode: false,
+            favorite: ['FR', 'BE', 'CH', 'CA'],
+            countryListTheme: CountryListThemeData(
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(16)),
+              inputDecoration: InputDecoration(
+                hintText:
+                    TranslationService.translate(context, 'search') ?? 'Search',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
+            onSelect: (Country selected) async {
+              await themeProvider.setCountry(selected.countryCode);
+            },
+          );
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+          decoration: BoxDecoration(
+            color: Theme.of(context)
+                .colorScheme
+                .surface
+                .withValues(alpha: 0.8),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: Colors.grey.withValues(alpha: 0.3),
+            ),
           ),
-          onSelect: (Country selected) async {
-            await themeProvider.setCountry(selected.countryCode);
-          },
-        );
-      },
+          child: Row(
+            children: [
+              Text(
+                current?.flagEmoji ?? '',
+                style: const TextStyle(fontSize: 24),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  current?.name ?? countryCode,
+                  style: TextStyle(
+                    color: primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              Icon(Icons.arrow_drop_down, color: primary),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -2514,6 +2577,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
             },
           ),
         ),
+
+        const SizedBox(height: 24),
+
+        // Country
+        Text(
+          TranslationService.translate(context, 'settings_country') ??
+              'Country',
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 8),
+        _buildCountryPicker(context, themeProvider),
       ],
     );
   }
@@ -2646,6 +2720,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     bool value,
     ValueChanged<bool>? onChanged, {
     String? tag,
+    String? helpTopicId,
   }) {
     if (!_matchesSearch([titleKey, descKey])) return const SizedBox.shrink();
     return Card(
@@ -2674,6 +2749,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
               ),
+            ],
+            if (helpTopicId != null) ...[
+              const SizedBox(width: 4),
+              HelpAffordance(topicId: helpTopicId),
             ],
           ],
         ),

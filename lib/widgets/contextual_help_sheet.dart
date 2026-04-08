@@ -15,10 +15,14 @@ class ContextualHelpSheet extends StatelessWidget {
   /// Optional list of help tips with icon and text
   final List<HelpTip>? tips;
 
-  /// Optional [HelpRegistry] topic id. When provided, the "See all help"
-  /// link deep-links to `/help?topic=<id>` so the matching accordion is
-  /// expanded and scrolled into view.
+  /// Optional [HelpRegistry] topic id. When provided AND [showSeeMoreLink]
+  /// is true, the "See all help" link deep-links to `/help?topic=<id>`
+  /// so the matching accordion is expanded and scrolled into view.
   final String? topicId;
+
+  /// Whether to render the "See all help topics" link at the bottom.
+  /// Set to `false` for inline-only topics that don't appear in `/help`.
+  final bool showSeeMoreLink;
 
   const ContextualHelpSheet({
     super.key,
@@ -26,6 +30,7 @@ class ContextualHelpSheet extends StatelessWidget {
     required this.contentKey,
     this.tips,
     this.topicId,
+    this.showSeeMoreLink = true,
   });
 
   @override
@@ -118,23 +123,24 @@ class ContextualHelpSheet extends StatelessWidget {
           ],
 
           const SizedBox(height: 16),
-          Align(
-            alignment: Alignment.centerRight,
-            child: TextButton.icon(
-              icon: const Icon(Icons.help_outline, size: 16),
-              label: Text(
-                TranslationService.translate(context, 'help_see_all') ??
-                    'See all help topics',
+          if (showSeeMoreLink)
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton.icon(
+                icon: const Icon(Icons.help_outline, size: 16),
+                label: Text(
+                  TranslationService.translate(context, 'help_see_all') ??
+                      'See all help topics',
+                ),
+                onPressed: () {
+                  Navigator.pop(context);
+                  final target = topicId == null
+                      ? '/help'
+                      : '/help?topic=$topicId';
+                  GoRouter.of(context).go(target);
+                },
               ),
-              onPressed: () {
-                Navigator.pop(context);
-                final target = topicId == null
-                    ? '/help'
-                    : '/help?topic=$topicId';
-                GoRouter.of(context).go(target);
-              },
             ),
-          ),
         ],
       ),
     );
@@ -213,6 +219,7 @@ void showContextualHelp(
   required String contentKey,
   List<HelpTip>? tips,
   String? topicId,
+  bool showSeeMoreLink = true,
 }) {
   showModalBottomSheet(
     context: context,
@@ -226,12 +233,14 @@ void showContextualHelp(
       contentKey: contentKey,
       tips: tips,
       topicId: topicId,
+      showSeeMoreLink: showSeeMoreLink,
     ),
   );
 }
 
 /// Opens the contextual help sheet for a registered [HelpRegistry] topic.
 /// Looks up the topic by [topicId] and forwards its title/desc keys.
+/// FAQ topics get the "See all help" link; inline topics do not.
 /// If the id is unknown, the call is a no-op.
 void showHelpForTopic(BuildContext context, String topicId) {
   final topic = HelpRegistry.findById(topicId);
@@ -241,6 +250,7 @@ void showHelpForTopic(BuildContext context, String topicId) {
     titleKey: topic.titleKey,
     contentKey: topic.descKey,
     topicId: topic.id,
+    showSeeMoreLink: topic.inFaq,
   );
 }
 

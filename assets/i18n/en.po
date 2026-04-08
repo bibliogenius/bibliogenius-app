@@ -3282,7 +3282,7 @@ msgstr "Select the languages you read in"
 
 #. Languages
 msgid "languages_section"
-msgstr "Languages"
+msgstr "Languages and country"
 
 #. Interface language
 msgid "languages_ui"
@@ -4709,10 +4709,6 @@ msgstr "Share library"
 #. Country / Market
 msgid "settings_country"
 msgstr "Country"
-
-#. Country picker description
-msgid "settings_country_desc"
-msgstr "Used for book prices and local recommendations"
 
 #. Quick Presets
 msgid "quick_presets"
@@ -8467,3 +8463,72 @@ msgstr "This code is not valid. Check that it matches the one you saved."
 #. Recovery code - not available (registered before feature)
 msgid "recovery_code_not_available"
 msgstr "Not available. Re-register to generate one."
+
+# --- Inline help for Settings > Modules toggles (Phase 1) ---
+
+msgid "simplified_mode_help"
+msgstr "Enables a streamlined interface for young readers or people less comfortable with digital tools. Hides advanced options and favors large buttons."
+
+msgid "quotes_module_help"
+msgstr "Shows inspirational literary quotes on the home screen. Purely decorative: can be disabled without any functional impact."
+
+msgid "gamification_module_help"
+msgstr "Turns reading into a game with badges, levels, and statistics tracking. Counts books read, pages, and consecutive reading streaks."
+
+msgid "games_module_help"
+msgstr "Enables a selection of mini-games that use your library's covers and titles. Each game can then be toggled individually."
+
+msgid "network_gamification_help"
+msgstr "Displays a leaderboard comparing your progress to other libraries on your local network. Each participant independently chooses what they share."
+
+msgid "share_gamification_stats_help"
+msgstr "Allows other libraries on your network to see your statistics (books read, badges, levels). Without this option, you remain anonymous in the leaderboard."
+
+msgid "group_by_collections_help"
+msgstr "In the library view, books are grouped by collection rather than shown flat. Useful if you have many themed collections."
+
+msgid "commerce_module_help"
+msgstr "Enables features dedicated to booksellers: inventory, sale prices, book condition. Recommended only if you sell books."
+
+msgid "speech_to_text_setting_help"
+msgstr "Adds a microphone button in note and quote input fields. Uses the system's voice recognition to convert speech to text."
+
+msgid "auto_approve_loans_help"
+msgstr "When a trusted contact requests a book, the loan is accepted automatically without confirmation. You can still cancel afterward from the loans screen."
+
+msgid "enable_borrowing_module_help"
+msgstr "Enables the loan system: you can lend books to your contacts and borrow theirs. Each loan has a configurable default duration and generates automatic reminders."
+
+msgid "settings_allow_private_books_help"
+msgstr "Unlocks the 'Private' option on each book. A private book stays in your library but is never shown to other users — not on your public profile, not in network searches."
+
+msgid "module_digital_formats_help"
+msgstr "Enables the distinction between formats (paper, ebook, audio) for the same book. Useful if you own multiple editions and want to track which one you've read."
+
+# --- Inline help for Settings > Notifications toggles (Phase 1) ---
+
+msgid "notif_enabled_help"
+msgstr "Enables or disables all app notifications. When off, no alerts appear regardless of category."
+
+msgid "notif_connections_help"
+msgstr "Notifies you when someone sends you a connection request or accepts yours."
+
+msgid "notif_loans_help"
+msgstr "Notifies you of incoming borrow requests, returned books, and return reminders for active loans."
+
+msgid "notif_discoveries_help"
+msgstr "Lets you know when your contacts add new books to their library."
+
+# --- Inline help for Settings > Account / Data / Search (Phase 1) ---
+
+msgid "settings_auto_backup_help"
+msgstr "Automatically backs up your library at regular intervals. Lets you restore your data if something goes wrong on your device."
+
+msgid "search_sources_help"
+msgstr "Select which databases are queried when searching by title or author. Enabling more sources improves coverage but may slightly slow down searches."
+
+msgid "settings_password_help"
+msgstr "Protects access to your library when the app starts. In local mode, this password stays on your device and is never transmitted."
+
+msgid "two_factor_auth_help"
+msgstr "Adds a second verification step at login (SMS code or authenticator app). Increases security when using BiblioGenius with a server account."

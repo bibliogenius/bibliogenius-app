@@ -2905,7 +2905,7 @@ msgstr ""
 
 #. Languages
 msgid "languages_section"
-msgstr ""
+msgstr "言語と国"
 
 #. Interface language
 msgid "languages_ui"

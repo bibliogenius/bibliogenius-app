@@ -2901,7 +2901,7 @@ msgstr "Изберете езиците, на които четете"
 
 #. Languages
 msgid "languages_section"
-msgstr "Езици"
+msgstr "Езици и страна"
 
 #. Interface language
 msgid "languages_ui"

@@ -3041,7 +3041,7 @@ msgstr "Selecciona los idiomas en los que lees"
 
 #. Languages
 msgid "languages_section"
-msgstr "Idiomas"
+msgstr "Idiomas y país"
 
 #. Interface language
 msgid "languages_ui"
@@ -8310,3 +8310,72 @@ msgstr "Eliminar la nota"
 #. Edit note tooltip
 msgid "tooltip_edit_note"
 msgstr "Modificar la nota"
+
+# --- Inline help for Settings > Modules toggles (Phase 1) ---
+
+msgid "simplified_mode_help"
+msgstr "Activa una interfaz simplificada, adaptada a lectores jóvenes o personas poco familiarizadas con lo digital. Oculta las opciones avanzadas y prioriza los botones grandes."
+
+msgid "quotes_module_help"
+msgstr "Muestra citas literarias inspiradoras en la pantalla de inicio. Puramente decorativo: se puede desactivar sin impacto en las funcionalidades."
+
+msgid "gamification_module_help"
+msgstr "Convierte la lectura en un juego con insignias, niveles y seguimiento de estadísticas. Cuenta los libros leídos, las páginas y las rachas de lectura consecutivas."
+
+msgid "games_module_help"
+msgstr "Activa una selección de minijuegos que usan las portadas y títulos de tu biblioteca. Cada juego se puede activar o desactivar individualmente."
+
+msgid "network_gamification_help"
+msgstr "Muestra una clasificación que compara tu progreso con el de otras bibliotecas en tu red local. Cada participante elige de forma independiente qué comparte."
+
+msgid "share_gamification_stats_help"
+msgstr "Permite a otras bibliotecas de tu red ver tus estadísticas (libros leídos, insignias, niveles). Sin esta opción, permaneces anónimo en la clasificación."
+
+msgid "group_by_collections_help"
+msgstr "En la vista de biblioteca, los libros se agrupan por colección en lugar de mostrarse planos. Útil si tienes muchas colecciones temáticas."
+
+msgid "commerce_module_help"
+msgstr "Activa funciones dedicadas a libreros: inventario, precios de venta, estado de los libros. Recomendado solo si vendes libros."
+
+msgid "speech_to_text_setting_help"
+msgstr "Añade un botón de micrófono en los campos de notas y citas. Usa el reconocimiento de voz del sistema para convertir la voz en texto."
+
+msgid "auto_approve_loans_help"
+msgstr "Cuando un contacto de confianza te pide un libro, el préstamo se acepta automáticamente sin confirmación. Siempre puedes cancelar después desde la pantalla de préstamos."
+
+msgid "enable_borrowing_module_help"
+msgstr "Activa el sistema de préstamos: puedes prestar libros a tus contactos y tomar prestados los suyos. Cada préstamo tiene una duración configurable y genera recordatorios automáticos."
+
+msgid "settings_allow_private_books_help"
+msgstr "Desbloquea la opción 'Privado' en cada libro. Un libro privado permanece en tu biblioteca pero nunca se muestra a otros usuarios — ni en tu perfil público, ni en las búsquedas de la red."
+
+msgid "module_digital_formats_help"
+msgstr "Activa la distinción entre formatos (papel, ebook, audio) para un mismo libro. Útil si posees varias ediciones y quieres seguir cuál has leído."
+
+# --- Inline help for Settings > Notifications toggles (Phase 1) ---
+
+msgid "notif_enabled_help"
+msgstr "Activa o desactiva todas las notificaciones de la aplicación. Cuando está desactivado, no aparece ninguna alerta, independientemente de la categoría."
+
+msgid "notif_connections_help"
+msgstr "Te avisa cuando alguien te envía una solicitud de conexión o acepta la tuya."
+
+msgid "notif_loans_help"
+msgstr "Te notifica sobre solicitudes de préstamo recibidas, libros devueltos y recordatorios de devolución para préstamos activos."
+
+msgid "notif_discoveries_help"
+msgstr "Te informa cuando tus contactos añaden nuevos libros a su biblioteca."
+
+# --- Inline help for Settings > Account / Data / Search (Phase 1) ---
+
+msgid "settings_auto_backup_help"
+msgstr "Realiza copias de seguridad automáticas de tu biblioteca a intervalos regulares. Te permite restaurar tus datos si algo sale mal en el dispositivo."
+
+msgid "search_sources_help"
+msgstr "Selecciona las bases de datos consultadas al buscar por título o autor. Activar más fuentes mejora los resultados pero puede ralentizar ligeramente las búsquedas."
+
+msgid "settings_password_help"
+msgstr "Protege el acceso a tu biblioteca al iniciar la aplicación. En modo local, esta contraseña permanece en el dispositivo y nunca se transmite."
+
+msgid "two_factor_auth_help"
+msgstr "Añade una segunda verificación al iniciar sesión (código SMS o aplicación autenticadora). Aumenta la seguridad cuando usas BiblioGenius con una cuenta de servidor."

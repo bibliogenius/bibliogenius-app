@@ -2954,7 +2954,7 @@ msgstr "Okuduğunuz dilleri seçin"
 
 #. Languages
 msgid "languages_section"
-msgstr "Diller"
+msgstr "Diller ve ülke"
 
 #. Interface language
 msgid "languages_ui"
