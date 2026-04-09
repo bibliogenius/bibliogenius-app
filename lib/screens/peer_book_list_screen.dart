@@ -796,7 +796,12 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
             debugPrint(
               'Relay: catalog unchanged (hash match), skipping re-fetch',
             );
-            if (mounted) setState(() => _isRelayLoading = false);
+            if (mounted) {
+              setState(() {
+                _isRelayLoading = false;
+                _relaySyncDone = true;
+              });
+            }
             return;
           }
         }
@@ -890,6 +895,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
       allBooks.addAll(books);
 
+      final allDone = totalBooks > 0 && allBooks.length >= totalBooks;
       if (mounted) {
         setState(() {
           _books = List.from(allBooks);
@@ -897,8 +903,15 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
           _relayBooksLoaded = allBooks.length;
           _isLoading = false;
           _isHubOnly = false;
+          // Dismiss spinner immediately once all expected books are displayed.
+          if (allDone) {
+            _isRelayLoading = false;
+            _relaySyncDone = true;
+          }
         });
       }
+
+      if (allDone) break;
 
       // Check if there are more pages
       final nextCursor = page['next_cursor'];
