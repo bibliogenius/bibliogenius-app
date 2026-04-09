@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import '../services/api_service.dart';
+import '../src/rust/api/frb.dart' show FrbNudgeEvent, subscribeRelayNudges;
 
 /// Tracks the count of pending peer connection requests
 /// and detects newly connected peers for flash notifications.
@@ -10,6 +11,7 @@ class PendingPeersProvider extends ChangeNotifier {
   final ApiService _apiService;
   int _pendingCount = 0;
   Timer? _refreshTimer;
+  StreamSubscription<FrbNudgeEvent>? _nudgeSub;
 
   // Tracks known peer IDs to detect new connections
   Set<int> _knownPeerIds = {};
@@ -22,11 +24,29 @@ class PendingPeersProvider extends ChangeNotifier {
 
   PendingPeersProvider(this._apiService) {
     refresh();
-    // Auto-refresh every 30 seconds
+    // Auto-refresh every 30 seconds (fallback safety net)
     _refreshTimer = Timer.periodic(
       const Duration(seconds: 30),
       (_) => refresh(),
     );
+    // Instant refresh on relay nudge (ADR-017)
+    _subscribeNudgeStream();
+  }
+
+  /// Subscribe to the FFI relay nudge stream for instant refresh.
+  void _subscribeNudgeStream() {
+    _nudgeSub?.cancel();
+    try {
+      _nudgeSub = subscribeRelayNudges().listen(
+        (_) => refresh(),
+        onError: (Object e) {
+          debugPrint('PendingPeersProvider: nudge stream error: $e');
+        },
+        cancelOnError: false,
+      );
+    } catch (e) {
+      debugPrint('PendingPeersProvider: failed to subscribe to nudge stream: $e');
+    }
   }
 
   int get pendingCount => _pendingCount;
@@ -100,6 +120,7 @@ class PendingPeersProvider extends ChangeNotifier {
   @override
   void dispose() {
     _refreshTimer?.cancel();
+    _nudgeSub?.cancel();
     super.dispose();
   }
 }

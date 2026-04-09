@@ -50,6 +50,7 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
 
   // Auto-refresh timer
   Timer? _refreshTimer;
+  StreamSubscription<frb.FrbNudgeEvent>? _nudgeSub;
 
   @override
   void initState() {
@@ -58,9 +59,31 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
     _ensureMdnsDiscovery();
     _refreshTimer = Timer.periodic(const Duration(seconds: 30), (_) {
       if (mounted && _view == _PairingView.devices) {
-        _loadDevices();
+        _loadDevices(silent: true);
       }
     });
+    // Instant refresh on relay nudge (ADR-017)
+    _subscribeNudgeStream();
+  }
+
+  /// Subscribe to the FFI relay nudge stream for instant device list refresh.
+  void _subscribeNudgeStream() {
+    _nudgeSub?.cancel();
+    try {
+      _nudgeSub = frb.subscribeRelayNudges().listen(
+        (_) {
+          if (mounted && _view == _PairingView.devices) {
+            _loadDevices(silent: true);
+          }
+        },
+        onError: (Object e) {
+          debugPrint('DevicePairing: nudge stream error: $e');
+        },
+        cancelOnError: false,
+      );
+    } catch (e) {
+      debugPrint('DevicePairing: failed to subscribe to nudge stream: $e');
+    }
   }
 
   /// Ensure mDNS discovery is running so we can resolve peer URLs for sync.
@@ -74,14 +97,15 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
   void dispose() {
     _countdownTimer?.cancel();
     _refreshTimer?.cancel();
+    _nudgeSub?.cancel();
     _codeController.dispose();
     super.dispose();
   }
 
   bool _backfillDone = false;
 
-  Future<void> _loadDevices() async {
-    setState(() => _isLoadingDevices = true);
+  Future<void> _loadDevices({bool silent = false}) async {
+    if (!silent) setState(() => _isLoadingDevices = true);
     try {
       final devices = await frb.deviceListLinked();
       // Backfill operation_log once if there are linked devices
