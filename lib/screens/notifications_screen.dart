@@ -145,7 +145,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         break;
       case 'borrow_request':
         // Go to received requests tab
-        context.push('/requests?tab=lent');
+        context.push('/requests?tab=requests');
         break;
       case 'borrow_accepted':
         // Go to borrowing tab
@@ -156,8 +156,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         context.push('/requests?tab=requests');
         break;
       case 'book_returned':
-        // Go to lent tab
-        context.push('/requests?tab=lent');
+        // Go to lent tab with returned filter
+        context.push('/requests?tab=lent&status=returned');
         break;
       case 'book_reclaimed':
         // Go to borrowed tab (borrower's perspective)

@@ -798,13 +798,13 @@ void _navigateForNotification(BuildContext context, FrbNotification notif) {
       context.push('/network');
       break;
     case 'borrow_request':
-      context.push('/requests?tab=lent');
+      context.push('/requests?tab=requests');
       break;
     case 'borrow_accepted':
       context.push('/requests?tab=borrowed');
       break;
     case 'book_returned':
-      context.push('/requests?tab=lent');
+      context.push('/requests?tab=lent&status=returned');
       break;
     case 'book_reclaimed':
       context.push('/requests?tab=borrowed');
