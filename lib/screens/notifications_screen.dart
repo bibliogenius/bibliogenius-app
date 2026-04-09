@@ -151,9 +151,17 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         // Go to borrowing tab
         context.push('/requests?tab=borrowed');
         break;
+      case 'borrow_rejected':
+        // Go to outgoing requests tab
+        context.push('/requests?tab=requests');
+        break;
       case 'book_returned':
         // Go to lent tab
         context.push('/requests?tab=lent');
+        break;
+      case 'book_reclaimed':
+        // Go to borrowed tab (borrower's perspective)
+        context.push('/requests?tab=borrowed');
         break;
       case 'wishlist_match':
         // Navigate to the peer's library, filtered by the book title
@@ -301,8 +309,12 @@ class _NotificationTile extends StatelessWidget {
         return Icons.menu_book;
       case 'borrow_accepted':
         return Icons.check_circle_outline;
+      case 'borrow_rejected':
+        return Icons.cancel_outlined;
       case 'book_returned':
         return Icons.assignment_return;
+      case 'book_reclaimed':
+        return Icons.replay;
       case 'wishlist_match':
         return Icons.favorite;
       default:
@@ -348,8 +360,16 @@ class _NotificationTile extends StatelessWidget {
         return TranslationService.translate(context, 'notif_borrow_accepted')
             .replaceAll('{name}', b ?? '')
             .replaceAll('{book}', t);
+      case 'borrow_rejected':
+        return TranslationService.translate(context, 'notif_borrow_rejected')
+            .replaceAll('{name}', b ?? '')
+            .replaceAll('{book}', t);
       case 'book_returned':
         return TranslationService.translate(context, 'notif_book_returned')
+            .replaceAll('{name}', b ?? '')
+            .replaceAll('{book}', t);
+      case 'book_reclaimed':
+        return TranslationService.translate(context, 'notif_book_reclaimed')
             .replaceAll('{name}', b ?? '')
             .replaceAll('{book}', t);
       case 'wishlist_match':

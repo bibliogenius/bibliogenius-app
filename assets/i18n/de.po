@@ -7718,6 +7718,12 @@ msgstr "Noch keine Regale vorhanden"
 msgid "notif_book_returned"
 msgstr "{name} hat \"{book}\" zurueckgegeben"
 
+msgid "notif_book_reclaimed"
+msgstr "{name} hat \"{book}\" zurueckgeholt"
+
+msgid "notif_borrow_rejected"
+msgstr "{name} hat die Ausleihe von \"{book}\" abgelehnt"
+
 #. Notification - borrow accepted
 msgid "notif_borrow_accepted"
 msgstr "{name} hat den Verleih von \"{book}\" akzeptiert"

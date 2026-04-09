@@ -15,7 +15,7 @@ import '../services/ffi_service.dart';
 import '../services/translation_service.dart';
 import '../providers/hub_directory_provider.dart';
 import '../providers/theme_provider.dart';
-import '../src/rust/api/frb.dart' show FrbHubBorrowRequest;
+import '../src/rust/api/frb.dart' show FrbHubBorrowRequest, FrbNudgeEvent, subscribeRelayNudges;
 import '../widgets/premium_empty_state.dart';
 
 /// Screen for managing loans, borrows, and P2P requests
@@ -41,6 +41,7 @@ class LoansScreen extends StatefulWidget {
 class _LoansScreenState extends State<LoansScreen>
     with TickerProviderStateMixin {
   Timer? _refreshTimer;
+  StreamSubscription<FrbNudgeEvent>? _nudgeSub;
   late TabController _mainTabController;
   late TabController _requestsTabController;
   bool _isLoading = false;
@@ -121,11 +122,28 @@ class _LoansScreenState extends State<LoansScreen>
     _refreshTimer = Timer.periodic(const Duration(seconds: 30), (_) {
       if (mounted) _fetchAllData(silent: true);
     });
+    _subscribeNudgeStream();
+  }
+
+  void _subscribeNudgeStream() {
+    _nudgeSub?.cancel();
+    try {
+      _nudgeSub = subscribeRelayNudges().listen(
+        (_) { if (mounted) _fetchAllData(silent: true); },
+        onError: (Object e) {
+          debugPrint('LoansScreen: nudge stream error: $e');
+        },
+        cancelOnError: false,
+      );
+    } catch (e) {
+      debugPrint('LoansScreen: failed to subscribe to nudge stream: $e');
+    }
   }
 
   @override
   void dispose() {
     _refreshTimer?.cancel();
+    _nudgeSub?.cancel();
     _mainTabController.dispose();
     _requestsTabController.dispose();
     _lentSearchController.dispose();

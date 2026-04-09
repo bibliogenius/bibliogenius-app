@@ -7718,6 +7718,12 @@ msgstr "Ninguna estanteria por ahora"
 msgid "notif_book_returned"
 msgstr "{name} ha devuelto \"{book}\""
 
+msgid "notif_book_reclaimed"
+msgstr "{name} ha recuperado \"{book}\""
+
+msgid "notif_borrow_rejected"
+msgstr "{name} ha rechazado el préstamo de \"{book}\""
+
 #. Notification - borrow accepted
 msgid "notif_borrow_accepted"
 msgstr "{name} ha aceptado el prestamo de \"{book}\""

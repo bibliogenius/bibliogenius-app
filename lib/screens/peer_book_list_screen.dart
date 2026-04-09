@@ -66,6 +66,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
   /// Relay sync state (ADR-012)
   bool _isRelayLoading = false;
+  bool _relaySyncDone = false; // true once relay sync completes successfully
   int _relayBooksLoaded = 0;
   int _relayBooksTotal = 0;
   Timer? _pollTimer;
@@ -926,7 +927,10 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     }
 
     if (mounted) {
-      setState(() => _isRelayLoading = false);
+      setState(() {
+        _isRelayLoading = false;
+        if (allBooks.isNotEmpty) _relaySyncDone = true;
+      });
     }
   }
 
@@ -1427,15 +1431,15 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     // Hub-only: data from hub directory, not a direct peer connection
     final channelIcon = _isPeerOnline
         ? Icons.wifi
-        : _isRelayLoading || _isHubOnly
+        : _isRelayLoading || _isHubOnly || _relaySyncDone
             ? Icons.cloud_queue
             : Icons.cloud_off;
     final channelLabel = _isPeerOnline
         ? 'Wi-Fi'
-        : _isRelayLoading
-            ? 'Relay'
+        : _isRelayLoading || _relaySyncDone
+            ? 'Internet'
             : _isHubOnly
-                ? 'Hub'
+                ? 'Annuaire'
                 : 'Offline';
     final subtleColor = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4);
 

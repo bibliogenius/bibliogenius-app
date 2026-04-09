@@ -8047,6 +8047,12 @@ msgstr "{name} a accepté le prêt de « {book} »"
 msgid "notif_book_returned"
 msgstr "{name} a rendu « {book} »"
 
+msgid "notif_book_reclaimed"
+msgstr "{name} a récupéré « {book} »"
+
+msgid "notif_borrow_rejected"
+msgstr "{name} a refusé le prêt de « {book} »"
+
 #. Notification display - discovery events
 msgid "notif_wishlist_match"
 msgstr "« {book} » disponible chez {source}"
