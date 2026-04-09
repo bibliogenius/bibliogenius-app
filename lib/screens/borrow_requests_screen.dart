@@ -176,9 +176,11 @@ class _LoansScreenState extends State<LoansScreen>
         final connRes = await api.getPendingPeers();
 
         if (mounted) {
-          _incomingRequests = inRes.data;
-          _outgoingRequests = outRes.data;
-          _connectionRequests = connRes.data['requests'] ?? [];
+          setState(() {
+            _incomingRequests = inRes.data;
+            _outgoingRequests = outRes.data;
+            _connectionRequests = connRes.data['requests'] ?? [];
+          });
         }
       }
 
