@@ -819,15 +819,27 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
   /// Fire-and-forget: updates _peerOnlineStatus as results come in.
   void _checkPeersConnectivity(List<LibraryRelation> relations) {
     final api = Provider.of<ApiService>(context, listen: false);
+    final Map<String, bool> immediate = {};
     for (final r in relations) {
       final url = r.peer?.url;
-      if (url == null || url.isEmpty) continue;
-      // Relay-only peers have no direct URL to check
-      if (url.startsWith('relay://')) continue;
+      if (url == null || url.isEmpty) {
+        // No URL: not checkable, mark false once so no spinner is shown
+        immediate.putIfAbsent(r.nodeId, () => false);
+        continue;
+      }
+      if (url.startsWith('relay://')) {
+        // Relay-only: not directly reachable. Mark false so the blueGrey dot
+        // (hasRelayCredentials) is shown instead of an indefinite spinner.
+        immediate.putIfAbsent(r.nodeId, () => false);
+        continue;
+      }
       api.checkPeerConnectivity(url).then((online) {
         if (!mounted) return;
         setState(() => _peerOnlineStatus[r.nodeId] = online);
       });
+    }
+    if (immediate.isNotEmpty) {
+      setState(() => _peerOnlineStatus.addAll(immediate));
     }
   }
 
