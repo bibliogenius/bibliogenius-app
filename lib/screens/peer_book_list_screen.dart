@@ -82,6 +82,12 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   /// ISBNs with a pending outgoing borrow request (to disable the borrow button)
   Set<String> _pendingBorrowIsbns = {};
 
+  /// ISBNs of books currently borrowed from this peer (accepted outgoing request).
+  Set<String> _activeBorrowIsbns = {};
+
+  /// ISBNs of books currently lent to this peer (accepted incoming request).
+  Set<String> _lendingIsbns = {};
+
   /// Pagination state for live P2P loading
   int _currentPage = 0;
   int _totalBooks = 0;
@@ -689,9 +695,6 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
       if (!changed) {
         debugPrint('Hub catalog: no changes (${entries.length} entries, ${_books.length} books)');
-        if (_newBookIds.isNotEmpty) {
-          setState(() => _newBookIds = {});
-        }
         return;
       }
 
@@ -702,7 +705,6 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
         _filteredBooks = _isSearching && _searchController.text.isNotEmpty
             ? _books.where((b) => _matchesSearch(b, _searchController.text)).toList()
             : _books;
-        _newBookIds = {};
         _lastSynced = DateTime.now().toIso8601String();
         _isRefreshing = false;
       });
@@ -1224,15 +1226,39 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   Future<void> _loadPendingBorrowRequests() async {
     final api = Provider.of<ApiService>(context, listen: false);
     try {
-      final res = await api.getOutgoingRequests();
-      final requests = res.data as List<dynamic>? ?? [];
+      // Outgoing requests: pending = button shows "Requested", accepted = "Borrowed"
+      final outgoing = await api.getOutgoingRequests();
+      final outgoingList = outgoing.data as List<dynamic>? ?? [];
+      final forThisPeer = outgoingList
+          .where((r) => r['peer_url']?.toString() == widget.peerUrl);
+
+      final pending = forThisPeer
+          .where((r) => r['status'] == 'pending')
+          .map((r) => r['book_isbn']?.toString() ?? '')
+          .where((isbn) => isbn.isNotEmpty)
+          .toSet();
+      final active = forThisPeer
+          .where((r) => r['status'] == 'accepted')
+          .map((r) => r['book_isbn']?.toString() ?? '')
+          .where((isbn) => isbn.isNotEmpty)
+          .toSet();
+
+      // Incoming requests: accepted from this peer = user is lending it to them
+      final incoming = await api.getIncomingRequests();
+      final incomingList = incoming.data as List<dynamic>? ?? [];
+      final lending = incomingList
+          .where((r) =>
+              r['peer_url']?.toString() == widget.peerUrl &&
+              r['status'] == 'accepted')
+          .map((r) => r['book_isbn']?.toString() ?? '')
+          .where((isbn) => isbn.isNotEmpty)
+          .toSet();
+
       if (mounted) {
         setState(() {
-          _pendingBorrowIsbns = requests
-              .where((r) => r['status'] == 'pending')
-              .map((r) => r['book_isbn']?.toString() ?? '')
-              .where((isbn) => isbn.isNotEmpty)
-              .toSet();
+          _pendingBorrowIsbns = pending;
+          _activeBorrowIsbns = active;
+          _lendingIsbns = lending;
         });
       }
     } catch (_) {
@@ -1245,6 +1271,16 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     return isbn != null && isbn.isNotEmpty && _pendingBorrowIsbns.contains(isbn);
   }
 
+  bool _isActiveBorrow(Book book) {
+    final isbn = book.isbn;
+    return isbn != null && isbn.isNotEmpty && _activeBorrowIsbns.contains(isbn);
+  }
+
+  bool _isLending(Book book) {
+    final isbn = book.isbn;
+    return isbn != null && isbn.isNotEmpty && _lendingIsbns.contains(isbn);
+  }
+
   bool _hasNoCopiesAvailable(Book book) {
     return book.availableCopies != null && book.availableCopies == 0;
   }
@@ -1254,7 +1290,10 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     // For hub catalog books, owned defaults to true (unknown = allow request,
     // server auto-rejects if no available copy).
     if (!book.owned) return false;
-    return !_hasPendingRequest(book) && !_hasNoCopiesAvailable(book);
+    return !_hasPendingRequest(book) &&
+        !_isActiveBorrow(book) &&
+        !_isLending(book) &&
+        !_hasNoCopiesAvailable(book);
   }
 
   Future<void> _requestBorrow(Book book) async {
@@ -1271,6 +1310,29 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       final response = await api.requestBookByUrl(widget.peerUrl, isbn ?? "", book.title);
       if (!mounted) return;
       final data = response.data;
+
+      // 409: already borrowing or currently lending this book to the peer.
+      if (response.statusCode == 409) {
+        final error = data is Map ? data['error']?.toString() : null;
+        if (isbn != null && isbn.isNotEmpty) {
+          setState(() {
+            _pendingBorrowIsbns.remove(isbn);
+            // Mark as "on loan" so button stays disabled with the right label
+            _lendingIsbns.add(isbn);
+          });
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              error == 'already_requested'
+                  ? TranslationService.translate(context, 'borrow_on_loan')
+                  : TranslationService.translate(context, 'borrow_request_rejected_no_copy'),
+            ),
+          ),
+        );
+        return;
+      }
+
       // Check lender's response status
       if (data is Map && data['status'] == 'rejected') {
         // Remove from pending since the request was rejected
@@ -1310,7 +1372,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              "${TranslationService.translate(context, 'error_sending_request')}: $e",
+              TranslationService.translate(context, 'error_sending_request'),
             ),
           ),
         );
@@ -1829,15 +1891,25 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                                                       context,
                                                       'borrow_pending',
                                                     )
-                                                  : _hasNoCopiesAvailable(book)
+                                                  : _isActiveBorrow(book)
                                                       ? TranslationService.translate(
                                                           context,
-                                                          'borrow_unavailable',
+                                                          'borrow_active',
                                                         )
-                                                      : TranslationService.translate(
-                                                          context,
-                                                          'borrow',
-                                                        ),
+                                                      : _isLending(book)
+                                                          ? TranslationService.translate(
+                                                              context,
+                                                              'borrow_on_loan',
+                                                            )
+                                                          : _hasNoCopiesAvailable(book)
+                                                              ? TranslationService.translate(
+                                                                  context,
+                                                                  'borrow_unavailable',
+                                                                )
+                                                              : TranslationService.translate(
+                                                                  context,
+                                                                  'borrow',
+                                                                ),
                                             ),
                                           ),
                                           onTap: () => _showBookDetails(book),
@@ -1953,24 +2025,36 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                       : null,
                   icon: Icon(_canBorrow(book)
                       ? Icons.bookmark_add
-                      : _hasPendingRequest(book)
+                      : _hasPendingRequest(book) || _isActiveBorrow(book)
                           ? Icons.hourglass_top
-                          : Icons.block),
+                          : _isLending(book)
+                              ? Icons.swap_horiz
+                              : Icons.block),
                   label: Text(
                     _hasPendingRequest(book)
                         ? TranslationService.translate(
                             context,
                             'borrow_pending',
                           )
-                        : _hasNoCopiesAvailable(book)
+                        : _isActiveBorrow(book)
                             ? TranslationService.translate(
                                 context,
-                                'borrow_unavailable',
+                                'borrow_active',
                               )
-                            : TranslationService.translate(
-                                context,
-                                'request_to_borrow',
-                              ),
+                            : _isLending(book)
+                                ? TranslationService.translate(
+                                    context,
+                                    'borrow_on_loan',
+                                  )
+                                : _hasNoCopiesAvailable(book)
+                                    ? TranslationService.translate(
+                                        context,
+                                        'borrow_unavailable',
+                                      )
+                                    : TranslationService.translate(
+                                        context,
+                                        'request_to_borrow',
+                                      ),
                   ),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),

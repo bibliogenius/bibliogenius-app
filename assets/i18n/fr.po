@@ -864,6 +864,14 @@ msgstr "Emprunter"
 msgid "borrow_pending"
 msgstr "Demandé"
 
+#. Already borrowing this book from this peer (accepted loan)
+msgid "borrow_active"
+msgstr "Emprunté"
+
+#. Currently lending this book to this peer
+msgid "borrow_on_loan"
+msgstr "Prêté"
+
 #. No copies available to borrow
 msgid "borrow_unavailable"
 msgstr "Indisponible"

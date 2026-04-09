@@ -2568,12 +2568,17 @@ class ApiService {
         ? Dio(BaseOptions(baseUrl: 'http://127.0.0.1:$httpPort'))
         : _dio;
     debugPrint('📡 Sending loan request via local backend for peer $peerUrl');
+    // Accept 409 (already_requested / currently_lending) without throwing so
+    // the caller can inspect the response body and react gracefully.
     final response = await dio.post(
       '/api/peers/request_by_url',
       data: {'peer_url': peerUrl, 'book_isbn': isbn, 'book_title': title},
+      options: Options(
+        validateStatus: (status) => status != null && (status < 300 || status == 409),
+      ),
     );
     final msg = response.data is Map ? response.data['message'] : '';
-    debugPrint('📡 Loan request result: $msg');
+    debugPrint('📡 Loan request result (${response.statusCode}): $msg');
     return response;
   }
 
