@@ -724,6 +724,10 @@ IconData _iconForEvent(String eventType) {
       return Icons.check_circle_outline;
     case 'book_returned':
       return Icons.assignment_return;
+    case 'book_reclaimed':
+      return Icons.replay;
+    case 'borrow_rejected':
+      return Icons.cancel_outlined;
     case 'wishlist_match':
       return Icons.favorite;
     case 'welcome':
@@ -753,6 +757,14 @@ String _formatTitle(BuildContext context, FrbNotification n) {
           .replaceAll('{book}', t);
     case 'book_returned':
       return TranslationService.translate(context, 'notif_book_returned')
+          .replaceAll('{name}', b ?? '')
+          .replaceAll('{book}', t);
+    case 'book_reclaimed':
+      return TranslationService.translate(context, 'notif_book_reclaimed')
+          .replaceAll('{name}', b ?? '')
+          .replaceAll('{book}', t);
+    case 'borrow_rejected':
+      return TranslationService.translate(context, 'notif_borrow_rejected')
           .replaceAll('{name}', b ?? '')
           .replaceAll('{book}', t);
     case 'wishlist_match':
@@ -793,6 +805,12 @@ void _navigateForNotification(BuildContext context, FrbNotification notif) {
       break;
     case 'book_returned':
       context.push('/requests?tab=lent');
+      break;
+    case 'book_reclaimed':
+      context.push('/requests?tab=borrowed');
+      break;
+    case 'borrow_rejected':
+      context.push('/requests?tab=requests');
       break;
     case 'wishlist_match':
       // Open full notifications screen for rich navigation (peer library + search)
