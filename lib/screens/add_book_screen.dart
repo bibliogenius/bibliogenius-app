@@ -900,6 +900,12 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   },
                   displayStringForOption: (option) => option['title'] ?? '',
                   onSelected: (Map<String, dynamic> selection) async {
+                    _debounce?.cancel();
+                    if (mounted) setState(() {
+                      _isAutocompleteFetching = false;
+                      _skipAutocomplete = true; // guard Phase 1 (RawAutocomplete internal text update)
+                    });
+
                     // Get current search query
                     final searchQuery = _titleController.text;
 
@@ -1008,7 +1014,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
                                 }
                               }
 
-                              return Padding(
+                              return MouseRegion(
+                                cursor: SystemMouseCursors.click,
+                                child: Padding(
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 4.0,
                                 ),
@@ -1131,7 +1139,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                                   dense: true,
                                   onTap: () => onSelected(option),
                                 ),
-                              );
+                              ));
                             },
                           ),
                         ),
@@ -2181,6 +2189,16 @@ class _AddBookScreenState extends State<AddBookScreen> {
         _coverUrl = selection['cover_url'];
       }
     });
+    // The setState above triggers _onIsbnChanged which starts an 800ms ISBN
+    // lookup debounce. Cancel it: all data is already provided by the
+    // autocomplete selection, so an additional lookupBook() call is redundant
+    // and would block the save button for ~10 seconds.
+    _isbnDebounce?.cancel();
+    if (selection['isbn'] != null) {
+      final isbn = IsbnValidator.clean(selection['isbn'] as String)
+          .replaceAll(RegExp(r'[^0-9X]'), '');
+      _lastLookedUpIsbn = isbn; // prevent re-lookup if user re-enters same ISBN
+    }
   }
 
   /// Find all editions for a work from cached results
