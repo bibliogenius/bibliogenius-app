@@ -1049,6 +1049,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
 
+            // Public Directory accordion
+            if (_sectionVisible(['hub_coming_soon_toggle', 'directory_settings_title', 'directory_listed_title']))
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: _buildDirectorySection(context),
+            ),
+
             // Search Sources accordion
             if (_sectionVisible(['search_sources']))
             Card(
@@ -1598,9 +1605,38 @@ class _SettingsScreenState extends State<SettingsScreen> {
               margin: const EdgeInsets.only(bottom: 12),
               child: Column(
                 children: [
-                  // Main toggle: opt-in to be listed
+                  // Top-level toggle: enable/disable the public directory feature.
+                  // Controls visibility of the Discover tab in the Network screen.
                   SwitchListTile(
-                    secondary: const Icon(Icons.public),
+                    secondary: const Icon(Icons.explore),
+                    title: Text(
+                      TranslationService.translate(
+                            context,
+                            'hub_coming_soon_toggle',
+                          ) ??
+                          'Public directory',
+                    ),
+                    subtitle: Text(
+                      TranslationService.translate(
+                            context,
+                            'hub_coming_soon_desc',
+                          ) ??
+                          'Browse and follow other public libraries',
+                    ),
+                    value: dirProvider.isHubEnabled,
+                    onChanged: (value) async {
+                      await dirProvider.setHubEnabled(value);
+                      if (value) {
+                        dirProvider.initAndSyncCatalog();
+                      }
+                    },
+                  ),
+
+                  if (dirProvider.isHubEnabled) ...[
+                    const Divider(height: 1),
+                    // Sub-toggle: opt-in to be listed (so others can find you)
+                    SwitchListTile(
+                      secondary: const Icon(Icons.public),
                     title: Text(
                       TranslationService.translate(
                             context,
@@ -1821,6 +1857,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ),
                   ],
+                  ], // if (dirProvider.isHubEnabled)
 
                 ],
               ),

@@ -228,30 +228,53 @@ class _NetworkScreenState extends State<NetworkScreen>
         leading: buildDrawerLeading(context),
         automaticallyImplyLeading: false,
         actions: [
-          ContextualHelpIconButton(
-            titleKey: 'help_ctx_network_title',
-            contentKey: 'help_ctx_network_content',
-            tips: const [
-              HelpTip(
-                icon: Icons.person_add,
-                color: Colors.blue,
-                titleKey: 'help_ctx_network_tip_add',
-                descriptionKey: 'help_ctx_network_tip_add_desc',
-              ),
-              HelpTip(
-                icon: Icons.library_books,
-                color: Colors.green,
-                titleKey: 'help_ctx_network_tip_browse',
-                descriptionKey: 'help_ctx_network_tip_browse_desc',
-              ),
-              HelpTip(
-                icon: Icons.bookmark_add,
-                color: Colors.orange,
-                titleKey: 'help_ctx_network_tip_request',
-                descriptionKey: 'help_ctx_network_tip_request_desc',
-              ),
-            ],
-          ),
+          // Help button: content switches based on active tab.
+          if (tabCount > 1 && (_mainTabController?.index ?? 0) == 1)
+            // Discover tab
+            const ContextualHelpIconButton(
+              titleKey: 'help_ctx_discover_title',
+              contentKey: 'help_ctx_discover_content',
+              tips: [
+                HelpTip(
+                  icon: Icons.swap_horiz,
+                  color: Colors.deepPurple,
+                  titleKey: 'help_ctx_discover_tip_unidirectional',
+                  descriptionKey: 'help_ctx_discover_tip_unidirectional_desc',
+                ),
+                HelpTip(
+                  icon: Icons.library_books,
+                  color: Colors.green,
+                  titleKey: 'help_ctx_discover_tip_follow',
+                  descriptionKey: 'help_ctx_discover_tip_follow_desc',
+                ),
+              ],
+            )
+          else
+            // My Network tab (default)
+            const ContextualHelpIconButton(
+              titleKey: 'help_ctx_network_title',
+              contentKey: 'help_ctx_network_content',
+              tips: [
+                HelpTip(
+                  icon: Icons.person_add,
+                  color: Colors.blue,
+                  titleKey: 'help_ctx_network_tip_add',
+                  descriptionKey: 'help_ctx_network_tip_add_desc',
+                ),
+                HelpTip(
+                  icon: Icons.library_books,
+                  color: Colors.green,
+                  titleKey: 'help_ctx_network_tip_browse',
+                  descriptionKey: 'help_ctx_network_tip_browse_desc',
+                ),
+                HelpTip(
+                  icon: Icons.bookmark_add,
+                  color: Colors.orange,
+                  titleKey: 'help_ctx_network_tip_request',
+                  descriptionKey: 'help_ctx_network_tip_request_desc',
+                ),
+              ],
+            ),
         ],
         bottom: tabCount > 1
             ? TabBar(
@@ -2350,6 +2373,9 @@ class _DiscoverViewState extends State<_DiscoverView> {
 
         return Column(
           children: [
+            // First-time onboarding banner
+            if (!provider.isDirectoryOnboardingSeen)
+              _DirectoryOnboardingBanner(provider: provider),
             // Search bar
             Padding(
               padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
@@ -2931,11 +2957,21 @@ class _LibraryRelationCard extends StatelessWidget {
                           relation.caption!,
                           style: TextStyle(
                             fontSize: 11,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            color: Theme.of(context).colorScheme.outline,
                             fontStyle: FontStyle.italic,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
+                        ),
+                      // Connection type badge: only when hub-follow only
+                      // (P2P-only and dual are self-explanatory from context)
+                      if (relation.isFollowing && !relation.isPeer)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 2),
+                          child: _ConnectionTypeBadge(
+                            labelKey: 'connection_type_hub',
+                            color: Colors.deepPurple,
+                          ),
                         ),
                     ],
                   ),
@@ -3181,6 +3217,117 @@ class _LibraryRelationCard extends StatelessWidget {
           color: Colors.white,
           fontWeight: FontWeight.bold,
           fontSize: 14,
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Directory onboarding banner (first-time Discover tab visit)
+// ---------------------------------------------------------------------------
+
+/// Dismissable banner explaining the unidirectional nature of the public
+/// directory, shown once when the user opens the Discover tab for the first
+/// time. Dismissed via [HubDirectoryProvider.markDirectoryOnboardingSeen].
+class _DirectoryOnboardingBanner extends StatelessWidget {
+  final HubDirectoryProvider provider;
+
+  const _DirectoryOnboardingBanner({required this.provider});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Semantics(
+      label: TranslationService.translate(context, 'discover_onboard_title'),
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(12, 12, 12, 4),
+        padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
+        decoration: BoxDecoration(
+          color: cs.secondaryContainer.withValues(alpha: 0.5),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: cs.secondary.withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(Icons.info_outline,
+                color: cs.secondary, size: 20),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    TranslationService.translate(
+                        context, 'discover_onboard_title'),
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color: cs.onSecondaryContainer,
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    TranslationService.translate(
+                        context, 'discover_onboard_desc'),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: cs.onSecondaryContainer,
+                        ),
+                  ),
+                  const SizedBox(height: 8),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: provider.markDirectoryOnboardingSeen,
+                      style: TextButton.styleFrom(
+                        foregroundColor: cs.secondary,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 4),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      child: Text(
+                        TranslationService.translate(
+                            context, 'discover_onboard_dismiss'),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Connection type badge chip
+// ---------------------------------------------------------------------------
+
+/// Small chip showing the connection type label (hub-follow only, P2P, etc.).
+/// Used in [_LibraryRelationCard] to help users distinguish connection modes.
+class _ConnectionTypeBadge extends StatelessWidget {
+  final String labelKey;
+  final Color color;
+
+  const _ConnectionTypeBadge({required this.labelKey, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Text(
+        TranslationService.translate(context, labelKey),
+        style: TextStyle(
+          fontSize: 10,
+          color: color,
+          fontWeight: FontWeight.w500,
         ),
       ),
     );

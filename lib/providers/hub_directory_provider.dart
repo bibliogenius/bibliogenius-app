@@ -11,6 +11,7 @@ import '../services/device_service.dart';
 import '../services/ffi_service.dart';
 import '../services/translation_service.dart';
 import '../src/rust/api/frb.dart' as frb;
+import '../src/rust/api/frb.dart' show FrbNudgeEvent, subscribeRelayNudges;
 
 /// Page size for directory listing.
 const int _kPageSize = 20;
@@ -34,8 +35,12 @@ const Duration _kRelayPublishCooldown = Duration(seconds: 90);
 /// - Incoming follow request management (approve / reject / block)
 /// - Pending request count for badge display
 /// - Hub-mediated borrow requests (ADR-018)
-/// SharedPreferences key for the experimental hub directory toggle.
+/// SharedPreferences key for the hub directory toggle.
 const String _kHubEnabledKey = 'hub_directory_enabled';
+
+/// SharedPreferences key: set to true once the user has dismissed the
+/// first-time explanation banner in the Discover tab.
+const String _kDirectoryOnboardingSeenKey = 'hub_directory_onboarding_seen';
 
 /// SharedPreferences key for the local contact info (plaintext, never sent to hub).
 const String _kContactInfoKey = 'hub_contact_info';
@@ -97,17 +102,30 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// Get the user-defined custom name for a follow, if any.
   String? customFollowName(String nodeId) => _customFollowNames[nodeId];
 
-  // ── Experimental toggle ─────────────────────────────────────────────────
+  // ── Toggle & onboarding ─────────────────────────────────────────────────
 
   bool _hubEnabled = false;
 
   /// Whether the hub directory feature is enabled by the user.
   bool get isHubEnabled => _hubEnabled;
 
+  /// True once the user has dismissed the first-time onboarding banner.
+  bool _directoryOnboardingSeen = true;
+
+  bool get isDirectoryOnboardingSeen => _directoryOnboardingSeen;
+
+  // ── Relay nudge subscription ────────────────────────────────────────────
+
+  StreamSubscription<FrbNudgeEvent>? _nudgeSub;
+
+  // ── Load toggle + onboarding state ─────────────────────────────────────
+
   /// Load the toggle state from SharedPreferences. Call at app start.
   Future<void> loadHubEnabled() async {
     final prefs = await SharedPreferences.getInstance();
     _hubEnabled = prefs.getBool(_kHubEnabledKey) ?? false;
+    _directoryOnboardingSeen =
+        prefs.getBool(_kDirectoryOnboardingSeenKey) ?? false;
     notifyListeners();
   }
 
@@ -117,6 +135,60 @@ class HubDirectoryProvider extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_kHubEnabledKey, value);
     notifyListeners();
+  }
+
+  /// Called when the user dismisses the first-time Discover banner.
+  Future<void> markDirectoryOnboardingSeen() async {
+    _directoryOnboardingSeen = true;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_kDirectoryOnboardingSeenKey, true);
+    notifyListeners();
+  }
+
+  /// Subscribe to relay nudges so directory data refreshes in near-real-time.
+  ///
+  /// Called once after [initAndSyncCatalog] succeeds. Each nudge triggers a
+  /// lightweight refresh of pending follow requests and incoming borrow
+  /// requests (the two time-sensitive lists). Does NOT re-fetch the catalog
+  /// or full directory listing (those are user-driven).
+  void _subscribeNudgeStream() {
+    _nudgeSub?.cancel();
+    try {
+      _nudgeSub = subscribeRelayNudges().listen(
+        _onNudgeEvent,
+        onError: (Object e) {
+          debugPrint('HubDirectoryProvider: nudge stream error: $e');
+        },
+        cancelOnError: false,
+      );
+    } catch (e) {
+      debugPrint('HubDirectoryProvider: failed to subscribe to nudge stream: $e');
+    }
+  }
+
+  void _onNudgeEvent(FrbNudgeEvent _) {
+    if (!_hubEnabled || !isRegistered) return;
+    // Silently refresh the two lists that carry incoming actions.
+    loadPendingRequests();
+    _silentRefreshIncomingBorrow();
+  }
+
+  Future<void> _silentRefreshIncomingBorrow() async {
+    try {
+      final raw = await _ffi.hubDirectoryIncomingBorrowRequests();
+      _incomingHubRequests = raw;
+      notifyListeners();
+    } catch (e) {
+      debugPrint('HubDirectoryProvider: silent borrow refresh error: $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    _nudgeSub?.cancel();
+    _catalogSyncDebounce?.cancel();
+    _contactSyncDebounce?.cancel();
+    super.dispose();
   }
 
   // ── Local contact info ─────────────────────────────────────────────────
@@ -363,6 +435,9 @@ class HubDirectoryProvider extends ChangeNotifier {
         // or ensureKeysPublished overwriting without relay params.
         await ensureRelayPublished();
         syncCatalogIfDirty();
+        // Start listening for relay nudges so incoming follow/borrow events
+        // refresh instantly instead of waiting for the next polling cycle.
+        _subscribeNudgeStream();
       }
     } catch (e) {
       debugPrint('HubDirectory: initAndSyncCatalog error: $e');
@@ -689,7 +764,11 @@ class HubDirectoryProvider extends ChangeNotifier {
         offset: _offset,
         search: _searchQuery,
       );
-      final newProfiles = batch.map(HubProfile.fromFrb).toList();
+      final ownNodeId = _config?.nodeId;
+      final newProfiles = batch
+          .map(HubProfile.fromFrb)
+          .where((p) => p.nodeId != ownNodeId)
+          .toList();
       _profiles.addAll(newProfiles);
       _offset += newProfiles.length;
       _hasMore = newProfiles.length == _kPageSize;
