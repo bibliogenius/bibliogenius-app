@@ -1152,7 +1152,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.primary,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -1191,7 +1191,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                         'Copies',
                   ),
                   style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -1200,52 +1200,61 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                 ),
               ),
             ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
             if (book.isbn != null) ...[
-              const SizedBox(width: 8),
-              Tooltip(
-                message: TranslationService.translate(
-                        context, 'refresh_metadata_title') ??
-                    'Update Book Info',
-                child: IconButton(
-                  onPressed:
-                      _isRefreshing ? null : () => _refreshMetadata(context),
-                  icon: _isRefreshing
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.refresh_outlined),
-                  style: IconButton.styleFrom(
-                    padding: const EdgeInsets.all(12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  key: const Key('refreshMetadataButton'),
+              TextButton.icon(
+                onPressed:
+                    _isRefreshing ? null : () => _refreshMetadata(context),
+                icon: _isRefreshing
+                    ? const SizedBox(
+                        width: 14,
+                        height: 14,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.refresh_outlined, size: 15),
+                label: Text(
+                  TranslationService.translate(
+                        context,
+                        'refresh_metadata_title',
+                      ) ??
+                      'Update',
                 ),
+                style: TextButton.styleFrom(
+                  foregroundColor:
+                      Theme.of(context).colorScheme.onSurfaceVariant,
+                  textStyle: Theme.of(context).textTheme.labelSmall,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                key: const Key('refreshMetadataButton'),
               ),
+              const SizedBox(width: 4),
             ],
-            const SizedBox(width: 8),
-            Tooltip(
-              message:
-                  TranslationService.translate(context, 'menu_delete') ??
-                  'Delete Book',
-              child: IconButton(
-                onPressed: () => _confirmDelete(context),
-                icon: const Icon(
-                  Icons.delete_outline,
-                  color: Colors.deepOrange,
-                ),
-                style: IconButton.styleFrom(
-                  backgroundColor: Colors.deepOrange.withValues(alpha: 0.1),
-                  padding: const EdgeInsets.all(12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                key: const Key('deleteBookButton'),
+            TextButton.icon(
+              onPressed: () => _confirmDelete(context),
+              icon: const Icon(Icons.delete_outline, size: 15),
+              label: Text(
+                TranslationService.translate(context, 'menu_delete') ??
+                    'Delete',
               ),
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.deepOrange,
+                textStyle: Theme.of(context).textTheme.labelSmall,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 4,
+                ),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              key: const Key('deleteBookButton'),
             ),
           ],
         ),
