@@ -8,7 +8,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 part 'frb.freezed.dart';
 
-// These functions are ignored because they are not marked as `pub`: `db`, `device_pairing_svc`, `device_sync_svc`, `entries_to_frb`, `hub_db`, `hub_directory_svc`, `install_panic_hook`, `load_google_books_api_key`, `nudge_source_label`, `rename_subject_in_books`, `runtime`, `track_to_frb`, `upsert_directory_catalog_cache`
+// These functions are ignored because they are not marked as `pub`: `db`, `device_pairing_svc`, `device_sync_svc`, `entries_to_frb`, `global_app_state`, `hub_db`, `hub_directory_svc`, `install_panic_hook`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `nudge_source_label`, `rename_subject_in_books`, `runtime`, `track_to_frb`, `upsert_directory_catalog_cache`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
 // These functions are ignored (category: IgnoreBecauseExplicitAttribute): `shared_device_pairing_svc`
 
@@ -333,10 +333,23 @@ Future<FrbLoanSettings> getLoanSettings() =>
 Future<FrbLoanSettings> updateLoanSettings({
   required int defaultLoanDurationDays,
   required bool perBookDurationEnabled,
+  required int reminderDaysBeforeDue,
 }) => RustLib.instance.api.crateApiFrbUpdateLoanSettings(
   defaultLoanDurationDays: defaultLoanDurationDays,
   perBookDurationEnabled: perBookDurationEnabled,
+  reminderDaysBeforeDue: reminderDaysBeforeDue,
 );
+
+/// Check active loans for upcoming due dates and emit reminder notifications.
+///
+/// Emits:
+/// - `LoanDueReminder` when `0 < days_until_due <= reminder_days_before_due`
+/// - `LoanDueToday` when `days_until_due <= 0` (due today or overdue)
+///
+/// Deduplication is enforced: no duplicate notification per loan per type.
+/// Returns the number of new notifications created.
+Future<int> checkLoanReminders({required String language}) =>
+    RustLib.instance.api.crateApiFrbCheckLoanReminders(language: language);
 
 /// Get the effective loan duration for a specific book (in days).
 /// Returns the per-book override if enabled and set, otherwise the global default.
@@ -1689,6 +1702,7 @@ sealed class FrbLoanSettings with _$FrbLoanSettings {
   const factory FrbLoanSettings({
     required int defaultLoanDurationDays,
     required bool perBookDurationEnabled,
+    required int reminderDaysBeforeDue,
   }) = _FrbLoanSettings;
 }
 

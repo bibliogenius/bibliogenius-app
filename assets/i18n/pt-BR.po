@@ -3208,6 +3208,10 @@ msgstr "Data do empréstimo"
 msgid "loan_overdue"
 msgstr "Atrasado"
 
+#. Label for the reminder days stepper (how many days before due date to send a first alert)
+msgid "loan_reminder_days_label"
+msgstr "Lembrete antes do vencimento"
+
 #. Loan Statistics
 msgid "loan_statistics"
 msgstr "Estatísticas de Empréstimo"

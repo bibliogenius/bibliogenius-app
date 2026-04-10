@@ -3204,6 +3204,10 @@ msgstr "Дата на заем"
 msgid "loan_overdue"
 msgstr "Закъснял"
 
+#. Label for the reminder days stepper (how many days before due date to send a first alert)
+msgid "loan_reminder_days_label"
+msgstr "Напомняне преди падежа"
+
 #. Loan Statistics
 msgid "loan_statistics"
 msgstr "Статистика на заеми"

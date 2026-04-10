@@ -1576,15 +1576,28 @@ class FfiService {
   Future<frb.FrbLoanSettings> updateLoanSettings({
     required int defaultLoanDurationDays,
     required bool perBookDurationEnabled,
+    required int reminderDaysBeforeDue,
   }) async {
     try {
       return await frb.updateLoanSettings(
         defaultLoanDurationDays: defaultLoanDurationDays,
         perBookDurationEnabled: perBookDurationEnabled,
+        reminderDaysBeforeDue: reminderDaysBeforeDue,
       );
     } catch (e) {
       debugPrint('FFI updateLoanSettings error: $e');
       rethrow;
+    }
+  }
+
+  /// Check active loans for upcoming due dates and emit reminder notifications.
+  /// Returns the count of new notifications created.
+  Future<int> checkLoanReminders({required String language}) async {
+    try {
+      return await frb.checkLoanReminders(language: language);
+    } catch (e) {
+      debugPrint('FFI checkLoanReminders error: $e');
+      return 0;
     }
   }
 

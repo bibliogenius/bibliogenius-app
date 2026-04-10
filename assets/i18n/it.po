@@ -3436,6 +3436,10 @@ msgstr "Data del prestito"
 msgid "loan_overdue"
 msgstr "In ritardo"
 
+#. Label for the reminder days stepper (how many days before due date to send a first alert)
+msgid "loan_reminder_days_label"
+msgstr "Promemoria prima della scadenza"
+
 #. Loan Statistics
 msgid "loan_statistics"
 msgstr "Statistiche prestiti"

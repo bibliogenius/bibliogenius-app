@@ -3346,7 +3346,7 @@ as String?,
 /// @nodoc
 mixin _$FrbLoanSettings {
 
- int get defaultLoanDurationDays; bool get perBookDurationEnabled;
+ int get defaultLoanDurationDays; bool get perBookDurationEnabled; int get reminderDaysBeforeDue;
 /// Create a copy of FrbLoanSettings
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -3357,16 +3357,16 @@ $FrbLoanSettingsCopyWith<FrbLoanSettings> get copyWith => _$FrbLoanSettingsCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbLoanSettings&&(identical(other.defaultLoanDurationDays, defaultLoanDurationDays) || other.defaultLoanDurationDays == defaultLoanDurationDays)&&(identical(other.perBookDurationEnabled, perBookDurationEnabled) || other.perBookDurationEnabled == perBookDurationEnabled));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbLoanSettings&&(identical(other.defaultLoanDurationDays, defaultLoanDurationDays) || other.defaultLoanDurationDays == defaultLoanDurationDays)&&(identical(other.perBookDurationEnabled, perBookDurationEnabled) || other.perBookDurationEnabled == perBookDurationEnabled)&&(identical(other.reminderDaysBeforeDue, reminderDaysBeforeDue) || other.reminderDaysBeforeDue == reminderDaysBeforeDue));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,defaultLoanDurationDays,perBookDurationEnabled);
+int get hashCode => Object.hash(runtimeType,defaultLoanDurationDays,perBookDurationEnabled,reminderDaysBeforeDue);
 
 @override
 String toString() {
-  return 'FrbLoanSettings(defaultLoanDurationDays: $defaultLoanDurationDays, perBookDurationEnabled: $perBookDurationEnabled)';
+  return 'FrbLoanSettings(defaultLoanDurationDays: $defaultLoanDurationDays, perBookDurationEnabled: $perBookDurationEnabled, reminderDaysBeforeDue: $reminderDaysBeforeDue)';
 }
 
 
@@ -3377,7 +3377,7 @@ abstract mixin class $FrbLoanSettingsCopyWith<$Res>  {
   factory $FrbLoanSettingsCopyWith(FrbLoanSettings value, $Res Function(FrbLoanSettings) _then) = _$FrbLoanSettingsCopyWithImpl;
 @useResult
 $Res call({
- int defaultLoanDurationDays, bool perBookDurationEnabled
+ int defaultLoanDurationDays, bool perBookDurationEnabled, int reminderDaysBeforeDue
 });
 
 
@@ -3394,11 +3394,12 @@ class _$FrbLoanSettingsCopyWithImpl<$Res>
 
 /// Create a copy of FrbLoanSettings
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? defaultLoanDurationDays = null,Object? perBookDurationEnabled = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? defaultLoanDurationDays = null,Object? perBookDurationEnabled = null,Object? reminderDaysBeforeDue = null,}) {
   return _then(_self.copyWith(
 defaultLoanDurationDays: null == defaultLoanDurationDays ? _self.defaultLoanDurationDays : defaultLoanDurationDays // ignore: cast_nullable_to_non_nullable
 as int,perBookDurationEnabled: null == perBookDurationEnabled ? _self.perBookDurationEnabled : perBookDurationEnabled // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,reminderDaysBeforeDue: null == reminderDaysBeforeDue ? _self.reminderDaysBeforeDue : reminderDaysBeforeDue // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 
@@ -3480,10 +3481,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int defaultLoanDurationDays,  bool perBookDurationEnabled)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int defaultLoanDurationDays,  bool perBookDurationEnabled,  int reminderDaysBeforeDue)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _FrbLoanSettings() when $default != null:
-return $default(_that.defaultLoanDurationDays,_that.perBookDurationEnabled);case _:
+return $default(_that.defaultLoanDurationDays,_that.perBookDurationEnabled,_that.reminderDaysBeforeDue);case _:
   return orElse();
 
 }
@@ -3501,10 +3502,10 @@ return $default(_that.defaultLoanDurationDays,_that.perBookDurationEnabled);case
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int defaultLoanDurationDays,  bool perBookDurationEnabled)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int defaultLoanDurationDays,  bool perBookDurationEnabled,  int reminderDaysBeforeDue)  $default,) {final _that = this;
 switch (_that) {
 case _FrbLoanSettings():
-return $default(_that.defaultLoanDurationDays,_that.perBookDurationEnabled);}
+return $default(_that.defaultLoanDurationDays,_that.perBookDurationEnabled,_that.reminderDaysBeforeDue);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -3518,10 +3519,10 @@ return $default(_that.defaultLoanDurationDays,_that.perBookDurationEnabled);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int defaultLoanDurationDays,  bool perBookDurationEnabled)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int defaultLoanDurationDays,  bool perBookDurationEnabled,  int reminderDaysBeforeDue)?  $default,) {final _that = this;
 switch (_that) {
 case _FrbLoanSettings() when $default != null:
-return $default(_that.defaultLoanDurationDays,_that.perBookDurationEnabled);case _:
+return $default(_that.defaultLoanDurationDays,_that.perBookDurationEnabled,_that.reminderDaysBeforeDue);case _:
   return null;
 
 }
@@ -3533,11 +3534,12 @@ return $default(_that.defaultLoanDurationDays,_that.perBookDurationEnabled);case
 
 
 class _FrbLoanSettings implements FrbLoanSettings {
-  const _FrbLoanSettings({required this.defaultLoanDurationDays, required this.perBookDurationEnabled});
+  const _FrbLoanSettings({required this.defaultLoanDurationDays, required this.perBookDurationEnabled, required this.reminderDaysBeforeDue});
   
 
 @override final  int defaultLoanDurationDays;
 @override final  bool perBookDurationEnabled;
+@override final  int reminderDaysBeforeDue;
 
 /// Create a copy of FrbLoanSettings
 /// with the given fields replaced by the non-null parameter values.
@@ -3549,16 +3551,16 @@ _$FrbLoanSettingsCopyWith<_FrbLoanSettings> get copyWith => __$FrbLoanSettingsCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbLoanSettings&&(identical(other.defaultLoanDurationDays, defaultLoanDurationDays) || other.defaultLoanDurationDays == defaultLoanDurationDays)&&(identical(other.perBookDurationEnabled, perBookDurationEnabled) || other.perBookDurationEnabled == perBookDurationEnabled));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbLoanSettings&&(identical(other.defaultLoanDurationDays, defaultLoanDurationDays) || other.defaultLoanDurationDays == defaultLoanDurationDays)&&(identical(other.perBookDurationEnabled, perBookDurationEnabled) || other.perBookDurationEnabled == perBookDurationEnabled)&&(identical(other.reminderDaysBeforeDue, reminderDaysBeforeDue) || other.reminderDaysBeforeDue == reminderDaysBeforeDue));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,defaultLoanDurationDays,perBookDurationEnabled);
+int get hashCode => Object.hash(runtimeType,defaultLoanDurationDays,perBookDurationEnabled,reminderDaysBeforeDue);
 
 @override
 String toString() {
-  return 'FrbLoanSettings(defaultLoanDurationDays: $defaultLoanDurationDays, perBookDurationEnabled: $perBookDurationEnabled)';
+  return 'FrbLoanSettings(defaultLoanDurationDays: $defaultLoanDurationDays, perBookDurationEnabled: $perBookDurationEnabled, reminderDaysBeforeDue: $reminderDaysBeforeDue)';
 }
 
 
@@ -3569,7 +3571,7 @@ abstract mixin class _$FrbLoanSettingsCopyWith<$Res> implements $FrbLoanSettings
   factory _$FrbLoanSettingsCopyWith(_FrbLoanSettings value, $Res Function(_FrbLoanSettings) _then) = __$FrbLoanSettingsCopyWithImpl;
 @override @useResult
 $Res call({
- int defaultLoanDurationDays, bool perBookDurationEnabled
+ int defaultLoanDurationDays, bool perBookDurationEnabled, int reminderDaysBeforeDue
 });
 
 
@@ -3586,11 +3588,12 @@ class __$FrbLoanSettingsCopyWithImpl<$Res>
 
 /// Create a copy of FrbLoanSettings
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? defaultLoanDurationDays = null,Object? perBookDurationEnabled = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? defaultLoanDurationDays = null,Object? perBookDurationEnabled = null,Object? reminderDaysBeforeDue = null,}) {
   return _then(_FrbLoanSettings(
 defaultLoanDurationDays: null == defaultLoanDurationDays ? _self.defaultLoanDurationDays : defaultLoanDurationDays // ignore: cast_nullable_to_non_nullable
 as int,perBookDurationEnabled: null == perBookDurationEnabled ? _self.perBookDurationEnabled : perBookDurationEnabled // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,reminderDaysBeforeDue: null == reminderDaysBeforeDue ? _self.reminderDaysBeforeDue : reminderDaysBeforeDue // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 

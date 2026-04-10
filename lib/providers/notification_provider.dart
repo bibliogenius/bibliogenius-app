@@ -31,17 +31,34 @@ class NotificationProvider extends ChangeNotifier {
   /// being soak-tested in production.
   Future<void> init() async {
     await _ffi.notificationsPrune();
+    await _checkLoanReminders();
     await refreshUnreadCount();
     // Poll unread count every 30s (lightweight query, fallback safety net)
     _pollTimer?.cancel();
     _pollTimer = Timer.periodic(
       const Duration(seconds: 30),
       (_) async {
+        await _checkLoanReminders();
         await refreshUnreadCount();
         if (_listEverLoaded) await _silentReloadList();
       },
     );
     _subscribeNudgeStream();
+  }
+
+  /// Check active loans for upcoming due dates and emit notifications.
+  /// Respects the loans notification toggle. Reads language from SharedPreferences.
+  Future<void> _checkLoanReminders() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final globalEnabled = prefs.getBool('notificationsEnabled') ?? true;
+      final loansEnabled = prefs.getBool('notifLoansEnabled') ?? true;
+      if (!globalEnabled || !loansEnabled) return;
+      final language = prefs.getString('languageCode') ?? 'en';
+      await _ffi.checkLoanReminders(language: language);
+    } catch (e) {
+      debugPrint('NotificationProvider: loan reminder check failed: $e');
+    }
   }
 
   /// Subscribe to the FFI relay nudge stream. Each event triggers an

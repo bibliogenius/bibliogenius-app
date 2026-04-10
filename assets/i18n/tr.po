@@ -3257,6 +3257,10 @@ msgstr "Ödünç verme tarihi"
 msgid "loan_overdue"
 msgstr "Gecikmiş"
 
+#. Label for the reminder days stepper (how many days before due date to send a first alert)
+msgid "loan_reminder_days_label"
+msgstr "Vade öncesi hatırlatma"
+
 #. Loan Statistics
 msgid "loan_statistics"
 msgstr "Ödünç Verme İstatistikleri"

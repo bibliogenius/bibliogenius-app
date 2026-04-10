@@ -3208,6 +3208,10 @@ msgstr ""
 msgid "loan_overdue"
 msgstr "연체"
 
+#. Label for the reminder days stepper (how many days before due date to send a first alert)
+msgid "loan_reminder_days_label"
+msgstr "기한 전 알림"
+
 #. Loan Statistics
 msgid "loan_statistics"
 msgstr ""
