@@ -43,6 +43,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   // Loan settings
   int _defaultLoanDurationDays = 21;
   bool _perBookDurationEnabled = false;
+  int _reminderDaysBeforeDue = 2;
   bool _loanSettingsLoaded = false;
   // Relay Hub state
   String? _relayMailboxUuid;
@@ -117,6 +118,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         setState(() {
           _defaultLoanDurationDays = settings.defaultLoanDurationDays;
           _perBookDurationEnabled = settings.perBookDurationEnabled;
+          _reminderDaysBeforeDue = settings.reminderDaysBeforeDue;
           _loanSettingsLoaded = true;
         });
       }
@@ -535,12 +537,38 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           const Divider(height: 1),
                           ListTile(
                             leading: const Icon(Icons.key),
-                            title: Text(
-                              TranslationService.translate(
-                                    context,
-                                    'recovery_code_title',
-                                  ) ??
-                                  'Recovery code',
+                            title: Row(
+                              children: [
+                                Text(
+                                  TranslationService.translate(
+                                        context,
+                                        'recovery_code_title',
+                                      ) ??
+                                      'Recovery code',
+                                ),
+                                const SizedBox(width: 8),
+                                Chip(
+                                  label: Text(
+                                    TranslationService.translate(
+                                          context,
+                                          'badge_experimental',
+                                        ) ??
+                                        'Experimental',
+                                    style: const TextStyle(fontSize: 10),
+                                  ),
+                                  padding: EdgeInsets.zero,
+                                  visualDensity: VisualDensity.compact,
+                                  side: BorderSide.none,
+                                  backgroundColor: Theme.of(context)
+                                      .colorScheme
+                                      .tertiaryContainer,
+                                  labelStyle: TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onTertiaryContainer,
+                                  ),
+                                ),
+                              ],
                             ),
                             subtitle: Text(
                               TranslationService.translate(
@@ -2649,6 +2677,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       'loan_duration_settings_title',
       'loan_duration_default_label',
       'loan_duration_per_book_toggle',
+      'loan_reminder_days_label',
     ])) {
       return const SizedBox.shrink();
     }
@@ -2723,6 +2752,44 @@ class _SettingsScreenState extends State<SettingsScreen> {
               value: _perBookDurationEnabled,
               onChanged: (value) => _updatePerBookToggle(value),
             ),
+            const Divider(),
+            // Reminder days stepper
+            Row(
+              children: [
+                const Icon(Icons.notifications_outlined),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Text(
+                    TranslationService.translate(
+                        context, 'loan_reminder_days_label'),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.remove_circle_outline),
+                  tooltip: '-1',
+                  onPressed: _reminderDaysBeforeDue > 1
+                      ? () => _updateReminderDays(_reminderDaysBeforeDue - 1)
+                      : null,
+                ),
+                SizedBox(
+                  width: 80,
+                  child: Text(
+                    '$_reminderDaysBeforeDue $daysLabel',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.add_circle_outline),
+                  tooltip: '+1',
+                  onPressed: _reminderDaysBeforeDue < 10
+                      ? () => _updateReminderDays(_reminderDaysBeforeDue + 1)
+                      : null,
+                ),
+              ],
+            ),
           ],
         ),
       ),
@@ -2736,6 +2803,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       await ffi.updateLoanSettings(
         defaultLoanDurationDays: days,
         perBookDurationEnabled: _perBookDurationEnabled,
+        reminderDaysBeforeDue: _reminderDaysBeforeDue,
       );
     } catch (e) {
       debugPrint('Error updating loan duration: $e');
@@ -2749,9 +2817,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
       await ffi.updateLoanSettings(
         defaultLoanDurationDays: _defaultLoanDurationDays,
         perBookDurationEnabled: enabled,
+        reminderDaysBeforeDue: _reminderDaysBeforeDue,
       );
     } catch (e) {
       debugPrint('Error updating per-book toggle: $e');
+    }
+  }
+
+  Future<void> _updateReminderDays(int days) async {
+    setState(() => _reminderDaysBeforeDue = days);
+    try {
+      final ffi = FfiService();
+      await ffi.updateLoanSettings(
+        defaultLoanDurationDays: _defaultLoanDurationDays,
+        perBookDurationEnabled: _perBookDurationEnabled,
+        reminderDaysBeforeDue: days,
+      );
+    } catch (e) {
+      debugPrint('Error updating reminder days: $e');
     }
   }
 

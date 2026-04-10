@@ -8538,6 +8538,10 @@ msgstr "Ce code n'est pas valide. Verifiez qu'il correspond bien a celui que vou
 msgid "recovery_code_not_available"
 msgstr "Non disponible. Re-inscrivez-vous pour en generer un."
 
+#. Badge shown on experimental features
+msgid "badge_experimental"
+msgstr "Experimental"
+
 #. Recovery code - scope legend: what is covered
 msgid "recovery_code_scope_covers"
 msgstr "Recupere : votre profil, vos abonnes et abonnements."

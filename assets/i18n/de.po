@@ -8201,6 +8201,10 @@ msgstr "Wiederherstellungscode"
 msgid "recovery_code_not_available"
 msgstr "Nicht verfuegbar. Registrieren Sie sich erneut, um einen zu generieren."
 
+#. Badge shown on experimental features
+msgid "badge_experimental"
+msgstr "Experimentell"
+
 #. Recovery code - scope legend: what is covered
 msgid "recovery_code_scope_covers"
 msgstr "Wiederhergestellt: Ihr Profil, Abonnenten und Abonnements."
