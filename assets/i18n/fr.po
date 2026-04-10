@@ -3735,7 +3735,7 @@ msgstr "Assistants IA (MCP)"
 
 #. Copies
 msgid "menu_copies_short"
-msgstr "Copies"
+msgstr "Exemplaires"
 
 #. Delete
 msgid "menu_delete"
