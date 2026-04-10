@@ -1138,6 +1138,25 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     // Re-resolve mDNS in case WiFi state changed since init
     _tryResolveLanUrl();
 
+    // Re-check connectivity — _isPeerOnline may be stale (set once at init).
+    // A short probe (2s) lets us take the live WiFi path when the peer is now
+    // reachable, instead of falling back to the hub-only path and missing
+    // books that were added after the last catalog-change notification.
+    if (!_isPeerOnline) {
+      try {
+        final api = Provider.of<ApiService>(context, listen: false);
+        final nowOnline = await api.checkPeerConnectivity(
+          _effectiveUrl,
+          timeoutMs: 2000,
+        );
+        if (nowOnline && mounted) {
+          setState(() => _isPeerOnline = true);
+        }
+      } catch (_) {
+        // Probe failed — peer is still offline, continue with offline path.
+      }
+    }
+
     // Check if peer is online before attempting sync
     if (!_isPeerOnline) {
       setState(() => _isSyncing = true);
