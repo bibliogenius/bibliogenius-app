@@ -2673,7 +2673,7 @@ msgstr "Library Help"
 
 #. The Network screen lets you connect with friends and other libraries. You can browse their catalogs, request to borrow books, and share your own collection.
 msgid "help_ctx_network_content"
-msgstr "The Network screen lets you connect with friends and other libraries. You can browse their catalogs, request to borrow books, and share your own collection."
+msgstr "The Network screen has two modes. \"My Network\": direct P2P contacts (bidirectional, mutual). \"Public directory\": follow any public library unilaterally. Key difference: with P2P the relationship is mutual - in the directory, you follow without a reciprocal requirement."
 
 #. Add a contact
 msgid "help_ctx_network_tip_add"
@@ -3608,6 +3608,10 @@ msgstr "Your IP address"
 #. Loan date
 msgid "loan_date"
 msgstr "Loan date"
+
+#. Loan overdue badge
+msgid "loan_overdue"
+msgstr "Overdue"
 
 #. Loan Statistics
 msgid "loan_statistics"
@@ -5028,7 +5032,7 @@ msgid "hub_coming_soon_toggle"
 msgstr "Public directory"
 
 msgid "hub_coming_soon_desc"
-msgstr "Register your library in the public directory and discover other readers nearby"
+msgstr "Register your library in the public directory and discover other readers around the world."
 
 #. Generic coming soon chip
 msgid "coming_soon_chip"
@@ -5054,7 +5058,51 @@ msgstr "Contact"
 
 #. Hub - Discover disabled
 msgid "hub_disabled_discover"
-msgstr "Enable the public directory in Settings to discover other libraries"
+msgstr "Enable the public directory in Settings to discover other libraries."
+
+#. Hub - Onboarding first-time banner: title
+msgid "discover_onboard_title"
+msgstr "Welcome to the public directory"
+
+#. Hub - Onboarding first-time banner: description (contrast with P2P)
+msgid "discover_onboard_desc"
+msgstr "You can follow any public library and browse its catalog. This is different from your direct P2P contacts: here the relationship is one-way - they don't see your library unless they follow you back."
+
+#. Hub - Onboarding dismiss button
+msgid "discover_onboard_dismiss"
+msgstr "Got it"
+
+#. Hub - Discover tab contextual help: title
+msgid "help_ctx_discover_title"
+msgstr "Public directory help"
+
+#. Hub - Discover tab contextual help: main content
+msgid "help_ctx_discover_content"
+msgstr "Explore libraries from other BiblioGenius readers. Follow ones that interest you to access their catalog and request loans."
+
+#. Hub - Discover help tip: unidirectional
+msgid "help_ctx_discover_tip_unidirectional"
+msgstr "One-way following"
+
+#. Hub - Discover help tip: unidirectional description
+msgid "help_ctx_discover_tip_unidirectional_desc"
+msgstr "Unlike a P2P contact (bidirectional), directory following is one-way: the library you follow does not automatically see your library."
+
+#. Hub - Discover help tip: follow action
+msgid "help_ctx_discover_tip_follow"
+msgstr "Follow to borrow"
+
+#. Hub - Discover help tip: follow action description
+msgid "help_ctx_discover_tip_follow_desc"
+msgstr "Tap \"Follow\" to access the full catalog and request book loans from that library."
+
+#. Network card badge: direct P2P connection type
+msgid "connection_type_p2p"
+msgstr "Direct peer"
+
+#. Network card badge: hub follow connection type
+msgid "connection_type_hub"
+msgstr "Directory follow"
 
 #. Requests
 msgid "requests"
@@ -7904,13 +7952,13 @@ msgstr "View profile"
 
 #. Avatar tooltip: connection type
 msgid "peer_type_both"
-msgstr "Direct peer & following"
+msgstr "P2P contact & directory follow"
 
 msgid "peer_type_direct"
-msgstr "Direct peer"
+msgstr "Direct P2P contact (bidirectional)"
 
 msgid "peer_type_following"
-msgstr "Following via hub"
+msgstr "Directory follow (one-way)"
 
 msgid "peer_name_saved"
 msgstr "Name saved"

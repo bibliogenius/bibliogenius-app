@@ -3200,6 +3200,10 @@ msgstr "Вашият IP адрес"
 msgid "loan_date"
 msgstr "Дата на заем"
 
+#. Loan overdue badge
+msgid "loan_overdue"
+msgstr "Закъснял"
+
 #. Loan Statistics
 msgid "loan_statistics"
 msgstr "Статистика на заеми"

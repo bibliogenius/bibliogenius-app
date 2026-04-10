@@ -59,6 +59,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   List<Copy> _copies = [];
   List<Collection> _collections = [];
   List<Loan> _activeLoans = [];
+  Map<int, String?> _loanContactNotes = {};
   bool _isLoadingCopies = true;
   bool _isLoadingBook = false;
   bool _hasChanges = false;
@@ -144,6 +145,23 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         debugPrint('Error fetching active loans: $e');
       }
 
+      // Fetch contact notes for each active loan (shown as subtitle on loan row)
+      final contactNotes = <int, String?>{};
+      if (activeLoans.isNotEmpty) {
+        final contactRepo =
+            Provider.of<ContactRepository>(context, listen: false);
+        await Future.wait(
+          activeLoans.map((loan) async {
+            try {
+              final contact = await contactRepo.getContact(loan.contactId);
+              if (contact.notes?.isNotEmpty == true) {
+                contactNotes[loan.contactId] = contact.notes;
+              }
+            } catch (_) {}
+          }),
+        );
+      }
+
       if (mounted) {
         setState(() {
           _book = freshBook;
@@ -152,6 +170,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           _collections = collections;
           _isLoadingCopies = false;
           _activeLoans = activeLoans;
+          _loanContactNotes = contactNotes;
         });
       }
     } catch (e) {
@@ -993,6 +1012,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         loan,
         isOutgoing: isOutgoing,
         copyNumber: _copies.length > 1 ? copyIndex + 1 : null,
+        notes: _loanContactNotes[loan.contactId],
       ));
     }
 
@@ -1008,33 +1028,38 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     Loan loan, {
     required bool isOutgoing,
     int? copyNumber,
+    String? notes,
   }) {
     final cs = Theme.of(context).colorScheme;
     final dueDate = DateTime.tryParse(loan.dueDate);
     final daysLeft = dueDate?.difference(DateTime.now()).inDays;
-    final accentColor =
-        isOutgoing ? const Color(0xFFE67E22) : cs.tertiary;
+    final isOverdue = daysLeft != null && daysLeft < 0;
+    final accentColor = isOutgoing ? const Color(0xFFE67E22) : cs.tertiary;
     final dateColor = _loanDateColor(daysLeft, cs);
 
     final directionLabel = isOutgoing
         ? TranslationService.translate(context, 'lent_to') ?? 'Lent to'
         : TranslationService.translate(context, 'borrowed_from') ??
             'Borrowed from';
-    final name = loan.contactName;
 
     final copyPrefix = copyNumber != null
         ? '${TranslationService.translate(context, 'copy_number') ?? 'Copy #'}$copyNumber · '
         : '';
-    final titleText = '$copyPrefix$directionLabel $name';
+    final titleText = '$copyPrefix$directionLabel ${loan.contactName}';
 
     final dateLabel =
         TranslationService.translate(context, 'due_date_label') ?? 'Due date';
     final dateText = dueDate != null
         ? '$dateLabel : ${_formatLoanDate(context, dueDate)}'
         : '';
+    final overdueLabel =
+        TranslationService.translate(context, 'loan_overdue') ?? 'Overdue';
+    final semanticsLabel =
+        '$titleText${notes != null ? '. $notes' : ''}. $dateText'
+        '${isOverdue ? '. $overdueLabel' : ''}';
 
     return Semantics(
-      label: '$titleText. $dateText',
+      label: semanticsLabel,
       excludeSemantics: true,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -1059,23 +1084,56 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                     titleText,
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
+                  if (notes != null) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      notes,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: cs.onSurfaceVariant,
+                        fontStyle: FontStyle.italic,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                   if (dateText.isNotEmpty) ...[
                     const SizedBox(height: 2),
                     Row(
                       children: [
-                        Icon(
-                          Icons.event_outlined,
-                          size: 13,
-                          color: dateColor,
-                        ),
+                        Icon(Icons.event_outlined, size: 13, color: dateColor),
                         const SizedBox(width: 4),
-                        Text(
-                          dateText,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(color: dateColor),
+                        Expanded(
+                          child: Text(
+                            dateText,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(color: dateColor),
+                          ),
                         ),
+                        if (isOverdue) ...[
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: cs.error.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(
+                                color: cs.error.withValues(alpha: 0.4),
+                              ),
+                            ),
+                            child: Text(
+                              overdueLabel,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelSmall
+                                  ?.copyWith(color: cs.error),
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ],

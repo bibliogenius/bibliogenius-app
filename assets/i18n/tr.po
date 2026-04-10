@@ -3253,6 +3253,10 @@ msgstr "IP adresiniz"
 msgid "loan_date"
 msgstr "Ödünç verme tarihi"
 
+#. Loan overdue badge
+msgid "loan_overdue"
+msgstr "Gecikmiş"
+
 #. Loan Statistics
 msgid "loan_statistics"
 msgstr "Ödünç Verme İstatistikleri"

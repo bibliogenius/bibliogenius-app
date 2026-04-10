@@ -3204,6 +3204,10 @@ msgstr ""
 msgid "loan_date"
 msgstr ""
 
+#. Loan overdue badge
+msgid "loan_overdue"
+msgstr "逾期"
+
 #. Loan Statistics
 msgid "loan_statistics"
 msgstr ""

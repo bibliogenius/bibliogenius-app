@@ -3432,6 +3432,10 @@ msgstr "Il tuo indirizzo IP"
 msgid "loan_date"
 msgstr "Data del prestito"
 
+#. Loan overdue badge
+msgid "loan_overdue"
+msgstr "In ritardo"
+
 #. Loan Statistics
 msgid "loan_statistics"
 msgstr "Statistiche prestiti"

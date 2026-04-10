@@ -2673,7 +2673,7 @@ msgstr "Aide Bibliothèque"
 
 #. The Network screen lets you connect with friends and other libraries. You can browse their catalogs, request to borrow books, and share your own collection.
 msgid "help_ctx_network_content"
-msgstr "L'écran Réseau vous permet de vous connecter avec des amis et d'autres bibliothèques. Parcourez leurs catalogues, demandez à emprunter des livres et partagez votre collection."
+msgstr "L'écran Réseau regroupe deux modes. \"Mon réseau\" : vos contacts directs (P2P, bidirectionnel). \"Annuaire public\" : suivez n'importe quelle bibliothèque publique de façon unilatérale. La différence clé : en P2P, la relation est mutuelle - en annuaire, vous suivez sans obligation réciproque."
 
 #. Add a contact
 msgid "help_ctx_network_tip_add"
@@ -3608,6 +3608,10 @@ msgstr "Votre adresse IP"
 #. Loan date
 msgid "loan_date"
 msgstr "Date du prêt"
+
+#. Loan overdue badge
+msgid "loan_overdue"
+msgstr "En retard"
 
 #. Loan Statistics
 msgid "loan_statistics"
@@ -5028,7 +5032,7 @@ msgid "hub_coming_soon_toggle"
 msgstr "Annuaire public"
 
 msgid "hub_coming_soon_desc"
-msgstr "Inscrivez votre bibliotheque dans l'annuaire public et decouvrez d'autres lecteurs"
+msgstr "Inscrivez votre bibliothèque dans l'annuaire public et découvrez d'autres lecteurs partout dans le monde."
 
 #. Generic coming soon chip
 msgid "coming_soon_chip"
@@ -5054,7 +5058,51 @@ msgstr "Contact"
 
 #. Hub - Discover disabled
 msgid "hub_disabled_discover"
-msgstr "Activez l'annuaire public dans les Parametres pour decouvrir d'autres bibliotheques"
+msgstr "Activez l'annuaire public dans les Paramètres pour découvrir d'autres bibliothèques."
+
+#. Hub - Onboarding first-time banner: title
+msgid "discover_onboard_title"
+msgstr "Bienvenue dans l'annuaire public"
+
+#. Hub - Onboarding first-time banner: description (contrast with P2P)
+msgid "discover_onboard_desc"
+msgstr "Vous pouvez suivre n'importe quelle bibliothèque publique et parcourir son catalogue. C'est différent de vos contacts directs (P2P) : ici, la relation est unilatérale - ils ne voient pas votre bibliothèque sauf s'ils vous suivent aussi."
+
+#. Hub - Onboarding dismiss button
+msgid "discover_onboard_dismiss"
+msgstr "J'ai compris"
+
+#. Hub - Discover tab contextual help: title
+msgid "help_ctx_discover_title"
+msgstr "Aide - Annuaire public"
+
+#. Hub - Discover tab contextual help: main content
+msgid "help_ctx_discover_content"
+msgstr "Explorez les bibliothèques d'autres lecteurs BiblioGenius. Suivez celles qui vous intéressent pour accéder à leur catalogue et demander des prêts."
+
+#. Hub - Discover help tip: unidirectional
+msgid "help_ctx_discover_tip_unidirectional"
+msgstr "Suivi unilatéral"
+
+#. Hub - Discover help tip: unidirectional description
+msgid "help_ctx_discover_tip_unidirectional_desc"
+msgstr "Contrairement à un contact P2P (bidirectionnel), l'annuaire est à sens unique : la bibliothèque suivie ne voit pas automatiquement votre bibliothèque."
+
+#. Hub - Discover help tip: follow action
+msgid "help_ctx_discover_tip_follow"
+msgstr "Suivre pour emprunter"
+
+#. Hub - Discover help tip: follow action description
+msgid "help_ctx_discover_tip_follow_desc"
+msgstr "Appuyez sur \"Suivre\" pour accéder au catalogue complet et demander des emprunts à cette bibliothèque."
+
+#. Network card badge: direct P2P connection type
+msgid "connection_type_p2p"
+msgstr "Pair direct"
+
+#. Network card badge: hub follow connection type
+msgid "connection_type_hub"
+msgstr "Abonné annuaire"
 
 #. Requests
 msgid "requests"
@@ -7904,13 +7952,13 @@ msgstr "Voir la fiche"
 
 #. Avatar tooltip: connection type
 msgid "peer_type_both"
-msgstr "Pair direct et suivi"
+msgstr "Contact P2P et abonné annuaire"
 
 msgid "peer_type_direct"
-msgstr "Pair direct"
+msgstr "Contact direct (P2P bidirectionnel)"
 
 msgid "peer_type_following"
-msgstr "Suivi via le hub"
+msgstr "Abonné annuaire public (unilatéral)"
 
 msgid "peer_name_saved"
 msgstr "Nom enregistré"
