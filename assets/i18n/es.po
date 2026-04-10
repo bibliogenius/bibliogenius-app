@@ -8105,6 +8105,10 @@ msgstr "Duracion por defecto"
 msgid "loan_duration_per_book_desc"
 msgstr "Permite definir una duracion de prestamo diferente para cada libro"
 
+
+#. Label for the reminder days stepper (how many days before due date to send a first alert)
+msgid "loan_reminder_days_label"
+msgstr "Recordatorio antes del vencimiento"
 #. Per-book customization toggle
 msgid "loan_duration_per_book_toggle"
 msgstr "Personalizacion por libro"
@@ -8199,11 +8203,11 @@ msgstr "No disponible. Vuelva a registrarse para generar uno."
 
 #. Recovery code - scope legend: what is covered
 msgid "recovery_code_scope_covers"
-msgstr "Cubre: su perfil en el directorio publico, seguidores y suscripciones."
+msgstr "Recupera: su perfil, seguidores y suscripciones."
 
 #. Recovery code - scope legend: what is excluded
 msgid "recovery_code_scope_excludes"
-msgstr "No afectado: su biblioteca local y sus libros."
+msgstr "No recuperado: sus libros (almacenados localmente) y los contactos anadidos manualmente (deben volver a anadirse)."
 
 #. Recovery code save advice
 msgid "recovery_code_save_advice"

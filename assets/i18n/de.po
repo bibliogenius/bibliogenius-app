@@ -8105,6 +8105,10 @@ msgstr "Standarddauer"
 msgid "loan_duration_per_book_desc"
 msgstr "Ermoeglicht es, eine andere Ausleihdauer fuer jedes Buch festzulegen"
 
+
+#. Label for the reminder days stepper (how many days before due date to send a first alert)
+msgid "loan_reminder_days_label"
+msgstr "Erinnerung vor Fälligkeit"
 #. Per-book customization toggle
 msgid "loan_duration_per_book_toggle"
 msgstr "Anpassung pro Buch"
@@ -8199,11 +8203,11 @@ msgstr "Nicht verfuegbar. Registrieren Sie sich erneut, um einen zu generieren."
 
 #. Recovery code - scope legend: what is covered
 msgid "recovery_code_scope_covers"
-msgstr "Betrifft: Ihr oeffentliches Verzeichnisprofil, Abonnenten und Abonnements."
+msgstr "Wiederhergestellt: Ihr Profil, Abonnenten und Abonnements."
 
 #. Recovery code - scope legend: what is excluded
 msgid "recovery_code_scope_excludes"
-msgstr "Nicht betroffen: Ihre lokale Bibliothek und Buecher."
+msgstr "Nicht wiederhergestellt: Ihre Buecher (lokal gespeichert) und manuell hinzugefuegte Kontakte (muessen neu hinzugefuegt werden)."
 
 #. Recovery code save advice
 msgid "recovery_code_save_advice"

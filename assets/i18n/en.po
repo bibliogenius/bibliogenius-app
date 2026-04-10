@@ -8410,6 +8410,10 @@ msgstr "Per-book customization"
 msgid "loan_duration_per_book_desc"
 msgstr "Set a different loan duration for each book"
 
+#. Label for the reminder days stepper (how many days before due date to send a first alert)
+msgid "loan_reminder_days_label"
+msgstr "Reminder before due date"
+
 #. Label for per-book loan duration field in book detail
 msgid "loan_duration_book_custom"
 msgstr "Custom loan duration"
@@ -8536,11 +8540,11 @@ msgstr "Not available. Re-register to generate one."
 
 #. Recovery code - scope legend: what is covered
 msgid "recovery_code_scope_covers"
-msgstr "Covers: your public directory profile, followers and following."
+msgstr "Recovers: your profile, followers and following."
 
 #. Recovery code - scope legend: what is excluded
 msgid "recovery_code_scope_excludes"
-msgstr "Not affected: your local library and books."
+msgstr "Not recovered: your books (stored locally) and manually added peers (must be re-added)."
 
 # --- Inline help for Settings > Modules toggles (Phase 1) ---
 

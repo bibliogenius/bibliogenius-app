@@ -8410,6 +8410,10 @@ msgstr "Personnalisation par livre"
 msgid "loan_duration_per_book_desc"
 msgstr "Permet de definir une duree de pret differente pour chaque livre"
 
+#. Label for the reminder days stepper (how many days before due date to send a first alert)
+msgid "loan_reminder_days_label"
+msgstr "Rappel avant echeance"
+
 #. Label for per-book loan duration field in book detail
 msgid "loan_duration_book_custom"
 msgstr "Duree de pret personnalisee"
@@ -8536,11 +8540,11 @@ msgstr "Non disponible. Re-inscrivez-vous pour en generer un."
 
 #. Recovery code - scope legend: what is covered
 msgid "recovery_code_scope_covers"
-msgstr "Concerne : votre profil dans l'annuaire public, vos abonnes et abonnements."
+msgstr "Recupere : votre profil, vos abonnes et abonnements."
 
 #. Recovery code - scope legend: what is excluded
 msgid "recovery_code_scope_excludes"
-msgstr "Non affecte : votre bibliotheque locale et vos livres."
+msgstr "Non recupere : vos livres (stockes localement) et les pairs ajoutes manuellement (a reintroduire)."
 
 # --- Inline help for Settings > Modules toggles (Phase 1) ---
 
