@@ -603,6 +603,260 @@ as int?,
 }
 
 /// @nodoc
+mixin _$FrbCatalogChangedEvent {
+
+ String get peerLibraryUuid; int get peerId;
+/// Create a copy of FrbCatalogChangedEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$FrbCatalogChangedEventCopyWith<FrbCatalogChangedEvent> get copyWith => _$FrbCatalogChangedEventCopyWithImpl<FrbCatalogChangedEvent>(this as FrbCatalogChangedEvent, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbCatalogChangedEvent&&(identical(other.peerLibraryUuid, peerLibraryUuid) || other.peerLibraryUuid == peerLibraryUuid)&&(identical(other.peerId, peerId) || other.peerId == peerId));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,peerLibraryUuid,peerId);
+
+@override
+String toString() {
+  return 'FrbCatalogChangedEvent(peerLibraryUuid: $peerLibraryUuid, peerId: $peerId)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $FrbCatalogChangedEventCopyWith<$Res>  {
+  factory $FrbCatalogChangedEventCopyWith(FrbCatalogChangedEvent value, $Res Function(FrbCatalogChangedEvent) _then) = _$FrbCatalogChangedEventCopyWithImpl;
+@useResult
+$Res call({
+ String peerLibraryUuid, int peerId
+});
+
+
+
+
+}
+/// @nodoc
+class _$FrbCatalogChangedEventCopyWithImpl<$Res>
+    implements $FrbCatalogChangedEventCopyWith<$Res> {
+  _$FrbCatalogChangedEventCopyWithImpl(this._self, this._then);
+
+  final FrbCatalogChangedEvent _self;
+  final $Res Function(FrbCatalogChangedEvent) _then;
+
+/// Create a copy of FrbCatalogChangedEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? peerLibraryUuid = null,Object? peerId = null,}) {
+  return _then(_self.copyWith(
+peerLibraryUuid: null == peerLibraryUuid ? _self.peerLibraryUuid : peerLibraryUuid // ignore: cast_nullable_to_non_nullable
+as String,peerId: null == peerId ? _self.peerId : peerId // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [FrbCatalogChangedEvent].
+extension FrbCatalogChangedEventPatterns on FrbCatalogChangedEvent {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _FrbCatalogChangedEvent value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _FrbCatalogChangedEvent() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _FrbCatalogChangedEvent value)  $default,){
+final _that = this;
+switch (_that) {
+case _FrbCatalogChangedEvent():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _FrbCatalogChangedEvent value)?  $default,){
+final _that = this;
+switch (_that) {
+case _FrbCatalogChangedEvent() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String peerLibraryUuid,  int peerId)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _FrbCatalogChangedEvent() when $default != null:
+return $default(_that.peerLibraryUuid,_that.peerId);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String peerLibraryUuid,  int peerId)  $default,) {final _that = this;
+switch (_that) {
+case _FrbCatalogChangedEvent():
+return $default(_that.peerLibraryUuid,_that.peerId);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String peerLibraryUuid,  int peerId)?  $default,) {final _that = this;
+switch (_that) {
+case _FrbCatalogChangedEvent() when $default != null:
+return $default(_that.peerLibraryUuid,_that.peerId);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _FrbCatalogChangedEvent implements FrbCatalogChangedEvent {
+  const _FrbCatalogChangedEvent({required this.peerLibraryUuid, required this.peerId});
+  
+
+@override final  String peerLibraryUuid;
+@override final  int peerId;
+
+/// Create a copy of FrbCatalogChangedEvent
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$FrbCatalogChangedEventCopyWith<_FrbCatalogChangedEvent> get copyWith => __$FrbCatalogChangedEventCopyWithImpl<_FrbCatalogChangedEvent>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbCatalogChangedEvent&&(identical(other.peerLibraryUuid, peerLibraryUuid) || other.peerLibraryUuid == peerLibraryUuid)&&(identical(other.peerId, peerId) || other.peerId == peerId));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,peerLibraryUuid,peerId);
+
+@override
+String toString() {
+  return 'FrbCatalogChangedEvent(peerLibraryUuid: $peerLibraryUuid, peerId: $peerId)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$FrbCatalogChangedEventCopyWith<$Res> implements $FrbCatalogChangedEventCopyWith<$Res> {
+  factory _$FrbCatalogChangedEventCopyWith(_FrbCatalogChangedEvent value, $Res Function(_FrbCatalogChangedEvent) _then) = __$FrbCatalogChangedEventCopyWithImpl;
+@override @useResult
+$Res call({
+ String peerLibraryUuid, int peerId
+});
+
+
+
+
+}
+/// @nodoc
+class __$FrbCatalogChangedEventCopyWithImpl<$Res>
+    implements _$FrbCatalogChangedEventCopyWith<$Res> {
+  __$FrbCatalogChangedEventCopyWithImpl(this._self, this._then);
+
+  final _FrbCatalogChangedEvent _self;
+  final $Res Function(_FrbCatalogChangedEvent) _then;
+
+/// Create a copy of FrbCatalogChangedEvent
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? peerLibraryUuid = null,Object? peerId = null,}) {
+  return _then(_FrbCatalogChangedEvent(
+peerLibraryUuid: null == peerLibraryUuid ? _self.peerLibraryUuid : peerLibraryUuid // ignore: cast_nullable_to_non_nullable
+as String,peerId: null == peerId ? _self.peerId : peerId // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+/// @nodoc
 mixin _$FrbCatalogEntry {
 
  String get isbn; String get title; String? get author; String? get coverUrl; String? get firstSeenAt;

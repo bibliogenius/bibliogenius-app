@@ -22,6 +22,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   AnyhowException dco_decode_AnyhowException(dynamic raw);
 
   @protected
+  RustStreamSink<FrbCatalogChangedEvent>
+  dco_decode_StreamSink_frb_catalog_changed_event_Sse(dynamic raw);
+
+  @protected
   RustStreamSink<FrbNudgeEvent> dco_decode_StreamSink_frb_nudge_event_Sse(
     dynamic raw,
   );
@@ -82,6 +86,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbBookNote dco_decode_frb_book_note(dynamic raw);
+
+  @protected
+  FrbCatalogChangedEvent dco_decode_frb_catalog_changed_event(dynamic raw);
 
   @protected
   FrbCatalogEntry dco_decode_frb_catalog_entry(dynamic raw);
@@ -372,6 +379,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
 
   @protected
+  RustStreamSink<FrbCatalogChangedEvent>
+  sse_decode_StreamSink_frb_catalog_changed_event_Sse(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   RustStreamSink<FrbNudgeEvent> sse_decode_StreamSink_frb_nudge_event_Sse(
     SseDeserializer deserializer,
   );
@@ -442,6 +455,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbBookNote sse_decode_frb_book_note(SseDeserializer deserializer);
+
+  @protected
+  FrbCatalogChangedEvent sse_decode_frb_catalog_changed_event(
+    SseDeserializer deserializer,
+  );
 
   @protected
   FrbCatalogEntry sse_decode_frb_catalog_entry(SseDeserializer deserializer);
@@ -803,6 +821,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_StreamSink_frb_catalog_changed_event_Sse(
+    RustStreamSink<FrbCatalogChangedEvent> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_StreamSink_frb_nudge_event_Sse(
     RustStreamSink<FrbNudgeEvent> self,
     SseSerializer serializer,
@@ -885,6 +909,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_frb_book_note(FrbBookNote self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_frb_catalog_changed_event(
+    FrbCatalogChangedEvent self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_frb_catalog_entry(

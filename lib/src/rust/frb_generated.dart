@@ -64,7 +64,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.11.1';
 
   @override
-  int get rustContentHash => -651398886;
+  int get rustContentHash => 221527855;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -514,6 +514,8 @@ abstract class RustLibApi extends BaseApi {
   Future<int> crateApiFrbStartServer({required int port});
 
   Future<String> crateApiFrbStopMdnsFfi();
+
+  Stream<FrbCatalogChangedEvent> crateApiFrbSubscribeCatalogChanges();
 
   Stream<FrbNudgeEvent> crateApiFrbSubscribeRelayNudges();
 
@@ -4915,6 +4917,44 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       const TaskConstMeta(debugName: "stop_mdns_ffi", argNames: []);
 
   @override
+  Stream<FrbCatalogChangedEvent> crateApiFrbSubscribeCatalogChanges() {
+    final sink = RustStreamSink<FrbCatalogChangedEvent>();
+    unawaited(
+      handler.executeNormal(
+        NormalTask(
+          callFfi: (port_) {
+            final serializer = SseSerializer(generalizedFrbRustBinding);
+            sse_encode_StreamSink_frb_catalog_changed_event_Sse(
+              sink,
+              serializer,
+            );
+            pdeCallFfi(
+              generalizedFrbRustBinding,
+              serializer,
+              funcId: 140,
+              port: port_,
+            );
+          },
+          codec: SseCodec(
+            decodeSuccessData: sse_decode_unit,
+            decodeErrorData: sse_decode_String,
+          ),
+          constMeta: kCrateApiFrbSubscribeCatalogChangesConstMeta,
+          argValues: [sink],
+          apiImpl: this,
+        ),
+      ),
+    );
+    return sink.stream;
+  }
+
+  TaskConstMeta get kCrateApiFrbSubscribeCatalogChangesConstMeta =>
+      const TaskConstMeta(
+        debugName: "subscribe_catalog_changes",
+        argNames: ["sink"],
+      );
+
+  @override
   Stream<FrbNudgeEvent> crateApiFrbSubscribeRelayNudges() {
     final sink = RustStreamSink<FrbNudgeEvent>();
     unawaited(
@@ -4926,7 +4966,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
             pdeCallFfi(
               generalizedFrbRustBinding,
               serializer,
-              funcId: 140,
+              funcId: 141,
               port: port_,
             );
           },
@@ -4963,7 +5003,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 141,
+            funcId: 142,
             port: port_,
           );
         },
@@ -4995,7 +5035,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 142,
+            funcId: 143,
             port: port_,
           );
         },
@@ -5032,7 +5072,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 143,
+            funcId: 144,
             port: port_,
           );
         },
@@ -5062,7 +5102,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 144,
+            funcId: 145,
             port: port_,
           );
         },
@@ -5090,7 +5130,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 145,
+            funcId: 146,
             port: port_,
           );
         },
@@ -5125,7 +5165,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 146,
+            funcId: 147,
             port: port_,
           );
         },
@@ -5162,7 +5202,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 147,
+            funcId: 148,
             port: port_,
           );
         },
@@ -5186,6 +5226,13 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   AnyhowException dco_decode_AnyhowException(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return AnyhowException(raw as String);
+  }
+
+  @protected
+  RustStreamSink<FrbCatalogChangedEvent>
+  dco_decode_StreamSink_frb_catalog_changed_event_Sse(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    throw UnimplementedError();
   }
 
   @protected
@@ -5354,6 +5401,18 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       page: dco_decode_opt_box_autoadd_i_32(arr[3]),
       createdAt: dco_decode_String(arr[4]),
       updatedAt: dco_decode_String(arr[5]),
+    );
+  }
+
+  @protected
+  FrbCatalogChangedEvent dco_decode_frb_catalog_changed_event(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return FrbCatalogChangedEvent(
+      peerLibraryUuid: dco_decode_String(arr[0]),
+      peerId: dco_decode_i_32(arr[1]),
     );
   }
 
@@ -6372,6 +6431,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  RustStreamSink<FrbCatalogChangedEvent>
+  sse_decode_StreamSink_frb_catalog_changed_event_Sse(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    throw UnimplementedError('Unreachable ()');
+  }
+
+  @protected
   RustStreamSink<FrbNudgeEvent> sse_decode_StreamSink_frb_nudge_event_Sse(
     SseDeserializer deserializer,
   ) {
@@ -6574,6 +6642,19 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       page: var_page,
       createdAt: var_createdAt,
       updatedAt: var_updatedAt,
+    );
+  }
+
+  @protected
+  FrbCatalogChangedEvent sse_decode_frb_catalog_changed_event(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_peerLibraryUuid = sse_decode_String(deserializer);
+    var var_peerId = sse_decode_i_32(deserializer);
+    return FrbCatalogChangedEvent(
+      peerLibraryUuid: var_peerLibraryUuid,
+      peerId: var_peerId,
     );
   }
 
@@ -8009,6 +8090,23 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_StreamSink_frb_catalog_changed_event_Sse(
+    RustStreamSink<FrbCatalogChangedEvent> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(
+      self.setupAndSerialize(
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_frb_catalog_changed_event,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+      ),
+      serializer,
+    );
+  }
+
+  @protected
   void sse_encode_StreamSink_frb_nudge_event_Sse(
     RustStreamSink<FrbNudgeEvent> self,
     SseSerializer serializer,
@@ -8190,6 +8288,16 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_opt_box_autoadd_i_32(self.page, serializer);
     sse_encode_String(self.createdAt, serializer);
     sse_encode_String(self.updatedAt, serializer);
+  }
+
+  @protected
+  void sse_encode_frb_catalog_changed_event(
+    FrbCatalogChangedEvent self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.peerLibraryUuid, serializer);
+    sse_encode_i_32(self.peerId, serializer);
   }
 
   @protected

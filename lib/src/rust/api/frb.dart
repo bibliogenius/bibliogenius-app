@@ -372,6 +372,20 @@ Future<int> startServer({required int port}) =>
 ///
 /// The function returns immediately after spawning a forwarding task. The
 /// task lives until the Dart side drops the StreamSink.
+/// Subscribe to the catalog-change event stream.
+///
+/// Each emitted event indicates that a peer added or deleted a book and
+/// their catalog is now different from what the local device has cached.
+/// Flutter consumers (typically `PeerBookListScreen`) should trigger a
+/// re-sync when they receive an event matching the displayed peer.
+///
+/// The stream lives until the Dart side drops the `StreamSink`. Multiple
+/// concurrent subscribers each receive their own independent copy of every
+/// event (broadcast semantics). A slow subscriber lags without blocking
+/// the emitter.
+Stream<FrbCatalogChangedEvent> subscribeCatalogChanges() =>
+    RustLib.instance.api.crateApiFrbSubscribeCatalogChanges();
+
 Stream<FrbNudgeEvent> subscribeRelayNudges() =>
     RustLib.instance.api.crateApiFrbSubscribeRelayNudges();
 
@@ -1019,6 +1033,23 @@ class FrbBookNote {
           page == other.page &&
           createdAt == other.createdAt &&
           updatedAt == other.updatedAt;
+}
+
+/// FFI-safe view of a peer catalog-change event.
+///
+/// Emitted when a peer sends a `catalog_changed` relay message, indicating
+/// that they added or deleted a book. Flutter screens showing that peer's
+/// library should trigger a re-sync on receipt.
+///
+/// Match by `peer_id` (local SQLite row ID) or `peer_library_uuid` (remote
+/// UUID from the message payload). Both are provided so callers can use
+/// whichever is available in their context.
+@freezed
+sealed class FrbCatalogChangedEvent with _$FrbCatalogChangedEvent {
+  const factory FrbCatalogChangedEvent({
+    required String peerLibraryUuid,
+    required int peerId,
+  }) = _FrbCatalogChangedEvent;
 }
 
 @freezed

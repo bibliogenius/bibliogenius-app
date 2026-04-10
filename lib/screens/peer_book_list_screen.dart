@@ -16,6 +16,7 @@ import '../providers/hub_directory_provider.dart';
 import '../providers/theme_provider.dart';
 import '../services/mdns_service.dart';
 import '../utils/app_constants.dart';
+import '../src/rust/api/frb.dart' show FrbCatalogChangedEvent, subscribeCatalogChanges;
 
 class PeerBookListScreen extends StatefulWidget {
   final int peerId;
@@ -72,6 +73,9 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   Timer? _pollTimer;
   bool _pollRequestInFlight = false;
 
+  /// Subscription to real-time catalog-change events from the peer (ADR-017).
+  StreamSubscription<FrbCatalogChangedEvent>? _catalogChangeSub;
+
   /// Hub catalog fallback: true when books come from hub (limited metadata)
   bool _isHubOnly = false;
 
@@ -118,6 +122,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     _loadCachedBooksFirst();
     _loadHubContactInfo();
     _loadPendingBorrowRequests();
+    _subscribeCatalogChanges();
   }
 
   Future<void> _loadHubContactInfo() async {
@@ -151,7 +156,49 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   void dispose() {
     _searchController.dispose();
     _pollTimer?.cancel();
+    _catalogChangeSub?.cancel();
     super.dispose();
+  }
+
+  /// Subscribe to real-time catalog-change events from the peer (ADR-017).
+  ///
+  /// When the Mac adds or removes a book it sends a `catalog_changed` relay
+  /// message. The Rust relay poller decrypts it and emits a
+  /// [FrbCatalogChangedEvent] on the FRB stream. This method wires that
+  /// stream to a re-sync so the iPhone sees the new book within 1-3 s.
+  ///
+  /// Matching uses both [widget.peerId] (local DB row) and the remote
+  /// library UUID so the screen responds correctly regardless of whether
+  /// the peer was resolved via mDNS or relay.
+  void _subscribeCatalogChanges() {
+    _catalogChangeSub?.cancel();
+    _catalogChangeSub = subscribeCatalogChanges().listen(
+      (FrbCatalogChangedEvent event) {
+        // Match by local peer ID or by library UUID (whichever is available).
+        final matchById =
+            widget.peerId > 0 && event.peerId == widget.peerId;
+        final resolvedUuid = _effectiveNodeId;
+        final matchByUuid = resolvedUuid != null &&
+            resolvedUuid.isNotEmpty &&
+            event.peerLibraryUuid.isNotEmpty &&
+            event.peerLibraryUuid == resolvedUuid;
+
+        if (!matchById && !matchByUuid) return;
+
+        // Guard against redundant syncs: _syncBooks already has its own
+        // _isSyncing guard, but checking here avoids even dispatching.
+        if (_isSyncing || _isRelayLoading) return;
+
+        debugPrint(
+          'PeerBookList: catalog changed from peer ${event.peerId} '
+          '(uuid=${event.peerLibraryUuid}), triggering silent sync',
+        );
+        _syncBooks(showFeedback: false);
+      },
+      onError: (Object e) =>
+          debugPrint('PeerBookList: catalog change stream error: $e'),
+      cancelOnError: false,
+    );
   }
 
   /// Try to resolve a LAN URL from mDNS when the saved URL is relay://.
