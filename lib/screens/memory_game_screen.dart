@@ -31,6 +31,7 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> {
     super.initState();
     _provider = context.read<MemoryGameProvider>();
     _provider.addListener(_onProviderChanged);
+    _provider.subscribeToLeaderboardPush();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Reset if returning to screen after a completed game
       if (_provider.phase == GamePhase.complete) {

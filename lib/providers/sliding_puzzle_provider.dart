@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 
 import '../models/sliding_puzzle.dart';
 import '../services/ffi_service.dart';
+import '../src/rust/api/frb.dart' show subscribeLeaderboardChanges;
 
 /// Phases of the sliding puzzle lifecycle.
 enum PuzzlePhase { setup, playing, complete }
@@ -45,6 +46,9 @@ class SlidingPuzzleProvider extends ChangeNotifier {
   // --- Rank info ---
   int? _personalRank;
   bool _isNewPersonalBest = false;
+
+  // --- ADR-023: live leaderboard push subscription ---
+  StreamSubscription<dynamic>? _leaderboardChangeSub;
 
   // --- Getters ---
   List<String> get availableDifficulties => _availableDifficulties;
@@ -284,11 +288,44 @@ class SlidingPuzzleProvider extends ChangeNotifier {
     }
   }
 
+  /// Subscribe to live leaderboard push events (ADR-023).
+  void subscribeToLeaderboardPush() {
+    if (_leaderboardChangeSub != null) return;
+    _leaderboardChangeSub = subscribeLeaderboardChanges().listen(
+      (_) => _silentReloadNetworkScores(),
+      onError: (e) =>
+          debugPrint('SlidingPuzzleProvider: leaderboard stream error: $e'),
+    );
+  }
+
+  /// Reload network scores without showing the syncing spinner.
+  Future<void> _silentReloadNetworkScores() async {
+    try {
+      final frbEntries = await _ffi.refreshPuzzleLeaderboard();
+      _networkScores = frbEntries
+          .map((e) => PuzzleLeaderboardEntry(
+                peerId: e.peerId,
+                libraryName: e.libraryName,
+                bestScore: e.bestScore,
+                difficulty: e.difficulty,
+                playedAt: e.playedAt,
+                isSelf: e.isSelf,
+              ))
+          .toList();
+      notifyListeners();
+    } catch (e) {
+      debugPrint('SlidingPuzzleProvider: silent leaderboard reload error: $e');
+    }
+  }
+
   /// Load network leaderboard (peer best scores) via FFI.
   /// Triggers a peer sync first to get fresh data.
   Future<void> loadNetworkLeaderboard() async {
     _isSyncingNetwork = true;
     notifyListeners();
+
+    // Give Flutter a frame to render the spinner before the sync starts.
+    await Future<void>.delayed(const Duration(milliseconds: 50));
 
     try {
       final frbEntries = await _ffi.refreshPuzzleLeaderboard();
@@ -348,6 +385,7 @@ class SlidingPuzzleProvider extends ChangeNotifier {
   void dispose() {
     _stopwatch.stop();
     _displayTimer?.cancel();
+    _leaderboardChangeSub?.cancel();
     super.dispose();
   }
 }

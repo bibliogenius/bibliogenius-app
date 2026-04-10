@@ -64,7 +64,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.11.1';
 
   @override
-  int get rustContentHash => -1136710880;
+  int get rustContentHash => 511228106;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -520,6 +520,8 @@ abstract class RustLibApi extends BaseApi {
   Future<String> crateApiFrbStopMdnsFfi();
 
   Stream<FrbCatalogChangedEvent> crateApiFrbSubscribeCatalogChanges();
+
+  Stream<FrbLeaderboardChangedEvent> crateApiFrbSubscribeLeaderboardChanges();
 
   Stream<FrbNudgeEvent> crateApiFrbSubscribeRelayNudges();
 
@@ -5022,6 +5024,44 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
+  Stream<FrbLeaderboardChangedEvent> crateApiFrbSubscribeLeaderboardChanges() {
+    final sink = RustStreamSink<FrbLeaderboardChangedEvent>();
+    unawaited(
+      handler.executeNormal(
+        NormalTask(
+          callFfi: (port_) {
+            final serializer = SseSerializer(generalizedFrbRustBinding);
+            sse_encode_StreamSink_frb_leaderboard_changed_event_Sse(
+              sink,
+              serializer,
+            );
+            pdeCallFfi(
+              generalizedFrbRustBinding,
+              serializer,
+              funcId: 143,
+              port: port_,
+            );
+          },
+          codec: SseCodec(
+            decodeSuccessData: sse_decode_unit,
+            decodeErrorData: sse_decode_String,
+          ),
+          constMeta: kCrateApiFrbSubscribeLeaderboardChangesConstMeta,
+          argValues: [sink],
+          apiImpl: this,
+        ),
+      ),
+    );
+    return sink.stream;
+  }
+
+  TaskConstMeta get kCrateApiFrbSubscribeLeaderboardChangesConstMeta =>
+      const TaskConstMeta(
+        debugName: "subscribe_leaderboard_changes",
+        argNames: ["sink"],
+      );
+
+  @override
   Stream<FrbNudgeEvent> crateApiFrbSubscribeRelayNudges() {
     final sink = RustStreamSink<FrbNudgeEvent>();
     unawaited(
@@ -5033,7 +5073,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
             pdeCallFfi(
               generalizedFrbRustBinding,
               serializer,
-              funcId: 143,
+              funcId: 144,
               port: port_,
             );
           },
@@ -5070,7 +5110,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 144,
+            funcId: 145,
             port: port_,
           );
         },
@@ -5102,7 +5142,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 145,
+            funcId: 146,
             port: port_,
           );
         },
@@ -5139,7 +5179,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 146,
+            funcId: 147,
             port: port_,
           );
         },
@@ -5169,7 +5209,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 147,
+            funcId: 148,
             port: port_,
           );
         },
@@ -5197,7 +5237,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 148,
+            funcId: 149,
             port: port_,
           );
         },
@@ -5234,7 +5274,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 149,
+            funcId: 150,
             port: port_,
           );
         },
@@ -5279,7 +5319,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 150,
+            funcId: 151,
             port: port_,
           );
         },
@@ -5308,6 +5348,13 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   @protected
   RustStreamSink<FrbCatalogChangedEvent>
   dco_decode_StreamSink_frb_catalog_changed_event_Sse(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    throw UnimplementedError();
+  }
+
+  @protected
+  RustStreamSink<FrbLeaderboardChangedEvent>
+  dco_decode_StreamSink_frb_leaderboard_changed_event_Sse(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     throw UnimplementedError();
   }
@@ -5782,6 +5829,17 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       deviceFingerprint: dco_decode_opt_String(arr[11]),
       avatarConfig: dco_decode_opt_String(arr[12]),
     );
+  }
+
+  @protected
+  FrbLeaderboardChangedEvent dco_decode_frb_leaderboard_changed_event(
+    dynamic raw,
+  ) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 1)
+      throw Exception('unexpected arr length: expect 1 but see ${arr.length}');
+    return FrbLeaderboardChangedEvent(peerId: dco_decode_i_32(arr[0]));
   }
 
   @protected
@@ -6518,6 +6576,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  RustStreamSink<FrbLeaderboardChangedEvent>
+  sse_decode_StreamSink_frb_leaderboard_changed_event_Sse(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    throw UnimplementedError('Unreachable ()');
+  }
+
+  @protected
   RustStreamSink<FrbNudgeEvent> sse_decode_StreamSink_frb_nudge_event_Sse(
     SseDeserializer deserializer,
   ) {
@@ -7117,6 +7184,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       deviceFingerprint: var_deviceFingerprint,
       avatarConfig: var_avatarConfig,
     );
+  }
+
+  @protected
+  FrbLeaderboardChangedEvent sse_decode_frb_leaderboard_changed_event(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_peerId = sse_decode_i_32(deserializer);
+    return FrbLeaderboardChangedEvent(peerId: var_peerId);
   }
 
   @protected
@@ -8187,6 +8263,23 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_StreamSink_frb_leaderboard_changed_event_Sse(
+    RustStreamSink<FrbLeaderboardChangedEvent> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(
+      self.setupAndSerialize(
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_frb_leaderboard_changed_event,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+      ),
+      serializer,
+    );
+  }
+
+  @protected
   void sse_encode_StreamSink_frb_nudge_event_Sse(
     RustStreamSink<FrbNudgeEvent> self,
     SseSerializer serializer,
@@ -8626,6 +8719,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_opt_String(self.deviceModel, serializer);
     sse_encode_opt_String(self.deviceFingerprint, serializer);
     sse_encode_opt_String(self.avatarConfig, serializer);
+  }
+
+  @protected
+  void sse_encode_frb_leaderboard_changed_event(
+    FrbLeaderboardChangedEvent self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.peerId, serializer);
   }
 
   @protected

@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 
 import '../models/memory_game.dart';
 import '../services/ffi_service.dart';
+import '../src/rust/api/frb.dart' show subscribeLeaderboardChanges;
 
 /// Phases of the memory game lifecycle.
 enum GamePhase { setup, playing, matchCheck, complete }
@@ -45,6 +46,9 @@ class MemoryGameProvider extends ChangeNotifier {
   // --- Rank info (computed after game finish) ---
   int? _personalRank;
   bool _isNewPersonalBest = false;
+
+  // --- ADR-023: live leaderboard push subscription ---
+  StreamSubscription<dynamic>? _leaderboardChangeSub;
 
   // --- Getters ---
   List<String> get availableDifficulties => _availableDifficulties;
@@ -299,11 +303,48 @@ class MemoryGameProvider extends ChangeNotifier {
     }
   }
 
+  /// Subscribe to live leaderboard push events (ADR-023).
+  /// Call once when the leaderboard screen is shown. Automatically reloads
+  /// network scores when a peer pushes updated stats.
+  void subscribeToLeaderboardPush() {
+    if (_leaderboardChangeSub != null) return;
+    _leaderboardChangeSub = subscribeLeaderboardChanges().listen(
+      (_) => _silentReloadNetworkScores(),
+      onError: (e) =>
+          debugPrint('MemoryGameProvider: leaderboard stream error: $e'),
+    );
+  }
+
+  /// Reload network scores without showing the syncing spinner.
+  Future<void> _silentReloadNetworkScores() async {
+    try {
+      final frbEntries = await _ffi.refreshMemoryLeaderboard();
+      _networkScores = frbEntries
+          .map((e) => MemoryLeaderboardEntry(
+                peerId: e.peerId,
+                libraryName: e.libraryName,
+                bestScore: e.bestScore,
+                difficulty: e.difficulty,
+                playedAt: e.playedAt,
+                isSelf: e.isSelf,
+              ))
+          .toList();
+      notifyListeners();
+    } catch (e) {
+      debugPrint('MemoryGameProvider: silent leaderboard reload error: $e');
+    }
+  }
+
   /// Load network leaderboard (peer best scores) via FFI.
   /// Triggers a peer sync first to get fresh data.
   Future<void> loadNetworkLeaderboard() async {
     _isSyncingNetwork = true;
     notifyListeners();
+
+    // Give Flutter a frame to render the spinner before the sync starts.
+    // Without this, a fast LAN sync can complete before the next vsync,
+    // so the spinner state is never visible.
+    await Future<void>.delayed(const Duration(milliseconds: 50));
 
     try {
       final frbEntries = await _ffi.refreshMemoryLeaderboard();
@@ -366,6 +407,7 @@ class MemoryGameProvider extends ChangeNotifier {
   void dispose() {
     _stopwatch.stop();
     _displayTimer?.cancel();
+    _leaderboardChangeSub?.cancel();
     super.dispose();
   }
 }

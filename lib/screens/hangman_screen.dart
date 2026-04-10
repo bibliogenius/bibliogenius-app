@@ -29,6 +29,7 @@ class _HangmanScreenState extends State<HangmanScreen> {
     super.initState();
     _provider = context.read<HangmanProvider>();
     _provider.addListener(_onProviderChanged);
+    _provider.subscribeToLeaderboardPush();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_provider.phase == HangmanPhase.complete) {
         _provider.resetToSetup();

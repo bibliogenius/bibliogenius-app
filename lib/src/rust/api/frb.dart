@@ -402,6 +402,19 @@ Stream<FrbCatalogChangedEvent> subscribeCatalogChanges() =>
 Stream<FrbNudgeEvent> subscribeRelayNudges() =>
     RustLib.instance.api.crateApiFrbSubscribeRelayNudges();
 
+/// Stream of leaderboard-change events from peers (ADR-023).
+///
+/// Each emitted event indicates that a peer pushed updated scores via
+/// `public_stats_push` and the local cache has been updated. Flutter
+/// consumers (game leaderboard screens) should reload network scores.
+///
+/// The stream lives until the Dart side drops the `StreamSink`. Multiple
+/// concurrent subscribers each receive their own independent copy of every
+/// event (broadcast semantics). A slow subscriber lags without blocking
+/// the emitter.
+Stream<FrbLeaderboardChangedEvent> subscribeLeaderboardChanges() =>
+    RustLib.instance.api.crateApiFrbSubscribeLeaderboardChanges();
+
 /// Get available difficulty levels based on books with covers
 Future<List<String>> memoryGameAvailableDifficulties() =>
     RustLib.instance.api.crateApiFrbMemoryGameAvailableDifficulties();
@@ -1561,6 +1574,18 @@ sealed class FrbHubProfile with _$FrbHubProfile {
     String? deviceFingerprint,
     String? avatarConfig,
   }) = _FrbHubProfile;
+}
+
+/// FFI-safe view of a leaderboard-change event.
+///
+/// Emitted when a peer sends a `public_stats_push` relay message, indicating
+/// that they beat their personal best in a game or gained a gamification level.
+/// Flutter providers showing network leaderboards should trigger a re-load
+/// on receipt.
+@freezed
+sealed class FrbLeaderboardChangedEvent with _$FrbLeaderboardChangedEvent {
+  const factory FrbLeaderboardChangedEvent({required int peerId}) =
+      _FrbLeaderboardChangedEvent;
 }
 
 /// Leaderboard entry (FFI-safe)

@@ -30,6 +30,7 @@ class _SlidingPuzzleScreenState extends State<SlidingPuzzleScreen> {
     super.initState();
     _provider = context.read<SlidingPuzzleProvider>();
     _provider.addListener(_onProviderChanged);
+    _provider.subscribeToLeaderboardPush();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_provider.phase == PuzzlePhase.complete) {
         _provider.resetToSetup();

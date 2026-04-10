@@ -3054,6 +3054,257 @@ as String?,
 }
 
 /// @nodoc
+mixin _$FrbLeaderboardChangedEvent {
+
+ int get peerId;
+/// Create a copy of FrbLeaderboardChangedEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$FrbLeaderboardChangedEventCopyWith<FrbLeaderboardChangedEvent> get copyWith => _$FrbLeaderboardChangedEventCopyWithImpl<FrbLeaderboardChangedEvent>(this as FrbLeaderboardChangedEvent, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbLeaderboardChangedEvent&&(identical(other.peerId, peerId) || other.peerId == peerId));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,peerId);
+
+@override
+String toString() {
+  return 'FrbLeaderboardChangedEvent(peerId: $peerId)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $FrbLeaderboardChangedEventCopyWith<$Res>  {
+  factory $FrbLeaderboardChangedEventCopyWith(FrbLeaderboardChangedEvent value, $Res Function(FrbLeaderboardChangedEvent) _then) = _$FrbLeaderboardChangedEventCopyWithImpl;
+@useResult
+$Res call({
+ int peerId
+});
+
+
+
+
+}
+/// @nodoc
+class _$FrbLeaderboardChangedEventCopyWithImpl<$Res>
+    implements $FrbLeaderboardChangedEventCopyWith<$Res> {
+  _$FrbLeaderboardChangedEventCopyWithImpl(this._self, this._then);
+
+  final FrbLeaderboardChangedEvent _self;
+  final $Res Function(FrbLeaderboardChangedEvent) _then;
+
+/// Create a copy of FrbLeaderboardChangedEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? peerId = null,}) {
+  return _then(_self.copyWith(
+peerId: null == peerId ? _self.peerId : peerId // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [FrbLeaderboardChangedEvent].
+extension FrbLeaderboardChangedEventPatterns on FrbLeaderboardChangedEvent {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _FrbLeaderboardChangedEvent value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _FrbLeaderboardChangedEvent() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _FrbLeaderboardChangedEvent value)  $default,){
+final _that = this;
+switch (_that) {
+case _FrbLeaderboardChangedEvent():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _FrbLeaderboardChangedEvent value)?  $default,){
+final _that = this;
+switch (_that) {
+case _FrbLeaderboardChangedEvent() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int peerId)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _FrbLeaderboardChangedEvent() when $default != null:
+return $default(_that.peerId);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int peerId)  $default,) {final _that = this;
+switch (_that) {
+case _FrbLeaderboardChangedEvent():
+return $default(_that.peerId);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int peerId)?  $default,) {final _that = this;
+switch (_that) {
+case _FrbLeaderboardChangedEvent() when $default != null:
+return $default(_that.peerId);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _FrbLeaderboardChangedEvent implements FrbLeaderboardChangedEvent {
+  const _FrbLeaderboardChangedEvent({required this.peerId});
+  
+
+@override final  int peerId;
+
+/// Create a copy of FrbLeaderboardChangedEvent
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$FrbLeaderboardChangedEventCopyWith<_FrbLeaderboardChangedEvent> get copyWith => __$FrbLeaderboardChangedEventCopyWithImpl<_FrbLeaderboardChangedEvent>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbLeaderboardChangedEvent&&(identical(other.peerId, peerId) || other.peerId == peerId));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,peerId);
+
+@override
+String toString() {
+  return 'FrbLeaderboardChangedEvent(peerId: $peerId)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$FrbLeaderboardChangedEventCopyWith<$Res> implements $FrbLeaderboardChangedEventCopyWith<$Res> {
+  factory _$FrbLeaderboardChangedEventCopyWith(_FrbLeaderboardChangedEvent value, $Res Function(_FrbLeaderboardChangedEvent) _then) = __$FrbLeaderboardChangedEventCopyWithImpl;
+@override @useResult
+$Res call({
+ int peerId
+});
+
+
+
+
+}
+/// @nodoc
+class __$FrbLeaderboardChangedEventCopyWithImpl<$Res>
+    implements _$FrbLeaderboardChangedEventCopyWith<$Res> {
+  __$FrbLeaderboardChangedEventCopyWithImpl(this._self, this._then);
+
+  final _FrbLeaderboardChangedEvent _self;
+  final $Res Function(_FrbLeaderboardChangedEvent) _then;
+
+/// Create a copy of FrbLeaderboardChangedEvent
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? peerId = null,}) {
+  return _then(_FrbLeaderboardChangedEvent(
+peerId: null == peerId ? _self.peerId : peerId // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+/// @nodoc
 mixin _$FrbLoan {
 
  int get id; int get copyId; int get contactId; int get libraryId; String get loanDate; String get dueDate; String? get returnDate; String get status; String? get notes; String get contactName; String get bookTitle; int? get bookId; String? get coverUrl; String? get isbn;

@@ -26,6 +26,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   dco_decode_StreamSink_frb_catalog_changed_event_Sse(dynamic raw);
 
   @protected
+  RustStreamSink<FrbLeaderboardChangedEvent>
+  dco_decode_StreamSink_frb_leaderboard_changed_event_Sse(dynamic raw);
+
+  @protected
   RustStreamSink<FrbNudgeEvent> dco_decode_StreamSink_frb_nudge_event_Sse(
     dynamic raw,
   );
@@ -139,6 +143,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbHubProfile dco_decode_frb_hub_profile(dynamic raw);
+
+  @protected
+  FrbLeaderboardChangedEvent dco_decode_frb_leaderboard_changed_event(
+    dynamic raw,
+  );
 
   @protected
   FrbLeaderboardEntry dco_decode_frb_leaderboard_entry(dynamic raw);
@@ -385,6 +394,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  RustStreamSink<FrbLeaderboardChangedEvent>
+  sse_decode_StreamSink_frb_leaderboard_changed_event_Sse(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   RustStreamSink<FrbNudgeEvent> sse_decode_StreamSink_frb_nudge_event_Sse(
     SseDeserializer deserializer,
   );
@@ -524,6 +539,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbHubProfile sse_decode_frb_hub_profile(SseDeserializer deserializer);
+
+  @protected
+  FrbLeaderboardChangedEvent sse_decode_frb_leaderboard_changed_event(
+    SseDeserializer deserializer,
+  );
 
   @protected
   FrbLeaderboardEntry sse_decode_frb_leaderboard_entry(
@@ -827,6 +847,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_StreamSink_frb_leaderboard_changed_event_Sse(
+    RustStreamSink<FrbLeaderboardChangedEvent> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_StreamSink_frb_nudge_event_Sse(
     RustStreamSink<FrbNudgeEvent> self,
     SseSerializer serializer,
@@ -999,6 +1025,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_frb_hub_profile(FrbHubProfile self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_frb_leaderboard_changed_event(
+    FrbLeaderboardChangedEvent self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_frb_leaderboard_entry(
