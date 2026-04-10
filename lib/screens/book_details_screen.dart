@@ -1020,7 +1020,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         ? TranslationService.translate(context, 'lent_to') ?? 'Lent to'
         : TranslationService.translate(context, 'borrowed_from') ??
             'Borrowed from';
-    final name = _truncateContactName(loan.contactName);
+    final name = loan.contactName;
 
     final copyPrefix = copyNumber != null
         ? '${TranslationService.translate(context, 'copy_number') ?? 'Copy #'}$copyNumber · '
@@ -1093,13 +1093,6 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     if (daysLeft <= 3) return cs.error;
     if (daysLeft <= 7) return const Color(0xFFE67E22);
     return const Color(0xFF27AE60);
-  }
-
-  static String _truncateContactName(String name) {
-    if (name.length <= 14) return name;
-    final parts = name.trim().split(' ');
-    if (parts.length > 1) return '${parts.first} ${parts.last[0]}.';
-    return name.substring(0, 14);
   }
 
   String _formatLoanDate(BuildContext context, DateTime date) {
