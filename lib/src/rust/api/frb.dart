@@ -431,6 +431,14 @@ Future<List<FrbMemoryScore>> memoryGameTopScores() =>
 Future<List<FrbMemoryLeaderboardEntry>> memoryGameLeaderboard() =>
     RustLib.instance.api.crateApiFrbMemoryGameLeaderboard();
 
+/// Return a debug summary of all peers and their relay credential state.
+///
+/// Used to diagnose leaderboard relay issues (ADR-022). Returns one line per peer
+/// with name, connection_status, key_exchange_done, and whether relay credentials
+/// are present. Call from Flutter and log with debugPrint.
+Future<String> peersRelayDebugInfo() =>
+    RustLib.instance.api.crateApiFrbPeersRelayDebugInfo();
+
 /// Refresh the network memory game leaderboard by syncing with all accepted peers.
 /// Fetches each peer's /api/game/memory/public-best, upserts into peer_memory_scores,
 /// then returns the merged leaderboard.
