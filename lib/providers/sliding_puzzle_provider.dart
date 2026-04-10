@@ -298,10 +298,16 @@ class SlidingPuzzleProvider extends ChangeNotifier {
     );
   }
 
-  /// Reload network scores without showing the syncing spinner.
+  bool _backgroundSyncRunning = false;
+
+  /// Reload network scores from cache only (no relay sync).
   Future<void> _silentReloadNetworkScores() async {
+    await _loadCachedScores();
+  }
+
+  Future<void> _loadCachedScores() async {
     try {
-      final frbEntries = await _ffi.refreshPuzzleLeaderboard();
+      final frbEntries = await _ffi.getPuzzleLeaderboard();
       _networkScores = frbEntries
           .map((e) => PuzzleLeaderboardEntry(
                 peerId: e.peerId,
@@ -314,17 +320,45 @@ class SlidingPuzzleProvider extends ChangeNotifier {
           .toList();
       notifyListeners();
     } catch (e) {
-      debugPrint('SlidingPuzzleProvider: silent leaderboard reload error: $e');
+      debugPrint('SlidingPuzzleProvider: loadCachedScores error: $e');
     }
   }
 
-  /// Load network leaderboard (peer best scores) via FFI.
-  /// Triggers a peer sync first to get fresh data.
+  /// Load leaderboard: cached scores instantly, then sync peers invisibly.
   Future<void> loadNetworkLeaderboard() async {
+    await _loadCachedScores();
+    _syncPeersInBackground();
+  }
+
+  void _syncPeersInBackground() {
+    if (_backgroundSyncRunning || _isSyncingNetwork) return;
+    _backgroundSyncRunning = true;
+    _ffi.refreshPuzzleLeaderboard().then((frbEntries) {
+      _networkScores = frbEntries
+          .map((e) => PuzzleLeaderboardEntry(
+                peerId: e.peerId,
+                libraryName: e.libraryName,
+                bestScore: e.bestScore,
+                difficulty: e.difficulty,
+                playedAt: e.playedAt,
+                isSelf: e.isSelf,
+              ))
+          .toList();
+      _backgroundSyncRunning = false;
+      notifyListeners();
+    }).catchError((e) {
+      debugPrint('SlidingPuzzleProvider: background sync error: $e');
+      _backgroundSyncRunning = false;
+    });
+  }
+
+  /// Force relay sync with spinner. Called from the manual refresh button.
+  Future<void> refreshNetworkLeaderboard() async {
+    if (_isSyncingNetwork) return;
     _isSyncingNetwork = true;
     notifyListeners();
 
-    // Give Flutter a frame to render the spinner before the sync starts.
+    final spinnerStart = DateTime.now();
     await Future<void>.delayed(const Duration(milliseconds: 50));
 
     try {
@@ -340,8 +374,13 @@ class SlidingPuzzleProvider extends ChangeNotifier {
               ))
           .toList();
     } catch (e) {
-      debugPrint('SlidingPuzzleProvider: loadNetworkLeaderboard error: $e');
+      debugPrint('SlidingPuzzleProvider: refreshNetworkLeaderboard error: $e');
     } finally {
+      final elapsed = DateTime.now().difference(spinnerStart);
+      const minDuration = Duration(milliseconds: 800);
+      if (elapsed < minDuration) {
+        await Future<void>.delayed(minDuration - elapsed);
+      }
       _isSyncingNetwork = false;
       notifyListeners();
     }

@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -376,7 +377,54 @@ class _HangmanScreenState extends State<HangmanScreen> {
             minimumSize: const Size.fromHeight(48),
           ),
         ),
+        const SizedBox(height: 12),
+        _buildLeaderboardButton(theme),
       ],
+    );
+  }
+
+  Widget _buildLeaderboardButton(ThemeData theme) {
+    final isDark = theme.brightness == Brightness.dark;
+    return GestureDetector(
+      onTap: () => _showLeaderboard(context),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          color: isDark
+              ? theme.colorScheme.surfaceContainerHigh
+              : Colors.amber.shade50,
+          border: Border.all(
+            color: Colors.amber.withValues(alpha: isDark ? 0.3 : 0.25),
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: Colors.amber.withValues(alpha: 0.15),
+              ),
+              child: const Icon(Icons.emoji_events_rounded,
+                  size: 22, color: Color(0xFFE0A030)),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Text(
+                TranslationService.translate(
+                    context, 'hangman_leaderboard'),
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            Icon(Icons.chevron_right_rounded,
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.4)),
+          ],
+        ),
+      ),
     );
   }
 
@@ -816,16 +864,38 @@ class _HangmanCompleteViewState extends State<_HangmanCompleteView>
 
 // ── Leaderboard Bottom Sheet ───────────────────────────────────
 
-class _LeaderboardSheet extends StatelessWidget {
+class _LeaderboardSheet extends StatefulWidget {
   const _LeaderboardSheet();
+
+  @override
+  State<_LeaderboardSheet> createState() => _LeaderboardSheetState();
+}
+
+class _LeaderboardSheetState extends State<_LeaderboardSheet>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  String? _difficultyFilter;
+
+  static const _allDifficulties = ['easy', 'medium', 'hard'];
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final provider = context.watch<HangmanProvider>();
 
     return DraggableScrollableSheet(
-      initialChildSize: 0.6,
+      initialChildSize: 0.65,
       minChildSize: 0.3,
       maxChildSize: 0.9,
       expand: false,
@@ -834,75 +904,386 @@ class _LeaderboardSheet extends StatelessWidget {
           children: [
             // Handle
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12),
+              padding: const EdgeInsets.only(top: 12, bottom: 8),
               child: Container(
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
+                  color: theme.colorScheme.onSurfaceVariant
+                      .withValues(alpha: 0.4),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
             ),
-            Text(
-              TranslationService.translate(context, 'hangman_leaderboard'),
-              style: theme.textTheme.titleMedium,
-            ),
-            const SizedBox(height: 8),
-            // Top scores
-            Expanded(
-              child: provider.topScores.isEmpty
-                  ? Center(
+            // Title + refresh button
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Consumer<HangmanProvider>(
+                builder: (context, provider, _) => Row(
+                  children: [
+                    Expanded(
                       child: Text(
                         TranslationService.translate(
-                            context, 'hangman_no_scores'),
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
+                            context, 'hangman_leaderboard'),
+                        style: theme.textTheme.titleLarge,
                       ),
-                    )
-                  : ListView.builder(
-                      controller: scrollController,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      itemCount: provider.topScores.length,
-                      itemBuilder: (context, index) {
-                        final s = provider.topScores[index];
-                        return ListTile(
-                          leading: CircleAvatar(
-                            radius: 16,
-                            backgroundColor: index < 3
-                                ? [
-                                    const Color(0xFFFFD700),
-                                    const Color(0xFFC0C0C0),
-                                    const Color(0xFFCD7F32),
-                                  ][index]
-                                : theme.colorScheme.surfaceContainerHighest,
-                            child: Text(
-                              '${index + 1}',
-                              style: theme.textTheme.labelMedium?.copyWith(
-                                color: index < 3
-                                    ? Colors.black87
-                                    : theme.colorScheme.onSurface,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          title: Text(s.formattedScore),
-                          subtitle: Text(
-                            '${TranslationService.translate(context, 'hangman_difficulty_${s.difficulty}')} - ${s.formattedTime}',
-                          ),
-                          trailing: s.won
-                              ? const Icon(Icons.check_circle,
-                                  color: Colors.green, size: 20)
-                              : const Icon(Icons.cancel,
-                                  color: Colors.red, size: 20),
-                        );
-                      },
                     ),
+                    if (provider.isSyncingNetwork)
+                      const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    else
+                      IconButton(
+                        icon: const Icon(Icons.refresh, size: 20),
+                        onPressed: () => provider.refreshNetworkLeaderboard(),
+                        tooltip: TranslationService.translate(
+                            context, 'memory_leaderboard_refreshing'),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            // Tabs
+            TabBar(
+              controller: _tabController,
+              tabs: [
+                Tab(
+                  text: TranslationService.translate(
+                      context, 'memory_my_scores_tab'),
+                ),
+                Tab(
+                  text: TranslationService.translate(
+                      context, 'memory_network_tab'),
+                ),
+              ],
+            ),
+            // Difficulty filter chips
+            _buildDifficultyFilters(theme),
+            // Tab content
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildMyScores(scrollController),
+                  _buildNetworkScores(scrollController),
+                ],
+              ),
             ),
           ],
         );
       },
     );
+  }
+
+  Widget _buildDifficultyFilters(ThemeData theme) {
+    return Consumer<HangmanProvider>(
+      builder: (context, provider, _) {
+        final myDifficulties =
+            provider.topScores.map((s) => s.difficulty).toSet();
+        final networkDifficulties =
+            provider.networkScores.map((e) => e.difficulty).toSet();
+        final available = myDifficulties.union(networkDifficulties);
+
+        if (available.length <= 1) return const SizedBox.shrink();
+
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: FilterChip(
+                  label: Text(
+                      TranslationService.translate(context, 'filter_all')),
+                  selected: _difficultyFilter == null,
+                  onSelected: (_) =>
+                      setState(() => _difficultyFilter = null),
+                ),
+              ),
+              ..._allDifficulties
+                  .where((d) => available.contains(d))
+                  .map((d) => Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: FilterChip(
+                          label: Text(TranslationService.translate(
+                              context, 'hangman_difficulty_$d')),
+                          selected: _difficultyFilter == d,
+                          onSelected: (_) =>
+                              setState(() => _difficultyFilter = d),
+                        ),
+                      )),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildMyScores(ScrollController scrollController) {
+    return Consumer<HangmanProvider>(
+      builder: (context, provider, _) {
+        var scores = provider.topScores;
+        if (_difficultyFilter != null) {
+          scores =
+              scores.where((s) => s.difficulty == _difficultyFilter).toList();
+        }
+
+        if (scores.isEmpty) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(32),
+              child: Text(
+                TranslationService.translate(context, 'hangman_no_scores'),
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: Colors.grey[500],
+                    ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          );
+        }
+
+        final theme = Theme.of(context);
+        return ListView.separated(
+          controller: scrollController,
+          padding: const EdgeInsets.all(16),
+          itemCount: scores.length,
+          separatorBuilder: (_, _) => const Divider(height: 1),
+          itemBuilder: (context, index) {
+            final score = scores[index];
+            final rank = index + 1;
+            return ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: _rankBadge(rank, theme),
+              title: Text(
+                TranslationService.translate(
+                    context, 'hangman_difficulty_${score.difficulty}'),
+                style: theme.textTheme.bodyMedium
+                    ?.copyWith(fontWeight: FontWeight.w500),
+              ),
+              subtitle: Text(
+                _formatDate(score.playedAt),
+                style: theme.textTheme.bodySmall
+                    ?.copyWith(color: Colors.grey[500]),
+              ),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        score.formattedScore,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: theme.colorScheme.primary,
+                        ),
+                      ),
+                      Text(
+                        '${score.formattedTime} - ${score.errors} err.',
+                        style: theme.textTheme.bodySmall
+                            ?.copyWith(color: Colors.grey[500]),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(width: 4),
+                  if (score.won)
+                    const Icon(Icons.check_circle,
+                        color: Colors.green, size: 20)
+                  else
+                    const Icon(Icons.cancel, color: Colors.red, size: 20),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildNetworkScores(ScrollController scrollController) {
+    return Consumer<HangmanProvider>(
+      builder: (context, provider, _) {
+        var scores = provider.networkScores;
+        if (_difficultyFilter != null) {
+          scores = scores
+              .where((e) => e.difficulty == _difficultyFilter)
+              .toList();
+        }
+
+        if (provider.isSyncingNetwork && scores.isEmpty) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(32),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    TranslationService.translate(
+                        context, 'memory_leaderboard_refreshing'),
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: Colors.grey[500],
+                        ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        if (scores.isEmpty) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(32),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    TranslationService.translate(
+                        context, 'memory_leaderboard_empty_network'),
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: Colors.grey[500],
+                        ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  IconButton(
+                    onPressed: provider.isSyncingNetwork
+                        ? null
+                        : () => provider.refreshNetworkLeaderboard(),
+                    icon: const Icon(Icons.refresh),
+                    tooltip: TranslationService.translate(
+                        context, 'memory_leaderboard_refreshing'),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        final theme = Theme.of(context);
+        return ListView.separated(
+          controller: scrollController,
+          padding: const EdgeInsets.all(16),
+          itemCount: scores.length,
+          separatorBuilder: (_, _) => const Divider(height: 1),
+          itemBuilder: (context, index) {
+            final entry = scores[index];
+            final rank = index + 1;
+            final isSelf = entry.isSelf;
+            return Container(
+              decoration: isSelf
+                  ? BoxDecoration(
+                      color: theme.colorScheme.primaryContainer
+                          .withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(12),
+                    )
+                  : null,
+              child: ListTile(
+                contentPadding: isSelf
+                    ? const EdgeInsets.symmetric(horizontal: 8)
+                    : EdgeInsets.zero,
+                leading: _rankBadge(rank, theme),
+                title: Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        entry.libraryName,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          fontWeight:
+                              isSelf ? FontWeight.bold : FontWeight.w500,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (isSelf) ...[
+                      const SizedBox(width: 6),
+                      Icon(Icons.person,
+                          size: 16, color: theme.colorScheme.primary),
+                    ],
+                  ],
+                ),
+                subtitle: Text(
+                  TranslationService.translate(
+                      context, 'hangman_difficulty_${entry.difficulty}'),
+                  style: theme.textTheme.bodySmall
+                      ?.copyWith(color: Colors.grey[500]),
+                ),
+                trailing: Text(
+                  entry.formattedScore,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: isSelf
+                        ? theme.colorScheme.primary
+                        : theme.colorScheme.onSurface,
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _rankBadge(int rank, ThemeData theme) {
+    Color bgColor;
+    Color textColor;
+    switch (rank) {
+      case 1:
+        bgColor = const Color(0xFFFFD700);
+        textColor = Colors.black87;
+        break;
+      case 2:
+        bgColor = const Color(0xFFC0C0C0);
+        textColor = Colors.black87;
+        break;
+      case 3:
+        bgColor = const Color(0xFFCD7F32);
+        textColor = Colors.white;
+        break;
+      default:
+        bgColor = theme.colorScheme.surfaceContainerHigh;
+        textColor = theme.colorScheme.onSurface;
+    }
+
+    return Container(
+      width: 32,
+      height: 32,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: bgColor,
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        '$rank',
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 14,
+          color: textColor,
+        ),
+      ),
+    );
+  }
+
+  String _formatDate(String isoDate) {
+    try {
+      final date = DateTime.parse(isoDate);
+      return DateFormat.yMMMd().format(date);
+    } catch (_) {
+      return isoDate;
+    }
   }
 }

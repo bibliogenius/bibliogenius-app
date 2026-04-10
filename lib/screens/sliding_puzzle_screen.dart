@@ -852,7 +852,7 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
                     else
                       IconButton(
                         icon: const Icon(Icons.refresh, size: 20),
-                        onPressed: () => provider.loadNetworkLeaderboard(),
+                        onPressed: () => provider.refreshNetworkLeaderboard(),
                         tooltip: TranslationService.translate(
                             context, 'puzzle_leaderboard_refreshing'),
                       ),
@@ -1073,7 +1073,7 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
                   IconButton(
                     onPressed: provider.isSyncingNetwork
                         ? null
-                        : () => provider.loadNetworkLeaderboard(),
+                        : () => provider.refreshNetworkLeaderboard(),
                     icon: const Icon(Icons.refresh),
                     tooltip: TranslationService.translate(
                         context, 'puzzle_leaderboard_refreshing'),

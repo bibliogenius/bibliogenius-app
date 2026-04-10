@@ -315,10 +315,18 @@ class MemoryGameProvider extends ChangeNotifier {
     );
   }
 
-  /// Reload network scores without showing the syncing spinner.
+  bool _backgroundSyncRunning = false;
+
+  /// Reload network scores from cache only (no relay sync).
+  /// Called by push notifications (ADR-023) which already updated the cache.
   Future<void> _silentReloadNetworkScores() async {
+    await _loadCachedScores();
+  }
+
+  /// Read cached leaderboard from local DB (instant, ~3ms).
+  Future<void> _loadCachedScores() async {
     try {
-      final frbEntries = await _ffi.refreshMemoryLeaderboard();
+      final frbEntries = await _ffi.getMemoryLeaderboard();
       _networkScores = frbEntries
           .map((e) => MemoryLeaderboardEntry(
                 peerId: e.peerId,
@@ -331,19 +339,48 @@ class MemoryGameProvider extends ChangeNotifier {
           .toList();
       notifyListeners();
     } catch (e) {
-      debugPrint('MemoryGameProvider: silent leaderboard reload error: $e');
+      debugPrint('MemoryGameProvider: loadCachedScores error: $e');
     }
   }
 
-  /// Load network leaderboard (peer best scores) via FFI.
-  /// Triggers a peer sync first to get fresh data.
+  /// Load leaderboard: show cached scores instantly, then sync peers in
+  /// the background (invisible, no spinner). Called when opening the sheet.
   Future<void> loadNetworkLeaderboard() async {
+    await _loadCachedScores();
+    _syncPeersInBackground();
+  }
+
+  /// Fire-and-forget background peer sync. Updates scores silently when done.
+  void _syncPeersInBackground() {
+    if (_backgroundSyncRunning || _isSyncingNetwork) return;
+    _backgroundSyncRunning = true;
+    _ffi.refreshMemoryLeaderboard().then((frbEntries) {
+      _networkScores = frbEntries
+          .map((e) => MemoryLeaderboardEntry(
+                peerId: e.peerId,
+                libraryName: e.libraryName,
+                bestScore: e.bestScore,
+                difficulty: e.difficulty,
+                playedAt: e.playedAt,
+                isSelf: e.isSelf,
+              ))
+          .toList();
+      _backgroundSyncRunning = false;
+      notifyListeners();
+    }).catchError((e) {
+      debugPrint('MemoryGameProvider: background sync error: $e');
+      _backgroundSyncRunning = false;
+    });
+  }
+
+  /// Force relay sync with spinner. Called from the manual refresh button.
+  Future<void> refreshNetworkLeaderboard() async {
+    if (_isSyncingNetwork) return;
+
     _isSyncingNetwork = true;
     notifyListeners();
 
-    // Give Flutter a frame to render the spinner before the sync starts.
-    // Without this, a fast LAN sync can complete before the next vsync,
-    // so the spinner state is never visible.
+    final spinnerStart = DateTime.now();
     await Future<void>.delayed(const Duration(milliseconds: 50));
 
     try {
@@ -359,8 +396,13 @@ class MemoryGameProvider extends ChangeNotifier {
               ))
           .toList();
     } catch (e) {
-      debugPrint('MemoryGameProvider: loadNetworkLeaderboard error: $e');
+      debugPrint('MemoryGameProvider: refreshNetworkLeaderboard error: $e');
     } finally {
+      final elapsed = DateTime.now().difference(spinnerStart);
+      const minDuration = Duration(milliseconds: 800);
+      if (elapsed < minDuration) {
+        await Future<void>.delayed(minDuration - elapsed);
+      }
       _isSyncingNetwork = false;
       notifyListeners();
     }

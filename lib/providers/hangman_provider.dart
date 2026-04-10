@@ -362,10 +362,16 @@ class HangmanProvider extends ChangeNotifier {
     );
   }
 
-  /// Reload network scores without showing the syncing spinner.
+  bool _backgroundSyncRunning = false;
+
+  /// Reload network scores from cache only (no relay sync).
   Future<void> _silentReloadNetworkScores() async {
+    await _loadCachedScores();
+  }
+
+  Future<void> _loadCachedScores() async {
     try {
-      final frbEntries = await _ffi.refreshHangmanLeaderboard();
+      final frbEntries = await _ffi.getHangmanLeaderboard();
       _networkScores = frbEntries
           .map((e) => HangmanLeaderboardEntry(
                 peerId: e.peerId,
@@ -378,16 +384,45 @@ class HangmanProvider extends ChangeNotifier {
           .toList();
       notifyListeners();
     } catch (e) {
-      debugPrint('HangmanProvider: silent leaderboard reload error: $e');
+      debugPrint('HangmanProvider: loadCachedScores error: $e');
     }
   }
 
-  /// Load network leaderboard via FFI with peer sync.
+  /// Load leaderboard: cached scores instantly, then sync peers invisibly.
   Future<void> loadNetworkLeaderboard() async {
+    await _loadCachedScores();
+    _syncPeersInBackground();
+  }
+
+  void _syncPeersInBackground() {
+    if (_backgroundSyncRunning || _isSyncingNetwork) return;
+    _backgroundSyncRunning = true;
+    _ffi.refreshHangmanLeaderboard().then((frbEntries) {
+      _networkScores = frbEntries
+          .map((e) => HangmanLeaderboardEntry(
+                peerId: e.peerId,
+                libraryName: e.libraryName,
+                bestScore: e.bestScore,
+                difficulty: e.difficulty,
+                playedAt: e.playedAt,
+                isSelf: e.isSelf,
+              ))
+          .toList();
+      _backgroundSyncRunning = false;
+      notifyListeners();
+    }).catchError((e) {
+      debugPrint('HangmanProvider: background sync error: $e');
+      _backgroundSyncRunning = false;
+    });
+  }
+
+  /// Force relay sync with spinner. Called from the manual refresh button.
+  Future<void> refreshNetworkLeaderboard() async {
+    if (_isSyncingNetwork) return;
     _isSyncingNetwork = true;
     notifyListeners();
 
-    // Give Flutter a frame to render the spinner before the sync starts.
+    final spinnerStart = DateTime.now();
     await Future<void>.delayed(const Duration(milliseconds: 50));
 
     try {
@@ -403,8 +438,13 @@ class HangmanProvider extends ChangeNotifier {
               ))
           .toList();
     } catch (e) {
-      debugPrint('HangmanProvider: loadNetworkLeaderboard error: $e');
+      debugPrint('HangmanProvider: refreshNetworkLeaderboard error: $e');
     } finally {
+      final elapsed = DateTime.now().difference(spinnerStart);
+      const minDuration = Duration(milliseconds: 800);
+      if (elapsed < minDuration) {
+        await Future<void>.delayed(minDuration - elapsed);
+      }
       _isSyncingNetwork = false;
       notifyListeners();
     }
