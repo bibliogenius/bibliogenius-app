@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:intl/intl.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,6 +23,7 @@ import '../models/book.dart';
 import '../models/collection.dart';
 import '../models/contact.dart';
 import '../models/copy.dart';
+import '../models/loan.dart';
 import '../models/cover_candidate.dart';
 import '../models/book_note.dart';
 import '../providers/book_note_provider.dart' show BookNoteProvider, maxNoteContentLength;
@@ -56,6 +58,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   Book? _book;
   List<Copy> _copies = [];
   List<Collection> _collections = [];
+  List<Loan> _activeLoans = [];
   bool _isLoadingCopies = true;
   bool _isLoadingBook = false;
   bool _hasChanges = false;
@@ -100,12 +103,16 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     final bookRepo = Provider.of<BookRepository>(context, listen: false);
     final copyRepo = Provider.of<CopyRepository>(context, listen: false);
     final collectionRepo = Provider.of<CollectionRepository>(context, listen: false);
+    final loanRepo = Provider.of<LoanRepository>(context, listen: false);
     try {
       final copiesFuture = copyRepo.getBookCopies(widget.bookId);
       final collectionsFuture = collectionRepo.getBookCollections(widget.bookId);
 
       // Always fetch fresh book data from DB to get latest changes (e.g. rating)
       final bookFuture = bookRepo.getBook(widget.bookId);
+
+      // Start loan fetch in parallel — filtered after copies are known
+      final loansFuture = loanRepo.getLoans(status: 'active');
 
       final copies = await copiesFuture;
       final collections = await collectionsFuture;
@@ -127,6 +134,16 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         debugPrint('Error loading loan settings: $e');
       }
 
+      // Filter active loans to copies belonging to this book
+      List<Loan> activeLoans = [];
+      try {
+        final allActive = await loansFuture;
+        final copyIds = copies.map((c) => c.id).whereType<int>().toSet();
+        activeLoans = allActive.where((l) => copyIds.contains(l.copyId)).toList();
+      } catch (e) {
+        debugPrint('Error fetching active loans: $e');
+      }
+
       if (mounted) {
         setState(() {
           _book = freshBook;
@@ -134,6 +151,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           _copies = copies;
           _collections = collections;
           _isLoadingCopies = false;
+          _activeLoans = activeLoans;
         });
       }
     } catch (e) {
@@ -956,6 +974,143 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     );
   }
 
+  Widget _buildLoanStatusSection(BuildContext context) {
+    if (_activeLoans.isEmpty) return const SizedBox.shrink();
+
+    final canBorrow =
+        Provider.of<ThemeProvider>(context, listen: false).canBorrowBooks;
+
+    final rows = <Widget>[];
+    for (final loan in _activeLoans) {
+      final copyIndex = _copies.indexWhere((c) => c.id == loan.copyId);
+      if (copyIndex == -1) continue;
+      final copy = _copies[copyIndex];
+      final isOutgoing = copy.status == 'loaned';
+      if (!isOutgoing && !canBorrow) continue;
+      if (rows.isNotEmpty) rows.add(const SizedBox(height: 6));
+      rows.add(_buildLoanRow(
+        context,
+        loan,
+        isOutgoing: isOutgoing,
+        copyNumber: _copies.length > 1 ? copyIndex + 1 : null,
+      ));
+    }
+
+    if (rows.isEmpty) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [const SizedBox(height: 12), ...rows],
+    );
+  }
+
+  Widget _buildLoanRow(
+    BuildContext context,
+    Loan loan, {
+    required bool isOutgoing,
+    int? copyNumber,
+  }) {
+    final cs = Theme.of(context).colorScheme;
+    final dueDate = DateTime.tryParse(loan.dueDate);
+    final daysLeft = dueDate?.difference(DateTime.now()).inDays;
+    final accentColor =
+        isOutgoing ? const Color(0xFFE67E22) : cs.tertiary;
+    final dateColor = _loanDateColor(daysLeft, cs);
+
+    final directionLabel = isOutgoing
+        ? TranslationService.translate(context, 'lent_to') ?? 'Lent to'
+        : TranslationService.translate(context, 'borrowed_from') ??
+            'Borrowed from';
+    final name = _truncateContactName(loan.contactName);
+
+    final copyPrefix = copyNumber != null
+        ? '${TranslationService.translate(context, 'copy_number') ?? 'Copy #'}$copyNumber · '
+        : '';
+    final titleText = '$copyPrefix$directionLabel $name';
+
+    final dateLabel =
+        TranslationService.translate(context, 'due_date_label') ?? 'Due date';
+    final dateText = dueDate != null
+        ? '$dateLabel : ${_formatLoanDate(context, dueDate)}'
+        : '';
+
+    return Semantics(
+      label: '$titleText. $dateText',
+      excludeSemantics: true,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: accentColor.withValues(alpha: 0.07),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: accentColor.withValues(alpha: 0.25)),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              isOutgoing ? Icons.arrow_outward : Icons.arrow_downward,
+              size: 16,
+              color: accentColor,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    titleText,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  if (dateText.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.event_outlined,
+                          size: 13,
+                          color: dateColor,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          dateText,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(color: dateColor),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  static Color _loanDateColor(int? daysLeft, ColorScheme cs) {
+    if (daysLeft == null) return cs.onSurfaceVariant;
+    if (daysLeft <= 3) return cs.error;
+    if (daysLeft <= 7) return const Color(0xFFE67E22);
+    return const Color(0xFF27AE60);
+  }
+
+  static String _truncateContactName(String name) {
+    if (name.length <= 14) return name;
+    final parts = name.trim().split(' ');
+    if (parts.length > 1) return '${parts.first} ${parts.last[0]}.';
+    return name.substring(0, 14);
+  }
+
+  String _formatLoanDate(BuildContext context, DateTime date) {
+    try {
+      final locale = Localizations.localeOf(context).toString();
+      return DateFormat.yMMMd(locale).format(date);
+    } catch (_) {
+      return '${date.day}/${date.month}/${date.year}';
+    }
+  }
+
   Widget _buildActionButtons(BuildContext context, Book book) {
     final isReading = book.readingStatus == 'reading';
     final isToRead =
@@ -1155,6 +1310,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             ],
           ),
         ],
+        _buildLoanStatusSection(context),
         // Per-book loan duration - only visible when per-book customization is enabled
         if (_perBookDurationEnabled && book.owned) ...[
           const SizedBox(height: 12),
