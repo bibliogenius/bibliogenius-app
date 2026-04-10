@@ -451,12 +451,12 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       // Hub may have populated _books — check again
       if (_books.isNotEmpty) {
         if (mounted) setState(() { _isRefreshing = false; _isLoading = false; });
-        // Cache/hub data displayed, but it may be stale. When offline with
-        // relay credentials, trigger a background relay sync so peers get
-        // fresh books even when not on the same WiFi (ADR-012 fallback).
-        if (!isOnline && widget.hasRelayCredentials) {
-          _tryRelaySync();
-        }
+        // Peer offline — show cached/hub data as-is.
+        // The relay requires the peer to be running to respond, so an
+        // automatic relay attempt here would stall for up to 3 minutes
+        // with no result when the peer app is closed. The staleness bar
+        // already communicates freshness to the user.
+        // Manual sync (appbar button) triggers a relay attempt if needed.
         return;
       }
 
@@ -751,7 +751,10 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
   /// Try to sync peer's library via relay (ADR-012).
   /// Uses paginated requests with adaptive polling.
-  Future<void> _tryRelaySync() async {
+  /// [isManualSync] — true when triggered by the user (sync button),
+  /// false when triggered automatically on initial load. Affects the
+  /// polling patience: manual gets 3 min, auto gets 60 s.
+  Future<void> _tryRelaySync({bool isManualSync = false}) async {
     if (_isRelayLoading) return;
     final api = Provider.of<ApiService>(context, listen: false);
 
@@ -811,7 +814,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       } else {
         // manifest returned null (202 relay_pending) - start polling
         debugPrint('Relay: manifest pending, starting adaptive polling');
-        _startAdaptivePolling();
+        _startAdaptivePolling(isManualSync: isManualSync);
       }
     } catch (e) {
       debugPrint('Relay sync failed: $e');
@@ -951,16 +954,20 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
   /// Adaptive polling: poll relay every 5s, retry manifest after each poll.
   /// When the relay response arrives, continues with page fetching.
-  /// Gives up after 3 minutes (ADR-012).
+  /// Gives up after [maxPolls] × 5 s:
+  ///   - manual sync (isManualSync=true):  36 polls = 3 minutes
+  ///   - auto on initial load:             12 polls = 60 seconds
+  /// The shorter auto timeout avoids stalling the UI when the peer app
+  /// is simply closed and will never respond via the relay.
   /// Uses _pollRequestInFlight guard to prevent concurrent requests that
   /// would flood the relay with different correlation IDs.
   /// Circuit breaker: stops immediately on 502 (peer unreachable).
-  void _startAdaptivePolling() {
+  void _startAdaptivePolling({bool isManualSync = false}) {
     _pollTimer?.cancel();
     _pollRequestInFlight = false;
     final api = Provider.of<ApiService>(context, listen: false);
     int pollCount = 0;
-    const maxPolls = 36; // 36 * 5s = 3 minutes
+    final maxPolls = isManualSync ? 36 : 12; // manual: 3 min, auto: 60 s
 
     _pollTimer = Timer.periodic(const Duration(seconds: 5), (timer) async {
       if (_pollRequestInFlight) {
@@ -1132,7 +1139,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       }
       // No hub — fall back to relay sync (ADR-012)
       if (mounted) setState(() => _isSyncing = false);
-      _tryRelaySync();
+      _tryRelaySync(isManualSync: true);
       if (showFeedback && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
