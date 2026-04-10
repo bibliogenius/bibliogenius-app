@@ -8534,6 +8534,14 @@ msgstr "Ce code n'est pas valide. Verifiez qu'il correspond bien a celui que vou
 msgid "recovery_code_not_available"
 msgstr "Non disponible. Re-inscrivez-vous pour en generer un."
 
+#. Recovery code - scope legend: what is covered
+msgid "recovery_code_scope_covers"
+msgstr "Concerne : votre profil dans l'annuaire public, vos abonnes et abonnements."
+
+#. Recovery code - scope legend: what is excluded
+msgid "recovery_code_scope_excludes"
+msgstr "Non affecte : votre bibliotheque locale et vos livres."
+
 # --- Inline help for Settings > Modules toggles (Phase 1) ---
 
 msgid "simplified_mode_help"

@@ -8197,6 +8197,14 @@ msgstr "Codigo de recuperacion"
 msgid "recovery_code_not_available"
 msgstr "No disponible. Vuelva a registrarse para generar uno."
 
+#. Recovery code - scope legend: what is covered
+msgid "recovery_code_scope_covers"
+msgstr "Cubre: su perfil en el directorio publico, seguidores y suscripciones."
+
+#. Recovery code - scope legend: what is excluded
+msgid "recovery_code_scope_excludes"
+msgstr "No afectado: su biblioteca local y sus libros."
+
 #. Recovery code save advice
 msgid "recovery_code_save_advice"
 msgstr "Guardelo en un lugar seguro. Solo funcionara una vez: se generara un nuevo codigo despues de cada uso."

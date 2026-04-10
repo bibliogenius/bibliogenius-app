@@ -1201,6 +1201,12 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
             );
           }
         }
+        // For relay-only peers the hub catalog may lag behind real-time changes
+        // (the peer notifies us before their hub push completes). Trigger a relay
+        // sync so we get the authoritative live list directly from the peer.
+        if (widget.peerUrl.startsWith('relay://') && widget.hasRelayCredentials) {
+          _tryRelaySync(isManualSync: showFeedback);
+        }
         return;
       }
       // No hub — fall back to relay sync (ADR-012)
@@ -1494,49 +1500,130 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     );
   }
 
-  Widget _buildHubContactBar() {
-    final hasWebsite =
-        _hubProfile?.website != null && _hubProfile!.website!.isNotEmpty;
-    final hasContact =
-        _decryptedContact != null && _decryptedContact!.isNotEmpty;
-    if (!hasWebsite && !hasContact) return const SizedBox.shrink();
+  /// Full profile banner: identity row (avatar + name + country + book count)
+  /// with optional contact section below a divider.
+  /// Only rendered when a hub profile is available for this peer.
+  Widget _buildHubProfileBanner() {
+    if (_hubProfile == null) return const SizedBox.shrink();
 
     final cs = Theme.of(context).colorScheme;
+    final onContainer = cs.onPrimaryContainer;
+    final onContainerMuted = onContainer.withValues(alpha: 0.7);
+
+    final hasWebsite =
+        _hubProfile!.website != null && _hubProfile!.website!.isNotEmpty;
+    final hasContact =
+        _decryptedContact != null && _decryptedContact!.isNotEmpty;
+    final hasContactSection = hasWebsite || hasContact;
+
     return Container(
       margin: const EdgeInsets.fromLTRB(12, 8, 12, 10),
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: cs.primaryContainer,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (hasWebsite)
-            _buildWebsiteRow(_hubProfile!.website!, cs),
-          if (hasWebsite && hasContact)
-            const SizedBox(height: 6),
-          if (hasContact)
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 2),
-                  child: Icon(Icons.lock_outlined,
-                      size: 15, color: cs.onPrimaryContainer.withValues(alpha: 0.7)),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    _decryptedContact!,
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: cs.onPrimaryContainer,
-                    ),
+          // Identity row
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 22,
+                backgroundColor: cs.primary,
+                child: Text(
+                  _hubProfile!.displayName.isNotEmpty
+                      ? _hubProfile!.displayName[0].toUpperCase()
+                      : '?',
+                  style: TextStyle(
+                    color: cs.onPrimary,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
                   ),
                 ),
-              ],
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _hubProfile!.displayName,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: onContainer,
+                          ),
+                    ),
+                    if (_hubProfile!.locationCountry != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Text(
+                          _hubProfile!.locationCountry!,
+                          style: TextStyle(fontSize: 12, color: onContainerMuted),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: cs.primary.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      '${_hubProfile!.bookCount}',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: onContainer,
+                          ),
+                    ),
+                    Text(
+                      TranslationService.translate(context, 'directory_books'),
+                      style: TextStyle(fontSize: 11, color: onContainerMuted),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          // Contact section (website + encrypted contact)
+          if (hasContactSection) ...[
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Divider(
+                height: 1,
+                color: onContainer.withValues(alpha: 0.15),
+              ),
             ),
+            if (hasWebsite)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: _buildWebsiteRow(_hubProfile!.website!, cs),
+              ),
+            if (hasContact)
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 1),
+                    child: Icon(Icons.lock_outlined,
+                        size: 14, color: onContainerMuted),
+                  ),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      _decryptedContact!,
+                      style: TextStyle(fontSize: 13, color: onContainer),
+                    ),
+                  ),
+                ],
+              ),
+          ],
         ],
       ),
     );
@@ -1731,9 +1818,8 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                   ? _buildOfflineNotAvailableView()
               : Column(
                   children: [
-                    // Sync status bar (includes channel indicator)
-                    // Hub contact info bar
-                    _buildHubContactBar(),
+                    // Hub profile banner (avatar + name + country + book count + contact)
+                    _buildHubProfileBanner(),
                     // Staleness indicator bar
                     _buildStalenessBar(),
                     // Relay loading progress bar
@@ -2001,7 +2087,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (context) => DraggableScrollableSheet(
         initialChildSize: 0.75,
@@ -2010,8 +2096,9 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
         expand: false,
         builder: (context, scrollController) => SingleChildScrollView(
           controller: scrollController,
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Drag handle
@@ -2021,88 +2108,121 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: Colors.grey[300],
+                    color: Colors.grey[400],
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
               ),
-              Center(
-                child: Container(
-                  width: 100,
-                  height: 150,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    color: Colors.grey[200],
-                    image: book.largeCoverUrl != null
-                        ? DecorationImage(
-                            image: NetworkImage(book.largeCoverUrl!),
-                            fit: BoxFit.cover,
-                          )
-                        : null,
+              // Cover + info row (same layout as hub book detail sheet)
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Cover
+                  SizedBox(
+                    width: 120,
+                    height: 180,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        color: Colors.grey[200],
+                        image: book.largeCoverUrl != null
+                            ? DecorationImage(
+                                image: NetworkImage(book.largeCoverUrl!),
+                                fit: BoxFit.cover,
+                              )
+                            : null,
+                      ),
+                      child: book.largeCoverUrl == null
+                          ? Center(
+                              child: Icon(
+                                Icons.menu_book,
+                                size: 40,
+                                color: Colors.grey[400],
+                              ),
+                            )
+                          : null,
+                    ),
                   ),
-                  child: book.largeCoverUrl == null
-                      ? const Icon(
-                          Icons.book,
-                          size: 50,
-                          color: Colors.grey,
-                        )
-                      : null,
-                ),
+                  const SizedBox(width: 16),
+                  // Info column
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          book.title,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w600),
+                        ),
+                        if (book.author != null) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            book.author!,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                        ],
+                        if (book.publisher != null ||
+                            book.publicationYear != null) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            [
+                              book.publisher,
+                              book.publicationYear?.toString(),
+                            ].whereType<String>().join(' - '),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(color: Colors.grey[600]),
+                          ),
+                        ],
+                        if (book.isbn != null && book.isbn!.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            'ISBN: ${book.isbn}',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(
+                                  fontFamily: 'monospace',
+                                  color: Colors.grey[500],
+                                ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 24),
-              Text(
-                book.title,
-                style: Theme.of(context)
-                    .textTheme
-                    .headlineSmall
-                    ?.copyWith(fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              Center(
-                child: Text(
-                  book.author ?? 'Unknown Author',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(color: Colors.grey[600]),
-                ),
-              ),
-              const SizedBox(height: 24),
+              // Summary
               if (book.summary != null && book.summary!.isNotEmpty) ...[
-                Text(
-                  TranslationService.translate(
-                    context,
-                    'book_summary',
-                  ),
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 16),
                 Text(
                   book.summary!,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
-                const SizedBox(height: 24),
               ],
+              // Borrow button
+              const SizedBox(height: 20),
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton.icon(
+                child: FilledButton.icon(
                   onPressed: _canBorrow(book)
                       ? () {
                           Navigator.pop(context);
                           _requestBorrow(book);
                         }
                       : null,
-                  icon: Icon(_canBorrow(book)
-                      ? Icons.bookmark_add
-                      : _hasPendingRequest(book) || _isActiveBorrow(book)
-                          ? Icons.hourglass_top
-                          : _isLending(book)
-                              ? Icons.swap_horiz
-                              : Icons.block),
+                  icon: Icon(
+                    _canBorrow(book)
+                        ? Icons.swap_horiz
+                        : _hasPendingRequest(book) || _isActiveBorrow(book)
+                            ? Icons.hourglass_top
+                            : _isLending(book)
+                                ? Icons.swap_horiz
+                                : Icons.block,
+                  ),
                   label: Text(
                     _hasPendingRequest(book)
                         ? TranslationService.translate(
@@ -2128,13 +2248,6 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                                         context,
                                         'request_to_borrow',
                                       ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    textStyle: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
                   ),
                 ),
               ),

@@ -765,13 +765,16 @@ class HubDirectoryProvider extends ChangeNotifier {
         search: _searchQuery,
       );
       final ownNodeId = _config?.nodeId;
+      final rawCount = batch.length;
       final newProfiles = batch
           .map(HubProfile.fromFrb)
           .where((p) => p.nodeId != ownNodeId)
           .toList();
       _profiles.addAll(newProfiles);
-      _offset += newProfiles.length;
-      _hasMore = newProfiles.length == _kPageSize;
+      // Offset and hasMore are based on the raw (server-side) count so that
+      // filtering our own profile does not cause premature pagination stop.
+      _offset += rawCount;
+      _hasMore = rawCount == _kPageSize;
     } catch (e) {
       _listError = e.toString();
       debugPrint('HubDirectoryProvider _fetchNextPage error: $e');

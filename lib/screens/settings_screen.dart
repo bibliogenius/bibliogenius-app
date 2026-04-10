@@ -421,7 +421,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
 
             // Account accordion (security + session)
-            if (_sectionVisible(['account', 'password', 'two_factor_auth']))
+            if (_sectionVisible(['account', 'password', 'two_factor_auth', 'recovery_code_title']))
             Card(
               margin: const EdgeInsets.only(bottom: 12),
               child: ExpansionTile(
@@ -526,6 +526,58 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ],
                       ),
                     ),
+                  Consumer<HubDirectoryProvider>(
+                    builder: (context, dirProvider, _) {
+                      final config = dirProvider.config;
+                      if (config == null) return const SizedBox.shrink();
+                      return Column(
+                        children: [
+                          const Divider(height: 1),
+                          ListTile(
+                            leading: const Icon(Icons.key),
+                            title: Text(
+                              TranslationService.translate(
+                                    context,
+                                    'recovery_code_title',
+                                  ) ??
+                                  'Recovery code',
+                            ),
+                            subtitle: Text(
+                              TranslationService.translate(
+                                    context,
+                                    'recovery_code_subtitle',
+                                  ) ??
+                                  'Recover your profile after reinstalling the app',
+                            ),
+                            trailing: const Icon(Icons.chevron_right),
+                            onTap: () async {
+                              final code = await dirProvider.getRecoveryCode();
+                              if (!context.mounted) return;
+                              if (code != null) {
+                                showModalBottomSheet(
+                                  context: context,
+                                  builder: (_) =>
+                                      RecoveryCodeDisplaySheet(recoveryCode: code),
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      TranslationService.translate(
+                                            context,
+                                            'recovery_code_not_available',
+                                          ) ??
+                                          'Not available. Re-register to generate one.',
+                                    ),
+                                  ),
+                                );
+                              }
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
@@ -1660,52 +1712,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               value,
                             ),
                   ),
-
-                  // Recovery code row (visible when registered, regardless of listed status)
-                  if (config != null) ...[
-                    const Divider(height: 1),
-                    ListTile(
-                      leading: const Icon(Icons.key),
-                      title: Text(
-                        TranslationService.translate(
-                              context,
-                              'recovery_code_title',
-                            ) ??
-                            'Recovery code',
-                      ),
-                      subtitle: Text(
-                        TranslationService.translate(
-                              context,
-                              'recovery_code_subtitle',
-                            ) ??
-                            'Recover your profile after reinstalling the app',
-                      ),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () async {
-                        final code = await dirProvider.getRecoveryCode();
-                        if (!context.mounted) return;
-                        if (code != null) {
-                          showModalBottomSheet(
-                            context: context,
-                            builder: (_) =>
-                                RecoveryCodeDisplaySheet(recoveryCode: code),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                TranslationService.translate(
-                                      context,
-                                      'recovery_code_not_available',
-                                    ) ??
-                                    'Not available. Re-register to generate one.',
-                              ),
-                            ),
-                          );
-                        }
-                      },
-                    ),
-                  ],
 
                   if (isListed) ...[
                     const Divider(height: 1),

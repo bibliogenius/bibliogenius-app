@@ -363,7 +363,7 @@ class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
         lang: lang,
         onAdded: (isbn) => setState(() => _localIsbns.add(isbn)),
         lenderNodeId: widget.nodeId,
-        allowBorrowing: false, // Hub borrowing disabled (coming soon)
+        allowBorrowing: _profile?.allowBorrowing ?? false,
       ),
     );
   }

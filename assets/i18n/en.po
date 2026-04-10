@@ -8534,6 +8534,14 @@ msgstr "This code is not valid. Check that it matches the one you saved."
 msgid "recovery_code_not_available"
 msgstr "Not available. Re-register to generate one."
 
+#. Recovery code - scope legend: what is covered
+msgid "recovery_code_scope_covers"
+msgstr "Covers: your public directory profile, followers and following."
+
+#. Recovery code - scope legend: what is excluded
+msgid "recovery_code_scope_excludes"
+msgstr "Not affected: your local library and books."
+
 # --- Inline help for Settings > Modules toggles (Phase 1) ---
 
 msgid "simplified_mode_help"
