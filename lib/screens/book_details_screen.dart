@@ -1008,73 +1008,41 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: Row(
-                children: [
-                  if (_copies.length > 1)
-                    SizedBox(
-                      width: 36,
-                      height: 36,
-                      child: IconButton.outlined(
-                        onPressed: _quickRemoveCopy,
-                        icon: const Icon(Icons.remove, size: 18),
-                        padding: EdgeInsets.zero,
-                        style: IconButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                      ),
-                    ),
-                  if (_copies.length > 1) const SizedBox(width: 4),
-                  Expanded(
-                    child: Tooltip(
-                      message:
-                          TranslationService.translate(
-                            context,
-                            'menu_manage_copies',
-                          ) ??
-                          'Manage Copies',
-                      child: OutlinedButton.icon(
-                        onPressed: () {
-                          if (_book == null) return;
-                          context.push(
-                            '/books/${_book!.id}/copies',
-                            extra: {'bookId': _book!.id, 'bookTitle': _book!.title},
-                          );
-                        },
-                        icon: const Icon(Icons.library_books_outlined),
-                        label: Text(
-                          _copies.length > 1
-                              ? '${TranslationService.translate(context, 'menu_copies_short') ?? 'Copies'} (${_copies.length})'
-                              : TranslationService.translate(context, 'menu_copies_short') ?? 'Copies',
-                        ),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        key: const Key('manageCopiesButton'),
-                      ),
+              child: Tooltip(
+                message:
+                    TranslationService.translate(
+                      context,
+                      'menu_manage_copies',
+                    ) ??
+                    'Manage Copies',
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    if (_book == null) return;
+                    context.push(
+                      '/books/${_book!.id}/copies',
+                      extra: {'bookId': _book!.id, 'bookTitle': _book!.title},
+                    );
+                  },
+                  icon: Badge(
+                    label: Text('${_copies.length}'),
+                    isLabelVisible: _copies.length > 1,
+                    child: const Icon(Icons.library_books_outlined),
+                  ),
+                  label: Text(
+                    TranslationService.translate(
+                          context,
+                          'menu_copies_short',
+                        ) ??
+                        'Copies',
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  if (_copies.length > 1) const SizedBox(width: 4),
-                  if (_copies.length > 1)
-                    SizedBox(
-                      width: 36,
-                      height: 36,
-                      child: IconButton.outlined(
-                        onPressed: _quickAddCopy,
-                        icon: const Icon(Icons.add, size: 18),
-                        padding: EdgeInsets.zero,
-                        style: IconButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
+                  key: const Key('manageCopiesButton'),
+                ),
               ),
             ),
             if (book.isbn != null) ...[
@@ -1126,6 +1094,67 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             ),
           ],
         ),
+        if (_copies.length > 1) ...[
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 32,
+                height: 32,
+                child: Tooltip(
+                  message:
+                      TranslationService.translate(
+                        context,
+                        'delete_copy_title',
+                      ) ??
+                      'Remove Copy',
+                  child: IconButton.outlined(
+                    onPressed: _quickRemoveCopy,
+                    icon: const Icon(Icons.remove, size: 16),
+                    padding: EdgeInsets.zero,
+                    style: IconButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                child: Text(
+                  '${_copies.length} ${(TranslationService.translate(context, 'menu_copies_short') ?? 'copies').toLowerCase()}',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 32,
+                height: 32,
+                child: Tooltip(
+                  message:
+                      TranslationService.translate(
+                        context,
+                        'add_copy_title',
+                      ) ??
+                      'Add Copy',
+                  child: IconButton.outlined(
+                    onPressed: _quickAddCopy,
+                    icon: const Icon(Icons.add, size: 16),
+                    padding: EdgeInsets.zero,
+                    style: IconButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
         // Per-book loan duration - only visible when per-book customization is enabled
         if (_perBookDurationEnabled && book.owned) ...[
           const SizedBox(height: 12),
