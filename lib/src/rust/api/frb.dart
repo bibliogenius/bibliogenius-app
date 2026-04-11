@@ -452,9 +452,18 @@ Future<List<FrbMemoryLeaderboardEntry>> memoryGameLeaderboard() =>
 Future<String> peersRelayDebugInfo() =>
     RustLib.instance.api.crateApiFrbPeersRelayDebugInfo();
 
+/// Refresh ALL leaderboard caches (memory, puzzle, hangman, gamification) in one pass.
+///
+/// A single relay round-trip per peer populates all game caches. When `skip_direct`
+/// is true, Phase 1 direct HTTP is skipped (use on cellular where LAN peers are
+/// unreachable). Called by Flutter at startup (pre-warm) and by per-game refresh.
+Future<void> refreshAllLeaderboards({required bool skipDirect}) => RustLib
+    .instance
+    .api
+    .crateApiFrbRefreshAllLeaderboards(skipDirect: skipDirect);
+
 /// Refresh the network memory game leaderboard by syncing with all accepted peers.
-/// Fetches each peer's /api/game/memory/public-best, upserts into peer_memory_scores,
-/// then returns the merged leaderboard.
+/// Uses the unified sync that populates all game caches in one relay pass.
 Future<List<FrbMemoryLeaderboardEntry>> memoryGameRefreshLeaderboard() =>
     RustLib.instance.api.crateApiFrbMemoryGameRefreshLeaderboard();
 

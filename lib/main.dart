@@ -9,6 +9,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'services/auth_service.dart';
 import 'services/api_service.dart';
@@ -107,6 +108,23 @@ class AppScrollBehavior extends MaterialScrollBehavior {
     PointerDeviceKind.touch,
     PointerDeviceKind.mouse,
   };
+}
+
+/// Pre-warm all leaderboard caches in background (fire-and-forget).
+/// Skips Phase 1 direct HTTP on cellular where LAN peers are unreachable.
+void _prewarmLeaderboards() {
+  Connectivity().checkConnectivity().then((connectivity) {
+    final isWifi = connectivity.contains(ConnectivityResult.wifi) ||
+        connectivity.contains(ConnectivityResult.ethernet);
+    frb.refreshAllLeaderboards(skipDirect: !isWifi).catchError((e) {
+      debugPrint('Leaderboard pre-warm failed (non-fatal): $e');
+    });
+  }).catchError((e) {
+    // Connectivity check failed; try with skip_direct=true (safe default)
+    frb.refreshAllLeaderboards(skipDirect: true).catchError((e2) {
+      debugPrint('Leaderboard pre-warm failed (non-fatal): $e2');
+    });
+  });
 }
 
 /// Get device name for library name fallback.
@@ -430,6 +448,12 @@ class MyApp extends StatelessWidget {
         bookRefreshNotifier.refresh();
       }
     });
+
+    // Pre-warm leaderboard caches in background so scores are fresh when
+    // the user opens a game leaderboard. Skip direct HTTP on cellular.
+    if (useFfi) {
+      _prewarmLeaderboards();
+    }
 
     Widget app = MultiProvider(
       providers: [
