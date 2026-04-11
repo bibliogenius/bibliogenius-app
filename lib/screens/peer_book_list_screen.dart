@@ -10,6 +10,7 @@ import '../services/ffi_service.dart';
 import '../models/book.dart';
 import '../models/hub_directory.dart';
 import '../widgets/bookshelf_view.dart';
+import '../widgets/cached_book_cover.dart';
 import '../widgets/shimmer_loading.dart';
 import '../services/translation_service.dart';
 import '../providers/hub_directory_provider.dart';
@@ -111,6 +112,17 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   String get _effectiveUrl => _lanUrl ?? widget.peerUrl;
   /// Effective node ID: mDNS libraryId if resolved, otherwise widget.nodeId.
   String? get _effectiveNodeId => _resolvedNodeId ?? widget.nodeId;
+
+  /// Resolves a book's cover URL for peer context: prefixes relative /api
+  /// paths with the peer URL, passes HTTP URLs through, and falls back to
+  /// OpenLibrary by ISBN when no cover is available.
+  String? _resolvePeerCoverUrl(Book book) {
+    final url = book.coverUrl; // getter with OpenLibrary ISBN fallback
+    if (url == null) return null;
+    if (url.startsWith('http')) return url;
+    if (url.startsWith('/api')) return '$_effectiveUrl$url';
+    return null; // local file path -- unusable in peer context
+  }
 
   @override
   void initState() {
@@ -700,16 +712,21 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       // for deletions.
 
       final knownIsbns = <String, Book>{};
+      final knownTitles = <String, Book>{};
       for (final b in _books) {
         if (b.isbn != null && b.isbn!.isNotEmpty) knownIsbns[b.isbn!] = b;
+        if (b.title.isNotEmpty) knownTitles[b.title.toLowerCase()] = b;
       }
 
       bool changed = false;
       final updatedBooks = List<Book>.from(_books);
 
       for (final e in entries) {
-        if (e.isbn.isEmpty) continue;
-        final existing = knownIsbns[e.isbn];
+        if (e.isbn.isEmpty && e.title.isEmpty) continue;
+        // Match by ISBN first, then by title for no-ISBN books
+        final existing = e.isbn.isNotEmpty
+            ? knownIsbns[e.isbn]
+            : knownTitles[e.title.toLowerCase()];
         if (existing != null) {
           // Update title/author if hub has newer metadata
           final newTitle = e.title.isNotEmpty ? e.title : existing.title;
@@ -733,7 +750,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
           updatedBooks.add(Book(
             title: e.title,
             author: e.author,
-            isbn: e.isbn,
+            isbn: e.isbn.isNotEmpty ? e.isbn : null,
             coverUrl: e.coverUrl,
           ));
           changed = true;
@@ -996,14 +1013,23 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
         _isRelayLoading = false;
         if (allBooks.isNotEmpty) _relaySyncDone = true;
       });
+      if (allBooks.isNotEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              TranslationService.translate(context, 'library_synced'),
+            ),
+          ),
+        );
+      }
     }
   }
 
   /// Adaptive polling: poll relay every 5s, retry manifest after each poll.
   /// When the relay response arrives, continues with page fetching.
-  /// Gives up after [maxPolls] × 5 s:
-  ///   - manual sync (isManualSync=true):  36 polls = 3 minutes
-  ///   - auto on initial load:             12 polls = 60 seconds
+  /// Gives up after a wall-clock deadline:
+  ///   - manual sync (isManualSync=true):  3 minutes
+  ///   - auto on initial load:             1 minute
   /// The shorter auto timeout avoids stalling the UI when the peer app
   /// is simply closed and will never respond via the relay.
   /// Uses _pollRequestInFlight guard to prevent concurrent requests that
@@ -1014,23 +1040,31 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     _pollRequestInFlight = false;
     final api = Provider.of<ApiService>(context, listen: false);
     int pollCount = 0;
-    final maxPolls = isManualSync ? 36 : 12; // manual: 3 min, auto: 60 s
+    // Wall-clock deadline: each requestPeerManifest blocks ~90s on the Rust
+    // side, so a tick-count timeout (36 × 5s = "3 min") actually takes ~60 min.
+    // Use a real deadline instead.
+    final deadline = DateTime.now().add(
+      Duration(minutes: isManualSync ? 3 : 1),
+    );
 
     _pollTimer = Timer.periodic(const Duration(seconds: 5), (timer) async {
+      // Check wall-clock deadline on EVERY tick, including skipped ones.
+      if (DateTime.now().isAfter(deadline) || !mounted) {
+        timer.cancel();
+        if (mounted) {
+          final elapsed = isManualSync ? 3 : 1;
+          debugPrint('Relay: polling timed out after ~${elapsed}min (wall-clock)');
+          setState(() => _isRelayLoading = false);
+        }
+        return;
+      }
+
       if (_pollRequestInFlight) {
         debugPrint('Relay: skipping poll tick (previous request still in flight)');
         return;
       }
 
       pollCount++;
-      if (pollCount > maxPolls || !mounted) {
-        timer.cancel();
-        if (mounted) {
-          debugPrint('Relay: polling timed out after ${pollCount * 5}s');
-          setState(() => _isRelayLoading = false);
-        }
-        return;
-      }
 
       _pollRequestInFlight = true;
       try {
@@ -1052,7 +1086,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
             return;
           }
 
-          debugPrint('Relay: manifest received after ${pollCount * 5}s');
+          debugPrint('Relay: manifest received at poll tick $pollCount');
           timer.cancel();
           // Update stale nodeId if the peer sent their library_uuid
           final remoteUuid = manifest['library_uuid'] as String?;
@@ -1212,19 +1246,6 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       // No hub — fall back to relay sync (ADR-012)
       if (mounted) setState(() => _isSyncing = false);
       _tryRelaySync(isManualSync: true);
-      if (showFeedback && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              TranslationService.translate(
-                    context,
-                    'syncing_via_relay',
-                  ),
-            ),
-            backgroundColor: Colors.blue,
-          ),
-        );
-      }
       return;
     }
 
@@ -1693,9 +1714,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              _isRelayLoading
-                  ? '${TranslationService.translate(context, 'syncing_via_relay')}...'
-                  : _formatStaleness(),
+              _formatStaleness(),
               style: TextStyle(fontSize: 11, color: subtleColor),
             ),
           ),
@@ -1779,7 +1798,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
           if (!_isSearching)
             Builder(
               builder: (context) => IconButton(
-                icon: (_isSyncing || _isRelayLoading || _isRefreshing)
+                icon: (_isSyncing || _isRefreshing)
                     ? const SizedBox(
                         width: 20,
                         height: 20,
@@ -1792,7 +1811,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                 tooltip:
                     TranslationService.translate(context, 'sync_library'),
                 onPressed:
-                    (_isSyncing || _isRelayLoading || _isRefreshing)
+                    (_isSyncing || _isRefreshing)
                         ? null
                         : () => _syncBooks(),
               ),
@@ -1951,29 +1970,12 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                                             horizontal: 16,
                                             vertical: 8,
                                           ),
-                                          leading: Container(
+                                          leading: CachedBookCover(
+                                            imageUrl: _resolvePeerCoverUrl(book),
                                             width: 40,
                                             height: 60,
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(4),
-                                              color: Colors.grey[200],
-                                              image: book.coverUrl != null
-                                                  ? DecorationImage(
-                                                      image: NetworkImage(
-                                                        book.coverUrl!,
-                                                      ),
-                                                      fit: BoxFit.cover,
-                                                    )
-                                                  : null,
-                                            ),
-                                            child: book.coverUrl == null
-                                                ? const Icon(
-                                                    Icons.book,
-                                                    color: Colors.grey,
-                                                    size: 20,
-                                                  )
-                                                : null,
+                                            borderRadius:
+                                                BorderRadius.circular(4),
                                           ),
                                           title: Row(
                                             children: [
@@ -2118,30 +2120,11 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Cover
-                  SizedBox(
+                  CachedBookCover(
+                    imageUrl: _resolvePeerCoverUrl(book),
                     width: 120,
                     height: 180,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        color: Colors.grey[200],
-                        image: book.largeCoverUrl != null
-                            ? DecorationImage(
-                                image: NetworkImage(book.largeCoverUrl!),
-                                fit: BoxFit.cover,
-                              )
-                            : null,
-                      ),
-                      child: book.largeCoverUrl == null
-                          ? Center(
-                              child: Icon(
-                                Icons.menu_book,
-                                size: 40,
-                                color: Colors.grey[400],
-                              ),
-                            )
-                          : null,
-                    ),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   const SizedBox(width: 16),
                   // Info column
