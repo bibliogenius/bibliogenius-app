@@ -408,6 +408,15 @@ class MemoryGameProvider extends ChangeNotifier {
     }
   }
 
+  /// Delete all local memory game scores and reload leaderboard.
+  Future<void> resetScores() async {
+    await _ffi.resetMemoryScores();
+    _topScores = [];
+    _networkScores = [];
+    notifyListeners();
+    await _loadCachedScores();
+  }
+
   /// Reset to setup phase for a new game.
   void resetToSetup() {
     _stopwatch.stop();

@@ -451,6 +451,15 @@ class HangmanProvider extends ChangeNotifier {
   }
 
   /// Reset to setup phase for a new game.
+  /// Delete all local hangman scores and reload leaderboard.
+  Future<void> resetScores() async {
+    await _ffi.resetHangmanScores();
+    _topScores = [];
+    _networkScores = [];
+    notifyListeners();
+    await _loadCachedScores();
+  }
+
   void resetToSetup() {
     _stopwatch.stop();
     _stopwatch.reset();

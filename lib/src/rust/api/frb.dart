@@ -456,6 +456,18 @@ Future<List<FrbMemoryLeaderboardEntry>> memoryGameLeaderboard() =>
 Future<String> peersRelayDebugInfo() =>
     RustLib.instance.api.crateApiFrbPeersRelayDebugInfo();
 
+/// Reset all local memory game scores.
+Future<void> memoryGameResetScores() =>
+    RustLib.instance.api.crateApiFrbMemoryGameResetScores();
+
+/// Reset all local sliding puzzle scores.
+Future<void> puzzleGameResetScores() =>
+    RustLib.instance.api.crateApiFrbPuzzleGameResetScores();
+
+/// Reset all local hangman scores.
+Future<void> hangmanResetScores() =>
+    RustLib.instance.api.crateApiFrbHangmanResetScores();
+
 /// Refresh ALL leaderboard caches (memory, puzzle, hangman, gamification) in one pass.
 ///
 /// A single relay round-trip per peer populates all game caches. When `skip_direct`

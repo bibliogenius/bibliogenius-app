@@ -8041,6 +8041,12 @@ msgstr "Parcourir et choisir parmi plusieurs editions lors de l'ajout de livres"
 msgid "confirm"
 msgstr "Confirmer"
 
+msgid "reset_scores"
+msgstr "Reinitialiser les scores"
+
+msgid "reset_scores_confirm"
+msgstr "Tous vos scores pour ce jeu seront supprimes. Cette action est irreversible."
+
 #. Notifications / Fil d'activité
 msgid "notifications_title"
 msgstr "Activité"

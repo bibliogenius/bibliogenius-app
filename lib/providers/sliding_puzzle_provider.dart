@@ -387,6 +387,15 @@ class SlidingPuzzleProvider extends ChangeNotifier {
   }
 
   /// Reset to setup phase for a new game.
+  /// Delete all local sliding puzzle scores and reload leaderboard.
+  Future<void> resetScores() async {
+    await _ffi.resetPuzzleScores();
+    _topScores = [];
+    _networkScores = [];
+    notifyListeners();
+    await _loadCachedScores();
+  }
+
   void resetToSetup() {
     _stopwatch.stop();
     _stopwatch.reset();

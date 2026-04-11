@@ -890,6 +890,33 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
     super.dispose();
   }
 
+  void _confirmResetScores(BuildContext context, HangmanProvider provider) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(TranslationService.translate(context, 'reset_scores')),
+        content:
+            Text(TranslationService.translate(context, 'reset_scores_confirm')),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(TranslationService.translate(context, 'cancel')),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              provider.resetScores();
+            },
+            child: Text(
+              TranslationService.translate(context, 'confirm'),
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -927,6 +954,12 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
                             context, 'hangman_leaderboard'),
                         style: theme.textTheme.titleLarge,
                       ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete_outline, size: 20),
+                      onPressed: () => _confirmResetScores(context, provider),
+                      tooltip: TranslationService.translate(
+                          context, 'reset_scores'),
                     ),
                     if (provider.isSyncingNetwork)
                       const SizedBox(

@@ -696,6 +696,15 @@ class FfiService {
     }
   }
 
+  /// Reset all local memory game scores.
+  Future<void> resetMemoryScores() async {
+    try {
+      await frb.memoryGameResetScores();
+    } catch (e) {
+      debugPrint('FFI memoryGameResetScores error: $e');
+    }
+  }
+
   // ============ Sliding Puzzle ============
 
   /// Get available puzzle difficulty levels based on books with covers
@@ -768,6 +777,15 @@ class FfiService {
     } catch (e) {
       debugPrint('FFI puzzleGameRefreshLeaderboard error: $e');
       return [];
+    }
+  }
+
+  /// Reset all local sliding puzzle scores.
+  Future<void> resetPuzzleScores() async {
+    try {
+      await frb.puzzleGameResetScores();
+    } catch (e) {
+      debugPrint('FFI puzzleGameResetScores error: $e');
     }
   }
 
@@ -851,6 +869,15 @@ class FfiService {
     } catch (e) {
       debugPrint('FFI hangmanRefreshLeaderboard error: $e');
       return [];
+    }
+  }
+
+  /// Reset all local hangman scores.
+  Future<void> resetHangmanScores() async {
+    try {
+      await frb.hangmanResetScores();
+    } catch (e) {
+      debugPrint('FFI hangmanResetScores error: $e');
     }
   }
 

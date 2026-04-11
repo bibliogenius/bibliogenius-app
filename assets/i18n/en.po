@@ -8041,6 +8041,12 @@ msgstr "Browse and select from multiple editions when adding books"
 msgid "confirm"
 msgstr "Confirm"
 
+msgid "reset_scores"
+msgstr "Reset scores"
+
+msgid "reset_scores_confirm"
+msgstr "All your scores for this game will be deleted. This cannot be undone."
+
 #. Notifications / Activity Feed
 msgid "notifications_title"
 msgstr "Activity"
