@@ -87,6 +87,7 @@ class Book {
   Map<String, dynamic> toJson() {
     final now = DateTime.now().toIso8601String();
     return {
+      'id': id,
       'title': title,
       'isbn': isbn,
       'summary': summary,
