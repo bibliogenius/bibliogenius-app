@@ -2624,9 +2624,6 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         'due_date': dueDate.toIso8601String().split('T')[0],
       });
 
-      // 5. Update copy status to 'lent'
-      await copyRepo.updateCopy(copyId, {'status': 'loaned'});
-
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -2702,7 +2699,6 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         if (matchingLoans.isNotEmpty) {
           await loanRepo.returnLoan(matchingLoans.first.id);
         }
-        await copyRepo.updateCopy(lentCopy.id!, {'status': 'available'});
       }
 
       if (context.mounted) {
