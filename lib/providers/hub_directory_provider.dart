@@ -261,8 +261,14 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// Number of consecutive 401 failures (exposed for UI/dialog decisions).
   int get consecutive401Count => _consecutive401Count;
 
-  // ── Keychain backup state ───────────────────────────────────────────────
+  // ── Keychain backup/recovery state ──────────────────────────────────────
   bool _keychainBackupPending = false;
+
+  /// True when the current config was recovered from Keychain (not from
+  /// a fresh hub registration).  If the first hub call after recovery returns
+  /// 401, we purge both config + Keychain and retry immediately without
+  /// incrementing the backoff counter.
+  bool _tokenRecoveredFromKeychain = false;
 
   /// Attempts to back up the hub write_token to Keychain.
   /// Returns true on success, false on failure (logged, never throws).
@@ -561,6 +567,7 @@ class HubDirectoryProvider extends ChangeNotifier {
       if (!ok) return null;
 
       debugPrint('HubDirectoryProvider: recovered write_token from Keychain');
+      _tokenRecoveredFromKeychain = true;
       return await _ffi.hubDirectoryGetConfig();
     } catch (e) {
       debugPrint('HubDirectoryProvider: Keychain recovery failed: $e');
@@ -703,9 +710,10 @@ class HubDirectoryProvider extends ChangeNotifier {
       final result = await _ffi.hubDirectoryRegister(params);
       if (result != null) {
         _config = DirectoryConfig.fromFrb(result);
-        // Registration succeeded: reset 401 back-off state.
+        // Registration succeeded: reset 401 back-off and recovery state.
         _consecutive401Count = 0;
         _last401At = null;
+        _tokenRecoveredFromKeychain = false;
         // Back up write_token to Keychain for reinstall recovery.
         _keychainBackupPending = !await _tryBackupWriteToken();
         return true;
@@ -716,14 +724,20 @@ class HubDirectoryProvider extends ChangeNotifier {
       // 401 recovery: the stored write_token is invalid on the hub.
       // Purge stale config + Keychain, then retry fresh (without auth).
       if (e.toString().contains('Hub error 401:')) {
-        if (_consecutive401Count == 0) {
+        // Allow immediate retry on first 401, or when the token was
+        // recovered from Keychain (likely stale after a config purge).
+        final shouldRetry =
+            _consecutive401Count == 0 || _tokenRecoveredFromKeychain;
+        if (shouldRetry) {
           debugPrint(
             'HubDirectoryProvider: 401 detected, purging stale config '
-            'and retrying fresh registration',
+            'and retrying fresh registration'
+            '${_tokenRecoveredFromKeychain ? ' (Keychain recovery)' : ''}',
           );
           await _ffi.hubDirectoryPurgeConfig();
           await AuthService().deleteHubWriteToken();
           _config = null;
+          _tokenRecoveredFromKeychain = false;
           // Retry once: without local config, Rust sends no Bearer token
           // and the hub issues a fresh write_token.
           try {
@@ -898,6 +912,7 @@ class HubDirectoryProvider extends ChangeNotifier {
         _config = DirectoryConfig.fromFrb(result);
         _consecutive401Count = 0;
         _last401At = null;
+        _tokenRecoveredFromKeychain = false;
         _keychainBackupPending = !await _tryBackupWriteToken();
         notifyListeners();
         return true;

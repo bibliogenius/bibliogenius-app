@@ -439,8 +439,10 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
             if (!mounted) return;
 
             final total = _parsePaginatedTotal(checkRes.data);
-            if (total != null && total == _books.length) {
-              // Library unchanged — stop refreshing
+            if (total != null && total == _books.length && !cacheDisplayed) {
+              // Same count and not a cache-first load — skip.
+              // When cache was displayed, always refresh in background to
+              // pick up metadata changes (e.g. cover URL transformations).
               debugPrint('Peer library unchanged ($total books), skipping full refresh');
               setState(() => _isRefreshing = false);
             } else {
