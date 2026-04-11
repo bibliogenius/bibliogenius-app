@@ -1146,6 +1146,17 @@ class FfiService {
     }
   }
 
+  /// Purges the local hub_directory_config, forcing fresh registration.
+  Future<bool> hubDirectoryPurgeConfig() async {
+    try {
+      await frb.hubDirectoryPurgeConfig();
+      return true;
+    } catch (e) {
+      debugPrint('FFI hubDirectoryPurgeConfig error: $e');
+      return false;
+    }
+  }
+
   /// Returns the locally stored recovery code, if any.
   Future<String?> hubDirectoryGetRecoveryCode() async {
     try {

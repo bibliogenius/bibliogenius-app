@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:convert';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb, kReleaseMode;
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:country_picker/country_picker.dart';
 
@@ -1469,9 +1469,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _autoConnectRelay() async {
     if (_relayConnected) return;
     final api = Provider.of<ApiService>(context, listen: false);
-    final url = _relayUrlController.text.trim().isNotEmpty
-        ? _relayUrlController.text.trim()
-        : ApiService.hubUrl;
+    final url = kReleaseMode
+        ? ApiService.hubUrl
+        : (_relayUrlController.text.trim().isNotEmpty
+            ? _relayUrlController.text.trim()
+            : ApiService.hubUrl);
     try {
       final res = await api.setupRelay(relayUrl: url);
       if (!mounted) return;
@@ -1519,18 +1521,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ],
           ),
           const SizedBox(height: 8),
-          TextField(
-            controller: _relayUrlController,
-            decoration: InputDecoration(
-              labelText: TranslationService.translate(
-                        context, 'relay_url_label') ??
-                    'Hub URL',
-              hintText: ApiService.hubUrl,
-              isDense: true,
-              border: const OutlineInputBorder(),
+          // Hub URL is only editable in debug builds to prevent
+          // token/cache invalidation cascades when switching hubs.
+          if (!kReleaseMode)
+            TextField(
+              controller: _relayUrlController,
+              decoration: InputDecoration(
+                labelText: TranslationService.translate(
+                          context, 'relay_url_label') ??
+                      'Hub URL',
+                hintText: ApiService.hubUrl,
+                isDense: true,
+                border: const OutlineInputBorder(),
+              ),
+              enabled: !_relayLoading,
             ),
-            enabled: !_relayLoading,
-          ),
           if (_relayMailboxUuid != null) ...[
             const SizedBox(height: 6),
             Text(
@@ -1585,7 +1590,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     onPressed: _relayLoading
                         ? null
                         : () async {
-                            final url = _relayUrlController.text.trim();
+                            final url = kReleaseMode
+                                ? ApiService.hubUrl
+                                : _relayUrlController.text.trim();
                             if (url.isEmpty) return;
 
                             setState(() => _relayLoading = true);

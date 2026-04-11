@@ -206,6 +206,11 @@ class AuthService {
     return await storage.read(key: _hubWriteTokenKey);
   }
 
+  /// Delete only the hub write_token from Keychain (401 recovery).
+  Future<void> deleteHubWriteToken() async {
+    await storage.delete(key: _hubWriteTokenKey);
+  }
+
   // ============ Library UUID (for P2P deduplication) ============
   static const _libraryUuidKey = 'library_uuid';
 

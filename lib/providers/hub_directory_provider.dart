@@ -715,9 +715,36 @@ class HubDirectoryProvider extends ChangeNotifier {
       return false;
     } catch (e) {
       _configError = e.toString();
-      // Track 401 failures for exponential back-off.
-      // Rust formats as "Hub error 401: <message>".
+      // 401 recovery: the stored write_token is invalid on the hub.
+      // Purge stale config + Keychain, then retry fresh (without auth).
       if (e.toString().contains('Hub error 401:')) {
+        if (_consecutive401Count == 0) {
+          debugPrint(
+            'HubDirectoryProvider: 401 detected, purging stale config '
+            'and retrying fresh registration',
+          );
+          await _ffi.hubDirectoryPurgeConfig();
+          await AuthService().deleteHubWriteToken();
+          _config = null;
+          // Retry once: without local config, Rust sends no Bearer token
+          // and the hub issues a fresh write_token.
+          try {
+            final retryResult = await _ffi.hubDirectoryRegister(params);
+            if (retryResult != null) {
+              _config = DirectoryConfig.fromFrb(retryResult);
+              _consecutive401Count = 0;
+              _last401At = null;
+              _keychainBackupPending = !await _tryBackupWriteToken();
+              _configError = null;
+              debugPrint('HubDirectoryProvider: 401 recovery succeeded');
+              return true;
+            }
+          } catch (retryErr) {
+            debugPrint(
+              'HubDirectoryProvider: 401 recovery retry failed: $retryErr',
+            );
+          }
+        }
         _consecutive401Count++;
         _last401At = DateTime.now();
         debugPrint(

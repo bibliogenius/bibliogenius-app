@@ -8,7 +8,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 part 'frb.freezed.dart';
 
-// These functions are ignored because they are not marked as `pub`: `db`, `device_pairing_svc`, `device_sync_svc`, `entries_to_frb`, `global_app_state`, `hub_db`, `hub_directory_svc`, `install_panic_hook`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `nudge_source_label`, `rename_subject_in_books`, `runtime`, `track_to_frb`, `upsert_directory_catalog_cache`
+// These functions are ignored because they are not marked as `pub`: `db`, `device_pairing_svc`, `device_sync_svc`, `entries_to_frb`, `global_app_state`, `hub_db`, `hub_directory_svc`, `install_panic_hook`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `nudge_source_label`, `rename_subject_in_books`, `resize_and_upload_cover`, `runtime`, `track_to_frb`, `upsert_directory_catalog_cache`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
 // These functions are ignored (category: IgnoreBecauseExplicitAttribute): `shared_device_pairing_svc`
 
@@ -20,6 +20,10 @@ Future<String> initBackend({required String dbPath}) =>
 /// Pass the hub URL from Flutter to the Rust process environment.
 /// Must be called once after init_backend, before any hub_directory calls.
 /// Rust reads HUB_URL via std::env::var — it cannot see Flutter's dotenv map.
+///
+/// The .env value is only a default: if a relay has been configured (persisted
+/// in `my_relay_config`), its URL takes precedence so the hub directory and
+/// relay always point to the same hub.
 Future<void> setHubUrlFfi({required String hubUrl}) =>
     RustLib.instance.api.crateApiFrbSetHubUrlFfi(hubUrl: hubUrl);
 
@@ -709,6 +713,12 @@ Future<void> hubDirectoryImportWriteToken({
   writeToken: writeToken,
 );
 
+/// Purges the local hub_directory_config row, forcing a fresh registration
+/// on the next ensureRegistered() call. Used for 401 recovery when the
+/// stored write_token is no longer valid on the hub.
+Future<void> hubDirectoryPurgeConfig() =>
+    RustLib.instance.api.crateApiFrbHubDirectoryPurgeConfig();
+
 /// Returns the locally stored recovery code for display in settings.
 /// Returns None if not yet registered or if registration predates recovery codes.
 Future<String?> hubDirectoryGetRecoveryCode() =>
@@ -734,8 +744,10 @@ Future<FrbDirectoryConfig> hubDirectoryRegister({
 Future<void> hubDirectoryPushCatalog({required List<String> isbnList}) =>
     RustLib.instance.api.crateApiFrbHubDirectoryPushCatalog(isbnList: isbnList);
 
-/// Reads all books with ISBNs from the local database, collects title and
-/// first author, and pushes the enriched catalog to the hub.
+/// Reads all owned books from the local database, collects title, author,
+/// and cover data, and pushes the enriched catalog to the hub.
+/// Books without ISBN are included using book_id as an alternative key.
+/// Local cover images are resized and uploaded as thumbnails (best-effort).
 /// Returns the number of entries pushed.
 Future<int> hubDirectorySyncCatalog() =>
     RustLib.instance.api.crateApiFrbHubDirectorySyncCatalog();
