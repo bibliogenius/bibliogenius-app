@@ -2582,6 +2582,31 @@ class ApiService {
     return response;
   }
 
+  /// Lender-initiated loan to a connected peer.
+  ///
+  /// Routes through the local Rust backend which handles contact creation,
+  /// loan record, and E2EE notification with relay fallback.
+  Future<Response> offerLoanToPeer(
+    int peerId, {
+    int? bookId,
+    String? isbn,
+  }) async {
+    final localDio = Dio(
+      BaseOptions(baseUrl: 'http://127.0.0.1:$httpPort'),
+    );
+    return await localDio.post(
+      '/api/peers/$peerId/offer-loan',
+      data: {
+        if (bookId != null) 'book_id': bookId,
+        if (isbn != null) 'book_isbn': isbn,
+      },
+      options: Options(
+        validateStatus: (status) =>
+            status != null && (status < 300 || status == 409),
+      ),
+    );
+  }
+
   Future<Response> getIncomingRequests() async {
     if (useFfi) {
       final localDio = Dio(BaseOptions(baseUrl: 'http://127.0.0.1:$httpPort'));

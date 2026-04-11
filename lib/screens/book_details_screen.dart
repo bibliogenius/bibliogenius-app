@@ -22,6 +22,7 @@ import '../data/repositories/loan_repository.dart';
 import '../models/book.dart';
 import '../models/collection.dart';
 import '../models/contact.dart';
+import '../models/loan_recipient.dart';
 import '../models/copy.dart';
 import '../models/loan.dart';
 import '../models/cover_candidate.dart';
@@ -2570,77 +2571,115 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   }
 
   Future<void> _lendBook(BuildContext context) async {
-    final selectedContact = await showDialog<Contact>(
+    final recipient = await showDialog<LoanRecipient>(
       context: context,
       builder: (context) => const LoanDialog(),
     );
 
-    if (selectedContact == null || !context.mounted) return;
+    if (recipient == null || !context.mounted || _book == null) return;
 
-    final copyRepo = Provider.of<CopyRepository>(context, listen: false);
-    final loanRepo = Provider.of<LoanRepository>(context, listen: false);
     try {
-      if (_book == null) return;
-      // 1. Get existing copies for this book
-      final copies = await copyRepo.getBookCopies(_book!.id!);
+      switch (recipient) {
+        case PeerRecipient(:final peerId):
+          // Peer flow: Rust handles everything (contact, copy, loan, notification)
+          final api = Provider.of<ApiService>(context, listen: false);
+          final response = await api.offerLoanToPeer(
+            peerId,
+            bookId: _book!.id,
+            isbn: _book!.isbn,
+          );
+          if (context.mounted) {
+            if (response.statusCode == 409) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    TranslationService.translate(
+                      context,
+                      'no_available_copies',
+                    ),
+                  ),
+                ),
+              );
+              return;
+            }
+            final notified = response.data is Map &&
+                response.data['notification_sent'] == true;
+            final suffix = notified
+                ? ''
+                : ' (${TranslationService.translate(context, 'loan_notification_pending')})';
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  '${TranslationService.translate(context, 'book_lent_to')} ${recipient.displayName}$suffix',
+                ),
+              ),
+            );
+            _fetchBookDetails();
+          }
 
-      int copyId;
+        case ContactRecipient(:final contact):
+          // Manual contact flow: create loan locally
+          final copyRepo =
+              Provider.of<CopyRepository>(context, listen: false);
+          final loanRepo =
+              Provider.of<LoanRepository>(context, listen: false);
 
-      if (copies.isEmpty) {
-        // 2. Create a copy if none exists
-        final newCopy = await copyRepo.createCopy({
-          'book_id': _book!.id,
-          // library_id resolved by backend
-          'status': 'available',
-          'is_temporary': false,
-        });
-        copyId = newCopy.id!;
-      } else {
-        // Find an available copy
-        final availableCopy = copies.firstWhere(
-          (c) => c.status == 'available',
-          orElse: () => copies.first,
-        );
-        copyId = availableCopy.id!;
-      }
+          final copies = await copyRepo.getBookCopies(_book!.id!);
+          if (copies.isEmpty) {
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    TranslationService.translate(
+                      context,
+                      'no_available_copies',
+                    ),
+                  ),
+                ),
+              );
+            }
+            return;
+          }
 
-      // 3. Calculate due date from effective loan duration
-      int durationDays = _defaultLoanDurationDays;
-      try {
-        final ffi = FfiService();
-        if (ffi.isInitialized) {
-          durationDays = await ffi.getEffectiveLoanDuration(_book!.id!);
-        }
-      } catch (_) {}
-      final now = DateTime.now();
-      final dueDate = now.add(Duration(days: durationDays));
+          final availableCopy = copies.firstWhere(
+            (c) => c.status == 'available',
+            orElse: () => copies.first,
+          );
 
-      // 4. Create the loan with correct fields
-      await loanRepo.createLoan({
-        'copy_id': copyId,
-        'contact_id': selectedContact.id,
-        // library_id resolved by backend
-        'loan_date': now.toIso8601String().split('T')[0],
-        'due_date': dueDate.toIso8601String().split('T')[0],
-      });
+          int durationDays = _defaultLoanDurationDays;
+          try {
+            final ffi = FfiService();
+            if (ffi.isInitialized) {
+              durationDays = await ffi.getEffectiveLoanDuration(_book!.id!);
+            }
+          } catch (_) {}
+          final now = DateTime.now();
+          final dueDate = now.add(Duration(days: durationDays));
 
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '${TranslationService.translate(context, 'book_lent_to') ?? 'Book lent to'} ${selectedContact.fullName}',
-            ),
-          ),
-        );
-        // Refresh the book details from API
-        _fetchBookDetails();
+          await loanRepo.createLoan({
+            'copy_id': availableCopy.id,
+            'contact_id': contact.id,
+            'loan_date': now.toIso8601String().split('T')[0],
+            'due_date': dueDate.toIso8601String().split('T')[0],
+          });
+
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  '${TranslationService.translate(context, 'book_lent_to')} ${contact.fullName}',
+                ),
+              ),
+            );
+            _fetchBookDetails();
+          }
       }
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              '${TranslationService.translate(context, 'error_lending_book') ?? 'Error lending book'}: $e',
+              '${TranslationService.translate(context, 'error_lending_book')}: $e',
             ),
           ),
         );

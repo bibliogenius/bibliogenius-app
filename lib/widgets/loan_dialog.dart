@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/contact.dart';
 import '../data/repositories/contact_repository.dart';
+import '../models/loan_recipient.dart';
+import '../services/api_service.dart';
 import '../services/translation_service.dart';
 
 class LoanDialog extends StatefulWidget {
@@ -12,37 +13,55 @@ class LoanDialog extends StatefulWidget {
 }
 
 class _LoanDialogState extends State<LoanDialog> {
-  List<Contact> _contacts = [];
-  Contact? _selectedContact;
+  List<LoanRecipient> _recipients = [];
+  LoanRecipient? _selectedRecipient;
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _fetchContacts();
+    _fetchRecipients();
   }
 
-  Future<void> _fetchContacts() async {
+  Future<void> _fetchRecipients() async {
     final contactRepo = Provider.of<ContactRepository>(context, listen: false);
+    final List<LoanRecipient> combined = [];
+
+    // 1. Fetch borrower contacts (always works -- same as before)
     try {
       final contacts = await contactRepo.getContacts(type: 'borrower');
-      if (mounted) {
-        setState(() {
-          _contacts = contacts;
-          _isLoading = false;
-        });
+      combined.addAll(contacts.map(ContactRecipient.new));
+    } catch (e) {
+      debugPrint('Failed to fetch borrower contacts: $e');
+    }
+
+    // 2. Fetch connected peers (best-effort, may fail if server not ready)
+    try {
+      final apiService = Provider.of<ApiService>(context, listen: false);
+      final response = await apiService.getPeers();
+      if (response.statusCode == 200) {
+        final List<dynamic> peers = response.data['data'] ?? [];
+        for (final p in peers) {
+          if (p['connection_status'] == 'accepted') {
+            combined.add(
+              PeerRecipient(
+                peerId: p['id'] as int,
+                name: (p['name'] ?? '') as String,
+                peerDisplayName: p['display_name'] as String?,
+              ),
+            );
+          }
+        }
       }
     } catch (e) {
-      if (mounted) {
-        setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '${TranslationService.translate(context, 'error_loading_contacts')}: $e',
-            ),
-          ),
-        );
-      }
+      debugPrint('Failed to fetch peers for loan dialog: $e');
+    }
+
+    if (mounted) {
+      setState(() {
+        _recipients = combined;
+        _isLoading = false;
+      });
     }
   }
 
@@ -55,47 +74,62 @@ class _LoanDialogState extends State<LoanDialog> {
               height: 100,
               child: Center(child: CircularProgressIndicator()),
             )
-          : _contacts.isEmpty
-          ? Text(TranslationService.translate(context, 'no_borrowers_found'))
-          : Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  TranslationService.translate(context, 'select_contact_lend'),
-                ),
-                const SizedBox(height: 16),
-                DropdownButtonFormField<Contact>(
-                  initialValue: _selectedContact,
-                  decoration: InputDecoration(
-                    border: const OutlineInputBorder(),
-                    labelText: TranslationService.translate(
-                      context,
-                      'filter_borrowers',
+          : _recipients.isEmpty
+              ? Text(
+                  TranslationService.translate(context, 'no_borrowers_found'),
+                )
+              : Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      TranslationService.translate(
+                        context,
+                        'select_contact_lend',
+                      ),
                     ),
-                  ),
-                  items: _contacts.map((contact) {
-                    return DropdownMenuItem(
-                      value: contact,
-                      child: Text(contact.fullName),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedContact = value;
-                    });
-                  },
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<LoanRecipient>(
+                      decoration: InputDecoration(
+                        border: const OutlineInputBorder(),
+                        labelText: TranslationService.translate(
+                          context,
+                          'filter_borrowers',
+                        ),
+                      ),
+                      items: _recipients.map((recipient) {
+                        final icon = switch (recipient) {
+                          ContactRecipient() => Icons.person,
+                          PeerRecipient() => Icons.devices,
+                        };
+                        return DropdownMenuItem<LoanRecipient>(
+                          value: recipient,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(icon, size: 20),
+                              const SizedBox(width: 8),
+                              Text(recipient.displayName),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedRecipient = value;
+                        });
+                      },
+                    ),
+                  ],
                 ),
-              ],
-            ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
           child: Text(TranslationService.translate(context, 'cancel')),
         ),
         ElevatedButton(
-          onPressed: _selectedContact == null
+          onPressed: _selectedRecipient == null
               ? null
-              : () => Navigator.pop(context, _selectedContact),
+              : () => Navigator.pop(context, _selectedRecipient),
           child: Text(TranslationService.translate(context, 'lend_btn')),
         ),
       ],

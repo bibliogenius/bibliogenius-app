@@ -8434,6 +8434,10 @@ msgstr "Parametres de pret enregistres"
 msgid "loan_due_date_label"
 msgstr "Date de retour prevue"
 
+#. Loan offer to peer - notification pending
+msgid "loan_notification_pending"
+msgstr "notification en attente"
+
 #. Recovery code - settings row
 msgid "recovery_code_title"
 msgstr "Code de recuperation"
