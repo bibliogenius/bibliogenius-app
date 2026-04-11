@@ -113,15 +113,30 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   /// Effective node ID: mDNS libraryId if resolved, otherwise widget.nodeId.
   String? get _effectiveNodeId => _resolvedNodeId ?? widget.nodeId;
 
-  /// Resolves a book's cover URL for peer context: prefixes relative /api
-  /// paths with the peer URL, passes HTTP URLs through, and falls back to
-  /// OpenLibrary by ISBN when no cover is available.
+  /// Resolves a book's cover URL for peer context.
+  ///
+  /// HTTP URLs (hub, OpenLibrary) are passed through directly.
+  /// Relative `/api/books/{id}/cover` paths are routed through the local
+  /// Rust cover-proxy so Flutter never makes a direct HTTP call to the peer
+  /// (which fails on iOS/macOS due to firewall/ATS/NAT).
   String? _resolvePeerCoverUrl(Book book) {
     final url = book.coverUrl; // getter with OpenLibrary ISBN fallback
     if (url == null) return null;
     if (url.startsWith('http')) return url;
-    if (url.startsWith('/api')) return '$_effectiveUrl$url';
+    if (url.startsWith('/api') && book.id != null) {
+      final encodedPeerUrl = Uri.encodeQueryComponent(_effectiveUrl);
+      return '/api/peers/cover-proxy?peer_url=$encodedPeerUrl&book_id=${book.id}';
+    }
     return null; // local file path -- unusable in peer context
+  }
+
+  /// Evict the cached cover image and force a rebuild so the widget retries.
+  Future<void> _reloadCover(Book book) async {
+    final url = _resolvePeerCoverUrl(book);
+    if (url != null) {
+      await BookCoverCacheManager.instance.removeFile(url);
+    }
+    if (mounted) setState(() {});
   }
 
   @override
@@ -1978,6 +1993,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                                             height: 60,
                                             borderRadius:
                                                 BorderRadius.circular(4),
+                                            onTapPlaceholder: () => _reloadCover(book),
                                           ),
                                           title: Row(
                                             children: [
@@ -2127,6 +2143,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                     width: 120,
                     height: 180,
                     borderRadius: BorderRadius.circular(8),
+                    onTapPlaceholder: () => _reloadCover(book),
                   ),
                   const SizedBox(width: 16),
                   // Info column

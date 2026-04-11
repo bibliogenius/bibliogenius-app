@@ -37,6 +37,9 @@ class CachedBookCover extends StatelessWidget {
   final Widget? placeholder;
   final Widget? errorWidget;
   final String? semanticLabel;
+  /// Called when the user taps the fallback/error placeholder.
+  /// Use this to trigger a cover reload (e.g. evict cache + setState).
+  final VoidCallback? onTapPlaceholder;
 
   const CachedBookCover({
     super.key,
@@ -48,12 +51,13 @@ class CachedBookCover extends StatelessWidget {
     this.placeholder,
     this.errorWidget,
     this.semanticLabel,
+    this.onTapPlaceholder,
   });
 
   @override
   Widget build(BuildContext context) {
     if (imageUrl == null || imageUrl!.isEmpty) {
-      return _wrapSemantics(_buildFallback());
+      return _wrapSemantics(_buildTappableFallback());
     }
 
     // Local file path detection (from cover upload feature)
@@ -95,7 +99,7 @@ class CachedBookCover extends StatelessWidget {
       placeholder: (context, url) => placeholder ?? _buildPlaceholder(),
       errorWidget: (context, url, error) {
         // Silent fallback - errors are expected for invalid/unavailable cover URLs
-        return errorWidget ?? _buildFallback();
+        return errorWidget ?? _buildTappableFallback();
       },
       fadeInDuration: const Duration(milliseconds: 200),
       fadeOutDuration: const Duration(milliseconds: 200),
@@ -130,6 +134,15 @@ class CachedBookCover extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildTappableFallback() {
+    final fallback = _buildFallback();
+    if (onTapPlaceholder == null) return fallback;
+    return GestureDetector(
+      onTap: onTapPlaceholder,
+      child: fallback,
     );
   }
 
