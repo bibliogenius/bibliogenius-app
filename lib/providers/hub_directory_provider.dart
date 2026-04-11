@@ -674,34 +674,32 @@ class HubDirectoryProvider extends ChangeNotifier {
       }
     }
 
+    // Build params before try/catch so they're accessible in the 401 retry.
+    final effectiveModel = deviceModel ?? await _deviceService.getDeviceModel();
+    final effectiveFp = deviceFingerprint ?? await _deviceService.getDeviceFingerprint();
+    final effectiveAvatar = avatarConfig ?? await _getLocalAvatarConfigJson();
+
+    final params = frb.FrbRegisterParams(
+      nodeId: nodeId,
+      displayName: displayName,
+      bookCount: bookCount,
+      isListed: isListed,
+      requiresApproval: requiresApproval,
+      acceptFrom: acceptFrom,
+      allowBorrowing: allowBorrowing,
+      description: description,
+      locationCountry: locationCountry,
+      x25519PublicKey: x25519PublicKey,
+      website: website,
+      deviceModel: effectiveModel,
+      deviceFingerprint: effectiveFp,
+      relayUrl: relayUrl,
+      relayMailboxId: relayMailboxId,
+      relayWriteToken: relayWriteToken,
+      avatarConfig: effectiveAvatar,
+    );
+
     try {
-      // Always include device info for hub deduplication, even if the
-      // caller did not provide it (settings screen, profile rename, etc.)
-      final effectiveModel = deviceModel ?? await _deviceService.getDeviceModel();
-      final effectiveFp = deviceFingerprint ?? await _deviceService.getDeviceFingerprint();
-
-      // Auto-include local avatar config if the caller didn't provide one
-      final effectiveAvatar = avatarConfig ?? await _getLocalAvatarConfigJson();
-
-      final params = frb.FrbRegisterParams(
-        nodeId: nodeId,
-        displayName: displayName,
-        bookCount: bookCount,
-        isListed: isListed,
-        requiresApproval: requiresApproval,
-        acceptFrom: acceptFrom,
-        allowBorrowing: allowBorrowing,
-        description: description,
-        locationCountry: locationCountry,
-        x25519PublicKey: x25519PublicKey,
-        website: website,
-        deviceModel: effectiveModel,
-        deviceFingerprint: effectiveFp,
-        relayUrl: relayUrl,
-        relayMailboxId: relayMailboxId,
-        relayWriteToken: relayWriteToken,
-        avatarConfig: effectiveAvatar,
-      );
       final result = await _ffi.hubDirectoryRegister(params);
       if (result != null) {
         _config = DirectoryConfig.fromFrb(result);
