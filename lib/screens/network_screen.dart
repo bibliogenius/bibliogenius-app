@@ -205,6 +205,28 @@ class _NetworkScreenState extends State<NetworkScreen>
                     ),
                   ],
                 ),
+                const SizedBox(height: 16),
+                // Share invite link button
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    key: const Key('actionShareInviteLink'),
+                    onPressed: () {
+                      Navigator.pop(sheetContext);
+                      shareInviteLinkDirect(context);
+                    },
+                    icon: const Icon(Icons.share, size: 18),
+                    label: Text(
+                      TranslationService.translate(context, 'share_invite_link'),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 8),
               ],
             ),

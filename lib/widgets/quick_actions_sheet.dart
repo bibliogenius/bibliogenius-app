@@ -221,8 +221,9 @@ class QuickActionsSheet extends StatelessWidget {
                   ],
                   handlers: {
                     'share_library': () {
+                      final navState = Navigator.of(context, rootNavigator: true);
                       Navigator.pop(context);
-                      showInviteShareSheet(context);
+                      showInviteShareSheet(navState.context);
                     },
                     'inventory': () =>
                         showShelfPickerForInventory(context, onBookAdded),
@@ -278,8 +279,9 @@ class QuickActionsSheet extends StatelessWidget {
       'inventory': () => showShelfPickerForInventory(context, onDone),
       'create_shelf': () => showCreateShelfDialog(context, onDone),
       'share_library': () {
+        final navState = Navigator.of(context, rootNavigator: true);
         Navigator.pop(context);
-        showInviteShareSheet(context);
+        showInviteShareSheet(navState.context);
       },
     };
   }
