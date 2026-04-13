@@ -21,10 +21,29 @@ import 'ffi_service.dart';
 import 'mdns_service.dart';
 import 'translation_service.dart';
 
+/// One entry of the peer catalog ETag cache.
+///
+/// [body] is the full decoded response payload (the same object Dio would
+/// have exposed as `response.data`). Keeping it lets us replay a 304 to the
+/// caller as a synthetic 200, transparent to the rest of the app.
+class _PeerCatalogCacheEntry {
+  final String etag;
+  final dynamic body;
+  _PeerCatalogCacheEntry(this.etag, this.body);
+}
+
 class ApiService {
   final Dio _dio;
   final AuthService _authService;
   final bool useFfi;
+
+  /// In-memory ETag cache for direct-HTTP peer catalog fetches (LAN P2P).
+  /// Keyed by the full target URL (host + path + query), so paginated
+  /// requests and full-catalog requests have disjoint cache slots.
+  /// Not persisted across app launches by design: the first refresh of a
+  /// session pays a full fetch; subsequent ones go to 304. Bounded in
+  /// practice by the handful of peers a user actually browses.
+  final Map<String, _PeerCatalogCacheEntry> _peerCatalogEtagCache = {};
 
   // Read from .env with fallback to localhost
   static String get defaultBaseUrl =>
@@ -2359,11 +2378,7 @@ class ApiService {
           : peerUrl;
       final targetUrl = '$cleanUrl/api/books?owned_only=true';
       debugPrint('P2P: Fetching books from $targetUrl');
-      final dio = Dio(BaseOptions(
-        connectTimeout: const Duration(seconds: 5),
-        receiveTimeout: const Duration(seconds: 10),
-      ));
-      return await dio.get(targetUrl);
+      return await _fetchPeerCatalogWithEtag(targetUrl);
     } catch (e) {
       debugPrint('P2P: Error fetching books from $peerUrl - $e');
       rethrow;
@@ -2407,15 +2422,52 @@ class ApiService {
           : peerUrl;
       final targetUrl =
           '$cleanUrl/api/books?owned_only=true&page=$page&limit=$limit';
-      final dio = Dio(BaseOptions(
-        connectTimeout: const Duration(seconds: 5),
-        receiveTimeout: const Duration(seconds: 10),
-      ));
-      return await dio.get(targetUrl);
+      return await _fetchPeerCatalogWithEtag(targetUrl);
     } catch (e) {
       debugPrint('P2P paginated: Error fetching books from $peerUrl - $e');
       rethrow;
     }
+  }
+
+  /// HTTP GET against a peer's catalog URL with conditional request support.
+  ///
+  /// On a 200, records the response ETag and body; on a 304 (cache hit),
+  /// returns a synthetic 200 carrying the previously cached body so callers
+  /// do not need to know about conditional requests. The server guarantees
+  /// a fresh ETag when the catalog changes (`utils/etag.rs::strong_etag`
+  /// hashes the full serialized body), so a 304 is safe to treat as "same
+  /// payload as last time".
+  Future<Response> _fetchPeerCatalogWithEtag(String targetUrl) async {
+    final cached = _peerCatalogEtagCache[targetUrl];
+    final dio = Dio(BaseOptions(
+      connectTimeout: const Duration(seconds: 5),
+      receiveTimeout: const Duration(seconds: 10),
+    ));
+    final response = await dio.get(
+      targetUrl,
+      options: Options(
+        headers: cached != null ? {'If-None-Match': cached.etag} : null,
+        // Accept 304 so Dio does not throw on "Not Modified".
+        validateStatus: (status) =>
+            status != null && (status < 400 || status == 304),
+      ),
+    );
+
+    if (response.statusCode == 304 && cached != null) {
+      return Response(
+        requestOptions: response.requestOptions,
+        data: cached.body,
+        statusCode: 200,
+        headers: response.headers,
+      );
+    }
+
+    final freshEtag = response.headers.value('etag');
+    if (response.statusCode == 200 && freshEtag != null) {
+      _peerCatalogEtagCache[targetUrl] =
+          _PeerCatalogCacheEntry(freshEtag, response.data);
+    }
+    return response;
   }
 
   /// Get cached peer books with staleness metadata from local backend

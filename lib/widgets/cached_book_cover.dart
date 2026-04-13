@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -7,18 +8,78 @@ import 'package:provider/provider.dart';
 
 import '../services/api_service.dart';
 
-/// Custom Cache Manager for Book Covers
-/// Retains images for 30 days and handles up to 500 images.
+/// Custom Cache Manager for Book Covers.
+///
+/// Covers can change (user re-uploads a custom cover, a peer edits a book,
+/// the hub regenerates thumbnails). The previous 30-day stale window meant
+/// changes only propagated after a month. A 7-day window is still long
+/// enough to be effectively free on disk and bandwidth while keeping stale
+/// covers bounded to a reasonable delay.
 class BookCoverCacheManager {
   static const key = 'bookCoversCache';
+
+  /// How long a successfully-fetched cover stays in cache before the next
+  /// fetch goes back to the network.
+  @visibleForTesting
+  static const Duration stalePeriod = Duration(days: 7);
+
+  /// Upper bound on the number of cover files on disk. 500 x ~40 KB
+  /// ≈ 20 MB; negligible on any device.
+  @visibleForTesting
+  static const int maxNrOfCacheObjects = 500;
+
   static final CacheManager instance = CacheManager(
     Config(
       key,
-      stalePeriod: const Duration(days: 30),
-      maxNrOfCacheObjects: 500,
+      stalePeriod: stalePeriod,
+      maxNrOfCacheObjects: maxNrOfCacheObjects,
       repo: JsonCacheInfoRepository(databaseName: key),
     ),
   );
+
+  /// URLs that failed to fetch during this app session. Prevents evicting
+  /// and re-fetching the same dead URL on every rebuild (e.g. when the user
+  /// scrolls through a list with many missing covers).
+  static final Set<String> _evictedThisSession = {};
+
+  /// Strategy used by [evictOnce] to drop a cached file. Production code
+  /// hits disk via `instance.removeFile`; tests swap this out to avoid
+  /// touching the SQLite-backed cache store which is unavailable in a pure
+  /// `test()` environment (no platform channels).
+  @visibleForTesting
+  static FutureOr<void> Function(String url) removeFileImpl =
+      _defaultRemoveFile;
+
+  static Future<void> _defaultRemoveFile(String url) async {
+    try {
+      await instance.removeFile(url);
+    } catch (_) {
+      // removeFile throws if the URL was never cached: safe to ignore.
+    }
+  }
+
+  /// Drops the cached entry for [url] so the next render re-attempts the
+  /// fetch. Idempotent per session: a URL that has already been evicted
+  /// will not trigger another removeFile call, avoiding request storms on
+  /// persistently dead URLs.
+  ///
+  /// Intended to be called from `errorListener` on a network image failure.
+  /// The underlying I/O is fire-and-forget so the errorListener callback
+  /// stays non-blocking during rendering.
+  static void evictOnce(String url) {
+    if (!_evictedThisSession.add(url)) return;
+    final result = removeFileImpl(url);
+    if (result is Future) {
+      unawaited(result);
+    }
+  }
+
+  @visibleForTesting
+  static bool hasBeenEvictedThisSession(String url) =>
+      _evictedThisSession.contains(url);
+
+  @visibleForTesting
+  static void resetEvictedForTest() => _evictedThisSession.clear();
 }
 
 /// A widget that displays a book cover with automatic caching.
@@ -97,8 +158,13 @@ class CachedBookCover extends StatelessWidget {
       height: height,
       fit: fit,
       placeholder: (context, url) => placeholder ?? _buildPlaceholder(),
+      errorListener: (error) {
+        // Drop the stale cache entry for this URL so a retry (user pulls to
+        // refresh, navigates away and back, etc.) actually hits the network.
+        // Bounded to once per URL per session to avoid hammering dead URLs.
+        BookCoverCacheManager.evictOnce(resolvedUrl);
+      },
       errorWidget: (context, url, error) {
-        // Silent fallback - errors are expected for invalid/unavailable cover URLs
         return errorWidget ?? _buildTappableFallback();
       },
       fadeInDuration: const Duration(milliseconds: 200),
