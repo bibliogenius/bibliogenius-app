@@ -16,7 +16,6 @@ import '../services/translation_service.dart';
 import '../providers/hub_directory_provider.dart';
 import '../providers/theme_provider.dart';
 import '../services/mdns_service.dart';
-import '../utils/app_constants.dart';
 import '../src/rust/api/frb.dart' show FrbCatalogChangedEvent, subscribeCatalogChanges;
 
 class PeerBookListScreen extends StatefulWidget {
@@ -62,9 +61,6 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
   /// Background refresh state (cache-first pattern)
   bool _isRefreshing = false;
-
-  /// IDs of books that are "new" (first_seen_at within threshold)
-  Set<int> _newBookIds = {};
 
   /// Relay sync state (ADR-012)
   bool _isRelayLoading = false;
@@ -340,7 +336,6 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
             if (booksData.isNotEmpty) {
               setState(() {
-                _newBookIds = _extractNewBookIds(booksData);
                 _books =
                     booksData.map((json) => Book.fromJson(json)).toList();
                 _filteredBooks = _isSearching && _searchController.text.isNotEmpty
@@ -477,7 +472,6 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
             final parsed = _parsePaginatedResponse(liveRes.data);
 
             setState(() {
-              _newBookIds = _extractNewBookIds(parsed.booksData);
               _books = parsed.booksData
                   .map((json) => Book.fromJson(json))
                   .toList();
@@ -600,11 +594,9 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       final parsed = _parsePaginatedResponse(res.data);
       final newBooks =
           parsed.booksData.map((json) => Book.fromJson(json)).toList();
-      final newIds = _extractNewBookIds(parsed.booksData);
 
       setState(() {
         _books.addAll(newBooks);
-        _newBookIds.addAll(newIds);
         _filteredBooks = _isSearching
             ? _books
                 .where(
@@ -639,7 +631,6 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   Future<void> _fullBackgroundRefresh(ApiService api) async {
     try {
       final allBooks = <Book>[];
-      final allNewIds = <int>{};
       int page = 0;
       bool hasMore = true;
 
@@ -655,7 +646,6 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
         allBooks.addAll(
           parsed.booksData.map((json) => Book.fromJson(json)).toList(),
         );
-        allNewIds.addAll(_extractNewBookIds(parsed.booksData));
         hasMore = parsed.hasMore;
         page++;
       }
@@ -663,7 +653,6 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       if (mounted) {
         setState(() {
           _books = allBooks;
-          _newBookIds = allNewIds;
           _filteredBooks = _books;
           _totalBooks = allBooks.length;
           _hasMorePages = false;
@@ -688,26 +677,6 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     final q = query.toLowerCase();
     return book.title.toLowerCase().contains(q) ||
         (book.author?.toLowerCase().contains(q) ?? false);
-  }
-
-  /// Extract IDs of books whose first_seen_at is within the new-badge threshold
-  /// from the raw JSON list (peer_book models include first_seen_at).
-  Set<int> _extractNewBookIds(List<dynamic> booksData) {
-    final now = DateTime.now();
-    final ids = <int>{};
-    for (final json in booksData) {
-      if (json is Map) {
-        final firstSeen = json['first_seen_at'] as String?;
-        if (firstSeen == null) continue;
-        final parsed = DateTime.tryParse(firstSeen);
-        if (parsed != null &&
-            now.difference(parsed).inDays < AppConstants.newBadgeDays) {
-          final id = json['id'] as int?;
-          if (id != null) ids.add(id);
-        }
-      }
-    }
-    return ids;
   }
 
   /// Refresh from hub catalog: if the peer pushed updates to the hub while
@@ -892,7 +861,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
           }
         }
         await _fetchRelayPages(api, manifest);
-      } else {
+      } else if (mounted) {
         // manifest returned null (202 relay_pending) - start polling
         debugPrint('Relay: manifest pending, starting adaptive polling');
         _startAdaptivePolling(isManualSync: isManualSync);
@@ -1053,6 +1022,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   /// would flood the relay with different correlation IDs.
   /// Circuit breaker: stops immediately on 502 (peer unreachable).
   void _startAdaptivePolling({bool isManualSync = false}) {
+    if (!mounted) return;
     _pollTimer?.cancel();
     _pollRequestInFlight = false;
     final api = Provider.of<ApiService>(context, listen: false);
@@ -1172,11 +1142,9 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       }).toList();
     }
     // Sort: new books first, then alphabetical
-    if (_newBookIds.isNotEmpty) {
+    if (result.any((b) => b.isNew)) {
       result.sort((a, b) {
-        final aNew = _newBookIds.contains(a.id);
-        final bNew = _newBookIds.contains(b.id);
-        if (aNew != bNew) return aNew ? -1 : 1;
+        if (a.isNew != b.isNew) return a.isNew ? -1 : 1;
         return a.title.toLowerCase().compareTo(b.title.toLowerCase());
       });
     }
@@ -1222,7 +1190,6 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
             final booksData = (data['books'] as List<dynamic>?) ?? [];
             if (booksData.isNotEmpty) {
               setState(() {
-                _newBookIds = _extractNewBookIds(booksData);
                 _books = booksData.map((json) => Book.fromJson(json)).toList();
                 _filteredBooks = _isSearching && _searchController.text.isNotEmpty
                     ? _books.where((b) => _matchesSearch(b, _searchController.text)).toList()
@@ -1282,7 +1249,6 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       final parsed = _parsePaginatedResponse(liveRes.data);
 
       setState(() {
-        _newBookIds = _extractNewBookIds(parsed.booksData);
         _books = parsed.booksData.map((json) => Book.fromJson(json)).toList();
         _filteredBooks = _books;
         _totalBooks = parsed.total;
@@ -1614,7 +1580,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                 child: Column(
                   children: [
                     Text(
-                      '${_hubProfile!.bookCount}',
+                      '${_totalBooks > 0 ? _totalBooks : _hubProfile!.bookCount}',
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: onContainer,
@@ -1941,7 +1907,6 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                                   ? BookshelfView(
                                       books: _filteredBooks,
                                       onBookTap: (book) => _showBookDetails(book),
-                                      newBookIds: _newBookIds,
                                       footer: _hasMorePages
                                           ? _isLoadingMore
                                               ? const Padding(
@@ -2008,8 +1973,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                                                   overflow: TextOverflow.ellipsis,
                                                 ),
                                               ),
-                                              if (_newBookIds
-                                                  .contains(book.id)) ...[
+                                              if (book.isNew) ...[
                                                 const SizedBox(width: 6),
                                                 Container(
                                                   padding:

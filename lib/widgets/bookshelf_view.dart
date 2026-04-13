@@ -5,8 +5,6 @@ import 'book_spine.dart';
 class BookshelfView extends StatelessWidget {
   final List<Book> books;
   final Function(Book) onBookTap;
-  /// Set of book IDs that should display a "new" band on their spine.
-  final Set<int> newBookIds;
   /// Optional widget shown below the book grid (e.g. loading indicator).
   final Widget? footer;
 
@@ -14,7 +12,6 @@ class BookshelfView extends StatelessWidget {
     super.key,
     required this.books,
     required this.onBookTap,
-    this.newBookIds = const {},
     this.footer,
   });
 
@@ -39,7 +36,7 @@ class BookshelfView extends StatelessWidget {
                       book: book,
                       height: 220 + (seed.abs() % 4) * 12.0,
                       width: 60 + (seed.abs() % 3) * 6.0,
-                      showNewBand: book.id != null && newBookIds.contains(book.id),
+                      showNewBand: book.isNew,
                     ),
                   );
                 }).toList(),
