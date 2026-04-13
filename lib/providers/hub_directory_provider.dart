@@ -561,6 +561,16 @@ class HubDirectoryProvider extends ChangeNotifier {
       frbConfig ??= await _tryRecoverFromKeychain();
       _config =
           frbConfig != null ? DirectoryConfig.fromFrb(frbConfig) : null;
+
+      // Backfill: existing users registered before the Keychain-backup fix
+      // may have a recovery_code in SQLite but not in Keychain.  Copy it
+      // over on first run so future purges don't lose it.
+      if (_config != null) {
+        final keychainCode = await _authService.getHubRecoveryCode();
+        if (keychainCode == null || keychainCode.isEmpty) {
+          await _tryBackupRecoveryCode();
+        }
+      }
     } catch (e) {
       _configError = e.toString();
       debugPrint('HubDirectoryProvider loadConfig error: $e');

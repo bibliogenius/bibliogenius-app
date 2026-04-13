@@ -1196,6 +1196,10 @@ class FfiService {
 
   /// Recovers a hub profile using a one-time recovery code.
   /// On success: returns the new config (write_token + recovery_code stored locally).
+  ///
+  /// Rethrows on error so callers can distinguish between "not recovered" causes
+  /// (invalid code, 401, network failure) and act accordingly.
+  /// SECURITY: recovery_code is treated like a password — never log its value.
   Future<frb.FrbDirectoryConfig?> hubDirectoryRecover({
     required String nodeId,
     required String recoveryCode,
@@ -1206,8 +1210,9 @@ class FfiService {
         recoveryCode: recoveryCode,
       );
     } catch (e) {
+      // Only log the error type, never the recovery_code argument.
       debugPrint('FFI hubDirectoryRecover error: $e');
-      return null;
+      rethrow;
     }
   }
 

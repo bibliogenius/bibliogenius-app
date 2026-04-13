@@ -531,7 +531,57 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Consumer<HubDirectoryProvider>(
                     builder: (context, dirProvider, _) {
                       final config = dirProvider.config;
-                      if (config == null) return const SizedBox.shrink();
+                      if (config == null) {
+                        // Not registered (or config purged): offer manual
+                        // reclaim with a previously-saved recovery code.
+                        return Column(
+                          children: [
+                            const Divider(height: 1),
+                            ListTile(
+                              leading: const Icon(Icons.restore),
+                              title: Text(
+                                TranslationService.translate(
+                                      context,
+                                      'recovery_reclaim_title',
+                                    ) ??
+                                    'Reclaim profile with recovery code',
+                              ),
+                              subtitle: Text(
+                                TranslationService.translate(
+                                      context,
+                                      'recovery_reclaim_subtitle',
+                                    ) ??
+                                    'Use your saved recovery code to restore an existing profile',
+                              ),
+                              trailing: const Icon(Icons.chevron_right),
+                              onTap: () async {
+                                final ok = await showRecoveryCodeInputSheet(
+                                  context,
+                                  dirProvider,
+                                );
+                                if (!context.mounted) return;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      ok
+                                          ? (TranslationService.translate(
+                                                context,
+                                                'recovery_reclaim_success',
+                                              ) ??
+                                              'Profile reclaimed successfully')
+                                          : (TranslationService.translate(
+                                                context,
+                                                'recovery_reclaim_failed',
+                                              ) ??
+                                              'Could not reclaim profile. Check the code and try again.'),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        );
+                      }
                       return Column(
                         children: [
                           const Divider(height: 1),
