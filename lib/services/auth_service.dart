@@ -195,6 +195,7 @@ class AuthService {
 
   // ============ Hub Write Token (Keychain backup for reinstall recovery) ===
   static const _hubWriteTokenKey = 'hub_write_token';
+  static const _hubRecoveryCodeKey = 'hub_recovery_code';
 
   /// Back up the hub write_token to Keychain so it survives reinstalls.
   Future<void> saveHubWriteToken(String token) async {
@@ -209,6 +210,24 @@ class AuthService {
   /// Delete only the hub write_token from Keychain (401 recovery).
   Future<void> deleteHubWriteToken() async {
     await storage.delete(key: _hubWriteTokenKey);
+  }
+
+  /// Back up the hub recovery_code to Keychain. Must survive config purges
+  /// so the user can reclaim their profile after token invalidation.
+  Future<void> saveHubRecoveryCode(String code) async {
+    await storage.write(key: _hubRecoveryCodeKey, value: code);
+  }
+
+  /// Retrieve the hub recovery_code from Keychain (e.g. to recover a stale
+  /// profile when the local config was purged).
+  Future<String?> getHubRecoveryCode() async {
+    return await storage.read(key: _hubRecoveryCodeKey);
+  }
+
+  /// Delete the recovery_code from Keychain. Only call on explicit user
+  /// opt-out (e.g. account deletion); never during 401 recovery.
+  Future<void> deleteHubRecoveryCode() async {
+    await storage.delete(key: _hubRecoveryCodeKey);
   }
 
   // ============ Library UUID (for P2P deduplication) ============

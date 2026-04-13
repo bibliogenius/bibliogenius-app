@@ -292,6 +292,20 @@ class HubDirectoryProvider extends ChangeNotifier {
     }
   }
 
+  /// Backs up the hub recovery_code to Keychain if available.
+  /// The recovery_code is the ONLY way to reclaim a profile when the
+  /// write_token is invalidated, so we must not lose it on config purges.
+  Future<void> _tryBackupRecoveryCode() async {
+    try {
+      final code = await _ffi.hubDirectoryGetRecoveryCode();
+      if (code != null && code.isNotEmpty) {
+        await _authService.saveHubRecoveryCode(code);
+      }
+    } catch (e) {
+      debugPrint('HubDirectoryProvider: recovery_code Keychain backup FAILED: $e');
+    }
+  }
+
   DirectoryConfig? get config => _config;
   bool get configLoading => _configLoading;
   String? get configError => _configError;
@@ -720,6 +734,7 @@ class HubDirectoryProvider extends ChangeNotifier {
         _tokenRecoveredFromKeychain = false;
         // Back up write_token to Keychain for reinstall recovery.
         _keychainBackupPending = !await _tryBackupWriteToken();
+        await _tryBackupRecoveryCode();
         return true;
       }
       return false;
@@ -733,6 +748,41 @@ class HubDirectoryProvider extends ChangeNotifier {
         final shouldRetry =
             _consecutive401Count == 0 || _tokenRecoveredFromKeychain;
         if (shouldRetry) {
+          // Before purging, try to reclaim the profile with the stored
+          // recovery_code. This preserves the node_id and profile on the hub,
+          // which is the only way if the hub already knows our node_id.
+          final nodeId = _config?.nodeId ?? params.nodeId;
+          // Try SQLite first, fall back to Keychain (config may have been purged).
+          final recoveryCode = await _ffi.hubDirectoryGetRecoveryCode() ??
+              await _authService.getHubRecoveryCode();
+          if (recoveryCode != null && recoveryCode.isNotEmpty) {
+            debugPrint(
+              'HubDirectoryProvider: 401 detected, attempting recovery with stored code',
+            );
+            try {
+              final recovered = await _ffi.hubDirectoryRecover(
+                nodeId: nodeId,
+                recoveryCode: recoveryCode,
+              );
+              if (recovered != null) {
+                _config = DirectoryConfig.fromFrb(recovered);
+                _consecutive401Count = 0;
+                _last401At = null;
+                _tokenRecoveredFromKeychain = false;
+                _keychainBackupPending = !await _tryBackupWriteToken();
+        await _tryBackupRecoveryCode();
+                _configError = null;
+                debugPrint('HubDirectoryProvider: 401 recovery via recovery_code succeeded');
+                return true;
+              }
+            } catch (recoverErr) {
+              debugPrint(
+                'HubDirectoryProvider: recovery_code attempt failed: $recoverErr',
+              );
+              // Fall through to purge+retry
+            }
+          }
+
           debugPrint(
             'HubDirectoryProvider: 401 detected, purging stale config '
             'and retrying fresh registration'
@@ -751,6 +801,7 @@ class HubDirectoryProvider extends ChangeNotifier {
               _consecutive401Count = 0;
               _last401At = null;
               _keychainBackupPending = !await _tryBackupWriteToken();
+        await _tryBackupRecoveryCode();
               _configError = null;
               debugPrint('HubDirectoryProvider: 401 recovery succeeded');
               return true;
@@ -918,6 +969,7 @@ class HubDirectoryProvider extends ChangeNotifier {
         _last401At = null;
         _tokenRecoveredFromKeychain = false;
         _keychainBackupPending = !await _tryBackupWriteToken();
+        await _tryBackupRecoveryCode();
         notifyListeners();
         return true;
       }
