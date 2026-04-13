@@ -26,6 +26,12 @@ dependencies:
   flutter_colorpicker: ^1.0.3
   file_picker: ^10.3.8
   image_picker: ^1.1.2
+  # Pure-Dart decoder/encoder. Used by cover_camera_helper to enforce a
+  # hard 300x450 JPEG cap on uploaded covers — image_picker's maxWidth /
+  # imageQuality hints are unreliable across platforms (notably PNG on
+  # macOS, where the source is passed through unmodified).
+  image: ^4.3.0
+
   fl_chart: ^1.1.1
   flutter_dotenv: ^5.1.0
   flutter_svg: ^2.2.3

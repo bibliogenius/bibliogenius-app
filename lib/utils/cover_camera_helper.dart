@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
@@ -16,10 +17,19 @@ class CoverCameraHelper {
   @visibleForTesting
   static const int targetMaxHeight = 450;
 
-  /// JPEG quality used by ImagePicker. Matches the Rust default so a cover
-  /// that came from Flutter is not unnecessarily re-compressed on serve.
+  /// Default JPEG quality. Matches the Rust default so a cover that came
+  /// from Flutter is not unnecessarily re-compressed on serve.
   @visibleForTesting
   static const int targetQuality = 85;
+
+  /// Hard cap on encoded cover size. If quality 85 exceeds this, we step
+  /// down through 75 then 65 before giving up. Matches `COVER_SIZE_CAP_BYTES`
+  /// in the Rust pipeline.
+  @visibleForTesting
+  static const int targetMaxBytes = 50 * 1024;
+
+  /// Quality fallback ladder, mirrored from `utils/cover_image.rs::QUALITY_STEPS`.
+  static const List<int> _qualitySteps = [targetQuality, 75, 65];
 
   static final _picker = ImagePicker();
 
@@ -87,6 +97,13 @@ class CoverCameraHelper {
   /// Copies [picked] into `{AppSupport}/covers/` under a deterministic name.
   /// When [bookId] is known (edit flow) the file is `<bookId>.jpg`; during
   /// add flow a temp UUID name is used, and `renameTempCover` finalises it.
+  ///
+  /// The picked image is decoded, resized to fit within the 300x450 box
+  /// (preserving aspect ratio), EXIF orientation is baked in, and the
+  /// result is re-encoded as JPEG with a quality ladder that caps the
+  /// output at ~50 KB. ImagePicker's own maxWidth/imageQuality hints are
+  /// not relied upon — they are silently ignored on macOS for PNG
+  /// sources, which would otherwise leave 300+ KB files on disk.
   static Future<String?> _saveToCovers(XFile? picked, int? bookId) async {
     if (picked == null) return null;
 
@@ -100,7 +117,54 @@ class CoverCameraHelper {
         bookId != null ? '$bookId.jpg' : 'temp_${const Uuid().v4()}.jpg';
     final targetPath = '${coversDir.path}/$fileName';
 
-    await File(picked.path).copy(targetPath);
+    final raw = await File(picked.path).readAsBytes();
+    final processed = await _encodeCoverJpeg(raw);
+    await File(targetPath).writeAsBytes(processed, flush: true);
     return targetPath;
+  }
+
+  /// Decode → orient → resize-to-fit → JPEG-encode pipeline.
+  ///
+  /// Public-on-test (`@visibleForTesting`) so unit tests can feed
+  /// synthetic bytes without going through `image_picker`.
+  @visibleForTesting
+  static Future<Uint8List> encodeCoverJpegForTest(Uint8List raw) =>
+      _encodeCoverJpeg(raw);
+
+  static Future<Uint8List> _encodeCoverJpeg(Uint8List raw) async {
+    final decoded = img.decodeImage(raw);
+    if (decoded == null) {
+      throw const FormatException('Could not decode picked image');
+    }
+
+    // Apply EXIF rotation so portrait shots don't end up sideways on disk.
+    final oriented = img.bakeOrientation(decoded);
+    final fitted = _fitWithin(oriented, targetMaxWidth, targetMaxHeight);
+
+    Uint8List? smallest;
+    for (final quality in _qualitySteps) {
+      final encoded = Uint8List.fromList(img.encodeJpg(fitted, quality: quality));
+      if (encoded.length <= targetMaxBytes) {
+        return encoded;
+      }
+      if (smallest == null || encoded.length < smallest.length) {
+        smallest = encoded;
+      }
+    }
+    // None of the quality steps fit — return the smallest produced. The
+    // Rust serve-side resize will trim further if needed.
+    return smallest!;
+  }
+
+  /// Returns [src] downscaled so it fits within [maxW]x[maxH] while
+  /// preserving aspect ratio. Returns [src] untouched if already small.
+  static img.Image _fitWithin(img.Image src, int maxW, int maxH) {
+    if (src.width <= maxW && src.height <= maxH) return src;
+    final ratioW = maxW / src.width;
+    final ratioH = maxH / src.height;
+    final ratio = ratioW < ratioH ? ratioW : ratioH;
+    final newW = (src.width * ratio).round().clamp(1, maxW);
+    final newH = (src.height * ratio).round().clamp(1, maxH);
+    return img.copyResize(src, width: newW, height: newH);
   }
 }
