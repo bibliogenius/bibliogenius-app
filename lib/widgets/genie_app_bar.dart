@@ -3,7 +3,9 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/theme_provider.dart';
 import '../providers/notification_provider.dart';
+import '../providers/hub_directory_provider.dart';
 import '../services/api_service.dart';
+import '../services/ffi_service.dart';
 import '../services/translation_service.dart';
 import '../src/rust/api/frb.dart' show FrbNotification;
 import '../utils/app_constants.dart';
@@ -19,6 +21,36 @@ bool isBetaVersion = AppConstants.isBeta;
 
 void _showRenameLibraryDialog(BuildContext context, ThemeProvider themeProvider) {
   final controller = TextEditingController(text: themeProvider.libraryName);
+  final api = Provider.of<ApiService>(context, listen: false);
+  HubDirectoryProvider? hubProvider;
+  try {
+    hubProvider = Provider.of<HubDirectoryProvider>(context, listen: false);
+  } catch (_) {}
+
+  Future<void> save(String value) async {
+    final name = value.trim();
+    if (name.isEmpty) return;
+    await themeProvider.setLibraryName(name, apiService: api, userInitiated: true);
+    final hubConfig = hubProvider?.config;
+    if (hubConfig != null) {
+      try {
+        final bookCount = await FfiService().countBooks();
+        await hubProvider!.register(
+          nodeId: hubConfig.nodeId,
+          displayName: name,
+          bookCount: bookCount,
+          isListed: hubConfig.isListed,
+          requiresApproval: hubConfig.requiresApproval,
+          acceptFrom: hubConfig.acceptFrom,
+          allowBorrowing: hubConfig.allowBorrowing,
+          locationCountry: themeProvider.country,
+        );
+      } catch (e) {
+        debugPrint('Hub name update failed: $e');
+      }
+    }
+  }
+
   showDialog(
     context: context,
     builder: (dialogContext) {
@@ -34,10 +66,8 @@ void _showRenameLibraryDialog(BuildContext context, ThemeProvider themeProvider)
             border: const OutlineInputBorder(),
           ),
           onSubmitted: (value) {
-            final name = value.trim();
-            if (name.isNotEmpty) {
-              final api = Provider.of<ApiService>(context, listen: false);
-              themeProvider.setLibraryName(name, apiService: api, userInitiated: true);
+            if (value.trim().isNotEmpty) {
+              save(value);
               Navigator.pop(dialogContext);
             }
           },
@@ -49,10 +79,8 @@ void _showRenameLibraryDialog(BuildContext context, ThemeProvider themeProvider)
           ),
           FilledButton(
             onPressed: () {
-              final name = controller.text.trim();
-              if (name.isNotEmpty) {
-                final api = Provider.of<ApiService>(context, listen: false);
-                themeProvider.setLibraryName(name, apiService: api, userInitiated: true);
+              if (controller.text.trim().isNotEmpty) {
+                save(controller.text);
                 Navigator.pop(dialogContext);
               }
             },
