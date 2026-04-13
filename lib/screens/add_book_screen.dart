@@ -1,13 +1,10 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:math';
 
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
-import 'package:path_provider/path_provider.dart';
 
 import '../data/repositories/book_repository.dart';
 import '../utils/cover_camera_helper.dart';
@@ -440,8 +437,11 @@ class _AddBookScreenState extends State<AddBookScreen> {
       if (mounted) {
         _debounce?.cancel();
 
-        // Mark catalog dirty so the hub gets updated on next sync
-        context.read<HubDirectoryProvider>().markCatalogDirty();
+        // Mark catalog dirty + push immediately so the hub receives the new
+        // book (and any custom cover) without waiting for the next app resume.
+        context.read<HubDirectoryProvider>()
+          ..markCatalogDirty()
+          ..syncCatalogIfDirty();
 
         // Trigger sync with peers in background (dont await to keep UI snappy)
         try {
@@ -1716,25 +1716,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
   Future<void> _pickCoverFromFile() async {
     try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.image,
-        allowMultiple: false,
-      );
-      if (result == null || result.files.isEmpty) return;
-
-      final pickedFile = result.files.first;
-      if (pickedFile.path == null) return;
-
-      final appDir = await getApplicationSupportDirectory();
-      final coversDir = Directory('${appDir.path}/covers');
-      if (!await coversDir.exists()) {
-        await coversDir.create(recursive: true);
-      }
-
-      final extension = pickedFile.extension ?? 'jpg';
-      final targetPath = '${coversDir.path}/temp_add.$extension';
-      final sourceFile = File(pickedFile.path!);
-      await sourceFile.copy(targetPath);
+      final targetPath = await CoverCameraHelper.pickFromGalleryAndSave();
+      if (targetPath == null) return;
 
       if (!mounted) return;
       setState(() {

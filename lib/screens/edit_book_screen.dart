@@ -1,15 +1,14 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import 'package:path_provider/path_provider.dart';
 
 import '../data/repositories/book_repository.dart';
 import '../data/repositories/collection_repository.dart';
 import '../data/repositories/copy_repository.dart';
+import '../providers/hub_directory_provider.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
 import '../utils/cover_camera_helper.dart';
@@ -455,6 +454,11 @@ class _EditBookScreenState extends State<EditBookScreen> {
         throw Exception("Book ID is missing");
       }
       await bookRepo.updateBook(widget.book.id!, bookData);
+      if (mounted) {
+        context.read<HubDirectoryProvider>()
+          ..markCatalogDirty()
+          ..syncCatalogIfDirty();
+      }
 
       // If not owned anymore, delete all copies.
       // If owned and copy exists, update its status.
@@ -1251,6 +1255,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
       await bookRepo.updateBook(widget.book.id!, {'cover_url': path});
 
       if (!mounted) return;
+      context.read<HubDirectoryProvider>()
+        ..markCatalogDirty()
+        ..syncCatalogIfDirty();
       setState(() { _coverUrl = path; _coverVersion++; });
       _hasChanges = true;
 
@@ -1277,25 +1284,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
   Future<void> _pickCoverFromFile() async {
     try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.image,
-        allowMultiple: false,
+      final targetPath = await CoverCameraHelper.pickFromGalleryAndSave(
+        bookId: widget.book.id,
       );
-      if (result == null || result.files.isEmpty) return;
-
-      final pickedFile = result.files.first;
-      if (pickedFile.path == null) return;
-
-      final appDir = await getApplicationSupportDirectory();
-      final coversDir = Directory('${appDir.path}/covers');
-      if (!await coversDir.exists()) {
-        await coversDir.create(recursive: true);
-      }
-
-      final extension = pickedFile.extension ?? 'jpg';
-      final targetPath = '${coversDir.path}/${widget.book.id}.$extension';
-      final sourceFile = File(pickedFile.path!);
-      await sourceFile.copy(targetPath);
+      if (targetPath == null) return;
 
       if (!mounted) return;
       _evictCoverFromCache(_coverUrl);
@@ -1303,6 +1295,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
       await bookRepo.updateBook(widget.book.id!, {'cover_url': targetPath});
 
       if (!mounted) return;
+      context.read<HubDirectoryProvider>()
+        ..markCatalogDirty()
+        ..syncCatalogIfDirty();
       setState(() { _coverUrl = targetPath; _coverVersion++; });
       _hasChanges = true;
 

@@ -43,6 +43,36 @@ class CoverCameraHelper {
     return targetPath;
   }
 
+  /// Opens the gallery picker and saves the chosen image as JPEG into covers/.
+  /// Returns the local path, or null if the user cancelled.
+  ///
+  /// Uses ImagePicker (not FilePicker) so iOS converts HEIC/HEIF to JPEG via
+  /// Apple's PHPickerViewController. The Rust thumbnail uploader only decodes
+  /// JPEG/PNG, so HEIC files would otherwise fail silently and the hub would
+  /// receive a book entry without a cover.
+  static Future<String?> pickFromGalleryAndSave({int? bookId}) async {
+    final XFile? picked = await _picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1200,
+      maxHeight: 1800,
+      imageQuality: 85,
+      requestFullMetadata: false,
+    );
+    if (picked == null) return null;
+
+    final appDir = await getApplicationSupportDirectory();
+    final coversDir = Directory('${appDir.path}/covers');
+    if (!await coversDir.exists()) {
+      await coversDir.create(recursive: true);
+    }
+
+    final fileName = bookId != null ? '$bookId.jpg' : 'temp_${const Uuid().v4()}.jpg';
+    final targetPath = '${coversDir.path}/$fileName';
+
+    await File(picked.path).copy(targetPath);
+    return targetPath;
+  }
+
   /// Renames a temp cover file to use the real book ID after creation.
   /// Returns the new path, or null if the source file does not exist.
   static Future<String?> renameTempCover(String tempPath, int bookId) async {
