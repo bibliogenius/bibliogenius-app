@@ -54,6 +54,7 @@ const String _kFollowNamesKey = 'hub_follow_custom_names';
 class HubDirectoryProvider extends ChangeNotifier {
   final FfiService _ffi;
   final DeviceService _deviceService;
+  final AuthService _authService;
 
   /// Retry delay between relay publish attempts. Override in tests.
   @visibleForTesting
@@ -63,9 +64,13 @@ class HubDirectoryProvider extends ChangeNotifier {
   @visibleForTesting
   Duration relayCooldown = _kRelayPublishCooldown;
 
-  HubDirectoryProvider({FfiService? ffi, DeviceService? deviceService})
-      : _ffi = ffi ?? FfiService(),
-        _deviceService = deviceService ?? DeviceService();
+  HubDirectoryProvider({
+    FfiService? ffi,
+    DeviceService? deviceService,
+    AuthService? authService,
+  })  : _ffi = ffi ?? FfiService(),
+        _deviceService = deviceService ?? DeviceService(),
+        _authService = authService ?? AuthService();
 
   // ── Custom follow display names ──────────────────────────────────────────
 
@@ -276,7 +281,7 @@ class HubDirectoryProvider extends ChangeNotifier {
     try {
       final token = await _ffi.hubDirectoryExportWriteToken();
       if (token == null) return false;
-      await AuthService().saveHubWriteToken(token);
+      await _authService.saveHubWriteToken(token);
       return true;
     } catch (e) {
       debugPrint(
@@ -555,11 +560,10 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// Returns the restored config if successful, null otherwise.
   Future<frb.FrbDirectoryConfig?> _tryRecoverFromKeychain() async {
     try {
-      final auth = AuthService();
-      final writeToken = await auth.getHubWriteToken();
+      final writeToken = await _authService.getHubWriteToken();
       if (writeToken == null) return null;
 
-      final nodeId = await auth.getOrCreateLibraryUuid();
+      final nodeId = await _authService.getOrCreateLibraryUuid();
       final ok = await _ffi.hubDirectoryImportWriteToken(
         nodeId: nodeId,
         writeToken: writeToken,
@@ -735,7 +739,7 @@ class HubDirectoryProvider extends ChangeNotifier {
             '${_tokenRecoveredFromKeychain ? ' (Keychain recovery)' : ''}',
           );
           await _ffi.hubDirectoryPurgeConfig();
-          await AuthService().deleteHubWriteToken();
+          await _authService.deleteHubWriteToken();
           _config = null;
           _tokenRecoveredFromKeychain = false;
           // Retry once: without local config, Rust sends no Bearer token
@@ -832,7 +836,7 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// other libraries without being listed.
   Future<bool> _ensureSilentRegistration() async {
     try {
-      final libraryUuid = await AuthService().getOrCreateLibraryUuid();
+      final libraryUuid = await _authService.getOrCreateLibraryUuid();
       final prefs = await SharedPreferences.getInstance();
       final libraryName = prefs.getString('libraryName') ??
           TranslationService.translateByLocale(

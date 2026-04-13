@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:bibliogenius/providers/hub_directory_provider.dart';
+import 'package:bibliogenius/services/auth_service.dart';
 import 'package:bibliogenius/services/device_service.dart';
 import 'package:bibliogenius/services/ffi_service.dart';
 import 'package:bibliogenius/src/rust/api/frb.dart' as frb;
@@ -79,6 +80,15 @@ class _MockFfiService extends FfiService {
   @override
   Future<int> hubDirectorySyncCatalog() async => 0;
 
+  // Stubbed so the 401 recovery path doesn't hit real FFI in tests.
+  int purgeConfigCallCount = 0;
+  @override
+  Future<bool> hubDirectoryPurgeConfig() async {
+    purgeConfigCallCount++;
+    _config = null;
+    return true;
+  }
+
   /// Pre-load a config so the provider thinks it's registered.
   void setRegistered() {
     _config = const frb.FrbDirectoryConfig(
@@ -105,6 +115,9 @@ Future<(HubDirectoryProvider, _MockFfiService)> _createProvider({
     'libraryName': 'Test Library',
     'languageCode': 'en',
   });
+  // AuthService uses static storage; swap in an in-memory backend so the
+  // 401 recovery path doesn't try to hit the real platform Keychain.
+  AuthService.storage = MockSecureStorage();
 
   final ffi = _MockFfiService();
   ffi.setRegistered();
@@ -159,15 +172,20 @@ void main() {
       expect(ffi.registerCallCount, 3); // max attempts
     });
 
-    test('401 error aborts retries immediately', () async {
+    test('401 error triggers purge + single recovery retry, then aborts',
+        () async {
       final (provider, ffi) = await _createProvider(
         registerError: 'Hub error 401: Unauthorized',
       );
 
       await provider.ensureRelayPublished();
 
-      // Should only call register once -- 401 means auth broken, no retry.
-      expect(ffi.registerCallCount, 1);
+      // 1st call: initial 401 -> triggers purge + 1 fresh-retry register call.
+      // The recovery retry also gets a 401 (mock returns same error every time),
+      // which sets _configError so the outer retry loop in ensureRelayPublished
+      // aborts. Total: 2 register calls, 1 purge.
+      expect(ffi.registerCallCount, 2);
+      expect(ffi.purgeConfigCallCount, 1);
     });
 
     test('no relay config: skips without calling register', () async {
