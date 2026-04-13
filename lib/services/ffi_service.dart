@@ -1212,6 +1212,9 @@ class FfiService {
   }
 
   /// Register or update the library profile on the hub directory.
+  ///
+  /// Rethrows on error so the caller can inspect the error message
+  /// (e.g. to trigger 401 auto-recovery in HubDirectoryProvider).
   Future<frb.FrbDirectoryConfig?> hubDirectoryRegister(
     frb.FrbRegisterParams params,
   ) async {
@@ -1219,7 +1222,7 @@ class FfiService {
       return await frb.hubDirectoryRegister(params: params);
     } catch (e) {
       debugPrint('FFI hubDirectoryRegister error: $e');
-      return null;
+      rethrow;
     }
   }
 
