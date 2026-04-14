@@ -29,7 +29,41 @@ import 'translation_service.dart';
 class _PeerCatalogCacheEntry {
   final String etag;
   final dynamic body;
-  _PeerCatalogCacheEntry(this.etag, this.body);
+
+  /// Canonical book list extracted from `body['books']` (or `body` if the
+  /// remote returned a flat array). Kept separately so delta operations
+  /// can be applied without re-parsing the response shape on every pull.
+  /// Null when the body shape is unknown — we fall back to full GET in
+  /// that case rather than risk applying deltas against stale data.
+  final List<dynamic>? bookList;
+
+  /// Last `operation_log.id` we acknowledged from this peer (ADR-028).
+  /// Drives the `?since=` parameter on the next pull. Null on first sync
+  /// or after a 410 fallback that hasn't yet captured a fresh cursor.
+  /// In-memory only for now; persistence across app restarts is tracked
+  /// as a follow-up (see ADR-028 Implementation Notes).
+  final int? deltaCursor;
+
+  _PeerCatalogCacheEntry(
+    this.etag,
+    this.body, {
+    this.bookList,
+    this.deltaCursor,
+  });
+
+  _PeerCatalogCacheEntry copyWith({
+    String? etag,
+    dynamic body,
+    List<dynamic>? bookList,
+    int? deltaCursor,
+  }) {
+    return _PeerCatalogCacheEntry(
+      etag ?? this.etag,
+      body ?? this.body,
+      bookList: bookList ?? this.bookList,
+      deltaCursor: deltaCursor ?? this.deltaCursor,
+    );
+  }
 }
 
 class ApiService {
@@ -2438,11 +2472,77 @@ class ApiService {
   /// hashes the full serialized body), so a 304 is safe to treat as "same
   /// payload as last time".
   Future<Response> _fetchPeerCatalogWithEtag(String targetUrl) async {
-    final cached = _peerCatalogEtagCache[targetUrl];
+    // The cache key strips any `since=` so successive delta pulls share the
+    // same slot as the original full fetch.
+    final cacheKey = _stripSinceParam(targetUrl);
+    final cached = _peerCatalogEtagCache[cacheKey];
+
     final dio = Dio(BaseOptions(
       connectTimeout: const Duration(seconds: 5),
       receiveTimeout: const Duration(seconds: 10),
     ));
+
+    // Pagination requests (page=, limit=) are orthogonal to delta sync —
+    // they fetch a slice of the catalog for UI scrolling, not a sync
+    // snapshot. Skip the delta path so the existing ETag/304 contract on
+    // page 0 (and beyond) keeps working unchanged.
+    final paginated = Uri.parse(targetUrl).queryParameters.containsKey('page');
+
+    if (!paginated && cached?.deltaCursor != null && cached?.bookList != null) {
+      final deltaUrl =
+          _appendQueryParam(cacheKey, 'since', cached!.deltaCursor.toString());
+      final deltaResp = await dio.get(
+        deltaUrl,
+        options: Options(
+          // 410 means cursor too old — handle below, do not throw.
+          validateStatus: (status) =>
+              status != null && (status < 400 || status == 410),
+        ),
+      );
+
+      if (deltaResp.statusCode == 410) {
+        // Cursor is older than the peer's retention floor (ADR-028 D4).
+        // Drop the entry so the fallback below performs a clean full GET.
+        _peerCatalogEtagCache.remove(cacheKey);
+      } else if (deltaResp.statusCode == 200 && deltaResp.data is Map) {
+        final ops =
+            (deltaResp.data['operations'] as List?) ?? const <dynamic>[];
+        final newCursor = (deltaResp.data['latest_cursor'] as num?)?.toInt() ??
+            cached.deltaCursor!;
+        final hasMore = deltaResp.data['has_more'] as bool? ?? false;
+
+        final updatedBooks = _applyBookDeltas(cached.bookList!, ops);
+        final updatedBody = (cached.body is Map)
+            ? {
+                ...cached.body as Map,
+                'books': updatedBooks,
+                'total': updatedBooks.length,
+              }
+            : updatedBooks;
+        _peerCatalogEtagCache[cacheKey] = cached.copyWith(
+          body: updatedBody,
+          bookList: updatedBooks,
+          deltaCursor: newCursor,
+        );
+
+        // Drain remaining windows transparently when the server signals
+        // `has_more` (typical first sync of a large library): delta pulls
+        // are cheap and the caller still sees a single full snapshot.
+        if (hasMore) {
+          return _fetchPeerCatalogWithEtag(targetUrl);
+        }
+
+        return Response(
+          requestOptions: deltaResp.requestOptions,
+          data: updatedBody,
+          statusCode: 200,
+          headers: deltaResp.headers,
+        );
+      }
+      // Any other status (network error decoded as <400, malformed body)
+      // falls through to the full GET path below.
+    }
+
     final response = await dio.get(
       targetUrl,
       options: Options(
@@ -2453,7 +2553,15 @@ class ApiService {
       ),
     );
 
+    final cursorHeader = response.headers.value('x-catalog-cursor');
+    final newCursor = cursorHeader != null ? int.tryParse(cursorHeader) : null;
+
     if (response.statusCode == 304 && cached != null) {
+      // Body unchanged. Refresh the cursor in case unrelated operations
+      // advanced the log so the next pull benefits from delta sync.
+      _peerCatalogEtagCache[cacheKey] = cached.copyWith(
+        deltaCursor: newCursor ?? cached.deltaCursor,
+      );
       return Response(
         requestOptions: response.requestOptions,
         data: cached.body,
@@ -2464,10 +2572,72 @@ class ApiService {
 
     final freshEtag = response.headers.value('etag');
     if (response.statusCode == 200 && freshEtag != null) {
-      _peerCatalogEtagCache[targetUrl] =
-          _PeerCatalogCacheEntry(freshEtag, response.data);
+      _peerCatalogEtagCache[cacheKey] = _PeerCatalogCacheEntry(
+        freshEtag,
+        response.data,
+        bookList: _extractBookList(response.data),
+        deltaCursor: newCursor,
+      );
     }
     return response;
+  }
+
+  /// Strip the `since` query parameter from a URL while preserving the rest.
+  String _stripSinceParam(String url) {
+    final uri = Uri.parse(url);
+    if (!uri.queryParameters.containsKey('since')) return url;
+    final params = Map<String, String>.from(uri.queryParameters)
+      ..remove('since');
+    return uri
+        .replace(queryParameters: params.isEmpty ? null : params)
+        .toString();
+  }
+
+  /// Append (or overwrite) a single query parameter on a URL.
+  String _appendQueryParam(String url, String key, String value) {
+    final uri = Uri.parse(url);
+    final params = Map<String, String>.from(uri.queryParameters)
+      ..[key] = value;
+    return uri.replace(queryParameters: params).toString();
+  }
+
+  /// Extract the canonical book list from a peer catalog response. Returns
+  /// null when the shape is neither `{books: [...]}` nor a flat array, so
+  /// the caller falls back to the full-GET path on the next pull.
+  List<dynamic>? _extractBookList(dynamic body) {
+    if (body is Map && body['books'] is List) {
+      return List<dynamic>.from(body['books'] as List);
+    }
+    if (body is List) {
+      return List<dynamic>.from(body);
+    }
+    return null;
+  }
+
+  /// Apply a list of `{op: upsert | delete, book | book_id}` entries to the
+  /// canonical book list, returning a new list. Upserts replace the existing
+  /// entry by `id`; deletes remove it. Order is not preserved (ADR-028 does
+  /// not guarantee any order on the wire — sort happens client-side later).
+  List<dynamic> _applyBookDeltas(List<dynamic> books, List<dynamic> ops) {
+    final byId = <int, dynamic>{};
+    for (final b in books) {
+      if (b is Map && b['id'] is num) {
+        byId[(b['id'] as num).toInt()] = b;
+      }
+    }
+    for (final op in ops) {
+      if (op is! Map) continue;
+      final kind = op['op'];
+      if (kind == 'delete') {
+        final id = (op['book_id'] as num?)?.toInt();
+        if (id != null) byId.remove(id);
+      } else if (kind == 'upsert' && op['book'] is Map) {
+        final book = op['book'] as Map;
+        final id = (book['id'] as num?)?.toInt();
+        if (id != null) byId[id] = book;
+      }
+    }
+    return byId.values.toList();
   }
 
   /// Get cached peer books with staleness metadata from local backend
