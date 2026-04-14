@@ -646,9 +646,29 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       // both work via _parsePaginatedResponse. Defend against a totally
       // empty / malformed body by not trusting a zero-total silently.
       if (parsed.booksData.isNotEmpty || parsed.total == 0) {
-        final freshBooks = parsed.booksData
-            .map((json) => Book.fromJson(json))
-            .toList();
+        // The direct delta path bypasses the Rust proxy's
+        // `enrich_books_with_first_seen`, so the peer's DTO arrives with
+        // `first_seen_at = null` (redacted peer-side). Re-attach from the
+        // current in-memory list for books we already knew, and stamp "now"
+        // for ids we have never seen — that drives the "Nouveau" badge off
+        // the actual first-seen moment on THIS device rather than a global
+        // field that `redact_for_peer` nulls out (fix for tag inversion
+        // regression, commit dd9755d was paginated-only).
+        final previousFirstSeen = <int, String>{
+          for (final b in _books)
+            if (b.id != null && b.firstSeenAt != null)
+              b.id!: b.firstSeenAt!.toIso8601String(),
+        };
+        final nowIso = DateTime.now().toUtc().toIso8601String();
+        final freshBooks = parsed.booksData.map((json) {
+          if (json is Map) {
+            final id = (json['id'] as num?)?.toInt();
+            if (id != null) {
+              json['first_seen_at'] = previousFirstSeen[id] ?? nowIso;
+            }
+          }
+          return Book.fromJson(json as Map<String, dynamic>);
+        }).toList();
         setState(() {
           _books = freshBooks;
           _filteredBooks = _books;
@@ -657,6 +677,10 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
           _allBooksLoaded = true;
           _isRefreshing = false;
           _isHubOnly = false;
+          // A successful direct fetch proves the peer is reachable, even if
+          // an earlier probe marked it offline. Keep the label in sync so
+          // the UI does not contradict the data freshly rendered below it.
+          _isPeerOnline = true;
         });
         if (_offlineCachingEnabled && widget.peerId > 0) {
           api.cachePeerBooks(widget.peerId, _books).catchError((_) {});
