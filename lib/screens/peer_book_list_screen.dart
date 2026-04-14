@@ -627,8 +627,51 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     }
   }
 
-  /// Full background refresh: fetch all pages and replace current data.
+  /// Full background refresh: replace current data with a fresh snapshot
+  /// of the peer's library.
+  ///
+  /// Prefers a single delta-aware call when the peer supports it (ADR-028):
+  /// one HTTP round trip reconstructs the full catalog and the progress bar
+  /// does not restart from zero. Falls back to the paginated proxy loop on
+  /// any failure (peer unreachable direct, legacy peer without delta, etc.),
+  /// which transparently handles E2EE / relay.
   Future<void> _fullBackgroundRefresh(ApiService api) async {
+    // Attempt delta refresh first.
+    try {
+      final res = await api.getPeerBooksDelta(_effectiveUrl);
+      if (!mounted) return;
+
+      final parsed = _parsePaginatedResponse(res.data);
+      // Shape must look like a full catalog. A raw list or a map with `books`
+      // both work via _parsePaginatedResponse. Defend against a totally
+      // empty / malformed body by not trusting a zero-total silently.
+      if (parsed.booksData.isNotEmpty || parsed.total == 0) {
+        final freshBooks = parsed.booksData
+            .map((json) => Book.fromJson(json))
+            .toList();
+        setState(() {
+          _books = freshBooks;
+          _filteredBooks = _books;
+          _totalBooks = freshBooks.length;
+          _hasMorePages = false;
+          _allBooksLoaded = true;
+          _isRefreshing = false;
+          _isHubOnly = false;
+        });
+        if (_offlineCachingEnabled && widget.peerId > 0) {
+          api.cachePeerBooks(widget.peerId, _books).catchError((_) {});
+        }
+        debugPrint(
+          'Delta refresh OK: ${freshBooks.length} books in one round trip',
+        );
+        return;
+      }
+      debugPrint('Delta refresh returned empty body; falling back to paginated');
+    } catch (e) {
+      debugPrint('Delta refresh failed ($e); falling back to paginated');
+    }
+
+    // Fallback: original paginated loop (supports E2EE / relay via proxy).
     try {
       final allBooks = <Book>[];
       int page = 0;

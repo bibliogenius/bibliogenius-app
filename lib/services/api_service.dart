@@ -2419,6 +2419,26 @@ class ApiService {
     }
   }
 
+  /// Delta-aware full refresh of a peer's library.
+  ///
+  /// Unlike [getPeerBooksByUrl] / [getPeerBooksPage], this call is NOT routed
+  /// through the local Rust backend's E2EE proxy — it speaks plain HTTP to
+  /// the peer directly so the session-scoped delta cursor in
+  /// [_fetchPeerCatalogWithEtag] can kick in. Caller is expected to have a
+  /// reachable LAN URL for the peer. On any error the caller should fall back
+  /// to the paginated proxy path, which supports relay / E2EE transparently.
+  ///
+  /// Returns the same response shape as the non-paginated catalog endpoint:
+  /// `{ "books": [...], "total": N }` (or a flat array for very old peers).
+  Future<Response> getPeerBooksDelta(String peerUrl) async {
+    final cleanUrl = peerUrl.endsWith('/')
+        ? peerUrl.substring(0, peerUrl.length - 1)
+        : peerUrl;
+    final targetUrl = '$cleanUrl/api/books?owned_only=true';
+    debugPrint('P2P delta: fetching catalog from $targetUrl');
+    return await _fetchPeerCatalogWithEtag(targetUrl);
+  }
+
   /// Fetch a single page of a peer's library with pagination.
   /// Returns { "books": [...], "total": N, "has_more": bool } when the remote
   /// peer supports pagination, or a flat array (legacy) for older peers.
