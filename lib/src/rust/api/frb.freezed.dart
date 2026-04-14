@@ -605,7 +605,7 @@ as int?,
 /// @nodoc
 mixin _$FrbCatalogChangedEvent {
 
- String get peerLibraryUuid; int get peerId;
+ String get peerLibraryUuid; int get peerId; bool get deltaApplied;
 /// Create a copy of FrbCatalogChangedEvent
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -616,16 +616,16 @@ $FrbCatalogChangedEventCopyWith<FrbCatalogChangedEvent> get copyWith => _$FrbCat
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbCatalogChangedEvent&&(identical(other.peerLibraryUuid, peerLibraryUuid) || other.peerLibraryUuid == peerLibraryUuid)&&(identical(other.peerId, peerId) || other.peerId == peerId));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbCatalogChangedEvent&&(identical(other.peerLibraryUuid, peerLibraryUuid) || other.peerLibraryUuid == peerLibraryUuid)&&(identical(other.peerId, peerId) || other.peerId == peerId)&&(identical(other.deltaApplied, deltaApplied) || other.deltaApplied == deltaApplied));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,peerLibraryUuid,peerId);
+int get hashCode => Object.hash(runtimeType,peerLibraryUuid,peerId,deltaApplied);
 
 @override
 String toString() {
-  return 'FrbCatalogChangedEvent(peerLibraryUuid: $peerLibraryUuid, peerId: $peerId)';
+  return 'FrbCatalogChangedEvent(peerLibraryUuid: $peerLibraryUuid, peerId: $peerId, deltaApplied: $deltaApplied)';
 }
 
 
@@ -636,7 +636,7 @@ abstract mixin class $FrbCatalogChangedEventCopyWith<$Res>  {
   factory $FrbCatalogChangedEventCopyWith(FrbCatalogChangedEvent value, $Res Function(FrbCatalogChangedEvent) _then) = _$FrbCatalogChangedEventCopyWithImpl;
 @useResult
 $Res call({
- String peerLibraryUuid, int peerId
+ String peerLibraryUuid, int peerId, bool deltaApplied
 });
 
 
@@ -653,11 +653,12 @@ class _$FrbCatalogChangedEventCopyWithImpl<$Res>
 
 /// Create a copy of FrbCatalogChangedEvent
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? peerLibraryUuid = null,Object? peerId = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? peerLibraryUuid = null,Object? peerId = null,Object? deltaApplied = null,}) {
   return _then(_self.copyWith(
 peerLibraryUuid: null == peerLibraryUuid ? _self.peerLibraryUuid : peerLibraryUuid // ignore: cast_nullable_to_non_nullable
 as String,peerId: null == peerId ? _self.peerId : peerId // ignore: cast_nullable_to_non_nullable
-as int,
+as int,deltaApplied: null == deltaApplied ? _self.deltaApplied : deltaApplied // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
@@ -739,10 +740,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String peerLibraryUuid,  int peerId)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String peerLibraryUuid,  int peerId,  bool deltaApplied)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _FrbCatalogChangedEvent() when $default != null:
-return $default(_that.peerLibraryUuid,_that.peerId);case _:
+return $default(_that.peerLibraryUuid,_that.peerId,_that.deltaApplied);case _:
   return orElse();
 
 }
@@ -760,10 +761,10 @@ return $default(_that.peerLibraryUuid,_that.peerId);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String peerLibraryUuid,  int peerId)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String peerLibraryUuid,  int peerId,  bool deltaApplied)  $default,) {final _that = this;
 switch (_that) {
 case _FrbCatalogChangedEvent():
-return $default(_that.peerLibraryUuid,_that.peerId);}
+return $default(_that.peerLibraryUuid,_that.peerId,_that.deltaApplied);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -777,10 +778,10 @@ return $default(_that.peerLibraryUuid,_that.peerId);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String peerLibraryUuid,  int peerId)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String peerLibraryUuid,  int peerId,  bool deltaApplied)?  $default,) {final _that = this;
 switch (_that) {
 case _FrbCatalogChangedEvent() when $default != null:
-return $default(_that.peerLibraryUuid,_that.peerId);case _:
+return $default(_that.peerLibraryUuid,_that.peerId,_that.deltaApplied);case _:
   return null;
 
 }
@@ -792,11 +793,12 @@ return $default(_that.peerLibraryUuid,_that.peerId);case _:
 
 
 class _FrbCatalogChangedEvent implements FrbCatalogChangedEvent {
-  const _FrbCatalogChangedEvent({required this.peerLibraryUuid, required this.peerId});
+  const _FrbCatalogChangedEvent({required this.peerLibraryUuid, required this.peerId, required this.deltaApplied});
   
 
 @override final  String peerLibraryUuid;
 @override final  int peerId;
+@override final  bool deltaApplied;
 
 /// Create a copy of FrbCatalogChangedEvent
 /// with the given fields replaced by the non-null parameter values.
@@ -808,16 +810,16 @@ _$FrbCatalogChangedEventCopyWith<_FrbCatalogChangedEvent> get copyWith => __$Frb
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbCatalogChangedEvent&&(identical(other.peerLibraryUuid, peerLibraryUuid) || other.peerLibraryUuid == peerLibraryUuid)&&(identical(other.peerId, peerId) || other.peerId == peerId));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbCatalogChangedEvent&&(identical(other.peerLibraryUuid, peerLibraryUuid) || other.peerLibraryUuid == peerLibraryUuid)&&(identical(other.peerId, peerId) || other.peerId == peerId)&&(identical(other.deltaApplied, deltaApplied) || other.deltaApplied == deltaApplied));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,peerLibraryUuid,peerId);
+int get hashCode => Object.hash(runtimeType,peerLibraryUuid,peerId,deltaApplied);
 
 @override
 String toString() {
-  return 'FrbCatalogChangedEvent(peerLibraryUuid: $peerLibraryUuid, peerId: $peerId)';
+  return 'FrbCatalogChangedEvent(peerLibraryUuid: $peerLibraryUuid, peerId: $peerId, deltaApplied: $deltaApplied)';
 }
 
 
@@ -828,7 +830,7 @@ abstract mixin class _$FrbCatalogChangedEventCopyWith<$Res> implements $FrbCatal
   factory _$FrbCatalogChangedEventCopyWith(_FrbCatalogChangedEvent value, $Res Function(_FrbCatalogChangedEvent) _then) = __$FrbCatalogChangedEventCopyWithImpl;
 @override @useResult
 $Res call({
- String peerLibraryUuid, int peerId
+ String peerLibraryUuid, int peerId, bool deltaApplied
 });
 
 
@@ -845,11 +847,12 @@ class __$FrbCatalogChangedEventCopyWithImpl<$Res>
 
 /// Create a copy of FrbCatalogChangedEvent
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? peerLibraryUuid = null,Object? peerId = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? peerLibraryUuid = null,Object? peerId = null,Object? deltaApplied = null,}) {
   return _then(_FrbCatalogChangedEvent(
 peerLibraryUuid: null == peerLibraryUuid ? _self.peerLibraryUuid : peerLibraryUuid // ignore: cast_nullable_to_non_nullable
 as String,peerId: null == peerId ? _self.peerId : peerId // ignore: cast_nullable_to_non_nullable
-as int,
+as int,deltaApplied: null == deltaApplied ? _self.deltaApplied : deltaApplied // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

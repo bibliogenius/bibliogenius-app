@@ -16,7 +16,8 @@ import '../services/translation_service.dart';
 import '../providers/hub_directory_provider.dart';
 import '../providers/theme_provider.dart';
 import '../services/mdns_service.dart';
-import '../src/rust/api/frb.dart' show FrbCatalogChangedEvent, subscribeCatalogChanges;
+import '../src/rust/api/frb.dart'
+    show FrbCatalogChangedEvent, subscribeCatalogChanges, tryPeerCatalogDelta;
 
 class PeerBookListScreen extends StatefulWidget {
   final int peerId;
@@ -214,14 +215,70 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
         debugPrint(
           'PeerBookList: catalog changed from peer ${event.peerId} '
-          '(uuid=${event.peerLibraryUuid}), triggering silent sync',
+          '(uuid=${event.peerLibraryUuid}), attempting delta sync (ADR-029)',
         );
-        _syncBooks(showFeedback: false);
+        // ADR-029: try the delta path first. On success, peer_books is
+        // already up to date on the Rust side — reload the local cache
+        // into the UI and skip the legacy manifest+pages round-trip.
+        // On failure (reset, old peer, E2EE unavailable, transport error)
+        // fall back to `_syncBooks` which runs the ADR-012 full flow.
+        _deltaSyncThenReload(event.peerId);
       },
       onError: (Object e) =>
           debugPrint('PeerBookList: catalog change stream error: $e'),
       cancelOnError: false,
     );
+  }
+
+  /// ADR-029: call the Rust delta orchestrator. On success, reload the
+  /// local `peer_books` cache into the UI without any network round-trip.
+  /// On failure, fall back to the legacy `_syncBooks` flow.
+  Future<void> _deltaSyncThenReload(int peerId) async {
+    if (!mounted) return;
+    if (peerId <= 0) {
+      // Without a local peer row id we cannot drive the delta orchestrator;
+      // fall back to the legacy flow straight away.
+      _syncBooks(showFeedback: false);
+      return;
+    }
+
+    bool applied = false;
+    try {
+      applied = await tryPeerCatalogDelta(peerId: peerId);
+    } catch (e) {
+      debugPrint('PeerBookList: tryPeerCatalogDelta threw: $e');
+    }
+
+    if (!mounted) return;
+
+    if (!applied) {
+      debugPrint('PeerBookList: delta not applied, running legacy sync');
+      _syncBooks(showFeedback: false);
+      return;
+    }
+
+    debugPrint('PeerBookList: delta applied by Rust, reloading from cache');
+    try {
+      final api = Provider.of<ApiService>(context, listen: false);
+      final cachedRes = await api.getCachedPeerBooks(widget.peerUrl);
+      if (!mounted) return;
+      final data = cachedRes.data;
+      final booksData = (data['books'] as List<dynamic>?) ?? [];
+      setState(() {
+        _books = booksData.map((json) => Book.fromJson(json)).toList();
+        _filteredBooks = _isSearching && _searchController.text.isNotEmpty
+            ? _books
+                .where((b) => _matchesSearch(b, _searchController.text))
+                .toList()
+            : _books;
+        _lastSynced = data['last_synced'] as String?;
+      });
+    } catch (e) {
+      debugPrint('PeerBookList: cache reload after delta failed: $e');
+      // Cache reload failed — fall back to full sync so the user still
+      // sees the update, even if it costs bandwidth.
+      if (mounted) _syncBooks(showFeedback: false);
+    }
   }
 
   /// Try to resolve a LAN URL from mDNS when the saved URL is relay://.

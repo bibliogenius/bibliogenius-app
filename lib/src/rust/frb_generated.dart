@@ -64,7 +64,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.11.1';
 
   @override
-  int get rustContentHash => -1309149498;
+  int get rustContentHash => 666946554;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -534,6 +534,8 @@ abstract class RustLibApi extends BaseApi {
   Stream<FrbLeaderboardChangedEvent> crateApiFrbSubscribeLeaderboardChanges();
 
   Stream<FrbNudgeEvent> crateApiFrbSubscribeRelayNudges();
+
+  Future<bool> crateApiFrbTryPeerCatalogDelta({required int peerId});
 
   Future<FrbBook> crateApiFrbUpdateBook({
     required int id,
@@ -5249,6 +5251,37 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
+  Future<bool> crateApiFrbTryPeerCatalogDelta({required int peerId}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_i_32(peerId, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 150,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_bool,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiFrbTryPeerCatalogDeltaConstMeta,
+        argValues: [peerId],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiFrbTryPeerCatalogDeltaConstMeta =>
+      const TaskConstMeta(
+        debugName: "try_peer_catalog_delta",
+        argNames: ["peerId"],
+      );
+
+  @override
   Future<FrbBook> crateApiFrbUpdateBook({
     required int id,
     required FrbBook book,
@@ -5262,7 +5295,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 150,
+            funcId: 151,
             port: port_,
           );
         },
@@ -5294,7 +5327,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 151,
+            funcId: 152,
             port: port_,
           );
         },
@@ -5331,7 +5364,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 152,
+            funcId: 153,
             port: port_,
           );
         },
@@ -5361,7 +5394,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 153,
+            funcId: 154,
             port: port_,
           );
         },
@@ -5389,7 +5422,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 154,
+            funcId: 155,
             port: port_,
           );
         },
@@ -5426,7 +5459,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 155,
+            funcId: 156,
             port: port_,
           );
         },
@@ -5471,7 +5504,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 156,
+            funcId: 157,
             port: port_,
           );
         },
@@ -5684,11 +5717,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   FrbCatalogChangedEvent dco_decode_frb_catalog_changed_event(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 2)
-      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
     return FrbCatalogChangedEvent(
       peerLibraryUuid: dco_decode_String(arr[0]),
       peerId: dco_decode_i_32(arr[1]),
+      deltaApplied: dco_decode_bool(arr[2]),
     );
   }
 
@@ -6949,9 +6983,11 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_peerLibraryUuid = sse_decode_String(deserializer);
     var var_peerId = sse_decode_i_32(deserializer);
+    var var_deltaApplied = sse_decode_bool(deserializer);
     return FrbCatalogChangedEvent(
       peerLibraryUuid: var_peerLibraryUuid,
       peerId: var_peerId,
+      deltaApplied: var_deltaApplied,
     );
   }
 
@@ -8623,6 +8659,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.peerLibraryUuid, serializer);
     sse_encode_i_32(self.peerId, serializer);
+    sse_encode_bool(self.deltaApplied, serializer);
   }
 
   @protected

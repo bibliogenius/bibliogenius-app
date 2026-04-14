@@ -400,6 +400,21 @@ Future<int> startServer({required int port}) =>
 /// concurrent subscribers each receive their own independent copy of every
 /// event (broadcast semantics). A slow subscriber lags without blocking
 /// the emitter.
+/// Attempt a delta sync against a peer via E2EE (ADR-029).
+///
+/// Returns `true` when a delta window was successfully fetched and applied
+/// to `peer_books` — the caller should SKIP the legacy
+/// `relay_library_request("manifest")` loop and simply re-read the local
+/// cache. Returns `false` on any non-applied outcome
+/// (`ResetRequired`, `FallbackRequired`, `E2eeUnavailable`, transport
+/// error) — the caller should run the legacy full-catalog flow as before.
+///
+/// Designed to be called from the Flutter `subscribe_catalog_changes`
+/// handler before triggering a full sync, so the delta path replaces the
+/// full pull whenever it succeeds.
+Future<bool> tryPeerCatalogDelta({required int peerId}) =>
+    RustLib.instance.api.crateApiFrbTryPeerCatalogDelta(peerId: peerId);
+
 Stream<FrbCatalogChangedEvent> subscribeCatalogChanges() =>
     RustLib.instance.api.crateApiFrbSubscribeCatalogChanges();
 
@@ -1116,6 +1131,7 @@ sealed class FrbCatalogChangedEvent with _$FrbCatalogChangedEvent {
   const factory FrbCatalogChangedEvent({
     required String peerLibraryUuid,
     required int peerId,
+    required bool deltaApplied,
   }) = _FrbCatalogChangedEvent;
 }
 
