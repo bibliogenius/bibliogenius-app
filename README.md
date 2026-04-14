@@ -4,16 +4,23 @@
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Platform](https://img.shields.io/badge/platform-iOS%20|%20Android%20|%20macOS%20|%20Windows%20|%20Linux-blue)](https://flutter.dev)
 
-**Cross-platform mobile and desktop application for managing your personal library.**
+**Cross-platform mobile and desktop application for managing and sharing your personal library.**
 
-The official frontend for BiblioGenius, built with Flutter. It embeds the Rust backend for high-performance offline capabilities.
+The official frontend for BiblioGenius, built with Flutter. It embeds the Rust backend for high-performance offline capabilities, and lets you share your catalog and lend books across all your devices — whether they are on the same Wi-Fi or on the other side of the world.
 
 ## 🚀 Features
 
-- **Universal App**: Works on phones, tablets, and desktops.
-- **Offline First**: Manage your library without internet.
-- **Scanner**: Barcode scanning for quick book entry.
-- **Beautiful UI**: Modern, responsive design.
+- **Universal App**: iOS, Android, macOS, Windows, and Linux from a single codebase.
+- **Offline First**: Your library lives on-device; every feature works without internet.
+- **Scanner**: Barcode scanning for quick book entry, with metadata fetched from open bibliographic sources.
+- **Catalog management**: Books, authors, series, loans, reading status, covers, and personal notes.
+- **Multi-device sync**:
+  - **Local network (Wi-Fi / LAN)**: Zero-config peer discovery via mDNS — your devices find each other automatically when connected to the same network.
+  - **Off-network (cellular, different Wi-Fi, travel)**: End-to-end encrypted relay through a BiblioGenius hub, so your devices stay in sync and your peers stay reachable even when you are not on the same LAN. The hub only sees ciphertext.
+- **Peer-to-peer lending**: Browse a friend's catalog, request loans, and track returns — over LAN or over the hub relay.
+- **Real-time notifications**: WebSocket-based push for loan requests, status changes, and catalog updates from your peers.
+- **E2EE by design**: Forward-secret messaging between devices and peers (ephemeral DH per message, HKDF-derived keys, replay protection).
+- **Beautiful UI**: Modern, responsive, fully accessible design (RGAA 4.1 / WCAG 2.1 AA).
 
 ## 📋 Prerequisites
 
