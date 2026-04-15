@@ -9,6 +9,7 @@ import '../services/api_service.dart';
 import '../services/ffi_service.dart';
 import '../models/book.dart';
 import '../models/hub_directory.dart';
+import '../widgets/book_cover_card.dart';
 import '../widgets/bookshelf_view.dart';
 import '../widgets/cached_book_cover.dart';
 import '../widgets/shimmer_loading.dart';
@@ -18,6 +19,8 @@ import '../providers/theme_provider.dart';
 import '../services/mdns_service.dart';
 import '../src/rust/api/frb.dart'
     show FrbCatalogChangedEvent, subscribeCatalogChanges, tryPeerCatalogDelta;
+
+enum _PeerViewMode { coverGrid, shelf, list }
 
 class PeerBookListScreen extends StatefulWidget {
   final int peerId;
@@ -53,7 +56,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   List<Book> _books = [];
   List<Book> _filteredBooks = [];
   bool _isLoading = true;
-  bool _isShelfView = true;
+  _PeerViewMode _viewMode = _PeerViewMode.coverGrid;
   bool _isPeerOnline = true;
   String? _lastSynced;
   bool _isSyncing = false;
@@ -703,29 +706,9 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       // both work via _parsePaginatedResponse. Defend against a totally
       // empty / malformed body by not trusting a zero-total silently.
       if (parsed.booksData.isNotEmpty || parsed.total == 0) {
-        // The direct delta path bypasses the Rust proxy's
-        // `enrich_books_with_first_seen`, so the peer's DTO arrives with
-        // `first_seen_at = null` (redacted peer-side). Re-attach from the
-        // current in-memory list for books we already knew, and stamp "now"
-        // for ids we have never seen — that drives the "Nouveau" badge off
-        // the actual first-seen moment on THIS device rather than a global
-        // field that `redact_for_peer` nulls out (fix for tag inversion
-        // regression, commit dd9755d was paginated-only).
-        final previousFirstSeen = <int, String>{
-          for (final b in _books)
-            if (b.id != null && b.firstSeenAt != null)
-              b.id!: b.firstSeenAt!.toIso8601String(),
-        };
-        final nowIso = DateTime.now().toUtc().toIso8601String();
-        final freshBooks = parsed.booksData.map((json) {
-          if (json is Map) {
-            final id = (json['id'] as num?)?.toInt();
-            if (id != null) {
-              json['first_seen_at'] = previousFirstSeen[id] ?? nowIso;
-            }
-          }
-          return Book.fromJson(json as Map<String, dynamic>);
-        }).toList();
+        final freshBooks = parsed.booksData
+            .map((json) => Book.fromJson(json as Map<String, dynamic>))
+            .toList();
         setState(() {
           _books = freshBooks;
           _filteredBooks = _books;
@@ -1925,11 +1908,19 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
             ),
           if (!_isSearching)
             IconButton(
-              icon: Icon(_isShelfView ? Icons.list : Icons.grid_view),
+              icon: Icon(switch (_viewMode) {
+                _PeerViewMode.coverGrid => Icons.view_module,
+                _PeerViewMode.shelf => Icons.view_day,
+                _PeerViewMode.list => Icons.view_list,
+              }),
               tooltip: TranslationService.translate(context, 'toggle_view'),
               onPressed: () {
                 setState(() {
-                  _isShelfView = !_isShelfView;
+                  _viewMode = switch (_viewMode) {
+                    _PeerViewMode.coverGrid => _PeerViewMode.shelf,
+                    _PeerViewMode.shelf => _PeerViewMode.list,
+                    _PeerViewMode.list => _PeerViewMode.coverGrid,
+                  };
                 });
               },
             ),
@@ -2027,8 +2018,8 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                                 }
                                 return false;
                               },
-                              child: _isShelfView
-                                  ? BookshelfView(
+                              child: switch (_viewMode) {
+                                _PeerViewMode.shelf => BookshelfView(
                                       books: _filteredBooks,
                                       onBookTap: (book) => _showBookDetails(book),
                                       footer: _hasMorePages
@@ -2048,8 +2039,36 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                                                   ),
                                                 )
                                           : null,
-                                    )
-                                  : ListView.separated(
+                                    ),
+                                _PeerViewMode.coverGrid => GridView.builder(
+                                      padding: const EdgeInsets.all(16),
+                                      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                                        maxCrossAxisExtent: 150,
+                                        childAspectRatio: 0.65,
+                                        crossAxisSpacing: 16,
+                                        mainAxisSpacing: 16,
+                                      ),
+                                      itemCount: _filteredBooks.length + (_hasMorePages ? 1 : 0),
+                                      itemBuilder: (context, index) {
+                                        if (index == _filteredBooks.length) {
+                                          return const Center(
+                                            child: Padding(
+                                              padding: EdgeInsets.all(16),
+                                              child: CircularProgressIndicator(),
+                                            ),
+                                          );
+                                        }
+                                        final book = _filteredBooks[index];
+                                        final resolvedBook = book.copyWithCoverUrl(
+                                          _resolvePeerCoverUrl(book),
+                                        );
+                                        return BookCoverCard(
+                                          book: resolvedBook,
+                                          onTap: () => _showBookDetails(book),
+                                        );
+                                      },
+                                    ),
+                                _PeerViewMode.list => ListView.separated(
                                       itemCount: _filteredBooks.length + (_hasMorePages ? 1 : 0),
                                       separatorBuilder: (context, index) =>
                                           index < _filteredBooks.length - 1
@@ -2183,6 +2202,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                                         );
                                       },
                                     ),
+                              },
                             ),
                     ),
                   ],

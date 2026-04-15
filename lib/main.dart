@@ -165,6 +165,9 @@ Future<String?> _getDeviceName() async {
 
 void main([List<String>? args]) async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Cap decoded-image RAM. Book covers are decoded at thumbnail size
+  // (see CachedBookCover memCacheWidth), so 75 MB holds ~250 covers hot.
+  PaintingBinding.instance.imageCache.maximumSizeBytes = 75 << 20;
   // Custom error widget to display errors visibly for debugging
   ErrorWidget.builder = (FlutterErrorDetails details) {
     return MaterialApp(

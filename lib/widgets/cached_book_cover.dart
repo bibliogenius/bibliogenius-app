@@ -151,12 +151,20 @@ class CachedBookCover extends StatelessWidget {
       resolvedUrl = '$baseUrl$resolvedUrl';
     }
 
+    // Decode at display resolution to keep RAM bounded. A 800x1200 cover
+    // decoded full-res costs ~3.8 MB; at 150 logical px × 3x DPR the same
+    // cover costs ~250 KB. When `width` isn't provided (parent-filling case,
+    // e.g. cover grid), cap at 300 logical px which covers every call site.
+    final dpr = MediaQuery.devicePixelRatioOf(context);
+    final decodeWidth = ((width ?? 300) * dpr).round();
+
     Widget image = CachedNetworkImage(
       imageUrl: resolvedUrl,
       cacheManager: BookCoverCacheManager.instance,
       width: width,
       height: height,
       fit: fit,
+      memCacheWidth: decodeWidth,
       placeholder: (context, url) => placeholder ?? _buildPlaceholder(),
       errorListener: (error) {
         // Drop the stale cache entry for this URL so a retry (user pulls to
