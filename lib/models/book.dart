@@ -21,9 +21,11 @@ class Book {
   final int? availableCopies; // Number of copies with status "available" (from peer)
   final bool private; // When true, hidden from network peers
   final int? pageCount;
-  /// When the local cache first observed this book (peer libraries only).
-  /// Null for the user's own books and for live responses with no cache row.
-  final DateTime? firstSeenAt;
+  /// When this book was added to its owner's library (maps to the owner's
+  /// `books.created_at`). Used by the "new" badge on peer library views:
+  /// editorial metadata broadcast by the owner, so every viewer agrees on
+  /// which books are recent.
+  final DateTime? addedAt;
 
   Book({
     this.id,
@@ -46,7 +48,7 @@ class Book {
     this.availableCopies,
     this.private = false,
     this.pageCount,
-    this.firstSeenAt,
+    this.addedAt,
   }) : _coverUrl = coverUrl;
 
   factory Book.fromJson(Map<String, dynamic> json) {
@@ -87,8 +89,8 @@ class Book {
       availableCopies: json['available_copies'],
       private: json['private'] ?? false,
       pageCount: json['page_count'],
-      firstSeenAt: json['first_seen_at'] != null
-          ? DateTime.tryParse(json['first_seen_at'])
+      addedAt: json['added_at'] != null
+          ? DateTime.tryParse(json['added_at'])
           : null,
     );
   }
@@ -116,19 +118,19 @@ class Book {
       'available_copies': availableCopies,
       'private': private,
       'page_count': pageCount,
-      'first_seen_at': firstSeenAt?.toIso8601String(),
+      'added_at': addedAt?.toIso8601String(),
       'created_at': now,
       'updated_at': now,
     };
   }
 
   /// Whether this book should display the "new" badge in peer library views.
-  /// Single source of truth: peer-cache-supplied `firstSeenAt` within the
-  /// configured threshold. Books outside peer libraries (`firstSeenAt == null`)
-  /// are never considered new.
+  /// Single source of truth: the owner's `addedAt` (books.created_at) within
+  /// the configured threshold. Books without `addedAt` (not broadcast by the
+  /// peer, or own library) are never considered new.
   bool get isNew {
-    if (firstSeenAt == null) return false;
-    return DateTime.now().difference(firstSeenAt!).inDays <
+    if (addedAt == null) return false;
+    return DateTime.now().difference(addedAt!).inDays <
         AppConstants.newBadgeDays;
   }
 
@@ -155,7 +157,7 @@ class Book {
       availableCopies: availableCopies,
       private: private,
       pageCount: pageCount,
-      firstSeenAt: firstSeenAt,
+      addedAt: addedAt,
     );
   }
 
@@ -202,7 +204,7 @@ class Book {
       availableCopies: availableCopies,
       private: private,
       pageCount: pageCount,
-      firstSeenAt: firstSeenAt,
+      addedAt: addedAt,
     );
   }
 
