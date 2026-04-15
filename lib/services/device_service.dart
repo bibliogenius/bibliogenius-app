@@ -5,6 +5,7 @@ import 'package:crypto/crypto.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 /// Encapsulates device identification logic for hub directory profiles.
 ///
@@ -82,6 +83,22 @@ class DeviceService {
       debugPrint('DeviceService.getDeviceFingerprint error: $e');
     }
     return null;
+  }
+
+  /// Returns the client app version reported to the hub (e.g. "0.9.0+422").
+  /// Capped at 32 chars to match the hub column width.
+  Future<String?> getAppVersion() async {
+    try {
+      final info = await PackageInfo.fromPlatform();
+      final v = info.buildNumber.isNotEmpty
+          ? '${info.version}+${info.buildNumber}'
+          : info.version;
+      if (v.isEmpty) return null;
+      return v.length > 32 ? v.substring(0, 32) : v;
+    } catch (e) {
+      debugPrint('DeviceService.getAppVersion error: $e');
+      return null;
+    }
   }
 
   static String _sha256(String input) {

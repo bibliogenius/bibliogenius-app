@@ -507,6 +507,7 @@ class HubDirectoryProvider extends ChangeNotifier {
       } catch (_) {}
       final deviceModel = await _deviceService.getDeviceModel();
       final deviceFingerprint = await _deviceService.getDeviceFingerprint();
+      final appVersion = await _deviceService.getAppVersion();
 
       if (kDebugMode) {
         debugPrint('HubDirectory: publishing relay credentials to hub '
@@ -523,6 +524,7 @@ class HubDirectoryProvider extends ChangeNotifier {
         x25519PublicKey: x25519Key,
         deviceModel: deviceModel,
         deviceFingerprint: deviceFingerprint,
+        appVersion: appVersion,
         relayUrl: relay.relayUrl,
         relayMailboxId: relay.mailboxId,
         relayWriteToken: relay.writeToken,
@@ -649,6 +651,7 @@ class HubDirectoryProvider extends ChangeNotifier {
     final bookCount = await _ffi.countBooks();
     final deviceModel = await _deviceService.getDeviceModel();
     final deviceFingerprint = await _deviceService.getDeviceFingerprint();
+    final appVersion = await _deviceService.getAppVersion();
     final relay = await _getRelayCredentials();
     await register(
       nodeId: cfg.nodeId,
@@ -662,6 +665,7 @@ class HubDirectoryProvider extends ChangeNotifier {
       website: _websiteUrl.isNotEmpty ? _websiteUrl : null,
       deviceModel: deviceModel,
       deviceFingerprint: deviceFingerprint,
+      appVersion: appVersion,
       relayUrl: relay.relayUrl,
       relayMailboxId: relay.mailboxId,
       relayWriteToken: relay.writeToken,
@@ -692,6 +696,7 @@ class HubDirectoryProvider extends ChangeNotifier {
     String? website,
     String? deviceModel,
     String? deviceFingerprint,
+    String? appVersion,
     String? relayUrl,
     String? relayMailboxId,
     String? relayWriteToken,
@@ -712,6 +717,7 @@ class HubDirectoryProvider extends ChangeNotifier {
     // Build params before try/catch so they're accessible in the 401 retry.
     final effectiveModel = deviceModel ?? await _deviceService.getDeviceModel();
     final effectiveFp = deviceFingerprint ?? await _deviceService.getDeviceFingerprint();
+    final effectiveAppVersion = appVersion ?? await _deviceService.getAppVersion();
     final effectiveAvatar = avatarConfig ?? await _getLocalAvatarConfigJson();
 
     final params = frb.FrbRegisterParams(
@@ -728,6 +734,7 @@ class HubDirectoryProvider extends ChangeNotifier {
       website: website,
       deviceModel: effectiveModel,
       deviceFingerprint: effectiveFp,
+      appVersion: effectiveAppVersion,
       relayUrl: relayUrl,
       relayMailboxId: relayMailboxId,
       relayWriteToken: relayWriteToken,
@@ -911,6 +918,7 @@ class HubDirectoryProvider extends ChangeNotifier {
 
       final deviceModel = await _deviceService.getDeviceModel();
       final deviceFingerprint = await _deviceService.getDeviceFingerprint();
+      final appVersion = await _deviceService.getAppVersion();
 
       final relay = await _getRelayCredentials();
 
@@ -925,6 +933,7 @@ class HubDirectoryProvider extends ChangeNotifier {
         x25519PublicKey: x25519Key,
         deviceModel: deviceModel,
         deviceFingerprint: deviceFingerprint,
+        appVersion: appVersion,
         relayUrl: relay.relayUrl,
         relayMailboxId: relay.mailboxId,
         relayWriteToken: relay.writeToken,

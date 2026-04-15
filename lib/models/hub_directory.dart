@@ -53,6 +53,7 @@ class HubProfile {
   final String? website;
   final String? deviceModel;
   final String? deviceFingerprint;
+  final String? appVersion;
   final String? avatarConfig;
 
   const HubProfile({
@@ -68,6 +69,7 @@ class HubProfile {
     this.website,
     this.deviceModel,
     this.deviceFingerprint,
+    this.appVersion,
     this.avatarConfig,
   });
 
@@ -84,6 +86,7 @@ class HubProfile {
         website: f.website,
         deviceModel: f.deviceModel,
         deviceFingerprint: f.deviceFingerprint,
+        appVersion: f.appVersion,
         avatarConfig: f.avatarConfig,
       );
 }
