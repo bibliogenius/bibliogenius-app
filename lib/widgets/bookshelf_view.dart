@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/book.dart';
+import '../utils/book_color_seed.dart';
 import 'book_spine.dart';
 
 class BookshelfView extends StatelessWidget {
@@ -29,7 +30,7 @@ class BookshelfView extends StatelessWidget {
                 alignment: WrapAlignment.start,
                 crossAxisAlignment: WrapCrossAlignment.end,
                 children: books.map((book) {
-                  final seed = book.id ?? book.isbn?.hashCode ?? 0;
+                  final seed = bookColorSeed(book);
                   return GestureDetector(
                     onTap: () => onBookTap(book),
                     child: BookSpine.fromBook(

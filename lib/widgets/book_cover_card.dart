@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/book.dart';
-import 'dart:math';
 import '../services/translation_service.dart';
 import '../providers/theme_provider.dart';
 import '../theme/app_design.dart';
+import '../utils/book_color_seed.dart';
 import '../utils/book_status.dart';
 import 'cached_book_cover.dart';
 
@@ -20,32 +20,20 @@ class BookCoverCard extends StatelessWidget {
     this.onStatusChanged,
   });
 
-  // Cyan palette for dark theme
-  static const List<Color> _darkColors = [
-    Color(0xFF06B6D4), // Cyan 500
-    Color(0xFF0891B2), // Cyan 600
-    Color(0xFF22D3EE), // Cyan 400
-    Color(0xFF0E7490), // Cyan 700
-    Color(0xFF155E75), // Cyan 800
-    Color(0xFF67E8F9), // Cyan 300
-    Color(0xFF0284C7), // Sky 600
-    Color(0xFF0369A1), // Sky 700
-  ];
-
-  Color _getColorFromId(BuildContext context, int id) {
+  Color _getColorFromSeed(BuildContext context, int seed) {
     final isDark =
         Provider.of<ThemeProvider>(context, listen: false).themeStyle ==
         'dark';
-    if (isDark) {
-      return _darkColors[id % _darkColors.length];
-    }
-    final random = Random(id);
-    return Color.fromARGB(
-      255,
-      random.nextInt(200),
-      random.nextInt(200),
-      random.nextInt(200),
-    );
+    // Golden-ratio hue distribution: consecutive seeds land ~137.5° apart on
+    // the color wheel, so even sequential peer book seeds produce visually
+    // distinct covers instead of clustering in one hue family.
+    final hue = (seed.abs() * 137.508) % 360;
+    return HSLColor.fromAHSL(
+      1.0,
+      hue,
+      0.55,
+      isDark ? 0.40 : 0.55,
+    ).toColor();
   }
 
   @override
@@ -143,7 +131,7 @@ class BookCoverCard extends StatelessWidget {
   }
 
   Widget _buildFallbackCover(BuildContext context) {
-    final color = _getColorFromId(context, book.id ?? 0);
+    final color = _getColorFromSeed(context, bookColorSeed(book));
     return Container(
       decoration: BoxDecoration(
         color: color,

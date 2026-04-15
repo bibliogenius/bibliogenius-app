@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 import '../models/book.dart';
 import '../services/translation_service.dart';
+import '../utils/book_color_seed.dart';
 
 /// A book spine widget that renders a colored vertical strip with the title.
 ///
@@ -27,7 +28,7 @@ class BookSpine extends StatelessWidget {
     this.showNewBand = false,
   })  : title = book.title,
         subtitle = book.publisher,
-        colorSeed = book.id ?? book.isbn?.hashCode ?? 0,
+        colorSeed = bookColorSeed(book),
         opacity = book.owned ? 1.0 : 0.5;
 
   /// Creates a spine from minimal data (title + optional author/subtitle).
