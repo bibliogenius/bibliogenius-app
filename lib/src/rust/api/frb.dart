@@ -418,6 +418,33 @@ Future<bool> tryPeerCatalogDelta({required int peerId}) =>
 Stream<FrbCatalogChangedEvent> subscribeCatalogChanges() =>
     RustLib.instance.api.crateApiFrbSubscribeCatalogChanges();
 
+/// Subscribe to the profile-change event stream (ADR-025).
+///
+/// Each emitted event indicates that a peer's profile (today: avatar)
+/// changed. Flutter should pull the new values via
+/// `try_peer_avatar_pull(peer_id)`. The subscription is intended to be
+/// registered once at app level (`AvatarSyncService`) so avatars stay
+/// fresh across every screen without per-screen wiring.
+///
+/// The stream lives until the Dart side drops the `StreamSink`.
+Stream<FrbProfileChangedEvent> subscribeProfileChanges() =>
+    RustLib.instance.api.crateApiFrbSubscribeProfileChanges();
+
+/// Pull a peer's avatar (and `library_name`) over E2EE (ADR-025).
+///
+/// Returns `true` when at least one field changed and was persisted to the
+/// local `peers` row. Returns `false` when the peer is up to date, the
+/// peer did not respond, or E2EE is unavailable. Errors are converted to
+/// `false` and logged (the caller's UI should degrade gracefully to the
+/// cached avatar).
+///
+/// Designed to be called from the Flutter `subscribe_profile_changes`
+/// handler (`AvatarSyncService`) whenever a peer emits a `profile_changed`
+/// nudge. Also safe to call opportunistically on first-seen of a relay-only
+/// peer.
+Future<bool> tryPeerAvatarPull({required int peerId}) =>
+    RustLib.instance.api.crateApiFrbTryPeerAvatarPull(peerId: peerId);
+
 Stream<FrbNudgeEvent> subscribeRelayNudges() =>
     RustLib.instance.api.crateApiFrbSubscribeRelayNudges();
 
@@ -2094,6 +2121,20 @@ class FrbPendingReviewOp {
           payload == other.payload &&
           source == other.source &&
           createdAt == other.createdAt;
+}
+
+/// FFI-safe view of a peer profile-change event.
+///
+/// Emitted when a peer sends a `profile_changed` relay message after they
+/// edit their avatar (or, in the future, another profile field). Flutter
+/// should call `try_peer_avatar_pull(peer_id)` on receipt to fetch the
+/// fresh values over E2EE and update the local `peers` row.
+@freezed
+sealed class FrbProfileChangedEvent with _$FrbProfileChangedEvent {
+  const factory FrbProfileChangedEvent({
+    required int peerId,
+    required List<String> changed,
+  }) = _FrbProfileChangedEvent;
 }
 
 /// A generated puzzle board (FFI-safe)

@@ -17,6 +17,7 @@ import 'services/sync_service.dart';
 import 'services/translation_service.dart';
 import 'services/mdns_service.dart';
 import 'services/ffi_service.dart';
+import 'services/avatar_sync_service.dart';
 import 'src/rust/api/frb.dart' as frb;
 import 'utils/app_constants.dart';
 import 'utils/invite_payload.dart';
@@ -455,8 +456,17 @@ class MyApp extends StatelessWidget {
       _prewarmLeaderboards();
     }
 
+    // ADR-025: app-level avatar sync. Subscribes to the Rust
+    // `profile_changed` stream and pulls fresh avatars from peers over
+    // E2EE when they edit their profile.
+    final avatarSyncService = AvatarSyncService();
+    if (useFfi) {
+      avatarSyncService.start();
+    }
+
     Widget app = MultiProvider(
       providers: [
+        Provider<AvatarSyncService>.value(value: avatarSyncService),
         ChangeNotifierProvider<ThemeProvider>.value(value: themeProvider),
         ChangeNotifierProvider<BookRefreshNotifier>.value(
           value: bookRefreshNotifier,

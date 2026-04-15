@@ -4644,6 +4644,266 @@ as BigInt,
 }
 
 /// @nodoc
+mixin _$FrbProfileChangedEvent {
+
+ int get peerId; List<String> get changed;
+/// Create a copy of FrbProfileChangedEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$FrbProfileChangedEventCopyWith<FrbProfileChangedEvent> get copyWith => _$FrbProfileChangedEventCopyWithImpl<FrbProfileChangedEvent>(this as FrbProfileChangedEvent, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbProfileChangedEvent&&(identical(other.peerId, peerId) || other.peerId == peerId)&&const DeepCollectionEquality().equals(other.changed, changed));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,peerId,const DeepCollectionEquality().hash(changed));
+
+@override
+String toString() {
+  return 'FrbProfileChangedEvent(peerId: $peerId, changed: $changed)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $FrbProfileChangedEventCopyWith<$Res>  {
+  factory $FrbProfileChangedEventCopyWith(FrbProfileChangedEvent value, $Res Function(FrbProfileChangedEvent) _then) = _$FrbProfileChangedEventCopyWithImpl;
+@useResult
+$Res call({
+ int peerId, List<String> changed
+});
+
+
+
+
+}
+/// @nodoc
+class _$FrbProfileChangedEventCopyWithImpl<$Res>
+    implements $FrbProfileChangedEventCopyWith<$Res> {
+  _$FrbProfileChangedEventCopyWithImpl(this._self, this._then);
+
+  final FrbProfileChangedEvent _self;
+  final $Res Function(FrbProfileChangedEvent) _then;
+
+/// Create a copy of FrbProfileChangedEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? peerId = null,Object? changed = null,}) {
+  return _then(_self.copyWith(
+peerId: null == peerId ? _self.peerId : peerId // ignore: cast_nullable_to_non_nullable
+as int,changed: null == changed ? _self.changed : changed // ignore: cast_nullable_to_non_nullable
+as List<String>,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [FrbProfileChangedEvent].
+extension FrbProfileChangedEventPatterns on FrbProfileChangedEvent {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _FrbProfileChangedEvent value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _FrbProfileChangedEvent() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _FrbProfileChangedEvent value)  $default,){
+final _that = this;
+switch (_that) {
+case _FrbProfileChangedEvent():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _FrbProfileChangedEvent value)?  $default,){
+final _that = this;
+switch (_that) {
+case _FrbProfileChangedEvent() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int peerId,  List<String> changed)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _FrbProfileChangedEvent() when $default != null:
+return $default(_that.peerId,_that.changed);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int peerId,  List<String> changed)  $default,) {final _that = this;
+switch (_that) {
+case _FrbProfileChangedEvent():
+return $default(_that.peerId,_that.changed);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int peerId,  List<String> changed)?  $default,) {final _that = this;
+switch (_that) {
+case _FrbProfileChangedEvent() when $default != null:
+return $default(_that.peerId,_that.changed);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _FrbProfileChangedEvent implements FrbProfileChangedEvent {
+  const _FrbProfileChangedEvent({required this.peerId, required final  List<String> changed}): _changed = changed;
+  
+
+@override final  int peerId;
+ final  List<String> _changed;
+@override List<String> get changed {
+  if (_changed is EqualUnmodifiableListView) return _changed;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_changed);
+}
+
+
+/// Create a copy of FrbProfileChangedEvent
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$FrbProfileChangedEventCopyWith<_FrbProfileChangedEvent> get copyWith => __$FrbProfileChangedEventCopyWithImpl<_FrbProfileChangedEvent>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbProfileChangedEvent&&(identical(other.peerId, peerId) || other.peerId == peerId)&&const DeepCollectionEquality().equals(other._changed, _changed));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,peerId,const DeepCollectionEquality().hash(_changed));
+
+@override
+String toString() {
+  return 'FrbProfileChangedEvent(peerId: $peerId, changed: $changed)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$FrbProfileChangedEventCopyWith<$Res> implements $FrbProfileChangedEventCopyWith<$Res> {
+  factory _$FrbProfileChangedEventCopyWith(_FrbProfileChangedEvent value, $Res Function(_FrbProfileChangedEvent) _then) = __$FrbProfileChangedEventCopyWithImpl;
+@override @useResult
+$Res call({
+ int peerId, List<String> changed
+});
+
+
+
+
+}
+/// @nodoc
+class __$FrbProfileChangedEventCopyWithImpl<$Res>
+    implements _$FrbProfileChangedEventCopyWith<$Res> {
+  __$FrbProfileChangedEventCopyWithImpl(this._self, this._then);
+
+  final _FrbProfileChangedEvent _self;
+  final $Res Function(_FrbProfileChangedEvent) _then;
+
+/// Create a copy of FrbProfileChangedEvent
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? peerId = null,Object? changed = null,}) {
+  return _then(_FrbProfileChangedEvent(
+peerId: null == peerId ? _self.peerId : peerId // ignore: cast_nullable_to_non_nullable
+as int,changed: null == changed ? _self._changed : changed // ignore: cast_nullable_to_non_nullable
+as List<String>,
+  ));
+}
+
+
+}
+
+/// @nodoc
 mixin _$FrbRegisterParams {
 
  String get nodeId; String get displayName; int get bookCount; bool get isListed; bool get requiresApproval; String get acceptFrom; String? get description; String? get locationCountry; bool get allowBorrowing; String? get x25519PublicKey; String? get website; String? get deviceModel; String? get deviceFingerprint; String? get relayUrl; String? get relayMailboxId; String? get relayWriteToken; String? get avatarConfig;

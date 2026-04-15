@@ -37,6 +37,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  RustStreamSink<FrbProfileChangedEvent>
+  dco_decode_StreamSink_frb_profile_changed_event_Sse(dynamic raw);
+
+  @protected
   String dco_decode_String(dynamic raw);
 
   @protected
@@ -197,6 +201,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbPendingReviewOp dco_decode_frb_pending_review_op(dynamic raw);
+
+  @protected
+  FrbProfileChangedEvent dco_decode_frb_profile_changed_event(dynamic raw);
 
   @protected
   FrbPuzzleBoard dco_decode_frb_puzzle_board(dynamic raw);
@@ -407,6 +414,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  RustStreamSink<FrbProfileChangedEvent>
+  sse_decode_StreamSink_frb_profile_changed_event_Sse(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   String sse_decode_String(SseDeserializer deserializer);
 
   @protected
@@ -603,6 +616,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbPendingReviewOp sse_decode_frb_pending_review_op(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  FrbProfileChangedEvent sse_decode_frb_profile_changed_event(
     SseDeserializer deserializer,
   );
 
@@ -861,6 +879,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_StreamSink_frb_profile_changed_event_Sse(
+    RustStreamSink<FrbProfileChangedEvent> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_String(String self, SseSerializer serializer);
 
   @protected
@@ -1112,6 +1136,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_frb_pending_review_op(
     FrbPendingReviewOp self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_frb_profile_changed_event(
+    FrbProfileChangedEvent self,
     SseSerializer serializer,
   );
 
