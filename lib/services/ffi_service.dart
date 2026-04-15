@@ -1281,6 +1281,19 @@ class FfiService {
     }
   }
 
+  /// Return the last `lines` lines of the Rust tracing log.
+  /// Empty in release builds (tracing is disabled) or before `initBackend`.
+  /// Used to dump backend logs to `flutter run` stdout when Xcode Console
+  /// is not accessible (iOS FFI stderr is invisible to the host process).
+  String getRustLogTail({int lines = 200}) {
+    try {
+      return frb.getRustLogTail(lines: lines);
+    } catch (e) {
+      debugPrint('FFI getRustLogTail error: $e');
+      return '';
+    }
+  }
+
   /// Get the enriched catalog (ISBN + title + author) of a followed library.
   Future<List<frb.FrbCatalogEntry>> hubDirectoryGetCatalog(String nodeId) async {
     try {

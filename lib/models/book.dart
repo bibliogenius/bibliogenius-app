@@ -164,7 +164,9 @@ class Book {
   String? get coverUrl {
     if (_coverUrl != null && _coverUrl.isNotEmpty) return _coverUrl;
     if (isbn != null && isbn!.isNotEmpty) {
-      return 'https://covers.openlibrary.org/b/isbn/$isbn-M.jpg';
+      // `default=false` makes OpenLibrary return 404 for unknown/malformed
+      // ISBNs instead of a 1×1 grey placeholder that would hide our fallback.
+      return 'https://covers.openlibrary.org/b/isbn/$isbn-M.jpg?default=false';
     }
     return null;
   }
@@ -173,7 +175,7 @@ class Book {
     if (_coverUrl != null && _coverUrl.isNotEmpty)
       return _coverUrl; // Or try to get large version if possible
     if (isbn != null && isbn!.isNotEmpty) {
-      return 'https://covers.openlibrary.org/b/isbn/$isbn-L.jpg';
+      return 'https://covers.openlibrary.org/b/isbn/$isbn-L.jpg?default=false';
     }
     return null;
   }
