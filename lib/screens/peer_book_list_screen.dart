@@ -18,7 +18,12 @@ import '../providers/hub_directory_provider.dart';
 import '../providers/theme_provider.dart';
 import '../services/mdns_service.dart';
 import '../src/rust/api/frb.dart'
-    show FrbCatalogChangedEvent, subscribeCatalogChanges, tryPeerCatalogDelta;
+    show
+        FrbCatalogChangedEvent,
+        setPeerDeltaCursor,
+        subscribeCatalogChanges,
+        tryPeerCatalogDeltaDetailed,
+        updatePeerLibraryUuid;
 
 enum _PeerViewMode { coverGrid, shelf, list }
 
@@ -76,6 +81,17 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
   /// Subscription to real-time catalog-change events from the peer (ADR-017).
   StreamSubscription<FrbCatalogChangedEvent>? _catalogChangeSub;
+
+  /// When the peer reports `reset_required:<N>` (ADR-029), we cannot adopt
+  /// `N` as the new `peers.last_delta_cursor` before the legacy full-catalog
+  /// flow rebuilds the cache (doing so would skip over rows we never applied
+  /// and leave a permanent data gap). We stash `N` here on reset_required
+  /// receipt and persist it only from the success path of `_fetchRelayPages`.
+  /// Scope: in-memory for the current mount. If the user navigates away
+  /// before the fallback finishes, we drop the opportunity and the next
+  /// visit simply retries the reset cycle (still correct, just one extra
+  /// round-trip).
+  int? _pendingDeltaCursor;
 
   /// Hub catalog fallback: true when books come from hub (limited metadata)
   bool _isHubOnly = false;
@@ -199,6 +215,10 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   /// the peer was resolved via mDNS or relay.
   void _subscribeCatalogChanges() {
     _catalogChangeSub?.cancel();
+    debugPrint(
+      '[DEBUG-CATALOG] _subscribeCatalogChanges WIRED: '
+      'widget.peerId=${widget.peerId}, effectiveNodeId="$_effectiveNodeId"',
+    );
     _catalogChangeSub = subscribeCatalogChanges().listen(
       (FrbCatalogChangedEvent event) {
         // Match by local peer ID or by library UUID (whichever is available).
@@ -210,11 +230,28 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
             event.peerLibraryUuid.isNotEmpty &&
             event.peerLibraryUuid == resolvedUuid;
 
-        if (!matchById && !matchByUuid) return;
+        // DEBUG ADR-029: log every event reaching this listener with the
+        // match computation so we can tell whether the event is arriving
+        // at all and, if so, why it does (or does not) match the screen.
+        debugPrint(
+          '[DEBUG-CATALOG] EVENT received: event.peerId=${event.peerId}, '
+          'event.uuid="${event.peerLibraryUuid}", '
+          'widget.peerId=${widget.peerId}, effectiveNodeId="$resolvedUuid" '
+          '-> matchById=$matchById, matchByUuid=$matchByUuid, '
+          'isSyncing=$_isSyncing, isRelayLoading=$_isRelayLoading',
+        );
+
+        if (!matchById && !matchByUuid) {
+          debugPrint('[DEBUG-CATALOG] EVENT DROPPED (no match)');
+          return;
+        }
 
         // Guard against redundant syncs: _syncBooks already has its own
         // _isSyncing guard, but checking here avoids even dispatching.
-        if (_isSyncing || _isRelayLoading) return;
+        if (_isSyncing || _isRelayLoading) {
+          debugPrint('[DEBUG-CATALOG] EVENT SKIPPED (sync already in flight)');
+          return;
+        }
 
         debugPrint(
           'PeerBookList: catalog changed from peer ${event.peerId} '
@@ -235,38 +272,97 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
   /// ADR-029: call the Rust delta orchestrator. On success, reload the
   /// local `peer_books` cache into the UI without any network round-trip.
-  /// On failure, fall back to the legacy `_syncBooks` flow.
-  Future<void> _deltaSyncThenReload(int peerId) async {
+  ///
+  /// When [fallbackOnFailure] is true (default), a non-applied delta falls
+  /// back to the legacy `_syncBooks` flow. Pass `false` for fire-and-forget
+  /// background triggers (e.g. screen mount auto-refresh) where stalling on
+  /// the legacy flow for an offline peer is undesirable.
+  Future<void> _deltaSyncThenReload(
+    int peerId, {
+    bool fallbackOnFailure = true,
+  }) async {
     if (!mounted) return;
     if (peerId <= 0) {
       // Without a local peer row id we cannot drive the delta orchestrator;
       // fall back to the legacy flow straight away.
-      _syncBooks(showFeedback: false);
+      if (fallbackOnFailure) _syncBooks(showFeedback: false);
       return;
     }
 
-    bool applied = false;
+    String outcome = 'error:unknown';
     try {
-      applied = await tryPeerCatalogDelta(peerId: peerId);
+      outcome = await tryPeerCatalogDeltaDetailed(peerId: peerId);
     } catch (e) {
-      debugPrint('PeerBookList: tryPeerCatalogDelta threw: $e');
+      outcome = 'error:threw:$e';
     }
+    debugPrint('[DELTA-OUTCOME] peer=$peerId outcome=$outcome');
+    final applied = outcome.startsWith('applied:');
 
     if (!mounted) return;
 
-    if (!applied) {
-      debugPrint('PeerBookList: delta not applied, running legacy sync');
+    // `reset_required` (optionally suffixed `:<N>`) means the peer
+    // responded but our saved cursor is older than its retained delta log
+    // (log pruned or recreated). The peer is online so the legacy
+    // full-catalog sync will succeed quickly: run it even on background
+    // triggers, otherwise the UI stays stale until the next manual refresh.
+    //
+    // When the suffix is present (ADR-029 current_cursor), stash it in
+    // `_pendingDeltaCursor`: the legacy `_fetchRelayPages` success path
+    // will persist it via `setPeerDeltaCursor`, breaking the reset loop
+    // on the next visit. Stashing happens BEFORE triggering the fallback
+    // so the value is observable when the fallback completes.
+    final resetRequired = outcome == 'reset_required' ||
+        outcome.startsWith('reset_required:');
+    if (resetRequired) {
+      final colon = outcome.indexOf(':');
+      if (colon > 0) {
+        final cursor = int.tryParse(outcome.substring(colon + 1));
+        if (cursor != null && cursor > 0) {
+          _pendingDeltaCursor = cursor;
+          debugPrint(
+            '[DELTA-RESET] peer=$peerId stashed pending cursor=$cursor '
+            '(will be persisted after successful legacy sync)',
+          );
+        }
+      }
+    }
+    if (!applied && (fallbackOnFailure || resetRequired)) {
+      debugPrint(
+        'PeerBookList: delta not applied (outcome=$outcome), running legacy sync',
+      );
       _syncBooks(showFeedback: false);
       return;
     }
 
-    debugPrint('PeerBookList: delta applied by Rust, reloading from cache');
+    if (!applied) {
+      debugPrint(
+        'PeerBookList: delta not applied (outcome=$outcome), skipping legacy '
+        '(background trigger, peer may be offline)',
+      );
+      return;
+    }
+
+    // Reload cache regardless of the `applied` flag. Even when this call
+    // returned `false` (cursor ambiguity, timeout, concurrent request), the
+    // local `peer_books` table may have been updated by a delta that ran
+    // earlier in this session — the orchestrator writes to SQLite before
+    // returning — while the UI still holds the stale snapshot from the
+    // initial mount-time cache load. Refreshing from SQLite here brings the
+    // display back in sync without any extra network cost.
+    debugPrint(
+      'PeerBookList: reloading from cache (delta applied=$applied, '
+      'fallbackOnFailure=$fallbackOnFailure, _books.length=${_books.length})',
+    );
     try {
       final api = Provider.of<ApiService>(context, listen: false);
       final cachedRes = await api.getCachedPeerBooks(widget.peerUrl);
       if (!mounted) return;
       final data = cachedRes.data;
       final booksData = (data['books'] as List<dynamic>?) ?? [];
+      debugPrint(
+        '[DEBUG-CATALOG] cache reload: got ${booksData.length} books from '
+        'peer_books (previously _books.length=${_books.length})',
+      );
       setState(() {
         _books = booksData.map((json) => Book.fromJson(json)).toList();
         _filteredBooks = _isSearching && _searchController.text.isNotEmpty
@@ -279,8 +375,10 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     } catch (e) {
       debugPrint('PeerBookList: cache reload after delta failed: $e');
       // Cache reload failed — fall back to full sync so the user still
-      // sees the update, even if it costs bandwidth.
-      if (mounted) _syncBooks(showFeedback: false);
+      // sees the update, even if it costs bandwidth. Only trigger the
+      // fallback when the caller allows it; background triggers stay
+      // quiet on failure.
+      if (mounted && fallbackOnFailure) _syncBooks(showFeedback: false);
     }
   }
 
@@ -581,12 +679,20 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       // Hub may have populated _books — check again
       if (_books.isNotEmpty) {
         if (mounted) setState(() { _isRefreshing = false; _isLoading = false; });
-        // Peer offline — show cached/hub data as-is.
-        // The relay requires the peer to be running to respond, so an
-        // automatic relay attempt here would stall for up to 3 minutes
-        // with no result when the peer app is closed. The staleness bar
-        // already communicates freshness to the user.
-        // Manual sync (appbar button) triggers a relay attempt if needed.
+        // Peer offline (no LAN) — show cached/hub data immediately, then
+        // fire a background delta sync (ADR-029) to catch any
+        // `catalog_changed` event that was missed while this screen was
+        // not mounted (the broadcast bus drops events with no subscribers,
+        // see catalog_events.rs). This is a quiet trigger: no fallback to
+        // the legacy manifest flow on failure, so an offline peer does not
+        // stall a 90s relay timeout in the background. The appbar refresh
+        // button still runs the full ADR-012 flow on demand.
+        if (widget.hasRelayCredentials && widget.peerId > 0) {
+          unawaited(_deltaSyncThenReload(
+            widget.peerId,
+            fallbackOnFailure: false,
+          ));
+        }
         return;
       }
 
@@ -796,6 +902,10 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     try {
       final ffi = FfiService();
       final entries = await ffi.hubDirectoryGetCatalog(nodeId);
+      debugPrint(
+        '[DEBUG-CATALOG] hub catalog fetched: ${entries.length} entries '
+        '(local _books=${_books.length})',
+      );
       if (!mounted || entries.isEmpty) return;
 
       // Hub catalog is an enrichment layer — it may lag behind the cache
@@ -937,13 +1047,41 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
         // Update nodeId from manifest if the peer sent their library_uuid.
         // This fixes stale nodeId when the peer was reset/reinstalled.
+        //
+        // ADR-030: the manifest travels in an E2EE envelope signed by the
+        // peer's stable ed25519 key, so `manifest['library_uuid']` is
+        // cryptographically bound to the peer identity and safe to adopt.
+        // We persist the fresh value to `peers.library_uuid` so later
+        // mounts — and the hub-catalog fallback when the peer is offline —
+        // see the current identity without waiting for another re-pair.
         final remoteUuid = manifest['library_uuid'] as String?;
-        if (remoteUuid != null && remoteUuid != _effectiveNodeId) {
+        if (remoteUuid != null &&
+            remoteUuid.isNotEmpty &&
+            remoteUuid != _effectiveNodeId) {
           debugPrint(
             'Relay: peer library_uuid updated: '
             '$_effectiveNodeId -> $remoteUuid',
           );
           _resolvedNodeId = remoteUuid;
+          if (widget.peerId > 0) {
+            try {
+              final changed = await updatePeerLibraryUuid(
+                peerId: widget.peerId,
+                newUuid: remoteUuid,
+              );
+              debugPrint(
+                '[ADR-030] peer=${widget.peerId} library_uuid persisted '
+                '(changed=$changed)',
+              );
+            } catch (e) {
+              // Non-fatal: in-memory _resolvedNodeId still works for this
+              // session, we just lose the self-heal across mounts.
+              debugPrint(
+                '[ADR-030] peer=${widget.peerId} failed to persist '
+                'library_uuid: $e',
+              );
+            }
+          }
           // Trigger hub catalog refresh with corrected nodeId
           _refreshFromHubCatalog();
         }
@@ -1082,13 +1220,20 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       if (cursor == null) break;
     }
 
-    // Save relay-fetched books to local cache for instant display next visit
+    // Save relay-fetched books to local cache for instant display next visit.
+    // We `await` the cache write so the ADR-029 reset-recovery save-cursor
+    // step below runs ONLY when the cache is actually persisted — persisting
+    // the delta cursor on top of an empty/failed cache would leave a
+    // permanent data gap (next sync = delta from N returns ~nothing).
+    bool cacheWriteSucceeded = false;
     if (_offlineCachingEnabled && allBooks.isNotEmpty) {
-      api.cachePeerBooks(widget.peerId, allBooks).then((_) {
+      try {
+        await api.cachePeerBooks(widget.peerId, allBooks);
+        cacheWriteSucceeded = true;
         if (kDebugMode) debugPrint('Cached ${allBooks.length} books for peer');
-      }).catchError((e) {
+      } catch (e) {
         if (kDebugMode) debugPrint('Failed to cache books: $e');
-      });
+      }
     }
 
     // Save catalog hash for diff check on next visit
@@ -1099,6 +1244,32 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
         'peer_catalog_hash_${widget.peerId}',
         catalogHash,
       );
+    }
+
+    // ADR-029 reset-recovery: if this legacy sync was triggered by a
+    // `reset_required:<N>` outcome, advance `peers.last_delta_cursor` to
+    // `N` now that the local cache is fully rebuilt. This is the single
+    // write point for the pending cursor — doing it before the cache
+    // persists would risk a data gap if the cache write failed.
+    final pendingCursor = _pendingDeltaCursor;
+    if (pendingCursor != null && cacheWriteSucceeded && widget.peerId > 0) {
+      try {
+        await setPeerDeltaCursor(
+          peerId: widget.peerId,
+          cursor: pendingCursor,
+        );
+        debugPrint(
+          '[DELTA-RESET] peer=${widget.peerId} cursor persisted=$pendingCursor '
+          '(reset loop broken, next sync will be a delta)',
+        );
+      } catch (e) {
+        debugPrint(
+          '[DELTA-RESET] peer=${widget.peerId} failed to persist cursor '
+          '$pendingCursor: $e (next visit will retry the reset cycle)',
+        );
+      } finally {
+        _pendingDeltaCursor = null;
+      }
     }
 
     if (mounted) {

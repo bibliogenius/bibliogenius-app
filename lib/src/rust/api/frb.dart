@@ -33,6 +33,12 @@ String healthCheck() => RustLib.instance.api.crateApiFrbHealthCheck();
 /// Get the FFI backend version
 String getVersion() => RustLib.instance.api.crateApiFrbGetVersion();
 
+/// Return the last `lines` lines of the Rust tracing log file.
+/// Empty string if the file does not exist, tracing is disabled (release
+/// build), or `init_backend` has not run yet.
+String getRustLogTail({required int lines}) =>
+    RustLib.instance.api.crateApiFrbGetRustLogTail(lines: lines);
+
 /// Simple greeting function to test the bridge
 String greet({required String name}) =>
     RustLib.instance.api.crateApiFrbGreet(name: name);
@@ -414,6 +420,71 @@ Future<int> startServer({required int port}) =>
 /// full pull whenever it succeeds.
 Future<bool> tryPeerCatalogDelta({required int peerId}) =>
     RustLib.instance.api.crateApiFrbTryPeerCatalogDelta(peerId: peerId);
+
+/// Same as [`try_peer_catalog_delta`] but returns a descriptive string so
+/// Flutter can surface the exact outcome without depending on the FFI log
+/// file (invisible on iOS). Format:
+/// - `applied:<ops>:<cursor>:<has_more>`: delta applied.
+/// - `fallback_required`: peer did not respond.
+/// - `e2ee_unavailable`: no E2EE capability.
+/// - `reset_required`: cursor pruned upstream, responder did not populate
+///   `current_cursor` (older codebase).
+/// - `reset_required:<N>`: cursor pruned upstream, responder reports its
+///   current `operation_log` max id as `N`. The caller SHOULD persist `N`
+///   via [`set_peer_delta_cursor`] only after a successful legacy full
+///   sync, to break the reset loop.
+/// - `no_state`: AppState not initialised.
+/// - `error:<message>`: transport or DB error.
+Future<String> tryPeerCatalogDeltaDetailed({required int peerId}) =>
+    RustLib.instance.api.crateApiFrbTryPeerCatalogDeltaDetailed(peerId: peerId);
+
+/// Persist `peers.last_delta_cursor` for the given peer.
+///
+/// Flutter calls this after a successful legacy full-catalog sync that was
+/// triggered by a `reset_required:<N>` outcome, passing the responder's
+/// reported `current_cursor`. This breaks the reset loop by letting the
+/// next sync resume as a delta.
+///
+/// Returns `Ok(())` on success, or a descriptive error string on DB
+/// failure / unknown peer id. Safe to call with a cursor of 0 (no-op for
+/// peers that have never had any operations).
+Future<void> setPeerDeltaCursor({
+  required int peerId,
+  required PlatformInt64 cursor,
+}) => RustLib.instance.api.crateApiFrbSetPeerDeltaCursor(
+  peerId: peerId,
+  cursor: cursor,
+);
+
+/// Persist a refreshed `peers.library_uuid` for the given peer (ADR-030).
+///
+/// The E2EE-signed manifest from a peer carries its current `library_uuid`.
+/// When that value diverges from the locally persisted one, the local row
+/// is stale (historical drift from an older pairing code path). This helper
+/// adopts the manifest value so all downstream lookups (hub directory
+/// fallback, event UUID matching on later mounts) see the current identity.
+///
+/// Trust model: only call this with a `new_uuid` read from an ENVELOPE
+/// that successfully verified against `peers.public_key` (ed25519). The
+/// signature check on that path is what binds the uuid to the peer identity
+/// — skipping it would let any relay forwarder inject an arbitrary uuid.
+/// `peer_book` rows are intentionally left untouched: they key on
+/// `peer_id`, not `library_uuid`, and the enclosing manifest sync pass is
+/// already about to refresh them via upsert (a premature purge would flash
+/// an empty library in the UI before the pages arrive).
+///
+/// Idempotent: writing the same uuid twice is a no-op; writing a null or
+/// empty string is rejected to avoid clearing a healthy value by accident.
+///
+/// Returns `Ok(true)` when the stored uuid changed (Flutter may log it),
+/// `Ok(false)` when the value was already current.
+Future<bool> updatePeerLibraryUuid({
+  required int peerId,
+  required String newUuid,
+}) => RustLib.instance.api.crateApiFrbUpdatePeerLibraryUuid(
+  peerId: peerId,
+  newUuid: newUuid,
+);
 
 Stream<FrbCatalogChangedEvent> subscribeCatalogChanges() =>
     RustLib.instance.api.crateApiFrbSubscribeCatalogChanges();
