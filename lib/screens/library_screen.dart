@@ -201,63 +201,76 @@ class _LibraryScreenState extends State<LibraryScreen>
       destinationName: widget.shelfTagFilter,
     );
 
+    final topInset = MediaQuery.of(context).padding.top;
+
     return Scaffold(
-      body: NestedScrollView(
-        headerSliverBuilder: (context, innerBoxIsScrolled) => [
-          GenieSliverAppBar(
-            source: genieAppBar,
-            floating: true,
-            snap: true,
-            pinned: false,
-            forceElevated: innerBoxIsScrolled,
-          ),
-          SliverPersistentHeader(
-            pinned: true,
-            delegate: StickyTabsHeader(
-              tabController: _tabController,
-              tabs: _buildTabs(themeProvider.collectionsEnabled),
-              themeStyle: themeProvider.themeStyle,
-              onTabTap: _onTabTap,
-              isSearching: _isSearching,
-              searchController: _searchController,
-              onOpenSearch: _openSearch,
-              onCloseSearch: _closeSearch,
-              onSearchChanged: _onSearchChanged,
-            ),
-          ),
-        ],
-        body: IndexedStack(
-          sizing: StackFit.expand,
-          index: _tabController.index,
-          children: [
-            BookListScreen(
-              key: ValueKey(tagFilter),
-              isTabView: true,
-              refreshNotifier: _refreshNotifier,
-              externalSearchQuery: _searchQuery,
-            ),
-            widget.shelfTagFilter != null
-                ? BookListScreen(
-                    key: ValueKey('shelf_${widget.shelfTagFilter}'),
-                    isTabView: true,
-                    refreshNotifier: _refreshNotifier,
-                    initialTagFilter: widget.shelfTagFilter,
-                    showBackToShelves: true,
-                    externalSearchQuery: _searchQuery,
-                  )
-                : ShelvesScreen(
-                    isTabView: true,
-                    refreshNotifier: _shelvesRefreshNotifier,
-                  ),
-            if (themeProvider.collectionsEnabled)
-              CollectionListScreen(
-                key: ValueKey('collections_$_collectionsRefreshKey'),
-                isTabView: true,
-                onImportSuccess: () {
-                  _refreshNotifier.value++;
-                },
+      body: MediaQuery.removePadding(
+        context: context,
+        removeTop: true,
+        child: NestedScrollView(
+          headerSliverBuilder: (context, innerBoxIsScrolled) => [
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: StatusBarCoverHeader(
+                height: topInset,
+                themeStyle: themeProvider.themeStyle,
               ),
+            ),
+            GenieSliverAppBar(
+              source: genieAppBar,
+              floating: true,
+              snap: true,
+              pinned: false,
+              forceElevated: innerBoxIsScrolled,
+            ),
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: StickyTabsHeader(
+                tabController: _tabController,
+                tabs: _buildTabs(themeProvider.collectionsEnabled),
+                themeStyle: themeProvider.themeStyle,
+                onTabTap: _onTabTap,
+                isSearching: _isSearching,
+                searchController: _searchController,
+                onOpenSearch: _openSearch,
+                onCloseSearch: _closeSearch,
+                onSearchChanged: _onSearchChanged,
+              ),
+            ),
           ],
+          body: IndexedStack(
+            sizing: StackFit.expand,
+            index: _tabController.index,
+            children: [
+              BookListScreen(
+                key: ValueKey(tagFilter),
+                isTabView: true,
+                refreshNotifier: _refreshNotifier,
+                externalSearchQuery: _searchQuery,
+              ),
+              widget.shelfTagFilter != null
+                  ? BookListScreen(
+                      key: ValueKey('shelf_${widget.shelfTagFilter}'),
+                      isTabView: true,
+                      refreshNotifier: _refreshNotifier,
+                      initialTagFilter: widget.shelfTagFilter,
+                      showBackToShelves: true,
+                      externalSearchQuery: _searchQuery,
+                    )
+                  : ShelvesScreen(
+                      isTabView: true,
+                      refreshNotifier: _shelvesRefreshNotifier,
+                    ),
+              if (themeProvider.collectionsEnabled)
+                CollectionListScreen(
+                  key: ValueKey('collections_$_collectionsRefreshKey'),
+                  isTabView: true,
+                  onImportSuccess: () {
+                    _refreshNotifier.value++;
+                  },
+                ),
+            ],
+          ),
         ),
       ),
       floatingActionButton: _tabController.index == 0 ||

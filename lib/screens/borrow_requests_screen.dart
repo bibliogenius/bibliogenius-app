@@ -383,28 +383,41 @@ class _LoansScreenState extends State<LoansScreen>
       ],
     );
 
+    final topInset = MediaQuery.of(context).padding.top;
+
     return Scaffold(
-      body: NestedScrollView(
-        headerSliverBuilder: (context, innerBoxIsScrolled) => [
-          GenieSliverAppBar(
-            source: genieAppBar,
-            floating: true,
-            snap: true,
-            pinned: false,
-            forceElevated: innerBoxIsScrolled,
-          ),
-          SliverPersistentHeader(
-            pinned: true,
-            delegate: StickyTabsHeader(
-              tabController: _mainTabController,
-              tabs: tabs,
-              themeStyle: themeProvider.themeStyle,
+      body: MediaQuery.removePadding(
+        context: context,
+        removeTop: true,
+        child: NestedScrollView(
+          headerSliverBuilder: (context, innerBoxIsScrolled) => [
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: StatusBarCoverHeader(
+                height: topInset,
+                themeStyle: themeProvider.themeStyle,
+              ),
             ),
-          ),
-        ],
-        body: _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : tabBarView,
+            GenieSliverAppBar(
+              source: genieAppBar,
+              floating: true,
+              snap: true,
+              pinned: false,
+              forceElevated: innerBoxIsScrolled,
+            ),
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: StickyTabsHeader(
+                tabController: _mainTabController,
+                tabs: tabs,
+                themeStyle: themeProvider.themeStyle,
+              ),
+            ),
+          ],
+          body: _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : tabBarView,
+        ),
       ),
     );
   }

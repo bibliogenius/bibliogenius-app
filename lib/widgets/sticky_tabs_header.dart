@@ -3,6 +3,41 @@ import 'package:flutter/material.dart';
 import '../services/translation_service.dart';
 import '../theme/app_design.dart';
 
+/// Always-pinned sliver that paints the app-bar gradient across the system
+/// status bar area. Paired with [MediaQuery.removePadding] around the enclosing
+/// [NestedScrollView], it guarantees the status bar stays covered even when
+/// the floating [GenieSliverAppBar] has scrolled fully away.
+class StatusBarCoverHeader extends SliverPersistentHeaderDelegate {
+  final double height;
+  final String themeStyle;
+
+  const StatusBarCoverHeader({
+    required this.height,
+    required this.themeStyle,
+  });
+
+  @override
+  double get minExtent => height;
+
+  @override
+  double get maxExtent => height;
+
+  @override
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: AppDesign.appBarGradientForTheme(themeStyle),
+      ),
+    );
+  }
+
+  @override
+  bool shouldRebuild(covariant StatusBarCoverHeader old) {
+    return old.height != height || old.themeStyle != themeStyle;
+  }
+}
+
 /// Pinned sliver header that hosts a [TabBar] and, optionally, an inline
 /// search field (pattern 1 — icon expands into a full-width input within the
 /// same row).
