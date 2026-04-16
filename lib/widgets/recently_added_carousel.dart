@@ -47,6 +47,11 @@ class RecentlyAddedCarousel extends StatelessWidget {
   static const double _coverWidth = 100;
   static const double _coverHeight = 130;
 
+  /// Auto-hide thresholds: below this library size, or above this ratio of
+  /// recent-to-total, the carousel duplicates the grid below and is hidden.
+  static const int _minLibrarySize = 10;
+  static const double _maxRecentRatio = 0.6;
+
   bool _hidden(ThemeProvider provider) => switch (scope) {
     RecentlyAddedCarouselScope.ownLib => provider.carouselHiddenOwnLib,
     RecentlyAddedCarouselScope.peerLib => provider.carouselHiddenPeerLib,
@@ -99,13 +104,21 @@ class RecentlyAddedCarousel extends StatelessWidget {
     return recent.take(maxItems).toList();
   }
 
+  bool _shouldAutoHide(int newCount) {
+    if (books.length < _minLibrarySize) return true;
+    return newCount / books.length > _maxRecentRatio;
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ThemeProvider>();
     if (_hidden(provider)) return const SizedBox.shrink();
 
+    final newCount = books.where((b) => b.isNew).length;
+    if (newCount == 0 || _shouldAutoHide(newCount)) {
+      return const SizedBox.shrink();
+    }
     final recent = _recentBooks();
-    if (recent.isEmpty) return const SizedBox.shrink();
 
     final colorScheme = Theme.of(context).colorScheme;
     final collapsed = _collapsed(provider);
@@ -119,8 +132,14 @@ class RecentlyAddedCarousel extends StatelessWidget {
       ),
       child: Material(
         color: colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
         clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(
+          side: BorderSide(
+            color: colorScheme.outline.withValues(alpha: 0.5),
+            width: 1,
+          ),
+          borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
+        ),
         child: AnimatedSize(
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeInOut,
@@ -255,7 +274,7 @@ class _ExpandedStrip extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         AppDesign.spacingMd,
-        AppDesign.spacingSm,
+        AppDesign.spacingXs,
         AppDesign.spacingSm,
         AppDesign.spacingSm,
       ),

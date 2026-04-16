@@ -43,6 +43,14 @@ void main() {
     addedAt: DateTime.now().subtract(const Duration(days: 365)),
   );
 
+  /// Pads the library with enough old books to clear the auto-hide thresholds
+  /// (`_minLibrarySize = 10`, `_maxRecentRatio = 0.6`).
+  List<Book> withPad(List<Book> books, {int pad = 9}) => [
+    ...books,
+    for (var i = 0; i < pad; i++)
+      oldBook(id: 1000 + i, title: 'Old $i'),
+  ];
+
   Widget buildHarness(List<Book> books) {
     return MaterialApp(
       home: ChangeNotifierProvider<ThemeProvider>.value(
@@ -68,18 +76,40 @@ void main() {
 
   testWidgets('renders nothing when hidden', (tester) async {
     await provider.setCarouselHiddenOwnLib(true);
-    await tester.pumpWidget(buildHarness([
+    await tester.pumpWidget(buildHarness(withPad([
       newBook(id: 1, title: 'New Book'),
+    ])));
+
+    expect(find.text('Recently added'), findsNothing);
+  });
+
+  testWidgets('renders nothing when library is too small', (tester) async {
+    // 2 new books, 5 old books: total = 7, below _minLibrarySize = 10.
+    await tester.pumpWidget(buildHarness([
+      newBook(id: 1, title: 'A'),
+      newBook(id: 2, title: 'B'),
+      for (var i = 0; i < 5; i++) oldBook(id: 100 + i, title: 'Old $i'),
+    ]));
+
+    expect(find.text('Recently added'), findsNothing);
+  });
+
+  testWidgets('renders nothing when recent-to-total ratio exceeds threshold',
+      (tester) async {
+    // 7 new, 3 old: total = 10 (>= min), ratio = 0.7 > 0.6.
+    await tester.pumpWidget(buildHarness([
+      for (var i = 0; i < 7; i++) newBook(id: i, title: 'New $i'),
+      for (var i = 0; i < 3; i++) oldBook(id: 100 + i, title: 'Old $i'),
     ]));
 
     expect(find.text('Recently added'), findsNothing);
   });
 
   testWidgets('expanded state shows title and covers', (tester) async {
-    await tester.pumpWidget(buildHarness([
+    await tester.pumpWidget(buildHarness(withPad([
       newBook(id: 1, title: 'New Book A'),
       newBook(id: 2, title: 'New Book B'),
-    ]));
+    ])));
 
     expect(find.text('Recently added'), findsOneWidget);
     expect(find.byIcon(Icons.expand_less_rounded), findsOneWidget);
@@ -89,10 +119,10 @@ void main() {
 
   testWidgets('tapping collapse chevron switches to collapsed bar',
       (tester) async {
-    await tester.pumpWidget(buildHarness([
+    await tester.pumpWidget(buildHarness(withPad([
       newBook(id: 1, title: 'A'),
       newBook(id: 2, title: 'B'),
-    ]));
+    ])));
 
     await tester.tap(find.byIcon(Icons.expand_less_rounded));
     await tester.pumpAndSettle();
@@ -106,9 +136,9 @@ void main() {
   testWidgets('tapping collapsed bar re-expands the carousel',
       (tester) async {
     provider.setCarouselCollapsedOwnLib(true);
-    await tester.pumpWidget(buildHarness([
+    await tester.pumpWidget(buildHarness(withPad([
       newBook(id: 1, title: 'A'),
-    ]));
+    ])));
 
     await tester.tap(find.byIcon(Icons.expand_more_rounded));
     await tester.pumpAndSettle();
@@ -120,9 +150,9 @@ void main() {
   testWidgets('long-press on collapsed bar hides the carousel',
       (tester) async {
     provider.setCarouselCollapsedOwnLib(true);
-    await tester.pumpWidget(buildHarness([
+    await tester.pumpWidget(buildHarness(withPad([
       newBook(id: 1, title: 'A'),
-    ]));
+    ])));
 
     await tester.longPress(find.byIcon(Icons.expand_more_rounded));
     await tester.pump();
@@ -132,9 +162,9 @@ void main() {
 
   testWidgets('long-press on expanded chevron hides the carousel',
       (tester) async {
-    await tester.pumpWidget(buildHarness([
+    await tester.pumpWidget(buildHarness(withPad([
       newBook(id: 1, title: 'A'),
-    ]));
+    ])));
 
     await tester.longPress(find.byIcon(Icons.expand_less_rounded));
     await tester.pump();
