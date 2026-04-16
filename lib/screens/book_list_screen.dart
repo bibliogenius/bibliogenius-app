@@ -295,6 +295,7 @@ class _BookListScreenState extends State<BookListScreen>
           ),
         ),
         child: SafeArea(
+          top: false,
           child: Column(
             children: [
               // Custom header for tab view if needed, or reuse parts

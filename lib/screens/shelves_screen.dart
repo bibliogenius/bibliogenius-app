@@ -119,6 +119,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
             gradient: AppDesign.pageGradientForTheme(themeStyle),
           ),
           child: SafeArea(
+            top: false,
             child: FutureBuilder<List<Tag>>(
               future: _tagsFuture,
               builder: (context, snapshot) {
