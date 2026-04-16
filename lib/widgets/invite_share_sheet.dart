@@ -91,7 +91,14 @@ Future<void> shareInviteLinkDirect(BuildContext context) async {
     final message = messageTemplate
         .replaceAll('{name}', libraryName)
         .replaceAll('{link}', link);
-    Share.share(message);
+
+    final box = context.mounted
+        ? context.findRenderObject() as RenderBox?
+        : null;
+    final origin = box != null
+        ? box.localToGlobal(Offset.zero) & box.size
+        : null;
+    await Share.share(message, sharePositionOrigin: origin);
   } catch (e) {
     debugPrint('shareInviteLinkDirect: error: $e');
     messenger.hideCurrentSnackBar();
@@ -213,14 +220,33 @@ class _InviteShareSheetState extends State<InviteShareSheet> {
     );
   }
 
-  void _shareLink() {
+  Future<void> _shareLink() async {
     if (_inviteLink == null) return;
     final name = _libraryName ?? 'BiblioGenius';
     final message = TranslationService.translate(
       context,
       'invite_share_message',
     ).replaceAll('{name}', name).replaceAll('{link}', _inviteLink!);
-    Share.share(message);
+
+    final box = context.findRenderObject() as RenderBox?;
+    final origin = box != null
+        ? box.localToGlobal(Offset.zero) & box.size
+        : null;
+
+    try {
+      await Share.share(message, sharePositionOrigin: origin);
+    } catch (e) {
+      debugPrint('InviteShareSheet: share failed: $e');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            TranslationService.translate(context, 'share_failed'),
+          ),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+    }
   }
 
   @override
