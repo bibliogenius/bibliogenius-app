@@ -8628,3 +8628,27 @@ msgstr "Protects access to your library when the app starts. In local mode, this
 
 msgid "two_factor_auth_help"
 msgstr "Adds a second verification step at login (SMS code or authenticator app). Increases security when using BiblioGenius with a server account."
+
+msgid "recently_added_title"
+msgstr "Recently added"
+
+msgid "carousel_hide_tooltip"
+msgstr "Hide carousel"
+
+msgid "carousel_hidden_snackbar"
+msgstr "Carousel hidden"
+
+msgid "action_undo"
+msgstr "Undo"
+
+msgid "carousel_own_lib_title"
+msgstr "Recently added — my library"
+
+msgid "carousel_own_lib_desc"
+msgstr "Shows a carousel at the top of your library with recently added books."
+
+msgid "carousel_peer_lib_title"
+msgstr "Recently added — peers"
+
+msgid "carousel_peer_lib_desc"
+msgstr "Shows a carousel at the top of peer libraries with their recent additions."

@@ -582,6 +582,7 @@ class FfiService {
       price: fb.price,
       private: fb.private,
       pageCount: fb.pageCount,
+      addedAt: fb.addedAt != null ? DateTime.tryParse(fb.addedAt!) : null,
     );
   }
 

@@ -193,6 +193,14 @@ class ThemeProvider with ChangeNotifier {
   bool _shareGamificationStats = false;
   bool get shareGamificationStats => _shareGamificationStats;
 
+  // Recently-added carousels: independent for own vs peer library views.
+  // Value stored is "hidden" — default false (carousel visible).
+  bool _carouselHiddenOwnLib = false;
+  bool get carouselHiddenOwnLib => _carouselHiddenOwnLib;
+
+  bool _carouselHiddenPeerLib = false;
+  bool get carouselHiddenPeerLib => _carouselHiddenPeerLib;
+
   // Show View Count: display library view counter on profile
   // Enabled by default (visible on own profile only)
   bool _showViewCount = true;
@@ -361,6 +369,9 @@ class ThemeProvider with ChangeNotifier {
         prefs.getBool('networkGamificationEnabled') ?? true;
     _shareGamificationStats =
         prefs.getBool('shareGamificationStats') ?? false;
+    _carouselHiddenOwnLib = prefs.getBool('carousel_hidden_own_lib') ?? false;
+    _carouselHiddenPeerLib =
+        prefs.getBool('carousel_hidden_peer_lib') ?? false;
     _showViewCount = prefs.getBool('showViewCount') ?? true;
     _collectionsEnabled = prefs.getBool('collectionsEnabled') ?? false;
     _groupByCollections = prefs.getBool('groupByCollections') ?? false;
@@ -1125,6 +1136,20 @@ class ThemeProvider with ChangeNotifier {
       await prefs.setBool('allowLibraryCaching', true);
     }
 
+    notifyListeners();
+  }
+
+  Future<void> setCarouselHiddenOwnLib(bool hidden) async {
+    _carouselHiddenOwnLib = hidden;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('carousel_hidden_own_lib', hidden);
+    notifyListeners();
+  }
+
+  Future<void> setCarouselHiddenPeerLib(bool hidden) async {
+    _carouselHiddenPeerLib = hidden;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('carousel_hidden_peer_lib', hidden);
     notifyListeners();
   }
 

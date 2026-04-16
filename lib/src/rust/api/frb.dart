@@ -1157,6 +1157,7 @@ sealed class FrbBook with _$FrbBook {
     List<String>? digitalFormats,
     required bool private,
     int? pageCount,
+    String? addedAt,
   }) = _FrbBook;
 }
 

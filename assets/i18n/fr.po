@@ -8628,3 +8628,27 @@ msgstr "Protège l'accès à ta bibliothèque au démarrage de l'application. En
 
 msgid "two_factor_auth_help"
 msgstr "Ajoute une deuxième vérification à la connexion (code SMS ou application d'authentification). Renforce la sécurité si tu utilises BiblioGenius avec un compte serveur."
+
+msgid "recently_added_title"
+msgstr "Derniers ajouts"
+
+msgid "carousel_hide_tooltip"
+msgstr "Masquer le carrousel"
+
+msgid "carousel_hidden_snackbar"
+msgstr "Carrousel masqué"
+
+msgid "action_undo"
+msgstr "Annuler"
+
+msgid "carousel_own_lib_title"
+msgstr "Derniers ajouts — ma bibliothèque"
+
+msgid "carousel_own_lib_desc"
+msgstr "Affiche un carrousel en haut de ma bibliothèque avec les livres ajoutés récemment."
+
+msgid "carousel_peer_lib_title"
+msgstr "Derniers ajouts — peers"
+
+msgid "carousel_peer_lib_desc"
+msgstr "Affiche un carrousel en haut des bibliothèques des peers avec leurs livres récents."

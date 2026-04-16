@@ -904,6 +904,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 _buildModuleToggle(
                   context,
+                  'carousel_own_lib_title',
+                  'carousel_own_lib_desc',
+                  Icons.new_releases_outlined,
+                  !themeProvider.carouselHiddenOwnLib,
+                  (value) => themeProvider.setCarouselHiddenOwnLib(!value),
+                ),
+                _buildModuleToggle(
+                  context,
+                  'carousel_peer_lib_title',
+                  'carousel_peer_lib_desc',
+                  Icons.new_releases,
+                  !themeProvider.carouselHiddenPeerLib,
+                  (value) => themeProvider.setCarouselHiddenPeerLib(!value),
+                ),
+                _buildModuleToggle(
+                  context,
                   'commerce_module',
                   'commerce_module_desc',
                   Icons.storefront,

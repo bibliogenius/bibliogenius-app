@@ -12,6 +12,7 @@ import '../models/hub_directory.dart';
 import '../widgets/book_cover_card.dart';
 import '../widgets/bookshelf_view.dart';
 import '../widgets/cached_book_cover.dart';
+import '../widgets/recently_added_carousel.dart';
 import '../widgets/shimmer_loading.dart';
 import '../services/translation_service.dart';
 import '../providers/hub_directory_provider.dart';
@@ -1419,13 +1420,21 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
         return title.contains(q) || author.contains(q) || isbn.contains(q);
       }).toList();
     }
-    // Sort: new books first, then alphabetical
-    if (result.any((b) => b.isNew)) {
-      result.sort((a, b) {
-        if (a.isNew != b.isNew) return a.isNew ? -1 : 1;
-        return a.title.toLowerCase().compareTo(b.title.toLowerCase());
-      });
+    // Sort aligned with own library: author surname, then full author, then title.
+    String getSurname(String? author) {
+      if (author == null || author.isEmpty) return '';
+      final parts = author.trim().split(RegExp(r'\s+'));
+      return parts.last.toLowerCase();
     }
+
+    result.sort((a, b) {
+      final surnameCompare = getSurname(a.author).compareTo(getSurname(b.author));
+      if (surnameCompare != 0) return surnameCompare;
+      final authorCompare =
+          (a.author ?? '').toLowerCase().compareTo((b.author ?? '').toLowerCase());
+      if (authorCompare != 0) return authorCompare;
+      return a.title.toLowerCase().compareTo(b.title.toLowerCase());
+    });
     setState(() => _filteredBooks = result);
   }
 
@@ -2121,6 +2130,11 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                           Colors.blue,
                         ),
                       ),
+                    RecentlyAddedCarousel(
+                      books: _books,
+                      scope: RecentlyAddedCarouselScope.peerLib,
+                      onBookTap: _showBookDetails,
+                    ),
                     // Book list
                     Expanded(
                       child: _filteredBooks.isEmpty

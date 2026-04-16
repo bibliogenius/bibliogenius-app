@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../widgets/genie_app_bar.dart';
+import '../widgets/recently_added_carousel.dart';
 import '../widgets/scaffold_with_nav.dart';
 import '../widgets/configurable_action_card.dart';
 import '../widgets/quick_actions_sheet.dart';
@@ -324,6 +325,11 @@ class _BookListScreenState extends State<BookListScreen>
                 ),
 
               _buildFilterBar(),
+              if (!_isLoading)
+                RecentlyAddedCarousel(
+                  books: _books,
+                  scope: RecentlyAddedCarouselScope.ownLib,
+                ),
               Expanded(
                 child: _isLoading
                     ? const Center(
@@ -559,6 +565,11 @@ class _BookListScreenState extends State<BookListScreen>
             children: [
               // _buildHeader(context), // Header removed, avatar now in AppBar
               _buildFilterBar(),
+              if (!_isLoading)
+                RecentlyAddedCarousel(
+                  books: _books,
+                  scope: RecentlyAddedCarouselScope.ownLib,
+                ),
               Expanded(
                 child: _isLoading
                     ? const Center(
