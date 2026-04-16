@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../widgets/genie_app_bar.dart';
 import '../widgets/recently_added_carousel.dart';
@@ -42,6 +43,11 @@ class BookListScreen extends StatefulWidget {
   final String? initialTagFilter;
   final bool showBackToShelves;
 
+  /// When provided (tab mode inside LibraryScreen), this drives the search
+  /// query from the sticky sliver header. The internal search UI (filter bar
+  /// icon + inline search field) is hidden in this case.
+  final ValueListenable<String>? externalSearchQuery;
+
   const BookListScreen({
     super.key,
     this.initialSearchQuery,
@@ -49,6 +55,7 @@ class BookListScreen extends StatefulWidget {
     this.refreshNotifier,
     this.initialTagFilter,
     this.showBackToShelves = false,
+    this.externalSearchQuery,
   });
 
   @override
@@ -103,6 +110,12 @@ class _BookListScreenState extends State<BookListScreen>
 
     // Listen to refresh trigger (local)
     widget.refreshNotifier?.addListener(_handleRefreshTrigger);
+
+    // Listen to external search query (driven by LibraryScreen's sliver header)
+    widget.externalSearchQuery?.addListener(_handleExternalSearchChange);
+    if (widget.externalSearchQuery != null) {
+      _searchQuery = widget.externalSearchQuery!.value;
+    }
 
     // Listen to global refresh trigger (for cross-screen updates)
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -190,18 +203,22 @@ class _BookListScreenState extends State<BookListScreen>
       }
     }
 
-    final searchQuery =
-        state.uri.queryParameters['q'] ?? state.uri.queryParameters['search'];
-    if (searchQuery != null &&
-        searchQuery.isNotEmpty &&
-        searchQuery != _searchQuery) {
-      if (mounted) {
-        setState(() {
-          _searchQuery = searchQuery;
-          _isSearching = true;
-          _searchController.text = searchQuery;
-          _filterBooks();
-        });
+    // URL-based search sync only when the sticky sliver header isn't driving
+    // the query (otherwise LibraryScreen owns the state).
+    if (widget.externalSearchQuery == null) {
+      final searchQuery =
+          state.uri.queryParameters['q'] ?? state.uri.queryParameters['search'];
+      if (searchQuery != null &&
+          searchQuery.isNotEmpty &&
+          searchQuery != _searchQuery) {
+        if (mounted) {
+          setState(() {
+            _searchQuery = searchQuery;
+            _isSearching = true;
+            _searchController.text = searchQuery;
+            _filterBooks();
+          });
+        }
       }
     }
   }
@@ -218,10 +235,21 @@ class _BookListScreenState extends State<BookListScreen>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     widget.refreshNotifier?.removeListener(_handleRefreshTrigger);
+    widget.externalSearchQuery?.removeListener(_handleExternalSearchChange);
     _globalRefreshNotifier?.removeListener(_handleRefreshTrigger);
     _searchController.dispose();
     _searchDebounce?.cancel();
     super.dispose();
+  }
+
+  void _handleExternalSearchChange() {
+    if (!mounted) return;
+    final newQuery = widget.externalSearchQuery?.value ?? '';
+    if (newQuery == _searchQuery) return;
+    setState(() {
+      _searchQuery = newQuery;
+      _filterBooks();
+    });
   }
 
   void _handleRefreshTrigger() {
@@ -313,8 +341,12 @@ class _BookListScreenState extends State<BookListScreen>
                   ),
                 ),
 
-              // Search Bar for Tab View (toggled by icon in filter bar)
-              if (!_isReordering && _isSearching)
+              // Search Bar for Tab View (legacy path, only when the sticky
+              // sliver header is not driving the search — i.e. no external
+              // query notifier was provided by the parent).
+              if (!_isReordering &&
+                  _isSearching &&
+                  widget.externalSearchQuery == null)
                 Container(
                   padding: const EdgeInsets.only(top: 8, bottom: 8),
                   child: Row(
@@ -331,15 +363,18 @@ class _BookListScreenState extends State<BookListScreen>
                   scope: RecentlyAddedCarouselScope.ownLib,
                 ),
               Expanded(
-                child: _isLoading
-                    ? const Center(
-                        child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.black54,
+                child: NotificationListener<ScrollNotification>(
+                  onNotification: _handleBodyScroll,
+                  child: _isLoading
+                      ? const Center(
+                          child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.black54,
+                            ),
                           ),
-                        ),
-                      )
-                    : _buildBody(),
+                        )
+                      : _buildBody(),
+                ),
               ),
             ],
           ),
@@ -571,15 +606,18 @@ class _BookListScreenState extends State<BookListScreen>
                   scope: RecentlyAddedCarouselScope.ownLib,
                 ),
               Expanded(
-                child: _isLoading
-                    ? const Center(
-                        child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.black54,
+                child: NotificationListener<ScrollNotification>(
+                  onNotification: _handleBodyScroll,
+                  child: _isLoading
+                      ? const Center(
+                          child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.black54,
+                            ),
                           ),
-                        ),
-                      )
-                    : _buildBody(),
+                        )
+                      : _buildBody(),
+                ),
               ),
             ],
           ),
@@ -1124,55 +1162,58 @@ class _BookListScreenState extends State<BookListScreen>
             ),
           ),
           const SizedBox(width: 6),
-          // Search toggle (separate block)
-          Tooltip(
-            message: TranslationService.translate(
-              context,
-              _isSearching ? 'cancel' : 'search_books',
-            ),
-            child: ScaleOnTap(
-              onTap: () {
-                setState(() {
-                  if (_isSearching) {
-                    _isSearching = false;
-                    _searchQuery = '';
-                    _searchController.clear();
-                    _filterBooks();
-                  } else {
-                    _isSearching = true;
-                  }
-                });
-              },
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: _isSearching
-                      ? theme.primaryColor
-                      : isDark
-                          ? Colors.white.withValues(alpha: 0.15)
-                          : theme.primaryColor.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
+          // Search toggle (separate block) — hidden when the sticky sliver
+          // header (LibraryScreen) drives the search instead.
+          if (widget.externalSearchQuery == null) ...[
+            Tooltip(
+              message: TranslationService.translate(
+                context,
+                _isSearching ? 'cancel' : 'search_books',
+              ),
+              child: ScaleOnTap(
+                onTap: () {
+                  setState(() {
+                    if (_isSearching) {
+                      _isSearching = false;
+                      _searchQuery = '';
+                      _searchController.clear();
+                      _filterBooks();
+                    } else {
+                      _isSearching = true;
+                    }
+                  });
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
                     color: _isSearching
                         ? theme.primaryColor
                         : isDark
-                            ? Colors.white24
-                            : theme.primaryColor.withValues(alpha: 0.3),
+                            ? Colors.white.withValues(alpha: 0.15)
+                            : theme.primaryColor.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: _isSearching
+                          ? theme.primaryColor
+                          : isDark
+                              ? Colors.white24
+                              : theme.primaryColor.withValues(alpha: 0.3),
+                    ),
                   ),
-                ),
-                child: Icon(
-                  _isSearching ? Icons.search_off : Icons.search,
-                  size: 20,
-                  color: _isSearching
-                      ? Colors.white
-                      : isDark
-                          ? Colors.white70
-                          : theme.primaryColor,
+                  child: Icon(
+                    _isSearching ? Icons.search_off : Icons.search,
+                    size: 20,
+                    color: _isSearching
+                        ? Colors.white
+                        : isDark
+                            ? Colors.white70
+                            : theme.primaryColor,
+                  ),
                 ),
               ),
             ),
-          ),
-          const SizedBox(width: 12),
+            const SizedBox(width: 12),
+          ],
 
           // 2. Tag Filter Trigger
           // If a tag is selected, show it as a clearable chip
@@ -1926,6 +1967,22 @@ class _BookListScreenState extends State<BookListScreen>
       _searchQuery.isEmpty &&
       _tagFilter == null &&
       _selectedStatus == null;
+
+  /// Auto-collapse the recently-added carousel when the book list is scrolled,
+  /// expand again when scrolled back to the top. Hysteresis thresholds avoid
+  /// flicker at the transition.
+  bool _handleBodyScroll(ScrollNotification notification) {
+    if (notification.metrics.axis != Axis.vertical) return false;
+    final provider = context.read<ThemeProvider>();
+    if (provider.carouselHiddenOwnLib) return false;
+    final pixels = notification.metrics.pixels;
+    if (pixels > 60) {
+      provider.setCarouselCollapsedOwnLib(true);
+    } else if (pixels <= 12) {
+      provider.setCarouselCollapsedOwnLib(false);
+    }
+    return false;
+  }
 
   Widget _buildBody() {
     // 1. Zero State: No books in the library at all (not just filtered out)

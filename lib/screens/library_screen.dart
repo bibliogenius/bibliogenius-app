@@ -1,13 +1,16 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+
 import '../services/translation_service.dart';
 import '../widgets/genie_app_bar.dart';
 import '../widgets/scaffold_with_nav.dart';
 import '../widgets/configurable_action_card.dart';
 import '../widgets/contextual_help_sheet.dart';
-import '../widgets/invite_share_sheet.dart';
 import '../widgets/quick_actions_sheet.dart';
+import '../widgets/sticky_tabs_header.dart';
 import '../providers/theme_provider.dart';
 import 'book_list_screen.dart';
 import 'shelves_screen.dart';
@@ -29,6 +32,17 @@ class _LibraryScreenState extends State<LibraryScreen>
     with TickerProviderStateMixin {
   late TabController _tabController;
   late bool _collectionsEnabled;
+
+  final ValueNotifier<int> _refreshNotifier = ValueNotifier<int>(0);
+  final ValueNotifier<int> _shelvesRefreshNotifier = ValueNotifier<int>(0);
+  int _collectionsRefreshKey = 0;
+
+  // Global search state (lifted from BookListScreen so the search field in the
+  // sticky sliver header can drive filtering of the active tab's content).
+  final ValueNotifier<String> _searchQuery = ValueNotifier<String>('');
+  final TextEditingController _searchController = TextEditingController();
+  Timer? _searchDebounce;
+  bool _isSearching = false;
 
   @override
   void initState() {
@@ -79,132 +93,172 @@ class _LibraryScreenState extends State<LibraryScreen>
     setState(() {});
   }
 
-  final ValueNotifier<int> _refreshNotifier = ValueNotifier<int>(0);
-  final ValueNotifier<int> _shelvesRefreshNotifier = ValueNotifier<int>(0);
-  int _collectionsRefreshKey = 0;
-
   @override
   void dispose() {
     _tabController.removeListener(_handleTabSelection);
     _tabController.dispose();
     _refreshNotifier.dispose();
     _shelvesRefreshNotifier.dispose();
+    _searchQuery.dispose();
+    _searchController.dispose();
+    _searchDebounce?.cancel();
     super.dispose();
+  }
+
+  void _openSearch() {
+    // Search is book-scoped: if the user taps search from Étagères/Collections,
+    // switch back to the Livres tab so they see the list they're filtering.
+    if (_tabController.index != 0) {
+      _tabController.animateTo(0);
+      context.go('/books');
+    }
+    setState(() => _isSearching = true);
+  }
+
+  void _closeSearch() {
+    _searchDebounce?.cancel();
+    _searchController.clear();
+    _searchQuery.value = '';
+    setState(() => _isSearching = false);
+  }
+
+  void _onSearchChanged(String value) {
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 300), () {
+      if (!mounted) return;
+      _searchQuery.value = value;
+    });
+  }
+
+  void _onTabTap(int index) {
+    switch (index) {
+      case 0:
+        context.go('/books');
+        break;
+      case 1:
+        context.go('/shelves');
+        break;
+      case 2:
+        final themeProvider =
+            Provider.of<ThemeProvider>(context, listen: false);
+        if (themeProvider.collectionsEnabled) {
+          context.go('/collections');
+        }
+        break;
+    }
+  }
+
+  List<Tab> _buildTabs(bool collectionsEnabled) {
+    return [
+      Tab(text: TranslationService.translate(context, 'books')),
+      Tab(text: TranslationService.translate(context, 'shelves')),
+      if (collectionsEnabled)
+        Tab(text: TranslationService.translate(context, 'collections')),
+    ];
   }
 
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
-    final width = MediaQuery.of(context).size.width;
-    final isMobile = width <= 600;
 
     // Get filter tag to force rebuild of BookListScreen when it changes
     final tagFilter = GoRouterState.of(context).uri.queryParameters['tag'];
 
+    final genieAppBar = GenieAppBar(
+      title: TranslationService.translate(context, 'library'),
+      leading: buildDrawerLeading(context),
+      automaticallyImplyLeading: false,
+      actions: [
+        ContextualHelpIconButton(
+          titleKey: 'help_ctx_library_title',
+          contentKey: 'help_ctx_library_content',
+          tips: const [
+            HelpTip(
+              icon: Icons.add_circle,
+              color: Colors.blue,
+              titleKey: 'help_ctx_library_tip_add',
+              descriptionKey: 'help_ctx_library_tip_add_desc',
+            ),
+            HelpTip(
+              icon: Icons.shelves,
+              color: Colors.green,
+              titleKey: 'help_ctx_library_tip_shelves',
+              descriptionKey: 'help_ctx_library_tip_shelves_desc',
+            ),
+            HelpTip(
+              icon: Icons.search,
+              color: Colors.orange,
+              titleKey: 'help_ctx_library_tip_search',
+              descriptionKey: 'help_ctx_library_tip_search_desc',
+            ),
+          ],
+        ),
+      ],
+      contextualQuickActions: _buildQuickActions(context),
+      onBookAdded: () => _refreshNotifier.value++,
+      onShelfCreated: () => _shelvesRefreshNotifier.value++,
+      preSelectedShelfId: widget.shelfTagFilter,
+      destinationName: widget.shelfTagFilter,
+    );
+
     return Scaffold(
-      appBar: GenieAppBar(
-        title: TranslationService.translate(context, 'library'),
-        leading: buildDrawerLeading(context),
-        automaticallyImplyLeading: false,
-        actions: [
-          ContextualHelpIconButton(
-            titleKey: 'help_ctx_library_title',
-            contentKey: 'help_ctx_library_content',
-            tips: const [
-              HelpTip(
-                icon: Icons.add_circle,
-                color: Colors.blue,
-                titleKey: 'help_ctx_library_tip_add',
-                descriptionKey: 'help_ctx_library_tip_add_desc',
-              ),
-              HelpTip(
-                icon: Icons.shelves,
-                color: Colors.green,
-                titleKey: 'help_ctx_library_tip_shelves',
-                descriptionKey: 'help_ctx_library_tip_shelves_desc',
-              ),
-              HelpTip(
-                icon: Icons.search,
-                color: Colors.orange,
-                titleKey: 'help_ctx_library_tip_search',
-                descriptionKey: 'help_ctx_library_tip_search_desc',
-              ),
-            ],
+      body: NestedScrollView(
+        headerSliverBuilder: (context, innerBoxIsScrolled) => [
+          GenieSliverAppBar(
+            source: genieAppBar,
+            floating: true,
+            snap: true,
+            pinned: false,
+            forceElevated: innerBoxIsScrolled,
+          ),
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: StickyTabsHeader(
+              tabController: _tabController,
+              tabs: _buildTabs(themeProvider.collectionsEnabled),
+              themeStyle: themeProvider.themeStyle,
+              onTabTap: _onTabTap,
+              isSearching: _isSearching,
+              searchController: _searchController,
+              onOpenSearch: _openSearch,
+              onCloseSearch: _closeSearch,
+              onSearchChanged: _onSearchChanged,
+            ),
           ),
         ],
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.white70,
-          indicatorColor: Colors.white,
-          onTap: (index) {
-            switch (index) {
-              case 0:
-                context.go('/books');
-                break;
-              case 1:
-                context.go('/shelves');
-                break;
-              case 2:
-                if (themeProvider.collectionsEnabled) {
-                  context.go('/collections');
-                }
-                break;
-            }
-          },
-          tabs: [
-            Tab(
-              icon: const Icon(Icons.book),
-              text: TranslationService.translate(context, 'books'),
+        body: IndexedStack(
+          sizing: StackFit.expand,
+          index: _tabController.index,
+          children: [
+            BookListScreen(
+              key: ValueKey(tagFilter),
+              isTabView: true,
+              refreshNotifier: _refreshNotifier,
+              externalSearchQuery: _searchQuery,
             ),
-            Tab(
-              icon: const Icon(Icons.shelves),
-              text: TranslationService.translate(context, 'shelves'),
-            ),
+            widget.shelfTagFilter != null
+                ? BookListScreen(
+                    key: ValueKey('shelf_${widget.shelfTagFilter}'),
+                    isTabView: true,
+                    refreshNotifier: _refreshNotifier,
+                    initialTagFilter: widget.shelfTagFilter,
+                    showBackToShelves: true,
+                    externalSearchQuery: _searchQuery,
+                  )
+                : ShelvesScreen(
+                    isTabView: true,
+                    refreshNotifier: _shelvesRefreshNotifier,
+                  ),
             if (themeProvider.collectionsEnabled)
-              Tab(
-                icon: const Icon(Icons.collections_bookmark),
-                text: TranslationService.translate(context, 'collections'),
+              CollectionListScreen(
+                key: ValueKey('collections_$_collectionsRefreshKey'),
+                isTabView: true,
+                onImportSuccess: () {
+                  _refreshNotifier.value++;
+                },
               ),
           ],
         ),
-        contextualQuickActions: _buildQuickActions(context),
-        onBookAdded: () => _refreshNotifier.value++,
-        onShelfCreated: () => _shelvesRefreshNotifier.value++,
-        preSelectedShelfId: widget.shelfTagFilter,
-        destinationName: widget.shelfTagFilter,
-      ),
-      body: IndexedStack(
-        sizing: StackFit.expand,
-        index: _tabController.index,
-        children: [
-          BookListScreen(
-            key: ValueKey(tagFilter),
-            isTabView: true,
-            refreshNotifier: _refreshNotifier,
-          ),
-          // Show filtered books when a shelf tag is selected, otherwise show shelves grid
-          widget.shelfTagFilter != null
-              ? BookListScreen(
-                  key: ValueKey('shelf_${widget.shelfTagFilter}'),
-                  isTabView: true,
-                  refreshNotifier: _refreshNotifier,
-                  initialTagFilter: widget.shelfTagFilter,
-                  showBackToShelves: true,
-                )
-              : ShelvesScreen(
-                  isTabView: true,
-                  refreshNotifier: _shelvesRefreshNotifier,
-                ),
-          if (themeProvider.collectionsEnabled)
-            CollectionListScreen(
-              key: ValueKey('collections_$_collectionsRefreshKey'),
-              isTabView: true,
-              onImportSuccess: () {
-                _refreshNotifier.value++;
-              },
-            ),
-        ],
       ),
       floatingActionButton: _tabController.index == 0 ||
               (_tabController.index == 1 && widget.shelfTagFilter != null)
@@ -215,24 +269,54 @@ class _LibraryScreenState extends State<LibraryScreen>
                   width: 48,
                   height: 48,
                   child: FloatingActionButton(
-                  heroTag: 'library_scan_fab',
-                  onPressed: () async {
-                    final router = GoRouter.of(context);
-                    final extra = <String, dynamic>{};
-                    if (_tabController.index == 1 &&
-                        widget.shelfTagFilter != null) {
-                      extra['shelfId'] = widget.shelfTagFilter;
-                      extra['shelfName'] = widget.shelfTagFilter;
-                    }
-                    final isbn = await router.push<String>(
-                      '/scan',
-                      extra: extra.isNotEmpty ? extra : null,
-                    );
-                    if (isbn != null && mounted) {
-                      extra['isbn'] = isbn;
+                    heroTag: 'library_scan_fab',
+                    onPressed: () async {
+                      final router = GoRouter.of(context);
+                      final extra = <String, dynamic>{};
+                      if (_tabController.index == 1 &&
+                          widget.shelfTagFilter != null) {
+                        extra['shelfId'] = widget.shelfTagFilter;
+                        extra['shelfName'] = widget.shelfTagFilter;
+                      }
+                      final isbn = await router.push<String>(
+                        '/scan',
+                        extra: extra.isNotEmpty ? extra : null,
+                      );
+                      if (isbn != null && mounted) {
+                        extra['isbn'] = isbn;
+                        final result = await router.push(
+                          '/books/add',
+                          extra: extra,
+                        );
+                        if (result != null && mounted) {
+                          _refreshNotifier.value++;
+                          if (result is int) {
+                            router.push('/books/$result');
+                          }
+                        }
+                      }
+                    },
+                    child: const Icon(Icons.qr_code_scanner, size: 22),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: 48,
+                  height: 48,
+                  child: FloatingActionButton(
+                    heroTag: 'library_add_fab',
+                    key: const Key('addBookButton'),
+                    onPressed: () async {
+                      final router = GoRouter.of(context);
+                      final extra = <String, dynamic>{};
+                      if (_tabController.index == 1 &&
+                          widget.shelfTagFilter != null) {
+                        extra['shelfId'] = widget.shelfTagFilter;
+                        extra['shelfName'] = widget.shelfTagFilter;
+                      }
                       final result = await router.push(
                         '/books/add',
-                        extra: extra,
+                        extra: extra.isNotEmpty ? extra : null,
                       );
                       if (result != null && mounted) {
                         _refreshNotifier.value++;
@@ -240,38 +324,10 @@ class _LibraryScreenState extends State<LibraryScreen>
                           router.push('/books/$result');
                         }
                       }
-                    }
-                  },
-                  child: const Icon(Icons.qr_code_scanner, size: 22),
-                )),
-                const SizedBox(height: 8),
-                SizedBox(
-                  width: 48,
-                  height: 48,
-                  child: FloatingActionButton(
-                  heroTag: 'library_add_fab',
-                  key: const Key('addBookButton'),
-                  onPressed: () async {
-                    final router = GoRouter.of(context);
-                    final extra = <String, dynamic>{};
-                    if (_tabController.index == 1 &&
-                        widget.shelfTagFilter != null) {
-                      extra['shelfId'] = widget.shelfTagFilter;
-                      extra['shelfName'] = widget.shelfTagFilter;
-                    }
-                    final result = await router.push(
-                      '/books/add',
-                      extra: extra.isNotEmpty ? extra : null,
-                    );
-                    if (result != null && mounted) {
-                      _refreshNotifier.value++;
-                      if (result is int) {
-                        router.push('/books/$result');
-                      }
-                    }
-                  },
-                  child: const Icon(Icons.add, size: 22),
-                )),
+                    },
+                    child: const Icon(Icons.add, size: 22),
+                  ),
+                ),
               ],
             )
           : null,

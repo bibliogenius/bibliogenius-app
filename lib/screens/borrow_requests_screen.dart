@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../widgets/genie_app_bar.dart';
 import '../widgets/scaffold_with_nav.dart';
+import '../widgets/sticky_tabs_header.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:dio/dio.dart';
@@ -321,6 +322,32 @@ class _LoansScreenState extends State<LoansScreen>
     final networkEnabled =
         themeProvider.networkEnabled || themeProvider.remoteReachableEnabled;
 
+    final tabs = <Tab>[
+      if (networkEnabled)
+        Tab(
+          key: const Key('requestsTab'),
+          text: TranslationService.translate(context, 'tab_requests'),
+        ),
+      Tab(
+        key: const Key('lentTab'),
+        text: TranslationService.translate(context, 'tab_lent'),
+      ),
+      if (canBorrow)
+        Tab(
+          key: const Key('borrowedTab'),
+          text: TranslationService.translate(context, 'tab_borrowed'),
+        ),
+    ];
+
+    final tabBarView = TabBarView(
+      controller: _mainTabController,
+      children: [
+        if (networkEnabled) _buildRequestsTab(),
+        _buildLentTab(),
+        if (canBorrow) _buildBorrowedTab(),
+      ],
+    );
+
     if (widget.isTabView) {
       return Column(
         children: [
@@ -331,90 +358,54 @@ class _LoansScreenState extends State<LoansScreen>
               labelColor: Colors.white,
               unselectedLabelColor: Colors.white70,
               indicatorColor: Colors.white,
-              tabs: [
-                if (networkEnabled)
-                  Tab(
-                    key: const Key('requestsTab'),
-                    icon: const Icon(Icons.mail_outline),
-                    text: TranslationService.translate(context, 'tab_requests'),
-                  ),
-                Tab(
-                  key: const Key('lentTab'),
-                  icon: const Icon(Icons.arrow_upward),
-                  text: TranslationService.translate(context, 'tab_lent'),
-                ),
-                if (canBorrow)
-                  Tab(
-                    key: const Key('borrowedTab'),
-                    icon: const Icon(Icons.arrow_downward),
-                    text: TranslationService.translate(context, 'tab_borrowed'),
-                  ),
-              ],
+              tabs: tabs,
             ),
           ),
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
-                : TabBarView(
-                    controller: _mainTabController,
-                    children: [
-                      if (networkEnabled) _buildRequestsTab(),
-                      _buildLentTab(),
-                      if (canBorrow) _buildBorrowedTab(),
-                    ],
-                  ),
+                : tabBarView,
           ),
         ],
       );
     }
 
-    return Scaffold(
-      appBar: GenieAppBar(
-        title: TranslationService.translate(context, 'loans_menu'),
-        leading: buildDrawerLeading(context),
-        automaticallyImplyLeading: false,
-        bottom: TabBar(
-          controller: _mainTabController,
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.white70,
-          indicatorColor: Colors.white,
-          tabs: [
-            if (networkEnabled)
-              Tab(
-                key: const Key('requestsTab'),
-                icon: const Icon(Icons.mail_outline),
-                text: TranslationService.translate(context, 'tab_requests'),
-              ),
-            Tab(
-              key: const Key('lentTab'),
-              icon: const Icon(Icons.arrow_upward),
-              text: TranslationService.translate(context, 'tab_lent'),
-            ),
-            if (canBorrow)
-              Tab(
-                key: const Key('borrowedTab'),
-                icon: const Icon(Icons.arrow_downward),
-                text: TranslationService.translate(context, 'tab_borrowed'),
-              ),
-          ],
+    final genieAppBar = GenieAppBar(
+      title: TranslationService.translate(context, 'loans_menu'),
+      leading: buildDrawerLeading(context),
+      automaticallyImplyLeading: false,
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.refresh, color: Colors.white),
+          tooltip: TranslationService.translate(context, 'action_refresh'),
+          onPressed: _fetchAllData,
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.white),
-            onPressed: _fetchAllData,
+      ],
+    );
+
+    return Scaffold(
+      body: NestedScrollView(
+        headerSliverBuilder: (context, innerBoxIsScrolled) => [
+          GenieSliverAppBar(
+            source: genieAppBar,
+            floating: true,
+            snap: true,
+            pinned: false,
+            forceElevated: innerBoxIsScrolled,
+          ),
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: StickyTabsHeader(
+              tabController: _mainTabController,
+              tabs: tabs,
+              themeStyle: themeProvider.themeStyle,
+            ),
           ),
         ],
+        body: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : tabBarView,
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : TabBarView(
-              controller: _mainTabController,
-              children: [
-                if (networkEnabled) _buildRequestsTab(),
-                _buildLentTab(),
-                if (canBorrow) _buildBorrowedTab(),
-              ],
-            ),
     );
   }
 

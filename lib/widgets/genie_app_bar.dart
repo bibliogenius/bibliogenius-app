@@ -135,38 +135,40 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
-    // Use provided subtitle, or fallback to library name from provider
-    final displaySubtitle = subtitle ?? themeProvider.libraryName;
-
-    // Get avatar info from provider (customizable avatar system)
-    final avatarConfig = themeProvider.avatarConfig;
-
-    // Theme-aware gradient via centralized design tokens
-    final gradientColors = AppDesign.appBarGradientForTheme(themeProvider.themeStyle).colors;
-
-    if (transparent) {
-      // Use a transparent gradient/color if requested
-      // We can just empty the list or use transparent colors
-    }
-
-    final canPop = GoRouter.of(context).canPop();
-    final currentRoute = GoRouterState.of(context).uri.toString();
-    final bool shouldShowBackButton =
-        showBackButton && canPop && currentRoute != '/onboarding';
-
     return AppBar(
       automaticallyImplyLeading: automaticallyImplyLeading,
-      leading:
-          leading ??
-          (shouldShowBackButton
-              ? IconButton(
-                  icon: const Icon(Icons.arrow_back, color: Colors.white),
-                  tooltip: TranslationService.translate(context, 'back'),
-                  onPressed: () => GoRouter.of(context).pop(),
-                )
-              : null),
-      flexibleSpace: ExcludeSemantics(child: Container(
+      leading: _buildLeading(context),
+      flexibleSpace: _buildFlexibleSpace(context),
+      elevation: 0,
+      leadingWidth: 40,
+      title: _buildTitleWidget(context),
+      actions: _buildActionsWidgets(context),
+      bottom: bottom,
+      centerTitle: false,
+      backgroundColor: Colors.transparent,
+    );
+  }
+
+  Widget? _buildLeading(BuildContext context) {
+    if (leading != null) return leading;
+    final canPop = GoRouter.of(context).canPop();
+    final currentRoute = GoRouterState.of(context).uri.toString();
+    final shouldShowBackButton =
+        showBackButton && canPop && currentRoute != '/onboarding';
+    if (!shouldShowBackButton) return null;
+    return IconButton(
+      icon: const Icon(Icons.arrow_back, color: Colors.white),
+      tooltip: TranslationService.translate(context, 'back'),
+      onPressed: () => GoRouter.of(context).pop(),
+    );
+  }
+
+  Widget _buildFlexibleSpace(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final gradientColors =
+        AppDesign.appBarGradientForTheme(themeProvider.themeStyle).colors;
+    return ExcludeSemantics(
+      child: Container(
         decoration: BoxDecoration(
           gradient: transparent
               ? null
@@ -177,10 +179,14 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
                 ),
           color: transparent ? Colors.transparent : null,
         ),
-      )),
-      elevation: 0,
-      leadingWidth: 40, // Reduce space after hamburger menu
-      title: LayoutBuilder(
+      ),
+    );
+  }
+
+  Widget _buildTitleWidget(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final displaySubtitle = subtitle ?? themeProvider.libraryName;
+    return LayoutBuilder(
         builder: (context, constraints) {
           // Responsive breakpoints based on available title width
           final availableWidth = constraints.maxWidth;
@@ -293,8 +299,13 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
             ),
           );
         },
-      ),
-      actions: [
+    );
+  }
+
+  List<Widget> _buildActionsWidgets(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final avatarConfig = themeProvider.avatarConfig;
+    return [
         // Notification bell with unread badge (hidden when notifications disabled)
         if (context.watch<ThemeProvider>().notificationsEnabled)
           Padding(
@@ -486,16 +497,55 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
             ),
           ),
           ),
-      ],
-      bottom: bottom,
-      centerTitle: false,
-      backgroundColor: Colors.transparent, // Required for flexibleSpace to show
-    );
+    ];
   }
 
   @override
   Size get preferredSize =>
       Size.fromHeight(kToolbarHeight + (bottom?.preferredSize.height ?? 0.0));
+}
+
+/// Sliver variant of [GenieAppBar] for use in `CustomScrollView` /
+/// `NestedScrollView`. Renders the same visual content as [GenieAppBar] but
+/// supports collapse-on-scroll behaviors (`floating`, `snap`, `pinned`).
+///
+/// This shares the private builder methods with [GenieAppBar] to keep a
+/// single source of truth for the header's content.
+class GenieSliverAppBar extends StatelessWidget {
+  final GenieAppBar source;
+  final bool floating;
+  final bool snap;
+  final bool pinned;
+  final bool forceElevated;
+
+  const GenieSliverAppBar({
+    super.key,
+    required this.source,
+    this.floating = true,
+    this.snap = true,
+    this.pinned = false,
+    this.forceElevated = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverAppBar(
+      automaticallyImplyLeading: source.automaticallyImplyLeading,
+      leading: source._buildLeading(context),
+      flexibleSpace: source._buildFlexibleSpace(context),
+      elevation: 0,
+      leadingWidth: 40,
+      title: source._buildTitleWidget(context),
+      actions: source._buildActionsWidgets(context),
+      bottom: source.bottom,
+      centerTitle: false,
+      backgroundColor: Colors.transparent,
+      floating: floating,
+      snap: snap,
+      pinned: pinned,
+      forceElevated: forceElevated,
+    );
+  }
 }
 
 void _showNotificationPopover(
