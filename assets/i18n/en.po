@@ -3352,6 +3352,10 @@ msgstr "Reader"
 msgid "leaderboard_reader_desc"
 msgstr "Books read"
 
+#. Shown after a manual leaderboard refresh when the Rust backend hit its 25s per-peer relay timeout
+msgid "leaderboard_sync_timeout"
+msgstr "Some libraries did not respond in time"
+
 #. Leaderboard
 msgid "leaderboard_title"
 msgstr "Leaderboard"

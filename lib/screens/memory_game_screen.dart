@@ -9,6 +9,7 @@ import '../models/memory_game.dart';
 import '../providers/memory_game_provider.dart';
 import '../services/translation_service.dart';
 import '../widgets/achievement_pop_animation.dart';
+import '../widgets/app_snack_bar.dart';
 import '../widgets/memory_game_board.dart';
 
 /// Memory Game screen with three phases:
@@ -1064,6 +1065,17 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
     super.dispose();
   }
 
+  Future<void> _refreshNetworkLeaderboard(MemoryGameProvider provider) async {
+    await provider.refreshNetworkLeaderboard();
+    if (!mounted) return;
+    if (provider.lastRefreshTimedOut) {
+      AppSnackBar.error(
+        context,
+        TranslationService.translate(context, 'leaderboard_sync_timeout'),
+      );
+    }
+  }
+
   void _confirmResetScores(BuildContext context, MemoryGameProvider provider) {
     showDialog(
       context: context,
@@ -1145,7 +1157,7 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
                     else
                       IconButton(
                         icon: const Icon(Icons.refresh, size: 20),
-                        onPressed: () => provider.refreshNetworkLeaderboard(),
+                        onPressed: () => _refreshNetworkLeaderboard(provider),
                         tooltip: TranslationService.translate(
                             context, 'memory_leaderboard_refreshing'),
                       ),
@@ -1368,7 +1380,7 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
                   IconButton(
                     onPressed: provider.isSyncingNetwork
                         ? null
-                        : () => provider.refreshNetworkLeaderboard(),
+                        : () => _refreshNetworkLeaderboard(provider),
                     icon: const Icon(Icons.refresh),
                     tooltip: TranslationService.translate(
                         context, 'memory_leaderboard_refreshing'),

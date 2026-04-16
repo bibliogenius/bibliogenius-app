@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../providers/sliding_puzzle_provider.dart';
 import '../services/translation_service.dart';
 import '../widgets/achievement_pop_animation.dart';
+import '../widgets/app_snack_bar.dart';
 import '../widgets/puzzle_board_widget.dart';
 import '../widgets/cached_book_cover.dart';
 
@@ -805,6 +806,17 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
     super.dispose();
   }
 
+  Future<void> _refreshNetworkLeaderboard(SlidingPuzzleProvider provider) async {
+    await provider.refreshNetworkLeaderboard();
+    if (!mounted) return;
+    if (provider.lastRefreshTimedOut) {
+      AppSnackBar.error(
+        context,
+        TranslationService.translate(context, 'leaderboard_sync_timeout'),
+      );
+    }
+  }
+
   void _confirmResetScores(
       BuildContext context, SlidingPuzzleProvider provider) {
     showDialog(
@@ -886,7 +898,7 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
                     else
                       IconButton(
                         icon: const Icon(Icons.refresh, size: 20),
-                        onPressed: () => provider.refreshNetworkLeaderboard(),
+                        onPressed: () => _refreshNetworkLeaderboard(provider),
                         tooltip: TranslationService.translate(
                             context, 'puzzle_leaderboard_refreshing'),
                       ),
@@ -1107,7 +1119,7 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
                   IconButton(
                     onPressed: provider.isSyncingNetwork
                         ? null
-                        : () => provider.refreshNetworkLeaderboard(),
+                        : () => _refreshNetworkLeaderboard(provider),
                     icon: const Icon(Icons.refresh),
                     tooltip: TranslationService.translate(
                         context, 'puzzle_leaderboard_refreshing'),

@@ -42,6 +42,7 @@ class SlidingPuzzleProvider extends ChangeNotifier {
   List<PuzzleScore> _topScores = [];
   List<PuzzleLeaderboardEntry> _networkScores = [];
   bool _isSyncingNetwork = false;
+  bool _lastRefreshTimedOut = false;
 
   // --- Rank info ---
   int? _personalRank;
@@ -67,6 +68,7 @@ class SlidingPuzzleProvider extends ChangeNotifier {
   List<PuzzleScore> get topScores => _topScores;
   List<PuzzleLeaderboardEntry> get networkScores => _networkScores;
   bool get isSyncingNetwork => _isSyncingNetwork;
+  bool get lastRefreshTimedOut => _lastRefreshTimedOut;
   int? get personalRank => _personalRank;
   bool get isNewPersonalBest => _isNewPersonalBest;
 
@@ -353,16 +355,22 @@ class SlidingPuzzleProvider extends ChangeNotifier {
   }
 
   /// Force relay sync with spinner. Called from the manual refresh button.
+  ///
+  /// Capped at 40s client-side as a safety net above the Rust timeout.
+  /// On timeout, reloads from cache and sets [lastRefreshTimedOut].
   Future<void> refreshNetworkLeaderboard() async {
     if (_isSyncingNetwork) return;
     _isSyncingNetwork = true;
+    _lastRefreshTimedOut = false;
     notifyListeners();
 
     final spinnerStart = DateTime.now();
     await Future<void>.delayed(const Duration(milliseconds: 50));
 
     try {
-      final frbEntries = await _ffi.refreshPuzzleLeaderboard();
+      final frbEntries = await _ffi
+          .refreshPuzzleLeaderboard()
+          .timeout(const Duration(seconds: 40));
       _networkScores = frbEntries
           .map((e) => PuzzleLeaderboardEntry(
                 peerId: e.peerId,
@@ -373,6 +381,11 @@ class SlidingPuzzleProvider extends ChangeNotifier {
                 isSelf: e.isSelf,
               ))
           .toList();
+    } on TimeoutException {
+      _lastRefreshTimedOut = true;
+      debugPrint(
+          'SlidingPuzzleProvider: refreshNetworkLeaderboard timed out, reloading cache');
+      await _loadCachedScores();
     } catch (e) {
       debugPrint('SlidingPuzzleProvider: refreshNetworkLeaderboard error: $e');
     } finally {

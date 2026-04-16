@@ -42,6 +42,7 @@ class MemoryGameProvider extends ChangeNotifier {
   List<MemoryGameScore> _topScores = [];
   List<MemoryLeaderboardEntry> _networkScores = [];
   bool _isSyncingNetwork = false;
+  bool _lastRefreshTimedOut = false;
 
   // --- Rank info (computed after game finish) ---
   int? _personalRank;
@@ -65,6 +66,7 @@ class MemoryGameProvider extends ChangeNotifier {
   List<MemoryGameScore> get topScores => _topScores;
   List<MemoryLeaderboardEntry> get networkScores => _networkScores;
   bool get isSyncingNetwork => _isSyncingNetwork;
+  bool get lastRefreshTimedOut => _lastRefreshTimedOut;
   bool get isMatchChecking => _phase == GamePhase.matchCheck;
   int? get personalRank => _personalRank;
   bool get isNewPersonalBest => _isNewPersonalBest;
@@ -374,17 +376,26 @@ class MemoryGameProvider extends ChangeNotifier {
   }
 
   /// Force relay sync with spinner. Called from the manual refresh button.
+  ///
+  /// Capped at 40s client-side: the Rust side already enforces ~30s end-to-end
+  /// (Phase 1 direct + Phase 2 relay with 25s per-peer), so this timeout is a
+  /// safety net. On timeout, reloads from cache so any partial writes done by
+  /// Rust still appear, and sets [lastRefreshTimedOut] so the UI can surface
+  /// a notice.
   Future<void> refreshNetworkLeaderboard() async {
     if (_isSyncingNetwork) return;
 
     _isSyncingNetwork = true;
+    _lastRefreshTimedOut = false;
     notifyListeners();
 
     final spinnerStart = DateTime.now();
     await Future<void>.delayed(const Duration(milliseconds: 50));
 
     try {
-      final frbEntries = await _ffi.refreshMemoryLeaderboard();
+      final frbEntries = await _ffi
+          .refreshMemoryLeaderboard()
+          .timeout(const Duration(seconds: 40));
       _networkScores = frbEntries
           .map((e) => MemoryLeaderboardEntry(
                 peerId: e.peerId,
@@ -395,6 +406,11 @@ class MemoryGameProvider extends ChangeNotifier {
                 isSelf: e.isSelf,
               ))
           .toList();
+    } on TimeoutException {
+      _lastRefreshTimedOut = true;
+      debugPrint(
+          'MemoryGameProvider: refreshNetworkLeaderboard timed out, reloading cache');
+      await _loadCachedScores();
     } catch (e) {
       debugPrint('MemoryGameProvider: refreshNetworkLeaderboard error: $e');
     } finally {

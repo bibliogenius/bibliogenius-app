@@ -58,6 +58,7 @@ class HangmanProvider extends ChangeNotifier {
   List<HangmanGameScore> _topScores = [];
   List<HangmanLeaderboardEntry> _networkScores = [];
   bool _isSyncingNetwork = false;
+  bool _lastRefreshTimedOut = false;
 
   // --- Rank info ---
   int? _personalRank;
@@ -90,6 +91,7 @@ class HangmanProvider extends ChangeNotifier {
   List<HangmanGameScore> get topScores => _topScores;
   List<HangmanLeaderboardEntry> get networkScores => _networkScores;
   bool get isSyncingNetwork => _isSyncingNetwork;
+  bool get lastRefreshTimedOut => _lastRefreshTimedOut;
   int? get personalRank => _personalRank;
   bool get isNewPersonalBest => _isNewPersonalBest;
 
@@ -417,16 +419,22 @@ class HangmanProvider extends ChangeNotifier {
   }
 
   /// Force relay sync with spinner. Called from the manual refresh button.
+  ///
+  /// Capped at 40s client-side as a safety net above the Rust timeout.
+  /// On timeout, reloads from cache and sets [lastRefreshTimedOut].
   Future<void> refreshNetworkLeaderboard() async {
     if (_isSyncingNetwork) return;
     _isSyncingNetwork = true;
+    _lastRefreshTimedOut = false;
     notifyListeners();
 
     final spinnerStart = DateTime.now();
     await Future<void>.delayed(const Duration(milliseconds: 50));
 
     try {
-      final frbEntries = await _ffi.refreshHangmanLeaderboard();
+      final frbEntries = await _ffi
+          .refreshHangmanLeaderboard()
+          .timeout(const Duration(seconds: 40));
       _networkScores = frbEntries
           .map((e) => HangmanLeaderboardEntry(
                 peerId: e.peerId,
@@ -437,6 +445,11 @@ class HangmanProvider extends ChangeNotifier {
                 isSelf: e.isSelf,
               ))
           .toList();
+    } on TimeoutException {
+      _lastRefreshTimedOut = true;
+      debugPrint(
+          'HangmanProvider: refreshNetworkLeaderboard timed out, reloading cache');
+      await _loadCachedScores();
     } catch (e) {
       debugPrint('HangmanProvider: refreshNetworkLeaderboard error: $e');
     } finally {
