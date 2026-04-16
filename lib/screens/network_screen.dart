@@ -2384,10 +2384,14 @@ class _DiscoverViewState extends State<_DiscoverView> {
           );
         }
 
-        // Trigger initial load
+        // Trigger initial load. `hasMore` guards against an infinite
+        // rebuild loop when the hub returns an empty directory: after the
+        // first fetch completes with 0 profiles, hasMore flips to false,
+        // so we stop re-triggering. Pull-to-refresh resets hasMore=true.
         if (provider.profiles.isEmpty &&
             !provider.listLoading &&
-            provider.searchQuery == null) {
+            provider.searchQuery == null &&
+            provider.hasMore) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             provider.loadDirectory();
           });

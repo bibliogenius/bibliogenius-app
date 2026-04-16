@@ -8412,6 +8412,18 @@ msgstr "Añadidos recientemente"
 msgid "carousel_hide_tooltip"
 msgstr "Ocultar carrusel"
 
+msgid "carousel_hide_long_press_tooltip"
+msgstr "Mantén pulsado para ocultar"
+
+msgid "carousel_expand_tooltip"
+msgstr "Expandir carrusel"
+
+msgid "carousel_collapse_tooltip"
+msgstr "Contraer carrusel"
+
+msgid "carousel_collapsed_label"
+msgstr "Añadidos recientemente · {count}"
+
 msgid "carousel_hidden_snackbar"
 msgstr "Carrusel ocultado"
 

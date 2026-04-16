@@ -8635,6 +8635,18 @@ msgstr "Derniers ajouts"
 msgid "carousel_hide_tooltip"
 msgstr "Masquer le carrousel"
 
+msgid "carousel_hide_long_press_tooltip"
+msgstr "Appuyer longuement pour masquer"
+
+msgid "carousel_expand_tooltip"
+msgstr "Déplier le carrousel"
+
+msgid "carousel_collapse_tooltip"
+msgstr "Replier le carrousel"
+
+msgid "carousel_collapsed_label"
+msgstr "Derniers ajouts · {count}"
+
 msgid "carousel_hidden_snackbar"
 msgstr "Carrousel masqué"
 

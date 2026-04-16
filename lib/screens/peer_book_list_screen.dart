@@ -1791,6 +1791,22 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     );
   }
 
+  /// Auto-collapse the recently-added carousel when the peer's book list is
+  /// scrolled, expand again when scrolled back to the top. Hysteresis
+  /// thresholds avoid flicker at the transition.
+  bool _handleBodyScroll(ScrollNotification notification) {
+    if (notification.metrics.axis != Axis.vertical) return false;
+    final provider = context.read<ThemeProvider>();
+    if (provider.carouselHiddenPeerLib) return false;
+    final pixels = notification.metrics.pixels;
+    if (pixels > 60) {
+      provider.setCarouselCollapsedPeerLib(true);
+    } else if (pixels <= 12) {
+      provider.setCarouselCollapsedPeerLib(false);
+    }
+    return false;
+  }
+
   /// Full profile banner: identity row (avatar + name + country + book count)
   /// with optional contact section below a divider.
   /// Only rendered when a hub profile is available for this peer.
@@ -2137,7 +2153,9 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                     ),
                     // Book list
                     Expanded(
-                      child: _filteredBooks.isEmpty
+                      child: NotificationListener<ScrollNotification>(
+                        onNotification: _handleBodyScroll,
+                        child: _filteredBooks.isEmpty
                           ? _isRelayLoading
                               ? BookshelfSkeleton(
                                   message:
@@ -2389,6 +2407,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                                     ),
                               },
                             ),
+                      ),
                     ),
                   ],
                 ),

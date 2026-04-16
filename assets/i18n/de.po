@@ -8412,6 +8412,18 @@ msgstr "Kürzlich hinzugefügt"
 msgid "carousel_hide_tooltip"
 msgstr "Karussell ausblenden"
 
+msgid "carousel_hide_long_press_tooltip"
+msgstr "Lange drücken zum Ausblenden"
+
+msgid "carousel_expand_tooltip"
+msgstr "Karussell ausklappen"
+
+msgid "carousel_collapse_tooltip"
+msgstr "Karussell einklappen"
+
+msgid "carousel_collapsed_label"
+msgstr "Kürzlich hinzugefügt · {count}"
+
 msgid "carousel_hidden_snackbar"
 msgstr "Karussell ausgeblendet"
 

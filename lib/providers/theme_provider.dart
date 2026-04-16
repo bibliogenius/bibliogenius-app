@@ -201,6 +201,15 @@ class ThemeProvider with ChangeNotifier {
   bool _carouselHiddenPeerLib = false;
   bool get carouselHiddenPeerLib => _carouselHiddenPeerLib;
 
+  // Collapsed state: shows a thin bar with the count instead of the full strip.
+  // Not persisted beyond the session — auto-collapse on scroll should not
+  // contaminate the next visit.
+  bool _carouselCollapsedOwnLib = false;
+  bool get carouselCollapsedOwnLib => _carouselCollapsedOwnLib;
+
+  bool _carouselCollapsedPeerLib = false;
+  bool get carouselCollapsedPeerLib => _carouselCollapsedPeerLib;
+
   // Show View Count: display library view counter on profile
   // Enabled by default (visible on own profile only)
   bool _showViewCount = true;
@@ -1150,6 +1159,18 @@ class ThemeProvider with ChangeNotifier {
     _carouselHiddenPeerLib = hidden;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('carousel_hidden_peer_lib', hidden);
+    notifyListeners();
+  }
+
+  void setCarouselCollapsedOwnLib(bool collapsed) {
+    if (_carouselCollapsedOwnLib == collapsed) return;
+    _carouselCollapsedOwnLib = collapsed;
+    notifyListeners();
+  }
+
+  void setCarouselCollapsedPeerLib(bool collapsed) {
+    if (_carouselCollapsedPeerLib == collapsed) return;
+    _carouselCollapsedPeerLib = collapsed;
     notifyListeners();
   }
 

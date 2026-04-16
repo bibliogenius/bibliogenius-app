@@ -8635,6 +8635,18 @@ msgstr "Recently added"
 msgid "carousel_hide_tooltip"
 msgstr "Hide carousel"
 
+msgid "carousel_hide_long_press_tooltip"
+msgstr "Long-press to hide"
+
+msgid "carousel_expand_tooltip"
+msgstr "Expand carousel"
+
+msgid "carousel_collapse_tooltip"
+msgstr "Collapse carousel"
+
+msgid "carousel_collapsed_label"
+msgstr "Recently added · {count}"
+
 msgid "carousel_hidden_snackbar"
 msgstr "Carousel hidden"
 

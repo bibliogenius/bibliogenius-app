@@ -15,9 +15,17 @@ enum RecentlyAddedCarouselScope { ownLib, peerLib }
 
 /// Horizontal strip of recently added books displayed at the top of a library
 /// view. Books are filtered via [Book.isNew] (addedAt within the "new badge"
-/// threshold). The user can dismiss the carousel; the choice is persisted in
-/// [ThemeProvider] so the setting survives across navigation and can be
-/// restored from the settings screen.
+/// threshold).
+///
+/// Three display states:
+/// - **expanded**: full strip of covers (default, ~165 px tall)
+/// - **collapsed**: single-row summary with count — auto-triggered when the
+///   list below is scrolled, or via the chevron toggle
+/// - **hidden**: widget is gone; long-press on the chevron dismisses durably
+///
+/// Collapsed state is session-local (lives in [ThemeProvider] but not
+/// persisted); hidden state persists to SharedPreferences so the choice
+/// survives across navigation and can be restored from settings.
 class RecentlyAddedCarousel extends StatelessWidget {
   const RecentlyAddedCarousel({
     super.key,
@@ -36,9 +44,17 @@ class RecentlyAddedCarousel extends StatelessWidget {
   /// handler because their detail route differs.
   final void Function(Book book)? onBookTap;
 
+  static const double _coverWidth = 100;
+  static const double _coverHeight = 130;
+
   bool _hidden(ThemeProvider provider) => switch (scope) {
     RecentlyAddedCarouselScope.ownLib => provider.carouselHiddenOwnLib,
     RecentlyAddedCarouselScope.peerLib => provider.carouselHiddenPeerLib,
+  };
+
+  bool _collapsed(ThemeProvider provider) => switch (scope) {
+    RecentlyAddedCarouselScope.ownLib => provider.carouselCollapsedOwnLib,
+    RecentlyAddedCarouselScope.peerLib => provider.carouselCollapsedPeerLib,
   };
 
   Future<void> _setHidden(ThemeProvider provider, bool hidden) =>
@@ -50,6 +66,15 @@ class RecentlyAddedCarousel extends StatelessWidget {
           hidden,
         ),
       };
+
+  void _setCollapsed(ThemeProvider provider, bool collapsed) {
+    switch (scope) {
+      case RecentlyAddedCarouselScope.ownLib:
+        provider.setCarouselCollapsedOwnLib(collapsed);
+      case RecentlyAddedCarouselScope.peerLib:
+        provider.setCarouselCollapsedPeerLib(collapsed);
+    }
+  }
 
   void _dismiss(BuildContext context, ThemeProvider provider) {
     _setHidden(provider, true);
@@ -83,12 +108,156 @@ class RecentlyAddedCarousel extends StatelessWidget {
     if (recent.isEmpty) return const SizedBox.shrink();
 
     final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
+    final collapsed = _collapsed(provider);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppDesign.spacingMd,
-        vertical: AppDesign.spacingSm,
+      padding: const EdgeInsets.fromLTRB(
+        AppDesign.spacingMd,
+        AppDesign.spacingXs,
+        AppDesign.spacingMd,
+        AppDesign.spacingSm,
+      ),
+      child: Material(
+        color: colorScheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
+        clipBehavior: Clip.antiAlias,
+        child: AnimatedSize(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeInOut,
+          alignment: Alignment.topCenter,
+          child: collapsed
+              ? _CollapsedBar(
+                  key: const ValueKey('collapsed'),
+                  count: recent.length,
+                  onExpand: () => _setCollapsed(provider, false),
+                  onLongPress: () => _dismiss(context, provider),
+                )
+              : _ExpandedStrip(
+                  key: const ValueKey('expanded'),
+                  books: recent,
+                  coverWidth: _coverWidth,
+                  coverHeight: _coverHeight,
+                  onCollapse: () => _setCollapsed(provider, true),
+                  onLongPress: () => _dismiss(context, provider),
+                  onTap: (book) {
+                    if (onBookTap != null) {
+                      onBookTap!(book);
+                    } else {
+                      context.push('/books/${book.id}', extra: book);
+                    }
+                  },
+                ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CollapsedBar extends StatelessWidget {
+  const _CollapsedBar({
+    super.key,
+    required this.count,
+    required this.onExpand,
+    required this.onLongPress,
+  });
+
+  final int count;
+  final VoidCallback onExpand;
+  final VoidCallback onLongPress;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final label = TranslationService.translate(
+      context,
+      'carousel_collapsed_label',
+      params: {'count': count.toString()},
+    );
+    final expandHint = TranslationService.translate(
+      context,
+      'carousel_expand_tooltip',
+    );
+
+    return Semantics(
+      button: true,
+      label: '$label. $expandHint',
+      child: InkWell(
+        onTap: onExpand,
+        onLongPress: onLongPress,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppDesign.spacingMd,
+            vertical: AppDesign.spacingSm,
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.auto_stories_rounded,
+                size: 18,
+                color: colorScheme.primary,
+              ),
+              const SizedBox(width: AppDesign.spacingSm),
+              Expanded(
+                child: Text(
+                  label,
+                  style: textTheme.labelLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Icon(
+                Icons.expand_more_rounded,
+                size: 20,
+                color: colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ExpandedStrip extends StatelessWidget {
+  const _ExpandedStrip({
+    super.key,
+    required this.books,
+    required this.coverWidth,
+    required this.coverHeight,
+    required this.onCollapse,
+    required this.onLongPress,
+    required this.onTap,
+  });
+
+  final List<Book> books;
+  final double coverWidth;
+  final double coverHeight;
+  final VoidCallback onCollapse;
+  final VoidCallback onLongPress;
+  final void Function(Book book) onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final collapseTooltip = TranslationService.translate(
+      context,
+      'carousel_collapse_tooltip',
+    );
+    final longPressHint = TranslationService.translate(
+      context,
+      'carousel_hide_long_press_tooltip',
+    );
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppDesign.spacingMd,
+        AppDesign.spacingSm,
+        AppDesign.spacingSm,
+        AppDesign.spacingSm,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -103,48 +272,49 @@ class RecentlyAddedCarousel extends StatelessWidget {
                       context,
                       'recently_added_title',
                     ),
-                    style: textTheme.titleMedium?.copyWith(
+                    style: textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
               ),
-              IconButton(
-                icon: Icon(
-                  Icons.close_rounded,
-                  size: 18,
-                  color: colorScheme.onSurface.withValues(alpha: 0.6),
+              Tooltip(
+                message: '$collapseTooltip · $longPressHint',
+                child: Semantics(
+                  button: true,
+                  label: '$collapseTooltip. $longPressHint',
+                  child: InkWell(
+                    onTap: onCollapse,
+                    onLongPress: onLongPress,
+                    borderRadius: BorderRadius.circular(AppDesign.radiusRound),
+                    child: Padding(
+                      padding: const EdgeInsets.all(6),
+                      child: Icon(
+                        Icons.expand_less_rounded,
+                        size: 20,
+                        color: colorScheme.onSurface.withValues(alpha: 0.6),
+                      ),
+                    ),
+                  ),
                 ),
-                tooltip: TranslationService.translate(
-                  context,
-                  'carousel_hide_tooltip',
-                ),
-                onPressed: () => _dismiss(context, provider),
-                visualDensity: VisualDensity.compact,
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
               ),
             ],
           ),
           const SizedBox(height: AppDesign.spacingSm),
           SizedBox(
-            height: 160,
+            height: coverHeight,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
-              itemCount: recent.length,
+              itemCount: books.length,
               separatorBuilder: (_, _) =>
                   const SizedBox(width: AppDesign.spacingSm),
               itemBuilder: (context, index) {
-                final book = recent[index];
+                final book = books[index];
                 return _CarouselCover(
                   book: book,
-                  onTap: () {
-                    if (onBookTap != null) {
-                      onBookTap!(book);
-                    } else {
-                      context.push('/books/${book.id}', extra: book);
-                    }
-                  },
+                  width: coverWidth,
+                  height: coverHeight,
+                  onTap: () => onTap(book),
                 );
               },
             ),
@@ -156,9 +326,16 @@ class RecentlyAddedCarousel extends StatelessWidget {
 }
 
 class _CarouselCover extends StatelessWidget {
-  const _CarouselCover({required this.book, required this.onTap});
+  const _CarouselCover({
+    required this.book,
+    required this.width,
+    required this.height,
+    required this.onTap,
+  });
 
   final Book book;
+  final double width;
+  final double height;
   final VoidCallback onTap;
 
   @override
@@ -174,29 +351,14 @@ class _CarouselCover extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppDesign.radiusSmall),
-        child: SizedBox(
-          width: 100,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(AppDesign.radiusSmall),
-                child: CachedBookCover(
-                  imageUrl: book.coverUrl,
-                  width: 100,
-                  height: 130,
-                  fit: BoxFit.cover,
-                  semanticLabel: semanticLabel,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                book.title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ],
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(AppDesign.radiusSmall),
+          child: CachedBookCover(
+            imageUrl: book.coverUrl,
+            width: width,
+            height: height,
+            fit: BoxFit.cover,
+            semanticLabel: semanticLabel,
           ),
         ),
       ),
