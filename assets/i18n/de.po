@@ -6617,6 +6617,18 @@ msgstr "Kontaktdaten (sichtbar für genehmigte Follower)"
 msgid "hub_disabled_discover"
 msgstr "Aktivieren Sie das öffentliche Verzeichnis in den Einstellungen, um andere Bibliotheken zu entdecken"
 
+msgid "directory_publish_banner_title"
+msgstr "Im öffentlichen Verzeichnis erscheinen"
+
+msgid "directory_publish_banner_desc"
+msgstr "Teilen Sie Ihre Bibliothek, damit andere Leser sie finden, Ihnen folgen und Bücher ausleihen können. Sie können sich jederzeit in den Einstellungen wieder austragen."
+
+msgid "directory_publish_banner_cta"
+msgstr "Meine Bibliothek veröffentlichen"
+
+msgid "directory_publish_success"
+msgstr "Ihre Bibliothek ist jetzt im öffentlichen Verzeichnis gelistet."
+
 msgid "coming_soon_chip"
 msgstr "Demnachst"
 
@@ -8441,3 +8453,99 @@ msgstr "Kürzlich hinzugefügt — Peers"
 
 msgid "carousel_peer_lib_desc"
 msgstr "Zeigt ein Karussell oben in den Peer-Bibliotheken mit deren kürzlichen Ergänzungen."
+
+#. Backup - Mobile export choice dialog message
+msgid "backup_export_choice_message"
+msgstr "Wie möchten Sie Ihr Backup exportieren?"
+
+#. Backup - Mobile export choice dialog title
+msgid "backup_export_choice_title"
+msgstr "Backup exportieren"
+
+#. Backup - Mobile export choice: save on device
+msgid "backup_export_save_to_device"
+msgstr "Auf dem Gerät speichern"
+
+#. Backup - Mobile export choice: share via system sheet
+msgid "backup_export_share"
+msgstr "Teilen"
+
+#. Already borrowing this book from this peer (accepted loan)
+msgid "borrow_active"
+msgstr "Ausgeliehen"
+
+#. Currently lending this book to this peer
+msgid "borrow_on_loan"
+msgstr "Verliehen"
+
+#. Network card badge: hub follow connection type
+msgid "connection_type_hub"
+msgstr "Verzeichnis-Abonnement"
+
+#. Network card badge: direct P2P connection type
+msgid "connection_type_p2p"
+msgstr "Direkter Peer"
+
+#. Contact has this book in their library
+msgid "contact_has_book"
+msgstr "Hat dieses Buch"
+
+#. Hub - Onboarding first-time banner: description (contrast with P2P)
+msgid "discover_onboard_desc"
+msgstr "Sie können jeder öffentlichen Bibliothek folgen und ihren Katalog durchsuchen. Das unterscheidet sich von Ihren direkten P2P-Kontakten: Hier ist die Beziehung einseitig - die andere Bibliothek sieht Ihre nur, wenn sie Ihnen ebenfalls folgt."
+
+#. Hub - Onboarding dismiss button
+msgid "discover_onboard_dismiss"
+msgstr "Verstanden"
+
+#. Hub - Onboarding first-time banner: title
+msgid "discover_onboard_title"
+msgstr "Willkommen im öffentlichen Verzeichnis"
+
+#. Error borrowing book - library not initialized
+msgid "error_borrow_setup_incomplete"
+msgstr "Ausleihe konnte nicht gespeichert werden. Gehen Sie zu den Einstellungen, um die Einrichtung Ihrer Bibliothek abzuschließen."
+
+#. Hub - Discover tab contextual help: main content
+msgid "help_ctx_discover_content"
+msgstr "Entdecken Sie Bibliotheken anderer BiblioGenius-Leser. Folgen Sie denjenigen, die Sie interessieren, um auf deren Katalog zuzugreifen und Ausleihen anzufragen."
+
+#. Hub - Discover help tip: follow action description
+msgid "help_ctx_discover_tip_follow_desc"
+msgstr "Tippen Sie auf \"Folgen\", um auf den vollständigen Katalog zuzugreifen und Buchausleihen aus dieser Bibliothek anzufragen."
+
+#. Hub - Discover help tip: follow action
+msgid "help_ctx_discover_tip_follow"
+msgstr "Folgen, um auszuleihen"
+
+#. Hub - Discover help tip: unidirectional description
+msgid "help_ctx_discover_tip_unidirectional_desc"
+msgstr "Anders als ein P2P-Kontakt (bidirektional) ist das Verzeichnis-Folgen einseitig: Die Bibliothek, der Sie folgen, sieht Ihre Bibliothek nicht automatisch."
+
+#. Hub - Discover help tip: unidirectional
+msgid "help_ctx_discover_tip_unidirectional"
+msgstr "Einseitiges Folgen"
+
+#. Hub - Discover tab contextual help: title
+msgid "help_ctx_discover_title"
+msgstr "Hilfe — Öffentliches Verzeichnis"
+
+#. Shown after a manual leaderboard refresh when the Rust backend hit its 25s per-peer relay timeout
+msgid "leaderboard_sync_timeout"
+msgstr "Einige Bibliotheken haben nicht rechtzeitig geantwortet"
+
+#. Loan offer to peer - notification pending
+msgid "loan_notification_pending"
+msgstr "Benachrichtigung ausstehend"
+
+#. Confirmation before clearing all scores for a game
+msgid "reset_scores_confirm"
+msgstr "Alle Ihre Punktzahlen für dieses Spiel werden gelöscht. Diese Aktion kann nicht rückgängig gemacht werden."
+
+#. Button to clear all scores for a game
+msgid "reset_scores"
+msgstr "Punktzahlen zurücksetzen"
+
+#. Country / Market
+msgid "settings_country"
+msgstr "Land"

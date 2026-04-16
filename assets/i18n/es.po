@@ -6617,6 +6617,18 @@ msgstr "Datos de contacto (visibles para tus seguidores aprobados)"
 msgid "hub_disabled_discover"
 msgstr "Activa el directorio publico en Ajustes para descubrir otras bibliotecas"
 
+msgid "directory_publish_banner_title"
+msgstr "Aparecer en el directorio publico"
+
+msgid "directory_publish_banner_desc"
+msgstr "Comparte tu biblioteca para que otros lectores puedan encontrarte, seguirte y pedir prestados tus libros. Puedes darte de baja en cualquier momento desde Ajustes."
+
+msgid "directory_publish_banner_cta"
+msgstr "Publicar mi biblioteca"
+
+msgid "directory_publish_success"
+msgstr "Tu biblioteca ya figura en el directorio publico."
+
 msgid "coming_soon_chip"
 msgstr "Proximamente"
 
@@ -8441,3 +8453,99 @@ msgstr "Añadidos recientemente — peers"
 
 msgid "carousel_peer_lib_desc"
 msgstr "Muestra un carrusel en la parte superior de las bibliotecas de los peers con sus adiciones recientes."
+
+#. Backup - Mobile export choice dialog message
+msgid "backup_export_choice_message"
+msgstr "¿Cómo quieres exportar tu copia de seguridad?"
+
+#. Backup - Mobile export choice dialog title
+msgid "backup_export_choice_title"
+msgstr "Exportar copia de seguridad"
+
+#. Backup - Mobile export choice: save on device
+msgid "backup_export_save_to_device"
+msgstr "Guardar en el dispositivo"
+
+#. Backup - Mobile export choice: share via system sheet
+msgid "backup_export_share"
+msgstr "Compartir"
+
+#. Already borrowing this book from this peer (accepted loan)
+msgid "borrow_active"
+msgstr "Tomado prestado"
+
+#. Currently lending this book to this peer
+msgid "borrow_on_loan"
+msgstr "Prestado"
+
+#. Network card badge: hub follow connection type
+msgid "connection_type_hub"
+msgstr "Seguimiento directorio"
+
+#. Network card badge: direct P2P connection type
+msgid "connection_type_p2p"
+msgstr "Par directo"
+
+#. Contact has this book in their library
+msgid "contact_has_book"
+msgstr "Tiene este libro"
+
+#. Hub - Onboarding first-time banner: description (contrast with P2P)
+msgid "discover_onboard_desc"
+msgstr "Puedes seguir cualquier biblioteca pública y explorar su catálogo. Es diferente de tus contactos directos (P2P): aquí la relación es unilateral, ellos no ven tu biblioteca a menos que también te sigan."
+
+#. Hub - Onboarding dismiss button
+msgid "discover_onboard_dismiss"
+msgstr "Entendido"
+
+#. Hub - Onboarding first-time banner: title
+msgid "discover_onboard_title"
+msgstr "Bienvenido al directorio público"
+
+#. Error borrowing book - library not initialized
+msgid "error_borrow_setup_incomplete"
+msgstr "No se pudo registrar el préstamo. Ve a Ajustes para completar la configuración de tu biblioteca."
+
+#. Hub - Discover tab contextual help: main content
+msgid "help_ctx_discover_content"
+msgstr "Explora las bibliotecas de otros lectores de BiblioGenius. Sigue las que te interesen para acceder a su catálogo y solicitar préstamos."
+
+#. Hub - Discover help tip: follow action description
+msgid "help_ctx_discover_tip_follow_desc"
+msgstr "Toca \"Seguir\" para acceder al catálogo completo y solicitar préstamos de libros a esa biblioteca."
+
+#. Hub - Discover help tip: follow action
+msgid "help_ctx_discover_tip_follow"
+msgstr "Seguir para pedir prestado"
+
+#. Hub - Discover help tip: unidirectional description
+msgid "help_ctx_discover_tip_unidirectional_desc"
+msgstr "A diferencia de un contacto P2P (bidireccional), el seguimiento del directorio es unilateral: la biblioteca que sigues no ve automáticamente la tuya."
+
+#. Hub - Discover help tip: unidirectional
+msgid "help_ctx_discover_tip_unidirectional"
+msgstr "Seguimiento unidireccional"
+
+#. Hub - Discover tab contextual help: title
+msgid "help_ctx_discover_title"
+msgstr "Ayuda — Directorio público"
+
+#. Shown after a manual leaderboard refresh when the Rust backend hit its 25s per-peer relay timeout
+msgid "leaderboard_sync_timeout"
+msgstr "Algunas bibliotecas no respondieron a tiempo"
+
+#. Loan offer to peer - notification pending
+msgid "loan_notification_pending"
+msgstr "notificación pendiente"
+
+#. Confirmation before clearing all scores for a game
+msgid "reset_scores_confirm"
+msgstr "Todas tus puntuaciones para este juego se eliminarán. Esta acción no se puede deshacer."
+
+#. Button to clear all scores for a game
+msgid "reset_scores"
+msgstr "Restablecer puntuaciones"
+
+#. Country / Market
+msgid "settings_country"
+msgstr "País"
