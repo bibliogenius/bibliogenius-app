@@ -5060,9 +5060,25 @@ msgstr "Site web (optionnel)"
 msgid "hub_contact_info_title"
 msgstr "Contact"
 
-#. Hub - Discover disabled
+#. Hub - Discover disabled (deprecated: replaced by in-tab CTA banner)
 msgid "hub_disabled_discover"
 msgstr "Activez l'annuaire public dans les Paramètres pour découvrir d'autres bibliothèques."
+
+#. Hub - Publish CTA banner in Discover tab: title
+msgid "directory_publish_banner_title"
+msgstr "Apparaître dans l'annuaire public"
+
+#. Hub - Publish CTA banner: description
+msgid "directory_publish_banner_desc"
+msgstr "Partagez votre bibliothèque pour que d'autres lecteurs puissent la trouver, vous suivre et emprunter vos livres. Vous pouvez vous retirer à tout moment depuis les Paramètres."
+
+#. Hub - Publish CTA banner: button label
+msgid "directory_publish_banner_cta"
+msgstr "Publier ma bibliothèque"
+
+#. Hub - Publish CTA banner: success snackbar
+msgid "directory_publish_success"
+msgstr "Votre bibliothèque figure maintenant dans l'annuaire public."
 
 #. Hub - Onboarding first-time banner: title
 msgid "discover_onboard_title"
@@ -7265,6 +7281,9 @@ msgstr "Copier le lien"
 
 msgid "invite_link_copied"
 msgstr "Lien d'invitation copié !"
+
+msgid "share_failed"
+msgstr "Le partage a échoué. Réessaie."
 
 msgid "tooltip_copy_invite"
 msgstr "Copier le lien d'invitation"

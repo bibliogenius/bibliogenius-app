@@ -958,6 +958,80 @@ class HubDirectoryProvider extends ChangeNotifier {
     return ok;
   }
 
+  /// Enable the hub directory feature AND publish the library publicly.
+  ///
+  /// Designed for the "Appear in the directory" CTA banner in the Discover
+  /// tab, where a browsing user can opt in without going through Settings.
+  ///
+  /// Steps (atomic from the user's perspective):
+  ///  1. [setHubEnabled](true) — unlocks hub features locally.
+  ///  2. Register on the hub with `isListed: true` (re-uses 401 recovery).
+  ///  3. Publish relay credentials so followers can reach us.
+  ///  4. Push the ISBN catalog so new followers see books immediately.
+  ///  5. Subscribe to the relay nudge stream for real-time updates.
+  ///
+  /// Returns `true` when the hub register succeeded. Catalog push + relay
+  /// publish happen best-effort on success (same pattern as
+  /// [initAndSyncCatalog]) — they retry automatically via the existing
+  /// sync cycle if they fail.
+  Future<bool> enableAndPublish({
+    required String displayName,
+    String? locationCountry,
+  }) async {
+    // Flip the local flag first so even if register() hits the network
+    // cooldown, the UI reflects the user's intent immediately.
+    await setHubEnabled(true);
+
+    final nodeId =
+        _config?.nodeId ?? await _authService.getOrCreateLibraryUuid();
+    final bookCount = await _ffi.countBooks();
+
+    String? x25519PublicKey;
+    try {
+      x25519PublicKey = await _ffi.getLocalX25519PublicKey();
+    } catch (_) {}
+
+    final relay = await _getRelayCredentials();
+    final deviceModel = await _deviceService.getDeviceModel();
+    final deviceFingerprint = await _deviceService.getDeviceFingerprint();
+    final appVersion = await _deviceService.getAppVersion();
+
+    final trimmedCountry = locationCountry?.trim();
+
+    final ok = await register(
+      nodeId: nodeId,
+      displayName: displayName,
+      bookCount: bookCount,
+      isListed: true,
+      requiresApproval: _config?.requiresApproval ?? false,
+      acceptFrom: _config?.acceptFrom ?? 'everyone',
+      allowBorrowing: _config?.allowBorrowing ?? true,
+      locationCountry:
+          (trimmedCountry != null && trimmedCountry.isNotEmpty)
+              ? trimmedCountry
+              : null,
+      x25519PublicKey: x25519PublicKey,
+      website: _websiteUrl.isNotEmpty ? _websiteUrl : null,
+      deviceModel: deviceModel,
+      deviceFingerprint: deviceFingerprint,
+      appVersion: appVersion,
+      relayUrl: relay.relayUrl,
+      relayMailboxId: relay.mailboxId,
+      relayWriteToken: relay.writeToken,
+    );
+
+    if (ok) {
+      if (relay.relayUrl != null) _relayPublished = true;
+      // Push the catalog so new followers can browse immediately.
+      // Await so the CTA loading indicator stays visible until the
+      // library is fully discoverable.
+      await syncCatalog();
+      // Subscribe to relay nudges for real-time follow/borrow events.
+      _subscribeNudgeStream();
+    }
+    return ok;
+  }
+
   /// Returns the locally stored recovery code for display in settings.
   Future<String?> getRecoveryCode() async {
     return await _ffi.hubDirectoryGetRecoveryCode();

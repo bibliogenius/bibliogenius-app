@@ -45,7 +45,7 @@ class NetworkScreen extends StatefulWidget {
 class _NetworkScreenState extends State<NetworkScreen>
     with SingleTickerProviderStateMixin {
   TabController? _mainTabController;
-  int _tabCount = 1;
+  int _tabCount = 0;
   final GlobalKey<_MyNetworkViewState> _myNetworkKey =
       GlobalKey<_MyNetworkViewState>();
 
@@ -240,8 +240,11 @@ class _NetworkScreenState extends State<NetworkScreen>
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final bool isMobile = width <= 600;
-    final hubEnabled = context.watch<HubDirectoryProvider>().isHubEnabled;
-    final tabCount = hubEnabled ? 2 : 1;
+    // Discover tab is always visible: browsing the public directory does not
+    // require the user to opt in or publish their library (ADR-015 §GET
+    // /api/directory is a public endpoint). Opting in is offered via a CTA
+    // banner inside the Discover tab itself.
+    const tabCount = 2;
     _ensureTabController(tabCount);
 
     return Scaffold(
@@ -251,7 +254,7 @@ class _NetworkScreenState extends State<NetworkScreen>
         automaticallyImplyLeading: false,
         actions: [
           // Help button: content switches based on active tab.
-          if (tabCount > 1 && (_mainTabController?.index ?? 0) == 1)
+          if ((_mainTabController?.index ?? 0) == 1)
             // Discover tab
             const ContextualHelpIconButton(
               titleKey: 'help_ctx_discover_title',
@@ -298,46 +301,42 @@ class _NetworkScreenState extends State<NetworkScreen>
               ],
             ),
         ],
-        bottom: tabCount > 1
-            ? TabBar(
-                controller: _mainTabController,
-                indicatorColor: Colors.white,
-                labelColor: Colors.white,
-                unselectedLabelColor: Colors.white70,
-                tabs: [
-                  Tab(
-                    child: Consumer<HubDirectoryProvider>(
-                      builder: (context, dirProvider, _) {
-                        final count = dirProvider.pendingCount;
-                        return Badge(
-                          isLabelVisible: count > 0,
-                          label: Text('$count'),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                            child: Text(
-                              TranslationService.translate(
-                                context, 'network_tab_my_network',
-                              ),
-                            ),
-                          ),
-                        );
-                      },
+        bottom: TabBar(
+          controller: _mainTabController,
+          indicatorColor: Colors.white,
+          labelColor: Colors.white,
+          unselectedLabelColor: Colors.white70,
+          tabs: [
+            Tab(
+              child: Consumer<HubDirectoryProvider>(
+                builder: (context, dirProvider, _) {
+                  final count = dirProvider.pendingCount;
+                  return Badge(
+                    isLabelVisible: count > 0,
+                    label: Text('$count'),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Text(
+                        TranslationService.translate(
+                          context, 'network_tab_my_network',
+                        ),
+                      ),
                     ),
-                  ),
-                  Tab(text: TranslationService.translate(context, 'network_tab_discover')),
-                ],
-              )
-            : null,
+                  );
+                },
+              ),
+            ),
+            Tab(text: TranslationService.translate(context, 'network_tab_discover')),
+          ],
+        ),
       ),
-      body: tabCount > 1
-          ? TabBarView(
-              controller: _mainTabController,
-              children: [
-                _MyNetworkView(key: _myNetworkKey),
-                const _DiscoverView(),
-              ],
-            )
-          : _MyNetworkView(key: _myNetworkKey),
+      body: TabBarView(
+        controller: _mainTabController,
+        children: [
+          _MyNetworkView(key: _myNetworkKey),
+          const _DiscoverView(),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
               key: const Key('networkAddFab'),
               heroTag: 'network_add_fab',
@@ -1866,14 +1865,32 @@ class _ShareContactViewState extends State<ShareContactView> {
                 ),
               ),
               const SizedBox(width: 8),
-              OutlinedButton.icon(
-                key: const Key('shareInviteLinkBtn'),
-                onPressed: _inviteLink == null ? null : () {
-                  Share.share(_inviteLink!);
-                },
-                icon: const Icon(Icons.share, size: 18),
-                label: Text(
-                  TranslationService.translate(context, 'share_invite_link'),
+              Builder(
+                builder: (btnContext) => OutlinedButton.icon(
+                  key: const Key('shareInviteLinkBtn'),
+                  onPressed: _inviteLink == null
+                      ? null
+                      : () async {
+                          final box = btnContext.findRenderObject()
+                              as RenderBox?;
+                          final origin = box != null
+                              ? box.localToGlobal(Offset.zero) & box.size
+                              : null;
+                          try {
+                            await Share.share(
+                              _inviteLink!,
+                              sharePositionOrigin: origin,
+                            );
+                          } catch (e) {
+                            debugPrint(
+                              'NetworkScreen: share invite failed: $e',
+                            );
+                          }
+                        },
+                  icon: const Icon(Icons.share, size: 18),
+                  label: Text(
+                    TranslationService.translate(context, 'share_invite_link'),
+                  ),
                 ),
               ),
             ],
@@ -2362,27 +2379,10 @@ class _DiscoverViewState extends State<_DiscoverView> {
   Widget build(BuildContext context) {
     return Consumer<HubDirectoryProvider>(
       builder: (context, provider, _) {
-        // Hub directory must be enabled via Settings
-        if (!provider.isHubEnabled) {
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(32),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.public_off, size: 48, color: Colors.grey),
-                  const SizedBox(height: 12),
-                  Text(
-                    TranslationService.translate(
-                        context, 'hub_disabled_discover'),
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
-                ],
-              ),
-            ),
-          );
-        }
+        // ADR-015: GET /api/directory is a public endpoint, so the list is
+        // always rendered — whether or not the user has opted in. Users who
+        // haven't published their own library see a CTA banner at the top
+        // of the list so they can appear in the directory with one tap.
 
         // Trigger initial load. `hasMore` guards against an infinite
         // rebuild loop when the hub returns an empty directory: after the
@@ -2399,7 +2399,13 @@ class _DiscoverViewState extends State<_DiscoverView> {
 
         return Column(
           children: [
-            // First-time onboarding banner
+            // CTA banner: user is not yet publicly listed. Hidden once the
+            // library has been published (isListed == true), regardless of
+            // _hubEnabled, so re-enabling hub from Settings doesn't suddenly
+            // resurface the banner for an already-listed user.
+            if (!provider.isListed)
+              _PublishToDirectoryBanner(provider: provider),
+            // First-time onboarding banner (one-way relationship explainer)
             if (!provider.isDirectoryOnboardingSeen)
               _DirectoryOnboardingBanner(provider: provider),
             // Search bar
@@ -3250,8 +3256,177 @@ class _LibraryRelationCard extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// Directory onboarding banner (first-time Discover tab visit)
+// Discover tab banners (publish CTA + first-visit onboarding)
 // ---------------------------------------------------------------------------
+
+/// CTA banner shown at the top of the Discover tab when the user's library
+/// is not yet listed in the public directory (ADR-015).
+///
+/// Tapping "Publish" triggers `HubDirectoryProvider.enableAndPublish`, which
+/// flips `_hubEnabled` + `isListed` + registers + syncs catalog in one pass.
+/// No navigation required — the banner disappears on success.
+class _PublishToDirectoryBanner extends StatefulWidget {
+  final HubDirectoryProvider provider;
+
+  const _PublishToDirectoryBanner({required this.provider});
+
+  @override
+  State<_PublishToDirectoryBanner> createState() =>
+      _PublishToDirectoryBannerState();
+}
+
+class _PublishToDirectoryBannerState extends State<_PublishToDirectoryBanner> {
+  bool _busy = false;
+
+  Future<void> _onPublish() async {
+    if (_busy) return;
+    setState(() => _busy = true);
+
+    final themeProvider = context.read<ThemeProvider>();
+    final messenger = ScaffoldMessenger.of(context);
+    final cs = Theme.of(context).colorScheme;
+    final libraryName = themeProvider.libraryName;
+    final country = themeProvider.country;
+
+    final ok = await widget.provider.enableAndPublish(
+      displayName: libraryName,
+      locationCountry: country,
+    );
+
+    if (!mounted) return;
+    setState(() => _busy = false);
+
+    if (ok) {
+      // Keep caching toggles aligned with the Settings flow so a user who
+      // goes through the banner ends up with the same capabilities as one
+      // who used Settings > Directory.
+      if (!themeProvider.peerOfflineCachingEnabled) {
+        await themeProvider.setPeerOfflineCachingEnabled(true);
+      }
+      if (!themeProvider.allowLibraryCaching) {
+        await themeProvider.setAllowLibraryCaching(true);
+      }
+      if (!mounted) return;
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            TranslationService.translate(
+              context, 'directory_publish_success',
+            ),
+          ),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } else {
+      final err = widget.provider.configError ??
+          TranslationService.translate(context, 'error_network');
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(err),
+          backgroundColor: cs.error,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Semantics(
+      container: true,
+      label: TranslationService.translate(
+          context, 'directory_publish_banner_title'),
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(12, 12, 12, 4),
+        padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              cs.primary.withValues(alpha: isDark ? 0.18 : 0.10),
+              cs.tertiary.withValues(alpha: isDark ? 0.18 : 0.10),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: cs.primary.withValues(alpha: 0.28),
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: cs.primary.withValues(alpha: 0.15),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.public, size: 18, color: cs.primary),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Semantics(
+                    header: true,
+                    child: Text(
+                      TranslationService.translate(
+                          context, 'directory_publish_banner_title'),
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleSmall
+                          ?.copyWith(
+                            color: cs.onSurface,
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              TranslationService.translate(
+                  context, 'directory_publish_banner_desc'),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: cs.onSurface.withValues(alpha: 0.85),
+                    height: 1.35,
+                  ),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                FilledButton.icon(
+                  key: const Key('directoryPublishCta'),
+                  onPressed: _busy ? null : _onPublish,
+                  icon: _busy
+                      ? SizedBox(
+                          width: 14,
+                          height: 14,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: cs.onPrimary,
+                          ),
+                        )
+                      : const Icon(Icons.public, size: 18),
+                  label: Text(
+                    TranslationService.translate(
+                        context, 'directory_publish_banner_cta'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 /// Dismissable banner explaining the unidirectional nature of the public
 /// directory, shown once when the user opens the Discover tab for the first
