@@ -1874,10 +1874,12 @@ class _LoansScreenState extends State<LoansScreen>
           children: [
             IconButton(
               icon: const Icon(Icons.check, color: Colors.green),
+              tooltip: TranslationService.translate(context, 'tooltip_accept'),
               onPressed: () => _acceptConnection(peer),
             ),
             IconButton(
               icon: const Icon(Icons.close, color: Colors.red),
+              tooltip: TranslationService.translate(context, 'tooltip_reject'),
               onPressed: () => _rejectConnection(peer),
             ),
           ],

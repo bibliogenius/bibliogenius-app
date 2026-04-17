@@ -2305,6 +2305,10 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                                             borderRadius:
                                                 BorderRadius.circular(4),
                                             onTapPlaceholder: () => _reloadCover(book),
+                                            semanticLabel: book.author != null &&
+                                                    book.author!.isNotEmpty
+                                                ? '${book.title}, ${book.author}'
+                                                : book.title,
                                           ),
                                           title: Row(
                                             children: [
@@ -2456,6 +2460,10 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                     height: 180,
                     borderRadius: BorderRadius.circular(8),
                     onTapPlaceholder: () => _reloadCover(book),
+                    semanticLabel: book.author != null &&
+                            book.author!.isNotEmpty
+                        ? '${book.title}, ${book.author}'
+                        : book.title,
                   ),
                   const SizedBox(width: 16),
                   // Info column

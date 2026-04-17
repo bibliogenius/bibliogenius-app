@@ -2732,7 +2732,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.remove_circle_outline),
-                  tooltip: '-1',
+                  tooltip: TranslationService.translate(context, 'decrease_by_one'),
                   onPressed: _defaultLoanDurationDays > 1
                       ? () => _updateLoanDuration(_defaultLoanDurationDays - 1)
                       : null,
@@ -2757,7 +2757,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.add_circle_outline),
-                  tooltip: '+1',
+                  tooltip: TranslationService.translate(context, 'increase_by_one'),
                   onPressed: _defaultLoanDurationDays < 365
                       ? () => _updateLoanDuration(_defaultLoanDurationDays + 1)
                       : null,
@@ -2794,7 +2794,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.remove_circle_outline),
-                  tooltip: '-1',
+                  tooltip: TranslationService.translate(context, 'decrease_by_one'),
                   onPressed: _reminderDaysBeforeDue > 1
                       ? () => _updateReminderDays(_reminderDaysBeforeDue - 1)
                       : null,
@@ -2811,7 +2811,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.add_circle_outline),
-                  tooltip: '+1',
+                  tooltip: TranslationService.translate(context, 'increase_by_one'),
                   onPressed: _reminderDaysBeforeDue < 10
                       ? () => _updateReminderDays(_reminderDaysBeforeDue + 1)
                       : null,
@@ -2980,6 +2980,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       helperMaxLines: 2,
                       suffixIcon: IconButton(
                         icon: const Icon(Icons.save),
+                        tooltip: TranslationService.translate(context, 'save'),
                         onPressed: _saveGoogleBooksApiKey,
                       ),
                       border: const OutlineInputBorder(),

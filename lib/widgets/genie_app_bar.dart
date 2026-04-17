@@ -414,7 +414,7 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
         if (showQuickActions) ...[
           IconButton(
             icon: const Icon(Icons.qr_code_scanner, color: Colors.white),
-            tooltip: 'Scanner ISBN',
+            tooltip: TranslationService.translate(context, 'scan_isbn'),
             onPressed: () async {
               final isbn = await context.push<String>('/scan');
               if (isbn != null && context.mounted) {
@@ -436,7 +436,7 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
               Icons.travel_explore,
               color: Colors.white,
             ), // Globe + search icon
-            tooltip: 'Recherche en ligne',
+            tooltip: TranslationService.translate(context, 'search_online'),
             onPressed: () async {
               final result = await context.push('/search/external');
               if (result == true && onBookAdded != null) {

@@ -8547,3 +8547,59 @@ msgstr "Punktzahlen zurücksetzen"
 #. Country / Market
 msgid "settings_country"
 msgstr "Land"
+
+#. Save order (shelf reorder mode)
+msgid "save_shelf_order"
+msgstr "Reihenfolge speichern"
+
+#. Reorder shelf
+msgid "reorder_shelf"
+msgstr "Regal neu ordnen"
+
+#. Open in browser
+msgid "open_in_browser"
+msgstr "Im Browser öffnen"
+
+#. Playback speed
+msgid "playback_speed"
+msgstr "Wiedergabegeschwindigkeit"
+
+#. Search online
+msgid "search_online"
+msgstr "Online suchen"
+
+#. Decrease by 1
+msgid "decrease_by_one"
+msgstr "Um 1 verringern"
+
+#. Increase by 1
+msgid "increase_by_one"
+msgstr "Um 1 erhöhen"
+
+#. Scan for nearby peers
+msgid "tooltip_scan_peers"
+msgstr "Nach Geräten in der Nähe suchen"
+
+#. Rewind 10 seconds
+msgid "tooltip_rewind_10s"
+msgstr "10 Sekunden zurück"
+
+#. Forward 30 seconds
+msgid "tooltip_forward_30s"
+msgstr "30 Sekunden vor"
+
+#. Accept request
+msgid "tooltip_accept"
+msgstr "Akzeptieren"
+
+#. Reject request
+msgid "tooltip_reject"
+msgstr "Ablehnen"
+
+#. Add author
+msgid "tooltip_add_author"
+msgstr "Autor hinzufügen"
+
+#. Toggle flashlight / torch
+msgid "tooltip_toggle_flashlight"
+msgstr "Taschenlampe umschalten"

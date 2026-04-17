@@ -1110,6 +1110,7 @@ class _ScanScreenState extends State<ScanScreen> {
         actions: [
           IconButton(
             icon: Icon(_isTorchOn ? Icons.flash_on : Icons.flash_off),
+            tooltip: TranslationService.translate(context, 'tooltip_toggle_flashlight'),
             onPressed: () {
               setState(() {
                 _isTorchOn = !_isTorchOn;

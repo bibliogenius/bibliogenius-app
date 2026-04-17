@@ -1340,6 +1340,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 fit: BoxFit.cover,
                 placeholder: _buildCoverPlaceholder(),
                 errorWidget: _buildCoverPlaceholder(),
+                semanticLabel: _titleController.text.isNotEmpty
+                    ? _titleController.text
+                    : null,
               )
         : _buildCoverPlaceholder();
 

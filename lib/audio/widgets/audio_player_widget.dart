@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
+import '../../services/translation_service.dart';
 import '../models/audio_resource.dart';
 
 /// Compact audio player widget for streaming audiobooks.
@@ -228,7 +229,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
                 color: colorScheme.onSurfaceVariant,
               ),
               onPressed: widget.onOpenInBrowser,
-              tooltip: 'Open in browser',
+              tooltip: TranslationService.translate(context, 'open_in_browser'),
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
             ),
@@ -241,7 +242,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
     return PopupMenuButton<double>(
       initialValue: _playbackSpeed,
       onSelected: _setSpeed,
-      tooltip: 'Playback speed',
+      tooltip: TranslationService.translate(context, 'playback_speed'),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
@@ -351,6 +352,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
               // Rewind 10s
               IconButton(
                 icon: const Icon(Icons.replay_10),
+                tooltip: TranslationService.translate(context, 'tooltip_rewind_10s'),
                 onPressed: () {
                   final newPos = _player.position - const Duration(seconds: 10);
                   _player.seek(newPos < Duration.zero ? Duration.zero : newPos);
@@ -393,6 +395,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
               // Forward 30s
               IconButton(
                 icon: const Icon(Icons.forward_30),
+                tooltip: TranslationService.translate(context, 'tooltip_forward_30s'),
                 onPressed: () {
                   final duration = _player.duration ?? Duration.zero;
                   final newPos = _player.position + const Duration(seconds: 30);

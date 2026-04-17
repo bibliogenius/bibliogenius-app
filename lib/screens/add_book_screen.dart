@@ -532,6 +532,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
+          tooltip: TranslationService.translate(context, 'back'),
           onPressed: () {
             if (_hasFormData) {
               _showDiscardDialog();
@@ -1191,6 +1192,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                         ),
                         suffixIcon: IconButton(
                           icon: const Icon(Icons.add),
+                          tooltip: TranslationService.translate(context, 'tooltip_add_author'),
                           onPressed: () {
                             if (textEditingController.text.trim().isNotEmpty) {
                               setState(() {
@@ -1337,6 +1339,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 ),
                 prefixIcon: IconButton(
                   icon: const Icon(Icons.qr_code_scanner),
+                  tooltip: TranslationService.translate(
+                    context,
+                    'scan_isbn_title',
+                  ),
                   onPressed: () async {
                     final result = await context.push<String>('/scan');
                     if (!mounted) return;
@@ -1346,10 +1352,6 @@ class _AddBookScreenState extends State<AddBookScreen> {
                       // so no need to call it again here.
                     }
                   },
-                  tooltip: TranslationService.translate(
-                    context,
-                    'scan_isbn_title',
-                  ),
                 ),
                 suffixIcon: _isFetchingDetails
                     ? const Padding(
@@ -1777,6 +1779,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
                               key: ValueKey(_coverUrl),
                               imageUrl: _coverUrl!,
                               fit: BoxFit.cover,
+                              semanticLabel: _titleController.text.isNotEmpty
+                                  ? _titleController.text
+                                  : null,
                               placeholder: Container(
                                 color: Colors.grey[200],
                                 child: const Icon(Icons.image,

@@ -78,6 +78,7 @@ class ContextualHelpSheet extends StatelessWidget {
               ),
               IconButton(
                 icon: const Icon(Icons.close),
+                tooltip: TranslationService.translate(context, 'close'),
                 onPressed: () => Navigator.pop(context),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),

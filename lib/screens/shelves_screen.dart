@@ -197,6 +197,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
         leading: _currentParent != null
             ? IconButton(
                 icon: Icon(Icons.adaptive.arrow_back, color: Colors.white),
+                tooltip: TranslationService.translate(context, 'back'),
                 onPressed: _goBack,
               )
             : buildDrawerLeading(context),

@@ -323,14 +323,17 @@ class _BookListScreenState extends State<BookListScreen>
                           Icons.sort_by_alpha,
                           color: Colors.white,
                         ),
+                        tooltip: TranslationService.translate(context, 'sort_by_author_az'),
                         onPressed: _autoSortByAuthor,
                       ),
                       IconButton(
                         icon: const Icon(Icons.check, color: Colors.white),
+                        tooltip: TranslationService.translate(context, 'save_shelf_order'),
                         onPressed: _saveOrder,
                       ),
                       IconButton(
                         icon: const Icon(Icons.close, color: Colors.white),
+                        tooltip: TranslationService.translate(context, 'cancel'),
                         onPressed: () {
                           setState(() {
                             _isReordering = false;
@@ -394,17 +397,17 @@ class _BookListScreenState extends State<BookListScreen>
           if (_isReordering) ...[
             IconButton(
               icon: const Icon(Icons.sort_by_alpha, color: Colors.white),
-              tooltip: 'Sort A→Z by Author',
+              tooltip: TranslationService.translate(context, 'sort_by_author_az'),
               onPressed: _autoSortByAuthor,
             ),
             IconButton(
               icon: const Icon(Icons.check, color: Colors.white),
-              tooltip: 'Save Order',
+              tooltip: TranslationService.translate(context, 'save_shelf_order'),
               onPressed: _saveOrder,
             ),
             IconButton(
               icon: const Icon(Icons.close, color: Colors.white),
-              tooltip: 'Cancel',
+              tooltip: TranslationService.translate(context, 'cancel'),
               onPressed: () {
                 setState(() {
                   _isReordering = false;
@@ -439,7 +442,7 @@ class _BookListScreenState extends State<BookListScreen>
             if (_tagFilter != null && !_isSearching)
               IconButton(
                 icon: const Icon(Icons.sort, color: Colors.white),
-                tooltip: 'Reorder Shelf',
+                tooltip: TranslationService.translate(context, 'reorder_shelf'),
                 onPressed: () {
                   setState(() {
                     _isReordering = true;

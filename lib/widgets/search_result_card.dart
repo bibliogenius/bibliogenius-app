@@ -42,7 +42,7 @@ class SearchResultCard extends StatelessWidget {
           child: Row(
             children: [
               // Cover Section
-              _buildCover(coverUrl, title, theme),
+              _buildCover(coverUrl, title, author, theme),
 
               // Info Section
               Expanded(
@@ -131,7 +131,7 @@ class SearchResultCard extends StatelessWidget {
     );
   }
 
-  Widget _buildCover(String? url, String title, ThemeData theme) {
+  Widget _buildCover(String? url, String title, String author, ThemeData theme) {
     final coverBg = theme.colorScheme.primaryContainer.withValues(alpha: 0.3);
     return Container(
       width: 100,
@@ -151,6 +151,7 @@ class SearchResultCard extends StatelessWidget {
         child: CachedBookCover(
           imageUrl: url,
           fit: BoxFit.cover,
+          semanticLabel: author.isNotEmpty ? '$title, $author' : title,
           placeholder: Container(
             color: coverBg,
             child: Center(

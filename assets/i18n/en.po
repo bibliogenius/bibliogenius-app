@@ -8717,3 +8717,31 @@ msgstr "Decrease by 1"
 #. Increase by 1
 msgid "increase_by_one"
 msgstr "Increase by 1"
+
+#. Scan for nearby peers
+msgid "tooltip_scan_peers"
+msgstr "Scan for nearby devices"
+
+#. Rewind 10 seconds
+msgid "tooltip_rewind_10s"
+msgstr "Rewind 10 seconds"
+
+#. Forward 30 seconds
+msgid "tooltip_forward_30s"
+msgstr "Forward 30 seconds"
+
+#. Accept request
+msgid "tooltip_accept"
+msgstr "Accept"
+
+#. Reject request
+msgid "tooltip_reject"
+msgstr "Reject"
+
+#. Add author
+msgid "tooltip_add_author"
+msgstr "Add author"
+
+#. Toggle flashlight / torch
+msgid "tooltip_toggle_flashlight"
+msgstr "Toggle flashlight"

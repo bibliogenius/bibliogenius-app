@@ -622,6 +622,10 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                                             imageUrl: book.coverUrl,
                                             width: 50,
                                             height: 75,
+                                            semanticLabel: book.author != null &&
+                                                    book.author!.isNotEmpty
+                                                ? '${book.title}, ${book.author}'
+                                                : book.title,
                                           ),
                                         ),
                                         const SizedBox(width: 16),

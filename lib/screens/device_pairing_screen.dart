@@ -1139,6 +1139,7 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
                       ),
                       IconButton(
                         icon: const Icon(Icons.refresh),
+                        tooltip: TranslationService.translate(context, 'tooltip_scan_peers'),
                         onPressed: _loadLocalPeers,
                       ),
                     ],

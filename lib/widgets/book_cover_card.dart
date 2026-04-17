@@ -64,6 +64,9 @@ class BookCoverCard extends StatelessWidget {
                       const SizedBox.shrink(), // Show fallback while loading
                   errorWidget:
                       const SizedBox.shrink(), // Show fallback on error
+                  semanticLabel: book.author != null && book.author!.isNotEmpty
+                      ? '${book.title}, ${book.author}'
+                      : book.title,
                 ),
 
               // Gradient overlay for text readability (only if using fallback or if needed)

@@ -2518,7 +2518,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             if (_bookLoanDurationDays != null) ...[
               IconButton(
                 icon: const Icon(Icons.remove_circle_outline, size: 20),
-                tooltip: '-1',
+                tooltip: TranslationService.translate(context, 'decrease_by_one'),
                 onPressed: _bookLoanDurationDays! > 1
                     ? () => _setBookLoanDuration(_bookLoanDurationDays! - 1)
                     : null,
@@ -2531,7 +2531,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
               ),
               IconButton(
                 icon: const Icon(Icons.add_circle_outline, size: 20),
-                tooltip: '+1',
+                tooltip: TranslationService.translate(context, 'increase_by_one'),
                 onPressed: _bookLoanDurationDays! < 365
                     ? () => _setBookLoanDuration(_bookLoanDurationDays! + 1)
                     : null,
