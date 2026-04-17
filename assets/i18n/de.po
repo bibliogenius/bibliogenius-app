@@ -8603,3 +8603,15 @@ msgstr "Autor hinzufügen"
 #. Toggle flashlight / torch
 msgid "tooltip_toggle_flashlight"
 msgstr "Taschenlampe umschalten"
+
+#. Refresh
+msgid "tooltip_refresh"
+msgstr "Aktualisieren"
+
+#. Send message
+msgid "tooltip_send_message"
+msgstr "Nachricht senden"
+
+#. Search peers
+msgid "tooltip_search_peer"
+msgstr "Suchen"

@@ -1467,6 +1467,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         IconButton(
                           icon: const Icon(Icons.close),
+                          tooltip: TranslationService.translate(context, 'close'),
                           onPressed: () => Navigator.pop(context),
                         ),
                       ],

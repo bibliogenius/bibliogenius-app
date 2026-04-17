@@ -169,6 +169,7 @@ class _NetworkSearchScreenState extends State<NetworkSearchScreen> {
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
                         icon: const Icon(Icons.clear),
+                        tooltip: TranslationService.translate(context, 'clear'),
                         onPressed: () {
                           _searchController.clear();
                           setState(() {

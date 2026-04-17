@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/api_service.dart';
+import '../services/translation_service.dart';
 import '../models/genie.dart';
 import '../widgets/genie_app_bar.dart';
 import 'book_list_screen.dart';
@@ -210,6 +211,7 @@ class _GenieChatScreenState extends State<GenieChatScreen> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.send, color: Colors.blueAccent),
+                  tooltip: TranslationService.translate(context, 'tooltip_send_message'),
                   onPressed: () => _sendMessage(_controller.text),
                 ),
               ],

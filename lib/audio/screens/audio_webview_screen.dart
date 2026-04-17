@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
+import '../../services/translation_service.dart';
+
 /// Full-screen audio webview page for playing audiobooks.
 ///
 /// This screen displays a WebView with the audiobook source site,
@@ -56,15 +58,18 @@ class _AudioWebViewScreenState extends State<AudioWebViewScreen> {
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.close),
+          tooltip: TranslationService.translate(context, 'close'),
           onPressed: () => Navigator.of(context).pop(),
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
+            tooltip: TranslationService.translate(context, 'tooltip_refresh'),
             onPressed: () => _controller.reload(),
           ),
           IconButton(
             icon: const Icon(Icons.open_in_new),
+            tooltip: TranslationService.translate(context, 'open_in_browser'),
             onPressed: () async {
               // Open in external browser as alternative
               final uri = Uri.parse(widget.url);

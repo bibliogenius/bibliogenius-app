@@ -653,12 +653,14 @@ class _EditBookScreenState extends State<EditBookScreen> {
         leading: isMobile
             ? IconButton(
                 icon: const Icon(Icons.menu),
+                tooltip: TranslationService.translate(context, 'tooltip_open_menu'),
                 onPressed: () {
                   GlobalKeys.rootScaffoldKey.currentState?.openDrawer();
                 },
               )
             : IconButton(
                 icon: const Icon(Icons.arrow_back),
+                tooltip: TranslationService.translate(context, 'back'),
                 onPressed: () {
                   // Signal back if changes were made
                   Navigator.of(context).pop(_hasChanges);
@@ -786,6 +788,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                           : TranslationService.translate(context, 'enter_author') ?? 'Enter author name',
                       suffixIcon: IconButton(
                         icon: const Icon(Icons.add),
+                        tooltip: TranslationService.translate(context, 'tooltip_add_author'),
                         onPressed: () {
                           if (textEditingController.text.trim().isNotEmpty) {
                             setState(() {

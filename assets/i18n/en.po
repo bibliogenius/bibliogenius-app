@@ -8745,3 +8745,15 @@ msgstr "Add author"
 #. Toggle flashlight / torch
 msgid "tooltip_toggle_flashlight"
 msgstr "Toggle flashlight"
+
+#. Refresh
+msgid "tooltip_refresh"
+msgstr "Refresh"
+
+#. Send message
+msgid "tooltip_send_message"
+msgstr "Send message"
+
+#. Search peers
+msgid "tooltip_search_peer"
+msgstr "Search"

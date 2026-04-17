@@ -180,6 +180,7 @@ class _OnboardingTourScreenState extends State<OnboardingTourScreen>
             child: IconButton(
               onPressed: _currentPage > 0 ? _previousPage : null,
               icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+              tooltip: TranslationService.translate(context, 'back'),
             ),
           ),
           // Step indicator

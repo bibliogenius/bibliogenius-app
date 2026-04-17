@@ -98,6 +98,7 @@ class _SearchPeerScreenState extends State<SearchPeerScreen> {
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.arrow_forward),
+                  tooltip: TranslationService.translate(context, 'tooltip_search_peer'),
                   onPressed: () => _search(_searchController.text),
                 ),
                 border: OutlineInputBorder(

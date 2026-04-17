@@ -172,6 +172,7 @@ class _BookCopiesScreenState extends State<BookCopiesScreen>
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
+          tooltip: TranslationService.translate(context, 'back'),
           onPressed: () => Navigator.pop(context),
         ),
       ),

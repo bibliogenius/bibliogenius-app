@@ -7,6 +7,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../data/repositories/book_repository.dart';
 import '../data/repositories/tag_repository.dart';
 import '../services/api_service.dart';
+import '../services/translation_service.dart';
 import '../models/tag.dart';
 import '../theme/app_design.dart';
 import '../providers/hub_directory_provider.dart';
@@ -1898,6 +1899,7 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
         title: Text(_showPreview ? 'Prévisualisation' : 'Import Gleeph'),
         leading: IconButton(
           icon: Icon(Icons.adaptive.arrow_back),
+          tooltip: TranslationService.translate(context, 'back'),
           onPressed: () {
             if (_showPreview && !_isImporting) {
               setState(() => _showPreview = false);

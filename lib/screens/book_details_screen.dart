@@ -732,11 +732,14 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                       ),
                     const SizedBox(height: 32),
                     if (book.summary != null && book.summary!.isNotEmpty) ...[
-                      Text(
-                        TranslationService.translate(context, 'book_summary') ??
-                            'Summary',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
+                      Semantics(
+                        header: true,
+                        child: Text(
+                          TranslationService.translate(context, 'book_summary') ??
+                              'Summary',
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -969,11 +972,14 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          book.title,
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-            fontWeight: FontWeight.w800,
-            color: Theme.of(context).textTheme.titleLarge?.color,
+        Semantics(
+          header: true,
+          child: Text(
+            book.title,
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+              fontWeight: FontWeight.w800,
+              color: Theme.of(context).textTheme.titleLarge?.color,
+            ),
           ),
         ),
         if (book.author != null) ...[

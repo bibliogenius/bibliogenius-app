@@ -822,6 +822,7 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
           title: TranslationService.translate(context, 'external_search_title'),
           leading: IconButton(
             icon: Icon(Icons.adaptive.arrow_back, color: Colors.white),
+            tooltip: TranslationService.translate(context, 'back'),
             onPressed: () => context.pop(_booksAdded),
           ),
         ),

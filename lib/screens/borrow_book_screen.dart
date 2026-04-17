@@ -430,6 +430,7 @@ class _BorrowBookScreenState extends State<BorrowBookScreen> {
         suffixIcon: _isbnController.text.isNotEmpty
             ? IconButton(
                 icon: const Icon(Icons.search),
+                tooltip: TranslationService.translate(context, 'tooltip_search_isbn'),
                 onPressed: () => _lookupByIsbn(_isbnController.text),
               )
             : null,
