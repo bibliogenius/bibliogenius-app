@@ -775,6 +775,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
                 children: [
+                // === Group 1: Reading & Fun ===
+                _buildModulesGroupHeader(context, 'modules_group_reading_fun'),
                 _buildModuleToggle(
                   context,
                   'quotes_module',
@@ -872,6 +874,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       helpTopicId: 'share_gamification_stats',
                     ),
                   ),
+                // === Group 2: Content & Library ===
+                _buildModulesGroupHeader(context, 'modules_group_content'),
                 _buildModuleToggle(
                   context,
                   'collections_module',
@@ -934,19 +938,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   (value) => themeProvider.setSpeechToTextEnabled(value),
                   helpTopicId: 'speech_to_text',
                 ),
-                // Network module moved to dedicated "Network" section below
+                // === Group 3: Lending & Formats ===
+                _buildModulesGroupHeader(context, 'modules_group_lending'),
                 _buildModuleToggle(
                   context,
                   'auto_approve_loans_title',
                   'auto_approve_loans_desc',
                   Icons.auto_awesome,
                   themeProvider.autoApproveLoanRequests,
-                  (value) =>
-                      themeProvider.setAutoApproveLoanRequests(value),
+                  (value) => themeProvider.setAutoApproveLoanRequests(value),
                   helpTopicId: 'auto_approve_loans',
                 ),
-                if (_loanSettingsLoaded)
-                  _buildLoanDurationSection(context),
+                if (_loanSettingsLoaded) _buildLoanDurationSection(context),
                 _buildModuleToggle(
                   context,
                   'enable_borrowing_module',
@@ -975,6 +978,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   (value) => themeProvider.setDigitalFormatsEnabled(value),
                   helpTopicId: 'digital_formats',
                 ),
+                // === Group 4: Advanced ===
+                _buildModulesGroupHeader(context, 'modules_group_advanced'),
                 _buildMcpModuleToggle(),
                 // Linked Devices section
                 const SizedBox(height: 16),
@@ -2937,6 +2942,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
     } catch (e) {
       debugPrint('Error updating reminder days: $e');
     }
+  }
+
+  Widget _buildModulesGroupHeader(BuildContext context, String key) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            TranslationService.translate(context, key) ?? '',
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Divider(
+            height: 1,
+            thickness: 1,
+            color: theme.colorScheme.outlineVariant,
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildModuleToggle(

@@ -3469,6 +3469,22 @@ msgstr ""
 msgid "modules"
 msgstr ""
 
+#. Modules sub-group: advanced/expert features
+msgid "modules_group_advanced"
+msgstr ""
+
+#. Modules sub-group: content and library management
+msgid "modules_group_content"
+msgstr ""
+
+#. Modules sub-group: lending and book formats
+msgid "modules_group_lending"
+msgstr ""
+
+#. Modules sub-group: reading engagement, quotes, games
+msgid "modules_group_reading_fun"
+msgstr ""
+
 #. Monthly Goal
 msgid "monthly_goal"
 msgstr ""

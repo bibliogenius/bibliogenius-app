@@ -3472,6 +3472,22 @@ msgstr "Показване на вдъхновяващ цитат на табл�
 msgid "modules"
 msgstr "Модули"
 
+#. Modules sub-group: advanced/expert features
+msgid "modules_group_advanced"
+msgstr "Разширени"
+
+#. Modules sub-group: content and library management
+msgid "modules_group_content"
+msgstr "Съдържание и библиотека"
+
+#. Modules sub-group: lending and book formats
+msgid "modules_group_lending"
+msgstr "Заемане и формати"
+
+#. Modules sub-group: reading engagement, quotes, games
+msgid "modules_group_reading_fun"
+msgstr "Четене и забавления"
+
 #. Monthly Goal
 msgid "monthly_goal"
 msgstr "Месечна цел"

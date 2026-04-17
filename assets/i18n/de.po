@@ -3605,6 +3605,22 @@ msgstr "Zitate aus deinen Lieblingsbüchern speichern"
 msgid "modules"
 msgstr "Module"
 
+#. Modules sub-group: advanced/expert features
+msgid "modules_group_advanced"
+msgstr "Erweitert"
+
+#. Modules sub-group: content and library management
+msgid "modules_group_content"
+msgstr "Inhalt & Bibliothek"
+
+#. Modules sub-group: lending and book formats
+msgid "modules_group_lending"
+msgstr "Ausleihe & Formate"
+
+#. Modules sub-group: reading engagement, quotes, games
+msgid "modules_group_reading_fun"
+msgstr "Lesen & Spiel"
+
 #. Monthly Goal
 msgid "monthly_goal"
 msgstr "Monatsziel"

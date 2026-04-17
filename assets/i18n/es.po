@@ -3605,6 +3605,22 @@ msgstr "Guarda citas de tus libros favoritos"
 msgid "modules"
 msgstr "Módulos"
 
+#. Modules sub-group: advanced/expert features
+msgid "modules_group_advanced"
+msgstr "Avanzado"
+
+#. Modules sub-group: content and library management
+msgid "modules_group_content"
+msgstr "Contenido y biblioteca"
+
+#. Modules sub-group: lending and book formats
+msgid "modules_group_lending"
+msgstr "Préstamos y formatos"
+
+#. Modules sub-group: reading engagement, quotes, games
+msgid "modules_group_reading_fun"
+msgstr "Lectura y diversión"
+
 #. Monthly Goal
 msgid "monthly_goal"
 msgstr "Meta mensual"

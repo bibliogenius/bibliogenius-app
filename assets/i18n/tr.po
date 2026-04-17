@@ -3522,6 +3522,22 @@ msgstr "Panelde ilham verici bir alıntı görüntüleyin."
 msgid "modules"
 msgstr "Modüller"
 
+#. Modules sub-group: advanced/expert features
+msgid "modules_group_advanced"
+msgstr "Gelişmiş"
+
+#. Modules sub-group: content and library management
+msgid "modules_group_content"
+msgstr "İçerik ve Kütüphane"
+
+#. Modules sub-group: lending and book formats
+msgid "modules_group_lending"
+msgstr "Ödünç verme ve Formatlar"
+
+#. Modules sub-group: reading engagement, quotes, games
+msgid "modules_group_reading_fun"
+msgstr "Okuma ve Eğlence"
+
 #. Monthly Goal
 msgid "monthly_goal"
 msgstr "Aylık Hedef"

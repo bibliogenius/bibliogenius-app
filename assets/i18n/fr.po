@@ -3878,6 +3878,22 @@ msgstr "Affiche une citation inspirante sur le tableau de bord."
 msgid "modules"
 msgstr "Modules"
 
+#. Modules sub-group: advanced/expert features
+msgid "modules_group_advanced"
+msgstr "Avancé"
+
+#. Modules sub-group: content and library management
+msgid "modules_group_content"
+msgstr "Contenu & Bibliothèque"
+
+#. Modules sub-group: lending and book formats
+msgid "modules_group_lending"
+msgstr "Emprunts & Formats"
+
+#. Modules sub-group: reading engagement, quotes, games
+msgid "modules_group_reading_fun"
+msgstr "Lecture & Ludique"
+
 #. Monthly Goal
 msgid "monthly_goal"
 msgstr "Objectif mensuel"
