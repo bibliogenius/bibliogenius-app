@@ -44,10 +44,15 @@ class RecentlyAddedCarousel extends StatelessWidget {
   /// handler because their detail route differs.
   final void Function(Book book)? onBookTap;
 
-  static const double _coverWidth = 100;
   // 2:3 matches the standard book cover aspect ratio (Inventaire /
-  // OpenLibrary), so covers fit without cropping under BoxFit.cover.
-  static const double _coverHeight = 150;
+  // OpenLibrary), so covers fit without cropping under BoxFit.cover. On
+  // narrow devices (iPhone SE class, shortestSide < 360) we shrink to
+  // 80x120 so the strip takes less vertical room and fits more covers.
+  static const double _coverWidthDefault = 100;
+  static const double _coverHeightDefault = 150;
+  static const double _coverWidthCompact = 80;
+  static const double _coverHeightCompact = 120;
+  static const double _compactBreakpoint = 360;
 
   /// Auto-hide thresholds: below this library size, or above this ratio of
   /// recent-to-total, the carousel duplicates the grid below and is hidden.
@@ -124,6 +129,10 @@ class RecentlyAddedCarousel extends StatelessWidget {
 
     final colorScheme = Theme.of(context).colorScheme;
     final collapsed = _collapsed(provider);
+    final compact =
+        MediaQuery.sizeOf(context).shortestSide < _compactBreakpoint;
+    final coverWidth = compact ? _coverWidthCompact : _coverWidthDefault;
+    final coverHeight = compact ? _coverHeightCompact : _coverHeightDefault;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -156,8 +165,8 @@ class RecentlyAddedCarousel extends StatelessWidget {
               : _ExpandedStrip(
                   key: const ValueKey('expanded'),
                   books: recent,
-                  coverWidth: _coverWidth,
-                  coverHeight: _coverHeight,
+                  coverWidth: coverWidth,
+                  coverHeight: coverHeight,
                   onCollapse: () => _setCollapsed(provider, true),
                   onLongPress: () => _dismiss(context, provider),
                   onTap: (book) {
