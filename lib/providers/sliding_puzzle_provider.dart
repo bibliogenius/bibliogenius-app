@@ -356,8 +356,7 @@ class SlidingPuzzleProvider extends ChangeNotifier {
 
   /// Force relay sync with spinner. Called from the manual refresh button.
   ///
-  /// Capped at 40s client-side as a safety net above the Rust timeout.
-  /// On timeout, reloads from cache and sets [lastRefreshTimedOut].
+  /// Capped at 15s client-side (see MemoryGameProvider for rationale).
   Future<void> refreshNetworkLeaderboard() async {
     if (_isSyncingNetwork) return;
     _isSyncingNetwork = true;
@@ -370,7 +369,7 @@ class SlidingPuzzleProvider extends ChangeNotifier {
     try {
       final frbEntries = await _ffi
           .refreshPuzzleLeaderboard()
-          .timeout(const Duration(seconds: 40));
+          .timeout(const Duration(seconds: 15));
       _networkScores = frbEntries
           .map((e) => PuzzleLeaderboardEntry(
                 peerId: e.peerId,

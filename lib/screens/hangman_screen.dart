@@ -140,25 +140,30 @@ class _HangmanScreenState extends State<HangmanScreen> {
                 icon: const Icon(Icons.arrow_back),
                 onPressed: _onBackPressed,
               ),
-              actions: provider.phase == HangmanPhase.playing
-                  ? [
-                      Padding(
-                        padding: const EdgeInsets.only(right: 16),
-                        child: Center(
-                          child: Text(
-                            provider.formattedTime,
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              color: theme.appBarTheme.foregroundColor ??
-                                  theme.colorScheme.onPrimary,
-                              fontFeatures: [
-                                const FontFeature.tabularFigures()
-                              ],
-                            ),
-                          ),
+              actions: [
+                if (provider.phase == HangmanPhase.playing)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: Center(
+                      child: Text(
+                        provider.formattedTime,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          color: theme.appBarTheme.foregroundColor ??
+                              theme.colorScheme.onPrimary,
+                          fontFeatures: [
+                            const FontFeature.tabularFigures()
+                          ],
                         ),
                       ),
-                    ]
-                  : null,
+                    ),
+                  ),
+                IconButton(
+                  icon: const Icon(Icons.emoji_events_outlined),
+                  tooltip: TranslationService.translate(
+                      context, 'hangman_leaderboard'),
+                  onPressed: () => _showLeaderboard(context),
+                ),
+              ],
             ),
             body: _buildBody(context, provider, theme),
           ),
@@ -822,11 +827,14 @@ class _HangmanCompleteViewState extends State<_HangmanCompleteView>
                       ),
                     ),
                     const SizedBox(height: 12),
-                    TextButton.icon(
+                    OutlinedButton.icon(
                       onPressed: widget.onShowLeaderboard,
                       icon: const Icon(Icons.leaderboard_outlined),
                       label: Text(TranslationService.translate(
                           context, 'hangman_leaderboard')),
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(200, 48),
+                      ),
                     ),
                   ],
                 ),

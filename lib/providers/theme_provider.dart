@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/material.dart';
@@ -457,6 +458,20 @@ class ThemeProvider with ChangeNotifier {
       }
     }
     notifyListeners();
+  }
+
+  /// Push the current Dart-side module flags to the Rust backend.
+  ///
+  /// `_updateEnabledModules()` was only invoked on toggle, so users who
+  /// never touched a Settings switch had an empty list in the DB — which
+  /// caused `/api/public-stats-bundle` to return null for every game
+  /// (hangman, memory, puzzle) and gamification sharing.
+  ///
+  /// Call this from `main.dart` AFTER the FFI HTTP server is confirmed
+  /// running, otherwise `updateProfile` falls through to its fake-success
+  /// path (server unavailable) and nothing is persisted.
+  Future<void> syncEnabledModulesToBackend() async {
+    await _updateEnabledModules();
   }
 
   Future<void> setUsername(String name, {ApiService? apiService}) async {

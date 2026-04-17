@@ -296,6 +296,13 @@ void main([List<String>? args]) async {
       debugPrint('FFI: Failed to start HTTP server: $e');
     }
 
+    // Now that the FFI HTTP server is up, push current module flags to
+    // the backend. Fixes legacy installs where installation_profile's
+    // enabled_modules was never synced (empty list → bundle endpoint
+    // returns null for every game and gamification sharing).
+    // Fire-and-forget: a failure shouldn't block startup.
+    unawaited(themeProvider.syncEnabledModulesToBackend());
+
     // Initialize E2EE identity if any network feature is active
     // (local discovery OR remote reachable via relay).
     // Identity is required for both mDNS key exchange and relay E2EE.

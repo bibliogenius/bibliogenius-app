@@ -377,11 +377,9 @@ class MemoryGameProvider extends ChangeNotifier {
 
   /// Force relay sync with spinner. Called from the manual refresh button.
   ///
-  /// Capped at 40s client-side: the Rust side already enforces ~30s end-to-end
-  /// (Phase 1 direct + Phase 2 relay with 25s per-peer), so this timeout is a
-  /// safety net. On timeout, reloads from cache so any partial writes done by
-  /// Rust still appear, and sets [lastRefreshTimedOut] so the UI can surface
-  /// a notice.
+  /// Capped at 15s client-side: Rust Phase 2 relay times out per-peer at
+  /// 8s and unreachable peers are cached, so a cold refresh rarely exceeds
+  /// ~10s. On timeout, reloads from cache and sets [lastRefreshTimedOut].
   Future<void> refreshNetworkLeaderboard() async {
     if (_isSyncingNetwork) return;
 
@@ -395,7 +393,7 @@ class MemoryGameProvider extends ChangeNotifier {
     try {
       final frbEntries = await _ffi
           .refreshMemoryLeaderboard()
-          .timeout(const Duration(seconds: 40));
+          .timeout(const Duration(seconds: 15));
       _networkScores = frbEntries
           .map((e) => MemoryLeaderboardEntry(
                 peerId: e.peerId,

@@ -838,7 +838,7 @@ class _MemoryGameCompleteViewState extends State<_MemoryGameCompleteView>
                       ),
                     ),
                     const SizedBox(height: 12),
-                    TextButton.icon(
+                    OutlinedButton.icon(
                       onPressed: widget.onShowLeaderboard,
                       icon: const Icon(Icons.leaderboard_outlined),
                       label: Text(
@@ -846,6 +846,9 @@ class _MemoryGameCompleteViewState extends State<_MemoryGameCompleteView>
                           context,
                           'memory_leaderboard_title',
                         ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(200, 48),
                       ),
                     ),
                   ],
