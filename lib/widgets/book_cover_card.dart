@@ -145,39 +145,57 @@ class BookCoverCard extends StatelessWidget {
         ),
       ),
       padding: const EdgeInsets.all(12),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text(
-            book.title,
-            maxLines: 4,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-              shadows: [
-                Shadow(
-                  offset: Offset(0, 1),
-                  blurRadius: 2,
-                  color: Colors.black45,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // The card is reused at several sizes: carousel strip (130 px tall),
+          // grid tiles (~180 px), catalog hero (~240 px). Drop a line and
+          // tighten spacing on shorter tiles so a long title doesn't push
+          // the author row past the bottom edge.
+          final compact = constraints.maxHeight < 140;
+          final titleMaxLines = compact ? 3 : 4;
+          final spacing = compact ? 4.0 : 8.0;
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Flexible(
+                child: Text(
+                  book.title,
+                  maxLines: titleMaxLines,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    shadows: [
+                      Shadow(
+                        offset: Offset(0, 1),
+                        blurRadius: 2,
+                        color: Colors.black45,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              if (book.author != null) ...[
+                SizedBox(height: spacing),
+                Flexible(
+                  child: Text(
+                    book.author!,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 12,
+                    ),
+                  ),
                 ),
               ],
-            ),
-          ),
-          if (book.author != null) ...[
-            const SizedBox(height: 8),
-            Text(
-              book.author!,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.white70, fontSize: 12),
-            ),
-          ],
-        ],
+            ],
+          );
+        },
       ),
     );
   }

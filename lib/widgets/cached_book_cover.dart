@@ -133,7 +133,7 @@ class CachedBookCover extends StatelessWidget {
         width: width,
         height: height,
         fit: fit,
-        errorBuilder: (_, _, _) => _buildFallback(),
+        errorBuilder: (_, _, _) => errorWidget ?? _buildTappableFallback(),
       );
       if (borderRadius != null) {
         localImage = ClipRRect(borderRadius: borderRadius!, child: localImage);

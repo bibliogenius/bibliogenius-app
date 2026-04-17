@@ -6,7 +6,7 @@ import '../models/book.dart';
 import '../providers/theme_provider.dart';
 import '../services/translation_service.dart';
 import '../theme/app_design.dart';
-import 'cached_book_cover.dart';
+import 'book_cover_card.dart';
 
 /// Scope of the carousel — controls which [ThemeProvider] flag backs its
 /// visibility so the own-lib and peer-lib carousels can be toggled
@@ -45,7 +45,9 @@ class RecentlyAddedCarousel extends StatelessWidget {
   final void Function(Book book)? onBookTap;
 
   static const double _coverWidth = 100;
-  static const double _coverHeight = 130;
+  // 2:3 matches the standard book cover aspect ratio (Inventaire /
+  // OpenLibrary), so covers fit without cropping under BoxFit.cover.
+  static const double _coverHeight = 150;
 
   /// Auto-hide thresholds: below this library size, or above this ratio of
   /// recent-to-total, the carousel duplicates the grid below and is hidden.
@@ -359,28 +361,10 @@ class _CarouselCover extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final semanticLabel = [
-      book.title,
-      if (book.author != null && book.author!.isNotEmpty) book.author!,
-    ].join(' — ');
-
-    return Semantics(
-      button: true,
-      label: semanticLabel,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppDesign.radiusSmall),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(AppDesign.radiusSmall),
-          child: CachedBookCover(
-            imageUrl: book.coverUrl,
-            width: width,
-            height: height,
-            fit: BoxFit.cover,
-            semanticLabel: semanticLabel,
-          ),
-        ),
-      ),
+    return SizedBox(
+      width: width,
+      height: height,
+      child: BookCoverCard(book: book, onTap: onTap),
     );
   }
 }

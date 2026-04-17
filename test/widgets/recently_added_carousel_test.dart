@@ -113,8 +113,19 @@ void main() {
 
     expect(find.text('Recently added'), findsOneWidget);
     expect(find.byIcon(Icons.expand_less_rounded), findsOneWidget);
-    // Title under thumbnail should NOT be shown (design change)
-    expect(find.text('New Book A'), findsNothing);
+  });
+
+  testWidgets('books without coverUrl render the title as a fallback',
+      (tester) async {
+    await tester.pumpWidget(buildHarness(withPad([
+      newBook(id: 1, title: 'New Book A'),
+      newBook(id: 2, title: 'New Book B'),
+    ])));
+
+    // BookCoverCard renders the title inside the colored fallback when
+    // coverUrl is null, so users can identify the book in the carousel.
+    expect(find.text('New Book A'), findsOneWidget);
+    expect(find.text('New Book B'), findsOneWidget);
   });
 
   testWidgets('tapping collapse chevron switches to collapsed bar',
