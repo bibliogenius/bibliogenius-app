@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../models/book.dart';
 import '../models/hub_directory.dart';
 import '../providers/hub_directory_provider.dart';
 import '../services/ffi_service.dart';
@@ -11,7 +12,7 @@ import '../src/rust/api/frb.dart' show FrbBook, FrbCatalogEntry;
 import '../theme/app_design.dart';
 import '../providers/theme_provider.dart';
 import '../utils/app_constants.dart';
-import '../widgets/book_spine.dart';
+import '../widgets/book_cover_card.dart';
 import '../widgets/genie_app_bar.dart';
 
 /// Displays a library's public catalog (list of ISBNs) fetched from the hub.
@@ -130,9 +131,12 @@ class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
   }
 
   bool _isEntryNew(FrbCatalogEntry entry) {
-    final firstSeen = entry.firstSeenAt;
-    if (firstSeen == null) return false;
-    final parsed = DateTime.tryParse(firstSeen);
+    // Source of truth is the owner's `books.created_at`, broadcast in the
+    // catalog payload. Every viewer agrees on what's "recent" because the
+    // timestamp lives on the owner's side (not the local cache).
+    final addedAt = entry.addedAt;
+    if (addedAt == null) return false;
+    final parsed = DateTime.tryParse(addedAt);
     if (parsed == null) return false;
     return DateTime.now().difference(parsed).inDays < AppConstants.newBadgeDays;
   }
@@ -297,54 +301,77 @@ class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
               onChanged: (v) => setState(() => _searchQuery = v),
             ),
           ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
-          child: Semantics(
-            header: true,
+        // Total count is shown as a badge in the profile header; avoid
+        // duplicating it here. When searching, surface the filtered count
+        // so the user knows how many entries matched.
+        if (_searchQuery.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
             child: Text(
-              '${filtered.length} ${TranslationService.translate(context, 'directory_catalog_isbn_count')}',
+              '${filtered.length} ${TranslationService.translate(context, 'directory_catalog_search_results')}',
               style: Theme.of(context)
                   .textTheme
-                  .titleSmall
+                  .bodySmall
                   ?.copyWith(color: Colors.grey[600]),
             ),
           ),
-        ),
         Expanded(
           child: RefreshIndicator(
             onRefresh: _load,
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
+            child: GridView.builder(
               padding: const EdgeInsets.all(16),
-              child: Wrap(
-                spacing: 0,
-                runSpacing: 20,
-                crossAxisAlignment: WrapCrossAlignment.end,
-                children: filtered.map((entry) {
-                  final seed = entry.isbn.hashCode;
-                  final isNew = _isEntryNew(entry);
-                  return Semantics(
-                    button: true,
-                    child: GestureDetector(
-                      onTap: () => _showBookDetail(entry),
-                      child: BookSpine(
-                        title: entry.title.isNotEmpty
-                            ? entry.title
-                            : entry.isbn,
-                        subtitle: entry.author,
-                        colorSeed: seed,
-                        height: 220 + (seed.abs() % 4) * 12.0,
-                        width: 60 + (seed.abs() % 3) * 6.0,
-                        showNewBand: isNew,
-                      ),
-                    ),
-                  );
-                }).toList(),
+              physics: const AlwaysScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: 150,
+                childAspectRatio: 0.65,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
               ),
+              itemCount: filtered.length,
+              itemBuilder: (context, index) {
+                final entry = filtered[index];
+                final book = _entryToBook(entry);
+                final isNew = _isEntryNew(entry);
+                final semanticLabel = book.author != null
+                    ? '${book.title}, ${book.author}'
+                    : book.title;
+                return Semantics(
+                  button: true,
+                  label: semanticLabel,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      BookCoverCard(
+                        book: book,
+                        onTap: () => _showBookDetail(entry),
+                      ),
+                      if (isNew)
+                        Positioned(
+                          top: 8,
+                          left: -4,
+                          child: _NewRibbon(),
+                        ),
+                    ],
+                  ),
+                );
+              },
             ),
           ),
         ),
       ],
+    );
+  }
+
+  /// Minimal [Book] wrapper around a hub catalog entry so shared cover
+  /// widgets (default fallback, cached cover) can render directly without
+  /// reimplementing cover logic on this screen.
+  Book _entryToBook(FrbCatalogEntry entry) {
+    return Book(
+      title: entry.title.isNotEmpty ? entry.title : entry.isbn,
+      isbn: entry.isbn,
+      author: entry.author,
+      coverUrl: entry.coverUrl,
+      addedAt: entry.addedAt != null ? DateTime.tryParse(entry.addedAt!) : null,
     );
   }
   void _showBookDetail(FrbCatalogEntry entry) {
@@ -1070,6 +1097,38 @@ class _NotFollowingState extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Paper-band "NEW" overlay displayed in the top-left corner of a catalog
+/// cover tile. Kept in-file because it is specific to this grid's layout.
+class _NewRibbon extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: const Color(0xFFC62828), // deep red, matches BookSpine band
+        borderRadius: BorderRadius.circular(3),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.25),
+            offset: const Offset(0, 1),
+            blurRadius: 2,
+          ),
+        ],
+      ),
+      child: Text(
+        TranslationService.translate(context, 'badge_new').toUpperCase(),
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 9,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 0.6,
+          height: 1,
         ),
       ),
     );

@@ -1758,8 +1758,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               margin: const EdgeInsets.only(bottom: 12),
               child: Column(
                 children: [
-                  // Top-level toggle: enable/disable the public directory feature.
-                  // Controls visibility of the Discover tab in the Network screen.
+                  // Top-level toggle: enable the hub online features.
+                  // Browsing the directory is always available (ADR-015 public
+                  // endpoint); this toggle gates the bidirectional features:
+                  // X25519 key publishing, real-time nudges, and access to
+                  // the sub-toggles (isListed, contact, website).
                   SwitchListTile(
                     secondary: const Icon(Icons.explore),
                     title: Text(

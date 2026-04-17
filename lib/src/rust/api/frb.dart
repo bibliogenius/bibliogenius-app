@@ -895,7 +895,7 @@ Future<FrbHubProfile> hubDirectoryGetProfile({required String nodeId}) =>
     RustLib.instance.api.crateApiFrbHubDirectoryGetProfile(nodeId: nodeId);
 
 /// Gets the catalog of a library (public or approved follow).
-/// Fetches from hub, upserts into local cache, and returns entries with first_seen_at.
+/// Fetches from hub, upserts into local cache, and returns entries with added_at.
 /// If the hub fetch fails, returns the cached entries (offline-first).
 Future<List<FrbCatalogEntry>> hubDirectoryGetCatalog({
   required String nodeId,
@@ -1241,7 +1241,7 @@ sealed class FrbCatalogEntry with _$FrbCatalogEntry {
     required String title,
     String? author,
     String? coverUrl,
-    String? firstSeenAt,
+    String? addedAt,
   }) = _FrbCatalogEntry;
 }
 

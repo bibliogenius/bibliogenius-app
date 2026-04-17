@@ -6400,6 +6400,9 @@ msgstr "Esta biblioteca aun no ha compartido ningun libro."
 msgid "directory_catalog_isbn_count"
 msgstr "ISBN compartidos"
 
+msgid "directory_catalog_search_results"
+msgstr "resultados"
+
 msgid "directory_catalog_isbn_label"
 msgstr "ISBN"
 
@@ -6633,10 +6636,10 @@ msgid "coming_soon_chip"
 msgstr "Proximamente"
 
 msgid "hub_coming_soon_desc"
-msgstr "Registra tu biblioteca en el directorio publico y descubre otros lectores"
+msgstr "Recibe solicitudes de seguimiento y de prestamo en tiempo real, y desbloquea las opciones para publicar tu biblioteca en el directorio publico."
 
 msgid "hub_coming_soon_toggle"
-msgstr "Directorio publico"
+msgstr "Funciones en linea"
 
 msgid "hub_only_detail_hint"
 msgstr "Conectate al mismo Wi-Fi o espera a que esta biblioteca este en linea para ver los detalles completos."

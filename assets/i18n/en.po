@@ -5031,12 +5031,13 @@ msgstr "Let your followers request to borrow your books via the hub"
 msgid "hub_borrowing_disabled"
 msgstr "This library does not accept borrow requests"
 
-#. Hub - Coming soon toggle
+#. Hub - Online features master toggle (title)
 msgid "hub_coming_soon_toggle"
-msgstr "Public directory"
+msgstr "Online features"
 
+#. Hub - Online features master toggle (subtitle)
 msgid "hub_coming_soon_desc"
-msgstr "Register your library in the public directory and discover other readers around the world."
+msgstr "Receive follow and loan requests in real time, and unlock options to publish your library in the public directory."
 
 #. Generic coming soon chip
 msgid "coming_soon_chip"
@@ -7762,6 +7763,10 @@ msgstr "This library has not shared any books yet."
 
 msgid "directory_catalog_isbn_count"
 msgstr "ISBNs shared"
+
+#. Filtered result count shown above the catalog grid while searching
+msgid "directory_catalog_search_results"
+msgstr "results"
 
 #. Search placeholder in followed library catalog
 msgid "directory_catalog_search"

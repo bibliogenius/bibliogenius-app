@@ -6400,6 +6400,9 @@ msgstr "Diese Bibliothek hat noch keine Bücher geteilt."
 msgid "directory_catalog_isbn_count"
 msgstr "Geteilte ISBNs"
 
+msgid "directory_catalog_search_results"
+msgstr "Ergebnisse"
+
 msgid "directory_catalog_isbn_label"
 msgstr "ISBN"
 
@@ -6633,10 +6636,10 @@ msgid "coming_soon_chip"
 msgstr "Demnachst"
 
 msgid "hub_coming_soon_desc"
-msgstr "Registrieren Sie Ihre Bibliothek im öffentlichen Verzeichnis und entdecken Sie andere Leser"
+msgstr "Erhalten Sie Folge- und Leihanfragen in Echtzeit und aktivieren Sie die Optionen zur Veröffentlichung Ihrer Bibliothek im öffentlichen Verzeichnis."
 
 msgid "hub_coming_soon_toggle"
-msgstr "Offentliches Verzeichnis"
+msgstr "Online-Funktionen"
 
 msgid "hub_only_detail_hint"
 msgstr "Verbinden Sie sich mit demselben Wi-Fi oder warten Sie, bis diese Bibliothek online ist, um alle Details zu sehen."

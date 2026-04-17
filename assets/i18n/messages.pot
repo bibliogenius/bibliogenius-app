@@ -7631,6 +7631,10 @@ msgstr ""
 msgid "directory_catalog_isbn_count"
 msgstr ""
 
+#. Filtered result count shown above the catalog grid while searching
+msgid "directory_catalog_search_results"
+msgstr ""
+
 #. Search placeholder in followed library catalog
 msgid "directory_catalog_search"
 msgstr ""

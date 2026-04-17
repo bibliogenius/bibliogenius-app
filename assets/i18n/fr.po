@@ -5031,12 +5031,13 @@ msgstr "Permettre a vos followers de demander a emprunter vos livres via le hub"
 msgid "hub_borrowing_disabled"
 msgstr "Cette bibliotheque n'accepte pas les demandes d'emprunt"
 
-#. Hub - Coming soon toggle
+#. Hub - Online features master toggle (title)
 msgid "hub_coming_soon_toggle"
-msgstr "Annuaire public"
+msgstr "Fonctionnalités en ligne"
 
+#. Hub - Online features master toggle (subtitle)
 msgid "hub_coming_soon_desc"
-msgstr "Inscrivez votre bibliothèque dans l'annuaire public et découvrez d'autres lecteurs partout dans le monde."
+msgstr "Recevez les demandes de suivi et d'emprunt en temps réel, et débloquez les options de publication de votre bibliothèque dans l'annuaire public."
 
 #. Generic coming soon chip
 msgid "coming_soon_chip"
@@ -7762,6 +7763,10 @@ msgstr "Cette bibliothèque n'a encore partagé aucun livre."
 
 msgid "directory_catalog_isbn_count"
 msgstr "ISBN partagés"
+
+#. Filtered result count shown above the catalog grid while searching
+msgid "directory_catalog_search_results"
+msgstr "résultats"
 
 #. Search placeholder in followed library catalog
 msgid "directory_catalog_search"

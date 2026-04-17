@@ -5956,7 +5956,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       title: dco_decode_String(arr[1]),
       author: dco_decode_opt_String(arr[2]),
       coverUrl: dco_decode_opt_String(arr[3]),
-      firstSeenAt: dco_decode_opt_String(arr[4]),
+      addedAt: dco_decode_opt_String(arr[4]),
     );
   }
 
@@ -7242,13 +7242,13 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_title = sse_decode_String(deserializer);
     var var_author = sse_decode_opt_String(deserializer);
     var var_coverUrl = sse_decode_opt_String(deserializer);
-    var var_firstSeenAt = sse_decode_opt_String(deserializer);
+    var var_addedAt = sse_decode_opt_String(deserializer);
     return FrbCatalogEntry(
       isbn: var_isbn,
       title: var_title,
       author: var_author,
       coverUrl: var_coverUrl,
-      firstSeenAt: var_firstSeenAt,
+      addedAt: var_addedAt,
     );
   }
 
@@ -8948,7 +8948,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_String(self.title, serializer);
     sse_encode_opt_String(self.author, serializer);
     sse_encode_opt_String(self.coverUrl, serializer);
-    sse_encode_opt_String(self.firstSeenAt, serializer);
+    sse_encode_opt_String(self.addedAt, serializer);
   }
 
   @protected
