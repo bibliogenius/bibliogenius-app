@@ -173,9 +173,14 @@ class HubDirectoryProvider extends ChangeNotifier {
 
   void _onNudgeEvent(FrbNudgeEvent _) {
     if (!_hubEnabled || !isRegistered) return;
-    // Silently refresh the two lists that carry incoming actions.
+    // A hub nudge is generic — we cannot tell whether it was caused by an
+    // incoming follow request, an incoming borrow, or an update to our own
+    // follows (e.g. another library just approved our pending request). Refresh
+    // all three lightweight lists so every state transition surfaces without a
+    // manual pull-to-refresh. Each list is a single GET, cheap, idempotent.
     loadPendingRequests();
     _silentRefreshIncomingBorrow();
+    loadFollowing();
   }
 
   Future<void> _silentRefreshIncomingBorrow() async {
