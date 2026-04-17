@@ -1830,41 +1830,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             'Advanced settings',
                       ),
                       children: [
-                        // Requires approval toggle (disabled - coming soon)
+                        // Requires approval toggle: new followers need manual
+                        // approval before reading the catalog. Hub honors this
+                        // in DirectoryService::follow() (pending vs active).
                         SwitchListTile(
                           secondary: const Icon(Icons.how_to_reg),
-                          title: Row(
-                            children: [
-                              Flexible(
-                                child: Text(
-                                  TranslationService.translate(
-                                        context,
-                                        'directory_requires_approval_title',
-                                      ) ??
-                                      'Require approval for followers',
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 6, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color:
-                                      Colors.orange.withValues(alpha: 0.15),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Text(
-                                  TranslationService.translate(
-                                          context, 'coming_soon') ??
-                                      'Coming soon',
-                                  style: const TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.orange,
-                                  ),
-                                ),
-                              ),
-                            ],
+                          title: Text(
+                            TranslationService.translate(
+                                  context,
+                                  'directory_requires_approval_title',
+                                ) ??
+                                'Require approval for followers',
                           ),
                           subtitle: Text(
                             TranslationService.translate(
@@ -1874,43 +1850,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 'New followers need your approval before accessing your catalog',
                           ),
                           value: config?.requiresApproval ?? false,
-                          onChanged: null,
+                          onChanged: dirProvider.configLoading
+                              ? null
+                              : (value) => _updateDirectoryConfig(
+                                    context,
+                                    dirProvider,
+                                    requiresApproval: value,
+                                  ),
                         ),
-                        // Allow borrowing toggle (disabled - coming soon)
+                        // Allow borrowing toggle: hub-mediated loan requests.
+                        // Enforced server-side in DirectoryService::createBorrowRequest().
                         SwitchListTile(
                           secondary: const Icon(Icons.menu_book_outlined),
-                          title: Row(
-                            children: [
-                              Flexible(
-                                child: Text(
-                                  TranslationService.translate(
-                                        context,
-                                        'hub_allow_borrowing',
-                                      ) ??
-                                      'Allow borrowing requests',
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 6, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color:
-                                      Colors.orange.withValues(alpha: 0.15),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Text(
-                                  TranslationService.translate(
-                                          context, 'coming_soon') ??
-                                      'Coming soon',
-                                  style: const TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.orange,
-                                  ),
-                                ),
-                              ),
-                            ],
+                          title: Text(
+                            TranslationService.translate(
+                                  context,
+                                  'hub_allow_borrowing',
+                                ) ??
+                                'Allow borrowing requests',
                           ),
                           subtitle: Text(
                             TranslationService.translate(
@@ -1919,8 +1876,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 ) ??
                                 'Let your followers request to borrow your books via the hub',
                           ),
-                          value: false,
-                          onChanged: null,
+                          value: config?.allowBorrowing ?? false,
+                          onChanged: dirProvider.configLoading
+                              ? null
+                              : (value) => _updateDirectoryConfig(
+                                    context,
+                                    dirProvider,
+                                    allowBorrowing: value,
+                                  ),
                         ),
                         // accept_from selector removed (non-functional)
                       ],

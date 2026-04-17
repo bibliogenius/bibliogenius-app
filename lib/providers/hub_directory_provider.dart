@@ -998,14 +998,22 @@ class HubDirectoryProvider extends ChangeNotifier {
 
     final trimmedCountry = locationCountry?.trim();
 
+    // Privacy-first defaults for a FIRST publication (no existing config):
+    //   - requiresApproval = true   → catalog access is opt-in per follower
+    //   - allowBorrowing   = false  → no unsolicited physical-loan requests
+    // If the user has already configured the library (e.g. from Settings),
+    // preserve their choice instead of forcing the defaults back on.
+    final requiresApproval = _config?.requiresApproval ?? true;
+    final allowBorrowing = _config?.allowBorrowing ?? false;
+
     final ok = await register(
       nodeId: nodeId,
       displayName: displayName,
       bookCount: bookCount,
       isListed: true,
-      requiresApproval: _config?.requiresApproval ?? false,
+      requiresApproval: requiresApproval,
       acceptFrom: _config?.acceptFrom ?? 'everyone',
-      allowBorrowing: _config?.allowBorrowing ?? true,
+      allowBorrowing: allowBorrowing,
       locationCountry:
           (trimmedCountry != null && trimmedCountry.isNotEmpty)
               ? trimmedCountry

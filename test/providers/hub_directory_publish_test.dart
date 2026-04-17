@@ -138,6 +138,12 @@ void main() {
       expect(ffi.lastRegisterParams?.displayName, 'My Shiny Library');
       expect(ffi.lastRegisterParams?.locationCountry, 'FR');
       expect(ffi.lastRegisterParams?.relayUrl, 'wss://relay.example.com');
+      // Privacy-first defaults on first publish: followers need approval
+      // before reading the catalog, and physical-loan requests are opt-in.
+      expect(ffi.lastRegisterParams?.requiresApproval, true,
+          reason: 'first publish must require follower approval by default');
+      expect(ffi.lastRegisterParams?.allowBorrowing, false,
+          reason: 'first publish must NOT auto-accept borrow requests');
       expect(ffi.syncCatalogCallCount, 1,
           reason: 'catalog must be pushed on success so followers see books');
     });
