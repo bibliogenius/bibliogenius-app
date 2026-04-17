@@ -5829,14 +5829,6 @@ msgstr "Show My Code"
 msgid "showing_cached"
 msgstr "Showing cached"
 
-#. Simplified Mode
-msgid "simplified_mode"
-msgstr "Simplified Mode"
-
-#. Simplified interface for young readers
-msgid "simplified_mode_desc"
-msgstr "Simplified interface for young readers"
-
 #. Connection updated
 msgid "snack_connection_updated"
 msgstr "Connection updated"
@@ -8589,9 +8581,6 @@ msgid "recovery_code_scope_excludes"
 msgstr "Not recovered: your books (stored locally) and manually added peers (must be re-added)."
 
 # --- Inline help for Settings > Modules toggles (Phase 1) ---
-
-msgid "simplified_mode_help"
-msgstr "Enables a streamlined interface for young readers or people less comfortable with digital tools. Hides advanced options and favors large buttons."
 
 msgid "quotes_module_help"
 msgstr "Shows inspirational literary quotes on the home screen. Purely decorative: can be disabled without any functional impact."

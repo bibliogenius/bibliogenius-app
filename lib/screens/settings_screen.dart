@@ -732,7 +732,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
             // Modules accordion
             if (_sectionVisible([
-              'modules', 'simplified_mode', 'simplified_mode_desc',
+              'modules',
               'quotes_module', 'quotes_module_desc',
               'gamification_module', 'gamification_desc',
               'games_module', 'games_module_desc',
@@ -775,17 +775,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
                 children: [
-                // Simplified Mode toggle (coming soon)
-                _buildModuleToggle(
-                  context,
-                  'simplified_mode',
-                  'simplified_mode_desc',
-                  Icons.child_care,
-                  false,
-                  null,
-                  tag: TranslationService.translate(context, 'coming_soon'),
-                  helpTopicId: 'simplified_mode',
-                ),
                 _buildModuleToggle(
                   context,
                   'quotes_module',

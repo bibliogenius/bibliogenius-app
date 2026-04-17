@@ -5293,14 +5293,6 @@ msgstr "Mostra il mio codice"
 msgid "showing_cached"
 msgstr "Mostrando dati in cache"
 
-#. Simplified Mode
-msgid "simplified_mode"
-msgstr "Modalità semplificata"
-
-#. Simplified interface for young readers
-msgid "simplified_mode_desc"
-msgstr "Interfaccia semplificata per giovani lettori"
-
 #. Connection updated
 msgid "snack_connection_updated"
 msgstr "Connessione aggiornata"
@@ -7003,9 +6995,6 @@ msgid "library_of_device"
 msgstr "Biblioteca di %s"
 
 # --- Inline help for Settings > Modules toggles (Phase 1) ---
-
-msgid "simplified_mode_help"
-msgstr "Attiva un'interfaccia semplificata, adatta a giovani lettori o persone poco a loro agio con il digitale. Nasconde le opzioni avanzate e privilegia i pulsanti grandi."
 
 msgid "quotes_module_help"
 msgstr "Mostra citazioni letterarie ispiratrici nella schermata iniziale. Puramente decorativo: può essere disattivato senza impatto sulle funzionalità."

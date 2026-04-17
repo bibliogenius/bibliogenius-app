@@ -307,13 +307,6 @@ class HelpRegistry {
       // sheet when the user taps the "?" next to a module toggle.
       _GatedTopic(
         topic: HelpTopic.inline(
-          id: 'simplified_mode',
-          titleKey: 'simplified_mode',
-          descKey: 'simplified_mode_help',
-        ),
-      ),
-      _GatedTopic(
-        topic: HelpTopic.inline(
           id: 'quotes_module',
           titleKey: 'quotes_module',
           descKey: 'quotes_module_help',

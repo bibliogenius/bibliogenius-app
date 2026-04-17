@@ -4995,14 +4995,6 @@ msgstr "Kodumu Göster"
 msgid "showing_cached"
 msgstr "Önbelleğe alınanlar gösteriliyor"
 
-#. Simplified Mode
-msgid "simplified_mode"
-msgstr "Basitleştirilmiş Mod"
-
-#. Simplified interface for young readers
-msgid "simplified_mode_desc"
-msgstr "Genç okurlar için basitleştirilmiş arayüz"
-
 #. Connection updated
 msgid "snack_connection_updated"
 msgstr "Bağlantı güncellendi"

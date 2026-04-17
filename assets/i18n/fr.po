@@ -5829,14 +5829,6 @@ msgstr "Afficher mon code"
 msgid "showing_cached"
 msgstr "Affichage en cache"
 
-#. Simplified Mode
-msgid "simplified_mode"
-msgstr "Mode simplifié"
-
-#. Simplified interface for young readers
-msgid "simplified_mode_desc"
-msgstr "Interface allégée pour les jeunes lecteurs"
-
 #. Connection updated
 msgid "snack_connection_updated"
 msgstr "Connexion mise à jour"
@@ -8589,9 +8581,6 @@ msgid "recovery_code_scope_excludes"
 msgstr "Non recupere : vos livres (stockes localement) et les pairs ajoutes manuellement (a reintroduire)."
 
 # --- Inline help for Settings > Modules toggles (Phase 1) ---
-
-msgid "simplified_mode_help"
-msgstr "Active une interface épurée, adaptée aux jeunes lecteurs ou aux personnes peu à l'aise avec le numérique. Masque les options avancées et privilégie les grands boutons."
 
 msgid "quotes_module_help"
 msgstr "Affiche des citations littéraires inspirantes sur l'écran d'accueil. Purement décoratif : peut être désactivé sans impact sur les fonctionnalités."

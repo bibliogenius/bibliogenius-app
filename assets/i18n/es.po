@@ -5134,14 +5134,6 @@ msgstr "Mostrar mi código"
 msgid "showing_cached"
 msgstr "Mostrando datos en caché"
 
-#. Simplified Mode
-msgid "simplified_mode"
-msgstr "Modo simplificado"
-
-#. Simplified interface for young readers
-msgid "simplified_mode_desc"
-msgstr "Interfaz simplificada para niños"
-
 #. Connection updated
 msgid "snack_connection_updated"
 msgstr "Conexión actualizada"
@@ -8353,9 +8345,6 @@ msgid "tooltip_edit_note"
 msgstr "Modificar la nota"
 
 # --- Inline help for Settings > Modules toggles (Phase 1) ---
-
-msgid "simplified_mode_help"
-msgstr "Activa una interfaz simplificada, adaptada a lectores jóvenes o personas poco familiarizadas con lo digital. Oculta las opciones avanzadas y prioriza los botones grandes."
 
 msgid "quotes_module_help"
 msgstr "Muestra citas literarias inspiradoras en la pantalla de inicio. Puramente decorativo: se puede desactivar sin impacto en las funcionalidades."

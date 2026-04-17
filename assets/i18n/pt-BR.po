@@ -4933,14 +4933,6 @@ msgstr "Mostrar Meu Código"
 msgid "showing_cached"
 msgstr "Mostrando cache"
 
-#. Simplified Mode
-msgid "simplified_mode"
-msgstr "Modo Simplificado"
-
-#. Simplified interface for young readers
-msgid "simplified_mode_desc"
-msgstr "Interface simplificada para leitores jovens"
-
 #. Connection updated
 msgid "snack_connection_updated"
 msgstr "Conexão atualizada"

@@ -4929,14 +4929,6 @@ msgstr "Покажи моя код"
 msgid "showing_cached"
 msgstr "Показване на кешираното"
 
-#. Simplified Mode
-msgid "simplified_mode"
-msgstr "Опростен режим"
-
-#. Simplified interface for young readers
-msgid "simplified_mode_desc"
-msgstr "Опростен интерфейс за млади читатели"
-
 #. Connection updated
 msgid "snack_connection_updated"
 msgstr "Връзката е актуализирана"

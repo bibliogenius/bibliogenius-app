@@ -5716,14 +5716,6 @@ msgstr ""
 msgid "showing_cached"
 msgstr ""
 
-#. Simplified Mode
-msgid "simplified_mode"
-msgstr ""
-
-#. Simplified interface for young readers
-msgid "simplified_mode_desc"
-msgstr ""
-
 #. Connection updated
 msgid "snack_connection_updated"
 msgstr ""

@@ -5134,14 +5134,6 @@ msgstr "Meinen Code anzeigen"
 msgid "showing_cached"
 msgstr "Zwischengespeicherte Daten werden angezeigt"
 
-#. Simplified Mode
-msgid "simplified_mode"
-msgstr "Vereinfachter Modus"
-
-#. Simplified interface for young readers
-msgid "simplified_mode_desc"
-msgstr "Vereinfachte Oberfläche für Kinder"
-
 #. Connection updated
 msgid "snack_connection_updated"
 msgstr "Verbindung aktualisiert"
@@ -8353,9 +8345,6 @@ msgid "tooltip_edit_note"
 msgstr "Notiz bearbeiten"
 
 # --- Inline help for Settings > Modules toggles (Phase 1) ---
-
-msgid "simplified_mode_help"
-msgstr "Aktiviert eine vereinfachte Oberfläche für junge Leser oder Personen, die mit digitalen Werkzeugen weniger vertraut sind. Versteckt erweiterte Optionen und bevorzugt große Schaltflächen."
 
 msgid "quotes_module_help"
 msgstr "Zeigt inspirierende literarische Zitate auf dem Startbildschirm an. Rein dekorativ: kann ohne Auswirkungen auf die Funktionalität deaktiviert werden."
