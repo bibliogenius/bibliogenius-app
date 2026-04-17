@@ -2545,11 +2545,17 @@ class _DiscoverCard extends StatelessWidget {
     final name = profile.displayName;
     final bookCount = profile.bookCount;
     final isOwn = _isOwnLibrary(provider);
+    // True when this library has sent us a pending follow request. Surfaced
+    // as a small chip inside the card so the user can spot from Discover
+    // that the badge-count on My Network maps to this specific library.
+    final hasIncomingRequest = !isOwn &&
+        provider.hasIncomingFollowRequestFrom(profile.nodeId);
 
     return Semantics(
       button: true,
       label: '$name, $bookCount ${TranslationService.translate(context, 'directory_books')}'
-          '${isOwn ? ', ${TranslationService.translate(context, 'directory_your_library')}' : ''}',
+          '${isOwn ? ', ${TranslationService.translate(context, 'directory_your_library')}' : ''}'
+          '${hasIncomingRequest ? ', ${TranslationService.translate(context, 'directory_wants_to_follow_you')}' : ''}',
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
         decoration: BoxDecoration(
@@ -2695,6 +2701,42 @@ class _DiscoverCard extends StatelessWidget {
                     ],
                   ],
                 ),
+                // Incoming follow request marker: this library is waiting for
+                // our approval. Placed above the description so the user sees
+                // the request context before any library-provided blurb.
+                if (hasIncomingRequest) ...[
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: cs.secondaryContainer.withValues(alpha: 0.7),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.person_add_alt_1,
+                          size: 13,
+                          color: cs.onSecondaryContainer,
+                        ),
+                        const SizedBox(width: 5),
+                        Flexible(
+                          child: Text(
+                            TranslationService.translate(
+                                context, 'directory_wants_to_follow_you'),
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: cs.onSecondaryContainer,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
                 // Description
                 if (profile.description != null &&
                     profile.description!.isNotEmpty) ...[

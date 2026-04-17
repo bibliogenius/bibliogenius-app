@@ -7567,6 +7567,9 @@ msgstr "Buscar un titulo, autor o ISBN..."
 msgid "directory_your_library"
 msgstr "Tu biblioteca"
 
+msgid "directory_wants_to_follow_you"
+msgstr "Quiere seguirte"
+
 #. Description for fastest read insight
 msgid "fastest_read_desc"
 msgstr "Libro terminado en el menor tiempo"

@@ -2154,6 +2154,14 @@ class ApiService {
     }
   }
 
+  // Log-if-changed state: getPeers / getPendingPeers are polled aggressively
+  // (30s timer + every relay nudge + cascading refreshes). Logging on every
+  // call drowns real events; we only emit when the observed counts actually
+  // change. Static fields are fine because the polling is single-threaded.
+  static int _lastGetPeersLoggedCount = -1;
+  static int _lastGetPendingPendingLogged = -1;
+  static int _lastGetPendingTotalLogged = -1;
+
   // P2P Advanced
   Future<Response> getPeers() async {
     if (useFfi) {
@@ -2167,7 +2175,11 @@ class ApiService {
           ),
         );
         final response = await localDio.get('/api/peers');
-        debugPrint('✅ getPeers: ${(response.data as Map)['data']?.length ?? 0} peers');
+        final count = (response.data as Map)['data']?.length ?? 0;
+        if (count != _lastGetPeersLoggedCount) {
+          _lastGetPeersLoggedCount = count;
+          debugPrint('✅ getPeers: $count peers');
+        }
         return response;
       } catch (e) {
         // Expected timeout in FFI mode (no local HTTP server)
@@ -2977,13 +2989,18 @@ class ApiService {
                 return peer;
               })
               .toList();
-          debugPrint(
-            '📋 getPendingPeers: Found ${pendingPeers.length} pending from ${allPeers.length} total',
-          );
-          for (var p in pendingPeers) {
+          if (pendingPeers.length != _lastGetPendingPendingLogged ||
+              allPeers.length != _lastGetPendingTotalLogged) {
+            _lastGetPendingPendingLogged = pendingPeers.length;
+            _lastGetPendingTotalLogged = allPeers.length;
             debugPrint(
-              '  📚 Peer: id=${p['id']}, name="${p['name']}", url=${p['url']}, auto_approve=${p['auto_approve']}',
+              '📋 getPendingPeers: Found ${pendingPeers.length} pending from ${allPeers.length} total',
             );
+            for (var p in pendingPeers) {
+              debugPrint(
+                '  📚 Peer: id=${p['id']}, name="${p['name']}", url=${p['url']}, auto_approve=${p['auto_approve']}',
+              );
+            }
           }
           return Response(
             requestOptions: RequestOptions(path: '/api/peers'),

@@ -7685,6 +7685,10 @@ msgstr "livres"
 msgid "directory_your_library"
 msgstr "Votre bibliothèque"
 
+#. Marqueur sur une carte Annuaire quand cette bibliothèque a envoyé une demande de suivi en attente
+msgid "directory_wants_to_follow_you"
+msgstr "Veut vous suivre"
+
 msgid "directory_follow"
 msgstr "Suivre"
 

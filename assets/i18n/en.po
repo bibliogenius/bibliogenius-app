@@ -7685,6 +7685,10 @@ msgstr "books"
 msgid "directory_your_library"
 msgstr "Your library"
 
+#. Marker on a Discover card when that library has sent us a pending follow request
+msgid "directory_wants_to_follow_you"
+msgstr "Wants to follow you"
+
 msgid "directory_follow"
 msgstr "Follow"
 

@@ -1480,6 +1480,13 @@ class HubDirectoryProvider extends ChangeNotifier {
     }
   }
 
+  /// True when [nodeId] has an incoming pending follow request to us
+  /// (= this library is waiting for our approval). Used by the Discover
+  /// tab to surface a "wants to follow you" marker on their card.
+  bool hasIncomingFollowRequestFrom(String nodeId) {
+    return _pendingRequests.any((f) => f.followerNodeId == nodeId);
+  }
+
   /// Resolves a node ID to a display name.
   /// Priority: user custom name > name cache > directory profiles.
   String? displayNameFor(String nodeId) {
