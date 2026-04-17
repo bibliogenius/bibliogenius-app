@@ -2797,8 +2797,9 @@ class _DiscoverCard extends StatelessWidget {
       color: const Color(0xFF3A7186),
       isDark: isDark,
       onPressed: () async {
-        await provider.follow(profile.nodeId);
-        if (context.mounted && provider.actionError != null) {
+        final ok = await provider.follow(profile.nodeId);
+        if (!context.mounted) return;
+        if (!ok || provider.actionError != null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
@@ -2806,9 +2807,27 @@ class _DiscoverCard extends StatelessWidget {
                   context, 'directory_follow_error',
                 ),
               ),
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
+          return;
         }
+        // Success: confirm to the user. Without this, a follow that
+        // requires approval silently switches the chip to "awaiting" —
+        // some users perceive it as a missed tap and retry.
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              TranslationService.translate(
+                context,
+                profile.requiresApproval
+                    ? 'directory_follow_request_sent'
+                    : 'directory_follow_success',
+              ),
+            ),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
       },
     );
   }

@@ -4119,7 +4119,7 @@ msgstr "Par desconectado"
 
 #. Offline Library Cache
 msgid "peer_offline_caching"
-msgstr "Caché de par desconectado"
+msgstr "Caché de bibliotecas sin conexión"
 
 #. Cache contact libraries locally for offline viewing. Their book list will be stored on your device.
 msgid "peer_offline_caching_desc"
@@ -6419,6 +6419,12 @@ msgstr "Seguir"
 msgid "directory_follow_error"
 msgstr "No se pudo seguir esta biblioteca. Intentalo de nuevo."
 
+msgid "directory_follow_request_sent"
+msgstr "Solicitud enviada. Veras el catalogo cuando la acepten."
+
+msgid "directory_follow_success"
+msgstr "Ahora sigues esta biblioteca."
+
 msgid "directory_following"
 msgstr "Siguiendo"
 
@@ -6975,7 +6981,7 @@ msgid "relay_hub_title"
 msgstr "Hub Relay"
 
 msgid "relay_url_label"
-msgstr "URL del hub"
+msgstr "URL del servidor remoto"
 
 msgid "remove_from_collection"
 msgstr "Quitar de la coleccion"

@@ -1070,8 +1070,9 @@ class _NotFollowingState extends StatelessWidget {
             const SizedBox(height: 16),
             FilledButton.icon(
               onPressed: () async {
-                await provider.follow(nodeId);
-                if (context.mounted && provider.actionError != null) {
+                final ok = await provider.follow(nodeId);
+                if (!context.mounted) return;
+                if (!ok || provider.actionError != null) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
@@ -1079,9 +1080,28 @@ class _NotFollowingState extends StatelessWidget {
                           context, 'directory_follow_error',
                         ),
                       ),
+                      backgroundColor: Theme.of(context).colorScheme.error,
                     ),
                   );
+                  return;
                 }
+                // Success: surface explicit confirmation. With approval,
+                // the catalog body will swap to the pending state as the
+                // refreshed follows list arrives — the snackbar bridges
+                // the gap so the user knows their tap landed.
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      TranslationService.translate(
+                        context,
+                        requiresApproval
+                            ? 'directory_follow_request_sent'
+                            : 'directory_follow_success',
+                      ),
+                    ),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
               },
               icon: const Icon(Icons.add),
               label: Text(

@@ -4404,7 +4404,7 @@ msgstr "Connectez-vous au même Wi-Fi ou attendez que cette bibliothèque soit e
 
 #. Offline Library Cache
 msgid "peer_offline_caching"
-msgstr "Cache hors ligne"
+msgstr "Cache hors ligne des bibliothèques"
 
 #. Cache contact libraries locally for offline viewing. Their book list will be stored on your device.
 msgid "peer_offline_caching_desc"
@@ -5205,9 +5205,9 @@ msgstr "Connecté"
 msgid "relay_disconnected"
 msgstr "Non connecté"
 
-#. Hub URL label
+#. Remote server URL label
 msgid "relay_url_label"
-msgstr "URL du hub"
+msgstr "URL du serveur distant"
 
 #. Retry
 msgid "retry"
@@ -7685,6 +7685,14 @@ msgstr "Vous n'aurez plus accès aux livres partagés de cette bibliothèque."
 msgid "directory_follow_error"
 msgstr "Impossible de suivre cette bibliothèque. Veuillez réessayer."
 
+#. Snackbar après envoi d'une demande de suivi (bibliothèque nécessitant approbation)
+msgid "directory_follow_request_sent"
+msgstr "Demande envoyée. Vous accéderez au catalogue dès qu'elle sera acceptée."
+
+#. Snackbar après un suivi auto-approuvé
+msgid "directory_follow_success"
+msgstr "Vous suivez maintenant cette bibliothèque."
+
 msgid "directory_approve"
 msgstr "Approuver"
 
@@ -8681,3 +8689,31 @@ msgstr "Derniers ajouts — peers"
 
 msgid "carousel_peer_lib_desc"
 msgstr "Affiche un carrousel en haut des bibliothèques des peers avec leurs livres récents."
+
+#. Save order (shelf reorder mode)
+msgid "save_shelf_order"
+msgstr "Enregistrer l'ordre"
+
+#. Reorder shelf
+msgid "reorder_shelf"
+msgstr "Réordonner l'étagère"
+
+#. Open in browser
+msgid "open_in_browser"
+msgstr "Ouvrir dans le navigateur"
+
+#. Playback speed
+msgid "playback_speed"
+msgstr "Vitesse de lecture"
+
+#. Search online
+msgid "search_online"
+msgstr "Recherche en ligne"
+
+#. Decrease by 1
+msgid "decrease_by_one"
+msgstr "Diminuer de 1"
+
+#. Increase by 1
+msgid "increase_by_one"
+msgstr "Augmenter de 1"

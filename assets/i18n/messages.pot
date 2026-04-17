@@ -7552,6 +7552,14 @@ msgstr ""
 msgid "directory_follow_error"
 msgstr ""
 
+#. Snackbar after a follow request is sent to a library that requires approval
+msgid "directory_follow_request_sent"
+msgstr ""
+
+#. Snackbar after an auto-approved follow (no approval required)
+msgid "directory_follow_success"
+msgstr ""
+
 msgid "directory_approve"
 msgstr ""
 
