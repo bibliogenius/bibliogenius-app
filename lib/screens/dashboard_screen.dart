@@ -661,7 +661,7 @@ class _DashboardScreenState extends State<DashboardScreen>
 
                     // Games section (grouped)
                     if (!isKid && themeProvider.gamesEnabled &&
-                        (themeProvider.memoryGameEnabled || themeProvider.slidingPuzzleEnabled))
+                        (themeProvider.memoryGameEnabled || themeProvider.slidingPuzzleEnabled || themeProvider.hangmanEnabled))
                       _buildGamesSection(context, themeProvider),
 
                     const SizedBox(height: 24),
@@ -739,6 +739,8 @@ class _DashboardScreenState extends State<DashboardScreen>
             _buildMemoryGameCard(context),
           if (themeProvider.slidingPuzzleEnabled)
             _buildSlidingPuzzleCard(context),
+          if (themeProvider.hangmanEnabled)
+            _buildHangmanCard(context),
         ],
       ),
     );
@@ -855,6 +857,71 @@ class _DashboardScreenState extends State<DashboardScreen>
                       Text(
                         TranslationService.translate(
                             context, 'sliding_puzzle_dashboard_subtitle'),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  Icons.chevron_right,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHangmanCard(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Card(
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(
+            color: theme.colorScheme.primary.withValues(alpha: 0.2),
+          ),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () => context.push('/hangman'),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    Icons.text_fields,
+                    color: theme.colorScheme.primary,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        TranslationService.translate(
+                            context, 'hangman_title'),
+                        style: theme.textTheme.titleSmall,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        TranslationService.translate(
+                            context, 'hangman_dashboard_subtitle'),
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
