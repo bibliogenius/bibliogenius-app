@@ -1609,6 +1609,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     onPressed: _relayLoading
                         ? null
                         : () async {
+                            final confirmed = await _confirmDestructiveAction(
+                              context,
+                              titleKey: 'confirm_remote_disconnect_title',
+                              titleFallback: 'Disconnect remote server?',
+                              bodyKey: 'confirm_remote_disconnect_body',
+                              bodyFallback:
+                                  'Your invited contacts will no longer reach you outside your local network.',
+                              actionKey: 'confirm_remote_disconnect_action',
+                              actionFallback: 'Disconnect',
+                            );
+                            if (!confirmed) return;
                             setState(() => _relayLoading = true);
                             try {
                               await api.disconnectRelay();
@@ -1937,6 +1948,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
     HubDirectoryProvider dirProvider,
     bool newValue,
   ) async {
+    if (!newValue) {
+      final confirmed = await _confirmDestructiveAction(
+        context,
+        titleKey: 'confirm_directory_unlist_title',
+        titleFallback: 'Leave the public directory?',
+        bodyKey: 'confirm_directory_unlist_body',
+        bodyFallback:
+            'Other libraries will no longer be able to discover you. Existing followers stay active.',
+        actionKey: 'confirm_directory_unlist_action',
+        actionFallback: 'Leave directory',
+      );
+      if (!confirmed) return;
+    }
+
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     final authService = Provider.of<AuthService>(context, listen: false);
     final libraryName =
@@ -1996,6 +2021,54 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       );
     }
+  }
+
+  Future<bool> _confirmDestructiveAction(
+    BuildContext context, {
+    required String titleKey,
+    required String titleFallback,
+    required String bodyKey,
+    required String bodyFallback,
+    required String actionKey,
+    required String actionFallback,
+  }) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        final theme = Theme.of(dialogContext);
+        return AlertDialog(
+          title: Text(
+            TranslationService.translate(dialogContext, titleKey) ??
+                titleFallback,
+          ),
+          content: Text(
+            TranslationService.translate(dialogContext, bodyKey) ??
+                bodyFallback,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text(
+                TranslationService.translate(dialogContext, 'cancel') ??
+                    'Cancel',
+              ),
+            ),
+            FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: theme.colorScheme.error,
+                foregroundColor: theme.colorScheme.onError,
+              ),
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: Text(
+                TranslationService.translate(dialogContext, actionKey) ??
+                    actionFallback,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+    return result ?? false;
   }
 
   Future<void> _updateDirectoryConfig(

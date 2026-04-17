@@ -1016,9 +1016,33 @@ msgstr "Ödünç almayı onayla"
 msgid "confirm_delete"
 msgstr "Silmeyi Onayla"
 
+#. Confirm button label to leave the public directory
+msgid "confirm_directory_unlist_action"
+msgstr "Rehberden çık"
+
+#. Body of the confirmation dialog when leaving the public directory
+msgid "confirm_directory_unlist_body"
+msgstr "Diğer kütüphaneler sizi artık bulamayacak. Mevcut takipçiler aktif kalır."
+
+#. Title of the confirmation dialog when leaving the public directory
+msgid "confirm_directory_unlist_title"
+msgstr "Genel rehberden çıkılsın mı?"
+
 #. Confirm Password
 msgid "confirm_password"
 msgstr "Şifreyi Onayla"
+
+#. Confirm button label to disconnect from the remote server
+msgid "confirm_remote_disconnect_action"
+msgstr "Bağlantıyı kes"
+
+#. Body of the confirmation dialog when disconnecting from the remote server
+msgid "confirm_remote_disconnect_body"
+msgstr "Davetli kişileriniz artık yerel ağınızın dışından size ulaşamayacak."
+
+#. Title of the confirmation dialog when disconnecting from the remote server
+msgid "confirm_remote_disconnect_title"
+msgstr "Uzak sunucu bağlantısı kesilsin mi?"
 
 #. Mark this book as returned to the lender?
 msgid "confirm_return_borrowed"

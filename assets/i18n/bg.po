@@ -976,9 +976,33 @@ msgstr "Потвърждаване на заемане"
 msgid "confirm_delete"
 msgstr "Потвърждаване на изтриване"
 
+#. Confirm button label to leave the public directory
+msgid "confirm_directory_unlist_action"
+msgstr "Напусни каталога"
+
+#. Body of the confirmation dialog when leaving the public directory
+msgid "confirm_directory_unlist_body"
+msgstr "Други библиотеки няма да могат да ви откриват. Съществуващите последователи остават активни."
+
+#. Title of the confirmation dialog when leaving the public directory
+msgid "confirm_directory_unlist_title"
+msgstr "Напускане на публичния каталог?"
+
 #. Confirm Password
 msgid "confirm_password"
 msgstr "Потвърждаване на парола"
+
+#. Confirm button label to disconnect from the remote server
+msgid "confirm_remote_disconnect_action"
+msgstr "Прекъсни връзката"
+
+#. Body of the confirmation dialog when disconnecting from the remote server
+msgid "confirm_remote_disconnect_body"
+msgstr "Вашите поканени контакти няма да могат да се свързват с вас извън локалната мрежа."
+
+#. Title of the confirmation dialog when disconnecting from the remote server
+msgid "confirm_remote_disconnect_title"
+msgstr "Прекъсване на връзката с отдалечения сървър?"
 
 #. Mark this book as returned to the lender?
 msgid "confirm_return_borrowed"

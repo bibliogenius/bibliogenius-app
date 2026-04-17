@@ -1052,9 +1052,33 @@ msgstr "Confirmar préstamo"
 msgid "confirm_delete"
 msgstr "Confirmar eliminación"
 
+#. Confirm button label to leave the public directory
+msgid "confirm_directory_unlist_action"
+msgstr "Salir del directorio"
+
+#. Body of the confirmation dialog when leaving the public directory
+msgid "confirm_directory_unlist_body"
+msgstr "Otras bibliotecas ya no podrán descubrirte. Los seguidores existentes siguen activos."
+
+#. Title of the confirmation dialog when leaving the public directory
+msgid "confirm_directory_unlist_title"
+msgstr "¿Salir del directorio público?"
+
 #. Confirm Password
 msgid "confirm_password"
 msgstr "Confirmar contraseña"
+
+#. Confirm button label to disconnect from the remote server
+msgid "confirm_remote_disconnect_action"
+msgstr "Desconectar"
+
+#. Body of the confirmation dialog when disconnecting from the remote server
+msgid "confirm_remote_disconnect_body"
+msgstr "Tus contactos invitados ya no podrán contactarte fuera de tu red local."
+
+#. Title of the confirmation dialog when disconnecting from the remote server
+msgid "confirm_remote_disconnect_title"
+msgstr "¿Desconectar del servidor remoto?"
 
 #. Mark this book as returned to the lender?
 msgid "confirm_return_borrowed"
