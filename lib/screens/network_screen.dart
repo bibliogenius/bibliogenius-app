@@ -3050,7 +3050,10 @@ class _LibraryRelationCard extends StatelessWidget {
                           relation.caption!,
                           style: TextStyle(
                             fontSize: 11,
-                            color: Theme.of(context).colorScheme.outline,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withValues(alpha: 0.6),
                             fontStyle: FontStyle.italic,
                           ),
                           maxLines: 1,

@@ -196,6 +196,7 @@ class _SearchRow extends StatelessWidget {
                 hintText:
                     TranslationService.translate(context, 'search_books'),
                 hintStyle: const TextStyle(color: Colors.white70),
+                filled: false,
                 border: InputBorder.none,
                 enabledBorder: InputBorder.none,
                 focusedBorder: InputBorder.none,
