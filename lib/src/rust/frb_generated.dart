@@ -5870,8 +5870,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   FrbBook dco_decode_frb_book(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 23)
-      throw Exception('unexpected arr length: expect 23 but see ${arr.length}');
+    if (arr.length != 24)
+      throw Exception('unexpected arr length: expect 24 but see ${arr.length}');
     return FrbBook(
       id: dco_decode_opt_box_autoadd_i_32(arr[0]),
       title: dco_decode_String(arr[1]),
@@ -5896,6 +5896,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       private: dco_decode_bool(arr[20]),
       pageCount: dco_decode_opt_box_autoadd_i_32(arr[21]),
       addedAt: dco_decode_opt_String(arr[22]),
+      hubCoverUploadFailedAt: dco_decode_opt_String(arr[23]),
     );
   }
 
@@ -7153,6 +7154,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_private = sse_decode_bool(deserializer);
     var var_pageCount = sse_decode_opt_box_autoadd_i_32(deserializer);
     var var_addedAt = sse_decode_opt_String(deserializer);
+    var var_hubCoverUploadFailedAt = sse_decode_opt_String(deserializer);
     return FrbBook(
       id: var_id,
       title: var_title,
@@ -7177,6 +7179,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       private: var_private,
       pageCount: var_pageCount,
       addedAt: var_addedAt,
+      hubCoverUploadFailedAt: var_hubCoverUploadFailedAt,
     );
   }
 
@@ -8899,6 +8902,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_bool(self.private, serializer);
     sse_encode_opt_box_autoadd_i_32(self.pageCount, serializer);
     sse_encode_opt_String(self.addedAt, serializer);
+    sse_encode_opt_String(self.hubCoverUploadFailedAt, serializer);
   }
 
   @protected

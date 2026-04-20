@@ -810,6 +810,35 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     return colors[hash.abs() % colors.length];
   }
 
+  Widget _buildCoverUploadWarningBadge(BuildContext context) {
+    final label = TranslationService.translate(
+      context,
+      'cover_upload_pending_tooltip',
+    );
+    return Positioned(
+      top: 8,
+      right: 8,
+      child: Semantics(
+        label: label,
+        child: Tooltip(
+          message: label,
+          child: Container(
+            padding: const EdgeInsets.all(4),
+            decoration: const BoxDecoration(
+              color: Colors.black54,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.warning_amber,
+              size: 20,
+              color: Theme.of(context).colorScheme.error,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildFallbackCover(Book book) {
     final color = _generateRandomColor(
       book.title + (book.id?.toString() ?? ''),
@@ -923,40 +952,54 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                 onTap: () => _showCoverOptions(context, book),
                 child: Hero(
                   tag: 'book_cover_${book.id}',
-                child: Container(
+                child: SizedBox(
                   width: 200,
                   height: 300,
-                  decoration: BoxDecoration(
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.4),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
-                      ),
-                    ],
-                    borderRadius: BorderRadius.circular(
-                      8,
-                    ), // Book-like rounded corners
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        // Fallback always at bottom
-                        _buildFallbackCover(book),
-                        // Image on top
-                        if (coverUrl != null && coverUrl.isNotEmpty)
-                          CachedBookCover(
-                            key: ValueKey('hero_$_coverVersion'),
-                            imageUrl: coverUrl,
-                            fit: BoxFit.cover,
-                            placeholder: const SizedBox.shrink(),
-                            errorWidget: const SizedBox.shrink(),
-                            semanticLabel: book.title,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Container(
+                        width: 200,
+                        height: 300,
+                        decoration: BoxDecoration(
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.4),
+                              blurRadius: 20,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
+                          borderRadius: BorderRadius.circular(
+                            8,
+                          ), // Book-like rounded corners
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              // Fallback always at bottom
+                              _buildFallbackCover(book),
+                              // Image on top
+                              if (coverUrl != null && coverUrl.isNotEmpty)
+                                CachedBookCover(
+                                  key: ValueKey('hero_$_coverVersion'),
+                                  imageUrl: coverUrl,
+                                  fit: BoxFit.cover,
+                                  placeholder: const SizedBox.shrink(),
+                                  errorWidget: const SizedBox.shrink(),
+                                  semanticLabel: book.title,
+                                ),
+                            ],
                           ),
-                      ],
-                    ),
+                        ),
+                      ),
+                      // Owner-only badge: surfaces a pending hub cover upload
+                      // failure so the user knows peers may still see the
+                      // stale / fallback cover until the next sync retries.
+                      if (book.hubCoverUploadFailedAt != null)
+                        _buildCoverUploadWarningBadge(context),
+                    ],
                   ),
                 ),
               ),

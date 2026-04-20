@@ -8805,3 +8805,7 @@ msgstr "Send message"
 #. Search peers
 msgid "tooltip_search_peer"
 msgstr "Search"
+
+#. Tooltip shown on the owner's book-details screen when a cover upload to the hub has failed and a retry is pending on the next sync.
+msgid "cover_upload_pending_tooltip"
+msgstr "Cover not synchronized. A new attempt will run on next refresh."

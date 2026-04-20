@@ -8805,3 +8805,7 @@ msgstr "Envoyer le message"
 #. Search peers
 msgid "tooltip_search_peer"
 msgstr "Rechercher"
+
+#. Tooltip affiche sur la fiche livre du proprietaire quand l'upload d'une couverture vers le hub a echoue et qu'une nouvelle tentative aura lieu au prochain sync.
+msgid "cover_upload_pending_tooltip"
+msgstr "Couverture non synchronisée. Nouvelle tentative au prochain rafraîchissement."

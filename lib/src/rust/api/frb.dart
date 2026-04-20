@@ -1158,6 +1158,7 @@ sealed class FrbBook with _$FrbBook {
     required bool private,
     int? pageCount,
     String? addedAt,
+    String? hubCoverUploadFailedAt,
   }) = _FrbBook;
 }
 

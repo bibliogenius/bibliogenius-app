@@ -26,6 +26,11 @@ class Book {
   /// editorial metadata broadcast by the owner, so every viewer agrees on
   /// which books are recent.
   final DateTime? addedAt;
+  /// Timestamp of the last failed hub cover upload for this book. Null when
+  /// the most recent attempt succeeded or none ever ran. Present only on the
+  /// owner's device (redacted from peer-facing responses): the UI surfaces
+  /// a warning badge on the book-details screen while a retry pends.
+  final DateTime? hubCoverUploadFailedAt;
 
   Book({
     this.id,
@@ -49,6 +54,7 @@ class Book {
     this.private = false,
     this.pageCount,
     this.addedAt,
+    this.hubCoverUploadFailedAt,
   }) : _coverUrl = coverUrl;
 
   factory Book.fromJson(Map<String, dynamic> json) {
@@ -92,6 +98,9 @@ class Book {
       addedAt: json['added_at'] != null
           ? DateTime.tryParse(json['added_at'])
           : null,
+      hubCoverUploadFailedAt: json['hub_cover_upload_failed_at'] != null
+          ? DateTime.tryParse(json['hub_cover_upload_failed_at'])
+          : null,
     );
   }
 
@@ -119,6 +128,7 @@ class Book {
       'private': private,
       'page_count': pageCount,
       'added_at': addedAt?.toIso8601String(),
+      'hub_cover_upload_failed_at': hubCoverUploadFailedAt?.toIso8601String(),
       'created_at': now,
       'updated_at': now,
     };
@@ -158,6 +168,7 @@ class Book {
       private: private,
       pageCount: pageCount,
       addedAt: addedAt,
+      hubCoverUploadFailedAt: hubCoverUploadFailedAt,
     );
   }
 
@@ -207,6 +218,7 @@ class Book {
       private: private,
       pageCount: pageCount,
       addedAt: addedAt,
+      hubCoverUploadFailedAt: hubCoverUploadFailedAt,
     );
   }
 

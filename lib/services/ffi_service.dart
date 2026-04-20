@@ -583,6 +583,9 @@ class FfiService {
       private: fb.private,
       pageCount: fb.pageCount,
       addedAt: fb.addedAt != null ? DateTime.tryParse(fb.addedAt!) : null,
+      hubCoverUploadFailedAt: fb.hubCoverUploadFailedAt != null
+          ? DateTime.tryParse(fb.hubCoverUploadFailedAt!)
+          : null,
     );
   }
 
