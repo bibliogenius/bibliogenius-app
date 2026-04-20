@@ -1,4 +1,5 @@
 import '../utils/app_constants.dart';
+import '../utils/cover_url_resolver.dart';
 
 class Book {
   final int? id;
@@ -172,24 +173,21 @@ class Book {
     );
   }
 
-  String? get coverUrl {
-    if (_coverUrl != null && _coverUrl.isNotEmpty) return _coverUrl;
-    if (isbn != null && isbn!.isNotEmpty) {
-      // `default=false` makes OpenLibrary return 404 for unknown/malformed
-      // ISBNs instead of a 1×1 grey placeholder that would hide our fallback.
-      return 'https://covers.openlibrary.org/b/isbn/$isbn-M.jpg?default=false';
-    }
-    return null;
-  }
+  /// The persisted cover URL exactly as stored, without any fallback.
+  ///
+  /// Used by contexts that must NOT fall back to OpenLibrary (peer
+  /// views, catalog push). Most screens should prefer [coverUrl] which
+  /// goes through `CoverUrlResolver.resolveForLocal`.
+  String? get rawCoverUrl => _coverUrl;
 
-  String? get largeCoverUrl {
-    if (_coverUrl != null && _coverUrl.isNotEmpty)
-      return _coverUrl; // Or try to get large version if possible
-    if (isbn != null && isbn!.isNotEmpty) {
-      return 'https://covers.openlibrary.org/b/isbn/$isbn-L.jpg?default=false';
-    }
-    return null;
-  }
+  String? get coverUrl =>
+      CoverUrlResolver.resolveForLocal(coverUrl: _coverUrl, isbn: isbn);
+
+  String? get largeCoverUrl => CoverUrlResolver.resolveForLocal(
+    coverUrl: _coverUrl,
+    isbn: isbn,
+    large: true,
+  );
 
   /// Whether this book has a cover URL explicitly persisted (not auto-derived from ISBN)
   bool get hasPersistedCover => _coverUrl != null && _coverUrl!.isNotEmpty;

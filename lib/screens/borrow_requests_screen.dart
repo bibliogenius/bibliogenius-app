@@ -17,6 +17,7 @@ import '../services/translation_service.dart';
 import '../providers/hub_directory_provider.dart';
 import '../providers/theme_provider.dart';
 import '../src/rust/api/frb.dart' show FrbHubBorrowRequest, FrbNudgeEvent, subscribeRelayNudges;
+import '../utils/cover_url_resolver.dart';
 import '../widgets/premium_empty_state.dart';
 
 /// Screen for managing loans, borrows, and P2P requests
@@ -1738,12 +1739,11 @@ class _LoansScreenState extends State<LoansScreen>
     final coverUrl = req['cover_url'] as String?;
     final bookIsbn = req['book_isbn'] as String?;
 
-    // Resolve cover: explicit URL, or OpenLibrary fallback from ISBN
-    String? resolvedCover = coverUrl;
-    if ((resolvedCover == null || resolvedCover.isEmpty) &&
-        bookIsbn != null && bookIsbn.isNotEmpty) {
-      resolvedCover = 'https://covers.openlibrary.org/b/isbn/$bookIsbn-M.jpg';
-    }
+    // Resolve cover: explicit URL, or OpenLibrary fallback from ISBN.
+    final resolvedCover = CoverUrlResolver.resolveForLocal(
+      coverUrl: coverUrl,
+      isbn: bookIsbn,
+    );
 
     final card = Card(
       surfaceTintColor: Colors.transparent,

@@ -8,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../services/api_service.dart';
 import '../services/ffi_service.dart';
 import '../models/book.dart';
+import '../utils/cover_url_resolver.dart';
 import '../models/hub_directory.dart';
 import '../widgets/book_cover_card.dart';
 import '../widgets/bookshelf_view.dart';
@@ -132,20 +133,16 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
   /// Resolves a book's cover URL for peer context.
   ///
-  /// HTTP URLs (hub, OpenLibrary) are passed through directly.
-  /// Relative `/api/books/{id}/cover` paths are routed through the local
-  /// Rust cover-proxy so Flutter never makes a direct HTTP call to the peer
-  /// (which fails on iOS/macOS due to firewall/ATS/NAT).
-  String? _resolvePeerCoverUrl(Book book) {
-    final url = book.coverUrl; // getter with OpenLibrary ISBN fallback
-    if (url == null) return null;
-    if (url.startsWith('http')) return url;
-    if (url.startsWith('/api') && book.id != null) {
-      final encodedPeerUrl = Uri.encodeQueryComponent(_effectiveUrl);
-      return '/api/peers/cover-proxy?peer_url=$encodedPeerUrl&book_id=${book.id}';
-    }
-    return null; // local file path -- unusable in peer context
-  }
+  /// Delegates to `CoverUrlResolver.resolveForPeer`, which reads the
+  /// raw persisted cover URL (never the OpenLibrary fallback): the peer
+  /// is the authoritative source for its covers, so substituting a
+  /// third-party image would create visual inconsistency between what
+  /// the uploader sees and what the visitor sees.
+  String? _resolvePeerCoverUrl(Book book) => CoverUrlResolver.resolveForPeer(
+    coverUrl: book.rawCoverUrl,
+    bookId: book.id,
+    peerUrl: _effectiveUrl,
+  );
 
   /// Evict the cached cover image and force a rebuild so the widget retries.
   Future<void> _reloadCover(Book book) async {

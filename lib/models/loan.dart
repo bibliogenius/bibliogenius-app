@@ -1,3 +1,5 @@
+import '../utils/cover_url_resolver.dart';
+
 class Loan {
   final int id;
   final int copyId;
@@ -71,11 +73,6 @@ class Loan {
   bool get isReturned => returnDate != null || status == 'returned';
 
   /// Resolved cover URL: explicit cover_url, or OpenLibrary fallback from ISBN.
-  String? get resolvedCoverUrl {
-    if (coverUrl != null && coverUrl!.isNotEmpty) return coverUrl;
-    if (isbn != null && isbn!.isNotEmpty) {
-      return 'https://covers.openlibrary.org/b/isbn/$isbn-M.jpg';
-    }
-    return null;
-  }
+  String? get resolvedCoverUrl =>
+      CoverUrlResolver.resolveForLocal(coverUrl: coverUrl, isbn: isbn);
 }
