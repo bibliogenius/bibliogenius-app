@@ -1489,6 +1489,10 @@ msgstr "Exemplar löschen"
 msgid "delete_shelf"
 msgstr "Regal löschen"
 
+#. Are you sure you want to delete the shelf "%s"? This action cannot be undone.
+msgid "delete_shelf_confirm"
+msgstr "Möchtest du das Regal „%s“ wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden."
+
 #. This will also delete sub-shelves
 msgid "delete_shelf_warning"
 msgstr "Diese Aktion kann nicht rückgängig gemacht werden"

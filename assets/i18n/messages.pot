@@ -1584,6 +1584,10 @@ msgstr ""
 msgid "delete_shelf"
 msgstr ""
 
+#. Are you sure you want to delete the shelf "%s"? This action cannot be undone.
+msgid "delete_shelf_confirm"
+msgstr ""
+
 #. This will also delete sub-shelves
 msgid "delete_shelf_warning"
 msgstr ""

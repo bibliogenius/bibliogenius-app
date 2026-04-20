@@ -161,7 +161,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                             gridDelegate:
                                 SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: isMobile ? 2 : 3,
-                                  childAspectRatio: 1.2,
+                                  childAspectRatio: 1.0,
                                   crossAxisSpacing: 16,
                                   mainAxisSpacing: 16,
                                 ),
@@ -324,7 +324,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                       child: GridView.builder(
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: isMobile ? 2 : 3,
-                          childAspectRatio: 1.2,
+                          childAspectRatio: 1.0,
                           crossAxisSpacing: 16,
                           mainAxisSpacing: 16,
                         ),

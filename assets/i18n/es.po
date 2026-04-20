@@ -1489,6 +1489,10 @@ msgstr "Eliminar copia"
 msgid "delete_shelf"
 msgstr "Eliminar estantería"
 
+#. Are you sure you want to delete the shelf "%s"? This action cannot be undone.
+msgid "delete_shelf_confirm"
+msgstr "¿Seguro que quieres eliminar la estantería «%s»? Esta acción no se puede deshacer."
+
 #. This will also delete sub-shelves
 msgid "delete_shelf_warning"
 msgstr "Esta acción no se puede deshacer"

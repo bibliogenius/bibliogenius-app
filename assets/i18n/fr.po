@@ -1634,6 +1634,10 @@ msgstr "Supprimer l'exemplaire"
 msgid "delete_shelf"
 msgstr "Supprimer l'étagère"
 
+#. Are you sure you want to delete the shelf "%s"? This action cannot be undone.
+msgid "delete_shelf_confirm"
+msgstr "Voulez-vous vraiment supprimer l'étagère « %s » ? Cette action est irréversible."
+
 #. This will also delete sub-shelves
 msgid "delete_shelf_warning"
 msgstr "Cela supprimera aussi les sous-étagères"
