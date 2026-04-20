@@ -674,6 +674,9 @@ class _NotificationPopover extends StatelessWidget {
                               notification: n,
                               accentColor: accentColor,
                               onTap: () {
+                                if (n.readAt == null) {
+                                  provider.markRead(n.id);
+                                }
                                 Navigator.of(context).pop();
                                 _navigateForNotification(context, n);
                               },
