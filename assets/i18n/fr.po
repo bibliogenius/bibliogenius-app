@@ -1590,6 +1590,14 @@ msgstr "Êtes-vous sûr de vouloir supprimer ce livre ?"
 msgid "delete_book_title"
 msgstr "Supprimer le livre"
 
+#. Return the borrowed copy before deleting.
+msgid "delete_disabled_borrowed_tooltip"
+msgstr "Rends l'exemplaire emprunté avant de supprimer."
+
+#. Mark the loaned copy as returned before deleting.
+msgid "delete_disabled_lent_tooltip"
+msgstr "Marque l'exemplaire prêté comme retourné avant de supprimer."
+
 #. Delete Collection
 msgid "delete_collection"
 msgstr "Supprimer la collection"
@@ -5928,6 +5936,22 @@ msgstr "Large couverture, surtout pour les livres en anglais"
 #. All sources
 msgid "source_filter_all"
 msgstr "Toutes les sources"
+
+#. ADR-032: short label for the chip on a peer card whose relay token is stale
+msgid "stale_invitation_badge_label"
+msgstr "Invitation périmée"
+
+#. ADR-032: accessibility label for the stale-invitation chip
+msgid "stale_invitation_badge_a11y"
+msgstr "Invitation périmée, toucher pour importer une nouvelle invitation"
+
+#. ADR-032: title of the dialog shown after tapping the stale-invitation badge
+msgid "stale_invitation_dialog_title"
+msgstr "Invitation expirée"
+
+#. ADR-032: body of the dialog, %s is replaced by the peer name
+msgid "stale_invitation_dialog_body"
+msgstr "L'invitation de %s a expiré. Demande-lui de te renvoyer son lien, puis clique dessus dans le SMS ou l'email, ou scanne son QR code."
 
 #. Start Reading
 msgid "start_reading"

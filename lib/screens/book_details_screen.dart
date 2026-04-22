@@ -199,6 +199,26 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     return _copies.any((copy) => copy.status == 'borrowed');
   }
 
+  bool get _deleteBlocked => _hasLentCopies || _hasBorrowedCopies;
+
+  String _deleteDisabledTooltip(BuildContext context) {
+    if (_hasLentCopies) {
+      return TranslationService.translate(
+            context,
+            'delete_disabled_lent_tooltip',
+          ) ??
+          'Mark the loaned copy as returned before deleting.';
+    }
+    if (_hasBorrowedCopies) {
+      return TranslationService.translate(
+            context,
+            'delete_disabled_borrowed_tooltip',
+          ) ??
+          'Return the borrowed copy before deleting.';
+    }
+    return '';
+  }
+
   Future<void> _quickAddCopy() async {
     if (_book == null || _book!.id == null) return;
     final copyRepo = Provider.of<CopyRepository>(context, listen: false);
@@ -1335,23 +1355,28 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
               ),
               const SizedBox(width: 4),
             ],
-            TextButton.icon(
-              onPressed: () => _confirmDelete(context),
-              icon: const Icon(Icons.delete_outline, size: 15),
-              label: Text(
-                TranslationService.translate(context, 'menu_delete') ??
-                    'Delete',
-              ),
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.deepOrange,
-                textStyle: Theme.of(context).textTheme.labelSmall,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 4,
+            Tooltip(
+              message: _deleteBlocked ? _deleteDisabledTooltip(context) : '',
+              child: TextButton.icon(
+                onPressed: _deleteBlocked
+                    ? null
+                    : () => _confirmDelete(context),
+                icon: const Icon(Icons.delete_outline, size: 15),
+                label: Text(
+                  TranslationService.translate(context, 'menu_delete') ??
+                      'Delete',
                 ),
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.deepOrange,
+                  textStyle: Theme.of(context).textTheme.labelSmall,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                key: const Key('deleteBookButton'),
               ),
-              key: const Key('deleteBookButton'),
             ),
           ],
         ),
@@ -2512,7 +2537,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
               ),
             ),
           );
-          // Navigate back to list and refresh
+          context.read<BookRefreshNotifier>().refresh();
           Navigator.of(context).pop(true);
         }
       } catch (e) {
