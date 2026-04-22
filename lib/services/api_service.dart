@@ -390,12 +390,16 @@ class ApiService {
           readingStatus: bookData.containsKey('reading_status')
               ? bookData['reading_status']
               : currentBook.readingStatus,
+          // currentBook.*ReadingAt are DateTime?; FrbBook expects String? (ISO8601).
+          // Callers may pass either a DateTime, a String, or nothing, so we
+          // normalize all three to String? here to avoid a runtime cast error
+          // inside the freezed FrbBook constructor.
           finishedReadingAt: bookData.containsKey('finished_reading_at')
-              ? bookData['finished_reading_at']
-              : currentBook.finishedReadingAt,
+              ? _toIsoStringOrNull(bookData['finished_reading_at'])
+              : currentBook.finishedReadingAt?.toIso8601String(),
           startedReadingAt: bookData.containsKey('started_reading_at')
-              ? bookData['started_reading_at']
-              : currentBook.startedReadingAt,
+              ? _toIsoStringOrNull(bookData['started_reading_at'])
+              : currentBook.startedReadingAt?.toIso8601String(),
 
           subjects: bookData.containsKey('subjects')
               ? (bookData['subjects'] != null
@@ -4682,6 +4686,16 @@ class ApiService {
       return localDio.get('/api/peers/relay/config');
     }
     return _dio.get('/api/peers/relay/config');
+  }
+
+  /// Coerce a value that callers may hand in as a DateTime, a String, or null
+  /// into the ISO8601 String? that the FFI FrbBook constructor expects.
+  /// Any other type falls back to null rather than cast-failing at runtime.
+  String? _toIsoStringOrNull(dynamic value) {
+    if (value == null) return null;
+    if (value is DateTime) return value.toIso8601String();
+    if (value is String) return value;
+    return null;
   }
 
   /// Disconnect from relay hub (delete local relay config).

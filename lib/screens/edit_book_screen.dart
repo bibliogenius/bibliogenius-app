@@ -1272,7 +1272,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
           ),
         ),
       );
-    } catch (e) {
+    } catch (e, st) {
+      debugPrint('[COVER-PHOTO-ERROR] edit._takePhoto: $e\n$st');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -1312,7 +1313,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
           ),
         ),
       );
-    } catch (e) {
+    } catch (e, st) {
+      debugPrint('[COVER-PHOTO-ERROR] edit._pickCoverFromFile: $e\n$st');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

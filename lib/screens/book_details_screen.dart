@@ -606,7 +606,8 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           ),
         );
       }
-    } catch (e) {
+    } catch (e, st) {
+      debugPrint('[COVER-PHOTO-ERROR] details._takeCoverPhoto: $e\n$st');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
