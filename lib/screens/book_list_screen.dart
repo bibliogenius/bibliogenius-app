@@ -38,6 +38,14 @@ enum ViewMode {
   groupedCollections, // Books grouped by collection
 }
 
+enum _SortAction {
+  authorAsc,
+  authorDesc,
+  titleAsc,
+  titleDesc,
+  manualReorder,
+}
+
 class BookListScreen extends StatefulWidget {
   final String? initialSearchQuery;
   final bool isTabView;
@@ -1229,13 +1237,10 @@ class _BookListScreenState extends State<BookListScreen>
               isClearAction: true,
             ),
 
-          // Persistent sort control (author/title + direction) - always visible
-          // when not in manual reorder mode.
+          // Persistent sort control: single pill (field + direction arrow)
+          // with a popup for changing the sort and entering manual reorder
+          // when scoped to a shelf.
           if (!_isReordering) _buildSortControl(context),
-          // Manual shelf reorder entry - only meaningful when scoped to a shelf
-          // (persists shelf_position for that tag).
-          if (_tagFilter != null && !_isReordering)
-            _buildManualReorderButton(context),
           const SizedBox(width: 4),
 
           // 3. Consolidated Status Filter Dropdown
@@ -1818,114 +1823,68 @@ class _BookListScreenState extends State<BookListScreen>
   }
 
   Widget _buildSortControl(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final sortPref = context.watch<SortPreferenceProvider>();
-    return Padding(
-      padding: const EdgeInsets.only(left: 8),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildSortFieldSegment(
-            context,
-            value: SortBy.author,
-            labelKey: 'sort_field_author',
-            selected: sortPref.sortBy == SortBy.author,
-          ),
-          const SizedBox(width: 4),
-          _buildSortFieldSegment(
-            context,
-            value: SortBy.title,
-            labelKey: 'sort_field_title',
-            selected: sortPref.sortBy == SortBy.title,
-          ),
-          const SizedBox(width: 6),
-          _buildSortDirectionToggle(context, sortPref.sortDir),
-        ],
-      ),
+    final asc = sortPref.sortDir == SortDir.asc;
+    final fieldLabel = TranslationService.translate(
+      context,
+      sortPref.sortBy == SortBy.author
+          ? 'sort_field_author'
+          : 'sort_field_title',
     );
-  }
-
-  Widget _buildSortFieldSegment(
-    BuildContext context, {
-    required SortBy value,
-    required String labelKey,
-    required bool selected,
-  }) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final label = TranslationService.translate(context, labelKey);
     final sortByLabel = TranslationService.translate(context, 'sort_by_label');
-    return Semantics(
-      button: true,
-      selected: selected,
-      label: '$sortByLabel: $label',
-      child: InkWell(
-        onTap: () =>
-            context.read<SortPreferenceProvider>().setSortBy(value),
-        borderRadius: BorderRadius.circular(18),
-        child: Container(
-          height: 36,
-          padding: const EdgeInsets.symmetric(horizontal: 14),
-          decoration: BoxDecoration(
-            color: selected
-                ? theme.primaryColor
-                : (isDark ? theme.cardColor : Colors.white),
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(
-              color: selected
-                  ? theme.primaryColor
-                  : (isDark ? Colors.white24 : Colors.grey.withOpacity(0.3)),
-            ),
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            label,
-            style: TextStyle(
-              color: selected
-                  ? Colors.white
-                  : (isDark ? Colors.white : Colors.black87),
-              fontWeight: selected ? FontWeight.bold : FontWeight.w500,
-              fontSize: 13,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSortDirectionToggle(BuildContext context, SortDir dir) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final asc = dir == SortDir.asc;
-    final a11yLabel = TranslationService.translate(
+    final directionLabel = TranslationService.translate(
       context,
       asc ? 'sort_direction_ascending' : 'sort_direction_descending',
     );
-    final tooltip =
-        TranslationService.translate(context, 'tooltip_sort_direction');
-    return Tooltip(
-      message: tooltip,
-      child: Semantics(
-        button: true,
-        label: a11yLabel,
-        child: InkWell(
-          onTap: () =>
-              context.read<SortPreferenceProvider>().toggleDirection(),
-          borderRadius: BorderRadius.circular(18),
-          child: Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: isDark ? theme.cardColor : Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: isDark ? Colors.white24 : Colors.grey.withOpacity(0.3),
-              ),
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 8),
+      child: Tooltip(
+        message: '$sortByLabel: $fieldLabel - $directionLabel',
+        child: Semantics(
+          button: true,
+          label: '$sortByLabel: $fieldLabel, $directionLabel',
+          child: PopupMenuButton<_SortAction>(
+            onSelected: (action) => _onSortActionSelected(action),
+            offset: const Offset(0, 40),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
-            alignment: Alignment.center,
-            child: Icon(
-              asc ? Icons.arrow_downward : Icons.arrow_upward,
-              size: 18,
-              color: theme.primaryColor,
+            itemBuilder: (context) => _buildSortMenuItems(context, sortPref),
+            child: Container(
+              height: 36,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                color: isDark ? theme.cardColor : Colors.white,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(
+                  color:
+                      isDark ? Colors.white24 : Colors.grey.withOpacity(0.3),
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.sort, size: 18, color: theme.primaryColor),
+                  const SizedBox(width: 6),
+                  Text(
+                    fieldLabel,
+                    style: TextStyle(
+                      color: isDark ? Colors.white : Colors.black87,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 13,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Icon(
+                    asc ? Icons.arrow_downward : Icons.arrow_upward,
+                    size: 16,
+                    color: theme.primaryColor,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -1933,39 +1892,123 @@ class _BookListScreenState extends State<BookListScreen>
     );
   }
 
-  Widget _buildManualReorderButton(BuildContext context) {
+  List<PopupMenuEntry<_SortAction>> _buildSortMenuItems(
+    BuildContext context,
+    SortPreferenceProvider sortPref,
+  ) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    return Padding(
-      padding: const EdgeInsets.only(left: 6),
-      child: Tooltip(
-        message: TranslationService.translate(context, 'reorder_manual'),
-        child: InkWell(
-          onTap: () => setState(() {
-            _isReordering = true;
-            _viewMode = ViewMode.list;
-          }),
-          borderRadius: BorderRadius.circular(18),
-          child: Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: isDark ? theme.cardColor : Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: isDark ? Colors.white24 : Colors.grey.withOpacity(0.3),
+    final authorLabel =
+        TranslationService.translate(context, 'sort_field_author');
+    final titleLabel =
+        TranslationService.translate(context, 'sort_field_title');
+
+    PopupMenuItem<_SortAction> item({
+      required _SortAction action,
+      required String label,
+      required IconData icon,
+      required bool selected,
+    }) {
+      return PopupMenuItem<_SortAction>(
+        value: action,
+        child: Row(
+          children: [
+            Icon(icon, color: theme.primaryColor, size: 18),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontWeight:
+                      selected ? FontWeight.w600 : FontWeight.normal,
+                ),
               ),
             ),
-            alignment: Alignment.center,
-            child: Icon(
-              Icons.drag_handle,
-              size: 18,
-              color: theme.primaryColor,
-            ),
+            if (selected)
+              Icon(Icons.check, color: theme.primaryColor, size: 18),
+          ],
+        ),
+      );
+    }
+
+    final items = <PopupMenuEntry<_SortAction>>[
+      item(
+        action: _SortAction.authorAsc,
+        label: '$authorLabel (A-Z)',
+        icon: Icons.arrow_downward,
+        selected: sortPref.sortBy == SortBy.author &&
+            sortPref.sortDir == SortDir.asc,
+      ),
+      item(
+        action: _SortAction.authorDesc,
+        label: '$authorLabel (Z-A)',
+        icon: Icons.arrow_upward,
+        selected: sortPref.sortBy == SortBy.author &&
+            sortPref.sortDir == SortDir.desc,
+      ),
+      item(
+        action: _SortAction.titleAsc,
+        label: '$titleLabel (A-Z)',
+        icon: Icons.arrow_downward,
+        selected: sortPref.sortBy == SortBy.title &&
+            sortPref.sortDir == SortDir.asc,
+      ),
+      item(
+        action: _SortAction.titleDesc,
+        label: '$titleLabel (Z-A)',
+        icon: Icons.arrow_upward,
+        selected: sortPref.sortBy == SortBy.title &&
+            sortPref.sortDir == SortDir.desc,
+      ),
+    ];
+
+    // Manual shelf reorder only makes sense when scoped to a single shelf.
+    if (_tagFilter != null) {
+      items.add(const PopupMenuDivider());
+      items.add(
+        PopupMenuItem<_SortAction>(
+          value: _SortAction.manualReorder,
+          child: Row(
+            children: [
+              Icon(Icons.drag_handle, color: theme.primaryColor, size: 18),
+              const SizedBox(width: 12),
+              Text(
+                TranslationService.translate(context, 'reorder_manual'),
+              ),
+            ],
           ),
         ),
-      ),
-    );
+      );
+    }
+
+    return items;
+  }
+
+  void _onSortActionSelected(_SortAction action) {
+    final sortPref = context.read<SortPreferenceProvider>();
+    switch (action) {
+      case _SortAction.authorAsc:
+        sortPref.setSortBy(SortBy.author);
+        sortPref.setSortDir(SortDir.asc);
+        break;
+      case _SortAction.authorDesc:
+        sortPref.setSortBy(SortBy.author);
+        sortPref.setSortDir(SortDir.desc);
+        break;
+      case _SortAction.titleAsc:
+        sortPref.setSortBy(SortBy.title);
+        sortPref.setSortDir(SortDir.asc);
+        break;
+      case _SortAction.titleDesc:
+        sortPref.setSortBy(SortBy.title);
+        sortPref.setSortDir(SortDir.desc);
+        break;
+      case _SortAction.manualReorder:
+        setState(() {
+          _isReordering = true;
+          _viewMode = ViewMode.list;
+        });
+        break;
+    }
   }
 
   Future<void> _onBookTap(Book book) async {
