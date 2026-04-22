@@ -1528,22 +1528,13 @@ class _FlashLibraryNameEditorState extends State<_FlashLibraryNameEditor> {
         debugPrint('Library name saved to SharedPreferences but NOT to Rust DB');
       }
 
-      // Update hub profile with new name (if registered)
-      final hubConfig = _hubProvider?.config;
-      if (hubConfig != null) {
+      // Push the new name to the hub. syncDisplayName handles both cases:
+      //  - config already loaded  -> direct UPDATE
+      //  - config not yet hydrated -> ensureRegistered + UPDATE, or defer via
+      //    a pending flag replayed on the next initAndSyncCatalog.
+      if (_hubProvider != null) {
         try {
-          final bookCount = await FfiService().countBooks();
-          final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
-          await _hubProvider!.register(
-            nodeId: hubConfig.nodeId,
-            displayName: name,
-            bookCount: bookCount,
-            isListed: hubConfig.isListed,
-            requiresApproval: hubConfig.requiresApproval,
-            acceptFrom: hubConfig.acceptFrom,
-            allowBorrowing: hubConfig.allowBorrowing,
-            locationCountry: themeProvider.country,
-          );
+          await _hubProvider!.syncDisplayName(name);
         } catch (e) {
           debugPrint('Hub name update failed: $e');
         }

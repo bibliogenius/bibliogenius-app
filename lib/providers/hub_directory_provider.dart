@@ -51,6 +51,11 @@ const String _kWebsiteKey = 'hub_website';
 /// SharedPreferences key for user-defined follow display names (JSON map).
 const String _kFollowNamesKey = 'hub_follow_custom_names';
 
+/// SharedPreferences key: display_name the user picked while the hub config
+/// was not yet loaded (or the hub push failed). Consumed on the next
+/// successful [initAndSyncCatalog] so the hub profile catches up.
+const String _kPendingDisplayNameKey = 'hub_pending_display_name';
+
 class HubDirectoryProvider extends ChangeNotifier {
   final FfiService _ffi;
   final DeviceService _deviceService;
@@ -464,6 +469,9 @@ class HubDirectoryProvider extends ChangeNotifier {
         // Fixes ~50% of installs where relay was missing due to race condition
         // or ensureKeysPublished overwriting without relay params.
         await ensureRelayPublished();
+        // Replay a rename that happened before config was available
+        // (flash library name editor on first run).
+        await _consumePendingDisplayName();
         syncCatalogIfDirty();
         // Start listening for relay nudges so incoming follow/borrow events
         // refresh instantly instead of waiting for the next polling cycle.
@@ -554,6 +562,108 @@ class HubDirectoryProvider extends ChangeNotifier {
     }
     debugPrint('HubDirectory: relay publish failed after '
         '$_kRelayPublishMaxAttempts attempts, will retry on next catalog sync');
+  }
+
+  // ---------------------------------------------------------------------------
+  // Display name sync
+  // ---------------------------------------------------------------------------
+
+  /// Push a new library [displayName] to the hub profile.
+  ///
+  /// Safe to call before the hub config is loaded: in that case
+  /// [ensureRegistered] is triggered first so the hub knows about this node.
+  /// If the hub cannot be reached (offline, 401 cooldown, etc.), the desired
+  /// name is persisted in SharedPreferences and replayed on the next
+  /// successful [initAndSyncCatalog] cycle.
+  Future<bool> syncDisplayName(String displayName) async {
+    final trimmed = displayName.trim();
+    if (trimmed.isEmpty) return false;
+
+    if (_config == null) {
+      // Config not yet hydrated (e.g. flash rename fires before
+      // initAndSyncCatalog completes): try to register silently now.
+      await ensureRegistered();
+    }
+
+    if (_config == null) {
+      await _storePendingDisplayName(trimmed);
+      debugPrint('HubDirectory: displayName sync deferred (no config yet)');
+      return false;
+    }
+
+    final ok = await _pushDisplayName(trimmed);
+    if (ok) {
+      await _clearPendingDisplayName();
+    } else {
+      await _storePendingDisplayName(trimmed);
+    }
+    return ok;
+  }
+
+  /// Internal push used by [syncDisplayName] and by the pending-rename replay.
+  /// Requires [_config] to be non-null. Passes all device/relay fields so the
+  /// hub does not overwrite them with null (same pattern as
+  /// [ensureRelayPublished]). locationCountry is intentionally omitted: the
+  /// hub preserves absent fields, so we don't need a ThemeProvider dependency.
+  Future<bool> _pushDisplayName(String displayName) async {
+    final cfg = _config;
+    if (cfg == null) return false;
+
+    final bookCount = await _ffi.countBooks();
+    String? x25519Key;
+    try {
+      x25519Key = await _ffi.getLocalX25519PublicKey();
+    } catch (_) {}
+    final deviceModel = await _deviceService.getDeviceModel();
+    final deviceFingerprint = await _deviceService.getDeviceFingerprint();
+    final appVersion = await _deviceService.getAppVersion();
+    final relay = await _getRelayCredentials();
+
+    return register(
+      nodeId: cfg.nodeId,
+      displayName: displayName,
+      bookCount: bookCount,
+      isListed: cfg.isListed,
+      requiresApproval: cfg.requiresApproval,
+      acceptFrom: cfg.acceptFrom,
+      allowBorrowing: cfg.allowBorrowing,
+      x25519PublicKey: x25519Key,
+      deviceModel: deviceModel,
+      deviceFingerprint: deviceFingerprint,
+      appVersion: appVersion,
+      relayUrl: relay.relayUrl,
+      relayMailboxId: relay.mailboxId,
+      relayWriteToken: relay.writeToken,
+    );
+  }
+
+  Future<void> _storePendingDisplayName(String name) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_kPendingDisplayNameKey, name);
+  }
+
+  Future<void> _clearPendingDisplayName() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_kPendingDisplayNameKey);
+  }
+
+  Future<String?> _getPendingDisplayName() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_kPendingDisplayNameKey);
+    if (raw == null || raw.trim().isEmpty) return null;
+    return raw;
+  }
+
+  /// Replay a pending rename if the user renamed the library before the hub
+  /// config was available. Called from [initAndSyncCatalog] once registration
+  /// is confirmed.
+  Future<void> _consumePendingDisplayName() async {
+    if (_config == null) return;
+    final pending = await _getPendingDisplayName();
+    if (pending == null) return;
+    debugPrint('HubDirectory: replaying pending displayName "$pending"');
+    final ok = await _pushDisplayName(pending);
+    if (ok) await _clearPendingDisplayName();
   }
 
   Future<void> loadConfig() async {
