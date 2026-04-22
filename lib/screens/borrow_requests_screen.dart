@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import '../widgets/cached_book_cover.dart';
 import 'package:intl/intl.dart';
 import '../widgets/genie_app_bar.dart';
 import '../widgets/scaffold_with_nav.dart';
@@ -1753,19 +1754,17 @@ class _LoansScreenState extends State<LoansScreen>
           width: 40,
           height: 56,
           child: resolvedCover != null
-              ? ClipRRect(
+              ? CachedBookCover(
+                  imageUrl: resolvedCover,
+                  fit: BoxFit.cover,
                   borderRadius: BorderRadius.circular(4),
-                  child: CachedNetworkImage(
-                    imageUrl: resolvedCover,
-                    fit: BoxFit.cover,
-                    placeholder: (_, __) => Container(
-                      color: _getStatusColor(status).withValues(alpha: 0.2),
-                      child: Icon(Icons.book, color: _getStatusColor(status), size: 20),
-                    ),
-                    errorWidget: (_, __, ___) => Container(
-                      color: _getStatusColor(status).withValues(alpha: 0.2),
-                      child: Icon(Icons.book, color: _getStatusColor(status), size: 20),
-                    ),
+                  placeholder: Container(
+                    color: _getStatusColor(status).withValues(alpha: 0.2),
+                    child: Icon(Icons.book, color: _getStatusColor(status), size: 20),
+                  ),
+                  errorWidget: Container(
+                    color: _getStatusColor(status).withValues(alpha: 0.2),
+                    child: Icon(Icons.book, color: _getStatusColor(status), size: 20),
                   ),
                 )
               : Container(
