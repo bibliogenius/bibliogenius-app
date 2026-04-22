@@ -96,6 +96,7 @@ import 'providers/notification_provider.dart';
 import 'package:app_links/app_links.dart';
 
 import 'services/wizard_service.dart';
+import 'widgets/peer_book_cover_cache_manager.dart';
 import 'widgets/scaffold_with_nav.dart';
 
 import 'package:flutter/gestures.dart';
@@ -224,6 +225,12 @@ void main([List<String>? args]) async {
   // Load settings early so library name is available for mDNS
   try {
     await themeProvider.loadSettings();
+    // Apply the peer cover cache cap read from prefs before any peer
+    // screen has a chance to render. Also triggers the startup sweep that
+    // recovers from a real disk footprint exceeding the saved cap.
+    await PeerBookCoverCacheManager.configure(
+      capMb: themeProvider.peerCoverCacheCapMb,
+    );
     // Auto-initialize defaults if first launch (skip setup wizard)
     final authService = AuthService();
     if (!themeProvider.isSetupComplete) {

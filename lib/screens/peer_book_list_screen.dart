@@ -13,6 +13,7 @@ import '../models/hub_directory.dart';
 import '../widgets/book_cover_card.dart';
 import '../widgets/bookshelf_view.dart';
 import '../widgets/cached_book_cover.dart';
+import '../widgets/peer_book_cover_cache_manager.dart';
 import '../widgets/recently_added_carousel.dart';
 import '../widgets/shimmer_loading.dart';
 import '../services/translation_service.dart';
@@ -148,7 +149,9 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   Future<void> _reloadCover(Book book) async {
     final url = _resolvePeerCoverUrl(book);
     if (url != null) {
-      await BookCoverCacheManager.instance.removeFile(url);
+      // Peer covers live in their own cache since the peer cap is
+      // user-controlled and must not evict local covers.
+      await PeerBookCoverCacheManager.instance.removeFile(url);
     }
     if (mounted) setState(() {});
   }
@@ -211,6 +214,13 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   /// Matching uses both [widget.peerId] (local DB row) and the remote
   /// library UUID so the screen responds correctly regardless of whether
   /// the peer was resolved via mDNS or relay.
+  ///
+  /// INVARIANT -- do not eagerly fetch peer cover bytes in this handler
+  /// or in any catalog-sync code path. Covers must stay lazy: the user
+  /// only pays the network + disk cost when a [CachedNetworkImage] is
+  /// mounted in the visible grid/list. This is enforced by the peer
+  /// cover cache cap (Settings) and the toggle gate in [build]; a
+  /// prefetch loop here would bypass both.
   void _subscribeCatalogChanges() {
     _catalogChangeSub?.cancel();
     debugPrint(
@@ -2018,6 +2028,17 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // When peer covers are disabled in Settings, force the colored-spine
+    // shelf view and hide the view switcher. This is the "data-saver"
+    // mode: no cover URL is ever passed to CachedNetworkImage, so no
+    // network fetch and no disk write happen. The user's last explicit
+    // choice of _viewMode is preserved in State so re-enabling the toggle
+    // restores their previous view without resetting anything.
+    final peerCoversEnabled =
+        context.watch<ThemeProvider>().peerCoverDisplayEnabled;
+    final effectiveViewMode =
+        peerCoversEnabled ? _viewMode : _PeerViewMode.shelf;
+
     return Scaffold(
       appBar: AppBar(
         title: _isSearching
@@ -2099,7 +2120,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                         : () => _syncBooks(),
               ),
             ),
-          if (!_isSearching)
+          if (!_isSearching && peerCoversEnabled)
             IconButton(
               icon: Icon(switch (_viewMode) {
                 _PeerViewMode.coverGrid => Icons.view_module,
@@ -2218,7 +2239,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                                 }
                                 return false;
                               },
-                              child: switch (_viewMode) {
+                              child: switch (effectiveViewMode) {
                                 _PeerViewMode.shelf => BookshelfView(
                                       books: _filteredBooks,
                                       onBookTap: (book) => _showBookDetails(book),
@@ -2265,6 +2286,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                                         return BookCoverCard(
                                           book: resolvedBook,
                                           onTap: () => _showBookDetails(book),
+                                          isPeerCover: true,
                                         );
                                       },
                                     ),
@@ -2302,6 +2324,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                                             borderRadius:
                                                 BorderRadius.circular(4),
                                             onTapPlaceholder: () => _reloadCover(book),
+                                            isPeerCover: true,
                                             semanticLabel: book.author != null &&
                                                     book.author!.isNotEmpty
                                                 ? '${book.title}, ${book.author}'
@@ -2457,6 +2480,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                     height: 180,
                     borderRadius: BorderRadius.circular(8),
                     onTapPlaceholder: () => _reloadCover(book),
+                    isPeerCover: true,
                     semanticLabel: book.author != null &&
                             book.author!.isNotEmpty
                         ? '${book.title}, ${book.author}'

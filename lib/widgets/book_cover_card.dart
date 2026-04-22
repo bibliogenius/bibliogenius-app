@@ -13,11 +13,18 @@ class BookCoverCard extends StatelessWidget {
   final VoidCallback onTap;
   final ValueChanged<String>? onStatusChanged;
 
+  /// Routes the underlying [CachedBookCover] to the peer cover cache.
+  /// The card is used in both local contexts (own library, collection
+  /// stacks) and peer contexts (peer library grid), so the caller has to
+  /// tell us which cache to hit.
+  final bool isPeerCover;
+
   const BookCoverCard({
     super.key,
     required this.book,
     required this.onTap,
     this.onStatusChanged,
+    this.isPeerCover = false,
   });
 
   Color _getColorFromSeed(BuildContext context, int seed) {
@@ -67,6 +74,7 @@ class BookCoverCard extends StatelessWidget {
                   semanticLabel: book.author != null && book.author!.isNotEmpty
                       ? '${book.title}, ${book.author}'
                       : book.title,
+                  isPeerCover: isPeerCover,
                 ),
 
               // Gradient overlay for text readability (only if using fallback or if needed)

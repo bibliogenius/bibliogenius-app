@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../utils/avatars.dart';
+import '../widgets/peer_book_cover_cache_manager.dart';
 import '../models/avatar_config.dart';
 import '../services/api_service.dart';
 import '../services/auth_service.dart';
@@ -169,6 +170,21 @@ class ThemeProvider with ChangeNotifier {
   // Enabled by default for better peer experience
   bool _allowLibraryCaching = true;
   bool get allowLibraryCaching => _allowLibraryCaching;
+
+  // Peer Book Cover Display: when off, peer library views skip cover
+  // fetching entirely (forces the colored-spine fallback view) so the user
+  // can bound the disk and bandwidth cost of browsing peers.
+  bool _peerCoverDisplayEnabled = true;
+  bool get peerCoverDisplayEnabled => _peerCoverDisplayEnabled;
+
+  // Peer Book Cover Cache Cap (MB): user-facing maximum disk footprint of
+  // the peer cover cache. Allowed values mirror the Settings UI selector:
+  // 50 / 100 / 200 / 500. PeerBookCoverCacheManager derives a file-count
+  // cap from this and sweeps the directory at startup if real disk usage
+  // exceeds the cap by more than 10%.
+  int _peerCoverCacheCapMb = 100;
+  int get peerCoverCacheCapMb => _peerCoverCacheCapMb;
+  static const List<int> peerCoverCacheCapChoicesMb = [50, 100, 200, 500];
 
   // Remote Reachable: relay-based connectivity for invited contacts
   // Enabled by default (safe: only invited contacts can reach via relay)
@@ -368,6 +384,15 @@ class ThemeProvider with ChangeNotifier {
     _peerOfflineCachingEnabled =
         prefs.getBool('peerOfflineCachingEnabled') ?? true;
     _allowLibraryCaching = prefs.getBool('allowLibraryCaching') ?? true;
+    _peerCoverDisplayEnabled =
+        prefs.getBool('peerCoverDisplayEnabled') ?? true;
+    final savedPeerCap = prefs.getInt('peerCoverCacheCapMb') ?? 100;
+    // Clamp to the set of values exposed in the Settings selector so a
+    // stale or corrupted preference can't leave us with a non-UI-mapable
+    // value -- the selector would otherwise render with nothing selected.
+    _peerCoverCacheCapMb = peerCoverCacheCapChoicesMb.contains(savedPeerCap)
+        ? savedPeerCap
+        : 100;
     // Default to true - safe (only invited contacts can reach via relay)
     _remoteReachableEnabled =
         prefs.getBool('remoteReachableEnabled') ?? true;
@@ -1214,6 +1239,33 @@ class ThemeProvider with ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('allowLibraryCaching', enabled);
     await _updateEnabledModules();
+    notifyListeners();
+  }
+
+  /// Toggle peer cover display. When disabled, peer library views fall back
+  /// to the colored-spine shelf layout: no CachedNetworkImage is built, so
+  /// no fetch leaves the device and no file is written to disk. The cache
+  /// cap and Clear button stay available -- the user may still want to
+  /// manage previously accumulated covers.
+  Future<void> setPeerCoverDisplayEnabled(bool enabled) async {
+    _peerCoverDisplayEnabled = enabled;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('peerCoverDisplayEnabled', enabled);
+    notifyListeners();
+  }
+
+  /// Update the peer cover cache cap (MB). Silently rejects values outside
+  /// [peerCoverCacheCapChoicesMb] so the UI selector is the single source
+  /// of truth for legal values. Also reconfigures the cache manager so the
+  /// new cap takes effect immediately, including the disk sweep that
+  /// protects against under-estimated average cover sizes.
+  Future<void> setPeerCoverCacheCapMb(int capMb) async {
+    if (!peerCoverCacheCapChoicesMb.contains(capMb)) return;
+    if (_peerCoverCacheCapMb == capMb) return;
+    _peerCoverCacheCapMb = capMb;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('peerCoverCacheCapMb', capMb);
+    await PeerBookCoverCacheManager.configure(capMb: capMb);
     notifyListeners();
   }
 

@@ -8809,3 +8809,55 @@ msgstr "Rechercher"
 #. Tooltip affiche sur la fiche livre du proprietaire quand l'upload d'une couverture vers le hub a echoue et qu'une nouvelle tentative aura lieu au prochain sync.
 msgid "cover_upload_pending_tooltip"
 msgstr "Couverture non synchronisée. Nouvelle tentative au prochain rafraîchissement."
+
+#. Settings section header for peer (networked) library cover controls.
+msgid "settings_peer_covers_section"
+msgstr "Couvertures des bibliothèques réseau"
+
+#. Toggle that controls whether peer libraries show book covers or fall back to the colored-spine view.
+msgid "peer_cover_display_enabled"
+msgstr "Afficher les couvertures des bibliothèques réseau"
+
+#. Description for the peer cover display toggle.
+msgid "peer_cover_display_enabled_desc"
+msgstr "Lorsque désactivé, les bibliothèques réseau s'affichent en mode tranches colorées. Aucune couverture n'est téléchargée ni stockée."
+
+#. Label for the peer cover cache size selector.
+msgid "peer_cover_cache_cap"
+msgstr "Taille max du cache"
+
+#. Description for the peer cover cache size selector.
+msgid "peer_cover_cache_cap_desc"
+msgstr "Budget disque pour les couvertures réseau. Les plus anciennes sont supprimées une fois plein."
+
+#. Title of the current-usage row below the cache size selector.
+msgid "peer_cover_cache_usage_title"
+msgstr "Utilisation actuelle"
+
+#. Body of the current-usage row. Format: "X MB of Y MB". {used} and {cap} are replaced at runtime.
+msgid "peer_cover_cache_usage"
+msgstr "{used} Mo sur {cap} Mo"
+
+#. Tooltip for the refresh icon next to the current-usage row.
+msgid "peer_cover_cache_refresh"
+msgstr "Actualiser"
+
+#. Destructive action that empties the peer cover cache directory.
+msgid "peer_cover_cache_clear"
+msgstr "Vider le cache des couvertures réseau"
+
+#. Title of the confirmation dialog shown before clearing the peer cover cache.
+msgid "peer_cover_cache_clear_title"
+msgstr "Vider le cache des couvertures réseau ?"
+
+#. Body of the confirmation dialog shown before clearing the peer cover cache.
+msgid "peer_cover_cache_clear_body"
+msgstr "Cela supprime les couvertures téléchargées depuis les bibliothèques réseau. Les couvertures de votre propre bibliothèque ne sont pas affectées."
+
+#. Confirm button of the clear peer cover cache dialog.
+msgid "peer_cover_cache_clear_action"
+msgstr "Vider"
+
+#. Snackbar shown after the peer cover cache has been cleared.
+msgid "peer_cover_cache_clear_done"
+msgstr "Cache des couvertures réseau vidé"

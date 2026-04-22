@@ -9,6 +9,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:country_picker/country_picker.dart';
 
 import '../widgets/genie_app_bar.dart';
+import '../widgets/peer_book_cover_cache_manager.dart';
 import '../widgets/recovery_code_widgets.dart';
 import '../widgets/scaffold_with_nav.dart';
 import '../widgets/contextual_help_sheet.dart';
@@ -1458,7 +1459,147 @@ class _SettingsScreenState extends State<SettingsScreen> {
             );
           },
         ),
+
+        // --- Peer book covers sub-group ---
+        const SizedBox(height: 12),
+        Semantics(
+          header: true,
+          child: Text(
+            t('settings_peer_covers_section'),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+        ),
+        const SizedBox(height: 8),
+        _buildPeerCoverCoversCard(context, themeProvider, t),
       ],
+    );
+  }
+
+  /// Local bump that invalidates the size-indicator FutureBuilder after an
+  /// action that changes on-disk usage (cap change triggers a sweep, or
+  /// the user hits Clear). Using a Key instead of caching the Future lets
+  /// us stay with a StatelessWidget-shaped build while still forcing a
+  /// fresh diskSizeBytes() read.
+  int _peerCoverSizeNonce = 0;
+
+  Widget _buildPeerCoverCoversCard(
+    BuildContext context,
+    ThemeProvider themeProvider,
+    String Function(String) t,
+  ) {
+    final theme = Theme.of(context);
+    final capMb = themeProvider.peerCoverCacheCapMb;
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        children: [
+          SwitchListTile(
+            secondary: const Icon(Icons.image_outlined),
+            title: Text(t('peer_cover_display_enabled')),
+            subtitle: Text(t('peer_cover_display_enabled_desc')),
+            value: themeProvider.peerCoverDisplayEnabled,
+            onChanged: (value) =>
+                themeProvider.setPeerCoverDisplayEnabled(value),
+          ),
+          const Divider(height: 1),
+          ListTile(
+            leading: const Icon(Icons.storage_outlined),
+            title: Text(t('peer_cover_cache_cap')),
+            subtitle: Text(t('peer_cover_cache_cap_desc')),
+            trailing: DropdownButton<int>(
+              value: capMb,
+              // Announce the currently-selected cap to screen readers on
+              // focus, otherwise the raw "100 MB" label gives no context.
+              items: ThemeProvider.peerCoverCacheCapChoicesMb
+                  .map(
+                    (mb) => DropdownMenuItem<int>(
+                      value: mb,
+                      child: Text('$mb MB'),
+                    ),
+                  )
+                  .toList(),
+              onChanged: (value) async {
+                if (value == null) return;
+                await themeProvider.setPeerCoverCacheCapMb(value);
+                // Setter runs the disk sweep; our indicator needs a fresh
+                // read so the displayed usage reflects any purge.
+                if (mounted) {
+                  setState(() => _peerCoverSizeNonce++);
+                }
+              },
+            ),
+          ),
+          const Divider(height: 1),
+          FutureBuilder<int>(
+            key: ValueKey(_peerCoverSizeNonce),
+            future: PeerBookCoverCacheManager.diskSizeBytes(),
+            builder: (context, snapshot) {
+              final usedMb = snapshot.hasData
+                  ? (snapshot.data! / (1024 * 1024)).toStringAsFixed(1)
+                  : '...';
+              final usageText = TranslationService.translate(
+                context,
+                'peer_cover_cache_usage',
+                params: {'used': usedMb, 'cap': '$capMb'},
+              );
+              return ListTile(
+                leading: const Icon(Icons.data_usage_outlined),
+                title: Text(t('peer_cover_cache_usage_title')),
+                subtitle: Text(usageText),
+                trailing: IconButton(
+                  icon: const Icon(Icons.refresh),
+                  tooltip: t('peer_cover_cache_refresh'),
+                  onPressed: () =>
+                      setState(() => _peerCoverSizeNonce++),
+                ),
+              );
+            },
+          ),
+          const Divider(height: 1),
+          ListTile(
+            leading: Icon(
+              Icons.delete_outline,
+              color: theme.colorScheme.error,
+            ),
+            title: Text(
+              t('peer_cover_cache_clear'),
+              style: TextStyle(color: theme.colorScheme.error),
+            ),
+            onTap: () => _confirmClearPeerCoverCache(t),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _confirmClearPeerCoverCache(
+    String Function(String) t,
+  ) async {
+    // Capture the messenger before any await so the post-clear snackbar
+    // is routed to the right Scaffold even if the user navigates away.
+    final messenger = ScaffoldMessenger.of(context);
+    final confirmLabel = t('peer_cover_cache_clear_done');
+    final confirmed = await _confirmDestructiveAction(
+      context,
+      titleKey: 'peer_cover_cache_clear_title',
+      titleFallback: 'Clear peer cover cache?',
+      bodyKey: 'peer_cover_cache_clear_body',
+      bodyFallback:
+          'This deletes covers downloaded from peer libraries. '
+          'Your own library covers are not affected.',
+      actionKey: 'peer_cover_cache_clear_action',
+      actionFallback: 'Clear',
+    );
+    if (!confirmed) return;
+    await PeerBookCoverCacheManager.clearAll();
+    if (!mounted) return;
+    setState(() => _peerCoverSizeNonce++);
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(confirmLabel),
+        duration: const Duration(seconds: 2),
+      ),
     );
   }
 

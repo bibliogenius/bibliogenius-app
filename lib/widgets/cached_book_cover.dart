@@ -7,6 +7,7 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:provider/provider.dart';
 
 import '../services/api_service.dart';
+import 'peer_book_cover_cache_manager.dart';
 
 /// Custom Cache Manager for Book Covers.
 ///
@@ -102,6 +103,13 @@ class CachedBookCover extends StatelessWidget {
   /// Use this to trigger a cover reload (e.g. evict cache + setState).
   final VoidCallback? onTapPlaceholder;
 
+  /// Routes the cover through [PeerBookCoverCacheManager] instead of the
+  /// default local [BookCoverCacheManager]. Callers set this explicitly --
+  /// URL-based detection is too fragile (peers can live behind any hub).
+  /// Keeping the two caches isolated guarantees an eviction triggered by a
+  /// peer view never drops a locally-owned cover.
+  final bool isPeerCover;
+
   const CachedBookCover({
     super.key,
     required this.imageUrl,
@@ -113,6 +121,7 @@ class CachedBookCover extends StatelessWidget {
     this.errorWidget,
     this.semanticLabel,
     this.onTapPlaceholder,
+    this.isPeerCover = false,
   });
 
   @override
@@ -158,9 +167,13 @@ class CachedBookCover extends StatelessWidget {
     final dpr = MediaQuery.devicePixelRatioOf(context);
     final decodeWidth = ((width ?? 300) * dpr).round();
 
+    final cacheManager = isPeerCover
+        ? PeerBookCoverCacheManager.instance
+        : BookCoverCacheManager.instance;
+
     Widget image = CachedNetworkImage(
       imageUrl: resolvedUrl,
-      cacheManager: BookCoverCacheManager.instance,
+      cacheManager: cacheManager,
       width: width,
       height: height,
       fit: fit,
@@ -170,7 +183,13 @@ class CachedBookCover extends StatelessWidget {
         // Drop the stale cache entry for this URL so a retry (user pulls to
         // refresh, navigates away and back, etc.) actually hits the network.
         // Bounded to once per URL per session to avoid hammering dead URLs.
-        BookCoverCacheManager.evictOnce(resolvedUrl);
+        // Route to the matching session set so a broken peer URL never
+        // shadows a local retry (and vice versa).
+        if (isPeerCover) {
+          PeerBookCoverCacheManager.evictOnce(resolvedUrl);
+        } else {
+          BookCoverCacheManager.evictOnce(resolvedUrl);
+        }
       },
       errorWidget: (context, url, error) {
         return errorWidget ?? _buildTappableFallback();
@@ -244,12 +263,14 @@ class CompactBookCover extends StatelessWidget {
   final String? imageUrl;
   final double size;
   final String? semanticLabel;
+  final bool isPeerCover;
 
   const CompactBookCover({
     super.key,
     required this.imageUrl,
     this.size = 50,
     this.semanticLabel,
+    this.isPeerCover = false,
   });
 
   @override
@@ -260,6 +281,7 @@ class CompactBookCover extends StatelessWidget {
       height: size * 1.5,
       borderRadius: BorderRadius.circular(4),
       semanticLabel: semanticLabel,
+      isPeerCover: isPeerCover,
     );
   }
 }

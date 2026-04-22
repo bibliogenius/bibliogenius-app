@@ -40,6 +40,9 @@ dependencies:
   url_launcher: ^6.3.2
   app_links: ^6.3.3
   cached_network_image: ^3.4.1
+  # Direct dep (already pulled transitively by cached_network_image) so we
+  # can declare CustomCacheManagers for local vs peer book covers.
+  flutter_cache_manager: ^3.4.1
   universal_html: ^2.3.0
   package_info_plus: ^9.0.0
   rust_lib_app:
@@ -66,6 +69,9 @@ dev_dependencies:
   network_image_mock: ^2.1.1
   http_mock_adapter: ^0.6.1
   flutter_launcher_icons: ^0.14.4
+  # Used by tests to stub path_provider for CacheManager construction.
+  path_provider_platform_interface: ^2.1.2
+  plugin_platform_interface: ^2.1.8
   integration_test:
     sdk: flutter
   freezed: ^3.2.3
