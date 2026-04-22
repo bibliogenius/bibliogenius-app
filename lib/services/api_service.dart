@@ -400,6 +400,12 @@ class ApiService {
           startedReadingAt: bookData.containsKey('started_reading_at')
               ? _toIsoStringOrNull(bookData['started_reading_at'])
               : currentBook.startedReadingAt?.toIso8601String(),
+          addedAt: bookData.containsKey('added_at')
+              ? _toIsoStringOrNull(bookData['added_at'])
+              : currentBook.addedAt?.toIso8601String(),
+          hubCoverUploadFailedAt: bookData.containsKey('hub_cover_upload_failed_at')
+              ? _toIsoStringOrNull(bookData['hub_cover_upload_failed_at'])
+              : currentBook.hubCoverUploadFailedAt?.toIso8601String(),
 
           subjects: bookData.containsKey('subjects')
               ? (bookData['subjects'] != null
