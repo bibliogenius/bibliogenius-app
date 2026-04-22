@@ -5,6 +5,7 @@ import 'package:bibliogenius/widgets/bookshelf_view.dart';
 import 'package:bibliogenius/widgets/cached_book_cover.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -54,6 +55,10 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() async {
+    // loadSettings touches flutter_secure_storage via AuthService.getUsername
+    // when the 'username' pref is absent. Mock the storage layer so the
+    // plugin call returns empty instead of throwing on Linux CI.
+    FlutterSecureStorage.setMockInitialValues({});
     SharedPreferences.setMockInitialValues({});
   });
 

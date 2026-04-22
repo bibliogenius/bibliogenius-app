@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:bibliogenius/providers/theme_provider.dart';
 import 'package:bibliogenius/widgets/peer_book_cover_cache_manager.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
@@ -53,6 +54,13 @@ void main() {
   });
 
   setUp(() {
+    // ThemeProvider.loadSettings falls back to AuthService.getUsername()
+    // when the 'username' pref is absent -- which hits flutter_secure_storage.
+    // That plugin is unavailable on headless Linux CI unless explicitly
+    // mocked, so the read throws MissingPluginException and the whole
+    // loadSettings call fails. Stubbing the mock values at the storage
+    // layer is the canonical pattern used by auth_service_test.dart.
+    FlutterSecureStorage.setMockInitialValues({});
     // Defensive: earlier tests in the same process might have left the
     // manager in a non-default state. Reset before each test so
     // `capMb` and `_instance` are predictable.
