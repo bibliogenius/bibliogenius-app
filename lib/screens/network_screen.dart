@@ -3072,10 +3072,10 @@ class _LibraryRelationCard extends StatelessWidget {
                       // ADR-032: surface a tappable badge when this peer's
                       // relay write_token has been flagged invalid so the
                       // user can trigger a fresh invitation import.
-                      if (relation.peer?.hasStaleInvitation == true)
+                      if (relation.peer?.hasStaleConnection == true)
                         Padding(
                           padding: const EdgeInsets.only(top: 4),
-                          child: _StaleInvitationBadge(
+                          child: _StaleConnectionBadge(
                             peerName: relation.name,
                           ),
                         ),
@@ -3613,10 +3613,10 @@ class _ConnectionTypeBadge extends StatelessWidget {
 /// has been flagged invalid. Opens an explanation dialog that routes the
 /// user to the scan-QR screen so they can import a fresh invitation from
 /// the peer. Pure visual surface, no network work of its own.
-class _StaleInvitationBadge extends StatelessWidget {
+class _StaleConnectionBadge extends StatelessWidget {
   final String peerName;
 
-  const _StaleInvitationBadge({required this.peerName});
+  const _StaleConnectionBadge({required this.peerName});
 
   @override
   Widget build(BuildContext context) {
@@ -3624,10 +3624,10 @@ class _StaleInvitationBadge extends StatelessWidget {
     return Semantics(
       button: true,
       label: TranslationService.translate(
-        context, 'stale_invitation_badge_a11y',
+        context, 'stale_connection_badge_a11y',
       ),
       child: InkWell(
-        key: const Key('staleInvitationBadge'),
+        key: const Key('staleConnectionBadge'),
         borderRadius: BorderRadius.circular(4),
         onTap: () => _showDialog(context),
         child: Container(
@@ -3644,7 +3644,7 @@ class _StaleInvitationBadge extends StatelessWidget {
               const SizedBox(width: 4),
               Text(
                 TranslationService.translate(
-                  context, 'stale_invitation_badge_label',
+                  context, 'stale_connection_badge_label',
                 ),
                 style: TextStyle(
                   fontSize: 10,
@@ -3663,15 +3663,15 @@ class _StaleInvitationBadge extends StatelessWidget {
     showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        key: const Key('staleInvitationDialog'),
+        key: const Key('staleConnectionDialog'),
         title: Text(
           TranslationService.translate(
-            dialogContext, 'stale_invitation_dialog_title',
+            dialogContext, 'stale_connection_dialog_title',
           ),
         ),
         content: Text(
           TranslationService.translate(
-            dialogContext, 'stale_invitation_dialog_body',
+            dialogContext, 'stale_connection_dialog_body',
           ).replaceFirst('%s', peerName),
         ),
         actions: [
@@ -3682,7 +3682,7 @@ class _StaleInvitationBadge extends StatelessWidget {
             ),
           ),
           FilledButton.icon(
-            key: const Key('staleInvitationScanButton'),
+            key: const Key('staleConnectionScanButton'),
             onPressed: () {
               Navigator.of(dialogContext).pop();
               context.push('/scan-qr');

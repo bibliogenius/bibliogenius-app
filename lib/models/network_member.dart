@@ -95,8 +95,10 @@ class NetworkMember {
     this.linkedContactId,
   });
 
-  /// ADR-032: convenience getter for the UI badge.
-  bool get hasStaleInvitation =>
+  /// ADR-032: convenience getter for the UI badge. Named "stale connection"
+  /// for user-facing consistency even though the underlying data is the
+  /// relay write_token invalidation timestamp.
+  bool get hasStaleConnection =>
       relayWriteTokenInvalidAt != null && relayWriteTokenInvalidAt!.isNotEmpty;
 
   /// Get display name: always the original name (never overridden by caption).

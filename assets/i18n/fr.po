@@ -5962,20 +5962,20 @@ msgid "source_filter_all"
 msgstr "Toutes les sources"
 
 #. ADR-032: short label for the chip on a peer card whose relay token is stale
-msgid "stale_invitation_badge_label"
-msgstr "Invitation périmée"
+msgid "stale_connection_badge_label"
+msgstr "Connexion périmée"
 
-#. ADR-032: accessibility label for the stale-invitation chip
-msgid "stale_invitation_badge_a11y"
-msgstr "Invitation périmée, toucher pour importer une nouvelle invitation"
+#. ADR-032: accessibility label for the stale-connection chip
+msgid "stale_connection_badge_a11y"
+msgstr "Connexion périmée, toucher pour importer une nouvelle invitation"
 
-#. ADR-032: title of the dialog shown after tapping the stale-invitation badge
-msgid "stale_invitation_dialog_title"
-msgstr "Invitation expirée"
+#. ADR-032: title of the dialog shown after tapping the stale-connection badge
+msgid "stale_connection_dialog_title"
+msgstr "Connexion périmée"
 
 #. ADR-032: body of the dialog, %s is replaced by the peer name
-msgid "stale_invitation_dialog_body"
-msgstr "L'invitation de %s a expiré. Demande-lui de te renvoyer son lien, puis clique dessus dans le SMS ou l'email, ou scanne son QR code."
+msgid "stale_connection_dialog_body"
+msgstr "La connexion à %s a expiré. Demande-lui de te renvoyer son lien d'invitation, puis clique dessus dans le SMS ou l'email, ou scanne son QR code."
 
 #. Start Reading
 msgid "start_reading"
