@@ -5897,6 +5897,30 @@ msgstr "Erreur lors de la mise à jour du statut"
 msgid "snack_loan_returned"
 msgstr "Livre marqué comme rendu"
 
+#. Sort by
+msgid "sort_by_label"
+msgstr "Trier par"
+
+#. Author (sort field)
+msgid "sort_field_author"
+msgstr "Auteur"
+
+#. Title (sort field)
+msgid "sort_field_title"
+msgstr "Titre"
+
+#. Ascending order (A to Z)
+msgid "sort_direction_ascending"
+msgstr "Croissant (A-Z)"
+
+#. Descending order (Z to A)
+msgid "sort_direction_descending"
+msgstr "Décroissant (Z-A)"
+
+#. Change sort direction
+msgid "tooltip_sort_direction"
+msgstr "Changer le sens du tri"
+
 #. Sort A→Z by author
 msgid "sort_by_author_az"
 msgstr "Trier A→Z par auteur"

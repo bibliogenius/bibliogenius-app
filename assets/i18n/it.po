@@ -5349,6 +5349,30 @@ msgstr "Errore durante l’aggiornamento dello stato"
 msgid "snack_loan_returned"
 msgstr "Libro segnato come restituito"
 
+#. Sort by
+msgid "sort_by_label"
+msgstr "Ordina per"
+
+#. Author (sort field)
+msgid "sort_field_author"
+msgstr "Autore"
+
+#. Title (sort field)
+msgid "sort_field_title"
+msgstr "Titolo"
+
+#. Ascending order (A to Z)
+msgid "sort_direction_ascending"
+msgstr "Crescente (A-Z)"
+
+#. Descending order (Z to A)
+msgid "sort_direction_descending"
+msgstr "Decrescente (Z-A)"
+
+#. Change sort direction
+msgid "tooltip_sort_direction"
+msgstr "Cambia il senso dell'ordinamento"
+
 #. Sort A→Z by author
 msgid "sort_by_author_az"
 msgstr "Ordina A→Z per autore"

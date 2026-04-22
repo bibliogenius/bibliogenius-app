@@ -4985,6 +4985,30 @@ msgstr "Грешка при актуализиране на статус"
 msgid "snack_loan_returned"
 msgstr "Книгата е маркирана като върната"
 
+#. Sort by
+msgid "sort_by_label"
+msgstr "Сортиране по"
+
+#. Author (sort field)
+msgid "sort_field_author"
+msgstr "Автор"
+
+#. Title (sort field)
+msgid "sort_field_title"
+msgstr "Заглавие"
+
+#. Ascending order (A to Z)
+msgid "sort_direction_ascending"
+msgstr "Възходящ (А-Я)"
+
+#. Descending order (Z to A)
+msgid "sort_direction_descending"
+msgstr "Низходящ (Я-А)"
+
+#. Change sort direction
+msgid "tooltip_sort_direction"
+msgstr "Промяна на посоката на сортиране"
+
 #. Sort A→Z by author
 msgid "sort_by_author_az"
 msgstr "Сортиране А→Я по автор"

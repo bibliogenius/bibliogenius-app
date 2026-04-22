@@ -93,6 +93,7 @@ import 'providers/book_note_provider.dart';
 import 'providers/hub_directory_provider.dart';
 import 'providers/flash_message_provider.dart';
 import 'providers/notification_provider.dart';
+import 'providers/sort_preference_provider.dart';
 import 'package:app_links/app_links.dart';
 
 import 'services/wizard_service.dart';
@@ -548,6 +549,9 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider<NotificationProvider>(
           create: (_) => NotificationProvider()..init(),
+        ),
+        ChangeNotifierProvider<SortPreferenceProvider>(
+          create: (_) => SortPreferenceProvider()..load(),
         ),
       ],
       child: const AppRouter(),
