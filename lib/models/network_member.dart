@@ -50,6 +50,11 @@ class NetworkMember {
   /// Whether this peer has relay credentials (reachable via hub)
   final bool hasRelayCredentials;
 
+  /// ADR-032: when non-null, the peer's relay write_token has been flagged
+  /// invalid (deposit 404 that couldn't be auto-refreshed). The user must
+  /// import a fresh invitation from this peer to restore relay delivery.
+  final String? relayWriteTokenInvalidAt;
+
   /// User-defined display name (overrides name in the UI)
   final String? customDisplayName;
 
@@ -83,11 +88,16 @@ class NetworkMember {
     this.keyExchangeDone = false,
     this.libraryUuid,
     this.hasRelayCredentials = false,
+    this.relayWriteTokenInvalidAt,
     this.customDisplayName,
     this.avatarConfig,
     this.linkedPeerId,
     this.linkedContactId,
   });
+
+  /// ADR-032: convenience getter for the UI badge.
+  bool get hasStaleInvitation =>
+      relayWriteTokenInvalidAt != null && relayWriteTokenInvalidAt!.isNotEmpty;
 
   /// Get display name: always the original name (never overridden by caption).
   String get displayName {
@@ -124,6 +134,7 @@ class NetworkMember {
         keyExchangeDone: keyExchangeDone,
         libraryUuid: libraryUuid,
         hasRelayCredentials: hasRelayCredentials,
+        relayWriteTokenInvalidAt: relayWriteTokenInvalidAt,
         customDisplayName: newCaption,
         avatarConfig: avatarConfig,
         linkedPeerId: linkedPeerId,
@@ -176,6 +187,7 @@ class NetworkMember {
       hasRelayCredentials: (peer['relay_url'] as String?)?.isNotEmpty == true &&
           (peer['mailbox_id'] as String?)?.isNotEmpty == true &&
           (peer['relay_write_token'] as String?)?.isNotEmpty == true,
+      relayWriteTokenInvalidAt: peer['relay_write_token_invalid_at'] as String?,
       customDisplayName: peer['display_name'] as String?,
       avatarConfig: _parseAvatarConfig(peer['avatar_config']),
     );

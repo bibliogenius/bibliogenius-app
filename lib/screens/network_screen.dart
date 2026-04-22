@@ -3069,6 +3069,16 @@ class _LibraryRelationCard extends StatelessWidget {
                             color: Colors.deepPurple,
                           ),
                         ),
+                      // ADR-032: surface a tappable badge when this peer's
+                      // relay write_token has been flagged invalid so the
+                      // user can trigger a fresh invitation import.
+                      if (relation.peer?.hasStaleInvitation == true)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: _StaleInvitationBadge(
+                            peerName: relation.name,
+                          ),
+                        ),
                     ],
                   ),
                 ),
@@ -3594,6 +3604,95 @@ class _ConnectionTypeBadge extends StatelessWidget {
           color: color,
           fontWeight: FontWeight.w500,
         ),
+      ),
+    );
+  }
+}
+
+/// ADR-032: Tappable chip shown on peer cards when their relay write_token
+/// has been flagged invalid. Opens an explanation dialog that routes the
+/// user to the scan-QR screen so they can import a fresh invitation from
+/// the peer. Pure visual surface, no network work of its own.
+class _StaleInvitationBadge extends StatelessWidget {
+  final String peerName;
+
+  const _StaleInvitationBadge({required this.peerName});
+
+  @override
+  Widget build(BuildContext context) {
+    const color = Colors.orange;
+    return Semantics(
+      button: true,
+      label: TranslationService.translate(
+        context, 'stale_invitation_badge_a11y',
+      ),
+      child: InkWell(
+        key: const Key('staleInvitationBadge'),
+        borderRadius: BorderRadius.circular(4),
+        onTap: () => _showDialog(context),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(4),
+            border: Border.all(color: color.withValues(alpha: 0.4)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.warning_amber_rounded, size: 12, color: color),
+              const SizedBox(width: 4),
+              Text(
+                TranslationService.translate(
+                  context, 'stale_invitation_badge_label',
+                ),
+                style: TextStyle(
+                  fontSize: 10,
+                  color: color,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showDialog(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        key: const Key('staleInvitationDialog'),
+        title: Text(
+          TranslationService.translate(
+            dialogContext, 'stale_invitation_dialog_title',
+          ),
+        ),
+        content: Text(
+          TranslationService.translate(
+            dialogContext, 'stale_invitation_dialog_body',
+          ).replaceFirst('%s', peerName),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text(
+              TranslationService.translate(dialogContext, 'close'),
+            ),
+          ),
+          FilledButton.icon(
+            key: const Key('staleInvitationScanButton'),
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              context.push('/scan-qr');
+            },
+            icon: const Icon(Icons.qr_code_scanner, size: 18),
+            label: Text(
+              TranslationService.translate(dialogContext, 'scan_qr_code'),
+            ),
+          ),
+        ],
       ),
     );
   }
