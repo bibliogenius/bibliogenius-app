@@ -2450,153 +2450,180 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
         minChildSize: 0.5,
         maxChildSize: 0.95,
         expand: false,
-        builder: (context, scrollController) => SingleChildScrollView(
-          controller: scrollController,
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+        builder: (context, scrollController) {
+          final theme = Theme.of(context);
+          final closeLabel = TranslationService.translate(context, 'close');
+          return Column(
             children: [
-              // Drag handle
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[400],
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              // Cover + info row (same layout as hub book detail sheet)
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Cover
-                  CachedBookCover(
-                    imageUrl: _resolvePeerCoverUrl(book),
-                    width: 120,
-                    height: 180,
-                    borderRadius: BorderRadius.circular(8),
-                    onTapPlaceholder: () => _reloadCover(book),
-                    isPeerCover: true,
-                    semanticLabel: book.author != null &&
-                            book.author!.isNotEmpty
-                        ? '${book.title}, ${book.author}'
-                        : book.title,
-                  ),
-                  const SizedBox(width: 16),
-                  // Info column
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          book.title,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
-                              ?.copyWith(fontWeight: FontWeight.w600),
-                        ),
-                        if (book.author != null) ...[
-                          const SizedBox(height: 4),
-                          Text(
-                            book.author!,
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                        ],
-                        if (book.publisher != null ||
-                            book.publicationYear != null) ...[
-                          const SizedBox(height: 4),
-                          Text(
-                            [
-                              book.publisher,
-                              book.publicationYear?.toString(),
-                            ].whereType<String>().join(' - '),
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(color: Colors.grey[600]),
-                          ),
-                        ],
-                        if (book.isbn != null && book.isbn!.isNotEmpty) ...[
-                          const SizedBox(height: 4),
-                          Text(
-                            'ISBN: ${book.isbn}',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(
-                                  fontFamily: 'monospace',
-                                  color: Colors.grey[500],
-                                ),
-                          ),
-                        ],
-                      ],
+              // Pinned header: drag handle + close button (always visible)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[400],
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              // Summary
-              if (book.summary != null && book.summary!.isNotEmpty) ...[
-                const SizedBox(height: 16),
-                Text(
-                  book.summary!,
-                  style: Theme.of(context).textTheme.bodyMedium,
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: IconButton(
+                        icon: const Icon(Icons.close),
+                        tooltip: closeLabel,
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-              // Borrow button
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton.icon(
-                  onPressed: _canBorrow(book)
-                      ? () {
-                          Navigator.pop(context);
-                          _requestBorrow(book);
-                        }
-                      : null,
-                  icon: Icon(
-                    _canBorrow(book)
-                        ? Icons.swap_horiz
-                        : _hasPendingRequest(book) || _isActiveBorrow(book)
-                            ? Icons.hourglass_top
-                            : _isLending(book)
-                                ? Icons.swap_horiz
-                                : Icons.block,
+              ),
+              // Scrollable content (cover + info + description)
+              Expanded(
+                child: SingleChildScrollView(
+                  controller: scrollController,
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Cover + info row (same layout as hub book detail sheet)
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CachedBookCover(
+                            imageUrl: _resolvePeerCoverUrl(book),
+                            width: 120,
+                            height: 180,
+                            borderRadius: BorderRadius.circular(8),
+                            onTapPlaceholder: () => _reloadCover(book),
+                            isPeerCover: true,
+                            semanticLabel: book.author != null &&
+                                    book.author!.isNotEmpty
+                                ? '${book.title}, ${book.author}'
+                                : book.title,
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  book.title,
+                                  style: theme.textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                if (book.author != null) ...[
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    book.author!,
+                                    style: theme.textTheme.bodyMedium,
+                                  ),
+                                ],
+                                if (book.publisher != null ||
+                                    book.publicationYear != null) ...[
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    [
+                                      book.publisher,
+                                      book.publicationYear?.toString(),
+                                    ].whereType<String>().join(' - '),
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ],
+                                if (book.isbn != null &&
+                                    book.isbn!.isNotEmpty) ...[
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'ISBN: ${book.isbn}',
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      fontFamily: 'monospace',
+                                      color: Colors.grey[500],
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (book.summary != null &&
+                          book.summary!.isNotEmpty) ...[
+                        const SizedBox(height: 16),
+                        Text(
+                          book.summary!,
+                          style: theme.textTheme.bodyMedium,
+                        ),
+                      ],
+                    ],
                   ),
-                  label: Text(
-                    _hasPendingRequest(book)
-                        ? TranslationService.translate(
-                            context,
-                            'borrow_pending',
-                          )
-                        : _isActiveBorrow(book)
-                            ? TranslationService.translate(
-                                context,
-                                'borrow_active',
-                              )
-                            : _isLending(book)
-                                ? TranslationService.translate(
-                                    context,
-                                    'borrow_on_loan',
-                                  )
-                                : _hasNoCopiesAvailable(book)
-                                    ? TranslationService.translate(
-                                        context,
-                                        'borrow_unavailable',
-                                      )
-                                    : TranslationService.translate(
-                                        context,
-                                        'request_to_borrow',
-                                      ),
+                ),
+              ),
+              // Pinned bottom action bar: borrow CTA always reachable
+              Material(
+                elevation: 8,
+                color: theme.colorScheme.surface,
+                child: SafeArea(
+                  top: false,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: FilledButton.icon(
+                        onPressed: _canBorrow(book)
+                            ? () {
+                                Navigator.pop(context);
+                                _requestBorrow(book);
+                              }
+                            : null,
+                        icon: Icon(
+                          _canBorrow(book)
+                              ? Icons.swap_horiz
+                              : _hasPendingRequest(book) ||
+                                      _isActiveBorrow(book)
+                                  ? Icons.hourglass_top
+                                  : _isLending(book)
+                                      ? Icons.swap_horiz
+                                      : Icons.block,
+                        ),
+                        label: Text(
+                          _hasPendingRequest(book)
+                              ? TranslationService.translate(
+                                  context,
+                                  'borrow_pending',
+                                )
+                              : _isActiveBorrow(book)
+                                  ? TranslationService.translate(
+                                      context,
+                                      'borrow_active',
+                                    )
+                                  : _isLending(book)
+                                      ? TranslationService.translate(
+                                          context,
+                                          'borrow_on_loan',
+                                        )
+                                      : _hasNoCopiesAvailable(book)
+                                          ? TranslationService.translate(
+                                              context,
+                                              'borrow_unavailable',
+                                            )
+                                          : TranslationService.translate(
+                                              context,
+                                              'request_to_borrow',
+                                            ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),
             ],
-          ),
-        ),
+          );
+        },
       ),
     );
   }
