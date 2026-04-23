@@ -868,7 +868,7 @@ class _ProgressOverlay extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   SizedBox(
-                    width: 40,
+                    width: 48,
                     child: _buildBar(progress, isComplete),
                   ),
                   const SizedBox(width: 6),
@@ -895,15 +895,17 @@ class _ProgressOverlay extends StatelessWidget {
 
   Widget _buildBar(double progress, bool isComplete) {
     return SizedBox(
-      height: 3.5,
+      height: 5,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(2),
+        borderRadius: BorderRadius.circular(3),
         child: Stack(
+          fit: StackFit.expand,
           children: [
-            Container(color: Colors.white.withValues(alpha: 0.15)),
+            Container(color: Colors.white.withValues(alpha: 0.22)),
             FractionallySizedBox(
               alignment: Alignment.centerLeft,
               widthFactor: progress.clamp(0.0, 1.0),
+              heightFactor: 1.0,
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(

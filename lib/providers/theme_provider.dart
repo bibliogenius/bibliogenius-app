@@ -409,7 +409,7 @@ class ThemeProvider with ChangeNotifier {
         prefs.getBool('carousel_hidden_peer_lib') ?? false;
     _showViewCount = prefs.getBool('showViewCount') ?? true;
     _collectionsEnabled = prefs.getBool('collectionsEnabled') ?? false;
-    _groupByCollections = prefs.getBool('groupByCollections') ?? false;
+    _groupByCollections = prefs.getBool('groupByCollections') ?? true;
     _quotesEnabled = prefs.getBool('quotesEnabled') ?? true;
 
     _digitalFormatsEnabled = prefs.getBool('digitalFormatsEnabled') ?? false;
@@ -920,7 +920,7 @@ class ThemeProvider with ChangeNotifier {
     _gamificationEnabled = true;
     _quotesEnabled = true;
     _collectionsEnabled = false;
-    _groupByCollections = false;
+    _groupByCollections = true;
     _gamesEnabled = true;
     _memoryGameEnabled = true;
     _slidingPuzzleEnabled = true;
@@ -1337,7 +1337,7 @@ class ThemeProvider with ChangeNotifier {
   }
 
   // Group library by collection (display setting)
-  bool _groupByCollections = false;
+  bool _groupByCollections = true;
   bool get groupByCollections => _groupByCollections;
 
   Future<void> setGroupByCollections(bool enabled) async {

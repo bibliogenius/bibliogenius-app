@@ -83,6 +83,12 @@ class _BookListScreenState extends State<BookListScreen>
   // Global sort preference (persisted across sessions)
   SortPreferenceProvider? _sortPrefProvider;
 
+  // Theme provider — listened to so the library reacts when the user toggles
+  // "group by collection" in Settings during the session.
+  ThemeProvider? _themeProvider;
+  bool? _prevGroupByCollections;
+  bool? _prevCollectionsEnabled;
+
   // Filter state
   String? _selectedStatus;
   String? _tagFilter;
@@ -151,6 +157,10 @@ class _BookListScreenState extends State<BookListScreen>
 
       // Apply default view mode from settings (group by collection)
       final themeProvider = context.read<ThemeProvider>();
+      _themeProvider = themeProvider;
+      _prevGroupByCollections = themeProvider.groupByCollections;
+      _prevCollectionsEnabled = themeProvider.collectionsEnabled;
+      themeProvider.addListener(_handleThemePrefChanged);
       if (themeProvider.groupByCollections &&
           themeProvider.collectionsEnabled) {
         setState(() => _viewMode = ViewMode.groupedCollections);
@@ -255,6 +265,7 @@ class _BookListScreenState extends State<BookListScreen>
     widget.externalSearchQuery?.removeListener(_handleExternalSearchChange);
     _globalRefreshNotifier?.removeListener(_handleRefreshTrigger);
     _sortPrefProvider?.removeListener(_handleSortPrefChanged);
+    _themeProvider?.removeListener(_handleThemePrefChanged);
     _searchController.dispose();
     _searchDebounce?.cancel();
     super.dispose();
@@ -263,6 +274,32 @@ class _BookListScreenState extends State<BookListScreen>
   void _handleSortPrefChanged() {
     if (!mounted) return;
     setState(_filterBooks);
+  }
+
+  /// Reacts to changes of the "group by collection" and "collections enabled"
+  /// settings. Only fires a rebuild when one of these two values actually
+  /// changes — this preserves the user's local view-mode overrides (they pick
+  /// list/shelves from the library's toggle row and those choices survive
+  /// unrelated ThemeProvider notifications).
+  void _handleThemePrefChanged() {
+    if (!mounted) return;
+    final tp = _themeProvider;
+    if (tp == null) return;
+    final gbc = tp.groupByCollections;
+    final ce = tp.collectionsEnabled;
+    if (gbc == _prevGroupByCollections && ce == _prevCollectionsEnabled) {
+      return;
+    }
+    _prevGroupByCollections = gbc;
+    _prevCollectionsEnabled = ce;
+
+    final shouldBeGrouped = ce && gbc;
+    if (shouldBeGrouped && _viewMode != ViewMode.groupedCollections) {
+      setState(() => _viewMode = ViewMode.groupedCollections);
+      _fetchCollectionGroups();
+    } else if (!shouldBeGrouped && _viewMode == ViewMode.groupedCollections) {
+      setState(() => _viewMode = ViewMode.coverGrid);
+    }
   }
 
   void _handleExternalSearchChange() {
@@ -1160,15 +1197,6 @@ class _BookListScreenState extends State<BookListScreen>
             child: Row(
               children: [
                 _buildViewModeToggle(Icons.grid_view, ViewMode.coverGrid),
-                if (context.read<ThemeProvider>().collectionsEnabled)
-                  _buildViewModeToggle(
-                    Icons.collections_bookmark,
-                    ViewMode.groupedCollections,
-                    tooltip: TranslationService.translate(
-                      context,
-                      'view_mode_grouped_collections',
-                    ),
-                  ),
                 _buildViewModeToggle(Icons.shelves, ViewMode.spineShelf),
                 _buildViewModeToggle(Icons.list, ViewMode.list),
               ],
