@@ -8751,7 +8751,13 @@ msgid "two_factor_auth_help"
 msgstr "Adds a second verification step at login (SMS code or authenticator app). Increases security when using BiblioGenius with a server account."
 
 msgid "recently_added_title"
-msgstr "Recently added"
+msgstr "Activity"
+
+msgid "badge_new"
+msgstr "NEW"
+
+msgid "badge_days_since_start"
+msgstr "D+%s"
 
 msgid "carousel_hide_tooltip"
 msgstr "Hide carousel"
@@ -8766,7 +8772,7 @@ msgid "carousel_collapse_tooltip"
 msgstr "Collapse carousel"
 
 msgid "carousel_collapsed_label"
-msgstr "Recently added · {count}"
+msgstr "Activity · {count}"
 
 msgid "carousel_hidden_snackbar"
 msgstr "Carousel hidden"
@@ -8775,16 +8781,16 @@ msgid "action_undo"
 msgstr "Undo"
 
 msgid "carousel_own_lib_title"
-msgstr "Recently added — my library"
+msgstr "Activity: my library"
 
 msgid "carousel_own_lib_desc"
-msgstr "Shows a carousel at the top of your library with recently added books."
+msgstr "Shows your currently-reading books and latest additions at the top of your library."
 
 msgid "carousel_peer_lib_title"
-msgstr "Recently added — peers"
+msgstr "Activity: peers"
 
 msgid "carousel_peer_lib_desc"
-msgstr "Shows a carousel at the top of peer libraries with their recent additions."
+msgstr "Shows peers' currently-reading books and latest additions at the top of their libraries."
 
 #. Save order (shelf reorder mode)
 msgid "save_shelf_order"

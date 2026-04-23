@@ -13,13 +13,15 @@ import 'book_cover_card.dart';
 /// independently.
 enum RecentlyAddedCarouselScope { ownLib, peerLib }
 
-/// Horizontal strip of recently added books displayed at the top of a library
-/// view. Books are filtered via [Book.isNew] (addedAt within the "new badge"
-/// threshold).
+/// Horizontal "Activité" strip displayed at the top of a library view.
+/// Highlights the user's currently-reading books first, then recently-added
+/// books (via [Book.isNew]). Reading books are sorted by startedReadingAt
+/// desc (nulls last); new books by addedAt desc. Combined list capped at
+/// [maxItems].
 ///
 /// Three display states:
 /// - **expanded**: full strip of covers (default, ~165 px tall)
-/// - **collapsed**: single-row summary with count — auto-triggered when the
+/// - **collapsed**: single-row summary with count, auto-triggered when the
 ///   list below is scrolled, or via the chevron toggle
 /// - **hidden**: widget is gone; long-press on the chevron dismisses durably
 ///
@@ -46,12 +48,12 @@ class RecentlyAddedCarousel extends StatelessWidget {
 
   // 2:3 matches the standard book cover aspect ratio (Inventaire /
   // OpenLibrary), so covers fit without cropping under BoxFit.cover. On
-  // narrow devices (iPhone SE class, shortestSide < 360) we shrink to
-  // 80x120 so the strip takes less vertical room and fits more covers.
-  static const double _coverWidthDefault = 100;
-  static const double _coverHeightDefault = 150;
-  static const double _coverWidthCompact = 80;
-  static const double _coverHeightCompact = 120;
+  // narrow devices (iPhone SE class, shortestSide < 360) we shrink further
+  // so the strip takes less vertical room and fits more covers.
+  static const double _coverWidthDefault = 80;
+  static const double _coverHeightDefault = 120;
+  static const double _coverWidthCompact = 64;
+  static const double _coverHeightCompact = 96;
   static const double _compactBreakpoint = 360;
 
   /// Auto-hide thresholds: below this library size, or above this ratio of
@@ -105,13 +107,35 @@ class RecentlyAddedCarousel extends StatelessWidget {
     );
   }
 
-  List<Book> _recentBooks() {
-    final recent = books.where((b) => b.isNew).toList();
-    recent.sort((a, b) => b.addedAt!.compareTo(a.addedAt!));
-    return recent.take(maxItems).toList();
+  /// Ordered selection: currently-reading books first (most recently started),
+  /// then recently-added books that aren't already in the reading slice.
+  List<Book> _selectBooks() {
+    final reading = books.where((b) => b.readingStatus == 'reading').toList();
+    reading.sort((a, b) {
+      final aStarted = a.startedReadingAt;
+      final bStarted = b.startedReadingAt;
+      if (aStarted == null && bStarted == null) return 0;
+      if (aStarted == null) return 1;
+      if (bStarted == null) return -1;
+      return bStarted.compareTo(aStarted);
+    });
+
+    final newOnly = books
+        .where((b) => b.isNew && b.readingStatus != 'reading')
+        .toList();
+    newOnly.sort((a, b) => b.addedAt!.compareTo(a.addedAt!));
+
+    return [...reading, ...newOnly].take(maxItems).toList();
   }
 
-  bool _shouldAutoHide(int newCount) {
+  /// Hide when there is nothing to show. If the activity list is dominated
+  /// by brand-new books in a small library, hide too: the carousel would
+  /// duplicate the grid underneath and add no value.
+  bool _shouldAutoHide(List<Book> selected) {
+    if (selected.isEmpty) return true;
+    final hasReading = selected.any((b) => b.readingStatus == 'reading');
+    if (hasReading) return false;
+    final newCount = books.where((b) => b.isNew).length;
     if (books.length < _minLibrarySize) return true;
     return newCount / books.length > _maxRecentRatio;
   }
@@ -121,11 +145,10 @@ class RecentlyAddedCarousel extends StatelessWidget {
     final provider = context.watch<ThemeProvider>();
     if (_hidden(provider)) return const SizedBox.shrink();
 
-    final newCount = books.where((b) => b.isNew).length;
-    if (newCount == 0 || _shouldAutoHide(newCount)) {
+    final selected = _selectBooks();
+    if (_shouldAutoHide(selected)) {
       return const SizedBox.shrink();
     }
-    final recent = _recentBooks();
 
     final colorScheme = Theme.of(context).colorScheme;
     final collapsed = _collapsed(provider);
@@ -158,13 +181,13 @@ class RecentlyAddedCarousel extends StatelessWidget {
           child: collapsed
               ? _CollapsedBar(
                   key: const ValueKey('collapsed'),
-                  count: recent.length,
+                  count: selected.length,
                   onExpand: () => _setCollapsed(provider, false),
                   onLongPress: () => _dismiss(context, provider),
                 )
               : _ExpandedStrip(
                   key: const ValueKey('expanded'),
-                  books: recent,
+                  books: selected,
                   coverWidth: coverWidth,
                   coverHeight: coverHeight,
                   onCollapse: () => _setCollapsed(provider, true),
@@ -370,10 +393,86 @@ class _CarouselCover extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Show a "NEW" badge on recently-added books that aren't currently being
+    // read. Reading books already carry the "EN COURS" status badge; adding
+    // NEW on top would duplicate the signal.
+    final showNewBadge = book.isNew && book.readingStatus != 'reading';
+    final daysLabel = _daysSinceStartLabel(context);
+
     return SizedBox(
       width: width,
       height: height,
-      child: BookCoverCard(book: book, onTap: onTap),
+      child: Stack(
+        children: [
+          BookCoverCard(book: book, onTap: onTap),
+          if (showNewBadge)
+            Positioned(
+              top: 8,
+              left: 8,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 6,
+                  vertical: 2,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.amber.shade700.withValues(alpha: 0.9),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  TranslationService.translate(context, 'badge_new'),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          if (daysLabel != null)
+            Positioned(
+              bottom: 8,
+              right: 8,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 5,
+                  vertical: 1,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.55),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  daysLabel,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 9,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
     );
+  }
+
+  /// Returns a short localized label (e.g. "J+5", "D+99+") when the book is
+  /// currently being read and has a known start date. Omits the label when:
+  /// * the book is not reading,
+  /// * startedReadingAt is null,
+  /// * the start is today (would duplicate the status badge signal),
+  /// * the start is in the future (clock drift safety).
+  String? _daysSinceStartLabel(BuildContext context) {
+    if (book.readingStatus != 'reading') return null;
+    final started = book.startedReadingAt;
+    if (started == null) return null;
+    final startedDay = DateTime(started.year, started.month, started.day);
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final days = today.difference(startedDay).inDays;
+    if (days <= 0) return null;
+    final formatted = days >= 100 ? '99+' : days.toString();
+    return TranslationService.translate(context, 'badge_days_since_start')
+        .replaceAll('%s', formatted);
   }
 }

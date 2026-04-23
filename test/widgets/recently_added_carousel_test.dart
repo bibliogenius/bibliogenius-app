@@ -23,6 +23,9 @@ void main() {
         'carousel_hide_tooltip': 'Hide carousel',
         'carousel_hidden_snackbar': 'Carousel hidden',
         'action_undo': 'Undo',
+        'badge_new': 'NEW',
+        'badge_days_since_start': 'D+%s',
+        'reading_status_reading': 'Currently reading',
       },
     });
   });
@@ -41,6 +44,19 @@ void main() {
     id: id,
     title: title,
     addedAt: DateTime.now().subtract(const Duration(days: 365)),
+  );
+
+  Book readingBook({
+    required int id,
+    required String title,
+    DateTime? startedAt,
+    DateTime? addedAt,
+  }) => Book(
+    id: id,
+    title: title,
+    readingStatus: 'reading',
+    startedReadingAt: startedAt,
+    addedAt: addedAt ?? DateTime.now().subtract(const Duration(days: 365)),
   );
 
   /// Pads the library with enough old books to clear the auto-hide thresholds
@@ -181,5 +197,116 @@ void main() {
     await tester.pump();
 
     expect(provider.carouselHiddenOwnLib, isTrue);
+  });
+
+  testWidgets('currently-reading books appear before recently-added books',
+      (tester) async {
+    final reading = readingBook(
+      id: 50,
+      title: 'Reading Book',
+      startedAt: DateTime.now().subtract(const Duration(days: 2)),
+    );
+    final recent = newBook(id: 51, title: 'New Book');
+
+    await tester.pumpWidget(buildHarness(withPad([recent, reading])));
+
+    final readingRect = tester.getRect(find.text('Reading Book'));
+    final newRect = tester.getRect(find.text('New Book'));
+    expect(readingRect.left, lessThan(newRect.left),
+        reason: 'reading book should render to the left of the new book');
+  });
+
+  testWidgets(
+      'carousel shows when reading books exist even in a small library',
+      (tester) async {
+    // Library of 3 books, well below _minLibrarySize = 10. Without a reading
+    // book this would auto-hide.
+    await tester.pumpWidget(buildHarness([
+      readingBook(id: 1, title: 'Reading'),
+      oldBook(id: 2, title: 'Old 1'),
+      oldBook(id: 3, title: 'Old 2'),
+    ]));
+
+    expect(find.text('Recently added'), findsOneWidget);
+    expect(find.text('Reading'), findsOneWidget);
+  });
+
+  testWidgets('NEW badge appears on recently-added books', (tester) async {
+    await tester.pumpWidget(buildHarness(withPad([
+      newBook(id: 1, title: 'Fresh Book'),
+    ])));
+
+    expect(find.text('NEW'), findsOneWidget);
+  });
+
+  testWidgets('NEW badge does not appear on currently-reading books',
+      (tester) async {
+    // Reading AND recent-addedAt: we should see the reading status badge,
+    // not the NEW badge.
+    await tester.pumpWidget(buildHarness(withPad([
+      Book(
+        id: 1,
+        title: 'Active',
+        readingStatus: 'reading',
+        addedAt: DateTime.now().subtract(const Duration(hours: 1)),
+      ),
+    ])));
+
+    expect(find.text('NEW'), findsNothing);
+  });
+
+  testWidgets('D+N badge appears on reading books with startedReadingAt',
+      (tester) async {
+    await tester.pumpWidget(buildHarness([
+      readingBook(
+        id: 1,
+        title: 'Ongoing',
+        startedAt: DateTime.now().subtract(const Duration(days: 5)),
+      ),
+      oldBook(id: 2, title: 'Old'),
+      oldBook(id: 3, title: 'Old2'),
+    ]));
+
+    expect(find.text('D+5'), findsOneWidget);
+  });
+
+  testWidgets('D+N badge caps at 99+ for long reads', (tester) async {
+    await tester.pumpWidget(buildHarness([
+      readingBook(
+        id: 1,
+        title: 'Slow',
+        startedAt: DateTime.now().subtract(const Duration(days: 365)),
+      ),
+      oldBook(id: 2, title: 'Old'),
+      oldBook(id: 3, title: 'Old2'),
+    ]));
+
+    expect(find.text('D+99+'), findsOneWidget);
+  });
+
+  testWidgets('D+N badge absent when startedReadingAt is today',
+      (tester) async {
+    await tester.pumpWidget(buildHarness([
+      readingBook(
+        id: 1,
+        title: 'Fresh read',
+        startedAt: DateTime.now(),
+      ),
+      oldBook(id: 2, title: 'Old'),
+      oldBook(id: 3, title: 'Old2'),
+    ]));
+
+    expect(find.textContaining('D+'), findsNothing);
+  });
+
+  testWidgets('D+N badge absent when startedReadingAt is null',
+      (tester) async {
+    await tester.pumpWidget(buildHarness([
+      readingBook(id: 1, title: 'Unknown start'),
+      oldBook(id: 2, title: 'Old'),
+      oldBook(id: 3, title: 'Old2'),
+    ]));
+
+    expect(find.textContaining('D+'), findsNothing);
   });
 }
