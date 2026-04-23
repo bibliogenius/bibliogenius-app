@@ -543,6 +543,7 @@ class _BookDetailSheetState extends State<_BookDetailSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final isLocal = widget.localIsbns.contains(widget.entry.isbn);
     final coverUrl = _meta?['cover_url'];
     final summary = _meta?['summary'];
@@ -551,220 +552,254 @@ class _BookDetailSheetState extends State<_BookDetailSheet> {
     final title = _meta?['title'] ??
         (widget.entry.title.isNotEmpty ? widget.entry.title : null);
     final author = _meta?['author'] ?? widget.entry.author;
+    final closeLabel = TranslationService.translate(context, 'close');
 
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+    return DraggableScrollableSheet(
+      initialChildSize: 0.75,
+      minChildSize: 0.5,
+      maxChildSize: 0.95,
+      expand: false,
+      builder: (context, scrollController) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Drag handle
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[400],
-                    borderRadius: BorderRadius.circular(2),
+              // Pinned header: drag handle + close button (always visible)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[400],
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: IconButton(
+                        icon: const Icon(Icons.close),
+                        tooltip: closeLabel,
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Scrollable content
+              Expanded(
+                child: SingleChildScrollView(
+                  controller: scrollController,
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            width: 120,
+                            height: 180,
+                            child: _loading
+                                ? const Center(
+                                    child: CircularProgressIndicator())
+                                : coverUrl != null
+                                    ? ClipRRect(
+                                        borderRadius:
+                                            BorderRadius.circular(8),
+                                        child: Semantics(
+                                          image: true,
+                                          label:
+                                              title != null && author != null
+                                                  ? '$title, $author'
+                                                  : title ?? widget.entry.isbn,
+                                          child: CachedNetworkImage(
+                                            imageUrl: coverUrl,
+                                            fit: BoxFit.cover,
+                                            placeholder: (_, _) =>
+                                                const Center(
+                                              child:
+                                                  CircularProgressIndicator(),
+                                            ),
+                                            errorWidget: (_, _, _) =>
+                                                _buildPlaceholderCover(
+                                                    context),
+                                          ),
+                                        ),
+                                      )
+                                    : _buildPlaceholderCover(context),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (title != null)
+                                  Text(
+                                    title,
+                                    style: theme.textTheme.titleMedium
+                                        ?.copyWith(fontWeight: FontWeight.w600),
+                                  ),
+                                if (author != null) ...[
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    author,
+                                    style: theme.textTheme.bodyMedium,
+                                  ),
+                                ],
+                                if (publisher != null || year != null) ...[
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    [publisher, year]
+                                        .whereType<String>()
+                                        .join(' - '),
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ],
+                                const SizedBox(height: 4),
+                                Text(
+                                  'ISBN: ${widget.entry.isbn}',
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    fontFamily: 'monospace',
+                                    color: Colors.grey[500],
+                                  ),
+                                ),
+                                if (_loading) ...[
+                                  const SizedBox(height: 12),
+                                  Row(
+                                    children: [
+                                      const SizedBox(
+                                        width: 16,
+                                        height: 16,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Flexible(
+                                        child: Text(
+                                          TranslationService.translate(
+                                            context,
+                                            'catalog_loading_details',
+                                          ),
+                                          style: theme.textTheme.bodySmall,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (!_loading &&
+                          summary != null &&
+                          summary.isNotEmpty) ...[
+                        const SizedBox(height: 16),
+                        Text(
+                          summary,
+                          style: theme.textTheme.bodyMedium,
+                        ),
+                      ],
+                      if (!_loading && _meta == null) ...[
+                        const SizedBox(height: 12),
+                        Text(
+                          TranslationService.translate(
+                            context,
+                            'catalog_details_unavailable',
+                          ),
+                          style: theme.textTheme.bodySmall
+                              ?.copyWith(color: Colors.grey[500]),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
               ),
-              // Cover + info row
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Cover area
-                  SizedBox(
-                    width: 120,
-                    height: 180,
-                    child: _loading
-                        ? const Center(child: CircularProgressIndicator())
-                        : coverUrl != null
-                            ? ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: Semantics(
-                                  image: true,
-                                  label: title != null && author != null
-                                      ? '$title, $author'
-                                      : title ?? widget.entry.isbn,
-                                  child: CachedNetworkImage(
-                                    imageUrl: coverUrl,
-                                    fit: BoxFit.cover,
-                                    placeholder: (_, _) => const Center(
-                                      child: CircularProgressIndicator(),
+              // Pinned bottom action bar: CTAs always reachable
+              Material(
+                elevation: 8,
+                color: theme.colorScheme.surface,
+                child: SafeArea(
+                  top: false,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(
+                          width: double.infinity,
+                          child: isLocal
+                              ? FilledButton.tonal(
+                                  onPressed: null,
+                                  child: Text(
+                                    TranslationService.translate(
+                                      context,
+                                      'catalog_already_in_library',
                                     ),
-                                    errorWidget: (_, _, _) =>
-                                        _buildPlaceholderCover(context),
+                                  ),
+                                )
+                              : FilledButton.icon(
+                                  onPressed: _adding ? null : _addToLibrary,
+                                  icon: _adding
+                                      ? const SizedBox(
+                                          width: 18,
+                                          height: 18,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                          ),
+                                        )
+                                      : const Icon(Icons.add),
+                                  label: Text(
+                                    TranslationService.translate(
+                                      context,
+                                      'catalog_add_to_library',
+                                    ),
                                   ),
                                 ),
-                              )
-                            : _buildPlaceholderCover(context),
-                  ),
-                  const SizedBox(width: 16),
-                  // Info column
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (title != null)
-                          Text(
-                            title,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(fontWeight: FontWeight.w600),
-                          ),
-                        if (author != null) ...[
-                          const SizedBox(height: 4),
-                          Text(
-                            author,
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                        ],
-                        if (publisher != null || year != null) ...[
-                          const SizedBox(height: 4),
-                          Text(
-                            [publisher, year]
-                                .whereType<String>()
-                                .join(' - '),
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(color: Colors.grey[600]),
-                          ),
-                        ],
-                        const SizedBox(height: 4),
-                        Text(
-                          'ISBN: ${widget.entry.isbn}',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(
-                                fontFamily: 'monospace',
-                                color: Colors.grey[500],
-                              ),
                         ),
-                        if (_loading) ...[
-                          const SizedBox(height: 12),
-                          Row(
-                            children: [
-                              const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Flexible(
-                                child: Text(
+                        if (!isLocal && widget.allowBorrowing)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: OutlinedButton.icon(
+                                onPressed:
+                                    _borrowing ? null : _requestBorrow,
+                                icon: _borrowing
+                                    ? const SizedBox(
+                                        width: 18,
+                                        height: 18,
+                                        child: CircularProgressIndicator(
+                                            strokeWidth: 2),
+                                      )
+                                    : const Icon(Icons.swap_horiz),
+                                label: Text(
                                   TranslationService.translate(
                                     context,
-                                    'catalog_loading_details',
+                                    'request_to_borrow',
                                   ),
-                                  style:
-                                      Theme.of(context).textTheme.bodySmall,
                                 ),
                               ),
-                            ],
+                            ),
                           ),
-                        ],
                       ],
                     ),
                   ),
-                ],
+                ),
               ),
-              // Summary
-              if (!_loading &&
-                  summary != null &&
-                  summary.isNotEmpty) ...[
-                const SizedBox(height: 16),
-                Text(
-                  summary,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-              ],
-              // "Details not available" message
-              if (!_loading && _meta == null) ...[
-                const SizedBox(height: 12),
-                Text(
-                  TranslationService.translate(
-                    context,
-                    'catalog_details_unavailable',
-                  ),
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodySmall
-                      ?.copyWith(color: Colors.grey[500]),
-                ),
-              ],
-              // Action button
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: isLocal
-                    ? FilledButton.tonal(
-                        onPressed: null,
-                        child: Text(
-                          TranslationService.translate(
-                            context,
-                            'catalog_already_in_library',
-                          ),
-                        ),
-                      )
-                    : FilledButton.icon(
-                        onPressed: _adding ? null : _addToLibrary,
-                        icon: _adding
-                            ? const SizedBox(
-                                width: 18,
-                                height: 18,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : const Icon(Icons.add),
-                        label: Text(
-                          TranslationService.translate(
-                            context,
-                            'catalog_add_to_library',
-                          ),
-                        ),
-                      ),
-              ),
-              // Borrow button (hub-mediated, ADR-018)
-              if (!isLocal && widget.allowBorrowing)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton.icon(
-                      onPressed: _borrowing ? null : _requestBorrow,
-                      icon: _borrowing
-                          ? const SizedBox(
-                              width: 18,
-                              height: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.swap_horiz),
-                      label: Text(
-                        TranslationService.translate(
-                          context,
-                          'request_to_borrow',
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
             ],
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
