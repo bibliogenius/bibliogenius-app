@@ -393,10 +393,13 @@ class _CarouselCover extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Show a "NEW" badge on recently-added books that aren't currently being
-    // read. Reading books already carry the "EN COURS" status badge; adding
-    // NEW on top would duplicate the signal.
-    final showNewBadge = book.isNew && book.readingStatus != 'reading';
+    // Show a "NEW" badge only on books with no status tag. Any reading-status
+    // badge (reading, loaned, borrowed, to_read, etc.) already occupies the
+    // top-right corner; stacking NEW on the opposite corner would double the
+    // tagging and clutter a small cover.
+    final hasStatusBadge =
+        book.readingStatus != null && book.readingStatus!.isNotEmpty;
+    final showNewBadge = book.isNew && !hasStatusBadge;
     final daysLabel = _daysSinceStartLabel(context);
 
     return SizedBox(

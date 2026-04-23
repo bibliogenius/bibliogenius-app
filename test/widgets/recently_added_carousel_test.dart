@@ -255,6 +255,26 @@ void main() {
     expect(find.text('NEW'), findsNothing);
   });
 
+  testWidgets('NEW badge does not appear on loaned or borrowed books',
+      (tester) async {
+    await tester.pumpWidget(buildHarness(withPad([
+      Book(
+        id: 1,
+        title: 'Out to friend',
+        readingStatus: 'loaned',
+        addedAt: DateTime.now().subtract(const Duration(hours: 1)),
+      ),
+      Book(
+        id: 2,
+        title: 'From friend',
+        readingStatus: 'borrowed',
+        addedAt: DateTime.now().subtract(const Duration(hours: 1)),
+      ),
+    ])));
+
+    expect(find.text('NEW'), findsNothing);
+  });
+
   testWidgets('D+N badge appears on reading books with startedReadingAt',
       (tester) async {
     await tester.pumpWidget(buildHarness([
