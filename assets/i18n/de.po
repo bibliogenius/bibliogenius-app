@@ -8488,7 +8488,13 @@ msgid "two_factor_auth_help"
 msgstr "Fügt einen zweiten Verifizierungsschritt beim Login hinzu (SMS-Code oder Authenticator-App). Erhöht die Sicherheit bei der Nutzung von BiblioGenius mit einem Serverkonto."
 
 msgid "recently_added_title"
-msgstr "Kürzlich hinzugefügt"
+msgstr "Aktivität"
+
+msgid "badge_new"
+msgstr "NEU"
+
+msgid "badge_days_since_start"
+msgstr "T+%s"
 
 msgid "carousel_hide_tooltip"
 msgstr "Karussell ausblenden"
@@ -8503,7 +8509,7 @@ msgid "carousel_collapse_tooltip"
 msgstr "Karussell einklappen"
 
 msgid "carousel_collapsed_label"
-msgstr "Kürzlich hinzugefügt · {count}"
+msgstr "Aktivität · {count}"
 
 msgid "carousel_hidden_snackbar"
 msgstr "Karussell ausgeblendet"
@@ -8512,16 +8518,16 @@ msgid "action_undo"
 msgstr "Rückgängig"
 
 msgid "carousel_own_lib_title"
-msgstr "Kürzlich hinzugefügt — meine Bibliothek"
+msgstr "Aktivität: meine Bibliothek"
 
 msgid "carousel_own_lib_desc"
-msgstr "Zeigt ein Karussell oben in deiner Bibliothek mit kürzlich hinzugefügten Büchern."
+msgstr "Zeigt oben in deiner Bibliothek deine aktuellen Lektüren und zuletzt hinzugefügten Bücher."
 
 msgid "carousel_peer_lib_title"
-msgstr "Kürzlich hinzugefügt — Peers"
+msgstr "Aktivität: Peers"
 
 msgid "carousel_peer_lib_desc"
-msgstr "Zeigt ein Karussell oben in den Peer-Bibliotheken mit deren kürzlichen Ergänzungen."
+msgstr "Zeigt oben in den Peer-Bibliotheken deren aktuelle Lektüren und zuletzt hinzugefügten Bücher."
 
 #. Backup - Mobile export choice dialog message
 msgid "backup_export_choice_message"
