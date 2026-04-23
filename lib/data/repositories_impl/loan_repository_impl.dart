@@ -65,17 +65,21 @@ class LoanRepositoryImpl implements LoanRepository {
     final response = await _apiService.getBorrowedCopies();
     if (response.statusCode == 200 && response.data != null) {
       final data = response.data;
-      List<dynamic> copies;
-      if (data is Map && data['copies'] is List) {
-        copies = data['copies'] as List;
+      List<dynamic> items;
+      if (data is Map && data['loans'] is List) {
+        items = data['loans'] as List;
       } else if (data is List) {
-        copies = data;
+        items = data;
       } else {
         return [];
       }
-      return copies
-          .map((json) => Copy.fromJson(json as Map<String, dynamic>))
-          .toList();
+      return items.map((json) {
+        final map = Map<String, dynamic>.from(json as Map);
+        // Backend `/api/copies/borrowed` omits library_id; inject a default so
+        // Copy.fromJson's `required int libraryId` does not throw on null.
+        map.putIfAbsent('library_id', () => 0);
+        return Copy.fromJson(map);
+      }).toList();
     }
     return [];
   }
