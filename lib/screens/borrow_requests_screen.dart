@@ -10,6 +10,7 @@ import 'package:go_router/go_router.dart';
 import 'package:dio/dio.dart';
 import 'dart:async';
 import '../data/repositories/copy_repository.dart';
+import '../utils/borrowed_copy_display.dart';
 import '../data/repositories/loan_repository.dart';
 import '../models/loan.dart';
 import '../services/api_service.dart';
@@ -1090,29 +1091,13 @@ class _LoansScreenState extends State<LoansScreen>
 
   Widget _buildBorrowedBookTile(Map<String, dynamic> book) {
     final title = book['title'] ?? 'Unknown';
-    final notes = book['notes'] as String? ?? '';
     final acquisitionDate = book['acquisition_date'] ?? '';
     final cover = book['cover'] as String?;
     final bookId = book['book_id'] as int? ?? book['id'] as int?;
 
-    // Extract contact name and due date from notes
-    // Format: "Emprunté de Name jusqu'au YYYY-MM-DD"
-    String borrowedFrom = '';
-    String dueDate = '';
-    if (notes.isNotEmpty) {
-      final nameMatch = RegExp(
-        r"(?:Emprunté de|Borrowed from|Emprunté à)[:\s]*(.+?)(?:\s+jusqu|$)",
-      ).firstMatch(notes);
-      if (nameMatch != null) {
-        borrowedFrom = nameMatch.group(1)?.trim() ?? '';
-      }
-      final dateMatch = RegExp(
-        r"jusqu'au\s+(\S+)",
-      ).firstMatch(notes);
-      if (dateMatch != null) {
-        dueDate = dateMatch.group(1)?.trim() ?? '';
-      }
-    }
+    final display = BorrowedCopyDisplay.fromBookMap(book);
+    final borrowedFrom = display.lenderName;
+    final dueDate = display.dueDate;
 
     final isOverdue = dueDate.isNotEmpty &&
         DateTime.tryParse(dueDate)?.isBefore(DateTime.now()) == true;

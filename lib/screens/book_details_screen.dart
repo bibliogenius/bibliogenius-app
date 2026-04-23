@@ -2926,17 +2926,17 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
       if (selectedContact == null) return;
 
-      // 3. Create a copy with 'borrowed' status
-      final borrowedFromLabel =
-          TranslationService.translate(context, 'borrowed_from_label') ??
-          'Borrowed from';
+      // 3. Create a copy with 'borrowed' status.
+      // ADR-034: send structured loan metadata; the backend stores it on
+      // typed columns and the reader renders it via TranslationService.
       final copyRepo = Provider.of<CopyRepository>(context, listen: false);
       await copyRepo.createCopy({
         'book_id': _book!.id,
         // library_id resolved by backend
         'status': 'borrowed',
         'is_temporary': false,
-        'notes': '$borrowedFromLabel ${selectedContact.fullName}',
+        'lender_display_name': selectedContact.fullName,
+        'borrow_source': 'contact',
       });
 
       if (context.mounted) {

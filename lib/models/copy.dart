@@ -8,6 +8,12 @@ class Copy {
   final bool isTemporary;
   final double? price; // Copy-specific price (overrides book price)
 
+  /// ADR-034 loan metadata. All four are only populated for borrowed copies.
+  final String? lenderDisplayName;
+  final int? lenderPeerId;
+  final String? borrowDueDate;
+  final String? borrowSource; // 'peer' or 'contact'
+
   Copy({
     this.id,
     required this.bookId,
@@ -17,6 +23,10 @@ class Copy {
     this.status = 'available',
     this.isTemporary = false,
     this.price,
+    this.lenderDisplayName,
+    this.lenderPeerId,
+    this.borrowDueDate,
+    this.borrowSource,
   });
 
   factory Copy.fromJson(Map<String, dynamic> json) {
@@ -29,6 +39,10 @@ class Copy {
       status: json['status'] ?? 'available',
       isTemporary: json['is_temporary'] ?? false,
       price: json['price'] != null ? (json['price'] as num).toDouble() : null,
+      lenderDisplayName: json['lender_display_name'],
+      lenderPeerId: json['lender_peer_id'],
+      borrowDueDate: json['borrow_due_date'],
+      borrowSource: json['borrow_source'],
     );
   }
 
@@ -42,6 +56,10 @@ class Copy {
       'status': status,
       'is_temporary': isTemporary,
       'price': price,
+      'lender_display_name': lenderDisplayName,
+      'lender_peer_id': lenderPeerId,
+      'borrow_due_date': borrowDueDate,
+      'borrow_source': borrowSource,
       'created_at': now,
       'updated_at': now,
     };
