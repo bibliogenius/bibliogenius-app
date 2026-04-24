@@ -1,43 +1,50 @@
-# Prix Pulitzer de la Fiction
-# Source officielle : pulitzer.org
+# Pulitzer Prize for Fiction — regenerated from https://en.wikipedia.org/wiki/Pulitzer_Prize_for_Fiction
 id: pulitzer-fiction
-version: 1
+version: 3
 
 title:
-  fr: Prix Pulitzer de la Fiction
+  fr: Prix Pulitzer - Fiction
   en: Pulitzer Prize for Fiction
   de: Pulitzer-Preis für Belletristik
   es: Premio Pulitzer de Ficción
 
 description:
-  fr: "Les romans lauréats du prestigieux prix Pulitzer américain. Source : pulitzer.org"
-  en: "Award-winning novels of the prestigious American Pulitzer Prize. Source: pulitzer.org"
-  de: "Prämierte Romane des renommierten amerikanischen Pulitzer-Preises. Quelle: pulitzer.org"
-  es: "Novelas galardonadas del prestigioso premio Pulitzer estadounidense. Fuente: pulitzer.org"
+  fr: "Lauréats récents du prix Pulitzer de la fiction, le plus prestigieux prix littéraire américain."
+  en: "Recent winners of the Pulitzer Prize for Fiction, the most prestigious American literary award."
+  de: "Aktuelle Gewinner des Pulitzer-Preises für Belletristik."
+  es: "Ganadores recientes del Premio Pulitzer de Ficción."
 
-source_url: "https://www.pulitzer.org/prize-winners-by-category/219"
+source_url: "https://en.wikipedia.org/wiki/Pulitzer_Prize_for_Fiction"
 contributor: BiblioGenius
-tags: [prix, pulitzer, américain, fiction]
-content_languages: [fr]
+tags: [prix, pulitzer, fiction, american]
+content_languages: [en]
 
 books:
-  - isbn: "9782070793822"
-    note: "Cormac McCarthy - La Route (2007)"
-  - isbn: "9782264051240"
-    note: "Junot Díaz - La Brève et Merveilleuse Vie d'Oscar Wao (2008)"
-  - isbn: "9782253159117"
-    note: "Elizabeth Strout - Olive Kitteridge (2009)"
-  - isbn: "9782253161721"
+  - isbn: "9781536627046"
     note: "Paul Harding - Tinkers (2010)"
-  - isbn: "9782253162414"
-    note: "Jennifer Egan - Qu'avons-nous fait de nos rêves ? (2011)"
-  - isbn: "9782020986434"
-    note: "Colson Whitehead - Underground Railroad (2017)"
-  - isbn: "9782253934158"
+  - isbn: "9781849010337"
+    note: "Jennifer Egan - A Visit from the Goon Squad (2011)"
+  - isbn: "9780307939692"
+    note: "Adam Johnson - The Orphan Master's Son (2013)"
+  - isbn: "9781495486418"
+    note: "Donna Tartt - The Goldfinch (2014)"
+  - isbn: "9780008548353"
+    note: "Anthony Doerr - All the Light We Cannot See (2015)"
+  - isbn: "9781336217560"
+    note: "Viet Thanh Nguyen - The Sympathizer (2016)"
+  - isbn: "9782226393197"
+    note: "Colson Whitehead - The Underground Railroad (2017)"
+  - isbn: "9780316316149"
     note: "Andrew Sean Greer - Less (2018)"
-  - isbn: "9782070179053"
-    note: "Richard Powers - L'Arbre-Monde (2019)"
-  - isbn: "9782253240587"
-    note: "Colson Whitehead - Nickel Boys (2020)"
-  - isbn: "9782253102434"
+  - isbn: "9781984891372"
+    note: "Colson Whitehead - The Nickel Boys (2020)"
+  - isbn: "9781472155344"
     note: "Louise Erdrich - The Night Watchman (2021)"
+  - isbn: "9781804270202"
+    note: "Joshua Cohen - The Netanyahus (2022)"
+  - isbn: "9780571376476"
+    note: "Barbara Kingsolver - Demon Copperhead (2023)"
+  - isbn: "9780593713099"
+    note: "Hernan Diaz - Trust (2023)"
+  - isbn: "9780349727813"
+    note: "Jayne Anne Phillips - Night Watch (2024)"

@@ -1,41 +1,46 @@
-# Prix Femina
-# Source officielle : prixfemina.org
+# Prix Femina (French novel) — regenerated from https://fr.wikipedia.org/wiki/Prix_Femina
 id: prix-femina
-version: 1
+version: 3
 
 title:
   fr: Prix Femina
-  en: Prix Femina
+  en: Prix Femina (French novel)
   de: Prix Femina
   es: Premio Femina
 
 description:
-  fr: "Le prix Femina, décerné par un jury exclusivement féminin. Source : prixfemina.org"
-  en: "The Femina Prize, awarded by an all-female jury. Source: prixfemina.org"
-  de: "Der Femina-Preis, von einer rein weiblichen Jury verliehen. Quelle: prixfemina.org"
-  es: "El Premio Femina, otorgado por un jurado exclusivamente femenino. Fuente: prixfemina.org"
+  fr: "Lauréats récents du Prix Femina, roman français."
+  en: "Recent winners of the Prix Femina for French fiction."
+  de: "Aktuelle Preisträger des Prix Femina."
+  es: "Ganadores recientes del Premio Femina."
 
-source_url: "https://www.prixfemina.org/"
+source_url: "https://fr.wikipedia.org/wiki/Prix_Femina"
 contributor: BiblioGenius
-tags: [prix, femina, français]
+tags: [prix, femina, francais]
 content_languages: [fr]
 
 books:
-  - isbn: "9782073010124"
-    note: "Karoline Georges - De synthèse (2024)"
-  - isbn: "9782072985447"
-    note: "Éric Reinhardt - Sarah, Susanne et l'écrivain (2023)"
-  - isbn: "9782072968808"
-    note: "Giuliano da Empoli - Le Mage du Kremlin (2022)"
-  - isbn: "9782072890864"
-    note: "Clara Dupont-Monod - S'adapter (2021)"
-  - isbn: "9782072848018"
-    note: "Serge Joncour - Nature humaine (2020)"
-  - isbn: "9782072801327"
-    note: "Sylvie Germain - Jours de colère (2019)"
-  - isbn: "9782070197712"
-    note: "Philippe Jaenada - La Serpe (2017)"
-  - isbn: "9782070117635"
+  - isbn: "9782818006030"
+    note: "Patrick Lapeyre - La vie est brève et le désir sans fin (2010)"
+  - isbn: "9782246771814"
+    note: "Simon Liberati - Jayne Mansfield 1967 (2011)"
+  - isbn: "9782757836903"
+    note: "Patrick Deville - Peste et Choléra (2012)"
+  - isbn: "9782757850459"
     note: "Yanick Lahens - Bain de lune (2014)"
-  - isbn: "9782253134329"
-    note: "Sorj Chalandon - Retour à Killybegs (2011)"
+  - isbn: "9782234076372"
+    note: "Christophe Boltanski - La Cache (2015)"
+  - isbn: "9782843047602"
+    note: "Marcus Malte - Le Garçon (2016)"
+  - isbn: "9782260029397"
+    note: "Philippe Jaenada - La Serpe (2017)"
+  - isbn: "9781547906178"
+    note: "Philippe Lançon - Le Lambeau (2018)"
+  - isbn: "9782081433489"
+    note: "Serge Joncour - Nature humaine (2020)"
+  - isbn: "9782253936718"
+    note: "Clara Dupont-Monod - S'adapter (2021)"
+  - isbn: "9782246831624"
+    note: "Claudie Hunzinger - Un chien à ma table (2022)"
+  - isbn: "9782743664060"
+    note: "Miguel Bonnefoy - Le Rêve du jaguar (2024)"

@@ -1,7 +1,6 @@
-# Booker Prize
-# Source officielle : thebookerprizes.com
+# Booker Prize — regenerated from https://en.wikipedia.org/wiki/Booker_Prize
 id: booker-prize
-version: 1
+version: 3
 
 title:
   fr: Booker Prize
@@ -10,38 +9,40 @@ title:
   es: Premio Booker
 
 description:
-  fr: "Le plus prestigieux prix littéraire britannique. Source : thebookerprizes.com"
-  en: "The most prestigious British literary prize. Source: thebookerprizes.com"
-  de: "Der renommierteste britische Literaturpreis. Quelle: thebookerprizes.com"
-  es: "El premio literario británico más prestigioso. Fuente: thebookerprizes.com"
+  fr: "Lauréats récents du Booker Prize, le plus prestigieux prix littéraire britannique."
+  en: "Recent Booker Prize winners, the UK's most prestigious literary award."
+  de: "Aktuelle Preisträger des Booker Prize."
+  es: "Ganadores recientes del Premio Booker."
 
-source_url: "https://thebookerprizes.com/the-booker-library/prize-years"
+source_url: "https://en.wikipedia.org/wiki/Booker_Prize"
 contributor: BiblioGenius
-tags: [prix, booker, britannique]
-content_languages: [fr]
+tags: [prix, booker, british]
+content_languages: [en]
 
 books:
-  - isbn: "9782072968808"
-    note: "Samantha Harvey - Orbital (2024)"
-  - isbn: "9782253240983"
-    note: "Paul Lynch - Le chant des prophètes (2023)"
-  - isbn: "9782072985447"
-    note: "Shehan Karunatilaka - Les Sept Lunes de Maali Almeida (2022)"
-  - isbn: "9782072951091"
-    note: "Douglas Stuart - Shuggie Bain (2020)"
-  - isbn: "9782070465200"
-    note: "Margaret Atwood - Les Testaments (2019)"
-  - isbn: "9782253071174"
+  - isbn: "9781408809105"
+    note: "Howard Jacobson - The Finkler Question (2010)"
+  - isbn: "9781611733259"
+    note: "Julian Barnes - The Sense of an Ending (2011)"
+  - isbn: "9780008749576"
+    note: "Hilary Mantel - Bring Up the Bodies (2012)"
+  - isbn: "9781784701383"
+    note: "Richard Flanagan - The Narrow Road to the Deep North (2014)"
+  - isbn: "9781786070173"
+    note: "Paul Beatty - The Sellout (2016)"
+  - isbn: "9780525511083"
+    note: "George Saunders - Lincoln in the Bardo (2017)"
+  - isbn: "9781974932092"
     note: "Anna Burns - Milkman (2018)"
-  - isbn: "9782253070375"
-    note: "George Saunders - Lincoln au Bardo (2017)"
-  - isbn: "9782253068662"
-    note: "Paul Beatty - Moi contre les États-Unis d'Amérique (2016)"
-  - isbn: "9782253065951"
-    note: "Marlon James - Brève histoire de sept meurtres (2015)"
-  - isbn: "9782253163183"
-    note: "Richard Flanagan - La Route étroite vers le Nord lointain (2014)"
-  - isbn: "9782253161998"
-    note: "Eleanor Catton - Les Luminaires (2013)"
-  - isbn: "9782253161103"
-    note: "Hilary Mantel - Dans l'ombre des Tudors (2012)"
+  - isbn: "9780593311646"
+    note: "Margaret Atwood - The Testaments (2019)"
+  - isbn: "9781094189789"
+    note: "Bernardine Evaristo - Girl, Woman, Other (2019)"
+  - isbn: "9789046827574"
+    note: "Douglas Stuart - Shuggie Bain (2020)"
+  - isbn: "9781609456597"
+    note: "Damon Galgut - The Promise (2021)"
+  - isbn: "9788420479057"
+    note: "Paul Lynch - Prophet Song (2023)"
+  - isbn: "9781529922936"
+    note: "Samantha Harvey - Orbital (2024)"

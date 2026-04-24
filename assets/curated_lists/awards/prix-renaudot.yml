@@ -1,43 +1,44 @@
-# Prix Renaudot
-# Source officielle : prixrenaudot.fr
+# Prix Renaudot (French novel) — regenerated from https://fr.wikipedia.org/wiki/Prix_Renaudot
 id: prix-renaudot
-version: 1
+version: 3
 
 title:
   fr: Prix Renaudot
-  en: Prix Renaudot
+  en: Prix Renaudot (French novel)
   de: Prix Renaudot
   es: Premio Renaudot
 
 description:
-  fr: "Le prix Renaudot, décerné le même jour que le Goncourt par des journalistes littéraires. Source : prixrenaudot.fr"
-  en: "The Renaudot Prize, awarded on the same day as the Goncourt by literary journalists. Source: prixrenaudot.fr"
-  de: "Der Renaudot-Preis, am selben Tag wie der Goncourt von Literaturjournalisten verliehen. Quelle: prixrenaudot.fr"
-  es: "El Premio Renaudot, otorgado el mismo día que el Goncourt por periodistas literarios. Fuente: prixrenaudot.fr"
+  fr: "Lauréats récents du Prix Renaudot."
+  en: "Recent winners of the Prix Renaudot for French fiction."
+  de: "Aktuelle Preisträger des Prix Renaudot."
+  es: "Ganadores recientes del Premio Renaudot."
 
-source_url: "https://www.prixrenaudot.fr/"
+source_url: "https://fr.wikipedia.org/wiki/Prix_Renaudot"
 contributor: BiblioGenius
-tags: [prix, renaudot, français]
+tags: [prix, renaudot, francais]
 content_languages: [fr]
 
 books:
-  - isbn: "9782073010124"
-    note: "Gaël Faye - Jacaranda (2024)"
-  - isbn: "9782072973734"
-    note: "Ann Scott - Les Insolents (2023)"
-  - isbn: "9782072968808"
-    note: "Simon Liberati - Performance (2022)"
-  - isbn: "9782072890864"
-    note: "Amélie Nothomb - Premier sang (2021)"
-  - isbn: "9782072848018"
-    note: "Marie-Hélène Lafon - Histoire du fils (2020)"
-  - isbn: "9782072801327"
-    note: "Sylvain Tesson - La Panthère des neiges (2019)"
-  - isbn: "9782070197712"
+  - isbn: "9781847657909"
+    note: "Virginie Despentes - Apocalypse Bébé (2010)"
+  - isbn: "9788845928987"
+    note: "Emmanuel Carrere - Limonov (2011)"
+  - isbn: "9782070133420"
+    note: "Scholastique Mukasonga - Notre-Dame du Nil (2012)"
+  - isbn: "9782246713210"
+    note: "Yann Moix - Naissance (2013)"
+  - isbn: "9781468312768"
+    note: "David Foenkinos - Charlotte (2014)"
+  - isbn: "9782072733086"
+    note: "Yasmina Reza - Babylone (2016)"
+  - isbn: "9782253073802"
+    note: "Olivier Guez - La Disparition de Josef Mengele (2017)"
+  - isbn: "9782370551672"
     note: "Valérie Manteau - Le Sillon (2018)"
-  - isbn: "9782070117635"
-    note: "Olivier Adam - Les Lisières (2012)"
-  - isbn: "9782070126200"
-    note: "Emmanuel Carrère - Limonov (2011)"
-  - isbn: "9782253134329"
-    note: "Tierno Monénembo - Le Roi de Kahel (2008)"
+  - isbn: "9782072822322"
+    note: "Sylvain Tesson - La Panthère des neiges (2019)"
+  - isbn: "9782072935695"
+    note: "Marie-Hélène Lafon - Histoire du fils (2020)"
+  - isbn: "9782246831457"
+    note: "Gaël Faye - Jacaranda (2024)"
