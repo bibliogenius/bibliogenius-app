@@ -7,6 +7,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart' show
 import '../models/book.dart';
 import '../models/collection.dart';
 import '../models/collection_book.dart';
+import '../models/collection_deletion_preview.dart';
 import '../models/contact.dart';
 import '../models/cover_candidate.dart';
 import '../models/tag.dart';
@@ -970,6 +971,36 @@ class FfiService {
       await frb.deleteCollection(id: id);
     } catch (e) {
       debugPrint('FFI deleteCollection error: $e');
+      rethrow;
+    }
+  }
+
+  /// Delete a collection along with eligible books (not loaned/borrowed,
+  /// not in another collection, not on a shelf). Returns the IDs of books
+  /// that were actually removed.
+  Future<List<int>> deleteCollectionWithBooks(String id) async {
+    try {
+      final deleted = await frb.deleteCollectionWithBooks(id: id);
+      return deleted.toList();
+    } catch (e) {
+      debugPrint('FFI deleteCollectionWithBooks error: $e');
+      rethrow;
+    }
+  }
+
+  /// Preview the delete-with-books flow: total, to-delete, to-keep.
+  Future<CollectionDeletionPreview> getCollectionDeletionPreview(
+    String id,
+  ) async {
+    try {
+      final p = await frb.getCollectionDeletionPreview(id: id);
+      return CollectionDeletionPreview(
+        totalBooks: p.totalBooks.toInt(),
+        toDelete: p.toDelete.toInt(),
+        toKeep: p.toKeep.toInt(),
+      );
+    } catch (e) {
+      debugPrint('FFI getCollectionDeletionPreview error: $e');
       rethrow;
     }
   }

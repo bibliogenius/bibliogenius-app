@@ -9,6 +9,7 @@ import '../../widgets/app_snack_bar.dart';
 import '../../widgets/cached_book_cover.dart';
 import '../../widgets/configurable_action_card.dart';
 import '../../widgets/premium_empty_state.dart';
+import 'collection_delete_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -43,46 +44,30 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
   }
 
   Future<void> _deleteCollection() async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-          TranslationService.translate(context, 'delete_collection_title'),
-        ),
-        content: Text(
-          TranslationService.translate(context, 'delete_collection_warning'),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(TranslationService.translate(context, 'cancel')),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(TranslationService.translate(context, 'delete')),
-          ),
-        ],
-      ),
+    final repo = Provider.of<CollectionRepository>(context, listen: false);
+    final outcome = await confirmCollectionDeletion(
+      context,
+      repo,
+      widget.collection.id,
     );
+    if (outcome == CollectionDeleteOutcome.cancelled) return;
+    if (!mounted) return;
 
-    if (confirmed == true) {
-      if (!mounted) return;
-      try {
-        await Provider.of<CollectionRepository>(
+    try {
+      if (outcome == CollectionDeleteOutcome.withBooks) {
+        await repo.deleteCollectionWithBooks(widget.collection.id);
+      } else {
+        await repo.deleteCollection(widget.collection.id);
+      }
+      if (mounted) {
+        context.pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        AppSnackBar.error(
           context,
-          listen: false,
-        ).deleteCollection(widget.collection.id);
-        if (mounted) {
-          context.pop(); // Go back to list
-        }
-      } catch (e) {
-        if (mounted) {
-          AppSnackBar.error(
-            context,
-            '${TranslationService.translate(context, 'error_deleting_collection')}: $e',
-          );
-        }
+          '${TranslationService.translate(context, 'error_deleting_collection')}: $e',
+        );
       }
     }
   }

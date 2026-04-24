@@ -1618,6 +1618,18 @@ msgstr "Delete Collection?"
 msgid "delete_collection_warning"
 msgstr "Are you sure you want to delete this collection? This cannot be undone."
 
+#. Also delete the books in this collection (checkbox label, off by default)
+msgid "delete_collection_include_books"
+msgstr "Also delete the books in this collection"
+
+#. "{to_delete} to delete, {to_keep} kept" - preview shown below the checkbox
+msgid "delete_collection_preview_summary"
+msgstr "{to_delete} to delete, {to_keep} kept"
+
+#. Legend shown below the preview summary in the delete-with-books confirmation
+msgid "delete_collection_preview_legend"
+msgstr "Kept books: loaned out, borrowed, in another collection, or on a shelf."
+
 #. Delete
 msgid "delete_contact_btn"
 msgstr "Delete"

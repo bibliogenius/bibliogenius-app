@@ -8,8 +8,8 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 part 'frb.freezed.dart';
 
-// These functions are ignored because they are not marked as `pub`: `db`, `device_pairing_svc`, `device_sync_svc`, `entries_to_frb`, `global_app_state`, `hub_db`, `hub_directory_svc`, `install_panic_hook`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `nudge_source_label`, `rename_subject_in_books`, `resize_and_upload_cover`, `runtime`, `track_to_frb`, `upsert_directory_catalog_cache`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
+// These functions are ignored because they are not marked as `pub`: `db`, `device_pairing_svc`, `device_sync_svc`, `entries_to_frb`, `global_app_state`, `hub_db`, `hub_directory_svc`, `install_panic_hook`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `nudge_source_label`, `rename_subject_in_books`, `runtime`, `track_to_frb`, `upsert_directory_catalog_cache`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
 // These functions are ignored (category: IgnoreBecauseExplicitAttribute): `shared_device_pairing_svc`
 
 /// Initialize the FFI backend with database at the given path
@@ -1014,9 +1014,21 @@ Future<FrbCollection> createCollection({
   description: description,
 );
 
-/// Deletes a collection by ID.
+/// Deletes a collection by ID. Books are left orphaned (current behaviour).
 Future<void> deleteCollection({required String id}) =>
     RustLib.instance.api.crateApiFrbDeleteCollection(id: id);
+
+/// Returns how many books would be deleted / kept if the collection were
+/// removed along with its books.
+Future<FrbCollectionDeletionPreview> getCollectionDeletionPreview({
+  required String id,
+}) => RustLib.instance.api.crateApiFrbGetCollectionDeletionPreview(id: id);
+
+/// Deletes a collection along with its eligible books (no loaned/borrowed
+/// copy, not in another collection, on no shelf). Returns the IDs of books
+/// that were actually removed.
+Future<Int32List> deleteCollectionWithBooks({required String id}) =>
+    RustLib.instance.api.crateApiFrbDeleteCollectionWithBooks(id: id);
 
 /// Returns all books belonging to a collection.
 Future<List<FrbCollectionBook>> getCollectionBooks({
@@ -1344,6 +1356,35 @@ class FrbCollectionBook {
           addedAt == other.addedAt &&
           isOwned == other.isOwned &&
           digitalFormats == other.digitalFormats;
+}
+
+/// Preview data for the "delete collection with its books" flow.
+///
+/// * `total_books` - books currently in the collection
+/// * `to_delete` - books that would be deleted
+/// * `to_keep` - books kept (loaned, borrowed, multi-collection, shelved)
+class FrbCollectionDeletionPreview {
+  final PlatformInt64 totalBooks;
+  final PlatformInt64 toDelete;
+  final PlatformInt64 toKeep;
+
+  const FrbCollectionDeletionPreview({
+    required this.totalBooks,
+    required this.toDelete,
+    required this.toKeep,
+  });
+
+  @override
+  int get hashCode => totalBooks.hashCode ^ toDelete.hashCode ^ toKeep.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FrbCollectionDeletionPreview &&
+          runtimeType == other.runtimeType &&
+          totalBooks == other.totalBooks &&
+          toDelete == other.toDelete &&
+          toKeep == other.toKeep;
 }
 
 /// Simplified contact structure for FFI

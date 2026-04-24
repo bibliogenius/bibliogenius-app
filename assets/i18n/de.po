@@ -1461,6 +1461,18 @@ msgstr "Sammlung löschen?"
 msgid "delete_collection_warning"
 msgstr "Sind Sie sicher, dass Sie diese Sammlung löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden."
 
+#. Also delete the books in this collection (checkbox label, off by default)
+msgid "delete_collection_include_books"
+msgstr "Auch die Bücher dieser Sammlung löschen"
+
+#. "{to_delete} zu löschen, {to_keep} behalten" - preview shown below the checkbox
+msgid "delete_collection_preview_summary"
+msgstr "{to_delete} gelöscht, {to_keep} behalten"
+
+#. Legend shown below the preview summary in the delete-with-books confirmation
+msgid "delete_collection_preview_legend"
+msgstr "Behaltene Bücher: verliehen oder geliehen, in einer anderen Sammlung enthalten oder in einem Regal."
+
 #. Delete
 msgid "delete_contact_btn"
 msgstr "Löschen"

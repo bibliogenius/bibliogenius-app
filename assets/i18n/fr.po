@@ -1618,6 +1618,18 @@ msgstr "Supprimer la collection ?"
 msgid "delete_collection_warning"
 msgstr "Êtes-vous sûr de vouloir supprimer cette collection ? Cette action est irréversible."
 
+#. Also delete the books in this collection (checkbox label, off by default)
+msgid "delete_collection_include_books"
+msgstr "Supprimer aussi les livres de cette collection"
+
+#. "{to_delete} supprimés, {to_keep} conservés" - preview shown below the checkbox
+msgid "delete_collection_preview_summary"
+msgstr "{to_delete} supprimés, {to_keep} conservés"
+
+#. Legend shown below the preview summary in the delete-with-books confirmation
+msgid "delete_collection_preview_legend"
+msgstr "Livres conservés : prêtés/empruntés, présents dans une autre collection, ou sur une étagère."
+
 #. Delete
 msgid "delete_contact_btn"
 msgstr "Supprimer"

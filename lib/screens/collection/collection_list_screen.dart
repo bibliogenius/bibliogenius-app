@@ -10,6 +10,7 @@ import '../../widgets/genie_app_bar.dart';
 import '../../widgets/scaffold_with_nav.dart';
 import '../../widgets/contextual_help_sheet.dart';
 import '../../widgets/collection_stack_widget.dart';
+import 'collection_delete_dialog.dart';
 
 class CollectionListScreen extends StatefulWidget {
   final bool isTabView;
@@ -145,46 +146,28 @@ class _CollectionListScreenState extends State<CollectionListScreen> {
   }
 
   Future<void> _deleteCollection(Collection collection) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-          TranslationService.translate(context, 'confirm_delete'),
-        ),
-        content: Text(
-          TranslationService.translate(context, 'delete_collection_confirm'),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(
-              TranslationService.translate(context, 'cancel'),
-            ),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(
-              TranslationService.translate(context, 'delete'),
-            ),
-          ),
-        ],
-      ),
-    );
+    final repo = Provider.of<CollectionRepository>(context, listen: false);
+    final outcome =
+        await confirmCollectionDeletion(context, repo, collection.id);
+    if (outcome == CollectionDeleteOutcome.cancelled) return;
+    if (!mounted) return;
 
-    if (confirm == true && mounted) {
-      try {
-        await Provider.of<CollectionRepository>(
-          context,
-          listen: false,
-        ).deleteCollection(collection.id);
-        _loadCollections();
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('Error: $e')));
-        }
+    try {
+      if (outcome == CollectionDeleteOutcome.withBooks) {
+        await repo.deleteCollectionWithBooks(collection.id);
+      } else {
+        await repo.deleteCollection(collection.id);
+      }
+      if (mounted) _loadCollections();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '${TranslationService.translate(context, 'error_deleting_collection')}: $e',
+            ),
+          ),
+        );
       }
     }
   }

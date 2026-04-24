@@ -110,6 +110,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FrbCollectionBook dco_decode_frb_collection_book(dynamic raw);
 
   @protected
+  FrbCollectionDeletionPreview dco_decode_frb_collection_deletion_preview(
+    dynamic raw,
+  );
+
+  @protected
   FrbContact dco_decode_frb_contact(dynamic raw);
 
   @protected
@@ -499,6 +504,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbCollectionBook sse_decode_frb_collection_book(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  FrbCollectionDeletionPreview sse_decode_frb_collection_deletion_preview(
     SseDeserializer deserializer,
   );
 
@@ -980,6 +990,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_frb_collection_book(
     FrbCollectionBook self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_frb_collection_deletion_preview(
+    FrbCollectionDeletionPreview self,
     SseSerializer serializer,
   );
 
