@@ -72,6 +72,12 @@ class CuratedList {
   final List<String> tags;
   final List<CuratedBook> books;
 
+  /// Languages in which the books of this list are primarily available.
+  /// Empty when the list was authored before the field was introduced;
+  /// the partitioning helper treats that as "unknown" and routes the list
+  /// to the "other languages" section to avoid hiding it entirely.
+  final List<String> contentLanguages;
+
   const CuratedList({
     required this.id,
     required this.version,
@@ -81,6 +87,7 @@ class CuratedList {
     this.contributor,
     required this.tags,
     required this.books,
+    this.contentLanguages = const [],
   });
 
   factory CuratedList.fromYaml(YamlMap yaml) {
@@ -110,6 +117,12 @@ class CuratedList {
         ? (yaml['tags'] as YamlList).map((t) => t.toString()).toList()
         : <String>[];
 
+    final contentLangs = yaml['content_languages'] != null
+        ? (yaml['content_languages'] as YamlList)
+            .map((l) => l.toString())
+            .toList()
+        : <String>[];
+
     return CuratedList(
       id: yaml['id'] as String,
       version: yaml['version'] as int? ?? 1,
@@ -119,6 +132,7 @@ class CuratedList {
       contributor: yaml['contributor'] as String?,
       tags: tagsList,
       books: booksList,
+      contentLanguages: contentLangs,
     );
   }
 
@@ -138,6 +152,46 @@ class CuratedList {
         description['default'] ??
         description.values.first;
   }
+}
+
+/// Result of splitting curated lists by language relevance to the user.
+class CuratedListPartition {
+  final List<CuratedList> inYourLanguages;
+  final List<CuratedList> otherLanguages;
+
+  const CuratedListPartition({
+    required this.inYourLanguages,
+    required this.otherLanguages,
+  });
+
+  bool get isEmpty =>
+      inYourLanguages.isEmpty && otherLanguages.isEmpty;
+}
+
+/// Split [lists] into the ones matching [userLanguages] and the rest.
+///
+/// Matching rule: a list belongs to `inYourLanguages` when at least one of
+/// its `content_languages` entries is present in `userLanguages`. Lists with
+/// an empty `content_languages` field fall back to `otherLanguages` so they
+/// remain discoverable but never shadow language-tagged lists.
+CuratedListPartition partitionCuratedListsByLanguage(
+  List<CuratedList> lists,
+  Set<String> userLanguages,
+) {
+  final inYours = <CuratedList>[];
+  final other = <CuratedList>[];
+  for (final list in lists) {
+    if (list.contentLanguages.isNotEmpty &&
+        list.contentLanguages.any(userLanguages.contains)) {
+      inYours.add(list);
+    } else {
+      other.add(list);
+    }
+  }
+  return CuratedListPartition(
+    inYourLanguages: inYours,
+    otherLanguages: other,
+  );
 }
 
 /// Represents a category of curated lists.

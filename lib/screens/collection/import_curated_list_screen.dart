@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../data/repositories/book_repository.dart';
+import '../../providers/theme_provider.dart';
 import '../../services/curated_lists_service.dart';
 import '../../services/api_service.dart';
 import '../../services/collection_import_service.dart';
 import '../../services/translation_service.dart';
+import '../../utils/language_constants.dart';
 
 class ImportCuratedListScreen extends StatefulWidget {
   const ImportCuratedListScreen({Key? key}) : super(key: key);
@@ -25,6 +27,7 @@ class _ImportCuratedListScreenState extends State<ImportCuratedListScreen> {
   List<CuratedList> _currentLists = [];
   String _profileType = 'individual';
   Set<String> _libraryIsbns = {};
+  bool _otherLanguagesExpanded = false;
 
   /// Extract display title from a curated book note.
   /// Notes may contain "Title - Author (Year)" format; return just the title.
@@ -113,6 +116,9 @@ class _ImportCuratedListScreenState extends State<ImportCuratedListScreen> {
     setState(() {
       _selectedCategoryId = categoryId;
       _isLoading = true;
+      // Reset the collapsed state so a newly opened category never shows
+      // an old expansion choice that is no longer relevant.
+      _otherLanguagesExpanded = false;
     });
 
     final category = _categories.firstWhere((c) => c.id == categoryId);
@@ -124,6 +130,23 @@ class _ImportCuratedListScreenState extends State<ImportCuratedListScreen> {
         _isLoading = false;
       });
     }
+  }
+
+  /// User's preferred reading languages, de-duplicated and normalized.
+  /// Combines the explicit `userLanguages` setting with the UI locale so a
+  /// user who never opened the language picker still sees relevant content.
+  Set<String> _resolveUserLanguages(ThemeProvider theme) {
+    return {
+      normalizeLanguageCode(theme.locale.languageCode),
+      ...theme.userLanguages.map(normalizeLanguageCode),
+    };
+  }
+
+  /// Map `['fr', 'en']` to `"Français, English"` using native names.
+  String _languageLabel(List<String> codes) {
+    return codes
+        .map((c) => kLanguageNativeNames[c] ?? c.toUpperCase())
+        .join(', ');
   }
 
   String get _currentLangCode {
@@ -425,7 +448,7 @@ class _ImportCuratedListScreenState extends State<ImportCuratedListScreen> {
                     ),
                   ),
 
-                // Lists
+                // Lists partitioned by user language relevance.
                 Expanded(
                   child: _isLoading
                       ? const Center(child: CircularProgressIndicator())
@@ -438,54 +461,50 @@ class _ImportCuratedListScreenState extends State<ImportCuratedListScreen> {
                             ),
                           ),
                         )
-                      : LayoutBuilder(
-                          builder: (context, constraints) {
-                            final crossAxisCount =
-                                constraints.maxWidth >= 600 ? 2 : 1;
-
-                            if (crossAxisCount == 1) {
-                              return ListView.builder(
-                                padding: const EdgeInsets.all(16),
-                                itemCount: _currentLists.length,
-                                itemBuilder: (context, index) {
-                                  return _buildListCard(
-                                    _currentLists[index],
-                                    langCode,
-                                  );
-                                },
-                              );
-                            }
-
-                            final rowCount =
-                                (_currentLists.length / crossAxisCount).ceil();
-                            return ListView.builder(
-                              padding: const EdgeInsets.all(16),
-                              itemCount: rowCount,
-                              itemBuilder: (context, index) {
-                                final firstIndex = index * crossAxisCount;
-                                return IntrinsicHeight(
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      for (int i = 0;
-                                          i < crossAxisCount;
-                                          i++) ...[
-                                        if (i > 0) const SizedBox(width: 16),
-                                        Expanded(
-                                          child:
-                                              firstIndex + i <
-                                                      _currentLists.length
-                                                  ? _buildListCard(
-                                                      _currentLists[
-                                                          firstIndex + i],
-                                                      langCode,
-                                                    )
-                                                  : const SizedBox(),
+                      : Consumer<ThemeProvider>(
+                          builder: (ctx, theme, _) {
+                            final partition = partitionCuratedListsByLanguage(
+                              _currentLists,
+                              _resolveUserLanguages(theme),
+                            );
+                            return LayoutBuilder(
+                              builder: (context, constraints) {
+                                final cols =
+                                    constraints.maxWidth >= 600 ? 2 : 1;
+                                return ListView(
+                                  padding: const EdgeInsets.all(16),
+                                  children: [
+                                    if (partition.inYourLanguages.isNotEmpty) ...[
+                                      _sectionHeader(
+                                        TranslationService.translate(
+                                          context,
+                                          'curated_section_in_your_languages',
                                         ),
-                                      ],
+                                      ),
+                                      ..._gridRows(
+                                        partition.inYourLanguages,
+                                        langCode,
+                                        cols,
+                                      ),
+                                      const SizedBox(height: 24),
                                     ],
-                                  ),
+                                    if (partition.otherLanguages.isNotEmpty)
+                                      if (partition.inYourLanguages.isEmpty)
+                                        // No content in user's languages at
+                                        // all: show directly, no collapse
+                                        // toggle, so the screen isn't empty.
+                                        ..._gridRows(
+                                          partition.otherLanguages,
+                                          langCode,
+                                          cols,
+                                        )
+                                      else
+                                        _buildOtherLanguagesSection(
+                                          partition.otherLanguages,
+                                          langCode,
+                                          cols,
+                                        ),
+                                  ],
                                 );
                               },
                             );
@@ -494,6 +513,123 @@ class _ImportCuratedListScreenState extends State<ImportCuratedListScreen> {
                 ),
               ],
             ),
+    );
+  }
+
+  /// Section title used at the top of each language group.
+  Widget _sectionHeader(String text) {
+    return Semantics(
+      header: true,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Text(
+          text,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+        ),
+      ),
+    );
+  }
+
+  /// Build the rows of curated-list cards for either 1 or 2 columns.
+  List<Widget> _gridRows(
+    List<CuratedList> lists,
+    String langCode,
+    int cols,
+  ) {
+    final rows = <Widget>[];
+    for (var i = 0; i < lists.length; i += cols) {
+      if (cols == 1) {
+        rows.add(_buildListCard(lists[i], langCode));
+      } else {
+        rows.add(
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (var k = 0; k < cols; k++) ...[
+                  if (k > 0) const SizedBox(width: 16),
+                  Expanded(
+                    child: i + k < lists.length
+                        ? _buildListCard(lists[i + k], langCode)
+                        : const SizedBox(),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        );
+      }
+    }
+    return rows;
+  }
+
+  /// "Other languages" section with a tappable header that toggles
+  /// visibility of the underlying grid. Collapsed by default so the user's
+  /// relevant content stays above the fold; an affordance hints at how many
+  /// lists remain hidden so users know the section is not empty.
+  Widget _buildOtherLanguagesSection(
+    List<CuratedList> lists,
+    String langCode,
+    int cols,
+  ) {
+    final headerText = TranslationService.translate(
+      context,
+      'curated_section_other_languages',
+    );
+    final hintText = TranslationService.translate(
+      context,
+      'curated_other_languages_hint',
+      params: {'count': '${lists.length}'},
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Semantics(
+          button: true,
+          header: true,
+          label: headerText,
+          child: InkWell(
+            onTap: () => setState(
+              () => _otherLanguagesExpanded = !_otherLanguagesExpanded,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Row(
+                children: [
+                  Icon(
+                    _otherLanguagesExpanded
+                        ? Icons.expand_less
+                        : Icons.expand_more,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          headerText,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w600),
+                        ),
+                        if (!_otherLanguagesExpanded)
+                          Text(
+                            hintText,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        if (_otherLanguagesExpanded) ..._gridRows(lists, langCode, cols),
+      ],
     );
   }
 
@@ -561,6 +697,28 @@ class _ImportCuratedListScreenState extends State<ImportCuratedListScreen> {
                 ],
                 Text(description),
                 const SizedBox(height: 12),
+
+                // Language badge - indicates which language(s) the books are in.
+                if (list.contentLanguages.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Semantics(
+                      label: _languageLabel(list.contentLanguages),
+                      child: Chip(
+                        avatar: const Icon(Icons.translate, size: 14),
+                        label: Text(
+                          _languageLabel(list.contentLanguages),
+                          style: const TextStyle(fontSize: 11),
+                        ),
+                        padding: EdgeInsets.zero,
+                        visualDensity: VisualDensity.compact,
+                        materialTapTargetSize:
+                            MaterialTapTargetSize.shrinkWrap,
+                        backgroundColor:
+                            Theme.of(context).colorScheme.primaryContainer,
+                      ),
+                    ),
+                  ),
 
                 // Tags
                 if (list.tags.isNotEmpty)
