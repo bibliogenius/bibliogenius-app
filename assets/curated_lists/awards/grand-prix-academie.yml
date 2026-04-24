@@ -1,39 +1,52 @@
-# Grand Prix du Roman de l'Académie Française
-# Source officielle : academie-francaise.fr
+# Grand Prix du Roman (Académie française) — regenerated from https://fr.wikipedia.org/wiki/Grand_prix_du_roman_de_l%27Acad%C3%A9mie_fran%C3%A7aise
 id: grand-prix-academie
-version: 1
+version: 3
 
 title:
-  fr: Grand Prix du Roman - Académie Française
-  en: Grand Prize for Fiction - French Academy
-  de: Großer Romanpreis - Académie Française
-  es: Gran Premio de Novela - Academia Francesa
+  fr: Grand Prix du Roman de l'Académie française
+  en: Grand Prix du Roman (Académie française)
+  de: Grand Prix du Roman (Académie française)
+  es: Gran Premio de Novela (Academia Francesa)
 
 description:
-  fr: "Le Grand Prix du Roman de l'Académie française récompense l'auteur d'un roman. Source : academie-francaise.fr"
-  en: "The French Academy's Grand Prize for Fiction rewards a novel's author. Source: academie-francaise.fr"
-  de: "Der Große Romanpreis der Französischen Akademie würdigt einen Romanautor. Quelle: academie-francaise.fr"
-  es: "El Gran Premio de Novela de la Academia Francesa premia al autor de una novela. Fuente: academie-francaise.fr"
+  fr: "Lauréats récents du Grand Prix du Roman de l'Académie française."
+  en: "Recent winners of the Grand Prix du Roman de l'Académie française."
+  de: "Aktuelle Preisträger des Grand Prix du Roman der Académie française."
+  es: "Ganadores recientes del Gran Premio de Novela de la Academia Francesa."
 
-source_url: "https://www.academie-francaise.fr/les-prix"
+source_url: "https://fr.wikipedia.org/wiki/Grand_prix_du_roman_de_l%27Acad%C3%A9mie_fran%C3%A7aise"
 contributor: BiblioGenius
-tags: [prix, académie, français, prestigieux]
+tags: [prix, academie-francaise, francais]
 content_languages: [fr]
 
 books:
-  - isbn: "9782072968808"
-    note: "Abel Quentin - Le Voyant d'Étampes (2024)"
-  - isbn: "9782072951091"
-    note: "Grégoire Bouillier - Le Cœur ne cède pas (2022)"
-  - isbn: "9782072890864"
-    note: "Boualem Sansal - 2084 (2015)"
-  - isbn: "9782072848018"
-    note: "Alice Ferney - Passé sous silence (2010)"
-  - isbn: "9782070126200"
-    note: "Jean-Marie Gustave Le Clézio - Ritournelle de la faim (2008)"
-  - isbn: "9782253134329"
-    note: "Jean Echenoz - Ravel (2006)"
-  - isbn: "9782070409907"
-    note: "Patrick Modiano - Un pedigree (2005)"
-  - isbn: "9782070411740"
-    note: "Pascal Quignard - Terrasse à Rome (2000)"
+  - isbn: "9782290034408"
+    note: "Eric Faye - Nagasaki (2010)"
+  - isbn: "9782246785699"
+    note: "Sorj Chalandon - Retour à Killybegs (2011)"
+  - isbn: "9782806253170"
+    note: "Joel Dicker - La Vérité sur l'affaire Harry Quebert (2012)"
+  - isbn: "9782070134274"
+    note: "Christophe Ono-dit-Biot - Plonger (2013)"
+  - isbn: "9782234077317"
+    note: "Adrien Bosc - Constellation (2014)"
+  - isbn: "9782070149919"
+    note: "Hedi Kaddour - Les Prépondérants (2015)"
+  - isbn: "9782072713989"
+    note: "Boualem Sansal - 2084 la fin du monde (2015)"
+  - isbn: "9782253070504"
+    note: "Adelaide de Clermont-Tonnerre - Le Dernier des nôtres (2016)"
+  - isbn: "9782246688310"
+    note: "Daniel Rondeau - Mécaniques du chaos (2017)"
+  - isbn: "9782266296786"
+    note: "Camille Pascal - L'Été des quatre rois (2018)"
+  - isbn: "9782246813095"
+    note: "Laurent Binet - Civilizations (2019)"
+  - isbn: "9782234088412"
+    note: "Etienne de Montety - La Grande Épreuve (2020)"
+  - isbn: "9782072900945"
+    note: "Francois-Henri Deserable - Mon maître et mon vainqueur (2021)"
+  - isbn: "9782073003911"
+    note: "Giuliano da Empoli - Le Mage du Kremlin (2022)"
+  - isbn: "9782743664060"
+    note: "Miguel Bonnefoy - Le Rêve du jaguar (2024)"
