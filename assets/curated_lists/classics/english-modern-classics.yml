@@ -1,0 +1,37 @@
+# English-language modern classics
+# NOTE: ISBNs below target canonical editions (Penguin/Vintage/Signet). Run
+#       `python scripts/validate_isbns.py` before shipping to catch stale ones.
+id: english-modern-classics
+version: 1
+
+title:
+  fr: Classiques modernes anglophones (VO)
+  en: English-language modern classics
+  de: Moderne Klassiker auf Englisch
+  es: Clásicos modernos en inglés
+
+description:
+  fr: "20e siècle anglophone en version originale : Orwell, Fitzgerald, Austen, Lee, Salinger."
+  en: "20th-century English-language classics in the original: Orwell, Fitzgerald, Austen, Lee, Salinger."
+  de: "Englischsprachige Klassiker des 20. Jahrhunderts im Original: Orwell, Fitzgerald, Austen, Lee, Salinger."
+  es: "Clásicos anglófonos del siglo XX en versión original: Orwell, Fitzgerald, Austen, Lee, Salinger."
+
+contributor: BiblioGenius
+tags: [classics, english, 20th-century]
+content_languages: [en]
+
+books:
+  - isbn: "9780451524935"
+    note: "George Orwell - 1984 (Signet Classic)"
+  - isbn: "9780451526342"
+    note: "George Orwell - Animal Farm (Signet Classic)"
+  - isbn: "9780141439518"
+    note: "Jane Austen - Pride and Prejudice (Penguin Classics)"
+  - isbn: "9780743273565"
+    note: "F. Scott Fitzgerald - The Great Gatsby (Scribner)"
+  - isbn: "9780061120084"
+    note: "Harper Lee - To Kill a Mockingbird (Harper Perennial)"
+  - isbn: "9780316769174"
+    note: "J.D. Salinger - The Catcher in the Rye (Little, Brown)"
+  - isbn: "9780060850524"
+    note: "Aldous Huxley - Brave New World (Harper Perennial)"

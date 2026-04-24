@@ -18,6 +18,7 @@ description:
 source_url: "https://www.radiofrance.fr/franceculture"
 contributor: BiblioGenius
 tags: [français, culture, radio, essentiel]
+content_languages: [fr]
 
 books:
   - isbn: "9782070379248"

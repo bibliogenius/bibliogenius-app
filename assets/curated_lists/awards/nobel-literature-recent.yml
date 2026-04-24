@@ -18,6 +18,7 @@ description:
 source_url: "https://www.nobelprize.org/prizes/literature/"
 contributor: BiblioGenius
 tags: [prix, nobel, contemporain]
+content_languages: [fr]
 
 books:
   - isbn: "9782072968808"

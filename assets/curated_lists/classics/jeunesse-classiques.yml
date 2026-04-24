@@ -17,6 +17,7 @@ description:
 cover_url: "https://covers.openlibrary.org/b/id/8225138-L.jpg"
 contributor: BiblioGenius
 tags: [jeunesse, classiques, fantasy, aventure]
+content_languages: [fr]
 
 books:
   - isbn: "9782070643028"

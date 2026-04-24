@@ -18,6 +18,7 @@ description:
 source_url: "https://www.bnf.fr/"
 contributor: BiblioGenius
 tags: [philosophie, débutant, essai, introduction]
+content_languages: [fr]
 
 books:
   - isbn: "9782070325054"

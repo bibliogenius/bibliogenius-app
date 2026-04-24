@@ -18,6 +18,7 @@ description:
 source_url: "https://www.ala.org/alsc/awardsgrants/bookmedia/newberymedal"
 contributor: BiblioGenius
 tags: [prix, newbery, jeunesse, américain]
+content_languages: [fr]
 
 books:
   - isbn: "9782070612758"

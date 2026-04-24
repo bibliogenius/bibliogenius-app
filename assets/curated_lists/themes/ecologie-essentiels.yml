@@ -18,6 +18,7 @@ description:
 source_url: "https://www.wwf.org/"
 contributor: BiblioGenius
 tags: [écologie, environnement, climat, nature]
+content_languages: [fr]
 
 books:
   - isbn: "9782352120421"

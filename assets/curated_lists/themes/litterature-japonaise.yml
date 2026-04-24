@@ -18,6 +18,7 @@ description:
 source_url: "https://www.jpf.go.jp/"
 contributor: BiblioGenius
 tags: [japon, asie, classiques, contemporain]
+content_languages: [fr]
 
 books:
   - isbn: "9782073012722"

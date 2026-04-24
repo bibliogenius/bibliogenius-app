@@ -18,6 +18,7 @@ description:
 source_url: "https://www.penguin.co.uk/penguin-classics"
 contributor: BiblioGenius
 tags: [classiques, canon, littérature-mondiale]
+content_languages: [fr]
 
 books:
   - isbn: "9782070364992"

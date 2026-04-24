@@ -10,6 +10,7 @@ description:
 cover_url: "https://covers.openlibrary.org/b/isbn/9782505000327-L.jpg"
 contributor: BiblioGenius
 tags: [manga, shonen, thriller, serie-complete, death-note]
+content_languages: [fr]
 books:
   - isbn: "9782505000327"
     note: "Death Note - Tome 1"

@@ -18,6 +18,7 @@ description:
 source_url: "https://www.prixrenaudot.fr/"
 contributor: BiblioGenius
 tags: [prix, renaudot, français]
+content_languages: [fr]
 
 books:
   - isbn: "9782073010124"

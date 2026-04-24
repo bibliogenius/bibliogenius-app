@@ -18,6 +18,7 @@ description:
 source_url: "https://www.ft.com/books"
 contributor: BiblioGenius
 tags: [économie, business, entrepreneuriat, essai]
+content_languages: [fr]
 
 books:
   - isbn: "9782757884584"

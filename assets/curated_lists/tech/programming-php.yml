@@ -18,6 +18,7 @@ description:
 source_url: "https://www.php.net/"
 contributor: BiblioGenius
 tags: [informatique, programmation, php, backend, web]
+content_languages: [fr, en]
 
 books:
   - isbn: "9782212674750"

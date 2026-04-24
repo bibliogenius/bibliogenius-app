@@ -18,6 +18,7 @@ description:
 source_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript"
 contributor: BiblioGenius
 tags: [informatique, programmation, javascript, web, frontend]
+content_languages: [en]
 
 books:
   - isbn: "9781593279509"

@@ -18,6 +18,7 @@ description:
 source_url: "https://go.dev/"
 contributor: BiblioGenius
 tags: [informatique, go, golang, backend, google]
+content_languages: [en]
 
 books:
   - isbn: "9780134190440"

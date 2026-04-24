@@ -18,6 +18,7 @@ description:
 source_url: "https://www.prixmedicis.com/"
 contributor: BiblioGenius
 tags: [prix, médicis, français]
+content_languages: [fr]
 
 books:
   - isbn: "9782072987922"

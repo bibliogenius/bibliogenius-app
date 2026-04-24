@@ -18,6 +18,7 @@ description:
 source_url: "https://www.academie-francaise.fr/"
 contributor: BiblioGenius
 tags: [poésie, classiques, vers]
+content_languages: [fr]
 
 books:
   - isbn: "9782266168540"

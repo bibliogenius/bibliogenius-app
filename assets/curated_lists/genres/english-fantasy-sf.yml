@@ -1,0 +1,36 @@
+# English-language fantasy & science fiction in original editions
+# NOTE: Run `python scripts/validate_isbns.py` before shipping.
+id: english-fantasy-sf
+version: 1
+
+title:
+  fr: Fantasy et SF anglophones (VO)
+  en: English fantasy & science fiction (original editions)
+  de: Englischsprachige Fantasy und Science-Fiction
+  es: Fantasía y ciencia ficción en inglés
+
+description:
+  fr: "Les grandes œuvres de l'imaginaire anglophone en version originale."
+  en: "Landmark English-language fantasy and science fiction in the original editions."
+  de: "Meilensteine englischsprachiger Fantasy und Science-Fiction im Original."
+  es: "Obras fundamentales de fantasía y ciencia ficción anglófonas en edición original."
+
+contributor: BiblioGenius
+tags: [fantasy, sf, english]
+content_languages: [en]
+
+books:
+  - isbn: "9780547928227"
+    note: "J.R.R. Tolkien - The Hobbit (Mariner Books, 75th Anniversary)"
+  - isbn: "9780544003415"
+    note: "J.R.R. Tolkien - The Lord of the Rings (Mariner, single-volume)"
+  - isbn: "9780441172719"
+    note: "Frank Herbert - Dune (Ace)"
+  - isbn: "9780553293357"
+    note: "Isaac Asimov - Foundation (Bantam Spectra)"
+  - isbn: "9780553573404"
+    note: "George R.R. Martin - A Game of Thrones (Bantam)"
+  - isbn: "9780544084377"
+    note: "Ursula K. Le Guin - A Wizard of Earthsea (HMH)"
+  - isbn: "9780385490818"
+    note: "Margaret Atwood - The Handmaid's Tale (Anchor)"

@@ -18,6 +18,7 @@ description:
 source_url: "https://www.prixinterallie.com/"
 contributor: BiblioGenius
 tags: [prix, interallié, français, journalistes]
+content_languages: [fr]
 
 books:
   - isbn: "9782072968808"

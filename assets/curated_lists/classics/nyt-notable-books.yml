@@ -18,6 +18,7 @@ description:
 source_url: "https://www.nytimes.com/books/best-sellers/"
 contributor: BiblioGenius
 tags: [contemporain, américain, presse, bestseller]
+content_languages: [fr]
 
 books:
   - isbn: "9782253934158"

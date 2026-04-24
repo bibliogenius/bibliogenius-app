@@ -18,6 +18,7 @@ description:
 source_url: "https://www.drupal.org/"
 contributor: BiblioGenius
 tags: [informatique, cms, drupal, php, web]
+content_languages: [en]
 
 books:
   - isbn: "9781837631803"

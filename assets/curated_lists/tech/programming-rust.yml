@@ -18,6 +18,7 @@ description:
 source_url: "https://www.rust-lang.org/"
 contributor: BiblioGenius
 tags: [informatique, rust, système, backend, securité]
+content_languages: [en]
 
 books:
   - isbn: "9781718503106"

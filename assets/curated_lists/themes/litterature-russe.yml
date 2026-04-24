@@ -18,6 +18,7 @@ description:
 source_url: "https://www.russianbooker.org/"
 contributor: BiblioGenius
 tags: [russe, classiques, XIXe-siècle, XXe-siècle]
+content_languages: [fr]
 
 books:
   - isbn: "9782253017264"

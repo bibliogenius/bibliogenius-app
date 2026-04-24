@@ -18,6 +18,7 @@ description:
 source_url: "https://thebookerprizes.com/the-booker-library/prize-years"
 contributor: BiblioGenius
 tags: [prix, booker, britannique]
+content_languages: [fr]
 
 books:
   - isbn: "9782072968808"

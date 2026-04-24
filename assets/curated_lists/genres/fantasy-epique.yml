@@ -18,6 +18,7 @@ description:
 source_url: "https://www.sfadb.com/Locus_Awards"
 contributor: BiblioGenius
 tags: [fantasy, épique, classiques]
+content_languages: [fr]
 
 books:
   - isbn: "9782070612758"

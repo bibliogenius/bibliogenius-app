@@ -18,6 +18,7 @@ description:
 source_url: "https://www.francophonie.org/prix-des-5-continents"
 contributor: BiblioGenius
 tags: [afrique, contemporain, francophonie, anglophone]
+content_languages: [fr]
 
 books:
   - isbn: "9782070468805"

@@ -18,6 +18,7 @@ description:
 source_url: "https://flutter.dev/"
 contributor: BiblioGenius
 tags: [informatique, mobile, flutter, dart, apps]
+content_languages: [en, fr]
 
 books:
   - isbn: "9781950325740"

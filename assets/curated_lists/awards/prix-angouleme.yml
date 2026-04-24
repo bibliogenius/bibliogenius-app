@@ -18,6 +18,7 @@ description:
 source_url: "https://www.bdangouleme.com/"
 contributor: BiblioGenius
 tags: [bd, angoulême, prix, comics]
+content_languages: [fr]
 
 books:
   - isbn: "9782203001930"

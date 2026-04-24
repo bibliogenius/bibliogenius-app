@@ -18,6 +18,7 @@ description:
 source_url: "https://www.python.org/"
 contributor: BiblioGenius
 tags: [informatique, programmation, python, backend, data-science]
+content_languages: [en]
 
 books:
   - isbn: "9782212134346"

@@ -17,6 +17,7 @@ description:
 cover_url: "https://covers.openlibrary.org/b/id/10520666-L.jpg"
 contributor: BiblioGenius
 tags: [classiques, XXe-siècle, français, international]
+content_languages: [fr]
 
 books:
   - isbn: "9782070360024"

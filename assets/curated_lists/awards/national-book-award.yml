@@ -18,6 +18,7 @@ description:
 source_url: "https://www.nationalbook.org/"
 contributor: BiblioGenius
 tags: [prix, national-book-award, américain]
+content_languages: [fr]
 
 books:
   - isbn: "9782264075413"

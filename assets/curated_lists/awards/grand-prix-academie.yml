@@ -18,6 +18,7 @@ description:
 source_url: "https://www.academie-francaise.fr/les-prix"
 contributor: BiblioGenius
 tags: [prix, académie, français, prestigieux]
+content_languages: [fr]
 
 books:
   - isbn: "9782072968808"

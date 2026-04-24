@@ -18,6 +18,7 @@ description:
 source_url: "https://www.loc.gov/exhibits/books-that-shaped-america/"
 contributor: BiblioGenius
 tags: [américain, histoire, institution, canon]
+content_languages: [fr]
 
 books:
   - isbn: "9782070368228"

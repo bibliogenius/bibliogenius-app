@@ -17,6 +17,7 @@ categories:
       - nobel-literature-recent
       - pulitzer-fiction
       - booker-prize
+      - booker-prize-en
       - prix-medicis
       - prix-renaudot
       - prix-femina
@@ -42,6 +43,7 @@ categories:
       - guardian-100-21st-century
       - nyt-notable-books
       - penguin-classics-essential
+      - english-modern-classics
 
   - id: genres
     title:
@@ -59,6 +61,7 @@ categories:
       - edgar-award-novels
       - dystopies-classiques
       - fantasy-epique
+      - english-fantasy-sf
       - thriller-psychologique
       - horror-classiques
       - romans-historiques

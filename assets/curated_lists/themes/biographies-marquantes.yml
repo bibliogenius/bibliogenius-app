@@ -18,6 +18,7 @@ description:
 source_url: "https://www.goodreads.com/list/show/1364.Best_Biographies"
 contributor: BiblioGenius
 tags: [biographie, autobiographie, non-fiction]
+content_languages: [fr, en]
 
 books:
   - isbn: "9782253168522"

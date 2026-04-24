@@ -17,6 +17,7 @@ description:
 cover_url: "https://covers.openlibrary.org/b/id/10521421-L.jpg"
 contributor: BiblioGenius
 tags: [manga, japonais, shonen, seinen]
+content_languages: [fr]
 
 books:
   - isbn: "9782723488525"

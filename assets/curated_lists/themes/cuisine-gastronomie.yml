@@ -18,6 +18,7 @@ description:
 source_url: "https://www.jamesbeard.org/awards"
 contributor: BiblioGenius
 tags: [cuisine, gastronomie, recettes]
+content_languages: [en, fr]
 
 books:
   - isbn: "9780375413407"

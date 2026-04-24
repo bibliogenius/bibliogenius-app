@@ -18,6 +18,7 @@ description:
 source_url: "https://www.ala.org/yalsa/booklists"
 contributor: BiblioGenius
 tags: [young-adult, jeunesse, adolescent]
+content_languages: [fr]
 
 books:
   - isbn: "9782070643028"
