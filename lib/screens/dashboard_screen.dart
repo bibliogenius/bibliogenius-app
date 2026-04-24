@@ -53,6 +53,11 @@ class _DashboardScreenState extends State<DashboardScreen>
   final GlobalKey _statsKey = GlobalKey(debugLabel: 'dashboard_stats');
   final GlobalKey _menuKey = GlobalKey(debugLabel: 'dashboard_menu');
 
+  // Bumped whenever the user activates the stats tab, so StatisticsContent
+  // (kept alive inside the TabBarView) re-fetches its data instead of showing
+  // figures that were frozen the first time the tab was opened.
+  final ValueNotifier<int> _statsRefreshTick = ValueNotifier<int>(0);
+
   @override
   void initState() {
     super.initState();
@@ -61,6 +66,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       vsync: this,
       initialIndex: widget.initialTab.clamp(0, 1),
     );
+    _tabController.addListener(_onTabChanged);
     _fetchDashboardData();
     Future.delayed(const Duration(seconds: 1), _checkWizard);
     _checkBackupReminder();
@@ -68,8 +74,17 @@ class _DashboardScreenState extends State<DashboardScreen>
 
   @override
   void dispose() {
+    _tabController.removeListener(_onTabChanged);
     _tabController.dispose();
+    _statsRefreshTick.dispose();
     super.dispose();
+  }
+
+  void _onTabChanged() {
+    if (_tabController.indexIsChanging) return;
+    if (_tabController.index == 1) {
+      _statsRefreshTick.value++;
+    }
   }
 
   @override
@@ -338,7 +353,7 @@ class _DashboardScreenState extends State<DashboardScreen>
             controller: _tabController,
             children: [
               _buildDashboardTab(context, isWide, themeProvider, isKid),
-              const StatisticsContent(),
+              StatisticsContent(refreshTrigger: _statsRefreshTick),
             ],
           ),
         ),

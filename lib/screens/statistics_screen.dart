@@ -24,6 +24,8 @@ import '../widgets/reorderable_sections.dart';
 import '../theme/app_design.dart';
 import '../providers/theme_provider.dart';
 import '../src/rust/api/frb.dart' as frb;
+import '../utils/loan_statistics.dart';
+import '../utils/reading_statistics.dart';
 import 'package:intl/intl.dart';
 
 /// Data for a rating group (shelf or collection)
@@ -250,18 +252,21 @@ class _StatisticsScreenState extends State<StatisticsScreen>
           ? _buildEmptyState()
           : FadeTransition(
               opacity: _fadeAnim,
-              child: SingleChildScrollView(
-                padding: EdgeInsets.only(
-                  top:
-                      kToolbarHeight +
-                      48 +
-                      MediaQuery.of(context).padding.top +
-                      16,
-                  left: 16.0,
-                  right: 16.0,
-                  bottom: 16.0,
-                ),
-                child: Column(
+              child: RefreshIndicator(
+                onRefresh: _fetchData,
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: EdgeInsets.only(
+                    top:
+                        kToolbarHeight +
+                        48 +
+                        MediaQuery.of(context).padding.top +
+                        16,
+                    left: 16.0,
+                    right: 16.0,
+                    bottom: 16.0,
+                  ),
+                  child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildSummaryCards(),
@@ -383,6 +388,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                     const SizedBox(height: 40),
                   ],
                 ),
+              ),
               ),
             ),
     );
@@ -1286,28 +1292,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
   }
 
   Widget _buildLoanStatisticsSection() {
-    // Calculate loan statistics
-    final totalLoans = _loans.length;
-    final activeLoans = _loans.where((l) => l.returnDate == null).length;
-    final returnedLoans = _loans.where((l) => l.returnDate != null).length;
-
-    // Calculate average loan duration (for returned loans)
-    double avgDuration = 0;
-    final returnedWithDates = _loans
-        .where((l) => l.returnDate != null)
-        .toList();
-
-    if (returnedWithDates.isNotEmpty) {
-      int totalDays = 0;
-      for (var loan in returnedWithDates) {
-        try {
-          final loanDate = DateTime.parse(loan.loanDate);
-          final returnDate = DateTime.parse(loan.returnDate!);
-          totalDays += returnDate.difference(loanDate).inDays;
-        } catch (_) {}
-      }
-      avgDuration = totalDays / returnedWithDates.length;
-    }
+    final stats = LoanStatistics.fromLoans(_loans);
 
     // Top borrowers (contacts)
     final borrowerCounts = <String, int>{};
@@ -1337,11 +1322,6 @@ class _StatisticsScreenState extends State<StatisticsScreen>
       ..sort((a, b) => b.value.compareTo(a.value));
     if (mostLentBooks.length > 5) mostLentBooks = mostLentBooks.sublist(0, 5);
 
-    // Return rate
-    final returnRate = totalLoans > 0
-        ? (returnedLoans / totalLoans * 100).toStringAsFixed(0)
-        : '0';
-
     final isDesktop = MediaQuery.of(context).size.width > 900;
 
     return Container(
@@ -1360,7 +1340,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
               Expanded(
                 child: _buildMiniStat(
                   TranslationService.translate(context, 'total_loans'),
-                  totalLoans.toString(),
+                  stats.total.toString(),
                   Icons.swap_horiz,
                   const Color(0xFF8B4513), // Bronze instead of purple
                 ),
@@ -1369,7 +1349,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
               Expanded(
                 child: _buildMiniStat(
                   TranslationService.translate(context, 'active_loans'),
-                  activeLoans.toString(),
+                  stats.active.toString(),
                   Icons.arrow_upward,
                   Colors.orange,
                 ),
@@ -1378,7 +1358,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
               Expanded(
                 child: _buildMiniStat(
                   TranslationService.translate(context, 'return_rate'),
-                  '$returnRate%',
+                  formatReturnRate(stats.returnRatePercent),
                   Icons.check_circle,
                   Colors.green,
                 ),
@@ -1387,7 +1367,13 @@ class _StatisticsScreenState extends State<StatisticsScreen>
               Expanded(
                 child: _buildMiniStat(
                   TranslationService.translate(context, 'avg_duration'),
-                  '${avgDuration.toStringAsFixed(0)}j',
+                  formatAvgDuration(
+                    stats.avgDurationDays,
+                    lessThanOneDayLabel: TranslationService.translate(
+                      context,
+                      'avg_duration_under_one_day',
+                    ),
+                  ),
                   Icons.timer,
                   const Color(0xFFA16207), // Bronze instead of blue
                 ),
@@ -2316,8 +2302,16 @@ class _StatisticsScreenState extends State<StatisticsScreen>
 
 /// Embeddable statistics content widget (without Scaffold)
 /// Used in Dashboard tabs - Now includes all statistics from StatisticsScreen
+///
+/// [refreshTrigger] is an optional listenable whose value-changes cause the
+/// content to re-fetch data. It is used by the dashboard to refresh the stats
+/// tab when the user switches to it: without this, `_fetchData` would only run
+/// once in `initState` and the numbers would go stale as loans are created or
+/// returned elsewhere in the app.
 class StatisticsContent extends StatefulWidget {
-  const StatisticsContent({super.key});
+  final Listenable? refreshTrigger;
+
+  const StatisticsContent({super.key, this.refreshTrigger});
 
   @override
   State<StatisticsContent> createState() => _StatisticsContentState();
@@ -2378,12 +2372,28 @@ class _StatisticsContentState extends State<StatisticsContent>
     ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeOut));
 
     _fetchData();
+    widget.refreshTrigger?.addListener(_onRefreshRequested);
+  }
+
+  @override
+  void didUpdateWidget(covariant StatisticsContent oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.refreshTrigger != widget.refreshTrigger) {
+      oldWidget.refreshTrigger?.removeListener(_onRefreshRequested);
+      widget.refreshTrigger?.addListener(_onRefreshRequested);
+    }
   }
 
   @override
   void dispose() {
+    widget.refreshTrigger?.removeListener(_onRefreshRequested);
     _animController.dispose();
     super.dispose();
+  }
+
+  void _onRefreshRequested() {
+    if (!mounted || _isLoading) return;
+    _fetchData();
   }
 
   Future<void> _loadSummaryPrefs() async {
@@ -3028,15 +3038,15 @@ class _StatisticsContentState extends State<StatisticsContent>
       );
     }
 
-    // Normal mode: rows of 3
+    // Normal mode: rows of 2
     final visibleIds = _summaryCardOrder
         .where((id) => !_hiddenSummaryCards.contains(id))
         .toList();
 
     final rows = <Widget>[];
-    for (var i = 0; i < visibleIds.length; i += 3) {
+    for (var i = 0; i < visibleIds.length; i += 2) {
       final children = <Widget>[];
-      for (var j = 0; j < 3; j++) {
+      for (var j = 0; j < 2; j++) {
         if (j > 0) children.add(const SizedBox(width: 12));
         if (i + j < visibleIds.length) {
           children.add(
@@ -3750,6 +3760,8 @@ class _StatisticsContentState extends State<StatisticsContent>
         )
         .length;
 
+    final totalPagesRead = totalPagesReadFromFinishedBooks(_books);
+
     DateTime? lastFinished;
     for (final book in _books) {
       if (book.finishedReadingAt != null) {
@@ -3778,10 +3790,13 @@ class _StatisticsContentState extends State<StatisticsContent>
       ),
       'total_pages': _buildInsightCard(
         Icons.auto_stories,
-        null, // pageCount not yet in Book model
+        totalPagesRead > 0 ? totalPagesRead.toString() : null,
         TranslationService.translate(context, 'total_pages_read'),
         TranslationService.translate(context, 'pages_suffix'),
         const Color(0xFF8B5CF6),
+        description: totalPagesRead > 0
+            ? TranslationService.translate(context, 'total_pages_read_desc')
+            : null,
       ),
       'books_finished_year': _buildInsightCard(
         Icons.calendar_today,
@@ -4527,26 +4542,7 @@ class _StatisticsContentState extends State<StatisticsContent>
   }
 
   Widget _buildLoanStatisticsSection() {
-    final totalLoans = _loans.length;
-    final activeLoans = _loans.where((l) => l.returnDate == null).length;
-    final returnedLoans = _loans.where((l) => l.returnDate != null).length;
-
-    double avgDuration = 0;
-    final returnedWithDates = _loans
-        .where((l) => l.returnDate != null)
-        .toList();
-
-    if (returnedWithDates.isNotEmpty) {
-      int totalDays = 0;
-      for (var loan in returnedWithDates) {
-        try {
-          final loanDate = DateTime.parse(loan.loanDate);
-          final returnDate = DateTime.parse(loan.returnDate!);
-          totalDays += returnDate.difference(loanDate).inDays;
-        } catch (_) {}
-      }
-      avgDuration = totalDays / returnedWithDates.length;
-    }
+    final stats = LoanStatistics.fromLoans(_loans);
 
     final borrowerCounts = <String, int>{};
     for (var loan in _loans) {
@@ -4574,10 +4570,6 @@ class _StatisticsContentState extends State<StatisticsContent>
       ..sort((a, b) => b.value.compareTo(a.value));
     if (mostLentBooks.length > 5) mostLentBooks = mostLentBooks.sublist(0, 5);
 
-    final returnRate = totalLoans > 0
-        ? (returnedLoans / totalLoans * 100).toStringAsFixed(0)
-        : '0';
-
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -4593,7 +4585,7 @@ class _StatisticsContentState extends State<StatisticsContent>
               Expanded(
                 child: _buildMiniStat(
                   TranslationService.translate(context, 'total_loans'),
-                  totalLoans.toString(),
+                  stats.total.toString(),
                   Icons.swap_horiz,
                   const Color(0xFF8B4513),
                 ),
@@ -4602,7 +4594,7 @@ class _StatisticsContentState extends State<StatisticsContent>
               Expanded(
                 child: _buildMiniStat(
                   TranslationService.translate(context, 'active_loans'),
-                  activeLoans.toString(),
+                  stats.active.toString(),
                   Icons.arrow_upward,
                   Colors.orange,
                 ),
@@ -4611,7 +4603,7 @@ class _StatisticsContentState extends State<StatisticsContent>
               Expanded(
                 child: _buildMiniStat(
                   TranslationService.translate(context, 'return_rate'),
-                  '$returnRate%',
+                  formatReturnRate(stats.returnRatePercent),
                   Icons.check_circle,
                   Colors.green,
                 ),
@@ -4620,7 +4612,13 @@ class _StatisticsContentState extends State<StatisticsContent>
               Expanded(
                 child: _buildMiniStat(
                   TranslationService.translate(context, 'avg_duration'),
-                  '${avgDuration.toStringAsFixed(0)}j',
+                  formatAvgDuration(
+                    stats.avgDurationDays,
+                    lessThanOneDayLabel: TranslationService.translate(
+                      context,
+                      'avg_duration_under_one_day',
+                    ),
+                  ),
                   Icons.timer,
                   const Color(0xFFA16207),
                 ),
@@ -5058,7 +5056,7 @@ class _StatisticsContentState extends State<StatisticsContent>
     return Semantics(
       label: '$label: $value',
       child: Container(
-      height: 140,
+      height: 120,
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
@@ -5081,27 +5079,19 @@ class _StatisticsContentState extends State<StatisticsContent>
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Icon with gradient background
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      gradient: gradient ?? LinearGradient(colors: [accentColor, accentColor.withValues(alpha: 0.8)]),
-                      borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
-                    ),
-                    child: Icon(icon, color: Colors.white, size: 20),
-                  ),
+                  Icon(icon, color: accentColor, size: 22),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         value,
                         style: TextStyle(
-                          fontSize: 28,
+                          fontSize: 26,
                           fontWeight: FontWeight.bold,
                           color: accentColor,
                           height: 1.0,
@@ -5112,8 +5102,8 @@ class _StatisticsContentState extends State<StatisticsContent>
                       Text(
                         label,
                         style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
                           color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                         ),
                         maxLines: 1,

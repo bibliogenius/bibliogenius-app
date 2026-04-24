@@ -565,6 +565,10 @@ msgstr "Prix moyen"
 msgid "avg_duration"
 msgstr "Durée moy."
 
+#. Short-hand for an average loan duration below one day (loan statistics card)
+msgid "avg_duration_under_one_day"
+msgstr "< 1 j"
+
 #. Average Rating
 msgid "avg_rating"
 msgstr "Note moyenne"
