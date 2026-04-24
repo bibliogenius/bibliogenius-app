@@ -383,13 +383,13 @@ class _LibraryScreenState extends State<LibraryScreen>
               Expanded(
                 child: ConfigurableActionCard(
                   slotKey: '${slotPrefix}_slot_2',
-                  defaultActionId: 'share_library',
+                  defaultActionId: 'create_shelf',
                   allowedActionIds: const [
-                    'share_library',
+                    'create_shelf',
                     'batch_scan',
                     'manage_shelves',
                     'inventory',
-                    'create_shelf',
+                    'share_library',
                     'import_csv',
                   ],
                   handlers: handlers,
