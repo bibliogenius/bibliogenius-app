@@ -6214,7 +6214,7 @@ msgstr "See more"
 
 #. Profile section: gamification
 msgid "gamification"
-msgstr "Gamification"
+msgstr "Achievements"
 
 #. Profile section: leaderboard
 msgid "leaderboard"
