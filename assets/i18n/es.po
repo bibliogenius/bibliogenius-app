@@ -1461,6 +1461,18 @@ msgstr "¿Eliminar colección?"
 msgid "delete_collection_warning"
 msgstr "¿Estás seguro de que quieres eliminar esta colección? Esta acción no se puede deshacer."
 
+#. Also delete the books in this collection (checkbox label, off by default)
+msgid "delete_collection_include_books"
+msgstr "Eliminar también los libros de esta colección"
+
+#. "{to_delete} eliminados, {to_keep} conservados" - preview shown below the checkbox
+msgid "delete_collection_preview_summary"
+msgstr "{to_delete} eliminados, {to_keep} conservados"
+
+#. Legend shown below the preview summary in the delete-with-books confirmation
+msgid "delete_collection_preview_legend"
+msgstr "Libros conservados: prestados/tomados en préstamo, presentes en otra colección o en un estante."
+
 #. Delete
 msgid "delete_contact_btn"
 msgstr "Eliminar"

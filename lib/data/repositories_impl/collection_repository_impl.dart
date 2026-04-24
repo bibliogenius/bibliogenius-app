@@ -1,5 +1,6 @@
 import '../../models/collection.dart';
 import '../../models/collection_book.dart';
+import '../../models/collection_deletion_preview.dart';
 import '../../services/ffi_service.dart';
 import '../repositories/collection_repository.dart';
 
@@ -31,6 +32,14 @@ class CollectionRepositoryImpl implements CollectionRepository {
 
   @override
   Future<void> deleteCollection(String id) => _ffi.deleteCollection(id);
+
+  @override
+  Future<List<int>> deleteCollectionWithBooks(String id) =>
+      _ffi.deleteCollectionWithBooks(id);
+
+  @override
+  Future<CollectionDeletionPreview> getDeletionPreview(String id) =>
+      _ffi.getCollectionDeletionPreview(id);
 
   @override
   Future<List<CollectionBook>> getCollectionBooks(String id) =>
