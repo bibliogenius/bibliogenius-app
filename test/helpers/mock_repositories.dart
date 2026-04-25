@@ -9,6 +9,7 @@ import 'package:bibliogenius/models/tag.dart';
 import 'package:bibliogenius/models/contact.dart';
 import 'package:bibliogenius/models/collection.dart';
 import 'package:bibliogenius/models/collection_book.dart';
+import 'package:bibliogenius/models/collection_deletion_preview.dart';
 import 'package:bibliogenius/models/copy.dart';
 import 'package:bibliogenius/models/loan.dart';
 
@@ -153,6 +154,13 @@ class MockCollectionRepository implements CollectionRepository {
 
   @override
   Future<void> deleteCollection(String id) async {}
+
+  @override
+  Future<List<int>> deleteCollectionWithBooks(String id) async => const [];
+
+  @override
+  Future<CollectionDeletionPreview> getDeletionPreview(String id) async =>
+      const CollectionDeletionPreview(totalBooks: 0, toDelete: 0, toKeep: 0);
 
   @override
   Future<List<CollectionBook>> getCollectionBooks(String id) async =>
