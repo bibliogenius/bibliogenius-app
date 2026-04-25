@@ -16,6 +16,7 @@ description:
   es: "Colecciones de poesía esenciales. Fuentes: Academia Francesa, colecciones de la Pléiade."
 
 source_url: "https://www.academie-francaise.fr/"
+cover_url: "https://inventaire.io/img/entities/1b554f0d9a63c3822017a01b6c48dbc209dce02e"
 contributor: BiblioGenius
 tags: [poésie, classiques, vers]
 content_languages: [fr]

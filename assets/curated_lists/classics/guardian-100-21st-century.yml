@@ -11,6 +11,7 @@ description:
   de: 'Die 100 besten Bücher seit 2000 laut The Guardian. Quelle: theguardian.com'
   es: 'Los 100 mejores libros desde 2000 según The Guardian. Fuente: theguardian.com'
 source_url: https://www.theguardian.com/books/2019/sep/21/best-books-of-the-21st-century
+cover_url: "https://covers.openlibrary.org/b/isbn/9782742778430-L.jpg"
 contributor: BiblioGenius
 tags:
 - contemporain

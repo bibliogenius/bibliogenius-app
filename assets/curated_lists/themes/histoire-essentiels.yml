@@ -16,6 +16,7 @@ description:
   es: "Obras históricas fundamentales para entender el mundo. Fuentes: programas universitarios, historiadores reconocidos."
 
 source_url: "https://www.bnf.fr/"
+cover_url: "https://inventaire.io/img/entities/6c6709335d9e6d29f778adce5c92769b4254450e"
 contributor: BiblioGenius
 tags: [histoire, essai, non-fiction]
 content_languages: [fr]

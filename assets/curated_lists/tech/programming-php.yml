@@ -16,6 +16,7 @@ description:
   es: "Guías para el desarrollo moderno en PHP y MySQL."
 
 source_url: "https://www.php.net/"
+cover_url: "https://covers.openlibrary.org/b/isbn/9782212674750-L.jpg"
 contributor: BiblioGenius
 tags: [informatique, programmation, php, backend, web]
 content_languages: [fr, en]

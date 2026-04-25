@@ -16,6 +16,7 @@ description:
   es: "Selección de France Culture para construir tu biblioteca ideal. Fuente: franceculture.fr"
 
 source_url: "https://www.radiofrance.fr/franceculture"
+cover_url: "https://inventaire.io/img/entities/646a3ef031d6a1adc27cb5f556d2a403a2f525a7"
 contributor: BiblioGenius
 tags: [français, culture, radio, essentiel]
 content_languages: [fr]

@@ -16,6 +16,7 @@ description:
   es: "Selección de libros notables según el New York Times Book Review. Fuente: nytimes.com"
 
 source_url: "https://www.nytimes.com/books/best-sellers/"
+cover_url: "https://inventaire.io/img/entities/ee6e45308c9769cd77f63b1b71b0d65f57661c02"
 contributor: BiblioGenius
 tags: [contemporain, américain, presse, bestseller]
 content_languages: [fr]

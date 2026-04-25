@@ -15,6 +15,7 @@ description:
   es: "Ganadores recientes del Premio Interallié."
 
 source_url: "https://fr.wikipedia.org/wiki/Prix_Interalli%C3%A9"
+cover_url: "https://inventaire.io/img/entities/14e86b8188f8ec1e205d308c26a366a108ee9ef6"
 contributor: BiblioGenius
 tags: [prix, interallie, francais]
 content_languages: [fr]

@@ -16,6 +16,7 @@ description:
   es: "Libros de cocina imprescindibles. Fuentes: James Beard Awards, IACP Cookbook Awards."
 
 source_url: "https://www.jamesbeard.org/awards"
+cover_url: "https://inventaire.io/img/entities/79a3ac9deea4695b6c389d692b53ed252f0b3e78"
 contributor: BiblioGenius
 tags: [cuisine, gastronomie, recettes]
 content_languages: [en, fr]

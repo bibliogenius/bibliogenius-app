@@ -15,6 +15,7 @@ description:
   es: "Ganadores recientes del Premio Médicis de novela francesa."
 
 source_url: "https://fr.wikipedia.org/wiki/Prix_M%C3%A9dicis"
+cover_url: "https://covers.openlibrary.org/b/isbn/9782818012833-L.jpg"
 contributor: BiblioGenius
 tags: [prix, medicis, francais]
 content_languages: [fr]

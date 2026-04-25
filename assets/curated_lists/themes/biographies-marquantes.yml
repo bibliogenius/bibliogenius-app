@@ -16,6 +16,7 @@ description:
   es: "Biografías y autobiografías notables de personalidades. Fuentes: Goodreads Best Biography, Babelio."
 
 source_url: "https://www.goodreads.com/list/show/1364.Best_Biographies"
+cover_url: "https://inventaire.io/img/entities/b5656bce858ee354d3c482e226f5bad8ce99fdd2"
 contributor: BiblioGenius
 tags: [biographie, autobiographie, non-fiction]
 content_languages: [fr, en]

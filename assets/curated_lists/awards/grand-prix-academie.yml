@@ -15,6 +15,7 @@ description:
   es: "Ganadores recientes del Gran Premio de Novela de la Academia Francesa."
 
 source_url: "https://fr.wikipedia.org/wiki/Grand_prix_du_roman_de_l%27Acad%C3%A9mie_fran%C3%A7aise"
+cover_url: "https://inventaire.io/img/entities/363e2d6394b7a7d935d53e9d17355d386e1846ff"
 contributor: BiblioGenius
 tags: [prix, academie-francaise, francais]
 content_languages: [fr]

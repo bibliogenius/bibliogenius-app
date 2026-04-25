@@ -15,6 +15,7 @@ description:
   es: "Ganadores recientes del Premio Booker."
 
 source_url: "https://en.wikipedia.org/wiki/Booker_Prize"
+cover_url: "https://inventaire.io/img/entities/e12929029e53c5ab78e0b42a27768774cf5c837f"
 contributor: BiblioGenius
 tags: [prix, booker, british]
 content_languages: [en]

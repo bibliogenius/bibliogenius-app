@@ -16,6 +16,7 @@ description:
   es: "Bestsellers de ciencia popular. Fuentes: Royal Society Science Book Prize, New York Times Science."
 
 source_url: "https://royalsociety.org/grants-schemes-awards/book-prizes/science-book-prize/"
+cover_url: "https://inventaire.io/img/entities/7ffeafb330576d21c97cd3504b32202b647c2d33"
 contributor: BiblioGenius
 tags: [science, vulgarisation, non-fiction]
 content_languages: [fr]

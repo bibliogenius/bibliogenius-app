@@ -16,6 +16,7 @@ description:
   es: "El lenguaje Rust: seguridad, velocidad y concurrencia."
 
 source_url: "https://www.rust-lang.org/"
+cover_url: "https://inventaire.io/img/entities/66d35df2b91263c0f0c7b381d032b18f489c50d3"
 contributor: BiblioGenius
 tags: [informatique, rust, système, backend, securité]
 content_languages: [en]

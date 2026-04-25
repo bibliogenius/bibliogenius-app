@@ -16,6 +16,7 @@ description:
   es: "Ganadores recientes del Premio Booker en su edición original en inglés."
 
 source_url: "https://thebookerprizes.com/the-booker-library/prize-years"
+cover_url: "https://inventaire.io/img/entities/6f4efc5987cebfdcb3000ef76a46a4d004468faa"
 contributor: BiblioGenius
 tags: [prix, booker, english]
 content_languages: [en]

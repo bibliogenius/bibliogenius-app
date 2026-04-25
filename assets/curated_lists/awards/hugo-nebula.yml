@@ -15,6 +15,7 @@ description:
   es: "Ganadores recientes de los Premios Hugo y Nebula."
 
 source_url: "https://en.wikipedia.org/wiki/Hugo_Award_for_Best_Novel"
+cover_url: "https://covers.openlibrary.org/b/id/9123630-L.jpg"
 contributor: BiblioGenius
 tags: [prix, hugo, nebula, science-fiction]
 content_languages: [en]

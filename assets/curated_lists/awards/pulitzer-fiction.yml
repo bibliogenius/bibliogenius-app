@@ -15,6 +15,7 @@ description:
   es: "Ganadores recientes del Premio Pulitzer de Ficción."
 
 source_url: "https://en.wikipedia.org/wiki/Pulitzer_Prize_for_Fiction"
+cover_url: "https://covers.openlibrary.org/b/id/13890631-L.jpg"
 contributor: BiblioGenius
 tags: [prix, pulitzer, fiction, american]
 content_languages: [en]

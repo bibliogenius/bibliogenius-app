@@ -13,6 +13,7 @@ description:
   es: 'Novelas premiadas por escritores de ciencia ficción y fantasía (SFWA). Fuente:
     nebulas.sfwa.org'
 source_url: https://nebulas.sfwa.org/award-year/
+cover_url: "https://inventaire.io/img/entities/57883743aa7c6ad25885a63e6e94349ec4f71562"
 contributor: BiblioGenius
 tags:
 - prix

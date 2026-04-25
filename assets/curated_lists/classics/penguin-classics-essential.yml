@@ -16,6 +16,7 @@ description:
   es: "Clásicos esenciales de la colección Penguin Classics. Fuente: penguin.co.uk"
 
 source_url: "https://www.penguin.co.uk/penguin-classics"
+cover_url: "https://inventaire.io/img/entities/26e1804d32bcee39cf560e29759bdab54a46f2eb"
 contributor: BiblioGenius
 tags: [classiques, canon, littérature-mondiale]
 content_languages: [fr]

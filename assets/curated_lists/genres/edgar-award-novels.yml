@@ -16,6 +16,7 @@ description:
   es: "Mejores novelas de misterio según la Mystery Writers of America. Fuente: theedgars.com"
 
 source_url: "https://mysterywriters.org/the-edgars/"
+cover_url: "https://inventaire.io/img/entities/933be5d76164a462e15d3675a8063236b143fe34"
 contributor: BiblioGenius
 tags: [prix, edgar, polar, thriller, américain]
 content_languages: [fr]

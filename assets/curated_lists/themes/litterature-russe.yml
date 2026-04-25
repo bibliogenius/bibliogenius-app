@@ -16,6 +16,7 @@ description:
   es: "Grandes obras de la literatura rusa. Fuentes: Russian Booker Prize, universidades."
 
 source_url: "https://www.russianbooker.org/"
+cover_url: "https://inventaire.io/img/entities/be046cd547de4fa4fc30f5602339ac5b00b7b876"
 contributor: BiblioGenius
 tags: [russe, classiques, XIXe-siècle, XXe-siècle]
 content_languages: [fr]

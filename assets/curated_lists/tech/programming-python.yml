@@ -16,6 +16,7 @@ description:
   es: "Recursos esenciales para dominar Python, de principiante a experto."
 
 source_url: "https://www.python.org/"
+cover_url: "https://inventaire.io/img/entities/2998dade951d63b9852124c0c552257e6fc97a98"
 contributor: BiblioGenius
 tags: [informatique, programmation, python, backend, data-science]
 content_languages: [en]

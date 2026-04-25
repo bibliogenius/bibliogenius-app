@@ -15,6 +15,7 @@ description:
   es: "Ganadores recientes del Premio Renaudot."
 
 source_url: "https://fr.wikipedia.org/wiki/Prix_Renaudot"
+cover_url: "https://inventaire.io/img/entities/57893f349992ec9334e735caeace6b9d7fa9ba15"
 contributor: BiblioGenius
 tags: [prix, renaudot, francais]
 content_languages: [fr]

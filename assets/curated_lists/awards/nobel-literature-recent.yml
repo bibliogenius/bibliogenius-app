@@ -15,6 +15,7 @@ description:
   es: "Ganadores recientes del Nobel de Literatura, representados por una obra icónica."
 
 source_url: "https://www.nobelprize.org/prizes/lists/all-nobel-prizes-in-literature/"
+cover_url: "https://inventaire.io/img/entities/c606e39a6a7000e69b557847c52a9078f1f27983"
 contributor: BiblioGenius
 tags: [prix, nobel, international]
 content_languages: [en]

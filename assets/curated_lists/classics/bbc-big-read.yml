@@ -15,6 +15,7 @@ description:
   es: 'Los libros favoritos de Gran Bretaña según la encuesta BBC Big Read de 2003.
     Fuente: bbc.co.uk'
 source_url: https://www.bbc.co.uk/arts/bigread/top100.shtml
+cover_url: "https://inventaire.io/img/entities/ddaa92b1684f7ec459b8073da337423f51235c0d"
 contributor: BiblioGenius
 tags:
 - classiques

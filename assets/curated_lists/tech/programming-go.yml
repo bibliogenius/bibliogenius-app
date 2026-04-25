@@ -16,6 +16,7 @@ description:
   es: "Simplicidad y eficiencia con Go."
 
 source_url: "https://go.dev/"
+cover_url: "https://inventaire.io/img/entities/e48caeebf487b8a9d4a8beeb7c2fe67b75f66c08"
 contributor: BiblioGenius
 tags: [informatique, go, golang, backend, google]
 content_languages: [en]

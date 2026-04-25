@@ -15,6 +15,7 @@ description:
   es: "Ganadores recientes de la Medalla Newbery de literatura infantil."
 
 source_url: "https://en.wikipedia.org/wiki/Newbery_Medal"
+cover_url: "https://covers.openlibrary.org/b/id/10676977-L.jpg"
 contributor: BiblioGenius
 tags: [prix, newbery, jeunesse, american]
 content_languages: [en]

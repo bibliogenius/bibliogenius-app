@@ -16,6 +16,7 @@ description:
   es: "Una selección de libros accesibles para descubrir la filosofía. Fuentes: recomendaciones universitarias y librerías especializadas."
 
 source_url: "https://www.bnf.fr/"
+cover_url: "https://inventaire.io/img/entities/4a3014a506e415d3a10c5919e75910d9e0f1f5b5"
 contributor: BiblioGenius
 tags: [philosophie, débutant, essai, introduction]
 content_languages: [fr]

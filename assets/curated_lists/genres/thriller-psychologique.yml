@@ -15,6 +15,7 @@ description:
   es: "Los mejores thrillers psicológicos. Fuentes: Crime Writers' Association (CWA), International Thriller Writers."
 
 source_url: "https://thecwa.co.uk/"
+cover_url: "https://inventaire.io/img/entities/dd6c161cc98bf2109f0a5ff99b77b533853c4c3b"
 contributor: BiblioGenius
 tags: [thriller, psychologique, suspense, polar]
 content_languages: [fr]

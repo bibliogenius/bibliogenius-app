@@ -15,6 +15,7 @@ description:
   es: "Las veinte mejores novelas del siglo XX según Modern Library."
 
 source_url: "https://en.wikipedia.org/wiki/Modern_Library_100_Best_Novels"
+cover_url: "https://covers.openlibrary.org/b/id/15170769-L.jpg"
 contributor: BiblioGenius
 tags: [classics, english, 20th-century]
 content_languages: [en]

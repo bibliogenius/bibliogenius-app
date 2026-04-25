@@ -16,6 +16,7 @@ description:
   es: "Libros fundamentales sobre ecología y medio ambiente. Fuentes: WWF Reading List, Goodreads Environmental Books."
 
 source_url: "https://www.wwf.org/"
+cover_url: "https://inventaire.io/img/entities/b6aa9e3ec199e6665aef50fb9a953a250c76d3a2"
 contributor: BiblioGenius
 tags: [écologie, environnement, climat, nature]
 content_languages: [fr]

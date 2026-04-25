@@ -15,6 +15,7 @@ description:
   es: "Ganadores recientes del Premio Femina."
 
 source_url: "https://fr.wikipedia.org/wiki/Prix_Femina"
+cover_url: "https://inventaire.io/img/entities/49c56a4ab8a366f907b388a6fcd580457792ac53"
 contributor: BiblioGenius
 tags: [prix, femina, francais]
 content_languages: [fr]
