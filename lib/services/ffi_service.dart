@@ -1288,17 +1288,23 @@ class FfiService {
     }
   }
 
-  /// List libraries in the public directory (paginated, with optional search).
+  /// List libraries in the public directory (paginated). ADR-035 Phase 2:
+  /// optional [country] / [cityId] filters narrow the result set; either
+  /// can be combined with [search] for "voltaire in Paris" style queries.
   Future<List<frb.FrbHubProfile>> hubDirectoryList({
     required int limit,
     required int offset,
     String? search,
+    String? country,
+    int? cityId,
   }) async {
     try {
       return await frb.hubDirectoryList(
         limit: limit,
         offset: offset,
         search: search,
+        country: country,
+        cityId: cityId,
       );
     } catch (e) {
       debugPrint('FFI hubDirectoryList error: $e');

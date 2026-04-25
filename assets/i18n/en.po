@@ -7793,6 +7793,22 @@ msgstr "Search by name..."
 msgid "directory_no_results"
 msgstr "No libraries found"
 
+#. ADR-035 Phase 2: empty state when a country/city filter is active
+msgid "directory_no_results_in_location"
+msgstr "No libraries in this area yet."
+
+#. CTA shown under directory_no_results_in_location, opens settings
+msgid "directory_be_first_share_city"
+msgstr "Be the first library to share your city"
+
+#. Tooltip on the directory filter button (ADR-035 Phase 2)
+msgid "directory_filter_tooltip"
+msgstr "Filter by location"
+
+#. Tooltip on the X icon of the active filter chip
+msgid "directory_filter_clear"
+msgstr "Clear filter"
+
 msgid "directory_following_empty"
 msgstr "You are not following any libraries yet. Use the Discover tab to get started."
 

@@ -878,16 +878,21 @@ Future<int> hubDirectorySyncCatalog() =>
     RustLib.instance.api.crateApiFrbHubDirectorySyncCatalog();
 
 /// Browses the hub public directory.
+///
+/// ADR-035 Phase 2: `city_id` filters by GeoNames id (combinable with
+/// `country` and `search`). Pass `None` to return all listed libraries.
 Future<List<FrbHubProfile>> hubDirectoryList({
   required PlatformInt64 limit,
   required PlatformInt64 offset,
   String? country,
   String? search,
+  PlatformInt64? cityId,
 }) => RustLib.instance.api.crateApiFrbHubDirectoryList(
   limit: limit,
   offset: offset,
   country: country,
   search: search,
+  cityId: cityId,
 );
 
 /// Gets a specific library profile from the hub directory.

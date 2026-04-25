@@ -413,12 +413,25 @@ class HubDirectoryProvider extends ChangeNotifier {
   int _offset = 0;
   String? _listError;
   String? _searchQuery;
+  String? _filterCountry;
+  int? _filterCityId;
 
   List<HubProfile> get profiles => _profiles;
   bool get listLoading => _listLoading;
   bool get hasMore => _hasMore;
   String? get listError => _listError;
   String? get searchQuery => _searchQuery;
+
+  /// Active country filter (ISO 3166-1 alpha-2). `null` = no filter.
+  String? get filterCountry => _filterCountry;
+
+  /// Active city filter (GeoNames id). `null` = no filter.
+  int? get filterCityId => _filterCityId;
+
+  /// True when at least one location filter is active. Used by the network
+  /// screen to render the "clear filter" chip and the contextual empty state.
+  bool get hasActiveLocationFilter =>
+      _filterCountry != null || _filterCityId != null;
 
   // ── Follow relationships ──────────────────────────────────────────────────
 
@@ -1276,12 +1289,36 @@ class HubDirectoryProvider extends ChangeNotifier {
   // ---------------------------------------------------------------------------
 
   /// Load the first page of the directory. Resets existing results.
-  Future<void> loadDirectory({String? search}) async {
+  ///
+  /// ADR-035 Phase 2: passing [country] and/or [cityId] activates the
+  /// location filter. Both default to keeping the current filter values
+  /// so a search-only refresh does not silently drop them; pass
+  /// `clearLocationFilter: true` to wipe both at once.
+  Future<void> loadDirectory({
+    String? search,
+    String? country,
+    int? cityId,
+    bool clearLocationFilter = false,
+  }) async {
     _profiles = [];
     _offset = 0;
     _hasMore = true;
     _listError = null;
     _searchQuery = (search != null && search.trim().isNotEmpty) ? search.trim() : null;
+    if (clearLocationFilter) {
+      _filterCountry = null;
+      _filterCityId = null;
+    } else {
+      if (country != null) {
+        final trimmed = country.trim().toUpperCase();
+        _filterCountry = trimmed.isEmpty ? null : trimmed;
+      }
+      if (cityId != null) {
+        // 0 / negative is the explicit "drop city filter" sentinel; the
+        // caller can keep country alone by passing `cityId: 0`.
+        _filterCityId = cityId > 0 ? cityId : null;
+      }
+    }
     await _fetchNextPage();
   }
 
@@ -1301,6 +1338,8 @@ class HubDirectoryProvider extends ChangeNotifier {
         limit: _kPageSize,
         offset: _offset,
         search: _searchQuery,
+        country: _filterCountry,
+        cityId: _filterCityId,
       );
       final ownNodeId = _config?.nodeId;
       final rawCount = batch.length;

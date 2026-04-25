@@ -1,7 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../services/city_repository.dart';
 import '../theme/app_design.dart';
+import '../widgets/city_picker_sheet.dart';
 import '../widgets/genie_app_bar.dart';
 import '../widgets/hub_location_label.dart';
 import '../widgets/scaffold_with_nav.dart';
@@ -2376,6 +2379,52 @@ class _DiscoverViewState extends State<_DiscoverView> {
     });
   }
 
+  /// Two-step picker (ADR-035 Phase 2): country, then optionally a city.
+  /// Mirrors the share-my-city picker in settings so users meet the same
+  /// UX whether they are publishing or browsing.
+  ///
+  /// Implementation note: `showCountryPicker` from the country_picker
+  /// package returns void and only fires `onSelect` when the user picks
+  /// a country (silent on dismiss). We chain the city step inside that
+  /// callback rather than `await`-ing the country picker, so dismissing
+  /// the country sheet leaves no orphan future pending.
+  void _openFilterPicker(HubDirectoryProvider provider) {
+    showCountryPicker(
+      context: context,
+      showPhoneCode: false,
+      favorite: const ['FR', 'BE', 'CH', 'CA'],
+      countryListTheme: CountryListThemeData(
+        borderRadius:
+            const BorderRadius.vertical(top: Radius.circular(16)),
+        inputDecoration: InputDecoration(
+          hintText: TranslationService.translate(context, 'search'),
+          prefixIcon: const Icon(Icons.search),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+      onSelect: (Country selected) async {
+        final code = selected.countryCode;
+        // Apply country filter immediately so the chip updates even if
+        // the user cancels the city step. cityId=0 = "country only".
+        await provider.loadDirectory(country: code, cityId: 0);
+        if (!mounted) return;
+
+        final picked = await showModalBottomSheet<CityRecord>(
+          context: context,
+          isScrollControlled: true,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+          ),
+          builder: (_) => CityPickerSheet(country: code),
+        );
+        if (picked == null || !mounted) return;
+        await provider.loadDirectory(country: code, cityId: picked.id);
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<HubDirectoryProvider>(
@@ -2409,36 +2458,56 @@ class _DiscoverViewState extends State<_DiscoverView> {
             // First-time onboarding banner (one-way relationship explainer)
             if (!provider.isDirectoryOnboardingSeen)
               _DirectoryOnboardingBanner(provider: provider),
-            // Search bar
+            // Search + filter row
             Padding(
               padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
-              child: TextField(
-                controller: _searchController,
-                onChanged: _onSearchChanged,
-                decoration: InputDecoration(
-                  hintText: TranslationService.translate(
-                      context, 'directory_search_hint'),
-                  prefixIcon: const Icon(Icons.search, size: 20),
-                  suffixIcon: _searchController.text.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear, size: 18),
-                          tooltip: TranslationService.translate(
-                              context, 'action_clear'),
-                          onPressed: () {
-                            _searchController.clear();
-                            provider.loadDirectory();
-                          },
-                        )
-                      : null,
-                  isDense: true,
-                  contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 10),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _searchController,
+                      onChanged: _onSearchChanged,
+                      decoration: InputDecoration(
+                        hintText: TranslationService.translate(
+                            context, 'directory_search_hint'),
+                        prefixIcon: const Icon(Icons.search, size: 20),
+                        suffixIcon: _searchController.text.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear, size: 18),
+                                tooltip: TranslationService.translate(
+                                    context, 'action_clear'),
+                                onPressed: () {
+                                  _searchController.clear();
+                                  provider.loadDirectory();
+                                },
+                              )
+                            : null,
+                        isDense: true,
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 10),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
                   ),
-                ),
+                  const SizedBox(width: 4),
+                  IconButton(
+                    icon: Icon(
+                      provider.hasActiveLocationFilter
+                          ? Icons.filter_alt
+                          : Icons.filter_alt_outlined,
+                    ),
+                    tooltip: TranslationService.translate(
+                        context, 'directory_filter_tooltip'),
+                    onPressed: () => _openFilterPicker(provider),
+                  ),
+                ],
               ),
             ),
+            // Active-filter chip (ADR-035 Phase 2)
+            if (provider.hasActiveLocationFilter)
+              _ActiveFilterChip(provider: provider),
             // Results
             Expanded(child: _buildResults(provider)),
           ],
@@ -2472,27 +2541,59 @@ class _DiscoverViewState extends State<_DiscoverView> {
     }
 
     if (provider.profiles.isEmpty) {
+      // Three flavors of empty (ADR-035 Phase 2):
+      //   - search active        → "no results"
+      //   - location filter      → "no library here yet" + share-my-city CTA
+      //   - both empty           → bare "directory empty"
+      // The location-filter branch is more interesting than the others
+      // because it suggests a useful action: be the first to opt in.
+      final isSearch = provider.searchQuery != null;
+      final isFilter = provider.hasActiveLocationFilter;
       return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              provider.searchQuery != null
-                  ? Icons.search_off
-                  : Icons.public_off,
-              size: 48,
-              color: Colors.grey,
-            ),
-            const SizedBox(height: 12),
-            Text(
-              provider.searchQuery != null
-                  ? TranslationService.translate(
-                      context, 'directory_no_results')
-                  : TranslationService.translate(
-                      context, 'directory_empty'),
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                isSearch
+                    ? Icons.search_off
+                    : (isFilter ? Icons.location_off : Icons.public_off),
+                size: 48,
+                color: Colors.grey,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                isSearch
+                    ? TranslationService.translate(
+                        context, 'directory_no_results')
+                    : isFilter
+                        ? TranslationService.translate(
+                            context, 'directory_no_results_in_location')
+                        : TranslationService.translate(
+                            context, 'directory_empty'),
+                style: Theme.of(context).textTheme.bodyLarge,
+                textAlign: TextAlign.center,
+              ),
+              if (isFilter && !isSearch && !provider.isShareCityEnabled) ...[
+                const SizedBox(height: 16),
+                TextButton.icon(
+                  icon: const Icon(Icons.add_location_alt_outlined),
+                  label: Text(
+                    TranslationService.translate(
+                        context, 'directory_be_first_share_city'),
+                  ),
+                  onPressed: () {
+                    // Drop the filter so the user is not stuck on an
+                    // empty list, then open settings where they can opt
+                    // in to share their own city.
+                    provider.loadDirectory(clearLocationFilter: true);
+                    context.push('/settings');
+                  },
+                ),
+              ],
+            ],
+          ),
         ),
       );
     }
@@ -2671,16 +2772,40 @@ class _DiscoverCard extends StatelessWidget {
                               if (profile.locationCountry != null &&
                                   profile.locationCountry!.isNotEmpty) ...[
                                 const SizedBox(width: 12),
-                                Icon(Icons.location_on_outlined,
-                                    size: 14, color: cs.onSurfaceVariant),
-                                const SizedBox(width: 2),
-                                Flexible(
-                                  child: HubLocationLabel(
-                                    country: profile.locationCountry,
-                                    cityId: profile.locationCityId,
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      color: cs.onSurfaceVariant,
+                                // Tap on the location chip filters the
+                                // directory to that exact country/city
+                                // (ADR-035 Phase 2). Discoverable shortcut
+                                // alongside the explicit filter button.
+                                InkWell(
+                                  borderRadius: BorderRadius.circular(4),
+                                  onTap: () {
+                                    context
+                                        .read<HubDirectoryProvider>()
+                                        .loadDirectory(
+                                          country: profile.locationCountry,
+                                          cityId:
+                                              profile.locationCityId ?? 0,
+                                        );
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 2, vertical: 1),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.location_on_outlined,
+                                            size: 14,
+                                            color: cs.onSurfaceVariant),
+                                        const SizedBox(width: 2),
+                                        HubLocationLabel(
+                                          country: profile.locationCountry,
+                                          cityId: profile.locationCityId,
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            color: cs.onSurfaceVariant,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ),
@@ -3336,6 +3461,44 @@ class _LibraryRelationCard extends StatelessWidget {
 // ---------------------------------------------------------------------------
 // Discover tab banners (publish CTA + first-visit onboarding)
 // ---------------------------------------------------------------------------
+
+/// Active filter chip shown between the search bar and the list when the
+/// user has narrowed the directory by country and/or city (ADR-035 Phase 2).
+/// Tap clears the filter; the chip itself reflects whichever combination
+/// is active so the user always knows why the result set is what it is.
+class _ActiveFilterChip extends StatelessWidget {
+  const _ActiveFilterChip({required this.provider});
+
+  final HubDirectoryProvider provider;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final country = provider.filterCountry;
+    final cityId = provider.filterCityId;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 4, 12, 0),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: InputChip(
+          avatar: Icon(Icons.filter_alt, size: 16, color: cs.primary),
+          label: HubLocationLabel(
+            country: country,
+            cityId: cityId,
+            style: TextStyle(fontSize: 13, color: cs.primary),
+          ),
+          onDeleted: () => provider.loadDirectory(clearLocationFilter: true),
+          deleteIcon: Icon(Icons.close, size: 16, color: cs.primary),
+          deleteButtonTooltipMessage:
+              TranslationService.translate(context, 'directory_filter_clear'),
+          backgroundColor: cs.primaryContainer.withValues(alpha: 0.4),
+          side: BorderSide(color: cs.primary.withValues(alpha: 0.3)),
+        ),
+      ),
+    );
+  }
+}
 
 /// CTA banner shown at the top of the Discover tab when the user's library
 /// is not yet listed in the public directory (ADR-015).

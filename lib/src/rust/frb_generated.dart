@@ -341,6 +341,7 @@ abstract class RustLibApi extends BaseApi {
     required PlatformInt64 offset,
     String? country,
     String? search,
+    PlatformInt64? cityId,
   });
 
   Future<List<FrbHubFollow>> crateApiFrbHubDirectoryListFollowers();
@@ -3289,6 +3290,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     required PlatformInt64 offset,
     String? country,
     String? search,
+    PlatformInt64? cityId,
   }) {
     return handler.executeNormal(
       NormalTask(
@@ -3298,6 +3300,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           sse_encode_i_64(offset, serializer);
           sse_encode_opt_String(country, serializer);
           sse_encode_opt_String(search, serializer);
+          sse_encode_opt_box_autoadd_i_64(cityId, serializer);
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
@@ -3310,7 +3313,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData: sse_decode_String,
         ),
         constMeta: kCrateApiFrbHubDirectoryListConstMeta,
-        argValues: [limit, offset, country, search],
+        argValues: [limit, offset, country, search, cityId],
         apiImpl: this,
       ),
     );
@@ -3319,7 +3322,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   TaskConstMeta get kCrateApiFrbHubDirectoryListConstMeta =>
       const TaskConstMeta(
         debugName: "hub_directory_list",
-        argNames: ["limit", "offset", "country", "search"],
+        argNames: ["limit", "offset", "country", "search", "cityId"],
       );
 
   @override

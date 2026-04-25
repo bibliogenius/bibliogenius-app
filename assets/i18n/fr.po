@@ -7793,6 +7793,22 @@ msgstr "Rechercher par nom..."
 msgid "directory_no_results"
 msgstr "Aucune bibliothèque trouvée"
 
+#. ADR-035 Phase 2: empty state when a country/city filter is active
+msgid "directory_no_results_in_location"
+msgstr "Aucune bibliothèque dans cette zone pour l'instant."
+
+#. CTA shown under directory_no_results_in_location, opens settings
+msgid "directory_be_first_share_city"
+msgstr "Soyez la première bibliothèque à partager votre ville"
+
+#. Tooltip on the directory filter button (ADR-035 Phase 2)
+msgid "directory_filter_tooltip"
+msgstr "Filtrer par lieu"
+
+#. Tooltip on the X icon of the active filter chip
+msgid "directory_filter_clear"
+msgstr "Effacer le filtre"
+
 msgid "directory_following_empty"
 msgstr "Vous ne suivez encore aucune bibliothèque. Utilisez l'onglet Découvrir pour commencer."
 
