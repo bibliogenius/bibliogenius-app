@@ -22,8 +22,8 @@ content_languages: [en, fr]
 
 books:
   - isbn: "9781950325740"
-    note: "Mike Katz - Flutter Apprentice (3rd Edition)"
+    note: "Flutter Apprentice - Mike Katz (3rd Edition)"
   - isbn: "9782409025273"
-    note: "Julien Tranié - Flutter : Développez vos applications mobiles (Editions ENI)"
+    note: "Flutter : Développez vos applications mobiles - Julien Tranié (Editions ENI)"
   - isbn: "9781950325474"
-    note: "Ray Wenderlich - Real-World Flutter by Tutorials"
+    note: "Real-World Flutter by Tutorials - Ray Wenderlich"

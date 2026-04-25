@@ -24,6 +24,6 @@ books:
   - isbn: "9780134190440"
     note: "Alan A. A. Donovan - The Go Programming Language"
   - isbn: "9781492077183"
-    note: "Jon Bodner - Learning Go (O'Reilly)"
+    note: "Learning Go - Jon Bodner (O'Reilly)"
   - isbn: "9781617291784"
-    note: "William Kennedy - Go in Action"
+    note: "Go in Action - William Kennedy"

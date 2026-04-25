@@ -22,8 +22,8 @@ content_languages: [en]
 
 books:
   - isbn: "9781837631803"
-    note: "Daniel Sipos - Drupal 10 Module Development"
+    note: "Drupal 10 Module Development - Daniel Sipos"
   - isbn: "9781803234960"
-    note: "Matt Glaman - Drupal 10 Development Cookbook"
+    note: "Drupal 10 Development Cookbook - Matt Glaman"
   - isbn: "9781789537965"
     note: "Daniel Sipos - Drupal 9 Module Development (Reference)"

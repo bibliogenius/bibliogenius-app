@@ -22,9 +22,9 @@ content_languages: [fr]
 
 books:
   - isbn: "9782253017264"
-    note: "Léon Tolstoï - Guerre et Paix (Livre de Poche)"
+    note: "Guerre et Paix - Léon Tolstoï (Livre de Poche)"
   - isbn: "9782253098386"
-    note: "Léon Tolstoï - Anna Karénine"
+    note: "Anna Karénine - Léon Tolstoï"
   - isbn: "9782742767939"
     note: "Fyodor Dostoïevski - Crime et Châtiment (Babel)"
   - isbn: "9782253005827"
@@ -32,7 +32,7 @@ books:
   - isbn: "9782253082538"
     note: "Anton Tchekhov - La Dame au petit chien & autres nouvelles"
   - isbn: "9782221221136"
-    note: "Mikhail Boulgakov - Le Maître et Marguerite"
+    note: "Le Maître et Marguerite - Mikhail Boulgakov"
   - isbn: "9782070360093"
     note: "Boris Pasternak - Le Docteur Jivago"
   - isbn: "9782264032485"

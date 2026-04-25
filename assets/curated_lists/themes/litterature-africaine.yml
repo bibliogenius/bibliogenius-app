@@ -22,7 +22,7 @@ content_languages: [fr]
 
 books:
   - isbn: "9782070468805"
-    note: "Chimamanda Ngozi Adichie - Americanah"
+    note: "Americanah - Chimamanda Ngozi Adichie"
   - isbn: "9782070356508"
     note: "Chimamanda Ngozi Adichie - L'Hibiscus pourpre"
   - isbn: "9782253134329"
@@ -34,7 +34,7 @@ books:
   - isbn: "9782253123385"
     note: "Léonora Miano - L'Intérieur de la nuit"
   - isbn: "9782708709133"
-    note: "Ngugi wa Thiong'o - Enfant, ne pleure pas (ou The River Between/Pétales de sang en substitution)"
+    note: "Enfant, ne pleure pas - Ngugi wa Thiong'o (ou The River Between/Pétales de sang en substitution)"
   - isbn: "9782020525657"
     note: "Ahmadou Kourouma - Allah n'est pas obligé"
   - isbn: "9782264020925"
