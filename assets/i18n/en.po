@@ -622,7 +622,7 @@ msgstr "Badge Collection"
 
 #. Publisher-style band on book spines for recently added books
 msgid "badge_new"
-msgstr "New"
+msgstr "NEW"
 
 #. Reach Bronze in all tracks
 msgid "badge_desc_bibliophile"
@@ -8780,9 +8780,6 @@ msgstr "Adds a second verification step at login (SMS code or authenticator app)
 
 msgid "recently_added_title"
 msgstr "Activity"
-
-msgid "badge_new"
-msgstr "NEW"
 
 msgid "badge_days_since_start"
 msgstr "D+%s"

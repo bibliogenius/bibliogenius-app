@@ -570,7 +570,7 @@ msgstr "Colección de insignias"
 
 #. Publisher-style band on book spines for recently added books
 msgid "badge_new"
-msgstr "Nuevo"
+msgstr "NUEVO"
 
 #. Reach Bronze in all tracks
 msgid "badge_desc_bibliophile"
@@ -8513,9 +8513,6 @@ msgstr "Añade una segunda verificación al iniciar sesión (código SMS o aplic
 
 msgid "recently_added_title"
 msgstr "Actividad"
-
-msgid "badge_new"
-msgstr "NUEVO"
 
 msgid "badge_days_since_start"
 msgstr "D+%s"
