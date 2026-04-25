@@ -28,6 +28,8 @@ import 'package:bibliogenius/main.dart' as app;
 import 'package:bibliogenius/services/auth_service.dart';
 import 'package:bibliogenius/widgets/book_cover_card.dart';
 
+import 'helpers/auth_setup.dart';
+
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
@@ -106,53 +108,6 @@ void main() {
     debugPrint('   Saved to ${file.path}');
   }
 
-  // --- Auth/Setup bypass (same as massive_test.dart) ---
-  Future<void> handleAuthAndSetup(WidgetTester tester) async {
-    if (find.byKey(const Key('addBookButton')).evaluate().isNotEmpty) {
-      return; // Already on Dashboard
-    }
-
-    // Skip onboarding
-    if (find.byKey(const Key('onboardingSkipButton')).evaluate().isNotEmpty) {
-      await tester.tap(find.byKey(const Key('onboardingSkipButton')));
-      await tester.pumpAndSettle();
-      await Future.delayed(const Duration(seconds: 1));
-    }
-
-    // Run setup if needed
-    if (find.byKey(const Key('setupNextButton')).evaluate().isNotEmpty) {
-      await tester.tap(find.byKey(const Key('setupNextButton')));
-      await tester.pumpAndSettle();
-      await tester.enterText(
-          find.byKey(const Key('setupLibraryNameField')), 'Test Library');
-      await tester.tap(find.byKey(const Key('setupProfileIndividual')));
-      await tester.tap(find.byKey(const Key('setupNextButton')));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const Key('setupNextButton')));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const Key('setupDemoNo')));
-      await tester.tap(find.byKey(const Key('setupNextButton')));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const Key('setupNextButton')));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const Key('setupNextButton')));
-      await tester.pumpAndSettle();
-      await Future.delayed(const Duration(seconds: 2));
-      await tester.pumpAndSettle();
-    }
-
-    // Login if needed
-    if (find.byKey(const Key('loginButton')).evaluate().isNotEmpty) {
-      await tester.enterText(find.byKey(const Key('usernameField')), 'admin');
-      await tester.enterText(
-          find.byKey(const Key('passwordField')), 'admin');
-      await tester.tap(find.byKey(const Key('loginButton')));
-      await tester.pumpAndSettle();
-      await Future.delayed(const Duration(seconds: 2));
-      await tester.pumpAndSettle();
-    }
-  }
-
   // --- Navigation helper ---
   Future<void> navigateTo(WidgetTester tester, String route) async {
     // Find a widget inside the router tree (Scaffold is always present)
@@ -169,6 +124,11 @@ void main() {
   }
 
   testWidgets('Screenshot Tour', (WidgetTester tester) async {
+    // app.main() reassigns ErrorWidget.builder; the framework verifies it is
+    // unchanged at end of test body, before tearDown runs. Restore inline.
+    final originalErrorWidgetBuilder = ErrorWidget.builder;
+    try {
+
     // Override locale if APP_LOCALE env var is set (e.g. APP_LOCALE=en)
     final appLocale = Platform.environment['APP_LOCALE'];
     if (appLocale != null) {
@@ -332,5 +292,8 @@ void main() {
     // ==========================================
     debugPrint('🎉 Screenshot tour complete! $screenshotIndex screenshots saved.');
     debugPrint('📁 Location: ${screenshotDir.path}/');
+    } finally {
+      ErrorWidget.builder = originalErrorWidgetBuilder;
+    }
   });
 }
