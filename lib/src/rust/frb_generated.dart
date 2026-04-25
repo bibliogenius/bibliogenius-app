@@ -5913,6 +5913,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  PlatformInt64 dco_decode_box_autoadd_i_64(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_i_64(raw);
+  }
+
+  @protected
   int dco_decode_box_autoadd_u_32(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as int;
@@ -6303,23 +6309,24 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   FrbHubProfile dco_decode_frb_hub_profile(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 14)
-      throw Exception('unexpected arr length: expect 14 but see ${arr.length}');
+    if (arr.length != 15)
+      throw Exception('unexpected arr length: expect 15 but see ${arr.length}');
     return FrbHubProfile(
       nodeId: dco_decode_String(arr[0]),
       displayName: dco_decode_String(arr[1]),
       description: dco_decode_opt_String(arr[2]),
       bookCount: dco_decode_i_32(arr[3]),
       locationCountry: dco_decode_opt_String(arr[4]),
-      requiresApproval: dco_decode_bool(arr[5]),
-      allowBorrowing: dco_decode_opt_box_autoadd_bool(arr[6]),
-      lastSeenAt: dco_decode_opt_String(arr[7]),
-      x25519PublicKey: dco_decode_opt_String(arr[8]),
-      website: dco_decode_opt_String(arr[9]),
-      deviceModel: dco_decode_opt_String(arr[10]),
-      deviceFingerprint: dco_decode_opt_String(arr[11]),
-      appVersion: dco_decode_opt_String(arr[12]),
-      avatarConfig: dco_decode_opt_String(arr[13]),
+      locationCityId: dco_decode_opt_box_autoadd_i_64(arr[5]),
+      requiresApproval: dco_decode_bool(arr[6]),
+      allowBorrowing: dco_decode_opt_box_autoadd_bool(arr[7]),
+      lastSeenAt: dco_decode_opt_String(arr[8]),
+      x25519PublicKey: dco_decode_opt_String(arr[9]),
+      website: dco_decode_opt_String(arr[10]),
+      deviceModel: dco_decode_opt_String(arr[11]),
+      deviceFingerprint: dco_decode_opt_String(arr[12]),
+      appVersion: dco_decode_opt_String(arr[13]),
+      avatarConfig: dco_decode_opt_String(arr[14]),
     );
   }
 
@@ -6647,8 +6654,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   FrbRegisterParams dco_decode_frb_register_params(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 18)
-      throw Exception('unexpected arr length: expect 18 but see ${arr.length}');
+    if (arr.length != 19)
+      throw Exception('unexpected arr length: expect 19 but see ${arr.length}');
     return FrbRegisterParams(
       nodeId: dco_decode_String(arr[0]),
       displayName: dco_decode_String(arr[1]),
@@ -6658,16 +6665,17 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       acceptFrom: dco_decode_String(arr[5]),
       description: dco_decode_opt_String(arr[6]),
       locationCountry: dco_decode_opt_String(arr[7]),
-      allowBorrowing: dco_decode_bool(arr[8]),
-      x25519PublicKey: dco_decode_opt_String(arr[9]),
-      website: dco_decode_opt_String(arr[10]),
-      deviceModel: dco_decode_opt_String(arr[11]),
-      deviceFingerprint: dco_decode_opt_String(arr[12]),
-      appVersion: dco_decode_opt_String(arr[13]),
-      relayUrl: dco_decode_opt_String(arr[14]),
-      relayMailboxId: dco_decode_opt_String(arr[15]),
-      relayWriteToken: dco_decode_opt_String(arr[16]),
-      avatarConfig: dco_decode_opt_String(arr[17]),
+      locationCityId: dco_decode_opt_box_autoadd_i_64(arr[8]),
+      allowBorrowing: dco_decode_bool(arr[9]),
+      x25519PublicKey: dco_decode_opt_String(arr[10]),
+      website: dco_decode_opt_String(arr[11]),
+      deviceModel: dco_decode_opt_String(arr[12]),
+      deviceFingerprint: dco_decode_opt_String(arr[13]),
+      appVersion: dco_decode_opt_String(arr[14]),
+      relayUrl: dco_decode_opt_String(arr[15]),
+      relayMailboxId: dco_decode_opt_String(arr[16]),
+      relayWriteToken: dco_decode_opt_String(arr[17]),
+      avatarConfig: dco_decode_opt_String(arr[18]),
     );
   }
 
@@ -7017,6 +7025,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  PlatformInt64? dco_decode_opt_box_autoadd_i_64(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_i_64(raw);
+  }
+
+  @protected
   int? dco_decode_opt_box_autoadd_u_32(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw == null ? null : dco_decode_box_autoadd_u_32(raw);
@@ -7187,6 +7201,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   int sse_decode_box_autoadd_i_32(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return (sse_decode_i_32(deserializer));
+  }
+
+  @protected
+  PlatformInt64 sse_decode_box_autoadd_i_64(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_i_64(deserializer));
   }
 
   @protected
@@ -7696,6 +7716,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_description = sse_decode_opt_String(deserializer);
     var var_bookCount = sse_decode_i_32(deserializer);
     var var_locationCountry = sse_decode_opt_String(deserializer);
+    var var_locationCityId = sse_decode_opt_box_autoadd_i_64(deserializer);
     var var_requiresApproval = sse_decode_bool(deserializer);
     var var_allowBorrowing = sse_decode_opt_box_autoadd_bool(deserializer);
     var var_lastSeenAt = sse_decode_opt_String(deserializer);
@@ -7711,6 +7732,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       description: var_description,
       bookCount: var_bookCount,
       locationCountry: var_locationCountry,
+      locationCityId: var_locationCityId,
       requiresApproval: var_requiresApproval,
       allowBorrowing: var_allowBorrowing,
       lastSeenAt: var_lastSeenAt,
@@ -8117,6 +8139,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_acceptFrom = sse_decode_String(deserializer);
     var var_description = sse_decode_opt_String(deserializer);
     var var_locationCountry = sse_decode_opt_String(deserializer);
+    var var_locationCityId = sse_decode_opt_box_autoadd_i_64(deserializer);
     var var_allowBorrowing = sse_decode_bool(deserializer);
     var var_x25519PublicKey = sse_decode_opt_String(deserializer);
     var var_website = sse_decode_opt_String(deserializer);
@@ -8136,6 +8159,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       acceptFrom: var_acceptFrom,
       description: var_description,
       locationCountry: var_locationCountry,
+      locationCityId: var_locationCityId,
       allowBorrowing: var_allowBorrowing,
       x25519PublicKey: var_x25519PublicKey,
       website: var_website,
@@ -8724,6 +8748,17 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  PlatformInt64? sse_decode_opt_box_autoadd_i_64(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_i_64(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
   int? sse_decode_opt_box_autoadd_u_32(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
@@ -8950,6 +8985,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   void sse_encode_box_autoadd_i_32(int self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self, serializer);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_i_64(
+    PlatformInt64 self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_64(self, serializer);
   }
 
   @protected
@@ -9291,6 +9335,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_opt_String(self.description, serializer);
     sse_encode_i_32(self.bookCount, serializer);
     sse_encode_opt_String(self.locationCountry, serializer);
+    sse_encode_opt_box_autoadd_i_64(self.locationCityId, serializer);
     sse_encode_bool(self.requiresApproval, serializer);
     sse_encode_opt_box_autoadd_bool(self.allowBorrowing, serializer);
     sse_encode_opt_String(self.lastSeenAt, serializer);
@@ -9589,6 +9634,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_String(self.acceptFrom, serializer);
     sse_encode_opt_String(self.description, serializer);
     sse_encode_opt_String(self.locationCountry, serializer);
+    sse_encode_opt_box_autoadd_i_64(self.locationCityId, serializer);
     sse_encode_bool(self.allowBorrowing, serializer);
     sse_encode_opt_String(self.x25519PublicKey, serializer);
     sse_encode_opt_String(self.website, serializer);
@@ -10121,6 +10167,19 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_bool(self != null, serializer);
     if (self != null) {
       sse_encode_box_autoadd_i_32(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_box_autoadd_i_64(
+    PlatformInt64? self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_i_64(self, serializer);
     }
   }
 
