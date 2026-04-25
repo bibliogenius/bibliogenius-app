@@ -46,6 +46,12 @@ class HubProfile {
   final String? description;
   final int bookCount;
   final String? locationCountry;
+
+  /// GeoNames id of the city the publishing library opted to share
+  /// (ADR-035). Resolve to a [CityRecord] via `CityRepository.lookupById`
+  /// (passing [locationCountry] so the lazy download targets the right
+  /// country file). `null` means the publisher did not opt in.
+  final int? locationCityId;
   final bool requiresApproval;
   final bool? allowBorrowing;
   final String? lastSeenAt;
@@ -62,6 +68,7 @@ class HubProfile {
     this.description,
     required this.bookCount,
     this.locationCountry,
+    this.locationCityId,
     required this.requiresApproval,
     this.allowBorrowing,
     this.lastSeenAt,
@@ -79,6 +86,7 @@ class HubProfile {
         description: f.description,
         bookCount: f.bookCount,
         locationCountry: f.locationCountry,
+        locationCityId: f.locationCityId,
         requiresApproval: f.requiresApproval,
         allowBorrowing: f.allowBorrowing,
         lastSeenAt: f.lastSeenAt,

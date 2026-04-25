@@ -4814,6 +4814,30 @@ msgstr "Partager"
 msgid "settings_country"
 msgstr "Pays"
 
+#. Toggle: opt in to share city in the public directory (ADR-035)
+msgid "settings_share_city"
+msgstr "Partager ma ville"
+
+#. Description for the share-my-city toggle
+msgid "settings_share_city_desc"
+msgstr "Ajoute votre ville à votre profil public pour que les lecteurs proches puissent vous trouver. Désactivé par défaut."
+
+#. Placeholder shown in the city picker before the user has chosen one
+msgid "settings_city_pick"
+msgstr "Choisir une ville"
+
+#. Shown when a stored city id no longer resolves (corrupt local cache)
+msgid "settings_city_unknown"
+msgstr "Ville inconnue"
+
+#. City picker error: hub has no static file for this country yet
+msgid "settings_city_unavailable"
+msgstr "Aucune donnée de ville n'est disponible pour ce pays pour l'instant. Veuillez réessayer plus tard."
+
+#. City picker empty state: search returned nothing
+msgid "settings_city_no_match"
+msgstr "Aucune ville correspondante."
+
 #. Quick Presets
 msgid "quick_presets"
 msgstr "Préconfigurations rapides"

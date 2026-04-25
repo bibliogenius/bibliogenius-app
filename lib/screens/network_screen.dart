@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../theme/app_design.dart';
 import '../widgets/genie_app_bar.dart';
+import '../widgets/hub_location_label.dart';
 import '../widgets/scaffold_with_nav.dart';
 import '../widgets/contextual_help_sheet.dart';
 import '../widgets/invite_share_sheet.dart';
@@ -2673,11 +2674,14 @@ class _DiscoverCard extends StatelessWidget {
                                 Icon(Icons.location_on_outlined,
                                     size: 14, color: cs.onSurfaceVariant),
                                 const SizedBox(width: 2),
-                                Text(
-                                  profile.locationCountry!,
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: cs.onSurfaceVariant,
+                                Flexible(
+                                  child: HubLocationLabel(
+                                    country: profile.locationCountry,
+                                    cityId: profile.locationCityId,
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: cs.onSurfaceVariant,
+                                    ),
                                   ),
                                 ),
                               ],

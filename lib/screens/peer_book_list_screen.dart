@@ -12,6 +12,7 @@ import '../utils/cover_url_resolver.dart';
 import '../models/hub_directory.dart';
 import '../widgets/book_cover_card.dart';
 import '../widgets/bookshelf_view.dart';
+import '../widgets/hub_location_label.dart';
 import '../widgets/cached_book_cover.dart';
 import '../widgets/peer_book_cover_cache_manager.dart';
 import '../widgets/recently_added_carousel.dart';
@@ -1872,9 +1873,11 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                     if (_hubProfile!.locationCountry != null)
                       Padding(
                         padding: const EdgeInsets.only(top: 2),
-                        child: Text(
-                          _hubProfile!.locationCountry!,
-                          style: TextStyle(fontSize: 12, color: onContainerMuted),
+                        child: HubLocationLabel(
+                          country: _hubProfile!.locationCountry,
+                          cityId: _hubProfile!.locationCityId,
+                          style: TextStyle(
+                              fontSize: 12, color: onContainerMuted),
                         ),
                       ),
                   ],

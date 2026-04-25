@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -14,6 +16,7 @@ import '../widgets/recovery_code_widgets.dart';
 import '../widgets/scaffold_with_nav.dart';
 import '../widgets/contextual_help_sheet.dart';
 import '../services/api_service.dart';
+import '../services/city_repository.dart';
 import '../services/translation_service.dart';
 import '../providers/theme_provider.dart';
 import '../providers/hub_directory_provider.dart';
@@ -75,6 +78,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         }
       });
       hubProvider.loadHubEnabled();
+      hubProvider.loadShareCity();
+      hubProvider.loadLocalCityId();
       hubProvider.loadContactInfo().then((_) {
         if (mounted && _hubContactController.text.isEmpty) {
           _hubContactController.text = hubProvider.contactInfo;
@@ -2338,6 +2343,150 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  /// Opt-in city sharing block (ADR-035 Phase 1). Renders the second toggle
+  /// "Partager ma ville" and, when ON, the picker that resolves a GeoNames
+  /// id from the user's country file.
+  Widget _buildCitySection(
+    BuildContext context,
+    ThemeProvider themeProvider,
+  ) {
+    return Consumer<HubDirectoryProvider>(
+      builder: (context, hub, _) {
+        final cs = Theme.of(context).colorScheme;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(
+                TranslationService.translate(context, 'settings_share_city') ??
+                    'Share my city',
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
+              subtitle: Text(
+                TranslationService.translate(
+                        context, 'settings_share_city_desc') ??
+                    'Adds your city to your public profile so nearby readers can find you. Off by default.',
+                style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+              ),
+              value: hub.isShareCityEnabled,
+              activeColor: cs.primary,
+              onChanged: (value) async {
+                await hub.setShareCity(value);
+                if (!value) {
+                  // User opted out: drop the local pick and clear the hub
+                  // so the public profile no longer carries a city.
+                  await hub.setLocalCityId(null);
+                  try {
+                    await hub.syncLocationCityId(null);
+                  } catch (e) {
+                    debugPrint('Hub locationCityId clear failed: $e');
+                  }
+                }
+              },
+            ),
+            if (hub.isShareCityEnabled) ...[
+              const SizedBox(height: 8),
+              _buildCityPicker(context, themeProvider, hub),
+            ],
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildCityPicker(
+    BuildContext context,
+    ThemeProvider themeProvider,
+    HubDirectoryProvider hub,
+  ) {
+    final primary = Theme.of(context).colorScheme.primary;
+    final country = themeProvider.country;
+    final pickedId = hub.localCityId;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () => _openCityPicker(context, country, hub),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+          decoration: BoxDecoration(
+            color: Theme.of(context)
+                .colorScheme
+                .surface
+                .withValues(alpha: 0.8),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: Colors.grey.withValues(alpha: 0.3),
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.location_city_outlined, color: primary),
+              const SizedBox(width: 12),
+              Expanded(
+                child: pickedId == null
+                    ? Text(
+                        TranslationService.translate(
+                                context, 'settings_city_pick') ??
+                            'Pick a city',
+                        style: TextStyle(
+                          color: primary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      )
+                    : FutureBuilder<CityRecord?>(
+                        future: CityRepository.shared()
+                            .lookupById(pickedId, country: country),
+                        builder: (context, snapshot) {
+                          final label = snapshot.data?.name ??
+                              (TranslationService.translate(
+                                      context, 'settings_city_unknown') ??
+                                  'Unknown city');
+                          final admin = snapshot.data?.admin1 ?? '';
+                          final suffix = admin.isNotEmpty ? ' ($admin)' : '';
+                          return Text(
+                            '$label$suffix',
+                            style: TextStyle(
+                              color: primary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          );
+                        },
+                      ),
+              ),
+              Icon(Icons.arrow_drop_down, color: primary),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openCityPicker(
+    BuildContext context,
+    String country,
+    HubDirectoryProvider hub,
+  ) async {
+    final picked = await showModalBottomSheet<CityRecord>(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (sheetCtx) => _CityPickerSheet(country: country),
+    );
+    if (picked == null) return;
+    await hub.setLocalCityId(picked.id);
+    try {
+      await hub.syncLocationCityId(picked.id);
+    } catch (e) {
+      debugPrint('Hub locationCityId update failed: $e');
+    }
+  }
+
   Widget _buildCountryPicker(BuildContext context, ThemeProvider themeProvider) {
     final countryCode = themeProvider.country;
     Country? current;
@@ -2914,6 +3063,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         const SizedBox(height: 8),
         _buildCountryPicker(context, themeProvider),
+
+        const SizedBox(height: 24),
+
+        // City sharing (ADR-035 §3): opt-in toggle + city picker, both live
+        // here so the location preferences cluster in one place.
+        _buildCitySection(context, themeProvider),
       ],
     );
   }
@@ -3770,6 +3925,159 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Bottom-sheet typeahead picker for the user's city. Loads the country
+/// file via [CityRepository] (downloading on first use), debounces user
+/// input, and pops the chosen [CityRecord] back to the caller. Designed
+/// to mirror the country picker UX so the two pickers feel like one
+/// pair of related controls.
+class _CityPickerSheet extends StatefulWidget {
+  const _CityPickerSheet({required this.country});
+
+  final String country;
+
+  @override
+  State<_CityPickerSheet> createState() => _CityPickerSheetState();
+}
+
+class _CityPickerSheetState extends State<_CityPickerSheet> {
+  final _controller = TextEditingController();
+  final _focusNode = FocusNode();
+  final _repo = CityRepository.shared();
+
+  Timer? _debounce;
+  bool _loading = true;
+  bool _available = false;
+  List<CityRecord> _results = const [];
+
+  @override
+  void initState() {
+    super.initState();
+    _bootstrap();
+    _focusNode.requestFocus();
+  }
+
+  Future<void> _bootstrap() async {
+    final ok = await _repo.ensureDownloaded(widget.country);
+    if (!mounted) return;
+    setState(() {
+      _available = ok;
+      _loading = false;
+    });
+    if (ok) await _runSearch('');
+  }
+
+  Future<void> _runSearch(String query) async {
+    final results = await _repo.search(query, widget.country);
+    if (!mounted) return;
+    setState(() => _results = results);
+  }
+
+  void _onChanged(String value) {
+    _debounce?.cancel();
+    // 150 ms is short enough to feel instant on the keystroke but stops
+    // a long paste from triggering one search per intermediate state.
+    _debounce = Timer(const Duration(milliseconds: 150), () {
+      _runSearch(value);
+    });
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    _controller.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    final maxHeight = mediaQuery.size.height * 0.75;
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: mediaQuery.viewInsets.bottom),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: maxHeight),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 8),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.withValues(alpha: 0.4),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: TextField(
+                controller: _controller,
+                focusNode: _focusNode,
+                onChanged: _onChanged,
+                decoration: InputDecoration(
+                  hintText:
+                      TranslationService.translate(context, 'search') ??
+                          'Search',
+                  prefixIcon: const Icon(Icons.search),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              child: _buildBody(context),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBody(BuildContext context) {
+    if (_loading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (!_available) {
+      return Padding(
+        padding: const EdgeInsets.all(24),
+        child: Text(
+          TranslationService.translate(
+                  context, 'settings_city_unavailable') ??
+              'No city data is available for this country yet. Please try again later.',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Colors.grey[700]),
+        ),
+      );
+    }
+    if (_results.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.all(24),
+        child: Text(
+          TranslationService.translate(context, 'settings_city_no_match') ??
+              'No matching city.',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Colors.grey[700]),
+        ),
+      );
+    }
+    return ListView.builder(
+      itemCount: _results.length,
+      itemBuilder: (context, index) {
+        final r = _results[index];
+        final subtitle = r.admin1.isNotEmpty ? r.admin1 : null;
+        return ListTile(
+          title: Text(r.name),
+          subtitle: subtitle != null ? Text(subtitle) : null,
+          onTap: () => Navigator.of(context).pop(r),
+        );
+      },
     );
   }
 }

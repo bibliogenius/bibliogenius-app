@@ -14,6 +14,7 @@ import '../providers/theme_provider.dart';
 import '../utils/app_constants.dart';
 import '../widgets/book_cover_card.dart';
 import '../widgets/genie_app_bar.dart';
+import '../widgets/hub_location_label.dart';
 
 /// Displays a library's public catalog (list of ISBNs) fetched from the hub.
 ///
@@ -884,8 +885,9 @@ class _ProfileHeader extends StatelessWidget {
                     if (profile.locationCountry != null)
                       Padding(
                         padding: const EdgeInsets.only(top: 2),
-                        child: Text(
-                          profile.locationCountry!,
+                        child: HubLocationLabel(
+                          country: profile.locationCountry,
+                          cityId: profile.locationCityId,
                           style: TextStyle(
                             fontSize: 12,
                             color: onContainerMuted,

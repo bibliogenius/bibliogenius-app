@@ -4814,6 +4814,30 @@ msgstr "Share library"
 msgid "settings_country"
 msgstr "Country"
 
+#. Toggle: opt in to share city in the public directory (ADR-035)
+msgid "settings_share_city"
+msgstr "Share my city"
+
+#. Description for the share-my-city toggle
+msgid "settings_share_city_desc"
+msgstr "Adds your city to your public profile so nearby readers can find you. Off by default."
+
+#. Placeholder shown in the city picker before the user has chosen one
+msgid "settings_city_pick"
+msgstr "Pick a city"
+
+#. Shown when a stored city id no longer resolves (corrupt local cache)
+msgid "settings_city_unknown"
+msgstr "Unknown city"
+
+#. City picker error: hub has no static file for this country yet
+msgid "settings_city_unavailable"
+msgstr "No city data is available for this country yet. Please try again later."
+
+#. City picker empty state: search returned nothing
+msgid "settings_city_no_match"
+msgstr "No matching city."
+
 #. Quick Presets
 msgid "quick_presets"
 msgstr "Quick Presets"

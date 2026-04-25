@@ -61,6 +61,26 @@ const String _kPendingDisplayNameKey = 'hub_pending_display_name';
 /// successful [initAndSyncCatalog] so the hub profile catches up.
 const String _kPendingLocationCountryKey = 'hub_pending_location_country';
 
+/// SharedPreferences key: pending location_city_id update (ADR-035 Phase 1).
+/// Empty string means the user requested a clear (push NULL), a non-empty
+/// integer string means the user picked that GeoNames id. Missing key means
+/// no pending action. Replayed by [initAndSyncCatalog] on the next
+/// successful sync, exactly like [_kPendingLocationCountryKey].
+const String _kPendingLocationCityIdKey = 'hub_pending_location_city_id';
+
+/// SharedPreferences key: opt-in toggle "Partager ma ville" (ADR-035 §3).
+/// Distinct from [_kHubEnabledKey] and from `_config.isListed`: a user can
+/// be listed in the directory by country only, without sharing their city.
+/// Default OFF, including for users already listed.
+const String _kShareCityKey = 'hub_share_city';
+
+/// SharedPreferences key: GeoNames id the user picked locally. This is the
+/// app's display truth ("your current city: Paris") and what is sent on the
+/// next [syncLocationCityId]. The hub mirror lives in `library_profiles.
+/// location_city_id`. We do NOT re-fetch it from the hub at app start —
+/// the picker writes here and the network is updated as a side effect.
+const String _kLocalLocationCityIdKey = 'hub_local_location_city_id';
+
 class HubDirectoryProvider extends ChangeNotifier {
   final FfiService _ffi;
   final DeviceService _deviceService;
@@ -254,6 +274,64 @@ class HubDirectoryProvider extends ChangeNotifier {
     _websiteUrl = value;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_kWebsiteKey, value);
+    notifyListeners();
+  }
+
+  // ── Share-city toggle (ADR-035 §3) ──────────────────────────────────────
+
+  bool _shareCity = false;
+
+  /// Whether the user has opted in to share their city in the directory.
+  /// Distinct from [isHubEnabled] / `_config.isListed`: false means the
+  /// profile may still appear publicly with country-only granularity.
+  bool get isShareCityEnabled => _shareCity;
+
+  /// Load the share-city toggle from SharedPreferences. Call at app start.
+  Future<void> loadShareCity() async {
+    final prefs = await SharedPreferences.getInstance();
+    _shareCity = prefs.getBool(_kShareCityKey) ?? false;
+    notifyListeners();
+  }
+
+  /// Persist the share-city toggle. Does NOT push the change to the hub —
+  /// callers must follow up with [syncLocationCityId] (passing the picked
+  /// id when enabling, `null` when disabling) so the hub state matches the
+  /// local intent. Splitting the two concerns keeps this setter cheap and
+  /// lets the picker UI sequence "save id then mirror to hub" in one step.
+  Future<void> setShareCity(bool value) async {
+    _shareCity = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_kShareCityKey, value);
+    notifyListeners();
+  }
+
+  // ── Locally picked city id (display state) ──────────────────────────────
+
+  int? _localCityId;
+
+  /// The GeoNames id the user picked in the settings picker. Used to render
+  /// the current selection without re-fetching from the hub. `null` means
+  /// the user has not picked one yet (fresh install) or has cleared it.
+  int? get localCityId => _localCityId;
+
+  Future<void> loadLocalCityId() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getInt(_kLocalLocationCityIdKey);
+    _localCityId = (raw != null && raw > 0) ? raw : null;
+    notifyListeners();
+  }
+
+  /// Persist the locally picked city id. Pass `null` to clear it. The caller
+  /// is expected to follow up with [syncLocationCityId] so the hub mirror
+  /// matches the local state — same split-of-concerns as [setShareCity].
+  Future<void> setLocalCityId(int? id) async {
+    _localCityId = (id != null && id > 0) ? id : null;
+    final prefs = await SharedPreferences.getInstance();
+    if (_localCityId == null) {
+      await prefs.remove(_kLocalLocationCityIdKey);
+    } else {
+      await prefs.setInt(_kLocalLocationCityIdKey, _localCityId!);
+    }
     notifyListeners();
   }
 
@@ -479,6 +557,8 @@ class HubDirectoryProvider extends ChangeNotifier {
         await _consumePendingDisplayName();
         // Replay a country change deferred while the hub was unreachable.
         await _consumePendingLocationCountry();
+        // Same replay for a deferred city pick / clear (ADR-035 Phase 1).
+        await _consumePendingLocationCityId();
         syncCatalogIfDirty();
         // Start listening for relay nudges so incoming follow/borrow events
         // refresh instantly instead of waiting for the next polling cycle.
@@ -776,6 +856,126 @@ class HubDirectoryProvider extends ChangeNotifier {
     if (ok) await _clearPendingLocationCountry();
   }
 
+  // ---------------------------------------------------------------------------
+  // Location city id sync (ADR-035 Phase 1)
+  // ---------------------------------------------------------------------------
+
+  /// Push a new [cityId] (GeoNames id) to the hub profile, or `null` to
+  /// clear the previously stored value (when the user toggles off
+  /// "Partager ma ville").
+  ///
+  /// Mirrors [syncLocationCountry]: safe to call before the hub config is
+  /// loaded, offline failures persist in SharedPreferences for replay on
+  /// the next [initAndSyncCatalog] cycle.
+  Future<bool> syncLocationCityId(int? cityId) async {
+    if (_config == null) {
+      await ensureRegistered();
+    }
+
+    if (_config == null) {
+      await _storePendingLocationCityId(cityId);
+      debugPrint('HubDirectory: locationCityId sync deferred (no config yet)');
+      return false;
+    }
+
+    final ok = await _pushLocationCityId(cityId);
+    if (ok) {
+      await _clearPendingLocationCityId();
+    } else {
+      await _storePendingLocationCityId(cityId);
+    }
+    return ok;
+  }
+
+  /// Internal push used by [syncLocationCityId] and the pending replay.
+  /// Same defensive shape as [_pushLocationCountry]: pulls the display
+  /// name from prefs and re-emits all device/relay fields so the hub does
+  /// not blank them on a profile update that only meant to change the city.
+  Future<bool> _pushLocationCityId(int? cityId) async {
+    final cfg = _config;
+    if (cfg == null) return false;
+
+    final prefs = await SharedPreferences.getInstance();
+    final displayName = prefs.getString('libraryName') ??
+        TranslationService.translateByLocale(
+            prefs.getString('languageCode') ?? 'en', 'my_library_title');
+    final bookCount = await _ffi.countBooks();
+    String? x25519Key;
+    try {
+      x25519Key = await _ffi.getLocalX25519PublicKey();
+    } catch (_) {}
+    final deviceModel = await _deviceService.getDeviceModel();
+    final deviceFingerprint = await _deviceService.getDeviceFingerprint();
+    final appVersion = await _deviceService.getAppVersion();
+    final relay = await _getRelayCredentials();
+
+    return register(
+      nodeId: cfg.nodeId,
+      displayName: displayName,
+      bookCount: bookCount,
+      isListed: cfg.isListed,
+      requiresApproval: cfg.requiresApproval,
+      acceptFrom: cfg.acceptFrom,
+      allowBorrowing: cfg.allowBorrowing,
+      locationCityId: cityId,
+      x25519PublicKey: x25519Key,
+      deviceModel: deviceModel,
+      deviceFingerprint: deviceFingerprint,
+      appVersion: appVersion,
+      relayUrl: relay.relayUrl,
+      relayMailboxId: relay.mailboxId,
+      relayWriteToken: relay.writeToken,
+    );
+  }
+
+  Future<void> _storePendingLocationCityId(int? cityId) async {
+    final prefs = await SharedPreferences.getInstance();
+    // Empty string encodes the explicit "clear my city" intent so we can
+    // distinguish it from "no pending action" (key absent). GeoNames ids
+    // are always positive so there is no collision with a real value.
+    await prefs.setString(
+      _kPendingLocationCityIdKey,
+      cityId == null ? '' : cityId.toString(),
+    );
+  }
+
+  Future<void> _clearPendingLocationCityId() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_kPendingLocationCityIdKey);
+  }
+
+  /// Returns a `(hasPending, cityId)` pair: hasPending=false when the key
+  /// is absent (no replay needed), hasPending=true with cityId=null when
+  /// the user requested a clear, hasPending=true with a positive id
+  /// otherwise. Two-channel signature avoids encoding "no pending" and
+  /// "pending clear" in the same null sentinel.
+  Future<({bool hasPending, int? cityId})> _getPendingLocationCityId() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!prefs.containsKey(_kPendingLocationCityIdKey)) {
+      return (hasPending: false, cityId: null);
+    }
+    final raw = prefs.getString(_kPendingLocationCityIdKey) ?? '';
+    if (raw.isEmpty) return (hasPending: true, cityId: null);
+    final parsed = int.tryParse(raw);
+    if (parsed == null || parsed <= 0) {
+      // Corrupt value: drop it so we don't loop on bad data.
+      await prefs.remove(_kPendingLocationCityIdKey);
+      return (hasPending: false, cityId: null);
+    }
+    return (hasPending: true, cityId: parsed);
+  }
+
+  Future<void> _consumePendingLocationCityId() async {
+    if (_config == null) return;
+    final pending = await _getPendingLocationCityId();
+    if (!pending.hasPending) return;
+    debugPrint(
+      'HubDirectory: replaying pending locationCityId ${pending.cityId ?? "<clear>"}',
+    );
+    final ok = await _pushLocationCityId(pending.cityId);
+    if (ok) await _clearPendingLocationCityId();
+  }
+
   Future<void> loadConfig() async {
     _configLoading = true;
     _configError = null;
@@ -917,6 +1117,7 @@ class HubDirectoryProvider extends ChangeNotifier {
     required bool allowBorrowing,
     String? description,
     String? locationCountry,
+    int? locationCityId,
     String? x25519PublicKey,
     String? website,
     String? deviceModel,
@@ -955,6 +1156,7 @@ class HubDirectoryProvider extends ChangeNotifier {
       allowBorrowing: allowBorrowing,
       description: description,
       locationCountry: locationCountry,
+      locationCityId: locationCityId,
       x25519PublicKey: x25519PublicKey,
       website: website,
       deviceModel: effectiveModel,
