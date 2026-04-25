@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:convert';
-import 'package:flutter/foundation.dart' show kIsWeb, kReleaseMode;
+import 'package:flutter/foundation.dart' show debugPrint, kIsWeb, kReleaseMode;
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:country_picker/country_picker.dart';
 
@@ -2372,6 +2372,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             onSelect: (Country selected) async {
               await themeProvider.setCountry(selected.countryCode);
+              if (!context.mounted) return;
+              try {
+                await context
+                    .read<HubDirectoryProvider>()
+                    .syncLocationCountry(selected.countryCode);
+              } catch (e) {
+                debugPrint('Hub locationCountry update failed: $e');
+              }
             },
           );
         },

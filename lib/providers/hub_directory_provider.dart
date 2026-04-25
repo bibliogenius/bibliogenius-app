@@ -56,6 +56,11 @@ const String _kFollowNamesKey = 'hub_follow_custom_names';
 /// successful [initAndSyncCatalog] so the hub profile catches up.
 const String _kPendingDisplayNameKey = 'hub_pending_display_name';
 
+/// SharedPreferences key: location_country the user picked while the hub
+/// config was not yet loaded (or the hub push failed). Consumed on the next
+/// successful [initAndSyncCatalog] so the hub profile catches up.
+const String _kPendingLocationCountryKey = 'hub_pending_location_country';
+
 class HubDirectoryProvider extends ChangeNotifier {
   final FfiService _ffi;
   final DeviceService _deviceService;
@@ -472,6 +477,8 @@ class HubDirectoryProvider extends ChangeNotifier {
         // Replay a rename that happened before config was available
         // (flash library name editor on first run).
         await _consumePendingDisplayName();
+        // Replay a country change deferred while the hub was unreachable.
+        await _consumePendingLocationCountry();
         syncCatalogIfDirty();
         // Start listening for relay nudges so incoming follow/borrow events
         // refresh instantly instead of waiting for the next polling cycle.
@@ -664,6 +671,109 @@ class HubDirectoryProvider extends ChangeNotifier {
     debugPrint('HubDirectory: replaying pending displayName "$pending"');
     final ok = await _pushDisplayName(pending);
     if (ok) await _clearPendingDisplayName();
+  }
+
+  // ---------------------------------------------------------------------------
+  // Location country sync
+  // ---------------------------------------------------------------------------
+
+  /// Push a new [locationCountry] (ISO 3166-1 alpha-2) to the hub profile.
+  ///
+  /// Mirrors [syncDisplayName]: safe to call before the hub config is loaded
+  /// (silent registration is triggered first), and offline failures are
+  /// persisted in SharedPreferences so the next successful
+  /// [initAndSyncCatalog] cycle replays them.
+  Future<bool> syncLocationCountry(String locationCountry) async {
+    final trimmed = locationCountry.trim().toUpperCase();
+    if (trimmed.isEmpty) return false;
+
+    if (_config == null) {
+      await ensureRegistered();
+    }
+
+    if (_config == null) {
+      await _storePendingLocationCountry(trimmed);
+      debugPrint('HubDirectory: locationCountry sync deferred (no config yet)');
+      return false;
+    }
+
+    final ok = await _pushLocationCountry(trimmed);
+    if (ok) {
+      await _clearPendingLocationCountry();
+    } else {
+      await _storePendingLocationCountry(trimmed);
+    }
+    return ok;
+  }
+
+  /// Internal push used by [syncLocationCountry] and the pending replay.
+  /// Requires [_config] to be non-null. Passes all device/relay fields so the
+  /// hub does not overwrite them with null (same pattern as
+  /// [_pushDisplayName]). The displayName is pulled from SharedPreferences
+  /// because [register] requires it; if the user renamed the library while
+  /// the hub was offline, the pending displayName flag will catch up
+  /// independently on the next sync.
+  Future<bool> _pushLocationCountry(String locationCountry) async {
+    final cfg = _config;
+    if (cfg == null) return false;
+
+    final prefs = await SharedPreferences.getInstance();
+    final displayName = prefs.getString('libraryName') ??
+        TranslationService.translateByLocale(
+            prefs.getString('languageCode') ?? 'en', 'my_library_title');
+    final bookCount = await _ffi.countBooks();
+    String? x25519Key;
+    try {
+      x25519Key = await _ffi.getLocalX25519PublicKey();
+    } catch (_) {}
+    final deviceModel = await _deviceService.getDeviceModel();
+    final deviceFingerprint = await _deviceService.getDeviceFingerprint();
+    final appVersion = await _deviceService.getAppVersion();
+    final relay = await _getRelayCredentials();
+
+    return register(
+      nodeId: cfg.nodeId,
+      displayName: displayName,
+      bookCount: bookCount,
+      isListed: cfg.isListed,
+      requiresApproval: cfg.requiresApproval,
+      acceptFrom: cfg.acceptFrom,
+      allowBorrowing: cfg.allowBorrowing,
+      locationCountry: locationCountry,
+      x25519PublicKey: x25519Key,
+      deviceModel: deviceModel,
+      deviceFingerprint: deviceFingerprint,
+      appVersion: appVersion,
+      relayUrl: relay.relayUrl,
+      relayMailboxId: relay.mailboxId,
+      relayWriteToken: relay.writeToken,
+    );
+  }
+
+  Future<void> _storePendingLocationCountry(String code) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_kPendingLocationCountryKey, code);
+  }
+
+  Future<void> _clearPendingLocationCountry() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_kPendingLocationCountryKey);
+  }
+
+  Future<String?> _getPendingLocationCountry() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_kPendingLocationCountryKey);
+    if (raw == null || raw.trim().isEmpty) return null;
+    return raw;
+  }
+
+  Future<void> _consumePendingLocationCountry() async {
+    if (_config == null) return;
+    final pending = await _getPendingLocationCountry();
+    if (pending == null) return;
+    debugPrint('HubDirectory: replaying pending locationCountry "$pending"');
+    final ok = await _pushLocationCountry(pending);
+    if (ok) await _clearPendingLocationCountry();
   }
 
   Future<void> loadConfig() async {
