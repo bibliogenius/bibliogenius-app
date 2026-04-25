@@ -1,56 +1,52 @@
+# BBC The Big Read (Top 15) — regenerated from https://en.wikipedia.org/wiki/The_Big_Read
 id: bbc-big-read
-version: 1
+version: 3
+
 title:
-  fr: BBC Big Read - Top 100
-  en: BBC Big Read - Top 100
-  de: BBC Big Read - Top 100
-  es: BBC Big Read - Top 100
+  fr: BBC Big Read (Top 15)
+  en: BBC The Big Read (Top 15)
+  de: BBC The Big Read (Top 15)
+  es: BBC The Big Read (Top 15)
+
 description:
-  fr: 'Les 100 livres préférés des Britanniques selon le sondage BBC Big Read de 2003.
-    Source : bbc.co.uk'
-  en: 'Britain''s best-loved books according to the 2003 BBC Big Read survey. Source:
-    bbc.co.uk'
-  de: 'Die beliebtesten Bücher Großbritanniens laut der BBC Big Read Umfrage 2003.
-    Quelle: bbc.co.uk'
-  es: 'Los libros favoritos de Gran Bretaña según la encuesta BBC Big Read de 2003.
-    Fuente: bbc.co.uk'
-source_url: https://www.bbc.co.uk/arts/bigread/top100.shtml
-cover_url: "https://inventaire.io/img/entities/ddaa92b1684f7ec459b8073da337423f51235c0d"
+  fr: "Les 15 livres les plus aimés du Royaume-Uni d'après le sondage BBC The Big Read (2003)."
+  en: "Top 15 most-loved books in the UK per the 2003 BBC Big Read survey."
+  de: "Die 15 beliebtesten Bücher Großbritanniens laut der BBC-Umfrage Big Read (2003)."
+  es: "Los 15 libros más queridos del Reino Unido según la encuesta Big Read de la BBC (2003)."
+
+source_url: "https://en.wikipedia.org/wiki/The_Big_Read"
 contributor: BiblioGenius
-tags:
-- classiques
-- britannique
-- sondage
-- populaire
-content_languages: [fr]
+tags: [classics, english, reader-poll]
+content_languages: [en]
+
 books:
-- isbn: '9782070612758'
-  note: J.R.R. Tolkien - Le Seigneur des Anneaux (#1)
-- isbn: '9782070364992'
-  note: Jane Austen - Orgueil et Préjugés (#2)
-- isbn: '9782070418275'
-  note: Philip Pullman - À la croisée des mondes (#3)
-- isbn: '9780671461492'
-  note: Douglas Adams - Le Guide du voyageur galactique (#4)
-- isbn: '9782070643028'
-  note: J.K. Rowling - Harry Potter et la Coupe de Feu (#5)
-- isbn: '9782253049418'
-  note: J.R.R. Tolkien - Le Hobbit (#8)
-- isbn: '9782070364572'
-  note: William Golding - Sa Majesté des Mouches (#9)
-- isbn: '9782253004356'
-  note: Charlotte Brontë - Jane Eyre (#10)
-- isbn: '9782070368228'
-  note: George Orwell - 1984 (#13)
-- isbn: '9782070360536'
-  note: John Steinbeck - Des souris et des hommes (#16)
-- isbn: '9782070368228'
-  note: Harper Lee - Ne tirez pas sur l'oiseau moqueur (#18)
-- isbn: '9782253004226'
-  note: Daphne du Maurier - Rebecca (#14)
-- isbn: '9782070360703'
-  note: Emily Brontë - Les Hauts de Hurlevent (#12)
-- isbn: '9782264042897'
-  note: Khaled Hosseini - Les Cerfs-volants de Kaboul (#19)
-- isbn: '9782070612758'
-  note: Antoine de Saint-Exupéry - Le Petit Prince (#26)
+  - isbn: "9781586637903"
+    note: "The Lord of the Rings - J.R.R. Tolkien (1)"
+  - isbn: "9781537747453"
+    note: "Pride and Prejudice - Jane Austen (2)"
+  - isbn: "9780975943007"
+    note: "His Dark Materials - Philip Pullman (3)"
+  - isbn: "9780307291813"
+    note: "The Hitchhiker's Guide to the Galaxy - Douglas Adams (4)"
+  - isbn: "9780747593683"
+    note: "Harry Potter and the Goblet of Fire - J.K. Rowling (5)"
+  - isbn: "9781560778479"
+    note: "To Kill a Mockingbird - Harper Lee (6)"
+  - isbn: "9780140866827"
+    note: "Winnie-the-Pooh - A.A. Milne (7)"
+  - isbn: "9781921088674"
+    note: "Nineteen Eighty-Four - George Orwell (8)"
+  - isbn: "9781514280126"
+    note: "The Lion, the Witch and the Wardrobe - C.S. Lewis (9)"
+  - isbn: "9781534761667"
+    note: "Jane Eyre - Charlotte Bronte (10)"
+  - isbn: "9781411407183"
+    note: "Catch-22 - Joseph Heller (11)"
+  - isbn: "9781541122703"
+    note: "Wuthering Heights - Emily Bronte (12)"
+  - isbn: "9781408217276"
+    note: "Birdsong - Sebastian Faulks (13)"
+  - isbn: "9780394299563"
+    note: "Rebecca - Daphne du Maurier (14)"
+  - isbn: "9780140012484"
+    note: "The Catcher in the Rye - J.D. Salinger (15)"

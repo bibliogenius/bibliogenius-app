@@ -40,10 +40,11 @@ categories:
       - modern-library-100
       - bbc-big-read
       - time-100-novels
-      - guardian-100-21st-century
-      - nyt-notable-books
       - penguin-classics-essential
       - english-modern-classics
+      # Removed (broken ISBNs, audit < 20% match):
+      # - guardian-100-21st-century
+      # - nyt-notable-books
 
   - id: genres
     title:
@@ -54,8 +55,9 @@ categories:
     icon: category
     lists:
       - sf-classics
-      - cyberpunk
       - polar-francais
+      # Removed (broken ISBNs, all 4 entries mismatch):
+      # - cyberpunk
       - hugo-award-novels
       - nebula-award-novels
       - edgar-award-novels
@@ -96,23 +98,24 @@ categories:
     icon: public
     lists:
       - philosophie-debutants
-      - feminisme-litteraire
-      - dev-personnel-classiques
-      - litterature-africaine
       - litterature-latino-americaine
       - litterature-japonaise
-      - ecologie-essentiels
       - histoire-essentiels
       - biographies-marquantes
       - science-populaire
-      - litterature-russe
-      - litterature-allemande
       - antiracisme-droits-civiques
       - spiritualite-meditation
       - art-design
       - lgbtq-litterature
       - cuisine-gastronomie
       - economie-business
+      # Removed (broken ISBNs, audit < 40% match — to regen later):
+      # - feminisme-litteraire
+      # - dev-personnel-classiques
+      # - litterature-africaine
+      # - ecologie-essentiels
+      # - litterature-russe
+      # - litterature-allemande
 
   - id: institutions
     title:
