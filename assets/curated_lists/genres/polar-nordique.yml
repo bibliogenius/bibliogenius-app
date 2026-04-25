@@ -16,27 +16,29 @@ description:
   es: "Lo mejor del noir escandinavo. Fuentes: Glass Key Award, Scandinavian Crime Fiction."
 
 source_url: "https://www.glassnoglen.dk/"
+cover_url: "https://covers.openlibrary.org/b/isbn/9782742778430-L.jpg"
 contributor: BiblioGenius
 tags: [polar, scandinave, nordique, thriller]
+content_languages: [fr]
 
 books:
   - isbn: "9782742778430"
     note: "Stieg Larsson - Millénium (trilogie)"
   - isbn: "9782072708114"
-    note: "Jo Nesbø - L'Étoile du diable (Harry Hole)"
+    note: "L'Étoile du diable - Jo Nesbø (Harry Hole)"
   - isbn: "9782757839553"
-    note: "Henning Mankell - Meurtriers sans visage (Wallander)"
+    note: "Meurtriers sans visage - Henning Mankell (Wallander)"
   - isbn: "9782757800232"
-    note: "Arnaldur Indriðason - La Cité des jarres"
+    note: "La Cité des jarres - Arnaldur Indriðason"
   - isbn: "9782330006563"
-    note: "Camilla Läckberg - La Princesse des glaces"
+    note: "La Princesse des glaces - Camilla Läckberg"
   - isbn: "9782253173618"
-    note: "Jussi Adler-Olsen - Miséricorde (Département V)"
+    note: "Miséricorde - Jussi Adler-Olsen (Département V)"
   - isbn: "9782330194499"
-    note: "Yrsa Sigurðardóttir - Le Silence"
+    note: "Le Silence - Yrsa Sigurðardóttir"
   - isbn: "9782020301091"
-    note: "Peter Høeg - Smilla et l'amour de la neige"
+    note: "Smilla et l'amour de la neige - Peter Høeg"
   - isbn: "9782020413282"
-    note: "Karin Fossum - L'Œil d'Ève"
+    note: "L'Œil d'Ève - Karin Fossum"
   - isbn: "9782330014407"
-    note: "Lars Kepler - L'Hypnotiseur"
+    note: "L'Hypnotiseur - Lars Kepler"

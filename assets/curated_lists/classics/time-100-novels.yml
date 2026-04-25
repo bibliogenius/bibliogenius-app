@@ -15,12 +15,14 @@ description:
   es: 'Las 100 mejores novelas en inglés de 1923 a 2005 según Time Magazine. Fuente:
     time.com'
 source_url: https://entertainment.time.com/2005/10/16/all-time-100-novels/
+cover_url: "https://inventaire.io/img/entities/2b71f318435b3514c086ac1d35495b240b8bda11"
 contributor: BiblioGenius
 tags:
 - classiques
 - XXe-siècle
 - anglophone
 - presse
+content_languages: [fr]
 books:
 - isbn: '9782070368228'
   note: George Orwell - 1984

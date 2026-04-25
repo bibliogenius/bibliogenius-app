@@ -1,40 +1,53 @@
-# Newbery Medal - Children's Literature
-# Source officielle : American Library Association (ala.org)
+# Newbery Medal — regenerated from https://en.wikipedia.org/wiki/Newbery_Medal
 id: newbery-medal
-version: 1
+version: 3
 
 title:
-  fr: Médaille Newbery - Littérature Jeunesse
-  en: Newbery Medal - Children's Literature
-  de: Newbery-Medaille - Kinderliteratur
-  es: Medalla Newbery - Literatura Infantil
+  fr: Newbery Medal (Jeunesse US)
+  en: Newbery Medal
+  de: Newbery Medal
+  es: Medalla Newbery
 
 description:
-  fr: "Le prix le plus prestigieux pour la littérature jeunesse américaine. Source : ala.org"
-  en: "The most prestigious award for American children's literature. Source: ala.org"
-  de: "Die renommierteste Auszeichnung für amerikanische Kinderliteratur. Quelle: ala.org"
-  es: "El premio más prestigioso para la literatura infantil estadounidense. Fuente: ala.org"
+  fr: "Lauréats récents de la Newbery Medal, distinction de la littérature jeunesse américaine."
+  en: "Recent Newbery Medal winners for distinguished American children's literature."
+  de: "Aktuelle Newbery-Medal-Preisträger für amerikanische Kinder- und Jugendliteratur."
+  es: "Ganadores recientes de la Medalla Newbery de literatura infantil."
 
-source_url: "https://www.ala.org/alsc/awardsgrants/bookmedia/newberymedal"
+source_url: "https://en.wikipedia.org/wiki/Newbery_Medal"
+cover_url: "https://covers.openlibrary.org/b/id/10676977-L.jpg"
 contributor: BiblioGenius
-tags: [prix, newbery, jeunesse, américain]
+tags: [prix, newbery, jeunesse, american]
+content_languages: [en]
 
 books:
-  - isbn: "9782070612758"
-    note: "Neil Gaiman - L'Étrange Vie de Nobody Owens (2009)"
-  - isbn: "9782070643028"
-    note: "Kate DiCamillo - La Quête de Despereaux (2004)"
-  - isbn: "9782070612758"
-    note: "Louis Sachar - Le Passage (1999)"
-  - isbn: "9782070612758"
-    note: "E.L. Konigsburg - Du fond de mon cœur (1997)"
-  - isbn: "9782070643028"
-    note: "Lois Lowry - Le Passeur (1994)"
-  - isbn: "9782070612758"
-    note: "Jerry Spinelli - Maniac Magee (1991)"
-  - isbn: "9782070612758"
-    note: "Cynthia Voigt - Dicey's Song (1983)"
-  - isbn: "9782070612758"
-    note: "Katherine Paterson - Le Royaume de la rivière (1978)"
-  - isbn: "9782070612758"
-    note: "Madeleine L'Engle - Un raccourci dans le temps (1963)"
+  - isbn: "9780739380727"
+    note: "When You Reach Me - Rebecca Stead (2010)"
+  - isbn: "9780385738835"
+    note: "Moon Over Manifest - Clare Vanderpool (2011)"
+  - isbn: "9781427213563"
+    note: "Dead End in Norvelt - Jack Gantos (2012)"
+  - isbn: "9780061992278"
+    note: "The One and Only Ivan - Katherine Applegate (2013)"
+  - isbn: "9780763676711"
+    note: "Flora and Ulysses - Kate DiCamillo (2014)"
+  - isbn: "9780358067801"
+    note: "The Crossover - Kwame Alexander (2015)"
+  - isbn: "9781425816476"
+    note: "Last Stop on Market Street - Matt de la Pena (2016)"
+  - isbn: "9781542910279"
+    note: "Kelly Barnhill - The Girl Who Drank the Moon (2017)"
+  - isbn: "9781432860356"
+    note: "Hello Universe - Erin Entrada Kelly (2018)"
+  - isbn: "9781536204094"
+    note: "Merci Suarez Changes Gears - Meg Medina (2019)"
+  - isbn: "9781982609047"
+    note: "New Kid - Jerry Craft (2020)"
+  - isbn: "9781524715700"
+    note: "When You Trap a Tiger - Tae Keller (2021)"
+  - isbn: "9781737450887"
+    note: "The Last Cuentista - Donna Barba Higuera (2022)"
+  - isbn: "9798855080278"
+    note: "Freewater - Amina Luqman-Dawson (2023)"
+  - isbn: "9798855037555"
+    note: "The Eyes and the Impossible - Dave Eggers (2024)"

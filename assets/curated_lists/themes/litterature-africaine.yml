@@ -16,12 +16,14 @@ description:
   es: "Voces contemporáneas de la literatura africana. Fuentes: Prix des 5 Continents, African Literature Association."
 
 source_url: "https://www.francophonie.org/prix-des-5-continents"
+cover_url: "https://inventaire.io/img/entities/966aa5c727bd4036814feb75dab8c3d85612ea44"
 contributor: BiblioGenius
 tags: [afrique, contemporain, francophonie, anglophone]
+content_languages: [fr]
 
 books:
   - isbn: "9782070468805"
-    note: "Chimamanda Ngozi Adichie - Americanah"
+    note: "Americanah - Chimamanda Ngozi Adichie"
   - isbn: "9782070356508"
     note: "Chimamanda Ngozi Adichie - L'Hibiscus pourpre"
   - isbn: "9782253134329"
@@ -33,7 +35,7 @@ books:
   - isbn: "9782253123385"
     note: "Léonora Miano - L'Intérieur de la nuit"
   - isbn: "9782708709133"
-    note: "Ngugi wa Thiong'o - Enfant, ne pleure pas (ou The River Between/Pétales de sang en substitution)"
+    note: "Enfant, ne pleure pas - Ngugi wa Thiong'o (ou The River Between/Pétales de sang en substitution)"
   - isbn: "9782020525657"
     note: "Ahmadou Kourouma - Allah n'est pas obligé"
   - isbn: "9782264020925"

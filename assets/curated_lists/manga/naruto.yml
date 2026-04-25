@@ -10,6 +10,7 @@ description:
 cover_url: "https://covers.openlibrary.org/b/isbn/9782871294146-L.jpg"
 contributor: BiblioGenius
 tags: [manga, shonen, ninja, serie-complete, naruto]
+content_languages: [fr]
 books:
   - isbn: "9782871294146"
     note: "Naruto - Tome 1"

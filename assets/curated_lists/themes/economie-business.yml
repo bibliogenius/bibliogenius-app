@@ -16,27 +16,29 @@ description:
   es: "Libros esenciales sobre economía y negocios. Fuentes: Financial Times Best Business Books, HBR."
 
 source_url: "https://www.ft.com/books"
+cover_url: "https://inventaire.io/img/entities/1eba66520c2d10c46bb8d73e0272393a6ce72446"
 contributor: BiblioGenius
 tags: [économie, business, entrepreneuriat, essai]
+content_languages: [fr]
 
 books:
   - isbn: "9782757884584"
-    note: "Thomas Piketty - Le Capital au XXIe siècle"
+    note: "Le Capital au XXIe siècle - Thomas Piketty"
   - isbn: "9782081307827"
-    note: "Daniel Kahneman - Système 1 / Système 2"
+    note: "Système 1 / Système 2 - Daniel Kahneman"
   - isbn: "9782251451367"
-    note: "Nassim Nicholas Taleb - Le Cygne noir"
+    note: "Le Cygne noir - Nassim Nicholas Taleb"
   - isbn: "9782757828052"
-    note: "Michael Lewis - Le Casse du siècle"
+    note: "Le Casse du siècle - Michael Lewis"
   - isbn: "9782709649285"
     note: "Peter Thiel - De zéro à un"
   - isbn: "9782744066405"
-    note: "Eric Ries - Lean Startup"
+    note: "Lean Startup - Eric Ries"
   - isbn: "9782253168522"
-    note: "Walter Isaacson - Steve Jobs"
+    note: "Steve Jobs - Walter Isaacson"
   - isbn: "9782361170295"
-    note: "Ray Dalio - Les Principes du succès"
+    note: "Les Principes du succès - Ray Dalio"
   - isbn: "9782100778287"
     note: "Ben Horowitz - Hard Things"
   - isbn: "9782744064722"
-    note: "Jim Collins - De la performance à l'excellence"
+    note: "De la performance à l'excellence - Jim Collins"

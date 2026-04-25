@@ -18,6 +18,7 @@ description:
 source_url: "https://www.goodreads.com/"
 contributor: BiblioGenius
 tags: [dev-personnel, essai, psychologie, motivation]
+content_languages: [fr]
 
 books:
   - isbn: "9782253084204"
@@ -37,6 +38,6 @@ books:
   - isbn: "9782352948292"
     note: "Ryan Holiday - L'Obstacle est le chemin"
   - isbn: "9782290020203"
-    note: "Eckhart Tolle - Le Pouvoir du moment présent (J'ai lu)"
+    note: "Le Pouvoir du moment présent - Eckhart Tolle (J'ai lu)"
   - isbn: "9782251451350"
-    note: "Nassim Nicholas Taleb - Antifragile"
+    note: "Antifragile - Nassim Nicholas Taleb"

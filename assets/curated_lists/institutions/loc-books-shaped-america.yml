@@ -16,16 +16,18 @@ description:
   es: "88 libros que influyeron en la vida estadounidense según la Biblioteca del Congreso. Fuente: loc.gov"
 
 source_url: "https://www.loc.gov/exhibits/books-that-shaped-america/"
+cover_url: "https://inventaire.io/img/entities/2b71f318435b3514c086ac1d35495b240b8bda11"
 contributor: BiblioGenius
 tags: [américain, histoire, institution, canon]
+content_languages: [fr]
 
 books:
   - isbn: "9782070368228"
     note: "Mark Twain - Les Aventures de Huckleberry Finn (1884)"
   - isbn: "9782356920003"
-    note: "Ralph Waldo Emerson - Essais (1841)"
+    note: "Essais - Ralph Waldo Emerson (1841)"
   - isbn: "9782070715213"
-    note: "Henry David Thoreau - Walden (1854)"
+    note: "Walden - Henry David Thoreau (1854)"
   - isbn: "9782070360536"
     note: "John Steinbeck - Les Raisins de la colère (1939)"
   - isbn: "9782253004226"
@@ -33,14 +35,14 @@ books:
   - isbn: "9782264049216"
     note: "Toni Morrison - Beloved (1987)"
   - isbn: "9780679732761"
-    note: "Ralph Ellison - Invisible Man (VO)"
+    note: "Invisible Man - Ralph Ellison (VO)"
   - isbn: "9782070394036"
-    note: "Jack Kerouac - Sur la route (1957)"
+    note: "Sur la route - Jack Kerouac (1957)"
   - isbn: "9782253115847"
-    note: "Harper Lee - Ne tirez pas sur l'oiseau moqueur (1960)"
+    note: "Ne tirez pas sur l'oiseau moqueur - Harper Lee (1960)"
   - isbn: "9782253127536"
-    note: "Maya Angelou - Je sais pourquoi chante l'oiseau en cage (1969)"
+    note: "Je sais pourquoi chante l'oiseau en cage - Maya Angelou (1969)"
   - isbn: "9782266306010"
-    note: "Betty Friedan - La Femme mystifiée (1963)"
+    note: "La Femme mystifiée - Betty Friedan (1963)"
   - isbn: "9782352120421"
     note: "Rachel Carson - Printemps silencieux (1962)"

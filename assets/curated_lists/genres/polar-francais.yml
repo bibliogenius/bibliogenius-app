@@ -17,6 +17,7 @@ description:
 cover_url: "https://covers.openlibrary.org/b/id/8701830-L.jpg"
 contributor: BiblioGenius
 tags: [polar, thriller, français]
+content_languages: [fr]
 
 books:
   - isbn: "9782253168744"

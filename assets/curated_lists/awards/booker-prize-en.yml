@@ -1,0 +1,32 @@
+# Booker Prize winners in original English editions
+# NOTE: Run `python scripts/validate_isbns.py` before shipping.
+id: booker-prize-en
+version: 1
+
+title:
+  fr: Booker Prize (éditions originales anglaises)
+  en: Booker Prize winners (original English editions)
+  de: Booker-Preisträger (englische Originalausgaben)
+  es: Ganadores del Premio Booker (ediciones en inglés)
+
+description:
+  fr: "Lauréats récents du Booker Prize dans leur édition anglaise d'origine."
+  en: "Recent Booker Prize winners in their original English editions."
+  de: "Aktuelle Booker-Preisträger in englischer Originalausgabe."
+  es: "Ganadores recientes del Premio Booker en su edición original en inglés."
+
+source_url: "https://thebookerprizes.com/the-booker-library/prize-years"
+cover_url: "https://inventaire.io/img/entities/6f4efc5987cebfdcb3000ef76a46a4d004468faa"
+contributor: BiblioGenius
+tags: [prix, booker, english]
+content_languages: [en]
+
+books:
+  - isbn: "9780385543781"
+    note: "The Testaments - Margaret Atwood (Nan A. Talese, 2019)"
+  - isbn: "9780156027328"
+    note: "Life of Pi - Yann Martel (Mariner, 2002)"
+  - isbn: "9780312429980"
+    note: "Wolf Hall - Hilary Mantel (Picador, 2009)"
+  - isbn: "9780812976533"
+    note: "Midnight's Children - Salman Rushdie (Random House, 1981)"

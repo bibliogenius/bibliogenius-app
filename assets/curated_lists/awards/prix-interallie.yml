@@ -1,7 +1,6 @@
-# Prix Interallié
-# Source officielle : prixinterallie.com
+# Prix Interallié — regenerated from https://fr.wikipedia.org/wiki/Prix_Interalli%C3%A9
 id: prix-interallie
-version: 1
+version: 3
 
 title:
   fr: Prix Interallié
@@ -10,29 +9,43 @@ title:
   es: Premio Interallié
 
 description:
-  fr: "Prix décerné par des journalistes parisiens. Source : prixinterallie.com"
-  en: "Prize awarded by Parisian journalists. Source: prixinterallie.com"
-  de: "Preis, verliehen von Pariser Journalisten. Quelle: prixinterallie.com"
-  es: "Premio otorgado por periodistas parisinos. Fuente: prixinterallie.com"
+  fr: "Lauréats récents du Prix Interallié, décerné par des journalistes."
+  en: "Recent winners of the Prix Interallié, awarded by journalists."
+  de: "Aktuelle Preisträger des Prix Interallié."
+  es: "Ganadores recientes del Premio Interallié."
 
-source_url: "https://www.prixinterallie.com/"
+source_url: "https://fr.wikipedia.org/wiki/Prix_Interalli%C3%A9"
+cover_url: "https://inventaire.io/img/entities/14e86b8188f8ec1e205d308c26a366a108ee9ef6"
 contributor: BiblioGenius
-tags: [prix, interallié, français, journalistes]
+tags: [prix, interallie, francais]
+content_languages: [fr]
 
 books:
-  - isbn: "9782072968808"
-    note: "Mathieu Palain - Ne t'arrête pas de courir (2024)"
-  - isbn: "9782072951091"
-    note: "Alexis Jenni - La Nuit de Walenhammes (2023)"
-  - isbn: "9782072890864"
-    note: "Olivier Norek - Dans les brumes de Capelans (2022)"
-  - isbn: "9782072848018"
-    note: "Giuliano da Empoli - Le Mage du Kremlin (2022 nominé)"
-  - isbn: "9782072801327"
-    note: "Olivier Rolin - Extérieur monde (2019)"
-  - isbn: "9782070197712"
-    note: "Adrien Bosc - Constellation (2014)"
-  - isbn: "9782070126200"
-    note: "Emmanuel Carrère - Limonov (2011)"
-  - isbn: "9782253134329"
-    note: "Sorj Chalandon - Mon traître (2008)"
+  - isbn: "9782877067409"
+    note: "L'Amour nègre - Jean-Michel Olivier (2010)"
+  - isbn: "9782213634340"
+    note: "Tout, tout de suite - Morgan Sportes (2011)"
+  - isbn: "9781590519158"
+    note: "Oh... - Philippe Djian (2012)"
+  - isbn: "9782070462421"
+    note: "Moment d'un couple - Nelly Alard (2013)"
+  - isbn: "9783627002381"
+    note: "Karpathia - Mathias Menegoz (2014)"
+  - isbn: "9782246776017"
+    note: "La Septième Fonction du langage - Laurent Binet (2015)"
+  - isbn: "9782081306639"
+    note: "Repose-toi sur moi - Serge Joncour (2016)"
+  - isbn: "9782246813934"
+    note: "La Nostalgie de l'honneur - Jean-Rene Van der Plaetsen (2017)"
+  - isbn: "9782081421127"
+    note: "L'Hiver du mécontentement - Thomas B. Reverdy (2018)"
+  - isbn: "9782072921117"
+    note: "Les Choses humaines - Karine Tuil (2019)"
+  - isbn: "9782021455885"
+    note: "Un crime sans importance - Irene Frain (2020)"
+  - isbn: "9782378802394"
+    note: "Ne t'arrête pas de courir - Mathieu Palain (2021)"
+  - isbn: "9782073019448"
+    note: "Roman fleuve - Philibert Humm (2022)"
+  - isbn: "9791032927823"
+    note: "Humus - Gaspard Koenig (2023)"

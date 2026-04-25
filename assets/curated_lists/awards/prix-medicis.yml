@@ -1,42 +1,47 @@
-# Prix Médicis
-# Source officielle : prixmedicis.com
+# Prix Médicis (French novel) — regenerated from https://fr.wikipedia.org/wiki/Prix_M%C3%A9dicis
 id: prix-medicis
-version: 1
+version: 3
 
 title:
   fr: Prix Médicis
-  en: Prix Médicis
+  en: Prix Médicis (French novel)
   de: Prix Médicis
-  es: Premio Médicis
+  es: Premio Medicis
 
 description:
-  fr: "Prix littéraire français récompensant un roman d'un style neuf. Source : prixmedicis.com"
-  en: "French literary prize rewarding novels with a fresh style. Source: prixmedicis.com"
-  de: "Französischer Literaturpreis für Romane mit neuem Stil. Quelle: prixmedicis.com"
-  es: "Premio literario francés que recompensa novelas con estilo fresco. Fuente: prixmedicis.com"
+  fr: "Lauréats récents du Prix Médicis, roman français."
+  en: "Recent winners of the Prix Médicis for French fiction."
+  de: "Aktuelle Preisträger des Prix Médicis für französische Romane."
+  es: "Ganadores recientes del Premio Médicis de novela francesa."
 
-source_url: "https://www.prixmedicis.com/"
+source_url: "https://fr.wikipedia.org/wiki/Prix_M%C3%A9dicis"
+cover_url: "https://covers.openlibrary.org/b/isbn/9782818012833-L.jpg"
 contributor: BiblioGenius
-tags: [prix, médicis, français]
+tags: [prix, medicis, francais]
+content_languages: [fr]
 
 books:
-  - isbn: "9782072987922"
-    note: "Julia Deck - Ann d'Angleterre (2024)"
-  - isbn: "9782073009791"
-    note: "Neige Sinno - Triste Tigre (2023)"
-  - isbn: "9782072985447"
-    note: "Claudie Hunzinger - Un chien à ma table (2022)"
-  - isbn: "9782072973734"
-    note: "Christine Angot - Le Voyage dans l'Est (2021)"
-  - isbn: "9782072890864"
-    note: "Chloé Delaume - Le Cœur synthétique (2020)"
-  - isbn: "9782072848018"
-    note: "Sylvain Prudhomme - Par les routes (2019)"
-  - isbn: "9782072801327"
-    note: "Marie NDiaye - La Vengeance m'appartient (2018)"
-  - isbn: "9782070197712"
-    note: "Yannick Haenel - Tiens ferme ta couronne (2017)"
-  - isbn: "9782070178612"
-    note: "Ivan Jablonka - Laëtitia (2016)"
-  - isbn: "9782070149681"
-    note: "Nathalie Azoulai - Titus n'aimait pas Bérénice (2015)"
+  - isbn: "9782818012833"
+    note: "Ce qu'aimer veut dire - Mathieu Lindon (2011)"
+  - isbn: "9782757836019"
+    note: "Féerie générale - Emmanuelle Pireyre (2012)"
+  - isbn: "9782818019245"
+    note: "Il faut beaucoup aimer les hommes - Marie Darrieussecq (2013)"
+  - isbn: "9782021139044"
+    note: "Terminus radieux - Antoine Volodine (2014)"
+  - isbn: "9782070794065"
+    note: "Titus n'aimait pas Bérénice - Nathalie Azoulai (2015)"
+  - isbn: "9782070177875"
+    note: "Tiens ferme ta couronne - Yannick Haenel (2017)"
+  - isbn: "9782246862871"
+    note: "Idiotie - Pierre Guyotat (2018)"
+  - isbn: "9782234087385"
+    note: "La Tentation - Luc Lang (2019)"
+  - isbn: "9782021425451"
+    note: "Le Cœur synthétique - Chloé Delaume (2020)"
+  - isbn: "9782080231987"
+    note: "Le Voyage dans l'Est - Christine Angot (2021)"
+  - isbn: "9782818055861"
+    note: "La Treizième Heure - Emmanuelle Bayamack-Tam (2022)"
+  - isbn: "9782493213310"
+    note: "Que notre joie demeure - Kevin Lambert (2023)"

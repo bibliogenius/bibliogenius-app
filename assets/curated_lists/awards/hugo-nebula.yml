@@ -1,37 +1,49 @@
+# Hugo & Nebula Awards — regenerated from https://en.wikipedia.org/wiki/Hugo_Award_for_Best_Novel
 id: hugo-nebula
-version: 1
+version: 3
+
 title:
-  fr: Prix Hugo (Meilleur Roman)
-  en: Hugo Award (Best Novel)
-  de: Hugo Award (Bester Roman)
-  es: Premio Hugo (Mejor Novela)
+  fr: Prix Hugo & Nebula
+  en: Hugo & Nebula Awards
+  de: Hugo- & Nebula-Preis
+  es: Premios Hugo y Nebula
+
 description:
-  fr: Romans de science-fiction et de fantasy ayant remporté le prestigieux prix Hugo.
-  en: Science fiction and fantasy novels that won the prestigious Hugo Award.
-  de: Science-Fiction- und Fantasy-Romane, die den renommierten Hugo Award gewonnen
-    haben.
-  es: Novelas de ciencia ficción y fantasía ganadoras del prestigioso premio Hugo.
-cover_url: https://covers.openlibrary.org/b/id/8259443-L.jpg
+  fr: "Lauréats récents des prix Hugo et Nebula, les deux distinctions majeures de la science-fiction."
+  en: "Recent Hugo and Nebula Award winners, the two major honors of science fiction."
+  de: "Aktuelle Hugo- und Nebula-Preisträger."
+  es: "Ganadores recientes de los Premios Hugo y Nebula."
+
+source_url: "https://en.wikipedia.org/wiki/Hugo_Award_for_Best_Novel"
+cover_url: "https://covers.openlibrary.org/b/id/9123630-L.jpg"
 contributor: BiblioGenius
-tags:
-- prix
-- science-fiction
-- fantasy
-- anglophone
+tags: [prix, hugo, nebula, science-fiction]
+content_languages: [en]
+
 books:
-- isbn: '9782266320481'
-  note: Dune - Frank Herbert (1966)
-- isbn: '9785050040107'
-  note: La Main gauche de la nuit - Ursula K. Le Guin (1970)
-- isbn: '9782290312841'
-  note: Neuromancien - William Gibson (1985)
-- isbn: '9782290349229'
-  note: La Stratégie Ender - Orson Scott Card (1986)
-- isbn: '9782266241915'
-  note: Hypérion - Dan Simmons (1990)
-- isbn: '9782846261562'
-  note: American Gods - Neil Gaiman (2002)
-- isbn: '9782330077020'
-  note: Le Problème à trois corps - Liu Cixin (2015)
-- isbn: '9782290157183'
-  note: La Cinquième Saison - N.K. Jemisin (2016)
+  - isbn: "9781441866868"
+    note: "The Windup Girl - Paolo Bacigalupi (2010)"
+  - isbn: "9781405525855"
+    note: "Ancillary Justice - Ann Leckie (2014)"
+  - isbn: "9781637992562"
+    note: "The Three-Body Problem - Cixin Liu (2015)"
+  - isbn: "9780804179034"
+    note: "Uprooted - Naomi Novik (2015)"
+  - isbn: "9789024580453"
+    note: "The Obelisk Gate - N. K. Jemisin (2017)"
+  - isbn: "9780356508689"
+    note: "The Stone Sky - N. K. Jemisin (2018)"
+  - isbn: "9781721348480"
+    note: "The Calculating Stars - Mary Robinette Kowal (2019)"
+  - isbn: "9781529001587"
+    note: "A Memory Called Empire - Arkady Martine (2020)"
+  - isbn: "9781664475915"
+    note: "Network Effect - Martha Wells (2021)"
+  - isbn: "9781529001624"
+    note: "A Desolation Called Peace - Arkady Martine (2022)"
+  - isbn: "9780008501839"
+    note: "Babel - R. F. Kuang (2022)"
+  - isbn: "9781250874573"
+    note: "Nettle & Bone - T. Kingfisher (2023)"
+  - isbn: "9780356521831"
+    note: "Some Desperate Glory - Emily Tesh (2024)"

@@ -16,15 +16,17 @@ description:
   es: "El lenguaje Rust: seguridad, velocidad y concurrencia."
 
 source_url: "https://www.rust-lang.org/"
+cover_url: "https://inventaire.io/img/entities/66d35df2b91263c0f0c7b381d032b18f489c50d3"
 contributor: BiblioGenius
 tags: [informatique, rust, système, backend, securité]
+content_languages: [en]
 
 books:
   - isbn: "9781718503106"
-    note: "Steve Klabnik - The Rust Programming Language (2nd Edition)"
+    note: "The Rust Programming Language - Steve Klabnik (2nd Edition)"
   - isbn: "9781492052593"
-    note: "Jim Blandy - Programming Rust (2nd Edition - O'Reilly)"
+    note: "Programming Rust - Jim Blandy (2nd Edition - O'Reilly)"
   - isbn: "9781617294556"
-    note: "Tim McNamara - Rust in Action"
+    note: "Rust in Action - Tim McNamara"
   - isbn: "9781593278410"
     note: "Jon Gjengset - Rust for Rustaceans"

@@ -8,23 +8,25 @@ title:
   en: Psychological Thriller
   de: Psychothriller
   es: Thriller Psicológico
-12: description:
+description:
   fr: "Les meilleurs thrillers psychologiques. Sources : Crime Writers' Association (CWA), International Thriller Writers."
   en: "The best psychological thrillers. Sources: Crime Writers' Association (CWA), International Thriller Writers."
   de: "Die besten Psychothriller. Quellen: Crime Writers' Association (CWA), International Thriller Writers."
   es: "Los mejores thrillers psicológicos. Fuentes: Crime Writers' Association (CWA), International Thriller Writers."
 
 source_url: "https://thecwa.co.uk/"
+cover_url: "https://inventaire.io/img/entities/dd6c161cc98bf2109f0a5ff99b77b533853c4c3b"
 contributor: BiblioGenius
 tags: [thriller, psychologique, suspense, polar]
+content_languages: [fr]
 
 books:
   - isbn: "9782253179269"
     note: "Gillian Flynn - Les Apparences (Gone Girl)"
   - isbn: "9782266254489"
-    note: "Paula Hawkins - La Fille du train"
+    note: "La Fille du train - Paula Hawkins"
   - isbn: "9782742765010"
-    note: "Stieg Larsson - Millénium 1"
+    note: "Millénium 1 - Stieg Larsson"
   - isbn: "9782266208611"
     note: "Thomas Harris - Le Silence des agneaux"
   - isbn: "9782253044123"
@@ -36,6 +38,6 @@ books:
   - isbn: "9782266286084"
     note: "Ruth Ware - La Disparue de la cabine n°10"
   - isbn: "9782266291866"
-    note: "A.J. Finn - La Femme à la fenêtre"
+    note: "La Femme à la fenêtre - A.J. Finn"
   - isbn: "9781033903178"
     note: "Karin Slaughter - Pretty Girls"

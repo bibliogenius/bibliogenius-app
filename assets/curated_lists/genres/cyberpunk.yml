@@ -17,6 +17,7 @@ description:
 cover_url: "https://covers.openlibrary.org/b/id/12556533-L.jpg"
 contributor: BiblioGenius
 tags: [science-fiction, cyberpunk, dystopie]
+content_languages: [fr]
 
 books:
   - isbn: "9782290312841"

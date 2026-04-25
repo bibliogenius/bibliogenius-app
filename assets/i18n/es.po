@@ -1577,6 +1577,18 @@ msgstr "Sin listas en esta categoría"
 msgid "curated_more_books"
 msgstr "+ {count} más..."
 
+#. Header for collections available in the user's reading languages
+msgid "curated_section_in_your_languages"
+msgstr "En tus idiomas"
+
+#. Header for collections in other languages, shown collapsed by default
+msgid "curated_section_other_languages"
+msgstr "Otros idiomas"
+
+#. Hint shown below the "other languages" header when collapsed
+msgid "curated_other_languages_hint"
+msgstr "{count} más en idiomas que no has seleccionado"
+
 #. Discover Curated Collections
 msgid "discover_collections_title"
 msgstr "Descubrir colecciones"

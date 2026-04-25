@@ -16,12 +16,14 @@ description:
   es: "Selección de France Culture para construir tu biblioteca ideal. Fuente: franceculture.fr"
 
 source_url: "https://www.radiofrance.fr/franceculture"
+cover_url: "https://inventaire.io/img/entities/646a3ef031d6a1adc27cb5f556d2a403a2f525a7"
 contributor: BiblioGenius
 tags: [français, culture, radio, essentiel]
+content_languages: [fr]
 
 books:
   - isbn: "9782070379248"
-    note: "Marcel Proust - Du côté de chez Swann (Folio)"
+    note: "Du côté de chez Swann - Marcel Proust (Folio)"
   - isbn: "9782070360536"
     note: "Albert Camus - L'Étranger"
   - isbn: "9782070360451"
@@ -41,6 +43,6 @@ books:
   - isbn: "9782070449781"
     note: "Annie Ernaux - Les Années"
   - isbn: "9782253096337"
-    note: "Victor Hugo - Les Misérables (Tome 1)"
+    note: "Les Misérables - Victor Hugo (Tome 1)"
   - isbn: "9782070411597"
     note: "Émile Zola - Germinal"

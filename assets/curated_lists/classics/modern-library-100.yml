@@ -1,52 +1,63 @@
-# Modern Library 100 Best Novels
-# Source officielle : Random House / Modern Library
+# Modern Library 100 Best Novels (top 20) — regenerated from https://en.wikipedia.org/wiki/Modern_Library_100_Best_Novels
 id: modern-library-100
-version: 1
+version: 3
 
 title:
-  fr: Modern Library - 100 Meilleurs Romans
-  en: Modern Library 100 Best Novels
-  de: Modern Library - 100 Beste Romane
-  es: Modern Library - 100 Mejores Novelas
+  fr: Modern Library 100 (top 20)
+  en: Modern Library 100 Best Novels (top 20)
+  de: Modern Library 100 (Top 20)
+  es: Modern Library 100 (Top 20)
 
 description:
-  fr: "Les 100 meilleurs romans en anglais du XXe siècle selon Modern Library (Random House). Source : modernlibrary.com"
-  en: "The 100 best English-language novels of the 20th century according to Modern Library. Source: modernlibrary.com"
-  de: "Die 100 besten englischsprachigen Romane des 20. Jahrhunderts laut Modern Library. Quelle: modernlibrary.com"
-  es: "Las 100 mejores novelas en inglés del siglo XX según Modern Library. Fuente: modernlibrary.com"
+  fr: "Les vingt premiers romans du 20e siècle selon le conseil éditorial de Modern Library."
+  en: "Top twenty 20th-century novels per the Modern Library editorial board."
+  de: "Die besten zwanzig Romane des 20. Jahrhunderts laut Modern Library."
+  es: "Las veinte mejores novelas del siglo XX según Modern Library."
 
-source_url: "https://www.modernlibrary.com/top-100/100-best-novels/"
+source_url: "https://en.wikipedia.org/wiki/Modern_Library_100_Best_Novels"
+cover_url: "https://covers.openlibrary.org/b/id/15170769-L.jpg"
 contributor: BiblioGenius
-tags: [classiques, XXe-siècle, anglophone, canon]
+tags: [classics, english, 20th-century]
+content_languages: [en]
 
 books:
-  - isbn: "9782070368228"
-    note: "James Joyce - Ulysse (#1)"
-  - isbn: "9782070360536"
-    note: "F. Scott Fitzgerald - Gatsby le Magnifique (#2)"
-  - isbn: "9782070368631"
-    note: "James Joyce - Portrait de l'artiste en jeune homme (#3)"
-  - isbn: "9782070368228"
-    note: "Vladimir Nabokov - Lolita (#4)"
-  - isbn: "9782070368228"
-    note: "Aldous Huxley - Le Meilleur des mondes (#5)"
-  - isbn: "9782070360451"
-    note: "William Faulkner - Le Bruit et la Fureur (#6)"
-  - isbn: "9782070360536"
-    note: "Joseph Heller - Catch-22 (#7)"
-  - isbn: "9782070360253"
-    note: "John Steinbeck - Les Raisins de la colère (#8)"
-  - isbn: "9782070368228"
-    note: "George Orwell - 1984 (#13)"
-  - isbn: "9782070368228"
-    note: "D.H. Lawrence - L'Amant de Lady Chatterley (#17)"
-  - isbn: "9782070362219"
-    note: "Ernest Hemingway - Le Soleil se lève aussi (#45)"
-  - isbn: "9782070364572"
-    note: "William Golding - Sa Majesté des Mouches (#41)"
-  - isbn: "9782070368228"
-    note: "Anthony Burgess - Orange mécanique (#65)"
-  - isbn: "9782221083409"
-    note: "Graham Greene - La Puissance et la Gloire (#67)"
-  - isbn: "9782070368228"
-    note: "E.M. Forster - Route des Indes (#25)"
+  - isbn: "9781540829498"
+    note: "Ulysses - James Joyce (1)"
+  - isbn: "9781411403093"
+    note: "F. Scott Fitzgerald - The Great Gatsby (2)"
+  - isbn: "9782753509443"
+    note: "James Joyce - A Portrait of the Artist as a Young Man (3)"
+  - isbn: "9785389013629"
+    note: "Lolita - Vladimir Nabokov (4)"
+  - isbn: "9780582038936"
+    note: "Aldous Huxley - Brave New World (5)"
+  - isbn: "9782200263911"
+    note: "William Faulkner - The Sound and the Fury (6)"
+  - isbn: "9781411407183"
+    note: "Catch-22 - Joseph Heller (7)"
+  - isbn: "9781476785554"
+    note: "Darkness at Noon - Arthur Koestler (8)"
+  - isbn: "9780631977407"
+    note: "D. H. Lawrence - Sons and Lovers (9)"
+  - isbn: "9780140008333"
+    note: "The Grapes of Wrath - John Steinbeck (10)"
+  - isbn: "9781632460417"
+    note: "Malcolm Lowry - Under the Volcano (11)"
+  - isbn: "9781434617101"
+    note: "The Way of All Flesh - Samuel Butler (12)"
+  - isbn: "9781610424516"
+    note: "George Orwell - 1984 (13)"
+  - isbn: "9785557107440"
+    note: "I, Claudius - Robert Graves (14)"
+  - isbn: "9781909399037"
+    note: "To the Lighthouse - Virginia Woolf (15)"
+  - isbn: "9781101097328"
+    note: "An American Tragedy - Theodore Dreiser (16)"
+  - isbn: "9781557360861"
+    note: "The Heart Is a Lonely Hunter - Carson McCullers (17)"
+  - isbn: "9781632460141"
+    note: "Kurt Vonnegut - Slaughterhouse-Five (18)"
+  - isbn: "9780760703830"
+    note: "Invisible Man - Ralph Ellison (19)"
+  - isbn: "9780061935411"
+    note: "Native Son - Richard Wright (20)"

@@ -16,8 +16,10 @@ description:
   es: "Libros fundamentales sobre ecología y medio ambiente. Fuentes: WWF Reading List, Goodreads Environmental Books."
 
 source_url: "https://www.wwf.org/"
+cover_url: "https://inventaire.io/img/entities/b6aa9e3ec199e6665aef50fb9a953a250c76d3a2"
 contributor: BiblioGenius
 tags: [écologie, environnement, climat, nature]
+content_languages: [fr]
 
 books:
   - isbn: "9782352120421"
@@ -25,9 +27,9 @@ books:
   - isbn: "9782253259428"
     note: "Richard Powers - L'Arbre-Monde (Pulitzer 2019)"
   - isbn: "9782253186366"
-    note: "Elizabeth Kolbert - La Sixième Extinction"
+    note: "La Sixième Extinction - Elizabeth Kolbert"
   - isbn: "9782330070397"
-    note: "Naomi Klein - Tout peut changer (Capitalisme contre climat)"
+    note: "Tout peut changer - Naomi Klein (Capitalisme contre climat)"
   - isbn: "9782081498631"
     note: "Aldo Leopold - Almanach d'un comté des sables"
   - isbn: "9782330144975"
@@ -37,6 +39,6 @@ books:
   - isbn: "9782253101345"
     note: "Greta Thunberg - La Maison brûle / Rejoignez-nous"
   - isbn: "9782757868201"
-    note: "Pablo Servigne - Comment tout peut s'effondrer"
+    note: "Comment tout peut s'effondrer - Pablo Servigne"
   - isbn: "9782070793822"
     note: "Edward Abbey - Désert solitaire"

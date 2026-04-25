@@ -1,42 +1,44 @@
-# Bande Dessinée - Prix Angoulême (Grand Prix)
-# Source officielle : bdangouleme.com
+# Angoulême Grand Prix — regenerated from https://fr.wikipedia.org/wiki/Grand_prix_de_la_ville_d%27Angoul%C3%AAme
 id: prix-angouleme
-version: 1
+version: 3
 
 title:
   fr: Prix Angoulême - Grands Lauréats
-  en: Angoulême Prize - Grand Laureates
-  de: Angoulême-Preis - Große Preisträger
-  es: Premio Angoulême - Grandes Laureados
+  en: Angoulême Grand Prix
+  de: Angoulême-Großpreis
+  es: Gran Premio de Angulema
 
 description:
-  fr: "Les œuvres primées au Festival International de la Bande Dessinée d'Angoulême. Source : bdangouleme.com"
-  en: "Award-winning works at the Angoulême International Comics Festival. Source: bdangouleme.com"
-  de: "Prämierte Werke beim Internationalen Comic-Festival von Angoulême. Quelle: bdangouleme.com"
-  es: "Obras premiadas en el Festival Internacional del Cómic de Angulema. Fuente: bdangouleme.com"
+  fr: "Grand Prix du Festival d'Angoulême : les œuvres marquantes des lauréats récents."
+  en: "Angoulême Festival Grand Prix: representative works of recent laureates."
+  de: "Angoulême-Festival Großpreis: prägende Werke der Preisträger."
+  es: "Gran Premio del Festival de Angulema: obras de los premiados recientes."
 
-source_url: "https://www.bdangouleme.com/"
+source_url: "https://fr.wikipedia.org/wiki/Grand_prix_de_la_ville_d%27Angoul%C3%AAme"
 contributor: BiblioGenius
-tags: [bd, angoulême, prix, comics]
+tags: [bd, angouleme, prix, comics]
+content_languages: [fr]
 
 books:
-  - isbn: "9782203001930"
-    note: "Art Spiegelman - Maus (Grand Prix)"
-  - isbn: "9782203399273"
-    note: "Lewis Trondheim - Lapinot (Grand Prix 2006)"
-  - isbn: "9782226186096"
-    note: "Marjane Satrapi - Persepolis (Prix)"
-  - isbn: "9782203053847"
-    note: "Riad Sattouf - L'Arabe du futur"
-  - isbn: "9782505064558"
-    note: "Mathieu Bablet - Shangri-La"
-  - isbn: "9782203053847"
-    note: "Cyril Pedrosa - Portugal"
-  - isbn: "9782203001930"
-    note: "Joann Sfar - Le chat du rabbin"
-  - isbn: "9782203053847"
-    note: "Guy Delisle - Chroniques de Jérusalem"
-  - isbn: "9782226171764"
-    note: "Joe Sacco - Palestine"
-  - isbn: "9782203053847"
-    note: "Émile Bravo - Spirou"
+  - isbn: "9782080660299"
+    note: "Maus - Art Spiegelman (2011)"
+  - isbn: "9782258036420"
+    note: "Calvin et Hobbes - Bill Watterson (2014)"
+  - isbn: "9784061037113"
+    note: "Akira - Katsuhiro Otomo (2015)"
+  - isbn: "9782344033838"
+    note: "Ranma 1/2 - Rumiko Takahashi (2019)"
+  - isbn: "9782800133720"
+    note: "Le Photographe - Emmanuel Guibert (2020)"
+  - isbn: "9781443835275"
+    note: "Jimmy Corrigan - Chris Ware (2021)"
+  - isbn: "9782922399837"
+    note: "Dirty Plotte - Julie Doucet (2022)"
+  - isbn: "9782370730541"
+    note: "L'Arabe du futur - Riad Sattouf (2023)"
+  - isbn: "9782207118320"
+    note: "Gemma Bovery - Posy Simmonds (2024)"
+  - isbn: "9782203372061"
+    note: "L'Autoroute du Soleil - Baru (2010)"
+  - isbn: "9782803602858"
+    note: "Jonathan - Cosey (2017)"

@@ -18,6 +18,7 @@ description:
 source_url: "https://www.deutscher-buchpreis.de/"
 contributor: BiblioGenius
 tags: [allemand, classiques, germanophone]
+content_languages: [fr]
 
 books:
   - isbn: "9782080702227"
@@ -31,11 +32,11 @@ books:
   - isbn: "9782070360147"
     note: "Franz Kafka - La Métamorphose"
   - isbn: "9782253044901"
-    note: "Patrick Süskind - Le Parfum"
+    note: "Le Parfum - Patrick Süskind"
   - isbn: "9782070404582"
-    note: "Bernhard Schlink - Le Liseur"
+    note: "Le Liseur - Bernhard Schlink"
   - isbn: "9782757884935"
-    note: "Günter Grass - Le Tambour"
+    note: "Le Tambour - Günter Grass"
   - isbn: "9782070369409"
     note: "Heinrich Böll - L'Honneur perdu de Katharina Blum"
   - isbn: "9782330048860"

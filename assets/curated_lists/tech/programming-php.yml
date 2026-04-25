@@ -16,15 +16,17 @@ description:
   es: "Guías para el desarrollo moderno en PHP y MySQL."
 
 source_url: "https://www.php.net/"
+cover_url: "https://covers.openlibrary.org/b/isbn/9782212674750-L.jpg"
 contributor: BiblioGenius
 tags: [informatique, programmation, php, backend, web]
+content_languages: [fr, en]
 
 books:
   - isbn: "9782212674750"
-    note: "Mathieu Nebra - Concevez votre site web avec PHP et MySQL"
+    note: "Concevez votre site web avec PHP et MySQL - Mathieu Nebra"
   - isbn: "9781491905012"
-    note: "Josh Lockhart - Modern PHP (New Features and Good Practices)"
+    note: "Modern PHP - Josh Lockhart (New Features and Good Practices)"
   - isbn: "9781484267905"
-    note: "Matt Zandstra - PHP 8 Objects, Patterns, and Practice"
+    note: "PHP 8 Objects, Patterns, and Practice - Matt Zandstra"
   - isbn: "9782409040009"
     note: "Olivier Heurtel - PHP 8 et MySQL (Editions ENI)"

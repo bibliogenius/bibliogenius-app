@@ -15,11 +15,13 @@ description:
   es: 'Novelas históricas imprescindibles. Fuentes: Walter Scott Prize, Historical
     Novel Society.'
 source_url: https://historicalnovelsociety.org/
+cover_url: "https://inventaire.io/img/entities/99a855d726e3a4eaa8c72ebe7349024d74a2ff3e"
 contributor: BiblioGenius
 tags:
 - historique
 - fiction
 - roman
+content_languages: [fr]
 books:
 - isbn: '9782266240369'
   note: Hilary Mantel - Dans l'ombre des Tudors

@@ -16,19 +16,21 @@ description:
   es: "Recursos esenciales para dominar Python, de principiante a experto."
 
 source_url: "https://www.python.org/"
+cover_url: "https://inventaire.io/img/entities/2998dade951d63b9852124c0c552257e6fc97a98"
 contributor: BiblioGenius
 tags: [informatique, programmation, python, backend, data-science]
+content_languages: [en]
 
 books:
   - isbn: "9782212134346"
-    note: "Gérard Swinnen - Apprendre à programmer avec Python 3"
+    note: "Apprendre à programmer avec Python 3 - Gérard Swinnen"
   - isbn: "9781491946008"
-    note: "Luciano Ramalho - Fluent Python (English - Definitive Guide)"
+    note: "Fluent Python - Luciano Ramalho (English - Definitive Guide)"
   - isbn: "9781593279288"
-    note: "Eric Matthes - Python Crash Course (2nd Edition)"
+    note: "Python Crash Course - Eric Matthes (2nd Edition)"
   - isbn: "9781593279929"
-    note: "Al Sweigart - Automate the Boring Stuff with Python (2nd Edition)"
+    note: "Automate the Boring Stuff with Python - Al Sweigart (2nd Edition)"
   - isbn: "9781718501126"
-    note: "Justin Seitz - Black Hat Python (2nd Edition - Security)"
+    note: "Black Hat Python - Justin Seitz (2nd Edition - Security)"
   - isbn: "9780134853987"
-    note: "Brett Slatkin - Effective Python (2nd Edition)"
+    note: "Effective Python - Brett Slatkin (2nd Edition)"

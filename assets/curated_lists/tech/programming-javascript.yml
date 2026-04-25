@@ -16,17 +16,19 @@ description:
   es: "Libros de referencia para el desarrollo moderno de JavaScript."
 
 source_url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript"
+cover_url: "https://inventaire.io/img/entities/adfd0738d95b912bcd430c0fda4b3d8f9530c24a"
 contributor: BiblioGenius
 tags: [informatique, programmation, javascript, web, frontend]
+content_languages: [en]
 
 books:
   - isbn: "9781593279509"
-    note: "Marijn Haverbeke - Eloquent JavaScript (3rd Edition)"
+    note: "Eloquent JavaScript - Marijn Haverbeke (3rd Edition)"
   - isbn: "9781491952023"
-    note: "David Flanagan - JavaScript: The Definitive Guide (7th Edition)"
+    note: "JavaScript: The Definitive Guide - David Flanagan (7th Edition)"
   - isbn: "9780596517748"
-    note: "Douglas Crockford - JavaScript: The Good Parts"
+    note: "JavaScript: The Good Parts - Douglas Crockford"
   - isbn: "9781491904244"
-    note: "Kyle Simpson - You Don't Know JS: Scope & Closures"
+    note: "You Don't Know JS: Scope & Closures - Kyle Simpson"
   - isbn: "9781491904152"
-    note: "Kyle Simpson - You Don't Know JS: Async & Performance"
+    note: "You Don't Know JS: Async & Performance - Kyle Simpson"

@@ -16,8 +16,10 @@ description:
   es: "Obras esenciales del pensamiento feminista. Fuentes: librerías feministas e instituciones culturales."
 
 source_url: "https://www.violetteandco.com/"
+cover_url: "https://inventaire.io/img/entities/c2c7f2211580cbc68fb0ce92fb2f01a3750ec8c2"
 contributor: BiblioGenius
 tags: [féminisme, essai, politique, société]
+content_languages: [fr]
 
 books:
   - isbn: "9782070344420"
@@ -25,18 +27,18 @@ books:
   - isbn: "9782070444656"
     note: "Virginia Woolf - Une chambre à soi (Folio)"
   - isbn: "9782366241624"
-    note: "bell hooks - Ne suis-je pas une femme ? (Sorcières)"
+    note: "Ne suis-je pas une femme ? - bell hooks (Sorcières)"
   - isbn: "9782070468805"
-    note: "Chimamanda Ngozi Adichie - Nous sommes tous des féministes"
+    note: "Nous sommes tous des féministes - Chimamanda Ngozi Adichie"
   - isbn: "9782823610994"
     note: "Rebecca Solnit - Ces hommes qui m'expliquent la vie"
   - isbn: "9782355846984"
     note: "Mona Chollet - Sorcières"
   - isbn: "9782721007131"
-    note: "Kate Millett - La Politique du mâle"
+    note: "La Politique du mâle - Kate Millett"
   - isbn: "9782070449781"
     note: "Annie Ernaux - La Femme gelée"
   - isbn: "9782721007117"
-    note: "Angela Davis - Femmes, race et classe"
+    note: "Femmes, race et classe - Angela Davis"
   - isbn: "9782253122159"
     note: "Virginie Despentes - King Kong Théorie"

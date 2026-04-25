@@ -16,27 +16,29 @@ description:
   es: "Bestsellers de ciencia popular. Fuentes: Royal Society Science Book Prize, New York Times Science."
 
 source_url: "https://royalsociety.org/grants-schemes-awards/book-prizes/science-book-prize/"
+cover_url: "https://inventaire.io/img/entities/7ffeafb330576d21c97cd3504b32202b647c2d33"
 contributor: BiblioGenius
 tags: [science, vulgarisation, non-fiction]
+content_languages: [fr]
 
 books:
   - isbn: "9782081452015"
-    note: "Stephen Hawking - Une brève histoire du temps"
+    note: "Une brève histoire du temps - Stephen Hawking"
   - isbn: "9782738112439"
-    note: "Richard Dawkins - Le Gène égoïste"
+    note: "Le Gène égoïste - Richard Dawkins"
   - isbn: "9782863740750"
-    note: "Carl Sagan - Cosmos"
+    note: "Cosmos - Carl Sagan"
   - isbn: "9782080488312"
-    note: "Neil deGrasse Tyson - L'Univers expliqué aux gens pressés"
+    note: "L'Univers expliqué aux gens pressés - Neil deGrasse Tyson"
   - isbn: "9782228906555"
-    note: "Bill Bryson - Une histoire de tout, ou presque"
+    note: "Une histoire de tout, ou presque - Bill Bryson"
   - isbn: "9782738120229"
     note: "Richard Feynman - Vous voulez rire, Mr. Feynman !"
   - isbn: "9782738133120"
-    note: "Carlo Rovelli - Sept brèves leçons de physique"
+    note: "Sept brèves leçons de physique - Carlo Rovelli"
   - isbn: "9782081375642"
-    note: "Siddhartha Mukherjee - L'Empereur de toutes les maladies"
+    note: "L'Empereur de toutes les maladies - Siddhartha Mukherjee"
   - isbn: "9782081290143"
-    note: "E.O. Wilson - La Conquête sociale de la Terre"
+    note: "La Conquête sociale de la Terre - E.O. Wilson"
   - isbn: "9782757840214"
-    note: "Oliver Sacks - L'Homme qui prenait sa femme pour un chapeau"
+    note: "L'Homme qui prenait sa femme pour un chapeau - Oliver Sacks"

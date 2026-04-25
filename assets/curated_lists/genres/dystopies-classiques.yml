@@ -16,27 +16,29 @@ description:
   es: "Novelas distópicas fundamentales y esenciales. Fuentes: compilaciones universitarias, Goodreads Best Dystopian."
 
 source_url: "https://www.goodreads.com/list/show/47.Best_Dystopian_and_Post_Apocalyptic_Fiction"
+cover_url: "https://inventaire.io/img/entities/a2719726aeb388259c4bf33a829cdc35d35a9737"
 contributor: BiblioGenius
 tags: [dystopie, science-fiction, classiques, anticipation]
+content_languages: [fr]
 
 books:
   - isbn: "9782070463695"
-    note: "George Orwell - 1984"
+    note: "1984 - George Orwell"
   - isbn: "9782266283038"
-    note: "Aldous Huxley - Le Meilleur des mondes"
+    note: "Le Meilleur des mondes - Aldous Huxley"
   - isbn: "9782070415731"
-    note: "Ray Bradbury - Fahrenheit 451"
+    note: "Fahrenheit 451 - Ray Bradbury"
   - isbn: "9782221249949"
-    note: "Margaret Atwood - La Servante écarlate"
+    note: "La Servante écarlate - Margaret Atwood"
   - isbn: "9782330143220"
     note: "Yevgeny Zamyatin - Nous"
   - isbn: "9782757811610"
-    note: "Cormac McCarthy - La Route"
+    note: "La Route - Cormac McCarthy"
   - isbn: "9782290365311"
-    note: "Philip K. Dick - Le Maître du Haut Château"
+    note: "Le Maître du Haut Château - Philip K. Dick"
   - isbn: "9782221198360"
-    note: "Anthony Burgess - Orange mécanique"
+    note: "Orange mécanique - Anthony Burgess"
   - isbn: "9782266260770"
-    note: "Suzanne Collins - Hunger Games"
+    note: "Hunger Games - Suzanne Collins"
   - isbn: "9782211205825"
-    note: "Lois Lowry - Le Passeur"
+    note: "Le Passeur - Lois Lowry"

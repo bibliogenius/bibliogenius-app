@@ -16,14 +16,16 @@ description:
   es: "Clásicos esenciales de la colección Penguin Classics. Fuente: penguin.co.uk"
 
 source_url: "https://www.penguin.co.uk/penguin-classics"
+cover_url: "https://inventaire.io/img/entities/26e1804d32bcee39cf560e29759bdab54a46f2eb"
 contributor: BiblioGenius
 tags: [classiques, canon, littérature-mondiale]
+content_languages: [fr]
 
 books:
   - isbn: "9782070364992"
     note: "Jane Austen - Orgueil et Préjugés"
   - isbn: "9782253004356"
-    note: "Charlotte Brontë - Jane Eyre"
+    note: "Jane Eyre - Charlotte Brontë"
   - isbn: "9782070360703"
     note: "Emily Brontë - Les Hauts de Hurlevent"
   - isbn: "9782070361526"
@@ -31,9 +33,9 @@ books:
   - isbn: "9782742767939"
     note: "Fyodor Dostoïevski - Crime et Châtiment"
   - isbn: "9782253098386"
-    note: "Léon Tolstoï - Anna Karénine"
+    note: "Anna Karénine - Léon Tolstoï"
   - isbn: "9782253017264"
-    note: "Léon Tolstoï - Guerre et Paix"
+    note: "Guerre et Paix - Léon Tolstoï"
   - isbn: "9782070360147"
     note: "Franz Kafka - La Métamorphose"
   - isbn: "9782070305803"
@@ -43,8 +45,8 @@ books:
   - isbn: "9782070366620"
     note: "Miguel de Cervantes - Don Quichotte"
   - isbn: "9782253096337"
-    note: "Victor Hugo - Les Misérables"
+    note: "Les Misérables - Victor Hugo"
   - isbn: "9782020238113"
-    note: "Gabriel García Márquez - Cent ans de solitude"
+    note: "Cent ans de solitude - Gabriel García Márquez"
   - isbn: "9782070362370"
     note: "Virginia Woolf - Mrs Dalloway"

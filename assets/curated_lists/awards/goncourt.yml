@@ -1,6 +1,6 @@
 # Prix Goncourt - Grands classiques
 id: goncourt
-version: 1
+version: 2
 
 title:
   fr: Prix Goncourt - Grands classiques
@@ -17,21 +17,22 @@ description:
 cover_url: "https://covers.openlibrary.org/b/id/8228691-L.jpg"
 contributor: BiblioGenius
 tags: [prix, littérature-française, contemporain]
+content_languages: [fr]
 
 books:
-  - isbn: "9782707306432"
+  - isbn: "9782707306951"
     note: "L'Amant - Marguerite Duras (1984)"
-  - isbn: "9782070788972"
+  - isbn: "9782070780976"
     note: "Les Bienveillantes - Jonathan Littell (2006)"
-  - isbn: "9782253168744"
+  - isbn: "9782253194613"
     note: "Au revoir là-haut - Pierre Lemaitre (2013)"
-  - isbn: "9782072681578"
+  - isbn: "9782072764929"
     note: "Chanson douce - Leïla Slimani (2016)"
-  - isbn: "9782072887598"
+  - isbn: "9782072895098"
     note: "L'Anomalie - Hervé Le Tellier (2020)"
-  - isbn: "9782330053062"
+  - isbn: "9782330053123"
     note: "Boussole - Mathias Énard (2015)"
-  - isbn: "9782021181142"
+  - isbn: "9782757854723"
     note: "Pas pleurer - Lydie Salvayre (2014)"
-  - isbn: "9782290030615"
+  - isbn: "9782290032039"
     note: "La Carte et le Territoire - Michel Houellebecq (2010)"
