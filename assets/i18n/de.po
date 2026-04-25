@@ -8716,3 +8716,91 @@ msgstr "Nachricht senden"
 #. Search peers
 msgid "tooltip_search_peer"
 msgstr "Suchen"
+
+#. Short-hand for an average loan duration below one day (loan statistics card)
+msgid "avg_duration_under_one_day"
+msgstr "< 1 T"
+
+#. Tooltip affiche sur la fiche livre du proprietaire quand l'upload d'une couverture vers le hub a echoue et qu'une nouvelle tentative aura lieu au prochain sync.
+msgid "cover_upload_pending_tooltip"
+msgstr "Cover nicht synchronisiert. Beim nächsten Aktualisieren wird es erneut versucht."
+
+#. Return the borrowed copy before deleting.
+msgid "delete_disabled_borrowed_tooltip"
+msgstr "Gib das geliehene Exemplar zurück, bevor du es löschst."
+
+#. Mark the loaned copy as returned before deleting.
+msgid "delete_disabled_lent_tooltip"
+msgstr "Markiere das verliehene Exemplar als zurückgegeben, bevor du es löschst."
+
+#. Description for the peer cover cache size selector.
+msgid "peer_cover_cache_cap_desc"
+msgstr "Speicherbudget für Cover aus Netzwerkbibliotheken. Ältere Cover werden entfernt, wenn der Speicher voll ist."
+
+#. Label for the peer cover cache size selector.
+msgid "peer_cover_cache_cap"
+msgstr "Maximale Cachegröße"
+
+#. Confirm button of the clear peer cover cache dialog.
+msgid "peer_cover_cache_clear_action"
+msgstr "Leeren"
+
+#. Body of the confirmation dialog shown before clearing the peer cover cache.
+msgid "peer_cover_cache_clear_body"
+msgstr "Dies löscht Cover, die aus Netzwerkbibliotheken heruntergeladen wurden. Cover deiner eigenen Bibliothek sind nicht betroffen."
+
+#. Snackbar shown after the peer cover cache has been cleared.
+msgid "peer_cover_cache_clear_done"
+msgstr "Cover-Cache der Netzwerkbibliotheken geleert"
+
+#. Title of the confirmation dialog shown before clearing the peer cover cache.
+msgid "peer_cover_cache_clear_title"
+msgstr "Cover-Cache der Netzwerkbibliotheken leeren?"
+
+#. Destructive action that empties the peer cover cache directory.
+msgid "peer_cover_cache_clear"
+msgstr "Cover-Cache der Netzwerkbibliotheken leeren"
+
+#. Tooltip for the refresh icon next to the current-usage row.
+msgid "peer_cover_cache_refresh"
+msgstr "Aktualisieren"
+
+#. Title of the current-usage row below the cache size selector.
+msgid "peer_cover_cache_usage_title"
+msgstr "Aktuelle Nutzung"
+
+#. Body of the current-usage row. Format: "X MB of Y MB". {used} and {cap} are replaced at runtime.
+msgid "peer_cover_cache_usage"
+msgstr "{used} MB von {cap} MB"
+
+#. Description for the peer cover display toggle.
+msgid "peer_cover_display_enabled_desc"
+msgstr "Wenn deaktiviert, werden Netzwerkbibliotheken als farbige Buchrücken angezeigt. Es werden keine Cover heruntergeladen oder gespeichert."
+
+#. Toggle that controls whether peer libraries show book covers or fall back to the colored-spine view.
+msgid "peer_cover_display_enabled"
+msgstr "Cover der Netzwerkbibliotheken anzeigen"
+
+#. Settings section header for peer (networked) library cover controls.
+msgid "settings_peer_covers_section"
+msgstr "Cover der Netzwerkbibliotheken"
+
+#. Invite share sheet
+msgid "share_failed"
+msgstr "Teilen fehlgeschlagen. Bitte erneut versuchen."
+
+#. ADR-032: accessibility label for the stale-connection chip
+msgid "stale_connection_badge_a11y"
+msgstr "Verbindung abgelaufen, zum Importieren einer neuen Einladung tippen"
+
+#. ADR-032: short label for the chip on a peer card whose relay token is stale
+msgid "stale_connection_badge_label"
+msgstr "Verbindung abgelaufen"
+
+#. ADR-032: body of the dialog, %s is replaced by the peer name
+msgid "stale_connection_dialog_body"
+msgstr "Die Verbindung zu %s ist abgelaufen. Bitte deinen Kontakt, den Einladungslink erneut zu senden, und tippe ihn in der SMS oder E-Mail an oder scanne den QR-Code."
+
+#. ADR-032: title of the dialog shown after tapping the stale-connection badge
+msgid "stale_connection_dialog_title"
+msgstr "Verbindung abgelaufen"
