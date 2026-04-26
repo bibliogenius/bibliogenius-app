@@ -49,10 +49,20 @@ const _beJson = '''
  [2792196,"Liège","WAL",50.6326,5.5797]]
 ''';
 
-CityRepository _makeRepo(_FakeCityDataSource source, Directory tempDir) {
+const _chJson = '''
+[[2657896,"Zurich","ZH",47.3667,8.5500],
+ [2659811,"Genève","GE",46.2050,6.1429]]
+''';
+
+CityRepository _makeRepo(
+  _FakeCityDataSource source,
+  Directory tempDir, {
+  int memoryCap = 3,
+}) {
   return CityRepository(
     source: source,
     cacheDirResolver: () async => tempDir,
+    memoryCap: memoryCap,
   );
 }
 
@@ -267,6 +277,104 @@ void main() {
           reason:
               'evict must drop the in-memory cache too, otherwise stale '
               'entries would survive a country change');
+    });
+  });
+
+  group('memory cap (LRU)', () {
+    // Bounded RAM cache so a user browsing many country profiles never
+    // accumulates 100+ MB of resident parsed data on a low-end device
+    // (perf policy). Eviction is observed indirectly via the fake
+    // source: a country that has been evicted from memory must re-fetch
+    // when accessed again (its on-disk file is still there but the
+    // re-load goes through _doEnsure which checks _memory first).
+
+    test('drops the least-recently-used country when the cap is exceeded',
+        () async {
+      final source = _FakeCityDataSource(
+        files: {'FR': _frJson, 'BE': _beJson, 'CH': _chJson},
+      );
+      final repo = _makeRepo(source, tempRoot, memoryCap: 2);
+
+      await repo.ensureDownloaded('FR'); // resident: [FR]
+      await repo.ensureDownloaded('BE'); // resident: [FR, BE]
+      await repo.ensureDownloaded('CH'); // resident: [BE, CH]; FR evicted
+
+      // FR's on-disk file still exists, but the parsed list was evicted.
+      // Touching FR again must re-load from disk (no extra network call
+      // because the fake source counts every download attempt).
+      final beforeReload = source.callCount;
+      final results = await repo.search('', 'FR');
+      expect(results, isNotEmpty,
+          reason: 'evicted country must reload transparently from disk');
+      expect(source.callCount, beforeReload,
+          reason: 'evicted-but-on-disk reload must not re-hit the network');
+    });
+
+    test('access promotes a country so it survives the next eviction',
+        () async {
+      final source = _FakeCityDataSource(
+        files: {'FR': _frJson, 'BE': _beJson, 'CH': _chJson},
+      );
+      final repo = _makeRepo(source, tempRoot, memoryCap: 2);
+
+      await repo.ensureDownloaded('FR'); // resident: [FR]
+      await repo.ensureDownloaded('BE'); // resident: [FR, BE]
+      await repo.ensureDownloaded('FR'); // touched: [BE, FR]
+      await repo.ensureDownloaded('CH'); // resident: [FR, CH]; BE evicted
+
+      final beforeFr = source.callCount;
+      await repo.search('par', 'FR');
+      expect(source.callCount, beforeFr,
+          reason: 'FR was touched, so it should still be in memory');
+    });
+  });
+
+  group('country code validation', () {
+    // ADR-035 hardening: a remote-controlled `locationCountry` field could
+    // otherwise carry path traversal ("../../etc") or scheme tricks via the
+    // path/URL segments built from it. Reject anything that isn't strictly
+    // ISO 3166-1 alpha-2 before any I/O happens.
+    // Note: leading/trailing whitespace is intentionally trimmed before
+    // validation, so 'FR ' is treated as 'FR' (a valid code). The list
+    // below is everything that should NOT survive the trim+regex check.
+    final malformed = <String>[
+      '',
+      ' ',
+      'F',
+      'FRA',
+      'F1',
+      '12',
+      'fr/',
+      '../FR',
+      'FR/..',
+      'FR.json',
+    ];
+
+    test('ensureDownloaded rejects malformed codes without I/O', () async {
+      final source = _FakeCityDataSource();
+      final repo = _makeRepo(source, tempRoot);
+      for (final cc in malformed) {
+        final ok = await repo.ensureDownloaded(cc);
+        expect(ok, false, reason: 'should reject "$cc"');
+      }
+      expect(source.callCount, 0,
+          reason: 'no download must be attempted for malformed codes');
+    });
+
+    test('evictCountry no-ops on malformed codes without touching disk',
+        () async {
+      final source = _FakeCityDataSource(files: {'FR': _frJson});
+      final repo = _makeRepo(source, tempRoot);
+      await repo.ensureDownloaded('FR');
+      final cached = File('${tempRoot.path}/FR.json');
+      expect(cached.existsSync(), true);
+
+      for (final cc in malformed) {
+        await repo.evictCountry(cc);
+      }
+
+      expect(cached.existsSync(), true,
+          reason: 'malformed evict must not delete unrelated cached files');
     });
   });
 }

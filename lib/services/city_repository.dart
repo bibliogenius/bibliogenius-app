@@ -22,6 +22,39 @@ import 'package:path_provider/path_provider.dart';
 
 import 'api_service.dart';
 
+/// Strict ISO 3166-1 alpha-2 matcher used to gate every code that becomes a
+/// path segment (disk cache filename) or URL segment (hub static path). A
+/// remote-controlled `locationCountry` field could otherwise carry traversal
+/// or scheme tricks; the closed-list picker never produces invalid values
+/// itself, so callers can rely on this regex as a hard boundary.
+final RegExp _kIso2Country = RegExp(r'^[A-Z]{2}$');
+
+/// Top-level parser dispatched via `compute()` so JSON decoding of large
+/// country files (up to ~10 MB for US, ~200k entries) does not block the
+/// main thread on low-end devices. Must stay self-contained: closures
+/// over CityRepository state would not survive the isolate boundary.
+List<CityRecord> _parseCityFile((String, String) input) {
+  final cc = input.$1;
+  final raw = input.$2;
+  final parsed = jsonDecode(raw);
+  if (parsed is! List) {
+    throw const FormatException('city file root is not a JSON array');
+  }
+  final records = <CityRecord>[];
+  for (final row in parsed) {
+    if (row is! List || row.length < 5) continue;
+    records.add(CityRecord(
+      id: (row[0] as num).toInt(),
+      country: cc,
+      name: row[1] as String,
+      admin1: row[2] as String,
+      latitude: (row[3] as num).toDouble(),
+      longitude: (row[4] as num).toDouble(),
+    ));
+  }
+  return records;
+}
+
 /// One populated place from the GeoNames-derived country file.
 @immutable
 class CityRecord {
@@ -76,6 +109,10 @@ class HubCityDataSource implements CityDataSource {
   @override
   Future<List<int>?> downloadCountry(String country) async {
     final cc = country.toUpperCase();
+    if (!_kIso2Country.hasMatch(cc)) {
+      debugPrint('CityRepository: rejected non-ISO2 country code "$country"');
+      return null;
+    }
     final uri = Uri.parse('$_resolvedBaseUrl/static/cities/$cc.json.gz');
     try {
       final req = await _client.getUrl(uri);
@@ -120,15 +157,26 @@ class CityRepository {
   CityRepository({
     CityDataSource? source,
     Future<Directory> Function()? cacheDirResolver,
+    int memoryCap = _kDefaultMemoryCap,
   })  : _source = source ?? HubCityDataSource(),
-        _cacheDirResolver = cacheDirResolver ?? _defaultCacheDir;
+        _cacheDirResolver = cacheDirResolver ?? _defaultCacheDir,
+        _memoryCap = memoryCap;
+
+  /// Default upper bound on resident country files. The user's own country
+  /// plus a couple recently browsed peers; anything beyond is evicted LRU.
+  /// Bounded RAM keeps low-end Android devices safe (perf policy) without
+  /// hurting the typical "browse a handful of profiles" flow.
+  static const int _kDefaultMemoryCap = 3;
 
   final CityDataSource _source;
   final Future<Directory> Function() _cacheDirResolver;
+  final int _memoryCap;
 
   /// Country code -> parsed records. Populated lazily from disk on the
   /// first lookup, kept in memory for subsequent searches so a typeahead
-  /// over 50k cities stays instantaneous.
+  /// over 50k cities stays instantaneous. LinkedHashMap insertion order
+  /// drives LRU eviction: read paths re-insert via [_touchMemory], writes
+  /// go through [_putMemory] which trims the head when the cap is hit.
   final Map<String, List<CityRecord>> _memory = {};
 
   /// In-flight downloads, keyed by country code. Lets concurrent
@@ -159,17 +207,43 @@ class CityRepository {
     return File('${dir.path}/${country.toUpperCase()}.json');
   }
 
+  /// Promote [cc] to most-recently-used in [_memory]. No-op when absent.
+  /// Called on every read hit so frequently used countries survive the
+  /// LRU trim that runs in [_putMemory].
+  void _touchMemory(String cc) {
+    final list = _memory.remove(cc);
+    if (list != null) {
+      _memory[cc] = list;
+    }
+  }
+
+  /// Insert [records] for [cc] as most-recently-used and evict the
+  /// least-recently-used entries until [_memoryCap] is satisfied. The
+  /// disk cache is independent and unaffected; eviction here only frees
+  /// RAM, the file is still on disk for the next [_doEnsure].
+  void _putMemory(String cc, List<CityRecord> records) {
+    _memory.remove(cc);
+    _memory[cc] = records;
+    while (_memory.length > _memoryCap) {
+      final oldest = _memory.keys.first;
+      _memory.remove(oldest);
+    }
+  }
+
   /// Ensure the country file is on disk and parsed in memory.
   ///
   /// Idempotent and safe to call from any UI lifecycle (app start, country
   /// change, picker open, profile card render). Returns true once data is
-  /// available, false if the hub has no file or the network is down — the
+  /// available, false if the hub has no file or the network is down - the
   /// caller is expected to retry on the next user-driven trigger rather
   /// than block on this.
   Future<bool> ensureDownloaded(String country) async {
     final cc = country.trim().toUpperCase();
-    if (cc.isEmpty) return false;
-    if (_memory.containsKey(cc)) return true;
+    if (!_kIso2Country.hasMatch(cc)) return false;
+    if (_memory.containsKey(cc)) {
+      _touchMemory(cc);
+      return true;
+    }
 
     final pending = _inFlight[cc];
     if (pending != null) return pending;
@@ -211,23 +285,11 @@ class CityRepository {
 
   Future<void> _loadFromFile(String cc, File file) async {
     final raw = await file.readAsString();
-    final parsed = jsonDecode(raw);
-    if (parsed is! List) {
-      throw const FormatException('city file root is not a JSON array');
-    }
-    final records = <CityRecord>[];
-    for (final row in parsed) {
-      if (row is! List || row.length < 5) continue;
-      records.add(CityRecord(
-        id: (row[0] as num).toInt(),
-        country: cc,
-        name: row[1] as String,
-        admin1: row[2] as String,
-        latitude: (row[3] as num).toDouble(),
-        longitude: (row[4] as num).toDouble(),
-      ));
-    }
-    _memory[cc] = records;
+    // Offload JSON decoding + record construction to a worker isolate so
+    // the main thread stays responsive on large country files (perf
+    // policy, ADR-035 §2bis: US is ~10 MB / 200k entries).
+    final records = await compute(_parseCityFile, (cc, raw));
+    _putMemory(cc, records);
   }
 
   /// Search [country]'s city list for [query]. Diacritic-insensitive prefix
@@ -266,7 +328,7 @@ class CityRepository {
   /// Resolve a record by GeoNames id. When [country] is known (e.g. the
   /// remote profile carries a `locationCountry`), the matching country
   /// file is downloaded if missing. When omitted, only already-loaded
-  /// countries are scanned — there is no global GeoNames index, by design
+  /// countries are scanned - there is no global GeoNames index, by design
   /// (ADR-035 §2bis: hub serves no city search endpoint).
   Future<CityRecord?> lookupById(int id, {String? country}) async {
     if (country != null && country.isNotEmpty) {
@@ -293,6 +355,7 @@ class CityRepository {
   /// 250 KB blob around.
   Future<void> evictCountry(String country) async {
     final cc = country.trim().toUpperCase();
+    if (!_kIso2Country.hasMatch(cc)) return;
     _memory.remove(cc);
     try {
       final file = await _fileFor(cc);
