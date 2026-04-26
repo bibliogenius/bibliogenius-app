@@ -4842,6 +4842,10 @@ msgstr "Open city picker"
 msgid "settings_city_no_match"
 msgstr "No matching city."
 
+#. Generic search input placeholder (city picker, country picker, etc.)
+msgid "search"
+msgstr "Search"
+
 #. Quick Presets
 msgid "quick_presets"
 msgstr "Quick Presets"
