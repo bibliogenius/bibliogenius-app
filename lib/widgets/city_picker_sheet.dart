@@ -147,7 +147,7 @@ class _CityPickerSheetState extends State<CityPickerSheet> {
       itemCount: _results.length,
       itemBuilder: (context, index) {
         final r = _results[index];
-        final subtitle = r.admin1.isNotEmpty ? r.admin1 : null;
+        final subtitle = r.subtitle;
         return ListTile(
           title: Text(r.name),
           subtitle: subtitle != null ? Text(subtitle) : null,

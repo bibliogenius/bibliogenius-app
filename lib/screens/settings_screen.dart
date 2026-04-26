@@ -2455,15 +2455,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 (TranslationService.translate(
                                         context, 'settings_city_unknown') ??
                                     'Unknown city');
-                            final admin = snapshot.data?.admin1 ?? '';
-                            final suffix =
-                                admin.isNotEmpty ? ' ($admin)' : '';
-                            return Text(
-                              '$label$suffix',
-                              style: TextStyle(
-                                color: primary,
-                                fontWeight: FontWeight.w600,
-                              ),
+                            final subtitle = snapshot.data?.subtitle;
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  label,
+                                  style: TextStyle(
+                                    color: primary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                if (subtitle != null)
+                                  Text(
+                                    subtitle,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: primary.withValues(alpha: 0.75),
+                                    ),
+                                  ),
+                              ],
                             );
                           },
                         ),

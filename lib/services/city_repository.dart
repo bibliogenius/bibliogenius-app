@@ -33,6 +33,13 @@ final RegExp _kIso2Country = RegExp(r'^[A-Z]{2}$');
 /// country files (up to ~10 MB for US, ~200k entries) does not block the
 /// main thread on low-end devices. Must stay self-contained: closures
 /// over CityRepository state would not survive the isolate boundary.
+///
+/// Accepts two on-disk formats per ADR-036 §4 migration plan:
+///   - Length 8 (current): [id, name, admin1_code, admin1_name,
+///     admin2_code, admin2_name, lat, lon].
+///   - Length 5 (legacy ADR-035): [id, name, admin1_code, lat, lon].
+///     Missing fields default to empty strings; the subtitle getter
+///     gracefully falls back to the bare code.
 List<CityRecord> _parseCityFile((String, String) input) {
   final cc = input.$1;
   final raw = input.$2;
@@ -43,13 +50,32 @@ List<CityRecord> _parseCityFile((String, String) input) {
   final records = <CityRecord>[];
   for (final row in parsed) {
     if (row is! List || row.length < 5) continue;
+    final String admin1Code = row[2] as String;
+    String admin1Name = '';
+    String admin2Code = '';
+    String admin2Name = '';
+    final double latitude;
+    final double longitude;
+    if (row.length >= 8) {
+      admin1Name = row[3] as String;
+      admin2Code = row[4] as String;
+      admin2Name = row[5] as String;
+      latitude = (row[6] as num).toDouble();
+      longitude = (row[7] as num).toDouble();
+    } else {
+      latitude = (row[3] as num).toDouble();
+      longitude = (row[4] as num).toDouble();
+    }
     records.add(CityRecord(
       id: (row[0] as num).toInt(),
       country: cc,
       name: row[1] as String,
-      admin1: row[2] as String,
-      latitude: (row[3] as num).toDouble(),
-      longitude: (row[4] as num).toDouble(),
+      admin1Code: admin1Code,
+      admin1Name: admin1Name,
+      admin2Code: admin2Code,
+      admin2Name: admin2Name,
+      latitude: latitude,
+      longitude: longitude,
     ));
   }
   return records;
@@ -66,10 +92,22 @@ class CityRecord {
   final String country;
   final String name;
 
-  /// GeoNames admin1 code (e.g. "11" for Paris in France). Useful for
-  /// disambiguating namesakes in the picker (`Saint-Denis (93)` vs
-  /// `Saint-Denis (974)`).
-  final String admin1;
+  /// GeoNames admin1 code (region in FR / state in US). Empty when the
+  /// row is the legacy ADR-035 5-element format.
+  final String admin1Code;
+
+  /// Localized admin1 name resolved at build time from
+  /// admin1CodesASCII.txt. Empty in the ADR-035 legacy format or when
+  /// GeoNames has no name for the code.
+  final String admin1Name;
+
+  /// GeoNames admin2 code (département in FR / county in US). Empty
+  /// when GeoNames has no admin2 for the row, or in legacy format.
+  final String admin2Code;
+
+  /// Localized admin2 name resolved at build time from admin2Codes.txt.
+  final String admin2Name;
+
   final double latitude;
   final double longitude;
 
@@ -77,10 +115,34 @@ class CityRecord {
     required this.id,
     required this.country,
     required this.name,
-    required this.admin1,
+    required this.admin1Code,
+    required this.admin1Name,
+    required this.admin2Code,
+    required this.admin2Name,
     required this.latitude,
     required this.longitude,
   });
+
+  /// Picker subtitle line per ADR-036 §3: admin2 if present, fall back
+  /// to admin1, last-resort fall back to the bare admin1 code so the
+  /// legacy on-disk cache (5-element rows) still gives the user some
+  /// disambiguation hint until the country file is re-downloaded.
+  String? get subtitle {
+    if (admin2Name.isNotEmpty) {
+      return admin2Code.isNotEmpty
+          ? '$admin2Name ($admin2Code)'
+          : admin2Name;
+    }
+    if (admin1Name.isNotEmpty) {
+      return admin1Code.isNotEmpty
+          ? '$admin1Name ($admin1Code)'
+          : admin1Name;
+    }
+    if (admin1Code.isNotEmpty) {
+      return admin1Code;
+    }
+    return null;
+  }
 }
 
 /// Source of raw country file bytes. The production implementation hits
