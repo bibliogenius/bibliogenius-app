@@ -77,7 +77,7 @@ const String _kShareCityKey = 'hub_share_city';
 /// SharedPreferences key: GeoNames id the user picked locally. This is the
 /// app's display truth ("your current city: Paris") and what is sent on the
 /// next [syncLocationCityId]. The hub mirror lives in `library_profiles.
-/// location_city_id`. We do NOT re-fetch it from the hub at app start —
+/// location_city_id`. We do NOT re-fetch it from the hub at app start -
 /// the picker writes here and the network is updated as a side effect.
 const String _kLocalLocationCityIdKey = 'hub_local_location_city_id';
 
@@ -203,7 +203,7 @@ class HubDirectoryProvider extends ChangeNotifier {
 
   void _onNudgeEvent(FrbNudgeEvent _) {
     if (!_hubEnabled || !isRegistered) return;
-    // A hub nudge is generic — we cannot tell whether it was caused by an
+    // A hub nudge is generic - we cannot tell whether it was caused by an
     // incoming follow request, an incoming borrow, or an update to our own
     // follows (e.g. another library just approved our pending request). Refresh
     // all three lightweight lists so every state transition surfaces without a
@@ -293,7 +293,7 @@ class HubDirectoryProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Persist the share-city toggle. Does NOT push the change to the hub —
+  /// Persist the share-city toggle. Does NOT push the change to the hub -
   /// callers must follow up with [syncLocationCityId] (passing the picked
   /// id when enabling, `null` when disabling) so the hub state matches the
   /// local intent. Splitting the two concerns keeps this setter cheap and
@@ -323,7 +323,7 @@ class HubDirectoryProvider extends ChangeNotifier {
 
   /// Persist the locally picked city id. Pass `null` to clear it. The caller
   /// is expected to follow up with [syncLocationCityId] so the hub mirror
-  /// matches the local state — same split-of-concerns as [setShareCity].
+  /// matches the local state - same split-of-concerns as [setShareCity].
   Future<void> setLocalCityId(int? id) async {
     _localCityId = (id != null && id > 0) ? id : null;
     final prefs = await SharedPreferences.getInstance();
@@ -553,6 +553,11 @@ class HubDirectoryProvider extends ChangeNotifier {
     _initSyncing = true;
     try {
       debugPrint('HubDirectory: initAndSyncCatalog starting');
+      // Local UI state lives in SharedPreferences and is independent of the
+      // hub config. Load eagerly so consumers reading from the provider on
+      // a cold start (e.g. network screen empty-state CTA) see the real
+      // values even before settings_screen has been opened.
+      await Future.wait([loadShareCity(), loadLocalCityId()]);
       await loadConfig();
       debugPrint('HubDirectory: config loaded, isRegistered=$isRegistered');
       if (!isRegistered) {
@@ -1430,7 +1435,7 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// tab, where a browsing user can opt in without going through Settings.
   ///
   /// Steps (atomic from the user's perspective):
-  ///  1. [setHubEnabled](true) — unlocks hub features locally.
+  ///  1. [setHubEnabled](true) - unlocks hub features locally.
   ///  2. Register on the hub with `isListed: true` (re-uses 401 recovery).
   ///  3. Publish relay credentials so followers can reach us.
   ///  4. Push the ISBN catalog so new followers see books immediately.
@@ -1438,7 +1443,7 @@ class HubDirectoryProvider extends ChangeNotifier {
   ///
   /// Returns `true` when the hub register succeeded. Catalog push + relay
   /// publish happen best-effort on success (same pattern as
-  /// [initAndSyncCatalog]) — they retry automatically via the existing
+  /// [initAndSyncCatalog]) - they retry automatically via the existing
   /// sync cycle if they fail.
   Future<bool> enableAndPublish({
     required String displayName,

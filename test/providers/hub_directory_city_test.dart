@@ -213,7 +213,7 @@ void main() {
       expect(ffi.registerCallCount, 1);
       expect(ffi.registerParamsLog.single.locationCityId, isNull,
           reason:
-              'A null payload is the explicit "stop sharing my city" intent — '
+              'A null payload is the explicit "stop sharing my city" intent - '
               'the hub mirrors it by setting location_city_id NULL.');
     });
 
@@ -380,6 +380,50 @@ void main() {
       final prefs = await SharedPreferences.getInstance();
       expect(prefs.containsKey('hub_pending_location_city_id'), false,
           reason: 'corrupt pending value must be removed, not retried forever');
+    });
+  });
+
+  group('initAndSyncCatalog loads local city UI state', () {
+    // Cold-start guard: a user who already opted into share-city in a
+    // previous session must see the right state when the network screen
+    // builds before they ever open settings. Without provider-side
+    // eager-load, isShareCityEnabled defaulted to false and the empty-
+    // state CTA wrongly invited a redundant opt-in.
+
+    test('reads hub_share_city + hub_local_location_city_id from prefs',
+        () async {
+      SharedPreferences.setMockInitialValues({
+        'hub_directory_enabled': true,
+        'libraryName': 'TestLib',
+        'languageCode': 'en',
+        'hub_share_city': true,
+        'hub_local_location_city_id': 2988507,
+      });
+      AuthService.storage = MockSecureStorage();
+
+      // Build a raw provider WITHOUT the _createProvider pre-loads, so
+      // the only thing populating UI state is initAndSyncCatalog.
+      final ffi = _MockFfiService()..existingConfig = _config();
+      final provider = HubDirectoryProvider(
+        ffi: ffi,
+        deviceService: _MockDeviceService(),
+      )
+        ..relayRetryDelay = Duration.zero
+        ..relayCooldown = Duration.zero;
+
+      // Pre-conditions: defaults until init runs.
+      expect(provider.isShareCityEnabled, false);
+      expect(provider.localCityId, null);
+
+      await provider.initAndSyncCatalog();
+
+      expect(provider.isShareCityEnabled, true,
+          reason:
+              'initAndSyncCatalog must hydrate the share-city toggle so '
+              'consumers reading from the provider on cold start see the '
+              'persisted value, not the default false.');
+      expect(provider.localCityId, 2988507,
+          reason: 'same hydration must apply to the locally picked city id');
     });
   });
 }
