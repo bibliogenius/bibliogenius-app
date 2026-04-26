@@ -3,7 +3,7 @@
 // Loads the country file via [CityRepository] (lazy download on first
 // use), debounces user input, and pops the chosen [CityRecord] back to
 // the caller. Used by both the settings "share my city" picker and the
-// network screen filter picker — extracted into widgets/ so the two
+// network screen filter picker - extracted into widgets/ so the two
 // share the same UX, accessibility, and download lifecycle.
 
 import 'dart:async';

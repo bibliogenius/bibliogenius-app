@@ -19,7 +19,7 @@ Future<String> initBackend({required String dbPath}) =>
 
 /// Pass the hub URL from Flutter to the Rust process environment.
 /// Must be called once after init_backend, before any hub_directory calls.
-/// Rust reads HUB_URL via std::env::var — it cannot see Flutter's dotenv map.
+/// Rust reads HUB_URL via std::env::var - it cannot see Flutter's dotenv map.
 ///
 /// The .env value is only a default: if a relay has been configured (persisted
 /// in `my_relay_config`), its URL takes precedence so the hub directory and
@@ -409,11 +409,11 @@ Future<int> startServer({required int port}) =>
 /// Attempt a delta sync against a peer via E2EE (ADR-029).
 ///
 /// Returns `true` when a delta window was successfully fetched and applied
-/// to `peer_books` — the caller should SKIP the legacy
+/// to `peer_books` - the caller should SKIP the legacy
 /// `relay_library_request("manifest")` loop and simply re-read the local
 /// cache. Returns `false` on any non-applied outcome
 /// (`ResetRequired`, `FallbackRequired`, `E2eeUnavailable`, transport
-/// error) — the caller should run the legacy full-catalog flow as before.
+/// error) - the caller should run the legacy full-catalog flow as before.
 ///
 /// Designed to be called from the Flutter `subscribe_catalog_changes`
 /// handler before triggering a full sync, so the delta path replaces the
@@ -467,7 +467,7 @@ Future<void> setPeerDeltaCursor({
 /// Trust model: only call this with a `new_uuid` read from an ENVELOPE
 /// that successfully verified against `peers.public_key` (ed25519). The
 /// signature check on that path is what binds the uuid to the peer identity
-/// — skipping it would let any relay forwarder inject an arbitrary uuid.
+/// - skipping it would let any relay forwarder inject an arbitrary uuid.
 /// `peer_book` rows are intentionally left untouched: they key on
 /// `peer_id`, not `library_uuid`, and the enclosing manifest sync pass is
 /// already about to refresh them via upsert (a premature purge would flash
@@ -685,7 +685,7 @@ Future<FrbLeaderboardResponse> gamificationGetLeaderboard() =>
     RustLib.instance.api.crateApiFrbGamificationGetLeaderboard();
 
 /// Refresh leaderboard (returns current state) via FFI.
-/// Peer sync happens via the HTTP endpoint — this just returns current data.
+/// Peer sync happens via the HTTP endpoint - this just returns current data.
 Future<FrbLeaderboardResponse> gamificationRefreshLeaderboard() =>
     RustLib.instance.api.crateApiFrbGamificationRefreshLeaderboard();
 
@@ -1180,7 +1180,7 @@ sealed class FrbBook with _$FrbBook {
 }
 
 /// Metadata fetched from external sources for a book refresh.
-/// Each field is optional — only non-null fields have data from the source.
+/// Each field is optional - only non-null fields have data from the source.
 @freezed
 sealed class FrbBookMetadata with _$FrbBookMetadata {
   const factory FrbBookMetadata({

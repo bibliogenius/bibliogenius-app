@@ -1,6 +1,6 @@
 // Renders the country + (optional) city label for a public-directory
 // profile (ADR-035 Phase 1). City resolution is asynchronous because
-// the publisher's country file may not be cached locally yet — the
+// the publisher's country file may not be cached locally yet - the
 // widget kicks off a lazy download via [CityRepository] and falls back
 // to country-only text while it's pending.
 //
@@ -79,7 +79,7 @@ class _HubLocationLabelState extends State<HubLocationLabel> {
     return FutureBuilder<CityRecord?>(
       future: _lookup,
       builder: (context, snapshot) {
-        // While loading or on miss, show the country alone — the screen
+        // While loading or on miss, show the country alone - the screen
         // never has to deal with a flicker from an empty placeholder.
         final city = snapshot.data?.name;
         final label = city == null ? cc : '$cc · $city';
