@@ -2444,6 +2444,11 @@ class _DiscoverViewState extends State<_DiscoverView> {
             provider.hasMore) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             provider.loadDirectory();
+            // Probe the user own city in parallel so the same-city banner
+            // appears with the directory rather than after a delay.
+            // Idempotent and short-circuited inside the provider when the
+            // user has not picked a city.
+            provider.loadSameCityHighlight();
           });
         }
 
@@ -2458,6 +2463,10 @@ class _DiscoverViewState extends State<_DiscoverView> {
             // First-time onboarding banner (one-way relationship explainer)
             if (!provider.isDirectoryOnboardingSeen)
               _DirectoryOnboardingBanner(provider: provider),
+            // V1 same-city highlight: nudges the user to filter on their own
+            // city when at least one peer is there (provider gates visibility).
+            if (provider.shouldShowSameCityBanner)
+              SameCityBanner(provider: provider),
             // Search + filter row
             Padding(
               padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
@@ -3742,6 +3751,110 @@ class _DirectoryOnboardingBanner extends StatelessWidget {
                     ),
                   ),
                 ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Same-city highlight banner (V1 of public-directory-geo feature)
+// ---------------------------------------------------------------------------
+
+/// Banner shown above the public directory list when at least one peer is
+/// in the user own city. Tapping the action applies the existing country +
+/// city filter so the rest of the screen behaves as if the user had picked
+/// the same combination from the filter sheet.
+///
+/// Visibility is fully driven by [HubDirectoryProvider.shouldShowSameCityBanner]
+/// so this widget is self-contained: callers just `if (provider.shouldShowSameCityBanner)`
+/// guard the build.
+///
+/// Public (no leading underscore) only so widget tests can build it in
+/// isolation without bootstrapping the full NetworkScreen tree. Treat it as
+/// internal to this file - no other screen should import it.
+class SameCityBanner extends StatelessWidget {
+  final HubDirectoryProvider provider;
+
+  const SameCityBanner({super.key, required this.provider});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final count = provider.sameCityCount ?? 0;
+    final hasMore = provider.sameCityHasMore;
+
+    final String labelKey;
+    final int displayValue;
+    if (hasMore) {
+      // Saturated: "10+ libraries in your city". %d is the cap, not the raw
+      // payload length, so the wording is stable regardless of how many
+      // peers actually exist past the cap.
+      labelKey = 'directory_same_city_banner_more_than';
+      displayValue = count;
+    } else if (count == 1) {
+      labelKey = 'directory_same_city_banner_one';
+      displayValue = 1;
+    } else {
+      labelKey = 'directory_same_city_banner_other';
+      displayValue = count;
+    }
+
+    final label = TranslationService.translate(context, labelKey)
+        .replaceAll('%d', '$displayValue');
+    final actionLabel =
+        TranslationService.translate(context, 'directory_same_city_view_action');
+    final actionTooltip = TranslationService.translate(
+        context, 'directory_same_city_view_tooltip');
+
+    return Semantics(
+      // Container label so screen readers announce the banner's purpose,
+      // then the inner button announces itself separately as a control.
+      label: label,
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(12, 12, 12, 4),
+        padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
+        decoration: BoxDecoration(
+          color: cs.tertiaryContainer.withValues(alpha: 0.5),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: cs.tertiary.withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Icon(Icons.location_city, color: cs.tertiary, size: 20),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                label,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: cs.onTertiaryContainer,
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            TextButton(
+              onPressed: () {
+                final cityId = provider.localCityId;
+                if (cityId == null) return;
+                provider.loadDirectory(
+                  country: provider.sameCityCountryHint,
+                  cityId: cityId,
+                );
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: cs.tertiary,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: Tooltip(
+                message: actionTooltip,
+                child: Text(actionLabel),
               ),
             ),
           ],

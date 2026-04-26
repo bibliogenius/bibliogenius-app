@@ -7821,6 +7821,31 @@ msgstr "Effacer le filtre"
 msgid "directory_filter_by_location_a11y"
 msgstr "Filtrer l'annuaire par cette localisation"
 
+#. Banner shown above the public directory when the user has registered their
+#. city and at least one peer is in the same city (V1 same-city highlight).
+#. Singular form, used when exactly 1 peer is in the user city.
+msgid "directory_same_city_banner_one"
+msgstr "Il y a 1 bibliothèque dans votre ville"
+
+#. Plural form of the same-city banner. %d is replaced with the visible count
+#. (capped at 10). Used for 2 to 10 peers.
+msgid "directory_same_city_banner_other"
+msgstr "Il y a %d bibliothèques dans votre ville"
+
+#. Saturated form of the same-city banner, used when more than 10 peers
+#. share the user city. %d is replaced with the cap (10), so the rendered
+#. text reads "plus de 10 bibliothèques".
+msgid "directory_same_city_banner_more_than"
+msgstr "Il y a plus de %d bibliothèques dans votre ville"
+
+#. Action button on the same-city banner; applies the existing city filter.
+msgid "directory_same_city_view_action"
+msgstr "Voir"
+
+#. Tooltip on the same-city banner action button (RGAA A1, A4).
+msgid "directory_same_city_view_tooltip"
+msgstr "Filtrer l'annuaire sur les bibliothèques de votre ville"
+
 msgid "directory_following_empty"
 msgstr "Vous ne suivez encore aucune bibliothèque. Utilisez l'onglet Découvrir pour commencer."
 

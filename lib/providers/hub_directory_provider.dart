@@ -16,6 +16,13 @@ import '../src/rust/api/frb.dart' show FrbNudgeEvent, subscribeRelayNudges;
 /// Page size for directory listing.
 const int _kPageSize = 20;
 
+/// Visible cap for the "libraries in your city" banner. The probe fetches
+/// `cap + 1` so the UI can switch from a precise count ("7 libraries") to a
+/// saturated label ("10+ libraries") without paying for a second request.
+/// Bounded payload keeps the per-app-start cost tiny on slow networks
+/// (perf policy: low-end devices, intermittent connectivity).
+const int _kSameCityCap = 10;
+
 /// Max retry attempts for relay credential publishing.
 const int _kRelayPublishMaxAttempts = 3;
 
@@ -324,6 +331,10 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// Persist the locally picked city id. Pass `null` to clear it. The caller
   /// is expected to follow up with [syncLocationCityId] so the hub mirror
   /// matches the local state - same split-of-concerns as [setShareCity].
+  ///
+  /// Re-runs the same-city highlight probe so the banner count and the
+  /// "Voir" CTA stay in sync with the new city (or clear when the user
+  /// removes their city).
   Future<void> setLocalCityId(int? id) async {
     _localCityId = (id != null && id > 0) ? id : null;
     final prefs = await SharedPreferences.getInstance();
@@ -333,6 +344,7 @@ class HubDirectoryProvider extends ChangeNotifier {
       await prefs.setInt(_kLocalLocationCityIdKey, _localCityId!);
     }
     notifyListeners();
+    await loadSameCityHighlight();
   }
 
   // ── Config ───────────────────────────────────────────────────────────────
@@ -432,6 +444,94 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// screen to render the "clear filter" chip and the contextual empty state.
   bool get hasActiveLocationFilter =>
       _filterCountry != null || _filterCityId != null;
+
+  // ── Same-city highlight (banner) ────────────────────────────────────────
+
+  /// Up to `_kSameCityCap` profiles located in the user own city. Populated
+  /// by [loadSameCityHighlight], excluding the user own profile so the count
+  /// never gets inflated by self.
+  List<HubProfile> _sameCityProfiles = const [];
+
+  /// True when the same-city probe returned more than `_kSameCityCap`
+  /// matches (the `+1` sentinel of the fetch), so the UI switches its
+  /// label from "X libraries" to "10+ libraries".
+  bool _sameCityHasMore = false;
+
+  List<HubProfile> get sameCityProfiles => _sameCityProfiles;
+
+  bool get sameCityHasMore => _sameCityHasMore;
+
+  /// Visible count for the banner: the post-self-filter profile count,
+  /// capped at `_kSameCityCap`. Returns `null` when the user has not picked
+  /// a city yet, so the UI can short-circuit rendering.
+  int? get sameCityCount {
+    if (_localCityId == null) return null;
+    final visible = _sameCityProfiles.length;
+    return visible > _kSameCityCap ? _kSameCityCap : visible;
+  }
+
+  /// Country code of the first same-city profile, used by the "Voir" CTA
+  /// to apply the existing country+city filter pair (mirrors how the city
+  /// picker calls [loadDirectory]). Derived from the probe response so we
+  /// avoid carrying a second source of truth alongside [_localCityId].
+  String? get sameCityCountryHint =>
+      _sameCityProfiles.isEmpty ? null : _sameCityProfiles.first.locationCountry;
+
+  /// Banner visibility rule. Hidden when:
+  /// - The user has not picked a city (legacy / fresh install).
+  /// - No peer matches the user city (lone library in town).
+  /// - The location filter is already targeting that city (the banner
+  ///   would just duplicate the active-filter chip).
+  bool get shouldShowSameCityBanner {
+    if (_localCityId == null) return false;
+    if (_sameCityProfiles.isEmpty) return false;
+    if (_filterCityId == _localCityId) return false;
+    return true;
+  }
+
+  /// Probe the hub for libraries in the user own city. Exposes a small
+  /// preview slice (`_kSameCityCap` + 1) used purely to feed the banner -
+  /// the main directory list stays driven by [loadDirectory] / pagination.
+  ///
+  /// Idempotent and silent: a hub blip clears the slice instead of
+  /// surfacing an error, so the banner just disappears until the next
+  /// successful refresh.
+  Future<void> loadSameCityHighlight() async {
+    final cityId = _localCityId;
+    if (cityId == null) {
+      if (_sameCityProfiles.isNotEmpty || _sameCityHasMore) {
+        _sameCityProfiles = const [];
+        _sameCityHasMore = false;
+        notifyListeners();
+      }
+      return;
+    }
+
+    try {
+      final batch = await _ffi.hubDirectoryList(
+        limit: _kSameCityCap + 1,
+        offset: 0,
+        cityId: cityId,
+      );
+      final ownNodeId = _config?.nodeId;
+      final filtered = batch
+          .map(HubProfile.fromFrb)
+          .where((p) => p.nodeId != ownNodeId)
+          .toList(growable: false);
+      _sameCityHasMore = filtered.length > _kSameCityCap;
+      _sameCityProfiles = _sameCityHasMore
+          ? filtered.sublist(0, _kSameCityCap)
+          : filtered;
+      notifyListeners();
+    } catch (e) {
+      debugPrint('HubDirectoryProvider loadSameCityHighlight error: $e');
+      if (_sameCityProfiles.isNotEmpty || _sameCityHasMore) {
+        _sameCityProfiles = const [];
+        _sameCityHasMore = false;
+        notifyListeners();
+      }
+    }
+  }
 
   // ── Follow relationships ──────────────────────────────────────────────────
 
