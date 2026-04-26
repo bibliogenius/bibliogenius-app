@@ -2503,9 +2503,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
       builder: (sheetCtx) => CityPickerSheet(country: country),
     );
     if (picked == null) return;
-    await hub.setLocalCityId(picked.id);
+    // The picked CityRecord knows its country - thread it through both
+    // calls so the hub upsert always carries the (city, country) pair.
+    // Without this, the city was pushed alone and the hub-stored country
+    // could stay NULL, silently excluding this profile from the
+    // country+city directory filter (asymmetry observed iPhone-vs-Mac).
+    await hub.setLocalCityId(picked.id, country: picked.country);
     try {
-      await hub.syncLocationCityId(picked.id);
+      await hub.syncLocationCityId(picked.id, country: picked.country);
     } catch (e) {
       debugPrint('Hub locationCityId update failed: $e');
     }

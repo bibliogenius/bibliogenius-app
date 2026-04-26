@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/avatar_config.dart';
 import '../models/hub_directory.dart';
 import '../services/auth_service.dart';
+import '../services/city_repository.dart';
 import '../services/device_service.dart';
 import '../services/ffi_service.dart';
 import '../services/translation_service.dart';
@@ -88,10 +89,43 @@ const String _kShareCityKey = 'hub_share_city';
 /// the picker writes here and the network is updated as a side effect.
 const String _kLocalLocationCityIdKey = 'hub_local_location_city_id';
 
+/// SharedPreferences key: alpha-2 country code that the picker resolved for
+/// [_kLocalLocationCityIdKey]. Denormalized on purpose: the country is a
+/// property of the city, but storing it locally lets the cold-start
+/// remediation pass derive the (city, country) pair without requiring the
+/// CityRepository to have already loaded the right country file. Cleared
+/// in lockstep with the city id so the two never drift.
+const String _kLocalLocationCityCountryKey =
+    'hub_local_location_city_country';
+
+/// SharedPreferences key: country code (alpha-2) the user implicitly selected
+/// by picking their city. Stored alongside [_kPendingLocationCityIdKey] so
+/// [_consumePendingLocationCityId] can replay both fields in the same hub
+/// register call. Distinct from [_kPendingLocationCountryKey] which is the
+/// independent country picker pending state. Empty / absent: replay falls
+/// back to a CityRepository lookup.
+const String _kPendingLocationCityCountryKey =
+    'hub_pending_location_city_country';
+
+/// SharedPreferences keys: snapshot of the last successful (cityId, country)
+/// pair pushed to the hub. Used by the init-time remediation pass to detect
+/// drift (e.g. legacy installs that registered city without country) and
+/// re-push exactly once until the hub state matches the local intent.
+const String _kLastPushedLocationCityIdKey =
+    'hub_last_pushed_location_city_id';
+const String _kLastPushedLocationCityCountryKey =
+    'hub_last_pushed_location_city_country';
+
+/// Pluggable city lookup so tests can stub the resolution without bringing
+/// the full [CityRepository] (which depends on disk + network). Production
+/// uses [CityRepository.shared().lookupById].
+typedef CityLookup = Future<CityRecord?> Function(int id, {String? country});
+
 class HubDirectoryProvider extends ChangeNotifier {
   final FfiService _ffi;
   final DeviceService _deviceService;
   final AuthService _authService;
+  final CityLookup _lookupCity;
 
   /// Retry delay between relay publish attempts. Override in tests.
   @visibleForTesting
@@ -105,9 +139,12 @@ class HubDirectoryProvider extends ChangeNotifier {
     FfiService? ffi,
     DeviceService? deviceService,
     AuthService? authService,
+    CityLookup? lookupCity,
   })  : _ffi = ffi ?? FfiService(),
         _deviceService = deviceService ?? DeviceService(),
-        _authService = authService ?? AuthService();
+        _authService = authService ?? AuthService(),
+        _lookupCity =
+            lookupCity ?? CityRepository.shared().lookupById;
 
   // ── Custom follow display names ──────────────────────────────────────────
 
@@ -328,23 +365,42 @@ class HubDirectoryProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Persist the locally picked city id. Pass `null` to clear it. The caller
-  /// is expected to follow up with [syncLocationCityId] so the hub mirror
-  /// matches the local state - same split-of-concerns as [setShareCity].
+  /// Persist the locally picked city id. Pass `null` to clear it. The
+  /// optional [country] is the alpha-2 code that the picker resolved
+  /// alongside the city - it has no separate local storage (the city is
+  /// the single source of truth) but it is forwarded to
+  /// [syncLocationCityId] / the pending storage so the hub upsert never
+  /// drops the country when it gets a new city.
   ///
   /// Re-runs the same-city highlight probe so the banner count and the
   /// "Voir" CTA stay in sync with the new city (or clear when the user
   /// removes their city).
-  Future<void> setLocalCityId(int? id) async {
+  Future<void> setLocalCityId(int? id, {String? country}) async {
     _localCityId = (id != null && id > 0) ? id : null;
     final prefs = await SharedPreferences.getInstance();
     if (_localCityId == null) {
       await prefs.remove(_kLocalLocationCityIdKey);
+      await prefs.remove(_kLocalLocationCityCountryKey);
     } else {
       await prefs.setInt(_kLocalLocationCityIdKey, _localCityId!);
+      final trimmedCountry = country?.trim();
+      if (trimmedCountry != null && trimmedCountry.isNotEmpty) {
+        await prefs.setString(
+          _kLocalLocationCityCountryKey,
+          trimmedCountry.toUpperCase(),
+        );
+      }
+      // Intentionally do NOT remove the country key when [country] is
+      // null: the previously stored value is the best hint we have for
+      // the cold-start remediation pass, and the city/country pair is
+      // never updated to a contradicting one (cities never move).
     }
     notifyListeners();
     await loadSameCityHighlight();
+    // Note: this method intentionally does NOT push to the hub. The caller
+    // (settings city picker) follows up with [syncLocationCityId] passing
+    // the same [country] so a single user gesture results in a single
+    // hub upsert that carries both fields.
   }
 
   // ── Config ───────────────────────────────────────────────────────────────
@@ -524,12 +580,14 @@ class HubDirectoryProvider extends ChangeNotifier {
           : filtered;
       notifyListeners();
     } catch (e) {
+      // Transient errors (network blip, hub mid-write during a cross-device
+      // sync, etc.) must NOT clear the last-known-good state - that caused
+      // the banner to flicker between iPhone / Mac while one peer was still
+      // syncing. The state stays on the most recent successful response
+      // until the next successful response replaces it. A genuinely empty
+      // hub answer (peer left the directory) is a *successful* response
+      // and goes through the path above, where it correctly clears.
       debugPrint('HubDirectoryProvider loadSameCityHighlight error: $e');
-      if (_sameCityProfiles.isNotEmpty || _sameCityHasMore) {
-        _sameCityProfiles = const [];
-        _sameCityHasMore = false;
-        notifyListeners();
-      }
     }
   }
 
@@ -677,6 +735,10 @@ class HubDirectoryProvider extends ChangeNotifier {
         await _consumePendingLocationCountry();
         // Same replay for a deferred city pick / clear (ADR-035 Phase 1).
         await _consumePendingLocationCityId();
+        // Heal pre-fix installs where the city was pushed without its
+        // country, leaving the hub-stored country NULL and silently
+        // excluding the profile from country+city directory filters.
+        await ensureLocationCityCountryConsistency();
         syncCatalogIfDirty();
         // Start listening for relay nudges so incoming follow/borrow events
         // refresh instantly instead of waiting for the next polling cycle.
@@ -726,6 +788,7 @@ class HubDirectoryProvider extends ChangeNotifier {
       final deviceModel = await _deviceService.getDeviceModel();
       final deviceFingerprint = await _deviceService.getDeviceFingerprint();
       final appVersion = await _deviceService.getAppVersion();
+      final loc = await _currentLocationForRegister();
 
       if (kDebugMode) {
         debugPrint('HubDirectory: publishing relay credentials to hub '
@@ -739,6 +802,12 @@ class HubDirectoryProvider extends ChangeNotifier {
         requiresApproval: cfg.requiresApproval,
         acceptFrom: cfg.acceptFrom,
         allowBorrowing: cfg.allowBorrowing,
+        // Re-assert location: this method runs on every cold start (and
+        // on retry) - omitting cityId would silently wipe the user's city
+        // each time, which production logs caught as the root cause of
+        // the disappearing same-city banner.
+        locationCountry: loc.country,
+        locationCityId: loc.cityId,
         x25519PublicKey: x25519Key,
         deviceModel: deviceModel,
         deviceFingerprint: deviceFingerprint,
@@ -823,6 +892,7 @@ class HubDirectoryProvider extends ChangeNotifier {
     final deviceFingerprint = await _deviceService.getDeviceFingerprint();
     final appVersion = await _deviceService.getAppVersion();
     final relay = await _getRelayCredentials();
+    final loc = await _currentLocationForRegister();
 
     return register(
       nodeId: cfg.nodeId,
@@ -832,6 +902,11 @@ class HubDirectoryProvider extends ChangeNotifier {
       requiresApproval: cfg.requiresApproval,
       acceptFrom: cfg.acceptFrom,
       allowBorrowing: cfg.allowBorrowing,
+      // Re-assert location: the Rust serializer always emits cityId, so
+      // omitting it here would wipe the user's city on the hub on every
+      // rename. Country is preserved when null (Rust omits null country).
+      locationCountry: loc.country,
+      locationCityId: loc.cityId,
       x25519PublicKey: x25519Key,
       deviceModel: deviceModel,
       deviceFingerprint: deviceFingerprint,
@@ -929,6 +1004,7 @@ class HubDirectoryProvider extends ChangeNotifier {
     final appVersion = await _deviceService.getAppVersion();
     final relay = await _getRelayCredentials();
 
+    final loc = await _currentLocationForRegister();
     return register(
       nodeId: cfg.nodeId,
       displayName: displayName,
@@ -937,7 +1013,10 @@ class HubDirectoryProvider extends ChangeNotifier {
       requiresApproval: cfg.requiresApproval,
       acceptFrom: cfg.acceptFrom,
       allowBorrowing: cfg.allowBorrowing,
+      // Caller's [locationCountry] wins (this method exists to set it).
       locationCountry: locationCountry,
+      // Re-assert local cityId to avoid wiping it on a country-only update.
+      locationCityId: loc.cityId,
       x25519PublicKey: x25519Key,
       deviceModel: deviceModel,
       deviceFingerprint: deviceFingerprint,
@@ -980,36 +1059,91 @@ class HubDirectoryProvider extends ChangeNotifier {
 
   /// Push a new [cityId] (GeoNames id) to the hub profile, or `null` to
   /// clear the previously stored value (when the user toggles off
-  /// "Partager ma ville").
+  /// "Partager ma ville"). When [cityId] is non-null the alpha-2 [country]
+  /// code travels along: a city implies its country, so the hub upsert
+  /// must carry both to avoid leaving `location_country` NULL on the hub
+  /// (which would silently exclude the profile from any country+city
+  /// directory filter). When [country] is omitted it is resolved through
+  /// the injected [_lookupCity]; if that lookup also fails the city is
+  /// pushed alone (legacy behavior, hub preserves whatever country was
+  /// previously stored).
   ///
   /// Mirrors [syncLocationCountry]: safe to call before the hub config is
   /// loaded, offline failures persist in SharedPreferences for replay on
   /// the next [initAndSyncCatalog] cycle.
-  Future<bool> syncLocationCityId(int? cityId) async {
+  Future<bool> syncLocationCityId(int? cityId, {String? country}) async {
+    final resolvedCountry = await _resolveCityCountry(cityId, country);
+
     if (_config == null) {
       await ensureRegistered();
     }
 
     if (_config == null) {
-      await _storePendingLocationCityId(cityId);
+      await _storePendingLocationCityId(cityId, resolvedCountry);
       debugPrint('HubDirectory: locationCityId sync deferred (no config yet)');
       return false;
     }
 
-    final ok = await _pushLocationCityId(cityId);
+    final ok = await _pushLocationCityId(cityId, country: resolvedCountry);
     if (ok) {
       await _clearPendingLocationCityId();
+      await _recordLastPushedLocationCity(cityId, resolvedCountry);
     } else {
-      await _storePendingLocationCityId(cityId);
+      await _storePendingLocationCityId(cityId, resolvedCountry);
     }
     return ok;
+  }
+
+  /// Reads the locally persisted `(cityId, country)` so any cross-cutting
+  /// `register()` caller (relay republish, rename, country picker, etc.)
+  /// can re-assert the full location state on every push.
+  ///
+  /// This is REQUIRED because the Rust serializer always emits
+  /// `location_city_id` in the JSON body (ADR-035 §8 clear-on-toggle): a
+  /// `register()` call that omits the field sends `location_city_id=null`
+  /// to the hub, silently wiping the stored value. Production logs showed
+  /// 6+ register_or_update calls per cold-start cycle (relay publish,
+  /// rename retry, etc.) each one wiping the city the previous user
+  /// gesture had just set. Without this helper the same-city banner
+  /// converged for milliseconds and then went blank.
+  Future<({int? cityId, String? country})>
+      _currentLocationForRegister() async {
+    final cityId = _localCityId;
+    if (cityId == null) {
+      return (cityId: null, country: null);
+    }
+    final prefs = await SharedPreferences.getInstance();
+    final hint = prefs.getString(_kLocalLocationCityCountryKey);
+    final country = await _resolveCityCountry(cityId, hint);
+    return (cityId: cityId, country: country);
+  }
+
+  /// Best-effort country derivation for a [cityId]. Returns the explicit
+  /// [override] uppercased when provided, otherwise looks up the city in
+  /// the local GeoNames cache. Returns `null` when:
+  /// - `cityId` is null (caller is clearing the city),
+  /// - or the lookup fails (country file not yet downloaded). The caller
+  ///   then pushes city alone, leaving the hub-stored country intact.
+  Future<String?> _resolveCityCountry(int? cityId, String? override) async {
+    final trimmed = override?.trim();
+    if (trimmed != null && trimmed.isNotEmpty) {
+      return trimmed.toUpperCase();
+    }
+    if (cityId == null) return null;
+    try {
+      final record = await _lookupCity(cityId);
+      return record?.country.toUpperCase();
+    } catch (e) {
+      debugPrint('HubDirectory: city country lookup failed: $e');
+      return null;
+    }
   }
 
   /// Internal push used by [syncLocationCityId] and the pending replay.
   /// Same defensive shape as [_pushLocationCountry]: pulls the display
   /// name from prefs and re-emits all device/relay fields so the hub does
   /// not blank them on a profile update that only meant to change the city.
-  Future<bool> _pushLocationCityId(int? cityId) async {
+  Future<bool> _pushLocationCityId(int? cityId, {String? country}) async {
     final cfg = _config;
     if (cfg == null) return false;
 
@@ -1035,6 +1169,10 @@ class HubDirectoryProvider extends ChangeNotifier {
       requiresApproval: cfg.requiresApproval,
       acceptFrom: cfg.acceptFrom,
       allowBorrowing: cfg.allowBorrowing,
+      // null country is omitted from the JSON body by the Rust serializer
+      // (hub_directory_service::build_register_body), so the previously
+      // stored hub country survives a city-only push or a city clear.
+      locationCountry: country,
       locationCityId: cityId,
       x25519PublicKey: x25519Key,
       deviceModel: deviceModel,
@@ -1046,7 +1184,7 @@ class HubDirectoryProvider extends ChangeNotifier {
     );
   }
 
-  Future<void> _storePendingLocationCityId(int? cityId) async {
+  Future<void> _storePendingLocationCityId(int? cityId, String? country) async {
     final prefs = await SharedPreferences.getInstance();
     // Empty string encodes the explicit "clear my city" intent so we can
     // distinguish it from "no pending action" (key absent). GeoNames ids
@@ -1055,43 +1193,124 @@ class HubDirectoryProvider extends ChangeNotifier {
       _kPendingLocationCityIdKey,
       cityId == null ? '' : cityId.toString(),
     );
+    // Persist the country alongside the city so the next replay re-pushes
+    // the same pair. Skip on city-clear: the country is preserved hub-side
+    // independently of the toggle, so we never want to overwrite it from
+    // a deferred clear.
+    if (cityId != null && country != null && country.isNotEmpty) {
+      await prefs.setString(_kPendingLocationCityCountryKey, country);
+    } else {
+      await prefs.remove(_kPendingLocationCityCountryKey);
+    }
   }
 
   Future<void> _clearPendingLocationCityId() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_kPendingLocationCityIdKey);
+    await prefs.remove(_kPendingLocationCityCountryKey);
   }
 
-  /// Returns a `(hasPending, cityId)` pair: hasPending=false when the key
-  /// is absent (no replay needed), hasPending=true with cityId=null when
-  /// the user requested a clear, hasPending=true with a positive id
-  /// otherwise. Two-channel signature avoids encoding "no pending" and
-  /// "pending clear" in the same null sentinel.
-  Future<({bool hasPending, int? cityId})> _getPendingLocationCityId() async {
+  /// Returns a `(hasPending, cityId, country)` triple: hasPending=false
+  /// when the key is absent (no replay needed), hasPending=true with
+  /// cityId=null when the user requested a clear, hasPending=true with a
+  /// positive id otherwise. The country is the explicit pair stored at
+  /// pick time (or `null` for legacy installs that pended pre-fix - the
+  /// caller falls back to a fresh CityRepository lookup in that case).
+  Future<({bool hasPending, int? cityId, String? country})>
+      _getPendingLocationCityId() async {
     final prefs = await SharedPreferences.getInstance();
     if (!prefs.containsKey(_kPendingLocationCityIdKey)) {
-      return (hasPending: false, cityId: null);
+      return (hasPending: false, cityId: null, country: null);
     }
     final raw = prefs.getString(_kPendingLocationCityIdKey) ?? '';
-    if (raw.isEmpty) return (hasPending: true, cityId: null);
+    final country = prefs.getString(_kPendingLocationCityCountryKey);
+    if (raw.isEmpty) {
+      return (hasPending: true, cityId: null, country: null);
+    }
     final parsed = int.tryParse(raw);
     if (parsed == null || parsed <= 0) {
       // Corrupt value: drop it so we don't loop on bad data.
       await prefs.remove(_kPendingLocationCityIdKey);
-      return (hasPending: false, cityId: null);
+      await prefs.remove(_kPendingLocationCityCountryKey);
+      return (hasPending: false, cityId: null, country: null);
     }
-    return (hasPending: true, cityId: parsed);
+    return (hasPending: true, cityId: parsed, country: country);
   }
 
   Future<void> _consumePendingLocationCityId() async {
     if (_config == null) return;
     final pending = await _getPendingLocationCityId();
     if (!pending.hasPending) return;
+    final country = await _resolveCityCountry(pending.cityId, pending.country);
     debugPrint(
-      'HubDirectory: replaying pending locationCityId ${pending.cityId ?? "<clear>"}',
+      'HubDirectory: replaying pending locationCityId '
+      '${pending.cityId ?? "<clear>"} country=${country ?? "<unknown>"}',
     );
-    final ok = await _pushLocationCityId(pending.cityId);
-    if (ok) await _clearPendingLocationCityId();
+    final ok = await _pushLocationCityId(pending.cityId, country: country);
+    if (ok) {
+      await _clearPendingLocationCityId();
+      await _recordLastPushedLocationCity(pending.cityId, country);
+    }
+  }
+
+  /// Snapshots the most recent successful `(cityId, country)` push so the
+  /// init-time remediation pass can detect drift on the next cold start
+  /// and avoid paying a redundant register() round-trip when nothing
+  /// changed (perf policy: intermittent network).
+  Future<void> _recordLastPushedLocationCity(int? cityId, String? country) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (cityId == null) {
+      await prefs.remove(_kLastPushedLocationCityIdKey);
+      await prefs.remove(_kLastPushedLocationCityCountryKey);
+      return;
+    }
+    await prefs.setInt(_kLastPushedLocationCityIdKey, cityId);
+    if (country != null && country.isNotEmpty) {
+      await prefs.setString(_kLastPushedLocationCityCountryKey, country);
+    } else {
+      await prefs.remove(_kLastPushedLocationCityCountryKey);
+    }
+  }
+
+  /// Init-time remediation: re-pushes (cityId, country) if the hub may be
+  /// out of sync with local state (e.g. legacy install that pushed city
+  /// alone before this fix shipped, or a snapshot mismatch from a cleared
+  /// SharedPreferences). Skipped when:
+  /// - the user has no city set,
+  /// - the country cannot be derived from the local city DB,
+  /// - the snapshot already matches local state.
+  /// Idempotent: subsequent cold starts find the snapshot aligned and
+  /// short-circuit before any hub call.
+  /// Returns true when a remediation push was actually attempted (drift
+  /// detected). Visible for tests so the unit suite can assert "skipped"
+  /// vs "pushed" precisely - just counting register calls is no longer
+  /// sufficient now that every cross-cutting register caller also carries
+  /// the cityId for state preservation.
+  @visibleForTesting
+  Future<bool> ensureLocationCityCountryConsistency() async {
+    if (_config == null) return false;
+    final cityId = _localCityId;
+    if (cityId == null) return false;
+    final prefs = await SharedPreferences.getInstance();
+    final hint = prefs.getString(_kLocalLocationCityCountryKey);
+    final country = await _resolveCityCountry(cityId, hint);
+    if (country == null) {
+      // Without a derivable country, pushing city alone would just
+      // recreate the bug we are trying to fix. Skip until the next cold
+      // start, by which time the country file may have been downloaded.
+      return false;
+    }
+    final lastCity = prefs.getInt(_kLastPushedLocationCityIdKey);
+    final lastCountry = prefs.getString(_kLastPushedLocationCityCountryKey);
+    if (lastCity == cityId && lastCountry == country) return false;
+    debugPrint(
+      'HubDirectory: location remediation: pushing cityId=$cityId country=$country',
+    );
+    final ok = await _pushLocationCityId(cityId, country: country);
+    if (ok) {
+      await _recordLastPushedLocationCity(cityId, country);
+    }
+    return true;
   }
 
   Future<void> loadConfig() async {
@@ -1196,6 +1415,7 @@ class HubDirectoryProvider extends ChangeNotifier {
     final deviceFingerprint = await _deviceService.getDeviceFingerprint();
     final appVersion = await _deviceService.getAppVersion();
     final relay = await _getRelayCredentials();
+    final loc = await _currentLocationForRegister();
     await register(
       nodeId: cfg.nodeId,
       displayName: displayName,
@@ -1204,6 +1424,10 @@ class HubDirectoryProvider extends ChangeNotifier {
       requiresApproval: cfg.requiresApproval,
       acceptFrom: cfg.acceptFrom,
       allowBorrowing: cfg.allowBorrowing,
+      // Re-assert location: this path republishes keys/relay and would
+      // otherwise wipe the user's city on every contact-sync flow.
+      locationCountry: loc.country,
+      locationCityId: loc.cityId,
       x25519PublicKey: x25519Key,
       website: _websiteUrl.isNotEmpty ? _websiteUrl : null,
       deviceModel: deviceModel,
@@ -1492,6 +1716,7 @@ class HubDirectoryProvider extends ChangeNotifier {
       final appVersion = await _deviceService.getAppVersion();
 
       final relay = await _getRelayCredentials();
+      final loc = await _currentLocationForRegister();
 
       return await register(
         nodeId: libraryUuid,
@@ -1501,6 +1726,11 @@ class HubDirectoryProvider extends ChangeNotifier {
         requiresApproval: false,
         acceptFrom: 'anyone',
         allowBorrowing: false,
+        // Silent re-registration must not blank the city: a user who set
+        // it via Settings before a config-purge / Keychain recovery would
+        // otherwise lose it on the next silent re-register.
+        locationCountry: loc.country,
+        locationCityId: loc.cityId,
         x25519PublicKey: x25519Key,
         deviceModel: deviceModel,
         deviceFingerprint: deviceFingerprint,
@@ -1577,6 +1807,7 @@ class HubDirectoryProvider extends ChangeNotifier {
     final requiresApproval = _config?.requiresApproval ?? true;
     final allowBorrowing = _config?.allowBorrowing ?? false;
 
+    final loc = await _currentLocationForRegister();
     final ok = await register(
       nodeId: nodeId,
       displayName: displayName,
@@ -1585,10 +1816,16 @@ class HubDirectoryProvider extends ChangeNotifier {
       requiresApproval: requiresApproval,
       acceptFrom: _config?.acceptFrom ?? 'everyone',
       allowBorrowing: allowBorrowing,
+      // Caller's [locationCountry] wins (publish flow may declare a fresh
+      // country); fall back to the country derived from the local city
+      // when the caller did not specify one.
       locationCountry:
           (trimmedCountry != null && trimmedCountry.isNotEmpty)
               ? trimmedCountry
-              : null,
+              : loc.country,
+      // Re-assert local cityId so publishing the library does not blank a
+      // city that the user already picked from Settings.
+      locationCityId: loc.cityId,
       x25519PublicKey: x25519PublicKey,
       website: _websiteUrl.isNotEmpty ? _websiteUrl : null,
       deviceModel: deviceModel,

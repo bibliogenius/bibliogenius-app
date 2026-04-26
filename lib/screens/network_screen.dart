@@ -2608,8 +2608,18 @@ class _DiscoverViewState extends State<_DiscoverView> {
     }
 
     return RefreshIndicator(
-      onRefresh: () =>
+      onRefresh: () async {
+        // Pull-to-refresh re-runs both the paginated list AND the
+        // same-city probe in parallel. Without the second call, an iPhone
+        // / Mac pair where one device synced its city late stayed locked
+        // on the stale probe result (banner present on one side, absent
+        // on the other) until a re-pick. Refreshing both restores cross-
+        // device convergence.
+        await Future.wait([
           provider.loadDirectory(search: _searchController.text),
+          provider.loadSameCityHighlight(),
+        ]);
+      },
       child: NotificationListener<ScrollNotification>(
         onNotification: (notification) {
           if (notification is ScrollUpdateNotification &&
