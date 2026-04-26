@@ -496,7 +496,7 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
     // Invalidate hub name cache so loadFollowing re-fetches fresh names
     final dirProvider = Provider.of<HubDirectoryProvider>(context, listen: false);
     dirProvider.invalidateNameCache();
-    // 1. Reload from local DB/API instantly — the user sees fresh data right away
+    // 1. Reload from local DB/API instantly - the user sees fresh data right away
     await _loadAll();
     if (!mounted) return;
     // 2. Sync peers in background, then reload when done
@@ -594,7 +594,7 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
         final lanUrl = 'http://${match.host}:${match.port}';
         _relayUpgradedPeerIds.add(p.id);
         final api = Provider.of<ApiService>(context, listen: false);
-        // Verify connectivity before upgrading — stale mDNS entries
+        // Verify connectivity before upgrading - stale mDNS entries
         // (peer left WiFi) would otherwise overwrite a working relay URL.
         // Keep the ID in the set on failure to avoid retrying every cycle.
         api.checkPeerConnectivity(lanUrl, timeoutMs: 2000).then((reachable) {
@@ -740,7 +740,7 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
         if (peer.libraryUuid != null) {
           final idx = seenUuids[peer.libraryUuid!];
           if (idx != null) {
-            // Same UUID already seen — keep the one with higher id (newer)
+            // Same UUID already seen - keep the one with higher id (newer)
             if (peer.id > dedupedPeers[idx].id) {
               dedupedPeers[idx] = peer;
             }
@@ -1747,7 +1747,7 @@ class _ShareContactViewState extends State<ShareContactView> {
       if (localIp != null) {
         connectUrl = "http://$localIp:${ApiService.httpPort}";
       } else if (relayUrl != null && mailboxId != null) {
-        // No WiFi (e.g. 5G) — use relay URL so the QR code still works
+        // No WiFi (e.g. 5G) - use relay URL so the QR code still works
         connectUrl = "relay://$mailboxId";
         debugPrint('📱 [QR] No LAN IP, using relay URL for QR code');
       } else {
@@ -1785,7 +1785,7 @@ class _ShareContactViewState extends State<ShareContactView> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('📱 [QR] build() — isLoading=$_isLoading, qrData=${_qrData != null}');
+    debugPrint('📱 [QR] build() - isLoading=$_isLoading, qrData=${_qrData != null}');
     if (_isLoading) {
       return const SizedBox(
         height: 200,
@@ -2430,7 +2430,7 @@ class _DiscoverViewState extends State<_DiscoverView> {
     return Consumer<HubDirectoryProvider>(
       builder: (context, provider, _) {
         // ADR-015: GET /api/directory is a public endpoint, so the list is
-        // always rendered — whether or not the user has opted in. Users who
+        // always rendered - whether or not the user has opted in. Users who
         // haven't published their own library see a CTA banner at the top
         // of the list so they can appear in the directory with one tap.
 
@@ -2776,36 +2776,44 @@ class _DiscoverCard extends StatelessWidget {
                                 // directory to that exact country/city
                                 // (ADR-035 Phase 2). Discoverable shortcut
                                 // alongside the explicit filter button.
-                                InkWell(
-                                  borderRadius: BorderRadius.circular(4),
-                                  onTap: () {
-                                    context
-                                        .read<HubDirectoryProvider>()
-                                        .loadDirectory(
-                                          country: profile.locationCountry,
-                                          cityId:
-                                              profile.locationCityId ?? 0,
-                                        );
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 2, vertical: 1),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Icon(Icons.location_on_outlined,
-                                            size: 14,
-                                            color: cs.onSurfaceVariant),
-                                        const SizedBox(width: 2),
-                                        HubLocationLabel(
-                                          country: profile.locationCountry,
-                                          cityId: profile.locationCityId,
-                                          style: TextStyle(
-                                            fontSize: 13,
-                                            color: cs.onSurfaceVariant,
+                                // Wrapped in Semantics so a screen reader
+                                // user knows the chip is tappable (RGAA A1).
+                                Semantics(
+                                  button: true,
+                                  label: TranslationService.translate(context,
+                                          'directory_filter_by_location_a11y') ??
+                                      'Filter directory by this location',
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(4),
+                                    onTap: () {
+                                      context
+                                          .read<HubDirectoryProvider>()
+                                          .loadDirectory(
+                                            country: profile.locationCountry,
+                                            cityId:
+                                                profile.locationCityId ?? 0,
+                                          );
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 2, vertical: 1),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(Icons.location_on_outlined,
+                                              size: 14,
+                                              color: cs.onSurfaceVariant),
+                                          const SizedBox(width: 2),
+                                          HubLocationLabel(
+                                            country: profile.locationCountry,
+                                            cityId: profile.locationCityId,
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              color: cs.onSurfaceVariant,
+                                            ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -2984,7 +2992,7 @@ class _DiscoverCard extends StatelessWidget {
           return;
         }
         // Success: confirm to the user. Without this, a follow that
-        // requires approval silently switches the chip to "awaiting" —
+        // requires approval silently switches the chip to "awaiting" -
         // some users perceive it as a missed tap and retry.
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -3400,7 +3408,7 @@ class _LibraryRelationCard extends StatelessWidget {
   /// Build the peer avatar: custom DiceBear if available, DiceBear initials fallback.
   /// Uses Selector to rebuild only when the hub avatar for this specific node changes.
   Widget _peerAvatar(BuildContext context, LibraryRelation relation, Color fallbackColor) {
-    // If the relation already has an avatar (from P2P sync), use it directly — no need for Selector.
+    // If the relation already has an avatar (from P2P sync), use it directly - no need for Selector.
     if (relation.avatarConfig != null) {
       return _buildAvatarWidget(relation.avatarConfig!, relation, fallbackColor);
     }
@@ -3505,7 +3513,7 @@ class _ActiveFilterChip extends StatelessWidget {
 ///
 /// Tapping "Publish" triggers `HubDirectoryProvider.enableAndPublish`, which
 /// flips `_hubEnabled` + `isListed` + registers + syncs catalog in one pass.
-/// No navigation required — the banner disappears on success.
+/// No navigation required - the banner disappears on success.
 class _PublishToDirectoryBanner extends StatefulWidget {
   final HubDirectoryProvider provider;
 

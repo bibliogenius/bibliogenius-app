@@ -2408,58 +2408,69 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     return Material(
       color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () => _openCityPicker(context, country, hub),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-          decoration: BoxDecoration(
-            color: Theme.of(context)
-                .colorScheme
-                .surface
-                .withValues(alpha: 0.8),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: Colors.grey.withValues(alpha: 0.3),
-            ),
-          ),
-          child: Row(
-            children: [
-              Icon(Icons.location_city_outlined, color: primary),
-              const SizedBox(width: 12),
-              Expanded(
-                child: pickedId == null
-                    ? Text(
-                        TranslationService.translate(
-                                context, 'settings_city_pick') ??
-                            'Pick a city',
-                        style: TextStyle(
-                          color: primary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      )
-                    : FutureBuilder<CityRecord?>(
-                        future: CityRepository.shared()
-                            .lookupById(pickedId, country: country),
-                        builder: (context, snapshot) {
-                          final label = snapshot.data?.name ??
-                              (TranslationService.translate(
-                                      context, 'settings_city_unknown') ??
-                                  'Unknown city');
-                          final admin = snapshot.data?.admin1 ?? '';
-                          final suffix = admin.isNotEmpty ? ' ($admin)' : '';
-                          return Text(
-                            '$label$suffix',
-                            style: TextStyle(
-                              color: primary,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          );
-                        },
-                      ),
+      // Semantics(button: true, label: ...) makes the picker discoverable
+      // to screen readers; the inner Text still carries the current
+      // selection so the announcement reads e.g. "Open city picker, Paris,
+      // button" (ADR-035, RGAA A1).
+      child: Semantics(
+        button: true,
+        label: TranslationService.translate(
+                context, 'settings_open_city_picker_a11y') ??
+            'Open city picker',
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () => _openCityPicker(context, country, hub),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            decoration: BoxDecoration(
+              color: Theme.of(context)
+                  .colorScheme
+                  .surface
+                  .withValues(alpha: 0.8),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Colors.grey.withValues(alpha: 0.3),
               ),
-              Icon(Icons.arrow_drop_down, color: primary),
-            ],
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.location_city_outlined, color: primary),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: pickedId == null
+                      ? Text(
+                          TranslationService.translate(
+                                  context, 'settings_city_pick') ??
+                              'Pick a city',
+                          style: TextStyle(
+                            color: primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        )
+                      : FutureBuilder<CityRecord?>(
+                          future: CityRepository.shared()
+                              .lookupById(pickedId, country: country),
+                          builder: (context, snapshot) {
+                            final label = snapshot.data?.name ??
+                                (TranslationService.translate(
+                                        context, 'settings_city_unknown') ??
+                                    'Unknown city');
+                            final admin = snapshot.data?.admin1 ?? '';
+                            final suffix =
+                                admin.isNotEmpty ? ' ($admin)' : '';
+                            return Text(
+                              '$label$suffix',
+                              style: TextStyle(
+                                color: primary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            );
+                          },
+                        ),
+                ),
+                Icon(Icons.arrow_drop_down, color: primary),
+              ],
+            ),
           ),
         ),
       ),

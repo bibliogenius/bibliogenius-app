@@ -4834,6 +4834,10 @@ msgstr "Ville inconnue"
 msgid "settings_city_unavailable"
 msgstr "Aucune donnée de ville n'est disponible pour ce pays pour l'instant. Veuillez réessayer plus tard."
 
+#. A11y label for the city picker button in settings (ADR-035, RGAA A1)
+msgid "settings_open_city_picker_a11y"
+msgstr "Ouvrir le sélecteur de ville"
+
 #. City picker empty state: search returned nothing
 msgid "settings_city_no_match"
 msgstr "Aucune ville correspondante."
@@ -7808,6 +7812,10 @@ msgstr "Filtrer par lieu"
 #. Tooltip on the X icon of the active filter chip
 msgid "directory_filter_clear"
 msgstr "Effacer le filtre"
+
+#. A11y label for the tap-to-filter shortcut on a profile location chip (ADR-035, RGAA A1)
+msgid "directory_filter_by_location_a11y"
+msgstr "Filtrer l'annuaire par cette localisation"
 
 msgid "directory_following_empty"
 msgstr "Vous ne suivez encore aucune bibliothèque. Utilisez l'onglet Découvrir pour commencer."
