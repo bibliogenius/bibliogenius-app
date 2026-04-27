@@ -155,7 +155,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(provider.carouselCollapsedOwnLib, isTrue);
-    expect(find.text('Recently added · 2'), findsOneWidget);
+    // 2 new + 9 old padded by withPad fills up to 11 (under maxItems=20).
+    expect(find.text('Recently added · 11'), findsOneWidget);
     expect(find.byIcon(Icons.expand_more_rounded), findsOneWidget);
     expect(find.byIcon(Icons.expand_less_rounded), findsNothing);
   });
@@ -317,6 +318,45 @@ void main() {
     ]));
 
     expect(find.textContaining('D+'), findsNothing);
+  });
+
+  testWidgets('pads with most-recently-added books beyond the isNew window',
+      (tester) async {
+    // 1 currently-reading anchor + 5 books added 30 days ago (outside the
+    // 7-day isNew window). Padding should pull the older books in by addedAt
+    // desc to fill the strip.
+    Book oldDated({required int id, required int daysAgo}) => Book(
+      id: id,
+      title: 'Old $id',
+      addedAt: DateTime.now().subtract(Duration(days: daysAgo)),
+    );
+
+    await tester.pumpWidget(buildHarness([
+      readingBook(id: 1, title: 'Reading'),
+      oldDated(id: 2, daysAgo: 30),
+      oldDated(id: 3, daysAgo: 31),
+      oldDated(id: 4, daysAgo: 32),
+      oldDated(id: 5, daysAgo: 33),
+      oldDated(id: 6, daysAgo: 34),
+    ]));
+
+    expect(find.text('Reading'), findsOneWidget);
+    // All 5 old books should be present as padding.
+    for (var id = 2; id <= 6; id++) {
+      expect(find.text('Old $id'), findsOneWidget);
+    }
+  });
+
+  testWidgets('does not pad when there is no reading or isNew anchor',
+      (tester) async {
+    // 11 old books (above _minLibrarySize), zero reading, zero isNew.
+    // Padding must NOT surface the strip — this would defeat the auto-hide
+    // gate for inactive libraries.
+    await tester.pumpWidget(buildHarness([
+      for (var i = 0; i < 11; i++) oldBook(id: i, title: 'Old $i'),
+    ]));
+
+    expect(find.text('Recently added'), findsNothing);
   });
 
   testWidgets('D+N badge absent when startedReadingAt is null',

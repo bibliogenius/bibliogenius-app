@@ -33,7 +33,7 @@ class RecentlyAddedCarousel extends StatelessWidget {
     super.key,
     required this.books,
     required this.scope,
-    this.maxItems = 5,
+    this.maxItems = 20,
     this.onBookTap,
   });
 
@@ -108,7 +108,10 @@ class RecentlyAddedCarousel extends StatelessWidget {
   }
 
   /// Ordered selection: currently-reading books first (most recently started),
-  /// then recently-added books that aren't already in the reading slice.
+  /// then recently-added books that aren't already in the reading slice, then
+  /// — if there's still room — padding with the most-recently-added books
+  /// regardless of the isNew threshold so the strip stays useful in libraries
+  /// that haven't been touched in the last [AppConstants.newBadgeDays] days.
   List<Book> _selectBooks() {
     final reading = books.where((b) => b.readingStatus == 'reading').toList();
     reading.sort((a, b) {
@@ -125,7 +128,20 @@ class RecentlyAddedCarousel extends StatelessWidget {
         .toList();
     newOnly.sort((a, b) => b.addedAt!.compareTo(a.addedAt!));
 
-    return [...reading, ...newOnly].take(maxItems).toList();
+    final selected = [...reading, ...newOnly];
+    // Only pad when the carousel already has a real anchor (reading or new).
+    // Otherwise we'd surface the strip on libraries with no recent activity.
+    if (selected.isEmpty || selected.length >= maxItems) {
+      return selected.take(maxItems).toList();
+    }
+
+    final selectedIds = selected.map((b) => b.id).toSet();
+    final padding = books
+        .where((b) => b.addedAt != null && !selectedIds.contains(b.id))
+        .toList();
+    padding.sort((a, b) => b.addedAt!.compareTo(a.addedAt!));
+
+    return [...selected, ...padding].take(maxItems).toList();
   }
 
   /// Hide when there is nothing to show. If the activity list is dominated
