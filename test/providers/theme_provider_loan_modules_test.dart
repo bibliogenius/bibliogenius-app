@@ -114,5 +114,29 @@ void main() {
       await provider.loadSettings();
       expect(provider.canLendBooks, isFalse);
     });
+
+    test('defaults to false for booksellers (commerce enabled)', () async {
+      // A bookseller installs the app with the bookseller preset: commerce
+      // is on, but canLendBooks has no saved value yet (preset has not run
+      // through this code path). The default must reflect the profile —
+      // booksellers sell, they do not lend.
+      SharedPreferences.setMockInitialValues({'commerceEnabled': true});
+      final provider = ThemeProvider();
+      await provider.loadSettings();
+      expect(
+        provider.canLendBooks,
+        isFalse,
+        reason:
+            'Default lending must be off for booksellers so the lend UI '
+            'does not appear before they explicitly opt in.',
+      );
+    });
+
+    test('defaults to true for non-booksellers', () async {
+      SharedPreferences.setMockInitialValues({'commerceEnabled': false});
+      final provider = ThemeProvider();
+      await provider.loadSettings();
+      expect(provider.canLendBooks, isTrue);
+    });
   });
 }

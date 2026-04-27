@@ -378,13 +378,18 @@ class ThemeProvider with ChangeNotifier {
       _canBorrowBooks = !isLibrarian;
     }
 
-    // Load lending capability setting (default true for everyone — librarians
-    // lend, readers usually accept lending too; users can opt out explicitly)
+    // Load lending capability setting. Default true for readers and
+    // librarians (they lend); disabled for booksellers (they sell, not lend).
+    // Read commerceEnabled directly from prefs because _commerceEnabled is
+    // assigned later in this method (see line below); isBookseller would
+    // otherwise return false here for a bookseller user without a saved
+    // canLendBooks value, leading to the wrong default.
     final savedCanLend = prefs.getBool('canLendBooks');
     if (savedCanLend != null) {
       _canLendBooks = savedCanLend;
     } else {
-      _canLendBooks = true;
+      final isBooksellerPref = prefs.getBool('commerceEnabled') ?? false;
+      _canLendBooks = !isBooksellerPref;
     }
 
     // Private books: default true for readers, false for librarian/bookseller
@@ -731,6 +736,14 @@ class ThemeProvider with ChangeNotifier {
     if (type == 'bookseller' && !wasBookseller) {
       _commerceEnabled = true;
       await prefs.setBool('commerceEnabled', true);
+    }
+
+    // Reset lending capability to profile-based default if not explicitly set.
+    // Read AFTER the commerce auto-enable above so isBookseller is correct
+    // when the user just switched to the bookseller profile.
+    final savedCanLend = prefs.getBool('canLendBooks');
+    if (savedCanLend == null) {
+      _canLendBooks = !isBookseller;
     }
 
     notifyListeners();
@@ -1118,33 +1131,38 @@ class ThemeProvider with ChangeNotifier {
   Future<void> applyPreset(String presetName) async {
     switch (presetName) {
       case 'reader':
-        // Reader preset: gamification, quotes, collections, audio, borrowing, private books
+        // Reader preset: gamification, quotes, collections, audio, borrowing, lending, private books
         await setGamificationEnabled(true);
         await setQuotesEnabled(true);
         await setCollectionsEnabled(true);
         await setAudioEnabled(true);
         await setCommerceEnabled(false);
         await setCanBorrowBooks(true);
+        await setCanLendBooks(true);
         await setAllowPrivateBooks(true);
         break;
       case 'librarian':
-        // Librarian preset: collections, network, no gamification, no borrowing, no private books
+        // Librarian preset: collections, network, lending (they lend!),
+        // no gamification, no borrowing, no private books
         await setGamificationEnabled(false);
         await setQuotesEnabled(false);
         await setCollectionsEnabled(true);
         await setNetworkEnabled(true);
         await setCommerceEnabled(false);
         await setCanBorrowBooks(false);
+        await setCanLendBooks(true);
         await setAllowPrivateBooks(false);
         break;
       case 'bookseller':
-        // Bookseller preset: commerce, collections, no gamification, no borrowing, no private books
+        // Bookseller preset: commerce, collections, no gamification,
+        // no borrowing, no lending (they sell, not lend), no private books
         await setCommerceEnabled(true);
         await setCollectionsEnabled(true);
         await setGamificationEnabled(false);
         await setQuotesEnabled(false);
         await setAudioEnabled(false);
         await setCanBorrowBooks(false);
+        await setCanLendBooks(false);
         await setAllowPrivateBooks(false);
         break;
     }
