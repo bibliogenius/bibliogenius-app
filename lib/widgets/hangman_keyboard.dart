@@ -37,7 +37,8 @@ class HangmanKeyboard extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final availableWidth = constraints.maxWidth - 8; // horizontal padding
-        final keyWidth = (availableWidth - gap * (maxKeysPerRow - 1)) / maxKeysPerRow;
+        final keyWidth =
+            (availableWidth - gap * (maxKeysPerRow - 1)) / maxKeysPerRow;
         final keySize = keyWidth.clamp(28.0, 44.0);
         final keyHeight = (keySize * 1.2).clamp(36.0, 48.0);
 
@@ -57,8 +58,13 @@ class HangmanKeyboard extends StatelessWidget {
     );
   }
 
-  Widget _buildRow(ThemeData theme, String chars, double keySize,
-      double keyHeight, double gap) {
+  Widget _buildRow(
+    ThemeData theme,
+    String chars,
+    double keySize,
+    double keyHeight,
+    double gap,
+  ) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: chars.split('').map((char) {

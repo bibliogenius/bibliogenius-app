@@ -6,7 +6,10 @@ void main() {
     test('accepts http and https only', () {
       expect(CoverUrlResolver.isServableRemotely('http://a'), isTrue);
       expect(CoverUrlResolver.isServableRemotely('https://a'), isTrue);
-      expect(CoverUrlResolver.isServableRemotely('/api/books/1/cover'), isFalse);
+      expect(
+        CoverUrlResolver.isServableRemotely('/api/books/1/cover'),
+        isFalse,
+      );
       expect(CoverUrlResolver.isServableRemotely('/var/mobile/c.jpg'), isFalse);
       expect(CoverUrlResolver.isServableRemotely(''), isFalse);
       expect(CoverUrlResolver.isServableRemotely('file:///x'), isFalse);
@@ -57,9 +60,15 @@ void main() {
     });
 
     test('returns null when neither cover nor ISBN are available', () {
-      expect(CoverUrlResolver.resolveForLocal(coverUrl: null, isbn: null), isNull);
+      expect(
+        CoverUrlResolver.resolveForLocal(coverUrl: null, isbn: null),
+        isNull,
+      );
       expect(CoverUrlResolver.resolveForLocal(coverUrl: '', isbn: ''), isNull);
-      expect(CoverUrlResolver.resolveForLocal(coverUrl: '', isbn: null), isNull);
+      expect(
+        CoverUrlResolver.resolveForLocal(coverUrl: '', isbn: null),
+        isNull,
+      );
     });
   });
 
@@ -82,10 +91,7 @@ void main() {
         peerUrl: peerUrl,
       );
       final expectedPeer = Uri.encodeQueryComponent(peerUrl);
-      expect(
-        out,
-        '/api/peers/cover-proxy?peer_url=$expectedPeer&book_id=42',
-      );
+      expect(out, '/api/peers/cover-proxy?peer_url=$expectedPeer&book_id=42');
     });
 
     test('local filesystem path returns null (no OpenLibrary fallback)', () {

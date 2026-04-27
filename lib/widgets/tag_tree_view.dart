@@ -73,14 +73,13 @@ class _TagTreeViewState extends State<TagTreeView> {
 
     if (rootTags.isEmpty) {
       return Center(
-        child: Text(
-          TranslationService.translate(context, 'no_shelves_yet'),
-        ),
+        child: Text(TranslationService.translate(context, 'no_shelves_yet')),
       );
     }
 
-    final displayRoots =
-        _isSearching ? rootTags.where(_subtreeHasMatch).toList() : rootTags;
+    final displayRoots = _isSearching
+        ? rootTags.where(_subtreeHasMatch).toList()
+        : rootTags;
 
     if (displayRoots.isEmpty) {
       return _buildNoMatchState();
@@ -104,8 +103,7 @@ class _TagTreeViewState extends State<TagTreeView> {
             Icon(
               Icons.search_off_rounded,
               size: 36,
-              color:
-                  theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+              color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 8),
             Text(
@@ -253,8 +251,9 @@ class _TagTreeViewState extends State<TagTreeView> {
                       size: 20,
                       color: isSelected
                           ? theme.colorScheme.primary
-                          : theme.colorScheme.onSurfaceVariant
-                              .withValues(alpha: 0.3),
+                          : theme.colorScheme.onSurfaceVariant.withValues(
+                              alpha: 0.3,
+                            ),
                     ),
                   ),
               ],
@@ -312,9 +311,7 @@ class _TagTreeViewState extends State<TagTreeView> {
   Widget _buildFlatList() {
     if (widget.tags.isEmpty) {
       return Center(
-        child: Text(
-          TranslationService.translate(context, 'no_shelves_yet'),
-        ),
+        child: Text(TranslationService.translate(context, 'no_shelves_yet')),
       );
     }
 

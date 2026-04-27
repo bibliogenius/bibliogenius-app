@@ -40,8 +40,7 @@ class QuickActionCard extends StatelessWidget {
                 ? color.withValues(alpha: 0.15)
                 : color.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(16),
-            border:
-                Border.all(color: color.withValues(alpha: 0.2), width: 1),
+            border: Border.all(color: color.withValues(alpha: 0.2), width: 1),
           ),
           child: Stack(
             children: [
@@ -125,8 +124,7 @@ class ConfigurableActionCard extends StatefulWidget {
   });
 
   @override
-  State<ConfigurableActionCard> createState() =>
-      _ConfigurableActionCardState();
+  State<ConfigurableActionCard> createState() => _ConfigurableActionCardState();
 }
 
 class _ConfigurableActionCardState extends State<ConfigurableActionCard> {
@@ -142,9 +140,7 @@ class _ConfigurableActionCardState extends State<ConfigurableActionCard> {
   Future<void> _loadPreference() async {
     final prefs = await SharedPreferences.getInstance();
     final saved = prefs.getString(widget.slotKey);
-    if (saved != null &&
-        widget.allowedActionIds.contains(saved) &&
-        mounted) {
+    if (saved != null && widget.allowedActionIds.contains(saved) && mounted) {
       setState(() => _currentActionId = saved);
     }
   }
@@ -182,8 +178,9 @@ class _ConfigurableActionCardState extends State<ConfigurableActionCard> {
                     child: Text(
                       TranslationService.translate(context, action.labelKey),
                       style: TextStyle(
-                        fontWeight:
-                            isSelected ? FontWeight.bold : FontWeight.normal,
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.normal,
                       ),
                     ),
                   ),

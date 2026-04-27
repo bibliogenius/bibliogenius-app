@@ -163,7 +163,10 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
 
     // Build source options list based on enabled sources
     final options = <Map<String, dynamic>>[
-      {'value': null, 'label': TranslationService.translate(context, 'source_filter_all')},
+      {
+        'value': null,
+        'label': TranslationService.translate(context, 'source_filter_all'),
+      },
     ];
 
     if (inventaireEnabled) {
@@ -301,25 +304,36 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
           // Fuzzy title match on significant words
           final titleI = partsI[0];
           final titleJ = partsJ[0];
-          final wordsI = titleI.split(RegExp(r'\s+')).where((w) => w.length > 2).toList();
-          final wordsJ = titleJ.split(RegExp(r'\s+')).where((w) => w.length > 2).toList();
+          final wordsI = titleI
+              .split(RegExp(r'\s+'))
+              .where((w) => w.length > 2)
+              .toList();
+          final wordsJ = titleJ
+              .split(RegExp(r'\s+'))
+              .where((w) => w.length > 2)
+              .toList();
           if (wordsI.isEmpty || wordsJ.isEmpty) continue;
           // Check if the shorter set of words fuzzy-matches the longer
           final shorter = wordsI.length <= wordsJ.length ? wordsI : wordsJ;
           final longer = wordsI.length <= wordsJ.length ? wordsJ : wordsI;
-          final allMatch = shorter.every((sw) => longer.any((lw) {
-            if (sw == lw) return true;
-            // Simple char-level similarity for cross-language title words
-            int common = 0;
-            for (int c = 0; c < sw.length && c < lw.length; c++) {
-              if (sw[c] == lw[c]) common++;
-            }
-            return common / (sw.length > lw.length ? sw.length : lw.length) > 0.7;
-          }));
+          final allMatch = shorter.every(
+            (sw) => longer.any((lw) {
+              if (sw == lw) return true;
+              // Simple char-level similarity for cross-language title words
+              int common = 0;
+              for (int c = 0; c < sw.length && c < lw.length; c++) {
+                if (sw[c] == lw[c]) common++;
+              }
+              return common / (sw.length > lw.length ? sw.length : lw.length) >
+                  0.7;
+            }),
+          );
           if (allMatch) {
             // Merge j into i: pick the work with best relevance as target
-            final editionsI = (workMap[keys[i]]!['editions'] as List).cast<Map<String, dynamic>>();
-            final editionsJ = (workMap[keys[j]]!['editions'] as List).cast<Map<String, dynamic>>();
+            final editionsI = (workMap[keys[i]]!['editions'] as List)
+                .cast<Map<String, dynamic>>();
+            final editionsJ = (workMap[keys[j]]!['editions'] as List)
+                .cast<Map<String, dynamic>>();
             final bestI = editionsI.fold<int>(0, (best, e) {
               final s = (e['relevance_score'] as num?)?.toInt() ?? 0;
               return s > best ? s : best;
@@ -364,7 +378,8 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
       // Language match is top priority
       if (langsForSorting.isNotEmpty) {
         final lang = (edition['language'] as String?)?.toLowerCase() ?? '';
-        if (lang.isNotEmpty && langsForSorting.any((ul) => _langMatches(lang, ul))) {
+        if (lang.isNotEmpty &&
+            langsForSorting.any((ul) => _langMatches(lang, ul))) {
           score += 100;
         } else if (lang.isNotEmpty) {
           score -= 50; // Penalty for explicit non-matching language
@@ -537,7 +552,9 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
     // Guard: prevent concurrent searches (a 2nd call would overwrite the 1st
     // results with partial data from a slower/filtered response).
     if (_isSearching) {
-      debugPrint('⚠️ _search() blocked: already searching (source=$_upstreamSource)');
+      debugPrint(
+        '⚠️ _search() blocked: already searching (source=$_upstreamSource)',
+      );
       return;
     }
 
@@ -606,7 +623,9 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
         // Debug: Print grouping info
         debugPrint('🔍 Search returned ${results.length} results');
         debugPrint('📚 Grouped into ${_groupedWorks.length} works');
-        debugPrint('🌐 Lang filter: $_selectedLanguage | User langs: ${themeProvider.userLanguages}');
+        debugPrint(
+          '🌐 Lang filter: $_selectedLanguage | User langs: ${themeProvider.userLanguages}',
+        );
         debugPrint('🗂️ Sources: $sources');
         for (final work in _groupedWorks.take(5)) {
           final editions = work['editions'] as List;
@@ -706,7 +725,10 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
           if (action == 'view' && mounted) {
             context.push('/books/${existingBook.id}');
           } else if (action == 'copy' && mounted) {
-            final copyRepo = Provider.of<CopyRepository>(context, listen: false);
+            final copyRepo = Provider.of<CopyRepository>(
+              context,
+              listen: false,
+            );
             await copyRepo.createCopy({
               'book_id': existingBook.id,
               'status': 'available',
@@ -1014,67 +1036,89 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
                         ),
                         const SizedBox(height: 8),
                         // Language filter dropdown (dynamic from userLanguages)
-                        Builder(builder: (context) {
-                          final userLangs = Provider.of<ThemeProvider>(context).userLanguages;
-                          // Build dynamic language options:
-                          // 1. null = "My languages" (default, all reading languages)
-                          // 2. Each individual reading language
-                          // 3. '*' = "All languages" (no prioritization)
-                          final langOptions = <Map<String, dynamic>>[
-                            {
-                              'value': null,
-                              'label': TranslationService.translate(context, 'lang_filter_my_languages') ?? 'My languages',
-                            },
-                            for (final code in userLangs)
+                        Builder(
+                          builder: (context) {
+                            final userLangs = Provider.of<ThemeProvider>(
+                              context,
+                            ).userLanguages;
+                            // Build dynamic language options:
+                            // 1. null = "My languages" (default, all reading languages)
+                            // 2. Each individual reading language
+                            // 3. '*' = "All languages" (no prioritization)
+                            final langOptions = <Map<String, dynamic>>[
                               {
-                                'value': code,
-                                'label': kLanguageNativeNames[code] ?? code,
+                                'value': null,
+                                'label':
+                                    TranslationService.translate(
+                                      context,
+                                      'lang_filter_my_languages',
+                                    ) ??
+                                    'My languages',
                               },
-                            {
-                              'value': '*',
-                              'label': TranslationService.translate(context, 'lang_filter_all') ?? 'All languages',
-                            },
-                          ];
-                          // Ensure current selection is valid
-                          final validValues = langOptions.map((o) => o['value'] as String?).toSet();
-                          if (!validValues.contains(_selectedLanguage)) {
-                            // Reset to default if user removed the selected language from settings
-                            WidgetsBinding.instance.addPostFrameCallback((_) {
-                              if (mounted) setState(() => _selectedLanguage = null);
-                            });
-                          }
-                          return DropdownButtonFormField<String?>(
-                            value: validValues.contains(_selectedLanguage) ? _selectedLanguage : null,
-                            decoration: InputDecoration(
-                              labelText: TranslationService.translate(
-                                context,
-                                'language_filter',
+                              for (final code in userLangs)
+                                {
+                                  'value': code,
+                                  'label': kLanguageNativeNames[code] ?? code,
+                                },
+                              {
+                                'value': '*',
+                                'label':
+                                    TranslationService.translate(
+                                      context,
+                                      'lang_filter_all',
+                                    ) ??
+                                    'All languages',
+                              },
+                            ];
+                            // Ensure current selection is valid
+                            final validValues = langOptions
+                                .map((o) => o['value'] as String?)
+                                .toSet();
+                            if (!validValues.contains(_selectedLanguage)) {
+                              // Reset to default if user removed the selected language from settings
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                if (mounted)
+                                  setState(() => _selectedLanguage = null);
+                              });
+                            }
+                            return DropdownButtonFormField<String?>(
+                              value: validValues.contains(_selectedLanguage)
+                                  ? _selectedLanguage
+                                  : null,
+                              decoration: InputDecoration(
+                                labelText: TranslationService.translate(
+                                  context,
+                                  'language_filter',
+                                ),
+                                prefixIcon: const Icon(
+                                  Icons.language,
+                                  size: 20,
+                                ),
+                                border: const OutlineInputBorder(),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 10,
+                                ),
+                                isDense: true,
                               ),
-                              prefixIcon: const Icon(Icons.language, size: 20),
-                              border: const OutlineInputBorder(),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 10,
-                              ),
-                              isDense: true,
-                            ),
-                            items: langOptions.map((option) {
-                              return DropdownMenuItem<String?>(
-                                value: option['value'] as String?,
-                                child: Text(option['label'] as String),
-                              );
-                            }).toList(),
-                            onChanged: (value) {
-                              setState(() => _selectedLanguage = value);
-                              // Auto-trigger search when language is changed
-                              if (_titleController.text.isNotEmpty ||
-                                  _authorController.text.isNotEmpty ||
-                                  _subjectController.text.isNotEmpty) {
-                                _search();
-                              }
-                            },
-                          );
-                        }),
+                              items: langOptions.map((option) {
+                                return DropdownMenuItem<String?>(
+                                  value: option['value'] as String?,
+                                  child: Text(option['label'] as String),
+                                );
+                              }).toList(),
+                              onChanged: (value) {
+                                setState(() => _selectedLanguage = value);
+                                // Auto-trigger search when language is changed
+                                if (_titleController.text.isNotEmpty ||
+                                    _authorController.text.isNotEmpty ||
+                                    _subjectController.text.isNotEmpty) {
+                                  _search();
+                                }
+                              },
+                            );
+                          },
+                        ),
                       ],
                     ),
                   ),
@@ -1094,7 +1138,10 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
                 // View mode toggle (only show when results exist)
                 if (_searchResults.isNotEmpty && !_isSearching)
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 4,
+                    ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
@@ -1118,14 +1165,26 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
                               _buildViewToggleButton(
                                 icon: Icons.view_carousel,
                                 isActive: _useCarouselView,
-                                onTap: () => setState(() => _useCarouselView = true),
-                                tooltip: TranslationService.translate(context, 'view_carousel') ?? 'Carousel',
+                                onTap: () =>
+                                    setState(() => _useCarouselView = true),
+                                tooltip:
+                                    TranslationService.translate(
+                                      context,
+                                      'view_carousel',
+                                    ) ??
+                                    'Carousel',
                               ),
                               _buildViewToggleButton(
                                 icon: Icons.view_list,
                                 isActive: !(_useCarouselView),
-                                onTap: () => setState(() => _useCarouselView = false),
-                                tooltip: TranslationService.translate(context, 'view_list') ?? 'Liste',
+                                onTap: () =>
+                                    setState(() => _useCarouselView = false),
+                                tooltip:
+                                    TranslationService.translate(
+                                      context,
+                                      'view_list',
+                                    ) ??
+                                    'Liste',
                               ),
                             ],
                           ),
@@ -1172,9 +1231,7 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
           child: Icon(
             icon,
             size: 20,
-            color: isActive
-                ? Theme.of(context).primaryColor
-                : Colors.grey[600],
+            color: isActive ? Theme.of(context).primaryColor : Colors.grey[600],
           ),
         ),
       ),

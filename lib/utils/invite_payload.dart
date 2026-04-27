@@ -48,9 +48,13 @@ Map<String, dynamic> buildInvitePayload({
 /// [hubBaseUrl]. The payload is passed as `?d=` query parameter.
 ///
 /// This is the synchronous fallback when the hub is unreachable.
-String encodeInviteLink(Map<String, dynamic> payload, {required String hubBaseUrl}) {
+String encodeInviteLink(
+  Map<String, dynamic> payload, {
+  required String hubBaseUrl,
+}) {
   // Read relay_url: short key "ru" (v4) or long key "relay_url" (v3)
-  final hubBase = (payload['ru'] ?? payload['relay_url'] ?? hubBaseUrl) as String;
+  final hubBase =
+      (payload['ru'] ?? payload['relay_url'] ?? hubBaseUrl) as String;
   final json = jsonEncode(payload);
   // Strip '=' padding: it confuses URL detection in messaging apps
   // (= is the key/value separator in query strings).
@@ -67,14 +71,17 @@ Future<String> createInviteLink(
   Map<String, dynamic> payload, {
   required String hubBaseUrl,
 }) async {
-  final hubBase = (payload['ru'] ?? payload['relay_url'] ?? hubBaseUrl) as String;
+  final hubBase =
+      (payload['ru'] ?? payload['relay_url'] ?? hubBaseUrl) as String;
   final jsonPayload = jsonEncode(payload);
 
   try {
-    final dio = Dio(BaseOptions(
-      connectTimeout: const Duration(seconds: 5),
-      receiveTimeout: const Duration(seconds: 5),
-    ));
+    final dio = Dio(
+      BaseOptions(
+        connectTimeout: const Duration(seconds: 5),
+        receiveTimeout: const Duration(seconds: 5),
+      ),
+    );
     final response = await dio.post(
       '$hubBase/api/invite',
       data: {'payload': jsonPayload},
@@ -151,22 +158,26 @@ Map<String, dynamic>? parseScannedInvite(
 /// Returns the normalized payload, or null if resolution fails.
 Future<Map<String, dynamic>?> resolveShortInvite(String shortUrl) async {
   try {
-    final dio = Dio(BaseOptions(
-      connectTimeout: const Duration(seconds: 5),
-      receiveTimeout: const Duration(seconds: 5),
-    ));
+    final dio = Dio(
+      BaseOptions(
+        connectTimeout: const Duration(seconds: 5),
+        receiveTimeout: const Duration(seconds: 5),
+      ),
+    );
     debugPrint('resolveShortInvite: fetching $shortUrl');
     final response = await dio.get(shortUrl);
     final html = response.data.toString();
-    debugPrint('resolveShortInvite: got ${html.length} chars, status=${response.statusCode}');
+    debugPrint(
+      'resolveShortInvite: got ${html.length} chars, status=${response.statusCode}',
+    );
 
     // Extract the base64url payload from the hub landing page.
     // Strategy 1: match the JS variable (current hub template builds the
     //   deep link dynamically: var data = "BASE64"; ... + encodeURIComponent(data))
     // Strategy 2 (legacy): match a complete deep link in the HTML source
     final match =
-        RegExp(r'var\s+data\s*=\s*"([A-Za-z0-9_-]+)"').firstMatch(html)
-        ?? RegExp(r'bibliogenius://invite\?d=([A-Za-z0-9_-]+)').firstMatch(html);
+        RegExp(r'var\s+data\s*=\s*"([A-Za-z0-9_-]+)"').firstMatch(html) ??
+        RegExp(r'bibliogenius://invite\?d=([A-Za-z0-9_-]+)').firstMatch(html);
     if (match != null) {
       final b64 = match.group(1)!;
       final normalized = base64Url.normalize(b64);

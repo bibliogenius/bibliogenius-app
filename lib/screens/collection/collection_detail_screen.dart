@@ -38,8 +38,10 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
 
   void _refreshBooks() {
     setState(() {
-      _booksFuture = Provider.of<CollectionRepository>(context, listen: false)
-          .getCollectionBooks(widget.collection.id);
+      _booksFuture = Provider.of<CollectionRepository>(
+        context,
+        listen: false,
+      ).getCollectionBooks(widget.collection.id);
     });
   }
 
@@ -264,76 +266,88 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
         preSelectedCollectionId: widget.collection.id,
         preSelectedCollectionName: widget.collection.name,
         destinationName: widget.collection.name,
-        thirdSlotOverride: Builder(builder: (sheetContext) {
-          return QuickActionCard(
-            icon: Icons.document_scanner_outlined,
-            color: Colors.deepOrange,
-            label: TranslationService.translate(
-                sheetContext, 'quick_batch_scan'),
-            onTap: () async {
-              Navigator.pop(sheetContext);
-              await context.push(
-                '/scan',
-                extra: {
-                  'collectionId': widget.collection.id,
-                  'collectionName': widget.collection.name,
-                  'batch': true,
-                },
-              );
-              _refreshBooks();
-            },
-          );
-        }),
-        contextualQuickActions: [
-          Builder(builder: (sheetContext) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: QuickActionCard(
-                        icon: Icons.upload_file,
-                        color: Colors.blue,
-                        label: TranslationService.translate(
-                            sheetContext, 'import_books'),
-                        onTap: () {
-                          Navigator.pop(sheetContext);
-                          _importBooks();
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: QuickActionCard(
-                        icon: Icons.share,
-                        color: Colors.green,
-                        label: TranslationService.translate(
-                            sheetContext, 'action_share'),
-                        onTap: () {
-                          Navigator.pop(sheetContext);
-                          _shareCollection();
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: QuickActionCard(
-                        icon: Icons.delete,
-                        color: Colors.red,
-                        label: TranslationService.translate(
-                            sheetContext, 'delete_collection_title'),
-                        onTap: () {
-                          Navigator.pop(sheetContext);
-                          _deleteCollection();
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+        thirdSlotOverride: Builder(
+          builder: (sheetContext) {
+            return QuickActionCard(
+              icon: Icons.document_scanner_outlined,
+              color: Colors.deepOrange,
+              label: TranslationService.translate(
+                sheetContext,
+                'quick_batch_scan',
+              ),
+              onTap: () async {
+                Navigator.pop(sheetContext);
+                await context.push(
+                  '/scan',
+                  extra: {
+                    'collectionId': widget.collection.id,
+                    'collectionName': widget.collection.name,
+                    'batch': true,
+                  },
+                );
+                _refreshBooks();
+              },
             );
-          }),
+          },
+        ),
+        contextualQuickActions: [
+          Builder(
+            builder: (sheetContext) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: QuickActionCard(
+                          icon: Icons.upload_file,
+                          color: Colors.blue,
+                          label: TranslationService.translate(
+                            sheetContext,
+                            'import_books',
+                          ),
+                          onTap: () {
+                            Navigator.pop(sheetContext);
+                            _importBooks();
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: QuickActionCard(
+                          icon: Icons.share,
+                          color: Colors.green,
+                          label: TranslationService.translate(
+                            sheetContext,
+                            'action_share',
+                          ),
+                          onTap: () {
+                            Navigator.pop(sheetContext);
+                            _shareCollection();
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: QuickActionCard(
+                          icon: Icons.delete,
+                          color: Colors.red,
+                          label: TranslationService.translate(
+                            sheetContext,
+                            'delete_collection_title',
+                          ),
+                          onTap: () {
+                            Navigator.pop(sheetContext);
+                            _deleteCollection();
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            },
+          ),
         ],
         actions: [],
       ),
@@ -400,9 +414,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                           padding: const EdgeInsets.only(bottom: 12),
                           child: Text(
                             widget.collection.description!,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium
+                            style: Theme.of(context).textTheme.bodyMedium
                                 ?.copyWith(
                                   color: Colors.white.withValues(alpha: 0.95),
                                   height: 1.4,
@@ -419,10 +431,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                               child: _buildStatCard(
                                 context,
                                 totalCount.toString(),
-                                TranslationService.translate(
-                                  context,
-                                  'books',
-                                ),
+                                TranslationService.translate(context, 'books'),
                                 Icons.library_books,
                                 Colors.white,
                               ),
@@ -607,7 +616,8 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                                             imageUrl: book.coverUrl,
                                             width: 50,
                                             height: 75,
-                                            semanticLabel: book.author != null &&
+                                            semanticLabel:
+                                                book.author != null &&
                                                     book.author!.isNotEmpty
                                                 ? '${book.title}, ${book.author}'
                                                 : book.title,
@@ -683,14 +693,17 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                                         ),
                                         // Status badge with label
                                         GestureDetector(
-                                          onTap: () =>
-                                              _toggleBookStatus(book),
+                                          onTap: () => _toggleBookStatus(book),
                                           child: Tooltip(
                                             message: book.isOwned
                                                 ? TranslationService.translate(
-                                                    context, 'status_owned')
+                                                    context,
+                                                    'status_owned',
+                                                  )
                                                 : TranslationService.translate(
-                                                    context, 'status_wanted'),
+                                                    context,
+                                                    'status_wanted',
+                                                  ),
                                             child: Container(
                                               padding:
                                                   const EdgeInsets.symmetric(
@@ -733,12 +746,14 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                                                   const SizedBox(width: 4),
                                                   Text(
                                                     book.isOwned
-                                                        ? TranslationService
-                                                            .translate(context,
-                                                                'status_owned')
-                                                        : TranslationService
-                                                            .translate(context,
-                                                                'status_wanted'),
+                                                        ? TranslationService.translate(
+                                                            context,
+                                                            'status_owned',
+                                                          )
+                                                        : TranslationService.translate(
+                                                            context,
+                                                            'status_wanted',
+                                                          ),
                                                     style: TextStyle(
                                                       fontSize: 11,
                                                       fontWeight:
@@ -787,12 +802,14 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                                                   const SizedBox(width: 8),
                                                   Text(
                                                     book.isOwned
-                                                        ? TranslationService
-                                                            .translate(context,
-                                                                'status_wanted')
-                                                        : TranslationService
-                                                            .translate(context,
-                                                                'status_owned'),
+                                                        ? TranslationService.translate(
+                                                            context,
+                                                            'status_wanted',
+                                                          )
+                                                        : TranslationService.translate(
+                                                            context,
+                                                            'status_owned',
+                                                          ),
                                                   ),
                                                 ],
                                               ),
@@ -809,10 +826,12 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                                                   const SizedBox(width: 8),
                                                   Text(
                                                     TranslationService.translate(
-                                                        context,
-                                                        'remove_from_collection'),
+                                                      context,
+                                                      'remove_from_collection',
+                                                    ),
                                                     style: const TextStyle(
-                                                        color: Colors.red),
+                                                      color: Colors.red,
+                                                    ),
                                                   ),
                                                 ],
                                               ),
@@ -873,25 +892,19 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(
-          TranslationService.translate(context, 'remove_book_title'),
-        ),
+        title: Text(TranslationService.translate(context, 'remove_book_title')),
         content: Text(
           '${TranslationService.translate(context, 'remove_book_confirm')} "${book.title}"',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text(
-              TranslationService.translate(context, 'cancel'),
-            ),
+            child: Text(TranslationService.translate(context, 'cancel')),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(
-              TranslationService.translate(context, 'remove'),
-            ),
+            child: Text(TranslationService.translate(context, 'remove')),
           ),
         ],
       ),

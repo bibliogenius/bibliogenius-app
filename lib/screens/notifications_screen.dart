@@ -44,14 +44,18 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             IconButton(
               icon: const Icon(Icons.done_all),
               tooltip: TranslationService.translate(
-                  context, 'notifications_mark_all_read'),
+                context,
+                'notifications_mark_all_read',
+              ),
               onPressed: () => provider.markAllRead(),
             ),
           if (provider.notifications.isNotEmpty)
             IconButton(
               icon: const Icon(Icons.delete_sweep),
               tooltip: TranslationService.translate(
-                  context, 'notifications_clear_all'),
+                context,
+                'notifications_clear_all',
+              ),
               onPressed: () => _confirmClearAll(provider),
             ),
         ],
@@ -68,31 +72,35 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             child: provider.isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : provider.notifications.isEmpty
-                    ? PremiumEmptyState(
-                        icon: Icons.notifications_none_rounded,
-                        message: TranslationService.translate(
-                            context, 'notifications_empty'),
-                        description: TranslationService.translate(
-                            context, 'notifications_empty_desc'),
-                        colorOverride: cs.primary,
-                      )
-                    : ListView.separated(
-                        itemCount: provider.notifications.length,
-                        separatorBuilder: (context, index) => Divider(
-                          height: 1,
-                          thickness: 0.5,
-                          indent: 72,
-                          color: cs.outlineVariant.withValues(alpha: 0.4),
-                        ),
-                        itemBuilder: (context, index) {
-                          final notif = provider.notifications[index];
-                          return _NotificationTile(
-                            notification: notif,
-                            onDismiss: () => provider.dismiss(notif.id),
-                            onTap: () => _handleTap(notif, provider),
-                          );
-                        },
-                      ),
+                ? PremiumEmptyState(
+                    icon: Icons.notifications_none_rounded,
+                    message: TranslationService.translate(
+                      context,
+                      'notifications_empty',
+                    ),
+                    description: TranslationService.translate(
+                      context,
+                      'notifications_empty_desc',
+                    ),
+                    colorOverride: cs.primary,
+                  )
+                : ListView.separated(
+                    itemCount: provider.notifications.length,
+                    separatorBuilder: (context, index) => Divider(
+                      height: 1,
+                      thickness: 0.5,
+                      indent: 72,
+                      color: cs.outlineVariant.withValues(alpha: 0.4),
+                    ),
+                    itemBuilder: (context, index) {
+                      final notif = provider.notifications[index];
+                      return _NotificationTile(
+                        notification: notif,
+                        onDismiss: () => provider.dismiss(notif.id),
+                        onTap: () => _handleTap(notif, provider),
+                      );
+                    },
+                  ),
           ),
         ],
       ),
@@ -103,8 +111,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(TranslationService.translate(
-            context, 'notifications_clear_all_confirm')),
+        title: Text(
+          TranslationService.translate(
+            context,
+            'notifications_clear_all_confirm',
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
@@ -183,7 +195,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
     final parts = notif.refId!.split(':');
     final sourceId = parts[0];
-    final bookTitle = notif.title; // The book title is stored in notification.title
+    final bookTitle =
+        notif.title; // The book title is stored in notification.title
 
     if (notif.refType == 'peer') {
       final peerId = int.tryParse(sourceId);
@@ -201,8 +214,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           for (final p in peers) {
             if (p is Map && p['id'] == peerId) {
               if (mounted) {
-                final hasRelay = p['relay_url'] != null &&
-                    p['mailbox_id'] != null;
+                final hasRelay =
+                    p['relay_url'] != null && p['mailbox_id'] != null;
                 context.push(
                   '/peers/$peerId/books',
                   extra: {
@@ -244,31 +257,43 @@ class _FilterBar extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         children: [
-          _chip(context, null,
-              TranslationService.translate(context, 'notifications_filter_all')),
+          _chip(
+            context,
+            null,
+            TranslationService.translate(context, 'notifications_filter_all'),
+          ),
           const SizedBox(width: 8),
           if (tp.notifConnectionsEnabled) ...[
             _chip(
+              context,
+              'connections',
+              TranslationService.translate(
                 context,
-                'connections',
-                TranslationService.translate(
-                    context, 'notifications_filter_connections')),
+                'notifications_filter_connections',
+              ),
+            ),
             const SizedBox(width: 8),
           ],
           if (tp.notifLoansEnabled) ...[
             _chip(
+              context,
+              'loans',
+              TranslationService.translate(
                 context,
-                'loans',
-                TranslationService.translate(
-                    context, 'notifications_filter_loans')),
+                'notifications_filter_loans',
+              ),
+            ),
             const SizedBox(width: 8),
           ],
           if (tp.notifDiscoveriesEnabled)
             _chip(
+              context,
+              'discoveries',
+              TranslationService.translate(
                 context,
-                'discoveries',
-                TranslationService.translate(
-                    context, 'notifications_filter_discoveries')),
+                'notifications_filter_discoveries',
+              ),
+            ),
         ],
       ),
     );
@@ -341,41 +366,55 @@ class _NotificationTile extends StatelessWidget {
     final b = notification.body;
     switch (notification.eventType) {
       case 'connection_request':
-        return TranslationService.translate(context, 'notif_connection_request')
-            .replaceAll('{name}', t);
+        return TranslationService.translate(
+          context,
+          'notif_connection_request',
+        ).replaceAll('{name}', t);
       case 'connection_accepted':
-        return TranslationService.translate(context, 'notif_connection_accepted')
-            .replaceAll('{name}', t);
+        return TranslationService.translate(
+          context,
+          'notif_connection_accepted',
+        ).replaceAll('{name}', t);
       case 'new_follower':
-        return TranslationService.translate(context, 'notif_new_follower')
-            .replaceAll('{name}', t);
+        return TranslationService.translate(
+          context,
+          'notif_new_follower',
+        ).replaceAll('{name}', t);
       case 'follow_request':
-        return TranslationService.translate(context, 'notif_follow_request')
-            .replaceAll('{name}', t);
+        return TranslationService.translate(
+          context,
+          'notif_follow_request',
+        ).replaceAll('{name}', t);
       case 'borrow_request':
-        return TranslationService.translate(context, 'notif_borrow_request')
-            .replaceAll('{name}', b ?? '')
-            .replaceAll('{book}', t);
+        return TranslationService.translate(
+          context,
+          'notif_borrow_request',
+        ).replaceAll('{name}', b ?? '').replaceAll('{book}', t);
       case 'borrow_accepted':
-        return TranslationService.translate(context, 'notif_borrow_accepted')
-            .replaceAll('{name}', b ?? '')
-            .replaceAll('{book}', t);
+        return TranslationService.translate(
+          context,
+          'notif_borrow_accepted',
+        ).replaceAll('{name}', b ?? '').replaceAll('{book}', t);
       case 'borrow_rejected':
-        return TranslationService.translate(context, 'notif_borrow_rejected')
-            .replaceAll('{name}', b ?? '')
-            .replaceAll('{book}', t);
+        return TranslationService.translate(
+          context,
+          'notif_borrow_rejected',
+        ).replaceAll('{name}', b ?? '').replaceAll('{book}', t);
       case 'book_returned':
-        return TranslationService.translate(context, 'notif_book_returned')
-            .replaceAll('{name}', b ?? '')
-            .replaceAll('{book}', t);
+        return TranslationService.translate(
+          context,
+          'notif_book_returned',
+        ).replaceAll('{name}', b ?? '').replaceAll('{book}', t);
       case 'book_reclaimed':
-        return TranslationService.translate(context, 'notif_book_reclaimed')
-            .replaceAll('{name}', b ?? '')
-            .replaceAll('{book}', t);
+        return TranslationService.translate(
+          context,
+          'notif_book_reclaimed',
+        ).replaceAll('{name}', b ?? '').replaceAll('{book}', t);
       case 'wishlist_match':
-        return TranslationService.translate(context, 'notif_wishlist_match')
-            .replaceAll('{book}', t)
-            .replaceAll('{source}', b ?? '');
+        return TranslationService.translate(
+          context,
+          'notif_wishlist_match',
+        ).replaceAll('{book}', t).replaceAll('{source}', b ?? '');
       case 'welcome':
         return TranslationService.translate(context, 'notif_welcome');
       default:
@@ -445,16 +484,15 @@ class _NotificationTile extends StatelessWidget {
           children: [
             Text(
               _relativeTime(context, notification.createdAt),
-              style: TextStyle(
-                fontSize: 12,
-                color: cs.onSurfaceVariant,
-              ),
+              style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
             ),
             const SizedBox(width: 4),
             Semantics(
               button: true,
               label: TranslationService.translate(
-                  context, 'notifications_dismiss'),
+                context,
+                'notifications_dismiss',
+              ),
               child: InkWell(
                 borderRadius: BorderRadius.circular(12),
                 onTap: onDismiss,

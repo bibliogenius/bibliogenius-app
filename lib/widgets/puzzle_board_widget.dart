@@ -27,14 +27,12 @@ class PuzzleBoardWidget extends StatelessWidget {
         return LayoutBuilder(
           builder: (context, constraints) {
             // Board is a square that fits available width/height
-            final maxSize =
-                constraints.maxWidth < constraints.maxHeight
-                    ? constraints.maxWidth
-                    : constraints.maxHeight;
+            final maxSize = constraints.maxWidth < constraints.maxHeight
+                ? constraints.maxWidth
+                : constraints.maxHeight;
             final boardSize = maxSize.clamp(0.0, 500.0);
             const spacing = 3.0;
-            final tileSize =
-                (boardSize - spacing * (gridSize - 1)) / gridSize;
+            final tileSize = (boardSize - spacing * (gridSize - 1)) / gridSize;
 
             return SizedBox(
               width: boardSize,

@@ -3,7 +3,8 @@
 // Used on native platforms (iOS, Android, macOS, Windows, Linux)
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart' show Int64List;
+import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart'
+    show Int64List;
 import '../models/book.dart';
 import '../models/collection.dart';
 import '../models/collection_book.dart';
@@ -460,10 +461,20 @@ class FfiService {
     }
   }
 
-  Future<String?> searchCoverByTitle(String title, String? author, {bool enableGoogle = false}) async {
+  Future<String?> searchCoverByTitle(
+    String title,
+    String? author, {
+    bool enableGoogle = false,
+  }) async {
     try {
-      debugPrint('FFI searchCoverByTitle: title="$title", author="$author", enableGoogle=$enableGoogle');
-      final result = await frb.searchCoverByTitle(title: title, author: author, enableGoogle: enableGoogle);
+      debugPrint(
+        'FFI searchCoverByTitle: title="$title", author="$author", enableGoogle=$enableGoogle',
+      );
+      final result = await frb.searchCoverByTitle(
+        title: title,
+        author: author,
+        enableGoogle: enableGoogle,
+      );
       debugPrint('FFI searchCoverByTitle: result=$result');
       return result;
     } catch (e) {
@@ -490,11 +501,16 @@ class FfiService {
 
   /// Search ALL enabled sources by title in parallel for the cover picker.
   Future<List<CoverCandidate>> searchAllCoversByTitle(
-      String title, String? author,
-      {bool enableGoogle = false}) async {
+    String title,
+    String? author, {
+    bool enableGoogle = false,
+  }) async {
     try {
       final results = await frb.searchAllCoversByTitle(
-          title: title, author: author, enableGoogle: enableGoogle);
+        title: title,
+        author: author,
+        enableGoogle: enableGoogle,
+      );
       return results
           .map((r) => CoverCandidate(url: r.url, source: r.source))
           .toList();
@@ -508,7 +524,10 @@ class FfiService {
 
   /// Look up book metadata from external sources by ISBN.
   /// Returns a map of field names to values, or null if not found.
-  Future<Map<String, String?>?> lookupBookMetadata(String isbn, {String? lang}) async {
+  Future<Map<String, String?>?> lookupBookMetadata(
+    String isbn, {
+    String? lang,
+  }) async {
     try {
       final meta = await frb.lookupBookMetadata(isbn: isbn, lang: lang);
       if (meta == null) return null;
@@ -543,9 +562,7 @@ class FfiService {
   }
 
   /// Convert FrbCollectionBook to CollectionBook model
-  CollectionBook _frbCollectionBookToCollectionBook(
-    frb.FrbCollectionBook cb,
-  ) {
+  CollectionBook _frbCollectionBookToCollectionBook(frb.FrbCollectionBook cb) {
     return CollectionBook(
       bookId: cb.bookId,
       title: cb.title,
@@ -691,8 +708,7 @@ class FfiService {
   }
 
   /// Refresh network leaderboard: sync with peers then return merged leaderboard
-  Future<List<frb.FrbMemoryLeaderboardEntry>>
-      refreshMemoryLeaderboard() async {
+  Future<List<frb.FrbMemoryLeaderboardEntry>> refreshMemoryLeaderboard() async {
     try {
       return await frb.memoryGameRefreshLeaderboard();
     } catch (e) {
@@ -775,8 +791,7 @@ class FfiService {
   }
 
   /// Refresh puzzle leaderboard: sync with peers then return merged leaderboard
-  Future<List<frb.FrbPuzzleLeaderboardEntry>>
-      refreshPuzzleLeaderboard() async {
+  Future<List<frb.FrbPuzzleLeaderboardEntry>> refreshPuzzleLeaderboard() async {
     try {
       return await frb.puzzleGameRefreshLeaderboard();
     } catch (e) {
@@ -814,7 +829,9 @@ class FfiService {
   }) async {
     try {
       return await frb.hangmanSetup(
-          difficulty: difficulty, excludeBookIds: excludeBookIds);
+        difficulty: difficulty,
+        excludeBookIds: excludeBookIds,
+      );
     } catch (e) {
       debugPrint('FFI hangmanSetup error: $e');
       rethrow;
@@ -856,8 +873,7 @@ class FfiService {
   }
 
   /// Get hangman leaderboard
-  Future<List<frb.FrbHangmanLeaderboardEntry>>
-      getHangmanLeaderboard() async {
+  Future<List<frb.FrbHangmanLeaderboardEntry>> getHangmanLeaderboard() async {
     try {
       return await frb.hangmanLeaderboard();
     } catch (e) {
@@ -868,7 +884,7 @@ class FfiService {
 
   /// Refresh hangman leaderboard: sync with peers then return merged leaderboard
   Future<List<frb.FrbHangmanLeaderboardEntry>>
-      refreshHangmanLeaderboard() async {
+  refreshHangmanLeaderboard() async {
     try {
       return await frb.hangmanRefreshLeaderboard();
     } catch (e) {
@@ -1008,9 +1024,7 @@ class FfiService {
   /// Get all books belonging to a collection.
   Future<List<CollectionBook>> getCollectionBooks(String collectionId) async {
     try {
-      final frbList = await frb.getCollectionBooks(
-        collectionId: collectionId,
-      );
+      final frbList = await frb.getCollectionBooks(collectionId: collectionId);
       return frbList.map(_frbCollectionBookToCollectionBook).toList();
     } catch (e) {
       debugPrint('FFI getCollectionBooks error: $e');
@@ -1019,15 +1033,9 @@ class FfiService {
   }
 
   /// Add a book to a collection (idempotent).
-  Future<void> addBookToCollection(
-    String collectionId,
-    int bookId,
-  ) async {
+  Future<void> addBookToCollection(String collectionId, int bookId) async {
     try {
-      await frb.addBookToCollection(
-        collectionId: collectionId,
-        bookId: bookId,
-      );
+      await frb.addBookToCollection(collectionId: collectionId, bookId: bookId);
     } catch (e) {
       debugPrint('FFI addBookToCollection error: $e');
       rethrow;
@@ -1035,10 +1043,7 @@ class FfiService {
   }
 
   /// Remove a book from a collection.
-  Future<void> removeBookFromCollection(
-    String collectionId,
-    int bookId,
-  ) async {
+  Future<void> removeBookFromCollection(String collectionId, int bookId) async {
     try {
       await frb.removeBookFromCollection(
         collectionId: collectionId,
@@ -1336,7 +1341,9 @@ class FfiService {
   }
 
   /// Get the enriched catalog (ISBN + title + author) of a followed library.
-  Future<List<frb.FrbCatalogEntry>> hubDirectoryGetCatalog(String nodeId) async {
+  Future<List<frb.FrbCatalogEntry>> hubDirectoryGetCatalog(
+    String nodeId,
+  ) async {
     try {
       final entries = await frb.hubDirectoryGetCatalog(nodeId: nodeId);
       return entries;
@@ -1433,7 +1440,8 @@ class FfiService {
   }
 
   /// Fetch incoming borrow requests (pending) for the local library as lender.
-  Future<List<frb.FrbHubBorrowRequest>> hubDirectoryIncomingBorrowRequests() async {
+  Future<List<frb.FrbHubBorrowRequest>>
+  hubDirectoryIncomingBorrowRequests() async {
     try {
       return await frb.hubDirectoryIncomingBorrowRequests();
     } catch (e) {
@@ -1443,7 +1451,8 @@ class FfiService {
   }
 
   /// Fetch outgoing borrow requests sent by the local library as requester.
-  Future<List<frb.FrbHubBorrowRequest>> hubDirectoryOutgoingBorrowRequests() async {
+  Future<List<frb.FrbHubBorrowRequest>>
+  hubDirectoryOutgoingBorrowRequests() async {
     try {
       return await frb.hubDirectoryOutgoingBorrowRequests();
     } catch (e) {

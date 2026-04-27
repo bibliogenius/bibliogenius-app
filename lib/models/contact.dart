@@ -16,6 +16,7 @@ class Contact {
   final int? userId;
   final int? libraryOwnerId;
   final bool isActive;
+
   /// True when the contact's peer owns the book requested in the borrow dialog.
   /// Null when no book context was provided (e.g. regular contact list fetch).
   final bool? hasBook;

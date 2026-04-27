@@ -52,11 +52,11 @@ class HelpTopic {
     required this.id,
     required this.titleKey,
     required this.descKey,
-  })  : icon = Icons.info_outline,
-        gradient = AppDesign.primaryGradient,
-        ctaKey = null,
-        ctaRoute = null,
-        inFaq = false;
+  }) : icon = Icons.info_outline,
+       gradient = AppDesign.primaryGradient,
+       ctaKey = null,
+       ctaRoute = null,
+       inFaq = false;
 }
 
 /// A topic + an optional visibility predicate driven by the user's

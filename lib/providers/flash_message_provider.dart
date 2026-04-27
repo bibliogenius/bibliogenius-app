@@ -18,7 +18,7 @@ class FlashMessageDefinition {
   /// Optional custom content builder. When provided, replaces the default
   /// text+action layout. Receives (context, dismissCallback).
   final Widget Function(BuildContext context, VoidCallback dismiss)?
-      contentBuilder;
+  contentBuilder;
 
   /// Dynamic condition: return true if the flash should be eligible for display.
   final bool Function(BuildContext context) condition;
@@ -228,6 +228,6 @@ class FlashMessageProvider extends ChangeNotifier {
   /// Count of hidden ephemeral flashes.
   int get ephemeralOverflowCount =>
       _ephemeralFlashes.length > maxEphemeralVisible
-          ? _ephemeralFlashes.length - maxEphemeralVisible
-          : 0;
+      ? _ephemeralFlashes.length - maxEphemeralVisible
+      : 0;
 }

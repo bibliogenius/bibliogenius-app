@@ -50,9 +50,9 @@ class _BookNotesScreenState extends State<BookNotesScreen> {
     final page = int.tryParse(_pageController.text.trim());
 
     final success = await context.read<BookNoteProvider>().createNote(
-          content: content,
-          page: page,
-        );
+      content: content,
+      page: page,
+    );
     if (success && mounted) {
       _contentController.clear();
       _pageController.clear();
@@ -69,15 +69,12 @@ class _BookNotesScreenState extends State<BookNotesScreen> {
 
   Future<void> _editNote(BookNote note) async {
     final contentCtrl = TextEditingController(text: note.content);
-    final pageCtrl =
-        TextEditingController(text: note.page?.toString() ?? '');
+    final pageCtrl = TextEditingController(text: note.page?.toString() ?? '');
 
     final result = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(
-          TranslationService.translate(context, 'edit_note'),
-        ),
+        title: Text(TranslationService.translate(context, 'edit_note')),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -87,7 +84,9 @@ class _BookNotesScreenState extends State<BookNotesScreen> {
               maxLength: maxNoteContentLength,
               decoration: InputDecoration(
                 hintText: TranslationService.translate(
-                    context, 'add_note_placeholder'),
+                  context,
+                  'add_note_placeholder',
+                ),
               ),
             ),
             const SizedBox(height: 8),
@@ -95,8 +94,10 @@ class _BookNotesScreenState extends State<BookNotesScreen> {
               controller: pageCtrl,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
-                hintText:
-                    TranslationService.translate(context, 'note_page_label'),
+                hintText: TranslationService.translate(
+                  context,
+                  'note_page_label',
+                ),
                 prefixIcon: const Icon(Icons.bookmark_outline, size: 20),
               ),
             ),
@@ -119,10 +120,10 @@ class _BookNotesScreenState extends State<BookNotesScreen> {
       final newContent = contentCtrl.text.trim();
       if (newContent.isEmpty) return;
       await context.read<BookNoteProvider>().updateNote(
-            id: note.id,
-            content: newContent,
-            page: int.tryParse(pageCtrl.text.trim()),
-          );
+        id: note.id,
+        content: newContent,
+        page: int.tryParse(pageCtrl.text.trim()),
+      );
     }
     contentCtrl.dispose();
     pageCtrl.dispose();
@@ -137,9 +138,7 @@ class _BookNotesScreenState extends State<BookNotesScreen> {
     final t = TranslationService.translate;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(t(context, 'notes_section_title')),
-      ),
+      appBar: AppBar(title: Text(t(context, 'notes_section_title'))),
       body: Consumer<BookNoteProvider>(
         builder: (context, provider, _) {
           if (provider.isLoading) {
@@ -150,8 +149,10 @@ class _BookNotesScreenState extends State<BookNotesScreen> {
             children: [
               // Input bar
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 child: Row(
                   children: [
                     SizedBox(
@@ -167,33 +168,32 @@ class _BookNotesScreenState extends State<BookNotesScreen> {
                           prefixIcon: Icon(
                             Icons.bookmark_outline,
                             size: 16,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withAlpha(100),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withAlpha(100),
                           ),
                           prefixIconConstraints: const BoxConstraints(
                             minWidth: 24,
                             minHeight: 0,
                           ),
                           contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 4, vertical: 10),
+                            horizontal: 4,
+                            vertical: 10,
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                             borderSide: BorderSide(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .outline
-                                  .withAlpha(60),
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.outline.withAlpha(60),
                             ),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                             borderSide: BorderSide(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .outline
-                                  .withAlpha(60),
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.outline.withAlpha(60),
                             ),
                           ),
                         ),
@@ -209,29 +209,32 @@ class _BookNotesScreenState extends State<BookNotesScreen> {
                         onSubmitted: (_) => _addNote(),
                         decoration: InputDecoration(
                           hintText: t(context, 'add_note_placeholder'),
-                          hintStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurface.withAlpha(100),
-                          ),
+                          hintStyle: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withAlpha(100),
+                              ),
                           isDense: true,
                           counterText: '',
                           contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 10),
+                            horizontal: 12,
+                            vertical: 10,
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                             borderSide: BorderSide(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .outline
-                                  .withAlpha(60),
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.outline.withAlpha(60),
                             ),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                             borderSide: BorderSide(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .outline
-                                  .withAlpha(60),
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.outline.withAlpha(60),
                             ),
                           ),
                         ),
@@ -255,11 +258,11 @@ class _BookNotesScreenState extends State<BookNotesScreen> {
                     ? Center(
                         child: Text(
                           t(context, 'no_notes_yet'),
-                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurface
-                                    .withAlpha(128),
+                          style: Theme.of(context).textTheme.bodyLarge
+                              ?.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withAlpha(128),
                               ),
                         ),
                       )

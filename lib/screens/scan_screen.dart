@@ -258,13 +258,15 @@ class _ScanScreenState extends State<ScanScreen> {
         _batchCount++;
         _lastAddedTitle = bookTitle ?? isbn;
         _lastScannedIsbn = isbn;
-        _batchedBooks.add(_BatchedBook(
-          isbn: isbn,
-          title: bookTitle ?? isbn,
-          coverUrl: bookCoverUrl,
-          bookPayload: bookPayload,
-          existingBook: existingBook,
-        ));
+        _batchedBooks.add(
+          _BatchedBook(
+            isbn: isbn,
+            title: bookTitle ?? isbn,
+            coverUrl: bookCoverUrl,
+            bookPayload: bookPayload,
+            existingBook: existingBook,
+          ),
+        );
       });
 
       if (mounted) {
@@ -494,21 +496,16 @@ class _ScanScreenState extends State<ScanScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () =>
-                Navigator.pop(ctx, _ExistingBookAction.skip),
+            onPressed: () => Navigator.pop(ctx, _ExistingBookAction.skip),
             child: Text(
               TranslationService.translate(context, 'batch_scan_skip'),
             ),
           ),
           ElevatedButton.icon(
-            onPressed: () =>
-                Navigator.pop(ctx, _ExistingBookAction.addCopy),
+            onPressed: () => Navigator.pop(ctx, _ExistingBookAction.addCopy),
             icon: const Icon(Icons.add),
             label: Text(
-              TranslationService.translate(
-                context,
-                'batch_scan_add_copy',
-              ),
+              TranslationService.translate(context, 'batch_scan_add_copy'),
             ),
           ),
         ],
@@ -523,8 +520,9 @@ class _ScanScreenState extends State<ScanScreen> {
       _batchedBooks.removeAt(index);
       _batchedIsbns.remove(book.isbn);
       _batchCount = _batchedBooks.length;
-      _lastAddedTitle =
-          _batchedBooks.isNotEmpty ? _batchedBooks.last.title : null;
+      _lastAddedTitle = _batchedBooks.isNotEmpty
+          ? _batchedBooks.last.title
+          : null;
     });
   }
 
@@ -542,14 +540,12 @@ class _ScanScreenState extends State<ScanScreen> {
         titleCtrl.text = book.bookPayload?['title'] ?? '';
         authorCtrl.text = book.bookPayload?['author'] ?? '';
         publisherCtrl.text = book.bookPayload?['publisher'] ?? '';
-        yearCtrl.text =
-            book.bookPayload?['publication_year']?.toString() ?? '';
+        yearCtrl.text = book.bookPayload?['publication_year']?.toString() ?? '';
       } else {
         titleCtrl.text = book.title;
         authorCtrl.text = book.existingBook?.author ?? '';
         publisherCtrl.text = book.existingBook?.publisher ?? '';
-        yearCtrl.text =
-            book.existingBook?.publicationYear?.toString() ?? '';
+        yearCtrl.text = book.existingBook?.publicationYear?.toString() ?? '';
       }
     }
 
@@ -559,13 +555,14 @@ class _ScanScreenState extends State<ScanScreen> {
       if (book.isNew && book.bookPayload != null) {
         book.bookPayload!['title'] = titleCtrl.text;
         book.bookPayload!['author'] = authorCtrl.text;
-        book.bookPayload!['publisher'] =
-            publisherCtrl.text.isEmpty ? null : publisherCtrl.text;
+        book.bookPayload!['publisher'] = publisherCtrl.text.isEmpty
+            ? null
+            : publisherCtrl.text;
         final yearText = yearCtrl.text;
-        book.bookPayload!['publication_year'] =
-            yearText.isEmpty ? null : int.tryParse(yearText);
-        book.title =
-            titleCtrl.text.isNotEmpty ? titleCtrl.text : book.isbn;
+        book.bookPayload!['publication_year'] = yearText.isEmpty
+            ? null
+            : int.tryParse(yearText);
+        book.title = titleCtrl.text.isNotEmpty ? titleCtrl.text : book.isbn;
       }
       setState(() {});
     }
@@ -617,10 +614,9 @@ class _ScanScreenState extends State<ScanScreen> {
                       if (_batchedBooks.length > 1)
                         Text(
                           '${currentIndex + 1}/${_batchedBooks.length}',
-                          style: Theme.of(ctx)
-                              .textTheme
-                              .titleMedium
-                              ?.copyWith(fontWeight: FontWeight.bold),
+                          style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       const Spacer(),
                       IconButton(
@@ -663,8 +659,7 @@ class _ScanScreenState extends State<ScanScreen> {
                             const SizedBox(width: 16),
                             Expanded(
                               child: Column(
-                                crossAxisAlignment:
-                                    CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     'ISBN: ${book.isbn}',
@@ -675,19 +670,17 @@ class _ScanScreenState extends State<ScanScreen> {
                                   ),
                                   if (!isEditable)
                                     Padding(
-                                      padding: const EdgeInsets.only(
-                                        top: 4,
-                                      ),
+                                      padding: const EdgeInsets.only(top: 4),
                                       child: Container(
-                                        padding:
-                                            const EdgeInsets.symmetric(
+                                        padding: const EdgeInsets.symmetric(
                                           horizontal: 8,
                                           vertical: 2,
                                         ),
                                         decoration: BoxDecoration(
                                           color: Colors.blue.shade50,
-                                          borderRadius:
-                                              BorderRadius.circular(12),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
                                         ),
                                         child: Text(
                                           TranslationService.translate(
@@ -764,8 +757,7 @@ class _ScanScreenState extends State<ScanScreen> {
                               padding: const EdgeInsets.only(top: 4),
                               child: Text(
                                 book.existingBook!.author!,
-                                style:
-                                    Theme.of(ctx).textTheme.bodyLarge,
+                                style: Theme.of(ctx).textTheme.bodyLarge,
                               ),
                             ),
                         ],
@@ -917,10 +909,7 @@ class _ScanScreenState extends State<ScanScreen> {
           children: [
             const Icon(Icons.wifi_off, color: Colors.orange),
             const SizedBox(width: 8),
-            Text(TranslationService.translate(
-              context,
-              'scan_offline_title',
-            )),
+            Text(TranslationService.translate(context, 'scan_offline_title')),
           ],
         ),
         content: Text(
@@ -1098,402 +1087,403 @@ class _ScanScreenState extends State<ScanScreen> {
         }
       },
       child: Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        title: Text(
-          widget.batchMode
-              ? TranslationService.translate(context, 'batch_scan_title')
-              : TranslationService.translate(context, 'scan_isbn_title'),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: Icon(_isTorchOn ? Icons.flash_on : Icons.flash_off),
-            tooltip: TranslationService.translate(context, 'tooltip_toggle_flashlight'),
-            onPressed: () {
-              setState(() {
-                _isTorchOn = !_isTorchOn;
-              });
-              controller.toggleTorch();
-            },
+        extendBodyBehindAppBar: true,
+        appBar: AppBar(
+          title: Text(
+            widget.batchMode
+                ? TranslationService.translate(context, 'batch_scan_title')
+                : TranslationService.translate(context, 'scan_isbn_title'),
           ),
-          IconButton(
-            icon: const Icon(Icons.cameraswitch),
-            onPressed: () => controller.switchCamera(),
-            tooltip:
-                TranslationService.translate(context, 'switch_camera'),
-          ),
-        ],
-      ),
-      body: Stack(
-        children: [
-          widget.scannerBuilder?.call(context, controller, _onDetect) ??
-              MobileScanner(
-                controller: controller,
-                // fit: BoxFit.cover, // Ensure it covers screen
-                onDetect: _onDetect,
-                errorBuilder: (context, error, child) {
-                  return Center(
-                    child: Text(
-                      'Error: ${error.errorCode}',
-                      style: const TextStyle(color: Colors.red),
-                    ),
-                  );
-                },
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          actions: [
+            IconButton(
+              icon: Icon(_isTorchOn ? Icons.flash_on : Icons.flash_off),
+              tooltip: TranslationService.translate(
+                context,
+                'tooltip_toggle_flashlight',
               ),
-
-          CustomPaint(
-            painter: ScannerOverlayPainter(scanWindow),
-            child: Container(),
-          ),
-
-          // Offline warning banner
-          if (_isOffline)
-            Positioned(
-              top: 90,
-              left: 20,
-              right: 20,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.orange.shade800.withValues(alpha: 0.9),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.wifi_off, color: Colors.white, size: 18),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        TranslationService.translate(
-                          context,
-                          'scan_offline_banner',
-                        ),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 13,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              onPressed: () {
+                setState(() {
+                  _isTorchOn = !_isTorchOn;
+                });
+                controller.toggleTorch();
+              },
             ),
-
-          // Batch mode: scanned covers side panel (Gleeph-style)
-          if (widget.batchMode && _batchedBooks.isNotEmpty)
-            Positioned(
-              left: 0,
-              top: _isOffline ? 140 : 100,
-              bottom: 160,
-              width: 70,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.7),
-                  borderRadius: const BorderRadius.only(
-                    topRight: Radius.circular(12),
-                    bottomRight: Radius.circular(12),
-                  ),
-                ),
-                child: ListView.builder(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  reverse: true,
-                  itemCount: _batchedBooks.length,
-                  itemBuilder: (context, index) {
-                    final book = _batchedBooks[index];
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 4,
-                      ),
-                      child: GestureDetector(
-                        onTap: () => _showBookEditSheet(index),
-                        child: Stack(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(4),
-                              child: book.coverUrl != null
-                                  ? Image.network(
-                                      book.coverUrl!,
-                                      width: 58,
-                                      height: 80,
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (_, __, ___) =>
-                                          _buildPlaceholder(book.title),
-                                    )
-                                  : _buildPlaceholder(book.title),
-                            ),
-                            Positioned(
-                              top: 0,
-                              right: 0,
-                              child: GestureDetector(
-                                onTap: () => _removeFromBatch(index),
-                                child: Container(
-                                  padding: const EdgeInsets.all(2),
-                                  decoration: const BoxDecoration(
-                                    color: Colors.black54,
-                                    borderRadius: BorderRadius.only(
-                                      topRight: Radius.circular(4),
-                                      bottomLeft: Radius.circular(8),
-                                    ),
-                                  ),
-                                  child: const Icon(
-                                    Icons.close,
-                                    size: 14,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+            IconButton(
+              icon: const Icon(Icons.cameraswitch),
+              onPressed: () => controller.switchCamera(),
+              tooltip: TranslationService.translate(context, 'switch_camera'),
+            ),
+          ],
+        ),
+        body: Stack(
+          children: [
+            widget.scannerBuilder?.call(context, controller, _onDetect) ??
+                MobileScanner(
+                  controller: controller,
+                  // fit: BoxFit.cover, // Ensure it covers screen
+                  onDetect: _onDetect,
+                  errorBuilder: (context, error, child) {
+                    return Center(
+                      child: Text(
+                        'Error: ${error.errorCode}',
+                        style: const TextStyle(color: Colors.red),
                       ),
                     );
                   },
                 ),
-              ),
+
+            CustomPaint(
+              painter: ScannerOverlayPainter(scanWindow),
+              child: Container(),
             ),
 
-          // Batch mode: destination indicator at top
-          if (widget.batchMode && _hasDestination)
-            Positioned(
-              top: _isOffline ? 140 : 100,
-              left: 80,
-              right: 20,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 10,
-                ),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor.withValues(alpha: 0.9),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      widget.preSelectedShelfId != null
-                          ? Icons.folder
-                          : Icons.collections_bookmark,
-                      color: Colors.white,
-                      size: 18,
-                    ),
-                    const SizedBox(width: 8),
-                    Flexible(
-                      child: Text(
-                        _destinationLabel,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-          // Processing indicator (single book lookup)
-          if (_isProcessingBatch)
-            Positioned.fill(
-              child: Container(
-                color: Colors.black54,
-                child: const Center(
-                  child: CircularProgressIndicator(color: Colors.white),
-                ),
-              ),
-            ),
-
-          // Commit progress overlay (saving all books)
-          if (_isCommitting)
-            Positioned.fill(
-              child: Container(
-                color: Colors.black87,
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
+            // Offline warning banner
+            if (_isOffline)
+              Positioned(
+                top: 90,
+                left: 20,
+                right: 20,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.shade800.withValues(alpha: 0.9),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
                     children: [
-                      CircularProgressIndicator(
-                        color: Colors.white,
-                        value: _commitProgress,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        '${TranslationService.translate(context, 'batch_scan_saving')} '
-                        '${(_commitProgress * _batchedBooks.length).ceil()}/${_batchedBooks.length}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
+                      const Icon(Icons.wifi_off, color: Colors.white, size: 18),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          TranslationService.translate(
+                            context,
+                            'scan_offline_banner',
+                          ),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
+                          ),
                         ),
                       ),
                     ],
                   ),
                 ),
               ),
-            ),
 
-          // Scan instruction
-          Positioned(
-            bottom: widget.batchMode ? 190 : 80,
-            left: 20,
-            right: 20,
-            child: Text(
-              TranslationService.translate(context, 'scan_instruction'),
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                shadows: [
-                  Shadow(
-                    offset: Offset(1, 1),
-                    blurRadius: 2,
-                    color: Colors.black,
+            // Batch mode: scanned covers side panel (Gleeph-style)
+            if (widget.batchMode && _batchedBooks.isNotEmpty)
+              Positioned(
+                left: 0,
+                top: _isOffline ? 140 : 100,
+                bottom: 160,
+                width: 70,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.7),
+                    borderRadius: const BorderRadius.only(
+                      topRight: Radius.circular(12),
+                      bottomRight: Radius.circular(12),
+                    ),
                   ),
-                ],
+                  child: ListView.builder(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    reverse: true,
+                    itemCount: _batchedBooks.length,
+                    itemBuilder: (context, index) {
+                      final book = _batchedBooks[index];
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 4,
+                        ),
+                        child: GestureDetector(
+                          onTap: () => _showBookEditSheet(index),
+                          child: Stack(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(4),
+                                child: book.coverUrl != null
+                                    ? Image.network(
+                                        book.coverUrl!,
+                                        width: 58,
+                                        height: 80,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (_, __, ___) =>
+                                            _buildPlaceholder(book.title),
+                                      )
+                                    : _buildPlaceholder(book.title),
+                              ),
+                              Positioned(
+                                top: 0,
+                                right: 0,
+                                child: GestureDetector(
+                                  onTap: () => _removeFromBatch(index),
+                                  child: Container(
+                                    padding: const EdgeInsets.all(2),
+                                    decoration: const BoxDecoration(
+                                      color: Colors.black54,
+                                      borderRadius: BorderRadius.only(
+                                        topRight: Radius.circular(4),
+                                        bottomLeft: Radius.circular(8),
+                                      ),
+                                    ),
+                                    child: const Icon(
+                                      Icons.close,
+                                      size: 14,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
               ),
-            ),
-          ),
 
-          // Batch mode: counter and last added
-          if (widget.batchMode)
+            // Batch mode: destination indicator at top
+            if (widget.batchMode && _hasDestination)
+              Positioned(
+                top: _isOffline ? 140 : 100,
+                left: 80,
+                right: 20,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      context,
+                    ).primaryColor.withValues(alpha: 0.9),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        widget.preSelectedShelfId != null
+                            ? Icons.folder
+                            : Icons.collections_bookmark,
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Text(
+                          _destinationLabel,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+            // Processing indicator (single book lookup)
+            if (_isProcessingBatch)
+              Positioned.fill(
+                child: Container(
+                  color: Colors.black54,
+                  child: const Center(
+                    child: CircularProgressIndicator(color: Colors.white),
+                  ),
+                ),
+              ),
+
+            // Commit progress overlay (saving all books)
+            if (_isCommitting)
+              Positioned.fill(
+                child: Container(
+                  color: Colors.black87,
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircularProgressIndicator(
+                          color: Colors.white,
+                          value: _commitProgress,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          '${TranslationService.translate(context, 'batch_scan_saving')} '
+                          '${(_commitProgress * _batchedBooks.length).ceil()}/${_batchedBooks.length}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+            // Scan instruction
             Positioned(
-              bottom: 135,
+              bottom: widget.batchMode ? 190 : 80,
               left: 20,
               right: 20,
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.black87,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (_lastAddedTitle != null)
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.check_circle,
-                            color: Colors.green,
-                            size: 18,
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              _lastAddedTitle!,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '$_batchCount ${TranslationService.translate(context, 'books_added')}',
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.8),
-                        fontSize: 12,
-                      ),
+              child: Text(
+                TranslationService.translate(context, 'scan_instruction'),
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  shadows: [
+                    Shadow(
+                      offset: Offset(1, 1),
+                      blurRadius: 2,
+                      color: Colors.black,
                     ),
                   ],
                 ),
               ),
             ),
 
-          // Review button
-          if (widget.batchMode && _batchedBooks.isNotEmpty)
-            Positioned(
-              bottom: 78,
-              left: 50,
-              right: 50,
-              child: OutlinedButton.icon(
-                icon: const Icon(Icons.checklist, size: 18),
-                label: Text(
-                  TranslationService.translate(
-                    context,
-                    'batch_scan_review',
+            // Batch mode: counter and last added
+            if (widget.batchMode)
+              Positioned(
+                bottom: 135,
+                left: 20,
+                right: 20,
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.black87,
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                ),
-                onPressed: _isCommitting
-                    ? null
-                    : () => _showBookEditSheet(0, reviewMode: true),
-                style: OutlinedButton.styleFrom(
-                  backgroundColor: Colors.white.withValues(alpha: 0.9),
-                  foregroundColor: Colors.black87,
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  side: const BorderSide(color: Colors.white70),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (_lastAddedTitle != null)
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.check_circle,
+                              color: Colors.green,
+                              size: 18,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                _lastAddedTitle!,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '$_batchCount ${TranslationService.translate(context, 'books_added')}',
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.8),
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
 
-          // Bottom button
-          Positioned(
-            bottom: 30,
-            left: 50,
-            right: 50,
-            child: widget.batchMode
-                ? ElevatedButton.icon(
-                    icon: Icon(
-                      _batchedBooks.isEmpty ? Icons.close : Icons.save,
-                    ),
-                    label: Text(
-                      _batchedBooks.isEmpty
-                          ? TranslationService.translate(context, 'done')
-                          : '${TranslationService.translate(context, 'batch_scan_save')} (${_batchedBooks.length})',
-                    ),
-                    onPressed: _isCommitting
-                        ? null
-                        : () {
-                            if (_batchedBooks.isEmpty) {
-                              context.pop(false);
-                            } else {
-                              _commitBatchedBooks();
-                            }
-                          },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.black,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                  )
-                : ElevatedButton(
-                    onPressed: () {
-                      context.push('/books/add');
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.black,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.keyboard),
-                        const SizedBox(width: 8),
-                        Text(
-                          TranslationService.translate(
-                                context,
-                                'btn_enter_manually',
-                              ) ??
-                              'Enter Manually',
-                        ),
-                      ],
-                    ),
+            // Review button
+            if (widget.batchMode && _batchedBooks.isNotEmpty)
+              Positioned(
+                bottom: 78,
+                left: 50,
+                right: 50,
+                child: OutlinedButton.icon(
+                  icon: const Icon(Icons.checklist, size: 18),
+                  label: Text(
+                    TranslationService.translate(context, 'batch_scan_review'),
                   ),
-          ),
-        ],
+                  onPressed: _isCommitting
+                      ? null
+                      : () => _showBookEditSheet(0, reviewMode: true),
+                  style: OutlinedButton.styleFrom(
+                    backgroundColor: Colors.white.withValues(alpha: 0.9),
+                    foregroundColor: Colors.black87,
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    side: const BorderSide(color: Colors.white70),
+                  ),
+                ),
+              ),
+
+            // Bottom button
+            Positioned(
+              bottom: 30,
+              left: 50,
+              right: 50,
+              child: widget.batchMode
+                  ? ElevatedButton.icon(
+                      icon: Icon(
+                        _batchedBooks.isEmpty ? Icons.close : Icons.save,
+                      ),
+                      label: Text(
+                        _batchedBooks.isEmpty
+                            ? TranslationService.translate(context, 'done')
+                            : '${TranslationService.translate(context, 'batch_scan_save')} (${_batchedBooks.length})',
+                      ),
+                      onPressed: _isCommitting
+                          ? null
+                          : () {
+                              if (_batchedBooks.isEmpty) {
+                                context.pop(false);
+                              } else {
+                                _commitBatchedBooks();
+                              }
+                            },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: Colors.black,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    )
+                  : ElevatedButton(
+                      onPressed: () {
+                        context.push('/books/add');
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: Colors.black,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.keyboard),
+                          const SizedBox(width: 8),
+                          Text(
+                            TranslationService.translate(
+                                  context,
+                                  'btn_enter_manually',
+                                ) ??
+                                'Enter Manually',
+                          ),
+                        ],
+                      ),
+                    ),
+            ),
+          ],
+        ),
       ),
-    ),
     );
   }
 }

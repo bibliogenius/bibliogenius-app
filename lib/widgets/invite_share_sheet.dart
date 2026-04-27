@@ -21,9 +21,18 @@ Future<void> shareInviteLinkDirect(BuildContext context) async {
   // Capture everything from context before any await
   final messenger = ScaffoldMessenger.of(context);
   final apiService = Provider.of<ApiService>(context, listen: false);
-  final libraryName = Provider.of<ThemeProvider>(context, listen: false).libraryName;
-  final loadingText = TranslationService.translate(context, 'generating_invite_link');
-  final messageTemplate = TranslationService.translate(context, 'invite_share_message');
+  final libraryName = Provider.of<ThemeProvider>(
+    context,
+    listen: false,
+  ).libraryName;
+  final loadingText = TranslationService.translate(
+    context,
+    'generating_invite_link',
+  );
+  final messageTemplate = TranslationService.translate(
+    context,
+    'invite_share_message',
+  );
 
   messenger.showSnackBar(
     SnackBar(
@@ -32,7 +41,10 @@ Future<void> shareInviteLinkDirect(BuildContext context) async {
           const SizedBox(
             width: 16,
             height: 16,
-            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: Colors.white,
+            ),
           ),
           const SizedBox(width: 12),
           Text(loadingText),
@@ -157,7 +169,10 @@ class _InviteShareSheetState extends State<InviteShareSheet> {
 
       final configRes = await apiService.getLibraryConfig();
       // Library name from ThemeProvider (single source of truth)
-      final libraryName = Provider.of<ThemeProvider>(context, listen: false).libraryName;
+      final libraryName = Provider.of<ThemeProvider>(
+        context,
+        listen: false,
+      ).libraryName;
       final libraryUuid = configRes.data['library_uuid'] as String?;
       final ed25519Key = configRes.data['ed25519_public_key'] as String?;
       final x25519Key = configRes.data['x25519_public_key'] as String?;
@@ -188,7 +203,10 @@ class _InviteShareSheetState extends State<InviteShareSheet> {
       );
 
       // Try to create a short invite link via the hub
-      final link = await createInviteLink(payload, hubBaseUrl: ApiService.hubUrl);
+      final link = await createInviteLink(
+        payload,
+        hubBaseUrl: ApiService.hubUrl,
+      );
 
       if (mounted) {
         setState(() {
@@ -240,9 +258,7 @@ class _InviteShareSheetState extends State<InviteShareSheet> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            TranslationService.translate(context, 'share_failed'),
-          ),
+          content: Text(TranslationService.translate(context, 'share_failed')),
           backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
@@ -265,7 +281,9 @@ class _InviteShareSheetState extends State<InviteShareSheet> {
               height: 4,
               margin: const EdgeInsets.only(bottom: 16),
               decoration: BoxDecoration(
-                color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+                color: theme.colorScheme.onSurfaceVariant.withValues(
+                  alpha: 0.4,
+                ),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -302,11 +320,7 @@ class _InviteShareSheetState extends State<InviteShareSheet> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.wifi_off,
-            size: 48,
-            color: theme.colorScheme.error,
-          ),
+          Icon(Icons.wifi_off, size: 48, color: theme.colorScheme.error),
           const SizedBox(height: 12),
           Text(
             TranslationService.translate(context, 'qr_error'),
@@ -317,9 +331,7 @@ class _InviteShareSheetState extends State<InviteShareSheet> {
           Text(
             TranslationService.translate(context, 'qr_wifi_suggestion'),
             textAlign: TextAlign.center,
-            style: TextStyle(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
+            style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
           ),
         ],
       ),
@@ -393,13 +405,18 @@ class _InviteShareSheetState extends State<InviteShareSheet> {
           ),
           child: Row(
             children: [
-              Icon(Icons.cell_tower,
-                  size: 16, color: theme.colorScheme.primary),
+              Icon(
+                Icons.cell_tower,
+                size: 16,
+                color: theme.colorScheme.primary,
+              ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   TranslationService.translate(
-                      context, 'invite_works_everywhere'),
+                    context,
+                    'invite_works_everywhere',
+                  ),
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurface,
                   ),
@@ -419,7 +436,9 @@ class _InviteShareSheetState extends State<InviteShareSheet> {
                       icon: const Icon(Icons.content_copy, size: 18),
                       label: Text(
                         TranslationService.translate(
-                            context, 'copy_invite_link'),
+                          context,
+                          'copy_invite_link',
+                        ),
                       ),
                     )
                   : OutlinedButton.icon(
@@ -427,7 +446,9 @@ class _InviteShareSheetState extends State<InviteShareSheet> {
                       icon: const Icon(Icons.content_copy, size: 18),
                       label: Text(
                         TranslationService.translate(
-                            context, 'copy_invite_link'),
+                          context,
+                          'copy_invite_link',
+                        ),
                       ),
                     ),
             ),
@@ -439,7 +460,9 @@ class _InviteShareSheetState extends State<InviteShareSheet> {
                       icon: const Icon(Icons.share, size: 18),
                       label: Text(
                         TranslationService.translate(
-                            context, 'share_invite_link'),
+                          context,
+                          'share_invite_link',
+                        ),
                       ),
                     )
                   : FilledButton.icon(
@@ -447,7 +470,9 @@ class _InviteShareSheetState extends State<InviteShareSheet> {
                       icon: const Icon(Icons.share, size: 18),
                       label: Text(
                         TranslationService.translate(
-                            context, 'share_invite_link'),
+                          context,
+                          'share_invite_link',
+                        ),
                       ),
                     ),
             ),

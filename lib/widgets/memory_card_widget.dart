@@ -13,11 +13,7 @@ class MemoryCardWidget extends StatefulWidget {
   final MemoryCard card;
   final VoidCallback onTap;
 
-  const MemoryCardWidget({
-    super.key,
-    required this.card,
-    required this.onTap,
-  });
+  const MemoryCardWidget({super.key, required this.card, required this.onTap});
 
   @override
   State<MemoryCardWidget> createState() => _MemoryCardWidgetState();
@@ -36,9 +32,10 @@ class _MemoryCardWidgetState extends State<MemoryCardWidget>
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    _animation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _animation = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
     _showFront = widget.card.isFlipped || widget.card.isMatched;
     if (_showFront) {
@@ -135,10 +132,9 @@ class _MemoryCardWidgetState extends State<MemoryCardWidget>
             if (widget.card.isMatched)
               Container(
                 decoration: BoxDecoration(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .primary
-                      .withValues(alpha: 0.3),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Center(
@@ -164,17 +160,10 @@ class _MemoryCardWidgetState extends State<MemoryCardWidget>
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            colorScheme.primary,
-            colorScheme.secondary,
-          ],
+          colors: [colorScheme.primary, colorScheme.secondary],
         ),
         boxShadow: const [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 4,
-            offset: Offset(0, 2),
-          ),
+          BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2)),
         ],
       ),
       child: Center(

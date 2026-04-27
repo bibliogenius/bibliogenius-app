@@ -171,12 +171,14 @@ class HangmanProvider extends ChangeNotifier {
       _sessionPlayedBookIds.add(setup.bookId);
       _fullTitle = setup.title;
       _display = setup.display
-          .map((c) => HangmanChar(
-                character: c.character,
-                baseChar: c.baseChar,
-                revealed: c.revealed,
-                isGuessable: c.isGuessable,
-              ))
+          .map(
+            (c) => HangmanChar(
+              character: c.character,
+              baseChar: c.baseChar,
+              revealed: c.revealed,
+              isGuessable: c.isGuessable,
+            ),
+          )
           .toList();
       _author = setup.author;
       _coverUrl = setup.coverUrl;
@@ -196,13 +198,10 @@ class HangmanProvider extends ChangeNotifier {
       _stopwatch.start();
       _elapsedSeconds = 0;
       _displayTimer?.cancel();
-      _displayTimer = Timer.periodic(
-        const Duration(seconds: 1),
-        (_) {
-          _elapsedSeconds = _stopwatch.elapsedMilliseconds / 1000.0;
-          notifyListeners();
-        },
-      );
+      _displayTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+        _elapsedSeconds = _stopwatch.elapsedMilliseconds / 1000.0;
+        notifyListeners();
+      });
     } catch (e) {
       _error = e.toString();
       debugPrint('HangmanProvider: startGame error: $e');
@@ -337,16 +336,18 @@ class HangmanProvider extends ChangeNotifier {
     try {
       final frbScores = await _ffi.getHangmanTopScores();
       _topScores = frbScores
-          .map((s) => HangmanGameScore(
-                id: s.id,
-                difficulty: s.difficulty,
-                elapsedSeconds: s.elapsedSeconds,
-                errors: s.errors,
-                hintsUsed: s.hintsUsed,
-                won: s.won,
-                normalizedScore: s.normalizedScore,
-                playedAt: s.playedAt,
-              ))
+          .map(
+            (s) => HangmanGameScore(
+              id: s.id,
+              difficulty: s.difficulty,
+              elapsedSeconds: s.elapsedSeconds,
+              errors: s.errors,
+              hintsUsed: s.hintsUsed,
+              won: s.won,
+              normalizedScore: s.normalizedScore,
+              playedAt: s.playedAt,
+            ),
+          )
           .toList();
       notifyListeners();
     } catch (e) {
@@ -375,14 +376,16 @@ class HangmanProvider extends ChangeNotifier {
     try {
       final frbEntries = await _ffi.getHangmanLeaderboard();
       _networkScores = frbEntries
-          .map((e) => HangmanLeaderboardEntry(
-                peerId: e.peerId,
-                libraryName: e.libraryName,
-                bestScore: e.bestScore,
-                difficulty: e.difficulty,
-                playedAt: e.playedAt,
-                isSelf: e.isSelf,
-              ))
+          .map(
+            (e) => HangmanLeaderboardEntry(
+              peerId: e.peerId,
+              libraryName: e.libraryName,
+              bestScore: e.bestScore,
+              difficulty: e.difficulty,
+              playedAt: e.playedAt,
+              isSelf: e.isSelf,
+            ),
+          )
           .toList();
       notifyListeners();
     } catch (e) {
@@ -399,23 +402,28 @@ class HangmanProvider extends ChangeNotifier {
   void _syncPeersInBackground() {
     if (_backgroundSyncRunning || _isSyncingNetwork) return;
     _backgroundSyncRunning = true;
-    _ffi.refreshHangmanLeaderboard().then((frbEntries) {
-      _networkScores = frbEntries
-          .map((e) => HangmanLeaderboardEntry(
-                peerId: e.peerId,
-                libraryName: e.libraryName,
-                bestScore: e.bestScore,
-                difficulty: e.difficulty,
-                playedAt: e.playedAt,
-                isSelf: e.isSelf,
-              ))
-          .toList();
-      _backgroundSyncRunning = false;
-      notifyListeners();
-    }).catchError((e) {
-      debugPrint('HangmanProvider: background sync error: $e');
-      _backgroundSyncRunning = false;
-    });
+    _ffi
+        .refreshHangmanLeaderboard()
+        .then((frbEntries) {
+          _networkScores = frbEntries
+              .map(
+                (e) => HangmanLeaderboardEntry(
+                  peerId: e.peerId,
+                  libraryName: e.libraryName,
+                  bestScore: e.bestScore,
+                  difficulty: e.difficulty,
+                  playedAt: e.playedAt,
+                  isSelf: e.isSelf,
+                ),
+              )
+              .toList();
+          _backgroundSyncRunning = false;
+          notifyListeners();
+        })
+        .catchError((e) {
+          debugPrint('HangmanProvider: background sync error: $e');
+          _backgroundSyncRunning = false;
+        });
   }
 
   /// Force relay sync with spinner. Called from the manual refresh button.
@@ -431,23 +439,26 @@ class HangmanProvider extends ChangeNotifier {
     await Future<void>.delayed(const Duration(milliseconds: 50));
 
     try {
-      final frbEntries = await _ffi
-          .refreshHangmanLeaderboard()
-          .timeout(const Duration(seconds: 15));
+      final frbEntries = await _ffi.refreshHangmanLeaderboard().timeout(
+        const Duration(seconds: 15),
+      );
       _networkScores = frbEntries
-          .map((e) => HangmanLeaderboardEntry(
-                peerId: e.peerId,
-                libraryName: e.libraryName,
-                bestScore: e.bestScore,
-                difficulty: e.difficulty,
-                playedAt: e.playedAt,
-                isSelf: e.isSelf,
-              ))
+          .map(
+            (e) => HangmanLeaderboardEntry(
+              peerId: e.peerId,
+              libraryName: e.libraryName,
+              bestScore: e.bestScore,
+              difficulty: e.difficulty,
+              playedAt: e.playedAt,
+              isSelf: e.isSelf,
+            ),
+          )
           .toList();
     } on TimeoutException {
       _lastRefreshTimedOut = true;
       debugPrint(
-          'HangmanProvider: refreshNetworkLeaderboard timed out, reloading cache');
+        'HangmanProvider: refreshNetworkLeaderboard timed out, reloading cache',
+      );
       await _loadCachedScores();
     } catch (e) {
       debugPrint('HangmanProvider: refreshNetworkLeaderboard error: $e');

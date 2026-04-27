@@ -25,8 +25,7 @@ class _OnboardingTourScreenState extends State<OnboardingTourScreen>
   // Slide data - theme-aware for dark mode
   List<_SlideData> _getSlides(BuildContext context) {
     final isDark =
-        Provider.of<ThemeProvider>(context, listen: false).themeStyle ==
-        'dark';
+        Provider.of<ThemeProvider>(context, listen: false).themeStyle == 'dark';
 
     // Cyan gradient palette for dark theme
     final darkGradients = [

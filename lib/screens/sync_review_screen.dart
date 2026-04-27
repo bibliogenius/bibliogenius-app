@@ -53,20 +53,14 @@ class _SyncReviewScreenState extends State<SyncReviewScreen> {
             child: CustomScrollView(
               slivers: [
                 // Info banner
-                SliverToBoxAdapter(
-                  child: _buildInfoBanner(provider, theme),
-                ),
+                SliverToBoxAdapter(child: _buildInfoBanner(provider, theme)),
                 // Action bar
-                SliverToBoxAdapter(
-                  child: _buildActionBar(provider, theme),
-                ),
+                SliverToBoxAdapter(child: _buildActionBar(provider, theme)),
                 // Operation list
                 SliverList(
                   delegate: SliverChildBuilderDelegate(
-                    (context, index) => _buildOpCard(
-                      provider.pendingReview[index],
-                      theme,
-                    ),
+                    (context, index) =>
+                        _buildOpCard(provider.pendingReview[index], theme),
                     childCount: provider.pendingReview.length,
                   ),
                 ),
@@ -115,71 +109,76 @@ class _SyncReviewScreenState extends State<SyncReviewScreen> {
   }
 
   Widget _buildActionBar(DeviceSyncProvider provider, ThemeData theme) {
-    return Column(children: [
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Row(
-          children: [
-            Expanded(
-              child: Tooltip(
-                message: TranslationService.translate(
-                  context,
-                  'sync_review_approve_all',
-                ),
-                child: FilledButton.icon(
-                  onPressed: () => _approveAll(provider),
-                  icon: const Icon(Icons.check_circle_outline, size: 18),
-                  label: Text(
-                    TranslationService.translate(
-                      context,
-                      'sync_review_approve_all',
-                    ),
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              Expanded(
+                child: Tooltip(
+                  message: TranslationService.translate(
+                    context,
+                    'sync_review_approve_all',
                   ),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: Colors.green.shade700,
-                    foregroundColor: Colors.white,
+                  child: FilledButton.icon(
+                    onPressed: () => _approveAll(provider),
+                    icon: const Icon(Icons.check_circle_outline, size: 18),
+                    label: Text(
+                      TranslationService.translate(
+                        context,
+                        'sync_review_approve_all',
+                      ),
+                    ),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Colors.green.shade700,
+                      foregroundColor: Colors.white,
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Tooltip(
-                message: TranslationService.translate(
-                  context,
-                  'sync_review_reject_all',
-                ),
-                child: OutlinedButton.icon(
-                  onPressed: () => _rejectAll(provider),
-                  icon: Icon(Icons.cancel_outlined,
-                      size: 18, color: theme.colorScheme.error),
-                  label: Text(
-                    TranslationService.translate(
-                      context,
-                      'sync_review_reject_all',
-                    ),
-                    style: TextStyle(color: theme.colorScheme.error),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Tooltip(
+                  message: TranslationService.translate(
+                    context,
+                    'sync_review_reject_all',
                   ),
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: theme.colorScheme.error),
+                  child: OutlinedButton.icon(
+                    onPressed: () => _rejectAll(provider),
+                    icon: Icon(
+                      Icons.cancel_outlined,
+                      size: 18,
+                      color: theme.colorScheme.error,
+                    ),
+                    label: Text(
+                      TranslationService.translate(
+                        context,
+                        'sync_review_reject_all',
+                      ),
+                      style: TextStyle(color: theme.colorScheme.error),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: theme.colorScheme.error),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
-        ),
-      ),
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: TextButton.icon(
-          onPressed: () => _resetAll(provider),
-          icon: const Icon(Icons.delete_sweep_rounded, size: 18),
-          label: Text(
-            TranslationService.translate(context, 'sync_reset_all'),
+            ],
           ),
         ),
-      ),
-    ]);
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: TextButton.icon(
+            onPressed: () => _resetAll(provider),
+            icon: const Icon(Icons.delete_sweep_rounded, size: 18),
+            label: Text(
+              TranslationService.translate(context, 'sync_reset_all'),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildOpCard(frb.FrbPendingReviewOp op, ThemeData theme) {
@@ -187,7 +186,8 @@ class _SyncReviewScreenState extends State<SyncReviewScreen> {
     final sourceName = _formatSource(op.source);
 
     return Semantics(
-      label: '${op.operation} ${op.entityType} #${op.entityId}, '
+      label:
+          '${op.operation} ${op.entityType} #${op.entityId}, '
           '${TranslationService.translate(context, 'sync_review_from')} $sourceName',
       child: Card(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -322,10 +322,7 @@ class _SyncReviewScreenState extends State<SyncReviewScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            TranslationService.translate(
-              context,
-              'sync_review_empty_subtitle',
-            ),
+            TranslationService.translate(context, 'sync_review_empty_subtitle'),
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
@@ -365,11 +362,7 @@ class _SyncReviewScreenState extends State<SyncReviewScreen> {
       ),
       child: Text(
         operation,
-        style: TextStyle(
-          fontSize: 10,
-          fontWeight: FontWeight.bold,
-          color: fg,
-        ),
+        style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: fg),
       ),
     );
   }
@@ -383,8 +376,10 @@ class _SyncReviewScreenState extends State<SyncReviewScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            TranslationService.translate(context, 'sync_review_approved')
-                .replaceFirst('%d', count.toString()),
+            TranslationService.translate(
+              context,
+              'sync_review_approved',
+            ).replaceFirst('%d', count.toString()),
           ),
           backgroundColor: Colors.green,
         ),
@@ -399,8 +394,10 @@ class _SyncReviewScreenState extends State<SyncReviewScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            TranslationService.translate(context, 'sync_review_rejected')
-                .replaceFirst('%d', count.toString()),
+            TranslationService.translate(
+              context,
+              'sync_review_rejected',
+            ).replaceFirst('%d', count.toString()),
           ),
         ),
       );
@@ -413,8 +410,10 @@ class _SyncReviewScreenState extends State<SyncReviewScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          TranslationService.translate(context, 'sync_review_approved')
-              .replaceFirst('%d', count.toString()),
+          TranslationService.translate(
+            context,
+            'sync_review_approved',
+          ).replaceFirst('%d', count.toString()),
         ),
         backgroundColor: Colors.green,
       ),
@@ -427,8 +426,10 @@ class _SyncReviewScreenState extends State<SyncReviewScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          TranslationService.translate(context, 'sync_review_rejected')
-              .replaceFirst('%d', count.toString()),
+          TranslationService.translate(
+            context,
+            'sync_review_rejected',
+          ).replaceFirst('%d', count.toString()),
         ),
       ),
     );
@@ -439,7 +440,9 @@ class _SyncReviewScreenState extends State<SyncReviewScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(TranslationService.translate(context, 'sync_reset_all')),
-        content: Text(TranslationService.translate(context, 'sync_reset_confirm')),
+        content: Text(
+          TranslationService.translate(context, 'sync_reset_confirm'),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -459,9 +462,9 @@ class _SyncReviewScreenState extends State<SyncReviewScreen> {
 
     final count = await provider.resetOperationLog();
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Reset $count operations')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Reset $count operations')));
   }
 
   // Helpers

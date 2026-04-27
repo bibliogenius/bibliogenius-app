@@ -53,55 +53,51 @@ void main() {
       );
     });
 
-    test('evictOnce tracks peer URLs independently from the local session set',
-        () {
-      const url = 'https://peer.example/cover/1.jpg';
+    test(
+      'evictOnce tracks peer URLs independently from the local session set',
+      () {
+        const url = 'https://peer.example/cover/1.jpg';
 
-      var peerEvictions = 0;
-      PeerBookCoverCacheManager.removeFileImpl = (_) {
-        peerEvictions += 1;
-      };
+        var peerEvictions = 0;
+        PeerBookCoverCacheManager.removeFileImpl = (_) {
+          peerEvictions += 1;
+        };
 
-      PeerBookCoverCacheManager.evictOnce(url);
-      PeerBookCoverCacheManager.evictOnce(url);
+        PeerBookCoverCacheManager.evictOnce(url);
+        PeerBookCoverCacheManager.evictOnce(url);
 
-      expect(peerEvictions, 1,
-          reason: 'evictOnce must be idempotent per session');
-      expect(
-        PeerBookCoverCacheManager.hasBeenEvictedThisSession(url),
-        isTrue,
-      );
-      expect(
-        BookCoverCacheManager.hasBeenEvictedThisSession(url),
-        isFalse,
-        reason:
-            'Evicting a peer URL must not mark the same URL as evicted in '
-            'the local manager -- the two managers own different files.',
-      );
-    });
+        expect(
+          peerEvictions,
+          1,
+          reason: 'evictOnce must be idempotent per session',
+        );
+        expect(
+          PeerBookCoverCacheManager.hasBeenEvictedThisSession(url),
+          isTrue,
+        );
+        expect(
+          BookCoverCacheManager.hasBeenEvictedThisSession(url),
+          isFalse,
+          reason:
+              'Evicting a peer URL must not mark the same URL as evicted in '
+              'the local manager -- the two managers own different files.',
+        );
+      },
+    );
   });
 
   group('file count cap derivation from MB cap', () {
     test('100 MB cap yields ~2560 files at 40KB/cover estimate', () {
       // 100 * 1024 * 1024 / (40 * 1024) = 2560
-      expect(
-        PeerBookCoverCacheManager.fileCountCapForTest(100),
-        equals(2560),
-      );
+      expect(PeerBookCoverCacheManager.fileCountCapForTest(100), equals(2560));
     });
 
     test('50 MB cap scales proportionally', () {
-      expect(
-        PeerBookCoverCacheManager.fileCountCapForTest(50),
-        equals(1280),
-      );
+      expect(PeerBookCoverCacheManager.fileCountCapForTest(50), equals(1280));
     });
 
     test('500 MB cap scales proportionally', () {
-      expect(
-        PeerBookCoverCacheManager.fileCountCapForTest(500),
-        equals(12800),
-      );
+      expect(PeerBookCoverCacheManager.fileCountCapForTest(500), equals(12800));
     });
 
     test('all Settings-exposed cap values produce positive file counts', () {
@@ -126,8 +122,7 @@ void main() {
     });
   });
 
-  group('clearAll wipes orphans that the JSON index does not know about',
-      () {
+  group('clearAll wipes orphans that the JSON index does not know about', () {
     // flutter_cache_manager's emptyCache() only deletes files tracked in
     // its JSON index. Partial downloads, artifacts from an older cache
     // format, or files left behind by a crash would keep accruing disk
@@ -141,10 +136,10 @@ void main() {
     late Directory tempRoot;
 
     setUpAll(() {
-      tempRoot = Directory.systemTemp
-          .createTempSync('peer_cover_cache_clear_test_');
-      PathProviderPlatform.instance =
-          _FakePathProviderPlatform(tempRoot.path);
+      tempRoot = Directory.systemTemp.createTempSync(
+        'peer_cover_cache_clear_test_',
+      );
+      PathProviderPlatform.instance = _FakePathProviderPlatform(tempRoot.path);
     });
 
     tearDownAll(() {
@@ -168,15 +163,21 @@ void main() {
 
       await PeerBookCoverCacheManager.clearAll();
 
-      expect(await orphan.exists(), isFalse,
-          reason:
-              'clearAll must delete orphans too, otherwise the Settings '
-              'button leaves the user stuck at a non-zero usage reading.');
+      expect(
+        await orphan.exists(),
+        isFalse,
+        reason:
+            'clearAll must delete orphans too, otherwise the Settings '
+            'button leaves the user stuck at a non-zero usage reading.',
+      );
       final sizeAfter = await PeerBookCoverCacheManager.diskSizeBytes();
-      expect(sizeAfter, equals(0),
-          reason:
-              'After Clear the directory should be gone (or empty) -- '
-              'the manager re-creates it lazily on the next fetch.');
+      expect(
+        sizeAfter,
+        equals(0),
+        reason:
+            'After Clear the directory should be gone (or empty) -- '
+            'the manager re-creates it lazily on the next fetch.',
+      );
     });
   });
 }

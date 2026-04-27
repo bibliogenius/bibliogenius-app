@@ -119,8 +119,8 @@ class CuratedList {
 
     final contentLangs = yaml['content_languages'] != null
         ? (yaml['content_languages'] as YamlList)
-            .map((l) => l.toString())
-            .toList()
+              .map((l) => l.toString())
+              .toList()
         : <String>[];
 
     return CuratedList(
@@ -164,8 +164,7 @@ class CuratedListPartition {
     required this.otherLanguages,
   });
 
-  bool get isEmpty =>
-      inYourLanguages.isEmpty && otherLanguages.isEmpty;
+  bool get isEmpty => inYourLanguages.isEmpty && otherLanguages.isEmpty;
 }
 
 /// Split [lists] into the ones matching [userLanguages] and the rest.
@@ -188,10 +187,7 @@ CuratedListPartition partitionCuratedListsByLanguage(
       other.add(list);
     }
   }
-  return CuratedListPartition(
-    inYourLanguages: inYours,
-    otherLanguages: other,
-  );
+  return CuratedListPartition(inYourLanguages: inYours, otherLanguages: other);
 }
 
 /// Represents a category of curated lists.

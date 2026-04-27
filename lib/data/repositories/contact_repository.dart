@@ -1,7 +1,11 @@
 import '../../models/contact.dart';
 
 abstract class ContactRepository {
-  Future<List<Contact>> getContacts({int? libraryId, String? type, String? bookIsbn});
+  Future<List<Contact>> getContacts({
+    int? libraryId,
+    String? type,
+    String? bookIsbn,
+  });
 
   Future<Contact> getContact(int id);
 

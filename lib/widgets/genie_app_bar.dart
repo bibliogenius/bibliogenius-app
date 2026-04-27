@@ -19,7 +19,10 @@ import '../theme/app_design.dart';
 /// Reads from [AppConstants.isBeta].
 bool isBetaVersion = AppConstants.isBeta;
 
-void _showRenameLibraryDialog(BuildContext context, ThemeProvider themeProvider) {
+void _showRenameLibraryDialog(
+  BuildContext context,
+  ThemeProvider themeProvider,
+) {
   final controller = TextEditingController(text: themeProvider.libraryName);
   final api = Provider.of<ApiService>(context, listen: false);
   HubDirectoryProvider? hubProvider;
@@ -30,7 +33,11 @@ void _showRenameLibraryDialog(BuildContext context, ThemeProvider themeProvider)
   Future<void> save(String value) async {
     final name = value.trim();
     if (name.isEmpty) return;
-    await themeProvider.setLibraryName(name, apiService: api, userInitiated: true);
+    await themeProvider.setLibraryName(
+      name,
+      apiService: api,
+      userInitiated: true,
+    );
     final hubConfig = hubProvider?.config;
     if (hubConfig != null) {
       try {
@@ -62,7 +69,10 @@ void _showRenameLibraryDialog(BuildContext context, ThemeProvider themeProvider)
           controller: controller,
           autofocus: true,
           decoration: InputDecoration(
-            hintText: TranslationService.translate(context, 'rename_library_hint'),
+            hintText: TranslationService.translate(
+              context,
+              'rename_library_hint',
+            ),
             border: const OutlineInputBorder(),
           ),
           onSubmitted: (value) {
@@ -102,8 +112,10 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showQuickActions; // Legacy direct buttons
   final List<Widget>? contextualQuickActions; // For the new Quick Actions menu
   final bool showBackButton;
-  final VoidCallback? onBookAdded; // Callback when a book is added via quick actions
-  final VoidCallback? onShelfCreated; // Callback when a shelf is created via quick actions
+  final VoidCallback?
+  onBookAdded; // Callback when a book is added via quick actions
+  final VoidCallback?
+  onShelfCreated; // Callback when a shelf is created via quick actions
   final String? preSelectedShelfId;
   final String? preSelectedCollectionId;
   final String? preSelectedCollectionName;
@@ -165,8 +177,9 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   Widget _buildFlexibleSpace(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
-    final gradientColors =
-        AppDesign.appBarGradientForTheme(themeProvider.themeStyle).colors;
+    final gradientColors = AppDesign.appBarGradientForTheme(
+      themeProvider.themeStyle,
+    ).colors;
     return ExcludeSemantics(
       child: Container(
         decoration: BoxDecoration(
@@ -187,22 +200,22 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final displaySubtitle = subtitle ?? themeProvider.libraryName;
     return LayoutBuilder(
-        builder: (context, constraints) {
-          // Responsive breakpoints based on available title width
-          final availableWidth = constraints.maxWidth;
-          // More aggressive thresholds to hide rather than truncate
-          final hideTitle = availableWidth < 120;
-          final hideSubtitle = availableWidth < 180;
-          final isCompact = availableWidth < 220;
+      builder: (context, constraints) {
+        // Responsive breakpoints based on available title width
+        final availableWidth = constraints.maxWidth;
+        // More aggressive thresholds to hide rather than truncate
+        final hideTitle = availableWidth < 120;
+        final hideSubtitle = availableWidth < 180;
+        final isCompact = availableWidth < 220;
 
-          // Adaptive sizes
-          final logoSize = isCompact ? 28.0 : 36.0;
-          final titleFontSize = isCompact ? 15.0 : 20.0;
-          final subtitleFontSize = isCompact ? 10.0 : 13.0;
-          final spacing = isCompact ? 6.0 : 12.0;
+        // Adaptive sizes
+        final logoSize = isCompact ? 28.0 : 36.0;
+        final titleFontSize = isCompact ? 15.0 : 20.0;
+        final subtitleFontSize = isCompact ? 10.0 : 13.0;
+        final spacing = isCompact ? 6.0 : 12.0;
 
-          return MergeSemantics(
-            child: ClipRect(
+        return MergeSemantics(
+          child: ClipRect(
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -253,10 +266,16 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
                                 ),
                               // Subtitle (library name) - tappable to edit when it's the default libraryName
                               // When title is null, subtitle is the primary text: use hideTitle threshold
-                              if ((title != null ? !hideSubtitle : !hideTitle) && displaySubtitle.isNotEmpty)
+                              if ((title != null
+                                      ? !hideSubtitle
+                                      : !hideTitle) &&
+                                  displaySubtitle.isNotEmpty)
                                 GestureDetector(
                                   onTap: subtitle == null
-                                      ? () => _showRenameLibraryDialog(context, themeProvider)
+                                      ? () => _showRenameLibraryDialog(
+                                          context,
+                                          themeProvider,
+                                        )
                                       : null,
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
@@ -284,7 +303,9 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
                                         Icon(
                                           Icons.edit,
                                           size: subtitleFontSize - 1,
-                                          color: Colors.white.withValues(alpha: 0.5),
+                                          color: Colors.white.withValues(
+                                            alpha: 0.5,
+                                          ),
                                         ),
                                       ],
                                     ],
@@ -296,9 +317,9 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
                 ],
               ],
             ),
-            ),
-          );
-        },
+          ),
+        );
+      },
     );
   }
 
@@ -306,33 +327,40 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final avatarConfig = themeProvider.avatarConfig;
     return [
-        // Notification bell with unread badge (hidden when notifications disabled)
-        if (context.watch<ThemeProvider>().notificationsEnabled)
-          Padding(
-            padding: const EdgeInsets.only(left: 5),
-            child: Consumer<NotificationProvider>(
-              builder: (context, notifProvider, child) {
-                final count = notifProvider.unreadCount;
-                return IconButton(
+      // Notification bell with unread badge (hidden when notifications disabled)
+      if (context.watch<ThemeProvider>().notificationsEnabled)
+        Padding(
+          padding: const EdgeInsets.only(left: 5),
+          child: Consumer<NotificationProvider>(
+            builder: (context, notifProvider, child) {
+              final count = notifProvider.unreadCount;
+              return IconButton(
                 icon: Badge(
                   isLabelVisible: count > 0,
                   label: Text(
                     count > 99 ? '99+' : '$count',
                     style: const TextStyle(fontSize: 10),
                   ),
-                  child: const Icon(Icons.notifications_outlined, color: Colors.white),
+                  child: const Icon(
+                    Icons.notifications_outlined,
+                    color: Colors.white,
+                  ),
                 ),
-                tooltip: TranslationService.translate(context, 'notifications_title'),
-                onPressed: () => _showNotificationPopover(context, notifProvider),
+                tooltip: TranslationService.translate(
+                  context,
+                  'notifications_title',
+                ),
+                onPressed: () =>
+                    _showNotificationPopover(context, notifProvider),
               );
             },
           ),
-          ),
-        // Global Quick Actions Button (New)
-        Semantics(
-          button: true,
-          label: TranslationService.translate(context, 'quick_actions_title'),
-          child: Padding(
+        ),
+      // Global Quick Actions Button (New)
+      Semantics(
+        button: true,
+        label: TranslationService.translate(context, 'quick_actions_title'),
+        child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
           child: Container(
             decoration: BoxDecoration(
@@ -408,55 +436,55 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
             ),
           ),
         ),
-        ),
+      ),
 
-        // Quick Action Buttons (Scanner & Online Search) - only when explicitly enabled
-        if (showQuickActions) ...[
-          IconButton(
-            icon: const Icon(Icons.qr_code_scanner, color: Colors.white),
-            tooltip: TranslationService.translate(context, 'scan_isbn'),
-            onPressed: () async {
-              final isbn = await context.push<String>('/scan');
-              if (isbn != null && context.mounted) {
-                final result = await context.push(
-                  '/books/add',
-                  extra: {'isbn': isbn},
-                );
-                if (result != null && context.mounted) {
-                  if (onBookAdded != null) onBookAdded!();
-                  if (result is int) {
-                    context.push('/books/$result');
-                  }
+      // Quick Action Buttons (Scanner & Online Search) - only when explicitly enabled
+      if (showQuickActions) ...[
+        IconButton(
+          icon: const Icon(Icons.qr_code_scanner, color: Colors.white),
+          tooltip: TranslationService.translate(context, 'scan_isbn'),
+          onPressed: () async {
+            final isbn = await context.push<String>('/scan');
+            if (isbn != null && context.mounted) {
+              final result = await context.push(
+                '/books/add',
+                extra: {'isbn': isbn},
+              );
+              if (result != null && context.mounted) {
+                if (onBookAdded != null) onBookAdded!();
+                if (result is int) {
+                  context.push('/books/$result');
                 }
               }
-            },
-          ),
-          IconButton(
-            icon: const Icon(
-              Icons.travel_explore,
-              color: Colors.white,
-            ), // Globe + search icon
-            tooltip: TranslationService.translate(context, 'search_online'),
-            onPressed: () async {
-              final result = await context.push('/search/external');
-              if (result == true && onBookAdded != null) {
-                onBookAdded!();
-              }
-            },
-          ),
-        ],
-        if (actions != null) ...actions!,
-        IconButton(
-          icon: const Icon(Icons.settings_outlined, color: Colors.white),
-          tooltip: TranslationService.translate(context, 'tooltip_open_settings'),
-          onPressed: () => context.go('/settings'),
+            }
+          },
         ),
-        // Avatar
-        if (avatarConfig?.style != 'initials')
-          Semantics(
-            button: true,
-            label: TranslationService.translate(context, 'nav_profile'),
-            child: Padding(
+        IconButton(
+          icon: const Icon(
+            Icons.travel_explore,
+            color: Colors.white,
+          ), // Globe + search icon
+          tooltip: TranslationService.translate(context, 'search_online'),
+          onPressed: () async {
+            final result = await context.push('/search/external');
+            if (result == true && onBookAdded != null) {
+              onBookAdded!();
+            }
+          },
+        ),
+      ],
+      if (actions != null) ...actions!,
+      IconButton(
+        icon: const Icon(Icons.settings_outlined, color: Colors.white),
+        tooltip: TranslationService.translate(context, 'tooltip_open_settings'),
+        onPressed: () => context.go('/settings'),
+      ),
+      // Avatar
+      if (avatarConfig?.style != 'initials')
+        Semantics(
+          button: true,
+          label: TranslationService.translate(context, 'nav_profile'),
+          child: Padding(
             padding: const EdgeInsets.only(right: 16, left: 8),
             child: GestureDetector(
               onTap: () => context.push('/profile'),
@@ -496,7 +524,7 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
             ),
           ),
-          ),
+        ),
     ];
   }
 
@@ -549,7 +577,9 @@ class GenieSliverAppBar extends StatelessWidget {
 }
 
 void _showNotificationPopover(
-    BuildContext context, NotificationProvider provider) {
+  BuildContext context,
+  NotificationProvider provider,
+) {
   provider.loadNotifications();
   showDialog(
     context: context,
@@ -599,12 +629,17 @@ class _NotificationPopover extends StatelessWidget {
                       padding: const EdgeInsets.fromLTRB(16, 14, 8, 12),
                       child: Row(
                         children: [
-                          const Icon(Icons.notifications_outlined,
-                              color: Colors.white, size: 18),
+                          const Icon(
+                            Icons.notifications_outlined,
+                            color: Colors.white,
+                            size: 18,
+                          ),
                           const SizedBox(width: 8),
                           Text(
                             TranslationService.translate(
-                                context, 'notifications_title'),
+                              context,
+                              'notifications_title',
+                            ),
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 15,
@@ -617,16 +652,22 @@ class _NotificationPopover extends StatelessWidget {
                               onTap: () => provider.markAllRead(),
                               child: Container(
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 4),
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
                                 decoration: BoxDecoration(
                                   color: Colors.white.withValues(alpha: 0.2),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
                                   TranslationService.translate(
-                                      context, 'notifications_mark_all_read'),
+                                    context,
+                                    'notifications_mark_all_read',
+                                  ),
                                   style: const TextStyle(
-                                      fontSize: 11, color: Colors.white),
+                                    fontSize: 11,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                             ),
@@ -638,27 +679,30 @@ class _NotificationPopover extends StatelessWidget {
                       const Padding(
                         padding: EdgeInsets.all(24),
                         child: Center(
-                            child: SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                    strokeWidth: 2))),
+                          child: SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        ),
                       )
                     else if (notifs.isEmpty)
                       Padding(
                         padding: const EdgeInsets.all(24),
                         child: Column(
                           children: [
-                            Icon(Icons.notifications_none_rounded,
-                                size: 32,
-                                color: cs.onSurfaceVariant
-                                    .withValues(alpha: 0.4)),
+                            Icon(
+                              Icons.notifications_none_rounded,
+                              size: 32,
+                              color: cs.onSurfaceVariant.withValues(alpha: 0.4),
+                            ),
                             const SizedBox(height: 8),
                             Text(
                               TranslationService.translate(
-                                  context, 'notifications_empty'),
-                              style:
-                                  TextStyle(color: cs.onSurfaceVariant),
+                                context,
+                                'notifications_empty',
+                              ),
+                              style: TextStyle(color: cs.onSurfaceVariant),
                             ),
                           ],
                         ),
@@ -685,17 +729,16 @@ class _NotificationPopover extends StatelessWidget {
                               Divider(
                                 height: 1,
                                 indent: 46,
-                                color: cs.outlineVariant
-                                    .withValues(alpha: 0.3),
+                                color: cs.outlineVariant.withValues(alpha: 0.3),
                               ),
                           ],
                         );
                       }),
                     // "See all" footer
                     Divider(
-                        height: 1,
-                        color:
-                            cs.outlineVariant.withValues(alpha: 0.3)),
+                      height: 1,
+                      color: cs.outlineVariant.withValues(alpha: 0.3),
+                    ),
                     InkWell(
                       onTap: () {
                         Navigator.of(context).pop();
@@ -703,12 +746,13 @@ class _NotificationPopover extends StatelessWidget {
                       },
                       child: Container(
                         width: double.infinity,
-                        padding:
-                            const EdgeInsets.symmetric(vertical: 12),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
                         child: Center(
                           child: Text(
                             TranslationService.translate(
-                                context, 'notifications_see_all'),
+                              context,
+                              'notifications_see_all',
+                            ),
                             style: TextStyle(
                               color: accentColor,
                               fontWeight: FontWeight.w600,
@@ -823,35 +867,45 @@ String _formatTitle(BuildContext context, FrbNotification n) {
   final b = n.body;
   switch (n.eventType) {
     case 'connection_request':
-      return TranslationService.translate(context, 'notif_connection_request')
-          .replaceAll('{name}', t);
+      return TranslationService.translate(
+        context,
+        'notif_connection_request',
+      ).replaceAll('{name}', t);
     case 'connection_accepted':
-      return TranslationService.translate(context, 'notif_connection_accepted')
-          .replaceAll('{name}', t);
+      return TranslationService.translate(
+        context,
+        'notif_connection_accepted',
+      ).replaceAll('{name}', t);
     case 'borrow_request':
-      return TranslationService.translate(context, 'notif_borrow_request')
-          .replaceAll('{name}', b ?? '')
-          .replaceAll('{book}', t);
+      return TranslationService.translate(
+        context,
+        'notif_borrow_request',
+      ).replaceAll('{name}', b ?? '').replaceAll('{book}', t);
     case 'borrow_accepted':
-      return TranslationService.translate(context, 'notif_borrow_accepted')
-          .replaceAll('{name}', b ?? '')
-          .replaceAll('{book}', t);
+      return TranslationService.translate(
+        context,
+        'notif_borrow_accepted',
+      ).replaceAll('{name}', b ?? '').replaceAll('{book}', t);
     case 'book_returned':
-      return TranslationService.translate(context, 'notif_book_returned')
-          .replaceAll('{name}', b ?? '')
-          .replaceAll('{book}', t);
+      return TranslationService.translate(
+        context,
+        'notif_book_returned',
+      ).replaceAll('{name}', b ?? '').replaceAll('{book}', t);
     case 'book_reclaimed':
-      return TranslationService.translate(context, 'notif_book_reclaimed')
-          .replaceAll('{name}', b ?? '')
-          .replaceAll('{book}', t);
+      return TranslationService.translate(
+        context,
+        'notif_book_reclaimed',
+      ).replaceAll('{name}', b ?? '').replaceAll('{book}', t);
     case 'borrow_rejected':
-      return TranslationService.translate(context, 'notif_borrow_rejected')
-          .replaceAll('{name}', b ?? '')
-          .replaceAll('{book}', t);
+      return TranslationService.translate(
+        context,
+        'notif_borrow_rejected',
+      ).replaceAll('{name}', b ?? '').replaceAll('{book}', t);
     case 'wishlist_match':
-      return TranslationService.translate(context, 'notif_wishlist_match')
-          .replaceAll('{book}', t)
-          .replaceAll('{source}', b ?? '');
+      return TranslationService.translate(
+        context,
+        'notif_wishlist_match',
+      ).replaceAll('{book}', t).replaceAll('{source}', b ?? '');
     case 'welcome':
       return TranslationService.translate(context, 'notif_welcome');
     default:

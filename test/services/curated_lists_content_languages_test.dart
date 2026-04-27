@@ -89,7 +89,9 @@ void main() {
     });
 
     test('any-language overlap is enough to match', () {
-      final lists = [buildList('multi', ['en', 'fr'])];
+      final lists = [
+        buildList('multi', ['en', 'fr']),
+      ];
       final result = partitionCuratedListsByLanguage(lists, {'fr'});
       expect(result.inYourLanguages.map((l) => l.id), equals(['multi']));
       expect(result.otherLanguages, isEmpty);
@@ -110,14 +112,8 @@ void main() {
         buildList('d-de', ['de']),
       ];
       final result = partitionCuratedListsByLanguage(lists, {'fr'});
-      expect(
-        result.inYourLanguages.map((l) => l.id),
-        equals(['a-fr', 'c-fr']),
-      );
-      expect(
-        result.otherLanguages.map((l) => l.id),
-        equals(['b-en', 'd-de']),
-      );
+      expect(result.inYourLanguages.map((l) => l.id), equals(['a-fr', 'c-fr']));
+      expect(result.otherLanguages.map((l) => l.id), equals(['b-en', 'd-de']));
     });
 
     test('empty user languages pushes everything to otherLanguages', () {

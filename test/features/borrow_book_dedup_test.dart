@@ -42,137 +42,132 @@ void main() {
           Provider<CopyRepository>.value(value: mockCopyRepo),
           ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ],
-        child: MaterialApp(
-          home: BorrowBookScreen(contact: testContact),
-        ),
+        child: MaterialApp(home: BorrowBookScreen(contact: testContact)),
       );
     }
 
     // Helper: find the borrow button by its icon (library_add)
     Finder findBorrowButton() => find.byIcon(Icons.library_add);
 
-    testWidgets(
-      'reuses existing book when ISBN already in library',
-      (WidgetTester tester) async {
-        tester.view.physicalSize = const Size(800, 1800);
-        tester.view.devicePixelRatio = 1.0;
-        addTearDown(tester.view.resetPhysicalSize);
-        addTearDown(tester.view.resetDevicePixelRatio);
+    testWidgets('reuses existing book when ISBN already in library', (
+      WidgetTester tester,
+    ) async {
+      tester.view.physicalSize = const Size(800, 1800);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
 
-        mockBookRepo.mockFindByIsbnResult = Book(
-          id: 7,
-          title: 'Existing Book',
-          isbn: '9782752903570',
-          author: 'Jack London',
-        );
+      mockBookRepo.mockFindByIsbnResult = Book(
+        id: 7,
+        title: 'Existing Book',
+        isbn: '9782752903570',
+        author: 'Jack London',
+      );
 
-        await tester.pumpWidget(buildTestWidget());
-        await tester.pumpAndSettle();
+      await tester.pumpWidget(buildTestWidget());
+      await tester.pumpAndSettle();
 
-        // Fill ISBN
-        final isbnField = find.widgetWithText(TextFormField, 'ISBN');
-        await tester.enterText(isbnField, '9782752903570');
-        await tester.pumpAndSettle();
+      // Fill ISBN
+      final isbnField = find.widgetWithText(TextFormField, 'ISBN');
+      await tester.enterText(isbnField, '9782752903570');
+      await tester.pumpAndSettle();
 
-        // Trigger lookup via search icon
-        await tester.tap(find.byIcon(Icons.search));
-        await tester.pumpAndSettle();
+      // Trigger lookup via search icon
+      await tester.tap(find.byIcon(Icons.search));
+      await tester.pumpAndSettle();
 
-        // findBookByIsbn was called
-        expect(mockBookRepo.calls, contains('findBookByIsbn:9782752903570'));
+      // findBookByIsbn was called
+      expect(mockBookRepo.calls, contains('findBookByIsbn:9782752903570'));
 
-        // Existing book alert is shown
-        expect(find.byKey(const Key('existingBookAlert')), findsOneWidget);
+      // Existing book alert is shown
+      expect(find.byKey(const Key('existingBookAlert')), findsOneWidget);
 
-        // Tap borrow button
-        await tester.tap(findBorrowButton());
-        await tester.pumpAndSettle();
+      // Tap borrow button
+      await tester.tap(findBorrowButton());
+      await tester.pumpAndSettle();
 
-        // createBook was NOT called
-        expect(mockApi.createdBooks, isEmpty);
+      // createBook was NOT called
+      expect(mockApi.createdBooks, isEmpty);
 
-        // Copy was created with EXISTING book ID (7)
-        expect(mockCopyRepo.createdCopies, hasLength(1));
-        expect(mockCopyRepo.createdCopies.first['book_id'], 7);
-        expect(mockCopyRepo.createdCopies.first['status'], 'borrowed');
-        expect(mockCopyRepo.createdCopies.first['is_temporary'], true);
-      },
-    );
+      // Copy was created with EXISTING book ID (7)
+      expect(mockCopyRepo.createdCopies, hasLength(1));
+      expect(mockCopyRepo.createdCopies.first['book_id'], 7);
+      expect(mockCopyRepo.createdCopies.first['status'], 'borrowed');
+      expect(mockCopyRepo.createdCopies.first['is_temporary'], true);
+    });
 
-    testWidgets(
-      'creates new book when ISBN not in library',
-      (WidgetTester tester) async {
-        tester.view.physicalSize = const Size(800, 1800);
-        tester.view.devicePixelRatio = 1.0;
-        addTearDown(tester.view.resetPhysicalSize);
-        addTearDown(tester.view.resetDevicePixelRatio);
+    testWidgets('creates new book when ISBN not in library', (
+      WidgetTester tester,
+    ) async {
+      tester.view.physicalSize = const Size(800, 1800);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
 
-        mockBookRepo.mockFindByIsbnResult = null;
-        mockApi.lookupResult = {
-          'title': 'New External Book',
-          'author': 'Some Author',
-          'isbn': '9781234567890',
-        };
+      mockBookRepo.mockFindByIsbnResult = null;
+      mockApi.lookupResult = {
+        'title': 'New External Book',
+        'author': 'Some Author',
+        'isbn': '9781234567890',
+      };
 
-        await tester.pumpWidget(buildTestWidget());
-        await tester.pumpAndSettle();
+      await tester.pumpWidget(buildTestWidget());
+      await tester.pumpAndSettle();
 
-        final isbnField = find.widgetWithText(TextFormField, 'ISBN');
-        await tester.enterText(isbnField, '9781234567890');
-        await tester.pumpAndSettle();
+      final isbnField = find.widgetWithText(TextFormField, 'ISBN');
+      await tester.enterText(isbnField, '9781234567890');
+      await tester.pumpAndSettle();
 
-        await tester.tap(find.byIcon(Icons.search));
-        await tester.pumpAndSettle();
+      await tester.tap(find.byIcon(Icons.search));
+      await tester.pumpAndSettle();
 
-        expect(mockBookRepo.calls, contains('findBookByIsbn:9781234567890'));
-        expect(find.byKey(const Key('existingBookAlert')), findsNothing);
+      expect(mockBookRepo.calls, contains('findBookByIsbn:9781234567890'));
+      expect(find.byKey(const Key('existingBookAlert')), findsNothing);
 
-        await tester.tap(findBorrowButton());
-        await tester.pumpAndSettle();
+      await tester.tap(findBorrowButton());
+      await tester.pumpAndSettle();
 
-        // createBook WAS called
-        expect(mockApi.createdBooks, hasLength(1));
+      // createBook WAS called
+      expect(mockApi.createdBooks, hasLength(1));
 
-        // Copy created with new book ID (123 from mock)
-        expect(mockCopyRepo.createdCopies, hasLength(1));
-        expect(mockCopyRepo.createdCopies.first['book_id'], 123);
-        expect(mockCopyRepo.createdCopies.first['status'], 'borrowed');
-        expect(mockCopyRepo.createdCopies.first['is_temporary'], true);
-      },
-    );
+      // Copy created with new book ID (123 from mock)
+      expect(mockCopyRepo.createdCopies, hasLength(1));
+      expect(mockCopyRepo.createdCopies.first['book_id'], 123);
+      expect(mockCopyRepo.createdCopies.first['status'], 'borrowed');
+      expect(mockCopyRepo.createdCopies.first['is_temporary'], true);
+    });
 
-    testWidgets(
-      'creates new book when no ISBN provided (manual title entry)',
-      (WidgetTester tester) async {
-        tester.view.physicalSize = const Size(800, 1800);
-        tester.view.devicePixelRatio = 1.0;
-        addTearDown(tester.view.resetPhysicalSize);
-        addTearDown(tester.view.resetDevicePixelRatio);
+    testWidgets('creates new book when no ISBN provided (manual title entry)', (
+      WidgetTester tester,
+    ) async {
+      tester.view.physicalSize = const Size(800, 1800);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
 
-        await tester.pumpWidget(buildTestWidget());
-        await tester.pumpAndSettle();
+      await tester.pumpWidget(buildTestWidget());
+      await tester.pumpAndSettle();
 
-        // Fill only title (no ISBN)
-        final titleField = find.widgetWithText(TextFormField, 'title_label');
-        await tester.enterText(titleField, 'Manual Book');
-        await tester.pumpAndSettle();
+      // Fill only title (no ISBN)
+      final titleField = find.widgetWithText(TextFormField, 'title_label');
+      await tester.enterText(titleField, 'Manual Book');
+      await tester.pumpAndSettle();
 
-        await tester.tap(findBorrowButton());
-        await tester.pumpAndSettle();
+      await tester.tap(findBorrowButton());
+      await tester.pumpAndSettle();
 
-        // findBookByIsbn NOT called
-        expect(
-          mockBookRepo.calls.where((c) => c.startsWith('findBookByIsbn')),
-          isEmpty,
-        );
+      // findBookByIsbn NOT called
+      expect(
+        mockBookRepo.calls.where((c) => c.startsWith('findBookByIsbn')),
+        isEmpty,
+      );
 
-        // createBook WAS called
-        expect(mockApi.createdBooks, hasLength(1));
+      // createBook WAS called
+      expect(mockApi.createdBooks, hasLength(1));
 
-        // Copy created
-        expect(mockCopyRepo.createdCopies, hasLength(1));
-        expect(mockCopyRepo.createdCopies.first['book_id'], 123);
-      },
-    );
+      // Copy created
+      expect(mockCopyRepo.createdCopies, hasLength(1));
+      expect(mockCopyRepo.createdCopies.first['book_id'], 123);
+    });
   });
 }

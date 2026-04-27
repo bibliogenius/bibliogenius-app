@@ -20,10 +20,7 @@ class CollectionGroup {
   final Collection? collection;
   final List<Book> books;
 
-  const CollectionGroup({
-    required this.collection,
-    required this.books,
-  });
+  const CollectionGroup({required this.collection, required this.books});
 
   /// Up to 4 cover URLs for the stack display (books with a cover, front first).
   List<String?> get stackCoverUrls {
@@ -84,14 +81,19 @@ class _CollectionStackWidgetState extends State<CollectionStackWidget> {
   @override
   Widget build(BuildContext context) {
     final group = widget.group;
-    final name = group.collection?.name ??
+    final name =
+        group.collection?.name ??
         TranslationService.translate(context, 'collection_group_uncollected');
     final bookCount = group.books.length;
 
-    final booksLabel =
-        TranslationService.translate(context, 'collection_group_books_count');
-    final tapHint =
-        TranslationService.translate(context, 'collection_group_tap_hint');
+    final booksLabel = TranslationService.translate(
+      context,
+      'collection_group_books_count',
+    );
+    final tapHint = TranslationService.translate(
+      context,
+      'collection_group_tap_hint',
+    );
     final semanticLabel = '$name, $bookCount $booksLabel. $tapHint';
 
     final ownedLabel = TranslationService.translate(
@@ -198,17 +200,16 @@ class _StackedCovers extends StatelessWidget {
               top: (availH - coverH) / 2 + 4,
               right: (availW - coverW) / 2 + 4,
               child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 6,
-                  vertical: 2,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
                   color: Colors.blue.withValues(alpha: 0.85),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
-                  TranslationService.translate(context, 'collection_tag')
-                      .toUpperCase(),
+                  TranslationService.translate(
+                    context,
+                    'collection_tag',
+                  ).toUpperCase(),
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 8,
@@ -234,10 +235,7 @@ class _StackedCovers extends StatelessWidget {
                 bottom: (availH - coverH) / 2,
                 left: 0,
                 right: 0,
-                child: _ProgressOverlay(
-                  owned: ownedCount,
-                  total: bookCount,
-                ),
+                child: _ProgressOverlay(owned: ownedCount, total: bookCount),
               ),
           ],
         );
@@ -364,23 +362,31 @@ class CollectionGroupBottomSheet extends StatelessWidget {
     if (onCollectionTap != null) {
       onCollectionTap!();
     } else if (group.collection != null) {
-      context.push('/collections/${group.collection!.id}', extra: group.collection);
+      context.push(
+        '/collections/${group.collection!.id}',
+        extra: group.collection,
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final collectionName = group.collection?.name ??
+    final collectionName =
+        group.collection?.name ??
         TranslationService.translate(context, 'collection_group_uncollected');
-    final viewAllLabel =
-        TranslationService.translate(context, 'collection_view_all');
+    final viewAllLabel = TranslationService.translate(
+      context,
+      'collection_view_all',
+    );
     final ownedLabel = TranslationService.translate(
       context,
       'collection_owned_count',
     ).replaceAll('{n}', '${group.ownedCount}');
-    final booksLabel =
-        TranslationService.translate(context, 'collection_group_books_count');
+    final booksLabel = TranslationService.translate(
+      context,
+      'collection_group_books_count',
+    );
 
     return DraggableScrollableSheet(
       initialChildSize: 0.58,
@@ -446,9 +452,7 @@ class _SheetContent extends StatelessWidget {
           _buildCoverStrip(),
           const SizedBox(height: 4),
           Divider(height: 1, color: theme.dividerColor),
-          Expanded(
-            child: _buildBookList(context),
-          ),
+          Expanded(child: _buildBookList(context)),
         ],
       ),
     );
@@ -663,8 +667,9 @@ class _BookTile extends StatelessWidget {
                       Text(
                         book.author!,
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurface
-                              .withValues(alpha: 0.55),
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.55,
+                          ),
                           height: 1.2,
                         ),
                         maxLines: 1,
@@ -734,10 +739,11 @@ class _CollectionCoverCardState extends State<CollectionCoverCard> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final bookCount = widget.collection.totalBooks;
-    final booksLabel =
-        TranslationService.translate(context, 'collection_group_books_count');
-    final semanticLabel =
-        '${widget.collection.name}, $bookCount $booksLabel';
+    final booksLabel = TranslationService.translate(
+      context,
+      'collection_group_books_count',
+    );
+    final semanticLabel = '${widget.collection.name}, $bookCount $booksLabel';
 
     return Semantics(
       button: true,
@@ -768,26 +774,26 @@ class _CollectionCoverCardState extends State<CollectionCoverCard> {
                           ownedCount: widget.collection.ownedBooks,
                         ),
                 ),
-              const SizedBox(height: 2),
-              // Collection name below
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 2),
-                child: Text(
-                  widget.collection.name,
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: -0.1,
-                    height: 1.15,
+                const SizedBox(height: 2),
+                // Collection name below
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 2),
+                  child: Text(
+                    widget.collection.name,
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -0.1,
+                      height: 1.15,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
       ),
     );
   }
@@ -867,10 +873,7 @@ class _ProgressOverlay extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  SizedBox(
-                    width: 48,
-                    child: _buildBar(progress, isComplete),
-                  ),
+                  SizedBox(width: 48, child: _buildBar(progress, isComplete)),
                   const SizedBox(width: 6),
                   Text(
                     '$owned/$total',
@@ -916,8 +919,9 @@ class _ProgressOverlay extends StatelessWidget {
                   boxShadow: isComplete
                       ? [
                           BoxShadow(
-                            color:
-                                const Color(0xFF10B981).withValues(alpha: 0.5),
+                            color: const Color(
+                              0xFF10B981,
+                            ).withValues(alpha: 0.5),
                             blurRadius: 4,
                           ),
                         ]
@@ -991,13 +995,10 @@ class _EmptyState extends StatelessWidget {
           Icon(Icons.collections_bookmark, size: 64, color: Colors.grey[400]),
           const SizedBox(height: 16),
           Text(
-            TranslationService.translate(
+            TranslationService.translate(context, 'collection_group_empty'),
+            style: Theme.of(
               context,
-              'collection_group_empty',
-            ),
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: Colors.grey[500],
-            ),
+            ).textTheme.titleMedium?.copyWith(color: Colors.grey[500]),
           ),
         ],
       ),

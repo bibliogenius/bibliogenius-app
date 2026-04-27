@@ -16,6 +16,7 @@ class BookSpine extends StatelessWidget {
   final double height;
   final double width;
   final double opacity;
+
   /// When true, shows a publisher-style band ("Nouveau") at the bottom.
   final bool showNewBand;
 
@@ -26,10 +27,10 @@ class BookSpine extends StatelessWidget {
     this.height = 150,
     this.width = 40,
     this.showNewBand = false,
-  })  : title = book.title,
-        subtitle = book.publisher,
-        colorSeed = bookColorSeed(book),
-        opacity = book.owned ? 1.0 : 0.5;
+  }) : title = book.title,
+       subtitle = book.publisher,
+       colorSeed = bookColorSeed(book),
+       opacity = book.owned ? 1.0 : 0.5;
 
   /// Creates a spine from minimal data (title + optional author/subtitle).
   /// [colorSeed] is used to generate a deterministic color (e.g. ISBN hashCode).

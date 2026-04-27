@@ -270,14 +270,22 @@ class _MigrationWizardScreenState extends State<MigrationWizardScreen> {
     // Capture context-dependent values up-front to avoid using BuildContext
     // across async gaps (lint: use_build_context_synchronously).
     final apiService = Provider.of<ApiService>(context, listen: false);
-    final saveDialogTitle =
-        TranslationService.translate(context, 'save_backup_dialog_title');
-    final shareText =
-        TranslationService.translate(context, 'backup_share_text');
-    final successMsg =
-        TranslationService.translate(context, 'backup_export_success');
-    final errorMsg =
-        TranslationService.translate(context, 'backup_export_error');
+    final saveDialogTitle = TranslationService.translate(
+      context,
+      'save_backup_dialog_title',
+    );
+    final shareText = TranslationService.translate(
+      context,
+      'backup_share_text',
+    );
+    final successMsg = TranslationService.translate(
+      context,
+      'backup_export_success',
+    );
+    final errorMsg = TranslationService.translate(
+      context,
+      'backup_export_error',
+    );
 
     try {
       setState(() => _isProcessing = true);
@@ -297,9 +305,8 @@ class _MigrationWizardScreenState extends State<MigrationWizardScreen> {
         html.Url.revokeObjectUrl(url);
         exported = true;
       } else {
-        final isDesktop = io.Platform.isMacOS ||
-            io.Platform.isWindows ||
-            io.Platform.isLinux;
+        final isDesktop =
+            io.Platform.isMacOS || io.Platform.isWindows || io.Platform.isLinux;
         if (isDesktop) {
           final path = await FilePicker.platform.saveFile(
             dialogTitle: saveDialogTitle,
@@ -334,10 +341,7 @@ class _MigrationWizardScreenState extends State<MigrationWizardScreen> {
             final directory = await getTemporaryDirectory();
             final file = io.File('${directory.path}/$filename');
             await file.writeAsBytes(response.data);
-            await Share.shareXFiles(
-              [XFile(file.path)],
-              text: shareText,
-            );
+            await Share.shareXFiles([XFile(file.path)], text: shareText);
             exported = true;
           }
         }
@@ -347,10 +351,7 @@ class _MigrationWizardScreenState extends State<MigrationWizardScreen> {
         setState(() => _isProcessing = false);
         if (exported) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(successMsg),
-              backgroundColor: Colors.green,
-            ),
+            SnackBar(content: Text(successMsg), backgroundColor: Colors.green),
           );
         }
       }
@@ -374,17 +375,22 @@ class _MigrationWizardScreenState extends State<MigrationWizardScreen> {
         return AlertDialog(
           title: Text(
             TranslationService.translate(
-                dialogContext, 'backup_export_choice_title'),
+              dialogContext,
+              'backup_export_choice_title',
+            ),
           ),
           content: Text(
             TranslationService.translate(
-                dialogContext, 'backup_export_choice_message'),
+              dialogContext,
+              'backup_export_choice_message',
+            ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
               child: Text(
-                  TranslationService.translate(dialogContext, 'cancel')),
+                TranslationService.translate(dialogContext, 'cancel'),
+              ),
             ),
             TextButton.icon(
               onPressed: () =>
@@ -392,7 +398,9 @@ class _MigrationWizardScreenState extends State<MigrationWizardScreen> {
               icon: const Icon(Icons.share),
               label: Text(
                 TranslationService.translate(
-                    dialogContext, 'backup_export_share'),
+                  dialogContext,
+                  'backup_export_share',
+                ),
               ),
             ),
             ElevatedButton.icon(
@@ -401,7 +409,9 @@ class _MigrationWizardScreenState extends State<MigrationWizardScreen> {
               icon: const Icon(Icons.save_alt),
               label: Text(
                 TranslationService.translate(
-                    dialogContext, 'backup_export_save_to_device'),
+                  dialogContext,
+                  'backup_export_save_to_device',
+                ),
               ),
             ),
           ],

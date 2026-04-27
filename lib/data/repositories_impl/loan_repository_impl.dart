@@ -54,9 +54,7 @@ class LoanRepositoryImpl implements LoanRepository {
   Future<void> returnLoan(int loanId) async {
     final response = await _apiService.returnLoan(loanId);
     if (response.statusCode != 200) {
-      throw Exception(
-        'Failed to return loan (status: ${response.statusCode})',
-      );
+      throw Exception('Failed to return loan (status: ${response.statusCode})');
     }
   }
 

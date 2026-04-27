@@ -43,10 +43,13 @@ class NetworkMember {
   final String? url;
   final String? status; // 'connected', 'pending', 'offline'
   final String? lastSeen;
+
   /// Whether E2EE key exchange is complete with this peer
   final bool keyExchangeDone;
+
   /// UUID of the peer's library (for disambiguation)
   final String? libraryUuid;
+
   /// Whether this peer has relay credentials (reachable via hub)
   final bool hasRelayCredentials;
 
@@ -114,34 +117,34 @@ class NetworkMember {
 
   /// Return a copy with an updated caption.
   NetworkMember withCaption(String? newCaption) => NetworkMember(
-        id: id,
-        name: name,
-        firstName: firstName,
-        type: type,
-        source: source,
-        email: email,
-        phone: phone,
-        notes: notes,
-        address: address,
-        streetAddress: streetAddress,
-        postalCode: postalCode,
-        city: city,
-        country: country,
-        latitude: latitude,
-        longitude: longitude,
-        isActive: isActive,
-        url: url,
-        status: status,
-        lastSeen: lastSeen,
-        keyExchangeDone: keyExchangeDone,
-        libraryUuid: libraryUuid,
-        hasRelayCredentials: hasRelayCredentials,
-        relayWriteTokenInvalidAt: relayWriteTokenInvalidAt,
-        customDisplayName: newCaption,
-        avatarConfig: avatarConfig,
-        linkedPeerId: linkedPeerId,
-        linkedContactId: linkedContactId,
-      );
+    id: id,
+    name: name,
+    firstName: firstName,
+    type: type,
+    source: source,
+    email: email,
+    phone: phone,
+    notes: notes,
+    address: address,
+    streetAddress: streetAddress,
+    postalCode: postalCode,
+    city: city,
+    country: country,
+    latitude: latitude,
+    longitude: longitude,
+    isActive: isActive,
+    url: url,
+    status: status,
+    lastSeen: lastSeen,
+    keyExchangeDone: keyExchangeDone,
+    libraryUuid: libraryUuid,
+    hasRelayCredentials: hasRelayCredentials,
+    relayWriteTokenInvalidAt: relayWriteTokenInvalidAt,
+    customDisplayName: newCaption,
+    avatarConfig: avatarConfig,
+    linkedPeerId: linkedPeerId,
+    linkedContactId: linkedContactId,
+  );
 
   /// Create a NetworkMember from a Contact model
   factory NetworkMember.fromContact(Contact contact) {
@@ -183,10 +186,11 @@ class NetworkMember {
       url: peer['url'] as String?,
       status: derivedStatus,
       lastSeen: peer['last_seen'] as String?,
-      keyExchangeDone: peer['key_exchange_done'] == true ||
-          peer['key_exchange_done'] == 1,
+      keyExchangeDone:
+          peer['key_exchange_done'] == true || peer['key_exchange_done'] == 1,
       libraryUuid: peer['library_uuid'] as String?,
-      hasRelayCredentials: (peer['relay_url'] as String?)?.isNotEmpty == true &&
+      hasRelayCredentials:
+          (peer['relay_url'] as String?)?.isNotEmpty == true &&
           (peer['mailbox_id'] as String?)?.isNotEmpty == true &&
           (peer['relay_write_token'] as String?)?.isNotEmpty == true,
       relayWriteTokenInvalidAt: peer['relay_write_token_invalid_at'] as String?,
@@ -199,9 +203,7 @@ class NetworkMember {
     if (raw == null) return null;
     try {
       if (raw is String) {
-        return AvatarConfig.fromJson(
-          jsonDecode(raw) as Map<String, dynamic>,
-        );
+        return AvatarConfig.fromJson(jsonDecode(raw) as Map<String, dynamic>);
       }
       if (raw is Map<String, dynamic>) {
         return AvatarConfig.fromJson(raw);

@@ -103,18 +103,17 @@ CityRecord _city({
   required int id,
   required String country,
   String name = 'Colombes',
-}) =>
-    CityRecord(
-      id: id,
-      country: country,
-      name: name,
-      admin1Code: '',
-      admin1Name: '',
-      admin2Code: '',
-      admin2Name: '',
-      latitude: 0,
-      longitude: 0,
-    );
+}) => CityRecord(
+  id: id,
+  country: country,
+  name: name,
+  admin1Code: '',
+  admin1Name: '',
+  admin2Code: '',
+  admin2Name: '',
+  latitude: 0,
+  longitude: 0,
+);
 
 /// Builds a `lookupCity` stub that returns whatever the test plants in
 /// [records] (keyed by GeoNames id). Defaults to no-op for unknown ids.
@@ -142,15 +141,14 @@ frb.FrbHubProfile _profile({
   required String nodeId,
   String country = 'FR',
   int cityId = 2988507,
-}) =>
-    frb.FrbHubProfile(
-      nodeId: nodeId,
-      displayName: nodeId,
-      bookCount: 1,
-      locationCountry: country,
-      locationCityId: cityId,
-      requiresApproval: false,
-    );
+}) => frb.FrbHubProfile(
+  nodeId: nodeId,
+  displayName: nodeId,
+  bookCount: 1,
+  locationCountry: country,
+  locationCityId: cityId,
+  requiresApproval: false,
+);
 
 Future<({HubDirectoryProvider provider, _MockFfiService ffi})> _setup({
   Map<String, Object> prefs = const {},
@@ -185,68 +183,81 @@ void main() {
   // Group 1: country + city co-push contract (the root-cause fix)
   // -------------------------------------------------------------------------
   group('syncLocationCityId co-pushes country + city', () {
-    test('explicit country is forwarded to register alongside the city',
-        () async {
-      final (:provider, :ffi) = await _setup(
-        existingConfig: _config(nodeId: 'me-self'),
-      );
-      ffi.registerParamsLog.clear();
+    test(
+      'explicit country is forwarded to register alongside the city',
+      () async {
+        final (:provider, :ffi) = await _setup(
+          existingConfig: _config(nodeId: 'me-self'),
+        );
+        ffi.registerParamsLog.clear();
 
-      final ok = await provider.syncLocationCityId(2988507, country: 'FR');
+        final ok = await provider.syncLocationCityId(2988507, country: 'FR');
 
-      expect(ok, isTrue);
-      final params = ffi.registerParamsLog.last;
-      expect(params.locationCityId, 2988507);
-      expect(params.locationCountry, 'FR',
+        expect(ok, isTrue);
+        final params = ffi.registerParamsLog.last;
+        expect(params.locationCityId, 2988507);
+        expect(
+          params.locationCountry,
+          'FR',
           reason:
               'A city implies its country - pushing only city_id leaves the '
               'hub in an inconsistent state where country=NULL excludes the '
               'profile from country+city filters (asymmetry observed in '
-              'production iPhone-vs-Mac flow).');
-    });
+              'production iPhone-vs-Mac flow).',
+        );
+      },
+    );
 
-    test('falls back to CityRepository lookup when caller omits country',
-        () async {
-      final (:provider, :ffi) = await _setup(
-        existingConfig: _config(),
-        cities: {2988507: _city(id: 2988507, country: 'FR')},
-      );
-      ffi.registerParamsLog.clear();
+    test(
+      'falls back to CityRepository lookup when caller omits country',
+      () async {
+        final (:provider, :ffi) = await _setup(
+          existingConfig: _config(),
+          cities: {2988507: _city(id: 2988507, country: 'FR')},
+        );
+        ffi.registerParamsLog.clear();
 
-      await provider.syncLocationCityId(2988507);
+        await provider.syncLocationCityId(2988507);
 
-      expect(ffi.registerParamsLog.last.locationCountry, 'FR',
+        expect(
+          ffi.registerParamsLog.last.locationCountry,
+          'FR',
           reason:
               'The pending replay path has no caller to pass country - rely '
-              'on the local city DB as a single source of truth.');
-    });
+              'on the local city DB as a single source of truth.',
+        );
+      },
+    );
 
-    test('lookup miss is graceful: city pushed without country (legacy mode)',
-        () async {
-      final (:provider, :ffi) = await _setup(
-        existingConfig: _config(),
-        // no city in the lookup map: simulates a country file not yet on disk
-        cities: const {},
-      );
-      ffi.registerParamsLog.clear();
+    test(
+      'lookup miss is graceful: city pushed without country (legacy mode)',
+      () async {
+        final (:provider, :ffi) = await _setup(
+          existingConfig: _config(),
+          // no city in the lookup map: simulates a country file not yet on disk
+          cities: const {},
+        );
+        ffi.registerParamsLog.clear();
 
-      final ok = await provider.syncLocationCityId(2988507);
+        final ok = await provider.syncLocationCityId(2988507);
 
-      expect(ok, isTrue);
-      final params = ffi.registerParamsLog.last;
-      expect(params.locationCityId, 2988507);
-      expect(params.locationCountry, isNull,
+        expect(ok, isTrue);
+        final params = ffi.registerParamsLog.last;
+        expect(params.locationCityId, 2988507);
+        expect(
+          params.locationCountry,
+          isNull,
           reason:
               'When the country cannot be derived, fall back to the legacy '
               'behavior (city only) instead of aborting the push - the hub '
               'preserves the existing country (Rust omits null fields from '
-              'the JSON body).');
-    });
+              'the JSON body).',
+        );
+      },
+    );
 
     test('country is uppercased so picker output is canonical', () async {
-      final (:provider, :ffi) = await _setup(
-        existingConfig: _config(),
-      );
+      final (:provider, :ffi) = await _setup(existingConfig: _config());
       ffi.registerParamsLog.clear();
 
       await provider.syncLocationCityId(2988507, country: 'fr');
@@ -254,25 +265,28 @@ void main() {
       expect(ffi.registerParamsLog.last.locationCountry, 'FR');
     });
 
-    test('clearing the city does NOT push country (preserves hub state)',
-        () async {
-      final (:provider, :ffi) = await _setup(
-        existingConfig: _config(),
-      );
-      ffi.registerParamsLog.clear();
+    test(
+      'clearing the city does NOT push country (preserves hub state)',
+      () async {
+        final (:provider, :ffi) = await _setup(existingConfig: _config());
+        ffi.registerParamsLog.clear();
 
-      // User toggled "Partager ma ville" off. They may still want to be
-      // listed by country alone; the country must NOT be wiped from the hub
-      // by the city-clear push.
-      await provider.syncLocationCityId(null);
+        // User toggled "Partager ma ville" off. They may still want to be
+        // listed by country alone; the country must NOT be wiped from the hub
+        // by the city-clear push.
+        await provider.syncLocationCityId(null);
 
-      final params = ffi.registerParamsLog.last;
-      expect(params.locationCityId, isNull);
-      expect(params.locationCountry, isNull,
+        final params = ffi.registerParamsLog.last;
+        expect(params.locationCityId, isNull);
+        expect(
+          params.locationCountry,
+          isNull,
           reason:
               'null locationCountry is omitted from the JSON body by Rust, '
-              'so the hub-stored country survives the city clear.');
-    });
+              'so the hub-stored country survives the city clear.',
+        );
+      },
+    );
   });
 
   // -------------------------------------------------------------------------
@@ -290,11 +304,14 @@ void main() {
       expect(ok, isFalse);
       final prefs = await SharedPreferences.getInstance();
       expect(prefs.getString('hub_pending_location_city_id'), '2988507');
-      expect(prefs.getString('hub_pending_location_city_country'), 'FR',
-          reason:
-              'On replay we must re-push the same (city, country) pair we '
-              'tried to push originally - falling back to a fresh lookup '
-              'risks a different country if the picker has moved on.');
+      expect(
+        prefs.getString('hub_pending_location_city_country'),
+        'FR',
+        reason:
+            'On replay we must re-push the same (city, country) pair we '
+            'tried to push originally - falling back to a fresh lookup '
+            'risks a different country if the picker has moved on.',
+      );
     });
 
     test('replay forwards the stored country to register', () async {
@@ -313,38 +330,44 @@ void main() {
           .where((p) => p.locationCityId == 2988507)
           .toList();
       expect(cityCalls, isNotEmpty);
-      expect(cityCalls.last.locationCountry, 'FR',
-          reason:
-              'replay must restore the same country that was attempted at '
-              'pick time - this is the path that closes the asymmetry bug '
-              'where a deferred city push left location_country NULL forever');
+      expect(
+        cityCalls.last.locationCountry,
+        'FR',
+        reason:
+            'replay must restore the same country that was attempted at '
+            'pick time - this is the path that closes the asymmetry bug '
+            'where a deferred city push left location_country NULL forever',
+      );
     });
 
-    test('legacy pending without country falls back to a fresh lookup',
-        () async {
-      final (:provider, :ffi) = await _setup(
-        existingConfig: _config(),
-        cities: {2988507: _city(id: 2988507, country: 'FR')},
-        // legacy format: only the city key, no country key
-        prefs: const {'hub_pending_location_city_id': '2988507'},
-      );
-      ffi.registerParamsLog.clear();
+    test(
+      'legacy pending without country falls back to a fresh lookup',
+      () async {
+        final (:provider, :ffi) = await _setup(
+          existingConfig: _config(),
+          cities: {2988507: _city(id: 2988507, country: 'FR')},
+          // legacy format: only the city key, no country key
+          prefs: const {'hub_pending_location_city_id': '2988507'},
+        );
+        ffi.registerParamsLog.clear();
 
-      await provider.initAndSyncCatalog();
+        await provider.initAndSyncCatalog();
 
-      final cityCalls = ffi.registerParamsLog
-          .where((p) => p.locationCityId == 2988507)
-          .toList();
-      expect(cityCalls.last.locationCountry, 'FR',
+        final cityCalls = ffi.registerParamsLog
+            .where((p) => p.locationCityId == 2988507)
+            .toList();
+        expect(
+          cityCalls.last.locationCountry,
+          'FR',
           reason:
               'Existing installs that pended a city pre-fix (no country key) '
-              'must be remediated on the next cold start, not stuck forever.');
-    });
+              'must be remediated on the next cold start, not stuck forever.',
+        );
+      },
+    );
 
     test('successful push clears both pending keys', () async {
-      final (:provider, :ffi) = await _setup(
-        existingConfig: _config(),
-      );
+      final (:provider, :ffi) = await _setup(existingConfig: _config());
 
       await provider.syncLocationCityId(2988507, country: 'FR');
 
@@ -362,12 +385,18 @@ void main() {
       await provider.syncLocationCityId(null);
 
       final prefs = await SharedPreferences.getInstance();
-      expect(prefs.getString('hub_pending_location_city_id'), '',
-          reason: 'empty-string sentinel means "pending clear"');
-      expect(prefs.containsKey('hub_pending_location_city_country'), isFalse,
-          reason:
-              'clearing the city must not also stage a country change for '
-              'the replay - country survives independently on the hub');
+      expect(
+        prefs.getString('hub_pending_location_city_id'),
+        '',
+        reason: 'empty-string sentinel means "pending clear"',
+      );
+      expect(
+        prefs.containsKey('hub_pending_location_city_country'),
+        isFalse,
+        reason:
+            'clearing the city must not also stage a country change for '
+            'the replay - country survives independently on the hub',
+      );
     });
   });
 
@@ -375,65 +404,78 @@ void main() {
   // Group 3: init-time location remediation
   // -------------------------------------------------------------------------
   group('init-time remediation pushes country if local state diverges', () {
-    test('first cold start with a city pushes country and updates snapshot',
-        () async {
-      final (:provider, :ffi) = await _setup(
-        existingConfig: _config(nodeId: 'me-self'),
-        cities: {2988507: _city(id: 2988507, country: 'FR')},
-        prefs: const {'hub_local_location_city_id': 2988507},
-        // no last-pushed snapshot: legacy install that registered city
-        // without country before this fix shipped
-      );
-      ffi.registerParamsLog.clear();
+    test(
+      'first cold start with a city pushes country and updates snapshot',
+      () async {
+        final (:provider, :ffi) = await _setup(
+          existingConfig: _config(nodeId: 'me-self'),
+          cities: {2988507: _city(id: 2988507, country: 'FR')},
+          prefs: const {'hub_local_location_city_id': 2988507},
+          // no last-pushed snapshot: legacy install that registered city
+          // without country before this fix shipped
+        );
+        ffi.registerParamsLog.clear();
 
-      await provider.initAndSyncCatalog();
+        await provider.initAndSyncCatalog();
 
-      final calls = ffi.registerParamsLog
-          .where((p) => p.locationCityId == 2988507)
-          .toList();
-      expect(calls, isNotEmpty,
+        final calls = ffi.registerParamsLog
+            .where((p) => p.locationCityId == 2988507)
+            .toList();
+        expect(
+          calls,
+          isNotEmpty,
           reason:
               'remediation pass must re-push (city, country) when no '
               'snapshot is recorded - this is the path that fixes existing '
-              'installs');
-      expect(calls.last.locationCountry, 'FR');
+              'installs',
+        );
+        expect(calls.last.locationCountry, 'FR');
 
-      final prefs = await SharedPreferences.getInstance();
-      expect(prefs.getInt('hub_last_pushed_location_city_id'), 2988507);
-      expect(prefs.getString('hub_last_pushed_location_city_country'), 'FR',
+        final prefs = await SharedPreferences.getInstance();
+        expect(prefs.getInt('hub_last_pushed_location_city_id'), 2988507);
+        expect(
+          prefs.getString('hub_last_pushed_location_city_country'),
+          'FR',
           reason:
               'snapshot must be persisted post-success so subsequent cold '
-              'starts skip the redundant push');
-    });
+              'starts skip the redundant push',
+        );
+      },
+    );
 
-    test('uses the locally stored country hint when the city DB is cold',
-        () async {
-      // Cold-start scenario: the user opened the app, the country file
-      // has not been downloaded yet (CityRepository lookup returns null),
-      // but the picker stored the country alongside the city in
-      // SharedPreferences. The remediation must use that hint instead of
-      // skipping, otherwise legacy installs never converge.
-      final (:provider, :ffi) = await _setup(
-        existingConfig: _config(nodeId: 'me-self'),
-        cities: const {}, // CityRepository returns null
-        prefs: const {
-          'hub_local_location_city_id': 2988507,
-          'hub_local_location_city_country': 'FR',
-        },
-      );
-      ffi.registerParamsLog.clear();
+    test(
+      'uses the locally stored country hint when the city DB is cold',
+      () async {
+        // Cold-start scenario: the user opened the app, the country file
+        // has not been downloaded yet (CityRepository lookup returns null),
+        // but the picker stored the country alongside the city in
+        // SharedPreferences. The remediation must use that hint instead of
+        // skipping, otherwise legacy installs never converge.
+        final (:provider, :ffi) = await _setup(
+          existingConfig: _config(nodeId: 'me-self'),
+          cities: const {}, // CityRepository returns null
+          prefs: const {
+            'hub_local_location_city_id': 2988507,
+            'hub_local_location_city_country': 'FR',
+          },
+        );
+        ffi.registerParamsLog.clear();
 
-      await provider.initAndSyncCatalog();
+        await provider.initAndSyncCatalog();
 
-      final calls = ffi.registerParamsLog
-          .where((p) => p.locationCityId == 2988507)
-          .toList();
-      expect(calls.last.locationCountry, 'FR',
+        final calls = ffi.registerParamsLog
+            .where((p) => p.locationCityId == 2988507)
+            .toList();
+        expect(
+          calls.last.locationCountry,
+          'FR',
           reason:
               'Local country hint must short-circuit the (slow, possibly '
               'failing) CityRepository lookup so remediation works on the '
-              'first cold start after upgrade');
-    });
+              'first cold start after upgrade',
+        );
+      },
+    );
 
     test('idempotent when the snapshot already matches local state', () async {
       final (:provider, :ffi) = await _setup(
@@ -450,38 +492,46 @@ void main() {
 
       final pushed = await provider.ensureLocationCityCountryConsistency();
 
-      expect(pushed, isFalse,
-          reason:
-              'Steady state: zero hub call from the remediation method '
-              'itself. Other paths (relay republish) still re-assert the '
-              'cityId for preservation, but those are not "remediation" - '
-              'they are the architecture-wide invariant. The remediation '
-              'optimization (snapshot-skip) prevents an EXTRA dedicated '
-              'push on every cold start (perf policy: intermittent '
-              'network).');
+      expect(
+        pushed,
+        isFalse,
+        reason:
+            'Steady state: zero hub call from the remediation method '
+            'itself. Other paths (relay republish) still re-assert the '
+            'cityId for preservation, but those are not "remediation" - '
+            'they are the architecture-wide invariant. The remediation '
+            'optimization (snapshot-skip) prevents an EXTRA dedicated '
+            'push on every cold start (perf policy: intermittent '
+            'network).',
+      );
     });
 
-    test('lookup miss skips remediation rather than pushing without country',
-        () async {
-      final (:provider, :ffi) = await _setup(
-        existingConfig: _config(),
-        // city in prefs but no country file loaded, no local hint either
-        prefs: const {'hub_local_location_city_id': 2988507},
-        cities: const {},
-      );
-      await provider.loadConfig();
-      await provider.loadLocalCityId();
-      ffi.registerParamsLog.clear();
+    test(
+      'lookup miss skips remediation rather than pushing without country',
+      () async {
+        final (:provider, :ffi) = await _setup(
+          existingConfig: _config(),
+          // city in prefs but no country file loaded, no local hint either
+          prefs: const {'hub_local_location_city_id': 2988507},
+          cities: const {},
+        );
+        await provider.loadConfig();
+        await provider.loadLocalCityId();
+        ffi.registerParamsLog.clear();
 
-      final pushed = await provider.ensureLocationCityCountryConsistency();
+        final pushed = await provider.ensureLocationCityCountryConsistency();
 
-      expect(pushed, isFalse,
+        expect(
+          pushed,
+          isFalse,
           reason:
               'Without a derivable country, the remediation method must '
               'NOT push city alone (that would recreate the bug). The '
               'cross-cutting register paths still re-assert their best '
-              'effort, but the remediation itself stays silent.');
-    });
+              'effort, but the remediation itself stays silent.',
+        );
+      },
+    );
 
     test('runs nothing when the user has no city set', () async {
       final (:provider, :ffi) = await _setup(
@@ -530,16 +580,18 @@ void main() {
       ffi.shouldThrow = true;
       await provider.loadSameCityHighlight();
 
-      expect(provider.sameCityProfiles, hasLength(1),
-          reason:
-              'Probe errors are transient - clearing the state would make '
-              'the banner flicker (observed cross-device while one peer was '
-              'mid-sync). Keep the last successful snapshot until a NEW '
-              'successful response replaces it.');
+      expect(
+        provider.sameCityProfiles,
+        hasLength(1),
+        reason:
+            'Probe errors are transient - clearing the state would make '
+            'the banner flicker (observed cross-device while one peer was '
+            'mid-sync). Keep the last successful snapshot until a NEW '
+            'successful response replaces it.',
+      );
     });
 
-    test('a successful empty response IS allowed to clear the state',
-        () async {
+    test('a successful empty response IS allowed to clear the state', () async {
       final ffi = _ThrowingFfi();
       SharedPreferences.setMockInitialValues({
         'hub_local_location_city_id': 2988507,
@@ -561,10 +613,13 @@ void main() {
       // error - the banner SHOULD disappear.
       ffi.next = const [];
       await provider.loadSameCityHighlight();
-      expect(provider.sameCityProfiles, isEmpty,
-          reason:
-              '0-results is a valid hub answer, not a transient failure - '
-              'the banner correctly hides for "no peer in your city anymore"');
+      expect(
+        provider.sameCityProfiles,
+        isEmpty,
+        reason:
+            '0-results is a valid hub answer, not a transient failure - '
+            'the banner correctly hides for "no peer in your city anymore"',
+      );
     });
   });
 
@@ -572,23 +627,23 @@ void main() {
   // Group 5: setLocalCityId thread the country to the sync layer
   // -------------------------------------------------------------------------
   group('setLocalCityId propagates country', () {
-    test('country passed to setLocalCityId reaches syncLocationCityId',
-        () async {
-      // The picker calls setLocalCityId(picked.id, country: picked.country)
-      // and then syncLocationCityId(picked.id, country: picked.country) -
-      // the test is on the sync side: the country must travel as far as the
-      // FFI register call.
-      final (:provider, :ffi) = await _setup(
-        existingConfig: _config(),
-      );
-      await provider.setLocalCityId(2988507, country: 'FR');
-      ffi.registerParamsLog.clear();
+    test(
+      'country passed to setLocalCityId reaches syncLocationCityId',
+      () async {
+        // The picker calls setLocalCityId(picked.id, country: picked.country)
+        // and then syncLocationCityId(picked.id, country: picked.country) -
+        // the test is on the sync side: the country must travel as far as the
+        // FFI register call.
+        final (:provider, :ffi) = await _setup(existingConfig: _config());
+        await provider.setLocalCityId(2988507, country: 'FR');
+        ffi.registerParamsLog.clear();
 
-      await provider.syncLocationCityId(2988507, country: 'FR');
+        await provider.syncLocationCityId(2988507, country: 'FR');
 
-      expect(ffi.registerParamsLog.last.locationCountry, 'FR');
-      expect(ffi.registerParamsLog.last.locationCityId, 2988507);
-    });
+        expect(ffi.registerParamsLog.last.locationCountry, 'FR');
+        expect(ffi.registerParamsLog.last.locationCityId, 2988507);
+      },
+    );
   });
 
   // -------------------------------------------------------------------------
@@ -603,37 +658,45 @@ void main() {
   // name, country picker, etc.) re-asserts the local cityId.
   // -------------------------------------------------------------------------
   group('every register() path preserves location_city_id', () {
-    test('_pushDisplayName (rename) keeps the local cityId on the hub',
-        () async {
-      final (:provider, :ffi) = await _setup(
-        existingConfig: _config(nodeId: 'me-self'),
-        cities: {2988507: _city(id: 2988507, country: 'FR')},
-        prefs: const {
-          'hub_local_location_city_id': 2988507,
-          'hub_local_location_city_country': 'FR',
-        },
-      );
-      await provider.loadLocalCityId();
-      ffi.registerParamsLog.clear();
+    test(
+      '_pushDisplayName (rename) keeps the local cityId on the hub',
+      () async {
+        final (:provider, :ffi) = await _setup(
+          existingConfig: _config(nodeId: 'me-self'),
+          cities: {2988507: _city(id: 2988507, country: 'FR')},
+          prefs: const {
+            'hub_local_location_city_id': 2988507,
+            'hub_local_location_city_country': 'FR',
+          },
+        );
+        await provider.loadLocalCityId();
+        ffi.registerParamsLog.clear();
 
-      await provider.syncDisplayName('Bibliothèque Renommée');
+        await provider.syncDisplayName('Bibliothèque Renommée');
 
-      expect(ffi.registerParamsLog, isNotEmpty);
-      // Check the rename push specifically - it carries the new display name.
-      final renamePush = ffi.registerParamsLog
-          .where((p) => p.displayName == 'Bibliothèque Renommée')
-          .single;
-      expect(renamePush.locationCityId, 2988507,
+        expect(ffi.registerParamsLog, isNotEmpty);
+        // Check the rename push specifically - it carries the new display name.
+        final renamePush = ffi.registerParamsLog
+            .where((p) => p.displayName == 'Bibliothèque Renommée')
+            .single;
+        expect(
+          renamePush.locationCityId,
+          2988507,
           reason:
               'A rename must NOT clear the city - the Rust serializer wipes '
               'location_city_id on every register that omits it (ADR-035 §8 '
-              'clear-on-toggle), so the renamer must re-assert local state.');
-      expect(renamePush.locationCountry, 'FR',
+              'clear-on-toggle), so the renamer must re-assert local state.',
+        );
+        expect(
+          renamePush.locationCountry,
+          'FR',
           reason:
               'Same reason for country - omitting it would not wipe (Rust '
               'omits null country) but re-asserting keeps the snapshot in '
-              'sync with the visible local state.');
-    });
+              'sync with the visible local state.',
+        );
+      },
+    );
 
     test('_pushLocationCountry preserves the local cityId', () async {
       final (:provider, :ffi) = await _setup(
@@ -650,11 +713,14 @@ void main() {
       // User changes their public country (independent picker).
       await provider.syncLocationCountry('FR');
 
-      expect(ffi.registerParamsLog.last.locationCityId, 2988507,
-          reason:
-              'A country-only update must keep the city. Without this, the '
-              'country picker silently wipes the city, defeating the whole '
-              'V1 same-city banner.');
+      expect(
+        ffi.registerParamsLog.last.locationCityId,
+        2988507,
+        reason:
+            'A country-only update must keep the city. Without this, the '
+            'country picker silently wipes the city, defeating the whole '
+            'V1 same-city banner.',
+      );
     });
 
     test('ensureRelayPublished preserves the local cityId', () async {
@@ -678,13 +744,16 @@ void main() {
       // assert that EVERY attempt carries the cityId, never zero.
       expect(ffi.registerParamsLog, isNotEmpty);
       for (final params in ffi.registerParamsLog) {
-        expect(params.locationCityId, 2988507,
-            reason:
-                'Relay republish runs at every cold start and on nudges - '
-                'a missing cityId here causes the hub to wipe location_city_id '
-                'on every app launch, observed in production logs as 6+ '
-                'register_or_update calls in a few minutes that emptied the '
-                'database between each user action.');
+        expect(
+          params.locationCityId,
+          2988507,
+          reason:
+              'Relay republish runs at every cold start and on nudges - '
+              'a missing cityId here causes the hub to wipe location_city_id '
+              'on every app launch, observed in production logs as 6+ '
+              'register_or_update calls in a few minutes that emptied the '
+              'database between each user action.',
+        );
       }
     });
   });

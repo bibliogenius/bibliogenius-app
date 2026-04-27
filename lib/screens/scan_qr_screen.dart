@@ -45,7 +45,9 @@ class _ScanContactViewState extends State<ScanContactView> {
   @override
   void initState() {
     super.initState();
-    debugPrint('📷 [INIT] ScanContactView.initState() — platform=${Platform.operatingSystem}');
+    debugPrint(
+      '📷 [INIT] ScanContactView.initState() — platform=${Platform.operatingSystem}',
+    );
     // Delay camera init so the screen renders first (prevents freeze on push)
     Future.delayed(const Duration(milliseconds: 500), () {
       debugPrint('📷 [INIT] Delayed init callback fired');
@@ -62,10 +64,14 @@ class _ScanContactViewState extends State<ScanContactView> {
         detectionSpeed: DetectionSpeed.normal,
       );
       stopwatch.stop();
-      debugPrint('📷 [CAM] Controller created OK in ${stopwatch.elapsedMilliseconds}ms');
+      debugPrint(
+        '📷 [CAM] Controller created OK in ${stopwatch.elapsedMilliseconds}ms',
+      );
     } catch (e, stack) {
       stopwatch.stop();
-      debugPrint('📷 [CAM] Controller creation FAILED in ${stopwatch.elapsedMilliseconds}ms: $e');
+      debugPrint(
+        '📷 [CAM] Controller creation FAILED in ${stopwatch.elapsedMilliseconds}ms: $e',
+      );
       debugPrint('📷 [CAM] Stack: $stack');
       if (mounted) {
         setState(() => _cameraError = 'Camera init failed: $e');
@@ -80,7 +86,9 @@ class _ScanContactViewState extends State<ScanContactView> {
 
   void _onControllerStateChanged() {
     final state = _controller?.value;
-    debugPrint('📷 [STATE] Controller state changed: isInitialized=${state?.isInitialized}, isRunning=${state?.isRunning}');
+    debugPrint(
+      '📷 [STATE] Controller state changed: isInitialized=${state?.isInitialized}, isRunning=${state?.isRunning}',
+    );
     if (state?.isRunning == true && !_isCameraReady) {
       debugPrint('📷 [STATE] Camera IS RUNNING — showing preview');
       _watchdog?.cancel();
@@ -111,18 +119,25 @@ class _ScanContactViewState extends State<ScanContactView> {
     final stopwatch = Stopwatch()..start();
 
     // Fire-and-forget — do NOT await
-    _controller!.start().then((_) {
-      stopwatch.stop();
-      _watchdog?.cancel();
-      debugPrint('📷 [CAM] ✅ start() resolved OK in ${stopwatch.elapsedMilliseconds}ms');
-    }).catchError((e) {
-      stopwatch.stop();
-      _watchdog?.cancel();
-      debugPrint('📷 [CAM] ❌ start() FAILED in ${stopwatch.elapsedMilliseconds}ms: $e');
-      if (mounted) {
-        setState(() => _cameraError = e.toString());
-      }
-    });
+    _controller!
+        .start()
+        .then((_) {
+          stopwatch.stop();
+          _watchdog?.cancel();
+          debugPrint(
+            '📷 [CAM] ✅ start() resolved OK in ${stopwatch.elapsedMilliseconds}ms',
+          );
+        })
+        .catchError((e) {
+          stopwatch.stop();
+          _watchdog?.cancel();
+          debugPrint(
+            '📷 [CAM] ❌ start() FAILED in ${stopwatch.elapsedMilliseconds}ms: $e',
+          );
+          if (mounted) {
+            setState(() => _cameraError = e.toString());
+          }
+        });
 
     debugPrint('📷 [CAM] start() dispatched (fire-and-forget), waiting...');
   }
@@ -142,7 +157,9 @@ class _ScanContactViewState extends State<ScanContactView> {
     for (final barcode in barcodes) {
       final raw = barcode.rawValue;
       if (raw == null) continue;
-      debugPrint('📷 [SCAN] Barcode detected: ${raw.length > 80 ? '${raw.substring(0, 80)}...' : raw}');
+      debugPrint(
+        '📷 [SCAN] Barcode detected: ${raw.length > 80 ? '${raw.substring(0, 80)}...' : raw}',
+      );
 
       final payload = parseScannedInvite(
         raw,
@@ -172,9 +189,11 @@ class _ScanContactViewState extends State<ScanContactView> {
       _connectFromPayload(payload);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(
-          TranslationService.translate(context, 'connection_failed'),
-        )),
+        SnackBar(
+          content: Text(
+            TranslationService.translate(context, 'connection_failed'),
+          ),
+        ),
       );
       _isProcessingScan = false;
       setState(() {});
@@ -207,7 +226,10 @@ class _ScanContactViewState extends State<ScanContactView> {
   }) async {
     final api = Provider.of<ApiService>(context, listen: false);
     try {
-      if (kDebugMode) debugPrint('QR Connect: connectPeer(hasKeys=${ed25519PublicKey != null}, hasRelay=${relayUrl != null})');
+      if (kDebugMode)
+        debugPrint(
+          'QR Connect: connectPeer(hasKeys=${ed25519PublicKey != null}, hasRelay=${relayUrl != null})',
+        );
       final response = await api.connectPeer(
         name,
         url,
@@ -218,7 +240,9 @@ class _ScanContactViewState extends State<ScanContactView> {
         mailboxId: mailboxId,
         relayWriteToken: relayWriteToken,
       );
-      debugPrint('📷 [CONNECT] Response: status=${response.statusCode}, data=${response.data}');
+      debugPrint(
+        '📷 [CONNECT] Response: status=${response.statusCode}, data=${response.data}',
+      );
 
       // connectLocalPeer returns error responses instead of throwing
       if (response.statusCode != null && response.statusCode! >= 400) {
@@ -260,7 +284,9 @@ class _ScanContactViewState extends State<ScanContactView> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('📷 [BUILD] error=${_cameraError != null}, ready=$_isCameraReady, controller=${_controller != null}');
+    debugPrint(
+      '📷 [BUILD] error=${_cameraError != null}, ready=$_isCameraReady, controller=${_controller != null}',
+    );
 
     // --- Error state ---
     if (_cameraError != null) {
@@ -304,9 +330,7 @@ class _ScanContactViewState extends State<ScanContactView> {
                   }
                 },
                 icon: const Icon(Icons.refresh),
-                label: Text(
-                  TranslationService.translate(context, 'retry'),
-                ),
+                label: Text(TranslationService.translate(context, 'retry')),
               ),
             ],
           ),
@@ -344,7 +368,9 @@ class _ScanContactViewState extends State<ScanContactView> {
                 controller: _controller!,
                 onDetect: _onDetect,
                 errorBuilder: (context, error, child) {
-                  debugPrint('📷 [WIDGET] MobileScanner errorBuilder: ${error.errorCode}');
+                  debugPrint(
+                    '📷 [WIDGET] MobileScanner errorBuilder: ${error.errorCode}',
+                  );
                   _watchdog?.cancel();
                   return Center(
                     child: Column(
@@ -371,9 +397,7 @@ class _ScanContactViewState extends State<ScanContactView> {
                 },
               ),
               if (_isProcessingScan)
-                const CircularProgressIndicator(
-                  key: Key('scanProcessing'),
-                ),
+                const CircularProgressIndicator(key: Key('scanProcessing')),
               Container(
                 key: const Key('scannerOverlay'),
                 decoration: BoxDecoration(

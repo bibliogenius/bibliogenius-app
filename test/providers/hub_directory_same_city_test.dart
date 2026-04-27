@@ -29,7 +29,7 @@ class _MockFfiService extends FfiService {
   /// Each entry records the args of one hubDirectoryList call. Used to assert
   /// that the same-city fetch is keyed on cityId only (no country, no search).
   final List<({String? country, int? cityId, String? search, int limit})>
-      calls = [];
+  calls = [];
 
   /// Routed response: `cityIdResults` is returned when the call carries a
   /// city filter, `defaultResults` for any other call. Lets a single test
@@ -57,12 +57,7 @@ class _MockFfiService extends FfiService {
     String? country,
     int? cityId,
   }) async {
-    calls.add((
-      country: country,
-      cityId: cityId,
-      search: search,
-      limit: limit,
-    ));
+    calls.add((country: country, cityId: cityId, search: search, limit: limit));
     final err = nextError;
     if (err != null) {
       nextError = null;
@@ -113,54 +108,72 @@ Future<({HubDirectoryProvider provider, _MockFfiService ffi})> _setup({
 
 void main() {
   group('loadSameCityHighlight - guard rails', () {
-    test('skips the fetch entirely when the user has not picked a city',
-        () async {
-      final (:provider, :ffi) = await _setup(localCityId: null);
+    test(
+      'skips the fetch entirely when the user has not picked a city',
+      () async {
+        final (:provider, :ffi) = await _setup(localCityId: null);
 
-      await provider.loadSameCityHighlight();
+        await provider.loadSameCityHighlight();
 
-      expect(ffi.calls, isEmpty,
+        expect(
+          ffi.calls,
+          isEmpty,
           reason:
               'No city = no banner = no useless network round-trip. The whole '
-              'feature must stay invisible to legacy / fresh-install users.');
-      expect(provider.sameCityProfiles, isEmpty);
-      expect(provider.sameCityCount, isNull);
-      expect(provider.shouldShowSameCityBanner, isFalse);
-    });
+              'feature must stay invisible to legacy / fresh-install users.',
+        );
+        expect(provider.sameCityProfiles, isEmpty);
+        expect(provider.sameCityCount, isNull);
+        expect(provider.shouldShowSameCityBanner, isFalse);
+      },
+    );
 
-    test('swallows fetch errors so a hub blip cannot crash the directory',
-        () async {
-      final (:provider, :ffi) = await _setup(localCityId: 2988507);
-      ffi.nextError = Exception('hub down');
+    test(
+      'swallows fetch errors so a hub blip cannot crash the directory',
+      () async {
+        final (:provider, :ffi) = await _setup(localCityId: 2988507);
+        ffi.nextError = Exception('hub down');
 
-      await provider.loadSameCityHighlight();
+        await provider.loadSameCityHighlight();
 
-      expect(provider.sameCityProfiles, isEmpty);
-      expect(provider.shouldShowSameCityBanner, isFalse,
-          reason: 'failed probe must degrade silently, not surface an error');
-    });
+        expect(provider.sameCityProfiles, isEmpty);
+        expect(
+          provider.shouldShowSameCityBanner,
+          isFalse,
+          reason: 'failed probe must degrade silently, not surface an error',
+        );
+      },
+    );
   });
 
   group('loadSameCityHighlight - fetch shape', () {
-    test('queries the hub with cityId + the cap+1 page (no country, no search)',
-        () async {
-      final (:provider, :ffi) = await _setup(localCityId: 2988507);
-      ffi.cityIdResults = [_profile(nodeId: 'peer-1')];
+    test(
+      'queries the hub with cityId + the cap+1 page (no country, no search)',
+      () async {
+        final (:provider, :ffi) = await _setup(localCityId: 2988507);
+        ffi.cityIdResults = [_profile(nodeId: 'peer-1')];
 
-      await provider.loadSameCityHighlight();
+        await provider.loadSameCityHighlight();
 
-      expect(ffi.calls, hasLength(1));
-      final call = ffi.calls.single;
-      expect(call.cityId, 2988507);
-      expect(call.country, isNull,
+        expect(ffi.calls, hasLength(1));
+        final call = ffi.calls.single;
+        expect(call.cityId, 2988507);
+        expect(
+          call.country,
+          isNull,
           reason:
               'GeoNames id is globally unique - sending country alongside '
               'would duplicate state and risk drift if the picker moves the '
-              'city across borders later');
-      expect(call.search, isNull);
-      expect(call.limit, 11,
-          reason: 'cap (10) + 1 sentinel so we can render "10+" precisely');
-    });
+              'city across borders later',
+        );
+        expect(call.search, isNull);
+        expect(
+          call.limit,
+          11,
+          reason: 'cap (10) + 1 sentinel so we can render "10+" precisely',
+        );
+      },
+    );
 
     test('hides the user own profile from the same-city list', () async {
       final (:provider, :ffi) = await _setup(localCityId: 2988507);
@@ -193,32 +206,34 @@ void main() {
       );
     });
 
-    test('exposes the country of the first same-city peer for the filter CTA',
-        () async {
-      final (:provider, :ffi) = await _setup(localCityId: 2988507);
-      ffi.cityIdResults = [
-        _profile(nodeId: 'peer-1', country: 'FR'),
-        _profile(nodeId: 'peer-2', country: 'FR'),
-      ];
+    test(
+      'exposes the country of the first same-city peer for the filter CTA',
+      () async {
+        final (:provider, :ffi) = await _setup(localCityId: 2988507);
+        ffi.cityIdResults = [
+          _profile(nodeId: 'peer-1', country: 'FR'),
+          _profile(nodeId: 'peer-2', country: 'FR'),
+        ];
 
-      await provider.loadSameCityHighlight();
+        await provider.loadSameCityHighlight();
 
-      expect(provider.sameCityCountryHint, 'FR',
+        expect(
+          provider.sameCityCountryHint,
+          'FR',
           reason:
               'The "Voir" CTA passes country+cityId so the active-filter '
               'chip renders as "FR Paris" rather than "Paris" alone. We '
               'derive the country from the first peer instead of carrying '
-              'a second source of truth alongside localCityId.');
-    });
+              'a second source of truth alongside localCityId.',
+        );
+      },
+    );
   });
 
   group('sameCityCount formatting', () {
     test('renders the exact count when at or below the cap', () async {
       final (:provider, :ffi) = await _setup(localCityId: 2988507);
-      ffi.cityIdResults = List.generate(
-        7,
-        (i) => _profile(nodeId: 'peer-$i'),
-      );
+      ffi.cityIdResults = List.generate(7, (i) => _profile(nodeId: 'peer-$i'));
 
       await provider.loadSameCityHighlight();
 
@@ -230,50 +245,63 @@ void main() {
       final (:provider, :ffi) = await _setup(localCityId: 2988507);
       // 11 results = the sentinel +1 fired, so we know there are at least
       // (cap + 1) libraries in the city.
-      ffi.cityIdResults = List.generate(
-        11,
-        (i) => _profile(nodeId: 'peer-$i'),
-      );
+      ffi.cityIdResults = List.generate(11, (i) => _profile(nodeId: 'peer-$i'));
 
       await provider.loadSameCityHighlight();
 
-      expect(provider.sameCityCount, 10,
-          reason: 'visible count is the cap, not the raw payload length');
-      expect(provider.sameCityHasMore, isTrue,
-          reason: 'UI uses this to switch from "X" to "X+" wording');
+      expect(
+        provider.sameCityCount,
+        10,
+        reason: 'visible count is the cap, not the raw payload length',
+      );
+      expect(
+        provider.sameCityHasMore,
+        isTrue,
+        reason: 'UI uses this to switch from "X" to "X+" wording',
+      );
     });
   });
 
   group('shouldShowSameCityBanner - visibility rules', () {
-    test('false when no peer matches the user city (lone library in town)',
-        () async {
-      final (:provider, :ffi) = await _setup(localCityId: 2988507);
-      ffi.cityIdResults = const [];
+    test(
+      'false when no peer matches the user city (lone library in town)',
+      () async {
+        final (:provider, :ffi) = await _setup(localCityId: 2988507);
+        ffi.cityIdResults = const [];
 
-      await provider.loadSameCityHighlight();
+        await provider.loadSameCityHighlight();
 
-      expect(provider.shouldShowSameCityBanner, isFalse,
-          reason: '"There are 0 libraries in your city" is bad UX, hide it');
-    });
+        expect(
+          provider.shouldShowSameCityBanner,
+          isFalse,
+          reason: '"There are 0 libraries in your city" is bad UX, hide it',
+        );
+      },
+    );
 
-    test('false when the directory filter already targets the user city',
-        () async {
-      final (:provider, :ffi) = await _setup(localCityId: 2988507);
-      ffi.cityIdResults = [_profile(nodeId: 'peer-1')];
-      ffi.defaultResults = const [];
+    test(
+      'false when the directory filter already targets the user city',
+      () async {
+        final (:provider, :ffi) = await _setup(localCityId: 2988507);
+        ffi.cityIdResults = [_profile(nodeId: 'peer-1')];
+        ffi.defaultResults = const [];
 
-      await provider.loadSameCityHighlight();
-      expect(provider.shouldShowSameCityBanner, isTrue);
+        await provider.loadSameCityHighlight();
+        expect(provider.shouldShowSameCityBanner, isTrue);
 
-      // User clicks "Voir" - the filter is now applied. The banner that
-      // told them about the city becomes a duplicate of the active filter.
-      await provider.loadDirectory(country: 'FR', cityId: 2988507);
+        // User clicks "Voir" - the filter is now applied. The banner that
+        // told them about the city becomes a duplicate of the active filter.
+        await provider.loadDirectory(country: 'FR', cityId: 2988507);
 
-      expect(provider.shouldShowSameCityBanner, isFalse,
+        expect(
+          provider.shouldShowSameCityBanner,
+          isFalse,
           reason:
               'Once the filter is active, the banner only adds noise; the '
-              'whole list IS the same-city subset.');
-    });
+              'whole list IS the same-city subset.',
+        );
+      },
+    );
 
     test('true once the active filter is cleared', () async {
       final (:provider, :ffi) = await _setup(localCityId: 2988507);
@@ -290,42 +318,52 @@ void main() {
   });
 
   group('setLocalCityId integration', () {
-    test('refreshes the same-city probe when the user changes their city',
-        () async {
-      final (:provider, :ffi) = await _setup(localCityId: 2988507);
-      ffi.cityIdResults = [_profile(nodeId: 'peer-paris-1')];
-      await provider.loadSameCityHighlight();
-      expect(ffi.calls, hasLength(1));
+    test(
+      'refreshes the same-city probe when the user changes their city',
+      () async {
+        final (:provider, :ffi) = await _setup(localCityId: 2988507);
+        ffi.cityIdResults = [_profile(nodeId: 'peer-paris-1')];
+        await provider.loadSameCityHighlight();
+        expect(ffi.calls, hasLength(1));
 
-      // User opens settings and switches to Lyon (GeoNames 2996944).
-      ffi.cityIdResults = [
-        _profile(nodeId: 'peer-lyon-1', cityId: 2996944),
-        _profile(nodeId: 'peer-lyon-2', cityId: 2996944),
-      ];
-      await provider.setLocalCityId(2996944);
+        // User opens settings and switches to Lyon (GeoNames 2996944).
+        ffi.cityIdResults = [
+          _profile(nodeId: 'peer-lyon-1', cityId: 2996944),
+          _profile(nodeId: 'peer-lyon-2', cityId: 2996944),
+        ];
+        await provider.setLocalCityId(2996944);
 
-      expect(ffi.calls, hasLength(2),
+        expect(
+          ffi.calls,
+          hasLength(2),
           reason:
               'setLocalCityId must re-probe so the banner count and the '
-              '"Voir" target stay in sync with the new city');
-      expect(ffi.calls.last.cityId, 2996944);
-      expect(provider.sameCityProfiles, hasLength(2));
-    });
+              '"Voir" target stay in sync with the new city',
+        );
+        expect(ffi.calls.last.cityId, 2996944);
+        expect(provider.sameCityProfiles, hasLength(2));
+      },
+    );
 
-    test('clears the same-city state when the user removes their city',
-        () async {
-      final (:provider, :ffi) = await _setup(localCityId: 2988507);
-      ffi.cityIdResults = [_profile(nodeId: 'peer-1')];
-      await provider.loadSameCityHighlight();
-      expect(provider.sameCityProfiles, isNotEmpty);
+    test(
+      'clears the same-city state when the user removes their city',
+      () async {
+        final (:provider, :ffi) = await _setup(localCityId: 2988507);
+        ffi.cityIdResults = [_profile(nodeId: 'peer-1')];
+        await provider.loadSameCityHighlight();
+        expect(provider.sameCityProfiles, isNotEmpty);
 
-      await provider.setLocalCityId(null);
+        await provider.setLocalCityId(null);
 
-      expect(provider.sameCityProfiles, isEmpty,
+        expect(
+          provider.sameCityProfiles,
+          isEmpty,
           reason:
               'A null city has no peers to highlight. We must NOT keep the '
-              'previous Paris peers visible after the user opted out.');
-      expect(provider.shouldShowSameCityBanner, isFalse);
-    });
+              'previous Paris peers visible after the user opted out.',
+        );
+        expect(provider.shouldShowSameCityBanner, isFalse);
+      },
+    );
   });
 }

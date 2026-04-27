@@ -135,14 +135,19 @@ frb.FrbDirectoryConfig _config({
 
 void main() {
   group('shareCity toggle', () {
-    test('defaults to false even when the directory toggle is enabled',
-        () async {
-      final (provider, _) = await _createProvider();
-      expect(provider.isShareCityEnabled, false,
+    test(
+      'defaults to false even when the directory toggle is enabled',
+      () async {
+        final (provider, _) = await _createProvider();
+        expect(
+          provider.isShareCityEnabled,
+          false,
           reason:
               'ADR-035 §3: city sharing must be opt-in independently of '
-              '"is_listed". Default OFF, including for already-listed users.');
-    });
+              '"is_listed". Default OFF, including for already-listed users.',
+        );
+      },
+    );
 
     test('persists across reloads', () async {
       final (provider, _) = await _createProvider();
@@ -154,56 +159,62 @@ void main() {
     });
 
     test('setShareCity does NOT push to the hub on its own', () async {
-      final (provider, ffi) =
-          await _createProvider(existingConfig: _config());
+      final (provider, ffi) = await _createProvider(existingConfig: _config());
       ffi.registerCallCount = 0;
       await provider.setShareCity(true);
-      expect(ffi.registerCallCount, 0,
-          reason:
-              'Persisting the toggle is cheap and offline-safe; the hub '
-              'mirror is the caller\'s responsibility (syncLocationCityId).');
+      expect(
+        ffi.registerCallCount,
+        0,
+        reason:
+            'Persisting the toggle is cheap and offline-safe; the hub '
+            'mirror is the caller\'s responsibility (syncLocationCityId).',
+      );
     });
   });
 
   group('syncLocationCityId', () {
-    test('pushes the new city id to the hub when config is already loaded',
-        () async {
-      final (provider, ffi) = await _createProvider(
-        existingConfig: _config(
-          nodeId: '2e69adfd-3f28-43d3-92a5-a22e3e8e2501',
-          isListed: true,
-          requiresApproval: true,
-          acceptFrom: 'mutual',
-          allowBorrowing: false,
-        ),
-      );
-      ffi.registerCallCount = 0;
-      ffi.registerParamsLog.clear();
+    test(
+      'pushes the new city id to the hub when config is already loaded',
+      () async {
+        final (provider, ffi) = await _createProvider(
+          existingConfig: _config(
+            nodeId: '2e69adfd-3f28-43d3-92a5-a22e3e8e2501',
+            isListed: true,
+            requiresApproval: true,
+            acceptFrom: 'mutual',
+            allowBorrowing: false,
+          ),
+        );
+        ffi.registerCallCount = 0;
+        ffi.registerParamsLog.clear();
 
-      final ok = await provider.syncLocationCityId(2988507); // Paris
+        final ok = await provider.syncLocationCityId(2988507); // Paris
 
-      expect(ok, true);
-      expect(ffi.registerCallCount, 1);
-      final params = ffi.registerParamsLog.single;
-      expect(params.locationCityId, 2988507);
-      // Existing config fields must be preserved across the city change.
-      expect(params.isListed, true);
-      expect(params.requiresApproval, true);
-      expect(params.acceptFrom, 'mutual');
-      expect(params.allowBorrowing, false);
-      expect(params.displayName, 'Bibliothèque de SM-A405FN #JDD8');
-      // Device/relay fields included so the hub does not blank them.
-      expect(params.deviceModel, 'TestDevice');
-      expect(params.relayUrl, 'wss://relay.example.com');
+        expect(ok, true);
+        expect(ffi.registerCallCount, 1);
+        final params = ffi.registerParamsLog.single;
+        expect(params.locationCityId, 2988507);
+        // Existing config fields must be preserved across the city change.
+        expect(params.isListed, true);
+        expect(params.requiresApproval, true);
+        expect(params.acceptFrom, 'mutual');
+        expect(params.allowBorrowing, false);
+        expect(params.displayName, 'Bibliothèque de SM-A405FN #JDD8');
+        // Device/relay fields included so the hub does not blank them.
+        expect(params.deviceModel, 'TestDevice');
+        expect(params.relayUrl, 'wss://relay.example.com');
 
-      final prefs = await SharedPreferences.getInstance();
-      expect(prefs.containsKey('hub_pending_location_city_id'), false,
-          reason: 'success must clear any stale pending flag');
-    });
+        final prefs = await SharedPreferences.getInstance();
+        expect(
+          prefs.containsKey('hub_pending_location_city_id'),
+          false,
+          reason: 'success must clear any stale pending flag',
+        );
+      },
+    );
 
     test('null clears the city on the hub (toggle off case)', () async {
-      final (provider, ffi) =
-          await _createProvider(existingConfig: _config());
+      final (provider, ffi) = await _createProvider(existingConfig: _config());
       ffi.registerCallCount = 0;
       ffi.registerParamsLog.clear();
 
@@ -211,29 +222,34 @@ void main() {
 
       expect(ok, true);
       expect(ffi.registerCallCount, 1);
-      expect(ffi.registerParamsLog.single.locationCityId, isNull,
-          reason:
-              'A null payload is the explicit "stop sharing my city" intent - '
-              'the hub mirrors it by setting location_city_id NULL.');
-    });
-
-    test('triggers silent registration then pushes the city when config is null',
-        () async {
-      final (provider, ffi) = await _createProvider();
-      expect(provider.isRegistered, false, reason: 'baseline: no config');
-
-      final ok = await provider.syncLocationCityId(2988507);
-
-      expect(ok, true);
-      expect(ffi.registerCallCount, greaterThanOrEqualTo(2));
       expect(
-        ffi.registerParamsLog.last.locationCityId,
-        2988507,
-        reason: 'last register() must carry the picked city id',
+        ffi.registerParamsLog.single.locationCityId,
+        isNull,
+        reason:
+            'A null payload is the explicit "stop sharing my city" intent - '
+            'the hub mirrors it by setting location_city_id NULL.',
       );
-      final prefs = await SharedPreferences.getInstance();
-      expect(prefs.containsKey('hub_pending_location_city_id'), false);
     });
+
+    test(
+      'triggers silent registration then pushes the city when config is null',
+      () async {
+        final (provider, ffi) = await _createProvider();
+        expect(provider.isRegistered, false, reason: 'baseline: no config');
+
+        final ok = await provider.syncLocationCityId(2988507);
+
+        expect(ok, true);
+        expect(ffi.registerCallCount, greaterThanOrEqualTo(2));
+        expect(
+          ffi.registerParamsLog.last.locationCityId,
+          2988507,
+          reason: 'last register() must carry the picked city id',
+        );
+        final prefs = await SharedPreferences.getInstance();
+        expect(prefs.containsKey('hub_pending_location_city_id'), false);
+      },
+    );
 
     test('stores a pending flag when the hub push fails', () async {
       final (provider, ffi) = await _createProvider(
@@ -274,96 +290,105 @@ void main() {
       );
     });
 
-    test('stores a pending flag when silent registration cannot create config',
-        () async {
-      final (provider, ffi) = await _createProvider(registerOk: false);
-      ffi.registerCallCount = 0;
+    test(
+      'stores a pending flag when silent registration cannot create config',
+      () async {
+        final (provider, ffi) = await _createProvider(registerOk: false);
+        ffi.registerCallCount = 0;
 
-      final ok = await provider.syncLocationCityId(2988507);
+        final ok = await provider.syncLocationCityId(2988507);
 
-      expect(ok, false);
-      final prefs = await SharedPreferences.getInstance();
-      expect(prefs.getString('hub_pending_location_city_id'), '2988507');
-    });
+        expect(ok, false);
+        final prefs = await SharedPreferences.getInstance();
+        expect(prefs.getString('hub_pending_location_city_id'), '2988507');
+      },
+    );
   });
 
   group('pending locationCityId replay', () {
-    test('initAndSyncCatalog consumes a pending set and pushes to hub',
-        () async {
-      final (provider, ffi) = await _createProvider(
-        existingConfig: _config(nodeId: 'node-uuid-1'),
-        prefs: const {
-          'hub_pending_location_city_id': '2988507',
-        },
-      );
-      ffi.registerCallCount = 0;
-      ffi.registerParamsLog.clear();
+    test(
+      'initAndSyncCatalog consumes a pending set and pushes to hub',
+      () async {
+        final (provider, ffi) = await _createProvider(
+          existingConfig: _config(nodeId: 'node-uuid-1'),
+          prefs: const {'hub_pending_location_city_id': '2988507'},
+        );
+        ffi.registerCallCount = 0;
+        ffi.registerParamsLog.clear();
 
-      await provider.initAndSyncCatalog();
+        await provider.initAndSyncCatalog();
 
-      final cityCalls = ffi.registerParamsLog
-          .where((p) => p.locationCityId == 2988507)
-          .toList();
-      expect(cityCalls, isNotEmpty,
-          reason: 'pending locationCityId must be replayed to the hub');
+        final cityCalls = ffi.registerParamsLog
+            .where((p) => p.locationCityId == 2988507)
+            .toList();
+        expect(
+          cityCalls,
+          isNotEmpty,
+          reason: 'pending locationCityId must be replayed to the hub',
+        );
 
-      final prefs = await SharedPreferences.getInstance();
-      expect(prefs.containsKey('hub_pending_location_city_id'), false,
-          reason: 'successful replay must clear the pending flag');
-    });
+        final prefs = await SharedPreferences.getInstance();
+        expect(
+          prefs.containsKey('hub_pending_location_city_id'),
+          false,
+          reason: 'successful replay must clear the pending flag',
+        );
+      },
+    );
 
-    test('initAndSyncCatalog consumes a pending clear and pushes NULL',
-        () async {
-      final (provider, ffi) = await _createProvider(
-        existingConfig: _config(nodeId: 'node-uuid-1'),
-        prefs: const {
-          'hub_pending_location_city_id': '',
-        },
-      );
-      ffi.registerCallCount = 0;
-      ffi.registerParamsLog.clear();
+    test(
+      'initAndSyncCatalog consumes a pending clear and pushes NULL',
+      () async {
+        final (provider, ffi) = await _createProvider(
+          existingConfig: _config(nodeId: 'node-uuid-1'),
+          prefs: const {'hub_pending_location_city_id': ''},
+        );
+        ffi.registerCallCount = 0;
+        ffi.registerParamsLog.clear();
 
-      await provider.initAndSyncCatalog();
+        await provider.initAndSyncCatalog();
 
-      // The replay must touch the hub at least once with locationCityId=null.
-      final clearCalls = ffi.registerParamsLog
-          .where((p) => p.locationCityId == null)
-          .toList();
-      expect(clearCalls, isNotEmpty,
+        // The replay must touch the hub at least once with locationCityId=null.
+        final clearCalls = ffi.registerParamsLog
+            .where((p) => p.locationCityId == null)
+            .toList();
+        expect(
+          clearCalls,
+          isNotEmpty,
           reason:
               'pending clear (empty-string sentinel) must replay as a '
-              'register() with locationCityId=null');
+              'register() with locationCityId=null',
+        );
 
-      final prefs = await SharedPreferences.getInstance();
-      expect(prefs.containsKey('hub_pending_location_city_id'), false);
-    });
+        final prefs = await SharedPreferences.getInstance();
+        expect(prefs.containsKey('hub_pending_location_city_id'), false);
+      },
+    );
 
-    test('leaves the pending flag in place when the hub is still unreachable',
-        () async {
-      final (provider, _) = await _createProvider(
-        existingConfig: _config(),
-        registerOk: false,
-        prefs: const {
-          'hub_pending_location_city_id': '2988507',
-        },
-      );
+    test(
+      'leaves the pending flag in place when the hub is still unreachable',
+      () async {
+        final (provider, _) = await _createProvider(
+          existingConfig: _config(),
+          registerOk: false,
+          prefs: const {'hub_pending_location_city_id': '2988507'},
+        );
 
-      await provider.initAndSyncCatalog();
+        await provider.initAndSyncCatalog();
 
-      final prefs = await SharedPreferences.getInstance();
-      expect(
-        prefs.getString('hub_pending_location_city_id'),
-        '2988507',
-        reason: 'failed replay must keep the flag so a later cycle retries',
-      );
-    });
+        final prefs = await SharedPreferences.getInstance();
+        expect(
+          prefs.getString('hub_pending_location_city_id'),
+          '2988507',
+          reason: 'failed replay must keep the flag so a later cycle retries',
+        );
+      },
+    );
 
     test('drops a corrupt pending value instead of looping on it', () async {
       final (provider, ffi) = await _createProvider(
         existingConfig: _config(),
-        prefs: const {
-          'hub_pending_location_city_id': 'not-a-number',
-        },
+        prefs: const {'hub_pending_location_city_id': 'not-a-number'},
       );
       ffi.registerCallCount = 0;
       ffi.registerParamsLog.clear();
@@ -374,12 +399,18 @@ void main() {
       final cityIdCalls = ffi.registerParamsLog
           .where((p) => p.locationCityId != null)
           .toList();
-      expect(cityIdCalls, isEmpty,
-          reason: 'corrupt pending value must not produce a hub call');
+      expect(
+        cityIdCalls,
+        isEmpty,
+        reason: 'corrupt pending value must not produce a hub call',
+      );
 
       final prefs = await SharedPreferences.getInstance();
-      expect(prefs.containsKey('hub_pending_location_city_id'), false,
-          reason: 'corrupt pending value must be removed, not retried forever');
+      expect(
+        prefs.containsKey('hub_pending_location_city_id'),
+        false,
+        reason: 'corrupt pending value must be removed, not retried forever',
+      );
     });
   });
 
@@ -390,40 +421,46 @@ void main() {
     // eager-load, isShareCityEnabled defaulted to false and the empty-
     // state CTA wrongly invited a redundant opt-in.
 
-    test('reads hub_share_city + hub_local_location_city_id from prefs',
-        () async {
-      SharedPreferences.setMockInitialValues({
-        'hub_directory_enabled': true,
-        'libraryName': 'TestLib',
-        'languageCode': 'en',
-        'hub_share_city': true,
-        'hub_local_location_city_id': 2988507,
-      });
-      AuthService.storage = MockSecureStorage();
+    test(
+      'reads hub_share_city + hub_local_location_city_id from prefs',
+      () async {
+        SharedPreferences.setMockInitialValues({
+          'hub_directory_enabled': true,
+          'libraryName': 'TestLib',
+          'languageCode': 'en',
+          'hub_share_city': true,
+          'hub_local_location_city_id': 2988507,
+        });
+        AuthService.storage = MockSecureStorage();
 
-      // Build a raw provider WITHOUT the _createProvider pre-loads, so
-      // the only thing populating UI state is initAndSyncCatalog.
-      final ffi = _MockFfiService()..existingConfig = _config();
-      final provider = HubDirectoryProvider(
-        ffi: ffi,
-        deviceService: _MockDeviceService(),
-      )
-        ..relayRetryDelay = Duration.zero
-        ..relayCooldown = Duration.zero;
+        // Build a raw provider WITHOUT the _createProvider pre-loads, so
+        // the only thing populating UI state is initAndSyncCatalog.
+        final ffi = _MockFfiService()..existingConfig = _config();
+        final provider =
+            HubDirectoryProvider(ffi: ffi, deviceService: _MockDeviceService())
+              ..relayRetryDelay = Duration.zero
+              ..relayCooldown = Duration.zero;
 
-      // Pre-conditions: defaults until init runs.
-      expect(provider.isShareCityEnabled, false);
-      expect(provider.localCityId, null);
+        // Pre-conditions: defaults until init runs.
+        expect(provider.isShareCityEnabled, false);
+        expect(provider.localCityId, null);
 
-      await provider.initAndSyncCatalog();
+        await provider.initAndSyncCatalog();
 
-      expect(provider.isShareCityEnabled, true,
+        expect(
+          provider.isShareCityEnabled,
+          true,
           reason:
               'initAndSyncCatalog must hydrate the share-city toggle so '
               'consumers reading from the provider on cold start see the '
-              'persisted value, not the default false.');
-      expect(provider.localCityId, 2988507,
-          reason: 'same hydration must apply to the locally picked city id');
-    });
+              'persisted value, not the default false.',
+        );
+        expect(
+          provider.localCityId,
+          2988507,
+          reason: 'same hydration must apply to the locally picked city id',
+        );
+      },
+    );
   });
 }

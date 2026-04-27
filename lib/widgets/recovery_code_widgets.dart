@@ -10,8 +10,7 @@ Future<void> showRecoveryCodeFirstSheet(
   BuildContext context,
   String recoveryCode,
 ) async {
-  String t(String key) =>
-      TranslationService.translate(context, key);
+  String t(String key) => TranslationService.translate(context, key);
 
   final formatted = HubDirectoryProvider.formatRecoveryCode(recoveryCode);
 
@@ -78,8 +77,7 @@ class RecoveryCodeDisplaySheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String t(String key) =>
-        TranslationService.translate(context, key);
+    String t(String key) => TranslationService.translate(context, key);
 
     final formatted = HubDirectoryProvider.formatRecoveryCode(recoveryCode);
 
@@ -129,8 +127,8 @@ class RecoveryCodeDisplaySheet extends StatelessWidget {
                         t('recovery_code_scope_excludes') ??
                             'Not affected: your local library and books.',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            ),
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                       ),
                     ],
                   ),
@@ -154,8 +152,7 @@ class RecoveryCodeDisplaySheet extends StatelessWidget {
 /// Dialog shown after 3 consecutive 401 failures.
 /// Offers: recovery code input, new profile, or dismiss.
 Future<String?> showConnectionLostDialog(BuildContext context) async {
-  String t(String key) =>
-      TranslationService.translate(context, key);
+  String t(String key) => TranslationService.translate(context, key);
 
   return showDialog<String>(
     context: context,
@@ -191,8 +188,8 @@ Future<String?> showConnectionLostDialog(BuildContext context) async {
                 Text(
                   t('connection_lost_new_profile_warning'),
                   style: Theme.of(ctx).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(ctx).colorScheme.error,
-                      ),
+                    color: Theme.of(ctx).colorScheme.error,
+                  ),
                 ),
               ],
             ),
@@ -215,8 +212,7 @@ Future<bool> showRecoveryCodeInputSheet(
   BuildContext context,
   HubDirectoryProvider dirProvider,
 ) async {
-  String t(String key) =>
-      TranslationService.translate(context, key);
+  String t(String key) => TranslationService.translate(context, key);
 
   final controllers = List.generate(3, (_) => TextEditingController());
   final focusNodes = List.generate(3, (_) => FocusNode());
@@ -253,9 +249,7 @@ Future<bool> showRecoveryCodeInputSheet(
                 children: List.generate(3, (i) {
                   return Expanded(
                     child: Padding(
-                      padding: EdgeInsets.only(
-                        left: i > 0 ? 8 : 0,
-                      ),
+                      padding: EdgeInsets.only(left: i > 0 ? 8 : 0),
                       child: TextField(
                         controller: controllers[i],
                         focusNode: focusNodes[i],
@@ -273,8 +267,8 @@ Future<bool> showRecoveryCodeInputSheet(
                           hintText: i == 0
                               ? 'ABCD'
                               : i == 1
-                                  ? 'EFGH'
-                                  : 'JKLM',
+                              ? 'EFGH'
+                              : 'JKLM',
                         ),
                         onChanged: (value) {
                           if (value.length == 4 && i < 2) {
@@ -314,8 +308,8 @@ Future<bool> showRecoveryCodeInputSheet(
                             error = null;
                           });
 
-                          final nodeId =
-                              await AuthService().getOrCreateLibraryUuid();
+                          final nodeId = await AuthService()
+                              .getOrCreateLibraryUuid();
                           final ok = await dirProvider.recoverWithCode(
                             nodeId,
                             code,
@@ -371,8 +365,7 @@ class _RecoveryCodeBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String t(String key) =>
-        TranslationService.translate(context, key);
+    String t(String key) => TranslationService.translate(context, key);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

@@ -102,7 +102,7 @@ class _CityPickerSheetState extends State<CityPickerSheet> {
                 decoration: InputDecoration(
                   hintText:
                       TranslationService.translate(context, 'search') ??
-                          'Search',
+                      'Search',
                   prefixIcon: const Icon(Icons.search),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),

@@ -22,10 +22,7 @@ class HangmanPainterWidget extends StatelessWidget {
       size: const Size(260, 150),
       painter: visualMode == HangmanVisualMode.classic
           ? _ClassicHangmanPainter(errors: errors, theme: Theme.of(context))
-          : _BookStackPainter(
-              errors: errors,
-              theme: Theme.of(context),
-            ),
+          : _BookStackPainter(errors: errors, theme: Theme.of(context)),
     );
   }
 }
@@ -146,14 +143,30 @@ class _BookStackPainter extends CustomPainter {
       if (isFallen) {
         _drawFallenBook(canvas, cx, bookBottom, i, color);
       } else {
-        _drawStandingBook(canvas, x, bookTop, bookBottom, bookW, spineW,
-            bookH, color);
+        _drawStandingBook(
+          canvas,
+          x,
+          bookTop,
+          bookBottom,
+          bookW,
+          spineW,
+          bookH,
+          color,
+        );
       }
     }
   }
 
-  void _drawStandingBook(Canvas canvas, double x, double top, double bottom,
-      double w, double spineW, double h, Color color) {
+  void _drawStandingBook(
+    Canvas canvas,
+    double x,
+    double top,
+    double bottom,
+    double w,
+    double spineW,
+    double h,
+    Color color,
+  ) {
     final totalW = w + spineW;
 
     // Flat cover -- single rounded rectangle, no spine separation
@@ -172,7 +185,10 @@ class _BookStackPainter extends CustomPainter {
       ..style = PaintingStyle.fill;
     canvas.drawRRect(
       RRect.fromLTRBAndCorners(
-        x + 2, bottom - 3, x + totalW - 2, bottom,
+        x + 2,
+        bottom - 3,
+        x + totalW - 2,
+        bottom,
         bottomLeft: const Radius.circular(2),
         bottomRight: const Radius.circular(2),
       ),
@@ -212,7 +228,12 @@ class _BookStackPainter extends CustomPainter {
   }
 
   void _drawFallenBook(
-      Canvas canvas, double cx, double bottom, int index, Color color) {
+    Canvas canvas,
+    double cx,
+    double bottom,
+    int index,
+    Color color,
+  ) {
     // Fallen book lies flat on the shelf, slightly scattered
     final rng = Random(index * 42);
     final fallX = cx - 80 + index * 28.0 + rng.nextDouble() * 10;
@@ -236,6 +257,5 @@ class _BookStackPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _BookStackPainter old) =>
-      old.errors != errors;
+  bool shouldRepaint(covariant _BookStackPainter old) => old.errors != errors;
 }

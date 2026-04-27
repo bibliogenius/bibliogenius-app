@@ -28,9 +28,9 @@ class SyncService {
     this._apiService, {
     required bool Function() isLanEnabled,
     Future<List<ConnectivityResult>> Function()? checkConnectivity,
-  })  : _isLanEnabled = isLanEnabled,
-        _checkConnectivity =
-            checkConnectivity ?? (() => Connectivity().checkConnectivity());
+  }) : _isLanEnabled = isLanEnabled,
+       _checkConnectivity =
+           checkConnectivity ?? (() => Connectivity().checkConnectivity());
 
   /// Reset backoff for a specific peer (e.g. on manual refresh).
   void resetBackoff(String url) {
@@ -50,14 +50,19 @@ class SyncService {
         bool hasLan = true;
         try {
           final connectivity = await _checkConnectivity();
-          hasLan = connectivity.contains(ConnectivityResult.wifi) ||
+          hasLan =
+              connectivity.contains(ConnectivityResult.wifi) ||
               connectivity.contains(ConnectivityResult.ethernet);
         } catch (e) {
-          debugPrint('SyncService: connectivity check failed ($e), assuming LAN available');
+          debugPrint(
+            'SyncService: connectivity check failed ($e), assuming LAN available',
+          );
         }
         final skipLan = !hasLan || !_isLanEnabled();
         if (!hasLan) {
-          debugPrint('SyncService: not on WiFi/ethernet, skipping direct LAN sync');
+          debugPrint(
+            'SyncService: not on WiFi/ethernet, skipping direct LAN sync',
+          );
         }
 
         // Sync all peers in parallel to avoid one offline peer blocking the rest
@@ -83,7 +88,9 @@ class SyncService {
                 failures: failures,
                 nextRetry: now.add(_PeerBackoff.backoffDuration(failures)),
               );
-              debugPrint("Failed to sync peer $name (attempt $failures, next retry in ${_PeerBackoff.backoffDuration(failures).inSeconds}s): $e");
+              debugPrint(
+                "Failed to sync peer $name (attempt $failures, next retry in ${_PeerBackoff.backoffDuration(failures).inSeconds}s): $e",
+              );
             }
           }),
         );

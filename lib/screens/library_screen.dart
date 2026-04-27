@@ -139,8 +139,10 @@ class _LibraryScreenState extends State<LibraryScreen>
         context.go('/shelves');
         break;
       case 2:
-        final themeProvider =
-            Provider.of<ThemeProvider>(context, listen: false);
+        final themeProvider = Provider.of<ThemeProvider>(
+          context,
+          listen: false,
+        );
         if (themeProvider.collectionsEnabled) {
           context.go('/collections');
         }
@@ -273,7 +275,8 @@ class _LibraryScreenState extends State<LibraryScreen>
           ),
         ),
       ),
-      floatingActionButton: _tabController.index == 0 ||
+      floatingActionButton:
+          _tabController.index == 0 ||
               (_tabController.index == 1 && widget.shelfTagFilter != null)
           ? Column(
               mainAxisSize: MainAxisSize.min,
@@ -351,69 +354,71 @@ class _LibraryScreenState extends State<LibraryScreen>
     // Books Tab (Index 0) and Shelves Tab (Index 1): same layout
     if (_tabController.index == 0 || _tabController.index == 1) {
       return [
-        Builder(builder: (sheetContext) {
-          final handlers = QuickActionsSheet.buildCommonHandlers(
-            sheetContext,
-            onDone: () {
-              _refreshNotifier.value++;
-              _shelvesRefreshNotifier.value++;
-            },
-          );
-          final slotPrefix = _tabController.index == 0
-              ? 'library_books'
-              : 'library_shelves';
-          return Row(
-            children: [
-              Expanded(
-                child: ConfigurableActionCard(
-                  slotKey: '${slotPrefix}_slot_1',
-                  defaultActionId: 'batch_scan',
-                  allowedActionIds: const [
-                    'batch_scan',
-                    'share_library',
-                    'manage_shelves',
-                    'inventory',
-                    'create_shelf',
-                    'import_csv',
-                  ],
-                  handlers: handlers,
+        Builder(
+          builder: (sheetContext) {
+            final handlers = QuickActionsSheet.buildCommonHandlers(
+              sheetContext,
+              onDone: () {
+                _refreshNotifier.value++;
+                _shelvesRefreshNotifier.value++;
+              },
+            );
+            final slotPrefix = _tabController.index == 0
+                ? 'library_books'
+                : 'library_shelves';
+            return Row(
+              children: [
+                Expanded(
+                  child: ConfigurableActionCard(
+                    slotKey: '${slotPrefix}_slot_1',
+                    defaultActionId: 'batch_scan',
+                    allowedActionIds: const [
+                      'batch_scan',
+                      'share_library',
+                      'manage_shelves',
+                      'inventory',
+                      'create_shelf',
+                      'import_csv',
+                    ],
+                    handlers: handlers,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: ConfigurableActionCard(
-                  slotKey: '${slotPrefix}_slot_2',
-                  defaultActionId: 'create_shelf',
-                  allowedActionIds: const [
-                    'create_shelf',
-                    'batch_scan',
-                    'manage_shelves',
-                    'inventory',
-                    'share_library',
-                    'import_csv',
-                  ],
-                  handlers: handlers,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ConfigurableActionCard(
+                    slotKey: '${slotPrefix}_slot_2',
+                    defaultActionId: 'create_shelf',
+                    allowedActionIds: const [
+                      'create_shelf',
+                      'batch_scan',
+                      'manage_shelves',
+                      'inventory',
+                      'share_library',
+                      'import_csv',
+                    ],
+                    handlers: handlers,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: ConfigurableActionCard(
-                  slotKey: '${slotPrefix}_slot_3',
-                  defaultActionId: 'manage_shelves',
-                  allowedActionIds: const [
-                    'manage_shelves',
-                    'batch_scan',
-                    'share_library',
-                    'inventory',
-                    'create_shelf',
-                    'import_csv',
-                  ],
-                  handlers: handlers,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ConfigurableActionCard(
+                    slotKey: '${slotPrefix}_slot_3',
+                    defaultActionId: 'manage_shelves',
+                    allowedActionIds: const [
+                      'manage_shelves',
+                      'batch_scan',
+                      'share_library',
+                      'inventory',
+                      'create_shelf',
+                      'import_csv',
+                    ],
+                    handlers: handlers,
+                  ),
                 ),
-              ),
-            ],
-          );
-        }),
+              ],
+            );
+          },
+        ),
       ];
     }
 
@@ -421,60 +426,66 @@ class _LibraryScreenState extends State<LibraryScreen>
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     if (themeProvider.collectionsEnabled && _tabController.index == 2) {
       return [
-        Builder(builder: (sheetContext) {
-          return Row(
-            children: [
-              Expanded(
-                child: QuickActionCard(
-                  icon: Icons.auto_awesome,
-                  color: Colors.purple,
-                  label: TranslationService.translate(
-                      sheetContext, 'discover'),
-                  onTap: () async {
-                    Navigator.pop(sheetContext);
-                    final result = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            const import_curated.ImportCuratedListScreen(),
-                      ),
-                    );
-                    if (result == true && mounted) {
-                      _refreshNotifier.value++;
-                      setState(() {
-                        _collectionsRefreshKey++;
-                      });
-                    }
-                  },
+        Builder(
+          builder: (sheetContext) {
+            return Row(
+              children: [
+                Expanded(
+                  child: QuickActionCard(
+                    icon: Icons.auto_awesome,
+                    color: Colors.purple,
+                    label: TranslationService.translate(
+                      sheetContext,
+                      'discover',
+                    ),
+                    onTap: () async {
+                      Navigator.pop(sheetContext);
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              const import_curated.ImportCuratedListScreen(),
+                        ),
+                      );
+                      if (result == true && mounted) {
+                        _refreshNotifier.value++;
+                        setState(() {
+                          _collectionsRefreshKey++;
+                        });
+                      }
+                    },
+                  ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: QuickActionCard(
-                  icon: Icons.file_open,
-                  color: Colors.blue,
-                  label: TranslationService.translate(
-                      sheetContext, 'import_list'),
-                  onTap: () async {
-                    Navigator.pop(sheetContext);
-                    final result = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ImportSharedListScreen(),
-                      ),
-                    );
-                    if (result == true && mounted) {
-                      _refreshNotifier.value++;
-                      setState(() {
-                        _collectionsRefreshKey++;
-                      });
-                    }
-                  },
+                const SizedBox(width: 12),
+                Expanded(
+                  child: QuickActionCard(
+                    icon: Icons.file_open,
+                    color: Colors.blue,
+                    label: TranslationService.translate(
+                      sheetContext,
+                      'import_list',
+                    ),
+                    onTap: () async {
+                      Navigator.pop(sheetContext);
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ImportSharedListScreen(),
+                        ),
+                      );
+                      if (result == true && mounted) {
+                        _refreshNotifier.value++;
+                        setState(() {
+                          _collectionsRefreshKey++;
+                        });
+                      }
+                    },
+                  ),
                 ),
-              ),
-            ],
-          );
-        }),
+              ],
+            );
+          },
+        ),
       ];
     }
 

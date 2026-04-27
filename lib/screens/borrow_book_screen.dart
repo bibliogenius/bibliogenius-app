@@ -110,7 +110,10 @@ class _BorrowBookScreenState extends State<BorrowBookScreen> {
         setState(() {
           _foundBook = null;
           _isLoading = false;
-          _errorMessage = TranslationService.translate(context, 'book_not_found');
+          _errorMessage = TranslationService.translate(
+            context,
+            'book_not_found',
+          );
         });
       }
     } catch (e) {
@@ -201,7 +204,9 @@ class _BorrowBookScreenState extends State<BorrowBookScreen> {
         final isbn = _isbnController.text.trim();
         final bookData = {
           'title': _titleController.text,
-          'author': _authorController.text.isEmpty ? null : _authorController.text,
+          'author': _authorController.text.isEmpty
+              ? null
+              : _authorController.text,
           'isbn': isbn.isEmpty ? null : isbn,
           'cover': _foundBook?['cover'],
           'publisher': _foundBook?['publisher'],
@@ -222,13 +227,17 @@ class _BorrowBookScreenState extends State<BorrowBookScreen> {
 
       // 3. Create temporary copy with borrowed status
       // The copy tracks who we borrowed from in the notes field
-      final borrowedFrom = TranslationService.translate(context, 'borrowed_from');
+      final borrowedFrom = TranslationService.translate(
+        context,
+        'borrowed_from',
+      );
       final copyRepo = Provider.of<CopyRepository>(context, listen: false);
       await copyRepo.createCopy({
         'book_id': bookId,
         'status': 'borrowed',
         'is_temporary': true,
-        'notes': '$borrowedFrom: ${widget.contact.displayName} (ID: ${widget.contact.id})',
+        'notes':
+            '$borrowedFrom: ${widget.contact.displayName} (ID: ${widget.contact.id})',
         'acquisition_date': DateTime.now().toIso8601String().split('T')[0],
       });
 
@@ -251,7 +260,9 @@ class _BorrowBookScreenState extends State<BorrowBookScreen> {
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${TranslationService.translate(context, 'error')}: $e'),
+            content: Text(
+              '${TranslationService.translate(context, 'error')}: $e',
+            ),
             backgroundColor: Colors.red,
           ),
         );
@@ -307,7 +318,10 @@ class _BorrowBookScreenState extends State<BorrowBookScreen> {
                   prefixIcon: const Icon(Icons.numbers),
                   suffixIcon: IconButton(
                     icon: const Icon(Icons.search),
-                    tooltip: TranslationService.translate(context, 'tooltip_search_isbn'),
+                    tooltip: TranslationService.translate(
+                      context,
+                      'tooltip_search_isbn',
+                    ),
                     onPressed: () => _lookupByIsbn(_isbnController.text),
                   ),
                 ),
@@ -320,13 +334,19 @@ class _BorrowBookScreenState extends State<BorrowBookScreen> {
               TextFormField(
                 controller: _titleController,
                 decoration: InputDecoration(
-                  labelText: TranslationService.translate(context, 'title_label'),
+                  labelText: TranslationService.translate(
+                    context,
+                    'title_label',
+                  ),
                   border: const OutlineInputBorder(),
                   prefixIcon: const Icon(Icons.book),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return TranslationService.translate(context, 'title_required');
+                    return TranslationService.translate(
+                      context,
+                      'title_required',
+                    );
                   }
                   return null;
                 },
@@ -383,10 +403,7 @@ class _BorrowBookScreenState extends State<BorrowBookScreen> {
                 children: [
                   Text(
                     TranslationService.translate(context, 'borrowing_from'),
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 12,
-                    ),
+                    style: TextStyle(color: Colors.grey[600], fontSize: 12),
                   ),
                   Text(
                     widget.contact.displayName,
@@ -430,7 +447,10 @@ class _BorrowBookScreenState extends State<BorrowBookScreen> {
         suffixIcon: _isbnController.text.isNotEmpty
             ? IconButton(
                 icon: const Icon(Icons.search),
-                tooltip: TranslationService.translate(context, 'tooltip_search_isbn'),
+                tooltip: TranslationService.translate(
+                  context,
+                  'tooltip_search_isbn',
+                ),
                 onPressed: () => _lookupByIsbn(_isbnController.text),
               )
             : null,
@@ -508,11 +528,7 @@ class _BorrowBookScreenState extends State<BorrowBookScreen> {
                     ),
                     child: const Icon(Icons.book, size: 20),
                   ),
-            title: Text(
-              title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
+            title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
             subtitle: Text(
               author,
               maxLines: 1,
@@ -584,11 +600,7 @@ class _BorrowBookScreenState extends State<BorrowBookScreen> {
                 children: [
                   Row(
                     children: [
-                      Icon(
-                        Icons.check_circle,
-                        color: Colors.green,
-                        size: 16,
-                      ),
+                      Icon(Icons.check_circle, color: Colors.green, size: 16),
                       const SizedBox(width: 4),
                       Text(
                         TranslationService.translate(context, 'book_found'),
@@ -616,10 +628,7 @@ class _BorrowBookScreenState extends State<BorrowBookScreen> {
                   if (publisher != null || year != null)
                     Text(
                       [publisher, year].whereType<String>().join(' - '),
-                      style: TextStyle(
-                        color: Colors.grey[500],
-                        fontSize: 12,
-                      ),
+                      style: TextStyle(color: Colors.grey[500], fontSize: 12),
                     ),
                 ],
               ),
@@ -662,7 +671,10 @@ class _BorrowBookScreenState extends State<BorrowBookScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  TranslationService.translate(context, 'borrow_copy_added_to_existing'),
+                  TranslationService.translate(
+                    context,
+                    'borrow_copy_added_to_existing',
+                  ),
                   style: TextStyle(color: Colors.blue[700], fontSize: 13),
                 ),
               ],

@@ -20,8 +20,8 @@ void main() {
     });
 
     test('aspect ratio is 2:3 (standard book cover)', () {
-      final ratio = CoverCameraHelper.targetMaxWidth /
-          CoverCameraHelper.targetMaxHeight;
+      final ratio =
+          CoverCameraHelper.targetMaxWidth / CoverCameraHelper.targetMaxHeight;
       expect(ratio, closeTo(2 / 3, 0.01));
     });
 
@@ -49,15 +49,16 @@ void main() {
           final u = x / w;
           final r = (128 + 80 * (u * 3.14159).abs()).clamp(0, 255).toInt();
           final g = (128 + 80 * (v * 6.283).abs()).clamp(0, 255).toInt();
-          final b = (128 + 60 * ((u + v) * 3.14159).abs()).clamp(0, 255).toInt();
+          final b = (128 + 60 * ((u + v) * 3.14159).abs())
+              .clamp(0, 255)
+              .toInt();
           image.setPixelRgb(x, y, r, g, b);
         }
       }
       return image;
     }
 
-    test('downscales an oversized PNG to ≤ 300x450 JPEG under cap',
-        () async {
+    test('downscales an oversized PNG to ≤ 300x450 JPEG under cap', () async {
       // Mirrors the bug we hit: a large PNG that image_picker would
       // pass through untouched on macOS.
       final big = coverLikeImage(931, 827);
@@ -72,9 +73,14 @@ void main() {
       expect(out[2], 0xFF);
 
       final decoded = img.decodeJpg(out)!;
-      expect(decoded.width, lessThanOrEqualTo(CoverCameraHelper.targetMaxWidth));
-      expect(decoded.height,
-          lessThanOrEqualTo(CoverCameraHelper.targetMaxHeight));
+      expect(
+        decoded.width,
+        lessThanOrEqualTo(CoverCameraHelper.targetMaxWidth),
+      );
+      expect(
+        decoded.height,
+        lessThanOrEqualTo(CoverCameraHelper.targetMaxHeight),
+      );
       expect(out.length, lessThanOrEqualTo(CoverCameraHelper.targetMaxBytes));
     });
 
@@ -113,13 +119,15 @@ void main() {
 
     test('accepts an already-JPEG input and re-encodes under cap', () async {
       final src = coverLikeImage(800, 1200);
-      final jpegIn =
-          Uint8List.fromList(img.encodeJpg(src, quality: 95));
+      final jpegIn = Uint8List.fromList(img.encodeJpg(src, quality: 95));
 
       final out = await CoverCameraHelper.encodeCoverJpegForTest(jpegIn);
 
       final decoded = img.decodeJpg(out)!;
-      expect(decoded.width, lessThanOrEqualTo(CoverCameraHelper.targetMaxWidth));
+      expect(
+        decoded.width,
+        lessThanOrEqualTo(CoverCameraHelper.targetMaxWidth),
+      );
       expect(out.length, lessThanOrEqualTo(CoverCameraHelper.targetMaxBytes));
     });
   });

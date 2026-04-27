@@ -113,7 +113,10 @@ void main() {
       expect(mockRouter.lastExtra, null);
 
       // Verify instruction text (translate returns the key when no PO files are loaded)
-      expect(find.textContaining('scan_instruction', skipOffstage: false), findsOneWidget);
+      expect(
+        find.textContaining('scan_instruction', skipOffstage: false),
+        findsOneWidget,
+      );
     });
   });
 }

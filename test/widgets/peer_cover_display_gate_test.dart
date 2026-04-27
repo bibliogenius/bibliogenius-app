@@ -29,8 +29,9 @@ class _GatedPeerView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final peerCoversEnabled =
-        context.watch<ThemeProvider>().peerCoverDisplayEnabled;
+    final peerCoversEnabled = context
+        .watch<ThemeProvider>()
+        .peerCoverDisplayEnabled;
 
     if (!peerCoversEnabled) {
       return BookshelfView(books: books, onBookTap: (_) {});
@@ -40,11 +41,8 @@ class _GatedPeerView extends StatelessWidget {
       crossAxisCount: 2,
       children: books
           .map(
-            (book) => BookCoverCard(
-              book: book,
-              onTap: () {},
-              isPeerCover: true,
-            ),
+            (book) =>
+                BookCoverCard(book: book, onTap: () {}, isPeerCover: true),
           )
           .toList(),
     );
@@ -62,11 +60,8 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  Book makeBook(int id, String title, {String? coverUrl}) => Book(
-        id: id,
-        title: title,
-        coverUrl: coverUrl,
-      );
+  Book makeBook(int id, String title, {String? coverUrl}) =>
+      Book(id: id, title: title, coverUrl: coverUrl);
 
   Widget harness(ThemeProvider provider, List<Book> books) {
     return MaterialApp(

@@ -21,8 +21,10 @@ class DiscoveredPeer {
   final List<String> addresses;
   final String? libraryId;
   final String? deviceName;
+
   /// Ed25519 public key (hex) from mDNS TXT record
   final String? ed25519PublicKey;
+
   /// X25519 public key (hex) from mDNS TXT record
   final String? x25519PublicKey;
   final DateTime discoveredAt;
@@ -89,17 +91,17 @@ class MdnsService {
   static Future<String?> _resolveHostname(String hostname) async {
     try {
       // Ensure .local suffix for mDNS resolution
-      final localName =
-          hostname.endsWith('.local') ? hostname : '$hostname.local';
-      final addresses = await InternetAddress.lookup(localName)
-          .timeout(const Duration(seconds: 2));
+      final localName = hostname.endsWith('.local')
+          ? hostname
+          : '$hostname.local';
+      final addresses = await InternetAddress.lookup(
+        localName,
+      ).timeout(const Duration(seconds: 2));
       for (final addr in addresses) {
         if (addr.type == InternetAddressType.IPv4 &&
             !addr.isLoopback &&
             !_isLinkLocalAddress(addr.address)) {
-          debugPrint(
-            '🔍 mDNS: Resolved $localName -> ${addr.address}',
-          );
+          debugPrint('🔍 mDNS: Resolved $localName -> ${addr.address}');
           return addr.address;
         }
       }
@@ -316,10 +318,7 @@ class MdnsService {
   /// Helper to register a peer once we have a valid host
   static void _addPeer(BonsoirService service, String host) {
     final actualPort = service.port > 0 ? service.port : 8000;
-    final cleanName = service.name.replaceAll(
-      RegExp(r'\s*\(\d+\)$'),
-      '',
-    );
+    final cleanName = service.name.replaceAll(RegExp(r'\s*\(\d+\)$'), '');
     final peerKey = '$host:$actualPort';
 
     final peer = DiscoveredPeer(
@@ -337,8 +336,10 @@ class MdnsService {
     // Evict oldest peer if at capacity (before inserting, unless key already exists)
     if (_peers.length >= _maxPeers && !_peers.containsKey(peerKey)) {
       final oldestKey = _peers.entries
-          .reduce((a, b) =>
-              a.value.discoveredAt.isBefore(b.value.discoveredAt) ? a : b)
+          .reduce(
+            (a, b) =>
+                a.value.discoveredAt.isBefore(b.value.discoveredAt) ? a : b,
+          )
           .key;
       _peers.remove(oldestKey);
       debugPrint(
@@ -363,11 +364,10 @@ class MdnsService {
     }
 
     // Skip by name as fallback (handle Bonjour auto-suffix like "(2)")
-    final cleanName = service.name.replaceAll(
-      RegExp(r'\s*\(\d+\)$'),
-      '',
-    );
-    if (_ownServiceName != null && cleanName == _ownServiceName && peerIp == null) {
+    final cleanName = service.name.replaceAll(RegExp(r'\s*\(\d+\)$'), '');
+    if (_ownServiceName != null &&
+        cleanName == _ownServiceName &&
+        peerIp == null) {
       debugPrint(
         '🔇 mDNS: Skipping own service by name (no IP): ${service.name}',
       );

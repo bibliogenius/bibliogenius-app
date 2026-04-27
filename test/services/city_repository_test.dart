@@ -12,8 +12,7 @@ import 'package:flutter_test/flutter_test.dart';
 /// code. Lets the repository tests exercise download / parse / search /
 /// evict without touching the network or the real GeoNames files.
 class _FakeCityDataSource implements CityDataSource {
-  _FakeCityDataSource({Map<String, String>? files})
-      : _files = {...?files};
+  _FakeCityDataSource({Map<String, String>? files}) : _files = {...?files};
 
   final Map<String, String> _files;
   int callCount = 0;
@@ -93,37 +92,47 @@ void main() {
   });
 
   group('ensureDownloaded', () {
-    test('downloads, writes the file to disk, and parses into memory',
-        () async {
-      final source = _FakeCityDataSource(files: {'FR': _frJson});
-      final repo = _makeRepo(source, tempRoot);
+    test(
+      'downloads, writes the file to disk, and parses into memory',
+      () async {
+        final source = _FakeCityDataSource(files: {'FR': _frJson});
+        final repo = _makeRepo(source, tempRoot);
 
-      final ok = await repo.ensureDownloaded('FR');
+        final ok = await repo.ensureDownloaded('FR');
 
-      expect(ok, true);
-      expect(source.callCount, 1);
-      final cached = File('${tempRoot.path}/FR.json');
-      expect(cached.existsSync(), true,
+        expect(ok, true);
+        expect(source.callCount, 1);
+        final cached = File('${tempRoot.path}/FR.json');
+        expect(
+          cached.existsSync(),
+          true,
           reason:
               'cache file must land at {appSupport}/cities/{CC}.json so a '
-              'subsequent app launch finds it without re-downloading');
-    });
+              'subsequent app launch finds it without re-downloading',
+        );
+      },
+    );
 
-    test('does not re-download when a valid cached file already exists',
-        () async {
-      final source = _FakeCityDataSource(files: {'FR': _frJson});
-      // Pre-seed disk so the first ensure call should skip the network.
-      File('${tempRoot.path}/FR.json').writeAsStringSync(_frJson);
+    test(
+      'does not re-download when a valid cached file already exists',
+      () async {
+        final source = _FakeCityDataSource(files: {'FR': _frJson});
+        // Pre-seed disk so the first ensure call should skip the network.
+        File('${tempRoot.path}/FR.json').writeAsStringSync(_frJson);
 
-      final repo = _makeRepo(source, tempRoot);
-      final ok = await repo.ensureDownloaded('FR');
+        final repo = _makeRepo(source, tempRoot);
+        final ok = await repo.ensureDownloaded('FR');
 
-      expect(ok, true);
-      expect(source.callCount, 0,
+        expect(ok, true);
+        expect(
+          source.callCount,
+          0,
           reason:
               'a non-corrupt cached file must short-circuit the network — '
-              'this is the entire point of the on-disk cache');
-    });
+              'this is the entire point of the on-disk cache',
+        );
+      },
+    );
 
     test('returns false when the hub has no file for the country', () async {
       final source = _FakeCityDataSource(); // empty
@@ -132,8 +141,11 @@ void main() {
       final ok = await repo.ensureDownloaded('XX');
 
       expect(ok, false);
-      expect(File('${tempRoot.path}/XX.json').existsSync(), false,
-          reason: 'a missing file must not leave a zero-byte artifact behind');
+      expect(
+        File('${tempRoot.path}/XX.json').existsSync(),
+        false,
+        reason: 'a missing file must not leave a zero-byte artifact behind',
+      );
     });
 
     test('coalesces concurrent calls into a single download', () async {
@@ -147,10 +159,13 @@ void main() {
       ]);
 
       expect(results, [true, true, true]);
-      expect(source.callCount, 1,
-          reason:
-              'parallel triggers (settings picker + remote profile resolve) '
-              'must share one network round-trip');
+      expect(
+        source.callCount,
+        1,
+        reason:
+            'parallel triggers (settings picker + remote profile resolve) '
+            'must share one network round-trip',
+      );
     });
 
     test('redownloads after a corrupt cached file is detected', () async {
@@ -162,20 +177,25 @@ void main() {
       final ok = await repo.ensureDownloaded('FR');
 
       expect(ok, true);
-      expect(source.callCount, 1,
-          reason:
-              'a corrupt file must trigger a re-download instead of being '
-              'cached forever');
+      expect(
+        source.callCount,
+        1,
+        reason:
+            'a corrupt file must trigger a re-download instead of being '
+            'cached forever',
+      );
     });
 
-    test('uppercases the country code so callers can pass either case',
-        () async {
-      final source = _FakeCityDataSource(files: {'FR': _frJson});
-      final repo = _makeRepo(source, tempRoot);
+    test(
+      'uppercases the country code so callers can pass either case',
+      () async {
+        final source = _FakeCityDataSource(files: {'FR': _frJson});
+        final repo = _makeRepo(source, tempRoot);
 
-      expect(await repo.ensureDownloaded('fr'), true);
-      expect(source.requested.single, 'FR');
-    });
+        expect(await repo.ensureDownloaded('fr'), true);
+        expect(source.requested.single, 'FR');
+      },
+    );
   });
 
   group('search', () {
@@ -197,8 +217,11 @@ void main() {
     test('matches diacritic-insensitively', () async {
       // Picker user types ASCII; record stores accented form.
       final results = await repo.search('liege', 'BE');
-      expect(results.any((r) => r.name == 'Liège'), true,
-          reason: 'ADR-035 trade-off: accent-insensitive matching at MVP');
+      expect(
+        results.any((r) => r.name == 'Liège'),
+        true,
+        reason: 'ADR-035 trade-off: accent-insensitive matching at MVP',
+      );
     });
 
     test('orders prefix matches before substring matches', () async {
@@ -212,10 +235,13 @@ void main() {
 
     test('returns up to limit when the query is empty', () async {
       final results = await repo.search('', 'FR', limit: 3);
-      expect(results.length, 3,
-          reason:
-              'an empty query gives the picker a non-empty initial list to '
-              'render before the user starts typing');
+      expect(
+        results.length,
+        3,
+        reason:
+            'an empty query gives the picker a non-empty initial list to '
+            'render before the user starts typing',
+      );
     });
 
     test('returns nothing when the country file is unavailable', () async {
@@ -237,22 +263,27 @@ void main() {
       expect(paris.latitude, 48.8534);
     });
 
-    test('lazy-downloads the country file on first lookup of a remote profile',
-        () async {
-      final source = _FakeCityDataSource(files: {'BE': _beJson});
-      final repo = _makeRepo(source, tempRoot);
-      // No prior ensureDownloaded call: lookupById must trigger one
-      // when the caller passes the publisher's country code.
+    test(
+      'lazy-downloads the country file on first lookup of a remote profile',
+      () async {
+        final source = _FakeCityDataSource(files: {'BE': _beJson});
+        final repo = _makeRepo(source, tempRoot);
+        // No prior ensureDownloaded call: lookupById must trigger one
+        // when the caller passes the publisher's country code.
 
-      final liege = await repo.lookupById(2792196, country: 'BE');
+        final liege = await repo.lookupById(2792196, country: 'BE');
 
-      expect(liege, isNotNull);
-      expect(liege!.name, 'Liège');
-      expect(source.callCount, 1,
+        expect(liege, isNotNull);
+        expect(liege!.name, 'Liège');
+        expect(
+          source.callCount,
+          1,
           reason:
               'displaying a remote profile from a country we have never '
-              'visited must trigger a one-time, lazy download');
-    });
+              'visited must trigger a one-time, lazy download',
+        );
+      },
+    );
 
     test('returns null without downloading when country is omitted', () async {
       final source = _FakeCityDataSource(files: {'FR': _frJson});
@@ -261,11 +292,14 @@ void main() {
       final result = await repo.lookupById(2988507);
 
       expect(result, isNull);
-      expect(source.callCount, 0,
-          reason:
-              'no country -> no global GeoNames index by ADR-035 §2bis. We '
-              'must not blindly download every country file just to resolve '
-              'a single id.');
+      expect(
+        source.callCount,
+        0,
+        reason:
+            'no country -> no global GeoNames index by ADR-035 §2bis. We '
+            'must not blindly download every country file just to resolve '
+            'a single id.',
+      );
     });
   });
 
@@ -282,10 +316,13 @@ void main() {
       // After eviction, a fresh search must trigger another download.
       source.callCount = 0;
       await repo.search('par', 'FR');
-      expect(source.callCount, 1,
-          reason:
-              'evict must drop the in-memory cache too, otherwise stale '
-              'entries would survive a country change');
+      expect(
+        source.callCount,
+        1,
+        reason:
+            'evict must drop the in-memory cache too, otherwise stale '
+            'entries would survive a country change',
+      );
     });
   });
 
@@ -297,45 +334,58 @@ void main() {
     // when accessed again (its on-disk file is still there but the
     // re-load goes through _doEnsure which checks _memory first).
 
-    test('drops the least-recently-used country when the cap is exceeded',
-        () async {
-      final source = _FakeCityDataSource(
-        files: {'FR': _frJson, 'BE': _beJson, 'CH': _chJson},
-      );
-      final repo = _makeRepo(source, tempRoot, memoryCap: 2);
+    test(
+      'drops the least-recently-used country when the cap is exceeded',
+      () async {
+        final source = _FakeCityDataSource(
+          files: {'FR': _frJson, 'BE': _beJson, 'CH': _chJson},
+        );
+        final repo = _makeRepo(source, tempRoot, memoryCap: 2);
 
-      await repo.ensureDownloaded('FR'); // resident: [FR]
-      await repo.ensureDownloaded('BE'); // resident: [FR, BE]
-      await repo.ensureDownloaded('CH'); // resident: [BE, CH]; FR evicted
+        await repo.ensureDownloaded('FR'); // resident: [FR]
+        await repo.ensureDownloaded('BE'); // resident: [FR, BE]
+        await repo.ensureDownloaded('CH'); // resident: [BE, CH]; FR evicted
 
-      // FR's on-disk file still exists, but the parsed list was evicted.
-      // Touching FR again must re-load from disk (no extra network call
-      // because the fake source counts every download attempt).
-      final beforeReload = source.callCount;
-      final results = await repo.search('', 'FR');
-      expect(results, isNotEmpty,
-          reason: 'evicted country must reload transparently from disk');
-      expect(source.callCount, beforeReload,
-          reason: 'evicted-but-on-disk reload must not re-hit the network');
-    });
+        // FR's on-disk file still exists, but the parsed list was evicted.
+        // Touching FR again must re-load from disk (no extra network call
+        // because the fake source counts every download attempt).
+        final beforeReload = source.callCount;
+        final results = await repo.search('', 'FR');
+        expect(
+          results,
+          isNotEmpty,
+          reason: 'evicted country must reload transparently from disk',
+        );
+        expect(
+          source.callCount,
+          beforeReload,
+          reason: 'evicted-but-on-disk reload must not re-hit the network',
+        );
+      },
+    );
 
-    test('access promotes a country so it survives the next eviction',
-        () async {
-      final source = _FakeCityDataSource(
-        files: {'FR': _frJson, 'BE': _beJson, 'CH': _chJson},
-      );
-      final repo = _makeRepo(source, tempRoot, memoryCap: 2);
+    test(
+      'access promotes a country so it survives the next eviction',
+      () async {
+        final source = _FakeCityDataSource(
+          files: {'FR': _frJson, 'BE': _beJson, 'CH': _chJson},
+        );
+        final repo = _makeRepo(source, tempRoot, memoryCap: 2);
 
-      await repo.ensureDownloaded('FR'); // resident: [FR]
-      await repo.ensureDownloaded('BE'); // resident: [FR, BE]
-      await repo.ensureDownloaded('FR'); // touched: [BE, FR]
-      await repo.ensureDownloaded('CH'); // resident: [FR, CH]; BE evicted
+        await repo.ensureDownloaded('FR'); // resident: [FR]
+        await repo.ensureDownloaded('BE'); // resident: [FR, BE]
+        await repo.ensureDownloaded('FR'); // touched: [BE, FR]
+        await repo.ensureDownloaded('CH'); // resident: [FR, CH]; BE evicted
 
-      final beforeFr = source.callCount;
-      await repo.search('par', 'FR');
-      expect(source.callCount, beforeFr,
-          reason: 'FR was touched, so it should still be in memory');
-    });
+        final beforeFr = source.callCount;
+        await repo.search('par', 'FR');
+        expect(
+          source.callCount,
+          beforeFr,
+          reason: 'FR was touched, so it should still be in memory',
+        );
+      },
+    );
   });
 
   group('country code validation', () {
@@ -366,25 +416,33 @@ void main() {
         final ok = await repo.ensureDownloaded(cc);
         expect(ok, false, reason: 'should reject "$cc"');
       }
-      expect(source.callCount, 0,
-          reason: 'no download must be attempted for malformed codes');
+      expect(
+        source.callCount,
+        0,
+        reason: 'no download must be attempted for malformed codes',
+      );
     });
 
-    test('evictCountry no-ops on malformed codes without touching disk',
-        () async {
-      final source = _FakeCityDataSource(files: {'FR': _frJson});
-      final repo = _makeRepo(source, tempRoot);
-      await repo.ensureDownloaded('FR');
-      final cached = File('${tempRoot.path}/FR.json');
-      expect(cached.existsSync(), true);
+    test(
+      'evictCountry no-ops on malformed codes without touching disk',
+      () async {
+        final source = _FakeCityDataSource(files: {'FR': _frJson});
+        final repo = _makeRepo(source, tempRoot);
+        await repo.ensureDownloaded('FR');
+        final cached = File('${tempRoot.path}/FR.json');
+        expect(cached.existsSync(), true);
 
-      for (final cc in malformed) {
-        await repo.evictCountry(cc);
-      }
+        for (final cc in malformed) {
+          await repo.evictCountry(cc);
+        }
 
-      expect(cached.existsSync(), true,
-          reason: 'malformed evict must not delete unrelated cached files');
-    });
+        expect(
+          cached.existsSync(),
+          true,
+          reason: 'malformed evict must not delete unrelated cached files',
+        );
+      },
+    );
   });
 
   group('ADR-036 enriched format', () {
@@ -436,35 +494,42 @@ void main() {
   });
 
   group('ADR-036 legacy fallback', () {
-    test('still parses ADR-035 5-element rows as CityRecord with empty names',
-        () async {
-      // A user upgrading the app will keep a stale 5-element file on
-      // disk until the country file is re-downloaded. The parser must
-      // not throw and must produce a usable record.
+    test(
+      'still parses ADR-035 5-element rows as CityRecord with empty names',
+      () async {
+        // A user upgrading the app will keep a stale 5-element file on
+        // disk until the country file is re-downloaded. The parser must
+        // not throw and must produce a usable record.
+        final source = _FakeCityDataSource(files: {'FR': _frLegacyJson});
+        final repo = _makeRepo(source, tempRoot);
+        await repo.ensureDownloaded('FR');
+
+        final paris = await repo.lookupById(2988507, country: 'FR');
+        expect(paris, isNotNull);
+        expect(paris!.admin1Code, '11');
+        expect(
+          paris.admin1Name,
+          '',
+          reason: 'legacy rows have no name fields, must be empty string',
+        );
+        expect(paris.admin2Code, '');
+        expect(paris.admin2Name, '');
+      },
+    );
+
+    test('subtitle falls back to bare admin1 code on legacy rows', () async {
       final source = _FakeCityDataSource(files: {'FR': _frLegacyJson});
       final repo = _makeRepo(source, tempRoot);
       await repo.ensureDownloaded('FR');
 
       final paris = await repo.lookupById(2988507, country: 'FR');
-      expect(paris, isNotNull);
-      expect(paris!.admin1Code, '11');
-      expect(paris.admin1Name, '',
-          reason: 'legacy rows have no name fields, must be empty string');
-      expect(paris.admin2Code, '');
-      expect(paris.admin2Name, '');
-    });
-
-    test('subtitle falls back to bare admin1 code on legacy rows',
-        () async {
-      final source = _FakeCityDataSource(files: {'FR': _frLegacyJson});
-      final repo = _makeRepo(source, tempRoot);
-      await repo.ensureDownloaded('FR');
-
-      final paris = await repo.lookupById(2988507, country: 'FR');
-      expect(paris!.subtitle, '11',
-          reason:
-              'legacy on-disk cache should still surface SOME context '
-              'until the country file is refreshed to enriched format');
+      expect(
+        paris!.subtitle,
+        '11',
+        reason:
+            'legacy on-disk cache should still surface SOME context '
+            'until the country file is refreshed to enriched format',
+      );
     });
   });
 }

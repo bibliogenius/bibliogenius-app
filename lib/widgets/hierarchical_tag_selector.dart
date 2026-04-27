@@ -63,10 +63,8 @@ class _HierarchicalTagSelectorState extends State<HierarchicalTagSelector> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => _ShelfPickerSheet(
-        allTags: tags,
-        initialSelectedIds: selectedIds,
-      ),
+      builder: (context) =>
+          _ShelfPickerSheet(allTags: tags, initialSelectedIds: selectedIds),
     );
 
     if (result != null && mounted) {
@@ -102,7 +100,11 @@ class _HierarchicalTagSelectorState extends State<HierarchicalTagSelector> {
             children: [
               Padding(
                 padding: const EdgeInsets.only(top: 4),
-                child: Icon(Icons.shelves, size: 20, color: theme.colorScheme.primary.withValues(alpha: 0.5)),
+                child: Icon(
+                  Icons.shelves,
+                  size: 20,
+                  color: theme.colorScheme.primary.withValues(alpha: 0.5),
+                ),
               ),
               const SizedBox(width: 6),
               Expanded(
@@ -114,14 +116,20 @@ class _HierarchicalTagSelectorState extends State<HierarchicalTagSelector> {
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
-                        color: Color.lerp(theme.colorScheme.primary, Colors.black, 0.25),
+                        color: Color.lerp(
+                          theme.colorScheme.primary,
+                          Colors.black,
+                          0.25,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       TranslationService.translate(context, 'tags_helper'),
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.textTheme.bodySmall?.color?.withValues(alpha: 0.85),
+                        color: theme.textTheme.bodySmall?.color?.withValues(
+                          alpha: 0.85,
+                        ),
                       ),
                     ),
                   ],
@@ -162,9 +170,7 @@ class _HierarchicalTagSelectorState extends State<HierarchicalTagSelector> {
                 size: 18,
                 color: theme.colorScheme.primary,
               ),
-              label: Text(
-                TranslationService.translate(context, 'add_tag'),
-              ),
+              label: Text(TranslationService.translate(context, 'add_tag')),
               onPressed: _showShelfPicker,
             ),
           ],
@@ -265,8 +271,11 @@ class _ShelfPickerSheetState extends State<_ShelfPickerSheet> {
         SnackBar(
           content: Row(
             children: [
-              const Icon(Icons.check_circle_outline,
-                  color: Colors.white, size: 18),
+              const Icon(
+                Icons.check_circle_outline,
+                color: Colors.white,
+                size: 18,
+              ),
               const SizedBox(width: 8),
               Expanded(child: Text(newTag.fullPath)),
             ],
@@ -315,8 +324,9 @@ class _ShelfPickerSheetState extends State<_ShelfPickerSheet> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: theme.colorScheme.onSurfaceVariant
-                    .withValues(alpha: 0.4),
+                color: theme.colorScheme.onSurfaceVariant.withValues(
+                  alpha: 0.4,
+                ),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -334,8 +344,7 @@ class _ShelfPickerSheetState extends State<_ShelfPickerSheet> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      TranslationService.translate(
-                              context, 'manage_tags'),
+                      TranslationService.translate(context, 'manage_tags'),
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -343,8 +352,7 @@ class _ShelfPickerSheetState extends State<_ShelfPickerSheet> {
                   ),
                   IconButton(
                     icon: const Icon(Icons.close),
-                    tooltip:
-                        TranslationService.translate(context, 'close'),
+                    tooltip: TranslationService.translate(context, 'close'),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
@@ -359,14 +367,17 @@ class _ShelfPickerSheetState extends State<_ShelfPickerSheet> {
                 onChanged: _onSearchChanged,
                 decoration: InputDecoration(
                   hintText: TranslationService.translate(
-                          context, 'search_shelves_hint'),
+                    context,
+                    'search_shelves_hint',
+                  ),
                   prefixIcon: const Icon(Icons.search, size: 20),
                   suffixIcon: _searchQuery.isNotEmpty
                       ? IconButton(
                           icon: const Icon(Icons.clear, size: 18),
-                          tooltip:
-                              TranslationService.translate(
-                                      context, 'clear'),
+                          tooltip: TranslationService.translate(
+                            context,
+                            'clear',
+                          ),
                           onPressed: () {
                             _searchController.clear();
                             setState(() => _searchQuery = '');
@@ -374,8 +385,7 @@ class _ShelfPickerSheetState extends State<_ShelfPickerSheet> {
                         )
                       : null,
                   isDense: true,
-                  contentPadding:
-                      const EdgeInsets.symmetric(vertical: 10),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -417,8 +427,7 @@ class _ShelfPickerSheetState extends State<_ShelfPickerSheet> {
           Icon(
             Icons.shelves,
             size: 48,
-            color: theme.colorScheme.onSurfaceVariant
-                .withValues(alpha: 0.4),
+            color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
           ),
           const SizedBox(height: 12),
           Text(
@@ -431,8 +440,7 @@ class _ShelfPickerSheetState extends State<_ShelfPickerSheet> {
           Text(
             TranslationService.translate(context, 'create_new_tag'),
             style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant
-                  .withValues(alpha: 0.7),
+              color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
             ),
           ),
         ],
@@ -448,8 +456,7 @@ class _ShelfPickerSheetState extends State<_ShelfPickerSheet> {
         InkWell(
           onTap: () => setState(() => _showCreateForm = !_showCreateForm),
           child: Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
               children: [
                 Icon(
@@ -460,8 +467,7 @@ class _ShelfPickerSheetState extends State<_ShelfPickerSheet> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    TranslationService.translate(
-                        context, 'create_new_tag'),
+                    TranslationService.translate(context, 'create_new_tag'),
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.colorScheme.primary,
                       fontWeight: FontWeight.w500,
@@ -469,9 +475,7 @@ class _ShelfPickerSheetState extends State<_ShelfPickerSheet> {
                   ),
                 ),
                 Icon(
-                  _showCreateForm
-                      ? Icons.expand_less
-                      : Icons.expand_more,
+                  _showCreateForm ? Icons.expand_less : Icons.expand_more,
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
               ],
@@ -503,7 +507,9 @@ class _ShelfPickerSheetState extends State<_ShelfPickerSheet> {
                   controller: _newTagNameController,
                   decoration: InputDecoration(
                     hintText: TranslationService.translate(
-                        context, 'tag_name_hint'),
+                      context,
+                      'tag_name_hint',
+                    ),
                     isDense: true,
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 12,
@@ -519,8 +525,7 @@ class _ShelfPickerSheetState extends State<_ShelfPickerSheet> {
               const SizedBox(width: 8),
               // Parent selector
               Tooltip(
-                message: TranslationService.translate(
-                        context, 'root_tag'),
+                message: TranslationService.translate(context, 'root_tag'),
                 child: PopupMenuButton<Tag?>(
                   icon: Icon(
                     Icons.account_tree_outlined,
@@ -529,8 +534,7 @@ class _ShelfPickerSheetState extends State<_ShelfPickerSheet> {
                         : theme.colorScheme.onSurfaceVariant,
                   ),
                   itemBuilder: (context) {
-                    final validParents =
-                        _tags.where((t) => t.id > 0).toList();
+                    final validParents = _tags.where((t) => t.id > 0).toList();
                     return [
                       PopupMenuItem<Tag?>(
                         value: null,
@@ -538,8 +542,9 @@ class _ShelfPickerSheetState extends State<_ShelfPickerSheet> {
                           children: [
                             const Icon(Icons.home_outlined, size: 18),
                             const SizedBox(width: 8),
-                            Text(TranslationService.translate(
-                                context, 'root_tag')),
+                            Text(
+                              TranslationService.translate(context, 'root_tag'),
+                            ),
                           ],
                         ),
                       ),
@@ -548,9 +553,8 @@ class _ShelfPickerSheetState extends State<_ShelfPickerSheet> {
                           value: t,
                           child: Padding(
                             padding: EdgeInsets.only(
-                                left: (t.fullPath.split(' > ').length -
-                                        1) *
-                                    16.0),
+                              left: (t.fullPath.split(' > ').length - 1) * 16.0,
+                            ),
                             child: Text(
                               t.name,
                               style: const TextStyle(fontSize: 13),
@@ -578,7 +582,9 @@ class _ShelfPickerSheetState extends State<_ShelfPickerSheet> {
                       )
                     : const Icon(Icons.add, size: 20),
                 tooltip: TranslationService.translate(
-                    context, 'create_new_tag'),
+                  context,
+                  'create_new_tag',
+                ),
                 onPressed: _isCreating ? null : _createNewTag,
               ),
             ],
@@ -588,9 +594,11 @@ class _ShelfPickerSheetState extends State<_ShelfPickerSheet> {
               padding: const EdgeInsets.only(top: 6),
               child: Row(
                 children: [
-                  Icon(Icons.subdirectory_arrow_right,
-                      size: 16,
-                      color: theme.colorScheme.onSurfaceVariant),
+                  Icon(
+                    Icons.subdirectory_arrow_right,
+                    size: 16,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                   const SizedBox(width: 4),
                   Flexible(
                     child: Text(
@@ -613,9 +621,7 @@ class _ShelfPickerSheetState extends State<_ShelfPickerSheet> {
     return Container(
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        border: Border(
-          top: BorderSide(color: theme.dividerColor),
-        ),
+        border: Border(top: BorderSide(color: theme.dividerColor)),
       ),
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
       child: SafeArea(
@@ -625,7 +631,9 @@ class _ShelfPickerSheetState extends State<_ShelfPickerSheet> {
             if (selectedCount > 0)
               Container(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 10, vertical: 4),
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.primaryContainer,
                   borderRadius: BorderRadius.circular(16),
@@ -642,8 +650,7 @@ class _ShelfPickerSheetState extends State<_ShelfPickerSheet> {
             FilledButton.icon(
               onPressed: _finish,
               icon: const Icon(Icons.check, size: 18),
-              label: Text(
-                  TranslationService.translate(context, 'done')),
+              label: Text(TranslationService.translate(context, 'done')),
             ),
           ],
         ),

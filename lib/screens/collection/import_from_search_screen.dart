@@ -246,7 +246,10 @@ class _ImportFromSearchScreenState extends State<ImportFromSearchScreen>
     setState(() => _isImporting = true);
 
     final apiService = Provider.of<ApiService>(context, listen: false);
-    final collectionRepo = Provider.of<CollectionRepository>(context, listen: false);
+    final collectionRepo = Provider.of<CollectionRepository>(
+      context,
+      listen: false,
+    );
 
     try {
       final bookData = {
@@ -321,7 +324,10 @@ class _ImportFromSearchScreenState extends State<ImportFromSearchScreen>
     setState(() => _isImporting = true);
 
     final apiService = Provider.of<ApiService>(context, listen: false);
-    final collectionRepo = Provider.of<CollectionRepository>(context, listen: false);
+    final collectionRepo = Provider.of<CollectionRepository>(
+      context,
+      listen: false,
+    );
     int successCount = 0;
     int failCount = 0;
 
@@ -661,8 +667,7 @@ class _ImportFromSearchScreenState extends State<ImportFromSearchScreen>
 
           // Control Bar (only for list view)
           if (_searchResults.isNotEmpty &&
-              (_tabController == null ||
-                  _tabController!.index == 0))
+              (_tabController == null || _tabController!.index == 0))
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Container(
@@ -713,8 +718,7 @@ class _ImportFromSearchScreenState extends State<ImportFromSearchScreen>
 
           // Import Button (only for list view)
           if (_selectedIndices.isNotEmpty &&
-              (_tabController == null ||
-                  _tabController!.index == 0))
+              (_tabController == null || _tabController!.index == 0))
             SafeArea(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),

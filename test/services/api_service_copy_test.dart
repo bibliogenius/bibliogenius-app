@@ -17,11 +17,16 @@ class RequestCaptureInterceptor extends Interceptor {
         ? Map<String, dynamic>.from(options.data)
         : null;
     // Return a mock response instead of making a real request
-    handler.resolve(Response(
-      requestOptions: options,
-      statusCode: 201,
-      data: {'copy': {'id': 1}, 'message': 'Copy created'},
-    ));
+    handler.resolve(
+      Response(
+        requestOptions: options,
+        statusCode: 201,
+        data: {
+          'copy': {'id': 1},
+          'message': 'Copy created',
+        },
+      ),
+    );
   }
 }
 
@@ -53,18 +58,21 @@ void main() {
   group('ApiService.createCopy enrichment', () {
     test('adds library_id and is_temporary when not provided', () async {
       // Call with minimal data (missing library_id and is_temporary)
-      await apiService.createCopy({
-        'book_id': 42,
-        'status': 'available',
-      });
+      await apiService.createCopy({'book_id': 42, 'status': 'available'});
 
       // Verify enrichment
       expect(captureInterceptor.lastRequestData, isNotNull);
       expect(captureInterceptor.lastRequestData!['book_id'], 42);
       expect(captureInterceptor.lastRequestData!['status'], 'available');
       // library_id may be null when AuthService has no stored ID - backend resolves dynamically
-      expect(captureInterceptor.lastRequestData!.containsKey('library_id'), true);
-      expect(captureInterceptor.lastRequestData!['is_temporary'], false); // Default
+      expect(
+        captureInterceptor.lastRequestData!.containsKey('library_id'),
+        true,
+      );
+      expect(
+        captureInterceptor.lastRequestData!['is_temporary'],
+        false,
+      ); // Default
     });
 
     test('preserves library_id when explicitly provided', () async {
@@ -79,17 +87,20 @@ void main() {
       expect(captureInterceptor.lastRequestData!['library_id'], 5);
     });
 
-    test('preserves is_temporary:true when explicitly provided (borrowing use case)', () async {
-      // Call with is_temporary: true (borrowing scenario)
-      await apiService.createCopy({
-        'book_id': 42,
-        'status': 'borrowed',
-        'is_temporary': true, // Explicitly provided - must NOT be overwritten
-      });
+    test(
+      'preserves is_temporary:true when explicitly provided (borrowing use case)',
+      () async {
+        // Call with is_temporary: true (borrowing scenario)
+        await apiService.createCopy({
+          'book_id': 42,
+          'status': 'borrowed',
+          'is_temporary': true, // Explicitly provided - must NOT be overwritten
+        });
 
-      // Verify is_temporary is NOT overwritten to false
-      expect(captureInterceptor.lastRequestData!['is_temporary'], true);
-    });
+        // Verify is_temporary is NOT overwritten to false
+        expect(captureInterceptor.lastRequestData!['is_temporary'], true);
+      },
+    );
 
     test('preserves is_temporary:false when explicitly provided', () async {
       // Call with is_temporary: false explicitly
@@ -104,16 +115,19 @@ void main() {
     });
 
     test('handles all required fields for valid API request', () async {
-      await apiService.createCopy({
-        'book_id': 42,
-        'status': 'available',
-      });
+      await apiService.createCopy({'book_id': 42, 'status': 'available'});
 
       // Verify all required fields are present
       expect(captureInterceptor.lastRequestData!.containsKey('book_id'), true);
-      expect(captureInterceptor.lastRequestData!.containsKey('library_id'), true);
+      expect(
+        captureInterceptor.lastRequestData!.containsKey('library_id'),
+        true,
+      );
       expect(captureInterceptor.lastRequestData!.containsKey('status'), true);
-      expect(captureInterceptor.lastRequestData!.containsKey('is_temporary'), true);
+      expect(
+        captureInterceptor.lastRequestData!.containsKey('is_temporary'),
+        true,
+      );
     });
 
     test('preserves additional optional fields', () async {
@@ -128,10 +142,16 @@ void main() {
 
       // Verify optional fields are preserved
       expect(captureInterceptor.lastRequestData!['notes'], 'Test notes');
-      expect(captureInterceptor.lastRequestData!['acquisition_date'], '2024-01-15');
+      expect(
+        captureInterceptor.lastRequestData!['acquisition_date'],
+        '2024-01-15',
+      );
       expect(captureInterceptor.lastRequestData!['price'], 19.99);
       // And required fields are still added
-      expect(captureInterceptor.lastRequestData!.containsKey('library_id'), true);
+      expect(
+        captureInterceptor.lastRequestData!.containsKey('library_id'),
+        true,
+      );
       expect(captureInterceptor.lastRequestData!['is_temporary'], false);
     });
   });

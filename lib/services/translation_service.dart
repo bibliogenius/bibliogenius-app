@@ -58,7 +58,16 @@ class TranslationService {
 
   /// Single source of truth for supported UI languages.
   /// To add a language: add its code here and drop a .po file in assets/i18n/.
-  static const List<String> supportedLocales = ['en', 'fr', 'es', 'de', 'pt-BR', 'it', 'tr', 'bg'];
+  static const List<String> supportedLocales = [
+    'en',
+    'fr',
+    'es',
+    'de',
+    'pt-BR',
+    'it',
+    'tr',
+    'bg',
+  ];
 
   static final Map<String, Map<String, String>> _poTranslations = {};
 
@@ -92,7 +101,9 @@ class TranslationService {
     bool inMsgStr = false;
 
     void flush() {
-      if (currentMsgId != null && currentMsgId!.isNotEmpty && currentMsgStr.isNotEmpty) {
+      if (currentMsgId != null &&
+          currentMsgId!.isNotEmpty &&
+          currentMsgStr.isNotEmpty) {
         result[currentMsgId!] = _unescapePo(currentMsgStr);
       }
       currentMsgId = null;
@@ -142,7 +153,9 @@ class TranslationService {
 
   static String? _extractQuoted(String s) {
     final trimmed = s.trim();
-    if (trimmed.length >= 2 && trimmed.startsWith('"') && trimmed.endsWith('"')) {
+    if (trimmed.length >= 2 &&
+        trimmed.startsWith('"') &&
+        trimmed.endsWith('"')) {
       return trimmed.substring(1, trimmed.length - 1);
     }
     return null;
@@ -181,9 +194,9 @@ class TranslationService {
   /// Translate a key for a given locale code without requiring a BuildContext.
   /// Falls back to English, then returns the key itself.
   static String translateByLocale(String langCode, String key) {
-    return _poTranslations[langCode]?[key]
-        ?? _poTranslations['en']?[key]
-        ?? key;
+    return _poTranslations[langCode]?[key] ??
+        _poTranslations['en']?[key] ??
+        key;
   }
 
   static String translate(

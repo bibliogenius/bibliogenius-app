@@ -733,7 +733,10 @@ class _ShelfManagementScreenState extends State<ShelfManagementScreen> {
       if (id < 0) {
         final originalTag = _allTags.firstWhere((t) => t.id == id);
         // Create with the OLD name first (so subjects match)
-        final created = await api.createTag(originalTag.name, parentId: parentId);
+        final created = await api.createTag(
+          originalTag.name,
+          parentId: parentId,
+        );
         // If renamed, update the tag AND rename subjects in all books
         if (originalTag.name != name) {
           await api.updateTag(created.id, name, parentId: parentId);

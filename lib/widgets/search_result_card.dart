@@ -58,7 +58,12 @@ class SearchResultCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontFamily: 'Serif',
-                          fontFamilyFallback: const ['Hiragino Sans', 'PingFang SC', 'Noto Sans CJK JP', 'sans-serif'],
+                          fontFamilyFallback: const [
+                            'Hiragino Sans',
+                            'PingFang SC',
+                            'Noto Sans CJK JP',
+                            'sans-serif',
+                          ],
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                           height: 1.2,
@@ -131,7 +136,12 @@ class SearchResultCard extends StatelessWidget {
     );
   }
 
-  Widget _buildCover(String? url, String title, String author, ThemeData theme) {
+  Widget _buildCover(
+    String? url,
+    String title,
+    String author,
+    ThemeData theme,
+  ) {
     final coverBg = theme.colorScheme.primaryContainer.withValues(alpha: 0.3);
     return Container(
       width: 100,

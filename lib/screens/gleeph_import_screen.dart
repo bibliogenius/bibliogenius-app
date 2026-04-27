@@ -27,7 +27,8 @@ class GleephBookCandidate {
   bool metadataFailed;
 
   // Gleeph-specific data
-  String? gleephStatus; // Raw status from Gleeph: "J'ai", "Wishlist", "Je lis", "J'ai lu"
+  String?
+  gleephStatus; // Raw status from Gleeph: "J'ai", "Wishlist", "Je lis", "J'ai lu"
   int? gleephRating; // Rating 1-5 from Gleeph
 
   // Mapped BiblioGenius data
@@ -122,7 +123,8 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
 
   // Shelf and status data
   String? _detectedGleephShelf; // Shelf name detected from Gleeph page
-  String _selectedReadingStatus = "À lire"; // Reading status: À lire, Je lis, J'ai lu, Wishlist
+  String _selectedReadingStatus =
+      "À lire"; // Reading status: À lire, Je lis, J'ai lu, Wishlist
   bool _selectedOwned = true; // Whether books are owned (J'ai)
   List<Tag> _availableShelves = []; // BiblioGenius shelves
   String? _selectedShelfName; // Target shelf for import (null = no shelf)
@@ -182,7 +184,9 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
   /// Get the real current URL from the page via JavaScript
   Future<void> _updateCurrentUrl() async {
     try {
-      final result = await _controller.runJavaScriptReturningResult('window.location.href');
+      final result = await _controller.runJavaScriptReturningResult(
+        'window.location.href',
+      );
       String url = result.toString();
       // Clean up the result (remove quotes)
       if (url.startsWith('"') && url.endsWith('"')) {
@@ -256,18 +260,18 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
         url.contains('/user/') ||
         url.contains('/shelf') ||
         url.contains('/etagere') ||
-        url.contains('/@') ||  // Profile URLs like gleeph.com/@username
+        url.contains('/@') || // Profile URLs like gleeph.com/@username
         url.contains('/books') ||
         url.contains('/livres') ||
         url.contains('/collection') ||
         // If on gleeph.com but not on home/login pages, likely on a user page
         (url.contains('gleeph.com') &&
-         !url.endsWith('gleeph.com') &&
-         !url.endsWith('gleeph.com/') &&
-         !url.contains('/login') &&
-         !url.contains('/signup') &&
-         !url.contains('/register') &&
-         !url.contains('/search'));
+            !url.endsWith('gleeph.com') &&
+            !url.endsWith('gleeph.com/') &&
+            !url.contains('/login') &&
+            !url.contains('/signup') &&
+            !url.contains('/register') &&
+            !url.contains('/search'));
   }
 
   int get _newBooksCount =>
@@ -297,9 +301,7 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
                 style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
               ),
               const SizedBox(height: 12),
-              const Text(
-                'Voulez-vous quand même tenter l\'extraction ?',
-              ),
+              const Text('Voulez-vous quand même tenter l\'extraction ?'),
             ],
           ),
           actions: [
@@ -423,9 +425,14 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
 
       // Collect ISBNs from initial view
       try {
-        final result = await _controller.runJavaScriptReturningResult(extractVisibleIsbnsScript);
+        final result = await _controller.runJavaScriptReturningResult(
+          extractVisibleIsbnsScript,
+        );
         String cleaned = result.toString();
-        if (cleaned.startsWith('"')) cleaned = cleaned.substring(1, cleaned.length - 1).replaceAll('\\"', '"');
+        if (cleaned.startsWith('"'))
+          cleaned = cleaned
+              .substring(1, cleaned.length - 1)
+              .replaceAll('\\"', '"');
         final List<dynamic> isbns = jsonDecode(cleaned);
         collectedIsbns.addAll(isbns.cast<String>());
       } catch (e) {
@@ -447,7 +454,9 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
         } else {
           // If no button found, scroll down to find it
           try {
-            await _controller.runJavaScript('window.scrollTo(0, document.body.scrollHeight)');
+            await _controller.runJavaScript(
+              'window.scrollTo(0, document.body.scrollHeight)',
+            );
           } catch (e) {
             // Ignore scroll errors
           }
@@ -462,9 +471,14 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
 
         // Extract ISBNs from current view and add to collection
         try {
-          final result = await _controller.runJavaScriptReturningResult(extractVisibleIsbnsScript);
+          final result = await _controller.runJavaScriptReturningResult(
+            extractVisibleIsbnsScript,
+          );
           String cleaned = result.toString();
-          if (cleaned.startsWith('"')) cleaned = cleaned.substring(1, cleaned.length - 1).replaceAll('\\"', '"');
+          if (cleaned.startsWith('"'))
+            cleaned = cleaned
+                .substring(1, cleaned.length - 1)
+                .replaceAll('\\"', '"');
           final List<dynamic> isbns = jsonDecode(cleaned);
           collectedIsbns.addAll(isbns.cast<String>());
         } catch (e) {
@@ -529,9 +543,12 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
   return shelfName || '';
 })()
 ''';
-        final shelfResult = await _controller.runJavaScriptReturningResult(shelfDetectScript);
+        final shelfResult = await _controller.runJavaScriptReturningResult(
+          shelfDetectScript,
+        );
         String shelfStr = shelfResult.toString();
-        if (shelfStr.startsWith('"')) shelfStr = shelfStr.substring(1, shelfStr.length - 1);
+        if (shelfStr.startsWith('"'))
+          shelfStr = shelfStr.substring(1, shelfStr.length - 1);
         if (shelfStr.isNotEmpty) detectedShelf = shelfStr;
       } catch (e) {
         // Ignore shelf detection errors
@@ -617,12 +634,22 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
       final batch = _candidates.skip(i).take(batchSize).toList();
 
       await Future.wait(
-        batch.map((candidate) => _resolveSingleCandidate(api, candidate, existingIsbns, existingBooksMap)),
+        batch.map(
+          (candidate) => _resolveSingleCandidate(
+            api,
+            candidate,
+            existingIsbns,
+            existingBooksMap,
+          ),
+        ),
       );
 
       if (mounted) {
         setState(() {
-          _resolvedCount = (_resolvedCount + batch.length).clamp(0, _candidates.length);
+          _resolvedCount = (_resolvedCount + batch.length).clamp(
+            0,
+            _candidates.length,
+          );
         });
       }
     }
@@ -634,9 +661,12 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
 
       // If a shelf was detected from Gleeph, check if it exists in BiblioGenius
       if (_detectedGleephShelf != null) {
-        final matchingShelf = _availableShelves.where(
-          (s) => s.name.toLowerCase() == _detectedGleephShelf!.toLowerCase()
-        ).firstOrNull;
+        final matchingShelf = _availableShelves
+            .where(
+              (s) =>
+                  s.name.toLowerCase() == _detectedGleephShelf!.toLowerCase(),
+            )
+            .firstOrNull;
 
         if (matchingShelf != null) {
           _selectedShelfName = matchingShelf.name;
@@ -705,8 +735,9 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
 
   /// Start importing selected books
   Future<void> _startImport() async {
-    final selectedCandidates =
-        _candidates.where((c) => c.isSelected && !c.isAlreadyInLibrary).toList();
+    final selectedCandidates = _candidates
+        .where((c) => c.isSelected && !c.isAlreadyInLibrary)
+        .toList();
 
     if (selectedCandidates.isEmpty) {
       _showSnackBar('Aucun livre sélectionné pour l\'import.');
@@ -764,7 +795,8 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
             'cover_url': candidate.coverUrl,
             'owned': candidate.owned,
             'reading_status': candidate.readingStatus ?? 'to_read',
-            if (candidate.userRating != null) 'user_rating': candidate.userRating,
+            if (candidate.userRating != null)
+              'user_rating': candidate.userRating,
             if (subjects != null) 'subjects': subjects,
           });
           _importSuccessCount++;
@@ -910,7 +942,11 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
                     const Expanded(
                       child: Text(
                         'Comment importer depuis Gleeph :',
-                        style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ],
@@ -921,7 +957,11 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
                   '2. Accédez à votre bibliothèque\n'
                   '3. Allez dans l\'étagère à importer, filtrez si besoin par statut (J\'ai lu, Je lis...)\n'
                   '4. Cliquez sur "Extraire"',
-                  style: TextStyle(color: Colors.white, fontSize: 12, height: 1.4),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    height: 1.4,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Container(
@@ -932,12 +972,20 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.tips_and_updates, color: Colors.yellow.shade200, size: 16),
+                      Icon(
+                        Icons.tips_and_updates,
+                        color: Colors.yellow.shade200,
+                        size: 16,
+                      ),
                       const SizedBox(width: 8),
                       const Expanded(
                         child: Text(
                           'Astuce : Importez étagère par étagère et sélectionnez le statut correspondant dans l\'écran de prévisualisation.',
-                          style: TextStyle(color: Colors.white, fontSize: 11, fontStyle: FontStyle.italic),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontStyle: FontStyle.italic,
+                          ),
                         ),
                       ),
                     ],
@@ -962,12 +1010,20 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.check_circle, color: Colors.white, size: 20),
+                    const Icon(
+                      Icons.check_circle,
+                      color: Colors.white,
+                      size: 20,
+                    ),
                     const SizedBox(width: 8),
                     const Expanded(
                       child: Text(
                         'Page bibliothèque détectée !',
-                        style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ],
@@ -1010,7 +1066,10 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
                       ),
                       const SizedBox(height: 12),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(20),
@@ -1018,7 +1077,11 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.book, color: Colors.white, size: 18),
+                            const Icon(
+                              Icons.book,
+                              color: Colors.white,
+                              size: 18,
+                            ),
                             const SizedBox(width: 8),
                             Text(
                               '$_extractionBookCount livres trouvés',
@@ -1064,7 +1127,9 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
                               ? 0
                               : _resolvedCount / _candidates.length,
                           backgroundColor: Colors.white24,
-                          valueColor: const AlwaysStoppedAnimation(Colors.white),
+                          valueColor: const AlwaysStoppedAnimation(
+                            Colors.white,
+                          ),
                         ),
                       ),
                     ],
@@ -1081,10 +1146,7 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
     return Container(
       color: Colors.black.withValues(alpha: 0.85),
       child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: child,
-        ),
+        child: Padding(padding: const EdgeInsets.all(32), child: child),
       ),
     );
   }
@@ -1171,7 +1233,11 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
                     children: [
                       // New books section
                       if (newBooks.isNotEmpty) ...[
-                        _buildSectionTitle('Nouveaux livres', Icons.add_circle, Colors.green),
+                        _buildSectionTitle(
+                          'Nouveaux livres',
+                          Icons.add_circle,
+                          Colors.green,
+                        ),
                         ...newBooks.map((c) => _buildBookCard(c)),
                         const SizedBox(height: 16),
                       ],
@@ -1183,7 +1249,9 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
                           Icons.check_circle,
                           Colors.orange,
                         ),
-                        ...duplicates.map((c) => _buildBookCard(c, isDuplicate: true)),
+                        ...duplicates.map(
+                          (c) => _buildBookCard(c, isDuplicate: true),
+                        ),
                       ],
                     ],
                   ),
@@ -1220,7 +1288,10 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
                       _newBooksCount > 0
                           ? 'Importer $_newBooksCount livre${_newBooksCount > 1 ? 's' : ''}'
                           : 'Aucun livre à importer',
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
@@ -1234,7 +1305,10 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
   Widget _buildImportingOverlay() {
     final progress = _candidates.isEmpty
         ? 0.0
-        : _importProgress / _candidates.where((c) => c.isSelected && !c.isAlreadyInLibrary).length;
+        : _importProgress /
+              _candidates
+                  .where((c) => c.isSelected && !c.isAlreadyInLibrary)
+                  .length;
 
     return Center(
       child: Padding(
@@ -1280,9 +1354,17 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
               children: [
                 _buildMiniStat(Icons.check, Colors.green, _importSuccessCount),
                 const SizedBox(width: 16),
-                _buildMiniStat(Icons.skip_next, Colors.orange, _importSkippedCount),
+                _buildMiniStat(
+                  Icons.skip_next,
+                  Colors.orange,
+                  _importSkippedCount,
+                ),
                 const SizedBox(width: 16),
-                _buildMiniStat(Icons.error_outline, Colors.red, _importErrorCount),
+                _buildMiniStat(
+                  Icons.error_outline,
+                  Colors.red,
+                  _importErrorCount,
+                ),
               ],
             ),
           ],
@@ -1367,7 +1449,10 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
     );
   }
 
-  Widget _buildBookCard(GleephBookCandidate candidate, {bool isDuplicate = false}) {
+  Widget _buildBookCard(
+    GleephBookCandidate candidate, {
+    bool isDuplicate = false,
+  }) {
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -1486,27 +1571,43 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
                       children: [
                         if (candidate.owned)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
                             margin: const EdgeInsets.only(right: 6),
                             decoration: BoxDecoration(
                               color: Colors.orange.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(4),
-                              border: Border.all(color: Colors.orange.withValues(alpha: 0.4)),
+                              border: Border.all(
+                                color: Colors.orange.withValues(alpha: 0.4),
+                              ),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.inventory_2, size: 10, color: Colors.orange.shade700),
+                                Icon(
+                                  Icons.inventory_2,
+                                  size: 10,
+                                  color: Colors.orange.shade700,
+                                ),
                                 const SizedBox(width: 3),
                                 Text(
                                   "J'ai",
-                                  style: TextStyle(fontSize: 11, color: Colors.orange.shade700, fontWeight: FontWeight.w500),
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.orange.shade700,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
                               ],
                             ),
                           ),
                         if (candidate.gleephStatus != null)
-                          _buildStatusChip(candidate.gleephStatus!, candidate.readingStatus),
+                          _buildStatusChip(
+                            candidate.gleephStatus!,
+                            candidate.readingStatus,
+                          ),
                       ],
                     ),
                   ],
@@ -1564,10 +1665,7 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
           const SizedBox(height: 4),
           Text(
             'Sélectionnez le statut correspondant à la page Gleeph extraite',
-            style: TextStyle(
-              fontSize: 11,
-              color: Colors.purple.shade600,
-            ),
+            style: TextStyle(fontSize: 11, color: Colors.purple.shade600),
           ),
           const SizedBox(height: 12),
 
@@ -1592,16 +1690,24 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
-                    _selectedOwned ? Icons.check_box : Icons.check_box_outline_blank,
+                    _selectedOwned
+                        ? Icons.check_box
+                        : Icons.check_box_outline_blank,
                     size: 20,
-                    color: _selectedOwned ? Colors.orange.shade700 : Colors.grey,
+                    color: _selectedOwned
+                        ? Colors.orange.shade700
+                        : Colors.grey,
                   ),
                   const SizedBox(width: 8),
                   Text(
                     "J'ai (possédé)",
                     style: TextStyle(
-                      fontWeight: _selectedOwned ? FontWeight.w600 : FontWeight.normal,
-                      color: _selectedOwned ? Colors.orange.shade700 : Colors.grey.shade600,
+                      fontWeight: _selectedOwned
+                          ? FontWeight.w600
+                          : FontWeight.normal,
+                      color: _selectedOwned
+                          ? Colors.orange.shade700
+                          : Colors.grey.shade600,
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -1609,7 +1715,9 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
                     '→ Crée une copie',
                     style: TextStyle(
                       fontSize: 11,
-                      color: _selectedOwned ? Colors.orange.shade600 : Colors.grey,
+                      color: _selectedOwned
+                          ? Colors.orange.shade600
+                          : Colors.grey,
                     ),
                   ),
                 ],
@@ -1633,10 +1741,26 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
             spacing: 8,
             runSpacing: 8,
             children: [
-              _buildReadingStatusOption("J'ai lu", Icons.check_circle, Colors.green),
-              _buildReadingStatusOption("Je lis", Icons.auto_stories, Colors.blue),
-              _buildReadingStatusOption("Wishlist", Icons.star_border, Colors.amber),
-              _buildReadingStatusOption("À lire", Icons.library_books, Colors.grey),
+              _buildReadingStatusOption(
+                "J'ai lu",
+                Icons.check_circle,
+                Colors.green,
+              ),
+              _buildReadingStatusOption(
+                "Je lis",
+                Icons.auto_stories,
+                Colors.blue,
+              ),
+              _buildReadingStatusOption(
+                "Wishlist",
+                Icons.star_border,
+                Colors.amber,
+              ),
+              _buildReadingStatusOption(
+                "À lire",
+                Icons.library_books,
+                Colors.grey,
+              ),
             ],
           ),
         ],
@@ -1707,7 +1831,7 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
   Widget _buildShelfSelector() {
     final hasDetectedShelf = _detectedGleephShelf != null;
     final shelfExists = _availableShelves.any(
-      (s) => s.name.toLowerCase() == _selectedShelfName?.toLowerCase()
+      (s) => s.name.toLowerCase() == _selectedShelfName?.toLowerCase(),
     );
 
     return Container(
@@ -1761,16 +1885,19 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
                 },
               ),
               // Existing shelves
-              ..._availableShelves.map((shelf) => ChoiceChip(
-                label: Text(shelf.name),
-                selected: _selectedShelfName == shelf.name && !_createNewShelf,
-                onSelected: (_) {
-                  setState(() {
-                    _selectedShelfName = shelf.name;
-                    _createNewShelf = false;
-                  });
-                },
-              )),
+              ..._availableShelves.map(
+                (shelf) => ChoiceChip(
+                  label: Text(shelf.name),
+                  selected:
+                      _selectedShelfName == shelf.name && !_createNewShelf,
+                  onSelected: (_) {
+                    setState(() {
+                      _selectedShelfName = shelf.name;
+                      _createNewShelf = false;
+                    });
+                  },
+                ),
+              ),
               // Create new shelf option (if detected shelf doesn't exist)
               if (hasDetectedShelf && !shelfExists)
                 ChoiceChip(
@@ -1889,7 +2016,6 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
@@ -1926,14 +2052,19 @@ class _GleephImportScreenState extends State<GleephImportScreen> {
       body: _showPreview
           ? _buildPreviewScreen(themeProvider)
           : _buildWebViewScreen(),
-      floatingActionButton: (!_showPreview &&
+      floatingActionButton:
+          (!_showPreview &&
               !_isExtracting &&
               !_isResolvingMetadata &&
               !_isLoadingPage)
           ? FloatingActionButton.extended(
               onPressed: _extractIsbns,
-              backgroundColor: _isOnLibraryPage ? Colors.green : Colors.grey.shade600,
-              icon: Icon(_isOnLibraryPage ? Icons.auto_awesome : Icons.help_outline),
+              backgroundColor: _isOnLibraryPage
+                  ? Colors.green
+                  : Colors.grey.shade600,
+              icon: Icon(
+                _isOnLibraryPage ? Icons.auto_awesome : Icons.help_outline,
+              ),
               label: Text(_isOnLibraryPage ? 'Extraire' : 'Naviguez d\'abord'),
             )
           : null,

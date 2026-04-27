@@ -95,8 +95,7 @@ const String _kLocalLocationCityIdKey = 'hub_local_location_city_id';
 /// remediation pass derive the (city, country) pair without requiring the
 /// CityRepository to have already loaded the right country file. Cleared
 /// in lockstep with the city id so the two never drift.
-const String _kLocalLocationCityCountryKey =
-    'hub_local_location_city_country';
+const String _kLocalLocationCityCountryKey = 'hub_local_location_city_country';
 
 /// SharedPreferences key: country code (alpha-2) the user implicitly selected
 /// by picking their city. Stored alongside [_kPendingLocationCityIdKey] so
@@ -111,8 +110,7 @@ const String _kPendingLocationCityCountryKey =
 /// pair pushed to the hub. Used by the init-time remediation pass to detect
 /// drift (e.g. legacy installs that registered city without country) and
 /// re-push exactly once until the hub state matches the local intent.
-const String _kLastPushedLocationCityIdKey =
-    'hub_last_pushed_location_city_id';
+const String _kLastPushedLocationCityIdKey = 'hub_last_pushed_location_city_id';
 const String _kLastPushedLocationCityCountryKey =
     'hub_last_pushed_location_city_country';
 
@@ -140,11 +138,10 @@ class HubDirectoryProvider extends ChangeNotifier {
     DeviceService? deviceService,
     AuthService? authService,
     CityLookup? lookupCity,
-  })  : _ffi = ffi ?? FfiService(),
-        _deviceService = deviceService ?? DeviceService(),
-        _authService = authService ?? AuthService(),
-        _lookupCity =
-            lookupCity ?? CityRepository.shared().lookupById;
+  }) : _ffi = ffi ?? FfiService(),
+       _deviceService = deviceService ?? DeviceService(),
+       _authService = authService ?? AuthService(),
+       _lookupCity = lookupCity ?? CityRepository.shared().lookupById;
 
   // ── Custom follow display names ──────────────────────────────────────────
 
@@ -241,7 +238,9 @@ class HubDirectoryProvider extends ChangeNotifier {
         cancelOnError: false,
       );
     } catch (e) {
-      debugPrint('HubDirectoryProvider: failed to subscribe to nudge stream: $e');
+      debugPrint(
+        'HubDirectoryProvider: failed to subscribe to nudge stream: $e',
+      );
     }
   }
 
@@ -419,7 +418,10 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// True when a recent 401 failure means we should wait before retrying.
   bool get _isIn401Cooldown {
     if (_consecutive401Count == 0 || _last401At == null) return false;
-    final idx = (_consecutive401Count - 1).clamp(0, _cooldown401Minutes.length - 1);
+    final idx = (_consecutive401Count - 1).clamp(
+      0,
+      _cooldown401Minutes.length - 1,
+    );
     final cooldown = Duration(minutes: _cooldown401Minutes[idx]);
     return DateTime.now().difference(_last401At!) < cooldown;
   }
@@ -463,7 +465,9 @@ class HubDirectoryProvider extends ChangeNotifier {
         await _authService.saveHubRecoveryCode(code);
       }
     } catch (e) {
-      debugPrint('HubDirectoryProvider: recovery_code Keychain backup FAILED: $e');
+      debugPrint(
+        'HubDirectoryProvider: recovery_code Keychain backup FAILED: $e',
+      );
     }
   }
 
@@ -530,8 +534,9 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// to apply the existing country+city filter pair (mirrors how the city
   /// picker calls [loadDirectory]). Derived from the probe response so we
   /// avoid carrying a second source of truth alongside [_localCityId].
-  String? get sameCityCountryHint =>
-      _sameCityProfiles.isEmpty ? null : _sameCityProfiles.first.locationCountry;
+  String? get sameCityCountryHint => _sameCityProfiles.isEmpty
+      ? null
+      : _sameCityProfiles.first.locationCountry;
 
   /// Banner visibility rule. Hidden when:
   /// - The user has not picked a city (legacy / fresh install).
@@ -621,10 +626,12 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// IDs of hub borrow requests dismissed locally (non-pending, can't cancel on Hub).
   final Set<int> _dismissedHubRequestIds = {};
 
-  List<frb.FrbHubBorrowRequest> get incomingHubRequests =>
-      _incomingHubRequests.where((r) => !_dismissedHubRequestIds.contains(r.id.toInt())).toList();
-  List<frb.FrbHubBorrowRequest> get outgoingHubRequests =>
-      _outgoingHubRequests.where((r) => !_dismissedHubRequestIds.contains(r.id.toInt())).toList();
+  List<frb.FrbHubBorrowRequest> get incomingHubRequests => _incomingHubRequests
+      .where((r) => !_dismissedHubRequestIds.contains(r.id.toInt()))
+      .toList();
+  List<frb.FrbHubBorrowRequest> get outgoingHubRequests => _outgoingHubRequests
+      .where((r) => !_dismissedHubRequestIds.contains(r.id.toInt()))
+      .toList();
 
   /// Number of pending incoming hub borrow requests - used for badge.
   int get pendingHubBorrowCount =>
@@ -721,7 +728,9 @@ class HubDirectoryProvider extends ChangeNotifier {
       if (!isRegistered) {
         debugPrint('HubDirectory: not registered, auto-registering...');
         await ensureRegistered();
-        debugPrint('HubDirectory: after ensureRegistered, isRegistered=$isRegistered');
+        debugPrint(
+          'HubDirectory: after ensureRegistered, isRegistered=$isRegistered',
+        );
       }
       if (isRegistered) {
         // Ensure relay credentials are published on the hub profile.
@@ -764,7 +773,8 @@ class HubDirectoryProvider extends ChangeNotifier {
     // Read relay credentials upfront to check availability.
     final initialRelay = await _getRelayCredentials();
     if (initialRelay.relayUrl == null) {
-      if (kDebugMode) debugPrint('HubDirectory: no local relay config, skip relay publish');
+      if (kDebugMode)
+        debugPrint('HubDirectory: no local relay config, skip relay publish');
       return;
     }
 
@@ -777,9 +787,12 @@ class HubDirectoryProvider extends ChangeNotifier {
       if (relay.relayUrl == null) return; // relay removed between attempts
       final cfg = _config!;
       final prefs = await SharedPreferences.getInstance();
-      final libraryName = prefs.getString('libraryName') ??
+      final libraryName =
+          prefs.getString('libraryName') ??
           TranslationService.translateByLocale(
-              prefs.getString('languageCode') ?? 'en', 'my_library_title');
+            prefs.getString('languageCode') ?? 'en',
+            'my_library_title',
+          );
       final bookCount = await _ffi.countBooks();
       String? x25519Key;
       try {
@@ -791,8 +804,10 @@ class HubDirectoryProvider extends ChangeNotifier {
       final loc = await _currentLocationForRegister();
 
       if (kDebugMode) {
-        debugPrint('HubDirectory: publishing relay credentials to hub '
-            '(attempt $attempt/$_kRelayPublishMaxAttempts)');
+        debugPrint(
+          'HubDirectory: publishing relay credentials to hub '
+          '(attempt $attempt/$_kRelayPublishMaxAttempts)',
+        );
       }
       final ok = await register(
         nodeId: cfg.nodeId,
@@ -829,13 +844,17 @@ class HubDirectoryProvider extends ChangeNotifier {
       }
       // Don't delay after the last failed attempt
       if (attempt < _kRelayPublishMaxAttempts) {
-        debugPrint('HubDirectory: relay publish failed, retrying in '
-            '${relayRetryDelay.inSeconds}s...');
+        debugPrint(
+          'HubDirectory: relay publish failed, retrying in '
+          '${relayRetryDelay.inSeconds}s...',
+        );
         await Future.delayed(relayRetryDelay);
       }
     }
-    debugPrint('HubDirectory: relay publish failed after '
-        '$_kRelayPublishMaxAttempts attempts, will retry on next catalog sync');
+    debugPrint(
+      'HubDirectory: relay publish failed after '
+      '$_kRelayPublishMaxAttempts attempts, will retry on next catalog sync',
+    );
   }
 
   // ---------------------------------------------------------------------------
@@ -991,9 +1010,12 @@ class HubDirectoryProvider extends ChangeNotifier {
     if (cfg == null) return false;
 
     final prefs = await SharedPreferences.getInstance();
-    final displayName = prefs.getString('libraryName') ??
+    final displayName =
+        prefs.getString('libraryName') ??
         TranslationService.translateByLocale(
-            prefs.getString('languageCode') ?? 'en', 'my_library_title');
+          prefs.getString('languageCode') ?? 'en',
+          'my_library_title',
+        );
     final bookCount = await _ffi.countBooks();
     String? x25519Key;
     try {
@@ -1106,8 +1128,7 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// rename retry, etc.) each one wiping the city the previous user
   /// gesture had just set. Without this helper the same-city banner
   /// converged for milliseconds and then went blank.
-  Future<({int? cityId, String? country})>
-      _currentLocationForRegister() async {
+  Future<({int? cityId, String? country})> _currentLocationForRegister() async {
     final cityId = _localCityId;
     if (cityId == null) {
       return (cityId: null, country: null);
@@ -1148,9 +1169,12 @@ class HubDirectoryProvider extends ChangeNotifier {
     if (cfg == null) return false;
 
     final prefs = await SharedPreferences.getInstance();
-    final displayName = prefs.getString('libraryName') ??
+    final displayName =
+        prefs.getString('libraryName') ??
         TranslationService.translateByLocale(
-            prefs.getString('languageCode') ?? 'en', 'my_library_title');
+          prefs.getString('languageCode') ?? 'en',
+          'my_library_title',
+        );
     final bookCount = await _ffi.countBooks();
     String? x25519Key;
     try {
@@ -1217,7 +1241,7 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// pick time (or `null` for legacy installs that pended pre-fix - the
   /// caller falls back to a fresh CityRepository lookup in that case).
   Future<({bool hasPending, int? cityId, String? country})>
-      _getPendingLocationCityId() async {
+  _getPendingLocationCityId() async {
     final prefs = await SharedPreferences.getInstance();
     if (!prefs.containsKey(_kPendingLocationCityIdKey)) {
       return (hasPending: false, cityId: null, country: null);
@@ -1257,7 +1281,10 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// init-time remediation pass can detect drift on the next cold start
   /// and avoid paying a redundant register() round-trip when nothing
   /// changed (perf policy: intermittent network).
-  Future<void> _recordLastPushedLocationCity(int? cityId, String? country) async {
+  Future<void> _recordLastPushedLocationCity(
+    int? cityId,
+    String? country,
+  ) async {
     final prefs = await SharedPreferences.getInstance();
     if (cityId == null) {
       await prefs.remove(_kLastPushedLocationCityIdKey);
@@ -1323,8 +1350,7 @@ class HubDirectoryProvider extends ChangeNotifier {
       // Post-reinstall recovery: SQLite is gone but Keychain survives (iOS).
       // Restore the write_token so the next register() can authenticate.
       frbConfig ??= await _tryRecoverFromKeychain();
-      _config =
-          frbConfig != null ? DirectoryConfig.fromFrb(frbConfig) : null;
+      _config = frbConfig != null ? DirectoryConfig.fromFrb(frbConfig) : null;
 
       // Backfill: existing users registered before the Keychain-backup fix
       // may have a recovery_code in SQLite but not in Keychain.  Copy it
@@ -1376,7 +1402,7 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// Read relay credentials from local SQLite (single source of truth).
   /// Returns (relayUrl, mailboxId, writeToken), all nullable.
   Future<({String? relayUrl, String? mailboxId, String? writeToken})>
-      _getRelayCredentials() async {
+  _getRelayCredentials() async {
     try {
       final relayConfig = await _ffi.getRelayConfig();
       if (relayConfig != null) {
@@ -1405,10 +1431,14 @@ class HubDirectoryProvider extends ChangeNotifier {
       x25519Key = await _ffi.getLocalX25519PublicKey();
     } catch (_) {}
     if (x25519Key == null || x25519Key.isEmpty) {
-      debugPrint('[CONTACT-SYNC] ensureKeysPublished: no local X25519 key, skip');
+      debugPrint(
+        '[CONTACT-SYNC] ensureKeysPublished: no local X25519 key, skip',
+      );
       return;
     }
-    debugPrint('[CONTACT-SYNC] ensureKeysPublished: key=${x25519Key.substring(0, 8)}..., registering');
+    debugPrint(
+      '[CONTACT-SYNC] ensureKeysPublished: key=${x25519Key.substring(0, 8)}..., registering',
+    );
 
     final bookCount = await _ffi.countBooks();
     final deviceModel = await _deviceService.getDeviceModel();
@@ -1438,7 +1468,8 @@ class HubDirectoryProvider extends ChangeNotifier {
       relayWriteToken: relay.writeToken,
     );
     if (relay.relayUrl != null) _relayPublished = true;
-    if (kDebugMode) debugPrint('HubDirectoryProvider: ensured keys + relay published');
+    if (kDebugMode)
+      debugPrint('HubDirectoryProvider: ensured keys + relay published');
 
     // Now that our key is on the hub, sync contact blobs to followers
     if (_contactInfo.isNotEmpty) {
@@ -1484,8 +1515,10 @@ class HubDirectoryProvider extends ChangeNotifier {
 
     // Build params before try/catch so they're accessible in the 401 retry.
     final effectiveModel = deviceModel ?? await _deviceService.getDeviceModel();
-    final effectiveFp = deviceFingerprint ?? await _deviceService.getDeviceFingerprint();
-    final effectiveAppVersion = appVersion ?? await _deviceService.getAppVersion();
+    final effectiveFp =
+        deviceFingerprint ?? await _deviceService.getDeviceFingerprint();
+    final effectiveAppVersion =
+        appVersion ?? await _deviceService.getAppVersion();
     final effectiveAvatar = avatarConfig ?? await _getLocalAvatarConfigJson();
 
     final params = frb.FrbRegisterParams(
@@ -1539,7 +1572,8 @@ class HubDirectoryProvider extends ChangeNotifier {
           // which is the only way if the hub already knows our node_id.
           final nodeId = _config?.nodeId ?? params.nodeId;
           // Try SQLite first, fall back to Keychain (config may have been purged).
-          final recoveryCode = await _ffi.hubDirectoryGetRecoveryCode() ??
+          final recoveryCode =
+              await _ffi.hubDirectoryGetRecoveryCode() ??
               await _authService.getHubRecoveryCode();
           if (recoveryCode != null && recoveryCode.isNotEmpty) {
             debugPrint(
@@ -1556,9 +1590,11 @@ class HubDirectoryProvider extends ChangeNotifier {
                 _last401At = null;
                 _tokenRecoveredFromKeychain = false;
                 _keychainBackupPending = !await _tryBackupWriteToken();
-        await _tryBackupRecoveryCode();
+                await _tryBackupRecoveryCode();
                 _configError = null;
-                debugPrint('HubDirectoryProvider: 401 recovery via recovery_code succeeded');
+                debugPrint(
+                  'HubDirectoryProvider: 401 recovery via recovery_code succeeded',
+                );
                 return true;
               }
             } catch (recoverErr) {
@@ -1587,7 +1623,7 @@ class HubDirectoryProvider extends ChangeNotifier {
               _consecutive401Count = 0;
               _last401At = null;
               _keychainBackupPending = !await _tryBackupWriteToken();
-        await _tryBackupRecoveryCode();
+              await _tryBackupRecoveryCode();
               _configError = null;
               debugPrint('HubDirectoryProvider: 401 recovery succeeded');
               return true;
@@ -1633,7 +1669,9 @@ class HubDirectoryProvider extends ChangeNotifier {
     _offset = 0;
     _hasMore = true;
     _listError = null;
-    _searchQuery = (search != null && search.trim().isNotEmpty) ? search.trim() : null;
+    _searchQuery = (search != null && search.trim().isNotEmpty)
+        ? search.trim()
+        : null;
     if (clearLocationFilter) {
       _filterCountry = null;
       _filterCityId = null;
@@ -1701,9 +1739,12 @@ class HubDirectoryProvider extends ChangeNotifier {
     try {
       final libraryUuid = await _authService.getOrCreateLibraryUuid();
       final prefs = await SharedPreferences.getInstance();
-      final libraryName = prefs.getString('libraryName') ??
+      final libraryName =
+          prefs.getString('libraryName') ??
           TranslationService.translateByLocale(
-              prefs.getString('languageCode') ?? 'en', 'my_library_title');
+            prefs.getString('languageCode') ?? 'en',
+            'my_library_title',
+          );
       final bookCount = await _ffi.countBooks();
 
       String? x25519Key;
@@ -1819,10 +1860,9 @@ class HubDirectoryProvider extends ChangeNotifier {
       // Caller's [locationCountry] wins (publish flow may declare a fresh
       // country); fall back to the country derived from the local city
       // when the caller did not specify one.
-      locationCountry:
-          (trimmedCountry != null && trimmedCountry.isNotEmpty)
-              ? trimmedCountry
-              : loc.country,
+      locationCountry: (trimmedCountry != null && trimmedCountry.isNotEmpty)
+          ? trimmedCountry
+          : loc.country,
       // Re-assert local cityId so publishing the library does not blank a
       // city that the user already picked from Settings.
       locationCityId: loc.cityId,
@@ -1958,12 +1998,12 @@ class HubDirectoryProvider extends ChangeNotifier {
       _following = raw.map(HubFollow.fromFrb).toList();
       debugPrint('[CONTACT-READ] loadFollowing: ${_following.length} follows');
       for (final f in _following) {
-        debugPrint('[CONTACT-READ]   follow id=${f.id} node=${f.followedNodeId.substring(0, 8)}... '
-            'contact=${f.encryptedContact != null ? "${f.encryptedContact!.length}ch" : "null"}');
+        debugPrint(
+          '[CONTACT-READ]   follow id=${f.id} node=${f.followedNodeId.substring(0, 8)}... '
+          'contact=${f.encryptedContact != null ? "${f.encryptedContact!.length}ch" : "null"}',
+        );
       }
-      _resolveNames(
-        _following.map((f) => f.followedNodeId).toList(),
-      );
+      _resolveNames(_following.map((f) => f.followedNodeId).toList());
     } catch (e) {
       debugPrint('HubDirectoryProvider loadFollowing error: $e');
     }
@@ -1974,9 +2014,7 @@ class HubDirectoryProvider extends ChangeNotifier {
     try {
       final raw = await _ffi.hubDirectoryListFollowers();
       _followers = raw.map(HubFollow.fromFrb).toList();
-      _resolveNames(
-        _followers.map((f) => f.followerNodeId).toList(),
-      );
+      _resolveNames(_followers.map((f) => f.followerNodeId).toList());
     } catch (e) {
       debugPrint('HubDirectoryProvider loadFollowers error: $e');
     }
@@ -1988,9 +2026,7 @@ class HubDirectoryProvider extends ChangeNotifier {
     try {
       final raw = await _ffi.hubDirectoryPendingRequests();
       _pendingRequests = raw.map(HubFollow.fromFrb).toList();
-      _resolveNames(
-        _pendingRequests.map((f) => f.followerNodeId).toList(),
-      );
+      _resolveNames(_pendingRequests.map((f) => f.followerNodeId).toList());
     } catch (e) {
       debugPrint('HubDirectoryProvider loadPendingRequests error: $e');
     }
@@ -2008,15 +2044,22 @@ class HubDirectoryProvider extends ChangeNotifier {
   ///
   /// [resolution]: "approve", "reject", or "block"
   /// [encryptedContact]: optional sealed blob to attach when approving
-  Future<bool> resolveFollow(int followId, String resolution, {String? encryptedContact}) async {
+  Future<bool> resolveFollow(
+    int followId,
+    String resolution, {
+    String? encryptedContact,
+  }) async {
     final key = 'resolve_$followId';
     _busyNodes.add(key);
     _actionError = null;
     notifyListeners();
 
     try {
-      final result =
-          await _ffi.hubDirectoryResolveFollow(followId, resolution, encryptedContact: encryptedContact);
+      final result = await _ffi.hubDirectoryResolveFollow(
+        followId,
+        resolution,
+        encryptedContact: encryptedContact,
+      );
       if (result != null) {
         // Refresh pending list and followers after resolution.
         await Future.wait([loadPendingRequests(), loadFollowers()]);
@@ -2076,8 +2119,7 @@ class HubDirectoryProvider extends ChangeNotifier {
     // Enforces a cooldown to avoid hammering the hub every 30s.
     if (!_relayPublished) {
       final last = _lastRelayAttempt;
-      if (last == null ||
-          DateTime.now().difference(last) >= relayCooldown) {
+      if (last == null || DateTime.now().difference(last) >= relayCooldown) {
         await ensureRelayPublished();
       }
     }
@@ -2098,11 +2140,7 @@ class HubDirectoryProvider extends ChangeNotifier {
     String bookTitle,
   ) async {
     try {
-      await _ffi.hubDirectoryCreateBorrowRequest(
-        lenderNodeId,
-        isbn,
-        bookTitle,
-      );
+      await _ffi.hubDirectoryCreateBorrowRequest(lenderNodeId, isbn, bookTitle);
       return true;
     } catch (e) {
       debugPrint('HubDirectoryProvider createBorrowRequest error: $e');
@@ -2113,8 +2151,7 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// Load incoming hub borrow requests (as lender).
   Future<void> loadIncomingHubRequests() async {
     try {
-      _incomingHubRequests =
-          await _ffi.hubDirectoryIncomingBorrowRequests();
+      _incomingHubRequests = await _ffi.hubDirectoryIncomingBorrowRequests();
     } catch (e) {
       debugPrint('HubDirectoryProvider loadIncomingHubRequests error: $e');
     }
@@ -2124,8 +2161,7 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// Load outgoing hub borrow requests (as requester).
   Future<void> loadOutgoingHubRequests() async {
     try {
-      _outgoingHubRequests =
-          await _ffi.hubDirectoryOutgoingBorrowRequests();
+      _outgoingHubRequests = await _ffi.hubDirectoryOutgoingBorrowRequests();
     } catch (e) {
       debugPrint('HubDirectoryProvider loadOutgoingHubRequests error: $e');
     }
@@ -2168,7 +2204,9 @@ class HubDirectoryProvider extends ChangeNotifier {
       return true;
     } catch (e) {
       // Hub rejects cancel for non-pending requests - dismiss locally
-      debugPrint('HubDirectoryProvider cancelHubBorrowRequest: $e - dismissing locally');
+      debugPrint(
+        'HubDirectoryProvider cancelHubBorrowRequest: $e - dismissing locally',
+      );
       _dismissedHubRequestIds.add(requestId);
       return true;
     } finally {
@@ -2216,43 +2254,61 @@ class HubDirectoryProvider extends ChangeNotifier {
       debugPrint('[CONTACT-SYNC] skip: contactInfo is empty');
       return;
     }
-    debugPrint('[CONTACT-SYNC] starting, contact="${_contactInfo.substring(0, _contactInfo.length.clamp(0, 30))}..."');
+    debugPrint(
+      '[CONTACT-SYNC] starting, contact="${_contactInfo.substring(0, _contactInfo.length.clamp(0, 30))}..."',
+    );
     try {
       final followersList = await _ffi.hubDirectoryListFollowers();
       final followers = followersList.map(HubFollow.fromFrb).toList();
-      debugPrint('[CONTACT-SYNC] ${followers.length} followers total, '
-          '${followers.where((f) => f.isActive).length} active');
+      debugPrint(
+        '[CONTACT-SYNC] ${followers.length} followers total, '
+        '${followers.where((f) => f.isActive).length} active',
+      );
 
       final followIds = <int>[];
       final blobs = <String>[];
 
       for (final f in followers) {
         if (!f.isActive) {
-          debugPrint('[CONTACT-SYNC] follower ${f.followerNodeId.substring(0, 8)}... status=${f.status}, skipping');
+          debugPrint(
+            '[CONTACT-SYNC] follower ${f.followerNodeId.substring(0, 8)}... status=${f.status}, skipping',
+          );
           continue;
         }
         final key = f.followerX25519PublicKey;
         if (key == null || key.isEmpty) {
-          debugPrint('[CONTACT-SYNC] follower ${f.followerNodeId.substring(0, 8)}... has NO x25519 key, skipping');
+          debugPrint(
+            '[CONTACT-SYNC] follower ${f.followerNodeId.substring(0, 8)}... has NO x25519 key, skipping',
+          );
           continue;
         }
-        debugPrint('[CONTACT-SYNC] follower ${f.followerNodeId.substring(0, 8)}... has key ${key.substring(0, 8)}..., sealing');
+        debugPrint(
+          '[CONTACT-SYNC] follower ${f.followerNodeId.substring(0, 8)}... has key ${key.substring(0, 8)}..., sealing',
+        );
         final blob = await sealContactFor(key);
         if (blob != null) {
           followIds.add(f.id);
           blobs.add(blob);
-          debugPrint('[CONTACT-SYNC] sealed blob for follow_id=${f.id}, blob len=${blob.length}');
+          debugPrint(
+            '[CONTACT-SYNC] sealed blob for follow_id=${f.id}, blob len=${blob.length}',
+          );
         } else {
-          debugPrint('[CONTACT-SYNC] sealContactFor returned null for follower ${f.followerNodeId.substring(0, 8)}...');
+          debugPrint(
+            '[CONTACT-SYNC] sealContactFor returned null for follower ${f.followerNodeId.substring(0, 8)}...',
+          );
         }
       }
 
       if (followIds.isNotEmpty) {
-        debugPrint('[CONTACT-SYNC] pushing ${followIds.length} blobs to hub...');
+        debugPrint(
+          '[CONTACT-SYNC] pushing ${followIds.length} blobs to hub...',
+        );
         await _ffi.hubDirectorySyncContacts(followIds, blobs);
         debugPrint('[CONTACT-SYNC] push done');
       } else {
-        debugPrint('[CONTACT-SYNC] no blobs to push (0 eligible followers with keys)');
+        debugPrint(
+          '[CONTACT-SYNC] no blobs to push (0 eligible followers with keys)',
+        );
       }
     } catch (e) {
       debugPrint('[CONTACT-SYNC] ERROR: $e');
@@ -2266,9 +2322,7 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// Returns the follow status for [nodeId] from the local cache, or null.
   String? followStatusFor(String nodeId) {
     try {
-      return _following
-          .firstWhere((f) => f.followedNodeId == nodeId)
-          .status;
+      return _following.firstWhere((f) => f.followedNodeId == nodeId).status;
     } catch (_) {
       return null;
     }
@@ -2298,9 +2352,7 @@ class HubDirectoryProvider extends ChangeNotifier {
     final cached = _nameCache[nodeId];
     if (cached != null) return cached;
     try {
-      final name = _profiles
-          .firstWhere((p) => p.nodeId == nodeId)
-          .displayName;
+      final name = _profiles.firstWhere((p) => p.nodeId == nodeId).displayName;
       _nameCache[nodeId] = name;
       return name;
     } catch (_) {
@@ -2311,22 +2363,23 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// Fetches display names for [nodeIds] not already cached.
   /// Runs in the background and calls notifyListeners when done.
   void _resolveNames(List<String> nodeIds) {
-    final unknown = nodeIds
-        .where((id) => !_nameCache.containsKey(id))
-        .toSet();
+    final unknown = nodeIds.where((id) => !_nameCache.containsKey(id)).toSet();
     if (unknown.isEmpty) return;
 
     // Fire-and-forget: fetch each profile and update cache.
     for (final id in unknown) {
-      _ffi.hubDirectoryGetProfile(id).then((profile) {
-        if (profile != null) {
-          _nameCache[id] = profile.displayName;
-          _cacheAvatar(id, profile.avatarConfig);
-          notifyListeners();
-        }
-      }).catchError((e) {
-        debugPrint('HubDirectoryProvider _resolveNames($id): $e');
-      });
+      _ffi
+          .hubDirectoryGetProfile(id)
+          .then((profile) {
+            if (profile != null) {
+              _nameCache[id] = profile.displayName;
+              _cacheAvatar(id, profile.avatarConfig);
+              notifyListeners();
+            }
+          })
+          .catchError((e) {
+            debugPrint('HubDirectoryProvider _resolveNames($id): $e');
+          });
     }
   }
 

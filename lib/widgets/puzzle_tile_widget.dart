@@ -100,10 +100,12 @@ class PuzzleTileWidget extends StatelessWidget {
   Widget _buildClippedImage(int row, int col, ColorScheme colorScheme) {
     // Use FittedBox + Alignment to show only the tile's portion of the image.
     // The alignment maps the tile's position to [-1, 1] range.
-    final double alignX =
-        gridSize == 1 ? 0.0 : -1.0 + 2.0 * col / (gridSize - 1);
-    final double alignY =
-        gridSize == 1 ? 0.0 : -1.0 + 2.0 * row / (gridSize - 1);
+    final double alignX = gridSize == 1
+        ? 0.0
+        : -1.0 + 2.0 * col / (gridSize - 1);
+    final double alignY = gridSize == 1
+        ? 0.0
+        : -1.0 + 2.0 * row / (gridSize - 1);
 
     return FittedBox(
       fit: BoxFit.none,

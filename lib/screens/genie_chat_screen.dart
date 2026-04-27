@@ -211,7 +211,10 @@ class _GenieChatScreenState extends State<GenieChatScreen> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.send, color: Colors.blueAccent),
-                  tooltip: TranslationService.translate(context, 'tooltip_send_message'),
+                  tooltip: TranslationService.translate(
+                    context,
+                    'tooltip_send_message',
+                  ),
                   onPressed: () => _sendMessage(_controller.text),
                 ),
               ],

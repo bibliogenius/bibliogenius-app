@@ -17,17 +17,11 @@ class CollectionRepositoryImpl implements CollectionRepository {
       _ffi.getBookCollections(bookId);
 
   @override
-  Future<void> updateBookCollections(
-    int bookId,
-    List<String> collectionIds,
-  ) =>
+  Future<void> updateBookCollections(int bookId, List<String> collectionIds) =>
       _ffi.updateBookCollections(bookId, collectionIds);
 
   @override
-  Future<Collection> createCollection(
-    String name, {
-    String? description,
-  }) =>
+  Future<Collection> createCollection(String name, {String? description}) =>
       _ffi.createCollection(name, description: description);
 
   @override

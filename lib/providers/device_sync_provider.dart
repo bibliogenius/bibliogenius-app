@@ -22,18 +22,24 @@ class DeviceSyncProvider extends ChangeNotifier {
   /// which handles the actual E2EE transport.
   /// [peerUrl] is the LAN URL of the peer (from mDNS discovery).
   /// [direction] is "push" (master→slave), "pull" (slave←master), or "both" (default).
-  Future<void> triggerSync(int deviceId, {String? peerUrl, String direction = 'both'}) async {
+  Future<void> triggerSync(
+    int deviceId, {
+    String? peerUrl,
+    String direction = 'both',
+  }) async {
     _isSyncing = true;
     _error = null;
     notifyListeners();
 
     try {
       // Call the real HTTP endpoint that handles E2EE transport
-      final dio = Dio(BaseOptions(
-        baseUrl: 'http://127.0.0.1:${ApiService.httpPort}',
-        connectTimeout: const Duration(seconds: 30),
-        receiveTimeout: const Duration(seconds: 30),
-      ));
+      final dio = Dio(
+        BaseOptions(
+          baseUrl: 'http://127.0.0.1:${ApiService.httpPort}',
+          connectTimeout: const Duration(seconds: 30),
+          receiveTimeout: const Duration(seconds: 30),
+        ),
+      );
       final response = await dio.post(
         '/api/devices/sync/$deviceId',
         data: {
@@ -46,14 +52,19 @@ class DeviceSyncProvider extends ChangeNotifier {
       _lastResult = frb.FrbSyncResult(
         sentCount: (data['sent_count'] as num?)?.toInt() ?? 0,
         receivedCount: (data['received_count'] as num?)?.toInt() ?? 0,
-        pendingReviewCount: (data['pending_review_count'] as num?)?.toInt() ?? 0,
+        pendingReviewCount:
+            (data['pending_review_count'] as num?)?.toInt() ?? 0,
       );
       // Refresh pending review list after sync
       await _loadPendingReviewSilent();
     } on DioException catch (e) {
       final responseData = e.response?.data;
-      _error = responseData is Map ? responseData['error']?.toString() ?? e.message : e.message;
-      debugPrint('DeviceSyncProvider.triggerSync error: status=${e.response?.statusCode} body=$responseData');
+      _error = responseData is Map
+          ? responseData['error']?.toString() ?? e.message
+          : e.message;
+      debugPrint(
+        'DeviceSyncProvider.triggerSync error: status=${e.response?.statusCode} body=$responseData',
+      );
     } catch (e) {
       _error = e.toString();
       debugPrint('DeviceSyncProvider.triggerSync error: $e');

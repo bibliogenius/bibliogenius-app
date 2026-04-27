@@ -17,7 +17,11 @@ class ShelvesScreen extends StatefulWidget {
   final bool isTabView;
   final ValueNotifier<int>? refreshNotifier;
 
-  const ShelvesScreen({super.key, this.isTabView = false, this.refreshNotifier});
+  const ShelvesScreen({
+    super.key,
+    this.isTabView = false,
+    this.refreshNotifier,
+  });
 
   @override
   State<ShelvesScreen> createState() => _ShelvesScreenState();
@@ -48,7 +52,10 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
 
   void _refreshTags() {
     setState(() {
-      _tagsFuture = Provider.of<TagRepository>(context, listen: false).getTags();
+      _tagsFuture = Provider.of<TagRepository>(
+        context,
+        listen: false,
+      ).getTags();
       _currentParent = null;
       _path = [];
     });
@@ -224,59 +231,61 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
           ),
         ],
         contextualQuickActions: [
-          Builder(builder: (sheetContext) {
-            final handlers = QuickActionsSheet.buildCommonHandlers(
-              sheetContext,
-              onDone: _refreshTags,
-            );
-            // Override create_shelf to use the local dialog with parent preselect
-            handlers['create_shelf'] = () {
-              Navigator.pop(sheetContext);
-              _showCreateShelfDialog();
-            };
-            return Row(
-              children: [
-                Expanded(
-                  child: ConfigurableActionCard(
-                    slotKey: 'shelves_ctx_slot_1',
-                    defaultActionId: 'create_shelf',
-                    allowedActionIds: const [
-                      'create_shelf',
-                      'manage_shelves',
-                      'inventory',
-                    ],
-                    handlers: handlers,
+          Builder(
+            builder: (sheetContext) {
+              final handlers = QuickActionsSheet.buildCommonHandlers(
+                sheetContext,
+                onDone: _refreshTags,
+              );
+              // Override create_shelf to use the local dialog with parent preselect
+              handlers['create_shelf'] = () {
+                Navigator.pop(sheetContext);
+                _showCreateShelfDialog();
+              };
+              return Row(
+                children: [
+                  Expanded(
+                    child: ConfigurableActionCard(
+                      slotKey: 'shelves_ctx_slot_1',
+                      defaultActionId: 'create_shelf',
+                      allowedActionIds: const [
+                        'create_shelf',
+                        'manage_shelves',
+                        'inventory',
+                      ],
+                      handlers: handlers,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ConfigurableActionCard(
-                    slotKey: 'shelves_ctx_slot_2',
-                    defaultActionId: 'manage_shelves',
-                    allowedActionIds: const [
-                      'manage_shelves',
-                      'create_shelf',
-                      'inventory',
-                    ],
-                    handlers: handlers,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ConfigurableActionCard(
+                      slotKey: 'shelves_ctx_slot_2',
+                      defaultActionId: 'manage_shelves',
+                      allowedActionIds: const [
+                        'manage_shelves',
+                        'create_shelf',
+                        'inventory',
+                      ],
+                      handlers: handlers,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ConfigurableActionCard(
-                    slotKey: 'shelves_ctx_slot_3',
-                    defaultActionId: 'scan_barcode',
-                    allowedActionIds: const [
-                      'scan_barcode',
-                      'add_manual',
-                      'search_online',
-                    ],
-                    handlers: handlers,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ConfigurableActionCard(
+                      slotKey: 'shelves_ctx_slot_3',
+                      defaultActionId: 'scan_barcode',
+                      allowedActionIds: const [
+                        'scan_barcode',
+                        'add_manual',
+                        'search_online',
+                      ],
+                      handlers: handlers,
+                    ),
                   ),
-                ),
-              ],
-            );
-          }),
+                ],
+              );
+            },
+          ),
         ],
       ),
       body: Container(
@@ -384,7 +393,13 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
             (tag) => Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                ExcludeSemantics(child: Icon(Icons.chevron_right, size: 20, color: Colors.grey[400])),
+                ExcludeSemantics(
+                  child: Icon(
+                    Icons.chevron_right,
+                    size: 20,
+                    color: Colors.grey[400],
+                  ),
+                ),
                 InkWell(
                   onTap: () {
                     final index = _path.indexOf(tag);
@@ -406,7 +421,13 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
 
           // Current level
           if (_currentParent != null) ...[
-            ExcludeSemantics(child: Icon(Icons.chevron_right, size: 20, color: Colors.grey[400])),
+            ExcludeSemantics(
+              child: Icon(
+                Icons.chevron_right,
+                size: 20,
+                color: Colors.grey[400],
+              ),
+            ),
             Text(
               _currentParent!.name,
               style: const TextStyle(fontWeight: FontWeight.bold),
@@ -422,41 +443,45 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
     return Semantics(
       label: '$count ${count == 1 ? 'etagere' : 'etageres'}',
       child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: theme.primaryColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.shelves, size: 16, color: theme.primaryColor),
-                const SizedBox(width: 6),
-                Text(
-                  count == 1
-                      ? (TranslationService.translate(
-                              context, 'displayed_shelves_count') ??
-                          '%d shelf')
-                          .replaceAll('%d', '$count')
-                      : (TranslationService.translate(
-                              context, 'displayed_shelves_count_plural') ??
-                          '%d shelves')
-                          .replaceAll('%d', '$count'),
-                  style: TextStyle(
-                    color: theme.primaryColor,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: theme.primaryColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.shelves, size: 16, color: theme.primaryColor),
+                  const SizedBox(width: 6),
+                  Text(
+                    count == 1
+                        ? (TranslationService.translate(
+                                    context,
+                                    'displayed_shelves_count',
+                                  ) ??
+                                  '%d shelf')
+                              .replaceAll('%d', '$count')
+                        : (TranslationService.translate(
+                                    context,
+                                    'displayed_shelves_count_plural',
+                                  ) ??
+                                  '%d shelves')
+                              .replaceAll('%d', '$count'),
+                    style: TextStyle(
+                      color: theme.primaryColor,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
       ),
     );
   }
@@ -554,7 +579,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
     );
   }
 
-    // Methods for editing and deleting shelves
+  // Methods for editing and deleting shelves
 
   void _showEditShelfDialog(Tag tag) {
     final controller = TextEditingController(text: tag.name);
@@ -576,7 +601,10 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
-              title: Text(TranslationService.translate(context, 'edit_shelf') ?? 'Edit Shelf'),
+              title: Text(
+                TranslationService.translate(context, 'edit_shelf') ??
+                    'Edit Shelf',
+              ),
               content: Form(
                 key: formKey,
                 child: Column(
@@ -587,22 +615,37 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                       controller: controller,
                       autofocus: true,
                       decoration: InputDecoration(
-                        labelText: TranslationService.translate(context, 'shelf_name') ?? 'Shelf Name',
+                        labelText:
+                            TranslationService.translate(
+                              context,
+                              'shelf_name',
+                            ) ??
+                            'Shelf Name',
                         border: const OutlineInputBorder(),
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return TranslationService.translate(context, 'field_required') ?? 'This field is required';
+                          return TranslationService.translate(
+                                context,
+                                'field_required',
+                              ) ??
+                              'This field is required';
                         }
                         return null;
                       },
                     ),
-                    if (AppConstants.enableHierarchicalTags && _allTags.isNotEmpty) ...[
+                    if (AppConstants.enableHierarchicalTags &&
+                        _allTags.isNotEmpty) ...[
                       const SizedBox(height: 16),
                       DropdownButtonFormField<Tag?>(
                         value: selectedParent,
                         decoration: InputDecoration(
-                          labelText: TranslationService.translate(context, 'parent_shelf') ?? 'Parent Shelf (optional)',
+                          labelText:
+                              TranslationService.translate(
+                                context,
+                                'parent_shelf',
+                              ) ??
+                              'Parent Shelf (optional)',
                           border: const OutlineInputBorder(),
                         ),
                         isExpanded: true,
@@ -610,15 +653,23 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                           DropdownMenuItem<Tag?>(
                             value: null,
                             child: Text(
-                              TranslationService.translate(context, 'none') ?? 'None (root level)',
-                              style: TextStyle(color: Colors.grey[600], fontStyle: FontStyle.italic),
+                              TranslationService.translate(context, 'none') ??
+                                  'None (root level)',
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontStyle: FontStyle.italic,
+                              ),
                             ),
                           ),
                           // Exclude the current tag and its children from being a parent
-                          ..._allTags.where((t) => t.id != tag.id).map((t) => DropdownMenuItem<Tag?>(
-                            value: t,
-                            child: Text(t.name),
-                          )),
+                          ..._allTags
+                              .where((t) => t.id != tag.id)
+                              .map(
+                                (t) => DropdownMenuItem<Tag?>(
+                                  value: t,
+                                  child: Text(t.name),
+                                ),
+                              ),
                         ],
                         onChanged: (Tag? value) {
                           setDialogState(() {
@@ -633,7 +684,9 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: Text(TranslationService.translate(context, 'cancel') ?? 'Cancel'),
+                  child: Text(
+                    TranslationService.translate(context, 'cancel') ?? 'Cancel',
+                  ),
                 ),
                 ElevatedButton(
                   onPressed: () async {
@@ -646,7 +699,9 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                       );
                     }
                   },
-                  child: Text(TranslationService.translate(context, 'update') ?? 'Update'),
+                  child: Text(
+                    TranslationService.translate(context, 'update') ?? 'Update',
+                  ),
                 ),
               ],
             );
@@ -663,7 +718,10 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(TranslationService.translate(context, 'shelf_updated') ?? 'Shelf updated'),
+            content: Text(
+              TranslationService.translate(context, 'shelf_updated') ??
+                  'Shelf updated',
+            ),
             backgroundColor: Colors.green,
           ),
         );
@@ -683,14 +741,20 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(TranslationService.translate(context, 'delete_shelf') ?? 'Delete Shelf'),
+          title: Text(
+            TranslationService.translate(context, 'delete_shelf') ??
+                'Delete Shelf',
+          ),
           content: Text(
-            (TranslationService.translate(context, 'delete_shelf_confirm') ?? 'Are you sure you want to delete the shelf "%s"? This action cannot be undone.')
+            (TranslationService.translate(context, 'delete_shelf_confirm') ??
+                    'Are you sure you want to delete the shelf "%s"? This action cannot be undone.')
                 .replaceAll('%s', tag.name),
           ),
           actions: <Widget>[
             TextButton(
-              child: Text(TranslationService.translate(context, 'cancel') ?? 'Cancel'),
+              child: Text(
+                TranslationService.translate(context, 'cancel') ?? 'Cancel',
+              ),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -720,7 +784,8 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              (TranslationService.translate(context, 'shelf_deleted') ?? 'Shelf "%s" deleted.')
+              (TranslationService.translate(context, 'shelf_deleted') ??
+                      'Shelf "%s" deleted.')
                   .replaceAll('%s', tag.name),
             ),
             backgroundColor: Colors.green,
@@ -785,221 +850,250 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
 
     return Semantics(
       button: true,
-      label: '${tag.name}, $aggregatedCount ${aggregatedCount == 1 ? 'livre' : 'livres'}',
+      label:
+          '${tag.name}, $aggregatedCount ${aggregatedCount == 1 ? 'livre' : 'livres'}',
       child: Card(
-      elevation: 8,
-      shadowColor: color.withValues(alpha: 0.4),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(20),
-        onTap: () => _drillDown(tag),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: gradient,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Stack(
-            children: [
-              // Decorative pattern
-              Positioned(
-                right: -20,
-                top: -20,
-                child: Icon(
-                  Icons.shelves,
-                  size: 100,
-                  color: Colors.white.withValues(alpha: 0.1),
-                ),
-              ),
-
-              // Edit/delete menu
-              Positioned(
-                top: 8,
-                right: 8,
-                child: PopupMenuButton<String>(
-                  onSelected: (value) {
-                    if (value == 'scan') {
-                      context.push('/scan', extra: {
-                        'shelfId': tag.name,
-                        'shelfName': tag.fullPath,
-                        'batch': true,
-                      }).then((_) => _refreshTags());
-                    } else if (value == 'edit') {
-                      _showEditShelfDialog(tag);
-                    } else if (value == 'delete') {
-                      _showDeleteConfirmDialog(tag);
-                    }
-                  },
-                  itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                    PopupMenuItem<String>(
-                      value: 'scan',
-                      child: ListTile(
-                        leading: const Icon(Icons.qr_code_scanner, color: Colors.orange),
-                        title: Text(TranslationService.translate(context, 'scan_into_shelf') ?? 'Scan into this shelf'),
-                      ),
-                    ),
-                    const PopupMenuDivider(),
-                    PopupMenuItem<String>(
-                      value: 'edit',
-                      child: ListTile(
-                        leading: const Icon(Icons.edit),
-                        title: Text(TranslationService.translate(context, 'edit_shelf') ?? 'Edit'),
-                      ),
-                    ),
-                    PopupMenuItem<String>(
-                      value: 'delete',
-                      child: ListTile(
-                        leading: const Icon(Icons.delete),
-                        title: Text(TranslationService.translate(context, 'delete_shelf') ?? 'Delete'),
-                      ),
-                    ),
-                  ],
-                  icon: const Icon(Icons.more_vert, color: Colors.white),
-                  color: Theme.of(context).colorScheme.surface,
-                ),
-              ),
-
-              // Content
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Shelf icon with count badge
-                    Padding(
-                      padding: const EdgeInsets.only(right: 32),
-                      child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Icon(
-                            hasChildren ? Icons.folder : Icons.label,
-                            color: Colors.white,
-                            size: 24,
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.3),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                '$aggregatedCount',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                ),
-                              ),
-                              if (hasChildren) ...[
-                                const SizedBox(width: 4),
-                                const Icon(
-                                  Icons.chevron_right,
-                                  color: Colors.white,
-                                  size: 18,
-                                ),
-                              ],
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    ),
-                    // Tag name
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          tag.name,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                            letterSpacing: 0.5,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          tag.count == 1
-                              ? '${tag.count} ${TranslationService.translate(context, 'book')}'
-                              : '${tag.count} ${TranslationService.translate(context, 'books')}',
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.8),
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              // Direct access button for shelves with sub-shelves
-              if (hasChildren)
+        elevation: 8,
+        shadowColor: color.withValues(alpha: 0.4),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: () => _drillDown(tag),
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: gradient,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Stack(
+              children: [
+                // Decorative pattern
                 Positioned(
-                  bottom: 16,
-                  right: 16,
-                  child: Semantics(
-                    button: true,
-                    label: '${TranslationService.translate(context, 'view')} ${tag.name}',
-                    child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: () => context.go('/shelves?tag=${tag.name}'),
-                      borderRadius: BorderRadius.circular(30),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(30),
-                          border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.4),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.visibility,
-                              color: Colors.white,
-                              size: 16,
+                  right: -20,
+                  top: -20,
+                  child: Icon(
+                    Icons.shelves,
+                    size: 100,
+                    color: Colors.white.withValues(alpha: 0.1),
+                  ),
+                ),
+
+                // Edit/delete menu
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: PopupMenuButton<String>(
+                    onSelected: (value) {
+                      if (value == 'scan') {
+                        context
+                            .push(
+                              '/scan',
+                              extra: {
+                                'shelfId': tag.name,
+                                'shelfName': tag.fullPath,
+                                'batch': true,
+                              },
+                            )
+                            .then((_) => _refreshTags());
+                      } else if (value == 'edit') {
+                        _showEditShelfDialog(tag);
+                      } else if (value == 'delete') {
+                        _showDeleteConfirmDialog(tag);
+                      }
+                    },
+                    itemBuilder: (BuildContext context) =>
+                        <PopupMenuEntry<String>>[
+                          PopupMenuItem<String>(
+                            value: 'scan',
+                            child: ListTile(
+                              leading: const Icon(
+                                Icons.qr_code_scanner,
+                                color: Colors.orange,
+                              ),
+                              title: Text(
+                                TranslationService.translate(
+                                      context,
+                                      'scan_into_shelf',
+                                    ) ??
+                                    'Scan into this shelf',
+                              ),
                             ),
-                            const SizedBox(width: 4),
-                            Text(
-                              TranslationService.translate(context, 'view'),
-                              style: const TextStyle(
+                          ),
+                          const PopupMenuDivider(),
+                          PopupMenuItem<String>(
+                            value: 'edit',
+                            child: ListTile(
+                              leading: const Icon(Icons.edit),
+                              title: Text(
+                                TranslationService.translate(
+                                      context,
+                                      'edit_shelf',
+                                    ) ??
+                                    'Edit',
+                              ),
+                            ),
+                          ),
+                          PopupMenuItem<String>(
+                            value: 'delete',
+                            child: ListTile(
+                              leading: const Icon(Icons.delete),
+                              title: Text(
+                                TranslationService.translate(
+                                      context,
+                                      'delete_shelf',
+                                    ) ??
+                                    'Delete',
+                              ),
+                            ),
+                          ),
+                        ],
+                    icon: const Icon(Icons.more_vert, color: Colors.white),
+                    color: Theme.of(context).colorScheme.surface,
+                  ),
+                ),
+
+                // Content
+                Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Shelf icon with count badge
+                      Padding(
+                        padding: const EdgeInsets.only(right: 32),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Icon(
+                                hasChildren ? Icons.folder : Icons.label,
                                 color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12,
+                                size: 24,
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.3),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    '$aggregatedCount',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  if (hasChildren) ...[
+                                    const SizedBox(width: 4),
+                                    const Icon(
+                                      Icons.chevron_right,
+                                      color: Colors.white,
+                                      size: 18,
+                                    ),
+                                  ],
+                                ],
                               ),
                             ),
                           ],
                         ),
                       ),
-                    ),
-                    ),
+                      // Tag name
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            tag.name,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              letterSpacing: 0.5,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            tag.count == 1
+                                ? '${tag.count} ${TranslationService.translate(context, 'book')}'
+                                : '${tag.count} ${TranslationService.translate(context, 'books')}',
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.8),
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-            ],
+                // Direct access button for shelves with sub-shelves
+                if (hasChildren)
+                  Positioned(
+                    bottom: 16,
+                    right: 16,
+                    child: Semantics(
+                      button: true,
+                      label:
+                          '${TranslationService.translate(context, 'view')} ${tag.name}',
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () => context.go('/shelves?tag=${tag.name}'),
+                          borderRadius: BorderRadius.circular(30),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.2),
+                              borderRadius: BorderRadius.circular(30),
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.4),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.visibility,
+                                  color: Colors.white,
+                                  size: 16,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  TranslationService.translate(context, 'view'),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
-      ),
       ),
     );
   }
@@ -1057,7 +1151,10 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                       autofocus: true,
                       decoration: InputDecoration(
                         labelText:
-                            TranslationService.translate(context, 'shelf_name') ??
+                            TranslationService.translate(
+                              context,
+                              'shelf_name',
+                            ) ??
                             'Shelf Name',
                         hintText:
                             TranslationService.translate(
@@ -1079,13 +1176,17 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                       },
                     ),
                     // Parent shelf selector (only if hierarchical tags enabled and shelves exist)
-                    if (AppConstants.enableHierarchicalTags && _allTags.isNotEmpty) ...[
+                    if (AppConstants.enableHierarchicalTags &&
+                        _allTags.isNotEmpty) ...[
                       const SizedBox(height: 16),
                       DropdownButtonFormField<Tag?>(
                         value: selectedParent,
                         decoration: InputDecoration(
                           labelText:
-                              TranslationService.translate(context, 'parent_shelf') ??
+                              TranslationService.translate(
+                                context,
+                                'parent_shelf',
+                              ) ??
                               'Parent Shelf (optional)',
                           border: const OutlineInputBorder(),
                         ),
@@ -1102,10 +1203,12 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                               ),
                             ),
                           ),
-                          ..._allTags.map((tag) => DropdownMenuItem<Tag?>(
-                            value: tag,
-                            child: Text(tag.name),
-                          )),
+                          ..._allTags.map(
+                            (tag) => DropdownMenuItem<Tag?>(
+                              value: tag,
+                              child: Text(tag.name),
+                            ),
+                          ),
                         ],
                         onChanged: (Tag? value) {
                           setDialogState(() {

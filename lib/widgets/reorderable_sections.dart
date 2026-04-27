@@ -149,10 +149,7 @@ class _ReorderableSectionsState extends State<ReorderableSections> {
 
   Future<void> _saveHidden() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(
-      _hiddenKey,
-      json.encode(_hiddenSections.toList()),
-    );
+    await prefs.setString(_hiddenKey, json.encode(_hiddenSections.toList()));
   }
 
   Future<void> _resetToDefaults() async {
@@ -232,7 +229,10 @@ class _ReorderableSectionsState extends State<ReorderableSections> {
       children: [
         if (widget.header != null) widget.header!,
         _buildEditToggleBar(context),
-        if (_editMode) _buildEditModeList(context) else _buildNormalList(context),
+        if (_editMode)
+          _buildEditModeList(context)
+        else
+          _buildNormalList(context),
       ],
     );
   }
@@ -298,8 +298,9 @@ class _ReorderableSectionsState extends State<ReorderableSections> {
   // ---------------------------------------------------------------------------
 
   Widget _buildNormalList(BuildContext context) {
-    final visible =
-        _orderedSections.where((s) => !_hiddenSections.contains(s.id)).toList();
+    final visible = _orderedSections
+        .where((s) => !_hiddenSections.contains(s.id))
+        .toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -367,7 +368,10 @@ class _ReorderableSectionsState extends State<ReorderableSections> {
     return AnimatedBuilder(
       animation: animation,
       builder: (context, child) {
-        final elevationValue = Tween<double>(begin: 0, end: 6).evaluate(animation);
+        final elevationValue = Tween<double>(
+          begin: 0,
+          end: 6,
+        ).evaluate(animation);
         return Material(
           elevation: elevationValue,
           color: Colors.transparent,

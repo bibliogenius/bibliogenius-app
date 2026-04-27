@@ -106,9 +106,7 @@ class _OperationLogScreenState extends State<OperationLogScreen> {
                   ),
                 // Pagination
                 if (!provider.isLoading && provider.entries.isNotEmpty)
-                  SliverToBoxAdapter(
-                    child: _buildPagination(provider, theme),
-                  ),
+                  SliverToBoxAdapter(child: _buildPagination(provider, theme)),
                 const SliverToBoxAdapter(child: SizedBox(height: 24)),
               ],
             ),
@@ -206,13 +204,17 @@ class _OperationLogScreenState extends State<OperationLogScreen> {
         onChanged: _onSearchChanged,
         decoration: InputDecoration(
           hintText: TranslationService.translate(
-              context, 'admin_log_search_hint'),
+            context,
+            'admin_log_search_hint',
+          ),
           prefixIcon: const Icon(Icons.search, size: 20),
           suffixIcon: _searchController.text.isNotEmpty
               ? IconButton(
                   icon: const Icon(Icons.clear, size: 20),
                   tooltip: TranslationService.translate(
-                      context, 'admin_log_clear_search'),
+                    context,
+                    'admin_log_clear_search',
+                  ),
                   onPressed: () {
                     _searchController.clear();
                     _provider.setSearchQuery(null);
@@ -220,11 +222,11 @@ class _OperationLogScreenState extends State<OperationLogScreen> {
                 )
               : null,
           isDense: true,
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 12,
+            vertical: 10,
           ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
         ),
         style: theme.textTheme.bodyMedium,
       ),
@@ -240,10 +242,15 @@ class _OperationLogScreenState extends State<OperationLogScreen> {
           children: [
             _buildFilterChip(
               tooltip: TranslationService.translate(
-                  context, 'tooltip_filter_entity_type'),
-              label: provider.entityTypeFilter ??
+                context,
+                'tooltip_filter_entity_type',
+              ),
+              label:
+                  provider.entityTypeFilter ??
                   TranslationService.translate(
-                      context, 'admin_log_filter_entity'),
+                    context,
+                    'admin_log_filter_entity',
+                  ),
               isActive: provider.entityTypeFilter != null,
               options: provider.entityTypes,
               onSelected: (v) => provider.setEntityTypeFilter(v),
@@ -251,10 +258,15 @@ class _OperationLogScreenState extends State<OperationLogScreen> {
             const SizedBox(width: 8),
             _buildFilterChip(
               tooltip: TranslationService.translate(
-                  context, 'tooltip_filter_operation'),
-              label: provider.operationFilter ??
+                context,
+                'tooltip_filter_operation',
+              ),
+              label:
+                  provider.operationFilter ??
                   TranslationService.translate(
-                      context, 'admin_log_filter_operation'),
+                    context,
+                    'admin_log_filter_operation',
+                  ),
               isActive: provider.operationFilter != null,
               options: const ['INSERT', 'UPDATE', 'DELETE'],
               onSelected: (v) => provider.setOperationFilter(v),
@@ -262,10 +274,15 @@ class _OperationLogScreenState extends State<OperationLogScreen> {
             const SizedBox(width: 8),
             _buildFilterChip(
               tooltip: TranslationService.translate(
-                  context, 'tooltip_filter_status'),
-              label: provider.statusFilter ??
+                context,
+                'tooltip_filter_status',
+              ),
+              label:
+                  provider.statusFilter ??
                   TranslationService.translate(
-                      context, 'admin_log_filter_status'),
+                    context,
+                    'admin_log_filter_status',
+                  ),
               isActive: provider.statusFilter != null,
               options: const ['pending', 'applied', 'failed', 'skipped'],
               onSelected: (v) => provider.setStatusFilter(v),
@@ -282,7 +299,9 @@ class _OperationLogScreenState extends State<OperationLogScreen> {
                 },
                 child: Text(
                   TranslationService.translate(
-                      context, 'admin_log_clear_filters'),
+                    context,
+                    'admin_log_clear_filters',
+                  ),
                 ),
               ),
           ],
@@ -303,14 +322,8 @@ class _OperationLogScreenState extends State<OperationLogScreen> {
       child: PopupMenuButton<String?>(
         onSelected: onSelected,
         itemBuilder: (context) => [
-          if (isActive)
-            const PopupMenuItem(
-              value: null,
-              child: Text('All'),
-            ),
-          ...options.map(
-            (o) => PopupMenuItem(value: o, child: Text(o)),
-          ),
+          if (isActive) const PopupMenuItem(value: null, child: Text('All')),
+          ...options.map((o) => PopupMenuItem(value: o, child: Text(o))),
         ],
         child: Chip(
           label: Text(label),
@@ -318,9 +331,7 @@ class _OperationLogScreenState extends State<OperationLogScreen> {
               ? Theme.of(context).colorScheme.primaryContainer
               : null,
           side: isActive
-              ? BorderSide(
-                  color: Theme.of(context).colorScheme.primary,
-                )
+              ? BorderSide(color: Theme.of(context).colorScheme.primary)
               : null,
         ),
       ),
@@ -399,13 +410,15 @@ class _OperationLogScreenState extends State<OperationLogScreen> {
                     Tooltip(
                       message: isExpanded
                           ? TranslationService.translate(
-                              context, 'tooltip_collapse_details')
+                              context,
+                              'tooltip_collapse_details',
+                            )
                           : TranslationService.translate(
-                              context, 'tooltip_expand_details'),
+                              context,
+                              'tooltip_expand_details',
+                            ),
                       child: Icon(
-                        isExpanded
-                            ? Icons.expand_less
-                            : Icons.expand_more,
+                        isExpanded ? Icons.expand_less : Icons.expand_more,
                         size: 20,
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
@@ -477,11 +490,7 @@ class _OperationLogScreenState extends State<OperationLogScreen> {
       ),
       child: Text(
         operation,
-        style: TextStyle(
-          fontSize: 10,
-          fontWeight: FontWeight.bold,
-          color: fg,
-        ),
+        style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: fg),
       ),
     );
   }
@@ -573,10 +582,12 @@ class _OperationLogScreenState extends State<OperationLogScreen> {
   String _formatTime(String createdAt) {
     try {
       final dt = DateTime.parse(createdAt);
-      final date = '${dt.day.toString().padLeft(2, '0')}/'
+      final date =
+          '${dt.day.toString().padLeft(2, '0')}/'
           '${dt.month.toString().padLeft(2, '0')}/'
           '${dt.year}';
-      final time = '${dt.hour.toString().padLeft(2, '0')}:'
+      final time =
+          '${dt.hour.toString().padLeft(2, '0')}:'
           '${dt.minute.toString().padLeft(2, '0')}:'
           '${dt.second.toString().padLeft(2, '0')}';
       return '$date $time';

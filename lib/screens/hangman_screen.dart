@@ -133,40 +133,42 @@ class _HangmanScreenState extends State<HangmanScreen> {
               }
             },
             child: Scaffold(
-            appBar: AppBar(
-              title: Text(
-                  TranslationService.translate(context, 'hangman_title')),
-              leading: IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: _onBackPressed,
-              ),
-              actions: [
-                if (provider.phase == HangmanPhase.playing)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: Center(
-                      child: Text(
-                        provider.formattedTime,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          color: theme.appBarTheme.foregroundColor ??
-                              theme.colorScheme.onPrimary,
-                          fontFeatures: [
-                            const FontFeature.tabularFigures()
-                          ],
+              appBar: AppBar(
+                title: Text(
+                  TranslationService.translate(context, 'hangman_title'),
+                ),
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: _onBackPressed,
+                ),
+                actions: [
+                  if (provider.phase == HangmanPhase.playing)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: Center(
+                        child: Text(
+                          provider.formattedTime,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color:
+                                theme.appBarTheme.foregroundColor ??
+                                theme.colorScheme.onPrimary,
+                            fontFeatures: [const FontFeature.tabularFigures()],
+                          ),
                         ),
                       ),
                     ),
+                  IconButton(
+                    icon: const Icon(Icons.emoji_events_outlined),
+                    tooltip: TranslationService.translate(
+                      context,
+                      'hangman_leaderboard',
+                    ),
+                    onPressed: () => _showLeaderboard(context),
                   ),
-                IconButton(
-                  icon: const Icon(Icons.emoji_events_outlined),
-                  tooltip: TranslationService.translate(
-                      context, 'hangman_leaderboard'),
-                  onPressed: () => _showLeaderboard(context),
-                ),
-              ],
+                ],
+              ),
+              body: _buildBody(context, provider, theme),
             ),
-            body: _buildBody(context, provider, theme),
-          ),
           );
         },
       ),
@@ -174,7 +176,10 @@ class _HangmanScreenState extends State<HangmanScreen> {
   }
 
   Widget _buildBody(
-      BuildContext context, HangmanProvider provider, ThemeData theme) {
+    BuildContext context,
+    HangmanProvider provider,
+    ThemeData theme,
+  ) {
     if (provider.isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -203,7 +208,10 @@ class _HangmanScreenState extends State<HangmanScreen> {
   // ── Setup Phase ──────────────────────────────────────────────
 
   Widget _buildSetup(
-      BuildContext context, HangmanProvider provider, ThemeData theme) {
+    BuildContext context,
+    HangmanProvider provider,
+    ThemeData theme,
+  ) {
     if (provider.availableDifficulties.isEmpty) {
       return Center(
         child: Padding(
@@ -227,14 +235,18 @@ class _HangmanScreenState extends State<HangmanScreen> {
               const SizedBox(height: 24),
               Text(
                 TranslationService.translate(
-                    context, 'hangman_not_enough_books_title'),
+                  context,
+                  'hangman_not_enough_books_title',
+                ),
                 textAlign: TextAlign.center,
                 style: theme.textTheme.titleMedium,
               ),
               const SizedBox(height: 8),
               Text(
                 TranslationService.translate(
-                    context, 'hangman_not_enough_books'),
+                  context,
+                  'hangman_not_enough_books',
+                ),
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
@@ -283,14 +295,19 @@ class _HangmanScreenState extends State<HangmanScreen> {
               ButtonSegment(
                 value: HangmanVisualMode.classic,
                 icon: const Icon(Icons.person_outline, size: 18),
-                label: Text(TranslationService.translate(
-                    context, 'hangman_style_classic')),
+                label: Text(
+                  TranslationService.translate(
+                    context,
+                    'hangman_style_classic',
+                  ),
+                ),
               ),
               ButtonSegment(
                 value: HangmanVisualMode.books,
                 icon: const Icon(Icons.menu_book_outlined, size: 18),
-                label: Text(TranslationService.translate(
-                    context, 'hangman_style_books')),
+                label: Text(
+                  TranslationService.translate(context, 'hangman_style_books'),
+                ),
               ),
             ],
             selected: {provider.visualMode},
@@ -345,7 +362,9 @@ class _HangmanScreenState extends State<HangmanScreen> {
                           children: [
                             Text(
                               TranslationService.translate(
-                                  context, 'hangman_difficulty_$d'),
+                                context,
+                                'hangman_difficulty_$d',
+                              ),
                               style: theme.textTheme.titleSmall?.copyWith(
                                 color: selected
                                     ? info.color
@@ -355,7 +374,9 @@ class _HangmanScreenState extends State<HangmanScreen> {
                             const SizedBox(height: 2),
                             Text(
                               TranslationService.translate(
-                                  context, 'hangman_difficulty_${d}_desc'),
+                                context,
+                                'hangman_difficulty_${d}_desc',
+                              ),
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: theme.colorScheme.onSurfaceVariant,
                               ),
@@ -374,14 +395,12 @@ class _HangmanScreenState extends State<HangmanScreen> {
         }),
         const SizedBox(height: 16),
         FilledButton.icon(
-          onPressed:
-              provider.selectedDifficulty != null ? provider.startGame : null,
+          onPressed: provider.selectedDifficulty != null
+              ? provider.startGame
+              : null,
           icon: const Icon(Icons.play_arrow),
-          label:
-              Text(TranslationService.translate(context, 'hangman_start')),
-          style: FilledButton.styleFrom(
-            minimumSize: const Size.fromHeight(48),
-          ),
+          label: Text(TranslationService.translate(context, 'hangman_start')),
+          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
         ),
         const SizedBox(height: 12),
         _buildLeaderboardButton(theme),
@@ -413,21 +432,25 @@ class _HangmanScreenState extends State<HangmanScreen> {
                 borderRadius: BorderRadius.circular(12),
                 color: Colors.amber.withValues(alpha: 0.15),
               ),
-              child: const Icon(Icons.emoji_events_rounded,
-                  size: 22, color: Color(0xFFE0A030)),
+              child: const Icon(
+                Icons.emoji_events_rounded,
+                size: 22,
+                color: Color(0xFFE0A030),
+              ),
             ),
             const SizedBox(width: 14),
             Expanded(
               child: Text(
-                TranslationService.translate(
-                    context, 'hangman_leaderboard'),
+                TranslationService.translate(context, 'hangman_leaderboard'),
                 style: theme.textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
               ),
             ),
-            Icon(Icons.chevron_right_rounded,
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.4)),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+            ),
           ],
         ),
       ),
@@ -437,7 +460,10 @@ class _HangmanScreenState extends State<HangmanScreen> {
   // ── Playing Phase ────────────────────────────────────────────
 
   Widget _buildPlaying(
-      BuildContext context, HangmanProvider provider, ThemeData theme) {
+    BuildContext context,
+    HangmanProvider provider,
+    ThemeData theme,
+  ) {
     return SafeArea(
       child: Column(
         children: [
@@ -469,8 +495,9 @@ class _HangmanScreenState extends State<HangmanScreen> {
                         border: Border.all(
                           color: isError
                               ? theme.colorScheme.error
-                              : theme.colorScheme.outline
-                                  .withValues(alpha: 0.3),
+                              : theme.colorScheme.outline.withValues(
+                                  alpha: 0.3,
+                                ),
                           width: 1.5,
                         ),
                       ),
@@ -480,7 +507,8 @@ class _HangmanScreenState extends State<HangmanScreen> {
                 const Spacer(),
                 if (provider.hintsAvailable > 0)
                   GestureDetector(
-                    onTap: provider.authorHintAvailable ||
+                    onTap:
+                        provider.authorHintAvailable ||
                             provider.coverHintAvailable
                         ? provider.useHint
                         : null,
@@ -490,7 +518,8 @@ class _HangmanScreenState extends State<HangmanScreen> {
                         Icon(
                           Icons.lightbulb_outline,
                           size: 16,
-                          color: (provider.authorHintAvailable ||
+                          color:
+                              (provider.authorHintAvailable ||
                                   provider.coverHintAvailable)
                               ? theme.colorScheme.primary
                               : theme.colorScheme.outline,
@@ -559,9 +588,18 @@ class _HangmanScreenState extends State<HangmanScreen> {
 
   static ({IconData icon, Color color}) _difficultyInfo(String d) {
     return switch (d) {
-      'easy' => (icon: Icons.sentiment_satisfied, color: const Color(0xFF43A047)),
-      'medium' => (icon: Icons.sentiment_neutral, color: const Color(0xFF1E88E5)),
-      'hard' => (icon: Icons.local_fire_department, color: const Color(0xFFE53935)),
+      'easy' => (
+        icon: Icons.sentiment_satisfied,
+        color: const Color(0xFF43A047),
+      ),
+      'medium' => (
+        icon: Icons.sentiment_neutral,
+        color: const Color(0xFF1E88E5),
+      ),
+      'hard' => (
+        icon: Icons.local_fire_department,
+        color: const Color(0xFFE53935),
+      ),
       _ => (icon: Icons.help_outline, color: Colors.grey),
     };
   }
@@ -613,12 +651,10 @@ class _HangmanCompleteViewState extends State<_HangmanCompleteView>
     _contentFade = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _contentController, curve: Curves.easeOut),
     );
-    _contentSlide = Tween<Offset>(
-      begin: const Offset(0, 0.15),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(parent: _contentController, curve: Curves.easeOut),
-    );
+    _contentSlide =
+        Tween<Offset>(begin: const Offset(0, 0.15), end: Offset.zero).animate(
+          CurvedAnimation(parent: _contentController, curve: Curves.easeOut),
+        );
 
     _iconController.forward();
     Future.delayed(const Duration(milliseconds: 400), () {
@@ -640,9 +676,7 @@ class _HangmanCompleteViewState extends State<_HangmanCompleteView>
     final score = provider.lastScore;
     final won = provider.won;
 
-    final iconColor = won
-        ? const Color(0xFFFFD700)
-        : theme.colorScheme.error;
+    final iconColor = won ? const Color(0xFFFFD700) : theme.colorScheme.error;
 
     return Center(
       child: SingleChildScrollView(
@@ -750,7 +784,9 @@ class _HangmanCompleteViewState extends State<_HangmanCompleteView>
                         label: Text(
                           provider.isNewPersonalBest
                               ? TranslationService.translate(
-                                  context, 'hangman_new_best')
+                                  context,
+                                  'hangman_new_best',
+                                )
                               : '#${provider.personalRank}',
                         ),
                       ),
@@ -764,8 +800,9 @@ class _HangmanCompleteViewState extends State<_HangmanCompleteView>
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                           side: BorderSide(
-                            color: theme.colorScheme.outline
-                                .withValues(alpha: 0.2),
+                            color: theme.colorScheme.outline.withValues(
+                              alpha: 0.2,
+                            ),
                           ),
                         ),
                         child: Padding(
@@ -810,8 +847,12 @@ class _HangmanCompleteViewState extends State<_HangmanCompleteView>
                     FilledButton.icon(
                       onPressed: widget.onPlayAgain,
                       icon: const Icon(Icons.replay),
-                      label: Text(TranslationService.translate(
-                          context, 'hangman_play_again')),
+                      label: Text(
+                        TranslationService.translate(
+                          context,
+                          'hangman_play_again',
+                        ),
+                      ),
                       style: FilledButton.styleFrom(
                         minimumSize: const Size(200, 48),
                       ),
@@ -820,8 +861,12 @@ class _HangmanCompleteViewState extends State<_HangmanCompleteView>
                     OutlinedButton.icon(
                       onPressed: widget.onChangeDifficulty,
                       icon: const Icon(Icons.arrow_back),
-                      label: Text(TranslationService.translate(
-                          context, 'hangman_back_to_menu')),
+                      label: Text(
+                        TranslationService.translate(
+                          context,
+                          'hangman_back_to_menu',
+                        ),
+                      ),
                       style: OutlinedButton.styleFrom(
                         minimumSize: const Size(200, 48),
                       ),
@@ -830,8 +875,12 @@ class _HangmanCompleteViewState extends State<_HangmanCompleteView>
                     OutlinedButton.icon(
                       onPressed: widget.onShowLeaderboard,
                       icon: const Icon(Icons.leaderboard_outlined),
-                      label: Text(TranslationService.translate(
-                          context, 'hangman_leaderboard')),
+                      label: Text(
+                        TranslationService.translate(
+                          context,
+                          'hangman_leaderboard',
+                        ),
+                      ),
                       style: OutlinedButton.styleFrom(
                         minimumSize: const Size(200, 48),
                       ),
@@ -846,8 +895,13 @@ class _HangmanCompleteViewState extends State<_HangmanCompleteView>
     );
   }
 
-  Widget _statRow(BuildContext context, ThemeData theme, IconData icon,
-      String labelKey, String value) {
+  Widget _statRow(
+    BuildContext context,
+    ThemeData theme,
+    IconData icon,
+    String labelKey,
+    String value,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
@@ -915,8 +969,9 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(TranslationService.translate(context, 'reset_scores')),
-        content:
-            Text(TranslationService.translate(context, 'reset_scores_confirm')),
+        content: Text(
+          TranslationService.translate(context, 'reset_scores_confirm'),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
@@ -956,8 +1011,9 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.onSurfaceVariant
-                      .withValues(alpha: 0.4),
+                  color: theme.colorScheme.onSurfaceVariant.withValues(
+                    alpha: 0.4,
+                  ),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -971,7 +1027,9 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
                     Expanded(
                       child: Text(
                         TranslationService.translate(
-                            context, 'hangman_leaderboard'),
+                          context,
+                          'hangman_leaderboard',
+                        ),
                         style: theme.textTheme.titleLarge,
                       ),
                     ),
@@ -979,7 +1037,9 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
                       icon: const Icon(Icons.delete_outline, size: 20),
                       onPressed: () => _confirmResetScores(context, provider),
                       tooltip: TranslationService.translate(
-                          context, 'reset_scores'),
+                        context,
+                        'reset_scores',
+                      ),
                     ),
                     if (provider.isSyncingNetwork)
                       const SizedBox(
@@ -992,7 +1052,9 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
                         icon: const Icon(Icons.refresh, size: 20),
                         onPressed: () => _refreshNetworkLeaderboard(provider),
                         tooltip: TranslationService.translate(
-                            context, 'memory_leaderboard_refreshing'),
+                          context,
+                          'memory_leaderboard_refreshing',
+                        ),
                       ),
                   ],
                 ),
@@ -1005,11 +1067,15 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
               tabs: [
                 Tab(
                   text: TranslationService.translate(
-                      context, 'memory_my_scores_tab'),
+                    context,
+                    'memory_my_scores_tab',
+                  ),
                 ),
                 Tab(
                   text: TranslationService.translate(
-                      context, 'memory_network_tab'),
+                    context,
+                    'memory_network_tab',
+                  ),
                 ),
               ],
             ),
@@ -1034,10 +1100,12 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
   Widget _buildDifficultyFilters(ThemeData theme) {
     return Consumer<HangmanProvider>(
       builder: (context, provider, _) {
-        final myDifficulties =
-            provider.topScores.map((s) => s.difficulty).toSet();
-        final networkDifficulties =
-            provider.networkScores.map((e) => e.difficulty).toSet();
+        final myDifficulties = provider.topScores
+            .map((s) => s.difficulty)
+            .toSet();
+        final networkDifficulties = provider.networkScores
+            .map((e) => e.difficulty)
+            .toSet();
         final available = myDifficulties.union(networkDifficulties);
 
         if (available.length <= 1) return const SizedBox.shrink();
@@ -1051,24 +1119,30 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
                 padding: const EdgeInsets.only(right: 8),
                 child: FilterChip(
                   label: Text(
-                      TranslationService.translate(context, 'filter_all')),
+                    TranslationService.translate(context, 'filter_all'),
+                  ),
                   selected: _difficultyFilter == null,
-                  onSelected: (_) =>
-                      setState(() => _difficultyFilter = null),
+                  onSelected: (_) => setState(() => _difficultyFilter = null),
                 ),
               ),
               ..._allDifficulties
                   .where((d) => available.contains(d))
-                  .map((d) => Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: FilterChip(
-                          label: Text(TranslationService.translate(
-                              context, 'hangman_difficulty_$d')),
-                          selected: _difficultyFilter == d,
-                          onSelected: (_) =>
-                              setState(() => _difficultyFilter = d),
+                  .map(
+                    (d) => Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: FilterChip(
+                        label: Text(
+                          TranslationService.translate(
+                            context,
+                            'hangman_difficulty_$d',
+                          ),
                         ),
-                      )),
+                        selected: _difficultyFilter == d,
+                        onSelected: (_) =>
+                            setState(() => _difficultyFilter = d),
+                      ),
+                    ),
+                  ),
             ],
           ),
         );
@@ -1081,8 +1155,9 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
       builder: (context, provider, _) {
         var scores = provider.topScores;
         if (_difficultyFilter != null) {
-          scores =
-              scores.where((s) => s.difficulty == _difficultyFilter).toList();
+          scores = scores
+              .where((s) => s.difficulty == _difficultyFilter)
+              .toList();
         }
 
         if (scores.isEmpty) {
@@ -1091,9 +1166,9 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
               padding: const EdgeInsets.all(32),
               child: Text(
                 TranslationService.translate(context, 'hangman_no_scores'),
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Colors.grey[500],
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(color: Colors.grey[500]),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -1114,14 +1189,18 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
               leading: _rankBadge(rank, theme),
               title: Text(
                 TranslationService.translate(
-                    context, 'hangman_difficulty_${score.difficulty}'),
-                style: theme.textTheme.bodyMedium
-                    ?.copyWith(fontWeight: FontWeight.w500),
+                  context,
+                  'hangman_difficulty_${score.difficulty}',
+                ),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w500,
+                ),
               ),
               subtitle: Text(
                 _formatDate(score.playedAt),
-                style: theme.textTheme.bodySmall
-                    ?.copyWith(color: Colors.grey[500]),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: Colors.grey[500],
+                ),
               ),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -1139,15 +1218,19 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
                       ),
                       Text(
                         '${score.formattedTime} - ${score.errors} err.',
-                        style: theme.textTheme.bodySmall
-                            ?.copyWith(color: Colors.grey[500]),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: Colors.grey[500],
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(width: 4),
                   if (score.won)
-                    const Icon(Icons.check_circle,
-                        color: Colors.green, size: 20)
+                    const Icon(
+                      Icons.check_circle,
+                      color: Colors.green,
+                      size: 20,
+                    )
                   else
                     const Icon(Icons.cancel, color: Colors.red, size: 20),
                 ],
@@ -1184,10 +1267,12 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
                   const SizedBox(height: 16),
                   Text(
                     TranslationService.translate(
-                        context, 'memory_leaderboard_refreshing'),
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: Colors.grey[500],
-                        ),
+                      context,
+                      'memory_leaderboard_refreshing',
+                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyLarge?.copyWith(color: Colors.grey[500]),
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -1205,10 +1290,12 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
                 children: [
                   Text(
                     TranslationService.translate(
-                        context, 'memory_leaderboard_empty_network'),
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: Colors.grey[500],
-                        ),
+                      context,
+                      'memory_leaderboard_empty_network',
+                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyLarge?.copyWith(color: Colors.grey[500]),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
@@ -1218,7 +1305,9 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
                         : () => _refreshNetworkLeaderboard(provider),
                     icon: const Icon(Icons.refresh),
                     tooltip: TranslationService.translate(
-                        context, 'memory_leaderboard_refreshing'),
+                      context,
+                      'memory_leaderboard_refreshing',
+                    ),
                   ),
                 ],
               ),
@@ -1239,8 +1328,9 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
             return Container(
               decoration: isSelf
                   ? BoxDecoration(
-                      color: theme.colorScheme.primaryContainer
-                          .withValues(alpha: 0.3),
+                      color: theme.colorScheme.primaryContainer.withValues(
+                        alpha: 0.3,
+                      ),
                       borderRadius: BorderRadius.circular(12),
                     )
                   : null,
@@ -1255,24 +1345,31 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
                       child: Text(
                         entry.libraryName,
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          fontWeight:
-                              isSelf ? FontWeight.bold : FontWeight.w500,
+                          fontWeight: isSelf
+                              ? FontWeight.bold
+                              : FontWeight.w500,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     if (isSelf) ...[
                       const SizedBox(width: 6),
-                      Icon(Icons.person,
-                          size: 16, color: theme.colorScheme.primary),
+                      Icon(
+                        Icons.person,
+                        size: 16,
+                        color: theme.colorScheme.primary,
+                      ),
                     ],
                   ],
                 ),
                 subtitle: Text(
                   TranslationService.translate(
-                      context, 'hangman_difficulty_${entry.difficulty}'),
-                  style: theme.textTheme.bodySmall
-                      ?.copyWith(color: Colors.grey[500]),
+                    context,
+                    'hangman_difficulty_${entry.difficulty}',
+                  ),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: Colors.grey[500],
+                  ),
                 ),
                 trailing: Text(
                   entry.formattedScore,
@@ -1315,10 +1412,7 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
     return Container(
       width: 32,
       height: 32,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: bgColor,
-      ),
+      decoration: BoxDecoration(shape: BoxShape.circle, color: bgColor),
       alignment: Alignment.center,
       child: Text(
         '$rank',

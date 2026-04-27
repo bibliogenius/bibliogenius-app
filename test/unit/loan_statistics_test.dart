@@ -69,20 +69,23 @@ void main() {
       expect(s.avgDurationDays, closeTo(7.5, 0.01));
     });
 
-    test('same-day returns contribute fractional days (not truncated to 0)', () {
-      // Regression: DateTime.difference().inDays truncates; a loan returned
-      // 12 hours later used to count as 0 days, dragging the average down to
-      // an unhelpful "0 j" for libraries with short loans.
-      final s = LoanStatistics.fromLoans([
-        _loan(
-          id: 1,
-          loanDate: '2026-04-01T08:00:00Z',
-          returnDate: '2026-04-01T20:00:00Z',
-          status: 'returned',
-        ),
-      ]);
-      expect(s.avgDurationDays, closeTo(0.5, 0.01));
-    });
+    test(
+      'same-day returns contribute fractional days (not truncated to 0)',
+      () {
+        // Regression: DateTime.difference().inDays truncates; a loan returned
+        // 12 hours later used to count as 0 days, dragging the average down to
+        // an unhelpful "0 j" for libraries with short loans.
+        final s = LoanStatistics.fromLoans([
+          _loan(
+            id: 1,
+            loanDate: '2026-04-01T08:00:00Z',
+            returnDate: '2026-04-01T20:00:00Z',
+            status: 'returned',
+          ),
+        ]);
+        expect(s.avgDurationDays, closeTo(0.5, 0.01));
+      },
+    );
 
     test('unparseable dates are skipped silently', () {
       final s = LoanStatistics.fromLoans([
@@ -134,14 +137,8 @@ void main() {
     });
 
     test('sub-day average renders as the provided less-than label', () {
-      expect(
-        formatAvgDuration(0.65, lessThanOneDayLabel: '< 1 j'),
-        '< 1 j',
-      );
-      expect(
-        formatAvgDuration(0.0001, lessThanOneDayLabel: '< 1 j'),
-        '< 1 j',
-      );
+      expect(formatAvgDuration(0.65, lessThanOneDayLabel: '< 1 j'), '< 1 j');
+      expect(formatAvgDuration(0.0001, lessThanOneDayLabel: '< 1 j'), '< 1 j');
     });
 
     test('>= 1 day rounds to integer with unit suffix', () {

@@ -49,13 +49,16 @@ class AudiobookService {
     String? author,
     String? preferredLanguage,
   }) async {
-    final cacheKey = '${title.toLowerCase()}_${author?.toLowerCase() ?? ''}_${preferredLanguage?.toLowerCase() ?? ''}';
+    final cacheKey =
+        '${title.toLowerCase()}_${author?.toLowerCase() ?? ''}_${preferredLanguage?.toLowerCase() ?? ''}';
 
     // Check negative result cache
     final cachedNotFound = _notFoundCache[cacheKey];
     if (cachedNotFound != null) {
       if (DateTime.now().difference(cachedNotFound) < _notFoundCacheDuration) {
-        debugPrint('[AudiobookService] Cached not-found for: $title (lang: $preferredLanguage)');
+        debugPrint(
+          '[AudiobookService] Cached not-found for: $title (lang: $preferredLanguage)',
+        );
         return null;
       } else {
         _notFoundCache.remove(cacheKey);
@@ -103,11 +106,7 @@ class AudiobookService {
 
     // Try Internet Archive as fallback (always, regardless of language filter)
     try {
-      final archiveResult = await _searchInternetArchive(
-        bookId,
-        title,
-        author,
-      );
+      final archiveResult = await _searchInternetArchive(bookId, title, author);
       if (archiveResult != null) {
         debugPrint('[AudiobookService] Found on Internet Archive: $title');
         return archiveResult;
@@ -165,7 +164,10 @@ class AudiobookService {
     // 2. Search Litterature Audio if any language is French
     final hasFrench = languages.any((lang) {
       final lower = lang.toLowerCase();
-      return lower == 'fr' || lower == 'fre' || lower == 'fra' || lower == 'french';
+      return lower == 'fr' ||
+          lower == 'fre' ||
+          lower == 'fra' ||
+          lower == 'french';
     });
     if (hasFrench) {
       try {
@@ -179,7 +181,9 @@ class AudiobookService {
     // 3. Always search Internet Archive as fallback (filtered by user languages)
     try {
       final result = await _searchInternetArchive(
-        bookId, title, author,
+        bookId,
+        title,
+        author,
         languages: languages,
       );
       if (result != null) addIfNew(result);
@@ -581,9 +585,15 @@ class AudiobookService {
   }) async {
     // Map ISO 639-1 codes to language names used by Internet Archive
     const langNames = {
-      'fr': 'French', 'en': 'English', 'es': 'Spanish',
-      'de': 'German', 'it': 'Italian', 'pt': 'Portuguese',
-      'nl': 'Dutch', 'ru': 'Russian', 'zh': 'Chinese',
+      'fr': 'French',
+      'en': 'English',
+      'es': 'Spanish',
+      'de': 'German',
+      'it': 'Italian',
+      'pt': 'Portuguese',
+      'nl': 'Dutch',
+      'ru': 'Russian',
+      'zh': 'Chinese',
       'ja': 'Japanese',
     };
 

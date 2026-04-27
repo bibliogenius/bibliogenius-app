@@ -147,8 +147,11 @@ class _CollectionListScreenState extends State<CollectionListScreen> {
 
   Future<void> _deleteCollection(Collection collection) async {
     final repo = Provider.of<CollectionRepository>(context, listen: false);
-    final outcome =
-        await confirmCollectionDeletion(context, repo, collection.id);
+    final outcome = await confirmCollectionDeletion(
+      context,
+      repo,
+      collection.id,
+    );
     if (outcome == CollectionDeleteOutcome.cancelled) return;
     if (!mounted) return;
 
@@ -358,9 +361,9 @@ class _CollectionListScreenState extends State<CollectionListScreen> {
                   Text(
                     TranslationService.translate(context, 'no_collections'),
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).primaryColor,
-                        ),
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).primaryColor,
+                    ),
                   ),
                   const SizedBox(height: 12),
                   Padding(
@@ -429,11 +432,11 @@ class _CollectionListScreenState extends State<CollectionListScreen> {
                             context,
                             'discover_collections_title',
                           ),
-                          style:
-                              Theme.of(context).textTheme.titleLarge?.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 8),
@@ -442,10 +445,10 @@ class _CollectionListScreenState extends State<CollectionListScreen> {
                             context,
                             'discover_collections_subtitle',
                           ),
-                          style:
-                              Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: Colors.white.withValues(alpha: 0.9),
-                                  ),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
+                                color: Colors.white.withValues(alpha: 0.9),
+                              ),
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 16),
@@ -512,17 +515,17 @@ class _CollectionListScreenState extends State<CollectionListScreen> {
                 Text(
                   count == 1
                       ? (TranslationService.translate(
-                                context,
-                                'displayed_collections_count',
-                              ) ??
-                              '%d collection')
-                          .replaceAll('%d', '$count')
+                                  context,
+                                  'displayed_collections_count',
+                                ) ??
+                                '%d collection')
+                            .replaceAll('%d', '$count')
                       : (TranslationService.translate(
-                                context,
-                                'displayed_collections_count_plural',
-                              ) ??
-                              '%d collections')
-                          .replaceAll('%d', '$count'),
+                                  context,
+                                  'displayed_collections_count_plural',
+                                ) ??
+                                '%d collections')
+                            .replaceAll('%d', '$count'),
                   style: TextStyle(
                     color: theme.primaryColor,
                     fontWeight: FontWeight.w600,

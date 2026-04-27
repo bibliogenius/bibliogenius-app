@@ -11,10 +11,7 @@ class StatusBarCoverHeader extends SliverPersistentHeaderDelegate {
   final double height;
   final String themeStyle;
 
-  const StatusBarCoverHeader({
-    required this.height,
-    required this.themeStyle,
-  });
+  const StatusBarCoverHeader({required this.height, required this.themeStyle});
 
   @override
   double get minExtent => height;
@@ -24,7 +21,10 @@ class StatusBarCoverHeader extends SliverPersistentHeaderDelegate {
 
   @override
   Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
     return Container(
       decoration: BoxDecoration(
         gradient: AppDesign.appBarGradientForTheme(themeStyle),
@@ -88,7 +88,10 @@ class StickyTabsHeader extends SliverPersistentHeaderDelegate {
 
   @override
   Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
     final gradient = AppDesign.appBarGradientForTheme(themeStyle);
     final showSearch = _searchEnabled && isSearching;
     return Container(
@@ -193,8 +196,7 @@ class _SearchRow extends StatelessWidget {
               style: const TextStyle(color: Colors.white),
               cursorColor: Colors.white,
               decoration: InputDecoration(
-                hintText:
-                    TranslationService.translate(context, 'search_books'),
+                hintText: TranslationService.translate(context, 'search_books'),
                 hintStyle: const TextStyle(color: Colors.white70),
                 filled: false,
                 border: InputBorder.none,

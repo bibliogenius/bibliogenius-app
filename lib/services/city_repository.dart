@@ -66,17 +66,19 @@ List<CityRecord> _parseCityFile((String, String) input) {
       latitude = (row[3] as num).toDouble();
       longitude = (row[4] as num).toDouble();
     }
-    records.add(CityRecord(
-      id: (row[0] as num).toInt(),
-      country: cc,
-      name: row[1] as String,
-      admin1Code: admin1Code,
-      admin1Name: admin1Name,
-      admin2Code: admin2Code,
-      admin2Name: admin2Name,
-      latitude: latitude,
-      longitude: longitude,
-    ));
+    records.add(
+      CityRecord(
+        id: (row[0] as num).toInt(),
+        country: cc,
+        name: row[1] as String,
+        admin1Code: admin1Code,
+        admin1Name: admin1Name,
+        admin2Code: admin2Code,
+        admin2Name: admin2Name,
+        latitude: latitude,
+        longitude: longitude,
+      ),
+    );
   }
   return records;
 }
@@ -129,14 +131,10 @@ class CityRecord {
   /// disambiguation hint until the country file is re-downloaded.
   String? get subtitle {
     if (admin2Name.isNotEmpty) {
-      return admin2Code.isNotEmpty
-          ? '$admin2Name ($admin2Code)'
-          : admin2Name;
+      return admin2Code.isNotEmpty ? '$admin2Name ($admin2Code)' : admin2Name;
     }
     if (admin1Name.isNotEmpty) {
-      return admin1Code.isNotEmpty
-          ? '$admin1Name ($admin1Code)'
-          : admin1Name;
+      return admin1Code.isNotEmpty ? '$admin1Name ($admin1Code)' : admin1Name;
     }
     if (admin1Code.isNotEmpty) {
       return admin1Code;
@@ -160,8 +158,8 @@ abstract class CityDataSource {
 /// returns the decompressed payload.
 class HubCityDataSource implements CityDataSource {
   HubCityDataSource({String? baseUrl, HttpClient? client})
-      : _baseUrl = baseUrl,
-        _client = client ?? HttpClient();
+    : _baseUrl = baseUrl,
+      _client = client ?? HttpClient();
 
   final String? _baseUrl;
   final HttpClient _client;
@@ -220,9 +218,9 @@ class CityRepository {
     CityDataSource? source,
     Future<Directory> Function()? cacheDirResolver,
     int memoryCap = _kDefaultMemoryCap,
-  })  : _source = source ?? HubCityDataSource(),
-        _cacheDirResolver = cacheDirResolver ?? _defaultCacheDir,
-        _memoryCap = memoryCap;
+  }) : _source = source ?? HubCityDataSource(),
+       _cacheDirResolver = cacheDirResolver ?? _defaultCacheDir,
+       _memoryCap = memoryCap;
 
   /// Default upper bound on resident country files. The user's own country
   /// plus a couple recently browsed peers; anything beyond is evicted LRU.
@@ -326,7 +324,9 @@ class CityRepository {
         await _loadFromFile(cc, file);
         return true;
       } catch (e) {
-        debugPrint('CityRepository: $cc cached file corrupt, re-downloading: $e');
+        debugPrint(
+          'CityRepository: $cc cached file corrupt, re-downloading: $e',
+        );
         try {
           await file.delete();
         } catch (_) {}

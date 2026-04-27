@@ -25,13 +25,20 @@ class MemoryGameBoard extends StatelessWidget {
     final totalCards = cards.length;
 
     // Minimum columns based on card count
-    final minCols =
-        totalCards <= 6 ? 3 : totalCards <= 12 ? 3 : totalCards <= 16 ? 4 : 5;
+    final minCols = totalCards <= 6
+        ? 3
+        : totalCards <= 12
+        ? 3
+        : totalCards <= 16
+        ? 4
+        : 5;
 
     // Target card width for good visual (~100-120px)
     const targetCardWidth = 110.0;
-    final maxCols =
-        (availableWidth / targetCardWidth).floor().clamp(minCols, 10);
+    final maxCols = (availableWidth / targetCardWidth).floor().clamp(
+      minCols,
+      10,
+    );
 
     // Find the best column count that divides evenly (prefer larger)
     for (int cols = maxCols; cols >= minCols; cols--) {

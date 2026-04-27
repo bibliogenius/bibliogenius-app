@@ -239,8 +239,12 @@ class _LoginScreenState extends State<LoginScreen>
 
   Future<void> _loginLocal() async {
     if (_passwordController.text.isEmpty) {
-      setState(() => _errorMessage =
-          TranslationService.translate(context, 'password_required'));
+      setState(
+        () => _errorMessage = TranslationService.translate(
+          context,
+          'password_required',
+        ),
+      );
       return;
     }
 
@@ -269,8 +273,10 @@ class _LoginScreenState extends State<LoginScreen>
     } else {
       setState(() {
         _isLoading = false;
-        _errorMessage =
-            TranslationService.translate(context, 'password_incorrect');
+        _errorMessage = TranslationService.translate(
+          context,
+          'password_incorrect',
+        );
       });
     }
   }
@@ -547,15 +553,15 @@ class _LoginScreenState extends State<LoginScreen>
                                 Text(
                                   _isLocalPassword
                                       ? (TranslationService.translate(
-                                            context,
-                                            'login_local_password_subtitle',
-                                          ) ??
-                                          'Enter your password to unlock your library')
+                                              context,
+                                              'login_local_password_subtitle',
+                                            ) ??
+                                            'Enter your password to unlock your library')
                                       : (TranslationService.translate(
-                                            context,
-                                            'login_subtitle',
-                                          ) ??
-                                          'Sign in to access your library'),
+                                              context,
+                                              'login_subtitle',
+                                            ) ??
+                                            'Sign in to access your library'),
                                   style: Theme.of(context).textTheme.bodyMedium
                                       ?.copyWith(
                                         color: Theme.of(context)
@@ -654,7 +660,10 @@ class _LoginScreenState extends State<LoginScreen>
                                             ? Icons.visibility_off_outlined
                                             : Icons.visibility_outlined,
                                       ),
-                                      tooltip: TranslationService.translate(context, 'tooltip_toggle_password'),
+                                      tooltip: TranslationService.translate(
+                                        context,
+                                        'tooltip_toggle_password',
+                                      ),
                                       onPressed: () {
                                         setState(
                                           () => _obscurePassword =

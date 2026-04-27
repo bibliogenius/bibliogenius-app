@@ -10,15 +10,27 @@ void main() {
     test('sorts by author surname (last word), case-insensitive', () {
       final camus = _book('La Peste', author: 'Albert Camus');
       final zola = _book('Germinal', author: 'Emile Zola');
-      expect(compareBooks(camus, zola, SortBy.author, SortDir.asc), lessThan(0));
-      expect(compareBooks(zola, camus, SortBy.author, SortDir.asc), greaterThan(0));
+      expect(
+        compareBooks(camus, zola, SortBy.author, SortDir.asc),
+        lessThan(0),
+      );
+      expect(
+        compareBooks(zola, camus, SortBy.author, SortDir.asc),
+        greaterThan(0),
+      );
     });
 
     test('falls back to title (ascending) when same author', () {
       final first = _book('L\'Etranger', author: 'Albert Camus');
       final second = _book('La Peste', author: 'Albert Camus');
-      expect(compareBooks(first, second, SortBy.author, SortDir.asc), lessThan(0));
-      expect(compareBooks(second, first, SortBy.author, SortDir.asc), greaterThan(0));
+      expect(
+        compareBooks(first, second, SortBy.author, SortDir.asc),
+        lessThan(0),
+      );
+      expect(
+        compareBooks(second, first, SortBy.author, SortDir.asc),
+        greaterThan(0),
+      );
     });
 
     test('empty author goes to the bottom', () {
@@ -38,7 +50,10 @@ void main() {
     test('whitespace-only author is treated as empty', () {
       final blank = _book('Blank', author: '   ');
       final real = _book('Real', author: 'Hugo');
-      expect(compareBooks(blank, real, SortBy.author, SortDir.asc), greaterThan(0));
+      expect(
+        compareBooks(blank, real, SortBy.author, SortDir.asc),
+        greaterThan(0),
+      );
     });
 
     test('two empty-author books are sorted by title ascending', () {
@@ -53,8 +68,14 @@ void main() {
     test('reverses primary author order', () {
       final camus = _book('La Peste', author: 'Albert Camus');
       final zola = _book('Germinal', author: 'Emile Zola');
-      expect(compareBooks(camus, zola, SortBy.author, SortDir.desc), greaterThan(0));
-      expect(compareBooks(zola, camus, SortBy.author, SortDir.desc), lessThan(0));
+      expect(
+        compareBooks(camus, zola, SortBy.author, SortDir.desc),
+        greaterThan(0),
+      );
+      expect(
+        compareBooks(zola, camus, SortBy.author, SortDir.desc),
+        lessThan(0),
+      );
     });
 
     test('empty author still goes to the bottom in descending', () {
@@ -75,8 +96,14 @@ void main() {
       // Two books by Zola - in Z-A mode, titles within Zola must still be A-Z.
       final germinal = _book('Germinal', author: 'Emile Zola');
       final nana = _book('Nana', author: 'Emile Zola');
-      expect(compareBooks(germinal, nana, SortBy.author, SortDir.desc), lessThan(0));
-      expect(compareBooks(nana, germinal, SortBy.author, SortDir.desc), greaterThan(0));
+      expect(
+        compareBooks(germinal, nana, SortBy.author, SortDir.desc),
+        lessThan(0),
+      );
+      expect(
+        compareBooks(nana, germinal, SortBy.author, SortDir.desc),
+        greaterThan(0),
+      );
     });
   });
 
@@ -98,14 +125,20 @@ void main() {
       final camus = _book('Essays', author: 'Albert Camus');
       final zola = _book('Essays', author: 'Emile Zola');
       expect(compareBooks(camus, zola, SortBy.title, SortDir.asc), lessThan(0));
-      expect(compareBooks(zola, camus, SortBy.title, SortDir.asc), greaterThan(0));
+      expect(
+        compareBooks(zola, camus, SortBy.title, SortDir.asc),
+        greaterThan(0),
+      );
     });
 
     test('empty-author secondary does not bubble: title is primary', () {
       // When primary key (title) differs, empty-author order follows title.
       final empty = _book('Apple');
       final withAuthor = _book('Banana', author: 'Zola');
-      expect(compareBooks(empty, withAuthor, SortBy.title, SortDir.asc), lessThan(0));
+      expect(
+        compareBooks(empty, withAuthor, SortBy.title, SortDir.asc),
+        lessThan(0),
+      );
     });
   });
 

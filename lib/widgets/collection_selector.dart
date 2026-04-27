@@ -66,16 +66,18 @@ class _CollectionSelectorState extends State<CollectionSelector> {
     final text = _fieldController.text.trim();
     if (text.isEmpty) return;
 
-    final collectionRepo =
-        Provider.of<CollectionRepository>(context, listen: false);
+    final collectionRepo = Provider.of<CollectionRepository>(
+      context,
+      listen: false,
+    );
 
     // Check if an existing collection matches
     try {
       final all = await collectionRepo.getCollections();
       final match = all.cast<Collection?>().firstWhere(
-            (c) => c!.name.toLowerCase() == text.toLowerCase(),
-            orElse: () => null,
-          );
+        (c) => c!.name.toLowerCase() == text.toLowerCase(),
+        orElse: () => null,
+      );
 
       if (match != null) {
         _addExisting(match);
@@ -114,7 +116,13 @@ class _CollectionSelectorState extends State<CollectionSelector> {
             children: [
               Padding(
                 padding: const EdgeInsets.only(top: 4),
-                child: Icon(Icons.folder_outlined, size: 20, color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5)),
+                child: Icon(
+                  Icons.folder_outlined,
+                  size: 20,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.5),
+                ),
               ),
               const SizedBox(width: 6),
               Expanded(
@@ -122,18 +130,30 @@ class _CollectionSelectorState extends State<CollectionSelector> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      TranslationService.translate(context, 'collections_label'),
+                      TranslationService.translate(
+                        context,
+                        'collections_label',
+                      ),
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
-                        color: Color.lerp(Theme.of(context).colorScheme.primary, Colors.black, 0.25),
+                        color: Color.lerp(
+                          Theme.of(context).colorScheme.primary,
+                          Colors.black,
+                          0.25,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      TranslationService.translate(context, 'collections_helper'),
+                      TranslationService.translate(
+                        context,
+                        'collections_helper',
+                      ),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.85),
+                        color: Theme.of(
+                          context,
+                        ).textTheme.bodySmall?.color?.withValues(alpha: 0.85),
                       ),
                     ),
                   ],
@@ -151,16 +171,19 @@ class _CollectionSelectorState extends State<CollectionSelector> {
               return const Iterable<Collection>.empty();
             }
             try {
-              final collectionRepo =
-                  Provider.of<CollectionRepository>(context, listen: false);
+              final collectionRepo = Provider.of<CollectionRepository>(
+                context,
+                listen: false,
+              );
               final all = await collectionRepo.getCollections();
-              final selectedIds =
-                  _currentSelection.map((c) => c.id).toSet();
-              return all.where((c) =>
-                  c.name
-                      .toLowerCase()
-                      .contains(textEditingValue.text.toLowerCase()) &&
-                  !selectedIds.contains(c.id));
+              final selectedIds = _currentSelection.map((c) => c.id).toSet();
+              return all.where(
+                (c) =>
+                    c.name.toLowerCase().contains(
+                      textEditingValue.text.toLowerCase(),
+                    ) &&
+                    !selectedIds.contains(c.id),
+              );
             } catch (_) {
               return const Iterable<Collection>.empty();
             }
@@ -171,39 +194,39 @@ class _CollectionSelectorState extends State<CollectionSelector> {
           },
           fieldViewBuilder:
               (context, textEditingController, focusNode, onFieldSubmitted) {
-            _fieldController = textEditingController;
-            return TextFormField(
-              controller: textEditingController,
-              focusNode: focusNode,
-              decoration: InputDecoration(
-                hintText: TranslationService.translate(
-                  context,
-                  'add_collection_hint',
-                ),
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.add),
-                  tooltip: TranslationService.translate(
-                    context,
-                    'add_collection',
+                _fieldController = textEditingController;
+                return TextFormField(
+                  controller: textEditingController,
+                  focusNode: focusNode,
+                  decoration: InputDecoration(
+                    hintText: TranslationService.translate(
+                      context,
+                      'add_collection_hint',
+                    ),
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.add),
+                      tooltip: TranslationService.translate(
+                        context,
+                        'add_collection',
+                      ),
+                      onPressed: () {
+                        if (textEditingController.text.trim().isNotEmpty) {
+                          _addFromText();
+                        }
+                      },
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                  onPressed: () {
-                    if (textEditingController.text.trim().isNotEmpty) {
+                  onFieldSubmitted: (String value) {
+                    if (value.trim().isNotEmpty) {
                       _addFromText();
                     }
+                    focusNode.requestFocus();
                   },
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              onFieldSubmitted: (String value) {
-                if (value.trim().isNotEmpty) {
-                  _addFromText();
-                }
-                focusNode.requestFocus();
+                );
               },
-            );
-          },
         ),
         const SizedBox(height: 12),
 
@@ -216,7 +239,9 @@ class _CollectionSelectorState extends State<CollectionSelector> {
               avatar: Icon(
                 Icons.folder_outlined,
                 size: 16,
-                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.6),
+                color: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.6),
               ),
               label: Text(collection.name),
               deleteIcon: const Icon(Icons.close, size: 18),

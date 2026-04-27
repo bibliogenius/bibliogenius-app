@@ -62,20 +62,18 @@ class CollectionImportService {
           if (book.note != null) {
             // Parse "Title - Author (Year)" or "Title - Author" format
             final dashIdx = book.note!.indexOf(' - ');
-            noteTitle = dashIdx > 0 ? book.note!.substring(0, dashIdx).trim() : book.note;
+            noteTitle = dashIdx > 0
+                ? book.note!.substring(0, dashIdx).trim()
+                : book.note;
           }
           final bookData = {
             'isbn': isbn,
-            'title':
-                lookup?['title'] ??
-                noteTitle ??
-                'Untitled',
+            'title': lookup?['title'] ?? noteTitle ?? 'Untitled',
             'reading_status': readingStatus,
             'owned': shouldMarkAsOwned,
             'author': lookup?['author'] ?? book.authors?.join(', '),
             'publisher': book.publisher ?? lookup?['publisher'],
-            'publication_year': book.publishedDate ??
-                lookup?['year'],
+            'publication_year': book.publishedDate ?? lookup?['year'],
             'description': book.description ?? lookup?['summary'],
             'cover_url': book.coverUrl ?? lookup?['cover_url'],
           };

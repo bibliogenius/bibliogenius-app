@@ -51,10 +51,7 @@ class BookNoteTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  note.content,
-                  style: theme.textTheme.bodyMedium,
-                ),
+                Text(note.content, style: theme.textTheme.bodyMedium),
                 const SizedBox(height: 8),
                 Row(
                   children: [
@@ -102,8 +99,7 @@ class BookNoteTile extends StatelessWidget {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(ctx, false),
-                  child:
-                      Text(MaterialLocalizations.of(ctx).cancelButtonLabel),
+                  child: Text(MaterialLocalizations.of(ctx).cancelButtonLabel),
                 ),
                 FilledButton(
                   onPressed: () => Navigator.pop(ctx, true),

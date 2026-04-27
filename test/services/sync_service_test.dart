@@ -57,19 +57,22 @@ void main() {
   });
 
   group('SyncService connectivity check', () {
-    test('on WiFi: syncPeer called with skipLan=false when LAN enabled', () async {
-      final svc = SyncService(
-        mockApi,
-        isLanEnabled: () => true,
-        checkConnectivity: () async => [ConnectivityResult.wifi],
-      );
+    test(
+      'on WiFi: syncPeer called with skipLan=false when LAN enabled',
+      () async {
+        final svc = SyncService(
+          mockApi,
+          isLanEnabled: () => true,
+          checkConnectivity: () async => [ConnectivityResult.wifi],
+        );
 
-      await svc.syncAllPeers();
+        await svc.syncAllPeers();
 
-      expect(mockApi.syncedUrls.length, 2);
-      expect(mockApi.syncSkipLan['http://192.168.1.10:8080'], false);
-      expect(mockApi.syncSkipLan['http://192.168.1.20:8080'], false);
-    });
+        expect(mockApi.syncedUrls.length, 2);
+        expect(mockApi.syncSkipLan['http://192.168.1.10:8080'], false);
+        expect(mockApi.syncSkipLan['http://192.168.1.20:8080'], false);
+      },
+    );
 
     test('on mobile: syncPeer called with skipLan=true', () async {
       final svc = SyncService(

@@ -37,8 +37,11 @@ void main() {
         'Correspondance 1944-1959',
       ];
       final seeds = titles.map((t) => bookColorSeed(Book(title: t))).toSet();
-      expect(seeds.length, titles.length,
-          reason: 'Every title must yield a distinct seed');
+      expect(
+        seeds.length,
+        titles.length,
+        reason: 'Every title must yield a distinct seed',
+      );
     });
 
     test('never returns 0 (protects against hue=0 collapse)', () {

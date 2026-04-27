@@ -33,10 +33,9 @@ class _InviteAcceptanceScreenState extends State<InviteAcceptanceScreen> {
     }
     return raw;
   }
-  String? get _ed25519Key =>
-      widget.payload['ed25519_public_key'] as String?;
-  String? get _x25519Key =>
-      widget.payload['x25519_public_key'] as String?;
+
+  String? get _ed25519Key => widget.payload['ed25519_public_key'] as String?;
+  String? get _x25519Key => widget.payload['x25519_public_key'] as String?;
   String? get _libraryUuid => widget.payload['library_uuid'] as String?;
   String? get _relayUrl => widget.payload['relay_url'] as String?;
   String? get _mailboxId => widget.payload['mailbox_id'] as String?;
@@ -49,7 +48,9 @@ class _InviteAcceptanceScreenState extends State<InviteAcceptanceScreen> {
     final hasRelay = _relayUrl != null && _mailboxId != null;
 
     if (!hasLanUrl && !hasRelay) {
-      setState(() => _error = 'Invalid invite: missing URL and relay credentials');
+      setState(
+        () => _error = 'Invalid invite: missing URL and relay credentials',
+      );
       return;
     }
 
@@ -142,7 +143,10 @@ class _InviteAcceptanceScreenState extends State<InviteAcceptanceScreen> {
           await Future.delayed(const Duration(seconds: 5));
           final retry = await api.requestPeerManifest(peerId);
           if (retry == null) {
-            if (kDebugMode) debugPrint('Prefetch: manifest not available yet, will load on browse');
+            if (kDebugMode)
+              debugPrint(
+                'Prefetch: manifest not available yet, will load on browse',
+              );
             return;
           }
           await _prefetchPages(api, peerId, retry);
@@ -178,9 +182,7 @@ class _InviteAcceptanceScreenState extends State<InviteAcceptanceScreen> {
     }
 
     if (allBooksJson.isNotEmpty) {
-      final books = allBooksJson
-          .map((json) => Book.fromJson(json))
-          .toList();
+      final books = allBooksJson.map((json) => Book.fromJson(json)).toList();
       await api.cachePeerBooks(peerId, books);
       if (kDebugMode) debugPrint('Prefetch: cached ${books.length} books');
     }
@@ -204,7 +206,9 @@ class _InviteAcceptanceScreenState extends State<InviteAcceptanceScreen> {
                   Semantics(
                     image: true,
                     label: TranslationService.translate(
-                        context, 'invite_library_icon'),
+                      context,
+                      'invite_library_icon',
+                    ),
                     child: Container(
                       width: 88,
                       height: 88,
@@ -264,14 +268,18 @@ class _InviteAcceptanceScreenState extends State<InviteAcceptanceScreen> {
                           context,
                           Icons.lock_rounded,
                           TranslationService.translate(
-                              context, 'invite_encrypted'),
+                            context,
+                            'invite_encrypted',
+                          ),
                         ),
                       if (_relayUrl != null)
                         _buildBadge(
                           context,
                           Icons.cloud_rounded,
                           TranslationService.translate(
-                              context, 'invite_remote_ready'),
+                            context,
+                            'invite_remote_ready',
+                          ),
                         ),
                     ],
                   ),
@@ -289,9 +297,11 @@ class _InviteAcceptanceScreenState extends State<InviteAcceptanceScreen> {
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.error_outline,
-                                size: 20,
-                                color: theme.colorScheme.onErrorContainer),
+                            Icon(
+                              Icons.error_outline,
+                              size: 20,
+                              color: theme.colorScheme.onErrorContainer,
+                            ),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
@@ -326,9 +336,13 @@ class _InviteAcceptanceScreenState extends State<InviteAcceptanceScreen> {
                       label: Text(
                         _isConnecting
                             ? TranslationService.translate(
-                                context, 'invite_connecting')
+                                context,
+                                'invite_connecting',
+                              )
                             : TranslationService.translate(
-                                context, 'invite_connect'),
+                                context,
+                                'invite_connect',
+                              ),
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -343,11 +357,11 @@ class _InviteAcceptanceScreenState extends State<InviteAcceptanceScreen> {
                     width: double.infinity,
                     height: 48,
                     child: OutlinedButton(
-                      onPressed:
-                          _isConnecting ? null : () => context.go('/books'),
+                      onPressed: _isConnecting
+                          ? null
+                          : () => context.go('/books'),
                       child: Text(
-                        TranslationService.translate(
-                            context, 'invite_decline'),
+                        TranslationService.translate(context, 'invite_decline'),
                       ),
                     ),
                   ),

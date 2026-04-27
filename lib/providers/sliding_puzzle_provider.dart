@@ -138,13 +138,10 @@ class SlidingPuzzleProvider extends ChangeNotifier {
       _stopwatch.start();
       _elapsedSeconds = 0;
       _displayTimer?.cancel();
-      _displayTimer = Timer.periodic(
-        const Duration(seconds: 1),
-        (_) {
-          _elapsedSeconds = _stopwatch.elapsedMilliseconds / 1000.0;
-          notifyListeners();
-        },
-      );
+      _displayTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+        _elapsedSeconds = _stopwatch.elapsedMilliseconds / 1000.0;
+        notifyListeners();
+      });
     } catch (e) {
       _error = e.toString();
       debugPrint('SlidingPuzzleProvider: startGame error: $e');
@@ -273,16 +270,18 @@ class SlidingPuzzleProvider extends ChangeNotifier {
     try {
       final frbScores = await _ffi.getPuzzleTopScores();
       _topScores = frbScores
-          .map((s) => PuzzleScore(
-                id: s.id,
-                difficulty: s.difficulty,
-                gridSize: s.gridSize,
-                elapsedSeconds: s.elapsedSeconds,
-                moveCount: s.moveCount,
-                parMoves: s.parMoves,
-                normalizedScore: s.normalizedScore,
-                playedAt: s.playedAt,
-              ))
+          .map(
+            (s) => PuzzleScore(
+              id: s.id,
+              difficulty: s.difficulty,
+              gridSize: s.gridSize,
+              elapsedSeconds: s.elapsedSeconds,
+              moveCount: s.moveCount,
+              parMoves: s.parMoves,
+              normalizedScore: s.normalizedScore,
+              playedAt: s.playedAt,
+            ),
+          )
           .toList();
       notifyListeners();
     } catch (e) {
@@ -311,14 +310,16 @@ class SlidingPuzzleProvider extends ChangeNotifier {
     try {
       final frbEntries = await _ffi.getPuzzleLeaderboard();
       _networkScores = frbEntries
-          .map((e) => PuzzleLeaderboardEntry(
-                peerId: e.peerId,
-                libraryName: e.libraryName,
-                bestScore: e.bestScore,
-                difficulty: e.difficulty,
-                playedAt: e.playedAt,
-                isSelf: e.isSelf,
-              ))
+          .map(
+            (e) => PuzzleLeaderboardEntry(
+              peerId: e.peerId,
+              libraryName: e.libraryName,
+              bestScore: e.bestScore,
+              difficulty: e.difficulty,
+              playedAt: e.playedAt,
+              isSelf: e.isSelf,
+            ),
+          )
           .toList();
       notifyListeners();
     } catch (e) {
@@ -335,23 +336,28 @@ class SlidingPuzzleProvider extends ChangeNotifier {
   void _syncPeersInBackground() {
     if (_backgroundSyncRunning || _isSyncingNetwork) return;
     _backgroundSyncRunning = true;
-    _ffi.refreshPuzzleLeaderboard().then((frbEntries) {
-      _networkScores = frbEntries
-          .map((e) => PuzzleLeaderboardEntry(
-                peerId: e.peerId,
-                libraryName: e.libraryName,
-                bestScore: e.bestScore,
-                difficulty: e.difficulty,
-                playedAt: e.playedAt,
-                isSelf: e.isSelf,
-              ))
-          .toList();
-      _backgroundSyncRunning = false;
-      notifyListeners();
-    }).catchError((e) {
-      debugPrint('SlidingPuzzleProvider: background sync error: $e');
-      _backgroundSyncRunning = false;
-    });
+    _ffi
+        .refreshPuzzleLeaderboard()
+        .then((frbEntries) {
+          _networkScores = frbEntries
+              .map(
+                (e) => PuzzleLeaderboardEntry(
+                  peerId: e.peerId,
+                  libraryName: e.libraryName,
+                  bestScore: e.bestScore,
+                  difficulty: e.difficulty,
+                  playedAt: e.playedAt,
+                  isSelf: e.isSelf,
+                ),
+              )
+              .toList();
+          _backgroundSyncRunning = false;
+          notifyListeners();
+        })
+        .catchError((e) {
+          debugPrint('SlidingPuzzleProvider: background sync error: $e');
+          _backgroundSyncRunning = false;
+        });
   }
 
   /// Force relay sync with spinner. Called from the manual refresh button.
@@ -367,23 +373,26 @@ class SlidingPuzzleProvider extends ChangeNotifier {
     await Future<void>.delayed(const Duration(milliseconds: 50));
 
     try {
-      final frbEntries = await _ffi
-          .refreshPuzzleLeaderboard()
-          .timeout(const Duration(seconds: 15));
+      final frbEntries = await _ffi.refreshPuzzleLeaderboard().timeout(
+        const Duration(seconds: 15),
+      );
       _networkScores = frbEntries
-          .map((e) => PuzzleLeaderboardEntry(
-                peerId: e.peerId,
-                libraryName: e.libraryName,
-                bestScore: e.bestScore,
-                difficulty: e.difficulty,
-                playedAt: e.playedAt,
-                isSelf: e.isSelf,
-              ))
+          .map(
+            (e) => PuzzleLeaderboardEntry(
+              peerId: e.peerId,
+              libraryName: e.libraryName,
+              bestScore: e.bestScore,
+              difficulty: e.difficulty,
+              playedAt: e.playedAt,
+              isSelf: e.isSelf,
+            ),
+          )
           .toList();
     } on TimeoutException {
       _lastRefreshTimedOut = true;
       debugPrint(
-          'SlidingPuzzleProvider: refreshNetworkLeaderboard timed out, reloading cache');
+        'SlidingPuzzleProvider: refreshNetworkLeaderboard timed out, reloading cache',
+      );
       await _loadCachedScores();
     } catch (e) {
       debugPrint('SlidingPuzzleProvider: refreshNetworkLeaderboard error: $e');

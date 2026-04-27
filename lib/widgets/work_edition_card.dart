@@ -140,7 +140,12 @@ class _WorkEditionCardState extends State<WorkEditionCard> {
                   style: theme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Serif',
-                    fontFamilyFallback: const ['Hiragino Sans', 'PingFang SC', 'Noto Sans CJK JP', 'sans-serif'],
+                    fontFamilyFallback: const [
+                      'Hiragino Sans',
+                      'PingFang SC',
+                      'Noto Sans CJK JP',
+                      'sans-serif',
+                    ],
                     fontSize: 18,
                   ),
                   maxLines: 2,
@@ -255,7 +260,9 @@ class _WorkEditionCardState extends State<WorkEditionCard> {
   /// Find a fallback cover from sibling editions when current edition has none.
   /// Prioritizes: same language + same publisher > same language > any cover.
   String? _findFallbackCover(Map<String, dynamic> currentEdition) {
-    final currentLang = _getLanguageLabel(currentEdition['language'] as String?);
+    final currentLang = _getLanguageLabel(
+      currentEdition['language'] as String?,
+    );
     final currentPublisher =
         (currentEdition['publisher'] as String?)?.toLowerCase() ?? '';
 
@@ -270,8 +277,7 @@ class _WorkEditionCardState extends State<WorkEditionCard> {
       int score = 0;
       final lang = _getLanguageLabel(edition['language'] as String?);
       if (currentLang.isNotEmpty && lang == currentLang) score += 10;
-      final publisher =
-          (edition['publisher'] as String?)?.toLowerCase() ?? '';
+      final publisher = (edition['publisher'] as String?)?.toLowerCase() ?? '';
       if (currentPublisher.isNotEmpty && publisher == currentPublisher) {
         score += 5;
       }

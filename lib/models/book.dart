@@ -18,15 +18,19 @@ class Book {
   final bool owned; // Whether I physically own this book (default: true)
   final double? price; // Book price (Bookseller profile)
   final List<String>? digitalFormats; // ["ebook", "audiobook"]
-  final String? language; // ISO language code or full name (e.g., 'fr', 'French')
-  final int? availableCopies; // Number of copies with status "available" (from peer)
+  final String?
+  language; // ISO language code or full name (e.g., 'fr', 'French')
+  final int?
+  availableCopies; // Number of copies with status "available" (from peer)
   final bool private; // When true, hidden from network peers
   final int? pageCount;
+
   /// When this book was added to its owner's library (maps to the owner's
   /// `books.created_at`). Used by the "new" badge on peer library views:
   /// editorial metadata broadcast by the owner, so every viewer agrees on
   /// which books are recent.
   final DateTime? addedAt;
+
   /// Timestamp of the last failed hub cover upload for this book. Null when
   /// the most recent attempt succeeded or none ever ran. Present only on the
   /// owner's device (redacted from peer-facing responses): the UI surfaces

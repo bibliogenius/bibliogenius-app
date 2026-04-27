@@ -352,7 +352,10 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
               // Rewind 10s
               IconButton(
                 icon: const Icon(Icons.replay_10),
-                tooltip: TranslationService.translate(context, 'tooltip_rewind_10s'),
+                tooltip: TranslationService.translate(
+                  context,
+                  'tooltip_rewind_10s',
+                ),
                 onPressed: () {
                   final newPos = _player.position - const Duration(seconds: 10);
                   _player.seek(newPos < Duration.zero ? Duration.zero : newPos);
@@ -395,7 +398,10 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
               // Forward 30s
               IconButton(
                 icon: const Icon(Icons.forward_30),
-                tooltip: TranslationService.translate(context, 'tooltip_forward_30s'),
+                tooltip: TranslationService.translate(
+                  context,
+                  'tooltip_forward_30s',
+                ),
                 onPressed: () {
                   final duration = _player.duration ?? Duration.zero;
                   final newPos = _player.position + const Duration(seconds: 30);

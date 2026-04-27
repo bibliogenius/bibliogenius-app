@@ -83,14 +83,12 @@ Future<CollectionDeleteOutcome> confirmCollectionDeletion(
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
-                child:
-                    Text(TranslationService.translate(context, 'cancel')),
+                child: Text(TranslationService.translate(context, 'cancel')),
               ),
               TextButton(
                 onPressed: () => Navigator.pop(context, true),
                 style: TextButton.styleFrom(foregroundColor: Colors.red),
-                child:
-                    Text(TranslationService.translate(context, 'delete')),
+                child: Text(TranslationService.translate(context, 'delete')),
               ),
             ],
           );

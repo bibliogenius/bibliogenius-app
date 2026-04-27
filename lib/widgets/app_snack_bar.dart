@@ -67,10 +67,7 @@ class AppSnackBar {
 
   /// Indeterminate spinner - call ScaffoldMessenger.hideCurrentSnackBar()
   /// when the operation finishes.
-  static void loading(
-    BuildContext context,
-    String message,
-  ) {
+  static void loading(BuildContext context, String message) {
     _show(
       context,
       message: message,
@@ -111,10 +108,7 @@ class AppSnackBar {
         ? SizedBox(
             width: 20,
             height: 20,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              color: fg,
-            ),
+            child: CircularProgressIndicator(strokeWidth: 2, color: fg),
           )
         : Icon(icon, color: fg, size: 20);
 
@@ -134,10 +128,7 @@ class AppSnackBar {
             leading,
             const SizedBox(width: 12),
             Expanded(
-              child: Text(
-                message,
-                style: TextStyle(color: fg),
-              ),
+              child: Text(message, style: TextStyle(color: fg)),
             ),
           ],
         ),

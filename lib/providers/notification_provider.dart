@@ -3,7 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../services/ffi_service.dart';
-import '../src/rust/api/frb.dart' show FrbNotification, FrbNudgeEvent, subscribeRelayNudges;
+import '../src/rust/api/frb.dart'
+    show FrbNotification, FrbNudgeEvent, subscribeRelayNudges;
 
 /// Provider for the activity feed (notifications).
 ///
@@ -35,14 +36,11 @@ class NotificationProvider extends ChangeNotifier {
     await refreshUnreadCount();
     // Poll unread count every 30s (lightweight query, fallback safety net)
     _pollTimer?.cancel();
-    _pollTimer = Timer.periodic(
-      const Duration(seconds: 30),
-      (_) async {
-        await _checkLoanReminders();
-        await refreshUnreadCount();
-        if (_listEverLoaded) await _silentReloadList();
-      },
-    );
+    _pollTimer = Timer.periodic(const Duration(seconds: 30), (_) async {
+      await _checkLoanReminders();
+      await refreshUnreadCount();
+      if (_listEverLoaded) await _silentReloadList();
+    });
     _subscribeNudgeStream();
   }
 
@@ -75,7 +73,9 @@ class NotificationProvider extends ChangeNotifier {
         cancelOnError: false,
       );
     } catch (e) {
-      debugPrint('NotificationProvider: failed to subscribe to nudge stream: $e');
+      debugPrint(
+        'NotificationProvider: failed to subscribe to nudge stream: $e',
+      );
     }
   }
 
@@ -103,10 +103,11 @@ class NotificationProvider extends ChangeNotifier {
   Future<void> refreshUnreadCount() async {
     final prefs = await SharedPreferences.getInstance();
     final globalEnabled = prefs.getBool('notificationsEnabled') ?? true;
-    final anyEnabled = globalEnabled &&
+    final anyEnabled =
+        globalEnabled &&
         ((prefs.getBool('notifConnectionsEnabled') ?? true) ||
-         (prefs.getBool('notifLoansEnabled') ?? true) ||
-         (prefs.getBool('notifDiscoveriesEnabled') ?? true));
+            (prefs.getBool('notifLoansEnabled') ?? true) ||
+            (prefs.getBool('notifDiscoveriesEnabled') ?? true));
 
     final count = anyEnabled ? await _ffi.notificationsUnreadCount() : 0;
     if (count != _unreadCount) {
@@ -203,8 +204,10 @@ class NotificationProvider extends ChangeNotifier {
 
   /// Dismiss (hard delete) a notification.
   Future<void> dismiss(int id) async {
-    final n = _notifications.firstWhere((n) => n.id == id,
-        orElse: () => _notifications.first);
+    final n = _notifications.firstWhere(
+      (n) => n.id == id,
+      orElse: () => _notifications.first,
+    );
     if (n.readAt == null) {
       _unreadCount = (_unreadCount - 1).clamp(0, _unreadCount);
     }

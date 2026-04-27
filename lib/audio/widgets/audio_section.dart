@@ -82,16 +82,30 @@ class _AudioSectionState extends State<AudioSection> {
     // Strip region suffix (e.g., 'fr-FR' -> 'fr', 'pt-BR' -> 'pt')
     final lower = code.toLowerCase().trim().split(RegExp(r'[-_]')).first;
     const iso639_2to1 = {
-      'fre': 'fr', 'fra': 'fr', 'french': 'fr',
-      'eng': 'en', 'english': 'en',
-      'spa': 'es', 'spanish': 'es',
-      'ger': 'de', 'deu': 'de', 'german': 'de',
-      'ita': 'it', 'italian': 'it',
-      'por': 'pt', 'portuguese': 'pt',
-      'dut': 'nl', 'nld': 'nl', 'dutch': 'nl',
-      'rus': 'ru', 'russian': 'ru',
-      'chi': 'zh', 'zho': 'zh', 'chinese': 'zh',
-      'jpn': 'ja', 'japanese': 'ja',
+      'fre': 'fr',
+      'fra': 'fr',
+      'french': 'fr',
+      'eng': 'en',
+      'english': 'en',
+      'spa': 'es',
+      'spanish': 'es',
+      'ger': 'de',
+      'deu': 'de',
+      'german': 'de',
+      'ita': 'it',
+      'italian': 'it',
+      'por': 'pt',
+      'portuguese': 'pt',
+      'dut': 'nl',
+      'nld': 'nl',
+      'dutch': 'nl',
+      'rus': 'ru',
+      'russian': 'ru',
+      'chi': 'zh',
+      'zho': 'zh',
+      'chinese': 'zh',
+      'jpn': 'ja',
+      'japanese': 'ja',
     };
     return iso639_2to1[lower] ?? lower;
   }
@@ -202,9 +216,14 @@ class _AudioSectionState extends State<AudioSection> {
             onLongPress: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(TranslationService.translate(context, 'audio_refreshing')),
+                  content: Text(
+                    TranslationService.translate(context, 'audio_refreshing'),
+                  ),
                   action: SnackBarAction(
-                    label: TranslationService.translate(context, 'audio_refresh'),
+                    label: TranslationService.translate(
+                      context,
+                      'audio_refresh',
+                    ),
                     onPressed: _forceRefresh,
                   ),
                 ),
@@ -346,7 +365,9 @@ class _AudioSectionState extends State<AudioSection> {
                   audioResource.source.displayName,
                   style: TextStyle(
                     fontSize: 11,
-                    color: colorScheme.onTertiaryContainer.withValues(alpha: 0.7),
+                    color: colorScheme.onTertiaryContainer.withValues(
+                      alpha: 0.7,
+                    ),
                   ),
                 ),
               ],
@@ -362,17 +383,24 @@ class _AudioSectionState extends State<AudioSection> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    TranslationService.translate(context, 'audio_wifi_required'),
+                    TranslationService.translate(
+                      context,
+                      'audio_wifi_required',
+                    ),
                     style: TextStyle(
                       fontSize: 12,
-                      color: colorScheme.onTertiaryContainer.withValues(alpha: 0.7),
+                      color: colorScheme.onTertiaryContainer.withValues(
+                        alpha: 0.7,
+                      ),
                     ),
                   ),
                 ),
                 TextButton.icon(
                   onPressed: () => _openInBrowser(audioResource),
                   icon: const Icon(Icons.open_in_new, size: 14),
-                  label: Text(TranslationService.translate(context, 'audio_open')),
+                  label: Text(
+                    TranslationService.translate(context, 'audio_open'),
+                  ),
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     minimumSize: const Size(0, 32),
@@ -392,8 +420,8 @@ class _AudioSectionState extends State<AudioSection> {
         ? resource.streamUrl!
         : resource.source.websiteUrl;
 
-    final isDesktop = !kIsWeb &&
-        (Platform.isMacOS || Platform.isWindows || Platform.isLinux);
+    final isDesktop =
+        !kIsWeb && (Platform.isMacOS || Platform.isWindows || Platform.isLinux);
 
     if (isDesktop) {
       // Use external browser on desktop (WebView has mouse_tracker issues on macOS)

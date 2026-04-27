@@ -54,8 +54,9 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
 
     // Fetch hub profile for website and refresh cached display name + avatar
     try {
-      final frbProfile =
-          await FfiService().hubDirectoryGetProfile(_relation.nodeId);
+      final frbProfile = await FfiService().hubDirectoryGetProfile(
+        _relation.nodeId,
+      );
       if (mounted && frbProfile != null) {
         final hp = HubProfile.fromFrb(frbProfile);
         setState(() {
@@ -82,8 +83,10 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
     if (config != null && !config.isAsset) {
       url = config.toUrl(size: 192);
     } else {
-      url = AvatarConfig(seed: _relation.name, style: 'initials')
-          .toUrl(size: 192);
+      url = AvatarConfig(
+        seed: _relation.name,
+        style: 'initials',
+      ).toUrl(size: 192);
     }
     final letter = _relation.name.isNotEmpty
         ? _relation.name[0].toUpperCase()
@@ -100,20 +103,26 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
           placeholder: (_, _) => CircleAvatar(
             radius: 48,
             backgroundColor: fallbackColor,
-            child: Text(letter,
-                style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 32)),
+            child: Text(
+              letter,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 32,
+              ),
+            ),
           ),
           errorWidget: (_, _, _) => CircleAvatar(
             radius: 48,
             backgroundColor: fallbackColor,
-            child: Text(letter,
-                style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 32)),
+            child: Text(
+              letter,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 32,
+              ),
+            ),
           ),
         ),
       ),
@@ -126,20 +135,12 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
     final newCaption = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(
-          TranslationService.translate(ctx, 'peer_edit_caption'),
-        ),
+        title: Text(TranslationService.translate(ctx, 'peer_edit_caption')),
         content: TextField(
           controller: controller,
           decoration: InputDecoration(
-            labelText: TranslationService.translate(
-              ctx,
-              'peer_caption_label',
-            ),
-            hintText: TranslationService.translate(
-              ctx,
-              'peer_caption_hint',
-            ),
+            labelText: TranslationService.translate(ctx, 'peer_caption_label'),
+            hintText: TranslationService.translate(ctx, 'peer_caption_hint'),
           ),
           autofocus: true,
           textCapitalization: TextCapitalization.sentences,
@@ -171,7 +172,9 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
     if (peer != null) {
       await api.updatePeerDisplayName(peer.id, newCaption);
       // Update the in-memory relation so the UI reflects the change immediately
-      final updatedPeer = peer.withCaption(newCaption.isEmpty ? null : newCaption);
+      final updatedPeer = peer.withCaption(
+        newCaption.isEmpty ? null : newCaption,
+      );
       _relation = LibraryRelation(
         nodeId: _relation.nodeId,
         displayName: _relation.name,
@@ -182,13 +185,15 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
 
     if (!mounted) return;
     setState(() {});
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(
-        newCaption.isEmpty
-            ? TranslationService.translate(context, 'peer_caption_removed')
-            : TranslationService.translate(context, 'peer_caption_saved'),
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          newCaption.isEmpty
+              ? TranslationService.translate(context, 'peer_caption_removed')
+              : TranslationService.translate(context, 'peer_caption_saved'),
+        ),
       ),
-    ));
+    );
   }
 
   @override
@@ -212,10 +217,7 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
-            tooltip: TranslationService.translate(
-              context,
-              'peer_edit_caption',
-            ),
+            tooltip: TranslationService.translate(context, 'peer_edit_caption'),
             onPressed: _editCaption,
           ),
         ],
@@ -266,9 +268,7 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
               cursor: SystemMouseCursors.click,
               child: GestureDetector(
                 onTap: () {
-                  Clipboard.setData(
-                    ClipboardData(text: _relation.nodeId),
-                  );
+                  Clipboard.setData(ClipboardData(text: _relation.nodeId));
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
@@ -284,11 +284,7 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
-                        Icons.fingerprint,
-                        size: 14,
-                        color: cs.outline,
-                      ),
+                      Icon(Icons.fingerprint, size: 14, color: cs.outline),
                       const SizedBox(width: 4),
                       Text(
                         _relation.nodeId.length > 16
@@ -300,11 +296,7 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
                         ),
                       ),
                       const SizedBox(width: 4),
-                      Icon(
-                        Icons.copy,
-                        size: 12,
-                        color: cs.outline,
-                      ),
+                      Icon(Icons.copy, size: 12, color: cs.outline),
                     ],
                   ),
                 ),
@@ -331,17 +323,19 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
                 if (_relation.isFollowing)
                   Chip(
                     avatar: Icon(
-                      _relation.followPending
-                          ? Icons.pending
-                          : Icons.bookmark,
+                      _relation.followPending ? Icons.pending : Icons.bookmark,
                       size: 16,
                     ),
                     label: Text(
                       _relation.followPending
                           ? TranslationService.translate(
-                              context, 'lib_follow_pending')
+                              context,
+                              'lib_follow_pending',
+                            )
                           : TranslationService.translate(
-                              context, 'lib_follow_active'),
+                              context,
+                              'lib_follow_active',
+                            ),
                     ),
                   ),
               ],
@@ -363,10 +357,10 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
   }
 
   Widget _buildInfoCard(ThemeData theme, ColorScheme cs, dynamic peer) {
-    final hasWebsite = _hubProfile?.website != null &&
-        _hubProfile!.website!.isNotEmpty;
-    final hasContact = _decryptedContact != null &&
-        _decryptedContact!.isNotEmpty;
+    final hasWebsite =
+        _hubProfile?.website != null && _hubProfile!.website!.isNotEmpty;
+    final hasContact =
+        _decryptedContact != null && _decryptedContact!.isNotEmpty;
     final hasE2ee = peer != null && peer.keyExchangeDone;
     final hasLastSeen = peer?.lastSeen != null;
     final hasRelay = peer != null && peer.hasRelayCredentials;
@@ -405,9 +399,13 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
                 icon: Icons.lock,
                 iconColor: Colors.green,
                 label: TranslationService.translate(
-                    context, 'peer_e2ee_status'),
+                  context,
+                  'peer_e2ee_status',
+                ),
                 value: TranslationService.translate(
-                    context, 'peer_e2ee_active'),
+                  context,
+                  'peer_e2ee_active',
+                ),
                 theme: theme,
               ),
 
@@ -417,8 +415,7 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
               _infoRow(
                 icon: Icons.access_time,
                 iconColor: cs.outline,
-                label: TranslationService.translate(
-                    context, 'peer_last_seen'),
+                label: TranslationService.translate(context, 'peer_last_seen'),
                 value: peer!.lastSeen!,
                 theme: theme,
               ),
@@ -430,8 +427,7 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
               _infoRow(
                 icon: Icons.cloud,
                 iconColor: Colors.blue,
-                label: TranslationService.translate(
-                    context, 'peer_has_relay'),
+                label: TranslationService.translate(context, 'peer_has_relay'),
                 theme: theme,
               ),
             ],
@@ -449,7 +445,9 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
                 icon: Icons.lock_outlined,
                 iconColor: cs.primary,
                 label: TranslationService.translate(
-                    context, 'hub_contact_info_title'),
+                  context,
+                  'hub_contact_info_title',
+                ),
                 value: _decryptedContact!,
                 theme: theme,
               ),
@@ -512,9 +510,7 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
             Expanded(
               child: Text(
                 uri.toString(),
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: cs.primary,
-                ),
+                style: theme.textTheme.bodyMedium?.copyWith(color: cs.primary),
               ),
             ),
           ],
@@ -523,8 +519,7 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
     );
   }
 
-  Widget _buildActionButtons(
-      ThemeData theme, ColorScheme cs, dynamic peer) {
+  Widget _buildActionButtons(ThemeData theme, ColorScheme cs, dynamic peer) {
     final buttons = <Widget>[];
 
     // Browse catalog
@@ -584,22 +579,24 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
                 try {
                   await api.syncPeer(peer!.url!);
                   if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text(
-                        TranslationService.translate(
-                            context, 'sync_started'),
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          TranslationService.translate(context, 'sync_started'),
+                        ),
                       ),
-                    ));
+                    );
                   }
                 } catch (e) {
                   if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text(
-                        TranslationService.translate(
-                            context, 'sync_failed'),
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          TranslationService.translate(context, 'sync_failed'),
+                        ),
+                        backgroundColor: Colors.orange,
                       ),
-                      backgroundColor: Colors.orange,
-                    ));
+                    );
                   }
                 }
               },
@@ -616,8 +613,7 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
           builder: (context, dirProvider, _) => SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
-              icon: Icon(Icons.bookmark_remove,
-                  size: 18, color: cs.error),
+              icon: Icon(Icons.bookmark_remove, size: 18, color: cs.error),
               label: Text(
                 TranslationService.translate(context, 'lib_unfollow'),
                 style: TextStyle(color: cs.error),
@@ -655,10 +651,7 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
                   context: context,
                   builder: (ctx) => AlertDialog(
                     title: Text(
-                      TranslationService.translate(
-                        ctx,
-                        'delete_contact_title',
-                      ),
+                      TranslationService.translate(ctx, 'delete_contact_title'),
                     ),
                     content: Text(
                       '${TranslationService.translate(ctx, 'confirm_delete')} '

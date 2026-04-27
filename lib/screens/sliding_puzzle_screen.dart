@@ -105,7 +105,9 @@ class _SlidingPuzzleScreenState extends State<SlidingPuzzleScreen> {
           IconButton(
             icon: const Icon(Icons.emoji_events_outlined),
             tooltip: TranslationService.translate(
-                context, 'sliding_puzzle_scores_title'),
+              context,
+              'sliding_puzzle_scores_title',
+            ),
             onPressed: () => _showScores(context),
           ),
         ],
@@ -148,9 +150,7 @@ class _SlidingPuzzleScreenState extends State<SlidingPuzzleScreen> {
           const SizedBox(height: 16),
           FilledButton(
             onPressed: () => provider.loadDifficulties(),
-            child: Text(
-              TranslationService.translate(context, 'button_retry'),
-            ),
+            child: Text(TranslationService.translate(context, 'button_retry')),
           ),
         ],
       ),
@@ -169,12 +169,17 @@ class _SlidingPuzzleScreenState extends State<SlidingPuzzleScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.photo_library_outlined,
-                  size: 64, color: Colors.grey[400]),
+              Icon(
+                Icons.photo_library_outlined,
+                size: 64,
+                color: Colors.grey[400],
+              ),
               const SizedBox(height: 16),
               Text(
                 TranslationService.translate(
-                    context, 'sliding_puzzle_not_enough_books'),
+                  context,
+                  'sliding_puzzle_not_enough_books',
+                ),
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
@@ -192,17 +197,17 @@ class _SlidingPuzzleScreenState extends State<SlidingPuzzleScreen> {
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
             children: [
               Text(
-                TranslationService.translate(
-                    context, 'sliding_puzzle_intro'),
+                TranslationService.translate(context, 'sliding_puzzle_intro'),
                 style: theme.textTheme.bodyLarge?.copyWith(
-                  color:
-                      theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                 ),
               ),
               const SizedBox(height: 20),
               Text(
                 TranslationService.translate(
-                    context, 'sliding_puzzle_choose_difficulty'),
+                  context,
+                  'sliding_puzzle_choose_difficulty',
+                ),
                 style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -233,9 +238,13 @@ class _SlidingPuzzleScreenState extends State<SlidingPuzzleScreen> {
                   ),
                   child: Text(
                     TranslationService.translate(
-                        context, 'sliding_puzzle_play'),
+                      context,
+                      'sliding_puzzle_play',
+                    ),
                     style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
@@ -247,7 +256,9 @@ class _SlidingPuzzleScreenState extends State<SlidingPuzzleScreen> {
   }
 
   Widget _buildDifficultyCard(
-      SlidingPuzzleProvider provider, String difficulty) {
+    SlidingPuzzleProvider provider,
+    String difficulty,
+  ) {
     final isSelected = provider.selectedDifficulty == difficulty;
     final info = _difficultyInfo(difficulty);
     final theme = Theme.of(context);
@@ -282,14 +293,14 @@ class _SlidingPuzzleScreenState extends State<SlidingPuzzleScreen> {
                       color: info.color.withValues(alpha: 0.3),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
-                    )
+                    ),
                   ]
                 : [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.04),
                       blurRadius: 4,
                       offset: const Offset(0, 2),
-                    )
+                    ),
                   ],
           ),
           child: Row(
@@ -308,7 +319,9 @@ class _SlidingPuzzleScreenState extends State<SlidingPuzzleScreen> {
                   children: [
                     Text(
                       TranslationService.translate(
-                          context, 'sliding_puzzle_$difficulty'),
+                        context,
+                        'sliding_puzzle_$difficulty',
+                      ),
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: isSelected ? Colors.white : null,
@@ -350,20 +363,17 @@ class _SlidingPuzzleScreenState extends State<SlidingPuzzleScreen> {
                 _buildStat(
                   Icons.timer_outlined,
                   provider.formattedTime,
-                  TranslationService.translate(
-                      context, 'sliding_puzzle_time'),
+                  TranslationService.translate(context, 'sliding_puzzle_time'),
                 ),
                 _buildStat(
                   Icons.swipe,
                   '${provider.moveCount}',
-                  TranslationService.translate(
-                      context, 'sliding_puzzle_moves'),
+                  TranslationService.translate(context, 'sliding_puzzle_moves'),
                 ),
                 _buildStat(
                   Icons.flag_outlined,
                   '${provider.parMoves}',
-                  TranslationService.translate(
-                      context, 'sliding_puzzle_par'),
+                  TranslationService.translate(context, 'sliding_puzzle_par'),
                 ),
               ],
             ),
@@ -387,10 +397,7 @@ class _SlidingPuzzleScreenState extends State<SlidingPuzzleScreen> {
                           ),
                         ),
                       ),
-                      Expanded(
-                        flex: 1,
-                        child: _buildReferenceImage(provider),
-                      ),
+                      Expanded(flex: 1, child: _buildReferenceImage(provider)),
                     ],
                   );
                 }
@@ -503,9 +510,9 @@ class _SlidingPuzzleScreenState extends State<SlidingPuzzleScreen> {
         ),
         Text(
           label,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.grey[500],
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: Colors.grey[500]),
         ),
       ],
     );
@@ -525,8 +532,11 @@ class _SlidingPuzzleScreenState extends State<SlidingPuzzleScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.emoji_events,
-                size: 64, color: theme.colorScheme.primary),
+            Icon(
+              Icons.emoji_events,
+              size: 64,
+              color: theme.colorScheme.primary,
+            ),
             const SizedBox(height: 16),
             Text(
               TranslationService.translate(context, congratsKey),
@@ -539,7 +549,9 @@ class _SlidingPuzzleScreenState extends State<SlidingPuzzleScreen> {
               const SizedBox(height: 8),
               Text(
                 TranslationService.translate(
-                    context, 'puzzle_new_personal_best'),
+                  context,
+                  'puzzle_new_personal_best',
+                ),
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: theme.colorScheme.primary,
                   fontWeight: FontWeight.w600,
@@ -552,8 +564,9 @@ class _SlidingPuzzleScreenState extends State<SlidingPuzzleScreen> {
               const SizedBox(height: 8),
               Text(
                 TranslationService.translate(
-                        context, 'puzzle_rank_position')
-                    .replaceAll('%s', '${provider.personalRank}'),
+                  context,
+                  'puzzle_rank_position',
+                ).replaceAll('%s', '${provider.personalRank}'),
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -572,7 +585,9 @@ class _SlidingPuzzleScreenState extends State<SlidingPuzzleScreen> {
                 ),
                 child: Text(
                   TranslationService.translate(
-                      context, 'sliding_puzzle_play_again'),
+                    context,
+                    'sliding_puzzle_play_again',
+                  ),
                   style: const TextStyle(fontSize: 16),
                 ),
               ),
@@ -585,7 +600,9 @@ class _SlidingPuzzleScreenState extends State<SlidingPuzzleScreen> {
               },
               child: Text(
                 TranslationService.translate(
-                    context, 'sliding_puzzle_change_difficulty'),
+                  context,
+                  'sliding_puzzle_change_difficulty',
+                ),
               ),
             ),
           ],
@@ -594,15 +611,12 @@ class _SlidingPuzzleScreenState extends State<SlidingPuzzleScreen> {
     );
   }
 
-  Widget _buildScoreCard(
-      dynamic score, ThemeData theme) {
+  Widget _buildScoreCard(dynamic score, ThemeData theme) {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: theme.colorScheme.outlineVariant,
-        ),
+        side: BorderSide(color: theme.colorScheme.outlineVariant),
       ),
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -629,22 +643,22 @@ class _SlidingPuzzleScreenState extends State<SlidingPuzzleScreen> {
                   theme,
                   Icons.timer_outlined,
                   score.formattedTime,
-                  TranslationService.translate(
-                      context, 'sliding_puzzle_time'),
+                  TranslationService.translate(context, 'sliding_puzzle_time'),
                 ),
                 _buildScoreDetail(
                   theme,
                   Icons.swipe,
                   '${score.moveCount}/${score.parMoves}',
-                  TranslationService.translate(
-                      context, 'sliding_puzzle_moves'),
+                  TranslationService.translate(context, 'sliding_puzzle_moves'),
                 ),
                 _buildScoreDetail(
                   theme,
                   Icons.speed,
                   score.difficulty,
                   TranslationService.translate(
-                      context, 'sliding_puzzle_difficulty_label'),
+                    context,
+                    'sliding_puzzle_difficulty_label',
+                  ),
                 ),
               ],
             ),
@@ -655,7 +669,11 @@ class _SlidingPuzzleScreenState extends State<SlidingPuzzleScreen> {
   }
 
   Widget _buildScoreDetail(
-      ThemeData theme, IconData icon, String value, String label) {
+    ThemeData theme,
+    IconData icon,
+    String value,
+    String label,
+  ) {
     return Column(
       children: [
         Icon(icon, size: 20, color: theme.colorScheme.onSurfaceVariant),
@@ -699,21 +717,28 @@ class _SlidingPuzzleScreenState extends State<SlidingPuzzleScreen> {
                 borderRadius: BorderRadius.circular(12),
                 color: Colors.amber.withValues(alpha: 0.15),
               ),
-              child: const Icon(Icons.emoji_events_rounded,
-                  size: 22, color: Color(0xFFE0A030)),
+              child: const Icon(
+                Icons.emoji_events_rounded,
+                size: 22,
+                color: Color(0xFFE0A030),
+              ),
             ),
             const SizedBox(width: 14),
             Expanded(
               child: Text(
                 TranslationService.translate(
-                    context, 'puzzle_leaderboard_title'),
+                  context,
+                  'puzzle_leaderboard_title',
+                ),
                 style: theme.textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
               ),
             ),
-            Icon(Icons.chevron_right_rounded,
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.4)),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+            ),
           ],
         ),
       ),
@@ -764,7 +789,11 @@ class _SlidingPuzzleScreenState extends State<SlidingPuzzleScreen> {
         );
       default:
         return const _DifficultyInfo(
-            Icons.help_outline, Colors.grey, Colors.grey, '');
+          Icons.help_outline,
+          Colors.grey,
+          Colors.grey,
+          '',
+        );
     }
   }
 }
@@ -806,7 +835,9 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
     super.dispose();
   }
 
-  Future<void> _refreshNetworkLeaderboard(SlidingPuzzleProvider provider) async {
+  Future<void> _refreshNetworkLeaderboard(
+    SlidingPuzzleProvider provider,
+  ) async {
     await provider.refreshNetworkLeaderboard();
     if (!mounted) return;
     if (provider.lastRefreshTimedOut) {
@@ -818,13 +849,16 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
   }
 
   void _confirmResetScores(
-      BuildContext context, SlidingPuzzleProvider provider) {
+    BuildContext context,
+    SlidingPuzzleProvider provider,
+  ) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(TranslationService.translate(context, 'reset_scores')),
-        content:
-            Text(TranslationService.translate(context, 'reset_scores_confirm')),
+        content: Text(
+          TranslationService.translate(context, 'reset_scores_confirm'),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
@@ -864,8 +898,9 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.onSurfaceVariant
-                      .withValues(alpha: 0.4),
+                  color: theme.colorScheme.onSurfaceVariant.withValues(
+                    alpha: 0.4,
+                  ),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -879,7 +914,9 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
                     Expanded(
                       child: Text(
                         TranslationService.translate(
-                            context, 'puzzle_leaderboard_title'),
+                          context,
+                          'puzzle_leaderboard_title',
+                        ),
                         style: theme.textTheme.titleLarge,
                       ),
                     ),
@@ -887,7 +924,9 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
                       icon: const Icon(Icons.delete_outline, size: 20),
                       onPressed: () => _confirmResetScores(context, provider),
                       tooltip: TranslationService.translate(
-                          context, 'reset_scores'),
+                        context,
+                        'reset_scores',
+                      ),
                     ),
                     if (provider.isSyncingNetwork)
                       const SizedBox(
@@ -900,7 +939,9 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
                         icon: const Icon(Icons.refresh, size: 20),
                         onPressed: () => _refreshNetworkLeaderboard(provider),
                         tooltip: TranslationService.translate(
-                            context, 'puzzle_leaderboard_refreshing'),
+                          context,
+                          'puzzle_leaderboard_refreshing',
+                        ),
                       ),
                   ],
                 ),
@@ -913,11 +954,15 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
               tabs: [
                 Tab(
                   text: TranslationService.translate(
-                      context, 'puzzle_my_scores_tab'),
+                    context,
+                    'puzzle_my_scores_tab',
+                  ),
                 ),
                 Tab(
                   text: TranslationService.translate(
-                      context, 'puzzle_network_tab'),
+                    context,
+                    'puzzle_network_tab',
+                  ),
                 ),
               ],
             ),
@@ -942,10 +987,12 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
   Widget _buildDifficultyFilters(ThemeData theme) {
     return Consumer<SlidingPuzzleProvider>(
       builder: (context, provider, _) {
-        final myDifficulties =
-            provider.topScores.map((s) => s.difficulty).toSet();
-        final networkDifficulties =
-            provider.networkScores.map((e) => e.difficulty).toSet();
+        final myDifficulties = provider.topScores
+            .map((s) => s.difficulty)
+            .toSet();
+        final networkDifficulties = provider.networkScores
+            .map((e) => e.difficulty)
+            .toSet();
         final available = myDifficulties.union(networkDifficulties);
 
         if (available.length <= 1) return const SizedBox.shrink();
@@ -958,25 +1005,31 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
               Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: FilterChip(
-                  label: Text(TranslationService.translate(
-                      context, 'filter_all')),
+                  label: Text(
+                    TranslationService.translate(context, 'filter_all'),
+                  ),
                   selected: _difficultyFilter == null,
-                  onSelected: (_) =>
-                      setState(() => _difficultyFilter = null),
+                  onSelected: (_) => setState(() => _difficultyFilter = null),
                 ),
               ),
               ..._allDifficulties
                   .where((d) => available.contains(d))
-                  .map((d) => Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: FilterChip(
-                          label: Text(TranslationService.translate(
-                              context, 'sliding_puzzle_$d')),
-                          selected: _difficultyFilter == d,
-                          onSelected: (_) =>
-                              setState(() => _difficultyFilter = d),
+                  .map(
+                    (d) => Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: FilterChip(
+                        label: Text(
+                          TranslationService.translate(
+                            context,
+                            'sliding_puzzle_$d',
+                          ),
                         ),
-                      )),
+                        selected: _difficultyFilter == d,
+                        onSelected: (_) =>
+                            setState(() => _difficultyFilter = d),
+                      ),
+                    ),
+                  ),
             ],
           ),
         );
@@ -1000,10 +1053,12 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
               padding: const EdgeInsets.all(32),
               child: Text(
                 TranslationService.translate(
-                    context, 'sliding_puzzle_no_scores_yet'),
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Colors.grey[500],
-                    ),
+                  context,
+                  'sliding_puzzle_no_scores_yet',
+                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(color: Colors.grey[500]),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -1024,14 +1079,18 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
               leading: _rankBadge(rank, theme),
               title: Text(
                 TranslationService.translate(
-                    context, 'sliding_puzzle_${score.difficulty}'),
-                style: theme.textTheme.bodyMedium
-                    ?.copyWith(fontWeight: FontWeight.w500),
+                  context,
+                  'sliding_puzzle_${score.difficulty}',
+                ),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w500,
+                ),
               ),
               subtitle: Text(
                 _formatDate(score.playedAt),
-                style: theme.textTheme.bodySmall
-                    ?.copyWith(color: Colors.grey[500]),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: Colors.grey[500],
+                ),
               ),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -1049,8 +1108,9 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
                       ),
                       Text(
                         '${score.formattedTime} - ${score.moveCount} moves',
-                        style: theme.textTheme.bodySmall
-                            ?.copyWith(color: Colors.grey[500]),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: Colors.grey[500],
+                        ),
                       ),
                     ],
                   ),
@@ -1088,10 +1148,12 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
                   const SizedBox(height: 16),
                   Text(
                     TranslationService.translate(
-                        context, 'puzzle_leaderboard_refreshing'),
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: Colors.grey[500],
-                        ),
+                      context,
+                      'puzzle_leaderboard_refreshing',
+                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyLarge?.copyWith(color: Colors.grey[500]),
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -1109,10 +1171,12 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
                 children: [
                   Text(
                     TranslationService.translate(
-                        context, 'puzzle_leaderboard_empty_network'),
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: Colors.grey[500],
-                        ),
+                      context,
+                      'puzzle_leaderboard_empty_network',
+                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyLarge?.copyWith(color: Colors.grey[500]),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
@@ -1122,7 +1186,9 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
                         : () => _refreshNetworkLeaderboard(provider),
                     icon: const Icon(Icons.refresh),
                     tooltip: TranslationService.translate(
-                        context, 'puzzle_leaderboard_refreshing'),
+                      context,
+                      'puzzle_leaderboard_refreshing',
+                    ),
                   ),
                 ],
               ),
@@ -1143,8 +1209,9 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
             return Container(
               decoration: isSelf
                   ? BoxDecoration(
-                      color: theme.colorScheme.primaryContainer
-                          .withValues(alpha: 0.3),
+                      color: theme.colorScheme.primaryContainer.withValues(
+                        alpha: 0.3,
+                      ),
                       borderRadius: BorderRadius.circular(12),
                     )
                   : null,
@@ -1159,24 +1226,31 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
                       child: Text(
                         entry.libraryName,
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          fontWeight:
-                              isSelf ? FontWeight.bold : FontWeight.w500,
+                          fontWeight: isSelf
+                              ? FontWeight.bold
+                              : FontWeight.w500,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     if (isSelf) ...[
                       const SizedBox(width: 6),
-                      Icon(Icons.person,
-                          size: 16, color: theme.colorScheme.primary),
+                      Icon(
+                        Icons.person,
+                        size: 16,
+                        color: theme.colorScheme.primary,
+                      ),
                     ],
                   ],
                 ),
                 subtitle: Text(
                   TranslationService.translate(
-                      context, 'sliding_puzzle_${entry.difficulty}'),
-                  style: theme.textTheme.bodySmall
-                      ?.copyWith(color: Colors.grey[500]),
+                    context,
+                    'sliding_puzzle_${entry.difficulty}',
+                  ),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: Colors.grey[500],
+                  ),
                 ),
                 trailing: Text(
                   entry.formattedScore,
@@ -1219,10 +1293,7 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
     return Container(
       width: 32,
       height: 32,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: bgColor,
-      ),
+      decoration: BoxDecoration(shape: BoxShape.circle, color: bgColor),
       alignment: Alignment.center,
       child: Text(
         '#$rank',

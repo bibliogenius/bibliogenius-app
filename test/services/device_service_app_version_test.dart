@@ -12,29 +12,35 @@ void main() {
 
   final service = DeviceService();
 
-  test('getAppVersion returns "version+buildNumber" when both are present', () async {
-    PackageInfo.setMockInitialValues(
-      appName: 'BiblioGenius',
-      packageName: 'com.federico.bibliogenius',
-      version: '0.9.0-alpha.1',
-      buildNumber: '422',
-      buildSignature: '',
-    );
+  test(
+    'getAppVersion returns "version+buildNumber" when both are present',
+    () async {
+      PackageInfo.setMockInitialValues(
+        appName: 'BiblioGenius',
+        packageName: 'com.federico.bibliogenius',
+        version: '0.9.0-alpha.1',
+        buildNumber: '422',
+        buildSignature: '',
+      );
 
-    expect(await service.getAppVersion(), '0.9.0-alpha.1+422');
-  });
+      expect(await service.getAppVersion(), '0.9.0-alpha.1+422');
+    },
+  );
 
-  test('getAppVersion returns plain version when buildNumber is empty', () async {
-    PackageInfo.setMockInitialValues(
-      appName: 'BiblioGenius',
-      packageName: 'com.federico.bibliogenius',
-      version: '0.9.0',
-      buildNumber: '',
-      buildSignature: '',
-    );
+  test(
+    'getAppVersion returns plain version when buildNumber is empty',
+    () async {
+      PackageInfo.setMockInitialValues(
+        appName: 'BiblioGenius',
+        packageName: 'com.federico.bibliogenius',
+        version: '0.9.0',
+        buildNumber: '',
+        buildSignature: '',
+      );
 
-    expect(await service.getAppVersion(), '0.9.0');
-  });
+      expect(await service.getAppVersion(), '0.9.0');
+    },
+  );
 
   test('getAppVersion truncates to 32 chars', () async {
     PackageInfo.setMockInitialValues(

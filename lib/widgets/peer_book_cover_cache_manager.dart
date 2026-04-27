@@ -82,13 +82,13 @@ class PeerBookCoverCacheManager {
   }
 
   static CacheManager _build(int capMb) => CacheManager(
-        Config(
-          key,
-          stalePeriod: stalePeriod,
-          maxNrOfCacheObjects: _fileCountCap(capMb),
-          repo: JsonCacheInfoRepository(databaseName: key),
-        ),
-      );
+    Config(
+      key,
+      stalePeriod: stalePeriod,
+      maxNrOfCacheObjects: _fileCountCap(capMb),
+      repo: JsonCacheInfoRepository(databaseName: key),
+    ),
+  );
 
   /// Absolute path of the on-disk cache directory. Mirrors the layout
   /// flutter_cache_manager's default [IOFileSystem] resolves from the cache

@@ -75,52 +75,47 @@ class _LoanDialogState extends State<LoanDialog> {
               child: Center(child: CircularProgressIndicator()),
             )
           : _recipients.isEmpty
-              ? Text(
-                  TranslationService.translate(context, 'no_borrowers_found'),
-                )
-              : Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      TranslationService.translate(
-                        context,
-                        'select_contact_lend',
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    DropdownButtonFormField<LoanRecipient>(
-                      decoration: InputDecoration(
-                        border: const OutlineInputBorder(),
-                        labelText: TranslationService.translate(
-                          context,
-                          'filter_borrowers',
-                        ),
-                      ),
-                      items: _recipients.map((recipient) {
-                        final icon = switch (recipient) {
-                          ContactRecipient() => Icons.person,
-                          PeerRecipient() => Icons.devices,
-                        };
-                        return DropdownMenuItem<LoanRecipient>(
-                          value: recipient,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(icon, size: 20),
-                              const SizedBox(width: 8),
-                              Text(recipient.displayName),
-                            ],
-                          ),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedRecipient = value;
-                        });
-                      },
-                    ),
-                  ],
+          ? Text(TranslationService.translate(context, 'no_borrowers_found'))
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  TranslationService.translate(context, 'select_contact_lend'),
                 ),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<LoanRecipient>(
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    labelText: TranslationService.translate(
+                      context,
+                      'filter_borrowers',
+                    ),
+                  ),
+                  items: _recipients.map((recipient) {
+                    final icon = switch (recipient) {
+                      ContactRecipient() => Icons.person,
+                      PeerRecipient() => Icons.devices,
+                    };
+                    return DropdownMenuItem<LoanRecipient>(
+                      value: recipient,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(icon, size: 20),
+                          const SizedBox(width: 8),
+                          Text(recipient.displayName),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedRecipient = value;
+                    });
+                  },
+                ),
+              ],
+            ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),

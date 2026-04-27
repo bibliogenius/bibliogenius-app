@@ -26,10 +26,8 @@ class CoverPickerDialog extends StatefulWidget {
   }) {
     return showDialog<String>(
       context: context,
-      builder: (ctx) => CoverPickerDialog(
-        candidates: candidates,
-        bookTitle: bookTitle,
-      ),
+      builder: (ctx) =>
+          CoverPickerDialog(candidates: candidates, bookTitle: bookTitle),
     );
   }
 
@@ -125,8 +123,8 @@ class _CoverPickerDialogState extends State<CoverPickerDialog> {
           child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
         ),
         FilledButton(
-          onPressed: () => Navigator.of(context)
-              .pop(widget.candidates[_currentPage].url),
+          onPressed: () =>
+              Navigator.of(context).pop(widget.candidates[_currentPage].url),
           child: Text(
             TranslationService.translate(context, 'cover_use_button') ?? 'Use',
           ),

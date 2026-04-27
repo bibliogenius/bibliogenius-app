@@ -126,22 +126,18 @@ class _NetworkLeaderboardCardState extends State<NetworkLeaderboardCard>
                       children: [
                         Text(
                           TranslationService.translate(
-                              context, 'leaderboard_title'),
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
+                            context,
+                            'leaderboard_title',
+                          ),
+                          style: Theme.of(context).textTheme.titleMedium
                               ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                         if (widget.lastRefreshed != null)
                           Text(
                             _formatStaleness(widget.lastRefreshed!),
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
+                            style: Theme.of(context).textTheme.bodySmall
                                 ?.copyWith(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurface
+                                  color: Theme.of(context).colorScheme.onSurface
                                       .withValues(alpha: 0.5),
                                 ),
                           ),
@@ -158,7 +154,9 @@ class _NetworkLeaderboardCardState extends State<NetworkLeaderboardCard>
                         : IconButton(
                             icon: const Icon(Icons.refresh, size: 20),
                             tooltip: TranslationService.translate(
-                                context, 'action_refresh'),
+                              context,
+                              'action_refresh',
+                            ),
                             onPressed: _handleRefresh,
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(),
@@ -184,9 +182,7 @@ class _NetworkLeaderboardCardState extends State<NetworkLeaderboardCard>
                   padding: const EdgeInsets.only(bottom: 8),
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: _buildLevelFilters(),
-                    ),
+                    child: Row(children: _buildLevelFilters()),
                   ),
                 ),
 
@@ -296,16 +292,16 @@ class _NetworkLeaderboardCardState extends State<NetworkLeaderboardCard>
       if (age.inMinutes < 1) {
         return TranslationService.translate(context, 'synced_just_now');
       } else if (age.inMinutes < 60) {
-        final label =
-            TranslationService.translate(context, 'synced_minutes_ago');
+        final label = TranslationService.translate(
+          context,
+          'synced_minutes_ago',
+        );
         return label.replaceAll('%d', age.inMinutes.toString());
       } else if (age.inHours < 24) {
-        final label =
-            TranslationService.translate(context, 'synced_hours_ago');
+        final label = TranslationService.translate(context, 'synced_hours_ago');
         return label.replaceAll('%d', age.inHours.toString());
       } else {
-        final label =
-            TranslationService.translate(context, 'synced_days_ago');
+        final label = TranslationService.translate(context, 'synced_days_ago');
         return label.replaceAll('%d', age.inDays.toString());
       }
     } catch (_) {
@@ -354,8 +350,7 @@ class _NetworkLeaderboardCardState extends State<NetworkLeaderboardCard>
                     _domainDescKeys[domainIndex],
                   ),
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color:
-                        theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -394,10 +389,7 @@ class _NetworkLeaderboardCardState extends State<NetworkLeaderboardCard>
       child: Row(
         children: [
           // Rank medal or number
-          SizedBox(
-            width: 32,
-            child: _buildRankBadge(rank),
-          ),
+          SizedBox(width: 32, child: _buildRankBadge(rank)),
           const SizedBox(width: 12),
           // Library name
           Expanded(

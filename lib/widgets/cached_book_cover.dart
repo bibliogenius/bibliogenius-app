@@ -99,6 +99,7 @@ class CachedBookCover extends StatelessWidget {
   final Widget? placeholder;
   final Widget? errorWidget;
   final String? semanticLabel;
+
   /// Called when the user taps the fallback/error placeholder.
   /// Use this to trigger a cover reload (e.g. evict cache + setState).
   final VoidCallback? onTapPlaceholder;
@@ -233,10 +234,7 @@ class CachedBookCover extends StatelessWidget {
   Widget _buildTappableFallback() {
     final fallback = _buildFallback();
     if (onTapPlaceholder == null) return fallback;
-    return GestureDetector(
-      onTap: onTapPlaceholder,
-      child: fallback,
-    );
+    return GestureDetector(onTap: onTapPlaceholder, child: fallback);
   }
 
   Widget _buildFallback() {

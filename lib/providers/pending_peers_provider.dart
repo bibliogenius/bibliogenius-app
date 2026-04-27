@@ -45,7 +45,9 @@ class PendingPeersProvider extends ChangeNotifier {
         cancelOnError: false,
       );
     } catch (e) {
-      debugPrint('PendingPeersProvider: failed to subscribe to nudge stream: $e');
+      debugPrint(
+        'PendingPeersProvider: failed to subscribe to nudge stream: $e',
+      );
     }
   }
 

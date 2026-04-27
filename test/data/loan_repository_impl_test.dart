@@ -68,11 +68,7 @@ void main() {
 
     test('accepts a raw list payload as fallback', () async {
       api.borrowedResponseData = [
-        {
-          'id': 5,
-          'book_id': 20,
-          'status': 'borrowed',
-        },
+        {'id': 5, 'book_id': 20, 'status': 'borrowed'},
       ];
       final result = await repo.getBorrowedCopies();
       expect(result.length, 1);
@@ -85,11 +81,7 @@ void main() {
       // inject a default rather than crash.
       api.borrowedResponseData = {
         'loans': [
-          {
-            'id': 7,
-            'book_id': 30,
-            'status': 'borrowed',
-          },
+          {'id': 7, 'book_id': 30, 'status': 'borrowed'},
         ],
       };
       final result = await repo.getBorrowedCopies();

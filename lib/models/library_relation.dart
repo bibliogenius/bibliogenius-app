@@ -45,12 +45,10 @@ class LibraryRelation {
   String? get caption => peer?.caption;
 
   /// Whether a user-defined caption has been set.
-  bool get hasCaption =>
-      peer?.caption != null && peer!.caption!.isNotEmpty;
+  bool get hasCaption => peer?.caption != null && peer!.caption!.isNotEmpty;
 
   /// Can browse the catalog (active follow or any peer connection).
-  bool get canBrowseCatalog =>
-      (follow?.isActive ?? false) || isPeer;
+  bool get canBrowseCatalog => (follow?.isActive ?? false) || isPeer;
 
   /// Can send real-time book requests (needs a peer connection).
   bool get canRequestBooks => isPeer;
@@ -62,26 +60,26 @@ class LibraryRelation {
   bool get followPending => follow?.isPending ?? false;
 
   LibraryRelation withDisplayName(String name) => LibraryRelation(
-        nodeId: nodeId,
-        displayName: name,
-        peer: peer,
-        follow: follow,
-        hubAvatarConfig: hubAvatarConfig,
-      );
+    nodeId: nodeId,
+    displayName: name,
+    peer: peer,
+    follow: follow,
+    hubAvatarConfig: hubAvatarConfig,
+  );
 
   LibraryRelation withFollow(HubFollow f) => LibraryRelation(
-        nodeId: nodeId,
-        displayName: _displayName,
-        peer: peer,
-        follow: f,
-        hubAvatarConfig: hubAvatarConfig,
-      );
+    nodeId: nodeId,
+    displayName: _displayName,
+    peer: peer,
+    follow: f,
+    hubAvatarConfig: hubAvatarConfig,
+  );
 
   LibraryRelation withHubAvatarConfig(AvatarConfig? config) => LibraryRelation(
-        nodeId: nodeId,
-        displayName: _displayName,
-        peer: peer,
-        follow: follow,
-        hubAvatarConfig: config,
-      );
+    nodeId: nodeId,
+    displayName: _displayName,
+    peer: peer,
+    follow: follow,
+    hubAvatarConfig: config,
+  );
 }

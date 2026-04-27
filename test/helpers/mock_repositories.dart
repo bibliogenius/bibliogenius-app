@@ -34,14 +34,12 @@ class MockBookRepository implements BookRepository {
   @override
   Future<Book> createBook(Map<String, dynamic> bookData) async {
     calls.add('createBook:${bookData['isbn']}');
-    return mockBook ??
-      Book(id: 1, title: bookData['title'] ?? 'Test');
+    return mockBook ?? Book(id: 1, title: bookData['title'] ?? 'Test');
   }
 
   @override
   Future<Book> updateBook(int id, Map<String, dynamic> bookData) async =>
-      mockBook ??
-      Book(id: id, title: bookData['title'] ?? 'Updated');
+      mockBook ?? Book(id: id, title: bookData['title'] ?? 'Updated');
 
   @override
   Future<void> deleteBook(int id) async {}
@@ -56,12 +54,11 @@ class MockBookRepository implements BookRepository {
   }
 
   @override
-  Future<List<String>> getAllAuthors() async =>
-      mockBooks
-          .where((b) => b.author != null)
-          .map((b) => b.author!)
-          .toSet()
-          .toList();
+  Future<List<String>> getAllAuthors() async => mockBooks
+      .where((b) => b.author != null)
+      .map((b) => b.author!)
+      .toSet()
+      .toList();
 }
 
 class MockTagRepository implements TagRepository {
@@ -87,8 +84,11 @@ class MockContactRepository implements ContactRepository {
   Contact? mockContact;
 
   @override
-  Future<List<Contact>> getContacts({int? libraryId, String? type, String? bookIsbn}) async =>
-      mockContacts;
+  Future<List<Contact>> getContacts({
+    int? libraryId,
+    String? type,
+    String? bookIsbn,
+  }) async => mockContacts;
 
   @override
   Future<Contact> getContact(int id) async =>
@@ -142,15 +142,14 @@ class MockCollectionRepository implements CollectionRepository {
   Future<Collection> createCollection(
     String name, {
     String? description,
-  }) async =>
-      Collection(
-        id: '1',
-        name: name,
-        description: description,
-        source: 'manual',
-        createdAt: DateTime.now().toIso8601String(),
-        updatedAt: DateTime.now().toIso8601String(),
-      );
+  }) async => Collection(
+    id: '1',
+    name: name,
+    description: description,
+    source: 'manual',
+    createdAt: DateTime.now().toIso8601String(),
+    updatedAt: DateTime.now().toIso8601String(),
+  );
 
   @override
   Future<void> deleteCollection(String id) async {}
@@ -192,11 +191,11 @@ class MockCopyRepository implements CopyRepository {
   Future<Copy> createCopy(Map<String, dynamic> copyData) async {
     createdCopies.add(Map<String, dynamic>.from(copyData));
     return mockCopy ??
-      Copy(
-        id: 1,
-        bookId: copyData['book_id'] as int,
-        libraryId: copyData['library_id'] as int? ?? 1,
-      );
+        Copy(
+          id: 1,
+          bookId: copyData['book_id'] as int,
+          libraryId: copyData['library_id'] as int? ?? 1,
+        );
   }
 
   @override

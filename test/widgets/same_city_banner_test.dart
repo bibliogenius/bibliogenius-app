@@ -120,8 +120,7 @@ void main() {
     theme = ThemeProvider();
     TranslationService.setPoTranslationsForTest({
       'en': {
-        'directory_same_city_banner_one':
-            'There is 1 library in your city',
+        'directory_same_city_banner_one': 'There is 1 library in your city',
         'directory_same_city_banner_other':
             'There are %d libraries in your city',
         'directory_same_city_banner_more_than':
@@ -138,8 +137,9 @@ void main() {
   });
 
   group('SameCityBanner rendering', () {
-    testWidgets('shows the singular form for exactly 1 same-city peer',
-        (tester) async {
+    testWidgets('shows the singular form for exactly 1 same-city peer', (
+      tester,
+    ) async {
       final hub = await _provider(
         localCityId: 2988507,
         cityIdResults: [_profile(nodeId: 'peer-1')],
@@ -148,12 +148,16 @@ void main() {
       await tester.pumpWidget(_harness(theme: theme, hub: hub));
       await tester.pumpAndSettle();
 
-      expect(find.text('There is 1 library in your city'), findsOneWidget,
-          reason: 'count == 1 must hit the singular i18n key, not %d=1');
+      expect(
+        find.text('There is 1 library in your city'),
+        findsOneWidget,
+        reason: 'count == 1 must hit the singular i18n key, not %d=1',
+      );
     });
 
-    testWidgets('shows the plural form with the exact count up to the cap',
-        (tester) async {
+    testWidgets('shows the plural form with the exact count up to the cap', (
+      tester,
+    ) async {
       final hub = await _provider(
         localCityId: 2988507,
         cityIdResults: List.generate(7, (i) => _profile(nodeId: 'peer-$i')),
@@ -165,26 +169,30 @@ void main() {
       expect(find.text('There are 7 libraries in your city'), findsOneWidget);
     });
 
-    testWidgets('shows the saturated form when the cap is exceeded',
-        (tester) async {
+    testWidgets('shows the saturated form when the cap is exceeded', (
+      tester,
+    ) async {
       final hub = await _provider(
         localCityId: 2988507,
         // 11 = cap + 1 sentinel: provider sets sameCityHasMore = true
-        cityIdResults:
-            List.generate(11, (i) => _profile(nodeId: 'peer-$i')),
+        cityIdResults: List.generate(11, (i) => _profile(nodeId: 'peer-$i')),
       );
 
       await tester.pumpWidget(_harness(theme: theme, hub: hub));
       await tester.pumpAndSettle();
 
-      expect(find.text('There are 10+ libraries in your city'), findsOneWidget,
-          reason: '"10+" wording is the whole point of the cap+1 probe');
+      expect(
+        find.text('There are 10+ libraries in your city'),
+        findsOneWidget,
+        reason: '"10+" wording is the whole point of the cap+1 probe',
+      );
     });
   });
 
   group('SameCityBanner action', () {
-    testWidgets('"View" forwards country + cityId to loadDirectory',
-        (tester) async {
+    testWidgets('"View" forwards country + cityId to loadDirectory', (
+      tester,
+    ) async {
       final ffi = _MockFfiService();
       final hub = await _provider(
         localCityId: 2988507,
@@ -203,11 +211,14 @@ void main() {
       expect(ffi.calls, hasLength(1));
       final call = ffi.calls.single;
       expect(call.cityId, 2988507);
-      expect(call.country, 'FR',
-          reason:
-              'Country is derived from the first same-city peer so the active '
-              'filter chip renders as "FR City" rather than "City" alone, '
-              'matching the existing two-step picker UX.');
+      expect(
+        call.country,
+        'FR',
+        reason:
+            'Country is derived from the first same-city peer so the active '
+            'filter chip renders as "FR City" rather than "City" alone, '
+            'matching the existing two-step picker UX.',
+      );
     });
   });
 }

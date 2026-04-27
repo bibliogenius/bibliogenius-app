@@ -105,14 +105,14 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: _onBackPressed,
         ),
-        title: Text(
-          TranslationService.translate(context, 'memory_game_title'),
-        ),
+        title: Text(TranslationService.translate(context, 'memory_game_title')),
         actions: [
           IconButton(
             icon: const Icon(Icons.emoji_events_outlined),
             tooltip: TranslationService.translate(
-                context, 'memory_leaderboard_title'),
+              context,
+              'memory_leaderboard_title',
+            ),
             onPressed: () => _showLeaderboard(context),
           ),
         ],
@@ -156,9 +156,7 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> {
           const SizedBox(height: 16),
           FilledButton(
             onPressed: () => provider.loadDifficulties(),
-            child: Text(
-              TranslationService.translate(context, 'button_retry'),
-            ),
+            child: Text(TranslationService.translate(context, 'button_retry')),
           ),
         ],
       ),
@@ -177,12 +175,17 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.photo_library_outlined,
-                  size: 64, color: Colors.grey[400]),
+              Icon(
+                Icons.photo_library_outlined,
+                size: 64,
+                color: Colors.grey[400],
+              ),
               const SizedBox(height: 16),
               Text(
                 TranslationService.translate(
-                    context, 'memory_game_not_enough_books'),
+                  context,
+                  'memory_game_not_enough_books',
+                ),
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
@@ -202,8 +205,7 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> {
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
             children: [
               Text(
-                TranslationService.translate(
-                    context, 'memory_game_intro'),
+                TranslationService.translate(context, 'memory_game_intro'),
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                 ),
@@ -211,7 +213,9 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> {
               const SizedBox(height: 20),
               Text(
                 TranslationService.translate(
-                    context, 'memory_game_choose_difficulty'),
+                  context,
+                  'memory_game_choose_difficulty',
+                ),
                 style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -256,8 +260,9 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> {
                         boxShadow: isEnabled
                             ? [
                                 BoxShadow(
-                                  color: const Color(0xFF43A047)
-                                      .withValues(alpha: 0.4),
+                                  color: const Color(
+                                    0xFF43A047,
+                                  ).withValues(alpha: 0.4),
                                   blurRadius: 20,
                                   offset: const Offset(0, 6),
                                 ),
@@ -274,13 +279,18 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> {
                               shape: BoxShape.circle,
                               color: Colors.white.withValues(alpha: 0.25),
                             ),
-                            child: const Icon(Icons.play_arrow_rounded,
-                                color: Colors.white, size: 24),
+                            child: const Icon(
+                              Icons.play_arrow_rounded,
+                              color: Colors.white,
+                              size: 24,
+                            ),
                           ),
                           const SizedBox(width: 12),
                           Text(
                             TranslationService.translate(
-                                context, 'memory_game_play'),
+                              context,
+                              'memory_game_play',
+                            ),
                             style: theme.textTheme.titleMedium?.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -319,10 +329,7 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> {
             borderRadius: BorderRadius.circular(20),
             gradient: isSelected
                 ? LinearGradient(
-                    colors: [
-                      info.color,
-                      info.colorEnd,
-                    ],
+                    colors: [info.color, info.colorEnd],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   )
@@ -332,10 +339,7 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> {
                             theme.colorScheme.surfaceContainerHigh,
                             theme.colorScheme.surfaceContainerHigh,
                           ]
-                        : [
-                            Colors.white,
-                            info.color.withValues(alpha: 0.04),
-                          ],
+                        : [Colors.white, info.color.withValues(alpha: 0.04)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -370,8 +374,9 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> {
                 child: Icon(
                   info.icon,
                   size: 60,
-                  color: (isSelected ? Colors.white : info.color)
-                      .withValues(alpha: isSelected ? 0.18 : 0.10),
+                  color: (isSelected ? Colors.white : info.color).withValues(
+                    alpha: isSelected ? 0.18 : 0.10,
+                  ),
                 ),
               ),
               // Content
@@ -401,7 +406,9 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> {
                       children: [
                         Text(
                           TranslationService.translate(
-                              context, 'memory_game_$difficulty'),
+                            context,
+                            'memory_game_$difficulty',
+                          ),
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: isSelected
@@ -431,8 +438,11 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> {
                         shape: BoxShape.circle,
                         color: Colors.white.withValues(alpha: 0.3),
                       ),
-                      child: const Icon(Icons.check_rounded,
-                          size: 20, color: Colors.white),
+                      child: const Icon(
+                        Icons.check_rounded,
+                        size: 20,
+                        color: Colors.white,
+                      ),
                     ),
                 ],
               ),
@@ -469,21 +479,28 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> {
                 borderRadius: BorderRadius.circular(12),
                 color: Colors.amber.withValues(alpha: 0.15),
               ),
-              child: const Icon(Icons.emoji_events_rounded,
-                  size: 22, color: Color(0xFFE0A030)),
+              child: const Icon(
+                Icons.emoji_events_rounded,
+                size: 22,
+                color: Color(0xFFE0A030),
+              ),
             ),
             const SizedBox(width: 14),
             Expanded(
               child: Text(
                 TranslationService.translate(
-                    context, 'memory_leaderboard_title'),
+                  context,
+                  'memory_leaderboard_title',
+                ),
                 style: theme.textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
               ),
             ),
-            Icon(Icons.chevron_right_rounded,
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.4)),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+            ),
           ],
         ),
       ),
@@ -547,9 +564,9 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> {
         ),
         Text(
           label,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.grey[500],
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: Colors.grey[500]),
         ),
       ],
     );
@@ -630,7 +647,11 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> {
         );
       default:
         return const _DifficultyInfo(
-            Icons.help_outline, Colors.grey, Colors.grey, '');
+          Icons.help_outline,
+          Colors.grey,
+          Colors.grey,
+          '',
+        );
     }
   }
 }
@@ -702,12 +723,10 @@ class _MemoryGameCompleteViewState extends State<_MemoryGameCompleteView>
     _contentFade = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _contentController, curve: Curves.easeOut),
     );
-    _contentSlide = Tween<Offset>(
-      begin: const Offset(0, 0.15),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(parent: _contentController, curve: Curves.easeOut),
-    );
+    _contentSlide =
+        Tween<Offset>(begin: const Offset(0, 0.15), end: Offset.zero).animate(
+          CurvedAnimation(parent: _contentController, curve: Curves.easeOut),
+        );
 
     // Shimmer loop on the trophy
     _shimmerController = AnimationController(
@@ -787,10 +806,7 @@ class _MemoryGameCompleteViewState extends State<_MemoryGameCompleteView>
                   children: [
                     // Congratulation message
                     Text(
-                      TranslationService.translate(
-                        context,
-                        _congratsKey(),
-                      ),
+                      TranslationService.translate(context, _congratsKey()),
                       style: theme.textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -890,11 +906,7 @@ class _MemoryGameCompleteViewState extends State<_MemoryGameCompleteView>
               ),
             ],
           ),
-          child: Icon(
-            Icons.emoji_events,
-            size: 64,
-            color: trophyColor,
-          ),
+          child: Icon(Icons.emoji_events, size: 64, color: trophyColor),
         );
       },
     );
@@ -906,8 +918,10 @@ class _MemoryGameCompleteViewState extends State<_MemoryGameCompleteView>
 
     final text = isNewBest
         ? TranslationService.translate(context, 'memory_rank_new_best')
-        : TranslationService.translate(context, 'memory_rank_position')
-            .replaceAll('%s', '$rank');
+        : TranslationService.translate(
+            context,
+            'memory_rank_position',
+          ).replaceAll('%s', '$rank');
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -955,9 +969,7 @@ class _MemoryGameCompleteViewState extends State<_MemoryGameCompleteView>
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         color: colorScheme.surfaceContainerLow,
-        border: Border.all(
-          color: accentColor.withValues(alpha: 0.3),
-        ),
+        border: Border.all(color: accentColor.withValues(alpha: 0.3)),
         boxShadow: [
           BoxShadow(
             color: accentColor.withValues(alpha: 0.08),
@@ -1054,7 +1066,13 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
   late TabController _tabController;
   String? _difficultyFilter; // null = all
 
-  static const _allDifficulties = ['easy', 'medium', 'hard', 'expert', 'master'];
+  static const _allDifficulties = [
+    'easy',
+    'medium',
+    'hard',
+    'expert',
+    'master',
+  ];
 
   @override
   void initState() {
@@ -1084,8 +1102,9 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(TranslationService.translate(context, 'reset_scores')),
-        content:
-            Text(TranslationService.translate(context, 'reset_scores_confirm')),
+        content: Text(
+          TranslationService.translate(context, 'reset_scores_confirm'),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
@@ -1141,7 +1160,9 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
                     Expanded(
                       child: Text(
                         TranslationService.translate(
-                            context, 'memory_leaderboard_title'),
+                          context,
+                          'memory_leaderboard_title',
+                        ),
                         style: theme.textTheme.titleLarge,
                       ),
                     ),
@@ -1149,7 +1170,9 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
                       icon: const Icon(Icons.delete_outline, size: 20),
                       onPressed: () => _confirmResetScores(context, provider),
                       tooltip: TranslationService.translate(
-                          context, 'reset_scores'),
+                        context,
+                        'reset_scores',
+                      ),
                     ),
                     if (provider.isSyncingNetwork)
                       const SizedBox(
@@ -1162,7 +1185,9 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
                         icon: const Icon(Icons.refresh, size: 20),
                         onPressed: () => _refreshNetworkLeaderboard(provider),
                         tooltip: TranslationService.translate(
-                            context, 'memory_leaderboard_refreshing'),
+                          context,
+                          'memory_leaderboard_refreshing',
+                        ),
                       ),
                   ],
                 ),
@@ -1175,11 +1200,15 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
               tabs: [
                 Tab(
                   text: TranslationService.translate(
-                      context, 'memory_my_scores_tab'),
+                    context,
+                    'memory_my_scores_tab',
+                  ),
                 ),
                 Tab(
                   text: TranslationService.translate(
-                      context, 'memory_network_tab'),
+                    context,
+                    'memory_network_tab',
+                  ),
                 ),
               ],
             ),
@@ -1205,10 +1234,12 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
     return Consumer<MemoryGameProvider>(
       builder: (context, provider, _) {
         // Collect available difficulties from actual data
-        final myDifficulties =
-            provider.topScores.map((s) => s.difficulty).toSet();
-        final networkDifficulties =
-            provider.networkScores.map((e) => e.difficulty).toSet();
+        final myDifficulties = provider.topScores
+            .map((s) => s.difficulty)
+            .toSet();
+        final networkDifficulties = provider.networkScores
+            .map((e) => e.difficulty)
+            .toSet();
         final available = myDifficulties.union(networkDifficulties);
 
         // Only show filter if more than one difficulty exists
@@ -1223,8 +1254,9 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
               Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: FilterChip(
-                  label: Text(TranslationService.translate(
-                      context, 'filter_all')),
+                  label: Text(
+                    TranslationService.translate(context, 'filter_all'),
+                  ),
                   selected: _difficultyFilter == null,
                   onSelected: (_) => setState(() => _difficultyFilter = null),
                 ),
@@ -1232,16 +1264,22 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
               // Difficulty chips (only those present in data)
               ..._allDifficulties
                   .where((d) => available.contains(d))
-                  .map((d) => Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: FilterChip(
-                          label: Text(TranslationService.translate(
-                              context, 'memory_game_$d')),
-                          selected: _difficultyFilter == d,
-                          onSelected: (_) =>
-                              setState(() => _difficultyFilter = d),
+                  .map(
+                    (d) => Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: FilterChip(
+                        label: Text(
+                          TranslationService.translate(
+                            context,
+                            'memory_game_$d',
+                          ),
                         ),
-                      )),
+                        selected: _difficultyFilter == d,
+                        onSelected: (_) =>
+                            setState(() => _difficultyFilter = d),
+                      ),
+                    ),
+                  ),
             ],
           ),
         );
@@ -1265,9 +1303,9 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
               padding: const EdgeInsets.all(32),
               child: Text(
                 TranslationService.translate(context, 'memory_no_scores_yet'),
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Colors.grey[500],
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(color: Colors.grey[500]),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -1288,14 +1326,18 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
               leading: _rankBadge(rank, theme),
               title: Text(
                 TranslationService.translate(
-                    context, 'memory_game_${score.difficulty}'),
-                style: theme.textTheme.bodyMedium
-                    ?.copyWith(fontWeight: FontWeight.w500),
+                  context,
+                  'memory_game_${score.difficulty}',
+                ),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w500,
+                ),
               ),
               subtitle: Text(
                 _formatDate(score.playedAt),
-                style: theme.textTheme.bodySmall
-                    ?.copyWith(color: Colors.grey[500]),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: Colors.grey[500],
+                ),
               ),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -1313,8 +1355,9 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
                       ),
                       Text(
                         '${score.formattedTime} - ${score.errors} err.',
-                        style: theme.textTheme.bodySmall
-                            ?.copyWith(color: Colors.grey[500]),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: Colors.grey[500],
+                        ),
                       ),
                     ],
                   ),
@@ -1352,10 +1395,12 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
                   const SizedBox(height: 16),
                   Text(
                     TranslationService.translate(
-                        context, 'memory_leaderboard_refreshing'),
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: Colors.grey[500],
-                        ),
+                      context,
+                      'memory_leaderboard_refreshing',
+                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyLarge?.copyWith(color: Colors.grey[500]),
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -1373,10 +1418,12 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
                 children: [
                   Text(
                     TranslationService.translate(
-                        context, 'memory_leaderboard_empty_network'),
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: Colors.grey[500],
-                        ),
+                      context,
+                      'memory_leaderboard_empty_network',
+                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyLarge?.copyWith(color: Colors.grey[500]),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
@@ -1386,7 +1433,9 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
                         : () => _refreshNetworkLeaderboard(provider),
                     icon: const Icon(Icons.refresh),
                     tooltip: TranslationService.translate(
-                        context, 'memory_leaderboard_refreshing'),
+                      context,
+                      'memory_leaderboard_refreshing',
+                    ),
                   ),
                 ],
               ),
@@ -1407,16 +1456,16 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
             return Container(
               decoration: isSelf
                   ? BoxDecoration(
-                      color: theme.colorScheme.primaryContainer
-                          .withValues(alpha: 0.3),
+                      color: theme.colorScheme.primaryContainer.withValues(
+                        alpha: 0.3,
+                      ),
                       borderRadius: BorderRadius.circular(12),
                     )
                   : null,
               child: ListTile(
-                contentPadding:
-                    isSelf
-                        ? const EdgeInsets.symmetric(horizontal: 8)
-                        : EdgeInsets.zero,
+                contentPadding: isSelf
+                    ? const EdgeInsets.symmetric(horizontal: 8)
+                    : EdgeInsets.zero,
                 leading: _rankBadge(rank, theme),
                 title: Row(
                   children: [
@@ -1424,24 +1473,31 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
                       child: Text(
                         entry.libraryName,
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          fontWeight:
-                              isSelf ? FontWeight.bold : FontWeight.w500,
+                          fontWeight: isSelf
+                              ? FontWeight.bold
+                              : FontWeight.w500,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     if (isSelf) ...[
                       const SizedBox(width: 6),
-                      Icon(Icons.person,
-                          size: 16, color: theme.colorScheme.primary),
+                      Icon(
+                        Icons.person,
+                        size: 16,
+                        color: theme.colorScheme.primary,
+                      ),
                     ],
                   ],
                 ),
                 subtitle: Text(
                   TranslationService.translate(
-                      context, 'memory_game_${entry.difficulty}'),
-                  style: theme.textTheme.bodySmall
-                      ?.copyWith(color: Colors.grey[500]),
+                    context,
+                    'memory_game_${entry.difficulty}',
+                  ),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: Colors.grey[500],
+                  ),
                 ),
                 trailing: Text(
                   entry.formattedScore,
@@ -1484,10 +1540,7 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet>
     return Container(
       width: 32,
       height: 32,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: bgColor,
-      ),
+      decoration: BoxDecoration(shape: BoxShape.circle, color: bgColor),
       alignment: Alignment.center,
       child: Text(
         '$rank',

@@ -252,9 +252,13 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
         debugPrint('DevicePairing: Could not fetch crypto keys: $e');
       }
 
-      debugPrint('DevicePairing: acceptCode ed25519=${ed25519Bytes.length}B x25519=${x25519Bytes.length}B device=$deviceName');
+      debugPrint(
+        'DevicePairing: acceptCode ed25519=${ed25519Bytes.length}B x25519=${x25519Bytes.length}B device=$deviceName',
+      );
       if (ed25519Bytes.isEmpty || x25519Bytes.isEmpty) {
-        debugPrint('DevicePairing: WARNING - empty crypto keys, pairing will be incomplete');
+        debugPrint(
+          'DevicePairing: WARNING - empty crypto keys, pairing will be incomplete',
+        );
       }
 
       // Send code to the remote peer's HTTP server
@@ -275,18 +279,27 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
         final offererName = _selectedPeer?.name ?? 'Unknown Device';
 
         if (offererEd25519 is List && offererX25519 is List) {
-          final dio = Dio(BaseOptions(
-            baseUrl: 'http://127.0.0.1:${ApiService.httpPort}',
-            connectTimeout: const Duration(seconds: 5),
-          ));
-          await dio.post('/api/devices/register', data: {
-            'name': offererName,
-            'ed25519_public_key': offererEd25519,
-            'x25519_public_key': offererX25519,
-          });
-          debugPrint('DevicePairing: registered offerer "$offererName" as linked device');
+          final dio = Dio(
+            BaseOptions(
+              baseUrl: 'http://127.0.0.1:${ApiService.httpPort}',
+              connectTimeout: const Duration(seconds: 5),
+            ),
+          );
+          await dio.post(
+            '/api/devices/register',
+            data: {
+              'name': offererName,
+              'ed25519_public_key': offererEd25519,
+              'x25519_public_key': offererX25519,
+            },
+          );
+          debugPrint(
+            'DevicePairing: registered offerer "$offererName" as linked device',
+          );
         } else {
-          debugPrint('DevicePairing: WARNING - offerer keys missing from pairing response');
+          debugPrint(
+            'DevicePairing: WARNING - offerer keys missing from pairing response',
+          );
         }
       } catch (e) {
         debugPrint('DevicePairing: failed to register offerer: $e');
@@ -355,19 +368,30 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
     return null;
   }
 
-  Future<void> _syncDevice(frb.FrbLinkedDevice device, {String direction = 'both'}) async {
+  Future<void> _syncDevice(
+    frb.FrbLinkedDevice device, {
+    String direction = 'both',
+  }) async {
     final syncProvider = context.read<DeviceSyncProvider>();
     // Always restart mDNS discovery before sync to get fresh peers
     await MdnsService.startDiscovery();
     await Future.delayed(const Duration(seconds: 3));
     final peerUrl = _findPeerUrl(device);
-    debugPrint('DevicePairing: sync device="${device.name}" peerUrl=$peerUrl direction=$direction '
-        'peers=${MdnsService.peers.map((p) => '${p.name}(${p.deviceName})').toList()}');
-    await syncProvider.triggerSync(device.id, peerUrl: peerUrl, direction: direction);
+    debugPrint(
+      'DevicePairing: sync device="${device.name}" peerUrl=$peerUrl direction=$direction '
+      'peers=${MdnsService.peers.map((p) => '${p.name}(${p.deviceName})').toList()}',
+    );
+    await syncProvider.triggerSync(
+      device.id,
+      peerUrl: peerUrl,
+      direction: direction,
+    );
     if (!mounted) return;
 
     final result = syncProvider.lastResult;
-    debugPrint('DevicePairing: sync result sent=${result?.sentCount} received=${result?.receivedCount} pending=${result?.pendingReviewCount} error=${syncProvider.error}');
+    debugPrint(
+      'DevicePairing: sync result sent=${result?.sentCount} received=${result?.receivedCount} pending=${result?.pendingReviewCount} error=${syncProvider.error}',
+    );
 
     if (syncProvider.error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -386,8 +410,10 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
     // Build a clear, user-friendly message
     final String message;
     if (pendingReview > 0) {
-      message = TranslationService.translate(context, 'sync_done_with_pending')
-          .replaceFirst('%d', pendingReview.toString());
+      message = TranslationService.translate(
+        context,
+        'sync_done_with_pending',
+      ).replaceFirst('%d', pendingReview.toString());
     } else {
       message = TranslationService.translate(context, 'sync_done');
     }
@@ -422,8 +448,10 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-              child: Text(device.name,
-                  style: Theme.of(sheetCtx).textTheme.titleMedium),
+              child: Text(
+                device.name,
+                style: Theme.of(sheetCtx).textTheme.titleMedium,
+              ),
             ),
             ListTile(
               leading: const Icon(Icons.upload_rounded),
@@ -452,7 +480,9 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
             const Divider(),
             ListTile(
               leading: const Icon(Icons.delete_sweep_rounded),
-              title: Text(TranslationService.translate(context, 'sync_reset_all')),
+              title: Text(
+                TranslationService.translate(context, 'sync_reset_all'),
+              ),
               onTap: () {
                 Navigator.pop(sheetCtx);
                 _resetSync(context);
@@ -470,14 +500,18 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
     final count = await syncProvider.resetOperationLog();
     _backfillDone = false; // Allow backfill to run again
     if (mounted) {
-      ScaffoldMessenger.of(ctx).showSnackBar(
-        SnackBar(content: Text('Reset $count operations')),
-      );
+      ScaffoldMessenger.of(
+        ctx,
+      ).showSnackBar(SnackBar(content: Text('Reset $count operations')));
       _loadDevices();
     }
   }
 
-  void _showPendingActions(BuildContext ctx, DeviceSyncProvider provider, int count) {
+  void _showPendingActions(
+    BuildContext ctx,
+    DeviceSyncProvider provider,
+    int count,
+  ) {
     showModalBottomSheet(
       context: ctx,
       builder: (sheetCtx) => SafeArea(
@@ -485,8 +519,13 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.check_circle_outline, color: Colors.green),
-              title: Text(TranslationService.translate(ctx, 'sync_review_approve_all')),
+              leading: const Icon(
+                Icons.check_circle_outline,
+                color: Colors.green,
+              ),
+              title: Text(
+                TranslationService.translate(ctx, 'sync_review_approve_all'),
+              ),
               subtitle: Text('$count operations'),
               onTap: () async {
                 Navigator.pop(sheetCtx);
@@ -500,9 +539,14 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.delete_sweep_rounded, color: Colors.red),
+              leading: const Icon(
+                Icons.delete_sweep_rounded,
+                color: Colors.red,
+              ),
               title: Text(TranslationService.translate(ctx, 'sync_reset_all')),
-              subtitle: Text(TranslationService.translate(ctx, 'sync_reset_confirm')),
+              subtitle: Text(
+                TranslationService.translate(ctx, 'sync_reset_confirm'),
+              ),
               onTap: () async {
                 Navigator.pop(sheetCtx);
                 final deleted = await provider.resetOperationLog();
@@ -572,58 +616,64 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
   }
 
   Widget _buildMdnsToggle(ThemeData theme) {
-    return Builder(builder: (context) {
-      final themeProvider = Provider.of<ThemeProvider>(context);
-      final isEnabled = themeProvider.networkDiscoveryEnabled;
-      return Card(
-        color: isEnabled
-            ? theme.colorScheme.surfaceContainerHighest
-            : theme.colorScheme.errorContainer,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  Icon(Icons.wifi, size: 20,
+    return Builder(
+      builder: (context) {
+        final themeProvider = Provider.of<ThemeProvider>(context);
+        final isEnabled = themeProvider.networkDiscoveryEnabled;
+        return Card(
+          color: isEnabled
+              ? theme.colorScheme.surfaceContainerHighest
+              : theme.colorScheme.errorContainer,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.wifi,
+                      size: 20,
                       color: isEnabled
                           ? theme.colorScheme.primary
-                          : theme.colorScheme.onErrorContainer),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      TranslationService.translate(
-                          context, 'settings_network_discovery'),
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
+                          : theme.colorScheme.onErrorContainer,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        TranslationService.translate(
+                          context,
+                          'settings_network_discovery',
+                        ),
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
-                  ),
-                  Switch(
-                    value: isEnabled,
-                    onChanged: (value) async {
-                      await themeProvider.setNetworkEnabled(value);
-                      if (value && mounted) {
-                        await Future.delayed(const Duration(seconds: 2));
-                        if (mounted) _loadLocalPeers();
-                      }
-                    },
-                  ),
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Text(
-                  TranslationService.translate(
-                      context, 'pairing_mdns_hint'),
-                  style: theme.textTheme.bodySmall,
+                    Switch(
+                      value: isEnabled,
+                      onChanged: (value) async {
+                        await themeProvider.setNetworkEnabled(value);
+                        if (value && mounted) {
+                          await Future.delayed(const Duration(seconds: 2));
+                          if (mounted) _loadLocalPeers();
+                        }
+                      },
+                    ),
+                  ],
                 ),
-              ),
-            ],
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Text(
+                    TranslationService.translate(context, 'pairing_mdns_hint'),
+                    style: theme.textTheme.bodySmall,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 
   void _cancelPairing() {
@@ -661,7 +711,9 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
             ? IconButton(
                 icon: const Icon(Icons.arrow_back),
                 tooltip: TranslationService.translate(
-                    context, 'tooltip_cancel_pairing'),
+                  context,
+                  'tooltip_cancel_pairing',
+                ),
                 onPressed: _cancelPairing,
               )
             : IconButton(
@@ -701,16 +753,16 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
           child: _isLoadingDevices
               ? const Center(child: CircularProgressIndicator())
               : _devices.isEmpty
-                  ? _buildEmptyState(theme)
-                  : RefreshIndicator(
-                      onRefresh: _loadDevices,
-                      child: ListView.builder(
-                        padding: const EdgeInsets.all(16),
-                        itemCount: _devices.length,
-                        itemBuilder: (context, index) =>
-                            _buildDeviceCard(_devices[index], theme),
-                      ),
-                    ),
+              ? _buildEmptyState(theme)
+              : RefreshIndicator(
+                  onRefresh: _loadDevices,
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: _devices.length,
+                    itemBuilder: (context, index) =>
+                        _buildDeviceCard(_devices[index], theme),
+                  ),
+                ),
         ),
         // Action buttons
         SafeArea(
@@ -722,19 +774,24 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
                   width: double.infinity,
                   child: Tooltip(
                     message: TranslationService.translate(
-                        context, 'tooltip_generate_pairing'),
+                      context,
+                      'tooltip_generate_pairing',
+                    ),
                     child: FilledButton.icon(
                       onPressed: _generateCode,
                       icon: const Icon(Icons.qr_code_2),
                       label: Text(
                         TranslationService.translate(
-                            context, 'pairing_generate_code'),
+                          context,
+                          'pairing_generate_code',
+                        ),
                       ),
                       style: FilledButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(AppDesign.radiusMedium),
+                          borderRadius: BorderRadius.circular(
+                            AppDesign.radiusMedium,
+                          ),
                         ),
                       ),
                     ),
@@ -745,7 +802,9 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
                   width: double.infinity,
                   child: Tooltip(
                     message: TranslationService.translate(
-                        context, 'tooltip_enter_pairing'),
+                      context,
+                      'tooltip_enter_pairing',
+                    ),
                     child: OutlinedButton.icon(
                       onPressed: () {
                         _loadLocalPeers();
@@ -754,13 +813,16 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
                       icon: const Icon(Icons.keyboard),
                       label: Text(
                         TranslationService.translate(
-                            context, 'pairing_enter_code'),
+                          context,
+                          'pairing_enter_code',
+                        ),
                       ),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(AppDesign.radiusMedium),
+                          borderRadius: BorderRadius.circular(
+                            AppDesign.radiusMedium,
+                          ),
                         ),
                       ),
                     ),
@@ -812,8 +874,10 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
 
     final lastSyncedLabel = _formatLastSynced(device.lastSynced);
     final pairedDate = _formatDate(device.createdAt ?? '');
-    final pairedLabel = TranslationService.translate(context, 'pairing_last_paired')
-        .replaceFirst('%s', pairedDate);
+    final pairedLabel = TranslationService.translate(
+      context,
+      'pairing_last_paired',
+    ).replaceFirst('%s', pairedDate);
 
     return Semantics(
       button: true,
@@ -854,61 +918,69 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
                 const SizedBox(width: 12),
                 // Content
                 Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      device.name,
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        device.name,
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      lastSyncedLabel,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
+                      const SizedBox(height: 2),
+                      Text(
+                        lastSyncedLabel,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
                       ),
-                    ),
-                    if (pendingCount > 0) ...[
-                      const SizedBox(height: 4),
-                      GestureDetector(
-                        onTap: () => _showPendingActions(context, syncProvider, pendingCount),
-                        child: Text(
-                          TranslationService.translate(
-                                  context, 'pairing_pending_review')
-                              .replaceFirst('%d', pendingCount.toString()),
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.primary,
-                            fontWeight: FontWeight.w600,
+                      if (pendingCount > 0) ...[
+                        const SizedBox(height: 4),
+                        GestureDetector(
+                          onTap: () => _showPendingActions(
+                            context,
+                            syncProvider,
+                            pendingCount,
+                          ),
+                          child: Text(
+                            TranslationService.translate(
+                              context,
+                              'pairing_pending_review',
+                            ).replaceFirst('%d', pendingCount.toString()),
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 2),
+                      Text(
+                        pairedLabel,
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant.withValues(
+                            alpha: 0.6,
                           ),
                         ),
                       ),
                     ],
-                    const SizedBox(height: 2),
-                    Text(
-                      pairedLabel,
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant
-                            .withValues(alpha: 0.6),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-              // Trailing: just delete button (sync actions via card tap)
-              IconButton(
-                icon: Icon(
-                  Icons.delete_outline,
-                  color: theme.colorScheme.error,
+                // Trailing: just delete button (sync actions via card tap)
+                IconButton(
+                  icon: Icon(
+                    Icons.delete_outline,
+                    color: theme.colorScheme.error,
+                  ),
+                  tooltip: TranslationService.translate(
+                    context,
+                    'tooltip_remove_device',
+                  ),
+                  onPressed: () => _removeDevice(device),
                 ),
-                tooltip: TranslationService.translate(
-                    context, 'tooltip_remove_device'),
-                onPressed: () => _removeDevice(device),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
         ),
       ),
     );
@@ -957,8 +1029,7 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
             ),
             const SizedBox(height: 24),
             Text(
-              TranslationService.translate(
-                  context, 'pairing_code_instruction'),
+              TranslationService.translate(context, 'pairing_code_instruction'),
               style: theme.textTheme.bodyLarge?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -982,9 +1053,7 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
                 );
               },
               icon: const Icon(Icons.copy, size: 16),
-              label: Text(
-                TranslationService.translate(context, 'copy'),
-              ),
+              label: Text(TranslationService.translate(context, 'copy')),
             ),
             const SizedBox(height: 24),
             _buildMdnsToggle(theme),
@@ -1011,8 +1080,9 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
                   const SizedBox(height: 8),
                   Text(
                     TranslationService.translate(
-                            context, 'pairing_code_expires')
-                        .replaceFirst('%s', timeStr),
+                      context,
+                      'pairing_code_expires',
+                    ).replaceFirst('%s', timeStr),
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: _remainingSeconds < 60
                           ? Colors.red
@@ -1051,12 +1121,12 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
                 right: i == 2 ? 12 : 0, // visual gap after 3rd digit
               ),
               decoration: BoxDecoration(
-                color: theme.colorScheme.primaryContainer
-                    .withValues(alpha: 0.5),
+                color: theme.colorScheme.primaryContainer.withValues(
+                  alpha: 0.5,
+                ),
                 borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
                 border: Border.all(
-                  color:
-                      theme.colorScheme.primary.withValues(alpha: 0.3),
+                  color: theme.colorScheme.primary.withValues(alpha: 0.3),
                 ),
               ),
               child: Center(
@@ -1095,8 +1165,7 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
               decoration: BoxDecoration(
                 gradient: AppDesign.oceanGradient,
                 shape: BoxShape.circle,
-                boxShadow:
-                    AppDesign.glowShadow(const Color(0xFF0EA5E9)),
+                boxShadow: AppDesign.glowShadow(const Color(0xFF0EA5E9)),
               ),
               child: const Icon(
                 Icons.link_rounded,
@@ -1107,7 +1176,9 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
             const SizedBox(height: 24),
             Text(
               TranslationService.translate(
-                  context, 'pairing_enter_instruction'),
+                context,
+                'pairing_enter_instruction',
+              ),
               style: theme.textTheme.bodyLarge?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -1129,17 +1200,28 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
                   padding: const EdgeInsets.all(16),
                   child: Row(
                     children: [
-                      Icon(Icons.wifi_off, color: theme.colorScheme.onErrorContainer),
+                      Icon(
+                        Icons.wifi_off,
+                        color: theme.colorScheme.onErrorContainer,
+                      ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          TranslationService.translate(context, 'pairing_no_peers'),
-                          style: TextStyle(color: theme.colorScheme.onErrorContainer),
+                          TranslationService.translate(
+                            context,
+                            'pairing_no_peers',
+                          ),
+                          style: TextStyle(
+                            color: theme.colorScheme.onErrorContainer,
+                          ),
                         ),
                       ),
                       IconButton(
                         icon: const Icon(Icons.refresh),
-                        tooltip: TranslationService.translate(context, 'tooltip_scan_peers'),
+                        tooltip: TranslationService.translate(
+                          context,
+                          'tooltip_scan_peers',
+                        ),
                         onPressed: _loadLocalPeers,
                       ),
                     ],
@@ -1151,32 +1233,41 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    TranslationService.translate(context, 'pairing_select_device'),
+                    TranslationService.translate(
+                      context,
+                      'pairing_select_device',
+                    ),
                     style: theme.textTheme.titleSmall,
                   ),
                   const SizedBox(height: 8),
-                  ..._localPeers.map((peer) => Card(
-                    color: _selectedPeer == peer
-                        ? theme.colorScheme.primaryContainer
-                        : null,
-                    child: ListTile(
-                      leading: Icon(
-                        Icons.devices_rounded,
-                        color: _selectedPeer == peer
-                            ? theme.colorScheme.onPrimaryContainer
-                            : null,
-                      ),
-                      title: Text(peer.name),
-                      subtitle: Text(peer.addresses.isNotEmpty
-                          ? peer.addresses.first
-                          : peer.host),
-                      trailing: _selectedPeer == peer
-                          ? Icon(Icons.check_circle,
-                              color: theme.colorScheme.primary)
+                  ..._localPeers.map(
+                    (peer) => Card(
+                      color: _selectedPeer == peer
+                          ? theme.colorScheme.primaryContainer
                           : null,
-                      onTap: () => setState(() => _selectedPeer = peer),
+                      child: ListTile(
+                        leading: Icon(
+                          Icons.devices_rounded,
+                          color: _selectedPeer == peer
+                              ? theme.colorScheme.onPrimaryContainer
+                              : null,
+                        ),
+                        title: Text(peer.name),
+                        subtitle: Text(
+                          peer.addresses.isNotEmpty
+                              ? peer.addresses.first
+                              : peer.host,
+                        ),
+                        trailing: _selectedPeer == peer
+                            ? Icon(
+                                Icons.check_circle,
+                                color: theme.colorScheme.primary,
+                              )
+                            : null,
+                        onTap: () => setState(() => _selectedPeer = peer),
+                      ),
                     ),
-                  )),
+                  ),
                 ],
               ),
             const SizedBox(height: 24),
@@ -1206,8 +1297,7 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
                     color: theme.colorScheme.outline.withValues(alpha: 0.2),
                   ),
                   border: OutlineInputBorder(
-                    borderRadius:
-                        BorderRadius.circular(AppDesign.radiusLarge),
+                    borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
                   ),
                   contentPadding: const EdgeInsets.symmetric(
                     vertical: 20,
@@ -1222,14 +1312,15 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
               width: double.infinity,
               child: FilledButton(
                 onPressed:
-                    _codeController.text.length == 6 && !_isPairing && _selectedPeer != null
-                        ? _acceptCode
-                        : null,
+                    _codeController.text.length == 6 &&
+                        !_isPairing &&
+                        _selectedPeer != null
+                    ? _acceptCode
+                    : null,
                 style: FilledButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(AppDesign.radiusMedium),
+                    borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
                   ),
                 ),
                 child: _isPairing
@@ -1243,7 +1334,9 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
                       )
                     : Text(
                         TranslationService.translate(
-                            context, 'pairing_button_pair'),
+                          context,
+                          'pairing_button_pair',
+                        ),
                       ),
               ),
             ),
@@ -1283,14 +1376,20 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
       if (diff.inMinutes < 1) {
         return TranslationService.translate(context, 'synced_just_now');
       } else if (diff.inMinutes < 60) {
-        return TranslationService.translate(context, 'synced_minutes_ago')
-            .replaceFirst('%d', diff.inMinutes.toString());
+        return TranslationService.translate(
+          context,
+          'synced_minutes_ago',
+        ).replaceFirst('%d', diff.inMinutes.toString());
       } else if (diff.inHours < 24) {
-        return TranslationService.translate(context, 'synced_hours_ago')
-            .replaceFirst('%d', diff.inHours.toString());
+        return TranslationService.translate(
+          context,
+          'synced_hours_ago',
+        ).replaceFirst('%d', diff.inHours.toString());
       } else {
-        return TranslationService.translate(context, 'synced_days_ago')
-            .replaceFirst('%d', diff.inDays.toString());
+        return TranslationService.translate(
+          context,
+          'synced_days_ago',
+        ).replaceFirst('%d', diff.inDays.toString());
       }
     } catch (_) {
       return TranslationService.translate(context, 'never_synced');

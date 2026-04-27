@@ -39,10 +39,8 @@ void main() {
   late Directory tempRoot;
 
   setUpAll(() {
-    tempRoot =
-        Directory.systemTemp.createTempSync('peer_cover_prefs_test_');
-    PathProviderPlatform.instance =
-        _FakePathProviderPlatform(tempRoot.path);
+    tempRoot = Directory.systemTemp.createTempSync('peer_cover_prefs_test_');
+    PathProviderPlatform.instance = _FakePathProviderPlatform(tempRoot.path);
   });
 
   tearDownAll(() {
@@ -68,27 +66,27 @@ void main() {
   });
 
   group('ThemeProvider peer cover prefs defaults', () {
-    test('peerCoverDisplayEnabled defaults to true on fresh install',
-        () async {
+    test('peerCoverDisplayEnabled defaults to true on fresh install', () async {
       SharedPreferences.setMockInitialValues({});
       final provider = ThemeProvider();
       await provider.loadSettings();
-      expect(provider.peerCoverDisplayEnabled, isTrue,
-          reason:
-              'Showing peer covers by default preserves the discovery UX; '
-              'users opt into the data-saver mode explicitly.');
+      expect(
+        provider.peerCoverDisplayEnabled,
+        isTrue,
+        reason:
+            'Showing peer covers by default preserves the discovery UX; '
+            'users opt into the data-saver mode explicitly.',
+      );
     });
 
-    test('peerCoverCacheCapMb defaults to 100 MB on fresh install',
-        () async {
+    test('peerCoverCacheCapMb defaults to 100 MB on fresh install', () async {
       SharedPreferences.setMockInitialValues({});
       final provider = ThemeProvider();
       await provider.loadSettings();
       expect(provider.peerCoverCacheCapMb, equals(100));
     });
 
-    test('peerCoverCacheCapChoicesMb exposes the Settings selector values',
-        () {
+    test('peerCoverCacheCapChoicesMb exposes the Settings selector values', () {
       expect(
         ThemeProvider.peerCoverCacheCapChoicesMb,
         equals(const [50, 100, 200, 500]),
@@ -148,8 +146,7 @@ void main() {
       );
     });
 
-    test('setPeerCoverCacheCapMb is idempotent for unchanged value',
-        () async {
+    test('setPeerCoverCacheCapMb is idempotent for unchanged value', () async {
       SharedPreferences.setMockInitialValues({});
       final provider = ThemeProvider();
       await provider.loadSettings();
@@ -158,22 +155,22 @@ void main() {
       provider.addListener(() => notifications++);
 
       await provider.setPeerCoverCacheCapMb(100); // already 100
-      expect(notifications, equals(0),
-          reason:
-              'No-op setter must not notify -- listeners should only rebuild '
-              'when the cap actually changes.');
+      expect(
+        notifications,
+        equals(0),
+        reason:
+            'No-op setter must not notify -- listeners should only rebuild '
+            'when the cap actually changes.',
+      );
     });
   });
 
   group('ThemeProvider peer cover prefs clamping', () {
-    test('loadSettings clamps an invalid stored cap to the default',
-        () async {
+    test('loadSettings clamps an invalid stored cap to the default', () async {
       // Simulates a prefs entry left over from a future build or a manual
       // edit. The clamp prevents the Settings selector from rendering
       // with "no value selected".
-      SharedPreferences.setMockInitialValues({
-        'peerCoverCacheCapMb': 999,
-      });
+      SharedPreferences.setMockInitialValues({'peerCoverCacheCapMb': 999});
       final provider = ThemeProvider();
       await provider.loadSettings();
 
@@ -181,9 +178,7 @@ void main() {
     });
 
     test('loadSettings preserves a valid stored cap', () async {
-      SharedPreferences.setMockInitialValues({
-        'peerCoverCacheCapMb': 500,
-      });
+      SharedPreferences.setMockInitialValues({'peerCoverCacheCapMb': 500});
       final provider = ThemeProvider();
       await provider.loadSettings();
 
@@ -192,18 +187,23 @@ void main() {
   });
 
   group('PeerBookCoverCacheManager follows the cap on setter', () {
-    test('setPeerCoverCacheCapMb propagates the cap to the cache manager',
-        () async {
-      SharedPreferences.setMockInitialValues({});
-      final provider = ThemeProvider();
-      await provider.loadSettings();
+    test(
+      'setPeerCoverCacheCapMb propagates the cap to the cache manager',
+      () async {
+        SharedPreferences.setMockInitialValues({});
+        final provider = ThemeProvider();
+        await provider.loadSettings();
 
-      await provider.setPeerCoverCacheCapMb(200);
-      expect(PeerBookCoverCacheManager.capMb, equals(200),
+        await provider.setPeerCoverCacheCapMb(200);
+        expect(
+          PeerBookCoverCacheManager.capMb,
+          equals(200),
           reason:
               'The setter must call configure() so the manager applies the '
               'new cap immediately -- otherwise peer views would keep the '
-              'old eviction threshold until the next app launch.');
-    });
+              'old eviction threshold until the next app launch.',
+        );
+      },
+    );
   });
 }

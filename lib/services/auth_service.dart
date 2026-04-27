@@ -18,9 +18,7 @@ class RealSecureStorage implements SecureStorageInterface {
   // when the Keystore key is invalidated (e.g., after app reinstall with
   // Auto Backup restoring encrypted data but not the Keystore key).
   // Data is lost but was unreadable anyway; the app will re-create tokens.
-  static const _androidOptions = AndroidOptions(
-    resetOnError: true,
-  );
+  static const _androidOptions = AndroidOptions(resetOnError: true);
 
   final _storage = const FlutterSecureStorage();
 
@@ -58,7 +56,8 @@ class ResilientSecureStorage implements SecureStorageInterface {
     try {
       await _delegate.write(key: key, value: value);
     } on PlatformException catch (e) {
-      if (e.code == 'Unexpected security result code' || e.message?.contains('-34018') == true) {
+      if (e.code == 'Unexpected security result code' ||
+          e.message?.contains('-34018') == true) {
         _fallback();
         await _delegate.write(key: key, value: value);
       } else {
@@ -72,7 +71,8 @@ class ResilientSecureStorage implements SecureStorageInterface {
     try {
       return await _delegate.read(key: key);
     } on PlatformException catch (e) {
-      if (e.code == 'Unexpected security result code' || e.message?.contains('-34018') == true) {
+      if (e.code == 'Unexpected security result code' ||
+          e.message?.contains('-34018') == true) {
         _fallback();
         return await _delegate.read(key: key);
       } else {
@@ -86,7 +86,8 @@ class ResilientSecureStorage implements SecureStorageInterface {
     try {
       await _delegate.delete(key: key);
     } on PlatformException catch (e) {
-      if (e.code == 'Unexpected security result code' || e.message?.contains('-34018') == true) {
+      if (e.code == 'Unexpected security result code' ||
+          e.message?.contains('-34018') == true) {
         _fallback();
         await _delegate.delete(key: key);
       } else {
@@ -288,7 +289,9 @@ class AuthService {
     await storage.delete(key: _userIdKey);
     await storage.delete(key: _libraryIdKey);
     await storage.delete(key: _libraryUuidKey); // Regenerate UUID on full reset
-    await storage.delete(key: _hubWriteTokenKey); // Clear hub token on full reset
+    await storage.delete(
+      key: _hubWriteTokenKey,
+    ); // Clear hub token on full reset
     await storage.delete(key: _passwordKey);
   }
 

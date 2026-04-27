@@ -63,7 +63,9 @@ class ShimmerBone extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.12);
+    final color = Theme.of(
+      context,
+    ).colorScheme.onSurface.withValues(alpha: 0.12);
     return Container(
       width: width,
       height: height,
@@ -96,10 +98,9 @@ class SearchResultSkeleton extends StatelessWidget {
             Container(
               width: 110,
               decoration: BoxDecoration(
-                color: Theme.of(context)
-                    .colorScheme
-                    .onSurface
-                    .withValues(alpha: 0.08),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.08),
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(AppDesign.radiusLarge),
                   bottomLeft: Radius.circular(AppDesign.radiusLarge),
@@ -109,10 +110,9 @@ class SearchResultSkeleton extends StatelessWidget {
                 child: Icon(
                   Icons.auto_stories,
                   size: 32,
-                  color: Theme.of(context)
-                      .colorScheme
-                      .onSurface
-                      .withValues(alpha: 0.15),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.15),
                 ),
               ),
             ),
@@ -134,11 +134,7 @@ class SearchResultSkeleton extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        ShimmerBone(
-                          width: 36,
-                          height: 36,
-                          borderRadius: 18,
-                        ),
+                        ShimmerBone(width: 36, height: 36, borderRadius: 18),
                       ],
                     ),
                   ],
@@ -178,8 +174,9 @@ class BookshelfSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color =
-        Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08);
+    final color = Theme.of(
+      context,
+    ).colorScheme.onSurface.withValues(alpha: 0.08);
     return ShimmerLoading(
       child: Column(
         children: [

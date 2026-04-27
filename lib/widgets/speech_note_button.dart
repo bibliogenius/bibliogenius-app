@@ -44,16 +44,18 @@ class _SpeechNoteButtonState extends State<SpeechNoteButton> {
     final locale = context.read<ThemeProvider>().locale;
     final localeId =
         '${locale.languageCode}_${locale.countryCode ?? locale.languageCode.toUpperCase()}';
-    final notAvailableMsg =
-        TranslationService.translate(context, 'speech_not_available');
+    final notAvailableMsg = TranslationService.translate(
+      context,
+      'speech_not_available',
+    );
 
     await _ensureInitialized();
 
     if (!_available) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(notAvailableMsg)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(notAvailableMsg)));
       }
       return;
     }

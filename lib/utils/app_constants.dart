@@ -6,6 +6,7 @@ class AppConstants {
   static const bool isBeta = true;
   // App Info
   static const String appName = 'BiblioGenius';
+
   /// How many days a book is considered "new" after first discovery.
   static const int newBadgeDays = 7;
 }

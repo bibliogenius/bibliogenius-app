@@ -261,10 +261,7 @@ class ApiService {
       return Response(
         requestOptions: RequestOptions(path: '/api/auth/me'),
         statusCode: 200,
-        data: {
-          'username': 'offline_user',
-          'role': 'admin',
-        },
+        data: {'username': 'offline_user', 'role': 'admin'},
       );
     }
     return await _dio.get('/api/auth/me');
@@ -403,7 +400,8 @@ class ApiService {
           addedAt: bookData.containsKey('added_at')
               ? _toIsoStringOrNull(bookData['added_at'])
               : currentBook.addedAt?.toIso8601String(),
-          hubCoverUploadFailedAt: bookData.containsKey('hub_cover_upload_failed_at')
+          hubCoverUploadFailedAt:
+              bookData.containsKey('hub_cover_upload_failed_at')
               ? _toIsoStringOrNull(bookData['hub_cover_upload_failed_at'])
               : currentBook.hubCoverUploadFailedAt?.toIso8601String(),
 
@@ -436,9 +434,7 @@ class ApiService {
           pageCount: bookData.containsKey('page_count')
               ? (bookData['page_count'] is int
                     ? bookData['page_count']
-                    : int.tryParse(
-                        bookData['page_count']?.toString() ?? '',
-                      ))
+                    : int.tryParse(bookData['page_count']?.toString() ?? ''))
               : currentBook.pageCount,
           digitalFormats: bookData.containsKey('digital_formats')
               ? (bookData['digital_formats'] is List
@@ -524,7 +520,8 @@ class ApiService {
         }
       }
 
-      enrichedData['library_id'] = libraryId; // Backend resolves dynamically if null
+      enrichedData['library_id'] =
+          libraryId; // Backend resolves dynamically if null
     }
 
     // Add is_temporary if not provided (default to false)
@@ -556,9 +553,12 @@ class ApiService {
         try {
           // Lazy Initialization: Run setup with defaults since it wasn't run at startup
           final prefs = await SharedPreferences.getInstance();
-          final fallbackName = prefs.getString('libraryName') ??
+          final fallbackName =
+              prefs.getString('libraryName') ??
               TranslationService.translateByLocale(
-                  prefs.getString('languageCode') ?? 'en', 'my_library_title');
+                prefs.getString('languageCode') ?? 'en',
+                'my_library_title',
+              );
           await setup(libraryName: fallbackName, profileType: 'individual');
 
           // After setup, library_id should be saved in AuthService (by setup method)
@@ -699,17 +699,13 @@ class ApiService {
   /// Borrower-initiated return: notifies the lender and cleans up local data.
   Future<Response> returnBorrowedBook({required int copyId}) async {
     if (useFfi) {
-      final localDio =
-          Dio(BaseOptions(baseUrl: 'http://127.0.0.1:$httpPort'));
+      final localDio = Dio(BaseOptions(baseUrl: 'http://127.0.0.1:$httpPort'));
       return await localDio.post(
         '/api/peers/return_book',
         data: {'copy_id': copyId},
       );
     }
-    return await _dio.post(
-      '/api/peers/return_book',
-      data: {'copy_id': copyId},
-    );
+    return await _dio.post('/api/peers/return_book', data: {'copy_id': copyId});
   }
 
   // Helper to get a Dio instance for local FFI server with retry logic
@@ -1360,9 +1356,12 @@ class ApiService {
         final configResp = await localDio.get('/api/config');
         if (configResp.data is Map) {
           final remote = configResp.data as Map;
-          final configFallback = prefs.getString('libraryName') ??
+          final configFallback =
+              prefs.getString('libraryName') ??
               TranslationService.translateByLocale(
-                  prefs.getString('languageCode') ?? 'en', 'my_library_title');
+                prefs.getString('languageCode') ?? 'en',
+                'my_library_title',
+              );
           data['library_name'] = remote['name'] ?? configFallback;
           data['name'] = remote['name'] ?? configFallback;
           data['description'] = remote['description'] ?? '';
@@ -1382,15 +1381,21 @@ class ApiService {
         }
       } catch (_) {
         // HTTP server not ready yet - fall back to SharedPreferences
-        final prefsFallback = prefs.getString('libraryName') ??
+        final prefsFallback =
+            prefs.getString('libraryName') ??
             TranslationService.translateByLocale(
-                prefs.getString('languageCode') ?? 'en', 'my_library_title');
-        data['library_name'] = prefs.getString('ffi_library_name') ?? prefsFallback;
+              prefs.getString('languageCode') ?? 'en',
+              'my_library_title',
+            );
+        data['library_name'] =
+            prefs.getString('ffi_library_name') ?? prefsFallback;
         data['name'] = prefs.getString('ffi_library_name') ?? prefsFallback;
         data['description'] = prefs.getString('ffi_library_description') ?? '';
-        data['show_borrowed_books'] = prefs.getBool('ffi_show_borrowed_books') ?? true;
+        data['show_borrowed_books'] =
+            prefs.getBool('ffi_show_borrowed_books') ?? true;
         data['share_location'] = prefs.getBool('ffi_share_location') ?? false;
-        data['profile_type'] = prefs.getString('ffi_profile_type') ?? 'individual';
+        data['profile_type'] =
+            prefs.getString('ffi_profile_type') ?? 'individual';
         data['latitude'] = prefs.getDouble('ffi_latitude');
         data['longitude'] = prefs.getDouble('ffi_longitude');
       }
@@ -1437,10 +1442,30 @@ class ApiService {
           statusCode: 200,
           data: {
             'tracks': {
-              'collector': {'level': 0, 'progress': 0.0, 'current': 0, 'next_threshold': 25},
-              'reader': {'level': 0, 'progress': 0.0, 'current': 0, 'next_threshold': 25},
-              'lender': {'level': 0, 'progress': 0.0, 'current': 0, 'next_threshold': 25},
-              'cataloguer': {'level': 0, 'progress': 0.0, 'current': 0, 'next_threshold': 25},
+              'collector': {
+                'level': 0,
+                'progress': 0.0,
+                'current': 0,
+                'next_threshold': 25,
+              },
+              'reader': {
+                'level': 0,
+                'progress': 0.0,
+                'current': 0,
+                'next_threshold': 25,
+              },
+              'lender': {
+                'level': 0,
+                'progress': 0.0,
+                'current': 0,
+                'next_threshold': 25,
+              },
+              'cataloguer': {
+                'level': 0,
+                'progress': 0.0,
+                'current': 0,
+                'next_threshold': 25,
+              },
             },
             'streak': {'current': 0, 'longest': 0},
             'recent_achievements': <String>[],
@@ -1585,14 +1610,19 @@ class ApiService {
 
   /// Convert FrbLeaderboardResponse to JSON map matching leaderboard consumers
   Map<String, dynamic> _frbLeaderboardToJson(frb.FrbLeaderboardResponse lb) {
-    List<Map<String, dynamic>> entriesToJson(List<frb.FrbLeaderboardEntry> entries) =>
-        entries.map((e) => {
-          'library_name': e.libraryName,
-          'level': e.level,
-          'current': e.current.toInt(),
-          'is_self': e.isSelf,
-          'peer_id': e.peerId,
-        }).toList();
+    List<Map<String, dynamic>> entriesToJson(
+      List<frb.FrbLeaderboardEntry> entries,
+    ) => entries
+        .map(
+          (e) => {
+            'library_name': e.libraryName,
+            'level': e.level,
+            'current': e.current.toInt(),
+            'is_self': e.isSelf,
+            'peer_id': e.peerId,
+          },
+        )
+        .toList();
     return {
       'collector': entriesToJson(lb.collector),
       'reader': entriesToJson(lb.reader),
@@ -1662,7 +1692,9 @@ class ApiService {
       final localDio = await _getLocalDio();
       final exportResp = await localDio.get('/api/export');
       if (exportResp.statusCode != 200 || exportResp.data == null) {
-        debugPrint('Auto-backup: export failed (status=${exportResp.statusCode})');
+        debugPrint(
+          'Auto-backup: export failed (status=${exportResp.statusCode})',
+        );
         return false;
       }
 
@@ -2249,7 +2281,11 @@ class ApiService {
   }
 
   /// Update a peer's URL (for mDNS IP changes)
-  Future<Response> updatePeerUrl(int peerId, String newUrl, {String? libraryUuid}) async {
+  Future<Response> updatePeerUrl(
+    int peerId,
+    String newUrl, {
+    String? libraryUuid,
+  }) async {
     final body = <String, dynamic>{'url': newUrl};
     if (libraryUuid != null) {
       body['library_uuid'] = libraryUuid;
@@ -2262,10 +2298,7 @@ class ApiService {
             connectTimeout: const Duration(seconds: 5),
           ),
         );
-        return await localDio.put(
-          '/api/peers/$peerId/url',
-          data: body,
-        );
+        return await localDio.put('/api/peers/$peerId/url', data: body);
       } catch (e) {
         debugPrint('❌ updatePeerUrl error: $e');
         rethrow;
@@ -2295,7 +2328,10 @@ class ApiService {
         // When mDNS is disabled, skip LAN attempt (stale URL, 30s timeout).
         // Go directly to local backend which handles relay fallback.
         if (skipLan) {
-          if (kDebugMode) debugPrint('P2P Sync: LAN skipped (mDNS off), relay via backend for $normalizedUrl');
+          if (kDebugMode)
+            debugPrint(
+              'P2P Sync: LAN skipped (mDNS off), relay via backend for $normalizedUrl',
+            );
           final localDio = Dio(
             BaseOptions(
               baseUrl: 'http://127.0.0.1:${ApiService.httpPort}',
@@ -2377,14 +2413,17 @@ class ApiService {
 
         // If BOTH steps failed, throw so SyncService backoff kicks in
         if (!remoteOk && !localOk) {
-          throw Exception('Both remote and local sync failed for $normalizedUrl');
+          throw Exception(
+            'Both remote and local sync failed for $normalizedUrl',
+          );
         }
 
-        return remoteRes ?? Response(
-          requestOptions: RequestOptions(path: '/api/peers/sync_by_url'),
-          statusCode: 200,
-          data: {'message': 'Local sync completed'},
-        );
+        return remoteRes ??
+            Response(
+              requestOptions: RequestOptions(path: '/api/peers/sync_by_url'),
+              statusCode: 200,
+              data: {'message': 'Local sync completed'},
+            );
       } catch (e) {
         debugPrint('P2P Sync Error: $e');
         // Rethrow so SyncService backoff can catch it
@@ -2410,11 +2449,13 @@ class ApiService {
     // and plaintext fallback internally.
     if (useFfi) {
       try {
-        final dio = Dio(BaseOptions(
-          baseUrl: 'http://127.0.0.1:$httpPort',
-          connectTimeout: const Duration(seconds: 5),
-          receiveTimeout: const Duration(seconds: 15),
-        ));
+        final dio = Dio(
+          BaseOptions(
+            baseUrl: 'http://127.0.0.1:$httpPort',
+            connectTimeout: const Duration(seconds: 5),
+            receiveTimeout: const Duration(seconds: 15),
+          ),
+        );
         debugPrint('📡 Fetching peer books via local backend for $peerUrl');
         final response = await dio.post(
           '/api/peers/proxy_search',
@@ -2471,11 +2512,13 @@ class ApiService {
   }) async {
     if (useFfi) {
       try {
-        final dio = Dio(BaseOptions(
-          baseUrl: 'http://127.0.0.1:$httpPort',
-          connectTimeout: const Duration(seconds: 5),
-          receiveTimeout: const Duration(seconds: 15),
-        ));
+        final dio = Dio(
+          BaseOptions(
+            baseUrl: 'http://127.0.0.1:$httpPort',
+            connectTimeout: const Duration(seconds: 5),
+            receiveTimeout: const Duration(seconds: 15),
+          ),
+        );
         final response = await dio.post(
           '/api/peers/proxy_search',
           data: {
@@ -2519,10 +2562,12 @@ class ApiService {
     final cacheKey = _stripSinceParam(targetUrl);
     final cached = _peerCatalogEtagCache[cacheKey];
 
-    final dio = Dio(BaseOptions(
-      connectTimeout: const Duration(seconds: 5),
-      receiveTimeout: const Duration(seconds: 10),
-    ));
+    final dio = Dio(
+      BaseOptions(
+        connectTimeout: const Duration(seconds: 5),
+        receiveTimeout: const Duration(seconds: 10),
+      ),
+    );
 
     // Pagination requests (page=, limit=) are orthogonal to delta sync —
     // they fetch a slice of the catalog for UI scrolling, not a sync
@@ -2531,8 +2576,11 @@ class ApiService {
     final paginated = Uri.parse(targetUrl).queryParameters.containsKey('page');
 
     if (!paginated && cached?.deltaCursor != null && cached?.bookList != null) {
-      final deltaUrl =
-          _appendQueryParam(cacheKey, 'since', cached!.deltaCursor.toString());
+      final deltaUrl = _appendQueryParam(
+        cacheKey,
+        'since',
+        cached!.deltaCursor.toString(),
+      );
       final deltaResp = await dio.get(
         deltaUrl,
         options: Options(
@@ -2549,7 +2597,8 @@ class ApiService {
       } else if (deltaResp.statusCode == 200 && deltaResp.data is Map) {
         final ops =
             (deltaResp.data['operations'] as List?) ?? const <dynamic>[];
-        final newCursor = (deltaResp.data['latest_cursor'] as num?)?.toInt() ??
+        final newCursor =
+            (deltaResp.data['latest_cursor'] as num?)?.toInt() ??
             cached.deltaCursor!;
         final hasMore = deltaResp.data['has_more'] as bool? ?? false;
 
@@ -2638,8 +2687,7 @@ class ApiService {
   /// Append (or overwrite) a single query parameter on a URL.
   String _appendQueryParam(String url, String key, String value) {
     final uri = Uri.parse(url);
-    final params = Map<String, String>.from(uri.queryParameters)
-      ..[key] = value;
+    final params = Map<String, String>.from(uri.queryParameters)..[key] = value;
     return uri.replace(queryParameters: params).toString();
   }
 
@@ -2771,9 +2819,17 @@ class ApiService {
   }
 
   /// Search for a cover URL by title with author verification (fallback).
-  Future<String?> searchCoverByTitle(String title, String? author, {bool enableGoogle = false}) async {
+  Future<String?> searchCoverByTitle(
+    String title,
+    String? author, {
+    bool enableGoogle = false,
+  }) async {
     if (useFfi) {
-      return await FfiService().searchCoverByTitle(title, author, enableGoogle: enableGoogle);
+      return await FfiService().searchCoverByTitle(
+        title,
+        author,
+        enableGoogle: enableGoogle,
+      );
     }
     return null;
   }
@@ -2789,18 +2845,26 @@ class ApiService {
 
   /// Search all cover sources by title in parallel.
   Future<List<CoverCandidate>> searchAllCoversByTitle(
-      String title, String? author,
-      {bool enableGoogle = false}) async {
+    String title,
+    String? author, {
+    bool enableGoogle = false,
+  }) async {
     if (useFfi) {
-      return await FfiService()
-          .searchAllCoversByTitle(title, author, enableGoogle: enableGoogle);
+      return await FfiService().searchAllCoversByTitle(
+        title,
+        author,
+        enableGoogle: enableGoogle,
+      );
     }
     return [];
   }
 
   /// Look up book metadata from external sources by ISBN.
   /// Returns a map of field names to values, or null if not found.
-  Future<Map<String, String?>?> lookupBookMetadata(String isbn, {String? lang}) async {
+  Future<Map<String, String?>?> lookupBookMetadata(
+    String isbn, {
+    String? lang,
+  }) async {
     if (useFfi) {
       return await FfiService().lookupBookMetadata(isbn, lang: lang);
     }
@@ -2838,7 +2902,8 @@ class ApiService {
       '/api/peers/request_by_url',
       data: {'peer_url': peerUrl, 'book_isbn': isbn, 'book_title': title},
       options: Options(
-        validateStatus: (status) => status != null && (status < 300 || status == 409),
+        validateStatus: (status) =>
+            status != null && (status < 300 || status == 409),
       ),
     );
     final msg = response.data is Map ? response.data['message'] : '';
@@ -2855,9 +2920,7 @@ class ApiService {
     int? bookId,
     String? isbn,
   }) async {
-    final localDio = Dio(
-      BaseOptions(baseUrl: 'http://127.0.0.1:$httpPort'),
-    );
+    final localDio = Dio(BaseOptions(baseUrl: 'http://127.0.0.1:$httpPort'));
     return await localDio.post(
       '/api/peers/$peerId/offer-loan',
       data: {
@@ -3107,8 +3170,9 @@ class ApiService {
       } catch (e) {
         debugPrint('updatePeerDisplayName error: $e');
         return Response(
-          requestOptions:
-              RequestOptions(path: '/api/peers/$peerId/display-name'),
+          requestOptions: RequestOptions(
+            path: '/api/peers/$peerId/display-name',
+          ),
           statusCode: 500,
           data: {'error': e.toString()},
         );
@@ -3176,13 +3240,18 @@ class ApiService {
 
   /// Fetch a remote peer's /api/config to retrieve its library_uuid.
   /// Returns the library_uuid if reachable, null otherwise.
-  Future<String?> fetchPeerLibraryUuid(String peerUrl, {int timeoutMs = 2000}) async {
+  Future<String?> fetchPeerLibraryUuid(
+    String peerUrl, {
+    int timeoutMs = 2000,
+  }) async {
     if (peerUrl.startsWith('relay://')) return null;
     try {
-      final dio = Dio(BaseOptions(
-        connectTimeout: Duration(milliseconds: timeoutMs),
-        receiveTimeout: Duration(milliseconds: timeoutMs),
-      ));
+      final dio = Dio(
+        BaseOptions(
+          connectTimeout: Duration(milliseconds: timeoutMs),
+          receiveTimeout: Duration(milliseconds: timeoutMs),
+        ),
+      );
       final resp = await dio.get('$peerUrl/api/config');
       if (resp.statusCode == 200 && resp.data is Map) {
         return resp.data['library_uuid'] as String?;
@@ -3219,11 +3288,13 @@ class ApiService {
   /// Diagnostic: log local relay configuration and mailbox status.
   Future<void> logRelayStatus() async {
     try {
-      final localDio = Dio(BaseOptions(
-        baseUrl: 'http://127.0.0.1:$httpPort',
-        connectTimeout: const Duration(seconds: 3),
-        receiveTimeout: const Duration(seconds: 10),
-      ));
+      final localDio = Dio(
+        BaseOptions(
+          baseUrl: 'http://127.0.0.1:$httpPort',
+          connectTimeout: const Duration(seconds: 3),
+          receiveTimeout: const Duration(seconds: 10),
+        ),
+      );
       final resp = await localDio.get('/api/relay/status');
       debugPrint('Relay status (local): ${resp.data}');
     } catch (e) {
@@ -3262,7 +3333,10 @@ class ApiService {
       if (limit != null) data['limit'] = limit;
       if (query != null) data['query'] = query;
 
-      if (kDebugMode) debugPrint('relayLibraryRequest: peer=$peerId type=$requestType cursor=$cursor');
+      if (kDebugMode)
+        debugPrint(
+          'relayLibraryRequest: peer=$peerId type=$requestType cursor=$cursor',
+        );
       final response = await localDio.post(
         '/api/peers/relay/library_request',
         data: data,
@@ -3284,7 +3358,10 @@ class ApiService {
           );
         }
       } else {
-        if (kDebugMode) debugPrint('relayLibraryRequest error: peer=$peerId type=$requestType $e');
+        if (kDebugMode)
+          debugPrint(
+            'relayLibraryRequest error: peer=$peerId type=$requestType $e',
+          );
       }
       rethrow;
     }
@@ -3302,12 +3379,13 @@ class ApiService {
         requestType: 'manifest',
       );
       if (response.statusCode == 200) {
-        return response.data is Map<String, dynamic>
-            ? response.data
-            : null;
+        return response.data is Map<String, dynamic> ? response.data : null;
       }
       // 202 = relay_pending, response will come via polling
-      if (kDebugMode) debugPrint('requestPeerManifest: peer=$peerId status=${response.statusCode}');
+      if (kDebugMode)
+        debugPrint(
+          'requestPeerManifest: peer=$peerId status=${response.statusCode}',
+        );
       return null;
     } on DioException catch (e) {
       if (e.response?.statusCode == 502) {
@@ -3342,11 +3420,12 @@ class ApiService {
         limit: limit,
       );
       if (response.statusCode == 200) {
-        return response.data is Map<String, dynamic>
-            ? response.data
-            : null;
+        return response.data is Map<String, dynamic> ? response.data : null;
       }
-      if (kDebugMode) debugPrint('requestPeerPage: peer=$peerId cursor=$cursor status=${response.statusCode}');
+      if (kDebugMode)
+        debugPrint(
+          'requestPeerPage: peer=$peerId cursor=$cursor status=${response.statusCode}',
+        );
       return null;
     } on DioException catch (e) {
       if (kDebugMode) {
@@ -3357,7 +3436,8 @@ class ApiService {
       }
       return null;
     } catch (e) {
-      if (kDebugMode) debugPrint('requestPeerPage error: peer=$peerId cursor=$cursor $e');
+      if (kDebugMode)
+        debugPrint('requestPeerPage error: peer=$peerId cursor=$cursor $e');
       return null;
     }
   }
@@ -3376,9 +3456,7 @@ class ApiService {
         limit: limit,
       );
       if (response.statusCode == 200) {
-        return response.data is Map<String, dynamic>
-            ? response.data
-            : null;
+        return response.data is Map<String, dynamic> ? response.data : null;
       }
       return null;
     } catch (e) {
@@ -3449,17 +3527,22 @@ class ApiService {
     required List<int> ed25519PublicKey,
     required List<int> x25519PublicKey,
   }) async {
-    final dio = Dio(BaseOptions(
-      baseUrl: peerUrl,
-      connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 10),
-    ));
-    final response = await dio.post('/api/devices/pair/accept', data: {
-      'code': code,
-      'device_name': deviceName,
-      'ed25519_public_key': ed25519PublicKey,
-      'x25519_public_key': x25519PublicKey,
-    });
+    final dio = Dio(
+      BaseOptions(
+        baseUrl: peerUrl,
+        connectTimeout: const Duration(seconds: 10),
+        receiveTimeout: const Duration(seconds: 10),
+      ),
+    );
+    final response = await dio.post(
+      '/api/devices/pair/accept',
+      data: {
+        'code': code,
+        'device_name': deviceName,
+        'ed25519_public_key': ed25519PublicKey,
+        'x25519_public_key': x25519PublicKey,
+      },
+    );
     return response.data as Map<String, dynamic>;
   }
 
@@ -3485,9 +3568,12 @@ class ApiService {
       try {
         // 1. Get my own details (SharedPreferences is the source of truth for library name)
         final prefs = await SharedPreferences.getInstance();
-        String myName = prefs.getString('libraryName') ??
+        String myName =
+            prefs.getString('libraryName') ??
             TranslationService.translateByLocale(
-                prefs.getString('languageCode') ?? 'en', 'my_library_title');
+              prefs.getString('languageCode') ?? 'en',
+              'my_library_title',
+            );
         final myUrl = await _getMyUrl();
         final peerHasLanUrl = url.isNotEmpty && !url.startsWith('relay://');
         final hasRelayCredentials = relayUrl != null && mailboxId != null;
@@ -3501,9 +3587,9 @@ class ApiService {
             );
           }
           try {
-            final localDio = Dio(BaseOptions(
-              baseUrl: 'http://localhost:${ApiService.httpPort}',
-            ));
+            final localDio = Dio(
+              BaseOptions(baseUrl: 'http://localhost:${ApiService.httpPort}'),
+            );
             if (kDebugMode) debugPrint('P2P relay-only: saving peer locally');
             // Send empty URL — Rust generates a unique relay:// placeholder
             final saveResponse = await localDio.post(
@@ -3522,7 +3608,10 @@ class ApiService {
                   'relay_write_token': relayWriteToken,
               },
             );
-            if (kDebugMode) debugPrint('P2P relay-only: peer saved HTTP ${saveResponse.statusCode}');
+            if (kDebugMode)
+              debugPrint(
+                'P2P relay-only: peer saved HTTP ${saveResponse.statusCode}',
+              );
 
             // Deposit connection_request in remote peer's relay mailbox
             // via Dio (native HTTP stack). Rust's reqwest+rustls fails
@@ -3551,12 +3640,9 @@ class ApiService {
                     } catch (_) {}
                   }
                   return Response(
-                    requestOptions:
-                        RequestOptions(path: '/api/peers/connect'),
+                    requestOptions: RequestOptions(path: '/api/peers/connect'),
                     statusCode: 404,
-                    data: {
-                      'error': 'peer_relay_mailbox_expired',
-                    },
+                    data: {'error': 'peer_relay_mailbox_expired'},
                   );
                 }
               }
@@ -3623,11 +3709,7 @@ class ApiService {
 
         final response = await dio.post(
           targetUrl,
-          data: {
-            'name': myName,
-            'url': myUrl,
-            if (myKeys != null) ...myKeys,
-          },
+          data: {'name': myName, 'url': myUrl, if (myKeys != null) ...myKeys},
         );
 
         debugPrint(
@@ -3674,7 +3756,9 @@ class ApiService {
               'relay_write_token': remoteRelayWriteToken,
           },
         );
-        debugPrint('Peer saved locally: $name (status=${saveResponse.statusCode})');
+        debugPrint(
+          'Peer saved locally: $name (status=${saveResponse.statusCode})',
+        );
 
         return response;
       } on DioException catch (e) {
@@ -3692,9 +3776,9 @@ class ApiService {
             '(mailbox=$mailboxId)',
           );
           try {
-            final localDio = Dio(BaseOptions(
-              baseUrl: 'http://localhost:${ApiService.httpPort}',
-            ));
+            final localDio = Dio(
+              BaseOptions(baseUrl: 'http://localhost:${ApiService.httpPort}'),
+            );
             final saveResponse = await localDio.post(
               '/api/peers/connect',
               data: {
@@ -3739,12 +3823,9 @@ class ApiService {
                     } catch (_) {}
                   }
                   return Response(
-                    requestOptions:
-                        RequestOptions(path: '/api/peers/connect'),
+                    requestOptions: RequestOptions(path: '/api/peers/connect'),
                     statusCode: 404,
-                    data: {
-                      'error': 'peer_relay_mailbox_expired',
-                    },
+                    data: {'error': 'peer_relay_mailbox_expired'},
                   );
                 }
               }
@@ -3773,7 +3854,8 @@ class ApiService {
             case DioExceptionType.connectionError:
               errorDetail = 'Could not reach peer - check network and URL';
             case DioExceptionType.badResponse:
-              errorDetail = 'Peer responded with error (${statusCode ?? "unknown"})';
+              errorDetail =
+                  'Peer responded with error (${statusCode ?? "unknown"})';
             default:
               errorDetail = e.message ?? e.type.toString();
           }
@@ -3782,10 +3864,7 @@ class ApiService {
         return Response(
           requestOptions: e.requestOptions,
           statusCode: statusCode ?? 502,
-          data: {
-            'error': errorDetail,
-            'status': statusCode,
-          },
+          data: {'error': errorDetail, 'status': statusCode},
         );
       } catch (e) {
         debugPrint('P2P Connect Error: $e');
@@ -3829,7 +3908,8 @@ class ApiService {
       //    relay credentials in the payload the remote peer cannot reach us.
       //    Relay auto-setup runs in main() but may not have completed yet.
       if (config['relay_url'] == null || config['mailbox_id'] == null) {
-        if (kDebugMode) debugPrint('Relay deposit: local relay not configured, auto-setup');
+        if (kDebugMode)
+          debugPrint('Relay deposit: local relay not configured, auto-setup');
         try {
           await localDio.post(
             '/api/peers/relay/setup',
@@ -3840,7 +3920,8 @@ class ApiService {
             config = configResp.data as Map<String, dynamic>;
           }
         } catch (e) {
-          if (kDebugMode) debugPrint('Relay deposit: relay auto-setup failed: $e');
+          if (kDebugMode)
+            debugPrint('Relay deposit: relay auto-setup failed: $e');
         }
       }
 
@@ -3870,8 +3951,8 @@ class ApiService {
         payload['relay_write_token'] = config['relay_write_token'];
       }
 
-      final hasRelayCreds = payload.containsKey('relay_url')
-          && payload.containsKey('mailbox_id');
+      final hasRelayCreds =
+          payload.containsKey('relay_url') && payload.containsKey('mailbox_id');
       if (!hasRelayCreds && kDebugMode) {
         debugPrint(
           'Relay deposit: WARNING local relay credentials missing, '
@@ -3890,10 +3971,12 @@ class ApiService {
         );
       }
 
-      final hubDio = Dio(BaseOptions(
-        connectTimeout: const Duration(seconds: 15),
-        receiveTimeout: const Duration(seconds: 15),
-      ));
+      final hubDio = Dio(
+        BaseOptions(
+          connectTimeout: const Duration(seconds: 15),
+          receiveTimeout: const Duration(seconds: 15),
+        ),
+      );
       final blob = utf8.encode(jsonEncode(payload));
       final resp = await hubDio.post<dynamic>(
         depositUrl,
@@ -3915,7 +3998,9 @@ class ApiService {
         // 404 = mailbox no longer exists on the hub (definitive error).
         // Rethrow so the caller can inform the user.
         if (kDebugMode) {
-          debugPrint('Relay deposit: 404 mailbox not found (stale credentials)');
+          debugPrint(
+            'Relay deposit: 404 mailbox not found (stale credentials)',
+          );
         }
         rethrow;
       }
@@ -3955,16 +4040,19 @@ class ApiService {
       // Also persist to the Rust backend DB so leaderboard/config stay in sync
       try {
         final localDio = await _getLocalDio();
-        await localDio.post('/api/library/config', data: {
-          'name': name,
-          'description': description,
-          'profile_type': profileType,
-          'tags': tags ?? [],
-          'latitude': latitude,
-          'longitude': longitude,
-          'share_location': shareLocation ?? false,
-          'show_borrowed_books': showBorrowedBooks ?? false,
-        });
+        await localDio.post(
+          '/api/library/config',
+          data: {
+            'name': name,
+            'description': description,
+            'profile_type': profileType,
+            'tags': tags ?? [],
+            'latitude': latitude,
+            'longitude': longitude,
+            'share_location': shareLocation ?? false,
+            'show_borrowed_books': showBorrowedBooks ?? false,
+          },
+        );
       } catch (e) {
         debugPrint('FFI config sync to DB failed: $e');
       }
@@ -4131,10 +4219,9 @@ class ApiService {
         final prefs = await SharedPreferences.getInstance();
         // Merge with existing keys
         final existing = prefs.getString('ffi_api_keys');
-        final Map<String, dynamic> merged =
-            existing != null
-                ? Map<String, dynamic>.from(jsonDecode(existing))
-                : <String, dynamic>{};
+        final Map<String, dynamic> merged = existing != null
+            ? Map<String, dynamic>.from(jsonDecode(existing))
+            : <String, dynamic>{};
         (data['api_keys'] as Map).forEach((key, value) {
           if (value == null || value.toString().isEmpty) {
             merged.remove(key);

@@ -23,20 +23,12 @@ void main() {
       final old = DateTime.now().subtract(
         Duration(days: AppConstants.newBadgeDays + 1),
       );
-      final json = {
-        'id': 2,
-        'title': 'T',
-        'added_at': old.toIso8601String(),
-      };
+      final json = {'id': 2, 'title': 'T', 'added_at': old.toIso8601String()};
       expect(Book.fromJson(json).isNew, isFalse);
     });
 
     test('parses added_at from JSON into addedAt', () {
-      final json = {
-        'id': 3,
-        'title': 'T',
-        'added_at': '2026-04-15T10:00:00Z',
-      };
+      final json = {'id': 3, 'title': 'T', 'added_at': '2026-04-15T10:00:00Z'};
       expect(
         Book.fromJson(json).addedAt,
         DateTime.parse('2026-04-15T10:00:00Z'),

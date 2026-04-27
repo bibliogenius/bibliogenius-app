@@ -18,7 +18,9 @@ class DarkColors {
   // Text
   static const textPrimary = Color(0xFFF8FAFC); // Slate 50 (near-white)
   static const textSecondary = Color(0xFF94A3B8); // Slate 400
-  static const textMuted = Color(0xFF8896AB); // Accessible on Slate 800 (>= 5.0:1)
+  static const textMuted = Color(
+    0xFF8896AB,
+  ); // Accessible on Slate 800 (>= 5.0:1)
 
   // Accent — Neon Cyan
   static const cyan = Color(0xFF06B6D4); // Cyan 500
@@ -178,12 +180,8 @@ class DarkTheme extends AppTheme {
           elevation: 0,
           shadowColor: Colors.transparent,
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          textStyle: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
         ),
       ),
 
@@ -192,22 +190,15 @@ class DarkTheme extends AppTheme {
           foregroundColor: DarkColors.cyan,
           side: const BorderSide(color: DarkColors.border, width: 1),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          textStyle: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
         ),
       ),
 
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: DarkColors.cyan,
-          textStyle: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
+          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
         ),
       ),
 
@@ -294,9 +285,7 @@ class DarkTheme extends AppTheme {
         elevation: 8,
         shape: RoundedRectangleBorder(
           borderRadius: const BorderRadius.all(Radius.circular(14)),
-          side: BorderSide(
-            color: DarkColors.border.withValues(alpha: 0.5),
-          ),
+          side: BorderSide(color: DarkColors.border.withValues(alpha: 0.5)),
         ),
         titleTextStyle: const TextStyle(
           color: DarkColors.textPrimary,
@@ -314,11 +303,8 @@ class DarkTheme extends AppTheme {
         modalBackgroundColor: DarkColors.surface,
         elevation: 8,
         shape: RoundedRectangleBorder(
-          borderRadius:
-              const BorderRadius.vertical(top: Radius.circular(16)),
-          side: BorderSide(
-            color: DarkColors.border.withValues(alpha: 0.5),
-          ),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+          side: BorderSide(color: DarkColors.border.withValues(alpha: 0.5)),
         ),
       ),
 

@@ -140,10 +140,7 @@ class _MetadataRefreshDialogState extends State<MetadataRefreshDialog> {
       ),
       content: SizedBox(
         width: double.maxFinite,
-        child: ListView(
-          shrinkWrap: true,
-          children: _buildFieldRows(theme),
-        ),
+        child: ListView(shrinkWrap: true, children: _buildFieldRows(theme)),
       ),
       actions: [
         TextButton(
@@ -184,8 +181,7 @@ class _MetadataRefreshDialogState extends State<MetadataRefreshDialog> {
         rows.add(_buildCoverRow(key, current, fetched, isSelected, theme));
       } else {
         // Normal comparison row
-        rows.add(
-            _buildComparisonRow(key, current, fetched, isSelected, theme));
+        rows.add(_buildComparisonRow(key, current, fetched, isSelected, theme));
       }
     }
 
@@ -200,8 +196,9 @@ class _MetadataRefreshDialogState extends State<MetadataRefreshDialog> {
           const SizedBox(width: 40), // Align with checkbox rows
           Text(
             '${_fieldLabel(key)} : ',
-            style: theme.textTheme.bodyMedium
-                ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ),
           Text(
             TranslationService.translate(context, 'refresh_identical') ??
@@ -243,43 +240,46 @@ class _MetadataRefreshDialogState extends State<MetadataRefreshDialog> {
       controlAffinity: ListTileControlAffinity.leading,
       contentPadding: EdgeInsets.zero,
       dense: true,
-      title: Text(_fieldLabel(key),
-          style: theme.textTheme.titleSmall),
+      title: Text(_fieldLabel(key), style: theme.textTheme.titleSmall),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 2),
           Text.rich(
-            TextSpan(children: [
-              TextSpan(
-                text: '$currentLabel : ',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
+            TextSpan(
+              children: [
+                TextSpan(
+                  text: '$currentLabel : ',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                 ),
-              ),
-              TextSpan(
-                text: currentDisplay,
-                style: theme.textTheme.bodySmall,
-              ),
-            ]),
+                TextSpan(
+                  text: currentDisplay,
+                  style: theme.textTheme.bodySmall,
+                ),
+              ],
+            ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
           Text.rich(
-            TextSpan(children: [
-              TextSpan(
-                text: '$foundLabel : ',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.primary,
+            TextSpan(
+              children: [
+                TextSpan(
+                  text: '$foundLabel : ',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.primary,
+                  ),
                 ),
-              ),
-              TextSpan(
-                text: fetchedDisplay,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.primary,
+                TextSpan(
+                  text: fetchedDisplay,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.primary,
+                  ),
                 ),
-              ),
-            ]),
+              ],
+            ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
@@ -303,8 +303,7 @@ class _MetadataRefreshDialogState extends State<MetadataRefreshDialog> {
       controlAffinity: ListTileControlAffinity.leading,
       contentPadding: EdgeInsets.zero,
       dense: true,
-      title: Text(_fieldLabel(key),
-          style: theme.textTheme.titleSmall),
+      title: Text(_fieldLabel(key), style: theme.textTheme.titleSmall),
       subtitle: Padding(
         padding: const EdgeInsets.only(top: 8),
         child: Row(

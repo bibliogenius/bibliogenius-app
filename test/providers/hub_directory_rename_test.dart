@@ -138,62 +138,68 @@ frb.FrbDirectoryConfig _config({
 
 void main() {
   group('syncDisplayName', () {
-    test('pushes the new name to the hub when config is already loaded',
-        () async {
-      final (provider, ffi) = await _createProvider(
-        existingConfig: _config(
-          nodeId: '2e69adfd-3f28-43d3-92a5-a22e3e8e2501',
-          isListed: true,
-          requiresApproval: true,
-          acceptFrom: 'mutual',
-          allowBorrowing: false,
-        ),
-      );
-      expect(provider.isRegistered, true);
-      ffi.registerCallCount = 0;
-      ffi.registerParamsLog.clear();
+    test(
+      'pushes the new name to the hub when config is already loaded',
+      () async {
+        final (provider, ffi) = await _createProvider(
+          existingConfig: _config(
+            nodeId: '2e69adfd-3f28-43d3-92a5-a22e3e8e2501',
+            isListed: true,
+            requiresApproval: true,
+            acceptFrom: 'mutual',
+            allowBorrowing: false,
+          ),
+        );
+        expect(provider.isRegistered, true);
+        ffi.registerCallCount = 0;
+        ffi.registerParamsLog.clear();
 
-      final ok = await provider.syncDisplayName('Bibliothèque de Androtest');
+        final ok = await provider.syncDisplayName('Bibliothèque de Androtest');
 
-      expect(ok, true);
-      expect(ffi.registerCallCount, 1);
-      final params = ffi.registerParamsLog.single;
-      expect(params.nodeId, '2e69adfd-3f28-43d3-92a5-a22e3e8e2501');
-      expect(params.displayName, 'Bibliothèque de Androtest');
-      // Existing config fields must be preserved across the rename.
-      expect(params.isListed, true);
-      expect(params.requiresApproval, true);
-      expect(params.acceptFrom, 'mutual');
-      expect(params.allowBorrowing, false);
-      // Device/relay fields included so the hub does not overwrite them.
-      expect(params.deviceModel, 'TestDevice');
-      expect(params.relayUrl, 'wss://relay.example.com');
+        expect(ok, true);
+        expect(ffi.registerCallCount, 1);
+        final params = ffi.registerParamsLog.single;
+        expect(params.nodeId, '2e69adfd-3f28-43d3-92a5-a22e3e8e2501');
+        expect(params.displayName, 'Bibliothèque de Androtest');
+        // Existing config fields must be preserved across the rename.
+        expect(params.isListed, true);
+        expect(params.requiresApproval, true);
+        expect(params.acceptFrom, 'mutual');
+        expect(params.allowBorrowing, false);
+        // Device/relay fields included so the hub does not overwrite them.
+        expect(params.deviceModel, 'TestDevice');
+        expect(params.relayUrl, 'wss://relay.example.com');
 
-      final prefs = await SharedPreferences.getInstance();
-      expect(prefs.getString('hub_pending_display_name'), isNull,
-          reason: 'success must clear any stale pending flag');
-    });
+        final prefs = await SharedPreferences.getInstance();
+        expect(
+          prefs.getString('hub_pending_display_name'),
+          isNull,
+          reason: 'success must clear any stale pending flag',
+        );
+      },
+    );
 
     test(
-        'triggers silent registration then pushes the name when config is null',
-        () async {
-      final (provider, ffi) = await _createProvider();
-      expect(provider.isRegistered, false, reason: 'baseline: no config');
+      'triggers silent registration then pushes the name when config is null',
+      () async {
+        final (provider, ffi) = await _createProvider();
+        expect(provider.isRegistered, false, reason: 'baseline: no config');
 
-      final ok = await provider.syncDisplayName('Bibliothèque de Androtest');
+        final ok = await provider.syncDisplayName('Bibliothèque de Androtest');
 
-      expect(ok, true);
-      // At least two register() calls: one from _ensureSilentRegistration,
-      // one from the follow-up _pushDisplayName with the user-picked name.
-      expect(ffi.registerCallCount, greaterThanOrEqualTo(2));
-      expect(
-        ffi.registerParamsLog.last.displayName,
-        'Bibliothèque de Androtest',
-        reason: 'last register() must carry the renamed library name',
-      );
-      final prefs = await SharedPreferences.getInstance();
-      expect(prefs.getString('hub_pending_display_name'), isNull);
-    });
+        expect(ok, true);
+        // At least two register() calls: one from _ensureSilentRegistration,
+        // one from the follow-up _pushDisplayName with the user-picked name.
+        expect(ffi.registerCallCount, greaterThanOrEqualTo(2));
+        expect(
+          ffi.registerParamsLog.last.displayName,
+          'Bibliothèque de Androtest',
+          reason: 'last register() must carry the renamed library name',
+        );
+        final prefs = await SharedPreferences.getInstance();
+        expect(prefs.getString('hub_pending_display_name'), isNull);
+      },
+    );
 
     test('stores a pending flag when the hub push fails', () async {
       final (provider, ffi) = await _createProvider(
@@ -215,24 +221,25 @@ void main() {
       );
     });
 
-    test('stores a pending flag when silent registration cannot create config',
-        () async {
-      final (provider, ffi) = await _createProvider(registerOk: false);
-      ffi.registerCallCount = 0;
+    test(
+      'stores a pending flag when silent registration cannot create config',
+      () async {
+        final (provider, ffi) = await _createProvider(registerOk: false);
+        ffi.registerCallCount = 0;
 
-      final ok = await provider.syncDisplayName('Bibliothèque de Androtest');
+        final ok = await provider.syncDisplayName('Bibliothèque de Androtest');
 
-      expect(ok, false);
-      final prefs = await SharedPreferences.getInstance();
-      expect(
-        prefs.getString('hub_pending_display_name'),
-        'Bibliothèque de Androtest',
-      );
-    });
+        expect(ok, false);
+        final prefs = await SharedPreferences.getInstance();
+        expect(
+          prefs.getString('hub_pending_display_name'),
+          'Bibliothèque de Androtest',
+        );
+      },
+    );
 
     test('ignores blank input without touching the hub', () async {
-      final (provider, ffi) =
-          await _createProvider(existingConfig: _config());
+      final (provider, ffi) = await _createProvider(existingConfig: _config());
       ffi.registerCallCount = 0;
 
       final ok = await provider.syncDisplayName('   ');
@@ -243,50 +250,60 @@ void main() {
   });
 
   group('pending displayName replay', () {
-    test('initAndSyncCatalog consumes the pending flag and pushes to hub',
-        () async {
-      final (provider, ffi) = await _createProvider(
-        existingConfig: _config(nodeId: 'node-uuid-1'),
-        prefs: const {
-          'hub_pending_display_name': 'Bibliothèque de Androtest',
-        },
-      );
-      ffi.registerCallCount = 0;
-      ffi.registerParamsLog.clear();
+    test(
+      'initAndSyncCatalog consumes the pending flag and pushes to hub',
+      () async {
+        final (provider, ffi) = await _createProvider(
+          existingConfig: _config(nodeId: 'node-uuid-1'),
+          prefs: const {
+            'hub_pending_display_name': 'Bibliothèque de Androtest',
+          },
+        );
+        ffi.registerCallCount = 0;
+        ffi.registerParamsLog.clear();
 
-      await provider.initAndSyncCatalog();
+        await provider.initAndSyncCatalog();
 
-      // ensureRelayPublished may call register too; what matters is that at
-      // least one call carries the pending name and that the flag is cleared.
-      final renamedCalls = ffi.registerParamsLog
-          .where((p) => p.displayName == 'Bibliothèque de Androtest')
-          .toList();
-      expect(renamedCalls, isNotEmpty,
-          reason: 'pending displayName must be replayed to the hub');
+        // ensureRelayPublished may call register too; what matters is that at
+        // least one call carries the pending name and that the flag is cleared.
+        final renamedCalls = ffi.registerParamsLog
+            .where((p) => p.displayName == 'Bibliothèque de Androtest')
+            .toList();
+        expect(
+          renamedCalls,
+          isNotEmpty,
+          reason: 'pending displayName must be replayed to the hub',
+        );
 
-      final prefs = await SharedPreferences.getInstance();
-      expect(prefs.getString('hub_pending_display_name'), isNull,
-          reason: 'successful replay must clear the pending flag');
-    });
+        final prefs = await SharedPreferences.getInstance();
+        expect(
+          prefs.getString('hub_pending_display_name'),
+          isNull,
+          reason: 'successful replay must clear the pending flag',
+        );
+      },
+    );
 
-    test('leaves the pending flag in place when the hub is still unreachable',
-        () async {
-      final (provider, _) = await _createProvider(
-        existingConfig: _config(),
-        registerOk: false,
-        prefs: const {
-          'hub_pending_display_name': 'Bibliothèque de Androtest',
-        },
-      );
+    test(
+      'leaves the pending flag in place when the hub is still unreachable',
+      () async {
+        final (provider, _) = await _createProvider(
+          existingConfig: _config(),
+          registerOk: false,
+          prefs: const {
+            'hub_pending_display_name': 'Bibliothèque de Androtest',
+          },
+        );
 
-      await provider.initAndSyncCatalog();
+        await provider.initAndSyncCatalog();
 
-      final prefs = await SharedPreferences.getInstance();
-      expect(
-        prefs.getString('hub_pending_display_name'),
-        'Bibliothèque de Androtest',
-        reason: 'failed replay must keep the flag so a later cycle retries',
-      );
-    });
+        final prefs = await SharedPreferences.getInstance();
+        expect(
+          prefs.getString('hub_pending_display_name'),
+          'Bibliothèque de Androtest',
+          reason: 'failed replay must keep the flag so a later cycle retries',
+        );
+      },
+    );
   });
 }

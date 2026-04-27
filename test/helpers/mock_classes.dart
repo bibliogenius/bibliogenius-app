@@ -70,7 +70,10 @@ class MockApiService extends ApiService {
     return Response(
       requestOptions: RequestOptions(path: '/api/copies'),
       statusCode: 201,
-      data: {'copy': {'id': 456, ...copyData}, 'message': 'Copy created'},
+      data: {
+        'copy': {'id': 456, ...copyData},
+        'message': 'Copy created',
+      },
     );
   }
 

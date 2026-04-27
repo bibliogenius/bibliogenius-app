@@ -161,7 +161,9 @@ class QuickActionsSheet extends StatelessWidget {
                   icon: Icons.qr_code_scanner,
                   color: Colors.orange,
                   label: TranslationService.translate(
-                      context, 'quick_scan_barcode'),
+                    context,
+                    'quick_scan_barcode',
+                  ),
                   onTap: () async {
                     final router = GoRouter.of(context);
                     Navigator.pop(context);
@@ -197,7 +199,9 @@ class QuickActionsSheet extends StatelessWidget {
                   icon: Icons.travel_explore,
                   color: Colors.blue,
                   label: TranslationService.translate(
-                      context, 'quick_search_online'),
+                    context,
+                    'quick_search_online',
+                  ),
                   onTap: () async {
                     final router = GoRouter.of(context);
                     Navigator.pop(context);
@@ -210,39 +214,43 @@ class QuickActionsSheet extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: thirdSlotOverride ?? ConfigurableActionCard(
-                  slotKey: 'quick_action_custom_slot',
-                  defaultActionId: 'share_library',
-                  allowedActionIds: const [
-                    'share_library',
-                    'inventory',
-                    'create_shelf',
-                    'add_manual',
-                  ],
-                  handlers: {
-                    'share_library': () {
-                      final navState = Navigator.of(context, rootNavigator: true);
-                      Navigator.pop(context);
-                      showInviteShareSheet(navState.context);
-                    },
-                    'inventory': () =>
-                        showShelfPickerForInventory(context, onBookAdded),
-                    'create_shelf': () =>
-                        showCreateShelfDialog(context, onShelfCreated),
-                    'add_manual': () {
-                      final router = GoRouter.of(context);
-                      Navigator.pop(context);
-                      router.push('/books/add');
-                    },
-                  },
-                ),
+                child:
+                    thirdSlotOverride ??
+                    ConfigurableActionCard(
+                      slotKey: 'quick_action_custom_slot',
+                      defaultActionId: 'share_library',
+                      allowedActionIds: const [
+                        'share_library',
+                        'inventory',
+                        'create_shelf',
+                        'add_manual',
+                      ],
+                      handlers: {
+                        'share_library': () {
+                          final navState = Navigator.of(
+                            context,
+                            rootNavigator: true,
+                          );
+                          Navigator.pop(context);
+                          showInviteShareSheet(navState.context);
+                        },
+                        'inventory': () =>
+                            showShelfPickerForInventory(context, onBookAdded),
+                        'create_shelf': () =>
+                            showCreateShelfDialog(context, onShelfCreated),
+                        'add_manual': () {
+                          final router = GoRouter.of(context);
+                          Navigator.pop(context);
+                          router.push('/books/add');
+                        },
+                      },
+                    ),
               ),
             ],
           ),
 
           // Contextual Actions
-          if (contextualActions != null &&
-              contextualActions!.isNotEmpty) ...[
+          if (contextualActions != null && contextualActions!.isNotEmpty) ...[
             const SizedBox(height: 16),
             ...contextualActions!,
           ],
@@ -313,7 +321,9 @@ class QuickActionsSheet extends StatelessWidget {
                 ),
                 content: Text(
                   TranslationService.translate(
-                          context, 'no_shelves_for_inventory') ??
+                        context,
+                        'no_shelves_for_inventory',
+                      ) ??
                       'Create a shelf first to use inventory mode.',
                 ),
                 actions: [
@@ -329,7 +339,9 @@ class QuickActionsSheet extends StatelessWidget {
             return SimpleDialog(
               title: Text(
                 TranslationService.translate(
-                        context, 'choose_shelf_for_inventory') ??
+                      context,
+                      'choose_shelf_for_inventory',
+                    ) ??
                     'Choose a shelf',
               ),
               children: tags.map((tag) {
@@ -338,30 +350,39 @@ class QuickActionsSheet extends StatelessWidget {
                   onPressed: () async {
                     Navigator.pop(dialogContext);
                     Navigator.pop(context);
-                    final result = await router.push('/scan', extra: {
-                      'shelfId': tag.name,
-                      'shelfName': displayName,
-                      'batch': true,
-                    });
+                    final result = await router.push(
+                      '/scan',
+                      extra: {
+                        'shelfId': tag.name,
+                        'shelfName': displayName,
+                        'batch': true,
+                      },
+                    );
                     if (result == true) {
                       onBookAdded?.call();
                       // Navigate to the shelf to show the result
-                      router.go('/shelves?tag=${Uri.encodeComponent(tag.name)}');
+                      router.go(
+                        '/shelves?tag=${Uri.encodeComponent(tag.name)}',
+                      );
                     }
                   },
                   child: Row(
                     children: [
-                      Icon(Icons.label_outline,
-                          color: Colors.grey[600], size: 20),
+                      Icon(
+                        Icons.label_outline,
+                        color: Colors.grey[600],
+                        size: 20,
+                      ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: Text(displayName,
-                            overflow: TextOverflow.ellipsis),
+                        child: Text(
+                          displayName,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                       Text(
                         '${tag.count}',
-                        style:
-                            TextStyle(color: Colors.grey[500], fontSize: 13),
+                        style: TextStyle(color: Colors.grey[500], fontSize: 13),
                       ),
                     ],
                   ),
@@ -396,7 +417,9 @@ class QuickActionsSheet extends StatelessWidget {
                 return AlertDialog(
                   title: Text(
                     TranslationService.translate(
-                            stateContext, 'create_shelf') ??
+                          stateContext,
+                          'create_shelf',
+                        ) ??
                         'Create Shelf',
                   ),
                   content: Form(
@@ -408,20 +431,26 @@ class QuickActionsSheet extends StatelessWidget {
                           controller: controller,
                           autofocus: true,
                           decoration: InputDecoration(
-                            labelText: TranslationService.translate(
-                                    stateContext, 'shelf_name') ??
+                            labelText:
+                                TranslationService.translate(
+                                  stateContext,
+                                  'shelf_name',
+                                ) ??
                                 'Shelf Name',
-                            hintText: TranslationService.translate(
-                                    stateContext, 'shelf_name_hint') ??
+                            hintText:
+                                TranslationService.translate(
+                                  stateContext,
+                                  'shelf_name_hint',
+                                ) ??
                                 'e.g. Science Fiction',
                             border: const OutlineInputBorder(),
                           ),
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
                               return TranslationService.translate(
-                                        stateContext,
-                                        'field_required',
-                                      ) ??
+                                    stateContext,
+                                    'field_required',
+                                  ) ??
                                   'This field is required';
                             }
                             return null;
@@ -433,8 +462,11 @@ class QuickActionsSheet extends StatelessWidget {
                           DropdownButtonFormField<int?>(
                             value: selectedParentId,
                             decoration: InputDecoration(
-                              labelText: TranslationService.translate(
-                                      stateContext, 'parent_shelf') ??
+                              labelText:
+                                  TranslationService.translate(
+                                    stateContext,
+                                    'parent_shelf',
+                                  ) ??
                                   'Parent Shelf (optional)',
                               border: const OutlineInputBorder(),
                             ),
@@ -443,7 +475,9 @@ class QuickActionsSheet extends StatelessWidget {
                                 value: null,
                                 child: Text(
                                   TranslationService.translate(
-                                          stateContext, 'none') ??
+                                        stateContext,
+                                        'none',
+                                      ) ??
                                       'None (root level)',
                                 ),
                               ),
@@ -472,8 +506,7 @@ class QuickActionsSheet extends StatelessWidget {
                     TextButton(
                       onPressed: () => Navigator.pop(dialogContext),
                       child: Text(
-                        TranslationService.translate(
-                                stateContext, 'cancel') ??
+                        TranslationService.translate(stateContext, 'cancel') ??
                             'Cancel',
                       ),
                     ),
@@ -483,8 +516,10 @@ class QuickActionsSheet extends StatelessWidget {
                           final messenger = ScaffoldMessenger.of(context);
                           final successText =
                               TranslationService.translate(
-                                      context, 'shelf_created') ??
-                                  'Shelf created';
+                                context,
+                                'shelf_created',
+                              ) ??
+                              'Shelf created';
 
                           Navigator.pop(dialogContext);
                           Navigator.pop(context);
@@ -512,8 +547,7 @@ class QuickActionsSheet extends StatelessWidget {
                         }
                       },
                       child: Text(
-                        TranslationService.translate(
-                                stateContext, 'create') ??
+                        TranslationService.translate(stateContext, 'create') ??
                             'Create',
                       ),
                     ),
@@ -573,9 +607,11 @@ class _ActionSearchBarState extends State<_ActionSearchBar> {
         _suggestions = [];
       } else {
         _suggestions = QuickActionRegistry.search(value)
-            .where((a) =>
-                _actionRoutes.containsKey(a.id) ||
-                _actionExtras.containsKey(a.id))
+            .where(
+              (a) =>
+                  _actionRoutes.containsKey(a.id) ||
+                  _actionExtras.containsKey(a.id),
+            )
             .take(4)
             .toList();
       }
@@ -659,7 +695,9 @@ class _ActionSearchBarState extends State<_ActionSearchBar> {
                     onTap: () => _executeAction(action),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 10),
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
                       child: Row(
                         children: [
                           Icon(action.icon, color: action.color, size: 20),
@@ -667,15 +705,22 @@ class _ActionSearchBarState extends State<_ActionSearchBar> {
                           Expanded(
                             child: Text(
                               TranslationService.translate(
-                                  context, action.labelKey),
+                                context,
+                                action.labelKey,
+                              ),
                               style: TextStyle(
                                 fontSize: 14,
-                                color: isDark ? Colors.white70 : Colors.grey[800],
+                                color: isDark
+                                    ? Colors.white70
+                                    : Colors.grey[800],
                               ),
                             ),
                           ),
-                          Icon(Icons.arrow_forward_ios,
-                              size: 12, color: Colors.grey[400]),
+                          Icon(
+                            Icons.arrow_forward_ios,
+                            size: 12,
+                            color: Colors.grey[400],
+                          ),
                         ],
                       ),
                     ),

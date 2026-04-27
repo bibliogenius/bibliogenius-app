@@ -32,9 +32,11 @@ class _MockFfiService extends FfiService {
 
   // --- register behavior ---
   int registerCallCount = 0;
+
   /// Number of times register should fail before succeeding.
   /// -1 = always fail.
   int failCount = 0;
+
   /// If set, register throws this error string (simulates 401, network, etc.)
   String? registerError;
 
@@ -172,8 +174,7 @@ void main() {
       expect(ffi.registerCallCount, 3); // max attempts
     });
 
-    test('401 error triggers purge + single recovery retry, then aborts',
-        () async {
+    test('401 error triggers purge + single recovery retry, then aborts', () async {
       final (provider, ffi) = await _createProvider(
         registerError: 'Hub error 401: Unauthorized',
       );

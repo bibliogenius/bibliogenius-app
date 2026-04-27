@@ -113,8 +113,9 @@ class CoverCameraHelper {
       await coversDir.create(recursive: true);
     }
 
-    final fileName =
-        bookId != null ? '$bookId.jpg' : 'temp_${const Uuid().v4()}.jpg';
+    final fileName = bookId != null
+        ? '$bookId.jpg'
+        : 'temp_${const Uuid().v4()}.jpg';
     final targetPath = '${coversDir.path}/$fileName';
 
     final raw = await File(picked.path).readAsBytes();
@@ -143,7 +144,9 @@ class CoverCameraHelper {
 
     Uint8List? smallest;
     for (final quality in _qualitySteps) {
-      final encoded = Uint8List.fromList(img.encodeJpg(fitted, quality: quality));
+      final encoded = Uint8List.fromList(
+        img.encodeJpg(fitted, quality: quality),
+      );
       if (encoded.length <= targetMaxBytes) {
         return encoded;
       }

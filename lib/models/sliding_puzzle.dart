@@ -32,7 +32,8 @@ class PuzzleBoard {
       title: json['title'] as String? ?? '',
       coverUrl: json['cover_url'] as String? ?? '',
       gridSize: (json['grid_size'] as num?)?.toInt() ?? 3,
-      tiles: (json['tiles'] as List<dynamic>?)
+      tiles:
+          (json['tiles'] as List<dynamic>?)
               ?.map((e) => (e as num).toInt())
               .toList() ??
           [],

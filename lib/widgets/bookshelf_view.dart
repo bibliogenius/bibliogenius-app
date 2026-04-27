@@ -6,6 +6,7 @@ import 'book_spine.dart';
 class BookshelfView extends StatelessWidget {
   final List<Book> books;
   final Function(Book) onBookTap;
+
   /// Optional widget shown below the book grid (e.g. loading indicator).
   final Widget? footer;
 

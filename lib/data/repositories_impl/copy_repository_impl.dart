@@ -79,9 +79,7 @@ class CopyRepositoryImpl implements CopyRepository {
   Future<void> deleteCopy(int copyId) async {
     final response = await _apiService.deleteCopy(copyId);
     if (response.statusCode != 200) {
-      throw Exception(
-        'Failed to delete copy (status: ${response.statusCode})',
-      );
+      throw Exception('Failed to delete copy (status: ${response.statusCode})');
     }
   }
 }

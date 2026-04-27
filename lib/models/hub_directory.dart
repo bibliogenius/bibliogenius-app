@@ -27,12 +27,12 @@ class DirectoryConfig {
   });
 
   factory DirectoryConfig.fromFrb(frb.FrbDirectoryConfig f) => DirectoryConfig(
-        nodeId: f.nodeId,
-        isListed: f.isListed,
-        requiresApproval: f.requiresApproval,
-        acceptFrom: f.acceptFrom,
-        allowBorrowing: f.allowBorrowing,
-      );
+    nodeId: f.nodeId,
+    isListed: f.isListed,
+    requiresApproval: f.requiresApproval,
+    acceptFrom: f.acceptFrom,
+    allowBorrowing: f.allowBorrowing,
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -81,22 +81,22 @@ class HubProfile {
   });
 
   factory HubProfile.fromFrb(frb.FrbHubProfile f) => HubProfile(
-        nodeId: f.nodeId,
-        displayName: f.displayName,
-        description: f.description,
-        bookCount: f.bookCount,
-        locationCountry: f.locationCountry,
-        locationCityId: f.locationCityId,
-        requiresApproval: f.requiresApproval,
-        allowBorrowing: f.allowBorrowing,
-        lastSeenAt: f.lastSeenAt,
-        x25519PublicKey: f.x25519PublicKey,
-        website: f.website,
-        deviceModel: f.deviceModel,
-        deviceFingerprint: f.deviceFingerprint,
-        appVersion: f.appVersion,
-        avatarConfig: f.avatarConfig,
-      );
+    nodeId: f.nodeId,
+    displayName: f.displayName,
+    description: f.description,
+    bookCount: f.bookCount,
+    locationCountry: f.locationCountry,
+    locationCityId: f.locationCityId,
+    requiresApproval: f.requiresApproval,
+    allowBorrowing: f.allowBorrowing,
+    lastSeenAt: f.lastSeenAt,
+    x25519PublicKey: f.x25519PublicKey,
+    website: f.website,
+    deviceModel: f.deviceModel,
+    deviceFingerprint: f.deviceFingerprint,
+    appVersion: f.appVersion,
+    avatarConfig: f.avatarConfig,
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -136,16 +136,16 @@ class HubFollow {
   });
 
   factory HubFollow.fromFrb(frb.FrbHubFollow f) => HubFollow(
-        id: f.id,
-        followerNodeId: f.followerNodeId,
-        followedNodeId: f.followedNodeId,
-        status: f.status,
-        createdAt: f.createdAt,
-        resolvedAt: f.resolvedAt,
-        followerDisplayName: f.followerDisplayName,
-        encryptedContact: f.encryptedContact,
-        followerX25519PublicKey: f.followerX25519PublicKey,
-      );
+    id: f.id,
+    followerNodeId: f.followerNodeId,
+    followedNodeId: f.followedNodeId,
+    status: f.status,
+    createdAt: f.createdAt,
+    resolvedAt: f.resolvedAt,
+    followerDisplayName: f.followerDisplayName,
+    encryptedContact: f.encryptedContact,
+    followerX25519PublicKey: f.followerX25519PublicKey,
+  );
 
   bool get isPending => status == 'pending';
   bool get isActive => status == 'active';

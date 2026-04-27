@@ -117,60 +117,87 @@ Future<(HubDirectoryProvider, _MockFfiService)> _createProvider({
 
 void main() {
   group('enableAndPublish', () {
-    test('flips _hubEnabled, registers with isListed=true, pushes catalog',
-        () async {
-      final (provider, ffi) = await _createProvider();
-      expect(provider.isHubEnabled, false, reason: 'baseline: hub is off');
-      expect(provider.isRegistered, false, reason: 'baseline: no config');
+    test(
+      'flips _hubEnabled, registers with isListed=true, pushes catalog',
+      () async {
+        final (provider, ffi) = await _createProvider();
+        expect(provider.isHubEnabled, false, reason: 'baseline: hub is off');
+        expect(provider.isRegistered, false, reason: 'baseline: no config');
 
-      final ok = await provider.enableAndPublish(
-        displayName: 'My Shiny Library',
-        locationCountry: 'FR',
-      );
+        final ok = await provider.enableAndPublish(
+          displayName: 'My Shiny Library',
+          locationCountry: 'FR',
+        );
 
-      expect(ok, true);
-      expect(provider.isHubEnabled, true,
-          reason: '_hubEnabled must be true after publish');
-      expect(provider.isListed, true,
-          reason: 'config.isListed must be true after publish');
-      expect(ffi.registerCallCount, 1);
-      expect(ffi.lastRegisterParams?.isListed, true);
-      expect(ffi.lastRegisterParams?.displayName, 'My Shiny Library');
-      expect(ffi.lastRegisterParams?.locationCountry, 'FR');
-      expect(ffi.lastRegisterParams?.relayUrl, 'wss://relay.example.com');
-      // Privacy-first defaults on first publish: followers need approval
-      // before reading the catalog, and physical-loan requests are opt-in.
-      expect(ffi.lastRegisterParams?.requiresApproval, true,
-          reason: 'first publish must require follower approval by default');
-      expect(ffi.lastRegisterParams?.allowBorrowing, false,
-          reason: 'first publish must NOT auto-accept borrow requests');
-      expect(ffi.syncCatalogCallCount, 1,
-          reason: 'catalog must be pushed on success so followers see books');
-    });
+        expect(ok, true);
+        expect(
+          provider.isHubEnabled,
+          true,
+          reason: '_hubEnabled must be true after publish',
+        );
+        expect(
+          provider.isListed,
+          true,
+          reason: 'config.isListed must be true after publish',
+        );
+        expect(ffi.registerCallCount, 1);
+        expect(ffi.lastRegisterParams?.isListed, true);
+        expect(ffi.lastRegisterParams?.displayName, 'My Shiny Library');
+        expect(ffi.lastRegisterParams?.locationCountry, 'FR');
+        expect(ffi.lastRegisterParams?.relayUrl, 'wss://relay.example.com');
+        // Privacy-first defaults on first publish: followers need approval
+        // before reading the catalog, and physical-loan requests are opt-in.
+        expect(
+          ffi.lastRegisterParams?.requiresApproval,
+          true,
+          reason: 'first publish must require follower approval by default',
+        );
+        expect(
+          ffi.lastRegisterParams?.allowBorrowing,
+          false,
+          reason: 'first publish must NOT auto-accept borrow requests',
+        );
+        expect(
+          ffi.syncCatalogCallCount,
+          1,
+          reason: 'catalog must be pushed on success so followers see books',
+        );
+      },
+    );
 
-    test('blank locationCountry is forwarded as null (hub treats "" invalid)',
-        () async {
-      final (provider, ffi) = await _createProvider();
+    test(
+      'blank locationCountry is forwarded as null (hub treats "" invalid)',
+      () async {
+        final (provider, ffi) = await _createProvider();
 
-      await provider.enableAndPublish(
-        displayName: 'Lib',
-        locationCountry: '   ',
-      );
+        await provider.enableAndPublish(
+          displayName: 'Lib',
+          locationCountry: '   ',
+        );
 
-      expect(ffi.lastRegisterParams?.locationCountry, isNull);
-    });
+        expect(ffi.lastRegisterParams?.locationCountry, isNull);
+      },
+    );
 
-    test('register failure still flips _hubEnabled but skips catalog push',
-        () async {
-      final (provider, ffi) = await _createProvider(registerOk: false);
+    test(
+      'register failure still flips _hubEnabled but skips catalog push',
+      () async {
+        final (provider, ffi) = await _createProvider(registerOk: false);
 
-      final ok = await provider.enableAndPublish(displayName: 'Lib');
+        final ok = await provider.enableAndPublish(displayName: 'Lib');
 
-      expect(ok, false);
-      expect(provider.isHubEnabled, true,
-          reason: 'user intent is saved locally even if hub call fails');
-      expect(ffi.syncCatalogCallCount, 0,
-          reason: 'no catalog push if registration failed');
-    });
+        expect(ok, false);
+        expect(
+          provider.isHubEnabled,
+          true,
+          reason: 'user intent is saved locally even if hub call fails',
+        );
+        expect(
+          ffi.syncCatalogCallCount,
+          0,
+          reason: 'no catalog push if registration failed',
+        );
+      },
+    );
   });
 }

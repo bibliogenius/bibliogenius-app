@@ -116,11 +116,13 @@ class MemoryGameProvider extends ChangeNotifier {
     try {
       final frbCards = await _ffi.setupMemoryGame(_selectedDifficulty!);
       _cards = frbCards
-          .map((c) => MemoryCard(
-                bookId: c.bookId,
-                title: c.title,
-                coverUrl: c.coverUrl,
-              ))
+          .map(
+            (c) => MemoryCard(
+              bookId: c.bookId,
+              title: c.title,
+              coverUrl: c.coverUrl,
+            ),
+          )
           .toList();
       _totalPairs = _cards.length ~/ 2;
       _matchedPairs = 0;
@@ -135,13 +137,10 @@ class MemoryGameProvider extends ChangeNotifier {
       _stopwatch.start();
       _elapsedSeconds = 0;
       _displayTimer?.cancel();
-      _displayTimer = Timer.periodic(
-        const Duration(seconds: 1),
-        (_) {
-          _elapsedSeconds = _stopwatch.elapsedMilliseconds / 1000.0;
-          notifyListeners();
-        },
-      );
+      _displayTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+        _elapsedSeconds = _stopwatch.elapsedMilliseconds / 1000.0;
+        notifyListeners();
+      });
     } catch (e) {
       _error = e.toString();
       debugPrint('MemoryGameProvider: startGame error: $e');
@@ -289,15 +288,17 @@ class MemoryGameProvider extends ChangeNotifier {
     try {
       final frbScores = await _ffi.getMemoryTopScores();
       _topScores = frbScores
-          .map((s) => MemoryGameScore(
-                id: s.id,
-                difficulty: s.difficulty,
-                pairsCount: s.pairsCount,
-                elapsedSeconds: s.elapsedSeconds,
-                errors: s.errors,
-                normalizedScore: s.normalizedScore,
-                playedAt: s.playedAt,
-              ))
+          .map(
+            (s) => MemoryGameScore(
+              id: s.id,
+              difficulty: s.difficulty,
+              pairsCount: s.pairsCount,
+              elapsedSeconds: s.elapsedSeconds,
+              errors: s.errors,
+              normalizedScore: s.normalizedScore,
+              playedAt: s.playedAt,
+            ),
+          )
           .toList();
       notifyListeners();
     } catch (e) {
@@ -330,14 +331,16 @@ class MemoryGameProvider extends ChangeNotifier {
     try {
       final frbEntries = await _ffi.getMemoryLeaderboard();
       _networkScores = frbEntries
-          .map((e) => MemoryLeaderboardEntry(
-                peerId: e.peerId,
-                libraryName: e.libraryName,
-                bestScore: e.bestScore,
-                difficulty: e.difficulty,
-                playedAt: e.playedAt,
-                isSelf: e.isSelf,
-              ))
+          .map(
+            (e) => MemoryLeaderboardEntry(
+              peerId: e.peerId,
+              libraryName: e.libraryName,
+              bestScore: e.bestScore,
+              difficulty: e.difficulty,
+              playedAt: e.playedAt,
+              isSelf: e.isSelf,
+            ),
+          )
           .toList();
       notifyListeners();
     } catch (e) {
@@ -356,23 +359,28 @@ class MemoryGameProvider extends ChangeNotifier {
   void _syncPeersInBackground() {
     if (_backgroundSyncRunning || _isSyncingNetwork) return;
     _backgroundSyncRunning = true;
-    _ffi.refreshMemoryLeaderboard().then((frbEntries) {
-      _networkScores = frbEntries
-          .map((e) => MemoryLeaderboardEntry(
-                peerId: e.peerId,
-                libraryName: e.libraryName,
-                bestScore: e.bestScore,
-                difficulty: e.difficulty,
-                playedAt: e.playedAt,
-                isSelf: e.isSelf,
-              ))
-          .toList();
-      _backgroundSyncRunning = false;
-      notifyListeners();
-    }).catchError((e) {
-      debugPrint('MemoryGameProvider: background sync error: $e');
-      _backgroundSyncRunning = false;
-    });
+    _ffi
+        .refreshMemoryLeaderboard()
+        .then((frbEntries) {
+          _networkScores = frbEntries
+              .map(
+                (e) => MemoryLeaderboardEntry(
+                  peerId: e.peerId,
+                  libraryName: e.libraryName,
+                  bestScore: e.bestScore,
+                  difficulty: e.difficulty,
+                  playedAt: e.playedAt,
+                  isSelf: e.isSelf,
+                ),
+              )
+              .toList();
+          _backgroundSyncRunning = false;
+          notifyListeners();
+        })
+        .catchError((e) {
+          debugPrint('MemoryGameProvider: background sync error: $e');
+          _backgroundSyncRunning = false;
+        });
   }
 
   /// Force relay sync with spinner. Called from the manual refresh button.
@@ -391,23 +399,26 @@ class MemoryGameProvider extends ChangeNotifier {
     await Future<void>.delayed(const Duration(milliseconds: 50));
 
     try {
-      final frbEntries = await _ffi
-          .refreshMemoryLeaderboard()
-          .timeout(const Duration(seconds: 15));
+      final frbEntries = await _ffi.refreshMemoryLeaderboard().timeout(
+        const Duration(seconds: 15),
+      );
       _networkScores = frbEntries
-          .map((e) => MemoryLeaderboardEntry(
-                peerId: e.peerId,
-                libraryName: e.libraryName,
-                bestScore: e.bestScore,
-                difficulty: e.difficulty,
-                playedAt: e.playedAt,
-                isSelf: e.isSelf,
-              ))
+          .map(
+            (e) => MemoryLeaderboardEntry(
+              peerId: e.peerId,
+              libraryName: e.libraryName,
+              bestScore: e.bestScore,
+              difficulty: e.difficulty,
+              playedAt: e.playedAt,
+              isSelf: e.isSelf,
+            ),
+          )
           .toList();
     } on TimeoutException {
       _lastRefreshTimedOut = true;
       debugPrint(
-          'MemoryGameProvider: refreshNetworkLeaderboard timed out, reloading cache');
+        'MemoryGameProvider: refreshNetworkLeaderboard timed out, reloading cache',
+      );
       await _loadCachedScores();
     } catch (e) {
       debugPrint('MemoryGameProvider: refreshNetworkLeaderboard error: $e');

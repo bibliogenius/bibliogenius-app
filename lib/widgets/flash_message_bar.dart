@@ -14,7 +14,11 @@ const _darkBorder = Color(0xFF1E4A52);
 Color _flashBg(bool isDark) => isDark ? _darkBg : _lightBg;
 Color _flashBorder(bool isDark) => isDark ? _darkBorder : _lightBorder;
 
-BoxDecoration _flashCardDecoration(ColorScheme colorScheme, bool isDark, {double bgAlpha = 1.0}) {
+BoxDecoration _flashCardDecoration(
+  ColorScheme colorScheme,
+  bool isDark, {
+  double bgAlpha = 1.0,
+}) {
   final bg = _flashBg(isDark);
   return BoxDecoration(
     color: bgAlpha < 1.0 ? bg.withValues(alpha: bgAlpha) : bg,
@@ -59,9 +63,7 @@ Widget _flashCloseButton(BuildContext context, VoidCallback onPressed) {
       padding: EdgeInsets.zero,
       constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
       style: IconButton.styleFrom(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(6),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
       ),
     ),
   );
@@ -89,8 +91,9 @@ class FlashMessageBar extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    final topPadding =
-        applyTopSafeArea ? MediaQuery.of(context).padding.top : 0.0;
+    final topPadding = applyTopSafeArea
+        ? MediaQuery.of(context).padding.top
+        : 0.0;
 
     return Padding(
       padding: EdgeInsets.only(top: topPadding),
@@ -178,10 +181,7 @@ class _FlashBar extends StatelessWidget {
       // Close button floats top-right; content gets full width.
       inner = Stack(
         children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 4),
-            child: content,
-          ),
+          Padding(padding: const EdgeInsets.only(top: 4), child: content),
           Positioned(
             top: -4,
             right: -2,
@@ -280,7 +280,10 @@ class _EphemeralPeerFlashBar extends StatelessWidget {
                 }
               },
               style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 minimumSize: const Size(0, 32),
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 shape: RoundedRectangleBorder(
@@ -298,9 +301,9 @@ class _EphemeralPeerFlashBar extends StatelessWidget {
             ),
             _flashCloseButton(
               context,
-              () => context
-                  .read<FlashMessageProvider>()
-                  .dismissEphemeral(flash.peerId),
+              () => context.read<FlashMessageProvider>().dismissEphemeral(
+                flash.peerId,
+              ),
             ),
           ],
         ),
@@ -474,9 +477,7 @@ class _PeerConnectionsDialog extends StatelessWidget {
         ),
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: Text(
-            TranslationService.translate(context, 'close'),
-          ),
+          child: Text(TranslationService.translate(context, 'close')),
         ),
       ],
     );

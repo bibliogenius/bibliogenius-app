@@ -100,11 +100,13 @@ class StreakCelebration {
     if (lastShownDate == today) return;
 
     // Check if we've reached a new milestone
-    final lastCelebratedMilestone = prefs.getInt('streak_last_celebrated_milestone') ?? 0;
+    final lastCelebratedMilestone =
+        prefs.getInt('streak_last_celebrated_milestone') ?? 0;
     StreakMilestone? newMilestone;
 
     for (final milestone in streakMilestones.reversed) {
-      if (currentStreak >= milestone.days && milestone.days > lastCelebratedMilestone) {
+      if (currentStreak >= milestone.days &&
+          milestone.days > lastCelebratedMilestone) {
         newMilestone = milestone;
         break;
       }
@@ -180,13 +182,15 @@ class _DailyStreakToastState extends State<_DailyStreakToast>
       vsync: this,
     );
 
-    _slideAnimation = Tween<double>(begin: -100, end: 0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
-    );
+    _slideAnimation = Tween<double>(
+      begin: -100,
+      end: 0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
 
-    _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeIn),
-    );
+    _fadeAnimation = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
 
     _controller.forward();
 
@@ -214,10 +218,7 @@ class _DailyStreakToastState extends State<_DailyStreakToast>
         animation: _controller,
         builder: (context, child) => Transform.translate(
           offset: Offset(0, _slideAnimation.value),
-          child: Opacity(
-            opacity: _fadeAnimation.value,
-            child: child,
-          ),
+          child: Opacity(opacity: _fadeAnimation.value, child: child),
         ),
         child: GestureDetector(
           onTap: () {
@@ -348,11 +349,14 @@ class _MilestoneCelebrationSheetState extends State<_MilestoneCelebrationSheet>
       child: Stack(
         children: [
           // Confetti particles
-          ...List.generate(20, (index) => _ConfettiParticle(
-            controller: _confettiController,
-            index: index,
-            color: widget.milestone.gradientColors[index % 2],
-          )),
+          ...List.generate(
+            20,
+            (index) => _ConfettiParticle(
+              controller: _confettiController,
+              index: index,
+              color: widget.milestone.gradientColors[index % 2],
+            ),
+          ),
           // Content
           Padding(
             padding: const EdgeInsets.all(32),
@@ -417,11 +421,11 @@ class _MilestoneCelebrationSheetState extends State<_MilestoneCelebrationSheet>
                 const SizedBox(height: 16),
                 // Description
                 Text(
-                  TranslationService.translate(context, widget.milestone.description),
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: Colors.grey[600],
+                  TranslationService.translate(
+                    context,
+                    widget.milestone.description,
                   ),
+                  style: TextStyle(fontSize: 15, color: Colors.grey[600]),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 32),
@@ -487,10 +491,7 @@ class _MilestoneCelebrationSheetState extends State<_MilestoneCelebrationSheet>
         const SizedBox(width: 8),
         Text(
           '${TranslationService.translate(context, 'next_reward_in')} $daysUntilNext ${TranslationService.translate(context, 'days')}',
-          style: TextStyle(
-            fontSize: 13,
-            color: Colors.grey[500],
-          ),
+          style: TextStyle(fontSize: 13, color: Colors.grey[500]),
         ),
       ],
     );

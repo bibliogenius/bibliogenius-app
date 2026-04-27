@@ -488,10 +488,7 @@ class BadgeCollectionWidget extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4.0),
           child: Text(
-            TranslationService.translate(
-              context,
-              badgeInfo.descriptionKey,
-            ),
+            TranslationService.translate(context, badgeInfo.descriptionKey),
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: isDesktop ? 12.0 : 10.0,
@@ -1226,7 +1223,9 @@ class _GamificationSummaryCardState extends State<GamificationSummaryCard> {
                                 context,
                                 'all',
                                 TranslationService.translate(
-                                    context, 'filter_all'),
+                                  context,
+                                  'filter_all',
+                                ),
                                 Icons.star,
                               ),
                               const SizedBox(width: 4),
@@ -1234,46 +1233,53 @@ class _GamificationSummaryCardState extends State<GamificationSummaryCard> {
                                 context,
                                 'games',
                                 TranslationService.translate(
-                                    context, 'filter_games'),
+                                  context,
+                                  'filter_games',
+                                ),
                                 Icons.sports_esports,
                               ),
                             ],
                           ),
                           const SizedBox(height: 10),
-                          Builder(builder: (context) {
-                            final filtered = _achievementFilter == 'games'
-                                ? widget.status.recentAchievements
-                                    .where((id) =>
-                                        id.startsWith('memory') ||
-                                        id.startsWith('puzzle'))
-                                    .toList()
-                                : widget.status.recentAchievements;
-                            if (filtered.isEmpty) {
-                              return Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 8),
-                                child: Text(
-                                  '-',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(
-                                        color: isDark
-                                            ? Colors.white54
-                                            : Colors.black38,
-                                      ),
-                                ),
+                          Builder(
+                            builder: (context) {
+                              final filtered = _achievementFilter == 'games'
+                                  ? widget.status.recentAchievements
+                                        .where(
+                                          (id) =>
+                                              id.startsWith('memory') ||
+                                              id.startsWith('puzzle'),
+                                        )
+                                        .toList()
+                                  : widget.status.recentAchievements;
+                              if (filtered.isEmpty) {
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 8,
+                                  ),
+                                  child: Text(
+                                    '-',
+                                    style: Theme.of(context).textTheme.bodySmall
+                                        ?.copyWith(
+                                          color: isDark
+                                              ? Colors.white54
+                                              : Colors.black38,
+                                        ),
+                                  ),
+                                );
+                              }
+                              return Wrap(
+                                spacing: 8,
+                                runSpacing: 6,
+                                children: filtered
+                                    .map(
+                                      (id) =>
+                                          _buildAchievementChip(context, id),
+                                    )
+                                    .toList(),
                               );
-                            }
-                            return Wrap(
-                              spacing: 8,
-                              runSpacing: 6,
-                              children: filtered
-                                  .map((id) =>
-                                      _buildAchievementChip(context, id))
-                                  .toList(),
-                            );
-                          }),
+                            },
+                          ),
                         ],
                       ),
                     ),
@@ -1546,7 +1552,11 @@ class _GamificationSummaryCardState extends State<GamificationSummaryCard> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 12, color: isSelected ? Colors.amber[700] : Colors.grey),
+            Icon(
+              icon,
+              size: 12,
+              color: isSelected ? Colors.amber[700] : Colors.grey,
+            ),
             const SizedBox(width: 3),
             Text(
               label,

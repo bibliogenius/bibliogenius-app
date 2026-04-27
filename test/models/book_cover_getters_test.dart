@@ -80,8 +80,10 @@ void main() {
 
     test('returns the persisted URL when present', () {
       expect(
-        loan(coverUrl: 'https://cdn/x.jpg', isbn: '9781234567890')
-            .resolvedCoverUrl,
+        loan(
+          coverUrl: 'https://cdn/x.jpg',
+          isbn: '9781234567890',
+        ).resolvedCoverUrl,
         'https://cdn/x.jpg',
       );
     });

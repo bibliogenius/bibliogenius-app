@@ -37,8 +37,7 @@ class _HelpScreenState extends State<HelpScreen> {
     _topics = HelpRegistry.getAllForUser(context);
 
     if (!_initialScrollScheduled && widget.initialTopicId != null) {
-      final index =
-          _topics.indexWhere((t) => t.id == widget.initialTopicId);
+      final index = _topics.indexWhere((t) => t.id == widget.initialTopicId);
       if (index >= 0) {
         _initialScrollScheduled = true;
         _expandedIndex = index;
@@ -429,4 +428,3 @@ class _HelpScreenState extends State<HelpScreen> {
     );
   }
 }
-
