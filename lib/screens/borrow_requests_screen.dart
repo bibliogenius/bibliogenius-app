@@ -106,12 +106,23 @@ class _LoansScreenState extends State<LoansScreen>
         themeProvider.networkEnabled ||
         themeProvider.remoteReachableEnabled ||
         hubProvider.isRegistered;
+    // P2P loan requests sub-tabs are gated independently:
+    // - "Reçues"  = peers asking to borrow OUR books → needs canLendBooks
+    // - "Envoyées" = WE asked to borrow THEIR books → needs canBorrowBooks
+    // Connections sub-tab is independent of both modules.
+    final showConnections = themeProvider.connectionValidationEnabled;
+    final demandesTabVisible =
+        hasPeerNetwork &&
+        (themeProvider.canLendBooks ||
+            themeProvider.canBorrowBooks ||
+            showConnections);
     // Tab count depends on:
-    // - hasPeerNetwork: show "Demandes" tab if any peer connectivity is active
+    // - demandesTabVisible: show "Demandes" tab if peer connectivity is active
+    //   AND there is at least one sub-tab (loan requests or connections)
     // - canLendBooks:    show "Prêtés" tab only if lending is enabled
     // - canBorrowBooks:  show "Empruntés" tab only if borrowing is enabled
     int tabCount = 0;
-    if (hasPeerNetwork) tabCount++; // +Demandes
+    if (demandesTabVisible) tabCount++; // +Demandes
     if (themeProvider.canLendBooks) tabCount++; // +Prêtés
     if (themeProvider.canBorrowBooks) tabCount++; // +Empruntés
     // Tab list must have at least one tab even if everything is disabled,
@@ -123,7 +134,7 @@ class _LoansScreenState extends State<LoansScreen>
     if (widget.initialTab != null) {
       if (widget.initialTab == 'lent' && themeProvider.canLendBooks) {
         // Lent is after Requests (if enabled), otherwise first
-        initialIndex = hasPeerNetwork ? 1 : 0;
+        initialIndex = demandesTabVisible ? 1 : 0;
       } else if (widget.initialTab == 'borrowed' &&
           themeProvider.canBorrowBooks) {
         // Borrowed is last tab
@@ -137,8 +148,17 @@ class _LoansScreenState extends State<LoansScreen>
       vsync: this,
       initialIndex: initialIndex,
     );
+    // Sub-tabs of Demandes — gated independently by each loan module:
+    //   Reçues  → canLendBooks   (peers want our books)
+    //   Envoyées → canBorrowBooks (we want their books)
+    //   Connexions → connectionValidationEnabled
+    int requestsSubCount = 0;
+    if (themeProvider.canLendBooks) requestsSubCount++; // +Reçues
+    if (themeProvider.canBorrowBooks) requestsSubCount++; // +Envoyées
+    if (showConnections) requestsSubCount++; // +Connexions
+    if (requestsSubCount == 0) requestsSubCount = 1; // safety floor
     _requestsTabController = TabController(
-      length: themeProvider.connectionValidationEnabled ? 3 : 2,
+      length: requestsSubCount,
       vsync: this,
     );
     _fetchAllData();
@@ -347,11 +367,23 @@ class _LoansScreenState extends State<LoansScreen>
     final themeProvider = Provider.of<ThemeProvider>(context);
     final canBorrow = themeProvider.canBorrowBooks;
     final canLend = themeProvider.canLendBooks;
-    final networkEnabled =
-        themeProvider.networkEnabled || themeProvider.remoteReachableEnabled;
+    final hubProvider = Provider.of<HubDirectoryProvider>(
+      context,
+      listen: false,
+    );
+    // Match initState's gating: Demandes tab visible if peer connectivity is
+    // active AND at least one sub-tab is enabled (Reçues needs canLend,
+    // Envoyées needs canBorrow, Connexions needs connectionValidationEnabled).
+    final hasPeerNetwork =
+        themeProvider.networkEnabled ||
+        themeProvider.remoteReachableEnabled ||
+        hubProvider.isRegistered;
+    final showDemandes =
+        hasPeerNetwork &&
+        (canLend || canBorrow || themeProvider.connectionValidationEnabled);
 
     final tabs = <Tab>[
-      if (networkEnabled)
+      if (showDemandes)
         Tab(
           key: const Key('requestsTab'),
           text: TranslationService.translate(context, 'tab_requests'),
@@ -368,7 +400,7 @@ class _LoansScreenState extends State<LoansScreen>
         ),
     ];
     final views = <Widget>[
-      if (networkEnabled) _buildRequestsTab(),
+      if (showDemandes) _buildRequestsTab(),
       if (canLend) _buildLentTab(),
       if (canBorrow) _buildBorrowedTab(),
     ];
@@ -467,6 +499,11 @@ class _LoansScreenState extends State<LoansScreen>
       context,
       listen: false,
     );
+    // Sub-tabs are gated independently:
+    //   Reçues  → canLendBooks   (peers asking to borrow OUR books)
+    //   Envoyées → canBorrowBooks (we asking to borrow THEIR books)
+    final canLend = themeProvider.canLendBooks;
+    final canBorrow = themeProvider.canBorrowBooks;
     final showConnections = themeProvider.connectionValidationEnabled;
 
     final incomingCount =
@@ -486,14 +523,16 @@ class _LoansScreenState extends State<LoansScreen>
             unselectedLabelColor: Colors.grey,
             indicatorColor: Theme.of(context).colorScheme.primary,
             tabs: [
-              Tab(
-                text:
-                    '${TranslationService.translate(context, 'tab_received')} ($incomingCount)',
-              ),
-              Tab(
-                text:
-                    '${TranslationService.translate(context, 'tab_sent')} ($outgoingCount)',
-              ),
+              if (canLend)
+                Tab(
+                  text:
+                      '${TranslationService.translate(context, 'tab_received')} ($incomingCount)',
+                ),
+              if (canBorrow)
+                Tab(
+                  text:
+                      '${TranslationService.translate(context, 'tab_sent')} ($outgoingCount)',
+                ),
               if (showConnections)
                 Tab(
                   text:
@@ -506,14 +545,16 @@ class _LoansScreenState extends State<LoansScreen>
           child: TabBarView(
             controller: _requestsTabController,
             children: [
-              RefreshIndicator(
-                onRefresh: _fetchAllData,
-                child: _buildIncomingList(),
-              ),
-              RefreshIndicator(
-                onRefresh: _fetchAllData,
-                child: _buildOutgoingList(),
-              ),
+              if (canLend)
+                RefreshIndicator(
+                  onRefresh: _fetchAllData,
+                  child: _buildIncomingList(),
+                ),
+              if (canBorrow)
+                RefreshIndicator(
+                  onRefresh: _fetchAllData,
+                  child: _buildOutgoingList(),
+                ),
               if (showConnections)
                 RefreshIndicator(
                   onRefresh: _fetchAllData,
