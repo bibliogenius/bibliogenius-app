@@ -122,9 +122,8 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
           ),
           const SizedBox(height: 24),
 
-          // Action buttons - hidden when the loans module is disabled or for librarians
-          if (!Provider.of<ThemeProvider>(context, listen: false).isLibrarian &&
-              Provider.of<ThemeProvider>(context, listen: false).canBorrowBooks)
+          // Action buttons - hidden when the borrowing module is disabled
+          if (Provider.of<ThemeProvider>(context, listen: false).canBorrowBooks)
             FilledButton.icon(
               onPressed: () => _borrowFromContact(context),
               icon: const Icon(Icons.book_outlined),

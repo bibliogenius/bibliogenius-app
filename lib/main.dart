@@ -58,7 +58,6 @@ import 'models/contact.dart';
 import 'screens/scan_screen.dart';
 import 'screens/scan_qr_screen.dart';
 import 'screens/profile_screen.dart';
-import 'screens/setup_screen.dart';
 
 import 'screens/peer_book_list_screen.dart';
 import 'screens/peer_detail_screen.dart';
@@ -116,18 +115,22 @@ class AppScrollBehavior extends MaterialScrollBehavior {
 /// Pre-warm all leaderboard caches in background (fire-and-forget).
 /// Skips Phase 1 direct HTTP on cellular where LAN peers are unreachable.
 void _prewarmLeaderboards() {
-  Connectivity().checkConnectivity().then((connectivity) {
-    final isWifi = connectivity.contains(ConnectivityResult.wifi) ||
-        connectivity.contains(ConnectivityResult.ethernet);
-    frb.refreshAllLeaderboards(skipDirect: !isWifi).catchError((e) {
-      debugPrint('Leaderboard pre-warm failed (non-fatal): $e');
-    });
-  }).catchError((e) {
-    // Connectivity check failed; try with skip_direct=true (safe default)
-    frb.refreshAllLeaderboards(skipDirect: true).catchError((e2) {
-      debugPrint('Leaderboard pre-warm failed (non-fatal): $e2');
-    });
-  });
+  Connectivity()
+      .checkConnectivity()
+      .then((connectivity) {
+        final isWifi =
+            connectivity.contains(ConnectivityResult.wifi) ||
+            connectivity.contains(ConnectivityResult.ethernet);
+        frb.refreshAllLeaderboards(skipDirect: !isWifi).catchError((e) {
+          debugPrint('Leaderboard pre-warm failed (non-fatal): $e');
+        });
+      })
+      .catchError((e) {
+        // Connectivity check failed; try with skip_direct=true (safe default)
+        frb.refreshAllLeaderboards(skipDirect: true).catchError((e2) {
+          debugPrint('Leaderboard pre-warm failed (non-fatal): $e2');
+        });
+      });
 }
 
 /// Get device name for library name fallback.
@@ -268,15 +271,18 @@ void main([List<String>? args]) async {
 
   if (useFfi) {
     // If library name hasn't been customized, set from device name
-    debugPrint('Library name: customized=${themeProvider.libraryNameCustomized}, '
-        'current="${themeProvider.libraryName}"');
+    debugPrint(
+      'Library name: customized=${themeProvider.libraryNameCustomized}, '
+      'current="${themeProvider.libraryName}"',
+    );
     if (!themeProvider.libraryNameCustomized) {
       try {
         final deviceName = await _getDeviceName();
         debugPrint('Device name result: "$deviceName"');
         if (deviceName != null && deviceName.isNotEmpty) {
-          final localizedName =
-              themeProvider.buildDefaultLibraryName(deviceName: deviceName);
+          final localizedName = themeProvider.buildDefaultLibraryName(
+            deviceName: deviceName,
+          );
           await themeProvider.setLibraryName(localizedName);
           debugPrint('Library name set from device: $localizedName');
         }
@@ -332,7 +338,8 @@ void main([List<String>? args]) async {
         ed25519Key = keys['ed25519'] as String?;
         x25519Key = keys['x25519'] as String?;
         debugPrint(
-            'E2EE: Identity initialized (hasKeys=${ed25519Key != null})');
+          'E2EE: Identity initialized (hasKeys=${ed25519Key != null})',
+        );
       } catch (e) {
         debugPrint('E2EE: Identity init failed (non-blocking): $e');
       }
@@ -491,24 +498,16 @@ class MyApp extends StatelessWidget {
         ),
         Provider<AuthService>.value(value: authService),
         Provider<ApiService>.value(value: apiService),
-        Provider<BookRepository>.value(
-          value: BookRepositoryImpl(apiService),
-        ),
-        Provider<TagRepository>.value(
-          value: TagRepositoryImpl(apiService),
-        ),
+        Provider<BookRepository>.value(value: BookRepositoryImpl(apiService)),
+        Provider<TagRepository>.value(value: TagRepositoryImpl(apiService)),
         Provider<ContactRepository>.value(
           value: ContactRepositoryImpl(apiService),
         ),
         Provider<CollectionRepository>.value(
           value: CollectionRepositoryImpl(FfiService()),
         ),
-        Provider<CopyRepository>.value(
-          value: CopyRepositoryImpl(apiService),
-        ),
-        Provider<LoanRepository>.value(
-          value: LoanRepositoryImpl(apiService),
-        ),
+        Provider<CopyRepository>.value(value: CopyRepositoryImpl(apiService)),
+        Provider<LoanRepository>.value(value: LoanRepositoryImpl(apiService)),
         Provider<SyncService>(
           create: (_) => SyncService(
             apiService,
@@ -592,7 +591,9 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
       initialLocation: '/books',
       refreshListenable: themeProvider,
       errorBuilder: (context, state) {
-        debugPrint('GoRouter error: no route for uri=${state.uri} path=${state.uri.path} scheme=${state.uri.scheme} host=${state.uri.host} query=${state.uri.query}');
+        debugPrint(
+          'GoRouter error: no route for uri=${state.uri} path=${state.uri.path} scheme=${state.uri.scheme} host=${state.uri.host} query=${state.uri.query}',
+        );
         return Scaffold(
           body: Center(
             child: Column(
@@ -606,14 +607,19 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  TranslationService.translate(context, 'page_not_found_message'),
+                  TranslationService.translate(
+                    context,
+                    'page_not_found_message',
+                  ),
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 const SizedBox(height: 24),
                 FilledButton.icon(
                   onPressed: () => context.go('/books'),
                   icon: const Icon(Icons.home),
-                  label: Text(TranslationService.translate(context, 'back_to_library')),
+                  label: Text(
+                    TranslationService.translate(context, 'back_to_library'),
+                  ),
                 ),
               ],
             ),
@@ -628,12 +634,15 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
         // redirect to the proper /invite path with the query parameter.
         if (state.uri.scheme == 'bibliogenius' && state.uri.host == 'invite') {
           final d = state.uri.queryParameters['d'];
-          debugPrint('GoRouter redirect: intercepted custom scheme invite (d=${d != null ? "present" : "missing"})');
+          debugPrint(
+            'GoRouter redirect: intercepted custom scheme invite (d=${d != null ? "present" : "missing"})',
+          );
           if (d != null) return '/invite?d=$d';
           return '/books';
         }
         // Fallback: GoRouter may strip the scheme, leaving empty path + d param
-        if (state.uri.path.isEmpty && state.uri.queryParameters.containsKey('d')) {
+        if (state.uri.path.isEmpty &&
+            state.uri.queryParameters.containsKey('d')) {
           return '/invite?d=${state.uri.queryParameters['d']}';
         }
 
@@ -655,7 +664,9 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
                 final deviceName = await _getDeviceName();
                 if (deviceName != null && deviceName.isNotEmpty) {
                   await themeProvider.setLibraryName(
-                    themeProvider.buildDefaultLibraryName(deviceName: deviceName),
+                    themeProvider.buildDefaultLibraryName(
+                      deviceName: deviceName,
+                    ),
                   );
                 }
               } catch (e) {
@@ -676,7 +687,8 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
           if (hasPassword) {
             // Password configured - check if user authenticated this session
             final token = await authService.getToken();
-            final isAutoToken = token != null && token.startsWith('local-auto-token-');
+            final isAutoToken =
+                token != null && token.startsWith('local-auto-token-');
             if (!isLoggedIn || isAutoToken) {
               // No token or auto-token: must authenticate with password
               if (isAutoToken) await authService.logout();
@@ -706,7 +718,9 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
         } catch (e) {
           // Secure storage unavailable (e.g., missing keyring on Linux,
           // or Android Keystore wiped after reinstall with backup restore)
-          debugPrint('⚠️ Redirect: secure storage error ($e), performing auto-login');
+          debugPrint(
+            '⚠️ Redirect: secure storage error ($e), performing auto-login',
+          );
           try {
             await authService.saveUsername('admin');
             await authService.saveToken(
@@ -723,10 +737,6 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
         return null;
       },
       routes: [
-        GoRoute(
-          path: '/setup',
-          builder: (context, state) => const SetupScreen(),
-        ),
         GoRoute(
           path: '/onboarding',
           builder: (context, state) => const OnboardingTourScreen(),
@@ -770,16 +780,18 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
             GoRoute(
               path: '/dashboard',
               builder: (context, state) {
-                final tab = int.tryParse(
-                  state.uri.queryParameters['tab'] ?? '',
-                ) ?? 0;
+                final tab =
+                    int.tryParse(state.uri.queryParameters['tab'] ?? '') ?? 0;
                 return DashboardScreen(initialTab: tab);
               },
             ),
             GoRoute(
               path: '/games',
               redirect: (context, state) {
-                final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+                final themeProvider = Provider.of<ThemeProvider>(
+                  context,
+                  listen: false,
+                );
                 if (!themeProvider.gamesEnabled) return '/dashboard';
                 return null;
               },
@@ -788,7 +800,10 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
             GoRoute(
               path: '/memory-game',
               redirect: (context, state) {
-                final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+                final themeProvider = Provider.of<ThemeProvider>(
+                  context,
+                  listen: false,
+                );
                 if (!themeProvider.memoryGameEnabled) return '/games';
                 return null;
               },
@@ -797,7 +812,10 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
             GoRoute(
               path: '/sliding-puzzle',
               redirect: (context, state) {
-                final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+                final themeProvider = Provider.of<ThemeProvider>(
+                  context,
+                  listen: false,
+                );
                 if (!themeProvider.slidingPuzzleEnabled) return '/games';
                 return null;
               },
@@ -806,7 +824,10 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
             GoRoute(
               path: '/hangman',
               redirect: (context, state) {
-                final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+                final themeProvider = Provider.of<ThemeProvider>(
+                  context,
+                  listen: false,
+                );
                 if (!themeProvider.hangmanEnabled) return '/games';
                 return null;
               },
@@ -852,7 +873,8 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
                     final preSelectedShelfName =
                         extra?['shelfName'] ?? queryParams['shelfName'];
                     final preSelectedCollectionName =
-                        extra?['collectionName'] ?? queryParams['collectionName'];
+                        extra?['collectionName'] ??
+                        queryParams['collectionName'];
 
                     return AddBookScreen(
                       isbn: isbn,
@@ -1042,7 +1064,11 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
               builder: (context, state) {
                 final tab = state.uri.queryParameters['tab'];
                 final status = state.uri.queryParameters['status'];
-                return LoansScreen(isTabView: false, initialTab: tab, initialStatusFilter: status);
+                return LoansScreen(
+                  isTabView: false,
+                  initialTab: tab,
+                  initialStatusFilter: status,
+                );
               },
             ),
             GoRoute(
@@ -1115,8 +1141,7 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
                 }
                 return null;
               },
-              builder: (context, state) =>
-                  const NetworkScreen(initialIndex: 1),
+              builder: (context, state) => const NetworkScreen(initialIndex: 1),
               routes: [
                 GoRoute(
                   path: ':nodeId',
@@ -1225,69 +1250,76 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
 
   void _registerFlashMessages() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final flashProvider =
-          Provider.of<FlashMessageProvider>(context, listen: false);
+      final flashProvider = Provider.of<FlashMessageProvider>(
+        context,
+        listen: false,
+      );
 
       // Flash A: Inline library name editor
       // Only shown after the user has added at least one book
-      flashProvider.register(FlashMessageDefinition(
-        key: 'flash_customize_library_name',
-        textKey: 'flash_customize_library_name',
-        icon: Icons.edit_outlined,
-        fullWidthContent: true,
-        condition: (ctx) {
-          if (!flashProvider.hasBooks) return false;
-          final tp = Provider.of<ThemeProvider>(ctx, listen: false);
-          return !tp.libraryNameCustomized;
-        },
-        excludedRoutes: ['/settings', '/setup', '/onboarding', '/profile'],
-        contentBuilder: (ctx, dismiss) => _FlashLibraryNameEditor(
-          onDismiss: dismiss,
+      flashProvider.register(
+        FlashMessageDefinition(
+          key: 'flash_customize_library_name',
+          textKey: 'flash_customize_library_name',
+          icon: Icons.edit_outlined,
+          fullWidthContent: true,
+          condition: (ctx) {
+            if (!flashProvider.hasBooks) return false;
+            final tp = Provider.of<ThemeProvider>(ctx, listen: false);
+            return !tp.libraryNameCustomized;
+          },
+          excludedRoutes: ['/settings', '/onboarding', '/profile'],
+          contentBuilder: (ctx, dismiss) =>
+              _FlashLibraryNameEditor(onDismiss: dismiss),
         ),
-      ));
+      );
 
       // Flash B: Inline preset selector chips
       // Only shown after Flash A (library name) has been dismissed or completed
-      flashProvider.register(FlashMessageDefinition(
-        key: 'flash_discover_presets',
-        textKey: 'flash_discover_presets',
-        icon: Icons.tune,
-        fullWidthContent: true,
-        condition: (ctx) {
-          if (!flashProvider.hasBooks) return false;
-          // Show when Flash A is done: either explicitly dismissed,
-          // or its purpose already fulfilled (name was customized externally)
-          if (flashProvider.isDismissed('flash_customize_library_name')) {
-            return true;
-          }
-          final tp = Provider.of<ThemeProvider>(ctx, listen: false);
-          return tp.libraryNameCustomized;
-        },
-        excludedRoutes: ['/settings', '/setup', '/onboarding', '/profile'],
-        contentBuilder: (ctx, dismiss) => _FlashPresetSelector(
-          onDismiss: dismiss,
+      flashProvider.register(
+        FlashMessageDefinition(
+          key: 'flash_discover_presets',
+          textKey: 'flash_discover_presets',
+          icon: Icons.tune,
+          fullWidthContent: true,
+          condition: (ctx) {
+            if (!flashProvider.hasBooks) return false;
+            // Show when Flash A is done: either explicitly dismissed,
+            // or its purpose already fulfilled (name was customized externally)
+            if (flashProvider.isDismissed('flash_customize_library_name')) {
+              return true;
+            }
+            final tp = Provider.of<ThemeProvider>(ctx, listen: false);
+            return tp.libraryNameCustomized;
+          },
+          excludedRoutes: ['/settings', '/onboarding', '/profile'],
+          contentBuilder: (ctx, dismiss) =>
+              _FlashPresetSelector(onDismiss: dismiss),
         ),
-      ));
+      );
 
       flashProvider.loadDismissedFlags();
 
       // Wire incoming peer detection to ephemeral flashes
-      final pendingProvider =
-          Provider.of<PendingPeersProvider>(context, listen: false);
+      final pendingProvider = Provider.of<PendingPeersProvider>(
+        context,
+        listen: false,
+      );
       pendingProvider.onNewPeerDetected = (peer) {
-        final isPending =
-            (peer['connection_status'] as String?) == 'pending';
-        flashProvider.addEphemeralPeer(EphemeralPeerFlash(
-          peerId: peer['id'] as int,
-          peerName: peer['name'] as String? ?? 'Unknown',
-          peerUrl: peer['url'] as String?,
-          nodeId: peer['library_uuid'] as String?,
-          hasRelayCredentials:
-              (peer['relay_url'] as String?)?.isNotEmpty == true &&
-                  (peer['mailbox_id'] as String?)?.isNotEmpty == true,
-          connectedAt: DateTime.now(),
-          isPending: isPending,
-        ));
+        final isPending = (peer['connection_status'] as String?) == 'pending';
+        flashProvider.addEphemeralPeer(
+          EphemeralPeerFlash(
+            peerId: peer['id'] as int,
+            peerName: peer['name'] as String? ?? 'Unknown',
+            peerUrl: peer['url'] as String?,
+            nodeId: peer['library_uuid'] as String?,
+            hasRelayCredentials:
+                (peer['relay_url'] as String?)?.isNotEmpty == true &&
+                (peer['mailbox_id'] as String?)?.isNotEmpty == true,
+            connectedAt: DateTime.now(),
+            isPending: isPending,
+          ),
+        );
       };
     });
   }
@@ -1436,9 +1468,9 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
         if (appScale == 1.0) return child!;
         final systemScale = MediaQuery.of(context).textScaler.scale(1.0);
         return MediaQuery(
-          data: MediaQuery.of(context).copyWith(
-            textScaler: TextScaler.linear(appScale * systemScale),
-          ),
+          data: MediaQuery.of(
+            context,
+          ).copyWith(textScaler: TextScaler.linear(appScale * systemScale)),
           child: child!,
         );
       },
@@ -1486,7 +1518,8 @@ class _FlashLibraryNameEditorState extends State<_FlashLibraryNameEditor> {
   }
 
   void _onChanged() {
-    final dirty = _controller.text.trim() != _tp.libraryName &&
+    final dirty =
+        _controller.text.trim() != _tp.libraryName &&
         _controller.text.trim().isNotEmpty;
     if (dirty != _dirty) {
       setState(() => _dirty = dirty);
@@ -1518,14 +1551,18 @@ class _FlashLibraryNameEditorState extends State<_FlashLibraryNameEditor> {
           await FfiService().updateLibraryName(name);
           ffiOk = true;
         } catch (e) {
-          debugPrint('FFI library name update attempt ${attempt + 1} failed: $e');
+          debugPrint(
+            'FFI library name update attempt ${attempt + 1} failed: $e',
+          );
           if (attempt == 0) {
             await Future.delayed(const Duration(milliseconds: 500));
           }
         }
       }
       if (!ffiOk) {
-        debugPrint('Library name saved to SharedPreferences but NOT to Rust DB');
+        debugPrint(
+          'Library name saved to SharedPreferences but NOT to Rust DB',
+        );
       }
 
       // Push the new name to the hub. syncDisplayName handles both cases:
@@ -1626,8 +1663,7 @@ class _FlashLibraryNameEditorState extends State<_FlashLibraryNameEditor> {
               isDense: true,
               filled: true,
               fillColor: isDark
-                  ? colorScheme.surfaceContainerHighest
-                      .withValues(alpha: 0.5)
+                  ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
                   : colorScheme.surface,
               prefixIcon: Padding(
                 padding: const EdgeInsets.only(left: 10, right: 6),
@@ -1698,9 +1734,7 @@ class _FlashPresetSelector extends StatelessWidget {
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          TranslationService.translate(context, 'preset_applied'),
-        ),
+        content: Text(TranslationService.translate(context, 'preset_applied')),
       ),
     );
     onDismiss();
@@ -1777,9 +1811,7 @@ class _FlashPresetSelector extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: accent.withValues(
-                            alpha: isDark ? 0.2 : 0.12,
-                          ),
+                          color: accent.withValues(alpha: isDark ? 0.2 : 0.12),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(preset.icon, size: 22, color: accent),
@@ -1856,9 +1888,7 @@ class _FlashPresetSelector extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: accent.withValues(
-                          alpha: isDark ? 0.2 : 0.12,
-                        ),
+                        color: accent.withValues(alpha: isDark ? 0.2 : 0.12),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(preset.icon, size: 20, color: accent),
@@ -1882,8 +1912,9 @@ class _FlashPresetSelector extends StatelessWidget {
                             legend,
                             style: TextStyle(
                               fontSize: 11,
-                              color: colorScheme.onSurface
-                                  .withValues(alpha: 0.55),
+                              color: colorScheme.onSurface.withValues(
+                                alpha: 0.55,
+                              ),
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,

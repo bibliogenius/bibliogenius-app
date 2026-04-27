@@ -139,4 +139,81 @@ void main() {
       expect(provider.canLendBooks, isTrue);
     });
   });
+
+  group('ThemeProvider inventoryStatusesEnabled', () {
+    test('defaults to false on fresh install', () async {
+      SharedPreferences.setMockInitialValues({});
+      final provider = ThemeProvider();
+      await provider.loadSettings();
+      expect(
+        provider.inventoryStatusesEnabled,
+        isFalse,
+        reason:
+            'Personal-reading statuses are the default flow; users opt into '
+            'cataloguing mode via the librarian preset or the toggle.',
+      );
+    });
+
+    test(
+      'migrates from legacy profileType=librarian to true on first load',
+      () async {
+        // Existing librarian users from before profileType was killed:
+        // their pref still says "librarian" — preserve their UI by deriving
+        // the new toggle from it once.
+        SharedPreferences.setMockInitialValues({'profileType': 'librarian'});
+        final provider = ThemeProvider();
+        await provider.loadSettings();
+        expect(provider.inventoryStatusesEnabled, isTrue);
+      },
+    );
+
+    test(
+      'migrates from legacy profileType=professional to true (legacy alias)',
+      () async {
+        SharedPreferences.setMockInitialValues({
+          'profileType': 'professional',
+        });
+        final provider = ThemeProvider();
+        await provider.loadSettings();
+        expect(provider.inventoryStatusesEnabled, isTrue);
+      },
+    );
+
+    test('legacy profileType=individual stays false', () async {
+      SharedPreferences.setMockInitialValues({'profileType': 'individual'});
+      final provider = ThemeProvider();
+      await provider.loadSettings();
+      expect(provider.inventoryStatusesEnabled, isFalse);
+    });
+
+    test('explicit saved value wins over legacy profileType', () async {
+      // User had profileType=librarian historically but later toggled
+      // inventoryStatusesEnabled off explicitly — the toggle is now the
+      // source of truth.
+      SharedPreferences.setMockInitialValues({
+        'profileType': 'librarian',
+        'inventoryStatusesEnabled': false,
+      });
+      final provider = ThemeProvider();
+      await provider.loadSettings();
+      expect(provider.inventoryStatusesEnabled, isFalse);
+    });
+
+    test('setInventoryStatusesEnabled persists and notifies', () async {
+      SharedPreferences.setMockInitialValues({});
+      final provider = ThemeProvider();
+      await provider.loadSettings();
+
+      var notifications = 0;
+      provider.addListener(() => notifications++);
+
+      await provider.setInventoryStatusesEnabled(true);
+      expect(provider.inventoryStatusesEnabled, isTrue);
+      expect(notifications, greaterThanOrEqualTo(1));
+
+      final fresh = ThemeProvider();
+      await fresh.loadSettings();
+      expect(fresh.inventoryStatusesEnabled, isTrue);
+    });
+  });
 }

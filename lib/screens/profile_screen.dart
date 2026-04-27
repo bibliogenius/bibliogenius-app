@@ -131,16 +131,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (!mounted) return;
 
       // Library name is managed by ThemeProvider (SharedPreferences + FFI)
-      final themeProvider = Provider.of<ThemeProvider>(
-        context,
-        listen: false,
-      );
+      final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
 
-      // Sync profile type
-      final profileType = configRes.data['profile_type'];
-      if (profileType != null) {
-        themeProvider.setProfileType(profileType);
-      }
+      // Profile type is no longer synced — module toggles drive UI now.
 
       // Cache and show profile immediately
       _ProfileCache.set(statusRes.data);
@@ -178,32 +171,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       final data = leaderboardRes.data as Map<String, dynamic>;
       final leaderboard = <String, List<LeaderboardEntry>>{};
-      for (final domain in [
-        'collector',
-        'reader',
-        'lender',
-        'cataloguer',
-      ]) {
+      for (final domain in ['collector', 'reader', 'lender', 'cataloguer']) {
         leaderboard[domain] =
-            (data[domain] as List<dynamic>?)
-                ?.map((e) {
-                  final entry = LeaderboardEntry.fromJson(
-                    e as Map<String, dynamic>,
-                  );
-                  // Override self entry name with ThemeProvider name
-                  // (DB may be stale in FFI mode)
-                  if (entry.isSelf) {
-                    return LeaderboardEntry(
-                      libraryName: localName,
-                      level: entry.level,
-                      current: entry.current,
-                      isSelf: true,
-                      peerId: entry.peerId,
-                    );
-                  }
-                  return entry;
-                })
-                .toList() ??
+            (data[domain] as List<dynamic>?)?.map((e) {
+              final entry = LeaderboardEntry.fromJson(
+                e as Map<String, dynamic>,
+              );
+              // Override self entry name with ThemeProvider name
+              // (DB may be stale in FFI mode)
+              if (entry.isSelf) {
+                return LeaderboardEntry(
+                  libraryName: localName,
+                  level: entry.level,
+                  current: entry.current,
+                  isSelf: true,
+                  peerId: entry.peerId,
+                );
+              }
+              return entry;
+            }).toList() ??
             [];
       }
 
@@ -294,13 +280,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _fetchFollowerCount() async {
     try {
-      final dirProvider =
-          Provider.of<HubDirectoryProvider>(context, listen: false);
+      final dirProvider = Provider.of<HubDirectoryProvider>(
+        context,
+        listen: false,
+      );
       await dirProvider.loadFollowers();
       if (!mounted) return;
       setState(() {
-        _followerCount =
-            dirProvider.followers.where((f) => f.isActive).length;
+        _followerCount = dirProvider.followers.where((f) => f.isActive).length;
       });
     } catch (e) {
       debugPrint('Follower count fetch failed: $e');
@@ -324,8 +311,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           label: Text(
             '$_followerCount ${TranslationService.translate(context, _followerCount == 1 ? 'profile_follower' : 'profile_followers')}',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
           backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
           side: BorderSide.none,
@@ -346,7 +333,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Tooltip(
           message: _peerViews > 0 && _followerViews > 0
               ? '$_peerViews ${TranslationService.translate(context, 'profile_views_peers')}, '
-                  '$_followerViews ${TranslationService.translate(context, 'profile_views_followers')}'
+                    '$_followerViews ${TranslationService.translate(context, 'profile_views_followers')}'
               : '',
           child: Chip(
             avatar: Icon(
@@ -357,8 +344,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             label: Text(
               '$total ${TranslationService.translate(context, total == 1 ? 'profile_view' : 'profile_views')}',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
             backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
             side: BorderSide.none,
@@ -421,14 +408,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       children: [
                         Semantics(
                           image: true,
-                          label: TranslationService.translate(context, 'profile_avatar'),
+                          label: TranslationService.translate(
+                            context,
+                            'profile_avatar',
+                          ),
                           child: Container(
                             width: 140,
                             height: 140,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               border: Border.all(color: themeColor, width: 4),
-                              color: themeProvider.avatarConfig?.style == 'genie'
+                              color:
+                                  themeProvider.avatarConfig?.style == 'genie'
                                   ? Color(
                                       int.parse(
                                         'FF${themeProvider.avatarConfig?.genieBackground ?? "fbbf24"}',
@@ -468,7 +459,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           right: 0,
                           child: Semantics(
                             button: true,
-                            label: TranslationService.translate(context, 'tooltip_edit_avatar'),
+                            label: TranslationService.translate(
+                              context,
+                              'tooltip_edit_avatar',
+                            ),
                             child: GestureDetector(
                               onTap: () =>
                                   _showAvatarPicker(context, themeProvider),
@@ -509,9 +503,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Flexible(
                             child: Text(
                               libraryName,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headlineSmall
+                              style: Theme.of(context).textTheme.headlineSmall
                                   ?.copyWith(fontWeight: FontWeight.bold),
                               textAlign: TextAlign.center,
                               overflow: TextOverflow.ellipsis,
@@ -540,10 +532,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   label: Text(
                     TranslationService.translate(
-                        context, 'profile_share_invite'),
+                      context,
+                      'profile_share_invite',
+                    ),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -615,10 +609,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
     ];
 
-    return ReorderableSections(
-      pageKey: 'profile',
-      sections: sections,
-    );
+    return ReorderableSections(pageKey: 'profile', sections: sections);
   }
 
   Widget _buildReadingGoalsContent() => _buildReadingGoalsSection();
@@ -655,14 +646,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final tracks = _userStatus?['tracks'] as Map<String, dynamic>?;
     final config = _userStatus?['config'] as Map<String, dynamic>?;
 
-    final totalBooks =
-        (tracks?['collector']?['current'] as num?)?.toInt() ?? 0;
+    final totalBooks = (tracks?['collector']?['current'] as num?)?.toInt() ?? 0;
     final booksRead = (config?['total_books_read'] as num?)?.toInt() ?? 0;
     final booksLent = (tracks?['lender']?['current'] as num?)?.toInt() ?? 0;
     final booksThisYear =
         (config?['reading_goal_progress'] as num?)?.toInt() ?? 0;
-    final salesCount =
-        (_salesStats?['sales_count'] as num?)?.toInt() ?? 0;
+    final salesCount = (_salesStats?['sales_count'] as num?)?.toInt() ?? 0;
     final totalRevenue =
         (_salesStats?['total_revenue'] as num?)?.toDouble() ?? 0.0;
 
@@ -696,18 +685,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
         TranslationService.translate(context, 'books_finished_year'),
         const Color(0xFFF97316),
       ),
-      if (showSales) 'total_revenue': _StatCardDef(
-        Icons.attach_money,
-        '${totalRevenue.toStringAsFixed(2)} \u20ac',
-        TranslationService.translate(context, 'total_revenue'),
-        const Color(0xFF8B5CF6),
-      ),
-      if (showSales) 'sales_count': _StatCardDef(
-        Icons.receipt_long,
-        salesCount.toString(),
-        TranslationService.translate(context, 'sales_count'),
-        const Color(0xFF06B6D4),
-      ),
+      if (showSales)
+        'total_revenue': _StatCardDef(
+          Icons.attach_money,
+          '${totalRevenue.toStringAsFixed(2)} \u20ac',
+          TranslationService.translate(context, 'total_revenue'),
+          const Color(0xFF8B5CF6),
+        ),
+      if (showSales)
+        'sales_count': _StatCardDef(
+          Icons.receipt_long,
+          salesCount.toString(),
+          TranslationService.translate(context, 'sales_count'),
+          const Color(0xFF06B6D4),
+        ),
     };
 
     if (_statsCardEditMode) {
@@ -716,7 +707,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     // Filter to visible cards in user order
     final visibleIds = _statCardOrder
-        .where((id) => !_hiddenStatCards.contains(id) && cardDefs.containsKey(id))
+        .where(
+          (id) => !_hiddenStatCards.contains(id) && cardDefs.containsKey(id),
+        )
         .toList();
 
     // Build rows of 2
@@ -786,9 +779,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     Map<String, _StatCardDef> cardDefs,
   ) {
     // Only show cards that exist in cardDefs (respects commerce toggle)
-    final availableOrder = _statCardOrder
-        .where(cardDefs.containsKey)
-        .toList();
+    final availableOrder = _statCardOrder.where(cardDefs.containsKey).toList();
 
     final labels = <String, String>{};
     final icons = <String, IconData>{};
@@ -854,8 +845,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ReorderableDragStartListener(
                           index: index,
                           child: Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 6),
+                            padding: const EdgeInsets.symmetric(horizontal: 6),
                             child: Icon(
                               Icons.drag_handle,
                               color: theme.colorScheme.onSurfaceVariant,
@@ -922,17 +912,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 await prefs.remove('profile_stats_card_order');
                 await prefs.remove('profile_stats_card_hidden');
               },
-              child: Text(
-                TranslationService.translate(context, 'reset'),
-              ),
+              child: Text(TranslationService.translate(context, 'reset')),
             ),
             const SizedBox(width: 8),
             FilledButton(
-              onPressed: () =>
-                  setState(() => _statsCardEditMode = false),
-              child: Text(
-                TranslationService.translate(context, 'done'),
-              ),
+              onPressed: () => setState(() => _statsCardEditMode = false),
+              child: Text(TranslationService.translate(context, 'done')),
             ),
           ],
         ),
@@ -1094,40 +1079,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
           if (!isOptional && progress > 0) ...[
             const SizedBox(height: 20),
             Semantics(
-              label: '${TranslationService.translate(context, 'progress')} : ${(progress * 100).toInt()}%, $current ${TranslationService.translate(context, 'books_read')}',
+              label:
+                  '${TranslationService.translate(context, 'progress')} : ${(progress * 100).toInt()}%, $current ${TranslationService.translate(context, 'books_read')}',
               child: Stack(
-              children: [
-                Container(
-                  height: 10,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(5),
+                children: [
+                  Container(
+                    height: 10,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(5),
+                    ),
                   ),
-                ),
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    return Container(
-                      height: 10,
-                      width: constraints.maxWidth * progress,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [color, color.withValues(alpha: 0.8)],
-                        ),
-                        borderRadius: BorderRadius.circular(5),
-                        boxShadow: [
-                          BoxShadow(
-                            color: color.withValues(alpha: 0.3),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      return Container(
+                        height: 10,
+                        width: constraints.maxWidth * progress,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [color, color.withValues(alpha: 0.8)],
                           ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
+                          borderRadius: BorderRadius.circular(5),
+                          boxShadow: [
+                            BoxShadow(
+                              color: color.withValues(alpha: 0.3),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 12),
             Row(
@@ -1331,9 +1317,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final result = await showDialog<String>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text(
-          TranslationService.translate(context, 'edit_library_name'),
-        ),
+        title: Text(TranslationService.translate(context, 'edit_library_name')),
         content: TextField(
           controller: controller,
           autofocus: true,
@@ -1370,10 +1354,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
           if (themeProvider.networkDiscoveryEnabled) {
             try {
               await MdnsService.stop();
-              final authService =
-                  Provider.of<AuthService>(context, listen: false);
-              final libraryUuid =
-                  await authService.getOrCreateLibraryUuid();
+              final authService = Provider.of<AuthService>(
+                context,
+                listen: false,
+              );
+              final libraryUuid = await authService.getOrCreateLibraryUuid();
               await MdnsService.startAnnouncing(
                 result,
                 ApiService.httpPort,
@@ -1393,7 +1378,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             final hubConfig = hubProvider.config;
             if (hubConfig != null) {
               final bookCount = await FfiService().countBooks();
-              final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+              final themeProvider = Provider.of<ThemeProvider>(
+                context,
+                listen: false,
+              );
               await hubProvider.register(
                 nodeId: hubConfig.nodeId,
                 displayName: result,
@@ -1467,7 +1455,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         IconButton(
                           icon: const Icon(Icons.close),
-                          tooltip: TranslationService.translate(context, 'close'),
+                          tooltip: TranslationService.translate(
+                            context,
+                            'close',
+                          ),
                           onPressed: () => Navigator.pop(context),
                         ),
                       ],

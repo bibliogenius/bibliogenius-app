@@ -58,20 +58,8 @@ class ThemeProvider with ChangeNotifier {
   String _username = 'Lecteur';
   String get username => _username;
 
-  // Profile type: kept for backend compatibility, but no longer used for UI decisions
-  String _profileType = 'individual';
-  String get profileType => _profileType;
-
-  // Simplified mode: replaces the old 'kid' profile type
-  // When enabled, shows a simplified UI for young readers
-  bool _simplifiedMode = false;
-  bool get simplifiedMode => _simplifiedMode;
-
-  // Computed getters - now based on modules, not profile type
-  bool get isLibrarian =>
-      _profileType == 'librarian' || _profileType == 'professional';
-  bool get isBookseller => _commerceEnabled; // Now based on commerce module
-  bool get isKid => _simplifiedMode; // Now based on simplified mode toggle
+  // Computed getters - all based on module toggles now (profileType removed).
+  bool get isBookseller => _commerceEnabled;
   bool get hasReadingStatus => !_commerceEnabled; // Readers have reading status
 
   // Commerce module (bookseller features: pricing, sales, inventory)
@@ -97,6 +85,14 @@ class ThemeProvider with ChangeNotifier {
   // not borrow; a pure reader may want to borrow without lending).
   bool _canLendBooks = true;
   bool get canLendBooks => _canLendBooks;
+
+  // Inventory-style book statuses (available, checked_out, reference_only,
+  // missing, damaged, on_order) instead of personal-reading statuses
+  // (to_read, reading, read, wanting). Activated by the librarian preset;
+  // available as a standalone toggle for users who catalogue their personal
+  // collection like an institutional one.
+  bool _inventoryStatusesEnabled = false;
+  bool get inventoryStatusesEnabled => _inventoryStatusesEnabled;
 
   // Private books: allows marking individual books as hidden from peers.
   // Disabled for librarian/bookseller (all books must be visible).
@@ -248,33 +244,6 @@ class ThemeProvider with ChangeNotifier {
     return theme.buildTheme(accentColor: _bannerColor);
   }
 
-  /// Normalize profile type values to handle legacy formats
-  /// Maps old values like 'individual_reader' to current valid values
-  String _normalizeProfileType(String profileType) {
-    // Map old/legacy values to new values
-    const Map<String, String> legacyMapping = {
-      'individual_reader': 'individual',
-      'professional': 'librarian',
-    };
-
-    // Check if it's a legacy value that needs mapping
-    if (legacyMapping.containsKey(profileType)) {
-      return legacyMapping[profileType]!;
-    }
-
-    // Validate it's a known current value
-    const validTypes = {'individual', 'librarian', 'kid', 'bookseller'};
-    if (validTypes.contains(profileType)) {
-      return profileType;
-    }
-
-    // Default fallback if unknown value
-    debugPrint(
-      '⚠️ Unknown profile type: $profileType, defaulting to individual',
-    );
-    return 'individual';
-  }
-
   Future<void> loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     final colorValue = prefs.getInt('bannerColor');
@@ -356,26 +325,14 @@ class ThemeProvider with ChangeNotifier {
       await prefs.setString('country', _country);
     }
 
-    // Load and normalize profile type to handle legacy values
-    String rawProfileType = prefs.getString('profileType') ?? 'individual';
-    _profileType = _normalizeProfileType(rawProfileType);
-
-    // If normalized value differs from stored value, update SharedPreferences
-    if (_profileType != rawProfileType) {
-      await prefs.setString('profileType', _profileType);
-      debugPrint(
-        '✅ Migrated legacy profile type: $rawProfileType → $_profileType',
-      );
-    }
-
-    // Load borrowing capability setting (default based on profile type)
+    // Load borrowing capability setting (default true for fresh installs;
+    // existing librarian users keep their saved value, set explicitly via
+    // applyPreset('librarian')).
     final savedCanBorrow = prefs.getBool('canBorrowBooks');
     if (savedCanBorrow != null) {
       _canBorrowBooks = savedCanBorrow;
     } else {
-      // Default: disabled for librarians (they lend, not borrow), enabled for others
-      // Default: disabled for librarians (they lend, not borrow), enabled for others
-      _canBorrowBooks = !isLibrarian;
+      _canBorrowBooks = true;
     }
 
     // Load lending capability setting. Default true for readers and
@@ -392,12 +349,27 @@ class ThemeProvider with ChangeNotifier {
       _canLendBooks = !isBooksellerPref;
     }
 
-    // Private books: default true for readers, false for librarian/bookseller
+    // Inventory-style statuses. Migrate from the legacy profileType field
+    // for existing librarian users so they don't lose their UI on upgrade.
+    final savedInventoryStatuses = prefs.getBool('inventoryStatusesEnabled');
+    if (savedInventoryStatuses != null) {
+      _inventoryStatusesEnabled = savedInventoryStatuses;
+    } else {
+      // No explicit value yet: derive once from legacy profileType so old
+      // librarian installs keep their cataloguing statuses.
+      final legacyType = prefs.getString('profileType');
+      _inventoryStatusesEnabled =
+          legacyType == 'librarian' || legacyType == 'professional';
+    }
+
+    // Private books: default true for readers, false for booksellers.
+    // Existing librarians preserved via their saved value (applyPreset).
     final savedAllowPrivate = prefs.getBool('allowPrivateBooks');
     if (savedAllowPrivate != null) {
       _allowPrivateBooks = savedAllowPrivate;
     } else {
-      _allowPrivateBooks = !isLibrarian && !isBookseller;
+      final isBooksellerPref = prefs.getBool('commerceEnabled') ?? false;
+      _allowPrivateBooks = !isBooksellerPref;
     }
 
     _commerceEnabled = prefs.getBool('commerceEnabled') ?? false;
@@ -436,7 +408,6 @@ class ThemeProvider with ChangeNotifier {
     _digitalFormatsEnabled = prefs.getBool('digitalFormatsEnabled') ?? false;
     _audioEnabled = prefs.getBool('audioEnabled') ?? false;
     _mcpEnabled = prefs.getBool('mcpEnabled') ?? false;
-    _simplifiedMode = prefs.getBool('simplifiedMode') ?? false;
     _gamesEnabled = prefs.getBool('gamesEnabled') ?? true;
     _memoryGameEnabled = prefs.getBool('memoryGameEnabled') ?? true;
     _slidingPuzzleEnabled = prefs.getBool('slidingPuzzleEnabled') ?? true;
@@ -448,7 +419,8 @@ class ThemeProvider with ChangeNotifier {
     if (savedSpeechToText != null) {
       _speechToTextEnabled = savedSpeechToText;
     } else {
-      _speechToTextEnabled = !isLibrarian && !isBookseller;
+      final isBooksellerPref = prefs.getBool('commerceEnabled') ?? false;
+      _speechToTextEnabled = !isBooksellerPref;
     }
     _syncSafetyEnabled = prefs.getBool('syncSafetyEnabled') ?? true;
     _bottomNavEnabled = prefs.getBool('bottomNavEnabled') ?? true;
@@ -457,13 +429,14 @@ class ThemeProvider with ChangeNotifier {
     _notifLoansEnabled = prefs.getBool('notifLoansEnabled') ?? true;
     _notifDiscoveriesEnabled = prefs.getBool('notifDiscoveriesEnabled') ?? true;
 
-    // Load gamification setting (default based on profile type)
+    // Default true for fresh installs; the librarian preset turns it off
+    // explicitly via setGamificationEnabled(false), so existing librarian
+    // users keep their saved value.
     final savedGamification = prefs.getBool('gamificationEnabled');
     if (savedGamification != null) {
       _gamificationEnabled = savedGamification;
     } else {
-      // Default: disabled for librarians, enabled for others
-      _gamificationEnabled = !isLibrarian;
+      _gamificationEnabled = true;
     }
 
     final avatarConfigJson = prefs.getString('avatarConfig');
@@ -576,6 +549,13 @@ class ThemeProvider with ChangeNotifier {
     _canLendBooks = enabled;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('canLendBooks', enabled);
+    notifyListeners();
+  }
+
+  Future<void> setInventoryStatusesEnabled(bool enabled) async {
+    _inventoryStatusesEnabled = enabled;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('inventoryStatusesEnabled', enabled);
     notifyListeners();
   }
 
@@ -714,54 +694,6 @@ class ThemeProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> setProfileType(String type, {ApiService? apiService}) async {
-    final bool wasBookseller = _profileType == 'bookseller';
-    _profileType = type;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('profileType', type);
-
-    // Reset borrowing capability to profile-based default if not explicitly set
-    final savedCanBorrow = prefs.getBool('canBorrowBooks');
-    if (savedCanBorrow == null) {
-      _canBorrowBooks = !isLibrarian;
-    }
-
-    // Reset speech-to-text to profile-based default if not explicitly set
-    final savedSpeechToText = prefs.getBool('speechToTextEnabled');
-    if (savedSpeechToText == null) {
-      _speechToTextEnabled = !isLibrarian && !isBookseller;
-    }
-
-    // Auto-enable commerce module only if switching TO bookseller for the first time
-    if (type == 'bookseller' && !wasBookseller) {
-      _commerceEnabled = true;
-      await prefs.setBool('commerceEnabled', true);
-    }
-
-    // Reset lending capability to profile-based default if not explicitly set.
-    // Read AFTER the commerce auto-enable above so isBookseller is correct
-    // when the user just switched to the bookseller profile.
-    final savedCanLend = prefs.getBool('canLendBooks');
-    if (savedCanLend == null) {
-      _canLendBooks = !isBookseller;
-    }
-
-    notifyListeners();
-
-    if (apiService != null) {
-      try {
-        await apiService.updateProfile(
-          data: {
-            'profile_type': type,
-            'avatar_config': _avatarConfig?.toJson(),
-          },
-        );
-      } catch (e) {
-        debugPrint('Error syncing profile type: $e');
-      }
-    }
-  }
-
   Future<void> setAvatarConfig(
     AvatarConfig config, {
     ApiService? apiService,
@@ -774,10 +706,7 @@ class ThemeProvider with ChangeNotifier {
     if (apiService != null) {
       try {
         await apiService.updateProfile(
-          data: {
-            'profile_type': _profileType,
-            'avatar_config': config.toJson(),
-          },
+          data: {'avatar_config': config.toJson()},
         );
       } catch (e) {
         debugPrint('Error syncing avatar config: $e');
@@ -838,53 +767,6 @@ class ThemeProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Complete setup and apply all settings in one batch to avoid multiple rebuilds
-  Future<void> completeSetupWithSettings({
-    required String profileType,
-    required AvatarConfig avatarConfig,
-    required String libraryName,
-    ApiService? apiService,
-  }) async {
-    // Apply all settings without notifying listeners individually
-    _profileType = profileType;
-    _avatarConfig = avatarConfig;
-    _libraryName = libraryName;
-    _isSetupComplete = true;
-
-    // Auto-enable commerce module for bookseller profile
-    if (profileType == 'bookseller') {
-      _commerceEnabled = true;
-    }
-
-    // Save to SharedPreferences
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('profileType', profileType);
-    await prefs.setString('avatarConfig', jsonEncode(avatarConfig.toJson()));
-    await prefs.setString('libraryName', libraryName);
-    await prefs.setBool('isSetupComplete', true);
-    // Save commerce enabled state for bookseller
-    if (profileType == 'bookseller') {
-      await prefs.setBool('commerceEnabled', true);
-    }
-
-    // Sync with backend if ApiService provided
-    if (apiService != null) {
-      try {
-        await apiService.updateProfile(
-          data: {
-            'profile_type': profileType,
-            'avatar_config': avatarConfig.toJson(),
-          },
-        );
-      } catch (e) {
-        debugPrint('Error syncing profile during setup: $e');
-      }
-    }
-
-    // Single notification at the end
-    notifyListeners();
-  }
-
   Future<void> completeSetup() async {
     _isSetupComplete = true;
     final prefs = await SharedPreferences.getInstance();
@@ -931,9 +813,6 @@ class ThemeProvider with ChangeNotifier {
       _libraryName = existingName;
     }
 
-    _profileType = 'individual';
-    await prefs.setString('profileType', _profileType);
-
     _avatarConfig = AvatarConfig.defaultConfig;
     await prefs.setString('avatarConfig', jsonEncode(_avatarConfig!.toJson()));
 
@@ -954,7 +833,6 @@ class ThemeProvider with ChangeNotifier {
     _libraryTag = generateTag();
     await prefs.setString('libraryTag', _libraryTag!);
     _libraryName = localizedDefaultName;
-    resetSetupState();
     // Reset in-memory state to defaults
     _gamificationEnabled = true;
     _quotesEnabled = true;
@@ -976,7 +854,6 @@ class ThemeProvider with ChangeNotifier {
     _notifConnectionsEnabled = true;
     _notifLoansEnabled = true;
     _notifDiscoveriesEnabled = true;
-    _simplifiedMode = false;
     _operationLogViewerEnabled = false;
     _speechToTextEnabled = true;
     _bottomNavEnabled = true;
@@ -1066,52 +943,6 @@ class ThemeProvider with ChangeNotifier {
     }
   }
 
-  // Setup Wizard State
-  int _setupStep = 0;
-  int get setupStep => _setupStep;
-  String _setupLibraryName = '';
-  String get setupLibraryName => _setupLibraryName;
-  String _setupProfileType = 'reader';
-  String get setupProfileType => _setupProfileType;
-  AvatarConfig _setupAvatarConfig = AvatarConfig.defaultConfig;
-  AvatarConfig get setupAvatarConfig => _setupAvatarConfig;
-  bool _setupImportDemo = false;
-  bool get setupImportDemo => _setupImportDemo;
-
-  void setSetupStep(int step) {
-    _setupStep = step;
-    notifyListeners();
-  }
-
-  void setSetupLibraryName(String name) {
-    _setupLibraryName = name;
-    notifyListeners();
-  }
-
-  void setSetupProfileType(String type) {
-    _setupProfileType = type;
-    notifyListeners();
-  }
-
-  void setSetupAvatarConfig(AvatarConfig config) {
-    _setupAvatarConfig = config;
-    notifyListeners();
-  }
-
-  void setSetupImportDemo(bool import) {
-    _setupImportDemo = import;
-    notifyListeners();
-  }
-
-  void resetSetupState() {
-    _setupStep = 0;
-    _setupLibraryName = '';
-    _setupProfileType = 'reader';
-    _setupAvatarConfig = AvatarConfig.defaultConfig;
-    _setupImportDemo = false;
-    notifyListeners();
-  }
-
   Future<void> setCommerceEnabled(bool enabled) async {
     _commerceEnabled = enabled;
     final prefs = await SharedPreferences.getInstance();
@@ -1120,18 +951,11 @@ class ThemeProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> setSimplifiedMode(bool enabled) async {
-    _simplifiedMode = enabled;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('simplifiedMode', enabled);
-    notifyListeners();
-  }
-
   /// Apply a preset configuration that enables/disables multiple modules at once
   Future<void> applyPreset(String presetName) async {
     switch (presetName) {
       case 'reader':
-        // Reader preset: gamification, quotes, collections, audio, borrowing, lending, private books
+        // Reader preset: personal reading flow (to_read/reading/read/...)
         await setGamificationEnabled(true);
         await setQuotesEnabled(true);
         await setCollectionsEnabled(true);
@@ -1140,10 +964,10 @@ class ThemeProvider with ChangeNotifier {
         await setCanBorrowBooks(true);
         await setCanLendBooks(true);
         await setAllowPrivateBooks(true);
+        await setInventoryStatusesEnabled(false);
         break;
       case 'librarian':
-        // Librarian preset: collections, network, lending (they lend!),
-        // no gamification, no borrowing, no private books
+        // Librarian preset: cataloguing flow (available/checked_out/...)
         await setGamificationEnabled(false);
         await setQuotesEnabled(false);
         await setCollectionsEnabled(true);
@@ -1152,10 +976,12 @@ class ThemeProvider with ChangeNotifier {
         await setCanBorrowBooks(false);
         await setCanLendBooks(true);
         await setAllowPrivateBooks(false);
+        await setInventoryStatusesEnabled(true);
         break;
       case 'bookseller':
-        // Bookseller preset: commerce, collections, no gamification,
-        // no borrowing, no lending (they sell, not lend), no private books
+        // Bookseller preset: commerce flow (personal-reading statuses
+        // preserved — pre-existing behavior; they sell, do not catalogue
+        // an institutional collection).
         await setCommerceEnabled(true);
         await setCollectionsEnabled(true);
         await setGamificationEnabled(false);
@@ -1164,6 +990,7 @@ class ThemeProvider with ChangeNotifier {
         await setCanBorrowBooks(false);
         await setCanLendBooks(false);
         await setAllowPrivateBooks(false);
+        await setInventoryStatusesEnabled(false);
         break;
     }
     notifyListeners();

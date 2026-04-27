@@ -155,205 +155,206 @@ class _PremiumBookCardState extends State<PremiumBookCard>
       button: true,
       label: _semanticLabel,
       child: GestureDetector(
-      onTap: () => context.push('/books/${widget.book.id}', extra: widget.book),
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        onEnter: (_) => setState(() => _isHovering = true),
-        onExit: (_) => setState(() => _isHovering = false),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOutCubic,
-          margin: const EdgeInsets.only(bottom: 24),
-          decoration: BoxDecoration(
-            color: theme.cardColor,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: theme.primaryColor.withValues(
-                  alpha: _isHovering ? 0.3 : 0.15,
+        onTap: () =>
+            context.push('/books/${widget.book.id}', extra: widget.book),
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          onEnter: (_) => setState(() => _isHovering = true),
+          onExit: (_) => setState(() => _isHovering = false),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOutCubic,
+            margin: const EdgeInsets.only(bottom: 24),
+            decoration: BoxDecoration(
+              color: theme.cardColor,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: theme.primaryColor.withValues(
+                    alpha: _isHovering ? 0.3 : 0.15,
+                  ),
+                  blurRadius: _isHovering ? 30 : 20,
+                  offset: const Offset(0, 10),
                 ),
-                blurRadius: _isHovering ? 30 : 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Stack(
-              children: [
-                // Gradient accent bar at top
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: 4,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          theme.primaryColor,
-                          theme.colorScheme.secondary,
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Stack(
+                children: [
+                  // Gradient accent bar at top
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: 4,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            theme.primaryColor,
+                            theme.colorScheme.secondary,
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Main content
+                  Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Book cover thumbnail
+                          Container(
+                            width: 120,
+                            height: 180,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.2),
+                                  blurRadius: 15,
+                                  offset: const Offset(0, 5),
+                                ),
+                              ],
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Stack(
+                                fit: StackFit.expand,
+                                children: [
+                                  // Fallback always at bottom
+                                  _buildFallbackCover(context),
+                                  // Image on top
+                                  if (widget.book.coverUrl != null &&
+                                      widget.book.coverUrl!.isNotEmpty)
+                                    CachedNetworkImage(
+                                      imageUrl: widget.book.coverUrl!,
+                                      fit: BoxFit.cover,
+                                      placeholder: (context, url) =>
+                                          const SizedBox.shrink(),
+                                      errorWidget: (context, url, error) =>
+                                          const SizedBox.shrink(),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 20),
+                          // Book info
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Continue Reading badge (tappable to edit)
+                                if (widget.book.readingStatus != null) ...[
+                                  GestureDetector(
+                                    onTap: widget.onStatusChanged != null
+                                        ? () async {
+                                            final useInventoryStatuses = context
+                                                .read<ThemeProvider>()
+                                                .inventoryStatusesEnabled;
+                                            final picked =
+                                                await showReadingStatusPicker(
+                                                  context,
+                                                  currentStatus:
+                                                      widget.book.readingStatus,
+                                                  useInventoryStatuses:
+                                                      useInventoryStatuses,
+                                                );
+                                            if (picked != null &&
+                                                picked !=
+                                                    widget.book.readingStatus) {
+                                              widget.onStatusChanged!(picked);
+                                            }
+                                          }
+                                        : null,
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 5,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          colors: [
+                                            theme.primaryColor,
+                                            theme.colorScheme.secondary,
+                                          ],
+                                        ),
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: Text(
+                                        TranslationService.translate(
+                                          context,
+                                          'reading_status_${widget.book.readingStatus}',
+                                        ).toUpperCase(),
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 0.5,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                ],
+                                // Title
+                                Text(
+                                  widget.book.title,
+                                  style: theme.textTheme.headlineSmall
+                                      ?.copyWith(fontWeight: FontWeight.bold),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 8),
+                                // Author
+                                if (widget.book.author != null)
+                                  Text(
+                                    widget.book.author!,
+                                    style: theme.textTheme.bodyLarge?.copyWith(
+                                      color: theme.textTheme.bodySmall?.color,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                const Spacer(),
+                                // Action hint
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.touch_app,
+                                      size: 16,
+                                      color: theme.primaryColor,
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      TranslationService.translate(
+                                        context,
+                                        'tap_to_view',
+                                      ),
+                                      style: TextStyle(
+                                        color: theme.primaryColor,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
                     ),
                   ),
-                ),
-                // Main content
-                Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: IntrinsicHeight(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Book cover thumbnail
-                        Container(
-                          width: 120,
-                          height: 180,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.2),
-                                blurRadius: 15,
-                                offset: const Offset(0, 5),
-                              ),
-                            ],
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: Stack(
-                              fit: StackFit.expand,
-                              children: [
-                                // Fallback always at bottom
-                                _buildFallbackCover(context),
-                                // Image on top
-                                if (widget.book.coverUrl != null &&
-                                    widget.book.coverUrl!.isNotEmpty)
-                                  CachedNetworkImage(
-                                    imageUrl: widget.book.coverUrl!,
-                                    fit: BoxFit.cover,
-                                    placeholder: (context, url) =>
-                                        const SizedBox.shrink(),
-                                    errorWidget: (context, url, error) =>
-                                        const SizedBox.shrink(),
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 20),
-                        // Book info
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Continue Reading badge (tappable to edit)
-                              if (widget.book.readingStatus != null) ...[
-                                GestureDetector(
-                                  onTap: widget.onStatusChanged != null
-                                      ? () async {
-                                          final isLibrarian =
-                                              context.read<ThemeProvider>()
-                                                  .isLibrarian;
-                                          final picked =
-                                              await showReadingStatusPicker(
-                                            context,
-                                            currentStatus:
-                                                widget.book.readingStatus,
-                                            isLibrarian: isLibrarian,
-                                          );
-                                          if (picked != null &&
-                                              picked !=
-                                                  widget.book.readingStatus) {
-                                            widget.onStatusChanged!(picked);
-                                          }
-                                        }
-                                      : null,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                      vertical: 5,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        colors: [
-                                          theme.primaryColor,
-                                          theme.colorScheme.secondary,
-                                        ],
-                                      ),
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    child: Text(
-                                      TranslationService.translate(
-                                        context,
-                                        'reading_status_${widget.book.readingStatus}',
-                                      ).toUpperCase(),
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold,
-                                        letterSpacing: 0.5,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                              ],
-                              // Title
-                              Text(
-                                widget.book.title,
-                                style: theme.textTheme.headlineSmall?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 8),
-                              // Author
-                              if (widget.book.author != null)
-                                Text(
-                                  widget.book.author!,
-                                  style: theme.textTheme.bodyLarge?.copyWith(
-                                    color: theme.textTheme.bodySmall?.color,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              const Spacer(),
-                              // Action hint
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.touch_app,
-                                    size: 16,
-                                    color: theme.primaryColor,
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    TranslationService.translate(
-                                      context,
-                                      'tap_to_view',
-                                    ),
-                                    style: TextStyle(
-                                      color: theme.primaryColor,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
-      ),
       ),
     );
   }
@@ -365,133 +366,144 @@ class _PremiumBookCardState extends State<PremiumBookCard>
       button: true,
       label: _semanticLabel,
       child: GestureDetector(
-      onTap: () => context.push('/books/${widget.book.id}', extra: widget.book),
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        onEnter: (_) {
-          _controller.forward();
-          setState(() => _isHovering = true);
-        },
-        onExit: (_) {
-          _controller.reverse();
-          setState(() => _isHovering = false);
-        },
-        child: AnimatedBuilder(
-          animation: _scaleAnimation,
-          builder: (context, child) => Transform.scale(
-            scale: _scaleAnimation.value,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              width: widget.width,
-              margin: const EdgeInsets.only(right: 16, bottom: 16),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
-                boxShadow: _isHovering
-                    ? AppDesign.glowShadow(theme.colorScheme.primary)
-                    : AppDesign.cardShadow,
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
-                child: Stack(
-                  children: [
-                    // Cover Image
-                    SizedBox(
-                      height: widget.height,
-                      width: widget.width,
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          _buildFallbackCover(context),
-                          if (widget.book.coverUrl != null &&
-                              widget.book.coverUrl!.isNotEmpty)
-                            CachedNetworkImage(
-                              imageUrl: widget.book.coverUrl!,
-                              fit: BoxFit.cover,
-                              placeholder: (context, url) =>
-                                  const SizedBox.shrink(),
-                              errorWidget: (context, url, error) =>
-                                  const SizedBox.shrink(),
-                            ),
-                        ],
+        onTap: () =>
+            context.push('/books/${widget.book.id}', extra: widget.book),
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          onEnter: (_) {
+            _controller.forward();
+            setState(() => _isHovering = true);
+          },
+          onExit: (_) {
+            _controller.reverse();
+            setState(() => _isHovering = false);
+          },
+          child: AnimatedBuilder(
+            animation: _scaleAnimation,
+            builder: (context, child) => Transform.scale(
+              scale: _scaleAnimation.value,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                width: widget.width,
+                margin: const EdgeInsets.only(right: 16, bottom: 16),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
+                  boxShadow: _isHovering
+                      ? AppDesign.glowShadow(theme.colorScheme.primary)
+                      : AppDesign.cardShadow,
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
+                  child: Stack(
+                    children: [
+                      // Cover Image
+                      SizedBox(
+                        height: widget.height,
+                        width: widget.width,
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            _buildFallbackCover(context),
+                            if (widget.book.coverUrl != null &&
+                                widget.book.coverUrl!.isNotEmpty)
+                              CachedNetworkImage(
+                                imageUrl: widget.book.coverUrl!,
+                                fit: BoxFit.cover,
+                                placeholder: (context, url) =>
+                                    const SizedBox.shrink(),
+                                errorWidget: (context, url, error) =>
+                                    const SizedBox.shrink(),
+                              ),
+                          ],
+                        ),
                       ),
-                    ),
-                    // Gradient Overlay on Hover
-                    AnimatedOpacity(
-                      duration: const Duration(milliseconds: 200),
-                      opacity: _isHovering ? 1.0 : 0.0,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.transparent,
-                              theme.colorScheme.primary.withValues(alpha: 0.5),
-                            ],
+                      // Gradient Overlay on Hover
+                      AnimatedOpacity(
+                        duration: const Duration(milliseconds: 200),
+                        opacity: _isHovering ? 1.0 : 0.0,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.transparent,
+                                theme.colorScheme.primary.withValues(
+                                  alpha: 0.5,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    // Status Badge (tappable to edit)
-                    if (widget.showStatus && widget.book.readingStatus != null)
-                      Positioned(
-                        top: 8,
-                        right: 8,
-                        child: Builder(builder: (context) {
-                          final isLibrarian =
-                              context.read<ThemeProvider>().isLibrarian;
-                          final statusInfo = getStatusFromValue(
-                              context, widget.book.readingStatus!, isLibrarian);
-                          final badgeColor =
-                              statusInfo?.color ?? Colors.blueAccent;
-                          return GestureDetector(
-                            onTap: widget.onStatusChanged != null
-                                ? () async {
-                                    final picked =
-                                        await showReadingStatusPicker(
+                      // Status Badge (tappable to edit)
+                      if (widget.showStatus &&
+                          widget.book.readingStatus != null)
+                        Positioned(
+                          top: 8,
+                          right: 8,
+                          child: Builder(
+                            builder: (context) {
+                              final useInventoryStatuses = context
+                                  .read<ThemeProvider>()
+                                  .inventoryStatusesEnabled;
+                              final statusInfo = getStatusFromValue(
+                                context,
+                                widget.book.readingStatus!,
+                                useInventoryStatuses,
+                              );
+                              final badgeColor =
+                                  statusInfo?.color ?? Colors.blueAccent;
+                              return GestureDetector(
+                                onTap: widget.onStatusChanged != null
+                                    ? () async {
+                                        final picked =
+                                            await showReadingStatusPicker(
+                                              context,
+                                              currentStatus:
+                                                  widget.book.readingStatus,
+                                              useInventoryStatuses:
+                                                  useInventoryStatuses,
+                                            );
+                                        if (picked != null &&
+                                            picked !=
+                                                widget.book.readingStatus) {
+                                          widget.onStatusChanged!(picked);
+                                        }
+                                      }
+                                    : null,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: badgeColor.withValues(alpha: 0.85),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    TranslationService.translate(
                                       context,
-                                      currentStatus:
-                                          widget.book.readingStatus,
-                                      isLibrarian: isLibrarian,
-                                    );
-                                    if (picked != null &&
-                                        picked !=
-                                            widget.book.readingStatus) {
-                                      widget.onStatusChanged!(picked);
-                                    }
-                                  }
-                                : null,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: badgeColor.withValues(alpha: 0.85),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                TranslationService.translate(
-                                  context,
-                                  'reading_status_${widget.book.readingStatus}',
-                                ).toUpperCase(),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
+                                      'reading_status_${widget.book.readingStatus}',
+                                    ).toUpperCase(),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
-                          );
-                        }),
-                      ),
-                  ],
+                              );
+                            },
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
         ),
-      ),
       ),
     );
   }

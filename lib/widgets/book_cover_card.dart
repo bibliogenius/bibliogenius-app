@@ -29,18 +29,12 @@ class BookCoverCard extends StatelessWidget {
 
   Color _getColorFromSeed(BuildContext context, int seed) {
     final isDark =
-        Provider.of<ThemeProvider>(context, listen: false).themeStyle ==
-        'dark';
+        Provider.of<ThemeProvider>(context, listen: false).themeStyle == 'dark';
     // Golden-ratio hue distribution: consecutive seeds land ~137.5° apart on
     // the color wheel, so even sequential peer book seeds produce visually
     // distinct covers instead of clustering in one hue family.
     final hue = (seed.abs() * 137.508) % 360;
-    return HSLColor.fromAHSL(
-      1.0,
-      hue,
-      0.55,
-      isDark ? 0.40 : 0.55,
-    ).toColor();
+    return HSLColor.fromAHSL(1.0, hue, 0.55, isDark ? 0.40 : 0.55).toColor();
   }
 
   @override
@@ -88,51 +82,56 @@ class BookCoverCard extends StatelessWidget {
                 Positioned(
                   top: 8,
                   right: 8,
-                  child: Builder(builder: (context) {
-                    final isLibrarian =
-                        Provider.of<ThemeProvider>(context, listen: false)
-                            .isLibrarian;
-                    final statusInfo = getStatusFromValue(
-                        context, book.readingStatus!, isLibrarian);
-                    final badgeColor =
-                        statusInfo?.color ?? Colors.black;
-                    return GestureDetector(
-                      onTap: onStatusChanged != null
-                          ? () async {
-                              final picked = await showReadingStatusPicker(
-                                context,
-                                currentStatus: book.readingStatus,
-                                isLibrarian: isLibrarian,
-                              );
-                              if (picked != null &&
-                                  picked != book.readingStatus) {
-                                onStatusChanged!(picked);
+                  child: Builder(
+                    builder: (context) {
+                      final useInventoryStatuses = Provider.of<ThemeProvider>(
+                        context,
+                        listen: false,
+                      ).inventoryStatusesEnabled;
+                      final statusInfo = getStatusFromValue(
+                        context,
+                        book.readingStatus!,
+                        useInventoryStatuses,
+                      );
+                      final badgeColor = statusInfo?.color ?? Colors.black;
+                      return GestureDetector(
+                        onTap: onStatusChanged != null
+                            ? () async {
+                                final picked = await showReadingStatusPicker(
+                                  context,
+                                  currentStatus: book.readingStatus,
+                                  useInventoryStatuses: useInventoryStatuses,
+                                );
+                                if (picked != null &&
+                                    picked != book.readingStatus) {
+                                  onStatusChanged!(picked);
+                                }
                               }
-                            }
-                          : null,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: badgeColor.withValues(alpha: 0.85),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          TranslationService.translate(
-                            context,
-                            'reading_status_${book.readingStatus}',
-                          ).toUpperCase(),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
+                            : null,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: badgeColor.withValues(alpha: 0.85),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            TranslationService.translate(
+                              context,
+                              'reading_status_${book.readingStatus}',
+                            ).toUpperCase(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  }),
+                      );
+                    },
+                  ),
                 ),
             ],
           ),
@@ -194,10 +193,7 @@ class BookCoverCard extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 12,
-                    ),
+                    style: const TextStyle(color: Colors.white70, fontSize: 12),
                   ),
                 ),
               ],

@@ -70,7 +70,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
   bool _isFetchingDetails = false;
   bool _isSaving = false;
   bool _isAutocompleteFetching = false;
-  bool _skipAutocomplete = false; // Suppress autocomplete when title is set programmatically
+  bool _skipAutocomplete =
+      false; // Suppress autocomplete when title is set programmatically
   String? _lastLookedUpIsbn; // Prevent duplicate lookups
   String? _lastChecksumWarningIsbn; // Prevent repeated checksum warnings
   final List<String> _selectedTags = [];
@@ -110,7 +111,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
   Future<void> _loadPreSelectedCollection() async {
     if (widget.preSelectedCollectionId == null) return;
     try {
-      final collectionRepo = Provider.of<CollectionRepository>(context, listen: false);
+      final collectionRepo = Provider.of<CollectionRepository>(
+        context,
+        listen: false,
+      );
       final collections = await collectionRepo.getCollections();
       try {
         final collection = collections.firstWhere(
@@ -160,10 +164,11 @@ class _AddBookScreenState extends State<AddBookScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Initialize _readingStatus with correct default based on profile type
+    // Initialize _readingStatus with the right default for the current
+    // status mode (inventory cataloguing vs personal reading).
     if (_readingStatus == null) {
       final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
-      _readingStatus = getDefaultStatus(themeProvider.isLibrarian);
+      _readingStatus = getDefaultStatus(themeProvider.inventoryStatusesEnabled);
     }
   }
 
@@ -194,7 +199,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
     if (currentText == _prevIsbnText) return;
     _prevIsbnText = currentText;
 
-    final isbn = IsbnValidator.clean(currentText).replaceAll(RegExp(r'[^0-9X]'), '');
+    final isbn = IsbnValidator.clean(
+      currentText,
+    ).replaceAll(RegExp(r'[^0-9X]'), '');
 
     // Reset last lookup if ISBN changed significantly (not just adding digits)
     if (_lastLookedUpIsbn != null && !isbn.startsWith(_lastLookedUpIsbn!)) {
@@ -210,12 +217,17 @@ class _AddBookScreenState extends State<AddBookScreen> {
       _isbnDebounce?.cancel();
       _isbnDebounce = Timer(const Duration(milliseconds: 800), () {
         if (!mounted || _isSaving) return;
-        final current = IsbnValidator.clean(_isbnController.text).replaceAll(RegExp(r'[^0-9X]'), '');
+        final current = IsbnValidator.clean(
+          _isbnController.text,
+        ).replaceAll(RegExp(r'[^0-9X]'), '');
         // Re-check: user may have kept typing during the debounce
         if (current != isbn) return;
         if (!IsbnValidator.isValid(isbn) && isbn != _lastChecksumWarningIsbn) {
           _lastChecksumWarningIsbn = isbn;
-          AppSnackBar.info(context, TranslationService.translate(context, 'isbn_checksum_warning'));
+          AppSnackBar.info(
+            context,
+            TranslationService.translate(context, 'isbn_checksum_warning'),
+          );
         }
         _fetchBookDetails(isbn);
       });
@@ -320,7 +332,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 bookData['year']?.toString() ?? '';
           if (_summaryController.text.isEmpty)
             _summaryController.text = bookData['summary'] ?? '';
-          if (_pageCountController.text.isEmpty && bookData['page_count'] != null)
+          if (_pageCountController.text.isEmpty &&
+              bookData['page_count'] != null)
             _pageCountController.text = bookData['page_count'].toString();
           if (_coverUrl == null && bookData['cover_url'] != null) {
             _coverUrl = bookData['cover_url'];
@@ -427,7 +440,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
       // Update collections if any are selected
       if (newBookId != null && _selectedCollections.isNotEmpty) {
-        final collectionRepo = Provider.of<CollectionRepository>(context, listen: false);
+        final collectionRepo = Provider.of<CollectionRepository>(
+          context,
+          listen: false,
+        );
         await collectionRepo.updateBookCollections(
           newBookId,
           _selectedCollections.map((c) => c.id).toList(),
@@ -529,476 +545,499 @@ class _AddBookScreenState extends State<AddBookScreen> {
         _showDiscardDialog();
       },
       child: Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          tooltip: TranslationService.translate(context, 'back'),
-          onPressed: () {
-            if (_hasFormData) {
-              _showDiscardDialog();
-            } else {
-              context.pop();
-            }
-          },
-        ),
-        title: Text(
-          _buildTitle(context),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        actions: [
-          // Online search button - icon only on mobile, with label on desktop
-          if (isMobile)
-            IconButton(
-              icon: const Icon(Icons.travel_explore),
-              tooltip: TranslationService.translate(
-                context,
-                'btn_search_online',
-              ),
-              onPressed: () async {
-                final result = await context.push('/search/external');
-                if (result == true && mounted) {
-                  // Book was added from external search, pop back with result
-                  context.pop(result);
-                }
-              },
-            )
-          else
-            TextButton.icon(
-              onPressed: () async {
-                final result = await context.push('/search/external');
-                if (result == true && mounted) {
-                  // Book was added from external search, pop back with result
-                  context.pop(result);
-                }
-              },
-              icon: Icon(
-                Icons.travel_explore,
-                color: Theme.of(context).appBarTheme.foregroundColor,
-              ),
-              label: Text(
-                TranslationService.translate(context, 'btn_search_online'),
-                style: TextStyle(
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            tooltip: TranslationService.translate(context, 'back'),
+            onPressed: () {
+              if (_hasFormData) {
+                _showDiscardDialog();
+              } else {
+                context.pop();
+              }
+            },
+          ),
+          title: Text(
+            _buildTitle(context),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          actions: [
+            // Online search button - icon only on mobile, with label on desktop
+            if (isMobile)
+              IconButton(
+                icon: const Icon(Icons.travel_explore),
+                tooltip: TranslationService.translate(
+                  context,
+                  'btn_search_online',
+                ),
+                onPressed: () async {
+                  final result = await context.push('/search/external');
+                  if (result == true && mounted) {
+                    // Book was added from external search, pop back with result
+                    context.pop(result);
+                  }
+                },
+              )
+            else
+              TextButton.icon(
+                onPressed: () async {
+                  final result = await context.push('/search/external');
+                  if (result == true && mounted) {
+                    // Book was added from external search, pop back with result
+                    context.pop(result);
+                  }
+                },
+                icon: Icon(
+                  Icons.travel_explore,
                   color: Theme.of(context).appBarTheme.foregroundColor,
                 ),
+                label: Text(
+                  TranslationService.translate(context, 'btn_search_online'),
+                  style: TextStyle(
+                    color: Theme.of(context).appBarTheme.foregroundColor,
+                  ),
+                ),
               ),
-            ),
-          Padding(
-            padding: const EdgeInsets.only(right: 8.0, left: 8.0),
-            child: _isSaving
-                ? Center(
-                    child: SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Theme.of(context).appBarTheme.foregroundColor,
-                      ),
-                    ),
-                  )
-                : isMobile
-                // Mobile: shorter button with just "Enregistrer"
-                ? TextButton(
-                    onPressed: (_isAutocompleteFetching || _isFetchingDetails || _isDuplicate)
-                        ? null
-                        : _saveBook,
-                    key: const Key('saveBookButton'),
-                    style: TextButton.styleFrom(
-                      backgroundColor: Colors.white.withValues(alpha: 0.2),
-                      foregroundColor: Theme.of(
-                        context,
-                      ).appBarTheme.foregroundColor,
-                      disabledForegroundColor: Theme.of(
-                        context,
-                      ).appBarTheme.foregroundColor?.withValues(alpha: 0.4),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                    ),
-                    child: Text(
-                      TranslationService.translate(context, 'save'),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
-                    ),
-                  )
-                // Desktop: full button
-                : ElevatedButton(
-                    onPressed: (_isAutocompleteFetching || _isFetchingDetails || _isDuplicate)
-                        ? null
-                        : _saveBook,
-                    key: const Key('saveBookButton'),
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.zero,
-                      elevation: 4,
-                      shadowColor: Colors.black26,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                    ),
-                    child: Ink(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            Theme.of(context).primaryColor,
-                            Theme.of(context).primaryColor.withOpacity(0.8),
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
+            Padding(
+              padding: const EdgeInsets.only(right: 8.0, left: 8.0),
+              child: _isSaving
+                  ? Center(
+                      child: SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Theme.of(context).appBarTheme.foregroundColor,
                         ),
-                        borderRadius: BorderRadius.circular(24),
                       ),
-                      child: Container(
+                    )
+                  : isMobile
+                  // Mobile: shorter button with just "Enregistrer"
+                  ? TextButton(
+                      onPressed:
+                          (_isAutocompleteFetching ||
+                              _isFetchingDetails ||
+                              _isDuplicate)
+                          ? null
+                          : _saveBook,
+                      key: const Key('saveBookButton'),
+                      style: TextButton.styleFrom(
+                        backgroundColor: Colors.white.withValues(alpha: 0.2),
+                        foregroundColor: Theme.of(
+                          context,
+                        ).appBarTheme.foregroundColor,
+                        disabledForegroundColor: Theme.of(
+                          context,
+                        ).appBarTheme.foregroundColor?.withValues(alpha: 0.4),
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
+                          horizontal: 12,
                           vertical: 8,
                         ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.check,
-                              size: 18,
-                              color: Colors.white,
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              TranslationService.translate(
-                                context,
-                                'save_book',
-                              ),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15,
+                      ),
+                      child: Text(
+                        TranslationService.translate(context, 'save'),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                    )
+                  // Desktop: full button
+                  : ElevatedButton(
+                      onPressed:
+                          (_isAutocompleteFetching ||
+                              _isFetchingDetails ||
+                              _isDuplicate)
+                          ? null
+                          : _saveBook,
+                      key: const Key('saveBookButton'),
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        elevation: 4,
+                        shadowColor: Colors.black26,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                      ),
+                      child: Ink(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Theme.of(context).primaryColor,
+                              Theme.of(context).primaryColor.withOpacity(0.8),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.check,
+                                size: 18,
                                 color: Colors.white,
                               ),
-                            ),
-                          ],
+                              const SizedBox(width: 6),
+                              Text(
+                                TranslationService.translate(
+                                  context,
+                                  'save_book',
+                                ),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
+            ),
+          ],
+        ),
+        body: Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.all(24.0),
+            children: [
+              const SizedBox(height: 8),
+
+              // Duplicate ISBN Warning Banner
+              if (_isDuplicate && _duplicateBook != null)
+                Container(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.orange, width: 1.5),
                   ),
-          ),
-        ],
-      ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(24.0),
-          children: [
-            const SizedBox(height: 8),
-
-            // Duplicate ISBN Warning Banner
-            if (_isDuplicate && _duplicateBook != null)
-              Container(
-                margin: const EdgeInsets.only(bottom: 16),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.orange.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.orange, width: 1.5),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.warning_amber_rounded,
-                          color: Colors.orange,
-                          size: 24,
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            TranslationService.translate(
-                                  context,
-                                  'isbn_already_exists',
-                                ) ??
-                                'This book is already in your collection',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.warning_amber_rounded,
+                            color: Colors.orange,
+                            size: 24,
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      '${_duplicateBook!.title}${_duplicateBook!.author != null ? ' - ${_duplicateBook!.author}' : ''}',
-                      style: TextStyle(color: Colors.grey[700]),
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: () {
-                              context.push('/books/${_duplicateBook!.id}');
-                            },
-                            icon: const Icon(Icons.visibility),
-                            label: Text(
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
                               TranslationService.translate(
                                     context,
-                                    'view_existing',
+                                    'isbn_already_exists',
                                   ) ??
-                                  'View Book',
+                                  'This book is already in your collection',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: _isAddingCopy ? null : () async {
-                              setState(() => _isAddingCopy = true);
-                              final copyRepo = Provider.of<CopyRepository>(
-                                context,
-                                listen: false,
-                              );
-                              try {
-                                await copyRepo.createCopy({
-                                  'book_id': _duplicateBook!.id,
-                                  'status': 'available',
-                                });
-                                if (mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        TranslationService.translate(
-                                              context,
-                                              'copy_added',
-                                            ) ??
-                                            'Copy added successfully',
-                                      ),
-                                      backgroundColor: Colors.green,
-                                    ),
-                                  );
-                                  context.pop(_duplicateBook!.id);
-                                }
-                              } catch (e) {
-                                if (mounted) {
-                                  setState(() => _isAddingCopy = false);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text('Error: $e'),
-                                      backgroundColor: Colors.red,
-                                    ),
-                                  );
-                                }
-                              }
-                            },
-                            icon: _isAddingCopy
-                                ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                                : const Icon(Icons.add),
-                            label: Text(
-                              TranslationService.translate(
-                                    context,
-                                    'add_copy',
-                                  ) ??
-                                  'Add Copy',
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.orange,
-                              foregroundColor: Colors.white,
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        '${_duplicateBook!.title}${_duplicateBook!.author != null ? ' - ${_duplicateBook!.author}' : ''}',
+                        style: TextStyle(color: Colors.grey[700]),
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: () {
+                                context.push('/books/${_duplicateBook!.id}');
+                              },
+                              icon: const Icon(Icons.visibility),
+                              label: Text(
+                                TranslationService.translate(
+                                      context,
+                                      'view_existing',
+                                    ) ??
+                                    'View Book',
+                              ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-
-            // Title
-            _buildLabel(TranslationService.translate(context, 'title_label'), icon: Icons.auto_stories),
-            LayoutBuilder(
-              builder: (context, constraints) {
-                return RawAutocomplete<Map<String, dynamic>>(
-                  textEditingController: _titleController,
-                  focusNode: _titleFocusNode,
-                  optionsBuilder: (TextEditingValue textEditingValue) async {
-                    // Skip autocomplete when title was set programmatically
-                    // (ISBN lookup or edition selection)
-                    if (_skipAutocomplete) {
-                      _skipAutocomplete = false;
-                      return const Iterable<Map<String, dynamic>>.empty();
-                    }
-
-                    if (textEditingValue.text.isEmpty ||
-                        textEditingValue.text.length < 3) {
-                      return const Iterable<Map<String, dynamic>>.empty();
-                    }
-
-                    // Check cache first
-                    final cached = _searchCache.get(textEditingValue.text);
-                    if (cached != null) {
-                      return cached;
-                    }
-
-                    // Debounce search
-                    if (_debounce?.isActive ?? false) _debounce!.cancel();
-
-                    if (mounted) {
-                      setState(() => _isAutocompleteFetching = true);
-                    }
-
-                    final completer =
-                        Completer<Iterable<Map<String, dynamic>>>();
-                    _debounce = Timer(const Duration(milliseconds: 500), () async {
-                      if (!mounted) {
-                        if (!completer.isCompleted) {
-                          completer.complete(
-                            const Iterable<Map<String, dynamic>>.empty(),
-                          );
-                        }
-                        return;
-                      }
-                      try {
-                        // Use unified search via backend API (respects enabled sources)
-                        final api = Provider.of<ApiService>(
-                          context,
-                          listen: false,
-                        );
-                        final results = await api.searchBooks(
-                          query: textEditingValue.text,
-                          lang: Localizations.localeOf(context).languageCode,
-                          autocomplete: true,
-                        );
-
-                        // Filter out "Independently Published" (POD/self-published reprints)
-                        final filteredResults = results.where((book) {
-                          final publisher = book['publisher'] as String?;
-                          return publisher != 'Independently Published';
-                        }).toList();
-
-                        // Cache the results
-                        _searchCache.set(
-                          textEditingValue.text,
-                          filteredResults,
-                        );
-
-                        if (!completer.isCompleted) {
-                          completer.complete(filteredResults);
-                        }
-                      } catch (e) {
-                        debugPrint('Autocomplete Error: $e');
-                        if (!completer.isCompleted) {
-                          completer.complete(
-                            const Iterable<Map<String, dynamic>>.empty(),
-                          );
-                        }
-                      } finally {
-                        if (mounted) {
-                          setState(() => _isAutocompleteFetching = false);
-                        }
-                      }
-                    });
-
-                    return completer.future;
-                  },
-                  displayStringForOption: (option) => option['title'] ?? '',
-                  onSelected: (Map<String, dynamic> selection) async {
-                    _debounce?.cancel();
-                    if (mounted) setState(() {
-                      _isAutocompleteFetching = false;
-                      _skipAutocomplete = true; // guard Phase 1 (RawAutocomplete internal text update)
-                    });
-
-                    // Get current search query
-                    final searchQuery = _titleController.text;
-
-                    // Find all editions for this work from cached results
-                    final editions = _findEditionsForWork(
-                      selection,
-                      searchQuery,
-                    );
-
-                    if (editions.length > 1) {
-                      // Multiple editions found - show picker
-                      final selectedEdition = await EditionPickerSheet.show(
-                        context: context,
-                        title: selection['title'] ?? '',
-                        author: selection['author'] as String?,
-                        editions: editions,
-                      );
-
-                      if (selectedEdition != null && mounted) {
-                        _fillFormFromSelection(selectedEdition);
-                      }
-                    } else {
-                      // Single edition - fill form directly
-                      _fillFormFromSelection(selection);
-                    }
-                  },
-                  fieldViewBuilder:
-                      (
-                        context,
-                        textEditingController,
-                        focusNode,
-                        onFieldSubmitted,
-                      ) {
-                        return TextFormField(
-                          controller: textEditingController,
-                          key: const Key('titleField'),
-                          focusNode: focusNode,
-                          decoration: _buildInputDecoration(
-                            hint: TranslationService.translate(
-                              context,
-                              'enter_book_title',
-                            ),
-                            suffixIcon: _isAutocompleteFetching
-                                ? const Padding(
-                                    padding: EdgeInsets.all(12.0),
-                                    child: SizedBox(
-                                      width: 20,
-                                      height: 20,
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: _isAddingCopy
+                                  ? null
+                                  : () async {
+                                      setState(() => _isAddingCopy = true);
+                                      final copyRepo =
+                                          Provider.of<CopyRepository>(
+                                            context,
+                                            listen: false,
+                                          );
+                                      try {
+                                        await copyRepo.createCopy({
+                                          'book_id': _duplicateBook!.id,
+                                          'status': 'available',
+                                        });
+                                        if (mounted) {
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                TranslationService.translate(
+                                                      context,
+                                                      'copy_added',
+                                                    ) ??
+                                                    'Copy added successfully',
+                                              ),
+                                              backgroundColor: Colors.green,
+                                            ),
+                                          );
+                                          context.pop(_duplicateBook!.id);
+                                        }
+                                      } catch (e) {
+                                        if (mounted) {
+                                          setState(() => _isAddingCopy = false);
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              content: Text('Error: $e'),
+                                              backgroundColor: Colors.red,
+                                            ),
+                                          );
+                                        }
+                                      }
+                                    },
+                              icon: _isAddingCopy
+                                  ? const SizedBox(
+                                      width: 18,
+                                      height: 18,
                                       child: CircularProgressIndicator(
                                         strokeWidth: 2,
+                                        color: Colors.white,
                                       ),
-                                    ),
-                                  )
-                                : const Icon(Icons.search),
+                                    )
+                                  : const Icon(Icons.add),
+                              label: Text(
+                                TranslationService.translate(
+                                      context,
+                                      'add_copy',
+                                    ) ??
+                                    'Add Copy',
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.orange,
+                                foregroundColor: Colors.white,
+                              ),
+                            ),
                           ),
-                          validator: (value) => value == null || value.isEmpty
-                              ? TranslationService.translate(
-                                  context,
-                                  'enter_title_error',
-                                )
-                              : null,
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+              // Title
+              _buildLabel(
+                TranslationService.translate(context, 'title_label'),
+                icon: Icons.auto_stories,
+              ),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  return RawAutocomplete<Map<String, dynamic>>(
+                    textEditingController: _titleController,
+                    focusNode: _titleFocusNode,
+                    optionsBuilder: (TextEditingValue textEditingValue) async {
+                      // Skip autocomplete when title was set programmatically
+                      // (ISBN lookup or edition selection)
+                      if (_skipAutocomplete) {
+                        _skipAutocomplete = false;
+                        return const Iterable<Map<String, dynamic>>.empty();
+                      }
+
+                      if (textEditingValue.text.isEmpty ||
+                          textEditingValue.text.length < 3) {
+                        return const Iterable<Map<String, dynamic>>.empty();
+                      }
+
+                      // Check cache first
+                      final cached = _searchCache.get(textEditingValue.text);
+                      if (cached != null) {
+                        return cached;
+                      }
+
+                      // Debounce search
+                      if (_debounce?.isActive ?? false) _debounce!.cancel();
+
+                      if (mounted) {
+                        setState(() => _isAutocompleteFetching = true);
+                      }
+
+                      final completer =
+                          Completer<Iterable<Map<String, dynamic>>>();
+                      _debounce = Timer(
+                        const Duration(milliseconds: 500),
+                        () async {
+                          if (!mounted) {
+                            if (!completer.isCompleted) {
+                              completer.complete(
+                                const Iterable<Map<String, dynamic>>.empty(),
+                              );
+                            }
+                            return;
+                          }
+                          try {
+                            // Use unified search via backend API (respects enabled sources)
+                            final api = Provider.of<ApiService>(
+                              context,
+                              listen: false,
+                            );
+                            final results = await api.searchBooks(
+                              query: textEditingValue.text,
+                              lang: Localizations.localeOf(
+                                context,
+                              ).languageCode,
+                              autocomplete: true,
+                            );
+
+                            // Filter out "Independently Published" (POD/self-published reprints)
+                            final filteredResults = results.where((book) {
+                              final publisher = book['publisher'] as String?;
+                              return publisher != 'Independently Published';
+                            }).toList();
+
+                            // Cache the results
+                            _searchCache.set(
+                              textEditingValue.text,
+                              filteredResults,
+                            );
+
+                            if (!completer.isCompleted) {
+                              completer.complete(filteredResults);
+                            }
+                          } catch (e) {
+                            debugPrint('Autocomplete Error: $e');
+                            if (!completer.isCompleted) {
+                              completer.complete(
+                                const Iterable<Map<String, dynamic>>.empty(),
+                              );
+                            }
+                          } finally {
+                            if (mounted) {
+                              setState(() => _isAutocompleteFetching = false);
+                            }
+                          }
+                        },
+                      );
+
+                      return completer.future;
+                    },
+                    displayStringForOption: (option) => option['title'] ?? '',
+                    onSelected: (Map<String, dynamic> selection) async {
+                      _debounce?.cancel();
+                      if (mounted)
+                        setState(() {
+                          _isAutocompleteFetching = false;
+                          _skipAutocomplete =
+                              true; // guard Phase 1 (RawAutocomplete internal text update)
+                        });
+
+                      // Get current search query
+                      final searchQuery = _titleController.text;
+
+                      // Find all editions for this work from cached results
+                      final editions = _findEditionsForWork(
+                        selection,
+                        searchQuery,
+                      );
+
+                      if (editions.length > 1) {
+                        // Multiple editions found - show picker
+                        final selectedEdition = await EditionPickerSheet.show(
+                          context: context,
+                          title: selection['title'] ?? '',
+                          author: selection['author'] as String?,
+                          editions: editions,
                         );
-                      },
-                  optionsViewBuilder: (context, onSelected, options) {
-                    final themeProvider = Provider.of<ThemeProvider>(
-                      context,
-                      listen: false,
-                    );
-                    final isJuniorReader = themeProvider.isKid;
 
-                    return Align(
-                      alignment: Alignment.topLeft,
-                      child: Material(
-                        elevation: 4.0,
-                        child: SizedBox(
-                          width: constraints.maxWidth,
-                          child: ListView.builder(
-                            padding: EdgeInsets.zero,
-                            shrinkWrap: true,
-                            itemCount: options.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              final option = options.elementAt(index);
-                              final cover = option['cover_url'] as String?;
-                              final author = option['author'] as String?;
-                              final publisher = option['publisher'] as String?;
-                              final language = option['language'] as String?;
-                              final langLabel = _getLanguageLabel(language);
+                        if (selectedEdition != null && mounted) {
+                          _fillFormFromSelection(selectedEdition);
+                        }
+                      } else {
+                        // Single edition - fill form directly
+                        _fillFormFromSelection(selection);
+                      }
+                    },
+                    fieldViewBuilder:
+                        (
+                          context,
+                          textEditingController,
+                          focusNode,
+                          onFieldSubmitted,
+                        ) {
+                          return TextFormField(
+                            controller: textEditingController,
+                            key: const Key('titleField'),
+                            focusNode: focusNode,
+                            decoration: _buildInputDecoration(
+                              hint: TranslationService.translate(
+                                context,
+                                'enter_book_title',
+                              ),
+                              suffixIcon: _isAutocompleteFetching
+                                  ? const Padding(
+                                      padding: EdgeInsets.all(12.0),
+                                      child: SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      ),
+                                    )
+                                  : const Icon(Icons.search),
+                            ),
+                            validator: (value) => value == null || value.isEmpty
+                                ? TranslationService.translate(
+                                    context,
+                                    'enter_title_error',
+                                  )
+                                : null,
+                          );
+                        },
+                    optionsViewBuilder: (context, onSelected, options) {
+                      return Align(
+                        alignment: Alignment.topLeft,
+                        child: Material(
+                          elevation: 4.0,
+                          child: SizedBox(
+                            width: constraints.maxWidth,
+                            child: ListView.builder(
+                              padding: EdgeInsets.zero,
+                              shrinkWrap: true,
+                              itemCount: options.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                final option = options.elementAt(index);
+                                final cover = option['cover_url'] as String?;
+                                final author = option['author'] as String?;
+                                final publisher =
+                                    option['publisher'] as String?;
+                                final language = option['language'] as String?;
+                                final langLabel = _getLanguageLabel(language);
 
-                              // For adults: show "Author • Publisher • Language"
-                              // For kids: show just "Author" (simpler)
-                              String subtitle = author ?? '';
-                              if (!isJuniorReader) {
+                                // Subtitle: "Author • Publisher • Language"
+                                String subtitle = author ?? '';
                                 if (publisher != null && publisher.isNotEmpty) {
                                   if (subtitle.isNotEmpty) {
                                     subtitle += ' • $publisher';
@@ -1013,684 +1052,736 @@ class _AddBookScreenState extends State<AddBookScreen> {
                                     subtitle = langLabel;
                                   }
                                 }
-                              }
 
-                              return MouseRegion(
-                                cursor: SystemMouseCursors.click,
-                                child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 4.0,
-                                ),
-                                child: ListTile(
-                                  leading: SizedBox(
-                                    width: 40,
-                                    height: 60,
-                                    child: Stack(
-                                      children: [
-                                        // 1. Fallback Colored Cover
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(
-                                              4,
-                                            ),
-                                            gradient: LinearGradient(
-                                              begin: Alignment.topLeft,
-                                              end: Alignment.bottomRight,
-                                              colors: [
-                                                _getCoverColor(
-                                                  option['title'] ?? '',
-                                                ),
-                                                _getCoverColor(
-                                                  option['title'] ?? '',
-                                                ).withOpacity(0.7),
-                                              ],
-                                            ),
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                              (option['title'] as String?)
-                                                      ?.substring(0, 1)
-                                                      .toUpperCase() ??
-                                                  '',
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 20,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        // 2. Image
-                                        if (cover != null && cover.isNotEmpty)
-                                          ClipRRect(
-                                            borderRadius: BorderRadius.circular(
-                                              4,
-                                            ),
-                                            child: CachedNetworkImage(
-                                              imageUrl: cover,
-                                              width: 40,
-                                              height: 60,
-                                              fit: BoxFit.cover,
-                                              placeholder: (context, url) =>
-                                                  const SizedBox.shrink(),
-                                              errorWidget:
-                                                  (context, url, error) =>
-                                                      const SizedBox.shrink(),
-                                            ),
-                                          ),
-                                        // 3. Source Badge
-                                        if (option['source'] != null)
-                                          Positioned(
-                                            bottom: 0,
-                                            right: 0,
-                                            child: Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 2,
-                                                    vertical: 1,
-                                                  ),
+                                return MouseRegion(
+                                  cursor: SystemMouseCursors.click,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 4.0,
+                                    ),
+                                    child: ListTile(
+                                      leading: SizedBox(
+                                        width: 40,
+                                        height: 60,
+                                        child: Stack(
+                                          children: [
+                                            // 1. Fallback Colored Cover
+                                            Container(
                                               decoration: BoxDecoration(
-                                                color: _getSourceColor(
-                                                  option['source'],
-                                                ),
                                                 borderRadius:
-                                                    BorderRadius.circular(2),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.black
-                                                        .withOpacity(0.3),
-                                                    blurRadius: 2,
-                                                    offset: const Offset(0, 1),
-                                                  ),
-                                                ],
-                                              ),
-                                              child: Text(
-                                                _getSourceLabel(
-                                                  option['source'],
+                                                    BorderRadius.circular(4),
+                                                gradient: LinearGradient(
+                                                  begin: Alignment.topLeft,
+                                                  end: Alignment.bottomRight,
+                                                  colors: [
+                                                    _getCoverColor(
+                                                      option['title'] ?? '',
+                                                    ),
+                                                    _getCoverColor(
+                                                      option['title'] ?? '',
+                                                    ).withOpacity(0.7),
+                                                  ],
                                                 ),
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 11,
-                                                  fontWeight: FontWeight.bold,
+                                              ),
+                                              child: Center(
+                                                child: Text(
+                                                  (option['title'] as String?)
+                                                          ?.substring(0, 1)
+                                                          .toUpperCase() ??
+                                                      '',
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 20,
+                                                  ),
                                                 ),
                                               ),
                                             ),
-                                          ),
-                                      ],
+                                            // 2. Image
+                                            if (cover != null &&
+                                                cover.isNotEmpty)
+                                              ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(4),
+                                                child: CachedNetworkImage(
+                                                  imageUrl: cover,
+                                                  width: 40,
+                                                  height: 60,
+                                                  fit: BoxFit.cover,
+                                                  placeholder: (context, url) =>
+                                                      const SizedBox.shrink(),
+                                                  errorWidget:
+                                                      (context, url, error) =>
+                                                          const SizedBox.shrink(),
+                                                ),
+                                              ),
+                                            // 3. Source Badge
+                                            if (option['source'] != null)
+                                              Positioned(
+                                                bottom: 0,
+                                                right: 0,
+                                                child: Container(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 2,
+                                                        vertical: 1,
+                                                      ),
+                                                  decoration: BoxDecoration(
+                                                    color: _getSourceColor(
+                                                      option['source'],
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          2,
+                                                        ),
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                        color: Colors.black
+                                                            .withOpacity(0.3),
+                                                        blurRadius: 2,
+                                                        offset: const Offset(
+                                                          0,
+                                                          1,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  child: Text(
+                                                    _getSourceLabel(
+                                                      option['source'],
+                                                    ),
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 11,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                      ),
+                                      title: Text(
+                                        option['title'] ?? '',
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                      subtitle: subtitle.isNotEmpty
+                                          ? Text(
+                                              subtitle,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                              ),
+                                            )
+                                          : null,
+                                      isThreeLine: false,
+                                      dense: true,
+                                      onTap: () => onSelected(option),
                                     ),
                                   ),
-                                  title: Text(
-                                    option['title'] ?? '',
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                  subtitle: subtitle.isNotEmpty
-                                      ? Text(
-                                          subtitle,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(fontSize: 12),
-                                        )
-                                      : null,
-                                  isThreeLine: false,
-                                  dense: true,
-                                  onTap: () => onSelected(option),
-                                ),
-                              ));
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+              _buildSectionDivider(),
+
+              // Author
+              _buildLabel(
+                TranslationService.translate(context, 'author_label'),
+                helperText: TranslationService.translate(
+                  context,
+                  'author_helper',
+                ),
+                icon: Icons.person_outline,
+              ),
+              Autocomplete<String>(
+                optionsBuilder: (TextEditingValue textEditingValue) {
+                  if (textEditingValue.text.isEmpty) {
+                    return const Iterable<String>.empty();
+                  }
+                  return _allAuthors.where((String option) {
+                    return option.toLowerCase().contains(
+                      textEditingValue.text.toLowerCase(),
+                    );
+                  });
+                },
+                fieldViewBuilder:
+                    (
+                      context,
+                      textEditingController,
+                      focusNode,
+                      onFieldSubmitted,
+                    ) {
+                      // Keep reference to controller for manual adding
+                      if (_authorController != textEditingController) {
+                        // If we are replacing the controller, we should copy the text if any
+                        // But usually Autocomplete creates its own.
+                        // Let's just use the one provided by Autocomplete for the input
+                      }
+                      return TextFormField(
+                        controller: textEditingController,
+                        focusNode: focusNode,
+                        decoration: _buildInputDecoration(
+                          hint: TranslationService.translate(
+                            context,
+                            _authors.isNotEmpty
+                                ? 'author_hint_add'
+                                : 'author_hint',
+                          ),
+                          suffixIcon: IconButton(
+                            icon: const Icon(Icons.add),
+                            tooltip: TranslationService.translate(
+                              context,
+                              'tooltip_add_author',
+                            ),
+                            onPressed: () {
+                              if (textEditingController.text
+                                  .trim()
+                                  .isNotEmpty) {
+                                setState(() {
+                                  final val = textEditingController.text.trim();
+                                  if (!_authors.contains(val)) {
+                                    _authors.add(val);
+                                  }
+                                  textEditingController.clear();
+                                });
+                              }
                             },
                           ),
                         ),
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
-            _buildSectionDivider(),
-
-            // Author
-            _buildLabel(
-              TranslationService.translate(context, 'author_label'),
-              helperText: TranslationService.translate(context, 'author_helper'),
-              icon: Icons.person_outline,
-            ),
-            Autocomplete<String>(
-              optionsBuilder: (TextEditingValue textEditingValue) {
-                if (textEditingValue.text.isEmpty) {
-                  return const Iterable<String>.empty();
-                }
-                return _allAuthors.where((String option) {
-                  return option.toLowerCase().contains(
-                    textEditingValue.text.toLowerCase(),
-                  );
-                });
-              },
-              fieldViewBuilder:
-                  (
-                    context,
-                    textEditingController,
-                    focusNode,
-                    onFieldSubmitted,
-                  ) {
-                    // Keep reference to controller for manual adding
-                    if (_authorController != textEditingController) {
-                      // If we are replacing the controller, we should copy the text if any
-                      // But usually Autocomplete creates its own.
-                      // Let's just use the one provided by Autocomplete for the input
-                    }
-                    return TextFormField(
-                      controller: textEditingController,
-                      focusNode: focusNode,
-                      decoration: _buildInputDecoration(
-                        hint: TranslationService.translate(
-                          context,
-                          _authors.isNotEmpty ? 'author_hint_add' : 'author_hint',
-                        ),
-                        suffixIcon: IconButton(
-                          icon: const Icon(Icons.add),
-                          tooltip: TranslationService.translate(context, 'tooltip_add_author'),
-                          onPressed: () {
-                            if (textEditingController.text.trim().isNotEmpty) {
-                              setState(() {
-                                final val = textEditingController.text.trim();
-                                if (!_authors.contains(val)) {
-                                  _authors.add(val);
-                                }
-                                textEditingController.clear();
-                              });
-                            }
-                          },
-                        ),
-                      ),
-                      onFieldSubmitted: (String value) {
-                        final trimmed = value.trim();
-                        if (trimmed.isNotEmpty) {
-                          setState(() {
-                            if (!_authors.contains(trimmed)) {
-                              _authors.add(trimmed);
-                            }
-                            textEditingController.clear();
-                          });
-                          // Keep focus for next entry
-                          focusNode.requestFocus();
-                        }
+                        onFieldSubmitted: (String value) {
+                          final trimmed = value.trim();
+                          if (trimmed.isNotEmpty) {
+                            setState(() {
+                              if (!_authors.contains(trimmed)) {
+                                _authors.add(trimmed);
+                              }
+                              textEditingController.clear();
+                            });
+                            // Keep focus for next entry
+                            focusNode.requestFocus();
+                          }
+                        },
+                      );
+                    },
+              ),
+              if (_authors.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: _authors.map((author) {
+                    return Chip(
+                      label: Text(author),
+                      deleteIcon: const Icon(Icons.close, size: 18),
+                      onDeleted: () {
+                        setState(() {
+                          _authors.remove(author);
+                          _authorController.text = _authors.join(', ');
+                        });
                       },
                     );
-                  },
-            ),
-            if (_authors.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: _authors.map((author) {
-                  return Chip(
-                    label: Text(author),
-                    deleteIcon: const Icon(Icons.close, size: 18),
-                    onDeleted: () {
-                      setState(() {
-                        _authors.remove(author);
-                        _authorController.text = _authors.join(', ');
-                      });
-                    },
-                  );
-                }).toList(),
-              ),
-            ],
-            if (_authorsData != null &&
-                _authorsData!.isNotEmpty &&
-                (_authors.isNotEmpty ||
-                    _authorController.text.trim().isNotEmpty)) ...[
-              const SizedBox(height: 16),
-              ..._authorsData!.map((author) {
-                if (author is! Map) return const SizedBox.shrink();
-                final name = author['name'] as String? ?? '';
-                final bio = author['bio'] as String?;
-                final imageUrl = author['image_url'] as String?;
-                final birth = author['birth_year'] as String?;
-                final death = author['death_year'] as String?;
-
-                String lifeSpan = '';
-                if (birth != null) lifeSpan += birth;
-                if (death != null) {
-                  lifeSpan += ' - $death';
-                } else if (birth != null)
-                  lifeSpan += ' - Present';
-
-                if (bio == null && imageUrl == null && lifeSpan.isEmpty)
-                  return const SizedBox.shrink();
-
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (imageUrl != null)
-                          Padding(
-                            padding: const EdgeInsets.only(right: 12.0),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(40),
-                              child: CachedNetworkImage(
-                                imageUrl: imageUrl,
-                                width: 60,
-                                height: 60,
-                                fit: BoxFit.cover,
-                                errorWidget: (_, __, ___) =>
-                                    const Icon(Icons.person, size: 40),
-                              ),
-                            ),
-                          ),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                name,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              if (lifeSpan.isNotEmpty)
-                                Text(
-                                  lifeSpan,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey[600],
-                                  ),
-                                ),
-                              if (bio != null) ...[
-                                const SizedBox(height: 4),
-                                Text(
-                                  bio,
-                                  maxLines: 4,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(fontSize: 13),
-                                ),
-                              ],
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }),
-            ],
-            _buildSectionDivider(),
-
-            _buildLabel(TranslationService.translate(context, 'isbn_label'), icon: Icons.qr_code),
-            TextFormField(
-              key: const Key('isbnField'),
-              controller: _isbnController,
-              style: const TextStyle(
-                fontFamily: 'monospace',
-                letterSpacing: 2.0,
-              ),
-              decoration: _buildInputDecoration(
-                hint: TranslationService.translate(
-                  context,
-                  'enter_isbn_autofill',
-                ),
-                prefixIcon: IconButton(
-                  icon: const Icon(Icons.qr_code_scanner),
-                  tooltip: TranslationService.translate(
-                    context,
-                    'scan_isbn_title',
-                  ),
-                  onPressed: () async {
-                    final result = await context.push<String>('/scan');
-                    if (!mounted) return;
-                    if (result != null && result.isNotEmpty) {
-                      _isbnController.text = result;
-                      // _onIsbnChanged listener already triggers _fetchBookDetails,
-                      // so no need to call it again here.
-                    }
-                  },
-                ),
-                suffixIcon: _isFetchingDetails
-                    ? const Padding(
-                        padding: EdgeInsets.all(12.0),
-                        child: SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
-                      )
-                    : IconButton(
-                        icon: const Icon(Icons.search),
-                        onPressed: () =>
-                            _fetchBookDetails(_isbnController.text),
-                        tooltip: TranslationService.translate(
-                          context,
-                          'lookup_isbn',
-                        ),
-                      ),
-              ),
-              keyboardType: TextInputType.number,
-            ),
-            if (_coverUrl != null || _titleController.text.isNotEmpty || _isbnController.text.isNotEmpty) ...[
-              _buildSectionDivider(),
-              _buildCoverPreview(),
-            ],
-            _buildSectionDivider(),
-
-            // Publisher & Year
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildLabel(
-                        TranslationService.translate(context, 'publisher_label'),
-                        icon: Icons.business,
-                      ),
-                      TextFormField(
-                        controller: _publisherController,
-                        key: const Key('publisherField'),
-                        decoration: _buildInputDecoration(
-                          hint: TranslationService.translate(
-                            context,
-                            'publisher_hint',
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildLabel(
-                        TranslationService.translate(context, 'year_label'),
-                        icon: Icons.calendar_today,
-                      ),
-                      TextFormField(
-                        controller: _publicationYearController,
-                        key: const Key('yearField'),
-                        decoration: _buildInputDecoration(
-                          hint: TranslationService.translate(
-                            context,
-                            'year_hint',
-                          ),
-                        ),
-                        keyboardType: TextInputType.number,
-                      ),
-                    ],
-                  ),
+                  }).toList(),
                 ),
               ],
-            ),
-            _buildSectionDivider(),
+              if (_authorsData != null &&
+                  _authorsData!.isNotEmpty &&
+                  (_authors.isNotEmpty ||
+                      _authorController.text.trim().isNotEmpty)) ...[
+                const SizedBox(height: 16),
+                ..._authorsData!.map((author) {
+                  if (author is! Map) return const SizedBox.shrink();
+                  final name = author['name'] as String? ?? '';
+                  final bio = author['bio'] as String?;
+                  final imageUrl = author['image_url'] as String?;
+                  final birth = author['birth_year'] as String?;
+                  final death = author['death_year'] as String?;
 
-            // Summary
-            _buildLabel(TranslationService.translate(context, 'summary_label'), icon: Icons.notes),
-            TextFormField(
-              key: const Key('summaryField'),
-              controller: _summaryController,
-              decoration: _buildInputDecoration(
-                hint: TranslationService.translate(context, 'summary_hint'),
-              ),
-              maxLines: 4,
-            ),
-            _buildSectionDivider(),
+                  String lifeSpan = '';
+                  if (birth != null) lifeSpan += birth;
+                  if (death != null) {
+                    lifeSpan += ' - $death';
+                  } else if (birth != null)
+                    lifeSpan += ' - Present';
 
-            // Page count
-            _buildLabel(TranslationService.translate(context, 'page_count_label'), icon: Icons.menu_book_outlined),
-            TextFormField(
-              key: const Key('pageCountField'),
-              controller: _pageCountController,
-              decoration: _buildInputDecoration(
-                hint: TranslationService.translate(context, 'page_count_hint'),
-              ),
-              keyboardType: TextInputType.number,
-            ),
-            // Price field (Bookseller profile only)
-            Consumer<ThemeProvider>(
-              builder: (context, themeProvider, child) {
-                if (!themeProvider.hasCommerce) return const SizedBox.shrink();
+                  if (bio == null && imageUrl == null && lifeSpan.isEmpty)
+                    return const SizedBox.shrink();
 
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildSectionDivider(),
-                    _buildLabel(
-                      TranslationService.translate(context, 'price_label'),
-                      icon: Icons.sell_outlined,
-                    ),
-                    TextFormField(
-                      controller: _priceController,
-                      decoration: _buildInputDecoration(
-                        hint: '0.00',
-                      ).copyWith(suffixText: themeProvider.currency),
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (imageUrl != null)
+                            Padding(
+                              padding: const EdgeInsets.only(right: 12.0),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(40),
+                                child: CachedNetworkImage(
+                                  imageUrl: imageUrl,
+                                  width: 60,
+                                  height: 60,
+                                  fit: BoxFit.cover,
+                                  errorWidget: (_, __, ___) =>
+                                      const Icon(Icons.person, size: 40),
+                                ),
+                              ),
+                            ),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  name,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                if (lifeSpan.isNotEmpty)
+                                  Text(
+                                    lifeSpan,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                if (bio != null) ...[
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    bio,
+                                    maxLines: 4,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(fontSize: 13),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                );
-              },
-            ),
+                  );
+                }),
+              ],
+              _buildSectionDivider(),
 
-            _buildSectionDivider(),
+              _buildLabel(
+                TranslationService.translate(context, 'isbn_label'),
+                icon: Icons.qr_code,
+              ),
+              TextFormField(
+                key: const Key('isbnField'),
+                controller: _isbnController,
+                style: const TextStyle(
+                  fontFamily: 'monospace',
+                  letterSpacing: 2.0,
+                ),
+                decoration: _buildInputDecoration(
+                  hint: TranslationService.translate(
+                    context,
+                    'enter_isbn_autofill',
+                  ),
+                  prefixIcon: IconButton(
+                    icon: const Icon(Icons.qr_code_scanner),
+                    tooltip: TranslationService.translate(
+                      context,
+                      'scan_isbn_title',
+                    ),
+                    onPressed: () async {
+                      final result = await context.push<String>('/scan');
+                      if (!mounted) return;
+                      if (result != null && result.isNotEmpty) {
+                        _isbnController.text = result;
+                        // _onIsbnChanged listener already triggers _fetchBookDetails,
+                        // so no need to call it again here.
+                      }
+                    },
+                  ),
+                  suffixIcon: _isFetchingDetails
+                      ? const Padding(
+                          padding: EdgeInsets.all(12.0),
+                          child: SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        )
+                      : IconButton(
+                          icon: const Icon(Icons.search),
+                          onPressed: () =>
+                              _fetchBookDetails(_isbnController.text),
+                          tooltip: TranslationService.translate(
+                            context,
+                            'lookup_isbn',
+                          ),
+                        ),
+                ),
+                keyboardType: TextInputType.number,
+              ),
+              if (_coverUrl != null ||
+                  _titleController.text.isNotEmpty ||
+                  _isbnController.text.isNotEmpty) ...[
+                _buildSectionDivider(),
+                _buildCoverPreview(),
+              ],
+              _buildSectionDivider(),
 
-            // Ownership toggle
-            _buildToggleTile(
-              activeIcon: Icons.library_books_rounded,
-              inactiveIcon: Icons.bookmark_add_outlined,
-              titleKey: 'own_this_book',
-              subtitleKey: 'own_this_book_hint',
-              value: _isOwned,
-              activeColor: Theme.of(context).colorScheme.primary,
-              onChanged: (v) => setState(() => _isOwned = v),
-            ),
-            // Formats Selection (Unified)
-            Consumer<ThemeProvider>(
-              builder: (context, theme, _) {
-                if (!theme.digitalFormatsEnabled)
-                  return const SizedBox.shrink();
-
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 24),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
+              // Publisher & Year
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        _buildLabel(
                           TranslationService.translate(
-                                context,
-                                'digital_formats_label',
-                              ) ??
-                              'Formats',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          TranslationService.translate(context, 'digital_formats_helper'),
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7),
+                            context,
+                            'publisher_label',
                           ),
+                          icon: Icons.business,
                         ),
-                        const SizedBox(height: 12),
-                        Wrap(
-                          spacing: 12,
-                          runSpacing: 12,
-                          children: [
-                            // Paper Chip
-                            FilterChip(
-                              label: Text(
-                                TranslationService.translate(
-                                      context,
-                                      'format_paper',
-                                    ) ??
-                                    'Paper',
-                              ),
-                              selected: _selectedDigitalFormats.contains(
-                                'paper',
-                              ),
-                              onSelected: (bool selected) {
-                                setState(() {
-                                  if (selected) {
-                                    _selectedDigitalFormats.add('paper');
-                                  } else {
-                                    _selectedDigitalFormats.remove('paper');
-                                  }
-                                });
-                              },
-                              avatar: const Icon(Icons.menu_book, size: 18),
+                        TextFormField(
+                          controller: _publisherController,
+                          key: const Key('publisherField'),
+                          decoration: _buildInputDecoration(
+                            hint: TranslationService.translate(
+                              context,
+                              'publisher_hint',
                             ),
-                            // Digital Formats
-                            FilterChip(
-                              label: Text(
-                                TranslationService.translate(
-                                      context,
-                                      'format_ebook',
-                                    ) ??
-                                    'Ebook',
-                              ),
-                              selected: _selectedDigitalFormats.contains(
-                                'ebook',
-                              ),
-                              onSelected: (bool selected) {
-                                setState(() {
-                                  if (selected) {
-                                    _selectedDigitalFormats.add('ebook');
-                                  } else {
-                                    _selectedDigitalFormats.remove('ebook');
-                                  }
-                                });
-                              },
-                              avatar: const Icon(Icons.tablet_mac, size: 18),
-                            ),
-                            FilterChip(
-                              label: Text(
-                                TranslationService.translate(
-                                      context,
-                                      'format_audiobook',
-                                    ) ??
-                                    'Audiobook',
-                              ),
-                              selected: _selectedDigitalFormats.contains(
-                                'audiobook',
-                              ),
-                              onSelected: (bool selected) {
-                                setState(() {
-                                  if (selected) {
-                                    _selectedDigitalFormats.add('audiobook');
-                                  } else {
-                                    _selectedDigitalFormats.remove('audiobook');
-                                  }
-                                });
-                              },
-                              avatar: const Icon(Icons.headset, size: 18),
-                            ),
-                          ],
+                          ),
                         ),
                       ],
                     ),
                   ),
-                );
-              },
-            ),
-
-            _buildSectionDivider(),
-
-            _buildLabel(
-              TranslationService.translate(context, 'status_label'),
-              helperText: TranslationService.translate(context, 'status_helper'),
-              icon: Icons.flag_outlined,
-            ),
-            Builder(
-              builder: (context) {
-                final themeProvider = Provider.of<ThemeProvider>(
-                  context,
-                  listen: false,
-                );
-                final isLibrarian = themeProvider.isLibrarian;
-                final statusOptions = getStatusOptions(context, isLibrarian);
-
-                // Ensure current value is valid for this mode
-                final validValue =
-                    statusOptions.any((s) => s.value == _readingStatus)
-                    ? _readingStatus
-                    : statusOptions.first.value;
-                if (validValue != _readingStatus) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    if (mounted) setState(() => _readingStatus = validValue);
-                  });
-                }
-
-                return Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: statusOptions
-                      .where((s) => s.value.isNotEmpty)
-                      .map((status) {
-                    final isActive = status.value == validValue;
-                    return _buildStatusChip(status, isActive);
-                  }).toList(),
-                );
-              },
-            ),
-            _buildSectionDivider(),
-
-            // Tags (shelves)
-            HierarchicalTagSelector(
-              selectedTags: _selectedTags,
-              onTagsChanged: (tags) {
-                setState(() {
-                  _selectedTags.clear();
-                  _selectedTags.addAll(tags);
-                });
-              },
-            ),
-            _buildSectionDivider(),
-
-            // Collections
-            CollectionSelector(
-              selectedCollections: _selectedCollections,
-              onChanged: (collections) {
-                setState(() {
-                  _selectedCollections = collections;
-                });
-              },
-            ),
-            Consumer<ThemeProvider>(
-              builder: (context, theme, _) {
-                if (!theme.allowPrivateBooks)
-                  return const SizedBox.shrink();
-                return Column(
-                  children: [
-                    _buildSectionDivider(),
-                    _buildToggleTile(
-                      activeIcon: Icons.visibility_off_rounded,
-                      inactiveIcon: Icons.visibility_rounded,
-                      titleKey: 'book_private',
-                      subtitleKey: 'book_private_desc',
-                      value: _private,
-                      activeColor: Colors.amber.shade700,
-                      onChanged: (v) => setState(() => _private = v),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildLabel(
+                          TranslationService.translate(context, 'year_label'),
+                          icon: Icons.calendar_today,
+                        ),
+                        TextFormField(
+                          controller: _publicationYearController,
+                          key: const Key('yearField'),
+                          decoration: _buildInputDecoration(
+                            hint: TranslationService.translate(
+                              context,
+                              'year_hint',
+                            ),
+                          ),
+                          keyboardType: TextInputType.number,
+                        ),
+                      ],
                     ),
-                  ],
-                );
-              },
-            ),
-            const SizedBox(height: 32),
+                  ),
+                ],
+              ),
+              _buildSectionDivider(),
 
-            // Save Button moved to AppBar
-          ],
+              // Summary
+              _buildLabel(
+                TranslationService.translate(context, 'summary_label'),
+                icon: Icons.notes,
+              ),
+              TextFormField(
+                key: const Key('summaryField'),
+                controller: _summaryController,
+                decoration: _buildInputDecoration(
+                  hint: TranslationService.translate(context, 'summary_hint'),
+                ),
+                maxLines: 4,
+              ),
+              _buildSectionDivider(),
+
+              // Page count
+              _buildLabel(
+                TranslationService.translate(context, 'page_count_label'),
+                icon: Icons.menu_book_outlined,
+              ),
+              TextFormField(
+                key: const Key('pageCountField'),
+                controller: _pageCountController,
+                decoration: _buildInputDecoration(
+                  hint: TranslationService.translate(
+                    context,
+                    'page_count_hint',
+                  ),
+                ),
+                keyboardType: TextInputType.number,
+              ),
+              // Price field (Bookseller profile only)
+              Consumer<ThemeProvider>(
+                builder: (context, themeProvider, child) {
+                  if (!themeProvider.hasCommerce)
+                    return const SizedBox.shrink();
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildSectionDivider(),
+                      _buildLabel(
+                        TranslationService.translate(context, 'price_label'),
+                        icon: Icons.sell_outlined,
+                      ),
+                      TextFormField(
+                        controller: _priceController,
+                        decoration: _buildInputDecoration(
+                          hint: '0.00',
+                        ).copyWith(suffixText: themeProvider.currency),
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+
+              _buildSectionDivider(),
+
+              // Ownership toggle
+              _buildToggleTile(
+                activeIcon: Icons.library_books_rounded,
+                inactiveIcon: Icons.bookmark_add_outlined,
+                titleKey: 'own_this_book',
+                subtitleKey: 'own_this_book_hint',
+                value: _isOwned,
+                activeColor: Theme.of(context).colorScheme.primary,
+                onChanged: (v) => setState(() => _isOwned = v),
+              ),
+              // Formats Selection (Unified)
+              Consumer<ThemeProvider>(
+                builder: (context, theme, _) {
+                  if (!theme.digitalFormatsEnabled)
+                    return const SizedBox.shrink();
+
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 24),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            TranslationService.translate(
+                                  context,
+                                  'digital_formats_label',
+                                ) ??
+                                'Formats',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            TranslationService.translate(
+                              context,
+                              'digital_formats_helper',
+                            ),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.color
+                                      ?.withValues(alpha: 0.7),
+                                ),
+                          ),
+                          const SizedBox(height: 12),
+                          Wrap(
+                            spacing: 12,
+                            runSpacing: 12,
+                            children: [
+                              // Paper Chip
+                              FilterChip(
+                                label: Text(
+                                  TranslationService.translate(
+                                        context,
+                                        'format_paper',
+                                      ) ??
+                                      'Paper',
+                                ),
+                                selected: _selectedDigitalFormats.contains(
+                                  'paper',
+                                ),
+                                onSelected: (bool selected) {
+                                  setState(() {
+                                    if (selected) {
+                                      _selectedDigitalFormats.add('paper');
+                                    } else {
+                                      _selectedDigitalFormats.remove('paper');
+                                    }
+                                  });
+                                },
+                                avatar: const Icon(Icons.menu_book, size: 18),
+                              ),
+                              // Digital Formats
+                              FilterChip(
+                                label: Text(
+                                  TranslationService.translate(
+                                        context,
+                                        'format_ebook',
+                                      ) ??
+                                      'Ebook',
+                                ),
+                                selected: _selectedDigitalFormats.contains(
+                                  'ebook',
+                                ),
+                                onSelected: (bool selected) {
+                                  setState(() {
+                                    if (selected) {
+                                      _selectedDigitalFormats.add('ebook');
+                                    } else {
+                                      _selectedDigitalFormats.remove('ebook');
+                                    }
+                                  });
+                                },
+                                avatar: const Icon(Icons.tablet_mac, size: 18),
+                              ),
+                              FilterChip(
+                                label: Text(
+                                  TranslationService.translate(
+                                        context,
+                                        'format_audiobook',
+                                      ) ??
+                                      'Audiobook',
+                                ),
+                                selected: _selectedDigitalFormats.contains(
+                                  'audiobook',
+                                ),
+                                onSelected: (bool selected) {
+                                  setState(() {
+                                    if (selected) {
+                                      _selectedDigitalFormats.add('audiobook');
+                                    } else {
+                                      _selectedDigitalFormats.remove(
+                                        'audiobook',
+                                      );
+                                    }
+                                  });
+                                },
+                                avatar: const Icon(Icons.headset, size: 18),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+
+              _buildSectionDivider(),
+
+              _buildLabel(
+                TranslationService.translate(context, 'status_label'),
+                helperText: TranslationService.translate(
+                  context,
+                  'status_helper',
+                ),
+                icon: Icons.flag_outlined,
+              ),
+              Builder(
+                builder: (context) {
+                  final themeProvider = Provider.of<ThemeProvider>(
+                    context,
+                    listen: false,
+                  );
+                  final useInventoryStatuses =
+                      themeProvider.inventoryStatusesEnabled;
+                  final statusOptions = getStatusOptions(
+                    context,
+                    useInventoryStatuses,
+                  );
+
+                  // Ensure current value is valid for this mode
+                  final validValue =
+                      statusOptions.any((s) => s.value == _readingStatus)
+                      ? _readingStatus
+                      : statusOptions.first.value;
+                  if (validValue != _readingStatus) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (mounted) setState(() => _readingStatus = validValue);
+                    });
+                  }
+
+                  return Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: statusOptions
+                        .where((s) => s.value.isNotEmpty)
+                        .map((status) {
+                          final isActive = status.value == validValue;
+                          return _buildStatusChip(status, isActive);
+                        })
+                        .toList(),
+                  );
+                },
+              ),
+              _buildSectionDivider(),
+
+              // Tags (shelves)
+              HierarchicalTagSelector(
+                selectedTags: _selectedTags,
+                onTagsChanged: (tags) {
+                  setState(() {
+                    _selectedTags.clear();
+                    _selectedTags.addAll(tags);
+                  });
+                },
+              ),
+              _buildSectionDivider(),
+
+              // Collections
+              CollectionSelector(
+                selectedCollections: _selectedCollections,
+                onChanged: (collections) {
+                  setState(() {
+                    _selectedCollections = collections;
+                  });
+                },
+              ),
+              Consumer<ThemeProvider>(
+                builder: (context, theme, _) {
+                  if (!theme.allowPrivateBooks) return const SizedBox.shrink();
+                  return Column(
+                    children: [
+                      _buildSectionDivider(),
+                      _buildToggleTile(
+                        activeIcon: Icons.visibility_off_rounded,
+                        inactiveIcon: Icons.visibility_rounded,
+                        titleKey: 'book_private',
+                        subtitleKey: 'book_private_desc',
+                        value: _private,
+                        activeColor: Colors.amber.shade700,
+                        onChanged: (v) => setState(() => _private = v),
+                      ),
+                    ],
+                  );
+                },
+              ),
+              const SizedBox(height: 32),
+
+              // Save Button moved to AppBar
+            ],
+          ),
         ),
-      ),
       ),
     );
   }
@@ -1745,13 +1836,13 @@ class _AddBookScreenState extends State<AddBookScreen> {
     final borderColor = isLoading
         ? Colors.blue
         : hasCover
-            ? Colors.green
-            : Colors.grey;
+        ? Colors.green
+        : Colors.grey;
     final bgColor = isLoading
         ? Colors.blue.withValues(alpha: 0.05)
         : hasCover
-            ? Colors.green.withValues(alpha: 0.05)
-            : Colors.grey.withValues(alpha: 0.05);
+        ? Colors.green.withValues(alpha: 0.05)
+        : Colors.grey.withValues(alpha: 0.05);
 
     return AnimatedSize(
       duration: const Duration(milliseconds: 300),
@@ -1775,30 +1866,33 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   child: isLoading
                       ? _buildShimmerPlaceholder()
                       : hasCover
-                          ? CachedBookCover(
-                              key: ValueKey(_coverUrl),
-                              imageUrl: _coverUrl!,
-                              fit: BoxFit.cover,
-                              semanticLabel: _titleController.text.isNotEmpty
-                                  ? _titleController.text
-                                  : null,
-                              placeholder: Container(
-                                color: Colors.grey[200],
-                                child: const Icon(Icons.image,
-                                    color: Colors.grey),
-                              ),
-                              errorWidget: Container(
-                                color: Colors.grey[200],
-                                child: const Icon(Icons.broken_image,
-                                    color: Colors.grey),
-                              ),
-                            )
-                          : Container(
-                              key: const ValueKey('no_cover'),
-                              color: Colors.grey[200],
-                              child: const Icon(Icons.image_not_supported,
-                                  color: Colors.grey),
+                      ? CachedBookCover(
+                          key: ValueKey(_coverUrl),
+                          imageUrl: _coverUrl!,
+                          fit: BoxFit.cover,
+                          semanticLabel: _titleController.text.isNotEmpty
+                              ? _titleController.text
+                              : null,
+                          placeholder: Container(
+                            color: Colors.grey[200],
+                            child: const Icon(Icons.image, color: Colors.grey),
+                          ),
+                          errorWidget: Container(
+                            color: Colors.grey[200],
+                            child: const Icon(
+                              Icons.broken_image,
+                              color: Colors.grey,
                             ),
+                          ),
+                        )
+                      : Container(
+                          key: const ValueKey('no_cover'),
+                          color: Colors.grey[200],
+                          child: const Icon(
+                            Icons.image_not_supported,
+                            color: Colors.grey,
+                          ),
+                        ),
                 ),
               ),
             ),
@@ -1811,11 +1905,15 @@ class _AddBookScreenState extends State<AddBookScreen> {
                     Text(
                       isLoading
                           ? TranslationService.translate(
-                                  context, 'looking_up_isbn') ??
-                              'Looking up...'
+                                  context,
+                                  'looking_up_isbn',
+                                ) ??
+                                'Looking up...'
                           : TranslationService.translate(
-                                  context, 'no_cover_available') ??
-                              'No cover',
+                                  context,
+                                  'no_cover_available',
+                                ) ??
+                                'No cover',
                       style: TextStyle(
                         color: isLoading
                             ? Colors.blue.shade700
@@ -1829,16 +1927,22 @@ class _AddBookScreenState extends State<AddBookScreen> {
                       if (CoverCameraHelper.isCameraAvailable)
                         IconButton(
                           icon: const Icon(Icons.camera_alt, size: 20),
-                          tooltip: TranslationService.translate(
-                                  context, 'cover_take_photo_tooltip') ??
+                          tooltip:
+                              TranslationService.translate(
+                                context,
+                                'cover_take_photo_tooltip',
+                              ) ??
                               'Take a photo of the cover',
                           onPressed: isLoading ? null : _takePhoto,
                           visualDensity: VisualDensity.compact,
                         ),
                       IconButton(
                         icon: const Icon(Icons.photo_library, size: 20),
-                        tooltip: TranslationService.translate(
-                                context, 'cover_choose_file') ??
+                        tooltip:
+                            TranslationService.translate(
+                              context,
+                              'cover_choose_file',
+                            ) ??
                             'Choose from files',
                         onPressed: isLoading ? null : _pickCoverFromFile,
                         visualDensity: VisualDensity.compact,
@@ -1868,7 +1972,11 @@ class _AddBookScreenState extends State<AddBookScreen> {
           if (icon != null) ...[
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Icon(icon, size: 20, color: accentColor.withValues(alpha: 0.5)),
+              child: Icon(
+                icon,
+                size: 20,
+                color: accentColor.withValues(alpha: 0.5),
+              ),
             ),
             const SizedBox(width: 6),
           ],
@@ -1889,11 +1997,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   Text(
                     helperText,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.color
-                          ?.withValues(alpha: 0.85),
+                      color: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.color?.withValues(alpha: 0.85),
                     ),
                   ),
                 ],
@@ -2002,8 +2108,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
                     Text(
                       TranslationService.translate(context, subtitleKey),
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.textTheme.bodySmall?.color
-                            ?.withValues(alpha: 0.7),
+                        color: theme.textTheme.bodySmall?.color?.withValues(
+                          alpha: 0.7,
+                        ),
                       ),
                     ),
                   ],
@@ -2060,9 +2167,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
               Text(
                 status.label,
                 style: TextStyle(
-                  color: isActive
-                      ? status.color
-                      : theme.colorScheme.onSurface,
+                  color: isActive ? status.color : theme.colorScheme.onSurface,
                   fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
                   fontSize: 13,
                 ),
@@ -2183,8 +2288,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
     // and would block the save button for ~10 seconds.
     _isbnDebounce?.cancel();
     if (selection['isbn'] != null) {
-      final isbn = IsbnValidator.clean(selection['isbn'] as String)
-          .replaceAll(RegExp(r'[^0-9X]'), '');
+      final isbn = IsbnValidator.clean(
+        selection['isbn'] as String,
+      ).replaceAll(RegExp(r'[^0-9X]'), '');
       _lastLookedUpIsbn = isbn; // prevent re-lookup if user re-enters same ISBN
     }
   }
@@ -2260,7 +2366,8 @@ class _DottedLinePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_DottedLinePainter oldDelegate) => color != oldDelegate.color;
+  bool shouldRepaint(_DottedLinePainter oldDelegate) =>
+      color != oldDelegate.color;
 }
 
 class _ShimmerBox extends StatelessWidget {

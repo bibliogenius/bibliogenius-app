@@ -89,9 +89,14 @@ const List<BookStatus> librarianStatuses = [
   ),
 ];
 
-// Get status options based on profile type
-List<BookStatus> getStatusOptions(BuildContext context, bool isLibrarian) {
-  final options = isLibrarian ? librarianStatuses : individualStatuses;
+// Get status options. When useInventoryStatuses is true, returns the
+// cataloguing list (available/checked_out/...); otherwise the personal
+// reading list (to_read/reading/read/...).
+List<BookStatus> getStatusOptions(
+  BuildContext context,
+  bool useInventoryStatuses,
+) {
+  final options = useInventoryStatuses ? librarianStatuses : individualStatuses;
   return options
       .map(
         (s) => BookStatus(
@@ -108,9 +113,9 @@ List<BookStatus> getStatusOptions(BuildContext context, bool isLibrarian) {
 BookStatus? getStatusFromValue(
   BuildContext context,
   String value,
-  bool isLibrarian,
+  bool useInventoryStatuses,
 ) {
-  final options = getStatusOptions(context, isLibrarian);
+  final options = getStatusOptions(context, useInventoryStatuses);
   try {
     return options.firstWhere((s) => s.value == value);
   } catch (e) {
@@ -118,9 +123,9 @@ BookStatus? getStatusFromValue(
   }
 }
 
-// Default status based on profile type
-String getDefaultStatus(bool isLibrarian) {
-  return isLibrarian ? 'available' : 'to_read';
+// Default status when creating a new book.
+String getDefaultStatus(bool useInventoryStatuses) {
+  return useInventoryStatuses ? 'available' : 'to_read';
 }
 
 /// Show a bottom sheet to pick a reading status.
@@ -128,9 +133,9 @@ String getDefaultStatus(bool isLibrarian) {
 Future<String?> showReadingStatusPicker(
   BuildContext context, {
   required String? currentStatus,
-  required bool isLibrarian,
+  required bool useInventoryStatuses,
 }) {
-  final options = getStatusOptions(context, isLibrarian);
+  final options = getStatusOptions(context, useInventoryStatuses);
 
   return showModalBottomSheet<String>(
     context: context,
@@ -146,7 +151,10 @@ Future<String?> showReadingStatusPicker(
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 12),
               child: Text(
-                TranslationService.translate(context, 'reading_status_picker_title'),
+                TranslationService.translate(
+                  context,
+                  'reading_status_picker_title',
+                ),
                 style: Theme.of(ctx).textTheme.titleMedium,
               ),
             ),

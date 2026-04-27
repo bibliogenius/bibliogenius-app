@@ -232,18 +232,6 @@ class _DashboardScreenState extends State<DashboardScreen>
             debugPrint('Could not fetch borrowed copies: $e');
           }
         }
-
-        final configRes = await api.getLibraryConfig();
-        if (mounted) {
-          setState(() {
-            final config = configRes.data;
-            // Library name is managed by ThemeProvider (SharedPreferences + FFI)
-            final profileType = config?['profile_type'];
-            if (profileType != null) {
-              themeProvider.setProfileType(profileType);
-            }
-          });
-        }
       } catch (e) {
         debugPrint('Error fetching user status: $e');
       }
@@ -288,7 +276,6 @@ class _DashboardScreenState extends State<DashboardScreen>
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
-    final isKid = themeProvider.isKid;
     final width = MediaQuery.of(context).size.width;
     final isWide = width > 600;
 
@@ -355,7 +342,7 @@ class _DashboardScreenState extends State<DashboardScreen>
           child: TabBarView(
             controller: _tabController,
             children: [
-              _buildDashboardTab(context, isWide, themeProvider, isKid),
+              _buildDashboardTab(context, isWide, themeProvider),
               StatisticsContent(refreshTrigger: _statsRefreshTick),
             ],
           ),
@@ -368,7 +355,6 @@ class _DashboardScreenState extends State<DashboardScreen>
     BuildContext context,
     bool isWide,
     ThemeProvider themeProvider,
-    bool isKid,
   ) {
     if (_isLoading) {
       return const Center(
@@ -549,22 +535,13 @@ class _DashboardScreenState extends State<DashboardScreen>
                             '/requests?tab=borrowed&status=active',
                           ),
                         ),
-                      if (!isKid)
-                        _buildStatCard(
-                          context,
-                          themeProvider.isLibrarian
-                              ? TranslationService.translate(
-                                  context,
-                                  'borrowers',
-                                )
-                              : TranslationService.translate(
-                                  context,
-                                  'contacts',
-                                ),
-                          (_stats['contacts_count'] ?? 0).toString(),
-                          Icons.people,
-                          onTap: () => context.push('/network'),
-                        ),
+                      _buildStatCard(
+                        context,
+                        TranslationService.translate(context, 'contacts'),
+                        (_stats['contacts_count'] ?? 0).toString(),
+                        Icons.people,
+                        onTap: () => context.push('/network'),
+                      ),
                     ];
 
                     if (constraints.maxWidth < 400 && statCards.length > 2) {
@@ -691,55 +668,54 @@ class _DashboardScreenState extends State<DashboardScreen>
                       ),
 
                     // Games section (grouped)
-                    if (!isKid &&
-                        themeProvider.gamesEnabled &&
+                    if (themeProvider.gamesEnabled &&
                         (themeProvider.memoryGameEnabled ||
                             themeProvider.slidingPuzzleEnabled ||
                             themeProvider.hangmanEnabled))
                       _buildGamesSection(context, themeProvider),
 
                     const SizedBox(height: 24),
-                    if (!isKid)
-                      Center(
-                        child: ScaleOnTap(
-                          child: TextButton.icon(
-                            onPressed: () => context.push('/statistics'),
-                            icon: Icon(
-                              Icons.insights,
+                    Center(
+                      child: ScaleOnTap(
+                        child: TextButton.icon(
+                          onPressed: () => context.push('/statistics'),
+                          icon: Icon(
+                            Icons.insights,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
+                          ),
+                          label: Text(
+                            TranslationService.translate(
+                              context,
+                              'view_insights',
+                            ),
+                            style: TextStyle(
                               color: Theme.of(
                                 context,
                               ).colorScheme.onSurfaceVariant,
                             ),
-                            label: Text(
-                              TranslationService.translate(
-                                context,
-                                'view_insights',
-                              ),
-                              style: TextStyle(
+                          ),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 16,
+                            ),
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.05),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                              side: BorderSide(
                                 color: Theme.of(
                                   context,
-                                ).colorScheme.onSurfaceVariant,
-                              ),
-                            ),
-                            style: TextButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 16,
-                              ),
-                              backgroundColor: Theme.of(
-                                context,
-                              ).colorScheme.onSurface.withValues(alpha: 0.05),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                side: BorderSide(
-                                  color: Theme.of(context).colorScheme.onSurface
-                                      .withValues(alpha: 0.1),
-                                ),
+                                ).colorScheme.onSurface.withValues(alpha: 0.1),
                               ),
                             ),
                           ),
                         ),
                       ),
+                    ),
                     const SizedBox(height: 24),
                   ],
                 ),

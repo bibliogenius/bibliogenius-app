@@ -130,7 +130,10 @@ class _StatisticsScreenState extends State<StatisticsScreen>
     final bookRepo = Provider.of<BookRepository>(context, listen: false);
     final tagRepo = Provider.of<TagRepository>(context, listen: false);
     final contactRepo = Provider.of<ContactRepository>(context, listen: false);
-    final collectionRepo = Provider.of<CollectionRepository>(context, listen: false);
+    final collectionRepo = Provider.of<CollectionRepository>(
+      context,
+      listen: false,
+    );
     final loanRepo = Provider.of<LoanRepository>(context, listen: false);
     final api = Provider.of<ApiService>(context, listen: false);
     try {
@@ -200,7 +203,10 @@ class _StatisticsScreenState extends State<StatisticsScreen>
       // Fetch operation log stats if module is enabled
       frb.FrbOperationLogStats? opLogStats;
       List<String>? opLogEntityTypes;
-      if (Provider.of<ThemeProvider>(context, listen: false).operationLogViewerEnabled) {
+      if (Provider.of<ThemeProvider>(
+        context,
+        listen: false,
+      ).operationLogViewerEnabled) {
         try {
           opLogStats = await frb.operationLogStats();
           opLogEntityTypes = await frb.operationLogEntityTypes();
@@ -267,128 +273,139 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                     bottom: 16.0,
                   ),
                   child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildSummaryCards(),
-                    // Yearly Reading Goal Section
-                    const SizedBox(height: 32),
-                    _buildSectionTitle(
-                      TranslationService.translate(context, 'yearly_goal'),
-                      Icons.emoji_events,
-                      AppDesign.warningGradient,
-                    ),
-                    const SizedBox(height: 16),
-                    _buildYearlyGoalSection(),
-                    if (_salesStats != null) ...[
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildSummaryCards(),
+                      // Yearly Reading Goal Section
                       const SizedBox(height: 32),
                       _buildSectionTitle(
-                        TranslationService.translate(
-                          context,
-                          'sales_statistics',
-                        ),
-                        Icons.monetization_on,
-                        AppDesign.successGradient,
-                      ),
-                      const SizedBox(height: 16),
-                      _buildSalesStatisticsSection(),
-                    ],
-                    _buildSectionTitle(
-                      TranslationService.translate(context, 'reading_habits'),
-                      Icons.pie_chart,
-                      AppDesign.primaryGradient,
-                    ),
-                    const SizedBox(height: 16),
-                    _buildStatusPieChart(),
-                    const SizedBox(height: 32),
-                    _buildSectionTitle(
-                      TranslationService.translate(context, 'top_authors'),
-                      Icons.person,
-                      AppDesign.successGradient,
-                    ),
-                    const SizedBox(height: 16),
-                    _buildTopAuthorsChart(),
-                    const SizedBox(height: 32),
-                    _buildSectionTitle(
-                      TranslationService.translate(
-                        context,
-                        'publication_timeline',
-                      ),
-                      Icons.timeline,
-                      AppDesign.oceanGradient,
-                    ),
-                    const SizedBox(height: 16),
-                    _buildPublicationYearChart(),
-                    const SizedBox(height: 32),
-                    // Loan Statistics Section
-                    _buildSectionTitle(
-                      TranslationService.translate(context, 'loan_statistics'),
-                      Icons.swap_horiz,
-                      AppDesign.accentGradient,
-                    ),
-                    const SizedBox(height: 16),
-                    _buildLoanStatisticsSection(),
-                    // Borrowed Statistics Section - hidden for librarians
-                    if (!Provider.of<ThemeProvider>(
-                      context,
-                      listen: false,
-                    ).isLibrarian) ...[
-                      const SizedBox(height: 32),
-                      _buildSectionTitle(
-                        TranslationService.translate(
-                          context,
-                          'borrowed_statistics',
-                        ),
-                        Icons.arrow_downward,
-                        AppDesign.oceanGradient,
-                      ),
-                      const SizedBox(height: 16),
-                      _buildBorrowedStatisticsSection(),
-                    ],
-                    // Shelf Statistics Section - only if shelves exist
-                    if (_tags.isNotEmpty) ...[
-                      const SizedBox(height: 32),
-                      _buildSectionTitle(
-                        TranslationService.translate(
-                          context,
-                          'shelf_statistics',
-                        ),
-                        Icons.shelves,
+                        TranslationService.translate(context, 'yearly_goal'),
+                        Icons.emoji_events,
                         AppDesign.warningGradient,
                       ),
                       const SizedBox(height: 16),
-                      _buildShelfStatisticsSection(),
-                    ],
-                    // Collection Statistics Section - only if enabled
-                    if (Provider.of<ThemeProvider>(
-                      context,
-                    ).collectionsEnabled) ...[
+                      _buildYearlyGoalSection(),
+                      if (_salesStats != null) ...[
+                        const SizedBox(height: 32),
+                        _buildSectionTitle(
+                          TranslationService.translate(
+                            context,
+                            'sales_statistics',
+                          ),
+                          Icons.monetization_on,
+                          AppDesign.successGradient,
+                        ),
+                        const SizedBox(height: 16),
+                        _buildSalesStatisticsSection(),
+                      ],
+                      _buildSectionTitle(
+                        TranslationService.translate(context, 'reading_habits'),
+                        Icons.pie_chart,
+                        AppDesign.primaryGradient,
+                      ),
+                      const SizedBox(height: 16),
+                      _buildStatusPieChart(),
+                      const SizedBox(height: 32),
+                      _buildSectionTitle(
+                        TranslationService.translate(context, 'top_authors'),
+                        Icons.person,
+                        AppDesign.successGradient,
+                      ),
+                      const SizedBox(height: 16),
+                      _buildTopAuthorsChart(),
                       const SizedBox(height: 32),
                       _buildSectionTitle(
                         TranslationService.translate(
                           context,
-                          'collection_statistics',
+                          'publication_timeline',
                         ),
-                        Icons.collections_bookmark,
-                        AppDesign.primaryGradient,
+                        Icons.timeline,
+                        AppDesign.oceanGradient,
                       ),
                       const SizedBox(height: 16),
-                      _buildCollectionStatisticsSection(),
-                    ],
-                    // Operation Log Stats - only if module enabled
-                    if (Provider.of<ThemeProvider>(context, listen: false).operationLogViewerEnabled && _opLogStats != null) ...[
+                      _buildPublicationYearChart(),
                       const SizedBox(height: 32),
+                      // Loan Statistics Section
                       _buildSectionTitle(
-                        TranslationService.translate(context, 'stat_operation_log_title'),
-                        Icons.sync,
-                        AppDesign.cyanGradient,
+                        TranslationService.translate(
+                          context,
+                          'loan_statistics',
+                        ),
+                        Icons.swap_horiz,
+                        AppDesign.accentGradient,
                       ),
                       const SizedBox(height: 16),
-                      _buildOperationLogStatsSection(),
+                      _buildLoanStatisticsSection(),
+                      // Borrowed Statistics Section - shown only when the user
+                      // borrows books (i.e. the borrowing module is enabled).
+                      if (Provider.of<ThemeProvider>(
+                        context,
+                        listen: false,
+                      ).canBorrowBooks) ...[
+                        const SizedBox(height: 32),
+                        _buildSectionTitle(
+                          TranslationService.translate(
+                            context,
+                            'borrowed_statistics',
+                          ),
+                          Icons.arrow_downward,
+                          AppDesign.oceanGradient,
+                        ),
+                        const SizedBox(height: 16),
+                        _buildBorrowedStatisticsSection(),
+                      ],
+                      // Shelf Statistics Section - only if shelves exist
+                      if (_tags.isNotEmpty) ...[
+                        const SizedBox(height: 32),
+                        _buildSectionTitle(
+                          TranslationService.translate(
+                            context,
+                            'shelf_statistics',
+                          ),
+                          Icons.shelves,
+                          AppDesign.warningGradient,
+                        ),
+                        const SizedBox(height: 16),
+                        _buildShelfStatisticsSection(),
+                      ],
+                      // Collection Statistics Section - only if enabled
+                      if (Provider.of<ThemeProvider>(
+                        context,
+                      ).collectionsEnabled) ...[
+                        const SizedBox(height: 32),
+                        _buildSectionTitle(
+                          TranslationService.translate(
+                            context,
+                            'collection_statistics',
+                          ),
+                          Icons.collections_bookmark,
+                          AppDesign.primaryGradient,
+                        ),
+                        const SizedBox(height: 16),
+                        _buildCollectionStatisticsSection(),
+                      ],
+                      // Operation Log Stats - only if module enabled
+                      if (Provider.of<ThemeProvider>(
+                            context,
+                            listen: false,
+                          ).operationLogViewerEnabled &&
+                          _opLogStats != null) ...[
+                        const SizedBox(height: 32),
+                        _buildSectionTitle(
+                          TranslationService.translate(
+                            context,
+                            'stat_operation_log_title',
+                          ),
+                          Icons.sync,
+                          AppDesign.cyanGradient,
+                        ),
+                        const SizedBox(height: 16),
+                        _buildOperationLogStatsSection(),
+                      ],
+                      const SizedBox(height: 40),
                     ],
-                    const SizedBox(height: 40),
-                  ],
+                  ),
                 ),
-              ),
               ),
             ),
     );
@@ -559,7 +576,8 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                   children: [
                     // Progress bar
                     Semantics(
-                      label: '${TranslationService.translate(context, 'stat_a11y_yearly_goal_progress')}: $_booksReadThisYear / $_yearlyGoal, ${(progress * 100).toInt()}%',
+                      label:
+                          '${TranslationService.translate(context, 'stat_a11y_yearly_goal_progress')}: $_booksReadThisYear / $_yearlyGoal, ${(progress * 100).toInt()}%',
                       child: ExcludeSemantics(
                         child: Stack(
                           children: [
@@ -579,7 +597,10 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                                 decoration: BoxDecoration(
                                   gradient: isGoalReached
                                       ? const LinearGradient(
-                                          colors: [Colors.white, Color(0xFFFFF8DC)],
+                                          colors: [
+                                            Colors.white,
+                                            Color(0xFFFFF8DC),
+                                          ],
                                         )
                                       : const LinearGradient(
                                           colors: [
@@ -778,82 +799,95 @@ class _StatisticsScreenState extends State<StatisticsScreen>
     final Color accentColor = gradient is LinearGradient
         ? gradient.colors.first
         : (backgroundColor == Colors.transparent
-            ? Theme.of(context).colorScheme.primary
-            : backgroundColor);
+              ? Theme.of(context).colorScheme.primary
+              : backgroundColor);
     final theme = Theme.of(context);
 
     return Semantics(
       label: '$label: $value',
       child: Container(
-      height: 140,
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
-        boxShadow: AppDesign.cardShadow,
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
-        child: Stack(
-          children: [
-            // Left accent bar
-            Positioned(
-              left: 0,
-              top: 0,
-              bottom: 0,
-              child: Container(
-                width: 4,
-                decoration: BoxDecoration(
-                  gradient: gradient ?? LinearGradient(colors: [accentColor, accentColor]),
+        height: 140,
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
+          boxShadow: AppDesign.cardShadow,
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
+          child: Stack(
+            children: [
+              // Left accent bar
+              Positioned(
+                left: 0,
+                top: 0,
+                bottom: 0,
+                child: Container(
+                  width: 4,
+                  decoration: BoxDecoration(
+                    gradient:
+                        gradient ??
+                        LinearGradient(colors: [accentColor, accentColor]),
+                  ),
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Icon with gradient background
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      gradient: gradient ?? LinearGradient(colors: [accentColor, accentColor.withValues(alpha: 0.8)]),
-                      borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Icon with gradient background
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        gradient:
+                            gradient ??
+                            LinearGradient(
+                              colors: [
+                                accentColor,
+                                accentColor.withValues(alpha: 0.8),
+                              ],
+                            ),
+                        borderRadius: BorderRadius.circular(
+                          AppDesign.radiusMedium,
+                        ),
+                      ),
+                      child: Icon(icon, color: Colors.white, size: 20),
                     ),
-                    child: Icon(icon, color: Colors.white, size: 20),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        value,
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: accentColor,
-                          height: 1.0,
-                          letterSpacing: -0.5,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          value,
+                          style: TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: accentColor,
+                            height: 1.0,
+                            letterSpacing: -0.5,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        label,
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                        const SizedBox(height: 4),
+                        Text(
+                          label,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.6,
+                            ),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
       ),
     );
   }
@@ -910,7 +944,8 @@ class _StatisticsScreenState extends State<StatisticsScreen>
         children: [
           const SizedBox(height: 12),
           Semantics(
-            label: '${TranslationService.translate(context, 'stat_a11y_reading_status_chart')}: $chartDescription',
+            label:
+                '${TranslationService.translate(context, 'stat_a11y_reading_status_chart')}: $chartDescription',
             child: ExcludeSemantics(
               child: SizedBox(
                 height: 200,
@@ -1065,8 +1100,9 @@ class _StatisticsScreenState extends State<StatisticsScreen>
       const Color(0xFF94A3B8), // silver
       const Color(0xFFCD7F32), // bronze
     ];
-    final barColor =
-        rank <= 3 ? podiumColors[rank - 1] : theme.colorScheme.primary;
+    final barColor = rank <= 3
+        ? podiumColors[rank - 1]
+        : theme.colorScheme.primary;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
@@ -1110,8 +1146,9 @@ class _StatisticsScreenState extends State<StatisticsScreen>
               child: LinearProgressIndicator(
                 value: fraction,
                 minHeight: 14,
-                backgroundColor:
-                    theme.colorScheme.onSurface.withValues(alpha: 0.06),
+                backgroundColor: theme.colorScheme.onSurface.withValues(
+                  alpha: 0.06,
+                ),
                 valueColor: AlwaysStoppedAnimation<Color>(
                   barColor.withValues(alpha: 0.7),
                 ),
@@ -1169,7 +1206,8 @@ class _StatisticsScreenState extends State<StatisticsScreen>
         .join(', ');
 
     return Semantics(
-      label: '${TranslationService.translate(context, 'stat_a11y_publication_timeline')}: $timelineDescription',
+      label:
+          '${TranslationService.translate(context, 'stat_a11y_publication_timeline')}: $timelineDescription',
       child: ExcludeSemantics(
         child: Container(
           height: 280,
@@ -1180,112 +1218,113 @@ class _StatisticsScreenState extends State<StatisticsScreen>
             boxShadow: AppDesign.cardShadow,
           ),
           child: LineChart(
-        LineChartData(
-          gridData: FlGridData(
-            show: true,
-            drawVerticalLine: false,
-            horizontalInterval: 1,
-            getDrawingHorizontalLine: (value) {
-              return FlLine(
-                color: Colors.black.withValues(alpha: 0.5),
-                strokeWidth: 1,
-              );
-            },
-          ),
-          titlesData: FlTitlesData(
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                getTitlesWidget: (value, meta) {
-                  final index = value.toInt();
-                  if (index >= 0 && index < sortedYears.length) {
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Text(
-                        sortedYears[index].key.toString(),
-                        style: const TextStyle(fontSize: 10),
-                      ),
-                    );
-                  }
-                  return const SizedBox.shrink();
-                },
-                interval: 1,
-                reservedSize: 30,
-              ),
-            ),
-            leftTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-            topTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-            rightTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-          ),
-          borderData: FlBorderData(show: false),
-          lineBarsData: [
-            LineChartBarData(
-              spots: sortedYears.asMap().entries.map((e) {
-                return FlSpot(e.key.toDouble(), e.value.value.toDouble());
-              }).toList(),
-              isCurved: true,
-              gradient: AppDesign.oceanGradient,
-              barWidth: 4,
-              isStrokeCapRound: true,
-              dotData: FlDotData(
+            LineChartData(
+              gridData: FlGridData(
                 show: true,
-                getDotPainter: (spot, percent, barData, index) {
-                  return FlDotCirclePainter(
-                    radius: 5,
-                    color: const Color(0xFF0EA5E9),
-                    strokeWidth: 2,
-                    strokeColor: Colors.white,
+                drawVerticalLine: false,
+                horizontalInterval: 1,
+                getDrawingHorizontalLine: (value) {
+                  return FlLine(
+                    color: Colors.black.withValues(alpha: 0.5),
+                    strokeWidth: 1,
                   );
                 },
               ),
-              belowBarData: BarAreaData(
-                show: true,
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    const Color(0xFF0EA5E9).withValues(alpha: 0.3),
-                    const Color(0xFF0EA5E9).withValues(alpha: 0.0),
-                  ],
+              titlesData: FlTitlesData(
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    getTitlesWidget: (value, meta) {
+                      final index = value.toInt();
+                      if (index >= 0 && index < sortedYears.length) {
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            sortedYears[index].key.toString(),
+                            style: const TextStyle(fontSize: 10),
+                          ),
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
+                    interval: 1,
+                    reservedSize: 30,
+                  ),
+                ),
+                leftTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                topTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                rightTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+              ),
+              borderData: FlBorderData(show: false),
+              lineBarsData: [
+                LineChartBarData(
+                  spots: sortedYears.asMap().entries.map((e) {
+                    return FlSpot(e.key.toDouble(), e.value.value.toDouble());
+                  }).toList(),
+                  isCurved: true,
+                  gradient: AppDesign.oceanGradient,
+                  barWidth: 4,
+                  isStrokeCapRound: true,
+                  dotData: FlDotData(
+                    show: true,
+                    getDotPainter: (spot, percent, barData, index) {
+                      return FlDotCirclePainter(
+                        radius: 5,
+                        color: const Color(0xFF0EA5E9),
+                        strokeWidth: 2,
+                        strokeColor: Colors.white,
+                      );
+                    },
+                  ),
+                  belowBarData: BarAreaData(
+                    show: true,
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        const Color(0xFF0EA5E9).withValues(alpha: 0.3),
+                        const Color(0xFF0EA5E9).withValues(alpha: 0.0),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+              lineTouchData: LineTouchData(
+                touchTooltipData: LineTouchTooltipData(
+                  getTooltipColor: (touchedSpot) => const Color(0xFF1E293B),
+                  getTooltipItems: (touchedSpots) {
+                    return touchedSpots.map((spot) {
+                      final year = sortedYears[spot.x.toInt()].key;
+                      return LineTooltipItem(
+                        '${year}s\n',
+                        const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                        children: [
+                          TextSpan(
+                            text:
+                                '${spot.y.toInt()} ${TranslationService.translate(context, 'stat_chart_books_count')}',
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 11,
+                            ),
+                          ),
+                        ],
+                      );
+                    }).toList();
+                  },
                 ),
               ),
             ),
-          ],
-          lineTouchData: LineTouchData(
-            touchTooltipData: LineTouchTooltipData(
-              getTooltipColor: (touchedSpot) => const Color(0xFF1E293B),
-              getTooltipItems: (touchedSpots) {
-                return touchedSpots.map((spot) {
-                  final year = sortedYears[spot.x.toInt()].key;
-                  return LineTooltipItem(
-                    '${year}s\n',
-                    const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                    children: [
-                      TextSpan(
-                        text: '${spot.y.toInt()} ${TranslationService.translate(context, 'stat_chart_books_count')}',
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 11,
-                        ),
-                      ),
-                    ],
-                  );
-                }).toList();
-              },
-            ),
           ),
-        ),
-      ),
         ),
       ),
     );
@@ -1297,7 +1336,10 @@ class _StatisticsScreenState extends State<StatisticsScreen>
     // Top borrowers (contacts)
     final borrowerCounts = <String, int>{};
     for (var loan in _loans) {
-      String contactName = TranslationService.translate(context, 'stat_unknown_contact');
+      String contactName = TranslationService.translate(
+        context,
+        'stat_unknown_contact',
+      );
 
       if (_contactsMap.containsKey(loan.contactId)) {
         final contact = _contactsMap[loan.contactId]!;
@@ -1315,7 +1357,9 @@ class _StatisticsScreenState extends State<StatisticsScreen>
     // Most lent books
     final bookCounts = <String, int>{};
     for (var loan in _loans) {
-      final bookTitle = loan.bookTitle.isNotEmpty ? loan.bookTitle : TranslationService.translate(context, 'stat_unknown_contact');
+      final bookTitle = loan.bookTitle.isNotEmpty
+          ? loan.bookTitle
+          : TranslationService.translate(context, 'stat_unknown_contact');
       bookCounts[bookTitle] = (bookCounts[bookTitle] ?? 0) + 1;
     }
     var mostLentBooks = bookCounts.entries.toList()
@@ -1591,7 +1635,9 @@ class _StatisticsScreenState extends State<StatisticsScreen>
             label,
             style: TextStyle(
               fontSize: isDesktop ? 12 : 10,
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.5),
             ),
             textAlign: TextAlign.center,
             maxLines: 2,
@@ -2126,13 +2172,22 @@ class _StatisticsScreenState extends State<StatisticsScreen>
     String healthMessage;
     if (hasFailed) {
       healthColor = Colors.red;
-      healthMessage = TranslationService.translate(context, 'stat_oplog_health_error').replaceAll('%1', stats.failed.toString());
+      healthMessage = TranslationService.translate(
+        context,
+        'stat_oplog_health_error',
+      ).replaceAll('%1', stats.failed.toString());
     } else if (hasPending) {
       healthColor = Colors.orange;
-      healthMessage = TranslationService.translate(context, 'stat_oplog_health_warning').replaceAll('%1', stats.pending.toString());
+      healthMessage = TranslationService.translate(
+        context,
+        'stat_oplog_health_warning',
+      ).replaceAll('%1', stats.pending.toString());
     } else {
       healthColor = Colors.green;
-      healthMessage = TranslationService.translate(context, 'stat_oplog_health_ok');
+      healthMessage = TranslationService.translate(
+        context,
+        'stat_oplog_health_ok',
+      );
     }
 
     return Container(
@@ -2228,10 +2283,17 @@ class _StatisticsScreenState extends State<StatisticsScreen>
               padding: const EdgeInsets.symmetric(vertical: 4),
               child: Row(
                 children: [
-                  Icon(Icons.arrow_forward, size: 16, color: Theme.of(context).colorScheme.primary),
+                  Icon(
+                    Icons.arrow_forward,
+                    size: 16,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                   const SizedBox(width: 8),
                   Text(
-                    TranslationService.translate(context, 'stat_oplog_view_details'),
+                    TranslationService.translate(
+                      context,
+                      'stat_oplog_view_details',
+                    ),
                     style: TextStyle(
                       fontSize: isDesktop ? 14 : 13,
                       fontWeight: FontWeight.w500,
@@ -2454,7 +2516,10 @@ class _StatisticsContentState extends State<StatisticsContent>
     final bookRepo = Provider.of<BookRepository>(context, listen: false);
     final tagRepo = Provider.of<TagRepository>(context, listen: false);
     final contactRepo = Provider.of<ContactRepository>(context, listen: false);
-    final collectionRepo = Provider.of<CollectionRepository>(context, listen: false);
+    final collectionRepo = Provider.of<CollectionRepository>(
+      context,
+      listen: false,
+    );
     final loanRepo = Provider.of<LoanRepository>(context, listen: false);
     final api = Provider.of<ApiService>(context, listen: false);
     try {
@@ -2512,7 +2577,10 @@ class _StatisticsContentState extends State<StatisticsContent>
       // Fetch operation log stats if module is enabled
       frb.FrbOperationLogStats? opLogStats;
       List<String>? opLogEntityTypes;
-      if (Provider.of<ThemeProvider>(context, listen: false).operationLogViewerEnabled) {
+      if (Provider.of<ThemeProvider>(
+        context,
+        listen: false,
+      ).operationLogViewerEnabled) {
         try {
           opLogStats = await frb.operationLogStats();
           opLogEntityTypes = await frb.operationLogEntityTypes();
@@ -2527,17 +2595,20 @@ class _StatisticsContentState extends State<StatisticsContent>
         final candidateTags = tags.where((t) => t.count >= 3).toList();
         for (final tag in candidateTags) {
           final tagBooks = await bookRepo.getBooks(tag: tag.name);
-          final rated = tagBooks.where(
-            (b) => b.userRating != null && b.userRating! > 0,
-          ).toList();
+          final rated = tagBooks
+              .where((b) => b.userRating != null && b.userRating! > 0)
+              .toList();
           if (rated.length >= 3) {
-            final avg = rated.map((b) => b.userRating!).reduce((a, b) => a + b) /
+            final avg =
+                rated.map((b) => b.userRating!).reduce((a, b) => a + b) /
                 rated.length;
-            tagRatings.add(_RatingGroup(
-              name: tag.name,
-              avgRating: avg,
-              ratedCount: rated.length,
-            ));
+            tagRatings.add(
+              _RatingGroup(
+                name: tag.name,
+                avgRating: avg,
+                ratedCount: rated.length,
+              ),
+            );
           }
         }
       } catch (e) {
@@ -2572,15 +2643,18 @@ class _StatisticsContentState extends State<StatisticsContent>
                   book.userRating! > 0;
             }).toList();
             if (rated.length >= 3) {
-              final avg = rated
+              final avg =
+                  rated
                       .map((cb) => bookMap[cb.bookId]!.userRating!)
                       .reduce((a, b) => a + b) /
                   rated.length;
-              collectionRatings.add(_RatingGroup(
-                name: col.name,
-                avgRating: avg,
-                ratedCount: rated.length,
-              ));
+              collectionRatings.add(
+                _RatingGroup(
+                  name: col.name,
+                  avgRating: avg,
+                  ratedCount: rated.length,
+                ),
+              );
             }
           }
         }
@@ -2666,8 +2740,8 @@ class _StatisticsContentState extends State<StatisticsContent>
         totalOwned += col.ownedBooks;
         totalRead += _collectionReadCounts[col.id] ?? 0;
       }
-      final avgCompletion =
-          (totalCompletionRatio / _collections.length * 100).toStringAsFixed(0);
+      final avgCompletion = (totalCompletionRatio / _collections.length * 100)
+          .toStringAsFixed(0);
       final readPct = totalOwned > 0
           ? (totalRead / totalOwned * 100).toStringAsFixed(0)
           : '0';
@@ -2813,7 +2887,7 @@ class _StatisticsContentState extends State<StatisticsContent>
           'stat_subtitle_loan_statistics',
         ),
       ),
-      if (!themeProvider.isLibrarian)
+      if (themeProvider.canBorrowBooks)
         SectionConfig(
           id: 'borrowed_statistics',
           title: TranslationService.translate(context, 'borrowed_statistics'),
@@ -2891,10 +2965,7 @@ class _StatisticsContentState extends State<StatisticsContent>
             },
             header: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildSummaryCards(),
-                const SizedBox(height: 16),
-              ],
+              children: [_buildSummaryCards(), const SizedBox(height: 16)],
             ),
           ),
         ),
@@ -2994,7 +3065,10 @@ class _StatisticsContentState extends State<StatisticsContent>
       'total_books': TranslationService.translate(context, 'stat_total_books'),
       'read_books': TranslationService.translate(context, 'stat_read'),
       'borrowed_books': thirdCardLabel,
-      'unique_authors': TranslationService.translate(context, 'stat_unique_authors'),
+      'unique_authors': TranslationService.translate(
+        context,
+        'stat_unique_authors',
+      ),
       'completion': TranslationService.translate(context, 'stat_completion'),
       'oldest_book': TranslationService.translate(context, 'stat_oldest_book'),
     };
@@ -3050,7 +3124,9 @@ class _StatisticsContentState extends State<StatisticsContent>
         if (j > 0) children.add(const SizedBox(width: 12));
         if (i + j < visibleIds.length) {
           children.add(
-            Expanded(child: cardWidgets[visibleIds[i + j]] ?? const SizedBox.shrink()),
+            Expanded(
+              child: cardWidgets[visibleIds[i + j]] ?? const SizedBox.shrink(),
+            ),
           );
         } else {
           children.add(const Expanded(child: SizedBox.shrink()));
@@ -3220,7 +3296,8 @@ class _StatisticsContentState extends State<StatisticsContent>
         children: [
           const SizedBox(height: 12),
           Semantics(
-            label: '${TranslationService.translate(context, 'stat_a11y_reading_status_chart')}: $chartDescription',
+            label:
+                '${TranslationService.translate(context, 'stat_a11y_reading_status_chart')}: $chartDescription',
             child: ExcludeSemantics(
               child: SizedBox(
                 height: 200,
@@ -3375,8 +3452,9 @@ class _StatisticsContentState extends State<StatisticsContent>
       const Color(0xFF94A3B8), // silver
       const Color(0xFFCD7F32), // bronze
     ];
-    final barColor =
-        rank <= 3 ? podiumColors[rank - 1] : theme.colorScheme.primary;
+    final barColor = rank <= 3
+        ? podiumColors[rank - 1]
+        : theme.colorScheme.primary;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
@@ -3420,8 +3498,9 @@ class _StatisticsContentState extends State<StatisticsContent>
               child: LinearProgressIndicator(
                 value: fraction,
                 minHeight: 14,
-                backgroundColor:
-                    theme.colorScheme.onSurface.withValues(alpha: 0.06),
+                backgroundColor: theme.colorScheme.onSurface.withValues(
+                  alpha: 0.06,
+                ),
                 valueColor: AlwaysStoppedAnimation<Color>(
                   barColor.withValues(alpha: 0.7),
                 ),
@@ -3479,7 +3558,8 @@ class _StatisticsContentState extends State<StatisticsContent>
         .join(', ');
 
     return Semantics(
-      label: '${TranslationService.translate(context, 'stat_a11y_publication_timeline')}: $timelineDescription',
+      label:
+          '${TranslationService.translate(context, 'stat_a11y_publication_timeline')}: $timelineDescription',
       child: ExcludeSemantics(
         child: Container(
           height: 280,
@@ -3490,112 +3570,113 @@ class _StatisticsContentState extends State<StatisticsContent>
             boxShadow: AppDesign.cardShadow,
           ),
           child: LineChart(
-        LineChartData(
-          gridData: FlGridData(
-            show: true,
-            drawVerticalLine: false,
-            horizontalInterval: 1,
-            getDrawingHorizontalLine: (value) {
-              return FlLine(
-                color: Colors.black.withValues(alpha: 0.5),
-                strokeWidth: 1,
-              );
-            },
-          ),
-          titlesData: FlTitlesData(
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                getTitlesWidget: (value, meta) {
-                  final index = value.toInt();
-                  if (index >= 0 && index < sortedYears.length) {
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Text(
-                        sortedYears[index].key.toString(),
-                        style: const TextStyle(fontSize: 10),
-                      ),
-                    );
-                  }
-                  return const SizedBox.shrink();
-                },
-                interval: 1,
-                reservedSize: 30,
-              ),
-            ),
-            leftTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-            topTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-            rightTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-          ),
-          borderData: FlBorderData(show: false),
-          lineBarsData: [
-            LineChartBarData(
-              spots: sortedYears.asMap().entries.map((e) {
-                return FlSpot(e.key.toDouble(), e.value.value.toDouble());
-              }).toList(),
-              isCurved: true,
-              gradient: AppDesign.oceanGradient,
-              barWidth: 4,
-              isStrokeCapRound: true,
-              dotData: FlDotData(
+            LineChartData(
+              gridData: FlGridData(
                 show: true,
-                getDotPainter: (spot, percent, barData, index) {
-                  return FlDotCirclePainter(
-                    radius: 5,
-                    color: const Color(0xFF0EA5E9),
-                    strokeWidth: 2,
-                    strokeColor: Colors.white,
+                drawVerticalLine: false,
+                horizontalInterval: 1,
+                getDrawingHorizontalLine: (value) {
+                  return FlLine(
+                    color: Colors.black.withValues(alpha: 0.5),
+                    strokeWidth: 1,
                   );
                 },
               ),
-              belowBarData: BarAreaData(
-                show: true,
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    const Color(0xFF0EA5E9).withValues(alpha: 0.3),
-                    const Color(0xFF0EA5E9).withValues(alpha: 0.0),
-                  ],
+              titlesData: FlTitlesData(
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    getTitlesWidget: (value, meta) {
+                      final index = value.toInt();
+                      if (index >= 0 && index < sortedYears.length) {
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            sortedYears[index].key.toString(),
+                            style: const TextStyle(fontSize: 10),
+                          ),
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
+                    interval: 1,
+                    reservedSize: 30,
+                  ),
+                ),
+                leftTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                topTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                rightTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+              ),
+              borderData: FlBorderData(show: false),
+              lineBarsData: [
+                LineChartBarData(
+                  spots: sortedYears.asMap().entries.map((e) {
+                    return FlSpot(e.key.toDouble(), e.value.value.toDouble());
+                  }).toList(),
+                  isCurved: true,
+                  gradient: AppDesign.oceanGradient,
+                  barWidth: 4,
+                  isStrokeCapRound: true,
+                  dotData: FlDotData(
+                    show: true,
+                    getDotPainter: (spot, percent, barData, index) {
+                      return FlDotCirclePainter(
+                        radius: 5,
+                        color: const Color(0xFF0EA5E9),
+                        strokeWidth: 2,
+                        strokeColor: Colors.white,
+                      );
+                    },
+                  ),
+                  belowBarData: BarAreaData(
+                    show: true,
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        const Color(0xFF0EA5E9).withValues(alpha: 0.3),
+                        const Color(0xFF0EA5E9).withValues(alpha: 0.0),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+              lineTouchData: LineTouchData(
+                touchTooltipData: LineTouchTooltipData(
+                  getTooltipColor: (touchedSpot) => const Color(0xFF1E293B),
+                  getTooltipItems: (touchedSpots) {
+                    return touchedSpots.map((spot) {
+                      final year = sortedYears[spot.x.toInt()].key;
+                      return LineTooltipItem(
+                        '${year}s\n',
+                        const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                        children: [
+                          TextSpan(
+                            text:
+                                '${spot.y.toInt()} ${TranslationService.translate(context, 'stat_chart_books_count')}',
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 11,
+                            ),
+                          ),
+                        ],
+                      );
+                    }).toList();
+                  },
                 ),
               ),
             ),
-          ],
-          lineTouchData: LineTouchData(
-            touchTooltipData: LineTouchTooltipData(
-              getTooltipColor: (touchedSpot) => const Color(0xFF1E293B),
-              getTooltipItems: (touchedSpots) {
-                return touchedSpots.map((spot) {
-                  final year = sortedYears[spot.x.toInt()].key;
-                  return LineTooltipItem(
-                    '${year}s\n',
-                    const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                    children: [
-                      TextSpan(
-                        text: '${spot.y.toInt()} ${TranslationService.translate(context, 'stat_chart_books_count')}',
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 11,
-                        ),
-                      ),
-                    ],
-                  );
-                }).toList();
-              },
-            ),
           ),
-        ),
-      ),
         ),
       ),
     );
@@ -3644,7 +3725,8 @@ class _StatisticsContentState extends State<StatisticsContent>
         .join(', ');
 
     return Semantics(
-      label: '${TranslationService.translate(context, 'stat_a11y_monthly_progress_chart')}: $monthlyDescription',
+      label:
+          '${TranslationService.translate(context, 'stat_a11y_monthly_progress_chart')}: $monthlyDescription',
       child: ExcludeSemantics(
         child: Container(
           height: 220,
@@ -3658,73 +3740,73 @@ class _StatisticsContentState extends State<StatisticsContent>
             BarChartData(
               alignment: BarChartAlignment.spaceAround,
               maxY: (maxValue + 1).toDouble(),
-          barTouchData: BarTouchData(
-            enabled: true,
-            touchTooltipData: BarTouchTooltipData(
-              getTooltipColor: (group) => const Color(0xFF1E293B),
-              getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                return BarTooltipItem(
-                  '${sortedData[groupIndex].key}: ${rod.toY.toInt()} ${TranslationService.translate(context, 'books')}',
-                  const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                  ),
-                );
-              },
-            ),
-          ),
-          titlesData: FlTitlesData(
-            show: true,
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                getTitlesWidget: (value, meta) {
-                  if (value.toInt() >= sortedData.length)
-                    return const SizedBox.shrink();
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Text(
-                      sortedData[value.toInt()].key,
-                      style: const TextStyle(fontSize: 11),
-                    ),
-                  );
-                },
-                reservedSize: 30,
+              barTouchData: BarTouchData(
+                enabled: true,
+                touchTooltipData: BarTouchTooltipData(
+                  getTooltipColor: (group) => const Color(0xFF1E293B),
+                  getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                    return BarTooltipItem(
+                      '${sortedData[groupIndex].key}: ${rod.toY.toInt()} ${TranslationService.translate(context, 'books')}',
+                      const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    );
+                  },
+                ),
               ),
-            ),
-            leftTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-            topTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-            rightTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-          ),
-          gridData: const FlGridData(show: false),
-          borderData: FlBorderData(show: false),
-          barGroups: sortedData.asMap().entries.map((e) {
-            final isCurrentMonth = e.key == sortedData.length - 1;
-            return BarChartGroupData(
-              x: e.key,
-              barRods: [
-                BarChartRodData(
-                  toY: e.value.value.toDouble(),
-                  gradient: isCurrentMonth
-                      ? AppDesign.accentGradient
-                      : AppDesign.primaryGradient,
-                  width: 16,
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(4),
+              titlesData: FlTitlesData(
+                show: true,
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    getTitlesWidget: (value, meta) {
+                      if (value.toInt() >= sortedData.length)
+                        return const SizedBox.shrink();
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Text(
+                          sortedData[value.toInt()].key,
+                          style: const TextStyle(fontSize: 11),
+                        ),
+                      );
+                    },
+                    reservedSize: 30,
                   ),
                 ),
-              ],
-            );
-          }).toList(),
-        ),
-      ),
+                leftTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                topTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                rightTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+              ),
+              gridData: const FlGridData(show: false),
+              borderData: FlBorderData(show: false),
+              barGroups: sortedData.asMap().entries.map((e) {
+                final isCurrentMonth = e.key == sortedData.length - 1;
+                return BarChartGroupData(
+                  x: e.key,
+                  barRods: [
+                    BarChartRodData(
+                      toY: e.value.value.toDouble(),
+                      gradient: isCurrentMonth
+                          ? AppDesign.accentGradient
+                          : AppDesign.primaryGradient,
+                      width: 16,
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(4),
+                      ),
+                    ),
+                  ],
+                );
+              }).toList(),
+            ),
+          ),
         ),
       ),
     );
@@ -3784,8 +3866,10 @@ class _StatisticsContentState extends State<StatisticsContent>
         TranslationService.translate(context, 'days'),
         const Color(0xFF0EA5E9),
         description: avgDays > 0
-            ? TranslationService.translate(context, 'avg_reading_time_desc')
-                .replaceAll('%1', '${booksWithDuration.length}')
+            ? TranslationService.translate(
+                context,
+                'avg_reading_time_desc',
+              ).replaceAll('%1', '${booksWithDuration.length}')
             : null,
       ),
       'total_pages': _buildInsightCard(
@@ -3805,8 +3889,10 @@ class _StatisticsContentState extends State<StatisticsContent>
         TranslationService.translate(context, 'books_suffix'),
         const Color(0xFFF97316),
         description: booksFinishedThisYear > 0
-            ? TranslationService.translate(context, 'books_finished_year_desc')
-                .replaceAll('%1', '$currentYear')
+            ? TranslationService.translate(
+                context,
+                'books_finished_year_desc',
+              ).replaceAll('%1', '$currentYear')
             : null,
       ),
       'days_since_last': _buildInsightCard(
@@ -3829,8 +3915,9 @@ class _StatisticsContentState extends State<StatisticsContent>
     final rows = <Widget>[];
     for (var i = 0; i < visibleIds.length; i += 2) {
       final first = cardWidgets[visibleIds[i]];
-      final second =
-          i + 1 < visibleIds.length ? cardWidgets[visibleIds[i + 1]] : null;
+      final second = i + 1 < visibleIds.length
+          ? cardWidgets[visibleIds[i + 1]]
+          : null;
       rows.add(
         Row(
           children: [
@@ -3890,10 +3977,7 @@ class _StatisticsContentState extends State<StatisticsContent>
                 TranslationService.translate(context, 'days'),
                 const Color(0xFF10B981),
                 description: fastestDays != null
-                    ? TranslationService.translate(
-                        context,
-                        'fastest_read_desc',
-                      )
+                    ? TranslationService.translate(context, 'fastest_read_desc')
                     : null,
               ),
             ),
@@ -3903,10 +3987,7 @@ class _StatisticsContentState extends State<StatisticsContent>
                 Icons.local_fire_department,
                 readingStreak > 0 ? readingStreak.toString() : null,
                 TranslationService.translate(context, 'reading_streak'),
-                TranslationService.translate(
-                  context,
-                  'reading_streak_suffix',
-                ),
+                TranslationService.translate(context, 'reading_streak_suffix'),
                 const Color(0xFFEF4444),
                 description: readingStreak > 0
                     ? TranslationService.translate(
@@ -3992,35 +4073,40 @@ class _StatisticsContentState extends State<StatisticsContent>
   }) {
     return Semantics(
       button: bookId != null,
-      label: TranslationService.translate(context, 'stat_a11y_view_book').replaceAll('%1', bookTitle),
+      label: TranslationService.translate(
+        context,
+        'stat_a11y_view_book',
+      ).replaceAll('%1', bookTitle),
       child: InkWell(
         onTap: bookId != null ? () => context.push('/books/$bookId') : null,
         borderRadius: BorderRadius.circular(4),
         child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 2),
-        child: Row(
-          children: [
-            Icon(icon, size: 16, color: color),
-            const SizedBox(width: 8),
-            Text(
-              '$label: ',
-              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-            ),
-            Expanded(
-              child: Text(
-                bookTitle,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: color,
-                  decoration: bookId != null ? TextDecoration.underline : null,
-                ),
-                overflow: TextOverflow.ellipsis,
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: Row(
+            children: [
+              Icon(icon, size: 16, color: color),
+              const SizedBox(width: 8),
+              Text(
+                '$label: ',
+                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
               ),
-            ),
-          ],
+              Expanded(
+                child: Text(
+                  bookTitle,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: color,
+                    decoration: bookId != null
+                        ? TextDecoration.underline
+                        : null,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
       ),
     );
   }
@@ -4048,7 +4134,10 @@ class _StatisticsContentState extends State<StatisticsContent>
         borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
         boxShadow: AppDesign.subtleShadow,
         border: Border(
-          left: BorderSide(color: color.withValues(alpha: isEmpty ? 0.2 : 0.6), width: 3),
+          left: BorderSide(
+            color: color.withValues(alpha: isEmpty ? 0.2 : 0.6),
+            width: 3,
+          ),
         ),
       ),
       child: Stack(
@@ -4069,7 +4158,10 @@ class _StatisticsContentState extends State<StatisticsContent>
                 )
               else if (useStarDisplay && ratingValue != null)
                 Semantics(
-                  label: TranslationService.translate(context, 'stat_a11y_star_rating').replaceAll('%1', starRating.toStringAsFixed(1)),
+                  label: TranslationService.translate(
+                    context,
+                    'stat_a11y_star_rating',
+                  ).replaceAll('%1', starRating.toStringAsFixed(1)),
                   excludeSemantics: true,
                   child: Row(
                     children: List.generate(5, (index) {
@@ -4188,9 +4280,7 @@ class _StatisticsContentState extends State<StatisticsContent>
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
             ),
             const SizedBox(height: 12),
-            ...sortedTagRatings.map(
-              (group) => _buildRatingGroupRow(group),
-            ),
+            ...sortedTagRatings.map((group) => _buildRatingGroupRow(group)),
           ],
           if (sortedTagRatings.isNotEmpty && sortedCollectionRatings.isNotEmpty)
             const SizedBox(height: 20),
@@ -4277,8 +4367,7 @@ class _StatisticsContentState extends State<StatisticsContent>
       (sum, tag) => sum + tag.count,
     );
 
-    var topShelves = _tags.toList()
-      ..sort((a, b) => b.count.compareTo(a.count));
+    var topShelves = _tags.toList()..sort((a, b) => b.count.compareTo(a.count));
     if (topShelves.length > 5) topShelves = topShelves.sublist(0, 5);
 
     return Container(
@@ -4398,8 +4487,7 @@ class _StatisticsContentState extends State<StatisticsContent>
           children: [
             Expanded(
               child: _buildStatCard(
-                TranslationService.translate(
-                    context, 'stat_total_collections'),
+                TranslationService.translate(context, 'stat_total_collections'),
                 totalCollections.toString(),
                 Icons.collections_bookmark,
                 Colors.transparent,
@@ -4411,7 +4499,9 @@ class _StatisticsContentState extends State<StatisticsContent>
             Expanded(
               child: _buildStatCard(
                 TranslationService.translate(
-                    context, 'stat_avg_collection_completion'),
+                  context,
+                  'stat_avg_collection_completion',
+                ),
                 '${avgCompletion.toStringAsFixed(1)}%',
                 Icons.pie_chart_outline,
                 Colors.transparent,
@@ -4423,7 +4513,9 @@ class _StatisticsContentState extends State<StatisticsContent>
             Expanded(
               child: _buildStatCard(
                 TranslationService.translate(
-                    context, 'stat_completed_collections'),
+                  context,
+                  'stat_completed_collections',
+                ),
                 completedCount.toString(),
                 Icons.check_circle_outline,
                 Colors.transparent,
@@ -4504,8 +4596,9 @@ class _StatisticsContentState extends State<StatisticsContent>
                 child: LinearProgressIndicator(
                   value: ratio,
                   minHeight: 6,
-                  backgroundColor:
-                      theme.colorScheme.onSurface.withValues(alpha: 0.08),
+                  backgroundColor: theme.colorScheme.onSurface.withValues(
+                    alpha: 0.08,
+                  ),
                   valueColor: AlwaysStoppedAnimation<Color>(
                     isComplete
                         ? const Color(0xFF10B981)
@@ -4529,8 +4622,10 @@ class _StatisticsContentState extends State<StatisticsContent>
         if (readCount > 0) ...[
           const SizedBox(height: 2),
           Text(
-            TranslationService.translate(context, 'stat_collection_read')
-                .replaceAll('%1', readCount.toString()),
+            TranslationService.translate(
+              context,
+              'stat_collection_read',
+            ).replaceAll('%1', readCount.toString()),
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
               fontSize: 11,
@@ -4546,7 +4641,10 @@ class _StatisticsContentState extends State<StatisticsContent>
 
     final borrowerCounts = <String, int>{};
     for (var loan in _loans) {
-      String contactName = TranslationService.translate(context, 'stat_unknown_contact');
+      String contactName = TranslationService.translate(
+        context,
+        'stat_unknown_contact',
+      );
 
       if (_contactsMap.containsKey(loan.contactId)) {
         final contact = _contactsMap[loan.contactId]!;
@@ -4563,7 +4661,9 @@ class _StatisticsContentState extends State<StatisticsContent>
 
     final bookCounts = <String, int>{};
     for (var loan in _loans) {
-      final bookTitle = loan.bookTitle.isNotEmpty ? loan.bookTitle : TranslationService.translate(context, 'stat_unknown_contact');
+      final bookTitle = loan.bookTitle.isNotEmpty
+          ? loan.bookTitle
+          : TranslationService.translate(context, 'stat_unknown_contact');
       bookCounts[bookTitle] = (bookCounts[bookTitle] ?? 0) + 1;
     }
     var mostLentBooks = bookCounts.entries.toList()
@@ -4757,7 +4857,9 @@ class _StatisticsContentState extends State<StatisticsContent>
             label,
             style: TextStyle(
               fontSize: 10,
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.5),
             ),
             textAlign: TextAlign.center,
             maxLines: 2,
@@ -4864,13 +4966,22 @@ class _StatisticsContentState extends State<StatisticsContent>
     String healthMessage;
     if (hasFailed) {
       healthColor = Colors.red;
-      healthMessage = TranslationService.translate(context, 'stat_oplog_health_error').replaceAll('%1', stats.failed.toString());
+      healthMessage = TranslationService.translate(
+        context,
+        'stat_oplog_health_error',
+      ).replaceAll('%1', stats.failed.toString());
     } else if (hasPending) {
       healthColor = Colors.orange;
-      healthMessage = TranslationService.translate(context, 'stat_oplog_health_warning').replaceAll('%1', stats.pending.toString());
+      healthMessage = TranslationService.translate(
+        context,
+        'stat_oplog_health_warning',
+      ).replaceAll('%1', stats.pending.toString());
     } else {
       healthColor = Colors.green;
-      healthMessage = TranslationService.translate(context, 'stat_oplog_health_ok');
+      healthMessage = TranslationService.translate(
+        context,
+        'stat_oplog_health_ok',
+      );
     }
 
     return Container(
@@ -4951,10 +5062,7 @@ class _StatisticsContentState extends State<StatisticsContent>
             const SizedBox(height: 8),
             Text(
               '${entityTypes.length} ${TranslationService.translate(context, 'stat_oplog_entity_types')}',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
             ),
           ],
           const SizedBox(height: 16),
@@ -4966,10 +5074,17 @@ class _StatisticsContentState extends State<StatisticsContent>
               padding: const EdgeInsets.symmetric(vertical: 4),
               child: Row(
                 children: [
-                  Icon(Icons.arrow_forward, size: 16, color: Theme.of(context).colorScheme.primary),
+                  Icon(
+                    Icons.arrow_forward,
+                    size: 16,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                   const SizedBox(width: 8),
                   Text(
-                    TranslationService.translate(context, 'stat_oplog_view_details'),
+                    TranslationService.translate(
+                      context,
+                      'stat_oplog_view_details',
+                    ),
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
@@ -5049,74 +5164,78 @@ class _StatisticsContentState extends State<StatisticsContent>
     final Color accentColor = gradient is LinearGradient
         ? gradient.colors.first
         : (backgroundColor == Colors.transparent
-            ? Theme.of(context).colorScheme.primary
-            : backgroundColor);
+              ? Theme.of(context).colorScheme.primary
+              : backgroundColor);
     final theme = Theme.of(context);
 
     return Semantics(
       label: '$label: $value',
       child: Container(
-      height: 120,
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
-        boxShadow: AppDesign.cardShadow,
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
-        child: Stack(
-          children: [
-            // Left accent bar
-            Positioned(
-              left: 0,
-              top: 0,
-              bottom: 0,
-              child: Container(
-                width: 4,
-                decoration: BoxDecoration(
-                  gradient: gradient ?? LinearGradient(colors: [accentColor, accentColor]),
+        height: 120,
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
+          boxShadow: AppDesign.cardShadow,
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
+          child: Stack(
+            children: [
+              // Left accent bar
+              Positioned(
+                left: 0,
+                top: 0,
+                bottom: 0,
+                child: Container(
+                  width: 4,
+                  decoration: BoxDecoration(
+                    gradient:
+                        gradient ??
+                        LinearGradient(colors: [accentColor, accentColor]),
+                  ),
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Icon(icon, color: accentColor, size: 22),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        value,
-                        style: TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold,
-                          color: accentColor,
-                          height: 1.0,
-                          letterSpacing: -0.5,
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Icon(icon, color: accentColor, size: 22),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          value,
+                          style: TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.bold,
+                            color: accentColor,
+                            height: 1.0,
+                            letterSpacing: -0.5,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        label,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                        const SizedBox(height: 4),
+                        Text(
+                          label,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.6,
+                            ),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
       ),
     );
   }

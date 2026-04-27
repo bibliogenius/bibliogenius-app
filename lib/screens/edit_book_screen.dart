@@ -216,25 +216,27 @@ class _EditBookScreenState extends State<EditBookScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    // Initialize status based on profile - doing this here ensures we have context access
-    // and it runs before build, preventing the invalid 'to_read' default for librarians
+    // Initialize status based on the current status mode — runs in
+    // didChangeDependencies so context is available before build, preventing
+    // an invalid default if the user is in inventory mode.
     final themeProvider = Provider.of<ThemeProvider>(context);
-    final isLibrarian = themeProvider.isLibrarian;
+    final useInventoryStatuses = themeProvider.inventoryStatusesEnabled;
 
-    // Get valid status values for current profile
-    final validStatuses = isLibrarian
+    // Get valid status values for the active mode
+    final validStatuses = useInventoryStatuses
         ? librarianStatuses.map((s) => s.value).toList()
         : individualStatuses.map((s) => s.value).toList();
 
     // Use book status if valid, else default
     // Only set if not already set (to avoid implementation overriding user changes on hot reload/rebuilds)
     if (_originalReadingStatus == null) {
-      var status = widget.book.readingStatus ?? getDefaultStatus(isLibrarian);
+      var status =
+          widget.book.readingStatus ?? getDefaultStatus(useInventoryStatuses);
       // Normalize legacy 'wanted' to 'wanting' for backward compatibility
       if (status == 'wanted') status = 'wanting';
       _readingStatus = validStatuses.contains(status)
           ? status
-          : getDefaultStatus(isLibrarian);
+          : getDefaultStatus(useInventoryStatuses);
       _originalReadingStatus = _readingStatus;
       _owned = widget.book.owned;
       _private = widget.book.private;
@@ -1156,8 +1158,12 @@ class _EditBookScreenState extends State<EditBookScreen> {
               Builder(
                 builder: (context) {
                   final themeProvider = Provider.of<ThemeProvider>(context);
-                  final isLibrarian = themeProvider.isLibrarian;
-                  final statusOptions = getStatusOptions(context, isLibrarian);
+                  final useInventoryStatuses =
+                      themeProvider.inventoryStatusesEnabled;
+                  final statusOptions = getStatusOptions(
+                    context,
+                    useInventoryStatuses,
+                  );
 
                   if (!statusOptions.any((s) => s.value == _readingStatus)) {
                     statusOptions.add(

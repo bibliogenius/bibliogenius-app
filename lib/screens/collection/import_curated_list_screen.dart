@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../data/repositories/book_repository.dart';
 import '../../providers/theme_provider.dart';
 import '../../services/curated_lists_service.dart';
@@ -25,7 +24,6 @@ class _ImportCuratedListScreenState extends State<ImportCuratedListScreen> {
   List<CuratedCategory> _categories = [];
   String? _selectedCategoryId;
   List<CuratedList> _currentLists = [];
-  String _profileType = 'individual';
   Set<String> _libraryIsbns = {};
   bool _otherLanguagesExpanded = false;
 
@@ -41,7 +39,7 @@ class _ImportCuratedListScreenState extends State<ImportCuratedListScreen> {
   @override
   void initState() {
     super.initState();
-    _loadProfileAndCategories();
+    _loadCategories();
     _loadLibraryIsbns();
   }
 
@@ -63,21 +61,9 @@ class _ImportCuratedListScreenState extends State<ImportCuratedListScreen> {
     }
   }
 
-  Future<void> _loadProfileAndCategories() async {
-    // Load profile type first to determine category ordering
-    final prefs = await SharedPreferences.getInstance();
-    _profileType = prefs.getString('ffi_profile_type') ?? 'individual';
-    await _loadCategories();
-  }
-
   Future<void> _loadCategories() async {
     try {
-      var categories = await _curatedService.loadCategories();
-
-      // Prioritize jeunesse category for kid profiles
-      if (_profileType == 'kid') {
-        categories = _prioritizeCategory(categories, 'jeunesse');
-      }
+      final categories = await _curatedService.loadCategories();
 
       if (mounted) {
         setState(() {
@@ -97,19 +83,6 @@ class _ImportCuratedListScreenState extends State<ImportCuratedListScreen> {
         });
       }
     }
-  }
-
-  /// Move a specific category to the front of the list
-  List<CuratedCategory> _prioritizeCategory(
-    List<CuratedCategory> categories,
-    String categoryId,
-  ) {
-    final index = categories.indexWhere((c) => c.id == categoryId);
-    if (index > 0) {
-      final category = categories.removeAt(index);
-      categories.insert(0, category);
-    }
-    return categories;
   }
 
   Future<void> _selectCategory(String categoryId) async {
@@ -469,12 +442,15 @@ class _ImportCuratedListScreenState extends State<ImportCuratedListScreen> {
                             );
                             return LayoutBuilder(
                               builder: (context, constraints) {
-                                final cols =
-                                    constraints.maxWidth >= 600 ? 2 : 1;
+                                final cols = constraints.maxWidth >= 600
+                                    ? 2
+                                    : 1;
                                 return ListView(
                                   padding: const EdgeInsets.all(16),
                                   children: [
-                                    if (partition.inYourLanguages.isNotEmpty) ...[
+                                    if (partition
+                                        .inYourLanguages
+                                        .isNotEmpty) ...[
                                       _sectionHeader(
                                         TranslationService.translate(
                                           context,
@@ -524,20 +500,16 @@ class _ImportCuratedListScreenState extends State<ImportCuratedListScreen> {
         padding: const EdgeInsets.only(bottom: 8),
         child: Text(
           text,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
       ),
     );
   }
 
   /// Build the rows of curated-list cards for either 1 or 2 columns.
-  List<Widget> _gridRows(
-    List<CuratedList> lists,
-    String langCode,
-    int cols,
-  ) {
+  List<Widget> _gridRows(List<CuratedList> lists, String langCode, int cols) {
     final rows = <Widget>[];
     for (var i = 0; i < lists.length; i += cols) {
       if (cols == 1) {
@@ -610,9 +582,7 @@ class _ImportCuratedListScreenState extends State<ImportCuratedListScreen> {
                       children: [
                         Text(
                           headerText,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
+                          style: Theme.of(context).textTheme.titleMedium
                               ?.copyWith(fontWeight: FontWeight.w600),
                         ),
                         if (!_otherLanguagesExpanded)
@@ -712,10 +682,10 @@ class _ImportCuratedListScreenState extends State<ImportCuratedListScreen> {
                         ),
                         padding: EdgeInsets.zero,
                         visualDensity: VisualDensity.compact,
-                        materialTapTargetSize:
-                            MaterialTapTargetSize.shrinkWrap,
-                        backgroundColor:
-                            Theme.of(context).colorScheme.primaryContainer,
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.primaryContainer,
                       ),
                     ),
                   ),
@@ -751,8 +721,9 @@ class _ImportCuratedListScreenState extends State<ImportCuratedListScreen> {
                         child: LinearProgressIndicator(
                           value: progress,
                           minHeight: 6,
-                          backgroundColor:
-                              Theme.of(context).colorScheme.surfaceContainerHighest,
+                          backgroundColor: Theme.of(
+                            context,
+                          ).colorScheme.surfaceContainerHighest,
                           color: owned == total
                               ? Colors.green
                               : Theme.of(context).colorScheme.primary,

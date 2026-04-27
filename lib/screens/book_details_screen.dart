@@ -2108,7 +2108,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     final statusObj = getStatusFromValue(
       context,
       book.readingStatus ?? '',
-      themeProvider.isLibrarian,
+      themeProvider.inventoryStatusesEnabled,
     );
     final color = statusObj?.color ?? Colors.grey;
     final icon = statusObj?.icon ?? Icons.help_outline;
@@ -2154,8 +2154,8 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
   Future<void> _showStatusPicker(BuildContext context) async {
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
-    final isLibrarian = themeProvider.isLibrarian;
-    final statusOptions = getStatusOptions(context, isLibrarian);
+    final useInventoryStatuses = themeProvider.inventoryStatusesEnabled;
+    final statusOptions = getStatusOptions(context, useInventoryStatuses);
     final currentStatus = _book?.readingStatus ?? '';
 
     final selected = await showModalBottomSheet<String>(

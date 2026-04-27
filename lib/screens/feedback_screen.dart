@@ -76,7 +76,6 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
 
   String _generateMarkdown() {
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
-    final profileType = themeProvider.profileType;
     final locale = themeProvider.locale.languageCode;
 
     final buffer = StringBuffer();
@@ -95,7 +94,6 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
       buffer.writeln('**Environment**');
       buffer.writeln('- App Version: $_appVersion');
       buffer.writeln('- OS: ${_getPlatformInfo()}');
-      buffer.writeln('- Profile: $profileType');
       buffer.writeln('- Language: $locale');
     } else {
       buffer.writeln(
@@ -136,7 +134,6 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
           'context': {
             'app_version': _appVersion,
             'os': _getPlatformInfo(),
-            'profile': themeProvider.profileType,
             'language': themeProvider.locale.languageCode,
           },
         }),
@@ -391,8 +388,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                     const SizedBox(height: 8),
                     Text(
                       '• App: v$_appVersion\n'
-                      '• OS: ${_getPlatformInfo()}\n'
-                      '• Profile: ${Provider.of<ThemeProvider>(context).profileType}',
+                      '• OS: ${_getPlatformInfo()}',
                       style: TextStyle(
                         fontSize: 12,
                         color: Theme.of(context).textTheme.bodySmall?.color,
