@@ -96,6 +96,7 @@ import 'providers/sort_preference_provider.dart';
 import 'package:app_links/app_links.dart';
 
 import 'services/wizard_service.dart';
+import 'widgets/identity_recovery_dialog.dart';
 import 'widgets/peer_book_cover_cache_manager.dart';
 import 'widgets/scaffold_with_nav.dart';
 
@@ -111,6 +112,12 @@ class AppScrollBehavior extends MaterialScrollBehavior {
     PointerDeviceKind.mouse,
   };
 }
+
+/// Set when init_identity_ffi fails with `IdentityError::DecryptionFailed`.
+/// Consumed by `_AppRouterState`'s first post-frame callback to surface a
+/// blocking recovery dialog (Réessayer / Régénérer). Replaces the silent wipe
+/// previously hidden in `identity_service.rs`.
+String? _pendingIdentityRecoveryUuid;
 
 /// Pre-warm all leaderboard caches in background (fire-and-forget).
 /// Skips Phase 1 direct HTTP on cellular where LAN peers are unreachable.
@@ -341,7 +348,20 @@ void main([List<String>? args]) async {
           'E2EE: Identity initialized (hasKeys=${ed25519Key != null})',
         );
       } catch (e) {
-        debugPrint('E2EE: Identity init failed (non-blocking): $e');
+        if (isIdentityDecryptFailure(e) && libraryUuid != null) {
+          // Stored crypto_keys cannot be decrypted with the current
+          // library_uuid — typically a Keychain ↔ NSUserDefaults swing on
+          // macOS. Defer recovery to a blocking dialog after first frame
+          // instead of silently wiping the row. mDNS/Relay below will start
+          // without keys for this run; the user is expected to either
+          // recover (Réessayer) or regenerate, then restart the app.
+          _pendingIdentityRecoveryUuid = libraryUuid;
+          debugPrint(
+            'E2EE: Identity decryption failed; recovery dialog will be shown',
+          );
+        } else {
+          debugPrint('E2EE: Identity init failed (non-blocking): $e');
+        }
       }
     }
 
@@ -573,6 +593,10 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
   StreamSubscription<Uri>? _linkSubscription;
   String? _lastHandledDeepLink;
   Timer? _deepLinkTimer;
+  // Lets us reach a Navigator-aware context from this state, which lives
+  // above MaterialApp.router (e.g. to show the identity recovery dialog).
+  final GlobalKey<NavigatorState> _rootNavigatorKey =
+      GlobalKey<NavigatorState>();
 
   @override
   void initState() {
@@ -585,9 +609,11 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<HubDirectoryProvider>().initAndSyncCatalog();
       _triggerAutoBackup(themeProvider);
+      _maybeShowIdentityRecovery();
     });
 
     _router = GoRouter(
+      navigatorKey: _rootNavigatorKey,
       initialLocation: '/books',
       refreshListenable: themeProvider,
       errorBuilder: (context, state) {
@@ -1206,6 +1232,24 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
 
     _initDeepLinks();
     _registerFlashMessages();
+  }
+
+  /// Surface the blocking identity recovery dialog if startup detected a
+  /// `DecryptionFailed` error. Consumes the pending request so a hot-reload
+  /// or rebuild does not re-trigger it.
+  void _maybeShowIdentityRecovery() {
+    final pendingUuid = _pendingIdentityRecoveryUuid;
+    if (pendingUuid == null) return;
+    _pendingIdentityRecoveryUuid = null;
+
+    final navCtx = _rootNavigatorKey.currentContext;
+    if (navCtx == null) {
+      debugPrint(
+        'Identity recovery: navigator not yet mounted, skipping dialog',
+      );
+      return;
+    }
+    IdentityRecoveryDialog.show(context: navCtx, libraryUuid: pendingUuid);
   }
 
   /// Fire-and-forget: push local data to linked devices found on mDNS.

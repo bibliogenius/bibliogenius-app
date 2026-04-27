@@ -8824,3 +8824,57 @@ msgstr "Die Verbindung zu %s ist abgelaufen. Bitte deinen Kontakt, den Einladung
 #. ADR-032: title of the dialog shown after tapping the stale-connection badge
 msgid "stale_connection_dialog_title"
 msgstr "Verbindung abgelaufen"
+
+#. ============ Identity recovery dialog (E2EE wipe hardening) ============
+
+#. Title of the security dialog shown when the encrypted identity cannot be decrypted.
+msgid "identity_recovery_title"
+msgstr "Sicherheitsüberprüfung"
+
+#. Body of the security dialog explaining the situation.
+msgid "identity_recovery_body"
+msgstr "BiblioGenius erkennt den Sicherheitsschlüssel dieser Bibliothek auf deinem Gerät nicht mehr. Meist ist das ein vorübergehender Systemversatz, der sich durch einen erneuten Versuch beheben lässt."
+
+#. Bullet describing the retry option (recommended path).
+msgid "identity_recovery_bullet_retry"
+msgstr "• Erneut versuchen: zuerst probieren (empfohlen)."
+
+#. Bullet describing the regenerate option (destructive path).
+msgid "identity_recovery_bullet_regenerate"
+msgstr "• Neu beginnen: erstellt einen neuen Schlüssel. Ausleihanfragen und andere sichere Austausche mit deinen verbundenen Geräten und Bibliotheken funktionieren erst wieder, wenn du das Pairing über Netzwerk erneuerst."
+
+#. Action button for regenerating the encrypted identity.
+msgid "identity_recovery_btn_regenerate"
+msgstr "Neu beginnen"
+
+#. Error message shown when retry still fails (recovery dialog stays open).
+msgid "identity_recovery_retry_still_failing"
+msgstr "Dieses Gerät wird immer noch nicht erkannt. Wenn das Problem bestehen bleibt, kannst du „Neu beginnen\" wählen."
+
+#. Error message for unexpected exceptions during retry. {error} is the exception message.
+msgid "identity_recovery_retry_unexpected_error"
+msgstr "Unerwarteter Fehler: {error}"
+
+#. Error message shown when the regeneration step itself fails. {error} is the exception message.
+msgid "identity_recovery_regen_failed"
+msgstr "Zurücksetzen fehlgeschlagen: {error}"
+
+#. Title of the confirmation sub-dialog before regenerating.
+msgid "identity_recovery_confirm_title"
+msgstr "Neu beginnen?"
+
+#. Body of the regenerate confirmation sub-dialog.
+msgid "identity_recovery_confirm_body"
+msgstr "Für dieses Gerät wird ein neuer Sicherheitsschlüssel erstellt.\n\nDeine anderen Geräte und Bibliotheken sehen deine Bücher wahrscheinlich weiterhin, aber sichere Aktionen zwischen euch (Ausleihanfragen, geteilte Profilaktualisierungen, private Benachrichtigungen) funktionieren nicht mehr. Um sie wiederherzustellen, musst du das Pairing mit jedem einzelnen über den Netzwerk-Bildschirm erneuern.\n\nDie Inhalte deiner Bibliothek (Bücher, Regale, Ausleihen) bleiben unverändert."
+
+#. Title of the success state of the recovery dialog after regen succeeds.
+msgid "identity_recovery_success_title"
+msgstr "Fertig"
+
+#. Body of the success state of the recovery dialog after regen succeeds.
+msgid "identity_recovery_success_body"
+msgstr "Diese Bibliothek hat jetzt einen neuen Sicherheitsschlüssel.\n\nDeine anderen Geräte und Bibliotheken sehen deine Bücher möglicherweise noch, aber sichere Aktionen mit ihnen (Ausleihanfragen, geteiltes Profil, private Benachrichtigungen) funktionieren nicht mehr. Um sie wiederherzustellen, gehe zu Netzwerk und erneuere das Pairing mit jedem einzelnen."
+
+#. Acknowledgement button on the success state of the recovery dialog.
+msgid "identity_recovery_success_btn"
+msgstr "OK"

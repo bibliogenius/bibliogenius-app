@@ -9040,3 +9040,57 @@ msgstr "Clear"
 #. Snackbar shown after the peer cover cache has been cleared.
 msgid "peer_cover_cache_clear_done"
 msgstr "Peer cover cache cleared"
+
+#. ============ Identity recovery dialog (E2EE wipe hardening) ============
+
+#. Title of the security dialog shown when the encrypted identity cannot be decrypted.
+msgid "identity_recovery_title"
+msgstr "Security check"
+
+#. Body of the security dialog explaining the situation.
+msgid "identity_recovery_body"
+msgstr "BiblioGenius no longer recognizes the security key for this library on your device. This is usually a temporary system glitch that goes away when you try again."
+
+#. Bullet describing the retry option (recommended path).
+msgid "identity_recovery_bullet_retry"
+msgstr "• Try again: try this first (recommended)."
+
+#. Bullet describing the regenerate option (destructive path).
+msgid "identity_recovery_bullet_regenerate"
+msgstr "• Start fresh: creates a new key. Loan requests and other secure exchanges with your connected devices and libraries will stop working until you re-pair them from the Network screen."
+
+#. Action button for regenerating the encrypted identity.
+msgid "identity_recovery_btn_regenerate"
+msgstr "Start fresh"
+
+#. Error message shown when retry still fails (recovery dialog stays open).
+msgid "identity_recovery_retry_still_failing"
+msgstr "We still don't recognize this device. If the problem persists, you can choose \"Start fresh\"."
+
+#. Error message for unexpected exceptions during retry. {error} is the exception message.
+msgid "identity_recovery_retry_unexpected_error"
+msgstr "Unexpected error: {error}"
+
+#. Error message shown when the regeneration step itself fails. {error} is the exception message.
+msgid "identity_recovery_regen_failed"
+msgstr "Reset failed: {error}"
+
+#. Title of the confirmation sub-dialog before regenerating.
+msgid "identity_recovery_confirm_title"
+msgstr "Start fresh?"
+
+#. Body of the regenerate confirmation sub-dialog.
+msgid "identity_recovery_confirm_body"
+msgstr "A new security key will be created for this device.\n\nYour other devices and libraries will probably keep seeing your books, but secure actions between you (loan requests, shared profile updates, private notifications) will stop working. To restore them, you'll need to re-pair each one from the Network screen.\n\nYour library contents (books, shelves, loans) are not affected."
+
+#. Title of the success state of the recovery dialog after regen succeeds.
+msgid "identity_recovery_success_title"
+msgstr "Done"
+
+#. Body of the success state of the recovery dialog after regen succeeds.
+msgid "identity_recovery_success_body"
+msgstr "This library now has a new security key.\n\nYour other devices and libraries may still be seeing your books, but secure actions with them (loan requests, shared profile, private notifications) no longer work. To restore them, go to Network and re-pair each one."
+
+#. Acknowledgement button on the success state of the recovery dialog.
+msgid "identity_recovery_success_btn"
+msgstr "OK"

@@ -78,8 +78,23 @@ Future<String> stopMdnsFfi() => RustLib.instance.api.crateApiFrbStopMdnsFfi();
 /// Initialize the node's cryptographic identity.
 /// Must be called after init_backend and after obtaining the library UUID.
 /// Uses Argon2(library_uuid) to encrypt/decrypt the stored keypair.
+///
+/// Errors propagate through `IdentityError::Display`, which prefixes the
+/// `DecryptionFailed` variant with `E_IDENTITY_DECRYPT_FAILED` so the Flutter
+/// layer can pattern-match the FFI exception and surface a recovery dialog
+/// instead of silently regenerating the identity (which would break peers).
 Future<String> initIdentityFfi({required String libraryUuid}) =>
     RustLib.instance.api.crateApiFrbInitIdentityFfi(libraryUuid: libraryUuid);
+
+/// User-confirmed identity regeneration: wipes `crypto_keys` and runs init.
+///
+/// Called by the Flutter recovery dialog when the user explicitly chooses
+/// "Régénérer (perdre les peers)". Every paired peer (iPhone, Android, etc.)
+/// will have to re-pair after this — that's the expected cost.
+Future<String> confirmRegenerateIdentityFfi({required String libraryUuid}) =>
+    RustLib.instance.api.crateApiFrbConfirmRegenerateIdentityFfi(
+      libraryUuid: libraryUuid,
+    );
 
 /// Get the node's public keys as JSON: {"ed25519": "hex...", "x25519": "hex..."}
 Future<String> getPublicKeysFfi() =>
@@ -466,8 +481,8 @@ Future<void> setPeerDeltaCursor({
 ///
 /// Trust model: only call this with a `new_uuid` read from an ENVELOPE
 /// that successfully verified against `peers.public_key` (ed25519). The
-/// signature check on that path is what binds the uuid to the peer identity
-/// - skipping it would let any relay forwarder inject an arbitrary uuid.
+/// signature check on that path is what binds the uuid to the peer identity.
+/// Skipping it would let any relay forwarder inject an arbitrary uuid.
 /// `peer_book` rows are intentionally left untouched: they key on
 /// `peer_id`, not `library_uuid`, and the enclosing manifest sync pass is
 /// already about to refresh them via upsert (a premature purge would flash

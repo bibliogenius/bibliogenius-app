@@ -9040,3 +9040,57 @@ msgstr "Vider"
 #. Snackbar shown after the peer cover cache has been cleared.
 msgid "peer_cover_cache_clear_done"
 msgstr "Cache des couvertures réseau vidé"
+
+#. ============ Identity recovery dialog (E2EE wipe hardening) ============
+
+#. Title of the security dialog shown when the encrypted identity cannot be decrypted.
+msgid "identity_recovery_title"
+msgstr "Vérification de sécurité"
+
+#. Body of the security dialog explaining the situation.
+msgid "identity_recovery_body"
+msgstr "BiblioGenius ne reconnaît plus la clé de sécurité de cette bibliothèque sur ton appareil. C'est souvent un simple décalage temporaire du système qui se règle en réessayant."
+
+#. Bullet describing the retry option (recommended path).
+msgid "identity_recovery_bullet_retry"
+msgstr "• Réessayer : à essayer en premier (recommandé)."
+
+#. Bullet describing the regenerate option (destructive path).
+msgid "identity_recovery_bullet_regenerate"
+msgstr "• Repartir de zéro : crée une nouvelle clé. Les demandes d'emprunt et autres échanges sécurisés avec tes appareils et bibliothèques connectés cesseront tant que tu n'auras pas refait le pairing depuis Réseau."
+
+#. Action button for regenerating the encrypted identity.
+msgid "identity_recovery_btn_regenerate"
+msgstr "Repartir de zéro"
+
+#. Error message shown when retry still fails (recovery dialog stays open).
+msgid "identity_recovery_retry_still_failing"
+msgstr "On ne reconnaît toujours pas cet appareil. Si le problème persiste, tu peux choisir « Repartir de zéro »."
+
+#. Error message for unexpected exceptions during retry. {error} is the exception message.
+msgid "identity_recovery_retry_unexpected_error"
+msgstr "Erreur inattendue : {error}"
+
+#. Error message shown when the regeneration step itself fails. {error} is the exception message.
+msgid "identity_recovery_regen_failed"
+msgstr "La réinitialisation a échoué : {error}"
+
+#. Title of the confirmation sub-dialog before regenerating.
+msgid "identity_recovery_confirm_title"
+msgstr "Repartir de zéro ?"
+
+#. Body of the regenerate confirmation sub-dialog.
+msgid "identity_recovery_confirm_body"
+msgstr "Une nouvelle clé de sécurité va être créée pour cet appareil.\n\nTes autres appareils et bibliothèques continueront probablement de voir tes livres, mais les actions sécurisées entre vous (demandes d'emprunt, mises à jour de profil partagées, notifications privées) cesseront de fonctionner. Pour les rétablir, tu devras refaire le pairing avec chacun depuis l'écran Réseau.\n\nLe contenu de ta bibliothèque (livres, étagères, prêts) n'est pas affecté."
+
+#. Title of the success state of the recovery dialog after regen succeeds.
+msgid "identity_recovery_success_title"
+msgstr "C'est fait"
+
+#. Body of the success state of the recovery dialog after regen succeeds.
+msgid "identity_recovery_success_body"
+msgstr "Cette bibliothèque a maintenant une nouvelle clé de sécurité.\n\nTes autres appareils et bibliothèques continuent peut-être à voir tes livres, mais les actions sécurisées avec eux (demandes d'emprunt, profil partagé, notifications privées) ne fonctionnent plus. Pour les rétablir, va dans Réseau et refais le pairing avec chacun."
+
+#. Acknowledgement button on the success state of the recovery dialog.
+msgid "identity_recovery_success_btn"
+msgstr "OK"
