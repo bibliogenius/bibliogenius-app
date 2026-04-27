@@ -37,7 +37,10 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
-            tooltip: TranslationService.translate(context, 'tooltip_edit_contact'),
+            tooltip: TranslationService.translate(
+              context,
+              'tooltip_edit_contact',
+            ),
             onPressed: () async {
               final result = await Navigator.push(
                 context,
@@ -111,25 +114,22 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
                     ? TranslationService.translate(context, 'role_borrower')
                     : TranslationService.translate(context, 'role_library'),
               ),
-              backgroundColor: (_contact.type == 'borrower'
-                      ? Colors.blue
-                      : Colors.purple)
-                  .withValues(alpha: 0.1),
+              backgroundColor:
+                  (_contact.type == 'borrower' ? Colors.blue : Colors.purple)
+                      .withValues(alpha: 0.1),
               side: BorderSide.none,
             ),
           ),
           const SizedBox(height: 24),
 
-          // Action buttons
-          if (!Provider.of<ThemeProvider>(context, listen: false).isLibrarian)
+          // Action buttons - hidden when the loans module is disabled or for librarians
+          if (!Provider.of<ThemeProvider>(context, listen: false).isLibrarian &&
+              Provider.of<ThemeProvider>(context, listen: false).canBorrowBooks)
             FilledButton.icon(
               onPressed: () => _borrowFromContact(context),
               icon: const Icon(Icons.book_outlined),
               label: Text(
-                TranslationService.translate(
-                      context,
-                      'borrow_from_contact',
-                    ) ??
+                TranslationService.translate(context, 'borrow_from_contact') ??
                     'Borrow a book',
               ),
               style: FilledButton.styleFrom(
@@ -235,5 +235,4 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
       setState(() {}); // Trigger rebuild to show updated loans
     }
   }
-
 }

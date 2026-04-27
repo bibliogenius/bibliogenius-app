@@ -35,14 +35,18 @@ class PeerBookListScreen extends StatefulWidget {
   final int peerId;
   final String peerName;
   final String peerUrl;
+
   /// Whether this peer has relay credentials (relay_url + mailbox_id).
   /// When false, relay sync is skipped and an offline state is shown instead.
   final bool hasRelayCredentials;
+
   /// Hub directory node ID for this library. When set and P2P/cache/relay all
   /// fail, the screen falls back to displaying the hub catalog as BookSpines.
   final String? nodeId;
+
   /// User-defined caption (légende) for this peer, shown as subtitle.
   final String? caption;
+
   /// Pre-fill search field on open (e.g. from wishlist_match notification).
   final String? initialSearch;
 
@@ -123,13 +127,16 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
   /// LAN URL resolved from mDNS (overrides relay:// URL for this session)
   String? _lanUrl;
+
   /// Node ID resolved from mDNS (overrides peer_XX fallback)
   String? _resolvedNodeId;
+
   /// True when _lanUrl was resolved by UUID (trusted), false = name match (needs validation)
   bool _lanUrlTrusted = false;
 
   /// Effective peer URL: mDNS LAN URL if resolved, otherwise saved URL.
   String get _effectiveUrl => _lanUrl ?? widget.peerUrl;
+
   /// Effective node ID: mDNS libraryId if resolved, otherwise widget.nodeId.
   String? get _effectiveNodeId => _resolvedNodeId ?? widget.nodeId;
 
@@ -231,10 +238,10 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     _catalogChangeSub = subscribeCatalogChanges().listen(
       (FrbCatalogChangedEvent event) {
         // Match by local peer ID or by library UUID (whichever is available).
-        final matchById =
-            widget.peerId > 0 && event.peerId == widget.peerId;
+        final matchById = widget.peerId > 0 && event.peerId == widget.peerId;
         final resolvedUuid = _effectiveNodeId;
-        final matchByUuid = resolvedUuid != null &&
+        final matchByUuid =
+            resolvedUuid != null &&
             resolvedUuid.isNotEmpty &&
             event.peerLibraryUuid.isNotEmpty &&
             event.peerLibraryUuid == resolvedUuid;
@@ -320,8 +327,8 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     // will persist it via `setPeerDeltaCursor`, breaking the reset loop
     // on the next visit. Stashing happens BEFORE triggering the fallback
     // so the value is observable when the fallback completes.
-    final resetRequired = outcome == 'reset_required' ||
-        outcome.startsWith('reset_required:');
+    final resetRequired =
+        outcome == 'reset_required' || outcome.startsWith('reset_required:');
     if (resetRequired) {
       final colon = outcome.indexOf(':');
       if (colon > 0) {
@@ -376,8 +383,8 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
         _books = booksData.map((json) => Book.fromJson(json)).toList();
         _filteredBooks = _isSearching && _searchController.text.isNotEmpty
             ? _books
-                .where((b) => _matchesSearch(b, _searchController.text))
-                .toList()
+                  .where((b) => _matchesSearch(b, _searchController.text))
+                  .toList()
             : _books;
         _lastSynced = data['last_synced'] as String?;
       });
@@ -407,7 +414,8 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
           p.libraryId == widget.nodeId) {
         _lanUrl = 'http://${p.host}:${p.port}';
         _lanUrlTrusted = true;
-        if (kDebugMode) debugPrint('mDNS: resolved relay peer via LAN (by UUID)');
+        if (kDebugMode)
+          debugPrint('mDNS: resolved relay peer via LAN (by UUID)');
         return;
       }
       // 2. Name-based candidate (needs validation)
@@ -423,7 +431,8 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       if (nameCandidate.libraryId != null) {
         _resolvedNodeId = nameCandidate.libraryId;
       }
-      if (kDebugMode) debugPrint('mDNS: LAN candidate by name (pending validation)');
+      if (kDebugMode)
+        debugPrint('mDNS: LAN candidate by name (pending validation)');
     } else {
       if (kDebugMode) debugPrint('mDNS: no LAN match for relay peer');
     }
@@ -453,7 +462,9 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   Future<String?> _backfillLibraryUuid() async {
     final api = Provider.of<ApiService>(context, listen: false);
     // Only attempt from LAN URL — relay URLs can't be HTTP-fetched
-    final url = _lanUrl ?? (widget.peerUrl.startsWith('relay://') ? null : widget.peerUrl);
+    final url =
+        _lanUrl ??
+        (widget.peerUrl.startsWith('relay://') ? null : widget.peerUrl);
     if (url == null) return null;
 
     final uuid = await api.fetchPeerLibraryUuid(url);
@@ -461,11 +472,15 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       if (kDebugMode) debugPrint('Backfill: resolved library_uuid');
       // Persist so this lookup never has to happen again
       if (widget.peerId > 0) {
-        api.updatePeerUrl(widget.peerId, url, libraryUuid: uuid).then((_) {
-          if (kDebugMode) debugPrint('Backfill: library_uuid persisted');
-        }).onError((e, _) {
-          if (kDebugMode) debugPrint('Backfill: failed to persist library_uuid: $e');
-        });
+        api
+            .updatePeerUrl(widget.peerId, url, libraryUuid: uuid)
+            .then((_) {
+              if (kDebugMode) debugPrint('Backfill: library_uuid persisted');
+            })
+            .onError((e, _) {
+              if (kDebugMode)
+                debugPrint('Backfill: failed to persist library_uuid: $e');
+            });
       }
       return uuid;
     }
@@ -503,10 +518,14 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
             if (booksData.isNotEmpty) {
               setState(() {
-                _books =
-                    booksData.map((json) => Book.fromJson(json)).toList();
-                _filteredBooks = _isSearching && _searchController.text.isNotEmpty
-                    ? _books.where((b) => _matchesSearch(b, _searchController.text)).toList()
+                _books = booksData.map((json) => Book.fromJson(json)).toList();
+                _filteredBooks =
+                    _isSearching && _searchController.text.isNotEmpty
+                    ? _books
+                          .where(
+                            (b) => _matchesSearch(b, _searchController.text),
+                          )
+                          .toList()
                     : _books;
                 _lastSynced = data['last_synced'];
                 _isLoading = false;
@@ -555,16 +574,14 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
         isOnline = false;
       } else {
         final connectivity = await Connectivity().checkConnectivity();
-        final hasWifi = connectivity.contains(ConnectivityResult.wifi) ||
+        final hasWifi =
+            connectivity.contains(ConnectivityResult.wifi) ||
             connectivity.contains(ConnectivityResult.ethernet);
         if (!hasWifi) {
           debugPrint('Not on WiFi/ethernet - skipping LAN connectivity check');
           isOnline = false;
         } else {
-          isOnline = await api.checkPeerConnectivity(
-            url,
-            timeoutMs: 2000,
-          );
+          isOnline = await api.checkPeerConnectivity(url, timeoutMs: 2000);
         }
       }
 
@@ -581,7 +598,9 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
         } else {
           // Validated — re-trigger hub catalog with the real nodeId
           final validNodeId = _effectiveNodeId;
-          if (hubFuture == null && validNodeId != null && !validNodeId.startsWith('peer_')) {
+          if (hubFuture == null &&
+              validNodeId != null &&
+              !validNodeId.startsWith('peer_')) {
             hubFuture = _books.isNotEmpty
                 ? _refreshFromHubCatalog()
                 : _loadHubCatalog();
@@ -592,11 +611,18 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       // Persist LAN URL upgrade in background (so future opens are fast)
       if (isOnline && _lanUrl != null && _lanUrlTrusted && widget.peerId > 0) {
         debugPrint('Persisting LAN URL upgrade: ${widget.peerUrl} → $_lanUrl');
-        api.updatePeerUrl(widget.peerId, _lanUrl!, libraryUuid: _resolvedNodeId).then((_) {
-          debugPrint('LAN URL persisted successfully');
-        }).catchError((e) {
-          debugPrint('Failed to persist LAN URL: $e');
-        });
+        api
+            .updatePeerUrl(
+              widget.peerId,
+              _lanUrl!,
+              libraryUuid: _resolvedNodeId,
+            )
+            .then((_) {
+              debugPrint('LAN URL persisted successfully');
+            })
+            .catchError((e) {
+              debugPrint('Failed to persist LAN URL: $e');
+            });
       }
 
       if (!mounted) return;
@@ -620,11 +646,15 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
               // Same count and not a cache-first load — skip.
               // When cache was displayed, always refresh in background to
               // pick up metadata changes (e.g. cover URL transformations).
-              debugPrint('Peer library unchanged ($total books), skipping full refresh');
+              debugPrint(
+                'Peer library unchanged ($total books), skipping full refresh',
+              );
               setState(() => _isRefreshing = false);
             } else {
               // Library changed — full background refresh
-              debugPrint('Peer library changed (cached=${_books.length}, remote total=$total), refreshing');
+              debugPrint(
+                'Peer library changed (cached=${_books.length}, remote total=$total), refreshing',
+              );
               await _fullBackgroundRefresh(api);
             }
           } else {
@@ -687,7 +717,11 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       }
       // Hub may have populated _books — check again
       if (_books.isNotEmpty) {
-        if (mounted) setState(() { _isRefreshing = false; _isLoading = false; });
+        if (mounted)
+          setState(() {
+            _isRefreshing = false;
+            _isLoading = false;
+          });
         // Peer offline (no LAN) — show cached/hub data immediately, then
         // fire a background delta sync (ADR-029) to catch any
         // `catalog_changed` event that was missed while this screen was
@@ -697,17 +731,20 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
         // stall a 90s relay timeout in the background. The appbar refresh
         // button still runs the full ADR-012 flow on demand.
         if (widget.hasRelayCredentials && widget.peerId > 0) {
-          unawaited(_deltaSyncThenReload(
-            widget.peerId,
-            fallbackOnFailure: false,
-          ));
+          unawaited(
+            _deltaSyncThenReload(widget.peerId, fallbackOnFailure: false),
+          );
         }
         return;
       }
 
       // 6. No data yet — try relay if available
       if (!widget.hasRelayCredentials) {
-        if (mounted) setState(() { _isLoading = false; _isRefreshing = false; });
+        if (mounted)
+          setState(() {
+            _isLoading = false;
+            _isRefreshing = false;
+          });
         return;
       }
 
@@ -767,17 +804,16 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       if (!mounted) return;
 
       final parsed = _parsePaginatedResponse(res.data);
-      final newBooks =
-          parsed.booksData.map((json) => Book.fromJson(json)).toList();
+      final newBooks = parsed.booksData
+          .map((json) => Book.fromJson(json))
+          .toList();
 
       setState(() {
         _books.addAll(newBooks);
         _filteredBooks = _isSearching
             ? _books
-                .where(
-                  (b) => _matchesSearch(b, _searchController.text),
-                )
-                .toList()
+                  .where((b) => _matchesSearch(b, _searchController.text))
+                  .toList()
             : _books;
         _currentPage = nextPage;
         _hasMorePages = parsed.hasMore;
@@ -845,7 +881,9 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
         );
         return;
       }
-      debugPrint('Delta refresh returned empty body; falling back to paginated');
+      debugPrint(
+        'Delta refresh returned empty body; falling back to paginated',
+      );
     } catch (e) {
       debugPrint('Delta refresh failed ($e); falling back to paginated');
     }
@@ -942,7 +980,9 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
         if (existing != null) {
           // Update title/author if hub has newer metadata
           final newTitle = e.title.isNotEmpty ? e.title : existing.title;
-          final newAuthor = (e.author?.isNotEmpty == true) ? e.author : existing.author;
+          final newAuthor = (e.author?.isNotEmpty == true)
+              ? e.author
+              : existing.author;
           if (newTitle != existing.title || newAuthor != existing.author) {
             final idx = updatedBooks.indexOf(existing);
             if (idx >= 0) {
@@ -959,27 +999,35 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
           }
         } else {
           // New book from hub — not in our current list
-          updatedBooks.add(Book(
-            title: e.title,
-            author: e.author,
-            isbn: e.isbn.isNotEmpty ? e.isbn : null,
-            coverUrl: e.coverUrl,
-          ));
+          updatedBooks.add(
+            Book(
+              title: e.title,
+              author: e.author,
+              isbn: e.isbn.isNotEmpty ? e.isbn : null,
+              coverUrl: e.coverUrl,
+            ),
+          );
           changed = true;
         }
       }
 
       if (!changed) {
-        debugPrint('Hub catalog: no changes (${entries.length} entries, ${_books.length} books)');
+        debugPrint(
+          'Hub catalog: no changes (${entries.length} entries, ${_books.length} books)',
+        );
         return;
       }
 
-      debugPrint('Hub catalog: enriched to ${updatedBooks.length} books (was ${_books.length})');
+      debugPrint(
+        'Hub catalog: enriched to ${updatedBooks.length} books (was ${_books.length})',
+      );
 
       setState(() {
         _books = updatedBooks;
         _filteredBooks = _isSearching && _searchController.text.isNotEmpty
-            ? _books.where((b) => _matchesSearch(b, _searchController.text)).toList()
+            ? _books
+                  .where((b) => _matchesSearch(b, _searchController.text))
+                  .toList()
             : _books;
         _lastSynced = DateTime.now().toIso8601String();
         _isRefreshing = false;
@@ -1002,16 +1050,22 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       if (!mounted || entries.isEmpty) return;
       // Don't override if live/cached data arrived while we were fetching
       if (_books.isNotEmpty) {
-        debugPrint('Hub catalog: skipped (live data already loaded: ${_books.length} books)');
+        debugPrint(
+          'Hub catalog: skipped (live data already loaded: ${_books.length} books)',
+        );
         return;
       }
 
-      final books = entries.map((e) => Book(
-        title: e.title,
-        author: e.author,
-        isbn: e.isbn.isNotEmpty ? e.isbn : null,
-        coverUrl: e.coverUrl,
-      )).toList();
+      final books = entries
+          .map(
+            (e) => Book(
+              title: e.title,
+              author: e.author,
+              isbn: e.isbn.isNotEmpty ? e.isbn : null,
+              coverUrl: e.coverUrl,
+            ),
+          )
+          .toList();
 
       setState(() {
         _books = books;
@@ -1099,8 +1153,9 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
         final newHash = manifest['catalog_hash'] as String?;
         if (newHash != null && _books.isNotEmpty) {
           final prefs = await SharedPreferences.getInstance();
-          final cachedHash =
-              prefs.getString('peer_catalog_hash_${widget.peerId}');
+          final cachedHash = prefs.getString(
+            'peer_catalog_hash_${widget.peerId}',
+          );
           if (newHash == cachedHash) {
             debugPrint(
               'Relay: catalog unchanged (hash match), skipping re-fetch',
@@ -1146,8 +1201,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     if (previewList != null && previewList.isNotEmpty && _books.isEmpty) {
       final previewBooks = previewList
           .map(
-            (json) =>
-                Book.fromJson(json is Map<String, dynamic> ? json : {}),
+            (json) => Book.fromJson(json is Map<String, dynamic> ? json : {}),
           )
           .toList();
       if (mounted) {
@@ -1172,10 +1226,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
       // Try the page request, with retries if relay times out
       for (int attempt = 0; attempt <= maxRetriesPerPage; attempt++) {
-        page = await api.requestPeerPage(
-          widget.peerId,
-          cursor: cursor,
-        );
+        page = await api.requestPeerPage(widget.peerId, cursor: cursor);
         if (page != null) break;
 
         // Timed out - poll and retry (don't restart from scratch)
@@ -1194,7 +1245,8 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
         break;
       }
 
-      final books = (page['books'] as List?)
+      final books =
+          (page['books'] as List?)
               ?.map(
                 (json) =>
                     Book.fromJson(json is Map<String, dynamic> ? json : {}),
@@ -1249,10 +1301,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     final catalogHash = manifest['catalog_hash'] as String?;
     if (catalogHash != null) {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(
-        'peer_catalog_hash_${widget.peerId}',
-        catalogHash,
-      );
+      await prefs.setString('peer_catalog_hash_${widget.peerId}', catalogHash);
     }
 
     // ADR-029 reset-recovery: if this legacy sync was triggered by a
@@ -1263,10 +1312,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     final pendingCursor = _pendingDeltaCursor;
     if (pendingCursor != null && cacheWriteSucceeded && widget.peerId > 0) {
       try {
-        await setPeerDeltaCursor(
-          peerId: widget.peerId,
-          cursor: pendingCursor,
-        );
+        await setPeerDeltaCursor(peerId: widget.peerId, cursor: pendingCursor);
         debugPrint(
           '[DELTA-RESET] peer=${widget.peerId} cursor persisted=$pendingCursor '
           '(reset loop broken, next sync will be a delta)',
@@ -1327,14 +1373,18 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
         timer.cancel();
         if (mounted) {
           final elapsed = isManualSync ? 3 : 1;
-          debugPrint('Relay: polling timed out after ~${elapsed}min (wall-clock)');
+          debugPrint(
+            'Relay: polling timed out after ~${elapsed}min (wall-clock)',
+          );
           setState(() => _isRelayLoading = false);
         }
         return;
       }
 
       if (_pollRequestInFlight) {
-        debugPrint('Relay: skipping poll tick (previous request still in flight)');
+        debugPrint(
+          'Relay: skipping poll tick (previous request still in flight)',
+        );
         return;
       }
 
@@ -1395,18 +1445,18 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       if (age.inMinutes < 1) {
         return TranslationService.translate(context, 'synced_just_now');
       } else if (age.inMinutes < 60) {
-        final label =
-            TranslationService.translate(context, 'synced_minutes_ago');
+        final label = TranslationService.translate(
+          context,
+          'synced_minutes_ago',
+        );
         final v = age.inMinutes.toString();
         return label.replaceAll('%d', v).replaceAll('{count}', v);
       } else if (age.inHours < 24) {
-        final label =
-            TranslationService.translate(context, 'synced_hours_ago');
+        final label = TranslationService.translate(context, 'synced_hours_ago');
         final v = age.inHours.toString();
         return label.replaceAll('%d', v).replaceAll('{count}', v);
       } else {
-        final label =
-            TranslationService.translate(context, 'synced_days_ago');
+        final label = TranslationService.translate(context, 'synced_days_ago');
         final v = age.inDays.toString();
         return label.replaceAll('%d', v).replaceAll('{count}', v);
       }
@@ -1436,10 +1486,13 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     }
 
     result.sort((a, b) {
-      final surnameCompare = getSurname(a.author).compareTo(getSurname(b.author));
+      final surnameCompare = getSurname(
+        a.author,
+      ).compareTo(getSurname(b.author));
       if (surnameCompare != 0) return surnameCompare;
-      final authorCompare =
-          (a.author ?? '').toLowerCase().compareTo((b.author ?? '').toLowerCase());
+      final authorCompare = (a.author ?? '').toLowerCase().compareTo(
+        (b.author ?? '').toLowerCase(),
+      );
       if (authorCompare != 0) return authorCompare;
       return a.title.toLowerCase().compareTo(b.title.toLowerCase());
     });
@@ -1486,8 +1539,13 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
             if (booksData.isNotEmpty) {
               setState(() {
                 _books = booksData.map((json) => Book.fromJson(json)).toList();
-                _filteredBooks = _isSearching && _searchController.text.isNotEmpty
-                    ? _books.where((b) => _matchesSearch(b, _searchController.text)).toList()
+                _filteredBooks =
+                    _isSearching && _searchController.text.isNotEmpty
+                    ? _books
+                          .where(
+                            (b) => _matchesSearch(b, _searchController.text),
+                          )
+                          .toList()
                     : _books;
                 _lastSynced = data['last_synced'] as String?;
               });
@@ -1517,7 +1575,8 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
         // For relay-only peers the hub catalog may lag behind real-time changes
         // (the peer notifies us before their hub push completes). Trigger a relay
         // sync so we get the authoritative live list directly from the peer.
-        if (widget.peerUrl.startsWith('relay://') && widget.hasRelayCredentials) {
+        if (widget.peerUrl.startsWith('relay://') &&
+            widget.hasRelayCredentials) {
           _tryRelaySync(isManualSync: showFeedback);
         }
         return;
@@ -1572,13 +1631,16 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
       // Background sync to update cache (if peer allows caching)
       if (_offlineCachingEnabled) {
-        api.syncPeer(_effectiveUrl).then((_) {
-          debugPrint('Background cache sync completed');
-        }).catchError((e) {
-          debugPrint(
-            'Background cache sync failed (peer may not allow caching): $e',
-          );
-        });
+        api
+            .syncPeer(_effectiveUrl)
+            .then((_) {
+              debugPrint('Background cache sync completed');
+            })
+            .catchError((e) {
+              debugPrint(
+                'Background cache sync failed (peer may not allow caching): $e',
+              );
+            });
       }
     } catch (e) {
       debugPrint('Sync failed: $e');
@@ -1607,8 +1669,9 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       // Outgoing requests: pending = button shows "Requested", accepted = "Borrowed"
       final outgoing = await api.getOutgoingRequests();
       final outgoingList = outgoing.data as List<dynamic>? ?? [];
-      final forThisPeer = outgoingList
-          .where((r) => r['peer_url']?.toString() == widget.peerUrl);
+      final forThisPeer = outgoingList.where(
+        (r) => r['peer_url']?.toString() == widget.peerUrl,
+      );
 
       final pending = forThisPeer
           .where((r) => r['status'] == 'pending')
@@ -1625,9 +1688,11 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       final incoming = await api.getIncomingRequests();
       final incomingList = incoming.data as List<dynamic>? ?? [];
       final lending = incomingList
-          .where((r) =>
-              r['peer_url']?.toString() == widget.peerUrl &&
-              r['status'] == 'accepted')
+          .where(
+            (r) =>
+                r['peer_url']?.toString() == widget.peerUrl &&
+                r['status'] == 'accepted',
+          )
           .map((r) => r['book_isbn']?.toString() ?? '')
           .where((isbn) => isbn.isNotEmpty)
           .toSet();
@@ -1646,7 +1711,9 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
   bool _hasPendingRequest(Book book) {
     final isbn = book.isbn;
-    return isbn != null && isbn.isNotEmpty && _pendingBorrowIsbns.contains(isbn);
+    return isbn != null &&
+        isbn.isNotEmpty &&
+        _pendingBorrowIsbns.contains(isbn);
   }
 
   bool _isActiveBorrow(Book book) {
@@ -1685,7 +1752,11 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     try {
       // Use the DB peer URL (not _effectiveUrl which may be a stale mDNS LAN IP).
       // The Rust backend resolves relay:// URLs via E2EE transport.
-      final response = await api.requestBookByUrl(widget.peerUrl, isbn ?? "", book.title);
+      final response = await api.requestBookByUrl(
+        widget.peerUrl,
+        isbn ?? "",
+        book.title,
+      );
       if (!mounted) return;
       final data = response.data;
 
@@ -1704,7 +1775,10 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
             content: Text(
               error == 'already_requested'
                   ? TranslationService.translate(context, 'borrow_on_loan')
-                  : TranslationService.translate(context, 'borrow_request_rejected_no_copy'),
+                  : TranslationService.translate(
+                      context,
+                      'borrow_request_rejected_no_copy',
+                    ),
             ),
           ),
         );
@@ -1720,7 +1794,10 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              TranslationService.translate(context, 'borrow_request_rejected_no_copy'),
+              TranslationService.translate(
+                context,
+                'borrow_request_rejected_no_copy',
+              ),
             ),
           ),
         );
@@ -1778,9 +1855,9 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
             const SizedBox(height: 16),
             Text(
               TranslationService.translate(
-                    context,
-                    'peer_offline_library_unavailable',
-                  ),
+                context,
+                'peer_offline_library_unavailable',
+              ),
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 16, color: Colors.grey[600]),
             ),
@@ -1789,9 +1866,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
               OutlinedButton.icon(
                 onPressed: () => _loadCachedBooksFirst(),
                 icon: const Icon(Icons.refresh),
-                label: Text(
-                  TranslationService.translate(context, 'retry'),
-                ),
+                label: Text(TranslationService.translate(context, 'retry')),
               ),
           ],
         ),
@@ -1866,9 +1941,9 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                     Text(
                       _hubProfile!.displayName,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: onContainer,
-                          ),
+                        fontWeight: FontWeight.w600,
+                        color: onContainer,
+                      ),
                     ),
                     if (_hubProfile!.locationCountry != null)
                       Padding(
@@ -1877,15 +1952,19 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                           country: _hubProfile!.locationCountry,
                           cityId: _hubProfile!.locationCityId,
                           style: TextStyle(
-                              fontSize: 12, color: onContainerMuted),
+                            fontSize: 12,
+                            color: onContainerMuted,
+                          ),
                         ),
                       ),
                   ],
                 ),
               ),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: cs.primary.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(10),
@@ -1895,9 +1974,9 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                     Text(
                       '${_totalBooks > 0 ? _totalBooks : _hubProfile!.bookCount}',
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: onContainer,
-                          ),
+                        fontWeight: FontWeight.bold,
+                        color: onContainer,
+                      ),
                     ),
                     Text(
                       TranslationService.translate(context, 'directory_books'),
@@ -1928,8 +2007,11 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(top: 1),
-                    child: Icon(Icons.lock_outlined,
-                        size: 14, color: onContainerMuted),
+                    child: Icon(
+                      Icons.lock_outlined,
+                      size: 14,
+                      color: onContainerMuted,
+                    ),
                   ),
                   const SizedBox(width: 8),
                   Flexible(
@@ -1960,16 +2042,16 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
         onTap: () => launchUrl(uri, mode: LaunchMode.externalApplication),
         child: Row(
           children: [
-            Icon(Icons.language, size: 15,
-                color: cs.onPrimaryContainer.withValues(alpha: 0.7)),
+            Icon(
+              Icons.language,
+              size: 15,
+              color: cs.onPrimaryContainer.withValues(alpha: 0.7),
+            ),
             const SizedBox(width: 8),
             Flexible(
               child: Text(
                 uri.toString(),
-                style: TextStyle(
-                  fontSize: 13,
-                  color: cs.primary,
-                ),
+                style: TextStyle(fontSize: 13, color: cs.primary),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -1984,16 +2066,18 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     final channelIcon = _isPeerOnline
         ? Icons.wifi
         : _isRelayLoading || _isHubOnly || _relaySyncDone
-            ? Icons.cloud_queue
-            : Icons.cloud_off;
+        ? Icons.cloud_queue
+        : Icons.cloud_off;
     final channelLabel = _isPeerOnline
         ? 'Wi-Fi'
         : _isRelayLoading || _relaySyncDone
-            ? 'Internet'
-            : _isHubOnly
-                ? 'Annuaire'
-                : 'Offline';
-    final subtleColor = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4);
+        ? 'Internet'
+        : _isHubOnly
+        ? 'Annuaire'
+        : 'Offline';
+    final subtleColor = Theme.of(
+      context,
+    ).colorScheme.onSurface.withValues(alpha: 0.4);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -2023,7 +2107,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
             Text(
               '$_relayBooksLoaded/$_relayBooksTotal',
               style: TextStyle(fontSize: 11, color: Colors.blue[600]),
-            )
+            ),
         ],
       ),
     );
@@ -2037,10 +2121,15 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     // network fetch and no disk write happen. The user's last explicit
     // choice of _viewMode is preserved in State so re-enabling the toggle
     // restores their previous view without resetting anything.
-    final peerCoversEnabled =
-        context.watch<ThemeProvider>().peerCoverDisplayEnabled;
-    final effectiveViewMode =
-        peerCoversEnabled ? _viewMode : _PeerViewMode.shelf;
+    final peerCoversEnabled = context
+        .watch<ThemeProvider>()
+        .peerCoverDisplayEnabled;
+    final effectiveViewMode = peerCoversEnabled
+        ? _viewMode
+        : _PeerViewMode.shelf;
+    // When the loans module is disabled, hide the borrow CTA in peer libraries:
+    // we cannot borrow from them (peers can still borrow from us via their app).
+    final canBorrowModule = context.watch<ThemeProvider>().canBorrowBooks;
 
     return Scaffold(
       appBar: AppBar(
@@ -2049,10 +2138,15 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                 controller: _searchController,
                 autofocus: true,
                 decoration: InputDecoration(
-                  hintText: TranslationService.translate(context, 'peer_library_search_hint'),
+                  hintText: TranslationService.translate(
+                    context,
+                    'peer_library_search_hint',
+                  ),
                   border: InputBorder.none,
                   hintStyle: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.5),
                   ),
                 ),
                 style: TextStyle(
@@ -2065,18 +2159,18 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(widget.peerName)),
+                    fit: BoxFit.scaleDown,
+                    child: Text(widget.peerName),
+                  ),
                   if (widget.caption != null && widget.caption!.isNotEmpty)
                     Text(
                       widget.caption!,
                       style: TextStyle(
                         fontSize: 12,
                         fontStyle: FontStyle.italic,
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withValues(alpha: 0.6),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                     ),
                 ],
@@ -2115,12 +2209,10 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                         ),
                       )
                     : const Icon(Icons.sync),
-                tooltip:
-                    TranslationService.translate(context, 'sync_library'),
-                onPressed:
-                    (_isSyncing || _isRefreshing)
-                        ? null
-                        : () => _syncBooks(),
+                tooltip: TranslationService.translate(context, 'sync_library'),
+                onPressed: (_isSyncing || _isRefreshing)
+                    ? null
+                    : () => _syncBooks(),
               ),
             ),
           if (!_isSearching && peerCoversEnabled)
@@ -2146,49 +2238,47 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : (!_isPeerOnline &&
-                      !_offlineCachingEnabled &&
-                      _books.isEmpty &&
-                      !_isRelayLoading)
-                  ? _buildOfflineNotAvailableView()
-              : Column(
-                  children: [
-                    // Hub profile banner (avatar + name + country + book count + contact)
-                    _buildHubProfileBanner(),
-                    // Staleness indicator bar
-                    _buildStalenessBar(),
-                    // Relay loading progress bar
-                    if (_isRelayLoading && _relayBooksTotal > 0)
-                      LinearProgressIndicator(
-                        value: _relayBooksTotal > 0
-                            ? _relayBooksLoaded / _relayBooksTotal
-                            : null,
-                        backgroundColor: Colors.blue.withValues(alpha: 0.1),
-                        valueColor: const AlwaysStoppedAnimation<Color>(
-                          Colors.blue,
-                        ),
-                      ),
-                    RecentlyAddedCarousel(
-                      books: _books,
-                      scope: RecentlyAddedCarouselScope.peerLib,
-                      onBookTap: _showBookDetails,
+                !_offlineCachingEnabled &&
+                _books.isEmpty &&
+                !_isRelayLoading)
+          ? _buildOfflineNotAvailableView()
+          : Column(
+              children: [
+                // Hub profile banner (avatar + name + country + book count + contact)
+                _buildHubProfileBanner(),
+                // Staleness indicator bar
+                _buildStalenessBar(),
+                // Relay loading progress bar
+                if (_isRelayLoading && _relayBooksTotal > 0)
+                  LinearProgressIndicator(
+                    value: _relayBooksTotal > 0
+                        ? _relayBooksLoaded / _relayBooksTotal
+                        : null,
+                    backgroundColor: Colors.blue.withValues(alpha: 0.1),
+                    valueColor: const AlwaysStoppedAnimation<Color>(
+                      Colors.blue,
                     ),
-                    // Book list
-                    Expanded(
-                      child: NotificationListener<ScrollNotification>(
-                        onNotification: _handleBodyScroll,
-                        child: _filteredBooks.isEmpty
-                          ? _isRelayLoading
+                  ),
+                RecentlyAddedCarousel(
+                  books: _books,
+                  scope: RecentlyAddedCarouselScope.peerLib,
+                  onBookTap: _showBookDetails,
+                ),
+                // Book list
+                Expanded(
+                  child: NotificationListener<ScrollNotification>(
+                    onNotification: _handleBodyScroll,
+                    child: _filteredBooks.isEmpty
+                        ? _isRelayLoading
                               ? BookshelfSkeleton(
-                                  message:
-                                      TranslationService.translate(
-                                        context,
-                                        'connecting_via_relay',
-                                      ),
+                                  message: TranslationService.translate(
+                                    context,
+                                    'connecting_via_relay',
+                                  ),
                                 )
                               : Center(
                                   child: Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Icon(
                                         Icons.library_books_outlined,
@@ -2233,169 +2323,178 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                                     ],
                                   ),
                                 )
-                          : NotificationListener<ScrollNotification>(
-                              onNotification: (notification) {
-                                if (notification is ScrollUpdateNotification &&
-                                    notification.metrics.pixels >=
-                                        notification.metrics.maxScrollExtent - 200) {
-                                  _loadMoreBooks();
-                                }
-                                return false;
-                              },
-                              child: switch (effectiveViewMode) {
-                                _PeerViewMode.shelf => BookshelfView(
-                                      books: _filteredBooks,
-                                      onBookTap: (book) => _showBookDetails(book),
-                                      footer: _hasMorePages
-                                          ? _isLoadingMore
-                                              ? const Padding(
-                                                  padding: EdgeInsets.all(16),
-                                                  child: Center(child: CircularProgressIndicator()),
-                                                )
-                                              : Padding(
-                                                  padding: const EdgeInsets.all(8),
-                                                  child: Text(
-                                                    '${_books.length} / $_totalBooks',
-                                                    style: TextStyle(
-                                                      color: Colors.grey[500],
-                                                      fontSize: 12,
-                                                    ),
-                                                  ),
-                                                )
-                                          : null,
-                                    ),
-                                _PeerViewMode.coverGrid => GridView.builder(
-                                      padding: const EdgeInsets.all(16),
-                                      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                                        maxCrossAxisExtent: 150,
-                                        childAspectRatio: 0.65,
-                                        crossAxisSpacing: 16,
-                                        mainAxisSpacing: 16,
-                                      ),
-                                      itemCount: _filteredBooks.length + (_hasMorePages ? 1 : 0),
-                                      itemBuilder: (context, index) {
-                                        if (index == _filteredBooks.length) {
-                                          return const Center(
-                                            child: Padding(
+                        : NotificationListener<ScrollNotification>(
+                            onNotification: (notification) {
+                              if (notification is ScrollUpdateNotification &&
+                                  notification.metrics.pixels >=
+                                      notification.metrics.maxScrollExtent -
+                                          200) {
+                                _loadMoreBooks();
+                              }
+                              return false;
+                            },
+                            child: switch (effectiveViewMode) {
+                              _PeerViewMode.shelf => BookshelfView(
+                                books: _filteredBooks,
+                                onBookTap: (book) => _showBookDetails(book),
+                                footer: _hasMorePages
+                                    ? _isLoadingMore
+                                          ? const Padding(
                                               padding: EdgeInsets.all(16),
-                                              child: CircularProgressIndicator(),
-                                            ),
-                                          );
-                                        }
-                                        final book = _filteredBooks[index];
-                                        final resolvedBook = book.copyWithCoverUrl(
-                                          _resolvePeerCoverUrl(book),
-                                        );
-                                        return BookCoverCard(
-                                          book: resolvedBook,
-                                          onTap: () => _showBookDetails(book),
-                                          isPeerCover: true,
-                                        );
-                                      },
-                                    ),
-                                _PeerViewMode.list => ListView.separated(
-                                      itemCount: _filteredBooks.length + (_hasMorePages ? 1 : 0),
-                                      separatorBuilder: (context, index) =>
-                                          index < _filteredBooks.length - 1
-                                              ? const Divider(
-                                                  height: 1,
-                                                  indent: 16,
-                                                  endIndent: 16,
-                                                )
-                                              : const SizedBox.shrink(),
-                                      itemBuilder: (context, index) {
-                                        if (index == _filteredBooks.length) {
-                                          // Loading indicator at the bottom
-                                          return const Padding(
-                                            padding: EdgeInsets.all(16),
-                                            child: Center(
-                                              child: CircularProgressIndicator(),
-                                            ),
-                                          );
-                                        }
-                                        final book = _filteredBooks[index];
-                                        return ListTile(
-                                          contentPadding:
-                                              const EdgeInsets.symmetric(
-                                            horizontal: 16,
-                                            vertical: 8,
-                                          ),
-                                          leading: CachedBookCover(
-                                            imageUrl: _resolvePeerCoverUrl(book),
-                                            width: 40,
-                                            height: 60,
-                                            borderRadius:
-                                                BorderRadius.circular(4),
-                                            onTapPlaceholder: () => _reloadCover(book),
-                                            isPeerCover: true,
-                                            semanticLabel: book.author != null &&
-                                                    book.author!.isNotEmpty
-                                                ? '${book.title}, ${book.author}'
-                                                : book.title,
-                                          ),
-                                          title: Row(
-                                            children: [
-                                              Expanded(
-                                                child: Text(
-                                                  book.title,
-                                                  style: const TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                                  maxLines: 1,
-                                                  overflow: TextOverflow.ellipsis,
+                                              child: Center(
+                                                child:
+                                                    CircularProgressIndicator(),
+                                              ),
+                                            )
+                                          : Padding(
+                                              padding: const EdgeInsets.all(8),
+                                              child: Text(
+                                                '${_books.length} / $_totalBooks',
+                                                style: TextStyle(
+                                                  color: Colors.grey[500],
+                                                  fontSize: 12,
                                                 ),
                                               ),
-                                              if (book.isNew) ...[
-                                                const SizedBox(width: 6),
-                                                Container(
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
-                                                    horizontal: 6,
-                                                    vertical: 2,
-                                                  ),
-                                                  decoration: BoxDecoration(
-                                                    color: const Color(0xFFC62828),
-                                                    borderRadius:
-                                                        BorderRadius.circular(4),
-                                                  ),
-                                                  child: Text(
-                                                    TranslationService.translate(
-                                                            context, 'badge_new')
-                                                        .toUpperCase(),
-                                                    style: const TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 9,
-                                                      fontWeight: FontWeight.w800,
-                                                      letterSpacing: 0.5,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ],
-                                          ),
-                                          subtitle: Text(
-                                            book.author ?? 'Unknown Author',
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              color: Theme.of(context)
-                                                  .textTheme
-                                                  .bodySmall
-                                                  ?.color,
+                                            )
+                                    : null,
+                              ),
+                              _PeerViewMode.coverGrid => GridView.builder(
+                                padding: const EdgeInsets.all(16),
+                                gridDelegate:
+                                    const SliverGridDelegateWithMaxCrossAxisExtent(
+                                      maxCrossAxisExtent: 150,
+                                      childAspectRatio: 0.65,
+                                      crossAxisSpacing: 16,
+                                      mainAxisSpacing: 16,
+                                    ),
+                                itemCount:
+                                    _filteredBooks.length +
+                                    (_hasMorePages ? 1 : 0),
+                                itemBuilder: (context, index) {
+                                  if (index == _filteredBooks.length) {
+                                    return const Center(
+                                      child: Padding(
+                                        padding: EdgeInsets.all(16),
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                    );
+                                  }
+                                  final book = _filteredBooks[index];
+                                  final resolvedBook = book.copyWithCoverUrl(
+                                    _resolvePeerCoverUrl(book),
+                                  );
+                                  return BookCoverCard(
+                                    book: resolvedBook,
+                                    onTap: () => _showBookDetails(book),
+                                    isPeerCover: true,
+                                  );
+                                },
+                              ),
+                              _PeerViewMode.list => ListView.separated(
+                                itemCount:
+                                    _filteredBooks.length +
+                                    (_hasMorePages ? 1 : 0),
+                                separatorBuilder: (context, index) =>
+                                    index < _filteredBooks.length - 1
+                                    ? const Divider(
+                                        height: 1,
+                                        indent: 16,
+                                        endIndent: 16,
+                                      )
+                                    : const SizedBox.shrink(),
+                                itemBuilder: (context, index) {
+                                  if (index == _filteredBooks.length) {
+                                    // Loading indicator at the bottom
+                                    return const Padding(
+                                      padding: EdgeInsets.all(16),
+                                      child: Center(
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                    );
+                                  }
+                                  final book = _filteredBooks[index];
+                                  return ListTile(
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 8,
+                                    ),
+                                    leading: CachedBookCover(
+                                      imageUrl: _resolvePeerCoverUrl(book),
+                                      width: 40,
+                                      height: 60,
+                                      borderRadius: BorderRadius.circular(4),
+                                      onTapPlaceholder: () =>
+                                          _reloadCover(book),
+                                      isPeerCover: true,
+                                      semanticLabel:
+                                          book.author != null &&
+                                              book.author!.isNotEmpty
+                                          ? '${book.title}, ${book.author}'
+                                          : book.title,
+                                    ),
+                                    title: Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            book.title,
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
                                             ),
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                           ),
-                                          trailing: ElevatedButton(
+                                        ),
+                                        if (book.isNew) ...[
+                                          const SizedBox(width: 6),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 6,
+                                              vertical: 2,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFFC62828),
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                            ),
+                                            child: Text(
+                                              TranslationService.translate(
+                                                context,
+                                                'badge_new',
+                                              ).toUpperCase(),
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 9,
+                                                fontWeight: FontWeight.w800,
+                                                letterSpacing: 0.5,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                    subtitle: Text(
+                                      book.author ?? 'Unknown Author',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Theme.of(
+                                          context,
+                                        ).textTheme.bodySmall?.color,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    trailing: canBorrowModule
+                                        ? ElevatedButton(
                                             onPressed: _canBorrow(book)
                                                 ? () => _requestBorrow(book)
                                                 : null,
                                             style: ElevatedButton.styleFrom(
                                               padding:
                                                   const EdgeInsets.symmetric(
-                                                horizontal: 12,
-                                                vertical: 8,
-                                              ),
+                                                    horizontal: 12,
+                                                    vertical: 8,
+                                                  ),
                                               minimumSize: Size.zero,
                                               tapTargetSize:
                                                   MaterialTapTargetSize
@@ -2408,36 +2507,37 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                                                       'borrow_pending',
                                                     )
                                                   : _isActiveBorrow(book)
-                                                      ? TranslationService.translate(
-                                                          context,
-                                                          'borrow_active',
-                                                        )
-                                                      : _isLending(book)
-                                                          ? TranslationService.translate(
-                                                              context,
-                                                              'borrow_on_loan',
-                                                            )
-                                                          : _hasNoCopiesAvailable(book)
-                                                              ? TranslationService.translate(
-                                                                  context,
-                                                                  'borrow_unavailable',
-                                                                )
-                                                              : TranslationService.translate(
-                                                                  context,
-                                                                  'borrow',
-                                                                ),
+                                                  ? TranslationService.translate(
+                                                      context,
+                                                      'borrow_active',
+                                                    )
+                                                  : _isLending(book)
+                                                  ? TranslationService.translate(
+                                                      context,
+                                                      'borrow_on_loan',
+                                                    )
+                                                  : _hasNoCopiesAvailable(book)
+                                                  ? TranslationService.translate(
+                                                      context,
+                                                      'borrow_unavailable',
+                                                    )
+                                                  : TranslationService.translate(
+                                                      context,
+                                                      'borrow',
+                                                    ),
                                             ),
-                                          ),
-                                          onTap: () => _showBookDetails(book),
-                                        );
-                                      },
-                                    ),
-                              },
-                            ),
-                      ),
-                    ),
-                  ],
+                                          )
+                                        : null,
+                                    onTap: () => _showBookDetails(book),
+                                  );
+                                },
+                              ),
+                            },
+                          ),
+                  ),
                 ),
+              ],
+            ),
     );
   }
 
@@ -2456,6 +2556,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
         builder: (context, scrollController) {
           final theme = Theme.of(context);
           final closeLabel = TranslationService.translate(context, 'close');
+          final canBorrowModule = context.read<ThemeProvider>().canBorrowBooks;
           return Column(
             children: [
               // Pinned header: drag handle + close button (always visible)
@@ -2502,8 +2603,8 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                             borderRadius: BorderRadius.circular(8),
                             onTapPlaceholder: () => _reloadCover(book),
                             isPeerCover: true,
-                            semanticLabel: book.author != null &&
-                                    book.author!.isNotEmpty
+                            semanticLabel:
+                                book.author != null && book.author!.isNotEmpty
                                 ? '${book.title}, ${book.author}'
                                 : book.title,
                           ),
@@ -2554,76 +2655,74 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                           ),
                         ],
                       ),
-                      if (book.summary != null &&
-                          book.summary!.isNotEmpty) ...[
+                      if (book.summary != null && book.summary!.isNotEmpty) ...[
                         const SizedBox(height: 16),
-                        Text(
-                          book.summary!,
-                          style: theme.textTheme.bodyMedium,
-                        ),
+                        Text(book.summary!, style: theme.textTheme.bodyMedium),
                       ],
                     ],
                   ),
                 ),
               ),
-              // Pinned bottom action bar: borrow CTA always reachable
-              Material(
-                elevation: 8,
-                color: theme.colorScheme.surface,
-                child: SafeArea(
-                  top: false,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: FilledButton.icon(
-                        onPressed: _canBorrow(book)
-                            ? () {
-                                Navigator.pop(context);
-                                _requestBorrow(book);
-                              }
-                            : null,
-                        icon: Icon(
-                          _canBorrow(book)
-                              ? Icons.swap_horiz
-                              : _hasPendingRequest(book) ||
+              // Pinned bottom action bar: borrow CTA always reachable.
+              // Hidden entirely when the loans module is disabled in settings.
+              if (canBorrowModule)
+                Material(
+                  elevation: 8,
+                  color: theme.colorScheme.surface,
+                  child: SafeArea(
+                    top: false,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: FilledButton.icon(
+                          onPressed: _canBorrow(book)
+                              ? () {
+                                  Navigator.pop(context);
+                                  _requestBorrow(book);
+                                }
+                              : null,
+                          icon: Icon(
+                            _canBorrow(book)
+                                ? Icons.swap_horiz
+                                : _hasPendingRequest(book) ||
                                       _isActiveBorrow(book)
-                                  ? Icons.hourglass_top
-                                  : _isLending(book)
-                                      ? Icons.swap_horiz
-                                      : Icons.block,
-                        ),
-                        label: Text(
-                          _hasPendingRequest(book)
-                              ? TranslationService.translate(
-                                  context,
-                                  'borrow_pending',
-                                )
-                              : _isActiveBorrow(book)
-                                  ? TranslationService.translate(
-                                      context,
-                                      'borrow_active',
-                                    )
-                                  : _isLending(book)
-                                      ? TranslationService.translate(
-                                          context,
-                                          'borrow_on_loan',
-                                        )
-                                      : _hasNoCopiesAvailable(book)
-                                          ? TranslationService.translate(
-                                              context,
-                                              'borrow_unavailable',
-                                            )
-                                          : TranslationService.translate(
-                                              context,
-                                              'request_to_borrow',
-                                            ),
+                                ? Icons.hourglass_top
+                                : _isLending(book)
+                                ? Icons.swap_horiz
+                                : Icons.block,
+                          ),
+                          label: Text(
+                            _hasPendingRequest(book)
+                                ? TranslationService.translate(
+                                    context,
+                                    'borrow_pending',
+                                  )
+                                : _isActiveBorrow(book)
+                                ? TranslationService.translate(
+                                    context,
+                                    'borrow_active',
+                                  )
+                                : _isLending(book)
+                                ? TranslationService.translate(
+                                    context,
+                                    'borrow_on_loan',
+                                  )
+                                : _hasNoCopiesAvailable(book)
+                                ? TranslationService.translate(
+                                    context,
+                                    'borrow_unavailable',
+                                  )
+                                : TranslationService.translate(
+                                    context,
+                                    'request_to_borrow',
+                                  ),
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
             ],
           );
         },

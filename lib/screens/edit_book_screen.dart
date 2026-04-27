@@ -61,7 +61,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
   List<Collection> _selectedCollections = []; // Add this
   List<String> _authors = []; // Multiple authors support
   List<String> _allAuthors = []; // For autocomplete
-  TextEditingController? _authorAutocompleteController; // Autocomplete's own controller
+  TextEditingController?
+  _authorAutocompleteController; // Autocomplete's own controller
 
   String _readingStatus = 'to_read';
   String?
@@ -175,8 +176,13 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
     if (widget.book.id == null) return;
     try {
-      final collectionRepo = Provider.of<CollectionRepository>(context, listen: false);
-      final collections = await collectionRepo.getBookCollections(widget.book.id!);
+      final collectionRepo = Provider.of<CollectionRepository>(
+        context,
+        listen: false,
+      );
+      final collections = await collectionRepo.getBookCollections(
+        widget.book.id!,
+      );
       if (mounted) {
         setState(() {
           // Merge with initial if present, avoiding duplicates
@@ -257,11 +263,16 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
   void _onIsbnChanged() {
     if (!mounted || _isSaving) return;
-    final isbn = IsbnValidator.clean(_isbnController.text).replaceAll(RegExp(r'[^0-9X]'), '');
+    final isbn = IsbnValidator.clean(
+      _isbnController.text,
+    ).replaceAll(RegExp(r'[^0-9X]'), '');
     if ((isbn.length == 10 || isbn.length == 13) && !_isFetchingDetails) {
       if (!IsbnValidator.isValid(isbn) && isbn != _lastChecksumWarningIsbn) {
         _lastChecksumWarningIsbn = isbn;
-        AppSnackBar.info(context, TranslationService.translate(context, 'isbn_checksum_warning'));
+        AppSnackBar.info(
+          context,
+          TranslationService.translate(context, 'isbn_checksum_warning'),
+        );
       }
       _fetchBookDetails(isbn);
     }
@@ -279,7 +290,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
       if (bookData != null && mounted) {
         final filled = <String>{};
         setState(() {
-          if (_titleController.text.isEmpty && (bookData['title'] ?? '').isNotEmpty) {
+          if (_titleController.text.isEmpty &&
+              (bookData['title'] ?? '').isNotEmpty) {
             _titleController.text = bookData['title']!;
             filled.add('title');
           }
@@ -296,7 +308,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
             _authorController.text = _authors.join(', ');
           }
 
-          if (_publisherController.text.isEmpty && (bookData['publisher'] ?? '').isNotEmpty) {
+          if (_publisherController.text.isEmpty &&
+              (bookData['publisher'] ?? '').isNotEmpty) {
             _publisherController.text = bookData['publisher']!;
             filled.add('publisher');
           }
@@ -304,11 +317,13 @@ class _EditBookScreenState extends State<EditBookScreen> {
             _yearController.text = bookData['year'].toString();
             filled.add('year');
           }
-          if (_summaryController.text.isEmpty && (bookData['summary'] ?? '').isNotEmpty) {
+          if (_summaryController.text.isEmpty &&
+              (bookData['summary'] ?? '').isNotEmpty) {
             _summaryController.text = bookData['summary']!;
             filled.add('summary');
           }
-          if (_pageCountController.text.isEmpty && bookData['page_count'] != null) {
+          if (_pageCountController.text.isEmpty &&
+              bookData['page_count'] != null) {
             _pageCountController.text = bookData['page_count'].toString();
             filled.add('pageCount');
           }
@@ -488,7 +503,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
       // Update collections
       if (widget.book.id != null) {
-        final collectionRepo = Provider.of<CollectionRepository>(context, listen: false);
+        final collectionRepo = Provider.of<CollectionRepository>(
+          context,
+          listen: false,
+        );
         await collectionRepo.updateBookCollections(
           widget.book.id!,
           _selectedCollections.map((c) => c.id).toList(),
@@ -518,8 +536,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
             _yearController.text =
                 updatedBook.publicationYear?.toString() ?? '';
             _summaryController.text = updatedBook.summary ?? '';
-            _pageCountController.text =
-                updatedBook.pageCount?.toString() ?? '';
+            _pageCountController.text = updatedBook.pageCount?.toString() ?? '';
             _readingStatus = updatedBook.readingStatus ?? 'to_read';
             _coverUrl = updatedBook.coverUrl;
             _selectedTags = updatedBook.subjects ?? [];
@@ -653,7 +670,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
         leading: isMobile
             ? IconButton(
                 icon: const Icon(Icons.menu),
-                tooltip: TranslationService.translate(context, 'tooltip_open_menu'),
+                tooltip: TranslationService.translate(
+                  context,
+                  'tooltip_open_menu',
+                ),
                 onPressed: () {
                   GlobalKeys.rootScaffoldKey.currentState?.openDrawer();
                 },
@@ -716,8 +736,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          Theme.of(context).colorScheme.primary,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,
@@ -745,13 +764,19 @@ class _EditBookScreenState extends State<EditBookScreen> {
               const SizedBox(height: 8),
 
               // Title
-              _buildLabel(TranslationService.translate(context, 'title_label'), icon: Icons.auto_stories),
+              _buildLabel(
+                TranslationService.translate(context, 'title_label'),
+                icon: Icons.auto_stories,
+              ),
               TextFormField(
                 controller: _titleController,
                 focusNode: _titleFocusNode,
                 textInputAction: TextInputAction.next,
                 decoration: _buildInputDecoration(
-                  hint: TranslationService.translate(context, 'enter_book_title'),
+                  hint: TranslationService.translate(
+                    context,
+                    'enter_book_title',
+                  ),
                   fieldKey: 'title',
                 ),
                 validator: (value) => value == null || value.isEmpty
@@ -762,8 +787,12 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
               // Author
               _buildLabel(
-                TranslationService.translate(context, 'author_label') ?? 'Author',
-                helperText: TranslationService.translate(context, 'author_helper'),
+                TranslationService.translate(context, 'author_label') ??
+                    'Author',
+                helperText: TranslationService.translate(
+                  context,
+                  'author_helper',
+                ),
                 icon: Icons.person_outline,
               ),
               Autocomplete<String>(
@@ -777,45 +806,64 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     );
                   });
                 },
-                fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
-                  _authorAutocompleteController = textEditingController;
-                  return TextFormField(
-                    controller: textEditingController,
-                    focusNode: focusNode,
-                    decoration: _buildInputDecoration(
-                      hint: _authors.isNotEmpty
-                          ? TranslationService.translate(context, 'author_hint_add') ?? 'Add another author...'
-                          : TranslationService.translate(context, 'enter_author') ?? 'Enter author name',
-                      suffixIcon: IconButton(
-                        icon: const Icon(Icons.add),
-                        tooltip: TranslationService.translate(context, 'tooltip_add_author'),
-                        onPressed: () {
-                          if (textEditingController.text.trim().isNotEmpty) {
+                fieldViewBuilder:
+                    (
+                      context,
+                      textEditingController,
+                      focusNode,
+                      onFieldSubmitted,
+                    ) {
+                      _authorAutocompleteController = textEditingController;
+                      return TextFormField(
+                        controller: textEditingController,
+                        focusNode: focusNode,
+                        decoration: _buildInputDecoration(
+                          hint: _authors.isNotEmpty
+                              ? TranslationService.translate(
+                                      context,
+                                      'author_hint_add',
+                                    ) ??
+                                    'Add another author...'
+                              : TranslationService.translate(
+                                      context,
+                                      'enter_author',
+                                    ) ??
+                                    'Enter author name',
+                          suffixIcon: IconButton(
+                            icon: const Icon(Icons.add),
+                            tooltip: TranslationService.translate(
+                              context,
+                              'tooltip_add_author',
+                            ),
+                            onPressed: () {
+                              if (textEditingController.text
+                                  .trim()
+                                  .isNotEmpty) {
+                                setState(() {
+                                  final val = textEditingController.text.trim();
+                                  if (!_authors.contains(val)) {
+                                    _authors.add(val);
+                                  }
+                                  textEditingController.clear();
+                                });
+                              }
+                            },
+                          ),
+                        ),
+                        onFieldSubmitted: (String value) {
+                          final trimmed = value.trim();
+                          if (trimmed.isNotEmpty) {
                             setState(() {
-                              final val = textEditingController.text.trim();
-                              if (!_authors.contains(val)) {
-                                _authors.add(val);
+                              if (!_authors.contains(trimmed)) {
+                                _authors.add(trimmed);
                               }
                               textEditingController.clear();
                             });
+                            focusNode.requestFocus();
                           }
                         },
-                      ),
-                    ),
-                    onFieldSubmitted: (String value) {
-                      final trimmed = value.trim();
-                      if (trimmed.isNotEmpty) {
-                        setState(() {
-                          if (!_authors.contains(trimmed)) {
-                            _authors.add(trimmed);
-                          }
-                          textEditingController.clear();
-                        });
-                        focusNode.requestFocus();
-                      }
+                      );
                     },
-                  );
-                },
               ),
               if (_authors.isNotEmpty)
                 Padding(
@@ -840,7 +888,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
               _buildSectionDivider(),
 
               // ISBN
-              _buildLabel(TranslationService.translate(context, 'isbn_label'), icon: Icons.qr_code),
+              _buildLabel(
+                TranslationService.translate(context, 'isbn_label'),
+                icon: Icons.qr_code,
+              ),
               TextFormField(
                 controller: _isbnController,
                 textInputAction: TextInputAction.next,
@@ -876,12 +927,21 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildLabel(TranslationService.translate(context, 'publisher_label'), icon: Icons.business),
+                        _buildLabel(
+                          TranslationService.translate(
+                            context,
+                            'publisher_label',
+                          ),
+                          icon: Icons.business,
+                        ),
                         TextFormField(
                           controller: _publisherController,
                           textInputAction: TextInputAction.next,
                           decoration: _buildInputDecoration(
-                            hint: TranslationService.translate(context, 'publisher_hint'),
+                            hint: TranslationService.translate(
+                              context,
+                              'publisher_hint',
+                            ),
                             fieldKey: 'publisher',
                           ),
                         ),
@@ -893,12 +953,18 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildLabel(TranslationService.translate(context, 'year_label'), icon: Icons.calendar_today),
+                        _buildLabel(
+                          TranslationService.translate(context, 'year_label'),
+                          icon: Icons.calendar_today,
+                        ),
                         TextFormField(
                           controller: _yearController,
                           textInputAction: TextInputAction.next,
                           decoration: _buildInputDecoration(
-                            hint: TranslationService.translate(context, 'year_hint'),
+                            hint: TranslationService.translate(
+                              context,
+                              'year_hint',
+                            ),
                             fieldKey: 'year',
                           ),
                           keyboardType: TextInputType.number,
@@ -911,7 +977,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
               _buildSectionDivider(),
 
               // Summary
-              _buildLabel(TranslationService.translate(context, 'summary_label'), icon: Icons.notes),
+              _buildLabel(
+                TranslationService.translate(context, 'summary_label'),
+                icon: Icons.notes,
+              ),
               TextFormField(
                 controller: _summaryController,
                 decoration: _buildInputDecoration(
@@ -923,12 +992,18 @@ class _EditBookScreenState extends State<EditBookScreen> {
               _buildSectionDivider(),
 
               // Page count
-              _buildLabel(TranslationService.translate(context, 'page_count_label'), icon: Icons.menu_book_outlined),
+              _buildLabel(
+                TranslationService.translate(context, 'page_count_label'),
+                icon: Icons.menu_book_outlined,
+              ),
               TextFormField(
                 controller: _pageCountController,
                 textInputAction: TextInputAction.done,
                 decoration: _buildInputDecoration(
-                  hint: TranslationService.translate(context, 'page_count_hint'),
+                  hint: TranslationService.translate(
+                    context,
+                    'page_count_hint',
+                  ),
                   fieldKey: 'pageCount',
                 ),
                 keyboardType: TextInputType.number,
@@ -937,20 +1012,25 @@ class _EditBookScreenState extends State<EditBookScreen> {
               // Price field (Bookseller profile only)
               Consumer<ThemeProvider>(
                 builder: (context, themeProvider, child) {
-                  if (!themeProvider.hasCommerce) return const SizedBox.shrink();
+                  if (!themeProvider.hasCommerce)
+                    return const SizedBox.shrink();
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildSectionDivider(),
                       _buildLabel(
-                        TranslationService.translate(context, 'price_label') ?? 'Price (EUR)',
+                        TranslationService.translate(context, 'price_label') ??
+                            'Price (EUR)',
                         icon: Icons.sell_outlined,
                       ),
                       TextFormField(
                         controller: _priceController,
-                        decoration: _buildInputDecoration(hint: '0.00')
-                            .copyWith(suffixText: themeProvider.currency),
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        decoration: _buildInputDecoration(
+                          hint: '0.00',
+                        ).copyWith(suffixText: themeProvider.currency),
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
                       ),
                     ],
                   );
@@ -972,14 +1052,22 @@ class _EditBookScreenState extends State<EditBookScreen> {
               // Formats Selection
               Consumer<ThemeProvider>(
                 builder: (context, theme, _) {
-                  if (!theme.digitalFormatsEnabled) return const SizedBox.shrink();
+                  if (!theme.digitalFormatsEnabled)
+                    return const SizedBox.shrink();
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildSectionDivider(),
                       _buildLabel(
-                        TranslationService.translate(context, 'digital_formats_label') ?? 'Formats',
-                        helperText: TranslationService.translate(context, 'digital_formats_helper'),
+                        TranslationService.translate(
+                              context,
+                              'digital_formats_label',
+                            ) ??
+                            'Formats',
+                        helperText: TranslationService.translate(
+                          context,
+                          'digital_formats_helper',
+                        ),
                         icon: Icons.layers_outlined,
                       ),
                       Wrap(
@@ -987,34 +1075,63 @@ class _EditBookScreenState extends State<EditBookScreen> {
                         runSpacing: 12,
                         children: [
                           FilterChip(
-                            label: Text(TranslationService.translate(context, 'format_paper') ?? 'Paper'),
+                            label: Text(
+                              TranslationService.translate(
+                                    context,
+                                    'format_paper',
+                                  ) ??
+                                  'Paper',
+                            ),
                             selected: _selectedDigitalFormats.contains('paper'),
                             onSelected: (bool selected) {
                               setState(() {
-                                if (selected) { _selectedDigitalFormats.add('paper'); }
-                                else { _selectedDigitalFormats.remove('paper'); }
+                                if (selected) {
+                                  _selectedDigitalFormats.add('paper');
+                                } else {
+                                  _selectedDigitalFormats.remove('paper');
+                                }
                               });
                             },
                             avatar: const Icon(Icons.menu_book, size: 18),
                           ),
                           FilterChip(
-                            label: Text(TranslationService.translate(context, 'format_ebook') ?? 'Ebook'),
+                            label: Text(
+                              TranslationService.translate(
+                                    context,
+                                    'format_ebook',
+                                  ) ??
+                                  'Ebook',
+                            ),
                             selected: _selectedDigitalFormats.contains('ebook'),
                             onSelected: (bool selected) {
                               setState(() {
-                                if (selected) { _selectedDigitalFormats.add('ebook'); }
-                                else { _selectedDigitalFormats.remove('ebook'); }
+                                if (selected) {
+                                  _selectedDigitalFormats.add('ebook');
+                                } else {
+                                  _selectedDigitalFormats.remove('ebook');
+                                }
                               });
                             },
                             avatar: const Icon(Icons.tablet_mac, size: 18),
                           ),
                           FilterChip(
-                            label: Text(TranslationService.translate(context, 'format_audiobook') ?? 'Audiobook'),
-                            selected: _selectedDigitalFormats.contains('audiobook'),
+                            label: Text(
+                              TranslationService.translate(
+                                    context,
+                                    'format_audiobook',
+                                  ) ??
+                                  'Audiobook',
+                            ),
+                            selected: _selectedDigitalFormats.contains(
+                              'audiobook',
+                            ),
                             onSelected: (bool selected) {
                               setState(() {
-                                if (selected) { _selectedDigitalFormats.add('audiobook'); }
-                                else { _selectedDigitalFormats.remove('audiobook'); }
+                                if (selected) {
+                                  _selectedDigitalFormats.add('audiobook');
+                                } else {
+                                  _selectedDigitalFormats.remove('audiobook');
+                                }
                               });
                             },
                             avatar: const Icon(Icons.headset, size: 18),
@@ -1030,7 +1147,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
               // Status
               _buildLabel(
                 TranslationService.translate(context, 'status_label'),
-                helperText: TranslationService.translate(context, 'status_helper'),
+                helperText: TranslationService.translate(
+                  context,
+                  'status_helper',
+                ),
                 icon: Icons.flag_outlined,
               ),
               Builder(
@@ -1056,17 +1176,18 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     children: statusOptions
                         .where((s) => s.value.isNotEmpty)
                         .map((status) {
-                      final isActive = status.value == _readingStatus;
-                      return _buildStatusChip(
-                        label: status.label,
-                        icon: status.icon,
-                        color: status.color,
-                        isActive: isActive,
-                        onTap: () => setState(() {
-                          _readingStatus = isActive ? '' : status.value;
-                        }),
-                      );
-                    }).toList(),
+                          final isActive = status.value == _readingStatus;
+                          return _buildStatusChip(
+                            label: status.label,
+                            icon: status.icon,
+                            color: status.color,
+                            isActive: isActive,
+                            onTap: () => setState(() {
+                              _readingStatus = isActive ? '' : status.value;
+                            }),
+                          );
+                        })
+                        .toList(),
                   );
                 },
               ),
@@ -1075,8 +1196,12 @@ class _EditBookScreenState extends State<EditBookScreen> {
               if (_copyId != null) ...[
                 _buildSectionDivider(),
                 _buildLabel(
-                  TranslationService.translate(context, 'availability_label') ?? 'Availability',
-                  helperText: TranslationService.translate(context, 'availability_helper'),
+                  TranslationService.translate(context, 'availability_label') ??
+                      'Availability',
+                  helperText: TranslationService.translate(
+                    context,
+                    'availability_helper',
+                  ),
                   icon: Icons.inventory_2_outlined,
                 ),
                 Wrap(
@@ -1084,28 +1209,63 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   runSpacing: 8,
                   children: [
                     _buildStatusChip(
-                      label: TranslationService.translate(context, 'availability_available') ?? 'Available',
+                      label:
+                          TranslationService.translate(
+                            context,
+                            'availability_available',
+                          ) ??
+                          'Available',
                       icon: Icons.check_circle,
                       color: Colors.green,
                       isActive: _copyStatus == 'available',
                       onTap: () => setState(() => _copyStatus = 'available'),
                     ),
+                    // "Loaned" only makes sense if the lending module is enabled,
+                    // unless the copy is already in this state (don't hide the
+                    // user's own data).
+                    if (Provider.of<ThemeProvider>(
+                          context,
+                          listen: false,
+                        ).canLendBooks ||
+                        _copyStatus == 'loaned')
+                      _buildStatusChip(
+                        label:
+                            TranslationService.translate(
+                              context,
+                              'availability_loaned',
+                            ) ??
+                            'Lent',
+                        icon: Icons.call_made,
+                        color: Colors.orange,
+                        isActive: _copyStatus == 'loaned',
+                        onTap: () => setState(() => _copyStatus = 'loaned'),
+                      ),
+                    // "Borrowed" only makes sense if the borrowing module is enabled,
+                    // unless the copy is already in this state.
+                    if (Provider.of<ThemeProvider>(
+                          context,
+                          listen: false,
+                        ).canBorrowBooks ||
+                        _copyStatus == 'borrowed')
+                      _buildStatusChip(
+                        label:
+                            TranslationService.translate(
+                              context,
+                              'availability_borrowed',
+                            ) ??
+                            'Borrowed',
+                        icon: Icons.call_received,
+                        color: Colors.purple,
+                        isActive: _copyStatus == 'borrowed',
+                        onTap: () => setState(() => _copyStatus = 'borrowed'),
+                      ),
                     _buildStatusChip(
-                      label: TranslationService.translate(context, 'availability_loaned') ?? 'Lent',
-                      icon: Icons.call_made,
-                      color: Colors.orange,
-                      isActive: _copyStatus == 'loaned',
-                      onTap: () => setState(() => _copyStatus = 'loaned'),
-                    ),
-                    _buildStatusChip(
-                      label: TranslationService.translate(context, 'availability_borrowed') ?? 'Borrowed',
-                      icon: Icons.call_received,
-                      color: Colors.purple,
-                      isActive: _copyStatus == 'borrowed',
-                      onTap: () => setState(() => _copyStatus = 'borrowed'),
-                    ),
-                    _buildStatusChip(
-                      label: TranslationService.translate(context, 'availability_lost') ?? 'Lost',
+                      label:
+                          TranslationService.translate(
+                            context,
+                            'availability_lost',
+                          ) ??
+                          'Lost',
                       icon: Icons.help_outline,
                       color: Colors.red,
                       isActive: _copyStatus == 'lost',
@@ -1116,11 +1276,19 @@ class _EditBookScreenState extends State<EditBookScreen> {
               ],
 
               // Reading Dates (Conditional)
-              if (_readingStatus != 'to_read' && _readingStatus != 'wanting' && _readingStatus.isNotEmpty) ...[
+              if (_readingStatus != 'to_read' &&
+                  _readingStatus != 'wanting' &&
+                  _readingStatus.isNotEmpty) ...[
                 _buildSectionDivider(),
                 _buildLabel(
-                  TranslationService.translate(context, 'started_reading_label'),
-                  helperText: TranslationService.translate(context, 'started_reading_helper'),
+                  TranslationService.translate(
+                    context,
+                    'started_reading_label',
+                  ),
+                  helperText: TranslationService.translate(
+                    context,
+                    'started_reading_helper',
+                  ),
                   icon: Icons.play_arrow_outlined,
                 ),
                 GestureDetector(
@@ -1128,10 +1296,15 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   child: AbsorbPointer(
                     child: TextFormField(
                       controller: TextEditingController(
-                        text: _formatDateForDisplay(_startedDateController.text),
+                        text: _formatDateForDisplay(
+                          _startedDateController.text,
+                        ),
                       ),
                       decoration: _buildInputDecoration(
-                        hint: TranslationService.translate(context, 'select_date'),
+                        hint: TranslationService.translate(
+                          context,
+                          'select_date',
+                        ),
                         suffixIcon: const Icon(Icons.calendar_today),
                       ),
                       readOnly: true,
@@ -1143,8 +1316,14 @@ class _EditBookScreenState extends State<EditBookScreen> {
               if (_readingStatus == 'read') ...[
                 _buildSectionDivider(),
                 _buildLabel(
-                  TranslationService.translate(context, 'finished_reading_label'),
-                  helperText: TranslationService.translate(context, 'finished_reading_helper'),
+                  TranslationService.translate(
+                    context,
+                    'finished_reading_label',
+                  ),
+                  helperText: TranslationService.translate(
+                    context,
+                    'finished_reading_helper',
+                  ),
                   icon: Icons.check_circle_outline,
                 ),
                 GestureDetector(
@@ -1152,10 +1331,15 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   child: AbsorbPointer(
                     child: TextFormField(
                       controller: TextEditingController(
-                        text: _formatDateForDisplay(_finishedDateController.text),
+                        text: _formatDateForDisplay(
+                          _finishedDateController.text,
+                        ),
                       ),
                       decoration: _buildInputDecoration(
-                        hint: TranslationService.translate(context, 'select_date'),
+                        hint: TranslationService.translate(
+                          context,
+                          'select_date',
+                        ),
                         suffixIcon: const Icon(Icons.calendar_today),
                       ),
                       readOnly: true,
@@ -1220,12 +1404,16 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   icon: Icon(
                     Icons.delete_outline_rounded,
                     size: 18,
-                    color: Theme.of(context).colorScheme.error.withValues(alpha: 0.7),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.error.withValues(alpha: 0.7),
                   ),
                   label: Text(
                     TranslationService.translate(context, 'delete_book_btn'),
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.error.withValues(alpha: 0.7),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.error.withValues(alpha: 0.7),
                       fontSize: 13,
                     ),
                   ),
@@ -1261,7 +1449,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
       context.read<HubDirectoryProvider>()
         ..markCatalogDirty()
         ..syncCatalogIfDirty();
-      setState(() { _coverUrl = path; _coverVersion++; });
+      setState(() {
+        _coverUrl = path;
+        _coverVersion++;
+      });
       _hasChanges = true;
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -1302,7 +1493,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
       context.read<HubDirectoryProvider>()
         ..markCatalogDirty()
         ..syncCatalogIfDirty();
-      setState(() { _coverUrl = targetPath; _coverVersion++; });
+      setState(() {
+        _coverUrl = targetPath;
+        _coverVersion++;
+      });
       _hasChanges = true;
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -1333,22 +1527,22 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
     Widget coverImage = hasCover
         ? _coverUrl!.startsWith('/')
-            ? Image.file(
-                File(_coverUrl!),
-                key: ValueKey('$_coverUrl\_$_coverVersion'),
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => _buildCoverPlaceholder(),
-              )
-            : CachedBookCover(
-                key: ValueKey('$_coverUrl\_$_coverVersion'),
-                imageUrl: _coverUrl!,
-                fit: BoxFit.cover,
-                placeholder: _buildCoverPlaceholder(),
-                errorWidget: _buildCoverPlaceholder(),
-                semanticLabel: _titleController.text.isNotEmpty
-                    ? _titleController.text
-                    : null,
-              )
+              ? Image.file(
+                  File(_coverUrl!),
+                  key: ValueKey('$_coverUrl\_$_coverVersion'),
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => _buildCoverPlaceholder(),
+                )
+              : CachedBookCover(
+                  key: ValueKey('$_coverUrl\_$_coverVersion'),
+                  imageUrl: _coverUrl!,
+                  fit: BoxFit.cover,
+                  placeholder: _buildCoverPlaceholder(),
+                  errorWidget: _buildCoverPlaceholder(),
+                  semanticLabel: _titleController.text.isNotEmpty
+                      ? _titleController.text
+                      : null,
+                )
         : _buildCoverPlaceholder();
 
     return Row(
@@ -1381,8 +1575,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
             children: [
               const SizedBox(height: 4),
               Text(
-                TranslationService.translate(context, 'cover_label') ??
-                    'Cover',
+                TranslationService.translate(context, 'cover_label') ?? 'Cover',
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -1397,15 +1590,21 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   if (CoverCameraHelper.isCameraAvailable)
                     _buildCoverAction(
                       icon: Icons.camera_alt_outlined,
-                      label: TranslationService.translate(
-                              context, 'cover_take_photo_short') ??
+                      label:
+                          TranslationService.translate(
+                            context,
+                            'cover_take_photo_short',
+                          ) ??
                           'Photo',
                       onTap: _takePhoto,
                     ),
                   _buildCoverAction(
                     icon: Icons.photo_library_outlined,
-                    label: TranslationService.translate(
-                            context, 'cover_choose_short') ??
+                    label:
+                        TranslationService.translate(
+                          context,
+                          'cover_choose_short',
+                        ) ??
                         'Gallery',
                     onTap: _pickCoverFromFile,
                   ),
@@ -1423,7 +1622,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
       color: Theme.of(context).colorScheme.surfaceContainerHighest,
       child: Icon(
         Icons.menu_book_rounded,
-        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
+        color: Theme.of(
+          context,
+        ).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
         size: 28,
       ),
     );
@@ -1476,7 +1677,11 @@ class _EditBookScreenState extends State<EditBookScreen> {
           if (icon != null) ...[
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Icon(icon, size: 20, color: accentColor.withValues(alpha: 0.5)),
+              child: Icon(
+                icon,
+                size: 20,
+                color: accentColor.withValues(alpha: 0.5),
+              ),
             ),
             const SizedBox(width: 6),
           ],
@@ -1497,11 +1702,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   Text(
                     helperText,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.color
-                          ?.withValues(alpha: 0.85),
+                      color: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.color?.withValues(alpha: 0.85),
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -1561,17 +1764,13 @@ class _EditBookScreenState extends State<EditBookScreen> {
               Icon(
                 icon,
                 size: 18,
-                color: isActive
-                    ? color
-                    : theme.colorScheme.onSurfaceVariant,
+                color: isActive ? color : theme.colorScheme.onSurfaceVariant,
               ),
               const SizedBox(width: 6),
               Text(
                 label,
                 style: TextStyle(
-                  color: isActive
-                      ? color
-                      : theme.colorScheme.onSurface,
+                  color: isActive ? color : theme.colorScheme.onSurface,
                   fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
                   fontSize: 13,
                 ),
@@ -1597,79 +1796,91 @@ class _EditBookScreenState extends State<EditBookScreen> {
       toggled: value,
       label: TranslationService.translate(context, titleKey),
       child: MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-      onTap: () => onChanged(!value),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(
-          color: value
-              ? activeColor.withValues(alpha: 0.08)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: value
-                ? activeColor.withValues(alpha: 0.4)
-                : theme.dividerColor,
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          onTap: () => onChanged(!value),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              color: value
+                  ? activeColor.withValues(alpha: 0.08)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: value
+                    ? activeColor.withValues(alpha: 0.4)
+                    : theme.dividerColor,
+              ),
+            ),
+            child: Row(
+              children: [
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  child: Icon(
+                    value ? activeIcon : inactiveIcon,
+                    key: ValueKey(value),
+                    color: value
+                        ? activeColor
+                        : theme.colorScheme.onSurfaceVariant,
+                    size: 22,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        TranslationService.translate(context, titleKey),
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      Text(
+                        TranslationService.translate(context, subtitleKey),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.textTheme.bodySmall?.color?.withValues(
+                            alpha: 0.7,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Switch.adaptive(
+                  value: value,
+                  onChanged: onChanged,
+                  activeTrackColor: activeColor.withValues(alpha: 0.5),
+                  activeThumbColor: activeColor,
+                ),
+              ],
+            ),
           ),
         ),
-        child: Row(
-          children: [
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 200),
-              child: Icon(
-                value ? activeIcon : inactiveIcon,
-                key: ValueKey(value),
-                color: value
-                    ? activeColor
-                    : theme.colorScheme.onSurfaceVariant,
-                size: 22,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    TranslationService.translate(context, titleKey),
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  Text(
-                    TranslationService.translate(context, subtitleKey),
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.textTheme.bodySmall?.color
-                          ?.withValues(alpha: 0.7),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Switch.adaptive(
-              value: value,
-              onChanged: onChanged,
-              activeTrackColor: activeColor.withValues(alpha: 0.5),
-              activeThumbColor: activeColor,
-            ),
-          ],
-        ),
-      ),
-      ),
       ),
     );
   }
 
-  InputDecoration _buildInputDecoration({String? hint, Widget? suffixIcon, String? fieldKey}) {
-    final isHighlighted = fieldKey != null && _highlightedFields.contains(fieldKey);
-    final borderColor = isHighlighted ? Colors.green : Theme.of(context).colorScheme.outline;
+  InputDecoration _buildInputDecoration({
+    String? hint,
+    Widget? suffixIcon,
+    String? fieldKey,
+  }) {
+    final isHighlighted =
+        fieldKey != null && _highlightedFields.contains(fieldKey);
+    final borderColor = isHighlighted
+        ? Colors.green
+        : Theme.of(context).colorScheme.outline;
     return InputDecoration(
       hintText: hint,
       hintStyle: TextStyle(color: Colors.grey.shade600),
       suffixIcon: isHighlighted
-          ? const Icon(Icons.check_circle_outline, color: Colors.green, size: 20)
+          ? const Icon(
+              Icons.check_circle_outline,
+              color: Colors.green,
+              size: 20,
+            )
           : suffixIcon,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       border: OutlineInputBorder(
@@ -1678,7 +1889,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: borderColor, width: isHighlighted ? 1.5 : 1.0),
+        borderSide: BorderSide(
+          color: borderColor,
+          width: isHighlighted ? 1.5 : 1.0,
+        ),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
@@ -1712,6 +1926,6 @@ class _DottedLinePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_DottedLinePainter oldDelegate) => color != oldDelegate.color;
+  bool shouldRepaint(_DottedLinePainter oldDelegate) =>
+      color != oldDelegate.color;
 }
-

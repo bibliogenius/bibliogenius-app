@@ -864,9 +864,9 @@ msgstr "Prestado de"
 msgid "borrowing_module"
 msgstr "Préstamos"
 
-#. Lend and borrow books with friends
+#. Allow borrowing books from your contacts
 msgid "borrowing_module_desc"
-msgstr "Prestar y tomar prestados libros con amigos"
+msgstr "Permitir tomar prestados libros de tus contactos"
 
 #. Browse Library
 msgid "browse_library"
@@ -1763,6 +1763,26 @@ msgstr "Habilitar audiolibros"
 #. Enable Borrowing
 msgid "enable_borrowing_module"
 msgstr "Habilitar préstamos"
+
+#. Lending
+msgid "enable_lending_module"
+msgstr "Préstamos"
+
+#. Allow lending your books to your contacts
+msgid "lending_module_desc"
+msgstr "Permitir prestar tus libros a tus contactos"
+
+#. Loans modules disabled
+msgid "loans_disabled_title"
+msgstr "Los préstamos están desactivados"
+
+#. Both lending and borrowing modules are off. Re-enable them in Settings to manage loans here.
+msgid "loans_disabled_body"
+msgstr "Los módulos de préstamos salientes y entrantes están desactivados. Reactívalos en Ajustes para gestionar los préstamos aquí."
+
+#. Open Settings
+msgid "loans_disabled_open_settings"
+msgstr "Abrir Ajustes"
 
 #. Enable Gamification
 msgid "enable_gamification"
@@ -8476,6 +8496,9 @@ msgstr "Cuando un contacto de confianza te pide un libro, el préstamo se acepta
 
 msgid "enable_borrowing_module_help"
 msgstr "Activa el sistema de préstamos: puedes prestar libros a tus contactos y tomar prestados los suyos. Cada préstamo tiene una duración configurable y genera recordatorios automáticos."
+
+msgid "enable_lending_module_help"
+msgstr "Permite prestar libros a tus contactos. Cuando se desactiva, los botones de préstamo desaparecen de las fichas de libro y tus contactos no pueden pedir prestados libros de tu biblioteca, pero aún puedes tomar prestados los suyos si el módulo de préstamos entrantes está activo."
 
 msgid "settings_allow_private_books_help"
 msgstr "Desbloquea la opción 'Privado' en cada libro. Un libro privado permanece en tu biblioteca pero nunca se muestra a otros usuarios — ni en tu perfil público, ni en las búsquedas de la red."

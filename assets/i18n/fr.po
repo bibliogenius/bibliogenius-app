@@ -955,9 +955,9 @@ msgstr "Emprunt à"
 msgid "borrowing_module"
 msgstr "Prêts"
 
-#. Lend and borrow books with friends
+#. Allow borrowing books from your contacts
 msgid "borrowing_module_desc"
-msgstr "Prêter et emprunter des livres avec vos amis"
+msgstr "Autoriser l'emprunt de livres à vos contacts"
 
 #. Browse Library
 msgid "browse_library"
@@ -1956,6 +1956,26 @@ msgstr "Activer les livres audio"
 #. Enable Borrowing
 msgid "enable_borrowing_module"
 msgstr "Emprunts"
+
+#. Lending
+msgid "enable_lending_module"
+msgstr "Prêts"
+
+#. Allow lending your books to your contacts
+msgid "lending_module_desc"
+msgstr "Autoriser le prêt de vos livres à vos contacts"
+
+#. Loans modules disabled
+msgid "loans_disabled_title"
+msgstr "Les prêts sont désactivés"
+
+#. Both lending and borrowing modules are off. Re-enable them in Settings to manage loans here.
+msgid "loans_disabled_body"
+msgstr "Les modules de prêts et d'emprunts sont tous deux désactivés. Réactivez-les dans les Paramètres pour gérer vos prêts ici."
+
+#. Open Settings
+msgid "loans_disabled_open_settings"
+msgstr "Ouvrir les Paramètres"
 
 #. Enable Gamification
 msgid "enable_gamification"
@@ -8820,6 +8840,9 @@ msgstr "Quand un contact de confiance te demande un livre, le prêt est accepté
 
 msgid "enable_borrowing_module_help"
 msgstr "Active le système de prêts : tu peux prêter tes livres à tes contacts et leur emprunter les leurs. Chaque prêt a une durée configurable et génère des rappels automatiques."
+
+msgid "enable_lending_module_help"
+msgstr "Te permet de prêter des livres à tes contacts. Lorsque désactivé, les boutons de prêt disparaissent des fiches livre et tes contacts ne peuvent plus te demander d'emprunter — mais tu peux toujours emprunter chez eux si le module d'emprunt est activé."
 
 msgid "settings_allow_private_books_help"
 msgstr "Débloque l'option 'Privé' sur chaque livre. Un livre privé reste dans ta bibliothèque mais n'apparaît jamais aux autres utilisateurs, ni sur ton profil public, ni dans les recherches du réseau."

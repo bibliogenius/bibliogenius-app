@@ -1480,20 +1480,37 @@ class _StandardAddCopySheetState extends State<_StandardAddCopySheet> {
                         'Available',
                   ),
                 ),
-                DropdownMenuItem(
-                  value: 'borrowed',
-                  child: Text(
-                    TranslationService.translate(context, 'status_borrowed') ??
-                        'Borrowed',
+                // "Borrowed" only listed if the borrowing module is on, or the
+                // copy is already in this state (don't lose the user's data).
+                if (Provider.of<ThemeProvider>(
+                      context,
+                      listen: false,
+                    ).canBorrowBooks ||
+                    _selectedStatus == 'borrowed')
+                  DropdownMenuItem(
+                    value: 'borrowed',
+                    child: Text(
+                      TranslationService.translate(
+                            context,
+                            'status_borrowed',
+                          ) ??
+                          'Borrowed',
+                    ),
                   ),
-                ),
-                DropdownMenuItem(
-                  value: 'loaned',
-                  child: Text(
-                    TranslationService.translate(context, 'status_loaned') ??
-                        'Loaned',
+                // "Loaned" only listed if the lending module is on, or the
+                // copy is already in this state.
+                if (Provider.of<ThemeProvider>(
+                      context,
+                      listen: false,
+                    ).canLendBooks ||
+                    _selectedStatus == 'loaned')
+                  DropdownMenuItem(
+                    value: 'loaned',
+                    child: Text(
+                      TranslationService.translate(context, 'status_loaned') ??
+                          'Loaned',
+                    ),
                   ),
-                ),
                 DropdownMenuItem(
                   value: 'lost',
                   child: Text(
@@ -1642,6 +1659,7 @@ class _VintageStatusSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     final statuses = [
       (
         'available',
@@ -1649,18 +1667,22 @@ class _VintageStatusSelector extends StatelessWidget {
         Colors.green,
         TranslationService.translate(context, 'status_available'),
       ),
-      (
-        'borrowed',
-        Icons.swap_horiz,
-        const Color(0xFFD4A855),
-        TranslationService.translate(context, 'status_borrowed'),
-      ),
-      (
-        'lent',
-        Icons.output,
-        Colors.purple,
-        TranslationService.translate(context, 'status_lent'),
-      ),
+      // "Borrowed" only available if borrowing module is on, or already selected
+      if (themeProvider.canBorrowBooks || selectedStatus == 'borrowed')
+        (
+          'borrowed',
+          Icons.swap_horiz,
+          const Color(0xFFD4A855),
+          TranslationService.translate(context, 'status_borrowed'),
+        ),
+      // "Lent" only available if lending module is on, or already selected
+      if (themeProvider.canLendBooks || selectedStatus == 'lent')
+        (
+          'lent',
+          Icons.output,
+          Colors.purple,
+          TranslationService.translate(context, 'status_lent'),
+        ),
       (
         'lost',
         Icons.error_outline,

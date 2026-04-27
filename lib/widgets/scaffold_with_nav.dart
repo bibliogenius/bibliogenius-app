@@ -49,77 +49,85 @@ class ScaffoldWithNav extends StatelessWidget {
       body: Semantics(
         explicitChildNodes: true,
         child: Row(
-        children: [
-          if (useRail)
-            Semantics(
-              label: TranslationService.translate(context, 'navigation'),
-              child: LayoutBuilder(
-              builder: (context, constraints) {
-                return SingleChildScrollView(
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minHeight: constraints.maxHeight,
-                    ),
-                    child: IntrinsicHeight(
-                      child: NavigationRail(
-                        minWidth: 88,
-                        backgroundColor: isDark
-                            ? theme.colorScheme.surface
-                            : null,
-                        indicatorColor: theme.colorScheme.primary.withValues(alpha: 0.12),
-                        selectedIndex: _calculateSelectedIndex(
-                          context,
-                          navItems,
+          children: [
+            if (useRail)
+              Semantics(
+                label: TranslationService.translate(context, 'navigation'),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return SingleChildScrollView(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.maxHeight,
                         ),
-                        onDestinationSelected: (int index) =>
-                            _onItemTapped(index, context, navItems),
-                        labelType: NavigationRailLabelType.all,
-                        selectedLabelTextStyle: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: theme.colorScheme.primary,
+                        child: IntrinsicHeight(
+                          child: NavigationRail(
+                            minWidth: 88,
+                            backgroundColor: isDark
+                                ? theme.colorScheme.surface
+                                : null,
+                            indicatorColor: theme.colorScheme.primary
+                                .withValues(alpha: 0.12),
+                            selectedIndex: _calculateSelectedIndex(
+                              context,
+                              navItems,
+                            ),
+                            onDestinationSelected: (int index) =>
+                                _onItemTapped(index, context, navItems),
+                            labelType: NavigationRailLabelType.all,
+                            selectedLabelTextStyle: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: theme.colorScheme.primary,
+                            ),
+                            unselectedLabelTextStyle: TextStyle(
+                              fontSize: 14,
+                              color: theme.colorScheme.onSurface.withValues(
+                                alpha: 0.7,
+                              ),
+                            ),
+                            selectedIconTheme: IconThemeData(
+                              color: theme.colorScheme.primary,
+                            ),
+                            unselectedIconTheme: IconThemeData(
+                              color: theme.colorScheme.onSurface.withValues(
+                                alpha: 0.6,
+                              ),
+                            ),
+                            destinations: navItems
+                                .map((item) => item.destination)
+                                .toList(),
+                          ),
                         ),
-                        unselectedLabelTextStyle: TextStyle(
-                          fontSize: 14,
-                          color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                        ),
-                        selectedIconTheme: IconThemeData(
-                          color: theme.colorScheme.primary,
-                        ),
-                        unselectedIconTheme: IconThemeData(
-                          color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                        ),
-                        destinations: navItems
-                            .map((item) => item.destination)
-                            .toList(),
                       ),
-                    ),
-                  ),
-                );
-              },
+                    );
+                  },
+                ),
+              ),
+            if (useRail)
+              ExcludeSemantics(
+                child: VerticalDivider(
+                  thickness: 1,
+                  width: 1,
+                  color: theme.dividerColor,
+                ),
+              ),
+            Expanded(
+              child: Column(
+                children: [
+                  FlashMessageBar(applyTopSafeArea: !useRail),
+                  Expanded(child: child),
+                ],
+              ),
             ),
-            ),
-          if (useRail) ExcludeSemantics(child: VerticalDivider(
-            thickness: 1,
-            width: 1,
-            color: theme.dividerColor,
-          )),
-          Expanded(
-            child: Column(
-              children: [
-                FlashMessageBar(applyTopSafeArea: !useRail),
-                Expanded(child: child),
-              ],
-            ),
-          ),
-        ],
-      ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildBottomNav(BuildContext context, ThemeProvider themeProvider) {
-    final bottomItems = _buildBottomNavItems();
+    final bottomItems = _buildBottomNavItems(themeProvider);
     final selectedIndex = _calculateBottomNavIndex(context, bottomItems);
 
     final theme = Theme.of(context);
@@ -139,67 +147,71 @@ class ScaffoldWithNav extends StatelessWidget {
           ),
         ),
         child: NavigationBarTheme(
-        data: NavigationBarThemeData(
-          labelTextStyle: WidgetStateProperty.all(
-            TextStyle(
-              fontSize: 11,
-              overflow: TextOverflow.ellipsis,
-              color: theme.colorScheme.onSurface,
+          data: NavigationBarThemeData(
+            labelTextStyle: WidgetStateProperty.all(
+              TextStyle(
+                fontSize: 11,
+                overflow: TextOverflow.ellipsis,
+                color: theme.colorScheme.onSurface,
+              ),
             ),
           ),
-        ),
-        child: NavigationBar(
-        selectedIndex: selectedIndex,
-        onDestinationSelected: (index) {
-          if (index < bottomItems.length) {
-            context.go(bottomItems[index].route);
-          } else {
-            _showMoreSheet(context, themeProvider);
-          }
-        },
-        destinations: [
-          ...bottomItems.map((item) => NavigationDestination(
-            icon: item.hasBadge
-                ? Consumer<PendingPeersProvider>(
-                    builder: (context, provider, child) {
-                      final count = provider.pendingCount;
-                      return Badge(
-                        isLabelVisible: count > 0,
-                        label: Text('$count'),
-                        child: Icon(item.icon),
-                      );
-                    },
-                  )
-                : Icon(item.icon),
-            selectedIcon: item.hasBadge
-                ? Consumer<PendingPeersProvider>(
-                    builder: (context, provider, child) {
-                      final count = provider.pendingCount;
-                      return Badge(
-                        isLabelVisible: count > 0,
-                        label: Text('$count'),
-                        child: Icon(item.selectedIcon),
-                      );
-                    },
-                  )
-                : Icon(item.selectedIcon),
-            label: TranslationService.translate(context, item.labelKey),
-            tooltip: TranslationService.translate(context, item.labelKey),
-          )),
-          NavigationDestination(
-            icon: const Icon(Icons.more_horiz),
-            selectedIcon: const Icon(Icons.more_horiz),
-            label: TranslationService.translate(context, 'nav_more'),
-            tooltip: TranslationService.translate(context, 'nav_more'),
+          child: NavigationBar(
+            selectedIndex: selectedIndex,
+            onDestinationSelected: (index) {
+              if (index < bottomItems.length) {
+                context.go(bottomItems[index].route);
+              } else {
+                _showMoreSheet(context, themeProvider);
+              }
+            },
+            destinations: [
+              ...bottomItems.map(
+                (item) => NavigationDestination(
+                  icon: item.hasBadge
+                      ? Consumer<PendingPeersProvider>(
+                          builder: (context, provider, child) {
+                            final count = provider.pendingCount;
+                            return Badge(
+                              isLabelVisible: count > 0,
+                              label: Text('$count'),
+                              child: Icon(item.icon),
+                            );
+                          },
+                        )
+                      : Icon(item.icon),
+                  selectedIcon: item.hasBadge
+                      ? Consumer<PendingPeersProvider>(
+                          builder: (context, provider, child) {
+                            final count = provider.pendingCount;
+                            return Badge(
+                              isLabelVisible: count > 0,
+                              label: Text('$count'),
+                              child: Icon(item.selectedIcon),
+                            );
+                          },
+                        )
+                      : Icon(item.selectedIcon),
+                  label: TranslationService.translate(context, item.labelKey),
+                  tooltip: TranslationService.translate(context, item.labelKey),
+                ),
+              ),
+              NavigationDestination(
+                icon: const Icon(Icons.more_horiz),
+                selectedIcon: const Icon(Icons.more_horiz),
+                label: TranslationService.translate(context, 'nav_more'),
+                tooltip: TranslationService.translate(context, 'nav_more'),
+              ),
+            ],
           ),
-        ],
-      ),
-      ),
+        ),
       ),
     );
   }
 
-  List<_BottomNavItem> _buildBottomNavItems() {
+  List<_BottomNavItem> _buildBottomNavItems(ThemeProvider themeProvider) {
+    final showLoans =
+        themeProvider.canBorrowBooks || themeProvider.canLendBooks;
     return [
       _BottomNavItem(
         route: '/books',
@@ -216,13 +228,14 @@ class ScaffoldWithNav extends StatelessWidget {
         labelKey: 'btm_network',
         hasBadge: true,
       ),
-      _BottomNavItem(
-        route: '/requests',
-        matchPrefixes: ['/requests'],
-        icon: Icons.swap_horiz,
-        selectedIcon: Icons.swap_horiz,
-        labelKey: 'btm_loans',
-      ),
+      if (showLoans)
+        _BottomNavItem(
+          route: '/requests',
+          matchPrefixes: ['/requests'],
+          icon: Icons.swap_horiz,
+          selectedIcon: Icons.swap_horiz,
+          labelKey: 'btm_loans',
+        ),
       _BottomNavItem(
         route: '/profile',
         matchPrefixes: ['/profile'],
@@ -252,8 +265,13 @@ class ScaffoldWithNav extends StatelessWidget {
     }
     // Routes that belong to "More"
     const morePrefixes = [
-      '/games', '/memory-game', '/sliding-puzzle',
-      '/settings', '/operation-log', '/device-pairing', '/sync-review',
+      '/games',
+      '/memory-game',
+      '/sliding-puzzle',
+      '/settings',
+      '/operation-log',
+      '/device-pairing',
+      '/sync-review',
       '/help',
     ];
     for (final prefix in morePrefixes) {
@@ -265,7 +283,8 @@ class ScaffoldWithNav extends StatelessWidget {
   void _showMoreSheet(BuildContext context, ThemeProvider themeProvider) {
     final theme = Theme.of(context);
     final currentPath = GoRouterState.of(context).uri.path;
-    final gamesVisible = themeProvider.gamesEnabled &&
+    final gamesVisible =
+        themeProvider.gamesEnabled &&
         (themeProvider.memoryGameEnabled || themeProvider.slidingPuzzleEnabled);
 
     showModalBottomSheet(
@@ -293,15 +312,18 @@ class ScaffoldWithNav extends StatelessWidget {
                 ListTile(
                   leading: Icon(
                     Icons.sports_esports,
-                    color: currentPath.startsWith('/games') ||
+                    color:
+                        currentPath.startsWith('/games') ||
                             currentPath.startsWith('/memory-game') ||
                             currentPath.startsWith('/sliding-puzzle')
                         ? theme.colorScheme.primary
                         : null,
                   ),
-                  title: Text(TranslationService.translate(
-                      context, 'games_section')),
-                  selected: currentPath.startsWith('/games') ||
+                  title: Text(
+                    TranslationService.translate(context, 'games_section'),
+                  ),
+                  selected:
+                      currentPath.startsWith('/games') ||
                       currentPath.startsWith('/memory-game') ||
                       currentPath.startsWith('/sliding-puzzle'),
                   onTap: () {
@@ -316,8 +338,9 @@ class ScaffoldWithNav extends StatelessWidget {
                       ? theme.colorScheme.primary
                       : null,
                 ),
-                title: Text(TranslationService.translate(
-                    context, 'nav_settings')),
+                title: Text(
+                  TranslationService.translate(context, 'nav_settings'),
+                ),
                 selected: currentPath.startsWith('/settings'),
                 onTap: () {
                   Navigator.pop(sheetContext);
@@ -331,8 +354,7 @@ class ScaffoldWithNav extends StatelessWidget {
                       ? theme.colorScheme.primary
                       : null,
                 ),
-                title: Text(TranslationService.translate(
-                    context, 'nav_help')),
+                title: Text(TranslationService.translate(context, 'nav_help')),
                 selected: currentPath.startsWith('/help'),
                 onTap: () {
                   Navigator.pop(sheetContext);
@@ -374,14 +396,15 @@ class ScaffoldWithNav extends StatelessWidget {
           label: Text(TranslationService.translate(context, 'nav_network')),
         ),
       ),
-      _NavItem(
-        route: '/requests',
-        matchPrefixes: ['/requests'],
-        destination: NavigationRailDestination(
-          icon: const Icon(Icons.swap_horiz),
-          label: Text(TranslationService.translate(context, 'nav_loans')),
+      if (themeProvider.canBorrowBooks || themeProvider.canLendBooks)
+        _NavItem(
+          route: '/requests',
+          matchPrefixes: ['/requests'],
+          destination: NavigationRailDestination(
+            icon: const Icon(Icons.swap_horiz),
+            label: Text(TranslationService.translate(context, 'nav_loans')),
+          ),
         ),
-      ),
       _NavItem(
         route: '/profile',
         destination: NavigationRailDestination(
@@ -398,7 +421,8 @@ class ScaffoldWithNav extends StatelessWidget {
         ),
       ),
       if (themeProvider.gamesEnabled &&
-          (themeProvider.memoryGameEnabled || themeProvider.slidingPuzzleEnabled))
+          (themeProvider.memoryGameEnabled ||
+              themeProvider.slidingPuzzleEnabled))
         _NavItem(
           route: '/games',
           matchPrefixes: ['/games', '/memory-game', '/sliding-puzzle'],
@@ -409,7 +433,12 @@ class ScaffoldWithNav extends StatelessWidget {
         ),
       _NavItem(
         route: '/settings',
-        matchPrefixes: ['/settings', '/operation-log', '/device-pairing', '/sync-review'],
+        matchPrefixes: [
+          '/settings',
+          '/operation-log',
+          '/device-pairing',
+          '/sync-review',
+        ],
         destination: NavigationRailDestination(
           icon: const Icon(Icons.settings),
           label: Text(TranslationService.translate(context, 'nav_settings')),

@@ -83,15 +83,15 @@ class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
 
       if (!mounted) return;
       setState(() {
-        _profile =
-            profileFrb != null ? HubProfile.fromFrb(profileFrb) : null;
+        _profile = profileFrb != null ? HubProfile.fromFrb(profileFrb) : null;
         // Sort: new entries first, then alphabetical by title
-        _entries = entries..sort((a, b) {
-          final aNew = _isEntryNew(a);
-          final bNew = _isEntryNew(b);
-          if (aNew != bNew) return aNew ? -1 : 1;
-          return a.title.compareTo(b.title);
-        });
+        _entries = entries
+          ..sort((a, b) {
+            final aNew = _isEntryNew(a);
+            final bNew = _isEntryNew(b);
+            if (aNew != bNew) return aNew ? -1 : 1;
+            return a.title.compareTo(b.title);
+          });
         _localIsbns = localBooks
             .where((b) => b.isbn != null && b.isbn!.isNotEmpty)
             .map((b) => b.isbn!)
@@ -113,10 +113,14 @@ class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
   Future<void> _decryptContact() async {
     final provider = context.read<HubDirectoryProvider>();
     final follow = provider.followFor(widget.nodeId);
-    debugPrint('[CONTACT-READ] followFor(${widget.nodeId.substring(0, 8)}...): '
-        '${follow != null ? "found id=${follow.id} status=${follow.status}" : "NOT FOUND"}');
+    debugPrint(
+      '[CONTACT-READ] followFor(${widget.nodeId.substring(0, 8)}...): '
+      '${follow != null ? "found id=${follow.id} status=${follow.status}" : "NOT FOUND"}',
+    );
     if (follow != null) {
-      debugPrint('[CONTACT-READ] encryptedContact: ${follow.encryptedContact != null ? "${follow.encryptedContact!.length} chars" : "null"}');
+      debugPrint(
+        '[CONTACT-READ] encryptedContact: ${follow.encryptedContact != null ? "${follow.encryptedContact!.length} chars" : "null"}',
+      );
     }
     final blob = follow?.encryptedContact;
     if (blob == null || blob.isEmpty) {
@@ -125,7 +129,9 @@ class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
     }
 
     final plaintext = await provider.openContact(blob);
-    debugPrint('[CONTACT-READ] decrypted: ${plaintext != null ? "OK (${plaintext.length} chars)" : "FAILED"}');
+    debugPrint(
+      '[CONTACT-READ] decrypted: ${plaintext != null ? "OK (${plaintext.length} chars)" : "FAILED"}',
+    );
     if (mounted && plaintext != null) {
       setState(() => _decryptedContact = plaintext);
     }
@@ -145,7 +151,8 @@ class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
   @override
   Widget build(BuildContext context) {
     final themeProvider = context.watch<ThemeProvider>();
-    final title = _profile?.displayName ??
+    final title =
+        _profile?.displayName ??
         TranslationService.translate(context, 'directory_catalog_title');
 
     return Scaffold(
@@ -196,9 +203,11 @@ class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.error_outline,
-                  size: 64,
-                  color: Theme.of(context).colorScheme.error),
+              Icon(
+                Icons.error_outline,
+                size: 64,
+                color: Theme.of(context).colorScheme.error,
+              ),
               const SizedBox(height: 16),
               Text(
                 _error!,
@@ -241,18 +250,20 @@ class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.library_books_outlined,
-                  size: 64, color: Colors.grey[400]),
+              Icon(
+                Icons.library_books_outlined,
+                size: 64,
+                color: Colors.grey[400],
+              ),
               const SizedBox(height: 16),
               Text(
                 TranslationService.translate(
                   context,
                   'directory_catalog_empty',
                 ),
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.copyWith(color: Colors.grey[600]),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -279,13 +290,17 @@ class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
               autofocus: true,
               decoration: InputDecoration(
                 hintText: TranslationService.translate(
-                    context, 'directory_catalog_search'),
+                  context,
+                  'directory_catalog_search',
+                ),
                 prefixIcon: const Icon(Icons.search, size: 20),
                 suffixIcon: _searchQuery.isNotEmpty
                     ? IconButton(
                         icon: const Icon(Icons.clear, size: 20),
                         tooltip: TranslationService.translate(
-                            context, 'action_clear'),
+                          context,
+                          'action_clear',
+                        ),
                         onPressed: () {
                           _searchController.clear();
                           setState(() => _searchQuery = '');
@@ -294,7 +309,9 @@ class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
                     : null,
                 isDense: true,
                 contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12, vertical: 8),
+                  horizontal: 12,
+                  vertical: 8,
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -310,10 +327,9 @@ class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
             padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
             child: Text(
               '${filtered.length} ${TranslationService.translate(context, 'directory_catalog_search_results')}',
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.copyWith(color: Colors.grey[600]),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
             ),
           ),
         Expanded(
@@ -347,11 +363,7 @@ class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
                         onTap: () => _showBookDetail(entry),
                       ),
                       if (isNew)
-                        Positioned(
-                          top: 8,
-                          left: -4,
-                          child: _NewRibbon(),
-                        ),
+                        Positioned(top: 8, left: -4, child: _NewRibbon()),
                     ],
                   ),
                 );
@@ -375,6 +387,7 @@ class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
       addedAt: entry.addedAt != null ? DateTime.tryParse(entry.addedAt!) : null,
     );
   }
+
   void _showBookDetail(FrbCatalogEntry entry) {
     final lang = Localizations.localeOf(context).languageCode;
     showModalBottomSheet(
@@ -467,29 +480,33 @@ class _BookDetailSheetState extends State<_BookDetailSheet> {
       final title = (metaTitle != null && metaTitle.isNotEmpty)
           ? metaTitle
           : (widget.entry.title.isNotEmpty
-              ? widget.entry.title
-              : widget.entry.isbn);
+                ? widget.entry.title
+                : widget.entry.isbn);
       final author = (metaAuthor != null && metaAuthor.isNotEmpty)
           ? metaAuthor
           : widget.entry.author;
 
-      await widget.ffi.createBook(FrbBook(
-        title: title,
-        author: author,
-        isbn: widget.entry.isbn,
-        summary: _meta?['summary'],
-        publisher: _meta?['publisher'],
-        publicationYear: yearStr != null ? int.tryParse(yearStr) : null,
-        coverUrl: _meta?['cover_url'],
-        owned: true,
-        private: false,
-      ));
+      await widget.ffi.createBook(
+        FrbBook(
+          title: title,
+          author: author,
+          isbn: widget.entry.isbn,
+          summary: _meta?['summary'],
+          publisher: _meta?['publisher'],
+          publicationYear: yearStr != null ? int.tryParse(yearStr) : null,
+          coverUrl: _meta?['cover_url'],
+          owned: true,
+          private: false,
+        ),
+      );
 
       widget.onAdded(widget.entry.isbn);
 
       if (mounted) {
-        final successMsg =
-            TranslationService.translate(context, 'catalog_added_success');
+        final successMsg = TranslationService.translate(
+          context,
+          'catalog_added_success',
+        );
         final messenger = ScaffoldMessenger.of(context);
         Navigator.of(context).pop();
         messenger.showSnackBar(SnackBar(content: Text(successMsg)));
@@ -550,7 +567,8 @@ class _BookDetailSheetState extends State<_BookDetailSheet> {
     final summary = _meta?['summary'];
     final publisher = _meta?['publisher'];
     final year = _meta?['publication_year'];
-    final title = _meta?['title'] ??
+    final title =
+        _meta?['title'] ??
         (widget.entry.title.isNotEmpty ? widget.entry.title : null);
     final author = _meta?['author'] ?? widget.entry.author;
     final closeLabel = TranslationService.translate(context, 'close');
@@ -608,32 +626,28 @@ class _BookDetailSheetState extends State<_BookDetailSheet> {
                             height: 180,
                             child: _loading
                                 ? const Center(
-                                    child: CircularProgressIndicator())
+                                    child: CircularProgressIndicator(),
+                                  )
                                 : coverUrl != null
-                                    ? ClipRRect(
-                                        borderRadius:
-                                            BorderRadius.circular(8),
-                                        child: Semantics(
-                                          image: true,
-                                          label:
-                                              title != null && author != null
-                                                  ? '$title, $author'
-                                                  : title ?? widget.entry.isbn,
-                                          child: CachedNetworkImage(
-                                            imageUrl: coverUrl,
-                                            fit: BoxFit.cover,
-                                            placeholder: (_, _) =>
-                                                const Center(
-                                              child:
-                                                  CircularProgressIndicator(),
-                                            ),
-                                            errorWidget: (_, _, _) =>
-                                                _buildPlaceholderCover(
-                                                    context),
-                                          ),
+                                ? ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Semantics(
+                                      image: true,
+                                      label: title != null && author != null
+                                          ? '$title, $author'
+                                          : title ?? widget.entry.isbn,
+                                      child: CachedNetworkImage(
+                                        imageUrl: coverUrl,
+                                        fit: BoxFit.cover,
+                                        placeholder: (_, _) => const Center(
+                                          child: CircularProgressIndicator(),
                                         ),
-                                      )
-                                    : _buildPlaceholderCover(context),
+                                        errorWidget: (_, _, _) =>
+                                            _buildPlaceholderCover(context),
+                                      ),
+                                    ),
+                                  )
+                                : _buildPlaceholderCover(context),
                           ),
                           const SizedBox(width: 16),
                           Expanded(
@@ -656,9 +670,10 @@ class _BookDetailSheetState extends State<_BookDetailSheet> {
                                 if (publisher != null || year != null) ...[
                                   const SizedBox(height: 4),
                                   Text(
-                                    [publisher, year]
-                                        .whereType<String>()
-                                        .join(' - '),
+                                    [
+                                      publisher,
+                                      year,
+                                    ].whereType<String>().join(' - '),
                                     style: theme.textTheme.bodySmall?.copyWith(
                                       color: Colors.grey[600],
                                     ),
@@ -705,10 +720,7 @@ class _BookDetailSheetState extends State<_BookDetailSheet> {
                           summary != null &&
                           summary.isNotEmpty) ...[
                         const SizedBox(height: 16),
-                        Text(
-                          summary,
-                          style: theme.textTheme.bodyMedium,
-                        ),
+                        Text(summary, style: theme.textTheme.bodyMedium),
                       ],
                       if (!_loading && _meta == null) ...[
                         const SizedBox(height: 12),
@@ -717,8 +729,9 @@ class _BookDetailSheetState extends State<_BookDetailSheet> {
                             context,
                             'catalog_details_unavailable',
                           ),
-                          style: theme.textTheme.bodySmall
-                              ?.copyWith(color: Colors.grey[500]),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: Colors.grey[500],
+                          ),
                         ),
                       ],
                     ],
@@ -767,20 +780,22 @@ class _BookDetailSheetState extends State<_BookDetailSheet> {
                                   ),
                                 ),
                         ),
-                        if (!isLocal && widget.allowBorrowing)
+                        if (!isLocal &&
+                            widget.allowBorrowing &&
+                            context.watch<ThemeProvider>().canBorrowBooks)
                           Padding(
                             padding: const EdgeInsets.only(top: 8),
                             child: SizedBox(
                               width: double.infinity,
                               child: OutlinedButton.icon(
-                                onPressed:
-                                    _borrowing ? null : _requestBorrow,
+                                onPressed: _borrowing ? null : _requestBorrow,
                                 icon: _borrowing
                                     ? const SizedBox(
                                         width: 18,
                                         height: 18,
                                         child: CircularProgressIndicator(
-                                            strokeWidth: 2),
+                                          strokeWidth: 2,
+                                        ),
                                       )
                                     : const Icon(Icons.swap_horiz),
                                 label: Text(
@@ -825,10 +840,7 @@ class _ProfileHeader extends StatelessWidget {
   final HubProfile profile;
   final String? decryptedContact;
 
-  const _ProfileHeader({
-    required this.profile,
-    this.decryptedContact,
-  });
+  const _ProfileHeader({required this.profile, this.decryptedContact});
 
   bool get _hasContactSection =>
       (profile.website != null && profile.website!.isNotEmpty) ||
@@ -874,13 +886,10 @@ class _ProfileHeader extends StatelessWidget {
                   children: [
                     Text(
                       profile.displayName,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: onContainer,
-                          ),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: onContainer,
+                      ),
                     ),
                     if (profile.locationCountry != null)
                       Padding(
@@ -899,7 +908,9 @@ class _ProfileHeader extends StatelessWidget {
               ),
               Container(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 12, vertical: 6),
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: cs.primary.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(10),
@@ -908,21 +919,14 @@ class _ProfileHeader extends StatelessWidget {
                   children: [
                     Text(
                       '${profile.bookCount}',
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleLarge
-                          ?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: onContainer,
-                          ),
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: onContainer,
+                      ),
                     ),
                     Text(
-                      TranslationService.translate(
-                          context, 'directory_books'),
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: onContainerMuted,
-                      ),
+                      TranslationService.translate(context, 'directory_books'),
+                      style: TextStyle(fontSize: 11, color: onContainerMuted),
                     ),
                   ],
                 ),
@@ -938,8 +942,7 @@ class _ProfileHeader extends StatelessWidget {
                 color: onContainer.withValues(alpha: 0.15),
               ),
             ),
-            if (profile.website != null &&
-                profile.website!.isNotEmpty)
+            if (profile.website != null && profile.website!.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(bottom: 6),
                 child: _WebsiteLink(
@@ -947,24 +950,23 @@ class _ProfileHeader extends StatelessWidget {
                   color: onContainerMuted,
                 ),
               ),
-            if (decryptedContact != null &&
-                decryptedContact!.isNotEmpty)
+            if (decryptedContact != null && decryptedContact!.isNotEmpty)
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(top: 1),
-                    child: Icon(Icons.lock_outlined,
-                        size: 14, color: onContainerMuted),
+                    child: Icon(
+                      Icons.lock_outlined,
+                      size: 14,
+                      color: onContainerMuted,
+                    ),
                   ),
                   const SizedBox(width: 8),
                   Flexible(
                     child: Text(
                       decryptedContact!,
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: onContainer,
-                      ),
+                      style: TextStyle(fontSize: 13, color: onContainer),
                     ),
                   ),
                 ],
@@ -1013,24 +1015,21 @@ class _WebsiteLink extends StatelessWidget {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
-      onTap: () => launchUrl(uri, mode: LaunchMode.externalApplication),
-      child: Row(
-        children: [
-          Icon(Icons.language, size: 14, color: color),
-          const SizedBox(width: 6),
-          Flexible(
-            child: Text(
-              display,
-              style: TextStyle(
-                fontSize: 12,
-                color: color,
+        onTap: () => launchUrl(uri, mode: LaunchMode.externalApplication),
+        child: Row(
+          children: [
+            Icon(Icons.language, size: 14, color: color),
+            const SizedBox(width: 6),
+            Flexible(
+              child: Text(
+                display,
+                style: TextStyle(fontSize: 12, color: color),
+                overflow: TextOverflow.ellipsis,
               ),
-              overflow: TextOverflow.ellipsis,
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
     );
   }
 }
@@ -1059,10 +1058,9 @@ class _PendingApprovalState extends StatelessWidget {
                 context,
                 'directory_catalog_pending',
               ),
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(color: Colors.grey[700]),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: Colors.grey[700]),
               textAlign: TextAlign.center,
             ),
           ],
@@ -1098,10 +1096,9 @@ class _NotFollowingState extends StatelessWidget {
                 context,
                 'directory_catalog_not_following',
               ),
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(color: Colors.grey[600]),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
@@ -1114,7 +1111,8 @@ class _NotFollowingState extends StatelessWidget {
                     SnackBar(
                       content: Text(
                         TranslationService.translate(
-                          context, 'directory_follow_error',
+                          context,
+                          'directory_follow_error',
                         ),
                       ),
                       backgroundColor: Theme.of(context).colorScheme.error,
@@ -1143,14 +1141,8 @@ class _NotFollowingState extends StatelessWidget {
               icon: const Icon(Icons.add),
               label: Text(
                 requiresApproval
-                    ? TranslationService.translate(
-                        context,
-                        'directory_request',
-                      )
-                    : TranslationService.translate(
-                        context,
-                        'directory_follow',
-                      ),
+                    ? TranslationService.translate(context, 'directory_request')
+                    : TranslationService.translate(context, 'directory_follow'),
               ),
             ),
           ],

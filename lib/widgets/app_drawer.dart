@@ -64,14 +64,17 @@ class AppDrawer extends StatelessWidget {
             currentPath: currentPath,
             theme: theme,
           ),
-          _buildDrawerItem(
-            context,
-            icon: Icons.swap_horiz,
-            titleKey: 'nav_loans',
-            route: '/requests',
-            currentPath: currentPath,
-            theme: theme,
-          ),
+          // Hide the "Loans" entry when both lending and borrowing modules are
+          // disabled — there is nothing to manage on that screen anymore.
+          if (themeProvider.canBorrowBooks || themeProvider.canLendBooks)
+            _buildDrawerItem(
+              context,
+              icon: Icons.swap_horiz,
+              titleKey: 'nav_loans',
+              route: '/requests',
+              currentPath: currentPath,
+              theme: theme,
+            ),
           const Divider(),
           _buildDrawerItem(
             context,
@@ -90,8 +93,14 @@ class AppDrawer extends StatelessWidget {
             theme: theme,
           ),
           if (themeProvider.gamesEnabled &&
-              (themeProvider.memoryGameEnabled || themeProvider.slidingPuzzleEnabled))
-            _buildGamesExpansionTile(context, themeProvider, currentPath, theme),
+              (themeProvider.memoryGameEnabled ||
+                  themeProvider.slidingPuzzleEnabled))
+            _buildGamesExpansionTile(
+              context,
+              themeProvider,
+              currentPath,
+              theme,
+            ),
           _buildDrawerItem(
             context,
             icon: Icons.settings,
@@ -119,7 +128,8 @@ class AppDrawer extends StatelessWidget {
     String currentPath,
     ThemeData theme,
   ) {
-    final isGamesActive = currentPath.startsWith('/memory-game') ||
+    final isGamesActive =
+        currentPath.startsWith('/memory-game') ||
         currentPath.startsWith('/sliding-puzzle') ||
         currentPath.startsWith('/games');
 
@@ -173,10 +183,7 @@ class AppDrawer extends StatelessWidget {
     final isActive = currentPath.startsWith(route);
 
     return ListTile(
-      leading: Icon(
-        icon,
-        color: isActive ? theme.colorScheme.primary : null,
-      ),
+      leading: Icon(icon, color: isActive ? theme.colorScheme.primary : null),
       title: Text(
         TranslationService.translate(context, titleKey),
         style: isActive
@@ -203,7 +210,8 @@ class AppDrawer extends StatelessWidget {
           return;
         }
         // Same-route tap on Sliding Puzzle: force reset to setup
-        if (route == '/sliding-puzzle' && currentPath.startsWith('/sliding-puzzle')) {
+        if (route == '/sliding-puzzle' &&
+            currentPath.startsWith('/sliding-puzzle')) {
           final provider = context.read<SlidingPuzzleProvider>();
           if (provider.phase != PuzzlePhase.setup) {
             provider.resetToSetup();

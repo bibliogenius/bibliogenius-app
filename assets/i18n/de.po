@@ -864,9 +864,9 @@ msgstr "Ausgeliehen von"
 msgid "borrowing_module"
 msgstr "Ausleihen"
 
-#. Lend and borrow books with friends
+#. Allow borrowing books from your contacts
 msgid "borrowing_module_desc"
-msgstr "Bücher mit Freunden verleihen und ausleihen"
+msgstr "Ausleihen von Büchern bei Ihren Kontakten erlauben"
 
 #. Browse Library
 msgid "browse_library"
@@ -1763,6 +1763,26 @@ msgstr "Hörbücher aktivieren"
 #. Enable Borrowing
 msgid "enable_borrowing_module"
 msgstr "Ausleihe aktivieren"
+
+#. Lending
+msgid "enable_lending_module"
+msgstr "Verleih"
+
+#. Allow lending your books to your contacts
+msgid "lending_module_desc"
+msgstr "Verleih Ihrer Bücher an Ihre Kontakte erlauben"
+
+#. Loans modules disabled
+msgid "loans_disabled_title"
+msgstr "Ausleihen sind deaktiviert"
+
+#. Both lending and borrowing modules are off. Re-enable them in Settings to manage loans here.
+msgid "loans_disabled_body"
+msgstr "Die Module Verleih und Ausleihe sind beide deaktiviert. Aktivieren Sie sie in den Einstellungen erneut, um Ausleihen hier zu verwalten."
+
+#. Open Settings
+msgid "loans_disabled_open_settings"
+msgstr "Einstellungen öffnen"
 
 #. Enable Gamification
 msgid "enable_gamification"
@@ -8476,6 +8496,9 @@ msgstr "Wenn ein vertrauenswürdiger Kontakt ein Buch anfragt, wird die Ausleihe
 
 msgid "enable_borrowing_module_help"
 msgstr "Aktiviert das Ausleihsystem: Sie können Bücher an Ihre Kontakte verleihen und deren Bücher ausleihen. Jede Ausleihe hat eine konfigurierbare Standarddauer und erzeugt automatische Erinnerungen."
+
+msgid "enable_lending_module_help"
+msgstr "Erlaubt das Verleihen Ihrer Bücher an Ihre Kontakte. Wenn deaktiviert, verschwinden die Verleih-Schaltflächen aus den Buchdetails und Ihre Kontakte können nicht mehr aus Ihrer Bibliothek ausleihen — Sie können aber weiterhin aus deren Bibliotheken ausleihen, wenn das Ausleihmodul aktiviert ist."
 
 msgid "settings_allow_private_books_help"
 msgstr "Schaltet die Option 'Privat' für jedes Buch frei. Ein privates Buch bleibt in Ihrer Bibliothek, wird aber anderen Nutzern nie angezeigt — weder in Ihrem öffentlichen Profil noch in Netzwerksuchen."

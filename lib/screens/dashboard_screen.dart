@@ -170,7 +170,10 @@ class _DashboardScreenState extends State<DashboardScreen>
       }
 
       try {
-        final contactRepo = Provider.of<ContactRepository>(context, listen: false);
+        final contactRepo = Provider.of<ContactRepository>(
+          context,
+          listen: false,
+        );
         final contacts = await contactRepo.getContacts();
         if (mounted) {
           setState(() {
@@ -407,10 +410,7 @@ class _DashboardScreenState extends State<DashboardScreen>
               ),
               const SizedBox(height: 12),
               Text(
-                TranslationService.translate(
-                  context,
-                  'empty_library_subtitle',
-                ),
+                TranslationService.translate(context, 'empty_library_subtitle'),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 15,
@@ -443,37 +443,37 @@ class _DashboardScreenState extends State<DashboardScreen>
               ),
               const SizedBox(height: 14),
               OutlinedButton.icon(
-                  onPressed: () => context.push('/search/external'),
-                  icon: Icon(
-                    Icons.travel_explore_rounded,
+                onPressed: () => context.push('/search/external'),
+                icon: Icon(
+                  Icons.travel_explore_rounded,
+                  color: colorScheme.primary,
+                ),
+                label: Text(
+                  TranslationService.translate(
+                    context,
+                    'btn_search_book_online',
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
                     color: colorScheme.primary,
                   ),
-                  label: Text(
-                    TranslationService.translate(
-                      context,
-                      'btn_search_book_online',
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500,
-                      color: colorScheme.primary,
-                    ),
+                ),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 28,
+                    vertical: 14,
                   ),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 28,
-                      vertical: 14,
-                    ),
-                    side: BorderSide(
-                      color: colorScheme.primary.withValues(alpha: 0.3),
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(28),
-                    ),
+                  side: BorderSide(
+                    color: colorScheme.primary.withValues(alpha: 0.3),
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(28),
                   ),
                 ),
+              ),
             ],
           ),
         ),
@@ -515,23 +515,39 @@ class _DashboardScreenState extends State<DashboardScreen>
                         Icons.menu_book,
                         onTap: () => context.push('/books'),
                       ),
-                      _buildStatCard(
-                        context,
-                        TranslationService.translate(context, 'dashboard_lent'),
-                        (_stats['active_loans'] ?? 0).toString(),
-                        Icons.arrow_upward,
-                        isAccent: true,
-                        subtitle: TranslationService.translate(context, 'stat_in_progress'),
-                        onTap: () => context.push('/requests?tab=lent&status=active'),
-                      ),
+                      if (themeProvider.canLendBooks)
+                        _buildStatCard(
+                          context,
+                          TranslationService.translate(
+                            context,
+                            'dashboard_lent',
+                          ),
+                          (_stats['active_loans'] ?? 0).toString(),
+                          Icons.arrow_upward,
+                          isAccent: true,
+                          subtitle: TranslationService.translate(
+                            context,
+                            'stat_in_progress',
+                          ),
+                          onTap: () =>
+                              context.push('/requests?tab=lent&status=active'),
+                        ),
                       if (themeProvider.canBorrowBooks)
                         _buildStatCard(
                           context,
-                          TranslationService.translate(context, 'dashboard_borrowed'),
+                          TranslationService.translate(
+                            context,
+                            'dashboard_borrowed',
+                          ),
                           (_stats['borrowed_count'] ?? 0).toString(),
                           Icons.arrow_downward,
-                          subtitle: TranslationService.translate(context, 'stat_in_progress'),
-                          onTap: () => context.push('/requests?tab=borrowed&status=active'),
+                          subtitle: TranslationService.translate(
+                            context,
+                            'stat_in_progress',
+                          ),
+                          onTap: () => context.push(
+                            '/requests?tab=borrowed&status=active',
+                          ),
                         ),
                       if (!isKid)
                         _buildStatCard(
@@ -675,8 +691,11 @@ class _DashboardScreenState extends State<DashboardScreen>
                       ),
 
                     // Games section (grouped)
-                    if (!isKid && themeProvider.gamesEnabled &&
-                        (themeProvider.memoryGameEnabled || themeProvider.slidingPuzzleEnabled || themeProvider.hangmanEnabled))
+                    if (!isKid &&
+                        themeProvider.gamesEnabled &&
+                        (themeProvider.memoryGameEnabled ||
+                            themeProvider.slidingPuzzleEnabled ||
+                            themeProvider.hangmanEnabled))
                       _buildGamesSection(context, themeProvider),
 
                     const SizedBox(height: 24),
@@ -687,7 +706,9 @@ class _DashboardScreenState extends State<DashboardScreen>
                             onPressed: () => context.push('/statistics'),
                             icon: Icon(
                               Icons.insights,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
                             ),
                             label: Text(
                               TranslationService.translate(
@@ -695,7 +716,9 @@ class _DashboardScreenState extends State<DashboardScreen>
                                 'view_insights',
                               ),
                               style: TextStyle(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
                               ),
                             ),
                             style: TextButton.styleFrom(
@@ -703,16 +726,13 @@ class _DashboardScreenState extends State<DashboardScreen>
                                 horizontal: 24,
                                 vertical: 16,
                               ),
-                              backgroundColor: Theme.of(context)
-                                  .colorScheme
-                                  .onSurface
-                                  .withValues(alpha: 0.05),
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.05),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(30),
                                 side: BorderSide(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurface
+                                  color: Theme.of(context).colorScheme.onSurface
                                       .withValues(alpha: 0.1),
                                 ),
                               ),
@@ -739,23 +759,24 @@ class _DashboardScreenState extends State<DashboardScreen>
         children: [
           Row(
             children: [
-              Icon(Icons.sports_esports, size: 20,
-                color: Theme.of(context).colorScheme.primary),
+              Icon(
+                Icons.sports_esports,
+                size: 20,
+                color: Theme.of(context).colorScheme.primary,
+              ),
               const SizedBox(width: 8),
               Text(
                 TranslationService.translate(context, 'games_section'),
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
               ),
             ],
           ),
-          if (themeProvider.memoryGameEnabled)
-            _buildMemoryGameCard(context),
+          if (themeProvider.memoryGameEnabled) _buildMemoryGameCard(context),
           if (themeProvider.slidingPuzzleEnabled)
             _buildSlidingPuzzleCard(context),
-          if (themeProvider.hangmanEnabled)
-            _buildHangmanCard(context),
+          if (themeProvider.hangmanEnabled) _buildHangmanCard(context),
         ],
       ),
     );
@@ -800,13 +821,17 @@ class _DashboardScreenState extends State<DashboardScreen>
                     children: [
                       Text(
                         TranslationService.translate(
-                            context, 'memory_game_title'),
+                          context,
+                          'memory_game_title',
+                        ),
                         style: theme.textTheme.titleSmall,
                       ),
                       const SizedBox(height: 2),
                       Text(
                         TranslationService.translate(
-                            context, 'memory_game_dashboard_subtitle'),
+                          context,
+                          'memory_game_dashboard_subtitle',
+                        ),
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
@@ -865,13 +890,17 @@ class _DashboardScreenState extends State<DashboardScreen>
                     children: [
                       Text(
                         TranslationService.translate(
-                            context, 'sliding_puzzle_title'),
+                          context,
+                          'sliding_puzzle_title',
+                        ),
                         style: theme.textTheme.titleSmall,
                       ),
                       const SizedBox(height: 2),
                       Text(
                         TranslationService.translate(
-                            context, 'sliding_puzzle_dashboard_subtitle'),
+                          context,
+                          'sliding_puzzle_dashboard_subtitle',
+                        ),
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
@@ -929,14 +958,15 @@ class _DashboardScreenState extends State<DashboardScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        TranslationService.translate(
-                            context, 'hangman_title'),
+                        TranslationService.translate(context, 'hangman_title'),
                         style: theme.textTheme.titleSmall,
                       ),
                       const SizedBox(height: 2),
                       Text(
                         TranslationService.translate(
-                            context, 'hangman_dashboard_subtitle'),
+                          context,
+                          'hangman_dashboard_subtitle',
+                        ),
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
@@ -984,7 +1014,10 @@ class _DashboardScreenState extends State<DashboardScreen>
                 height: 3,
                 decoration: BoxDecoration(
                   gradient: AppDesign.sectionAccentGradient(
-                    Provider.of<ThemeProvider>(context, listen: false).themeStyle,
+                    Provider.of<ThemeProvider>(
+                      context,
+                      listen: false,
+                    ).themeStyle,
                   ),
                 ),
               ),
@@ -992,48 +1025,58 @@ class _DashboardScreenState extends State<DashboardScreen>
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
-              // Show max 10 items in horizontal list
-              _buildBookList(context, books.take(10).toList(), emptyMessage),
-
-              const SizedBox(height: 12),
-              // See All Link
-              ScaleOnTap(
-                onTap: () => context.go(seeAllRoute),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(AppDesign.radiusRound),
-                    border: Border.all(
-                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
+                    // Show max 10 items in horizontal list
+                    _buildBookList(
+                      context,
+                      books.take(10).toList(),
+                      emptyMessage,
                     ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        seeAllLabel,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 13,
-                          letterSpacing: 0.2,
+
+                    const SizedBox(height: 12),
+                    // See All Link
+                    ScaleOnTap(
+                      onTap: () => context.go(seeAllRoute),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(
+                            AppDesign.radiusRound,
+                          ),
+                          border: Border.all(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.primary.withValues(alpha: 0.15),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              seeAllLabel,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 13,
+                                letterSpacing: 0.2,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Icon(
+                              Icons.arrow_forward_rounded,
+                              size: 16,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(width: 6),
-                      Icon(
-                        Icons.arrow_forward_rounded,
-                        size: 16,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+                    ),
                   ],
                 ),
               ),
@@ -1053,7 +1096,10 @@ class _DashboardScreenState extends State<DashboardScreen>
 
     // Theme-aware colors — light themes use a tinted primary wash
     final gradientColors = isDark
-        ? [theme.colorScheme.surface, theme.colorScheme.surface.withValues(alpha: 0.9)]
+        ? [
+            theme.colorScheme.surface,
+            theme.colorScheme.surface.withValues(alpha: 0.9),
+          ]
         : [
             Color.alphaBlend(
               theme.colorScheme.primary.withValues(alpha: 0.04),
@@ -1292,87 +1338,91 @@ class _DashboardScreenState extends State<DashboardScreen>
       button: onTap != null,
       label: '$label : $value',
       child: ScaleOnTap(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          gradient: isAccent
-              ? LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    theme.colorScheme.primary,
-                    theme.colorScheme.primary.withValues(alpha: 0.85),
-                  ],
-                )
-              : null,
-          color: isAccent ? null : theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(AppDesign.radiusXLarge),
-          border: isAccent
-              ? null
-              : Border.all(
-                  color: theme.colorScheme.outlineVariant,
-                ),
-          boxShadow: isAccent
-              ? AppDesign.glowShadow(theme.colorScheme.primary)
-              : AppDesign.cardShadow,
-        ),
-        child: Builder(
-          builder: (context) {
-            final isDesktop = MediaQuery.of(context).size.width > 600;
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: isAccent
-                        ? Colors.white.withValues(alpha: 0.2)
-                        : iconClr.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            gradient: isAccent
+                ? LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      theme.colorScheme.primary,
+                      theme.colorScheme.primary.withValues(alpha: 0.85),
+                    ],
+                  )
+                : null,
+            color: isAccent ? null : theme.colorScheme.surface,
+            borderRadius: BorderRadius.circular(AppDesign.radiusXLarge),
+            border: isAccent
+                ? null
+                : Border.all(color: theme.colorScheme.outlineVariant),
+            boxShadow: isAccent
+                ? AppDesign.glowShadow(theme.colorScheme.primary)
+                : AppDesign.cardShadow,
+          ),
+          child: Builder(
+            builder: (context) {
+              final isDesktop = MediaQuery.of(context).size.width > 600;
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: isAccent
+                          ? Colors.white.withValues(alpha: 0.2)
+                          : iconClr.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(
+                        AppDesign.radiusMedium,
+                      ),
+                    ),
+                    child: Icon(
+                      icon,
+                      color: iconClr,
+                      size: isDesktop ? 24 : 20,
+                    ),
                   ),
-                  child: Icon(icon, color: iconClr, size: isDesktop ? 24 : 20),
-                ),
-                SizedBox(height: isDesktop ? 14 : 10),
-                Text(
-                  value,
-                  style: TextStyle(
-                    fontSize: isDesktop ? 32 : 26,
-                    fontWeight: FontWeight.w900,
-                    color: valueClr,
-                    letterSpacing: -0.5,
-                  ),
-                ),
-                SizedBox(height: isDesktop ? 4 : 2),
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: isDesktop ? 13 : 11,
-                    fontWeight: FontWeight.w600,
-                    color: labelClr,
-                    letterSpacing: 0.3,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                if (subtitle != null) ...[
-                  const SizedBox(height: 2),
+                  SizedBox(height: isDesktop ? 14 : 10),
                   Text(
-                    subtitle,
+                    value,
                     style: TextStyle(
-                      fontSize: isDesktop ? 11 : 9,
-                      fontWeight: FontWeight.w500,
-                      color: labelClr.withValues(alpha: 0.7),
+                      fontSize: isDesktop ? 32 : 26,
+                      fontWeight: FontWeight.w900,
+                      color: valueClr,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  SizedBox(height: isDesktop ? 4 : 2),
+                  Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: isDesktop ? 13 : 11,
+                      fontWeight: FontWeight.w600,
+                      color: labelClr,
+                      letterSpacing: 0.3,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
+                  if (subtitle != null) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: isDesktop ? 11 : 9,
+                        fontWeight: FontWeight.w500,
+                        color: labelClr.withValues(alpha: 0.7),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                 ],
-              ],
-            );
-          },
+              );
+            },
+          ),
         ),
-      ),
       ),
     );
   }
@@ -1389,8 +1439,10 @@ class _DashboardScreenState extends State<DashboardScreen>
       icon = Icons.bolt;
     }
 
-    final themeStyle =
-        Provider.of<ThemeProvider>(context, listen: false).themeStyle;
+    final themeStyle = Provider.of<ThemeProvider>(
+      context,
+      listen: false,
+    ).themeStyle;
     final theme = Theme.of(context);
     final accentGradient = AppDesign.sectionAccentGradient(themeStyle);
     final iconColor = theme.colorScheme.primary;
@@ -1484,39 +1536,39 @@ class _DashboardScreenState extends State<DashboardScreen>
       button: true,
       label: label,
       child: ScaleOnTap(
-      onTap: onTap,
-      child: Container(
-        key: key,
-        height: 140,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: AppDesign.subtleShadow,
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: color.withAlpha(25),
-                shape: BoxShape.circle,
+        onTap: onTap,
+        child: Container(
+          key: key,
+          height: 140,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: AppDesign.subtleShadow,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: color.withAlpha(25),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, size: 40, color: color),
               ),
-              child: Icon(icon, size: 40, color: color),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: color,
+              const SizedBox(height: 12),
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
       ),
     );
   }

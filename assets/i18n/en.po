@@ -955,9 +955,9 @@ msgstr "Borrowing from"
 msgid "borrowing_module"
 msgstr "Lending"
 
-#. Lend and borrow books with friends
+#. Allow borrowing books from your contacts
 msgid "borrowing_module_desc"
-msgstr "Lend and borrow books with friends"
+msgstr "Allow borrowing books from your contacts"
 
 #. Browse Library
 msgid "browse_library"
@@ -1956,6 +1956,26 @@ msgstr "Enable Audiobooks"
 #. Enable Borrowing
 msgid "enable_borrowing_module"
 msgstr "Borrowing"
+
+#. Lending
+msgid "enable_lending_module"
+msgstr "Lending"
+
+#. Allow lending your books to your contacts
+msgid "lending_module_desc"
+msgstr "Allow lending your books to your contacts"
+
+#. Loans modules disabled
+msgid "loans_disabled_title"
+msgstr "Loans are disabled"
+
+#. Both lending and borrowing modules are off. Re-enable them in Settings to manage loans here.
+msgid "loans_disabled_body"
+msgstr "Both lending and borrowing modules are off. Re-enable them in Settings to manage loans here."
+
+#. Open Settings
+msgid "loans_disabled_open_settings"
+msgstr "Open Settings"
 
 #. Enable Gamification
 msgid "enable_gamification"
@@ -8820,6 +8840,9 @@ msgstr "When a trusted contact requests a book, the loan is accepted automatical
 
 msgid "enable_borrowing_module_help"
 msgstr "Enables the loan system: you can lend books to your contacts and borrow theirs. Each loan has a configurable default duration and generates automatic reminders."
+
+msgid "enable_lending_module_help"
+msgstr "Allows you to lend books to your contacts. When disabled, the lend buttons disappear from book details and your contacts cannot request to borrow from your library — but you can still borrow from theirs if the borrowing module is enabled."
 
 msgid "settings_allow_private_books_help"
 msgstr "Unlocks the 'Private' option on each book. A private book stays in your library but is never shown to other users — not on your public profile, not in network searches."

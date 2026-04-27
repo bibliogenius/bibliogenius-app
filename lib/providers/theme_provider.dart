@@ -31,7 +31,8 @@ class ThemeProvider with ChangeNotifier {
   List<String> get userLanguages => List.unmodifiable(_userLanguages);
 
   // Delegates to TranslationService.supportedLocales (single source of truth)
-  static List<String> get supportedUILanguages => TranslationService.supportedLocales;
+  static List<String> get supportedUILanguages =>
+      TranslationService.supportedLocales;
 
   String _themeStyle = 'default';
   String get themeStyle => _themeStyle;
@@ -90,6 +91,12 @@ class ThemeProvider with ChangeNotifier {
   // Also disabled for booksellers (they sell, not borrow)
   bool _canBorrowBooks = true;
   bool get canBorrowBooks => _canBorrowBooks;
+
+  // Lending capability: disabled if the user does not want others to borrow
+  // their books. Independent of canBorrowBooks (a librarian lends but does
+  // not borrow; a pure reader may want to borrow without lending).
+  bool _canLendBooks = true;
+  bool get canLendBooks => _canLendBooks;
 
   // Private books: allows marking individual books as hidden from peers.
   // Disabled for librarian/bookseller (all books must be visible).
@@ -323,8 +330,12 @@ class ThemeProvider with ChangeNotifier {
     } else {
       // First launch: default to UI locale + system locale if different
       final systemTag = normalizeToKnownLanguage(
-          localeToTag(WidgetsBinding.instance.platformDispatcher.locale));
-      _userLanguages = {normalizeToKnownLanguage(localeToTag(_locale)), systemTag}.toList();
+        localeToTag(WidgetsBinding.instance.platformDispatcher.locale),
+      );
+      _userLanguages = {
+        normalizeToKnownLanguage(localeToTag(_locale)),
+        systemTag,
+      }.toList();
     }
 
     // If UI locale is no longer reachable, auto-switch and persist
@@ -367,6 +378,15 @@ class ThemeProvider with ChangeNotifier {
       _canBorrowBooks = !isLibrarian;
     }
 
+    // Load lending capability setting (default true for everyone — librarians
+    // lend, readers usually accept lending too; users can opt out explicitly)
+    final savedCanLend = prefs.getBool('canLendBooks');
+    if (savedCanLend != null) {
+      _canLendBooks = savedCanLend;
+    } else {
+      _canLendBooks = true;
+    }
+
     // Private books: default true for readers, false for librarian/bookseller
     final savedAllowPrivate = prefs.getBool('allowPrivateBooks');
     if (savedAllowPrivate != null) {
@@ -384,8 +404,7 @@ class ThemeProvider with ChangeNotifier {
     _peerOfflineCachingEnabled =
         prefs.getBool('peerOfflineCachingEnabled') ?? true;
     _allowLibraryCaching = prefs.getBool('allowLibraryCaching') ?? true;
-    _peerCoverDisplayEnabled =
-        prefs.getBool('peerCoverDisplayEnabled') ?? true;
+    _peerCoverDisplayEnabled = prefs.getBool('peerCoverDisplayEnabled') ?? true;
     final savedPeerCap = prefs.getInt('peerCoverCacheCapMb') ?? 100;
     // Clamp to the set of values exposed in the Settings selector so a
     // stale or corrupted preference can't leave us with a non-UI-mapable
@@ -394,19 +413,16 @@ class ThemeProvider with ChangeNotifier {
         ? savedPeerCap
         : 100;
     // Default to true - safe (only invited contacts can reach via relay)
-    _remoteReachableEnabled =
-        prefs.getBool('remoteReachableEnabled') ?? true;
+    _remoteReachableEnabled = prefs.getBool('remoteReachableEnabled') ?? true;
     _connectionValidationEnabled =
         prefs.getBool('connectionValidationEnabled') ?? false;
     _autoApproveLoanRequests =
         prefs.getBool('autoApproveLoanRequests') ?? false;
     _networkGamificationEnabled =
         prefs.getBool('networkGamificationEnabled') ?? true;
-    _shareGamificationStats =
-        prefs.getBool('shareGamificationStats') ?? false;
+    _shareGamificationStats = prefs.getBool('shareGamificationStats') ?? false;
     _carouselHiddenOwnLib = prefs.getBool('carousel_hidden_own_lib') ?? false;
-    _carouselHiddenPeerLib =
-        prefs.getBool('carousel_hidden_peer_lib') ?? false;
+    _carouselHiddenPeerLib = prefs.getBool('carousel_hidden_peer_lib') ?? false;
     _showViewCount = prefs.getBool('showViewCount') ?? true;
     _collectionsEnabled = prefs.getBool('collectionsEnabled') ?? false;
     _groupByCollections = prefs.getBool('groupByCollections') ?? true;
@@ -420,7 +436,8 @@ class ThemeProvider with ChangeNotifier {
     _memoryGameEnabled = prefs.getBool('memoryGameEnabled') ?? true;
     _slidingPuzzleEnabled = prefs.getBool('slidingPuzzleEnabled') ?? true;
     _hangmanEnabled = prefs.getBool('hangmanEnabled') ?? true;
-    _operationLogViewerEnabled = prefs.getBool('operationLogViewerEnabled') ?? false;
+    _operationLogViewerEnabled =
+        prefs.getBool('operationLogViewerEnabled') ?? false;
     // Speech-to-text: disabled for librarians/booksellers (catalog focus, not personal reading)
     final savedSpeechToText = prefs.getBool('speechToTextEnabled');
     if (savedSpeechToText != null) {
@@ -547,6 +564,13 @@ class ThemeProvider with ChangeNotifier {
     _canBorrowBooks = enabled;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('canBorrowBooks', enabled);
+    notifyListeners();
+  }
+
+  Future<void> setCanLendBooks(bool enabled) async {
+    _canLendBooks = enabled;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('canLendBooks', enabled);
     notifyListeners();
   }
 
@@ -885,7 +909,9 @@ class ThemeProvider with ChangeNotifier {
     // Set sensible defaults -- preserve existing name if already customized
     // (e.g. device name was set earlier in main() before this runs again)
     final existingName = prefs.getString('libraryName');
-    if (existingName == null || existingName.isEmpty || existingName == 'My Library') {
+    if (existingName == null ||
+        existingName.isEmpty ||
+        existingName == 'My Library') {
       _libraryName = localizedDefaultName;
       await prefs.setString('libraryName', _libraryName);
     } else {
@@ -946,7 +972,8 @@ class ThemeProvider with ChangeNotifier {
 
   // Library Name
   String _libraryName = '';
-  String get libraryName => _libraryName.isNotEmpty ? _libraryName : localizedDefaultName;
+  String get libraryName =>
+      _libraryName.isNotEmpty ? _libraryName : localizedDefaultName;
 
   bool _libraryNameCustomized = false;
   bool get libraryNameCustomized => _libraryNameCustomized;
@@ -962,8 +989,10 @@ class ThemeProvider with ChangeNotifier {
     final lang = _locale.languageCode;
     final String base;
     if (deviceName != null && deviceName.isNotEmpty) {
-      final template =
-          TranslationService.translateByLocale(lang, 'library_of_device');
+      final template = TranslationService.translateByLocale(
+        lang,
+        'library_of_device',
+      );
       base = template.replaceAll('%s', deviceName);
     } else {
       base = TranslationService.translateByLocale(lang, 'my_library_title');
@@ -980,7 +1009,9 @@ class ThemeProvider with ChangeNotifier {
     final random = Random();
     return String.fromCharCodes(
       Iterable.generate(
-          4, (_) => chars.codeUnitAt(random.nextInt(chars.length))),
+        4,
+        (_) => chars.codeUnitAt(random.nextInt(chars.length)),
+      ),
     );
   }
 

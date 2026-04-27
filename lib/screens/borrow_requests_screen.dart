@@ -18,7 +18,8 @@ import '../services/ffi_service.dart';
 import '../services/translation_service.dart';
 import '../providers/hub_directory_provider.dart';
 import '../providers/theme_provider.dart';
-import '../src/rust/api/frb.dart' show FrbHubBorrowRequest, FrbNudgeEvent, subscribeRelayNudges;
+import '../src/rust/api/frb.dart'
+    show FrbHubBorrowRequest, FrbNudgeEvent, subscribeRelayNudges;
 import '../utils/cover_url_resolver.dart';
 import '../widgets/premium_empty_state.dart';
 
@@ -36,7 +37,12 @@ class LoansScreen extends StatefulWidget {
   /// Initial status filter: 'active', 'overdue', 'returned'
   final String? initialStatusFilter;
 
-  const LoansScreen({super.key, this.isTabView = false, this.initialTab, this.initialStatusFilter});
+  const LoansScreen({
+    super.key,
+    this.isTabView = false,
+    this.initialTab,
+    this.initialStatusFilter,
+  });
 
   @override
   State<LoansScreen> createState() => _LoansScreenState();
@@ -81,28 +87,41 @@ class _LoansScreenState extends State<LoansScreen>
     super.initState();
     // Apply initial status filter if provided (e.g. from dashboard "en cours" tap)
     final statusFilter = widget.initialStatusFilter;
-    _lentStatusFilter = (statusFilter != null && ['active', 'overdue', 'returned'].contains(statusFilter))
+    _lentStatusFilter =
+        (statusFilter != null &&
+            ['active', 'overdue', 'returned'].contains(statusFilter))
         ? statusFilter
         : 'all';
-    _borrowedStatusFilter = (statusFilter != null && ['active', 'overdue'].contains(statusFilter))
+    _borrowedStatusFilter =
+        (statusFilter != null && ['active', 'overdue'].contains(statusFilter))
         ? statusFilter
         : 'all';
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
-    final hubProvider = Provider.of<HubDirectoryProvider>(context, listen: false);
+    final hubProvider = Provider.of<HubDirectoryProvider>(
+      context,
+      listen: false,
+    );
     // Show "Demandes" tab if LAN discovery, relay sharing, or hub is active
     final hasPeerNetwork =
-        themeProvider.networkEnabled || themeProvider.remoteReachableEnabled || hubProvider.isRegistered;
+        themeProvider.networkEnabled ||
+        themeProvider.remoteReachableEnabled ||
+        hubProvider.isRegistered;
     // Tab count depends on:
     // - hasPeerNetwork: show "Demandes" tab if any peer connectivity is active
-    // - canBorrowBooks: show "Empruntés" tab only if borrowing is enabled
-    int tabCount = 1; // At minimum: Prêtés
+    // - canLendBooks:    show "Prêtés" tab only if lending is enabled
+    // - canBorrowBooks:  show "Empruntés" tab only if borrowing is enabled
+    int tabCount = 0;
     if (hasPeerNetwork) tabCount++; // +Demandes
+    if (themeProvider.canLendBooks) tabCount++; // +Prêtés
     if (themeProvider.canBorrowBooks) tabCount++; // +Empruntés
+    // Tab list must have at least one tab even if everything is disabled,
+    // since the screen is reachable via deep links / notifications.
+    if (tabCount == 0) tabCount = 1;
 
     // Calculate initial tab index based on initialTab parameter
     int initialIndex = 0;
     if (widget.initialTab != null) {
-      if (widget.initialTab == 'lent') {
+      if (widget.initialTab == 'lent' && themeProvider.canLendBooks) {
         // Lent is after Requests (if enabled), otherwise first
         initialIndex = hasPeerNetwork ? 1 : 0;
       } else if (widget.initialTab == 'borrowed' &&
@@ -133,7 +152,9 @@ class _LoansScreenState extends State<LoansScreen>
     _nudgeSub?.cancel();
     try {
       _nudgeSub = subscribeRelayNudges().listen(
-        (_) { if (mounted) _fetchAllData(silent: true); },
+        (_) {
+          if (mounted) _fetchAllData(silent: true);
+        },
         onError: (Object e) {
           debugPrint('LoansScreen: nudge stream error: $e');
         },
@@ -189,7 +210,10 @@ class _LoansScreenState extends State<LoansScreen>
       }
 
       // Fetch hub borrow requests (independent from P2P network)
-      final hubProvider = Provider.of<HubDirectoryProvider>(context, listen: false);
+      final hubProvider = Provider.of<HubDirectoryProvider>(
+        context,
+        listen: false,
+      );
       if (hubProvider.isRegistered) {
         await Future.wait([
           hubProvider.loadIncomingHubRequests(),
@@ -322,6 +346,7 @@ class _LoansScreenState extends State<LoansScreen>
     final bool isMobile = width <= 600;
     final themeProvider = Provider.of<ThemeProvider>(context);
     final canBorrow = themeProvider.canBorrowBooks;
+    final canLend = themeProvider.canLendBooks;
     final networkEnabled =
         themeProvider.networkEnabled || themeProvider.remoteReachableEnabled;
 
@@ -331,24 +356,34 @@ class _LoansScreenState extends State<LoansScreen>
           key: const Key('requestsTab'),
           text: TranslationService.translate(context, 'tab_requests'),
         ),
-      Tab(
-        key: const Key('lentTab'),
-        text: TranslationService.translate(context, 'tab_lent'),
-      ),
+      if (canLend)
+        Tab(
+          key: const Key('lentTab'),
+          text: TranslationService.translate(context, 'tab_lent'),
+        ),
       if (canBorrow)
         Tab(
           key: const Key('borrowedTab'),
           text: TranslationService.translate(context, 'tab_borrowed'),
         ),
     ];
+    final views = <Widget>[
+      if (networkEnabled) _buildRequestsTab(),
+      if (canLend) _buildLentTab(),
+      if (canBorrow) _buildBorrowedTab(),
+    ];
+
+    // When both modules are disabled and there is no peer network, the screen
+    // is reachable only via stale deep links / notifications. Render an
+    // explicit empty state instead of a hollow Lent tab — clearer for the
+    // user and avoids the misleading "no loans yet" copy.
+    if (tabs.isEmpty) {
+      return _LoanModulesDisabledScreen(isTabView: widget.isTabView);
+    }
 
     final tabBarView = TabBarView(
       controller: _mainTabController,
-      children: [
-        if (networkEnabled) _buildRequestsTab(),
-        _buildLentTab(),
-        if (canBorrow) _buildBorrowedTab(),
-      ],
+      children: views,
     );
 
     if (widget.isTabView) {
@@ -428,13 +463,18 @@ class _LoansScreenState extends State<LoansScreen>
   /// Requests tab with nested tabs (Incoming/Outgoing/Connections)
   Widget _buildRequestsTab() {
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
-    final hubProvider = Provider.of<HubDirectoryProvider>(context, listen: false);
+    final hubProvider = Provider.of<HubDirectoryProvider>(
+      context,
+      listen: false,
+    );
     final showConnections = themeProvider.connectionValidationEnabled;
 
-    final incomingCount = _filterRecentP2pRequests(_incomingRequests).length
-        + _filterRecentHubRequests(hubProvider.incomingHubRequests).length;
-    final outgoingCount = _filterRecentP2pRequests(_outgoingRequests).length
-        + _filterRecentHubRequests(hubProvider.outgoingHubRequests).length;
+    final incomingCount =
+        _filterRecentP2pRequests(_incomingRequests).length +
+        _filterRecentHubRequests(hubProvider.incomingHubRequests).length;
+    final outgoingCount =
+        _filterRecentP2pRequests(_outgoingRequests).length +
+        _filterRecentHubRequests(hubProvider.outgoingHubRequests).length;
 
     return Column(
       children: [
@@ -491,11 +531,12 @@ class _LoansScreenState extends State<LoansScreen>
     if (_activeLoans.isEmpty) {
       return PremiumEmptyState(
         message: TranslationService.translate(context, 'empty_no_loans'),
-        description:
-            TranslationService.translate(context, 'empty_no_loans_hint'),
+        description: TranslationService.translate(
+          context,
+          'empty_no_loans_hint',
+        ),
         icon: Icons.arrow_upward,
-        buttonLabel:
-            TranslationService.translate(context, 'go_to_library'),
+        buttonLabel: TranslationService.translate(context, 'go_to_library'),
         onAction: () => context.go('/books'),
       );
     }
@@ -505,12 +546,14 @@ class _LoansScreenState extends State<LoansScreen>
       // Status filter
       if (_lentStatusFilter == 'active') {
         if (loan.isReturned) return false;
-        final overdue = loan.dueDate.isNotEmpty &&
+        final overdue =
+            loan.dueDate.isNotEmpty &&
             DateTime.tryParse(loan.dueDate)?.isBefore(DateTime.now()) == true;
         if (overdue) return false;
       } else if (_lentStatusFilter == 'overdue') {
         if (loan.isReturned) return false;
-        final overdue = loan.dueDate.isNotEmpty &&
+        final overdue =
+            loan.dueDate.isNotEmpty &&
             DateTime.tryParse(loan.dueDate)?.isBefore(DateTime.now()) == true;
         if (!overdue) return false;
       } else if (_lentStatusFilter == 'returned') {
@@ -563,7 +606,10 @@ class _LoansScreenState extends State<LoansScreen>
                   onPressed: _cleanReturnedLoans,
                   icon: const Icon(Icons.cleaning_services, size: 18),
                   label: Text(
-                    TranslationService.translate(context, 'clean_returned_loans'),
+                    TranslationService.translate(
+                      context,
+                      'clean_returned_loans',
+                    ),
                   ),
                 ),
               ],
@@ -613,8 +659,10 @@ class _LoansScreenState extends State<LoansScreen>
           TranslationService.translate(context, 'clean_returned_loans'),
         ),
         content: Text(
-          TranslationService.translate(context, 'clean_returned_loans_confirm')
-              .replaceAll('%d', count.toString()),
+          TranslationService.translate(
+            context,
+            'clean_returned_loans_confirm',
+          ).replaceAll('%d', count.toString()),
         ),
         actions: [
           TextButton(
@@ -637,24 +685,28 @@ class _LoansScreenState extends State<LoansScreen>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              TranslationService.translate(context, 'clean_returned_loans_success')
-                  .replaceAll('%d', deleted.toString()),
+              TranslationService.translate(
+                context,
+                'clean_returned_loans_success',
+              ).replaceAll('%d', deleted.toString()),
             ),
             backgroundColor: Colors.green,
           ),
         );
       } catch (e) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.toString())));
       }
     }
   }
 
   Widget _buildLoanTile(Loan loan) {
     final bookTitle = loan.bookTitle.isNotEmpty ? loan.bookTitle : 'Unknown';
-    final contactName = loan.contactName.isNotEmpty ? loan.contactName : 'Unknown';
+    final contactName = loan.contactName.isNotEmpty
+        ? loan.contactName
+        : 'Unknown';
     final loanDate = loan.loanDate;
     final dueDate = loan.dueDate;
     final loanId = loan.id;
@@ -662,7 +714,8 @@ class _LoansScreenState extends State<LoansScreen>
     final returned = loan.isReturned;
     final cover = loan.resolvedCoverUrl;
 
-    final isOverdue = !returned &&
+    final isOverdue =
+        !returned &&
         dueDate.isNotEmpty &&
         DateTime.tryParse(dueDate)?.isBefore(DateTime.now()) == true;
 
@@ -711,16 +764,28 @@ class _LoansScreenState extends State<LoansScreen>
                           fit: BoxFit.cover,
                           placeholder: (_, __) => Container(
                             color: theme.colorScheme.surfaceContainerHighest,
-                            child: Icon(Icons.menu_book, color: theme.colorScheme.onSurfaceVariant, size: 24),
+                            child: Icon(
+                              Icons.menu_book,
+                              color: theme.colorScheme.onSurfaceVariant,
+                              size: 24,
+                            ),
                           ),
                           errorWidget: (_, __, ___) => Container(
                             color: theme.colorScheme.surfaceContainerHighest,
-                            child: Icon(Icons.menu_book, color: theme.colorScheme.onSurfaceVariant, size: 24),
+                            child: Icon(
+                              Icons.menu_book,
+                              color: theme.colorScheme.onSurfaceVariant,
+                              size: 24,
+                            ),
                           ),
                         )
                       : Container(
                           color: theme.colorScheme.surfaceContainerHighest,
-                          child: Icon(Icons.menu_book, color: theme.colorScheme.onSurfaceVariant, size: 24),
+                          child: Icon(
+                            Icons.menu_book,
+                            color: theme.colorScheme.onSurfaceVariant,
+                            size: 24,
+                          ),
                         ),
                 ),
               ),
@@ -732,14 +797,18 @@ class _LoansScreenState extends State<LoansScreen>
                   children: [
                     Text(
                       bookTitle,
-                      style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
                     Text(
                       '${TranslationService.translate(context, 'lent_to')}: $contactName',
-                      style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Row(
@@ -747,17 +816,28 @@ class _LoansScreenState extends State<LoansScreen>
                         if (loanDate.isNotEmpty)
                           Text(
                             _formatDate(loanDate),
-                            style: TextStyle(color: Colors.grey[600], fontSize: 11),
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 11,
+                            ),
                           ),
                         if (loanDate.isNotEmpty && dueDate.isNotEmpty)
-                          Text(' - ', style: TextStyle(color: Colors.grey[600], fontSize: 11)),
+                          Text(
+                            ' - ',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 11,
+                            ),
+                          ),
                         if (dueDate.isNotEmpty)
                           Text(
                             _formatDate(dueDate),
                             style: TextStyle(
                               color: isOverdue ? Colors.red : Colors.grey[600],
                               fontSize: 11,
-                              fontWeight: isOverdue ? FontWeight.bold : FontWeight.normal,
+                              fontWeight: isOverdue
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
                             ),
                           ),
                       ],
@@ -771,15 +851,24 @@ class _LoansScreenState extends State<LoansScreen>
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
                       color: statusColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: statusColor.withValues(alpha: 0.3)),
+                      border: Border.all(
+                        color: statusColor.withValues(alpha: 0.3),
+                      ),
                     ),
                     child: Text(
                       statusLabel,
-                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: statusColor),
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: statusColor,
+                      ),
                     ),
                   ),
                   if (!returned) ...[
@@ -790,7 +879,10 @@ class _LoansScreenState extends State<LoansScreen>
                         onPressed: () => _returnLoan(loanId),
                         icon: const Icon(Icons.check, size: 14),
                         label: Text(
-                          TranslationService.translate(context, 'btn_mark_returned'),
+                          TranslationService.translate(
+                            context,
+                            'btn_mark_returned',
+                          ),
                           style: const TextStyle(fontSize: 11),
                         ),
                         style: FilledButton.styleFrom(
@@ -995,9 +1087,7 @@ class _LoansScreenState extends State<LoansScreen>
               : null,
           isDense: true,
           contentPadding: const EdgeInsets.symmetric(vertical: 8),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(24),
-          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(24)),
         ),
       ),
     );
@@ -1018,8 +1108,10 @@ class _LoansScreenState extends State<LoansScreen>
     if (_borrowedBooks.isEmpty) {
       return PremiumEmptyState(
         message: TranslationService.translate(context, 'empty_no_borrowed'),
-        description:
-            TranslationService.translate(context, 'empty_no_borrowed_hint'),
+        description: TranslationService.translate(
+          context,
+          'empty_no_borrowed_hint',
+        ),
         icon: Icons.arrow_downward,
       );
     }
@@ -1031,7 +1123,8 @@ class _LoansScreenState extends State<LoansScreen>
         final notes = (book['notes'] ?? '').toString();
         final dateMatch = RegExp(r"jusqu'au\s+(\S+)").firstMatch(notes);
         final dueDate = dateMatch?.group(1) ?? '';
-        final overdue = dueDate.isNotEmpty &&
+        final overdue =
+            dueDate.isNotEmpty &&
             DateTime.tryParse(dueDate)?.isBefore(DateTime.now()) == true;
         if (!overdue) return false;
       }
@@ -1099,7 +1192,8 @@ class _LoansScreenState extends State<LoansScreen>
     final borrowedFrom = display.lenderName;
     final dueDate = display.dueDate;
 
-    final isOverdue = dueDate.isNotEmpty &&
+    final isOverdue =
+        dueDate.isNotEmpty &&
         DateTime.tryParse(dueDate)?.isBefore(DateTime.now()) == true;
 
     final theme = Theme.of(context);
@@ -1128,16 +1222,28 @@ class _LoansScreenState extends State<LoansScreen>
                           fit: BoxFit.cover,
                           placeholder: (_, __) => Container(
                             color: theme.colorScheme.surfaceContainerHighest,
-                            child: Icon(Icons.menu_book, color: theme.colorScheme.onSurfaceVariant, size: 24),
+                            child: Icon(
+                              Icons.menu_book,
+                              color: theme.colorScheme.onSurfaceVariant,
+                              size: 24,
+                            ),
                           ),
                           errorWidget: (_, __, ___) => Container(
                             color: theme.colorScheme.surfaceContainerHighest,
-                            child: Icon(Icons.menu_book, color: theme.colorScheme.onSurfaceVariant, size: 24),
+                            child: Icon(
+                              Icons.menu_book,
+                              color: theme.colorScheme.onSurfaceVariant,
+                              size: 24,
+                            ),
                           ),
                         )
                       : Container(
                           color: theme.colorScheme.surfaceContainerHighest,
-                          child: Icon(Icons.menu_book, color: theme.colorScheme.onSurfaceVariant, size: 24),
+                          child: Icon(
+                            Icons.menu_book,
+                            color: theme.colorScheme.onSurfaceVariant,
+                            size: 24,
+                          ),
                         ),
                 ),
               ),
@@ -1149,7 +1255,9 @@ class _LoansScreenState extends State<LoansScreen>
                   children: [
                     Text(
                       title,
-                      style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -1157,7 +1265,9 @@ class _LoansScreenState extends State<LoansScreen>
                       const SizedBox(height: 4),
                       Text(
                         '${TranslationService.translate(context, 'borrowed_from')}: $borrowedFrom',
-                        style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
                       ),
                     ],
                     const SizedBox(height: 4),
@@ -1166,17 +1276,28 @@ class _LoansScreenState extends State<LoansScreen>
                         if (acquisitionDate.isNotEmpty)
                           Text(
                             _formatDate(acquisitionDate),
-                            style: TextStyle(color: Colors.grey[600], fontSize: 11),
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 11,
+                            ),
                           ),
                         if (acquisitionDate.isNotEmpty && dueDate.isNotEmpty)
-                          Text(' - ', style: TextStyle(color: Colors.grey[600], fontSize: 11)),
+                          Text(
+                            ' - ',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 11,
+                            ),
+                          ),
                         if (dueDate.isNotEmpty)
                           Text(
                             _formatDate(dueDate),
                             style: TextStyle(
                               color: isOverdue ? Colors.red : Colors.grey[600],
                               fontSize: 11,
-                              fontWeight: isOverdue ? FontWeight.bold : FontWeight.normal,
+                              fontWeight: isOverdue
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
                             ),
                           ),
                       ],
@@ -1190,17 +1311,35 @@ class _LoansScreenState extends State<LoansScreen>
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
-                      color: (isOverdue ? Colors.red : Colors.blue).withValues(alpha: 0.1),
+                      color: (isOverdue ? Colors.red : Colors.blue).withValues(
+                        alpha: 0.1,
+                      ),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: (isOverdue ? Colors.red : Colors.blue).withValues(alpha: 0.3)),
+                      border: Border.all(
+                        color: (isOverdue ? Colors.red : Colors.blue)
+                            .withValues(alpha: 0.3),
+                      ),
                     ),
                     child: Text(
                       isOverdue
-                          ? TranslationService.translate(context, 'filter_overdue')
-                          : TranslationService.translate(context, 'filter_active'),
-                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: isOverdue ? Colors.red : Colors.blue),
+                          ? TranslationService.translate(
+                              context,
+                              'filter_overdue',
+                            )
+                          : TranslationService.translate(
+                              context,
+                              'filter_active',
+                            ),
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: isOverdue ? Colors.red : Colors.blue,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -1210,7 +1349,10 @@ class _LoansScreenState extends State<LoansScreen>
                       onPressed: () => _returnBorrowedBook(book),
                       icon: const Icon(Icons.check, size: 14),
                       label: Text(
-                        TranslationService.translate(context, 'btn_mark_returned'),
+                        TranslationService.translate(
+                          context,
+                          'btn_mark_returned',
+                        ),
                         style: const TextStyle(fontSize: 11),
                       ),
                       style: FilledButton.styleFrom(
@@ -1287,14 +1429,17 @@ class _LoansScreenState extends State<LoansScreen>
     final cutoff = DateTime.now().subtract(const Duration(days: 30));
     return requests.where((req) {
       if (req['status'] == 'pending') return true;
-      final dateStr = req['updated_at'] as String? ?? req['created_at'] as String? ?? '';
+      final dateStr =
+          req['updated_at'] as String? ?? req['created_at'] as String? ?? '';
       final date = DateTime.tryParse(dateStr);
       return date == null || date.isAfter(cutoff);
     }).toList();
   }
 
   /// Filter out non-pending Hub requests resolved more than 30 days ago
-  List<FrbHubBorrowRequest> _filterRecentHubRequests(List<FrbHubBorrowRequest> requests) {
+  List<FrbHubBorrowRequest> _filterRecentHubRequests(
+    List<FrbHubBorrowRequest> requests,
+  ) {
     final cutoff = DateTime.now().subtract(const Duration(days: 30));
     return requests.where((req) {
       if (req.status == 'pending') return true;
@@ -1305,8 +1450,13 @@ class _LoansScreenState extends State<LoansScreen>
   }
 
   Widget _buildIncomingList() {
-    final hubProvider = Provider.of<HubDirectoryProvider>(context, listen: false);
-    final hubIncoming = _filterRecentHubRequests(hubProvider.incomingHubRequests);
+    final hubProvider = Provider.of<HubDirectoryProvider>(
+      context,
+      listen: false,
+    );
+    final hubIncoming = _filterRecentHubRequests(
+      hubProvider.incomingHubRequests,
+    );
     final p2pFiltered = _filterRecentP2pRequests(_incomingRequests);
     final hasP2p = p2pFiltered.isNotEmpty;
     final hasHub = hubIncoming.isNotEmpty;
@@ -1328,7 +1478,10 @@ class _LoansScreenState extends State<LoansScreen>
                   onPressed: () => _cleanClosedRequests(isIncoming: true),
                   icon: const Icon(Icons.cleaning_services, size: 18),
                   label: Text(
-                    TranslationService.translate(context, 'clean_closed_requests'),
+                    TranslationService.translate(
+                      context,
+                      'clean_closed_requests',
+                    ),
                   ),
                 ),
               ],
@@ -1351,8 +1504,13 @@ class _LoansScreenState extends State<LoansScreen>
   }
 
   Widget _buildOutgoingList() {
-    final hubProvider = Provider.of<HubDirectoryProvider>(context, listen: false);
-    final hubOutgoing = _filterRecentHubRequests(hubProvider.outgoingHubRequests);
+    final hubProvider = Provider.of<HubDirectoryProvider>(
+      context,
+      listen: false,
+    );
+    final hubOutgoing = _filterRecentHubRequests(
+      hubProvider.outgoingHubRequests,
+    );
     final p2pFiltered = _filterRecentP2pRequests(_outgoingRequests);
     final hasP2p = p2pFiltered.isNotEmpty;
     final hasHub = hubOutgoing.isNotEmpty;
@@ -1374,7 +1532,10 @@ class _LoansScreenState extends State<LoansScreen>
                   onPressed: () => _cleanClosedRequests(isIncoming: false),
                   icon: const Icon(Icons.cleaning_services, size: 18),
                   label: Text(
-                    TranslationService.translate(context, 'clean_closed_requests'),
+                    TranslationService.translate(
+                      context,
+                      'clean_closed_requests',
+                    ),
                   ),
                 ),
               ],
@@ -1408,7 +1569,10 @@ class _LoansScreenState extends State<LoansScreen>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            TranslationService.translate(context, 'clean_closed_requests_empty'),
+            TranslationService.translate(
+              context,
+              'clean_closed_requests_empty',
+            ),
           ),
         ),
       );
@@ -1422,8 +1586,10 @@ class _LoansScreenState extends State<LoansScreen>
           TranslationService.translate(context, 'clean_closed_requests'),
         ),
         content: Text(
-          TranslationService.translate(context, 'clean_closed_requests_confirm')
-              .replaceAll('%d', count.toString()),
+          TranslationService.translate(
+            context,
+            'clean_closed_requests_confirm',
+          ).replaceAll('%d', count.toString()),
         ),
         actions: [
           TextButton(
@@ -1448,8 +1614,10 @@ class _LoansScreenState extends State<LoansScreen>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              TranslationService.translate(context, 'clean_closed_requests_success')
-                  .replaceAll('%d', deleted.toString()),
+              TranslationService.translate(
+                context,
+                'clean_closed_requests_success',
+              ).replaceAll('%d', deleted.toString()),
             ),
             backgroundColor: Colors.green,
           ),
@@ -1457,9 +1625,9 @@ class _LoansScreenState extends State<LoansScreen>
         _fetchAllData();
       } catch (e) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.toString())));
       }
     }
   }
@@ -1499,22 +1667,28 @@ class _LoansScreenState extends State<LoansScreen>
       _fetchAllData(silent: true);
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
     }
   }
 
   // === Hub borrow request tiles (ADR-018) ===
 
-  Widget _buildHubRequestTile(FrbHubBorrowRequest req, {required bool isIncoming}) {
+  Widget _buildHubRequestTile(
+    FrbHubBorrowRequest req, {
+    required bool isIncoming,
+  }) {
     final title = req.bookTitle.isNotEmpty ? req.bookTitle : req.isbn;
     final peerName = isIncoming
         ? (req.requesterDisplayName ?? req.requesterNodeId)
         : (req.lenderDisplayName ?? req.lenderNodeId);
     final status = req.status;
     final busyKey = 'hub_borrow_${req.id}';
-    final hubProvider = Provider.of<HubDirectoryProvider>(context, listen: false);
+    final hubProvider = Provider.of<HubDirectoryProvider>(
+      context,
+      listen: false,
+    );
     final isPending = hubProvider.isBusy(busyKey);
 
     final card = Card(
@@ -1529,8 +1703,15 @@ class _LoansScreenState extends State<LoansScreen>
           children: [
             Expanded(child: Text(title)),
             Tooltip(
-              message: TranslationService.translate(context, 'hub_borrow_via_hub'),
-              child: const Icon(Icons.cloud_outlined, size: 18, color: Colors.blueGrey),
+              message: TranslationService.translate(
+                context,
+                'hub_borrow_via_hub',
+              ),
+              child: const Icon(
+                Icons.cloud_outlined,
+                size: 18,
+                color: Colors.blueGrey,
+              ),
             ),
           ],
         ),
@@ -1546,7 +1727,9 @@ class _LoansScreenState extends State<LoansScreen>
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
             : _buildStatusChip(status),
-        onTap: isPending ? null : () => _showHubRequestActions(req, isIncoming: isIncoming),
+        onTap: isPending
+            ? null
+            : () => _showHubRequestActions(req, isIncoming: isIncoming),
       ),
     );
 
@@ -1569,13 +1752,22 @@ class _LoansScreenState extends State<LoansScreen>
     );
   }
 
-  Future<void> _deleteHubRequest(FrbHubBorrowRequest req, {required bool isIncoming}) async {
-    final hubProvider = Provider.of<HubDirectoryProvider>(context, listen: false);
+  Future<void> _deleteHubRequest(
+    FrbHubBorrowRequest req, {
+    required bool isIncoming,
+  }) async {
+    final hubProvider = Provider.of<HubDirectoryProvider>(
+      context,
+      listen: false,
+    );
     if (req.status == 'pending') {
       // Try to cancel/reject on the Hub
       bool success;
       if (isIncoming) {
-        success = await hubProvider.resolveHubBorrowRequest(req.id.toInt(), 'reject');
+        success = await hubProvider.resolveHubBorrowRequest(
+          req.id.toInt(),
+          'reject',
+        );
       } else {
         success = await hubProvider.cancelHubBorrowRequest(req.id.toInt());
       }
@@ -1596,7 +1788,10 @@ class _LoansScreenState extends State<LoansScreen>
     if (mounted) setState(() {});
   }
 
-  void _showHubRequestActions(FrbHubBorrowRequest req, {required bool isIncoming}) {
+  void _showHubRequestActions(
+    FrbHubBorrowRequest req, {
+    required bool isIncoming,
+  }) {
     final status = req.status;
     final localBookId = _isbnToLocalBookId[req.isbn];
     showModalBottomSheet(
@@ -1608,7 +1803,10 @@ class _LoansScreenState extends State<LoansScreen>
             // View book (only if the book exists locally)
             if (localBookId != null)
               ListTile(
-                leading: Icon(Icons.menu_book, color: Theme.of(context).colorScheme.primary),
+                leading: Icon(
+                  Icons.menu_book,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
                 title: Text(
                   TranslationService.translate(context, 'action_view_book'),
                 ),
@@ -1625,10 +1823,15 @@ class _LoansScreenState extends State<LoansScreen>
                 ),
                 onTap: () {
                   Navigator.pop(ctx);
-                  final hubProvider = Provider.of<HubDirectoryProvider>(context, listen: false);
-                  hubProvider.resolveHubBorrowRequest(req.id.toInt(), 'accept').then((_) {
-                    if (mounted) setState(() {});
-                  });
+                  final hubProvider = Provider.of<HubDirectoryProvider>(
+                    context,
+                    listen: false,
+                  );
+                  hubProvider
+                      .resolveHubBorrowRequest(req.id.toInt(), 'accept')
+                      .then((_) {
+                        if (mounted) setState(() {});
+                      });
                 },
               ),
               ListTile(
@@ -1638,19 +1841,22 @@ class _LoansScreenState extends State<LoansScreen>
                 ),
                 onTap: () {
                   Navigator.pop(ctx);
-                  final hubProvider = Provider.of<HubDirectoryProvider>(context, listen: false);
-                  hubProvider.resolveHubBorrowRequest(req.id.toInt(), 'reject').then((_) {
-                    if (mounted) setState(() {});
-                  });
+                  final hubProvider = Provider.of<HubDirectoryProvider>(
+                    context,
+                    listen: false,
+                  );
+                  hubProvider
+                      .resolveHubBorrowRequest(req.id.toInt(), 'reject')
+                      .then((_) {
+                        if (mounted) setState(() {});
+                      });
                 },
               ),
             ],
             // Delete/cancel option for all statuses
             ListTile(
               leading: const Icon(Icons.delete, color: Colors.red),
-              title: Text(
-                TranslationService.translate(context, 'delete'),
-              ),
+              title: Text(TranslationService.translate(context, 'delete')),
               onTap: () {
                 Navigator.pop(ctx);
                 _deleteHubRequest(req, isIncoming: isIncoming);
@@ -1745,11 +1951,19 @@ class _LoansScreenState extends State<LoansScreen>
                   borderRadius: BorderRadius.circular(4),
                   placeholder: Container(
                     color: _getStatusColor(status).withValues(alpha: 0.2),
-                    child: Icon(Icons.book, color: _getStatusColor(status), size: 20),
+                    child: Icon(
+                      Icons.book,
+                      color: _getStatusColor(status),
+                      size: 20,
+                    ),
                   ),
                   errorWidget: Container(
                     color: _getStatusColor(status).withValues(alpha: 0.2),
-                    child: Icon(Icons.book, color: _getStatusColor(status), size: 20),
+                    child: Icon(
+                      Icons.book,
+                      color: _getStatusColor(status),
+                      size: 20,
+                    ),
                   ),
                 )
               : Container(
@@ -1757,7 +1971,11 @@ class _LoansScreenState extends State<LoansScreen>
                     color: _getStatusColor(status).withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(4),
                   ),
-                  child: Icon(Icons.book, color: _getStatusColor(status), size: 20),
+                  child: Icon(
+                    Icons.book,
+                    color: _getStatusColor(status),
+                    size: 20,
+                  ),
                 ),
         ),
         title: Text(title),
@@ -1795,7 +2013,7 @@ class _LoansScreenState extends State<LoansScreen>
       ),
       confirmDismiss: (_) => _confirmDeleteRequest(id, title),
       onDismissed: (_) => _deleteRequest(id, isIncoming: isIncoming),
-    child: card,
+      child: card,
     );
   }
 
@@ -1817,13 +2035,16 @@ class _LoansScreenState extends State<LoansScreen>
 
     return GestureDetector(
       onTap: () {
-        context.go('/peers/$peerId/books', extra: {
-          'id': peerId,
-          'name': peerName,
-          'url': peerUrl,
-          'hasRelayCredentials': false,
-          'nodeId': null,
-        });
+        context.go(
+          '/peers/$peerId/books',
+          extra: {
+            'id': peerId,
+            'name': peerName,
+            'url': peerUrl,
+            'hasRelayCredentials': false,
+            'nodeId': null,
+          },
+        );
       },
       child: Text.rich(
         TextSpan(
@@ -1915,7 +2136,10 @@ class _LoansScreenState extends State<LoansScreen>
             // View book (only if the book exists locally)
             if (bookId != null)
               ListTile(
-                leading: Icon(Icons.menu_book, color: Theme.of(context).colorScheme.primary),
+                leading: Icon(
+                  Icons.menu_book,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
                 title: Text(
                   TranslationService.translate(context, 'action_view_book'),
                 ),
@@ -1960,9 +2184,7 @@ class _LoansScreenState extends State<LoansScreen>
             // Delete option for all statuses
             ListTile(
               leading: const Icon(Icons.delete, color: Colors.red),
-              title: Text(
-                TranslationService.translate(context, 'delete'),
-              ),
+              title: Text(TranslationService.translate(context, 'delete')),
               onTap: () {
                 Navigator.pop(ctx);
                 _deleteRequest(id, isIncoming: isIncoming);
@@ -2008,8 +2230,12 @@ class _LoansScreenState extends State<LoansScreen>
     if (error is DioException) {
       if (error.response?.statusCode == 409) {
         final body = error.response?.data?['error']?.toString() ?? '';
-        if (body.contains('No available copies') || body.contains('No copy found')) {
-          return TranslationService.translate(context, 'error_no_available_copy');
+        if (body.contains('No available copies') ||
+            body.contains('No copy found')) {
+          return TranslationService.translate(
+            context,
+            'error_no_available_copy',
+          );
         }
         return TranslationService.translate(context, 'error_409_conflict');
       }
@@ -2031,4 +2257,66 @@ class _LoansScreenState extends State<LoansScreen>
 // Keep old class name for backward compatibility with routing
 class BorrowRequestsScreen extends LoansScreen {
   const BorrowRequestsScreen({super.key});
+}
+
+/// Empty-state shown when both lending and borrowing modules are disabled
+/// AND no peer network is active. Reachable only via stale deep links /
+/// notifications, since the navigation gates already hide the entry.
+class _LoanModulesDisabledScreen extends StatelessWidget {
+  const _LoanModulesDisabledScreen({required this.isTabView});
+
+  final bool isTabView;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final body = Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.swap_horiz,
+              size: 64,
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              TranslationService.translate(context, 'loans_disabled_title'),
+              style: theme.textTheme.titleLarge,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              TranslationService.translate(context, 'loans_disabled_body'),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            FilledButton.icon(
+              onPressed: () => context.go('/settings'),
+              icon: const Icon(Icons.settings),
+              label: Text(
+                TranslationService.translate(
+                  context,
+                  'loans_disabled_open_settings',
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (isTabView) return body;
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(TranslationService.translate(context, 'loans_menu')),
+      ),
+      body: body,
+    );
+  }
 }
