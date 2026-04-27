@@ -1,5 +1,9 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
+import '../services/api_service.dart';
 import '../services/translation_service.dart';
 import '../src/rust/api/frb.dart' as frb;
 
@@ -15,6 +19,22 @@ const String identityDecryptFailedPrefix = 'E_IDENTITY_DECRYPT_FAILED';
 bool isIdentityDecryptFailure(Object error) =>
     error.toString().contains(identityDecryptFailedPrefix);
 
+/// One device or peer that the user must re-pair after a successful
+/// "Repartir de zéro". `isDevice == true` means a linked device, otherwise
+/// it is a peer library.
+@immutable
+class IdentityRepairTarget {
+  final String label;
+  final bool isDevice;
+  const IdentityRepairTarget({required this.label, required this.isDevice});
+}
+
+/// Loader signature used by [IdentityRecoveryDialog]. Production wires this
+/// to `ApiService.getPeers()` + `frb.deviceListLinked()`. Tests inject a stub
+/// so the dialog can be rendered without FFI or Provider plumbing.
+typedef IdentityRepairTargetsLoader =
+    Future<List<IdentityRepairTarget>> Function(BuildContext context);
+
 /// Blocking dialog shown when the stored E2EE identity cannot be decrypted
 /// with the supplied `library_uuid`. The user must explicitly choose to
 /// retry (most common when a transient storage glitch resolves itself) or
@@ -27,7 +47,21 @@ bool isIdentityDecryptFailure(Object error) =>
 class IdentityRecoveryDialog extends StatefulWidget {
   final String libraryUuid;
 
-  const IdentityRecoveryDialog({super.key, required this.libraryUuid});
+  /// Override the loader for tests. Defaults to fetching peers via
+  /// `ApiService` and linked devices via the Rust FFI.
+  final IdentityRepairTargetsLoader? repairTargetsLoader;
+
+  /// Test-only: when provided, opens the dialog directly in the success
+  /// state with this list of targets, bypassing the regenerate FFI flow.
+  @visibleForTesting
+  final List<IdentityRepairTarget>? debugInitialTargets;
+
+  const IdentityRecoveryDialog({
+    super.key,
+    required this.libraryUuid,
+    this.repairTargetsLoader,
+    @visibleForTesting this.debugInitialTargets,
+  });
 
   /// Shows the dialog as a barrier-locked modal and resolves once the user
   /// has either recovered the identity (retry success or regenerate) or the
@@ -56,6 +90,17 @@ class _IdentityRecoveryDialogState extends State<IdentityRecoveryDialog> {
   bool _busy = false;
   String? _errorMessage;
   bool _regenSucceeded = false;
+  List<IdentityRepairTarget>? _repairTargets;
+
+  @override
+  void initState() {
+    super.initState();
+    final initial = widget.debugInitialTargets;
+    if (initial != null) {
+      _regenSucceeded = true;
+      _repairTargets = initial;
+    }
+  }
 
   Future<void> _retry() async {
     setState(() {
@@ -125,9 +170,16 @@ class _IdentityRecoveryDialogState extends State<IdentityRecoveryDialog> {
     try {
       await frb.confirmRegenerateIdentityFfi(libraryUuid: widget.libraryUuid);
       if (!mounted) return;
+      // Load peers + linked devices before showing success so the user sees a
+      // single transition (spinner -> populated list) instead of the list
+      // popping in after they have already read the dialog.
+      final loader = widget.repairTargetsLoader ?? _defaultLoader;
+      final targets = await loader(context);
+      if (!mounted) return;
       setState(() {
         _busy = false;
         _regenSucceeded = true;
+        _repairTargets = targets;
       });
     } catch (e) {
       if (!mounted) return;
@@ -142,41 +194,84 @@ class _IdentityRecoveryDialogState extends State<IdentityRecoveryDialog> {
     }
   }
 
+  /// Production loader. Reads peers from the local HTTP API (filtered to
+  /// `key_exchange_done == true`) and linked devices from the Rust FFI. Any
+  /// failure on either side degrades gracefully to an empty list, so the
+  /// success state falls back to the generic "OK" view rather than blocking
+  /// the user behind a load error.
+  Future<List<IdentityRepairTarget>> _defaultLoader(
+    BuildContext context,
+  ) async {
+    ApiService api;
+    try {
+      api = context.read<ApiService>();
+    } catch (_) {
+      return const [];
+    }
+
+    final results = await Future.wait<dynamic>([
+      _fetchPeersSafe(api),
+      _fetchLinkedDevicesSafe(),
+    ]);
+
+    final peerEntries = results[0] as List<IdentityRepairTarget>;
+    final deviceEntries = results[1] as List<IdentityRepairTarget>;
+    // Devices first (the user owns them and will recognize them), peers next.
+    return [...deviceEntries, ...peerEntries];
+  }
+
+  Future<List<IdentityRepairTarget>> _fetchPeersSafe(ApiService api) async {
+    try {
+      final Response<dynamic> resp = await api.getPeers();
+      if (resp.statusCode != 200) return const [];
+      final raw = (resp.data is Map) ? (resp.data as Map)['data'] : null;
+      if (raw is! List) return const [];
+      final out = <IdentityRepairTarget>[];
+      for (final entry in raw) {
+        if (entry is! Map) continue;
+        final ked = entry['key_exchange_done'];
+        if (ked != true && ked != 1) continue;
+        final display = (entry['display_name'] as String?)?.trim();
+        final name = (entry['name'] as String?)?.trim() ?? '';
+        final label = (display != null && display.isNotEmpty) ? display : name;
+        if (label.isEmpty) continue;
+        out.add(IdentityRepairTarget(label: label, isDevice: false));
+      }
+      return out;
+    } catch (_) {
+      return const [];
+    }
+  }
+
+  Future<List<IdentityRepairTarget>> _fetchLinkedDevicesSafe() async {
+    try {
+      final devices = await frb.deviceListLinked();
+      return [
+        for (final d in devices)
+          if (d.name.trim().isNotEmpty)
+            IdentityRepairTarget(label: d.name.trim(), isDevice: true),
+      ];
+    } catch (_) {
+      return const [];
+    }
+  }
+
+  void _goToNetwork() {
+    final router = GoRouter.of(context);
+    Navigator.of(context).pop(true);
+    router.go('/network');
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     if (_regenSucceeded) {
-      return AlertDialog(
-        icon: Icon(
-          Icons.check_circle,
-          color: theme.colorScheme.primary,
-          size: 32,
-        ),
-        title: Text(
-          TranslationService.translate(
-            context,
-            'identity_recovery_success_title',
-          ),
-        ),
-        content: Text(
-          TranslationService.translate(
-            context,
-            'identity_recovery_success_body',
-          ),
-        ),
-        actions: [
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(
-              TranslationService.translate(
-                context,
-                'identity_recovery_success_btn',
-              ),
-            ),
-          ),
-        ],
-      );
+      final targets = _repairTargets ?? const <IdentityRepairTarget>[];
+      if (targets.isEmpty) {
+        return _buildGenericSuccess(theme);
+      }
+      return _buildRepairSuccess(theme, targets);
     }
 
     return AlertDialog(
@@ -224,6 +319,136 @@ class _IdentityRecoveryDialogState extends State<IdentityRecoveryDialog> {
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
               : Text(TranslationService.translate(context, 'retry')),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGenericSuccess(ThemeData theme) {
+    return AlertDialog(
+      icon: Icon(
+        Icons.check_circle,
+        color: theme.colorScheme.primary,
+        size: 32,
+      ),
+      title: Text(
+        TranslationService.translate(
+          context,
+          'identity_recovery_success_title',
+        ),
+      ),
+      content: Text(
+        TranslationService.translate(
+          context,
+          'identity_recovery_success_body',
+        ),
+      ),
+      actions: [
+        FilledButton(
+          onPressed: () => Navigator.of(context).pop(true),
+          child: Text(
+            TranslationService.translate(
+              context,
+              'identity_recovery_success_btn',
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRepairSuccess(
+    ThemeData theme,
+    List<IdentityRepairTarget> targets,
+  ) {
+    final count = targets.length;
+    final titleKey = count == 1
+        ? 'identity_recovery_success_repair_title_one'
+        : 'identity_recovery_success_repair_title_other';
+    final title = TranslationService.translate(
+      context,
+      titleKey,
+      params: {'count': count.toString()},
+    );
+    final intro = TranslationService.translate(
+      context,
+      'identity_recovery_success_repair_intro',
+    );
+    final deviceIconLabel = TranslationService.translate(
+      context,
+      'identity_recovery_success_icon_device_label',
+    );
+    final peerIconLabel = TranslationService.translate(
+      context,
+      'identity_recovery_success_icon_peer_label',
+    );
+    final goNetworkLabel = TranslationService.translate(
+      context,
+      'identity_recovery_success_btn_network',
+    );
+    final laterLabel = TranslationService.translate(
+      context,
+      'identity_recovery_success_btn_later',
+    );
+
+    return AlertDialog(
+      icon: Icon(
+        Icons.check_circle,
+        color: theme.colorScheme.primary,
+        size: 32,
+      ),
+      title: Semantics(
+        header: true,
+        child: Text(title),
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(intro),
+          const SizedBox(height: 12),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 240),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (final t in targets)
+                    ListTile(
+                      dense: true,
+                      contentPadding: EdgeInsets.zero,
+                      leading: Icon(
+                        t.isDevice ? Icons.devices : Icons.person,
+                        semanticLabel: t.isDevice
+                            ? deviceIconLabel
+                            : peerIconLabel,
+                        color: theme.colorScheme.primary,
+                      ),
+                      title: Text(t.label),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        Semantics(
+          button: true,
+          label: laterLabel,
+          child: TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(laterLabel),
+          ),
+        ),
+        Semantics(
+          button: true,
+          label: goNetworkLabel,
+          child: FilledButton(
+            onPressed: _goToNetwork,
+            child: Text(goNetworkLabel),
+          ),
         ),
       ],
     );

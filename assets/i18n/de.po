@@ -8878,3 +8878,31 @@ msgstr "Diese Bibliothek hat jetzt einen neuen Sicherheitsschlüssel.\n\nDeine a
 #. Acknowledgement button on the success state of the recovery dialog.
 msgid "identity_recovery_success_btn"
 msgstr "OK"
+
+#. Singular form of the success-state heading listing devices/peers to re-pair.
+msgid "identity_recovery_success_repair_title_one"
+msgstr "1 Verbindung neu zu koppeln"
+
+#. Plural form of the success-state heading. {count} is the total of devices + peers.
+msgid "identity_recovery_success_repair_title_other"
+msgstr "{count} Verbindungen neu zu koppeln"
+
+#. Short intro shown above the list of devices/peers to re-pair after regen.
+msgid "identity_recovery_success_repair_intro"
+msgstr "Koppele jedes Element erneut über Netzwerk, um sichere Aktionen wiederherzustellen."
+
+#. Primary CTA on the success state when devices/peers must be re-paired.
+msgid "identity_recovery_success_btn_network"
+msgstr "Zu Netzwerk gehen"
+
+#. Secondary CTA on the success state to dismiss without navigating.
+msgid "identity_recovery_success_btn_later"
+msgstr "Später"
+
+#. Screen-reader label for the icon next to a linked device entry.
+msgid "identity_recovery_success_icon_device_label"
+msgstr "Verknüpftes Gerät"
+
+#. Screen-reader label for the icon next to a peer library entry.
+msgid "identity_recovery_success_icon_peer_label"
+msgstr "Partnerbibliothek"
