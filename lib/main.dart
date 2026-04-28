@@ -1099,10 +1099,7 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
             ),
             GoRoute(
               path: '/profile',
-              builder: (context, state) {
-                final action = state.uri.queryParameters['action'];
-                return ProfileScreen(initialAction: action);
-              },
+              builder: (context, state) => const ProfileScreen(),
               routes: [
                 GoRoute(
                   path: 'link-device',

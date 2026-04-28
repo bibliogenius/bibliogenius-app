@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:go_router/go_router.dart';
+
+import '../utils/backup_actions.dart';
 import 'translation_service.dart';
 
 /// Service that checks for version updates and reminds users to backup their data
@@ -138,15 +139,10 @@ class BackupReminderService {
           FilledButton.icon(
             onPressed: () async {
               await acknowledgeVersion();
-              if (context.mounted) {
-                Navigator.of(context).pop();
-                context.push(
-                  Uri(
-                    path: '/profile',
-                    queryParameters: {'action': 'backup'},
-                  ).toString(),
-                );
-              }
+              if (!context.mounted) return;
+              Navigator.of(context).pop();
+              if (!context.mounted) return;
+              await BackupActions.exportCatalogJson(context);
             },
             icon: const Icon(Icons.download),
             label: Text(

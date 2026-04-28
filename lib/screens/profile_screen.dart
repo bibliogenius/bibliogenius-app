@@ -26,9 +26,7 @@ import '../widgets/invite_share_sheet.dart';
 import '../widgets/network_leaderboard_card.dart';
 
 class ProfileScreen extends StatefulWidget {
-  final String? initialAction;
-
-  const ProfileScreen({super.key, this.initialAction});
+  const ProfileScreen({super.key});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
