@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../data/repositories/collection_repository.dart';
+import '../../providers/book_refresh_notifier.dart';
 import '../../services/translation_service.dart';
 import '../../models/collection.dart';
 import 'import_curated_list_screen.dart' as import_curated;
@@ -31,10 +32,27 @@ class _CollectionListScreenState extends State<CollectionListScreen> {
   Map<String, List<String?>> _coverUrls = {};
   bool _isLoading = true;
   String? _error;
+  BookRefreshNotifier? _bookRefreshNotifier;
 
   @override
   void initState() {
     super.initState();
+    _loadCollections();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _bookRefreshNotifier = context.read<BookRefreshNotifier>();
+      _bookRefreshNotifier?.addListener(_handleBookRefresh);
+    });
+  }
+
+  @override
+  void dispose() {
+    _bookRefreshNotifier?.removeListener(_handleBookRefresh);
+    super.dispose();
+  }
+
+  void _handleBookRefresh() {
+    if (!mounted) return;
     _loadCollections();
   }
 
