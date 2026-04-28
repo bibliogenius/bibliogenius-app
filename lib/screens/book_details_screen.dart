@@ -2046,7 +2046,10 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                           color: Colors.transparent,
                           child: InkWell(
                             onTap: () {
-                              context.go('/collections/${collection.id}');
+                              context.push(
+                                '/collections/${collection.id}',
+                                extra: collection,
+                              );
                             },
                             borderRadius: BorderRadius.circular(20),
                             child: Container(
