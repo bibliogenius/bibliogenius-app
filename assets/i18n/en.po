@@ -595,7 +595,7 @@ msgstr "Backup downloaded successfully"
 
 #. Export Now
 msgid "backup_reminder_export"
-msgstr "Export Now"
+msgstr "Export my catalog"
 
 #. Later
 msgid "backup_reminder_later"
@@ -7356,6 +7356,106 @@ msgstr "Save to device"
 #. Backup - Mobile export choice: share via system sheet
 msgid "backup_export_share"
 msgstr "Share"
+
+#. Settings - Backup section title (top-level accordion)
+msgid "backup_section_title"
+msgstr "Backup and export"
+
+#. Settings - Backup: export catalog tile title
+msgid "backup_export_catalog_title"
+msgstr "Export my catalog"
+
+#. Settings - Backup: export catalog tile subtitle
+msgid "backup_export_catalog_subtitle"
+msgstr "Portable, shareable file for archival or import into another application. Contains books, authors, tags, collections and contacts."
+
+#. Settings - Backup: full backup tile title (coming soon)
+msgid "backup_full_title"
+msgstr "Full backup"
+
+#. Settings - Backup: full backup tile subtitle (coming soon)
+msgid "backup_full_subtitle"
+msgstr "Encrypted archive to fully restore your library on this or another device. Coming soon."
+
+#. Settings - Backup: snackbar shown when tapping the disabled full backup tile
+msgid "backup_full_unavailable"
+msgstr "Available in a future version."
+
+#. Settings - Backup: restore tile title
+msgid "backup_restore_title"
+msgstr "Restore a backup"
+
+#. Settings - Backup: restore tile subtitle
+msgid "backup_restore_subtitle"
+msgstr "Restores a catalog export file. WARNING: replaces all current data."
+
+#. Settings - System section title (top-level accordion)
+msgid "system_section_title"
+msgstr "System"
+
+#. Settings - System: reset tile title
+msgid "system_reset_title"
+msgstr "Reset the app"
+
+#. Settings - System: reset tile subtitle
+msgid "system_reset_subtitle"
+msgstr "Erase books or start fresh."
+
+#. Settings - Content: migration wizard tile title (post option-B refactor)
+msgid "migration_wizard_tile_title"
+msgstr "Import & organize my library"
+
+#. Settings - Content: migration wizard tile subtitle (post option-B refactor)
+msgid "migration_wizard_tile_subtitle"
+msgstr "Import books from a file or manage your shelves."
+
+#. Migration Wizard - AppBar title (post option-B refactor)
+msgid "migration_wizard_screen_title"
+msgstr "Import & organize"
+
+#. Migration Wizard - Import section title
+msgid "migration_section_import_title"
+msgstr "Import & aggregate"
+
+#. Migration Wizard - Import section subtitle
+msgid "migration_section_import_subtitle"
+msgstr "Add books from other platforms to your current library."
+
+#. Migration Wizard - CSV import card title
+msgid "migration_card_csv_title"
+msgstr "File import (CSV / XLSX)"
+
+#. Migration Wizard - CSV import card subtitle
+msgid "migration_card_csv_subtitle"
+msgstr "Goodreads, Babelio, Gleeph, or any file with title/ISBN columns."
+
+#. Migration Wizard - Organisation section title
+msgid "migration_section_organisation_title"
+msgstr "Organization"
+
+#. Migration Wizard - Organisation section subtitle
+msgid "migration_section_organisation_subtitle"
+msgstr "Manage the structure of your library."
+
+#. Migration Wizard - Manage shelves card title
+msgid "migration_card_shelves_title"
+msgstr "Manage shelves"
+
+#. Migration Wizard - Manage shelves card subtitle
+msgid "migration_card_shelves_subtitle"
+msgstr "Rename or organize your virtual shelves."
+
+#. Migration Wizard - CSV import success message ({count} = number of books)
+msgid "migration_import_success"
+msgstr "Success: {count} books imported!"
+
+#. Migration Wizard - CSV import failure (no specific error returned)
+msgid "migration_import_failed"
+msgstr "Import failed"
+
+#. Migration Wizard - Generic error prefix (e.g. "Error: <details>")
+msgid "migration_error_prefix"
+msgstr "Error"
 
 #. Accessibility - Tooltip: open navigation menu
 msgid "tooltip_open_menu"

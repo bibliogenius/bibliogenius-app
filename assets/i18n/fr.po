@@ -595,7 +595,7 @@ msgstr "Sauvegarde téléchargée avec succès"
 
 #. Export Now
 msgid "backup_reminder_export"
-msgstr "Exporter maintenant"
+msgstr "Exporter mon catalogue"
 
 #. Later
 msgid "backup_reminder_later"
@@ -7356,6 +7356,106 @@ msgstr "Enregistrer sur l'appareil"
 #. Backup - Mobile export choice: share via system sheet
 msgid "backup_export_share"
 msgstr "Partager"
+
+#. Settings - Backup section title (top-level accordion)
+msgid "backup_section_title"
+msgstr "Sauvegarde et export"
+
+#. Settings - Backup: export catalog tile title
+msgid "backup_export_catalog_title"
+msgstr "Exporter mon catalogue"
+
+#. Settings - Backup: export catalog tile subtitle
+msgid "backup_export_catalog_subtitle"
+msgstr "Fichier portable et partageable, pour archivage ou import dans une autre application. Contient livres, auteurs, tags, collections et contacts."
+
+#. Settings - Backup: full backup tile title (coming soon)
+msgid "backup_full_title"
+msgstr "Sauvegarde complète"
+
+#. Settings - Backup: full backup tile subtitle (coming soon)
+msgid "backup_full_subtitle"
+msgstr "Archive chiffrée pour restaurer entièrement votre bibliothèque sur ce ou un autre appareil. Bientôt disponible."
+
+#. Settings - Backup: snackbar shown when tapping the disabled full backup tile
+msgid "backup_full_unavailable"
+msgstr "Disponible dans une prochaine version."
+
+#. Settings - Backup: restore tile title
+msgid "backup_restore_title"
+msgstr "Restaurer une sauvegarde"
+
+#. Settings - Backup: restore tile subtitle
+msgid "backup_restore_subtitle"
+msgstr "Restaure un fichier d'export de catalogue. ATTENTION : remplace l'intégralité des données actuelles."
+
+#. Settings - System section title (top-level accordion)
+msgid "system_section_title"
+msgstr "Système"
+
+#. Settings - System: reset tile title
+msgid "system_reset_title"
+msgstr "Réinitialiser l'application"
+
+#. Settings - System: reset tile subtitle
+msgid "system_reset_subtitle"
+msgstr "Effacer les livres ou repartir de zéro."
+
+#. Settings - Content: migration wizard tile title (post option-B refactor)
+msgid "migration_wizard_tile_title"
+msgstr "Importer & organiser ma bibliothèque"
+
+#. Settings - Content: migration wizard tile subtitle (post option-B refactor)
+msgid "migration_wizard_tile_subtitle"
+msgstr "Importer des livres depuis un fichier ou gérer vos étagères."
+
+#. Migration Wizard - AppBar title (post option-B refactor)
+msgid "migration_wizard_screen_title"
+msgstr "Importer & organiser"
+
+#. Migration Wizard - Import section title
+msgid "migration_section_import_title"
+msgstr "Importer & agréger"
+
+#. Migration Wizard - Import section subtitle
+msgid "migration_section_import_subtitle"
+msgstr "Ajoutez des livres provenant d'autres plateformes à votre bibliothèque actuelle."
+
+#. Migration Wizard - CSV import card title
+msgid "migration_card_csv_title"
+msgstr "Import fichier (CSV / XLSX)"
+
+#. Migration Wizard - CSV import card subtitle
+msgid "migration_card_csv_subtitle"
+msgstr "Goodreads, Babelio, Gleeph, ou tout fichier avec colonnes titre/ISBN."
+
+#. Migration Wizard - Organisation section title
+msgid "migration_section_organisation_title"
+msgstr "Organisation"
+
+#. Migration Wizard - Organisation section subtitle
+msgid "migration_section_organisation_subtitle"
+msgstr "Gérez la structure de votre bibliothèque."
+
+#. Migration Wizard - Manage shelves card title
+msgid "migration_card_shelves_title"
+msgstr "Gérer les étagères"
+
+#. Migration Wizard - Manage shelves card subtitle
+msgid "migration_card_shelves_subtitle"
+msgstr "Renommer ou organiser vos étagères virtuelles."
+
+#. Migration Wizard - CSV import success message ({count} = number of books)
+msgid "migration_import_success"
+msgstr "Succès : {count} livres importés !"
+
+#. Migration Wizard - CSV import failure (no specific error returned)
+msgid "migration_import_failed"
+msgstr "Échec de l'importation"
+
+#. Migration Wizard - Generic error prefix (e.g. "Erreur : <details>")
+msgid "migration_error_prefix"
+msgstr "Erreur"
 
 #. Accessibility - Tooltip: open navigation menu
 msgid "tooltip_open_menu"

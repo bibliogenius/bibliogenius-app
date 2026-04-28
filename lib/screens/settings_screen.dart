@@ -28,6 +28,7 @@ import '../services/mdns_service.dart';
 import '../theme/app_design.dart';
 import '../themes/base/theme_registry.dart';
 import '../utils/app_constants.dart';
+import '../utils/backup_actions.dart';
 import '../utils/language_constants.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -450,14 +451,155 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   children: [
                     ListTile(
                       leading: const Icon(Icons.swap_calls, color: Colors.blue),
-                      title: const Text(
-                        'Gestion de la bibliothèque & Migration',
+                      title: Text(
+                        TranslationService.translate(
+                          context,
+                          'migration_wizard_tile_title',
+                        ),
                       ),
-                      subtitle: const Text(
-                        'Importer, exporter ou fusionner vos livres',
+                      subtitle: Text(
+                        TranslationService.translate(
+                          context,
+                          'migration_wizard_tile_subtitle',
+                        ),
                       ),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () => context.push('/settings/migration-wizard'),
+                    ),
+                  ],
+                ),
+              ),
+
+            // Backup and export accordion (catalog JSON + future full backup + restore)
+            if (_sectionVisible([
+              'backup_section_title',
+              'backup_export_catalog_title',
+              'backup_full_title',
+              'backup_restore_title',
+            ]))
+              Card(
+                margin: const EdgeInsets.only(bottom: 12),
+                child: ExpansionTile(
+                  key: ValueKey('backup_$_isSearching'),
+                  initiallyExpanded: _isSearching,
+                  leading: const Icon(Icons.backup_outlined),
+                  title: Semantics(
+                    header: true,
+                    child: Text(
+                      TranslationService.translate(
+                        context,
+                        'backup_section_title',
+                      ),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  children: [
+                    ListTile(
+                      leading: const Icon(
+                        Icons.backup,
+                        color: Colors.green,
+                      ),
+                      title: Text(
+                        TranslationService.translate(
+                          context,
+                          'backup_export_catalog_title',
+                        ),
+                      ),
+                      subtitle: Text(
+                        TranslationService.translate(
+                          context,
+                          'backup_export_catalog_subtitle',
+                        ),
+                      ),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => BackupActions.exportCatalogJson(context),
+                    ),
+                    _FullBackupTile(
+                      title: TranslationService.translate(
+                        context,
+                        'backup_full_title',
+                      ),
+                      subtitle: TranslationService.translate(
+                        context,
+                        'backup_full_subtitle',
+                      ),
+                      chipLabel: TranslationService.translate(
+                        context,
+                        'coming_soon_chip',
+                      ),
+                      unavailableMessage: TranslationService.translate(
+                        context,
+                        'backup_full_unavailable',
+                      ),
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.restore, color: Colors.red),
+                      title: Text(
+                        TranslationService.translate(
+                          context,
+                          'backup_restore_title',
+                        ),
+                      ),
+                      subtitle: Text(
+                        TranslationService.translate(
+                          context,
+                          'backup_restore_subtitle',
+                        ),
+                      ),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => BackupActions.restoreCatalogJson(context),
+                    ),
+                  ],
+                ),
+              ),
+
+            // System accordion (reset)
+            if (_sectionVisible([
+              'system_section_title',
+              'system_reset_title',
+            ]))
+              Card(
+                margin: const EdgeInsets.only(bottom: 12),
+                child: ExpansionTile(
+                  key: ValueKey('system_$_isSearching'),
+                  initiallyExpanded: _isSearching,
+                  leading: const Icon(Icons.tune_outlined),
+                  title: Semantics(
+                    header: true,
+                    child: Text(
+                      TranslationService.translate(
+                        context,
+                        'system_section_title',
+                      ),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  children: [
+                    ListTile(
+                      leading: Icon(
+                        Icons.delete_forever,
+                        color: Colors.red.shade700,
+                      ),
+                      title: Text(
+                        TranslationService.translate(
+                          context,
+                          'system_reset_title',
+                        ),
+                      ),
+                      subtitle: Text(
+                        TranslationService.translate(
+                          context,
+                          'system_reset_subtitle',
+                        ),
+                      ),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => BackupActions.showResetDialog(context),
                     ),
                   ],
                 ),
@@ -4237,6 +4379,64 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Disabled "Full backup" tile shown in the Backup accordion before the
+/// `.bgbackup` format ships (ADR-037). Visually muted, screen-reader
+/// announces it as disabled, tap shows a SnackBar instead of opening a flow.
+class _FullBackupTile extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final String chipLabel;
+  final String unavailableMessage;
+
+  const _FullBackupTile({
+    required this.title,
+    required this.subtitle,
+    required this.chipLabel,
+    required this.unavailableMessage,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final disabledColor = theme.disabledColor;
+    return Tooltip(
+      message: unavailableMessage,
+      child: Semantics(
+        button: true,
+        enabled: false,
+        label: '$title. $subtitle',
+        child: ListTile(
+          leading: Icon(Icons.shield_outlined, color: disabledColor),
+          title: Text(
+            title,
+            style: theme.textTheme.bodyLarge?.copyWith(color: disabledColor),
+          ),
+          subtitle: Text(
+            subtitle,
+            style: theme.textTheme.bodyMedium?.copyWith(color: disabledColor),
+          ),
+          trailing: Chip(
+            label: Text(chipLabel),
+            labelStyle: const TextStyle(fontSize: 11),
+            backgroundColor: theme.colorScheme.surfaceContainerHighest,
+            side: BorderSide(color: theme.dividerColor),
+            visualDensity: VisualDensity.compact,
+            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+          onTap: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(unavailableMessage),
+                duration: const Duration(seconds: 2),
+              ),
+            );
+          },
         ),
       ),
     );
