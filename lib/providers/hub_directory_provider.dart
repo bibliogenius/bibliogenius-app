@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/avatar_config.dart';
 import '../models/hub_directory.dart';
+import '../services/api_service.dart';
 import '../services/auth_service.dart';
 import '../services/city_repository.dart';
 import '../services/device_service.dart';
@@ -124,6 +125,10 @@ class HubDirectoryProvider extends ChangeNotifier {
   final DeviceService _deviceService;
   final AuthService _authService;
   final CityLookup _lookupCity;
+  // Optional: when present, ensureRelayPublished will fall back to creating
+  // a local relay mailbox if none exists yet. Production wires it via
+  // main.dart; tests can leave it null.
+  final ApiService? _apiService;
 
   /// Retry delay between relay publish attempts. Override in tests.
   @visibleForTesting
@@ -138,10 +143,12 @@ class HubDirectoryProvider extends ChangeNotifier {
     DeviceService? deviceService,
     AuthService? authService,
     CityLookup? lookupCity,
+    ApiService? apiService,
   }) : _ffi = ffi ?? FfiService(),
        _deviceService = deviceService ?? DeviceService(),
        _authService = authService ?? AuthService(),
-       _lookupCity = lookupCity ?? CityRepository.shared().lookupById;
+       _lookupCity = lookupCity ?? CityRepository.shared().lookupById,
+       _apiService = apiService;
 
   // ── Custom follow display names ──────────────────────────────────────────
 
@@ -645,16 +652,45 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// nodeId -> parsed AvatarConfig, populated alongside _nameCache.
   final Map<String, AvatarConfig> _avatarCache = {};
 
+  /// Negative cache: nodeId -> timestamp of last 404 from the hub. Stops the
+  /// directory hammer when a peer has been purged and the local follow row
+  /// has not been pruned yet. Production logs showed 116 lookups in a few
+  /// days for a single ghost nodeId before this gate. Mirrors the pattern
+  /// in audiobook_service._notFoundCache.
+  final Map<String, DateTime> _notFoundCache = {};
+
+  /// TTL of the negative cache. Aligned with ADR-032's relay retry window
+  /// for consistency: a peer absent from the hub now is presumed absent for
+  /// the next hour.
+  static const Duration _kNotFoundCacheTtl = Duration(hours: 1);
+
+  /// True if [nodeId] is currently in the negative cache and the entry has
+  /// not expired. Side effect: drops expired entries on read.
+  bool _isCachedNotFound(String nodeId) {
+    final stamped = _notFoundCache[nodeId];
+    if (stamped == null) return false;
+    if (DateTime.now().difference(stamped) >= _kNotFoundCacheTtl) {
+      _notFoundCache.remove(nodeId);
+      return false;
+    }
+    return true;
+  }
+
   /// Re-fetch a single node's display name from the hub and update the cache.
   Future<void> refreshName(String nodeId) async {
+    if (_isCachedNotFound(nodeId)) return;
     try {
       final profile = await _ffi.hubDirectoryGetProfile(nodeId);
       if (profile != null) {
         _nameCache[nodeId] = profile.displayName;
+        _notFoundCache.remove(nodeId);
         _cacheAvatar(nodeId, profile.avatarConfig);
         notifyListeners();
       }
     } catch (e) {
+      if (e.toString().contains('Hub error 404')) {
+        _notFoundCache[nodeId] = DateTime.now();
+      }
       debugPrint('HubDirectoryProvider refreshName($nodeId): $e');
     }
   }
@@ -664,6 +700,9 @@ class HubDirectoryProvider extends ChangeNotifier {
   void invalidateNameCache() {
     _nameCache.clear();
     _avatarCache.clear();
+    // Drop the negative cache too: a manual refresh signals the user wants
+    // to retry every name, including previously-not-found ones.
+    _notFoundCache.clear();
   }
 
   /// Parse and cache an avatar_config JSON string for a node.
@@ -771,11 +810,21 @@ class HubDirectoryProvider extends ChangeNotifier {
   Future<void> ensureRelayPublished() async {
     if (_config == null) return;
     // Read relay credentials upfront to check availability.
-    final initialRelay = await _getRelayCredentials();
+    var initialRelay = await _getRelayCredentials();
     if (initialRelay.relayUrl == null) {
-      if (kDebugMode)
-        debugPrint('HubDirectory: no local relay config, skip relay publish');
-      return;
+      // Backfill missing-mailbox profiles: main.dart's bootstrap setup runs
+      // once at boot and silently fails on transient network errors, leaving
+      // some installs stuck without a relay. Retry here when the FFI server
+      // is reliably up and the user opted into remote reachability.
+      final created = await _ensureLocalRelaySetup();
+      if (created) {
+        initialRelay = await _getRelayCredentials();
+      }
+      if (initialRelay.relayUrl == null) {
+        if (kDebugMode)
+          debugPrint('HubDirectory: no local relay config, skip relay publish');
+        return;
+      }
     }
 
     _lastRelayAttempt = DateTime.now();
@@ -1397,6 +1446,33 @@ class HubDirectoryProvider extends ChangeNotifier {
   Future<String?> _getLocalAvatarConfigJson() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('avatarConfig');
+  }
+
+  /// Create a local relay mailbox if one is missing and the user has
+  /// remote-reachable enabled. Idempotent: callers must check
+  /// [_getRelayCredentials] beforehand to avoid creating a second mailbox
+  /// (which would orphan the previous one).
+  Future<bool> _ensureLocalRelaySetup() async {
+    final api = _apiService;
+    if (api == null) return false;
+    final prefs = await SharedPreferences.getInstance();
+    final remoteEnabled = prefs.getBool('remoteReachableEnabled') ?? true;
+    if (!remoteEnabled) return false;
+    try {
+      final res = await api.setupRelay(relayUrl: ApiService.hubUrl);
+      final ok =
+          res.statusCode == 200 &&
+          res.data is Map &&
+          (res.data as Map)['mailbox_uuid'] != null;
+      debugPrint(
+        'HubDirectory: local relay auto-setup '
+        '${ok ? "succeeded" : "non-OK status=${res.statusCode}"}',
+      );
+      return ok;
+    } catch (e) {
+      debugPrint('HubDirectory: local relay auto-setup failed: $e');
+      return false;
+    }
   }
 
   /// Read relay credentials from local SQLite (single source of truth).
@@ -2363,7 +2439,9 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// Fetches display names for [nodeIds] not already cached.
   /// Runs in the background and calls notifyListeners when done.
   void _resolveNames(List<String> nodeIds) {
-    final unknown = nodeIds.where((id) => !_nameCache.containsKey(id)).toSet();
+    final unknown = nodeIds
+        .where((id) => !_nameCache.containsKey(id) && !_isCachedNotFound(id))
+        .toSet();
     if (unknown.isEmpty) return;
 
     // Fire-and-forget: fetch each profile and update cache.
@@ -2373,11 +2451,15 @@ class HubDirectoryProvider extends ChangeNotifier {
           .then((profile) {
             if (profile != null) {
               _nameCache[id] = profile.displayName;
+              _notFoundCache.remove(id);
               _cacheAvatar(id, profile.avatarConfig);
               notifyListeners();
             }
           })
           .catchError((e) {
+            if (e.toString().contains('Hub error 404')) {
+              _notFoundCache[id] = DateTime.now();
+            }
             debugPrint('HubDirectoryProvider _resolveNames($id): $e');
           });
     }

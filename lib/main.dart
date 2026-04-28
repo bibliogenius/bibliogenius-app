@@ -558,7 +558,7 @@ class MyApp extends StatelessWidget {
           create: (_) => DeviceSyncProvider(),
         ),
         ChangeNotifierProvider<HubDirectoryProvider>(
-          create: (_) => HubDirectoryProvider()
+          create: (_) => HubDirectoryProvider(apiService: apiService)
             ..loadHubEnabled()
             ..loadContactInfo()
             ..loadCustomFollowNames(),
