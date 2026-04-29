@@ -2603,6 +2603,26 @@ msgstr "Get a free key at console.cloud.google.com"
 msgid "google_api_key_label"
 msgstr "Google Books API Key"
 
+#. Tag shown next to the Google Books toggle title to flag it as needing extra setup
+msgid "google_books_advanced_tag"
+msgstr "Advanced"
+
+#. Badge shown on the Google Books filter chip when no API key is set
+msgid "google_books_no_api_key_badge"
+msgstr "No API key"
+
+#. SnackBar shown when filtering by Google Books without an API key
+msgid "google_books_no_api_key_snackbar"
+msgstr "Google Books quickly exhausts its anonymous quota. Add an API key in Settings."
+
+#. Info banner shown under the Google Books toggle when no API key is set
+msgid "google_books_no_api_key_warning"
+msgstr "Google Books shares a strict anonymous quota across all users without a key. Add a free API key below for reliable results."
+
+#. Clickable link below the Google Books API key field
+msgid "google_books_api_key_help_link"
+msgstr "How to get a Google API key"
+
 #. Good afternoon
 msgid "greeting_afternoon"
 msgstr "Good afternoon"

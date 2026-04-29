@@ -8,7 +8,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 part 'frb.freezed.dart';
 
-// These functions are ignored because they are not marked as `pub`: `db`, `device_pairing_svc`, `device_sync_svc`, `entries_to_frb`, `global_app_state`, `hub_db`, `hub_directory_svc`, `install_panic_hook`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `nudge_source_label`, `rename_subject_in_books`, `runtime`, `track_to_frb`, `upsert_directory_catalog_cache`
+// These functions are ignored because they are not marked as `pub`: `db`, `device_pairing_svc`, `device_sync_svc`, `entries_to_frb`, `global_app_state`, `hub_db`, `hub_directory_svc`, `install_panic_hook`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `modules_to_fallback_preferences`, `nudge_source_label`, `rename_subject_in_books`, `runtime`, `track_to_frb`, `upsert_directory_catalog_cache`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
 // These functions are ignored (category: IgnoreBecauseExplicitAttribute): `shared_device_pairing_svc`
 
@@ -720,6 +720,14 @@ Future<List<String>> gamificationCheckAchievements() =>
 /// Update daily streak via FFI
 Future<FrbStreakInfo> gamificationUpdateStreak() =>
     RustLib.instance.api.crateApiFrbGamificationUpdateStreak();
+
+/// Read the installation profile's search settings (toggles + API keys).
+///
+/// Used by the Flutter settings screen to display the persisted state of
+/// the "Search Sources" section. Returns an error if the profile row is
+/// missing; callers should fall back to defaults in that case.
+Future<FrbSearchSettings> installationProfileGetSearchSettings() =>
+    RustLib.instance.api.crateApiFrbInstallationProfileGetSearchSettings();
 
 /// List operation log entries with optional filters
 Future<List<FrbOperationLogEntry>> operationLogList({
@@ -2444,6 +2452,44 @@ sealed class FrbRelayConfig with _$FrbRelayConfig {
     required String mailboxUuid,
     required String writeToken,
   }) = _FrbRelayConfig;
+}
+
+/// Search-related settings persisted in the installation profile.
+///
+/// Mirrors the `fallback_preferences` and `api_keys` fields the Flutter
+/// settings screen expects under `_userStatus['config']`. The legacy
+/// `gamification_get_status` payload (returned by `getUserStatus` in FFI
+/// mode) does not carry these fields, hence this dedicated accessor.
+class FrbSearchSettings {
+  /// Per-provider toggles. Only entries the user explicitly toggled away
+  /// from the implicit defaults are populated, so the client's `?? default`
+  /// fallbacks (e.g. `bnfDefault = isFrench`) keep applying for untouched
+  /// providers — preventing UI regressions on the BNF locale heuristic.
+  ///
+  /// Mapping (inverse of `api/profile.rs::update_profile`):
+  /// - `enable_google_books` in modules → `google_books: true`
+  /// - `disable_fallback:<provider>` in modules → `<provider>: false`
+  final Map<String, bool> fallbackPreferences;
+
+  /// API keys stored in `installation_profile.api_keys`
+  /// (e.g. `{"google_books": "AIza..."}`).
+  final Map<String, String> apiKeys;
+
+  const FrbSearchSettings({
+    required this.fallbackPreferences,
+    required this.apiKeys,
+  });
+
+  @override
+  int get hashCode => fallbackPreferences.hashCode ^ apiKeys.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FrbSearchSettings &&
+          runtimeType == other.runtimeType &&
+          fallbackPreferences == other.fallbackPreferences &&
+          apiKeys == other.apiKeys;
 }
 
 /// Streak info (FFI-safe)

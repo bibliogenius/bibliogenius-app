@@ -2382,6 +2382,26 @@ msgstr "Google Books API-Schlüssel (optional)"
 msgid "google_api_key_label"
 msgstr "Google API-Schlüssel"
 
+#. Tag shown next to the Google Books toggle title to flag it as needing extra setup
+msgid "google_books_advanced_tag"
+msgstr "Erweitert"
+
+#. Clickable link below the Google Books API key field
+msgid "google_books_api_key_help_link"
+msgstr "So erhältst du einen Google API-Schlüssel"
+
+#. Badge shown on the Google Books filter chip when no API key is set
+msgid "google_books_no_api_key_badge"
+msgstr "Kein API-Schlüssel"
+
+#. SnackBar shown when filtering by Google Books without an API key
+msgid "google_books_no_api_key_snackbar"
+msgstr "Google Books erschöpft sein anonymes Kontingent schnell. Füge in den Einstellungen einen API-Schlüssel hinzu."
+
+#. Info banner shown under the Google Books toggle when no API key is set
+msgid "google_books_no_api_key_warning"
+msgstr "Google Books teilt ein striktes anonymes Kontingent zwischen allen Nutzern ohne Schlüssel. Füge unten einen kostenlosen API-Schlüssel hinzu, um zuverlässige Ergebnisse zu erhalten."
+
 #. Good afternoon
 msgid "greeting_afternoon"
 msgstr "Guten Nachmittag"
