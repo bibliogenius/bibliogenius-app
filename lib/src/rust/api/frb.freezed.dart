@@ -12,6 +12,308 @@ part of 'frb.dart';
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
+mixin _$FrbBackupSummary {
+
+ String get archivePath; PlatformInt64 get archiveSizeBytes; bool get identityIncluded; String get exportedAt; String get libraryUuid; PlatformInt64 get schemaVersion; String get formatVersion; PlatformInt64 get booksCount; PlatformInt64 get copiesCount; PlatformInt64 get loansCount; PlatformInt64 get contactsCount; PlatformInt64 get authorsCount; PlatformInt64 get tagsCount; PlatformInt64 get collectionsCount; PlatformInt64 get peersCount; PlatformInt64 get salesCount; PlatformInt64 get coversCount; String get manifestJson;
+/// Create a copy of FrbBackupSummary
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$FrbBackupSummaryCopyWith<FrbBackupSummary> get copyWith => _$FrbBackupSummaryCopyWithImpl<FrbBackupSummary>(this as FrbBackupSummary, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbBackupSummary&&(identical(other.archivePath, archivePath) || other.archivePath == archivePath)&&(identical(other.archiveSizeBytes, archiveSizeBytes) || other.archiveSizeBytes == archiveSizeBytes)&&(identical(other.identityIncluded, identityIncluded) || other.identityIncluded == identityIncluded)&&(identical(other.exportedAt, exportedAt) || other.exportedAt == exportedAt)&&(identical(other.libraryUuid, libraryUuid) || other.libraryUuid == libraryUuid)&&(identical(other.schemaVersion, schemaVersion) || other.schemaVersion == schemaVersion)&&(identical(other.formatVersion, formatVersion) || other.formatVersion == formatVersion)&&(identical(other.booksCount, booksCount) || other.booksCount == booksCount)&&(identical(other.copiesCount, copiesCount) || other.copiesCount == copiesCount)&&(identical(other.loansCount, loansCount) || other.loansCount == loansCount)&&(identical(other.contactsCount, contactsCount) || other.contactsCount == contactsCount)&&(identical(other.authorsCount, authorsCount) || other.authorsCount == authorsCount)&&(identical(other.tagsCount, tagsCount) || other.tagsCount == tagsCount)&&(identical(other.collectionsCount, collectionsCount) || other.collectionsCount == collectionsCount)&&(identical(other.peersCount, peersCount) || other.peersCount == peersCount)&&(identical(other.salesCount, salesCount) || other.salesCount == salesCount)&&(identical(other.coversCount, coversCount) || other.coversCount == coversCount)&&(identical(other.manifestJson, manifestJson) || other.manifestJson == manifestJson));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,archivePath,archiveSizeBytes,identityIncluded,exportedAt,libraryUuid,schemaVersion,formatVersion,booksCount,copiesCount,loansCount,contactsCount,authorsCount,tagsCount,collectionsCount,peersCount,salesCount,coversCount,manifestJson);
+
+@override
+String toString() {
+  return 'FrbBackupSummary(archivePath: $archivePath, archiveSizeBytes: $archiveSizeBytes, identityIncluded: $identityIncluded, exportedAt: $exportedAt, libraryUuid: $libraryUuid, schemaVersion: $schemaVersion, formatVersion: $formatVersion, booksCount: $booksCount, copiesCount: $copiesCount, loansCount: $loansCount, contactsCount: $contactsCount, authorsCount: $authorsCount, tagsCount: $tagsCount, collectionsCount: $collectionsCount, peersCount: $peersCount, salesCount: $salesCount, coversCount: $coversCount, manifestJson: $manifestJson)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $FrbBackupSummaryCopyWith<$Res>  {
+  factory $FrbBackupSummaryCopyWith(FrbBackupSummary value, $Res Function(FrbBackupSummary) _then) = _$FrbBackupSummaryCopyWithImpl;
+@useResult
+$Res call({
+ String archivePath, PlatformInt64 archiveSizeBytes, bool identityIncluded, String exportedAt, String libraryUuid, PlatformInt64 schemaVersion, String formatVersion, PlatformInt64 booksCount, PlatformInt64 copiesCount, PlatformInt64 loansCount, PlatformInt64 contactsCount, PlatformInt64 authorsCount, PlatformInt64 tagsCount, PlatformInt64 collectionsCount, PlatformInt64 peersCount, PlatformInt64 salesCount, PlatformInt64 coversCount, String manifestJson
+});
+
+
+
+
+}
+/// @nodoc
+class _$FrbBackupSummaryCopyWithImpl<$Res>
+    implements $FrbBackupSummaryCopyWith<$Res> {
+  _$FrbBackupSummaryCopyWithImpl(this._self, this._then);
+
+  final FrbBackupSummary _self;
+  final $Res Function(FrbBackupSummary) _then;
+
+/// Create a copy of FrbBackupSummary
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? archivePath = null,Object? archiveSizeBytes = null,Object? identityIncluded = null,Object? exportedAt = null,Object? libraryUuid = null,Object? schemaVersion = null,Object? formatVersion = null,Object? booksCount = null,Object? copiesCount = null,Object? loansCount = null,Object? contactsCount = null,Object? authorsCount = null,Object? tagsCount = null,Object? collectionsCount = null,Object? peersCount = null,Object? salesCount = null,Object? coversCount = null,Object? manifestJson = null,}) {
+  return _then(_self.copyWith(
+archivePath: null == archivePath ? _self.archivePath : archivePath // ignore: cast_nullable_to_non_nullable
+as String,archiveSizeBytes: null == archiveSizeBytes ? _self.archiveSizeBytes : archiveSizeBytes // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,identityIncluded: null == identityIncluded ? _self.identityIncluded : identityIncluded // ignore: cast_nullable_to_non_nullable
+as bool,exportedAt: null == exportedAt ? _self.exportedAt : exportedAt // ignore: cast_nullable_to_non_nullable
+as String,libraryUuid: null == libraryUuid ? _self.libraryUuid : libraryUuid // ignore: cast_nullable_to_non_nullable
+as String,schemaVersion: null == schemaVersion ? _self.schemaVersion : schemaVersion // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,formatVersion: null == formatVersion ? _self.formatVersion : formatVersion // ignore: cast_nullable_to_non_nullable
+as String,booksCount: null == booksCount ? _self.booksCount : booksCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,copiesCount: null == copiesCount ? _self.copiesCount : copiesCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,loansCount: null == loansCount ? _self.loansCount : loansCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,contactsCount: null == contactsCount ? _self.contactsCount : contactsCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,authorsCount: null == authorsCount ? _self.authorsCount : authorsCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,tagsCount: null == tagsCount ? _self.tagsCount : tagsCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,collectionsCount: null == collectionsCount ? _self.collectionsCount : collectionsCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,peersCount: null == peersCount ? _self.peersCount : peersCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,salesCount: null == salesCount ? _self.salesCount : salesCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,coversCount: null == coversCount ? _self.coversCount : coversCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,manifestJson: null == manifestJson ? _self.manifestJson : manifestJson // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [FrbBackupSummary].
+extension FrbBackupSummaryPatterns on FrbBackupSummary {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _FrbBackupSummary value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _FrbBackupSummary() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _FrbBackupSummary value)  $default,){
+final _that = this;
+switch (_that) {
+case _FrbBackupSummary():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _FrbBackupSummary value)?  $default,){
+final _that = this;
+switch (_that) {
+case _FrbBackupSummary() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String archivePath,  PlatformInt64 archiveSizeBytes,  bool identityIncluded,  String exportedAt,  String libraryUuid,  PlatformInt64 schemaVersion,  String formatVersion,  PlatformInt64 booksCount,  PlatformInt64 copiesCount,  PlatformInt64 loansCount,  PlatformInt64 contactsCount,  PlatformInt64 authorsCount,  PlatformInt64 tagsCount,  PlatformInt64 collectionsCount,  PlatformInt64 peersCount,  PlatformInt64 salesCount,  PlatformInt64 coversCount,  String manifestJson)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _FrbBackupSummary() when $default != null:
+return $default(_that.archivePath,_that.archiveSizeBytes,_that.identityIncluded,_that.exportedAt,_that.libraryUuid,_that.schemaVersion,_that.formatVersion,_that.booksCount,_that.copiesCount,_that.loansCount,_that.contactsCount,_that.authorsCount,_that.tagsCount,_that.collectionsCount,_that.peersCount,_that.salesCount,_that.coversCount,_that.manifestJson);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String archivePath,  PlatformInt64 archiveSizeBytes,  bool identityIncluded,  String exportedAt,  String libraryUuid,  PlatformInt64 schemaVersion,  String formatVersion,  PlatformInt64 booksCount,  PlatformInt64 copiesCount,  PlatformInt64 loansCount,  PlatformInt64 contactsCount,  PlatformInt64 authorsCount,  PlatformInt64 tagsCount,  PlatformInt64 collectionsCount,  PlatformInt64 peersCount,  PlatformInt64 salesCount,  PlatformInt64 coversCount,  String manifestJson)  $default,) {final _that = this;
+switch (_that) {
+case _FrbBackupSummary():
+return $default(_that.archivePath,_that.archiveSizeBytes,_that.identityIncluded,_that.exportedAt,_that.libraryUuid,_that.schemaVersion,_that.formatVersion,_that.booksCount,_that.copiesCount,_that.loansCount,_that.contactsCount,_that.authorsCount,_that.tagsCount,_that.collectionsCount,_that.peersCount,_that.salesCount,_that.coversCount,_that.manifestJson);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String archivePath,  PlatformInt64 archiveSizeBytes,  bool identityIncluded,  String exportedAt,  String libraryUuid,  PlatformInt64 schemaVersion,  String formatVersion,  PlatformInt64 booksCount,  PlatformInt64 copiesCount,  PlatformInt64 loansCount,  PlatformInt64 contactsCount,  PlatformInt64 authorsCount,  PlatformInt64 tagsCount,  PlatformInt64 collectionsCount,  PlatformInt64 peersCount,  PlatformInt64 salesCount,  PlatformInt64 coversCount,  String manifestJson)?  $default,) {final _that = this;
+switch (_that) {
+case _FrbBackupSummary() when $default != null:
+return $default(_that.archivePath,_that.archiveSizeBytes,_that.identityIncluded,_that.exportedAt,_that.libraryUuid,_that.schemaVersion,_that.formatVersion,_that.booksCount,_that.copiesCount,_that.loansCount,_that.contactsCount,_that.authorsCount,_that.tagsCount,_that.collectionsCount,_that.peersCount,_that.salesCount,_that.coversCount,_that.manifestJson);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _FrbBackupSummary implements FrbBackupSummary {
+  const _FrbBackupSummary({required this.archivePath, required this.archiveSizeBytes, required this.identityIncluded, required this.exportedAt, required this.libraryUuid, required this.schemaVersion, required this.formatVersion, required this.booksCount, required this.copiesCount, required this.loansCount, required this.contactsCount, required this.authorsCount, required this.tagsCount, required this.collectionsCount, required this.peersCount, required this.salesCount, required this.coversCount, required this.manifestJson});
+  
+
+@override final  String archivePath;
+@override final  PlatformInt64 archiveSizeBytes;
+@override final  bool identityIncluded;
+@override final  String exportedAt;
+@override final  String libraryUuid;
+@override final  PlatformInt64 schemaVersion;
+@override final  String formatVersion;
+@override final  PlatformInt64 booksCount;
+@override final  PlatformInt64 copiesCount;
+@override final  PlatformInt64 loansCount;
+@override final  PlatformInt64 contactsCount;
+@override final  PlatformInt64 authorsCount;
+@override final  PlatformInt64 tagsCount;
+@override final  PlatformInt64 collectionsCount;
+@override final  PlatformInt64 peersCount;
+@override final  PlatformInt64 salesCount;
+@override final  PlatformInt64 coversCount;
+@override final  String manifestJson;
+
+/// Create a copy of FrbBackupSummary
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$FrbBackupSummaryCopyWith<_FrbBackupSummary> get copyWith => __$FrbBackupSummaryCopyWithImpl<_FrbBackupSummary>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbBackupSummary&&(identical(other.archivePath, archivePath) || other.archivePath == archivePath)&&(identical(other.archiveSizeBytes, archiveSizeBytes) || other.archiveSizeBytes == archiveSizeBytes)&&(identical(other.identityIncluded, identityIncluded) || other.identityIncluded == identityIncluded)&&(identical(other.exportedAt, exportedAt) || other.exportedAt == exportedAt)&&(identical(other.libraryUuid, libraryUuid) || other.libraryUuid == libraryUuid)&&(identical(other.schemaVersion, schemaVersion) || other.schemaVersion == schemaVersion)&&(identical(other.formatVersion, formatVersion) || other.formatVersion == formatVersion)&&(identical(other.booksCount, booksCount) || other.booksCount == booksCount)&&(identical(other.copiesCount, copiesCount) || other.copiesCount == copiesCount)&&(identical(other.loansCount, loansCount) || other.loansCount == loansCount)&&(identical(other.contactsCount, contactsCount) || other.contactsCount == contactsCount)&&(identical(other.authorsCount, authorsCount) || other.authorsCount == authorsCount)&&(identical(other.tagsCount, tagsCount) || other.tagsCount == tagsCount)&&(identical(other.collectionsCount, collectionsCount) || other.collectionsCount == collectionsCount)&&(identical(other.peersCount, peersCount) || other.peersCount == peersCount)&&(identical(other.salesCount, salesCount) || other.salesCount == salesCount)&&(identical(other.coversCount, coversCount) || other.coversCount == coversCount)&&(identical(other.manifestJson, manifestJson) || other.manifestJson == manifestJson));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,archivePath,archiveSizeBytes,identityIncluded,exportedAt,libraryUuid,schemaVersion,formatVersion,booksCount,copiesCount,loansCount,contactsCount,authorsCount,tagsCount,collectionsCount,peersCount,salesCount,coversCount,manifestJson);
+
+@override
+String toString() {
+  return 'FrbBackupSummary(archivePath: $archivePath, archiveSizeBytes: $archiveSizeBytes, identityIncluded: $identityIncluded, exportedAt: $exportedAt, libraryUuid: $libraryUuid, schemaVersion: $schemaVersion, formatVersion: $formatVersion, booksCount: $booksCount, copiesCount: $copiesCount, loansCount: $loansCount, contactsCount: $contactsCount, authorsCount: $authorsCount, tagsCount: $tagsCount, collectionsCount: $collectionsCount, peersCount: $peersCount, salesCount: $salesCount, coversCount: $coversCount, manifestJson: $manifestJson)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$FrbBackupSummaryCopyWith<$Res> implements $FrbBackupSummaryCopyWith<$Res> {
+  factory _$FrbBackupSummaryCopyWith(_FrbBackupSummary value, $Res Function(_FrbBackupSummary) _then) = __$FrbBackupSummaryCopyWithImpl;
+@override @useResult
+$Res call({
+ String archivePath, PlatformInt64 archiveSizeBytes, bool identityIncluded, String exportedAt, String libraryUuid, PlatformInt64 schemaVersion, String formatVersion, PlatformInt64 booksCount, PlatformInt64 copiesCount, PlatformInt64 loansCount, PlatformInt64 contactsCount, PlatformInt64 authorsCount, PlatformInt64 tagsCount, PlatformInt64 collectionsCount, PlatformInt64 peersCount, PlatformInt64 salesCount, PlatformInt64 coversCount, String manifestJson
+});
+
+
+
+
+}
+/// @nodoc
+class __$FrbBackupSummaryCopyWithImpl<$Res>
+    implements _$FrbBackupSummaryCopyWith<$Res> {
+  __$FrbBackupSummaryCopyWithImpl(this._self, this._then);
+
+  final _FrbBackupSummary _self;
+  final $Res Function(_FrbBackupSummary) _then;
+
+/// Create a copy of FrbBackupSummary
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? archivePath = null,Object? archiveSizeBytes = null,Object? identityIncluded = null,Object? exportedAt = null,Object? libraryUuid = null,Object? schemaVersion = null,Object? formatVersion = null,Object? booksCount = null,Object? copiesCount = null,Object? loansCount = null,Object? contactsCount = null,Object? authorsCount = null,Object? tagsCount = null,Object? collectionsCount = null,Object? peersCount = null,Object? salesCount = null,Object? coversCount = null,Object? manifestJson = null,}) {
+  return _then(_FrbBackupSummary(
+archivePath: null == archivePath ? _self.archivePath : archivePath // ignore: cast_nullable_to_non_nullable
+as String,archiveSizeBytes: null == archiveSizeBytes ? _self.archiveSizeBytes : archiveSizeBytes // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,identityIncluded: null == identityIncluded ? _self.identityIncluded : identityIncluded // ignore: cast_nullable_to_non_nullable
+as bool,exportedAt: null == exportedAt ? _self.exportedAt : exportedAt // ignore: cast_nullable_to_non_nullable
+as String,libraryUuid: null == libraryUuid ? _self.libraryUuid : libraryUuid // ignore: cast_nullable_to_non_nullable
+as String,schemaVersion: null == schemaVersion ? _self.schemaVersion : schemaVersion // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,formatVersion: null == formatVersion ? _self.formatVersion : formatVersion // ignore: cast_nullable_to_non_nullable
+as String,booksCount: null == booksCount ? _self.booksCount : booksCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,copiesCount: null == copiesCount ? _self.copiesCount : copiesCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,loansCount: null == loansCount ? _self.loansCount : loansCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,contactsCount: null == contactsCount ? _self.contactsCount : contactsCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,authorsCount: null == authorsCount ? _self.authorsCount : authorsCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,tagsCount: null == tagsCount ? _self.tagsCount : tagsCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,collectionsCount: null == collectionsCount ? _self.collectionsCount : collectionsCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,peersCount: null == peersCount ? _self.peersCount : peersCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,salesCount: null == salesCount ? _self.salesCount : salesCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,coversCount: null == coversCount ? _self.coversCount : coversCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,manifestJson: null == manifestJson ? _self.manifestJson : manifestJson // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
 mixin _$FrbBook {
 
  int? get id; String get title; String? get author; String? get isbn; String? get summary; String? get publisher; int? get publicationYear; String? get coverUrl; String? get largeCoverUrl; String? get readingStatus; int? get shelfPosition; int? get userRating; String? get subjects; String? get createdAt; String? get updatedAt; String? get finishedReadingAt; String? get startedReadingAt; bool get owned; double? get price; List<String>? get digitalFormats; bool get private; int? get pageCount; String? get addedAt; String? get hubCoverUploadFailedAt;

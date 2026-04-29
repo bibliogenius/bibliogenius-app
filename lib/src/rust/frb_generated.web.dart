@@ -98,6 +98,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   double dco_decode_f_64(dynamic raw);
 
   @protected
+  FrbBackupSummary dco_decode_frb_backup_summary(dynamic raw);
+
+  @protected
   FrbBook dco_decode_frb_book(dynamic raw);
 
   @protected
@@ -521,6 +524,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   double sse_decode_f_64(SseDeserializer deserializer);
+
+  @protected
+  FrbBackupSummary sse_decode_frb_backup_summary(SseDeserializer deserializer);
 
   @protected
   FrbBook sse_decode_frb_book(SseDeserializer deserializer);
@@ -1043,6 +1049,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_f_64(double self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_frb_backup_summary(
+    FrbBackupSummary self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_frb_book(FrbBook self, SseSerializer serializer);
