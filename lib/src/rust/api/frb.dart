@@ -8,7 +8,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 part 'frb.freezed.dart';
 
-// These functions are ignored because they are not marked as `pub`: `db`, `device_pairing_svc`, `device_sync_svc`, `entries_to_frb`, `global_app_state`, `hub_db`, `hub_directory_svc`, `install_panic_hook`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `modules_to_fallback_preferences`, `nudge_source_label`, `rename_subject_in_books`, `runtime`, `track_to_frb`, `upsert_directory_catalog_cache`
+// These functions are ignored because they are not marked as `pub`: `db`, `device_pairing_svc`, `device_sync_svc`, `entries_to_frb`, `global_app_state`, `hub_db`, `hub_directory_svc`, `install_panic_hook`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `modules_to_fallback_preferences`, `nudge_source_label`, `rename_subject_in_books`, `runtime`, `track_to_frb`, `try_from_summary`, `upsert_directory_catalog_cache`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
 // These functions are ignored (category: IgnoreBecauseExplicitAttribute): `shared_device_pairing_svc`
 
@@ -1170,6 +1170,73 @@ Future<FrbBookNote> updateBookNote({
 /// Delete a note by ID.
 Future<void> deleteBookNote({required int id}) =>
     RustLib.instance.api.crateApiFrbDeleteBookNote(id: id);
+
+/// Write a `.bgbackup` archive at `output_path` (ADR-037).
+///
+/// `unlock_kind` accepts `"recovery_code"` or `"passphrase"`. Any other
+/// value yields an error before any heavy work runs.
+///
+/// `secret_bytes` carries the resolved passphrase or recovery code as raw
+/// UTF-8 bytes. Crossing the FFI as `Uint8List` (rather than `String`)
+/// lets the Flutter caller clear the buffer in place via
+/// `fillRange(0, len, 0)` after the call returns; Dart `String` is
+/// immutable and cannot be wiped reliably.
+///
+/// The Rust side wraps `secret_bytes` in `Zeroizing` so it is also
+/// scrubbed on every return path (including panics) before write_backup
+/// makes its own internal copy.
+///
+/// `include_identity = true` packs the Ed25519 + X25519 secret bytes in
+/// `identity.bin` (Option C clone mode). The identity must already be
+/// initialized via `init_identity_ffi`; otherwise the call returns an
+/// error before any file is touched on disk.
+///
+/// `cover_dir` is the on-disk directory where local cover images live;
+/// hub-hosted URLs are detected by their `http(s)://` prefix and skipped.
+Future<FrbBackupSummary> writeBackupFfi({
+  required String outputPath,
+  required List<int> secretBytes,
+  required String unlockKind,
+  required String libraryUuid,
+  required bool includeIdentity,
+  required String prefsJson,
+  required String coverDir,
+}) => RustLib.instance.api.crateApiFrbWriteBackupFfi(
+  outputPath: outputPath,
+  secretBytes: secretBytes,
+  unlockKind: unlockKind,
+  libraryUuid: libraryUuid,
+  includeIdentity: includeIdentity,
+  prefsJson: prefsJson,
+  coverDir: coverDir,
+);
+
+/// Summary of a successfully written `.bgbackup` archive, returned to the
+/// Flutter caller. Counts and sizes are surfaced as `i64` for FFI
+/// portability (Dart `int` is signed 64-bit on native).
+@freezed
+sealed class FrbBackupSummary with _$FrbBackupSummary {
+  const factory FrbBackupSummary({
+    required String archivePath,
+    required PlatformInt64 archiveSizeBytes,
+    required bool identityIncluded,
+    required String exportedAt,
+    required String libraryUuid,
+    required PlatformInt64 schemaVersion,
+    required String formatVersion,
+    required PlatformInt64 booksCount,
+    required PlatformInt64 copiesCount,
+    required PlatformInt64 loansCount,
+    required PlatformInt64 contactsCount,
+    required PlatformInt64 authorsCount,
+    required PlatformInt64 tagsCount,
+    required PlatformInt64 collectionsCount,
+    required PlatformInt64 peersCount,
+    required PlatformInt64 salesCount,
+    required PlatformInt64 coversCount,
+    required String manifestJson,
+  }) = _FrbBackupSummary;
+}
 
 /// Simplified book structure for FFI
 @freezed

@@ -64,7 +64,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.11.1';
 
   @override
-  int get rustContentHash => -691784876;
+  int get rustContentHash => 1462346503;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -598,6 +598,16 @@ abstract class RustLibApi extends BaseApi {
     required int id,
     required String name,
     int? parentId,
+  });
+
+  Future<FrbBackupSummary> crateApiFrbWriteBackupFfi({
+    required String outputPath,
+    required List<int> secretBytes,
+    required String unlockKind,
+    required String libraryUuid,
+    required bool includeIdentity,
+    required String prefsJson,
+    required String coverDir,
   });
 }
 
@@ -5877,6 +5887,66 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     argNames: ["id", "name", "parentId"],
   );
 
+  @override
+  Future<FrbBackupSummary> crateApiFrbWriteBackupFfi({
+    required String outputPath,
+    required List<int> secretBytes,
+    required String unlockKind,
+    required String libraryUuid,
+    required bool includeIdentity,
+    required String prefsJson,
+    required String coverDir,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(outputPath, serializer);
+          sse_encode_list_prim_u_8_loose(secretBytes, serializer);
+          sse_encode_String(unlockKind, serializer);
+          sse_encode_String(libraryUuid, serializer);
+          sse_encode_bool(includeIdentity, serializer);
+          sse_encode_String(prefsJson, serializer);
+          sse_encode_String(coverDir, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 168,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_frb_backup_summary,
+          decodeErrorData: sse_decode_String,
+        ),
+        constMeta: kCrateApiFrbWriteBackupFfiConstMeta,
+        argValues: [
+          outputPath,
+          secretBytes,
+          unlockKind,
+          libraryUuid,
+          includeIdentity,
+          prefsJson,
+          coverDir,
+        ],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiFrbWriteBackupFfiConstMeta => const TaskConstMeta(
+    debugName: "write_backup_ffi",
+    argNames: [
+      "outputPath",
+      "secretBytes",
+      "unlockKind",
+      "libraryUuid",
+      "includeIdentity",
+      "prefsJson",
+      "coverDir",
+    ],
+  );
+
   @protected
   AnyhowException dco_decode_AnyhowException(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
@@ -6030,6 +6100,34 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   double dco_decode_f_64(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as double;
+  }
+
+  @protected
+  FrbBackupSummary dco_decode_frb_backup_summary(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 18)
+      throw Exception('unexpected arr length: expect 18 but see ${arr.length}');
+    return FrbBackupSummary(
+      archivePath: dco_decode_String(arr[0]),
+      archiveSizeBytes: dco_decode_i_64(arr[1]),
+      identityIncluded: dco_decode_bool(arr[2]),
+      exportedAt: dco_decode_String(arr[3]),
+      libraryUuid: dco_decode_String(arr[4]),
+      schemaVersion: dco_decode_i_64(arr[5]),
+      formatVersion: dco_decode_String(arr[6]),
+      booksCount: dco_decode_i_64(arr[7]),
+      copiesCount: dco_decode_i_64(arr[8]),
+      loansCount: dco_decode_i_64(arr[9]),
+      contactsCount: dco_decode_i_64(arr[10]),
+      authorsCount: dco_decode_i_64(arr[11]),
+      tagsCount: dco_decode_i_64(arr[12]),
+      collectionsCount: dco_decode_i_64(arr[13]),
+      peersCount: dco_decode_i_64(arr[14]),
+      salesCount: dco_decode_i_64(arr[15]),
+      coversCount: dco_decode_i_64(arr[16]),
+      manifestJson: dco_decode_String(arr[17]),
+    );
   }
 
   @protected
@@ -7383,6 +7481,49 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   double sse_decode_f_64(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return deserializer.buffer.getFloat64();
+  }
+
+  @protected
+  FrbBackupSummary sse_decode_frb_backup_summary(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_archivePath = sse_decode_String(deserializer);
+    var var_archiveSizeBytes = sse_decode_i_64(deserializer);
+    var var_identityIncluded = sse_decode_bool(deserializer);
+    var var_exportedAt = sse_decode_String(deserializer);
+    var var_libraryUuid = sse_decode_String(deserializer);
+    var var_schemaVersion = sse_decode_i_64(deserializer);
+    var var_formatVersion = sse_decode_String(deserializer);
+    var var_booksCount = sse_decode_i_64(deserializer);
+    var var_copiesCount = sse_decode_i_64(deserializer);
+    var var_loansCount = sse_decode_i_64(deserializer);
+    var var_contactsCount = sse_decode_i_64(deserializer);
+    var var_authorsCount = sse_decode_i_64(deserializer);
+    var var_tagsCount = sse_decode_i_64(deserializer);
+    var var_collectionsCount = sse_decode_i_64(deserializer);
+    var var_peersCount = sse_decode_i_64(deserializer);
+    var var_salesCount = sse_decode_i_64(deserializer);
+    var var_coversCount = sse_decode_i_64(deserializer);
+    var var_manifestJson = sse_decode_String(deserializer);
+    return FrbBackupSummary(
+      archivePath: var_archivePath,
+      archiveSizeBytes: var_archiveSizeBytes,
+      identityIncluded: var_identityIncluded,
+      exportedAt: var_exportedAt,
+      libraryUuid: var_libraryUuid,
+      schemaVersion: var_schemaVersion,
+      formatVersion: var_formatVersion,
+      booksCount: var_booksCount,
+      copiesCount: var_copiesCount,
+      loansCount: var_loansCount,
+      contactsCount: var_contactsCount,
+      authorsCount: var_authorsCount,
+      tagsCount: var_tagsCount,
+      collectionsCount: var_collectionsCount,
+      peersCount: var_peersCount,
+      salesCount: var_salesCount,
+      coversCount: var_coversCount,
+      manifestJson: var_manifestJson,
+    );
   }
 
   @protected
@@ -9253,6 +9394,32 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   void sse_encode_f_64(double self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     serializer.buffer.putFloat64(self);
+  }
+
+  @protected
+  void sse_encode_frb_backup_summary(
+    FrbBackupSummary self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.archivePath, serializer);
+    sse_encode_i_64(self.archiveSizeBytes, serializer);
+    sse_encode_bool(self.identityIncluded, serializer);
+    sse_encode_String(self.exportedAt, serializer);
+    sse_encode_String(self.libraryUuid, serializer);
+    sse_encode_i_64(self.schemaVersion, serializer);
+    sse_encode_String(self.formatVersion, serializer);
+    sse_encode_i_64(self.booksCount, serializer);
+    sse_encode_i_64(self.copiesCount, serializer);
+    sse_encode_i_64(self.loansCount, serializer);
+    sse_encode_i_64(self.contactsCount, serializer);
+    sse_encode_i_64(self.authorsCount, serializer);
+    sse_encode_i_64(self.tagsCount, serializer);
+    sse_encode_i_64(self.collectionsCount, serializer);
+    sse_encode_i_64(self.peersCount, serializer);
+    sse_encode_i_64(self.salesCount, serializer);
+    sse_encode_i_64(self.coversCount, serializer);
+    sse_encode_String(self.manifestJson, serializer);
   }
 
   @protected

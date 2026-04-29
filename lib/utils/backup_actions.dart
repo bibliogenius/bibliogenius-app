@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io' as io;
 
 import 'package:file_picker/file_picker.dart';
@@ -7,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_html/html.dart' as html;
 
 import '../data/repositories/book_repository.dart';
@@ -19,6 +21,7 @@ import '../services/api_service.dart';
 import '../services/auth_service.dart';
 import '../services/mdns_service.dart';
 import '../services/translation_service.dart';
+import '../src/rust/api/frb.dart' as rust;
 
 enum _MobileExportChoice { save, share }
 
@@ -637,4 +640,207 @@ class BackupActions {
       );
     }
   }
+
+  // ---------------------------------------------------------------------------
+  // Full backup (.bgbackup) — DEBUG-ONLY entry point (ADR-037).
+  //
+  // Wired to the otherwise-disabled "Sauvegarde complète" tile when
+  // `kDebugMode` is true (settings_screen.dart). Removed when PR #3 ships
+  // the production restore wizard. No l10n for now: this surface is for
+  // developer validation, never reaches end users.
+  // ---------------------------------------------------------------------------
+
+  /// Run the debug-only full backup flow: prompt for secret + identity
+  /// option, save to a user-chosen path, write the archive via FFI, show
+  /// a summary SnackBar.
+  static Future<void> runFullBackupDebug(BuildContext context) async {
+    if (kReleaseMode) return;
+
+    final messenger = ScaffoldMessenger.of(context);
+    final authService = context.read<AuthService>();
+
+    final input = await _showFullBackupDebugDialog(context);
+    if (input == null) return;
+
+    // From here on, `input.secretBytes` is the only place the secret bytes
+    // live on the Dart heap. We zero it on every return path.
+    try {
+      final defaultName =
+          'bibliogenius-backup-${_timestampForFilename(DateTime.now())}.bgbackup';
+      final outputPath = await FilePicker.platform.saveFile(
+        dialogTitle: 'Exporter la sauvegarde complète',
+        fileName: defaultName,
+        type: FileType.custom,
+        allowedExtensions: ['bgbackup'],
+      );
+      if (outputPath == null) return;
+
+      final libraryUuid = await authService.getOrCreateLibraryUuid();
+      final appSupport = await getApplicationSupportDirectory();
+      final coverDir = '${appSupport.path}/covers';
+
+      final prefs = await SharedPreferences.getInstance();
+      final prefsJson = jsonEncode(<String, String>{
+        for (final key in const ['themeStyle', 'languageCode', 'country'])
+          if (prefs.getString(key) != null) key: prefs.getString(key)!,
+      });
+
+      final summary = await rust.writeBackupFfi(
+        outputPath: outputPath,
+        secretBytes: input.secretBytes,
+        unlockKind: input.unlockKind,
+        libraryUuid: libraryUuid,
+        includeIdentity: input.includeIdentity,
+        prefsJson: prefsJson,
+        coverDir: coverDir,
+      );
+
+      final sizeKb = (summary.archiveSizeBytes.toInt() / 1024).round();
+      messenger.showSnackBar(
+        SnackBar(
+          duration: const Duration(seconds: 6),
+          content: Text(
+            '.bgbackup OK — '
+            '${summary.booksCount.toInt()} livres, '
+            '${summary.coversCount.toInt()} covers, '
+            '${sizeKb}KB. Identity: ${summary.identityIncluded}.',
+          ),
+        ),
+      );
+      debugPrint(
+        '[backup-debug] manifest=${summary.manifestJson}',
+      );
+    } catch (e) {
+      messenger.showSnackBar(
+        SnackBar(
+          duration: const Duration(seconds: 6),
+          backgroundColor: Colors.red,
+          content: Text('Echec sauvegarde complète: $e'),
+        ),
+      );
+    } finally {
+      // Best-effort wipe of the secret buffer. Dart heap is GC-managed,
+      // but at least the bytes we control are zeroed before the GC runs.
+      input.secretBytes.fillRange(0, input.secretBytes.length, 0);
+    }
+  }
+
+  static Future<_FullBackupDebugInput?> _showFullBackupDebugDialog(
+    BuildContext context,
+  ) async {
+    final controller = TextEditingController();
+    String unlockKind = 'passphrase';
+    bool includeIdentity = false;
+    bool obscure = true;
+
+    final result = await showDialog<_FullBackupDebugInput>(
+      context: context,
+      builder: (dialogCtx) {
+        return StatefulBuilder(
+          builder: (ctx, setState) => AlertDialog(
+            title: const Text('Sauvegarde complète (debug)'),
+            content: SizedBox(
+              width: 380,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SegmentedButton<String>(
+                    segments: const [
+                      ButtonSegment(
+                        value: 'passphrase',
+                        label: Text('Passphrase'),
+                      ),
+                      ButtonSegment(
+                        value: 'recovery_code',
+                        label: Text('Recovery code'),
+                      ),
+                    ],
+                    selected: {unlockKind},
+                    onSelectionChanged: (s) =>
+                        setState(() => unlockKind = s.first),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: controller,
+                    obscureText: obscure,
+                    autofocus: true,
+                    decoration: InputDecoration(
+                      labelText: 'Secret',
+                      border: const OutlineInputBorder(),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          obscure ? Icons.visibility : Icons.visibility_off,
+                        ),
+                        onPressed: () => setState(() => obscure = !obscure),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  CheckboxListTile(
+                    contentPadding: EdgeInsets.zero,
+                    dense: true,
+                    title: const Text(
+                      "Inclure l'identité (clone exact, ADR-037)",
+                      style: TextStyle(fontSize: 13),
+                    ),
+                    value: includeIdentity,
+                    onChanged: (v) =>
+                        setState(() => includeIdentity = v ?? false),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(),
+                child: const Text('Annuler'),
+              ),
+              FilledButton(
+                onPressed: () {
+                  if (controller.text.isEmpty) return;
+                  // Move secret out of the controller as bytes; the String
+                  // form remains in the controller's heap until cleared
+                  // immediately below.
+                  final bytes = Uint8List.fromList(utf8.encode(controller.text));
+                  Navigator.of(ctx).pop(
+                    _FullBackupDebugInput(
+                      secretBytes: bytes,
+                      unlockKind: unlockKind,
+                      includeIdentity: includeIdentity,
+                    ),
+                  );
+                },
+                child: const Text('Exporter'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+    // The controller still references the cleartext String. Dart Strings
+    // are immutable so we cannot zero it; clearing the controller at
+    // least removes our reference to it.
+    controller.clear();
+    controller.dispose();
+    return result;
+  }
+
+  static String _timestampForFilename(DateTime t) {
+    final l = t.toLocal();
+    String two(int v) => v.toString().padLeft(2, '0');
+    return '${l.year}${two(l.month)}${two(l.day)}-${two(l.hour)}${two(l.minute)}';
+  }
+}
+
+class _FullBackupDebugInput {
+  final Uint8List secretBytes;
+  final String unlockKind;
+  final bool includeIdentity;
+
+  const _FullBackupDebugInput({
+    required this.secretBytes,
+    required this.unlockKind,
+    required this.includeIdentity,
+  });
 }

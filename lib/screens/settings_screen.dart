@@ -6,7 +6,8 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:convert';
-import 'package:flutter/foundation.dart' show debugPrint, kIsWeb, kReleaseMode;
+import 'package:flutter/foundation.dart'
+    show debugPrint, kDebugMode, kIsWeb, kReleaseMode;
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -4388,6 +4389,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
 /// Disabled "Full backup" tile shown in the Backup accordion before the
 /// `.bgbackup` format ships (ADR-037). Visually muted, screen-reader
 /// announces it as disabled, tap shows a SnackBar instead of opening a flow.
+///
+/// In `kDebugMode` only, the tile becomes clickable and routes to the
+/// debug writer flow (`BackupActions.runFullBackupDebug`). Removed once
+/// PR #3 ships the production restore wizard.
 class _FullBackupTile extends StatelessWidget {
   final String title;
   final String subtitle;
@@ -4404,6 +4409,32 @@ class _FullBackupTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
+    if (kDebugMode) {
+      return Semantics(
+        button: true,
+        label: '$title. $subtitle',
+        child: ListTile(
+          leading: const Icon(Icons.shield_outlined, color: Colors.green),
+          title: Text(title, style: theme.textTheme.bodyLarge),
+          subtitle: Text(subtitle, style: theme.textTheme.bodyMedium),
+          trailing: Chip(
+            label: const Text('DEBUG'),
+            labelStyle: TextStyle(
+              fontSize: 11,
+              color: theme.colorScheme.onTertiaryContainer,
+              fontWeight: FontWeight.w600,
+            ),
+            backgroundColor: theme.colorScheme.tertiaryContainer,
+            side: BorderSide(color: theme.colorScheme.tertiary),
+            visualDensity: VisualDensity.compact,
+            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+          onTap: () => BackupActions.runFullBackupDebug(context),
+        ),
+      );
+    }
+
     final disabledColor = theme.disabledColor;
     return Tooltip(
       message: unavailableMessage,
