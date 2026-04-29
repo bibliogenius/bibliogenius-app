@@ -940,6 +940,16 @@ class FfiService {
     return await frb.gamificationUpdateStreak();
   }
 
+  // ============ Installation profile (search settings) ============
+
+  /// Read the persisted search-source toggles + API keys from the
+  /// installation profile. The HTTP `/api/user/status` payload (FFI-mapped
+  /// via `gamificationGetStatus`) does not carry these fields, so the
+  /// settings screen calls this in addition to it.
+  Future<frb.FrbSearchSettings> getSearchSettings() async {
+    return await frb.installationProfileGetSearchSettings();
+  }
+
   // ============ Collections ============
 
   /// Get all collections with book counts.

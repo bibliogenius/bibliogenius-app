@@ -9,6 +9,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart' show debugPrint, kIsWeb, kReleaseMode;
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:country_picker/country_picker.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../widgets/genie_app_bar.dart';
 import '../widgets/peer_book_cover_cache_manager.dart';
@@ -179,6 +180,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
             _googleBooksApiKey = apiKeys['google_books']?.toString() ?? '';
             _apiKeyController.text = _googleBooksApiKey;
           }
+        }
+      }
+
+      // FFI mode: getUserStatus is mapped from gamification_get_status, which
+      // does not carry search preferences. Hydrate them from a dedicated FFI
+      // call so the toggles reflect the persisted state on screen open.
+      if (api.useFfi) {
+        try {
+          final settings = await FfiService().getSearchSettings();
+          settings.fallbackPreferences.forEach((key, value) {
+            _searchPrefs[key] = value;
+          });
+          final googleKey = settings.apiKeys['google_books'] ?? '';
+          if (googleKey.isNotEmpty) {
+            _googleBooksApiKey = googleKey;
+            _apiKeyController.text = googleKey;
+          }
+        } catch (e) {
+          debugPrint('FFI getSearchSettings failed: $e');
         }
       }
 
@@ -3563,7 +3583,52 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 _searchPrefs['google_books'] ?? googleDefault,
                 (val) => _updateSearchPreference('google_books', val),
                 icon: Icons.search,
+                tag: TranslationService.translate(
+                  context,
+                  'google_books_advanced_tag',
+                ),
               ),
+              if ((_searchPrefs['google_books'] ?? googleDefault) &&
+                  _googleBooksApiKey.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.tertiaryContainer.withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          Icons.info_outline,
+                          size: 18,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onTertiaryContainer,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            TranslationService.translate(
+                              context,
+                              'google_books_no_api_key_warning',
+                            ),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onTertiaryContainer,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               if (_searchPrefs['google_books'] ?? googleDefault)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
@@ -3596,6 +3661,42 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     onSubmitted: (_) => _saveGoogleBooksApiKey(),
                   ),
                 ),
+              if (_searchPrefs['google_books'] ?? googleDefault)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                  child: InkWell(
+                    onTap: () => launchUrl(
+                      Uri.parse(
+                        'https://support.google.com/googleapi/answer/6158862',
+                      ),
+                      mode: LaunchMode.externalApplication,
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.open_in_new,
+                          size: 14,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          TranslationService.translate(
+                            context,
+                            'google_books_api_key_help_link',
+                          ),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Theme.of(context).colorScheme.primary,
+                            decoration: TextDecoration.underline,
+                            decorationColor: Theme.of(
+                              context,
+                            ).colorScheme.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
@@ -3610,10 +3711,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
     bool value,
     ValueChanged<bool> onChanged, {
     IconData? icon,
+    String? tag,
   }) {
     return SwitchListTile(
       secondary: icon != null ? Icon(icon) : null,
-      title: Text(title),
+      title: Row(
+        children: [
+          Flexible(child: Text(title)),
+          if (tag != null) ...[
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.blueGrey.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                tag,
+                style: const TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blueGrey,
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
       subtitle: Text(
         TranslationService.translate(context, subtitleKey) ?? subtitleKey,
       ),

@@ -1,6 +1,4 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/genie_app_bar.dart';
 
 import '../widgets/plus_one_animation.dart';
@@ -10,6 +8,7 @@ import '../widgets/shimmer_loading.dart';
 import 'package:provider/provider.dart';
 import '../data/repositories/copy_repository.dart';
 import '../services/api_service.dart';
+import '../services/ffi_service.dart';
 import '../services/translation_service.dart';
 import '../providers/theme_provider.dart';
 import '../providers/book_refresh_notifier.dart';
@@ -51,6 +50,10 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
   List<Map<String, dynamic>> _sourceOptions = [];
   bool _sourcesLoaded = false;
   bool _initialSearchDone = false;
+  // Whether the user has a Google Books API key set. When false the chip
+  // shows a "no API key" badge and a SnackBar warns on selection (Google's
+  // anonymous quota saturates within a few requests).
+  bool _googleBooksHasApiKey = false;
 
   // Language filter (defaults to user's reading languages)
   // _selectedLanguage: null = "my languages" (all userLanguages sent as comma-separated)
@@ -99,65 +102,81 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
   Future<void> _loadEnabledSources() async {
     final api = Provider.of<ApiService>(context, listen: false);
 
-    // Default: all sources enabled except BNF (beta)
+    // Defaults — only overridden by entries the user explicitly toggled.
     bool inventaireEnabled = true;
     bool openLibraryEnabled = true;
-
-    // User Request: BNF enabled only for French users by default
+    // BNF: enabled by default only for French users.
     final deviceLang = Localizations.localeOf(context).languageCode;
     bool bnfEnabled = deviceLang == 'fr';
+    // Google Books: opt-in.
+    bool googleBooksEnabled = false;
 
-    bool googleBooksEnabled = false; // Disabled by default
+    bool googleBooksHasApiKey = false;
 
-    try {
-      // Get user status which contains fallback_preferences
-      final statusRes = await api.getUserStatus();
-      if (statusRes.statusCode == 200 && statusRes.data != null) {
-        final config = statusRes.data['config'] ?? {};
-        final prefs = config['fallback_preferences'] ?? {};
-
+    if (api.useFfi) {
+      // FFI mode: getUserStatus is mapped from gamification_get_status and
+      // does NOT carry fallback_preferences. Read the toggles from the
+      // dedicated FFI accessor — same source of truth as the settings screen.
+      try {
+        final settings = await FfiService().getSearchSettings();
+        final prefs = settings.fallbackPreferences;
         if (prefs.containsKey('inventaire')) {
-          inventaireEnabled = prefs['inventaire'] == true;
+          inventaireEnabled = prefs['inventaire']!;
         }
         if (prefs.containsKey('openlibrary')) {
-          openLibraryEnabled = prefs['openlibrary'] == true;
+          openLibraryEnabled = prefs['openlibrary']!;
         }
         if (prefs.containsKey('bnf')) {
-          bnfEnabled = prefs['bnf'] == true;
+          bnfEnabled = prefs['bnf']!;
         }
-
-        // Fix: Prioritize explicit preference over modules list
         if (prefs.containsKey('google_books')) {
-          googleBooksEnabled = prefs['google_books'] == true;
-        } else {
-          // Fallback: Check enabled modules if no specific pref exists
-          final modules = config['enabled_modules'];
-          if (modules is List) {
-            googleBooksEnabled = modules.contains('enable_google_books');
-          } else if (modules is String) {
-            googleBooksEnabled = modules.contains('enable_google_books');
-          }
+          googleBooksEnabled = prefs['google_books']!;
         }
+        googleBooksHasApiKey =
+            (settings.apiKeys['google_books'] ?? '').isNotEmpty;
+      } catch (e) {
+        debugPrint('FFI getSearchSettings failed (using defaults): $e');
       }
-    } catch (e) {
-      // Fallback: try reading from SharedPreferences directly (FFI mode)
+    } else {
+      // HTTP mode (web): /api/user/status carries the full config including
+      // fallback_preferences and (legacy) enabled_modules.
       try {
-        final prefs = await SharedPreferences.getInstance();
-        final fallbackStr = prefs.getString('ffi_fallback_preferences');
-        if (fallbackStr != null) {
-          final fallbackPrefs = jsonDecode(fallbackStr) as Map<String, dynamic>;
-          if (fallbackPrefs.containsKey('inventaire')) {
-            inventaireEnabled = fallbackPrefs['inventaire'] == true;
+        final statusRes = await api.getUserStatus();
+        if (statusRes.statusCode == 200 && statusRes.data != null) {
+          final config = statusRes.data['config'] ?? {};
+          final prefs = config['fallback_preferences'] ?? {};
+
+          if (prefs.containsKey('inventaire')) {
+            inventaireEnabled = prefs['inventaire'] == true;
           }
-          if (fallbackPrefs.containsKey('openlibrary')) {
-            openLibraryEnabled = fallbackPrefs['openlibrary'] == true;
+          if (prefs.containsKey('openlibrary')) {
+            openLibraryEnabled = prefs['openlibrary'] == true;
           }
-          if (fallbackPrefs.containsKey('bnf')) {
-            bnfEnabled = fallbackPrefs['bnf'] == true;
+          if (prefs.containsKey('bnf')) {
+            bnfEnabled = prefs['bnf'] == true;
+          }
+
+          if (prefs.containsKey('google_books')) {
+            googleBooksEnabled = prefs['google_books'] == true;
+          } else {
+            // Legacy fallback: pre-`fallback_preferences` installs only had
+            // `enable_google_books` in the modules list.
+            final modules = config['enabled_modules'];
+            if (modules is List) {
+              googleBooksEnabled = modules.contains('enable_google_books');
+            } else if (modules is String) {
+              googleBooksEnabled = modules.contains('enable_google_books');
+            }
+          }
+
+          final apiKeys = config['api_keys'];
+          if (apiKeys is Map) {
+            final gbKey = apiKeys['google_books']?.toString() ?? '';
+            googleBooksHasApiKey = gbKey.isNotEmpty;
           }
         }
-      } catch (_) {
-        // Use defaults
+      } catch (e) {
+        debugPrint('HTTP getUserStatus failed (using defaults): $e');
       }
     }
 
@@ -186,6 +205,7 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
       setState(() {
         _sourceOptions = options;
         _sourcesLoaded = true;
+        _googleBooksHasApiKey = googleBooksHasApiKey;
       });
     }
   }
@@ -944,9 +964,34 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
                       child: Row(
                         children: _sourceOptions.map((option) {
                           final isSelected = _upstreamSource == option['value'];
+                          // Google Books without an API key: visually flag
+                          // the chip and warn on selection — anonymous quota
+                          // saturates within a few requests.
+                          final isGoogleBooksKeyless =
+                              option['value'] == 'google_books' &&
+                              !_googleBooksHasApiKey;
                           return Padding(
                             padding: const EdgeInsets.only(right: 8),
                             child: ChoiceChip(
+                              avatar: isGoogleBooksKeyless
+                                  ? Icon(
+                                      Icons.warning_amber_rounded,
+                                      size: 16,
+                                      color: isSelected
+                                          ? Theme.of(
+                                              context,
+                                            ).colorScheme.onPrimary
+                                          : Theme.of(
+                                              context,
+                                            ).colorScheme.error,
+                                    )
+                                  : null,
+                              tooltip: isGoogleBooksKeyless
+                                  ? TranslationService.translate(
+                                      context,
+                                      'google_books_no_api_key_badge',
+                                    )
+                                  : null,
                               label: Text(
                                 option['label'] as String,
                                 style: TextStyle(
@@ -962,10 +1007,25 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
                               selected: isSelected,
                               showCheckmark: false,
                               onSelected: (_) {
-                                setState(
-                                  () => _upstreamSource =
-                                      option['value'] as String?,
-                                );
+                                final newSource =
+                                    option['value'] as String?;
+                                setState(() => _upstreamSource = newSource);
+                                if (newSource == 'google_books' &&
+                                    !_googleBooksHasApiKey) {
+                                  ScaffoldMessenger.of(
+                                    context,
+                                  ).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        TranslationService.translate(
+                                          context,
+                                          'google_books_no_api_key_snackbar',
+                                        ),
+                                      ),
+                                      duration: const Duration(seconds: 5),
+                                    ),
+                                  );
+                                }
                                 if (_titleController.text.isNotEmpty ||
                                     _authorController.text.isNotEmpty ||
                                     _subjectController.text.isNotEmpty) {
