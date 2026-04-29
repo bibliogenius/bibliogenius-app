@@ -409,6 +409,12 @@ class _EditBookScreenState extends State<EditBookScreen> {
   }
 
   Future<void> _saveBook() async {
+    // Force the IME to commit any pending composition before we read the
+    // text controllers. Without this, on iOS/Android the user can tap
+    // Save while the keyboard still holds an uncommitted suggestion, and
+    // `_authorAutocompleteController.text` reads as empty.
+    FocusManager.instance.primaryFocus?.unfocus();
+
     // Check for pending tag in the controller that hasn't been added yet
     if (_tagsController.text.trim().isNotEmpty) {
       final pendingTag = _tagsController.text.trim();
