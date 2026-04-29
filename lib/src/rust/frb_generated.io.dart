@@ -96,6 +96,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   double dco_decode_f_64(dynamic raw);
 
   @protected
+  FrbBackupManifestPreview dco_decode_frb_backup_manifest_preview(dynamic raw);
+
+  @protected
   FrbBackupSummary dco_decode_frb_backup_summary(dynamic raw);
 
   @protected
@@ -238,6 +241,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FrbRelayConfig dco_decode_frb_relay_config(dynamic raw);
 
   @protected
+  FrbRestoreSummary dco_decode_frb_restore_summary(dynamic raw);
+
+  @protected
+  FrbRollbackInfo dco_decode_frb_rollback_info(dynamic raw);
+
+  @protected
   FrbSearchSettings dco_decode_frb_search_settings(dynamic raw);
 
   @protected
@@ -342,6 +351,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<FrbPuzzleScore> dco_decode_list_frb_puzzle_score(dynamic raw);
+
+  @protected
+  List<FrbRollbackInfo> dco_decode_list_frb_rollback_info(dynamic raw);
 
   @protected
   List<FrbTag> dco_decode_list_frb_tag(dynamic raw);
@@ -524,6 +536,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   double sse_decode_f_64(SseDeserializer deserializer);
 
   @protected
+  FrbBackupManifestPreview sse_decode_frb_backup_manifest_preview(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   FrbBackupSummary sse_decode_frb_backup_summary(SseDeserializer deserializer);
 
   @protected
@@ -698,6 +715,14 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FrbRelayConfig sse_decode_frb_relay_config(SseDeserializer deserializer);
 
   @protected
+  FrbRestoreSummary sse_decode_frb_restore_summary(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  FrbRollbackInfo sse_decode_frb_rollback_info(SseDeserializer deserializer);
+
+  @protected
   FrbSearchSettings sse_decode_frb_search_settings(
     SseDeserializer deserializer,
   );
@@ -836,6 +861,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<FrbPuzzleScore> sse_decode_list_frb_puzzle_score(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  List<FrbRollbackInfo> sse_decode_list_frb_rollback_info(
     SseDeserializer deserializer,
   );
 
@@ -1047,6 +1077,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_f_64(double self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_frb_backup_manifest_preview(
+    FrbBackupManifestPreview self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_frb_backup_summary(
@@ -1286,6 +1322,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_frb_restore_summary(
+    FrbRestoreSummary self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_frb_rollback_info(
+    FrbRollbackInfo self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_frb_search_settings(
     FrbSearchSettings self,
     SseSerializer serializer,
@@ -1456,6 +1504,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_list_frb_puzzle_score(
     List<FrbPuzzleScore> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_frb_rollback_info(
+    List<FrbRollbackInfo> self,
     SseSerializer serializer,
   );
 

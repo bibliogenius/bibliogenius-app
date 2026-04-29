@@ -274,6 +274,59 @@ class AuthService {
     _cachedUuid = uuid;
   }
 
+  /// Write `library_uuid` to BOTH the secure store (Keychain on Apple,
+  /// EncryptedSharedPreferences on Android) AND the SharedPreferences fallback
+  /// (NSUserDefaults on Apple) explicitly.
+  ///
+  /// Used by the local-backup restore wizard (ADR-037 §5) to harden against
+  /// the Keychain <-> NSUserDefaults storage swing documented in
+  /// `e2ee_identity_storage_fragility.md`. Either store going dark on a
+  /// future launch (DMG re-sign, -34018 transient, OS-level Keychain
+  /// reshuffle) leaves the other one with the correct UUID, avoiding the
+  /// silent identity-wipe that would otherwise break peer relationships.
+  ///
+  /// Idempotent: failures on one store are logged and swallowed so the other
+  /// store still reflects the new UUID.
+  Future<void> setLibraryUuidDualWrite(String uuid) async {
+    try {
+      await const FlutterSecureStorage().write(
+        key: _libraryUuidKey,
+        value: uuid,
+        aOptions: const AndroidOptions(resetOnError: true),
+      );
+    } catch (e) {
+      debugPrint('setLibraryUuidDualWrite: secure store write failed: $e');
+    }
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('auth_fallback_$_libraryUuidKey', uuid);
+    } catch (e) {
+      debugPrint('setLibraryUuidDualWrite: prefs write failed: $e');
+    }
+    _cachedUuid = uuid;
+  }
+
+  /// Clear `library_uuid` from BOTH stores. Used by the restore wizard when
+  /// the user picks the "do not restore identity" option, so the next launch
+  /// hits the clean-install path and generates a fresh UUID.
+  Future<void> clearLibraryUuidBothStores() async {
+    try {
+      await const FlutterSecureStorage().delete(
+        key: _libraryUuidKey,
+        aOptions: const AndroidOptions(resetOnError: true),
+      );
+    } catch (e) {
+      debugPrint('clearLibraryUuidBothStores: secure store delete failed: $e');
+    }
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('auth_fallback_$_libraryUuidKey');
+    } catch (e) {
+      debugPrint('clearLibraryUuidBothStores: prefs delete failed: $e');
+    }
+    _cachedUuid = null;
+  }
+
   Future<void> logout() async {
     await storage.delete(key: _tokenKey);
     await storage.delete(key: _usernameKey);

@@ -8,7 +8,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 part 'frb.freezed.dart';
 
-// These functions are ignored because they are not marked as `pub`: `db`, `device_pairing_svc`, `device_sync_svc`, `entries_to_frb`, `global_app_state`, `hub_db`, `hub_directory_svc`, `install_panic_hook`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `modules_to_fallback_preferences`, `nudge_source_label`, `rename_subject_in_books`, `runtime`, `track_to_frb`, `try_from_summary`, `upsert_directory_catalog_cache`
+// These functions are ignored because they are not marked as `pub`: `db`, `device_pairing_svc`, `device_sync_svc`, `entries_to_frb`, `from_info`, `from_manifest`, `from_summary`, `global_app_state`, `hub_db`, `hub_directory_svc`, `install_panic_hook`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `modules_to_fallback_preferences`, `nudge_source_label`, `rename_subject_in_books`, `runtime`, `track_to_frb`, `try_from_summary`, `upsert_directory_catalog_cache`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
 // These functions are ignored (category: IgnoreBecauseExplicitAttribute): `shared_device_pairing_svc`
 
@@ -1210,6 +1210,84 @@ Future<FrbBackupSummary> writeBackupFfi({
   prefsJson: prefsJson,
   coverDir: coverDir,
 );
+
+/// Parse `manifest.json` from a `.bgbackup` file without unlocking. Used by
+/// the wizard preview step.
+Future<FrbBackupManifestPreview> readManifestFfi({
+  required String archivePath,
+}) => RustLib.instance.api.crateApiFrbReadManifestFfi(archivePath: archivePath);
+
+/// Restore a `.bgbackup` archive into the live DB.
+///
+/// `mode` accepts `"replace"` or `"merge"`. `restore_identity` is honoured
+/// only in Replace mode AND when the archive carries `identity.bin`; ignored
+/// otherwise.
+///
+/// **The Flutter caller MUST force-restart the app after this returns.** The
+/// FFI's global SeaORM connection still holds open file descriptors on the
+/// inode that was just renamed to the rollback sibling; reusing it is unsafe.
+/// `db_path` and `cover_dir` are passed explicitly so the caller (which knows
+/// its sandbox layout via `getApplicationSupportDirectory`) is the single
+/// source of truth.
+Future<FrbRestoreSummary> restoreBackupFfi({
+  required String archivePath,
+  required List<int> secretBytes,
+  required String mode,
+  required bool restoreIdentity,
+  required String dbPath,
+  required String coverDir,
+}) => RustLib.instance.api.crateApiFrbRestoreBackupFfi(
+  archivePath: archivePath,
+  secretBytes: secretBytes,
+  mode: mode,
+  restoreIdentity: restoreIdentity,
+  dbPath: dbPath,
+  coverDir: coverDir,
+);
+
+/// List rollback files available in the directory of `db_path`. Empty list
+/// means no "Restore previous version" card should be shown.
+Future<List<FrbRollbackInfo>> listAvailableRollbacksFfi({
+  required String dbPath,
+}) => RustLib.instance.api.crateApiFrbListAvailableRollbacksFfi(dbPath: dbPath);
+
+/// Swap a rollback file back into the live DB. Same restart constraint as
+/// `restore_backup_ffi`.
+Future<void> restoreFromRollbackFfi({
+  required String rollbackPath,
+  required String dbPath,
+}) => RustLib.instance.api.crateApiFrbRestoreFromRollbackFfi(
+  rollbackPath: rollbackPath,
+  dbPath: dbPath,
+);
+
+/// Subset of the manifest surfaced to the wizard's preview screen. Mirrors
+/// `ManifestSummary` field-by-field but flattened for FFI portability.
+/// Counts cross the FFI as `i64`.
+@freezed
+sealed class FrbBackupManifestPreview with _$FrbBackupManifestPreview {
+  const factory FrbBackupManifestPreview({
+    required String formatVersion,
+    required PlatformInt64 schemaVersion,
+    required PlatformInt64 currentSchemaVersion,
+    required String exportedAt,
+    required String libraryUuid,
+    required bool identityIncluded,
+    required String unlockKind,
+    required String appVersion,
+    required PlatformInt64 booksCount,
+    required PlatformInt64 copiesCount,
+    required PlatformInt64 loansCount,
+    required PlatformInt64 contactsCount,
+    required PlatformInt64 authorsCount,
+    required PlatformInt64 tagsCount,
+    required PlatformInt64 collectionsCount,
+    required PlatformInt64 peersCount,
+    required PlatformInt64 salesCount,
+    required PlatformInt64 coversCount,
+    required String dbSha256,
+  }) = _FrbBackupManifestPreview;
+}
 
 /// Summary of a successfully written `.bgbackup` archive, returned to the
 /// Flutter caller. Counts and sizes are surfaced as `i64` for FFI
@@ -2519,6 +2597,34 @@ sealed class FrbRelayConfig with _$FrbRelayConfig {
     required String mailboxUuid,
     required String writeToken,
   }) = _FrbRelayConfig;
+}
+
+/// Outcome of a successful restore returned to the wizard.
+@freezed
+sealed class FrbRestoreSummary with _$FrbRestoreSummary {
+  const factory FrbRestoreSummary({
+    required String mode,
+    required bool identityRestored,
+    String? restoredLibraryUuid,
+    required String libraryUuidAction,
+    required String prefsJson,
+    String? rollbackPath,
+    required PlatformInt64 booksAfter,
+    required PlatformInt64 copiesAfter,
+    required PlatformInt64 contactsAfter,
+    required PlatformInt64 coversRestored,
+  }) = _FrbRestoreSummary;
+}
+
+/// Available rollback file presented in the "Restore previous version" UI.
+@freezed
+sealed class FrbRollbackInfo with _$FrbRollbackInfo {
+  const factory FrbRollbackInfo({
+    required String path,
+    required String createdAt,
+    required PlatformInt64 ageSeconds,
+    required PlatformInt64 sizeBytes,
+  }) = _FrbRollbackInfo;
 }
 
 /// Search-related settings persisted in the installation profile.

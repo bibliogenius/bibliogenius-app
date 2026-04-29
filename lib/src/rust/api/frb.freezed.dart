@@ -12,6 +12,311 @@ part of 'frb.dart';
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
+mixin _$FrbBackupManifestPreview {
+
+ String get formatVersion; PlatformInt64 get schemaVersion; PlatformInt64 get currentSchemaVersion; String get exportedAt; String get libraryUuid; bool get identityIncluded; String get unlockKind; String get appVersion; PlatformInt64 get booksCount; PlatformInt64 get copiesCount; PlatformInt64 get loansCount; PlatformInt64 get contactsCount; PlatformInt64 get authorsCount; PlatformInt64 get tagsCount; PlatformInt64 get collectionsCount; PlatformInt64 get peersCount; PlatformInt64 get salesCount; PlatformInt64 get coversCount; String get dbSha256;
+/// Create a copy of FrbBackupManifestPreview
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$FrbBackupManifestPreviewCopyWith<FrbBackupManifestPreview> get copyWith => _$FrbBackupManifestPreviewCopyWithImpl<FrbBackupManifestPreview>(this as FrbBackupManifestPreview, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbBackupManifestPreview&&(identical(other.formatVersion, formatVersion) || other.formatVersion == formatVersion)&&(identical(other.schemaVersion, schemaVersion) || other.schemaVersion == schemaVersion)&&(identical(other.currentSchemaVersion, currentSchemaVersion) || other.currentSchemaVersion == currentSchemaVersion)&&(identical(other.exportedAt, exportedAt) || other.exportedAt == exportedAt)&&(identical(other.libraryUuid, libraryUuid) || other.libraryUuid == libraryUuid)&&(identical(other.identityIncluded, identityIncluded) || other.identityIncluded == identityIncluded)&&(identical(other.unlockKind, unlockKind) || other.unlockKind == unlockKind)&&(identical(other.appVersion, appVersion) || other.appVersion == appVersion)&&(identical(other.booksCount, booksCount) || other.booksCount == booksCount)&&(identical(other.copiesCount, copiesCount) || other.copiesCount == copiesCount)&&(identical(other.loansCount, loansCount) || other.loansCount == loansCount)&&(identical(other.contactsCount, contactsCount) || other.contactsCount == contactsCount)&&(identical(other.authorsCount, authorsCount) || other.authorsCount == authorsCount)&&(identical(other.tagsCount, tagsCount) || other.tagsCount == tagsCount)&&(identical(other.collectionsCount, collectionsCount) || other.collectionsCount == collectionsCount)&&(identical(other.peersCount, peersCount) || other.peersCount == peersCount)&&(identical(other.salesCount, salesCount) || other.salesCount == salesCount)&&(identical(other.coversCount, coversCount) || other.coversCount == coversCount)&&(identical(other.dbSha256, dbSha256) || other.dbSha256 == dbSha256));
+}
+
+
+@override
+int get hashCode => Object.hashAll([runtimeType,formatVersion,schemaVersion,currentSchemaVersion,exportedAt,libraryUuid,identityIncluded,unlockKind,appVersion,booksCount,copiesCount,loansCount,contactsCount,authorsCount,tagsCount,collectionsCount,peersCount,salesCount,coversCount,dbSha256]);
+
+@override
+String toString() {
+  return 'FrbBackupManifestPreview(formatVersion: $formatVersion, schemaVersion: $schemaVersion, currentSchemaVersion: $currentSchemaVersion, exportedAt: $exportedAt, libraryUuid: $libraryUuid, identityIncluded: $identityIncluded, unlockKind: $unlockKind, appVersion: $appVersion, booksCount: $booksCount, copiesCount: $copiesCount, loansCount: $loansCount, contactsCount: $contactsCount, authorsCount: $authorsCount, tagsCount: $tagsCount, collectionsCount: $collectionsCount, peersCount: $peersCount, salesCount: $salesCount, coversCount: $coversCount, dbSha256: $dbSha256)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $FrbBackupManifestPreviewCopyWith<$Res>  {
+  factory $FrbBackupManifestPreviewCopyWith(FrbBackupManifestPreview value, $Res Function(FrbBackupManifestPreview) _then) = _$FrbBackupManifestPreviewCopyWithImpl;
+@useResult
+$Res call({
+ String formatVersion, PlatformInt64 schemaVersion, PlatformInt64 currentSchemaVersion, String exportedAt, String libraryUuid, bool identityIncluded, String unlockKind, String appVersion, PlatformInt64 booksCount, PlatformInt64 copiesCount, PlatformInt64 loansCount, PlatformInt64 contactsCount, PlatformInt64 authorsCount, PlatformInt64 tagsCount, PlatformInt64 collectionsCount, PlatformInt64 peersCount, PlatformInt64 salesCount, PlatformInt64 coversCount, String dbSha256
+});
+
+
+
+
+}
+/// @nodoc
+class _$FrbBackupManifestPreviewCopyWithImpl<$Res>
+    implements $FrbBackupManifestPreviewCopyWith<$Res> {
+  _$FrbBackupManifestPreviewCopyWithImpl(this._self, this._then);
+
+  final FrbBackupManifestPreview _self;
+  final $Res Function(FrbBackupManifestPreview) _then;
+
+/// Create a copy of FrbBackupManifestPreview
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? formatVersion = null,Object? schemaVersion = null,Object? currentSchemaVersion = null,Object? exportedAt = null,Object? libraryUuid = null,Object? identityIncluded = null,Object? unlockKind = null,Object? appVersion = null,Object? booksCount = null,Object? copiesCount = null,Object? loansCount = null,Object? contactsCount = null,Object? authorsCount = null,Object? tagsCount = null,Object? collectionsCount = null,Object? peersCount = null,Object? salesCount = null,Object? coversCount = null,Object? dbSha256 = null,}) {
+  return _then(_self.copyWith(
+formatVersion: null == formatVersion ? _self.formatVersion : formatVersion // ignore: cast_nullable_to_non_nullable
+as String,schemaVersion: null == schemaVersion ? _self.schemaVersion : schemaVersion // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,currentSchemaVersion: null == currentSchemaVersion ? _self.currentSchemaVersion : currentSchemaVersion // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,exportedAt: null == exportedAt ? _self.exportedAt : exportedAt // ignore: cast_nullable_to_non_nullable
+as String,libraryUuid: null == libraryUuid ? _self.libraryUuid : libraryUuid // ignore: cast_nullable_to_non_nullable
+as String,identityIncluded: null == identityIncluded ? _self.identityIncluded : identityIncluded // ignore: cast_nullable_to_non_nullable
+as bool,unlockKind: null == unlockKind ? _self.unlockKind : unlockKind // ignore: cast_nullable_to_non_nullable
+as String,appVersion: null == appVersion ? _self.appVersion : appVersion // ignore: cast_nullable_to_non_nullable
+as String,booksCount: null == booksCount ? _self.booksCount : booksCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,copiesCount: null == copiesCount ? _self.copiesCount : copiesCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,loansCount: null == loansCount ? _self.loansCount : loansCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,contactsCount: null == contactsCount ? _self.contactsCount : contactsCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,authorsCount: null == authorsCount ? _self.authorsCount : authorsCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,tagsCount: null == tagsCount ? _self.tagsCount : tagsCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,collectionsCount: null == collectionsCount ? _self.collectionsCount : collectionsCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,peersCount: null == peersCount ? _self.peersCount : peersCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,salesCount: null == salesCount ? _self.salesCount : salesCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,coversCount: null == coversCount ? _self.coversCount : coversCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,dbSha256: null == dbSha256 ? _self.dbSha256 : dbSha256 // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [FrbBackupManifestPreview].
+extension FrbBackupManifestPreviewPatterns on FrbBackupManifestPreview {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _FrbBackupManifestPreview value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _FrbBackupManifestPreview() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _FrbBackupManifestPreview value)  $default,){
+final _that = this;
+switch (_that) {
+case _FrbBackupManifestPreview():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _FrbBackupManifestPreview value)?  $default,){
+final _that = this;
+switch (_that) {
+case _FrbBackupManifestPreview() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String formatVersion,  PlatformInt64 schemaVersion,  PlatformInt64 currentSchemaVersion,  String exportedAt,  String libraryUuid,  bool identityIncluded,  String unlockKind,  String appVersion,  PlatformInt64 booksCount,  PlatformInt64 copiesCount,  PlatformInt64 loansCount,  PlatformInt64 contactsCount,  PlatformInt64 authorsCount,  PlatformInt64 tagsCount,  PlatformInt64 collectionsCount,  PlatformInt64 peersCount,  PlatformInt64 salesCount,  PlatformInt64 coversCount,  String dbSha256)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _FrbBackupManifestPreview() when $default != null:
+return $default(_that.formatVersion,_that.schemaVersion,_that.currentSchemaVersion,_that.exportedAt,_that.libraryUuid,_that.identityIncluded,_that.unlockKind,_that.appVersion,_that.booksCount,_that.copiesCount,_that.loansCount,_that.contactsCount,_that.authorsCount,_that.tagsCount,_that.collectionsCount,_that.peersCount,_that.salesCount,_that.coversCount,_that.dbSha256);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String formatVersion,  PlatformInt64 schemaVersion,  PlatformInt64 currentSchemaVersion,  String exportedAt,  String libraryUuid,  bool identityIncluded,  String unlockKind,  String appVersion,  PlatformInt64 booksCount,  PlatformInt64 copiesCount,  PlatformInt64 loansCount,  PlatformInt64 contactsCount,  PlatformInt64 authorsCount,  PlatformInt64 tagsCount,  PlatformInt64 collectionsCount,  PlatformInt64 peersCount,  PlatformInt64 salesCount,  PlatformInt64 coversCount,  String dbSha256)  $default,) {final _that = this;
+switch (_that) {
+case _FrbBackupManifestPreview():
+return $default(_that.formatVersion,_that.schemaVersion,_that.currentSchemaVersion,_that.exportedAt,_that.libraryUuid,_that.identityIncluded,_that.unlockKind,_that.appVersion,_that.booksCount,_that.copiesCount,_that.loansCount,_that.contactsCount,_that.authorsCount,_that.tagsCount,_that.collectionsCount,_that.peersCount,_that.salesCount,_that.coversCount,_that.dbSha256);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String formatVersion,  PlatformInt64 schemaVersion,  PlatformInt64 currentSchemaVersion,  String exportedAt,  String libraryUuid,  bool identityIncluded,  String unlockKind,  String appVersion,  PlatformInt64 booksCount,  PlatformInt64 copiesCount,  PlatformInt64 loansCount,  PlatformInt64 contactsCount,  PlatformInt64 authorsCount,  PlatformInt64 tagsCount,  PlatformInt64 collectionsCount,  PlatformInt64 peersCount,  PlatformInt64 salesCount,  PlatformInt64 coversCount,  String dbSha256)?  $default,) {final _that = this;
+switch (_that) {
+case _FrbBackupManifestPreview() when $default != null:
+return $default(_that.formatVersion,_that.schemaVersion,_that.currentSchemaVersion,_that.exportedAt,_that.libraryUuid,_that.identityIncluded,_that.unlockKind,_that.appVersion,_that.booksCount,_that.copiesCount,_that.loansCount,_that.contactsCount,_that.authorsCount,_that.tagsCount,_that.collectionsCount,_that.peersCount,_that.salesCount,_that.coversCount,_that.dbSha256);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _FrbBackupManifestPreview implements FrbBackupManifestPreview {
+  const _FrbBackupManifestPreview({required this.formatVersion, required this.schemaVersion, required this.currentSchemaVersion, required this.exportedAt, required this.libraryUuid, required this.identityIncluded, required this.unlockKind, required this.appVersion, required this.booksCount, required this.copiesCount, required this.loansCount, required this.contactsCount, required this.authorsCount, required this.tagsCount, required this.collectionsCount, required this.peersCount, required this.salesCount, required this.coversCount, required this.dbSha256});
+  
+
+@override final  String formatVersion;
+@override final  PlatformInt64 schemaVersion;
+@override final  PlatformInt64 currentSchemaVersion;
+@override final  String exportedAt;
+@override final  String libraryUuid;
+@override final  bool identityIncluded;
+@override final  String unlockKind;
+@override final  String appVersion;
+@override final  PlatformInt64 booksCount;
+@override final  PlatformInt64 copiesCount;
+@override final  PlatformInt64 loansCount;
+@override final  PlatformInt64 contactsCount;
+@override final  PlatformInt64 authorsCount;
+@override final  PlatformInt64 tagsCount;
+@override final  PlatformInt64 collectionsCount;
+@override final  PlatformInt64 peersCount;
+@override final  PlatformInt64 salesCount;
+@override final  PlatformInt64 coversCount;
+@override final  String dbSha256;
+
+/// Create a copy of FrbBackupManifestPreview
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$FrbBackupManifestPreviewCopyWith<_FrbBackupManifestPreview> get copyWith => __$FrbBackupManifestPreviewCopyWithImpl<_FrbBackupManifestPreview>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbBackupManifestPreview&&(identical(other.formatVersion, formatVersion) || other.formatVersion == formatVersion)&&(identical(other.schemaVersion, schemaVersion) || other.schemaVersion == schemaVersion)&&(identical(other.currentSchemaVersion, currentSchemaVersion) || other.currentSchemaVersion == currentSchemaVersion)&&(identical(other.exportedAt, exportedAt) || other.exportedAt == exportedAt)&&(identical(other.libraryUuid, libraryUuid) || other.libraryUuid == libraryUuid)&&(identical(other.identityIncluded, identityIncluded) || other.identityIncluded == identityIncluded)&&(identical(other.unlockKind, unlockKind) || other.unlockKind == unlockKind)&&(identical(other.appVersion, appVersion) || other.appVersion == appVersion)&&(identical(other.booksCount, booksCount) || other.booksCount == booksCount)&&(identical(other.copiesCount, copiesCount) || other.copiesCount == copiesCount)&&(identical(other.loansCount, loansCount) || other.loansCount == loansCount)&&(identical(other.contactsCount, contactsCount) || other.contactsCount == contactsCount)&&(identical(other.authorsCount, authorsCount) || other.authorsCount == authorsCount)&&(identical(other.tagsCount, tagsCount) || other.tagsCount == tagsCount)&&(identical(other.collectionsCount, collectionsCount) || other.collectionsCount == collectionsCount)&&(identical(other.peersCount, peersCount) || other.peersCount == peersCount)&&(identical(other.salesCount, salesCount) || other.salesCount == salesCount)&&(identical(other.coversCount, coversCount) || other.coversCount == coversCount)&&(identical(other.dbSha256, dbSha256) || other.dbSha256 == dbSha256));
+}
+
+
+@override
+int get hashCode => Object.hashAll([runtimeType,formatVersion,schemaVersion,currentSchemaVersion,exportedAt,libraryUuid,identityIncluded,unlockKind,appVersion,booksCount,copiesCount,loansCount,contactsCount,authorsCount,tagsCount,collectionsCount,peersCount,salesCount,coversCount,dbSha256]);
+
+@override
+String toString() {
+  return 'FrbBackupManifestPreview(formatVersion: $formatVersion, schemaVersion: $schemaVersion, currentSchemaVersion: $currentSchemaVersion, exportedAt: $exportedAt, libraryUuid: $libraryUuid, identityIncluded: $identityIncluded, unlockKind: $unlockKind, appVersion: $appVersion, booksCount: $booksCount, copiesCount: $copiesCount, loansCount: $loansCount, contactsCount: $contactsCount, authorsCount: $authorsCount, tagsCount: $tagsCount, collectionsCount: $collectionsCount, peersCount: $peersCount, salesCount: $salesCount, coversCount: $coversCount, dbSha256: $dbSha256)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$FrbBackupManifestPreviewCopyWith<$Res> implements $FrbBackupManifestPreviewCopyWith<$Res> {
+  factory _$FrbBackupManifestPreviewCopyWith(_FrbBackupManifestPreview value, $Res Function(_FrbBackupManifestPreview) _then) = __$FrbBackupManifestPreviewCopyWithImpl;
+@override @useResult
+$Res call({
+ String formatVersion, PlatformInt64 schemaVersion, PlatformInt64 currentSchemaVersion, String exportedAt, String libraryUuid, bool identityIncluded, String unlockKind, String appVersion, PlatformInt64 booksCount, PlatformInt64 copiesCount, PlatformInt64 loansCount, PlatformInt64 contactsCount, PlatformInt64 authorsCount, PlatformInt64 tagsCount, PlatformInt64 collectionsCount, PlatformInt64 peersCount, PlatformInt64 salesCount, PlatformInt64 coversCount, String dbSha256
+});
+
+
+
+
+}
+/// @nodoc
+class __$FrbBackupManifestPreviewCopyWithImpl<$Res>
+    implements _$FrbBackupManifestPreviewCopyWith<$Res> {
+  __$FrbBackupManifestPreviewCopyWithImpl(this._self, this._then);
+
+  final _FrbBackupManifestPreview _self;
+  final $Res Function(_FrbBackupManifestPreview) _then;
+
+/// Create a copy of FrbBackupManifestPreview
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? formatVersion = null,Object? schemaVersion = null,Object? currentSchemaVersion = null,Object? exportedAt = null,Object? libraryUuid = null,Object? identityIncluded = null,Object? unlockKind = null,Object? appVersion = null,Object? booksCount = null,Object? copiesCount = null,Object? loansCount = null,Object? contactsCount = null,Object? authorsCount = null,Object? tagsCount = null,Object? collectionsCount = null,Object? peersCount = null,Object? salesCount = null,Object? coversCount = null,Object? dbSha256 = null,}) {
+  return _then(_FrbBackupManifestPreview(
+formatVersion: null == formatVersion ? _self.formatVersion : formatVersion // ignore: cast_nullable_to_non_nullable
+as String,schemaVersion: null == schemaVersion ? _self.schemaVersion : schemaVersion // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,currentSchemaVersion: null == currentSchemaVersion ? _self.currentSchemaVersion : currentSchemaVersion // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,exportedAt: null == exportedAt ? _self.exportedAt : exportedAt // ignore: cast_nullable_to_non_nullable
+as String,libraryUuid: null == libraryUuid ? _self.libraryUuid : libraryUuid // ignore: cast_nullable_to_non_nullable
+as String,identityIncluded: null == identityIncluded ? _self.identityIncluded : identityIncluded // ignore: cast_nullable_to_non_nullable
+as bool,unlockKind: null == unlockKind ? _self.unlockKind : unlockKind // ignore: cast_nullable_to_non_nullable
+as String,appVersion: null == appVersion ? _self.appVersion : appVersion // ignore: cast_nullable_to_non_nullable
+as String,booksCount: null == booksCount ? _self.booksCount : booksCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,copiesCount: null == copiesCount ? _self.copiesCount : copiesCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,loansCount: null == loansCount ? _self.loansCount : loansCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,contactsCount: null == contactsCount ? _self.contactsCount : contactsCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,authorsCount: null == authorsCount ? _self.authorsCount : authorsCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,tagsCount: null == tagsCount ? _self.tagsCount : tagsCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,collectionsCount: null == collectionsCount ? _self.collectionsCount : collectionsCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,peersCount: null == peersCount ? _self.peersCount : peersCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,salesCount: null == salesCount ? _self.salesCount : salesCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,coversCount: null == coversCount ? _self.coversCount : coversCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,dbSha256: null == dbSha256 ? _self.dbSha256 : dbSha256 // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
 mixin _$FrbBackupSummary {
 
  String get archivePath; PlatformInt64 get archiveSizeBytes; bool get identityIncluded; String get exportedAt; String get libraryUuid; PlatformInt64 get schemaVersion; String get formatVersion; PlatformInt64 get booksCount; PlatformInt64 get copiesCount; PlatformInt64 get loansCount; PlatformInt64 get contactsCount; PlatformInt64 get authorsCount; PlatformInt64 get tagsCount; PlatformInt64 get collectionsCount; PlatformInt64 get peersCount; PlatformInt64 get salesCount; PlatformInt64 get coversCount; String get manifestJson;
@@ -5773,6 +6078,544 @@ relayUrl: null == relayUrl ? _self.relayUrl : relayUrl // ignore: cast_nullable_
 as String,mailboxUuid: null == mailboxUuid ? _self.mailboxUuid : mailboxUuid // ignore: cast_nullable_to_non_nullable
 as String,writeToken: null == writeToken ? _self.writeToken : writeToken // ignore: cast_nullable_to_non_nullable
 as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
+mixin _$FrbRestoreSummary {
+
+ String get mode; bool get identityRestored; String? get restoredLibraryUuid; String get libraryUuidAction; String get prefsJson; String? get rollbackPath; PlatformInt64 get booksAfter; PlatformInt64 get copiesAfter; PlatformInt64 get contactsAfter; PlatformInt64 get coversRestored;
+/// Create a copy of FrbRestoreSummary
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$FrbRestoreSummaryCopyWith<FrbRestoreSummary> get copyWith => _$FrbRestoreSummaryCopyWithImpl<FrbRestoreSummary>(this as FrbRestoreSummary, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbRestoreSummary&&(identical(other.mode, mode) || other.mode == mode)&&(identical(other.identityRestored, identityRestored) || other.identityRestored == identityRestored)&&(identical(other.restoredLibraryUuid, restoredLibraryUuid) || other.restoredLibraryUuid == restoredLibraryUuid)&&(identical(other.libraryUuidAction, libraryUuidAction) || other.libraryUuidAction == libraryUuidAction)&&(identical(other.prefsJson, prefsJson) || other.prefsJson == prefsJson)&&(identical(other.rollbackPath, rollbackPath) || other.rollbackPath == rollbackPath)&&(identical(other.booksAfter, booksAfter) || other.booksAfter == booksAfter)&&(identical(other.copiesAfter, copiesAfter) || other.copiesAfter == copiesAfter)&&(identical(other.contactsAfter, contactsAfter) || other.contactsAfter == contactsAfter)&&(identical(other.coversRestored, coversRestored) || other.coversRestored == coversRestored));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,mode,identityRestored,restoredLibraryUuid,libraryUuidAction,prefsJson,rollbackPath,booksAfter,copiesAfter,contactsAfter,coversRestored);
+
+@override
+String toString() {
+  return 'FrbRestoreSummary(mode: $mode, identityRestored: $identityRestored, restoredLibraryUuid: $restoredLibraryUuid, libraryUuidAction: $libraryUuidAction, prefsJson: $prefsJson, rollbackPath: $rollbackPath, booksAfter: $booksAfter, copiesAfter: $copiesAfter, contactsAfter: $contactsAfter, coversRestored: $coversRestored)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $FrbRestoreSummaryCopyWith<$Res>  {
+  factory $FrbRestoreSummaryCopyWith(FrbRestoreSummary value, $Res Function(FrbRestoreSummary) _then) = _$FrbRestoreSummaryCopyWithImpl;
+@useResult
+$Res call({
+ String mode, bool identityRestored, String? restoredLibraryUuid, String libraryUuidAction, String prefsJson, String? rollbackPath, PlatformInt64 booksAfter, PlatformInt64 copiesAfter, PlatformInt64 contactsAfter, PlatformInt64 coversRestored
+});
+
+
+
+
+}
+/// @nodoc
+class _$FrbRestoreSummaryCopyWithImpl<$Res>
+    implements $FrbRestoreSummaryCopyWith<$Res> {
+  _$FrbRestoreSummaryCopyWithImpl(this._self, this._then);
+
+  final FrbRestoreSummary _self;
+  final $Res Function(FrbRestoreSummary) _then;
+
+/// Create a copy of FrbRestoreSummary
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? mode = null,Object? identityRestored = null,Object? restoredLibraryUuid = freezed,Object? libraryUuidAction = null,Object? prefsJson = null,Object? rollbackPath = freezed,Object? booksAfter = null,Object? copiesAfter = null,Object? contactsAfter = null,Object? coversRestored = null,}) {
+  return _then(_self.copyWith(
+mode: null == mode ? _self.mode : mode // ignore: cast_nullable_to_non_nullable
+as String,identityRestored: null == identityRestored ? _self.identityRestored : identityRestored // ignore: cast_nullable_to_non_nullable
+as bool,restoredLibraryUuid: freezed == restoredLibraryUuid ? _self.restoredLibraryUuid : restoredLibraryUuid // ignore: cast_nullable_to_non_nullable
+as String?,libraryUuidAction: null == libraryUuidAction ? _self.libraryUuidAction : libraryUuidAction // ignore: cast_nullable_to_non_nullable
+as String,prefsJson: null == prefsJson ? _self.prefsJson : prefsJson // ignore: cast_nullable_to_non_nullable
+as String,rollbackPath: freezed == rollbackPath ? _self.rollbackPath : rollbackPath // ignore: cast_nullable_to_non_nullable
+as String?,booksAfter: null == booksAfter ? _self.booksAfter : booksAfter // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,copiesAfter: null == copiesAfter ? _self.copiesAfter : copiesAfter // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,contactsAfter: null == contactsAfter ? _self.contactsAfter : contactsAfter // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,coversRestored: null == coversRestored ? _self.coversRestored : coversRestored // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [FrbRestoreSummary].
+extension FrbRestoreSummaryPatterns on FrbRestoreSummary {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _FrbRestoreSummary value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _FrbRestoreSummary() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _FrbRestoreSummary value)  $default,){
+final _that = this;
+switch (_that) {
+case _FrbRestoreSummary():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _FrbRestoreSummary value)?  $default,){
+final _that = this;
+switch (_that) {
+case _FrbRestoreSummary() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String mode,  bool identityRestored,  String? restoredLibraryUuid,  String libraryUuidAction,  String prefsJson,  String? rollbackPath,  PlatformInt64 booksAfter,  PlatformInt64 copiesAfter,  PlatformInt64 contactsAfter,  PlatformInt64 coversRestored)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _FrbRestoreSummary() when $default != null:
+return $default(_that.mode,_that.identityRestored,_that.restoredLibraryUuid,_that.libraryUuidAction,_that.prefsJson,_that.rollbackPath,_that.booksAfter,_that.copiesAfter,_that.contactsAfter,_that.coversRestored);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String mode,  bool identityRestored,  String? restoredLibraryUuid,  String libraryUuidAction,  String prefsJson,  String? rollbackPath,  PlatformInt64 booksAfter,  PlatformInt64 copiesAfter,  PlatformInt64 contactsAfter,  PlatformInt64 coversRestored)  $default,) {final _that = this;
+switch (_that) {
+case _FrbRestoreSummary():
+return $default(_that.mode,_that.identityRestored,_that.restoredLibraryUuid,_that.libraryUuidAction,_that.prefsJson,_that.rollbackPath,_that.booksAfter,_that.copiesAfter,_that.contactsAfter,_that.coversRestored);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String mode,  bool identityRestored,  String? restoredLibraryUuid,  String libraryUuidAction,  String prefsJson,  String? rollbackPath,  PlatformInt64 booksAfter,  PlatformInt64 copiesAfter,  PlatformInt64 contactsAfter,  PlatformInt64 coversRestored)?  $default,) {final _that = this;
+switch (_that) {
+case _FrbRestoreSummary() when $default != null:
+return $default(_that.mode,_that.identityRestored,_that.restoredLibraryUuid,_that.libraryUuidAction,_that.prefsJson,_that.rollbackPath,_that.booksAfter,_that.copiesAfter,_that.contactsAfter,_that.coversRestored);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _FrbRestoreSummary implements FrbRestoreSummary {
+  const _FrbRestoreSummary({required this.mode, required this.identityRestored, this.restoredLibraryUuid, required this.libraryUuidAction, required this.prefsJson, this.rollbackPath, required this.booksAfter, required this.copiesAfter, required this.contactsAfter, required this.coversRestored});
+  
+
+@override final  String mode;
+@override final  bool identityRestored;
+@override final  String? restoredLibraryUuid;
+@override final  String libraryUuidAction;
+@override final  String prefsJson;
+@override final  String? rollbackPath;
+@override final  PlatformInt64 booksAfter;
+@override final  PlatformInt64 copiesAfter;
+@override final  PlatformInt64 contactsAfter;
+@override final  PlatformInt64 coversRestored;
+
+/// Create a copy of FrbRestoreSummary
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$FrbRestoreSummaryCopyWith<_FrbRestoreSummary> get copyWith => __$FrbRestoreSummaryCopyWithImpl<_FrbRestoreSummary>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbRestoreSummary&&(identical(other.mode, mode) || other.mode == mode)&&(identical(other.identityRestored, identityRestored) || other.identityRestored == identityRestored)&&(identical(other.restoredLibraryUuid, restoredLibraryUuid) || other.restoredLibraryUuid == restoredLibraryUuid)&&(identical(other.libraryUuidAction, libraryUuidAction) || other.libraryUuidAction == libraryUuidAction)&&(identical(other.prefsJson, prefsJson) || other.prefsJson == prefsJson)&&(identical(other.rollbackPath, rollbackPath) || other.rollbackPath == rollbackPath)&&(identical(other.booksAfter, booksAfter) || other.booksAfter == booksAfter)&&(identical(other.copiesAfter, copiesAfter) || other.copiesAfter == copiesAfter)&&(identical(other.contactsAfter, contactsAfter) || other.contactsAfter == contactsAfter)&&(identical(other.coversRestored, coversRestored) || other.coversRestored == coversRestored));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,mode,identityRestored,restoredLibraryUuid,libraryUuidAction,prefsJson,rollbackPath,booksAfter,copiesAfter,contactsAfter,coversRestored);
+
+@override
+String toString() {
+  return 'FrbRestoreSummary(mode: $mode, identityRestored: $identityRestored, restoredLibraryUuid: $restoredLibraryUuid, libraryUuidAction: $libraryUuidAction, prefsJson: $prefsJson, rollbackPath: $rollbackPath, booksAfter: $booksAfter, copiesAfter: $copiesAfter, contactsAfter: $contactsAfter, coversRestored: $coversRestored)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$FrbRestoreSummaryCopyWith<$Res> implements $FrbRestoreSummaryCopyWith<$Res> {
+  factory _$FrbRestoreSummaryCopyWith(_FrbRestoreSummary value, $Res Function(_FrbRestoreSummary) _then) = __$FrbRestoreSummaryCopyWithImpl;
+@override @useResult
+$Res call({
+ String mode, bool identityRestored, String? restoredLibraryUuid, String libraryUuidAction, String prefsJson, String? rollbackPath, PlatformInt64 booksAfter, PlatformInt64 copiesAfter, PlatformInt64 contactsAfter, PlatformInt64 coversRestored
+});
+
+
+
+
+}
+/// @nodoc
+class __$FrbRestoreSummaryCopyWithImpl<$Res>
+    implements _$FrbRestoreSummaryCopyWith<$Res> {
+  __$FrbRestoreSummaryCopyWithImpl(this._self, this._then);
+
+  final _FrbRestoreSummary _self;
+  final $Res Function(_FrbRestoreSummary) _then;
+
+/// Create a copy of FrbRestoreSummary
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? mode = null,Object? identityRestored = null,Object? restoredLibraryUuid = freezed,Object? libraryUuidAction = null,Object? prefsJson = null,Object? rollbackPath = freezed,Object? booksAfter = null,Object? copiesAfter = null,Object? contactsAfter = null,Object? coversRestored = null,}) {
+  return _then(_FrbRestoreSummary(
+mode: null == mode ? _self.mode : mode // ignore: cast_nullable_to_non_nullable
+as String,identityRestored: null == identityRestored ? _self.identityRestored : identityRestored // ignore: cast_nullable_to_non_nullable
+as bool,restoredLibraryUuid: freezed == restoredLibraryUuid ? _self.restoredLibraryUuid : restoredLibraryUuid // ignore: cast_nullable_to_non_nullable
+as String?,libraryUuidAction: null == libraryUuidAction ? _self.libraryUuidAction : libraryUuidAction // ignore: cast_nullable_to_non_nullable
+as String,prefsJson: null == prefsJson ? _self.prefsJson : prefsJson // ignore: cast_nullable_to_non_nullable
+as String,rollbackPath: freezed == rollbackPath ? _self.rollbackPath : rollbackPath // ignore: cast_nullable_to_non_nullable
+as String?,booksAfter: null == booksAfter ? _self.booksAfter : booksAfter // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,copiesAfter: null == copiesAfter ? _self.copiesAfter : copiesAfter // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,contactsAfter: null == contactsAfter ? _self.contactsAfter : contactsAfter // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,coversRestored: null == coversRestored ? _self.coversRestored : coversRestored // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,
+  ));
+}
+
+
+}
+
+/// @nodoc
+mixin _$FrbRollbackInfo {
+
+ String get path; String get createdAt; PlatformInt64 get ageSeconds; PlatformInt64 get sizeBytes;
+/// Create a copy of FrbRollbackInfo
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$FrbRollbackInfoCopyWith<FrbRollbackInfo> get copyWith => _$FrbRollbackInfoCopyWithImpl<FrbRollbackInfo>(this as FrbRollbackInfo, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbRollbackInfo&&(identical(other.path, path) || other.path == path)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.ageSeconds, ageSeconds) || other.ageSeconds == ageSeconds)&&(identical(other.sizeBytes, sizeBytes) || other.sizeBytes == sizeBytes));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,path,createdAt,ageSeconds,sizeBytes);
+
+@override
+String toString() {
+  return 'FrbRollbackInfo(path: $path, createdAt: $createdAt, ageSeconds: $ageSeconds, sizeBytes: $sizeBytes)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $FrbRollbackInfoCopyWith<$Res>  {
+  factory $FrbRollbackInfoCopyWith(FrbRollbackInfo value, $Res Function(FrbRollbackInfo) _then) = _$FrbRollbackInfoCopyWithImpl;
+@useResult
+$Res call({
+ String path, String createdAt, PlatformInt64 ageSeconds, PlatformInt64 sizeBytes
+});
+
+
+
+
+}
+/// @nodoc
+class _$FrbRollbackInfoCopyWithImpl<$Res>
+    implements $FrbRollbackInfoCopyWith<$Res> {
+  _$FrbRollbackInfoCopyWithImpl(this._self, this._then);
+
+  final FrbRollbackInfo _self;
+  final $Res Function(FrbRollbackInfo) _then;
+
+/// Create a copy of FrbRollbackInfo
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? path = null,Object? createdAt = null,Object? ageSeconds = null,Object? sizeBytes = null,}) {
+  return _then(_self.copyWith(
+path: null == path ? _self.path : path // ignore: cast_nullable_to_non_nullable
+as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as String,ageSeconds: null == ageSeconds ? _self.ageSeconds : ageSeconds // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,sizeBytes: null == sizeBytes ? _self.sizeBytes : sizeBytes // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [FrbRollbackInfo].
+extension FrbRollbackInfoPatterns on FrbRollbackInfo {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _FrbRollbackInfo value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _FrbRollbackInfo() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _FrbRollbackInfo value)  $default,){
+final _that = this;
+switch (_that) {
+case _FrbRollbackInfo():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _FrbRollbackInfo value)?  $default,){
+final _that = this;
+switch (_that) {
+case _FrbRollbackInfo() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String path,  String createdAt,  PlatformInt64 ageSeconds,  PlatformInt64 sizeBytes)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _FrbRollbackInfo() when $default != null:
+return $default(_that.path,_that.createdAt,_that.ageSeconds,_that.sizeBytes);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String path,  String createdAt,  PlatformInt64 ageSeconds,  PlatformInt64 sizeBytes)  $default,) {final _that = this;
+switch (_that) {
+case _FrbRollbackInfo():
+return $default(_that.path,_that.createdAt,_that.ageSeconds,_that.sizeBytes);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String path,  String createdAt,  PlatformInt64 ageSeconds,  PlatformInt64 sizeBytes)?  $default,) {final _that = this;
+switch (_that) {
+case _FrbRollbackInfo() when $default != null:
+return $default(_that.path,_that.createdAt,_that.ageSeconds,_that.sizeBytes);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _FrbRollbackInfo implements FrbRollbackInfo {
+  const _FrbRollbackInfo({required this.path, required this.createdAt, required this.ageSeconds, required this.sizeBytes});
+  
+
+@override final  String path;
+@override final  String createdAt;
+@override final  PlatformInt64 ageSeconds;
+@override final  PlatformInt64 sizeBytes;
+
+/// Create a copy of FrbRollbackInfo
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$FrbRollbackInfoCopyWith<_FrbRollbackInfo> get copyWith => __$FrbRollbackInfoCopyWithImpl<_FrbRollbackInfo>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbRollbackInfo&&(identical(other.path, path) || other.path == path)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.ageSeconds, ageSeconds) || other.ageSeconds == ageSeconds)&&(identical(other.sizeBytes, sizeBytes) || other.sizeBytes == sizeBytes));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,path,createdAt,ageSeconds,sizeBytes);
+
+@override
+String toString() {
+  return 'FrbRollbackInfo(path: $path, createdAt: $createdAt, ageSeconds: $ageSeconds, sizeBytes: $sizeBytes)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$FrbRollbackInfoCopyWith<$Res> implements $FrbRollbackInfoCopyWith<$Res> {
+  factory _$FrbRollbackInfoCopyWith(_FrbRollbackInfo value, $Res Function(_FrbRollbackInfo) _then) = __$FrbRollbackInfoCopyWithImpl;
+@override @useResult
+$Res call({
+ String path, String createdAt, PlatformInt64 ageSeconds, PlatformInt64 sizeBytes
+});
+
+
+
+
+}
+/// @nodoc
+class __$FrbRollbackInfoCopyWithImpl<$Res>
+    implements _$FrbRollbackInfoCopyWith<$Res> {
+  __$FrbRollbackInfoCopyWithImpl(this._self, this._then);
+
+  final _FrbRollbackInfo _self;
+  final $Res Function(_FrbRollbackInfo) _then;
+
+/// Create a copy of FrbRollbackInfo
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? path = null,Object? createdAt = null,Object? ageSeconds = null,Object? sizeBytes = null,}) {
+  return _then(_FrbRollbackInfo(
+path: null == path ? _self.path : path // ignore: cast_nullable_to_non_nullable
+as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as String,ageSeconds: null == ageSeconds ? _self.ageSeconds : ageSeconds // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,sizeBytes: null == sizeBytes ? _self.sizeBytes : sizeBytes // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,
   ));
 }
 

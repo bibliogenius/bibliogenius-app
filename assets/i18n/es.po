@@ -8926,3 +8926,243 @@ msgstr "Dispositivo vinculado"
 #. Screen-reader label for the icon next to a peer library entry.
 msgid "identity_recovery_success_icon_peer_label"
 msgstr "Biblioteca par"
+
+#. Backup restore wizard (ADR-037 §5) — added 2026-04-29 with PR #3 reader.
+msgid "wizard_restore_app_bar_title"
+msgstr "Restaurar una copia de seguridad"
+
+msgid "wizard_restore_picker_dialog_title"
+msgstr "Seleccionar un archivo .bgbackup"
+
+msgid "wizard_restore_step_picker_intro"
+msgstr "Seleccione una copia de seguridad .bgbackup para restaurar."
+
+msgid "wizard_restore_button_browse"
+msgstr "Examinar..."
+
+msgid "wizard_restore_button_cancel"
+msgstr "Cancelar"
+
+msgid "wizard_restore_button_continue"
+msgstr "Continuar"
+
+msgid "wizard_restore_button_back"
+msgstr "Atrás"
+
+msgid "wizard_restore_button_restore"
+msgstr "Restaurar"
+
+msgid "wizard_restore_button_close_app"
+msgstr "Cerrar la aplicación"
+
+msgid "wizard_restore_button_close_to_apply"
+msgstr "Cerrar para aplicar"
+
+msgid "wizard_restore_button_close"
+msgstr "Cerrar"
+
+msgid "wizard_restore_button_retry"
+msgstr "Reintentar"
+
+msgid "wizard_restore_step_preview_title"
+msgstr "Copia de seguridad seleccionada"
+
+msgid "wizard_restore_kv_export_date"
+msgstr "Fecha de exportación"
+
+msgid "wizard_restore_kv_library_uuid"
+msgstr "Identificador de la biblioteca"
+
+msgid "wizard_restore_kv_schema"
+msgstr "Esquema"
+
+msgid "wizard_restore_kv_schema_value"
+msgstr "{schema} (actual: {current})"
+
+msgid "wizard_restore_kv_app_version"
+msgstr "Versión de la aplicación"
+
+msgid "wizard_restore_kv_identity_included"
+msgstr "Identidad incluida"
+
+msgid "wizard_restore_yes"
+msgstr "sí"
+
+msgid "wizard_restore_no"
+msgstr "no"
+
+msgid "wizard_restore_kv_unlock_kind"
+msgstr "Código de desbloqueo"
+
+msgid "wizard_restore_unlock_recovery"
+msgstr "código de recuperación"
+
+msgid "wizard_restore_unlock_passphrase"
+msgstr "frase de acceso dedicada"
+
+msgid "wizard_restore_step_preview_content"
+msgstr "Contenido"
+
+msgid "wizard_restore_kv_books"
+msgstr "Libros"
+
+msgid "wizard_restore_kv_copies"
+msgstr "Copias"
+
+msgid "wizard_restore_kv_loans"
+msgstr "Préstamos"
+
+msgid "wizard_restore_kv_contacts"
+msgstr "Contactos"
+
+msgid "wizard_restore_kv_tags"
+msgstr "Estantes"
+
+msgid "wizard_restore_kv_local_covers"
+msgstr "Portadas locales"
+
+msgid "wizard_restore_step_secret_prompt_recovery"
+msgstr "Ingrese su código de recuperación"
+
+msgid "wizard_restore_step_secret_prompt_passphrase"
+msgstr "Ingrese su frase de acceso de copia de seguridad"
+
+msgid "wizard_restore_secret_label_recovery"
+msgstr "Código de recuperación"
+
+msgid "wizard_restore_secret_label_passphrase"
+msgstr "Frase de acceso"
+
+msgid "wizard_restore_secret_show"
+msgstr "Mostrar"
+
+msgid "wizard_restore_secret_hide"
+msgstr "Ocultar"
+
+msgid "wizard_restore_step_secret_hint"
+msgstr "La verificación usa Argon2id y puede tardar unos segundos en dispositivos antiguos."
+
+msgid "wizard_restore_secret_required"
+msgstr "Ingrese su código o frase de acceso."
+
+msgid "wizard_restore_step_mode_title"
+msgstr "Modo de restauración"
+
+msgid "wizard_restore_mode_replace_title"
+msgstr "Reemplazar (recomendado para migración de dispositivo)"
+
+msgid "wizard_restore_mode_replace_subtitle"
+msgstr "Su biblioteca actual se apartará durante 24h (copia de rollback) y luego será reemplazada por este archivo."
+
+msgid "wizard_restore_mode_merge_title"
+msgstr "Combinar (añadir a mi biblioteca actual)"
+
+msgid "wizard_restore_mode_merge_subtitle"
+msgstr "Los libros, contactos y estantes del archivo se añaden a los suyos. Los pares y la identidad no se ven afectados."
+
+msgid "wizard_restore_identity_checkbox_title"
+msgstr "Restaurar también la identidad de esta biblioteca (clon exacto)"
+
+msgid "wizard_restore_identity_checkbox_subtitle"
+msgstr "Marcado: este dispositivo será reconocido por sus pares como el dispositivo original. Desmarcado: nueva identidad, sus pares lo re-verificarán automáticamente en el próximo contacto."
+
+msgid "wizard_restore_step_confirm_title"
+msgstr "Confirmar la restauración"
+
+msgid "wizard_restore_confirm_summary_replace"
+msgstr "Sus datos actuales se moverán a una copia de rollback. Podrá revertir durante 24h desde la pantalla de Ajustes."
+
+msgid "wizard_restore_confirm_summary_merge"
+msgstr "Los elementos del archivo se añadirán a su biblioteca actual. Ninguno de sus libros existentes será eliminado."
+
+msgid "wizard_restore_confirm_restart_warning"
+msgstr "Al finalizar la restauración, la aplicación se cerrará. Deberá reiniciarla manualmente para terminar."
+
+msgid "wizard_restore_progress_default"
+msgstr "Restauración en curso..."
+
+msgid "wizard_restore_progress_verifying"
+msgstr "Verificando la copia de seguridad..."
+
+msgid "wizard_restore_progress_replacing"
+msgstr "Restaurando la base de datos..."
+
+msgid "wizard_restore_progress_merging"
+msgstr "Combinando datos..."
+
+msgid "wizard_restore_progress_warning"
+msgstr "No cierre la aplicación."
+
+msgid "wizard_restore_step_result_success_title"
+msgstr "Restauración correcta"
+
+msgid "wizard_restore_step_result_failure_title"
+msgstr "Restauración imposible"
+
+msgid "wizard_restore_step_result_failure_intact"
+msgstr "Su biblioteca actual está intacta."
+
+msgid "wizard_restore_step_result_failure_unknown"
+msgstr "Error desconocido"
+
+msgid "wizard_restore_kv_mode"
+msgstr "Modo"
+
+msgid "wizard_restore_mode_label_replace"
+msgstr "Reemplazar"
+
+msgid "wizard_restore_mode_label_merge"
+msgstr "Combinar"
+
+msgid "wizard_restore_kv_covers_restored"
+msgstr "Portadas restauradas"
+
+msgid "wizard_restore_kv_identity"
+msgstr "Identidad"
+
+msgid "wizard_restore_identity_restored_value"
+msgstr "restaurada (clon exacto)"
+
+msgid "wizard_restore_kv_rollback_path"
+msgstr "Copia de rollback"
+
+msgid "wizard_restore_error_unreadable"
+msgstr "Archivo ilegible: {error}"
+
+msgid "wizard_restore_error_bad_secret"
+msgstr "Código incorrecto o archivo corrupto."
+
+msgid "wizard_restore_error_schema_too_new"
+msgstr "Esta copia fue creada por una versión más reciente de BiblioGenius (esquema {schema}, actual {current}). Actualice la aplicación antes de restaurarla."
+
+msgid "wizard_restore_error_schema_too_new_short"
+msgstr "Esta copia fue creada por una versión más reciente. Actualice la aplicación antes de reintentar."
+
+msgid "wizard_restore_error_db_hash_mismatch"
+msgstr "Hash de la BD incorrecto: archivo corrupto. Restauración cancelada, su biblioteca actual está intacta."
+
+msgid "wizard_restore_error_generic"
+msgstr "Error: {error}"
+
+#. Backup section: PR #3 tile + rollback card.
+msgid "backup_restore_full_title"
+msgstr "Restaurar una copia completa"
+
+msgid "backup_restore_full_subtitle"
+msgstr "Importar un archivo .bgbackup para reemplazar o combinar con su biblioteca actual."
+
+msgid "backup_rollback_title"
+msgstr "Restaurar la versión anterior"
+
+msgid "backup_rollback_subtitle"
+msgstr "Copia de rollback creada hace {age_hours}h (expira en {remaining_hours}h). Restaurar vuelve al estado anterior a su última restauración."
+
+msgid "backup_rollback_dialog_title"
+msgstr "¿Restaurar la versión anterior?"
+
+msgid "backup_rollback_dialog_message"
+msgstr "Su biblioteca actual (de la última restauración) se apartará durante 24h, luego se restaurará su estado anterior. La aplicación se cerrará: reiníciela para finalizar."
+
+msgid "backup_rollback_error"
+msgstr "Error de rollback: {error}"
+
