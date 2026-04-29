@@ -9242,3 +9242,243 @@ msgstr "Linked device"
 #. Screen-reader label for the icon next to a peer library entry.
 msgid "identity_recovery_success_icon_peer_label"
 msgstr "Peer library"
+
+#. Backup restore wizard (ADR-037 §5) — added 2026-04-29 with PR #3 reader.
+msgid "wizard_restore_app_bar_title"
+msgstr "Restore a backup"
+
+msgid "wizard_restore_picker_dialog_title"
+msgstr "Select a .bgbackup file"
+
+msgid "wizard_restore_step_picker_intro"
+msgstr "Select a .bgbackup backup to restore."
+
+msgid "wizard_restore_button_browse"
+msgstr "Browse..."
+
+msgid "wizard_restore_button_cancel"
+msgstr "Cancel"
+
+msgid "wizard_restore_button_continue"
+msgstr "Continue"
+
+msgid "wizard_restore_button_back"
+msgstr "Back"
+
+msgid "wizard_restore_button_restore"
+msgstr "Restore"
+
+msgid "wizard_restore_button_close_app"
+msgstr "Close the app"
+
+msgid "wizard_restore_button_close_to_apply"
+msgstr "Close to apply"
+
+msgid "wizard_restore_button_close"
+msgstr "Close"
+
+msgid "wizard_restore_button_retry"
+msgstr "Retry"
+
+msgid "wizard_restore_step_preview_title"
+msgstr "Selected backup"
+
+msgid "wizard_restore_kv_export_date"
+msgstr "Export date"
+
+msgid "wizard_restore_kv_library_uuid"
+msgstr "Library identifier"
+
+msgid "wizard_restore_kv_schema"
+msgstr "Schema"
+
+msgid "wizard_restore_kv_schema_value"
+msgstr "{schema} (current: {current})"
+
+msgid "wizard_restore_kv_app_version"
+msgstr "App version"
+
+msgid "wizard_restore_kv_identity_included"
+msgstr "Identity included"
+
+msgid "wizard_restore_yes"
+msgstr "yes"
+
+msgid "wizard_restore_no"
+msgstr "no"
+
+msgid "wizard_restore_kv_unlock_kind"
+msgstr "Unlock code"
+
+msgid "wizard_restore_unlock_recovery"
+msgstr "recovery code"
+
+msgid "wizard_restore_unlock_passphrase"
+msgstr "dedicated passphrase"
+
+msgid "wizard_restore_step_preview_content"
+msgstr "Contents"
+
+msgid "wizard_restore_kv_books"
+msgstr "Books"
+
+msgid "wizard_restore_kv_copies"
+msgstr "Copies"
+
+msgid "wizard_restore_kv_loans"
+msgstr "Loans"
+
+msgid "wizard_restore_kv_contacts"
+msgstr "Contacts"
+
+msgid "wizard_restore_kv_tags"
+msgstr "Shelves"
+
+msgid "wizard_restore_kv_local_covers"
+msgstr "Local covers"
+
+msgid "wizard_restore_step_secret_prompt_recovery"
+msgstr "Enter your recovery code"
+
+msgid "wizard_restore_step_secret_prompt_passphrase"
+msgstr "Enter your backup passphrase"
+
+msgid "wizard_restore_secret_label_recovery"
+msgstr "Recovery code"
+
+msgid "wizard_restore_secret_label_passphrase"
+msgstr "Passphrase"
+
+msgid "wizard_restore_secret_show"
+msgstr "Show"
+
+msgid "wizard_restore_secret_hide"
+msgstr "Hide"
+
+msgid "wizard_restore_step_secret_hint"
+msgstr "Verification uses Argon2id and may take a few seconds on older devices."
+
+msgid "wizard_restore_secret_required"
+msgstr "Enter your code or passphrase."
+
+msgid "wizard_restore_step_mode_title"
+msgstr "Restore mode"
+
+msgid "wizard_restore_mode_replace_title"
+msgstr "Replace (recommended for device migration)"
+
+msgid "wizard_restore_mode_replace_subtitle"
+msgstr "Your current library will be moved aside for 24h (rollback backup) then replaced by this archive."
+
+msgid "wizard_restore_mode_merge_title"
+msgstr "Merge (add to my current library)"
+
+msgid "wizard_restore_mode_merge_subtitle"
+msgstr "Books, contacts and shelves from the archive are added to yours. Peers and identity are not affected."
+
+msgid "wizard_restore_identity_checkbox_title"
+msgstr "Also restore this library's identity (exact clone)"
+
+msgid "wizard_restore_identity_checkbox_subtitle"
+msgstr "Checked: this device will be recognized by your peers as the original device. Unchecked: new identity, your peers will re-verify you automatically on next contact."
+
+msgid "wizard_restore_step_confirm_title"
+msgstr "Confirm the restore"
+
+msgid "wizard_restore_confirm_summary_replace"
+msgstr "Your current data will be moved to a rollback backup. You can roll back within 24h from the Settings screen."
+
+msgid "wizard_restore_confirm_summary_merge"
+msgstr "Items from the archive will be added to your current library. None of your existing books will be deleted."
+
+msgid "wizard_restore_confirm_restart_warning"
+msgstr "When the restore finishes, the app will close. You will have to relaunch it manually to finish."
+
+msgid "wizard_restore_progress_default"
+msgstr "Restore in progress..."
+
+msgid "wizard_restore_progress_verifying"
+msgstr "Verifying the backup..."
+
+msgid "wizard_restore_progress_replacing"
+msgstr "Restoring the database..."
+
+msgid "wizard_restore_progress_merging"
+msgstr "Merging data..."
+
+msgid "wizard_restore_progress_warning"
+msgstr "Do not close the app."
+
+msgid "wizard_restore_step_result_success_title"
+msgstr "Restore successful"
+
+msgid "wizard_restore_step_result_failure_title"
+msgstr "Restore failed"
+
+msgid "wizard_restore_step_result_failure_intact"
+msgstr "Your current library is intact."
+
+msgid "wizard_restore_step_result_failure_unknown"
+msgstr "Unknown error"
+
+msgid "wizard_restore_kv_mode"
+msgstr "Mode"
+
+msgid "wizard_restore_mode_label_replace"
+msgstr "Replace"
+
+msgid "wizard_restore_mode_label_merge"
+msgstr "Merge"
+
+msgid "wizard_restore_kv_covers_restored"
+msgstr "Covers restored"
+
+msgid "wizard_restore_kv_identity"
+msgstr "Identity"
+
+msgid "wizard_restore_identity_restored_value"
+msgstr "restored (exact clone)"
+
+msgid "wizard_restore_kv_rollback_path"
+msgstr "Rollback backup"
+
+msgid "wizard_restore_error_unreadable"
+msgstr "Unreadable archive: {error}"
+
+msgid "wizard_restore_error_bad_secret"
+msgstr "Incorrect code or corrupted archive."
+
+msgid "wizard_restore_error_schema_too_new"
+msgstr "This backup was created by a newer version of BiblioGenius (schema {schema}, current {current}). Update the app before restoring."
+
+msgid "wizard_restore_error_schema_too_new_short"
+msgstr "This backup was created by a newer version. Update the app before retrying."
+
+msgid "wizard_restore_error_db_hash_mismatch"
+msgstr "Database hash mismatch: corrupted archive. Restore cancelled, your current library is intact."
+
+msgid "wizard_restore_error_generic"
+msgstr "Failed: {error}"
+
+#. Backup section: PR #3 tile + rollback card.
+msgid "backup_restore_full_title"
+msgstr "Restore a full backup"
+
+msgid "backup_restore_full_subtitle"
+msgstr "Import a .bgbackup archive to replace or merge with your current library."
+
+msgid "backup_rollback_title"
+msgstr "Restore previous version"
+
+msgid "backup_rollback_subtitle"
+msgstr "Rollback backup created {age_hours}h ago (expires in {remaining_hours}h). Restoring reverts to the state before your last restore."
+
+msgid "backup_rollback_dialog_title"
+msgstr "Restore previous version?"
+
+msgid "backup_rollback_dialog_message"
+msgstr "Your current library (from the last restore) will be moved aside for 24h, then your previous state will be put back. The app will then close: relaunch it to finish."
+
+msgid "backup_rollback_error"
+msgstr "Rollback failed: {error}"
+

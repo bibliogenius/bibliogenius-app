@@ -642,20 +642,19 @@ class BackupActions {
   }
 
   // ---------------------------------------------------------------------------
-  // Full backup (.bgbackup) — DEBUG-ONLY entry point (ADR-037).
+  // Full backup (.bgbackup) — production entry point (ADR-037 §2 writer).
   //
-  // Wired to the otherwise-disabled "Sauvegarde complète" tile when
-  // `kDebugMode` is true (settings_screen.dart). Removed when PR #3 ships
-  // the production restore wizard. No l10n for now: this surface is for
-  // developer validation, never reaches end users.
+  // Wired to the "Sauvegarde complète" tile (settings_screen.dart). The
+  // companion restore wizard lives in `backup_restore_wizard_screen.dart`
+  // (ADR-037 §5 reader, this PR).
   // ---------------------------------------------------------------------------
 
-  /// Run the debug-only full backup flow: prompt for secret + identity
-  /// option, save to a user-chosen path, write the archive via FFI, show
-  /// a summary SnackBar.
-  static Future<void> runFullBackupDebug(BuildContext context) async {
-    if (kReleaseMode) return;
-
+  /// Run the full-backup writer: prompt for secret + identity option, save
+  /// to a user-chosen path, write the archive via FFI, show a summary
+  /// SnackBar. Localisation of the dialog strings is out of scope for the
+  /// reader PR; the surface currently uses inline FR copy mirroring the
+  /// existing JSON restore dialog (`_showRestoreWarning`).
+  static Future<void> runFullBackup(BuildContext context) async {
     final messenger = ScaffoldMessenger.of(context);
     final authService = context.read<AuthService>();
 
@@ -738,7 +737,7 @@ class BackupActions {
       builder: (dialogCtx) {
         return StatefulBuilder(
           builder: (ctx, setState) => AlertDialog(
-            title: const Text('Sauvegarde complète (debug)'),
+            title: const Text('Sauvegarde complète'),
             content: SizedBox(
               width: 380,
               child: Column(

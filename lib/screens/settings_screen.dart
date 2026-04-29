@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:io' as io;
 
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -30,6 +32,8 @@ import '../theme/app_design.dart';
 import '../themes/base/theme_registry.dart';
 import '../utils/app_constants.dart';
 import '../utils/backup_actions.dart';
+import '../src/rust/api/frb.dart' as rust;
+import 'backup_restore_wizard_screen.dart';
 import '../utils/language_constants.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -518,24 +522,53 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () => BackupActions.exportCatalogJson(context),
                     ),
-                    _FullBackupTile(
-                      title: TranslationService.translate(
-                        context,
-                        'backup_full_title',
+                    // Sauvegarde complète (.bgbackup, ADR-037 §2 writer).
+                    ListTile(
+                      leading: const Icon(
+                        Icons.shield_outlined,
+                        color: Colors.green,
                       ),
-                      subtitle: TranslationService.translate(
-                        context,
-                        'backup_full_subtitle',
+                      title: Text(
+                        TranslationService.translate(
+                          context,
+                          'backup_full_title',
+                        ),
                       ),
-                      chipLabel: TranslationService.translate(
-                        context,
-                        'coming_soon_chip',
+                      subtitle: Text(
+                        TranslationService.translate(
+                          context,
+                          'backup_full_subtitle',
+                        ),
                       ),
-                      unavailableMessage: TranslationService.translate(
-                        context,
-                        'backup_full_unavailable',
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => BackupActions.runFullBackup(context),
+                    ),
+                    // Restauration .bgbackup (ADR-037 §5 reader).
+                    ListTile(
+                      leading: const Icon(
+                        Icons.shield,
+                        color: Colors.green,
+                      ),
+                      title: Text(
+                        TranslationService.translate(
+                          context,
+                          'backup_restore_full_title',
+                        ),
+                      ),
+                      subtitle: Text(
+                        TranslationService.translate(
+                          context,
+                          'backup_restore_full_subtitle',
+                        ),
+                      ),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const BackupRestoreWizardScreen(),
+                        ),
                       ),
                     ),
+                    // Restaurer mon catalogue (JSON, legacy).
                     ListTile(
                       leading: const Icon(Icons.restore, color: Colors.red),
                       title: Text(
@@ -553,6 +586,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () => BackupActions.restoreCatalogJson(context),
                     ),
+                    // Carte conditionnelle: rollback de la dernière restauration.
+                    const _RollbackTile(),
                   ],
                 ),
               ),
@@ -4386,90 +4421,131 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 }
 
-/// Disabled "Full backup" tile shown in the Backup accordion before the
-/// `.bgbackup` format ships (ADR-037). Visually muted, screen-reader
-/// announces it as disabled, tap shows a SnackBar instead of opening a flow.
+/// Conditional "Restaurer la version précédente" tile (ADR-037 §5).
 ///
-/// In `kDebugMode` only, the tile becomes clickable and routes to the
-/// debug writer flow (`BackupActions.runFullBackupDebug`). Removed once
-/// PR #3 ships the production restore wizard.
-class _FullBackupTile extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final String chipLabel;
-  final String unavailableMessage;
-
-  const _FullBackupTile({
-    required this.title,
-    required this.subtitle,
-    required this.chipLabel,
-    required this.unavailableMessage,
-  });
+/// Polls `list_available_rollbacks_ffi` once at mount and renders nothing
+/// when the list is empty. Each rollback is kept on disk for 24h after a
+/// Replace restore; the `run_startup_maintenance` purge sweeps expired
+/// entries on the next app launch.
+class _RollbackTile extends StatefulWidget {
+  const _RollbackTile();
 
   @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+  State<_RollbackTile> createState() => _RollbackTileState();
+}
 
-    if (kDebugMode) {
-      return Semantics(
-        button: true,
-        label: '$title. $subtitle',
-        child: ListTile(
-          leading: const Icon(Icons.shield_outlined, color: Colors.green),
-          title: Text(title, style: theme.textTheme.bodyLarge),
-          subtitle: Text(subtitle, style: theme.textTheme.bodyMedium),
-          trailing: Chip(
-            label: const Text('DEBUG'),
-            labelStyle: TextStyle(
-              fontSize: 11,
-              color: theme.colorScheme.onTertiaryContainer,
-              fontWeight: FontWeight.w600,
-            ),
-            backgroundColor: theme.colorScheme.tertiaryContainer,
-            side: BorderSide(color: theme.colorScheme.tertiary),
-            visualDensity: VisualDensity.compact,
-            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+class _RollbackTileState extends State<_RollbackTile> {
+  rust.FrbRollbackInfo? _info;
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _refresh();
+  }
+
+  Future<String> _liveDbPath() async {
+    final dir = await getApplicationSupportDirectory();
+    return '${dir.path}/bibliogenius.db';
+  }
+
+  Future<void> _refresh() async {
+    try {
+      final dbPath = await _liveDbPath();
+      final list = await rust.listAvailableRollbacksFfi(dbPath: dbPath);
+      if (!mounted) return;
+      setState(() {
+        _info = list.isEmpty ? null : list.first;
+        _loading = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _info = null;
+        _loading = false;
+      });
+    }
+  }
+
+  Future<void> _confirm() async {
+    final info = _info;
+    if (info == null) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(TranslationService.translate(
+          ctx,
+          'backup_rollback_dialog_title',
+        )),
+        content: Text(TranslationService.translate(
+          ctx,
+          'backup_rollback_dialog_message',
+        )),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(TranslationService.translate(
+              ctx,
+              'wizard_restore_button_cancel',
+            )),
           ),
-          onTap: () => BackupActions.runFullBackupDebug(context),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(TranslationService.translate(
+              ctx,
+              'wizard_restore_button_restore',
+            )),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    try {
+      final dbPath = await _liveDbPath();
+      await rust.restoreFromRollbackFfi(
+        rollbackPath: info.path,
+        dbPath: dbPath,
+      );
+      if (!mounted) return;
+      io.exit(0);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text(TranslationService.translate(
+            context,
+            'backup_rollback_error',
+            params: {'error': '$e'},
+          )),
         ),
       );
     }
+  }
 
-    final disabledColor = theme.disabledColor;
-    return Tooltip(
-      message: unavailableMessage,
-      child: Semantics(
-        button: true,
-        enabled: false,
-        label: '$title. $subtitle',
-        child: ListTile(
-          leading: Icon(Icons.shield_outlined, color: disabledColor),
-          title: Text(
-            title,
-            style: theme.textTheme.bodyLarge?.copyWith(color: disabledColor),
-          ),
-          subtitle: Text(
-            subtitle,
-            style: theme.textTheme.bodyMedium?.copyWith(color: disabledColor),
-          ),
-          trailing: Chip(
-            label: Text(chipLabel),
-            labelStyle: const TextStyle(fontSize: 11),
-            backgroundColor: theme.colorScheme.surfaceContainerHighest,
-            side: BorderSide(color: theme.dividerColor),
-            visualDensity: VisualDensity.compact,
-            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          ),
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(unavailableMessage),
-                duration: const Duration(seconds: 2),
-              ),
-            );
-          },
-        ),
-      ),
+  @override
+  Widget build(BuildContext context) {
+    if (_loading) return const SizedBox.shrink();
+    final info = _info;
+    if (info == null) return const SizedBox.shrink();
+    final ageHours = (info.ageSeconds / 3600).floor();
+    final remainingHours = 24 - ageHours;
+    return ListTile(
+      leading: const Icon(Icons.history, color: Colors.orange),
+      title: Text(TranslationService.translate(
+        context,
+        'backup_rollback_title',
+      )),
+      subtitle: Text(TranslationService.translate(
+        context,
+        'backup_rollback_subtitle',
+        params: {
+          'age_hours': '$ageHours',
+          'remaining_hours': '$remainingHours',
+        },
+      )),
+      trailing: const Icon(Icons.chevron_right),
+      onTap: _confirm,
     );
   }
 }
