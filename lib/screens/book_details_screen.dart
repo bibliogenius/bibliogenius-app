@@ -1356,12 +1356,14 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                     ) ??
                     'Manage Copies',
                 child: OutlinedButton.icon(
-                  onPressed: () {
+                  onPressed: () async {
                     if (_book == null) return;
-                    context.push(
+                    await context.push(
                       '/books/${_book!.id}/copies',
                       extra: {'bookId': _book!.id, 'bookTitle': _book!.title},
                     );
+                    if (!mounted) return;
+                    await _fetchCopies();
                   },
                   icon: Badge(
                     label: Text('${_copies.length}'),
