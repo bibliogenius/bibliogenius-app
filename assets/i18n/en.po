@@ -2196,6 +2196,14 @@ msgstr "Error updating rating"
 msgid "error_updating_status"
 msgstr "Error updating status"
 
+#. Something went wrong
+msgid "error_unexpected_title"
+msgstr "Something went wrong"
+
+#. The app encountered an unexpected error. Please try again.
+msgid "error_unexpected_message"
+msgstr "The app encountered an unexpected error. Please try again."
+
 msgid "existing_tags_section"
 msgstr "Existing Shelves"
 

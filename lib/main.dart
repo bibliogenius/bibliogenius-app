@@ -120,6 +120,79 @@ class AppScrollBehavior extends MaterialScrollBehavior {
 /// previously hidden in `identity_service.rs`.
 String? _pendingIdentityRecoveryUuid;
 
+/// Set by `_AppRouterState.initState`, cleared in `dispose`. Used by
+/// `ReleaseErrorScreen` to navigate home when the user taps "Réessayer" from
+/// an error widget that lives in its own MaterialApp (no GoRouter ancestor).
+GoRouter? _globalRouter;
+
+/// Sober fallback shown by `ErrorWidget.builder` in release builds.
+/// Public so `test/widget_test.dart` can render it directly without
+/// having to fake `kReleaseMode`. Renders no exception text or stack.
+class ReleaseErrorScreen extends StatelessWidget {
+  const ReleaseErrorScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final lang = PlatformDispatcher.instance.locale.languageCode;
+    final title = TranslationService.translateByLocale(
+      lang,
+      'error_unexpected_title',
+    );
+    final message = TranslationService.translateByLocale(
+      lang,
+      'error_unexpected_message',
+    );
+    final retryLabel = TranslationService.translateByLocale(lang, 'retry');
+
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        body: SafeArea(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.error_outline, size: 64, color: Colors.grey),
+                  const SizedBox(height: 16),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    message,
+                    style: const TextStyle(fontSize: 14, color: Colors.black54),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 24),
+                  FilledButton.icon(
+                    onPressed: () {
+                      try {
+                        _globalRouter?.go('/');
+                      } catch (_) {
+                        // Router is gone or in a bad state; the button
+                        // becomes inert rather than crashing again.
+                      }
+                    },
+                    icon: const Icon(Icons.refresh),
+                    label: Text(retryLabel),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// Pre-warm all leaderboard caches in background (fire-and-forget).
 /// Skips Phase 1 direct HTTP on cellular where LAN peers are unreachable.
 void _prewarmLeaderboards() {
@@ -176,53 +249,91 @@ Future<String?> _getDeviceName() async {
   return null;
 }
 
-void main([List<String>? args]) async {
-  WidgetsFlutterBinding.ensureInitialized();
-  // Cap decoded-image RAM. Book covers are decoded at thumbnail size
-  // (see CachedBookCover memCacheWidth), so 75 MB holds ~250 covers hot.
-  PaintingBinding.instance.imageCache.maximumSizeBytes = 75 << 20;
-  // Custom error widget to display errors visibly for debugging
-  ErrorWidget.builder = (FlutterErrorDetails details) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        backgroundColor: Colors.red.shade50,
-        body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  '⚠️ Error',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.red,
-                  ),
+void main([List<String>? args]) {
+  // runZonedGuarded catches async errors that escape both Flutter's
+  // framework path and PlatformDispatcher.onError. ensureInitialized must
+  // run inside the same zone as runApp, otherwise async errors from the
+  // engine bypass this handler.
+  runZonedGuarded(
+    () async {
+      WidgetsFlutterBinding.ensureInitialized();
+
+      // Framework errors (build, layout, paint). presentError dumps to the
+      // console in debug; in release it's effectively a no-op.
+      FlutterError.onError = (details) {
+        FlutterError.presentError(details);
+      };
+
+      // Uncaught Dart errors at the engine level (platform channels, some
+      // async paths). Returning true tells the engine we handled it, so
+      // the app keeps running instead of being killed.
+      PlatformDispatcher.instance.onError = (error, stack) {
+        debugPrint('Uncaught platform error: $error\n$stack');
+        return true;
+      };
+
+      // Cap decoded-image RAM. Book covers are decoded at thumbnail size
+      // (see CachedBookCover memCacheWidth), so 75 MB holds ~250 covers hot.
+      PaintingBinding.instance.imageCache.maximumSizeBytes = 75 << 20;
+
+      // Release: sober screen, no stack trace exposed.
+      // Debug: verbose red screen for fast diagnosis.
+      ErrorWidget.builder = (FlutterErrorDetails details) {
+        if (kReleaseMode) {
+          return const ReleaseErrorScreen();
+        }
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          home: Scaffold(
+            backgroundColor: Colors.red.shade50,
+            body: SafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      '⚠️ Error',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      details.exception.toString(),
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      details.stack?.toString() ?? 'No stack trace',
+                      style: const TextStyle(
+                        fontSize: 10,
+                        color: Colors.black54,
+                        fontFamily: 'monospace',
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 16),
-                Text(
-                  details.exception.toString(),
-                  style: const TextStyle(fontSize: 14, color: Colors.black87),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  details.stack?.toString() ?? 'No stack trace',
-                  style: const TextStyle(
-                    fontSize: 10,
-                    color: Colors.black54,
-                    fontFamily: 'monospace',
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
-        ),
-      ),
-    );
-  };
+        );
+      };
 
+      await _runApp();
+    },
+    (error, stack) {
+      debugPrint('Uncaught zone error: $error\n$stack');
+    },
+  );
+}
+
+Future<void> _runApp() async {
   Map<String, String> envConfig = {};
   try {
     await dotenv.load(fileName: ".env");
@@ -1251,6 +1362,10 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
       ],
     );
 
+    // Expose the router so ReleaseErrorScreen's "Réessayer" button can
+    // reach it from outside the widget tree.
+    _globalRouter = _router;
+
     _initDeepLinks();
     _registerFlashMessages();
   }
@@ -1478,6 +1593,9 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
     _deepLinkTimer?.cancel();
     _linkSubscription?.cancel();
     WidgetsBinding.instance.removeObserver(this);
+    if (identical(_globalRouter, _router)) {
+      _globalRouter = null;
+    }
     super.dispose();
   }
 
