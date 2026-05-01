@@ -32,6 +32,8 @@ import '../theme/app_design.dart';
 import '../themes/base/theme_registry.dart';
 import '../utils/app_constants.dart';
 import '../utils/backup_actions.dart';
+import '../utils/import_actions.dart';
+import '../widgets/auto_backup_status_card.dart';
 import '../src/rust/api/frb.dart' as rust;
 import 'backup_restore_wizard_screen.dart';
 import '../utils/language_constants.dart';
@@ -436,7 +438,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
             // Data Management
             // Content accordion
-            if (_sectionVisible(['content']))
+            if (_sectionVisible([
+              'content',
+              'migration_card_csv_title',
+              'migration_card_shelves_title',
+            ]))
               Card(
                 margin: const EdgeInsets.only(bottom: 12),
                 child: ExpansionTile(
@@ -455,21 +461,44 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   children: [
                     ListTile(
-                      leading: const Icon(Icons.swap_calls, color: Colors.blue),
+                      leading: Icon(
+                        Icons.import_contacts,
+                        color: Colors.orange.shade400,
+                      ),
                       title: Text(
                         TranslationService.translate(
                           context,
-                          'migration_wizard_tile_title',
+                          'migration_card_csv_title',
                         ),
                       ),
                       subtitle: Text(
                         TranslationService.translate(
                           context,
-                          'migration_wizard_tile_subtitle',
+                          'migration_card_csv_subtitle',
                         ),
                       ),
                       trailing: const Icon(Icons.chevron_right),
-                      onTap: () => context.push('/settings/migration-wizard'),
+                      onTap: () => ImportActions.importCsv(context),
+                    ),
+                    ListTile(
+                      leading: Icon(
+                        Icons.folder_special,
+                        color: Colors.blue.shade400,
+                      ),
+                      title: Text(
+                        TranslationService.translate(
+                          context,
+                          'migration_card_shelves_title',
+                        ),
+                      ),
+                      subtitle: Text(
+                        TranslationService.translate(
+                          context,
+                          'migration_card_shelves_subtitle',
+                        ),
+                      ),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => context.push('/shelves-management'),
                     ),
                   ],
                 ),
@@ -502,6 +531,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
                   children: [
+                    // Auto-backup status (ADR-037 §6) sits at the top so the
+                    // green/amber/red state is the first thing the user sees
+                    // when they expand the section.
+                    const Padding(
+                      padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
+                      child: AutoBackupStatusCard(),
+                    ),
                     ListTile(
                       leading: const Icon(
                         Icons.backup,
@@ -588,55 +624,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     // Carte conditionnelle: rollback de la dernière restauration.
                     const _RollbackTile(),
-                  ],
-                ),
-              ),
-
-            // System accordion (reset)
-            if (_sectionVisible([
-              'system_section_title',
-              'system_reset_title',
-            ]))
-              Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                child: ExpansionTile(
-                  key: ValueKey('system_$_isSearching'),
-                  initiallyExpanded: _isSearching,
-                  leading: const Icon(Icons.tune_outlined),
-                  title: Semantics(
-                    header: true,
-                    child: Text(
-                      TranslationService.translate(
-                        context,
-                        'system_section_title',
-                      ),
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  children: [
-                    ListTile(
-                      leading: Icon(
-                        Icons.delete_forever,
-                        color: Colors.red.shade700,
-                      ),
-                      title: Text(
-                        TranslationService.translate(
-                          context,
-                          'system_reset_title',
-                        ),
-                      ),
-                      subtitle: Text(
-                        TranslationService.translate(
-                          context,
-                          'system_reset_subtitle',
-                        ),
-                      ),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () => BackupActions.showResetDialog(context),
-                    ),
                   ],
                 ),
               ),
@@ -1453,11 +1440,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
 
-            // Network accordion
+            // Network accordion (local + remote reachability + public directory)
             if (_sectionVisible([
               'settings_network_title',
               'settings_remote_reachable',
               'settings_remote_reachable_desc',
+              'hub_coming_soon_toggle',
+              'directory_settings_title',
+              'directory_listed_title',
             ]))
               Card(
                 margin: const EdgeInsets.only(bottom: 12),
@@ -1481,21 +1471,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   children: [
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                      child: _buildNetworkSection(context, themeProvider),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildNetworkSection(context, themeProvider),
+                          const SizedBox(height: 12),
+                          _buildDirectorySection(context),
+                        ],
+                      ),
                     ),
                   ],
                 ),
-              ),
-
-            // Public Directory accordion
-            if (_sectionVisible([
-              'hub_coming_soon_toggle',
-              'directory_settings_title',
-              'directory_listed_title',
-            ]))
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: _buildDirectorySection(context),
               ),
 
             // Search Sources accordion
@@ -1557,6 +1543,47 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   foregroundColor: Colors.red,
                 ),
               ),
+            if (_sectionVisible([
+              'system_reset_title',
+              'system_reset_subtitle',
+            ])) ...[
+              const SizedBox(height: 32),
+              Card(
+                margin: EdgeInsets.zero,
+                color: Colors.red.shade50,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(color: Colors.red.shade200),
+                ),
+                child: ListTile(
+                  leading: Icon(
+                    Icons.delete_forever,
+                    color: Colors.red.shade700,
+                  ),
+                  title: Text(
+                    TranslationService.translate(
+                      context,
+                      'system_reset_title',
+                    ),
+                    style: TextStyle(
+                      color: Colors.red.shade700,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  subtitle: Text(
+                    TranslationService.translate(
+                      context,
+                      'system_reset_subtitle',
+                    ),
+                  ),
+                  trailing: Icon(
+                    Icons.chevron_right,
+                    color: Colors.red.shade700,
+                  ),
+                  onTap: () => BackupActions.showResetDialog(context),
+                ),
+              ),
+            ],
             if (_appVersion.isNotEmpty) ...[
               const SizedBox(height: 32),
               Center(
