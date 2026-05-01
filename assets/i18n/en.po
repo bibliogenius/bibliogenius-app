@@ -9418,6 +9418,12 @@ msgstr "Restore failed"
 msgid "wizard_restore_step_result_failure_intact"
 msgstr "Your current library is intact."
 
+#. Wizard: SnackBar shown if the user tries to navigate away (back arrow,
+#. swipe, system back) after a successful Replace/Merge restore. The
+#. on-disk DB has been swapped, so the app must be restarted.
+msgid "wizard_restore_must_restart_hint"
+msgstr "Restore applied. Close the app using the button below to finalize."
+
 msgid "wizard_restore_step_result_failure_unknown"
 msgstr "Unknown error"
 

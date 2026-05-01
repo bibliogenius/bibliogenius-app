@@ -380,26 +380,46 @@ class _BackupRestoreWizardScreenState extends State<BackupRestoreWizardScreen> {
   @override
   Widget build(BuildContext context) {
     final progress = _stepProgress(_step);
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_t('wizard_restore_app_bar_title')),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(2),
-          child: LinearProgressIndicator(value: progress),
+    // Once a Replace/Merge has succeeded, the on-disk DB has been swapped
+    // but the in-memory SeaORM/sqlx pool still points at the old caches.
+    // Letting the user navigate away (AppBar back, system back, iOS swipe)
+    // produces 500s on the next insert/delete. Block all escape routes
+    // until they tap the explicit restart button.
+    final mustBlockExit =
+        _step == _WizardStep.result && _resultSummary != null;
+    return PopScope(
+      canPop: !mustBlockExit,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop && mustBlockExit) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(_t('wizard_restore_must_restart_hint')),
+            ),
+          );
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: !mustBlockExit,
+          title: Text(_t('wizard_restore_app_bar_title')),
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(2),
+            child: LinearProgressIndicator(value: progress),
+          ),
         ),
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: switch (_step) {
-            _WizardStep.pickFile => _buildPickFileStep(),
-            _WizardStep.preview => _buildPreviewStep(),
-            _WizardStep.secret => _buildSecretStep(),
-            _WizardStep.mode => _buildModeStep(),
-            _WizardStep.confirm => _buildConfirmStep(),
-            _WizardStep.progress => _buildProgressStep(),
-            _WizardStep.result => _buildResultStep(),
-          },
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: switch (_step) {
+              _WizardStep.pickFile => _buildPickFileStep(),
+              _WizardStep.preview => _buildPreviewStep(),
+              _WizardStep.secret => _buildSecretStep(),
+              _WizardStep.mode => _buildModeStep(),
+              _WizardStep.confirm => _buildConfirmStep(),
+              _WizardStep.progress => _buildProgressStep(),
+              _WizardStep.result => _buildResultStep(),
+            },
+          ),
         ),
       ),
     );
