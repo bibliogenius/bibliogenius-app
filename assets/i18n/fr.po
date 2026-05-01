@@ -2196,6 +2196,14 @@ msgstr "Erreur lors de la mise à jour de la note"
 msgid "error_updating_status"
 msgstr "Erreur lors de la mise à jour du statut"
 
+#. Something went wrong
+msgid "error_unexpected_title"
+msgstr "Une erreur inattendue est survenue"
+
+#. The app encountered an unexpected error. Please try again.
+msgid "error_unexpected_message"
+msgstr "L'application a rencontré une erreur inattendue. Veuillez réessayer."
+
 msgid "existing_tags_section"
 msgstr "Étagères existantes"
 
