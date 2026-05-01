@@ -9132,6 +9132,21 @@ msgstr "Archivo ilegible: {error}"
 msgid "wizard_restore_error_bad_secret"
 msgstr "Código incorrecto o archivo corrupto."
 
+#. Wizard: shown on the mode step when the wizard auto-unlocked using
+#. the recovery code or passphrase already in secure storage (typical
+#. same-device auto-backup restore).
+msgid "wizard_restore_auto_unlocked_recovery_code"
+msgstr "Desbloqueado automáticamente con su código de recuperación"
+
+msgid "wizard_restore_auto_unlocked_passphrase"
+msgstr "Desbloqueado automáticamente con su contraseña de copia de seguridad"
+
+#. Wizard: shown on the secret step when the auto-unlock attempt failed
+#. (stored secret no longer matches this archive). User is asked to
+#. type the original secret manually.
+msgid "wizard_restore_secret_auto_unlock_failed"
+msgstr "El secreto almacenado en este dispositivo ya no coincide con este archivo (¿cambio de código de recuperación o de contraseña?). Introduzca el secreto original manualmente."
+
 msgid "wizard_restore_error_schema_too_new"
 msgstr "Esta copia fue creada por una versión más reciente de BiblioGenius (esquema {schema}, actual {current}). Actualice la aplicación antes de restaurarla."
 
@@ -9152,17 +9167,179 @@ msgid "backup_restore_full_subtitle"
 msgstr "Importar un archivo .bgbackup para reemplazar o combinar con su biblioteca actual."
 
 msgid "backup_rollback_title"
-msgstr "Restaurar la versión anterior"
+msgstr "Deshacer la restauración reciente"
 
 msgid "backup_rollback_subtitle"
-msgstr "Copia de rollback creada hace {age_hours}h (expira en {remaining_hours}h). Restaurar vuelve al estado anterior a su última restauración."
+msgstr "Volver al estado anterior a su última restauración. Aún posible durante {remaining_hours} h (copia creada hace {age_hours} h)."
 
 msgid "backup_rollback_dialog_title"
-msgstr "¿Restaurar la versión anterior?"
+msgstr "¿Deshacer la última restauración?"
 
 msgid "backup_rollback_dialog_message"
-msgstr "Su biblioteca actual (de la última restauración) se apartará durante 24h, luego se restaurará su estado anterior. La aplicación se cerrará: reiníciela para finalizar."
+msgstr "El estado de su última restauración se apartará durante 24 h, luego se restaurará la biblioteca que tenía justo antes de esa restauración. La aplicación se cerrará: reiníciela para terminar."
+
+#. Inline button on the rollback tile (auto-backup card + settings).
+msgid "backup_rollback_button_undo"
+msgstr "Deshacer"
+
+#. Confirm button in the rollback dialog. Spelled out so it does not
+#. collide with the dialog's "Cancelar" button.
+msgid "backup_rollback_dialog_confirm"
+msgstr "Deshacer la restauración"
 
 msgid "backup_rollback_error"
-msgstr "Error de rollback: {error}"
+msgstr "No se pudo deshacer la restauración: {error}"
+
+#. Auto-backup (ADR-037 §6) - status badge titles + subtitles
+msgid "auto_backup_status_title_never"
+msgstr "Aún no hay copia de seguridad"
+
+msgid "auto_backup_status_title_with_age"
+msgstr "Última copia en este dispositivo: {age}"
+
+msgid "auto_backup_status_subtitle_amber"
+msgstr "Conviene revisar la copia automática."
+
+msgid "auto_backup_status_subtitle_red"
+msgstr "Sus datos no están protegidos recientemente."
+
+msgid "auto_backup_status_subtitle_never_enabled"
+msgstr "La copia automática producirá su primer archivo en breve."
+
+msgid "auto_backup_status_subtitle_disabled"
+msgstr "Copia automática desactivada."
+
+#. Auto-backup - relative-age formatting (Dart computes the value, .po
+#. supplies the unit). {n} is a non-negative integer.
+msgid "auto_backup_age_minutes"
+msgstr "hace {n} min"
+
+msgid "auto_backup_age_hours"
+msgstr "hace {n} h"
+
+msgid "auto_backup_age_days"
+msgstr "hace {n} d"
+
+#. Auto-backup bottom sheet (opened from the status badge)
+msgid "auto_backup_sheet_title"
+msgstr "Copia de seguridad automática"
+
+msgid "auto_backup_sheet_toggle_label"
+msgstr "Copia automática cada 24 h"
+
+msgid "auto_backup_sheet_toggle_subtitle"
+msgstr "Instantánea cifrada diaria del catálogo, solo en este dispositivo (reversible durante 24 h). No es migración entre dispositivos."
+
+msgid "auto_backup_sheet_run_now"
+msgstr "Hacer copia ahora"
+
+msgid "auto_backup_sheet_section_archives"
+msgstr "Copias automáticas en este dispositivo"
+
+msgid "auto_backup_sheet_no_archives"
+msgstr "Aún no hay copias automáticas en este dispositivo."
+
+msgid "auto_backup_sheet_restore_archive"
+msgstr "Restaurar"
+
+msgid "auto_backup_sheet_clear_all"
+msgstr "Vaciar copias automáticas"
+
+msgid "auto_backup_sheet_clear_confirm_title"
+msgstr "¿Eliminar todas las copias automáticas?"
+
+msgid "auto_backup_sheet_clear_confirm_message"
+msgstr "Esta acción no se puede deshacer."
+
+msgid "auto_backup_sheet_rollback_subtitle_hours_left"
+msgstr "Volver al estado anterior a su última restauración. Aún posible durante {hours} h."
+
+#. Auto-backup - dialog shown when toggling on without a recovery code
+msgid "auto_backup_recovery_code_required_title"
+msgstr "Se requiere código de recuperación"
+
+msgid "auto_backup_recovery_code_required_message"
+msgstr "La copia automática cifra sus archivos con su código de recuperación. Configure primero su directorio hub para obtener uno y vuelva aquí para activar."
+
+#. Auto-backup - SnackBars after manual run / restore-from-list
+msgid "auto_backup_restore_archive_hint"
+msgstr "Para restaurar {path}, abra Restaurar una copia y seleccione este archivo."
+
+msgid "auto_backup_run_skipped_unchanged"
+msgstr "Sin cambios desde la última copia."
+
+msgid "auto_backup_run_disabled"
+msgstr "La copia automática está desactivada."
+
+msgid "auto_backup_run_no_secret"
+msgstr "Falta el código de recuperación; no se puede cifrar el archivo."
+
+msgid "auto_backup_run_failed"
+msgstr "Copia fallida. Consulte los registros para más detalles."
+
+msgid "auto_backup_run_ok"
+msgstr "Copia realizada con éxito."
+
+#. Auto-backup activation sheet (ADR-037 §6) - shown on every off->on
+#. toggle so the user picks (and sees) the secret used to encrypt
+#. archives before the first one is produced.
+msgid "auto_backup_activation_title"
+msgstr "Activar copia automática"
+
+msgid "auto_backup_activation_explanation"
+msgstr "La copia automática hace una instantánea cifrada de su catálogo (libros, ejemplares, préstamos, contactos) para retroceder en este dispositivo. No incluye su identidad E2EE: para migrar a un nuevo dispositivo sin rehacer el emparejamiento con sus pares, haga una «Copia completa» manual con la opción «Incluir identidad» marcada."
+
+msgid "auto_backup_activation_mode_recovery_code"
+msgstr "Usar mi código de recuperación"
+
+msgid "auto_backup_activation_mode_recovery_code_hint"
+msgstr "El código de recuperación de su directorio hub. Recomendado si ya tiene uno."
+
+msgid "auto_backup_activation_mode_passphrase"
+msgstr "Definir una contraseña específica"
+
+msgid "auto_backup_activation_mode_passphrase_hint"
+msgstr "Distinta del código de recuperación, dedicada a sus copias locales."
+
+msgid "auto_backup_activation_recovery_code_box_label"
+msgstr "Su código de recuperación"
+
+msgid "auto_backup_activation_recovery_code_save_advice"
+msgstr "Anótelo y guárdelo en un lugar seguro. Lo necesitará para restaurar sus archivos en otro dispositivo."
+
+msgid "auto_backup_activation_recovery_code_missing"
+msgstr "Aún no se ha generado ningún código de recuperación. Configure su directorio hub para obtener uno o elija una contraseña a continuación."
+
+msgid "auto_backup_activation_passphrase_label"
+msgstr "Contraseña"
+
+msgid "auto_backup_activation_passphrase_confirm_label"
+msgstr "Confirmar contraseña"
+
+msgid "auto_backup_activation_passphrase_save_advice"
+msgstr "Al menos {min} caracteres. Memorícela; no podremos recuperarla si la olvida."
+
+msgid "auto_backup_activation_passphrase_too_short"
+msgstr "La contraseña debe tener al menos {min} caracteres."
+
+msgid "auto_backup_activation_passphrase_mismatch"
+msgstr "Las dos contraseñas no coinciden."
+
+msgid "auto_backup_activation_activate"
+msgstr "Activar"
+
+#. Auto-backup clone-export nudge banner: surfaces in the bottom sheet
+#. when the user has been on auto-backup for a while without a recent
+#. clone-mode export (ADR-037 §6).
+msgid "auto_backup_clone_nudge_title"
+msgstr "Considere un export completo con identidad"
+
+msgid "auto_backup_clone_nudge_body"
+msgstr "La copia automática solo cubre su catálogo. Para migrar a un nuevo dispositivo sin rehacer el emparejamiento E2EE con sus pares, ejecute periódicamente una «Copia completa» con la opción «Incluir identidad» marcada y guarde el archivo fuera del dispositivo (iCloud Drive, USB cifrado, etc.)."
+
+msgid "auto_backup_clone_nudge_export"
+msgstr "Exportar ahora"
+
+msgid "auto_backup_clone_nudge_snooze"
+msgstr "Más tarde"
 

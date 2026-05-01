@@ -7369,13 +7369,13 @@ msgstr "Export my catalog"
 msgid "backup_export_catalog_subtitle"
 msgstr "Portable, shareable file for archival or import into another application. Contains books, authors, tags, collections and contacts."
 
-#. Settings - Backup: full backup tile title (coming soon)
+#. Settings - Backup: full backup tile title
 msgid "backup_full_title"
 msgstr "Full backup"
 
-#. Settings - Backup: full backup tile subtitle (coming soon)
+#. Settings - Backup: full backup tile subtitle
 msgid "backup_full_subtitle"
-msgstr "Encrypted archive to fully restore your library on this or another device. Coming soon."
+msgstr "Encrypted archive to fully restore your library on this or another device. Tick \"Include identity\" to migrate to a new device without redoing the E2EE pairing with your peers."
 
 #. Settings - Backup: snackbar shown when tapping the disabled full backup tile
 msgid "backup_full_unavailable"
@@ -9445,6 +9445,21 @@ msgstr "Rollback backup"
 msgid "wizard_restore_error_unreadable"
 msgstr "Unreadable archive: {error}"
 
+#. Wizard: shown on the mode step when the wizard auto-unlocked using
+#. the recovery code or passphrase already in secure storage (typical
+#. same-device auto-backup restore).
+msgid "wizard_restore_auto_unlocked_recovery_code"
+msgstr "Auto-unlocked with your recovery code"
+
+msgid "wizard_restore_auto_unlocked_passphrase"
+msgstr "Auto-unlocked with your backup password"
+
+#. Wizard: shown on the secret step when the auto-unlock attempt failed
+#. (stored secret no longer matches this archive). User is asked to
+#. type the original secret manually.
+msgid "wizard_restore_secret_auto_unlock_failed"
+msgstr "The secret stored on this device no longer matches this archive (recovery code or password changed?). Type the original secret manually."
+
 msgid "wizard_restore_error_bad_secret"
 msgstr "Incorrect code or corrupted archive."
 
@@ -9468,17 +9483,179 @@ msgid "backup_restore_full_subtitle"
 msgstr "Import a .bgbackup archive to replace or merge with your current library."
 
 msgid "backup_rollback_title"
-msgstr "Restore previous version"
+msgstr "Undo recent restore"
 
 msgid "backup_rollback_subtitle"
-msgstr "Rollback backup created {age_hours}h ago (expires in {remaining_hours}h). Restoring reverts to the state before your last restore."
+msgstr "Revert to the state from before your last restore. Still possible for {remaining_hours} h (backup created {age_hours} h ago)."
 
 msgid "backup_rollback_dialog_title"
-msgstr "Restore previous version?"
+msgstr "Undo the last restore?"
 
 msgid "backup_rollback_dialog_message"
-msgstr "Your current library (from the last restore) will be moved aside for 24h, then your previous state will be put back. The app will then close: relaunch it to finish."
+msgstr "The state from your last restore will be moved aside for 24 h, then the library you had right before that restore will be put back. The app will close: relaunch it to finish."
+
+#. Inline button on the rollback tile (auto-backup card + settings).
+msgid "backup_rollback_button_undo"
+msgstr "Undo"
+
+#. Confirm button in the rollback dialog. Spelled out so it does not
+#. collide with the dialog's "Cancel" button.
+msgid "backup_rollback_dialog_confirm"
+msgstr "Undo restore"
 
 msgid "backup_rollback_error"
-msgstr "Rollback failed: {error}"
+msgstr "Could not undo restore: {error}"
+
+#. Auto-backup (ADR-037 §6) - status badge titles + subtitles
+msgid "auto_backup_status_title_never"
+msgstr "No backup yet"
+
+msgid "auto_backup_status_title_with_age"
+msgstr "Last backup on this device: {age}"
+
+msgid "auto_backup_status_subtitle_amber"
+msgstr "Consider checking the auto-backup."
+
+msgid "auto_backup_status_subtitle_red"
+msgstr "Your data has not been protected recently."
+
+msgid "auto_backup_status_subtitle_never_enabled"
+msgstr "Auto-backup will produce its first archive shortly."
+
+msgid "auto_backup_status_subtitle_disabled"
+msgstr "Auto-backup is disabled."
+
+#. Auto-backup - relative-age formatting (Dart computes the value, .po
+#. supplies the unit). {n} is a non-negative integer.
+msgid "auto_backup_age_minutes"
+msgstr "{n} min ago"
+
+msgid "auto_backup_age_hours"
+msgstr "{n} h ago"
+
+msgid "auto_backup_age_days"
+msgstr "{n} d ago"
+
+#. Auto-backup bottom sheet (opened from the status badge)
+msgid "auto_backup_sheet_title"
+msgstr "Automatic backup"
+
+msgid "auto_backup_sheet_toggle_label"
+msgstr "Automatic backup every 24 h"
+
+msgid "auto_backup_sheet_toggle_subtitle"
+msgstr "Daily encrypted snapshot of the catalog, on this device only (undoable for 24 h). Not a cross-device migration."
+
+msgid "auto_backup_sheet_run_now"
+msgstr "Back up now"
+
+msgid "auto_backup_sheet_section_archives"
+msgstr "Auto-backups on this device"
+
+msgid "auto_backup_sheet_no_archives"
+msgstr "No auto-backup on this device yet."
+
+msgid "auto_backup_sheet_restore_archive"
+msgstr "Restore"
+
+msgid "auto_backup_sheet_clear_all"
+msgstr "Clear auto-backups"
+
+msgid "auto_backup_sheet_clear_confirm_title"
+msgstr "Delete all auto-backups?"
+
+msgid "auto_backup_sheet_clear_confirm_message"
+msgstr "This action cannot be undone."
+
+msgid "auto_backup_sheet_rollback_subtitle_hours_left"
+msgstr "Revert to the state from before your last restore. Still possible for {hours} h."
+
+#. Auto-backup - dialog shown when toggling on without a recovery code
+msgid "auto_backup_recovery_code_required_title"
+msgstr "Recovery code required"
+
+msgid "auto_backup_recovery_code_required_message"
+msgstr "Auto-backup encrypts your archives with your recovery code. Set up your hub directory first to obtain one, then come back here to enable."
+
+#. Auto-backup - SnackBars after manual run / restore-from-list
+msgid "auto_backup_restore_archive_hint"
+msgstr "To restore {path}, open Restore a backup and select this file."
+
+msgid "auto_backup_run_skipped_unchanged"
+msgstr "No change since the last backup."
+
+msgid "auto_backup_run_disabled"
+msgstr "Auto-backup is disabled."
+
+msgid "auto_backup_run_no_secret"
+msgstr "Recovery code missing; cannot encrypt the archive."
+
+msgid "auto_backup_run_failed"
+msgstr "Backup failed. See logs for details."
+
+msgid "auto_backup_run_ok"
+msgstr "Backup successful."
+
+#. Auto-backup activation sheet (ADR-037 §6) - shown on every off->on
+#. toggle so the user picks (and sees) the secret used to encrypt
+#. archives before the first one is produced.
+msgid "auto_backup_activation_title"
+msgstr "Enable automatic backup"
+
+msgid "auto_backup_activation_explanation"
+msgstr "Auto-backup takes an encrypted snapshot of your catalog (books, copies, loans, contacts) so you can roll back on this device. It does not include your E2EE identity: to migrate to a new device without redoing the pairing with your peers, run a manual \"Full backup\" with \"Include identity\" ticked."
+
+msgid "auto_backup_activation_mode_recovery_code"
+msgstr "Use my recovery code"
+
+msgid "auto_backup_activation_mode_recovery_code_hint"
+msgstr "The recovery code from your hub directory. Recommended if you already have one."
+
+msgid "auto_backup_activation_mode_passphrase"
+msgstr "Set a dedicated password"
+
+msgid "auto_backup_activation_mode_passphrase_hint"
+msgstr "Distinct from the recovery code, dedicated to your local backups."
+
+msgid "auto_backup_activation_recovery_code_box_label"
+msgstr "Your recovery code"
+
+msgid "auto_backup_activation_recovery_code_save_advice"
+msgstr "Write it down and keep it safe. You will need it to restore your archives on another device."
+
+msgid "auto_backup_activation_recovery_code_missing"
+msgstr "No recovery code has been generated yet. Set up your hub directory to obtain one, or choose a password below."
+
+msgid "auto_backup_activation_passphrase_label"
+msgstr "Password"
+
+msgid "auto_backup_activation_passphrase_confirm_label"
+msgstr "Confirm password"
+
+msgid "auto_backup_activation_passphrase_save_advice"
+msgstr "At least {min} characters. Memorize it; we cannot recover it if you forget."
+
+msgid "auto_backup_activation_passphrase_too_short"
+msgstr "Password must be at least {min} characters."
+
+msgid "auto_backup_activation_passphrase_mismatch"
+msgstr "The two passwords do not match."
+
+msgid "auto_backup_activation_activate"
+msgstr "Enable"
+
+#. Auto-backup clone-export nudge banner: surfaces in the bottom sheet
+#. when the user has been on auto-backup for a while without a recent
+#. clone-mode export (ADR-037 §6).
+msgid "auto_backup_clone_nudge_title"
+msgstr "Consider a full export with identity"
+
+msgid "auto_backup_clone_nudge_body"
+msgstr "Auto-backup only covers your catalog. To migrate to a new device without redoing the E2EE pairing with your peers, periodically run a \"Full backup\" with \"Include identity\" ticked and keep the file off-device (iCloud Drive, encrypted USB, etc.)."
+
+msgid "auto_backup_clone_nudge_export"
+msgstr "Export now"
+
+msgid "auto_backup_clone_nudge_snooze"
+msgstr "Later"
 

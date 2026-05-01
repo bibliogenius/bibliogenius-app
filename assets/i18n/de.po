@@ -9132,6 +9132,21 @@ msgstr "Archiv nicht lesbar: {error}"
 msgid "wizard_restore_error_bad_secret"
 msgstr "Falscher Code oder beschädigtes Archiv."
 
+#. Wizard: shown on the mode step when the wizard auto-unlocked using
+#. the recovery code or passphrase already in secure storage (typical
+#. same-device auto-backup restore).
+msgid "wizard_restore_auto_unlocked_recovery_code"
+msgstr "Automatisch mit Ihrem Wiederherstellungscode entsperrt"
+
+msgid "wizard_restore_auto_unlocked_passphrase"
+msgstr "Automatisch mit Ihrem Sicherungspasswort entsperrt"
+
+#. Wizard: shown on the secret step when the auto-unlock attempt failed
+#. (stored secret no longer matches this archive). User is asked to
+#. type the original secret manually.
+msgid "wizard_restore_secret_auto_unlock_failed"
+msgstr "Das auf diesem Gerät gespeicherte Geheimnis stimmt nicht mehr mit diesem Archiv überein (Wiederherstellungscode oder Passwort geändert?). Geben Sie das ursprüngliche Geheimnis manuell ein."
+
 msgid "wizard_restore_error_schema_too_new"
 msgstr "Diese Sicherung wurde von einer neueren Version von BiblioGenius erstellt (Schema {schema}, aktuell {current}). Aktualisieren Sie die App vor der Wiederherstellung."
 
@@ -9152,17 +9167,179 @@ msgid "backup_restore_full_subtitle"
 msgstr "Ein .bgbackup-Archiv importieren, um Ihre aktuelle Bibliothek zu ersetzen oder zusammenzuführen."
 
 msgid "backup_rollback_title"
-msgstr "Vorherige Version wiederherstellen"
+msgstr "Letzte Wiederherstellung rückgängig machen"
 
 msgid "backup_rollback_subtitle"
-msgstr "Rollback-Sicherung vor {age_hours} Std. erstellt (läuft in {remaining_hours} Std. ab). Wiederherstellen kehrt zum Zustand vor Ihrer letzten Wiederherstellung zurück."
+msgstr "Zum Zustand vor Ihrer letzten Wiederherstellung zurückkehren. Noch {remaining_hours} Std. möglich (Sicherung vor {age_hours} Std. erstellt)."
 
 msgid "backup_rollback_dialog_title"
-msgstr "Vorherige Version wiederherstellen?"
+msgstr "Letzte Wiederherstellung rückgängig machen?"
 
 msgid "backup_rollback_dialog_message"
-msgstr "Ihre aktuelle Bibliothek (aus der letzten Wiederherstellung) wird 24 Std. beiseite gelegt, dann wird Ihr vorheriger Zustand wiederhergestellt. Die App wird dann geschlossen: starten Sie sie zum Abschluss neu."
+msgstr "Der Zustand aus Ihrer letzten Wiederherstellung wird 24 Std. beiseite gelegt, dann wird die Bibliothek wiederhergestellt, die Sie unmittelbar davor hatten. Die App wird geschlossen: starten Sie sie zum Abschluss neu."
+
+#. Inline button on the rollback tile (auto-backup card + settings).
+msgid "backup_rollback_button_undo"
+msgstr "Rückgängig"
+
+#. Confirm button in the rollback dialog. Spelled out so it does not
+#. collide with the dialog's "Abbrechen" (cancel) button.
+msgid "backup_rollback_dialog_confirm"
+msgstr "Wiederherstellung rückgängig machen"
 
 msgid "backup_rollback_error"
-msgstr "Rollback fehlgeschlagen: {error}"
+msgstr "Rückgängig machen fehlgeschlagen: {error}"
+
+#. Auto-backup (ADR-037 §6) - status badge titles + subtitles
+msgid "auto_backup_status_title_never"
+msgstr "Noch keine Sicherung"
+
+msgid "auto_backup_status_title_with_age"
+msgstr "Letzte Sicherung auf diesem Gerät: {age}"
+
+msgid "auto_backup_status_subtitle_amber"
+msgstr "Auto-Sicherung sollte überprüft werden."
+
+msgid "auto_backup_status_subtitle_red"
+msgstr "Ihre Daten sind nicht aktuell gesichert."
+
+msgid "auto_backup_status_subtitle_never_enabled"
+msgstr "Die Auto-Sicherung erstellt in Kürze ihr erstes Archiv."
+
+msgid "auto_backup_status_subtitle_disabled"
+msgstr "Auto-Sicherung ist deaktiviert."
+
+#. Auto-backup - relative-age formatting (Dart computes the value, .po
+#. supplies the unit). {n} is a non-negative integer.
+msgid "auto_backup_age_minutes"
+msgstr "vor {n} Min."
+
+msgid "auto_backup_age_hours"
+msgstr "vor {n} Std."
+
+msgid "auto_backup_age_days"
+msgstr "vor {n} T."
+
+#. Auto-backup bottom sheet (opened from the status badge)
+msgid "auto_backup_sheet_title"
+msgstr "Automatische Sicherung"
+
+msgid "auto_backup_sheet_toggle_label"
+msgstr "Automatische Sicherung alle 24 Std."
+
+msgid "auto_backup_sheet_toggle_subtitle"
+msgstr "Täglicher verschlüsselter Snapshot des Katalogs, nur auf diesem Gerät (24 Std. lang rückgängig zu machen). Keine geräteübergreifende Migration."
+
+msgid "auto_backup_sheet_run_now"
+msgstr "Jetzt sichern"
+
+msgid "auto_backup_sheet_section_archives"
+msgstr "Auto-Sicherungen auf diesem Gerät"
+
+msgid "auto_backup_sheet_no_archives"
+msgstr "Noch keine Auto-Sicherung auf diesem Gerät."
+
+msgid "auto_backup_sheet_restore_archive"
+msgstr "Wiederherstellen"
+
+msgid "auto_backup_sheet_clear_all"
+msgstr "Auto-Sicherungen leeren"
+
+msgid "auto_backup_sheet_clear_confirm_title"
+msgstr "Alle Auto-Sicherungen löschen?"
+
+msgid "auto_backup_sheet_clear_confirm_message"
+msgstr "Diese Aktion kann nicht rückgängig gemacht werden."
+
+msgid "auto_backup_sheet_rollback_subtitle_hours_left"
+msgstr "Zum Zustand vor Ihrer letzten Wiederherstellung zurückkehren. Noch {hours} Std. möglich."
+
+#. Auto-backup - dialog shown when toggling on without a recovery code
+msgid "auto_backup_recovery_code_required_title"
+msgstr "Wiederherstellungscode erforderlich"
+
+msgid "auto_backup_recovery_code_required_message"
+msgstr "Die Auto-Sicherung verschlüsselt Ihre Archive mit Ihrem Wiederherstellungscode. Richten Sie zuerst Ihr Hub-Verzeichnis ein, um einen zu erhalten, und kehren Sie dann zurück, um zu aktivieren."
+
+#. Auto-backup - SnackBars after manual run / restore-from-list
+msgid "auto_backup_restore_archive_hint"
+msgstr "Um {path} wiederherzustellen, öffnen Sie Sicherung wiederherstellen und wählen Sie diese Datei aus."
+
+msgid "auto_backup_run_skipped_unchanged"
+msgstr "Keine Änderung seit der letzten Sicherung."
+
+msgid "auto_backup_run_disabled"
+msgstr "Auto-Sicherung ist deaktiviert."
+
+msgid "auto_backup_run_no_secret"
+msgstr "Wiederherstellungscode fehlt; Archiv kann nicht verschlüsselt werden."
+
+msgid "auto_backup_run_failed"
+msgstr "Sicherung fehlgeschlagen. Details siehe Logs."
+
+msgid "auto_backup_run_ok"
+msgstr "Sicherung erfolgreich."
+
+#. Auto-backup activation sheet (ADR-037 §6) - shown on every off->on
+#. toggle so the user picks (and sees) the secret used to encrypt
+#. archives before the first one is produced.
+msgid "auto_backup_activation_title"
+msgstr "Auto-Sicherung aktivieren"
+
+msgid "auto_backup_activation_explanation"
+msgstr "Auto-Sicherung erstellt einen verschlüsselten Snapshot Ihres Katalogs (Bücher, Exemplare, Ausleihen, Kontakte), um auf diesem Gerät zurückzurollen. Sie enthält nicht Ihre E2EE-Identität: für die Migration auf ein neues Gerät ohne erneutes Pairing mit Ihren Peers, führen Sie eine manuelle „Vollständige Sicherung" mit aktivierter Option „Identität einbeziehen" aus."
+
+msgid "auto_backup_activation_mode_recovery_code"
+msgstr "Meinen Wiederherstellungscode verwenden"
+
+msgid "auto_backup_activation_mode_recovery_code_hint"
+msgstr "Der Wiederherstellungscode aus Ihrem Hub-Verzeichnis. Empfohlen, wenn Sie bereits einen haben."
+
+msgid "auto_backup_activation_mode_passphrase"
+msgstr "Ein dediziertes Passwort festlegen"
+
+msgid "auto_backup_activation_mode_passphrase_hint"
+msgstr "Getrennt vom Wiederherstellungscode, ausschließlich für Ihre lokalen Sicherungen."
+
+msgid "auto_backup_activation_recovery_code_box_label"
+msgstr "Ihr Wiederherstellungscode"
+
+msgid "auto_backup_activation_recovery_code_save_advice"
+msgstr "Notieren Sie ihn und bewahren Sie ihn sicher auf. Sie benötigen ihn, um Ihre Archive auf einem anderen Gerät wiederherzustellen."
+
+msgid "auto_backup_activation_recovery_code_missing"
+msgstr "Es wurde noch kein Wiederherstellungscode erstellt. Richten Sie Ihr Hub-Verzeichnis ein, um einen zu erhalten, oder wählen Sie unten ein Passwort."
+
+msgid "auto_backup_activation_passphrase_label"
+msgstr "Passwort"
+
+msgid "auto_backup_activation_passphrase_confirm_label"
+msgstr "Passwort bestätigen"
+
+msgid "auto_backup_activation_passphrase_save_advice"
+msgstr "Mindestens {min} Zeichen. Merken Sie es sich; wir können es nicht wiederherstellen, falls Sie es vergessen."
+
+msgid "auto_backup_activation_passphrase_too_short"
+msgstr "Das Passwort muss mindestens {min} Zeichen lang sein."
+
+msgid "auto_backup_activation_passphrase_mismatch"
+msgstr "Die beiden Passwörter stimmen nicht überein."
+
+msgid "auto_backup_activation_activate"
+msgstr "Aktivieren"
+
+#. Auto-backup clone-export nudge banner: surfaces in the bottom sheet
+#. when the user has been on auto-backup for a while without a recent
+#. clone-mode export (ADR-037 §6).
+msgid "auto_backup_clone_nudge_title"
+msgstr "Erwägen Sie einen Vollexport mit Identität"
+
+msgid "auto_backup_clone_nudge_body"
+msgstr "Die Auto-Sicherung umfasst nur Ihren Katalog. Um auf ein neues Gerät zu migrieren ohne das E2EE-Pairing mit Ihren Peers zu wiederholen, führen Sie regelmäßig eine „Vollständige Sicherung" mit aktivierter Option „Identität einbeziehen" aus und bewahren Sie die Datei extern auf (iCloud Drive, verschlüsselter USB-Stick usw.)."
+
+msgid "auto_backup_clone_nudge_export"
+msgstr "Jetzt exportieren"
+
+msgid "auto_backup_clone_nudge_snooze"
+msgstr "Später"
 

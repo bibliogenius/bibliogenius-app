@@ -10,9 +10,17 @@ class BackupReminderService {
   static const String _lastVersionKey = 'last_app_version';
   static const String _lastReminderKey = 'last_backup_reminder';
 
-  /// Check if we should show a backup reminder
-  /// Returns true if a major/minor version change is detected
-  static Future<bool> shouldShowReminder() async {
+  /// Check if we should show a backup reminder.
+  ///
+  /// Returns true on a major/minor version bump UNLESS the auto-backup
+  /// scheduler (ADR-037 §6) is active and produced an archive within the
+  /// last 7 days -- in that case the reminder is redundant. Caller passes
+  /// the scheduler state from Provider; passing nothing falls back to the
+  /// pre-ADR-037 behaviour.
+  static Future<bool> shouldShowReminder({
+    bool autoBackupEnabled = false,
+    DateTime? lastAutoBackupTs,
+  }) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final packageInfo = await PackageInfo.fromPlatform();
@@ -26,12 +34,22 @@ class BackupReminderService {
         return false;
       }
 
-      // Check if major or minor version changed
-      if (_isSignificantUpdate(lastVersion, currentVersion)) {
-        return true;
+      if (!_isSignificantUpdate(lastVersion, currentVersion)) {
+        return false;
       }
 
-      return false;
+      if (autoBackupEnabled && lastAutoBackupTs != null) {
+        final age = DateTime.now().difference(lastAutoBackupTs);
+        if (age < const Duration(days: 7)) {
+          // Auto-backup recently produced a fresh archive; the version-bump
+          // dialog would only annoy the user. Mark the version as
+          // acknowledged so we don't re-evaluate on every screen rebuild.
+          await acknowledgeVersion();
+          return false;
+        }
+      }
+
+      return true;
     } catch (e) {
       debugPrint('BackupReminderService error: $e');
       return false;

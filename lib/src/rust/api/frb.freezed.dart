@@ -6087,7 +6087,7 @@ as String,
 /// @nodoc
 mixin _$FrbRestoreSummary {
 
- String get mode; bool get identityRestored; String? get restoredLibraryUuid; String get libraryUuidAction; String get prefsJson; String? get rollbackPath; PlatformInt64 get booksAfter; PlatformInt64 get copiesAfter; PlatformInt64 get contactsAfter; PlatformInt64 get coversRestored;
+ String get mode; bool get identityRestored; bool get sameDevice; String? get restoredLibraryUuid; String get libraryUuidAction; String get prefsJson; String? get rollbackPath; PlatformInt64 get booksAfter; PlatformInt64 get copiesAfter; PlatformInt64 get contactsAfter; PlatformInt64 get coversRestored;
 /// Create a copy of FrbRestoreSummary
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -6098,16 +6098,16 @@ $FrbRestoreSummaryCopyWith<FrbRestoreSummary> get copyWith => _$FrbRestoreSummar
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbRestoreSummary&&(identical(other.mode, mode) || other.mode == mode)&&(identical(other.identityRestored, identityRestored) || other.identityRestored == identityRestored)&&(identical(other.restoredLibraryUuid, restoredLibraryUuid) || other.restoredLibraryUuid == restoredLibraryUuid)&&(identical(other.libraryUuidAction, libraryUuidAction) || other.libraryUuidAction == libraryUuidAction)&&(identical(other.prefsJson, prefsJson) || other.prefsJson == prefsJson)&&(identical(other.rollbackPath, rollbackPath) || other.rollbackPath == rollbackPath)&&(identical(other.booksAfter, booksAfter) || other.booksAfter == booksAfter)&&(identical(other.copiesAfter, copiesAfter) || other.copiesAfter == copiesAfter)&&(identical(other.contactsAfter, contactsAfter) || other.contactsAfter == contactsAfter)&&(identical(other.coversRestored, coversRestored) || other.coversRestored == coversRestored));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbRestoreSummary&&(identical(other.mode, mode) || other.mode == mode)&&(identical(other.identityRestored, identityRestored) || other.identityRestored == identityRestored)&&(identical(other.sameDevice, sameDevice) || other.sameDevice == sameDevice)&&(identical(other.restoredLibraryUuid, restoredLibraryUuid) || other.restoredLibraryUuid == restoredLibraryUuid)&&(identical(other.libraryUuidAction, libraryUuidAction) || other.libraryUuidAction == libraryUuidAction)&&(identical(other.prefsJson, prefsJson) || other.prefsJson == prefsJson)&&(identical(other.rollbackPath, rollbackPath) || other.rollbackPath == rollbackPath)&&(identical(other.booksAfter, booksAfter) || other.booksAfter == booksAfter)&&(identical(other.copiesAfter, copiesAfter) || other.copiesAfter == copiesAfter)&&(identical(other.contactsAfter, contactsAfter) || other.contactsAfter == contactsAfter)&&(identical(other.coversRestored, coversRestored) || other.coversRestored == coversRestored));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,mode,identityRestored,restoredLibraryUuid,libraryUuidAction,prefsJson,rollbackPath,booksAfter,copiesAfter,contactsAfter,coversRestored);
+int get hashCode => Object.hash(runtimeType,mode,identityRestored,sameDevice,restoredLibraryUuid,libraryUuidAction,prefsJson,rollbackPath,booksAfter,copiesAfter,contactsAfter,coversRestored);
 
 @override
 String toString() {
-  return 'FrbRestoreSummary(mode: $mode, identityRestored: $identityRestored, restoredLibraryUuid: $restoredLibraryUuid, libraryUuidAction: $libraryUuidAction, prefsJson: $prefsJson, rollbackPath: $rollbackPath, booksAfter: $booksAfter, copiesAfter: $copiesAfter, contactsAfter: $contactsAfter, coversRestored: $coversRestored)';
+  return 'FrbRestoreSummary(mode: $mode, identityRestored: $identityRestored, sameDevice: $sameDevice, restoredLibraryUuid: $restoredLibraryUuid, libraryUuidAction: $libraryUuidAction, prefsJson: $prefsJson, rollbackPath: $rollbackPath, booksAfter: $booksAfter, copiesAfter: $copiesAfter, contactsAfter: $contactsAfter, coversRestored: $coversRestored)';
 }
 
 
@@ -6118,7 +6118,7 @@ abstract mixin class $FrbRestoreSummaryCopyWith<$Res>  {
   factory $FrbRestoreSummaryCopyWith(FrbRestoreSummary value, $Res Function(FrbRestoreSummary) _then) = _$FrbRestoreSummaryCopyWithImpl;
 @useResult
 $Res call({
- String mode, bool identityRestored, String? restoredLibraryUuid, String libraryUuidAction, String prefsJson, String? rollbackPath, PlatformInt64 booksAfter, PlatformInt64 copiesAfter, PlatformInt64 contactsAfter, PlatformInt64 coversRestored
+ String mode, bool identityRestored, bool sameDevice, String? restoredLibraryUuid, String libraryUuidAction, String prefsJson, String? rollbackPath, PlatformInt64 booksAfter, PlatformInt64 copiesAfter, PlatformInt64 contactsAfter, PlatformInt64 coversRestored
 });
 
 
@@ -6135,10 +6135,11 @@ class _$FrbRestoreSummaryCopyWithImpl<$Res>
 
 /// Create a copy of FrbRestoreSummary
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? mode = null,Object? identityRestored = null,Object? restoredLibraryUuid = freezed,Object? libraryUuidAction = null,Object? prefsJson = null,Object? rollbackPath = freezed,Object? booksAfter = null,Object? copiesAfter = null,Object? contactsAfter = null,Object? coversRestored = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? mode = null,Object? identityRestored = null,Object? sameDevice = null,Object? restoredLibraryUuid = freezed,Object? libraryUuidAction = null,Object? prefsJson = null,Object? rollbackPath = freezed,Object? booksAfter = null,Object? copiesAfter = null,Object? contactsAfter = null,Object? coversRestored = null,}) {
   return _then(_self.copyWith(
 mode: null == mode ? _self.mode : mode // ignore: cast_nullable_to_non_nullable
 as String,identityRestored: null == identityRestored ? _self.identityRestored : identityRestored // ignore: cast_nullable_to_non_nullable
+as bool,sameDevice: null == sameDevice ? _self.sameDevice : sameDevice // ignore: cast_nullable_to_non_nullable
 as bool,restoredLibraryUuid: freezed == restoredLibraryUuid ? _self.restoredLibraryUuid : restoredLibraryUuid // ignore: cast_nullable_to_non_nullable
 as String?,libraryUuidAction: null == libraryUuidAction ? _self.libraryUuidAction : libraryUuidAction // ignore: cast_nullable_to_non_nullable
 as String,prefsJson: null == prefsJson ? _self.prefsJson : prefsJson // ignore: cast_nullable_to_non_nullable
@@ -6229,10 +6230,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String mode,  bool identityRestored,  String? restoredLibraryUuid,  String libraryUuidAction,  String prefsJson,  String? rollbackPath,  PlatformInt64 booksAfter,  PlatformInt64 copiesAfter,  PlatformInt64 contactsAfter,  PlatformInt64 coversRestored)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String mode,  bool identityRestored,  bool sameDevice,  String? restoredLibraryUuid,  String libraryUuidAction,  String prefsJson,  String? rollbackPath,  PlatformInt64 booksAfter,  PlatformInt64 copiesAfter,  PlatformInt64 contactsAfter,  PlatformInt64 coversRestored)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _FrbRestoreSummary() when $default != null:
-return $default(_that.mode,_that.identityRestored,_that.restoredLibraryUuid,_that.libraryUuidAction,_that.prefsJson,_that.rollbackPath,_that.booksAfter,_that.copiesAfter,_that.contactsAfter,_that.coversRestored);case _:
+return $default(_that.mode,_that.identityRestored,_that.sameDevice,_that.restoredLibraryUuid,_that.libraryUuidAction,_that.prefsJson,_that.rollbackPath,_that.booksAfter,_that.copiesAfter,_that.contactsAfter,_that.coversRestored);case _:
   return orElse();
 
 }
@@ -6250,10 +6251,10 @@ return $default(_that.mode,_that.identityRestored,_that.restoredLibraryUuid,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String mode,  bool identityRestored,  String? restoredLibraryUuid,  String libraryUuidAction,  String prefsJson,  String? rollbackPath,  PlatformInt64 booksAfter,  PlatformInt64 copiesAfter,  PlatformInt64 contactsAfter,  PlatformInt64 coversRestored)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String mode,  bool identityRestored,  bool sameDevice,  String? restoredLibraryUuid,  String libraryUuidAction,  String prefsJson,  String? rollbackPath,  PlatformInt64 booksAfter,  PlatformInt64 copiesAfter,  PlatformInt64 contactsAfter,  PlatformInt64 coversRestored)  $default,) {final _that = this;
 switch (_that) {
 case _FrbRestoreSummary():
-return $default(_that.mode,_that.identityRestored,_that.restoredLibraryUuid,_that.libraryUuidAction,_that.prefsJson,_that.rollbackPath,_that.booksAfter,_that.copiesAfter,_that.contactsAfter,_that.coversRestored);}
+return $default(_that.mode,_that.identityRestored,_that.sameDevice,_that.restoredLibraryUuid,_that.libraryUuidAction,_that.prefsJson,_that.rollbackPath,_that.booksAfter,_that.copiesAfter,_that.contactsAfter,_that.coversRestored);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -6267,10 +6268,10 @@ return $default(_that.mode,_that.identityRestored,_that.restoredLibraryUuid,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String mode,  bool identityRestored,  String? restoredLibraryUuid,  String libraryUuidAction,  String prefsJson,  String? rollbackPath,  PlatformInt64 booksAfter,  PlatformInt64 copiesAfter,  PlatformInt64 contactsAfter,  PlatformInt64 coversRestored)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String mode,  bool identityRestored,  bool sameDevice,  String? restoredLibraryUuid,  String libraryUuidAction,  String prefsJson,  String? rollbackPath,  PlatformInt64 booksAfter,  PlatformInt64 copiesAfter,  PlatformInt64 contactsAfter,  PlatformInt64 coversRestored)?  $default,) {final _that = this;
 switch (_that) {
 case _FrbRestoreSummary() when $default != null:
-return $default(_that.mode,_that.identityRestored,_that.restoredLibraryUuid,_that.libraryUuidAction,_that.prefsJson,_that.rollbackPath,_that.booksAfter,_that.copiesAfter,_that.contactsAfter,_that.coversRestored);case _:
+return $default(_that.mode,_that.identityRestored,_that.sameDevice,_that.restoredLibraryUuid,_that.libraryUuidAction,_that.prefsJson,_that.rollbackPath,_that.booksAfter,_that.copiesAfter,_that.contactsAfter,_that.coversRestored);case _:
   return null;
 
 }
@@ -6282,11 +6283,12 @@ return $default(_that.mode,_that.identityRestored,_that.restoredLibraryUuid,_tha
 
 
 class _FrbRestoreSummary implements FrbRestoreSummary {
-  const _FrbRestoreSummary({required this.mode, required this.identityRestored, this.restoredLibraryUuid, required this.libraryUuidAction, required this.prefsJson, this.rollbackPath, required this.booksAfter, required this.copiesAfter, required this.contactsAfter, required this.coversRestored});
+  const _FrbRestoreSummary({required this.mode, required this.identityRestored, required this.sameDevice, this.restoredLibraryUuid, required this.libraryUuidAction, required this.prefsJson, this.rollbackPath, required this.booksAfter, required this.copiesAfter, required this.contactsAfter, required this.coversRestored});
   
 
 @override final  String mode;
 @override final  bool identityRestored;
+@override final  bool sameDevice;
 @override final  String? restoredLibraryUuid;
 @override final  String libraryUuidAction;
 @override final  String prefsJson;
@@ -6306,16 +6308,16 @@ _$FrbRestoreSummaryCopyWith<_FrbRestoreSummary> get copyWith => __$FrbRestoreSum
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbRestoreSummary&&(identical(other.mode, mode) || other.mode == mode)&&(identical(other.identityRestored, identityRestored) || other.identityRestored == identityRestored)&&(identical(other.restoredLibraryUuid, restoredLibraryUuid) || other.restoredLibraryUuid == restoredLibraryUuid)&&(identical(other.libraryUuidAction, libraryUuidAction) || other.libraryUuidAction == libraryUuidAction)&&(identical(other.prefsJson, prefsJson) || other.prefsJson == prefsJson)&&(identical(other.rollbackPath, rollbackPath) || other.rollbackPath == rollbackPath)&&(identical(other.booksAfter, booksAfter) || other.booksAfter == booksAfter)&&(identical(other.copiesAfter, copiesAfter) || other.copiesAfter == copiesAfter)&&(identical(other.contactsAfter, contactsAfter) || other.contactsAfter == contactsAfter)&&(identical(other.coversRestored, coversRestored) || other.coversRestored == coversRestored));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbRestoreSummary&&(identical(other.mode, mode) || other.mode == mode)&&(identical(other.identityRestored, identityRestored) || other.identityRestored == identityRestored)&&(identical(other.sameDevice, sameDevice) || other.sameDevice == sameDevice)&&(identical(other.restoredLibraryUuid, restoredLibraryUuid) || other.restoredLibraryUuid == restoredLibraryUuid)&&(identical(other.libraryUuidAction, libraryUuidAction) || other.libraryUuidAction == libraryUuidAction)&&(identical(other.prefsJson, prefsJson) || other.prefsJson == prefsJson)&&(identical(other.rollbackPath, rollbackPath) || other.rollbackPath == rollbackPath)&&(identical(other.booksAfter, booksAfter) || other.booksAfter == booksAfter)&&(identical(other.copiesAfter, copiesAfter) || other.copiesAfter == copiesAfter)&&(identical(other.contactsAfter, contactsAfter) || other.contactsAfter == contactsAfter)&&(identical(other.coversRestored, coversRestored) || other.coversRestored == coversRestored));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,mode,identityRestored,restoredLibraryUuid,libraryUuidAction,prefsJson,rollbackPath,booksAfter,copiesAfter,contactsAfter,coversRestored);
+int get hashCode => Object.hash(runtimeType,mode,identityRestored,sameDevice,restoredLibraryUuid,libraryUuidAction,prefsJson,rollbackPath,booksAfter,copiesAfter,contactsAfter,coversRestored);
 
 @override
 String toString() {
-  return 'FrbRestoreSummary(mode: $mode, identityRestored: $identityRestored, restoredLibraryUuid: $restoredLibraryUuid, libraryUuidAction: $libraryUuidAction, prefsJson: $prefsJson, rollbackPath: $rollbackPath, booksAfter: $booksAfter, copiesAfter: $copiesAfter, contactsAfter: $contactsAfter, coversRestored: $coversRestored)';
+  return 'FrbRestoreSummary(mode: $mode, identityRestored: $identityRestored, sameDevice: $sameDevice, restoredLibraryUuid: $restoredLibraryUuid, libraryUuidAction: $libraryUuidAction, prefsJson: $prefsJson, rollbackPath: $rollbackPath, booksAfter: $booksAfter, copiesAfter: $copiesAfter, contactsAfter: $contactsAfter, coversRestored: $coversRestored)';
 }
 
 
@@ -6326,7 +6328,7 @@ abstract mixin class _$FrbRestoreSummaryCopyWith<$Res> implements $FrbRestoreSum
   factory _$FrbRestoreSummaryCopyWith(_FrbRestoreSummary value, $Res Function(_FrbRestoreSummary) _then) = __$FrbRestoreSummaryCopyWithImpl;
 @override @useResult
 $Res call({
- String mode, bool identityRestored, String? restoredLibraryUuid, String libraryUuidAction, String prefsJson, String? rollbackPath, PlatformInt64 booksAfter, PlatformInt64 copiesAfter, PlatformInt64 contactsAfter, PlatformInt64 coversRestored
+ String mode, bool identityRestored, bool sameDevice, String? restoredLibraryUuid, String libraryUuidAction, String prefsJson, String? rollbackPath, PlatformInt64 booksAfter, PlatformInt64 copiesAfter, PlatformInt64 contactsAfter, PlatformInt64 coversRestored
 });
 
 
@@ -6343,10 +6345,11 @@ class __$FrbRestoreSummaryCopyWithImpl<$Res>
 
 /// Create a copy of FrbRestoreSummary
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? mode = null,Object? identityRestored = null,Object? restoredLibraryUuid = freezed,Object? libraryUuidAction = null,Object? prefsJson = null,Object? rollbackPath = freezed,Object? booksAfter = null,Object? copiesAfter = null,Object? contactsAfter = null,Object? coversRestored = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? mode = null,Object? identityRestored = null,Object? sameDevice = null,Object? restoredLibraryUuid = freezed,Object? libraryUuidAction = null,Object? prefsJson = null,Object? rollbackPath = freezed,Object? booksAfter = null,Object? copiesAfter = null,Object? contactsAfter = null,Object? coversRestored = null,}) {
   return _then(_FrbRestoreSummary(
 mode: null == mode ? _self.mode : mode // ignore: cast_nullable_to_non_nullable
 as String,identityRestored: null == identityRestored ? _self.identityRestored : identityRestored // ignore: cast_nullable_to_non_nullable
+as bool,sameDevice: null == sameDevice ? _self.sameDevice : sameDevice // ignore: cast_nullable_to_non_nullable
 as bool,restoredLibraryUuid: freezed == restoredLibraryUuid ? _self.restoredLibraryUuid : restoredLibraryUuid // ignore: cast_nullable_to_non_nullable
 as String?,libraryUuidAction: null == libraryUuidAction ? _self.libraryUuidAction : libraryUuidAction // ignore: cast_nullable_to_non_nullable
 as String,prefsJson: null == prefsJson ? _self.prefsJson : prefsJson // ignore: cast_nullable_to_non_nullable

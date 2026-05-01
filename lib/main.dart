@@ -13,6 +13,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'services/auth_service.dart';
 import 'services/api_service.dart';
+import 'services/backup_scheduler_service.dart';
 import 'services/sync_service.dart';
 import 'services/translation_service.dart';
 import 'services/mdns_service.dart';
@@ -441,8 +442,26 @@ void main([List<String>? args]) async {
 
   // Settings already loaded earlier, no need to call again
 
+  // ADR-037 §6 auto-backup scheduler: instantiated here so it lives the
+  // whole app lifetime, fed real FFI (latestUserDataChangeAtFfi +
+  // writeBackupFfi). FFI mode only -- HTTP backend has no local DB to
+  // back up. `initialize` registers the lifecycle observer + periodic
+  // timer + runs a catch-up tick when enabled (toggle defaults to off).
+  final backupScheduler = BackupSchedulerService.production(
+    prefs: await SharedPreferences.getInstance(),
+    authService: AuthService(),
+  );
+  if (useFfi) {
+    unawaited(backupScheduler.initialize());
+  }
+
   runApp(
-    MyApp(themeProvider: themeProvider, useFfi: useFfi, envConfig: envConfig),
+    MyApp(
+      themeProvider: themeProvider,
+      useFfi: useFfi,
+      envConfig: envConfig,
+      backupScheduler: backupScheduler,
+    ),
   );
 }
 
@@ -450,12 +469,14 @@ class MyApp extends StatelessWidget {
   final ThemeProvider themeProvider;
   final bool useFfi;
   final Map<String, String> envConfig;
+  final BackupSchedulerService backupScheduler;
 
   const MyApp({
     super.key,
     required this.themeProvider,
     required this.useFfi,
     required this.envConfig,
+    required this.backupScheduler,
   });
 
   @override
@@ -512,6 +533,9 @@ class MyApp extends StatelessWidget {
     Widget app = MultiProvider(
       providers: [
         Provider<AvatarSyncService>.value(value: avatarSyncService),
+        ChangeNotifierProvider<BackupSchedulerService>.value(
+          value: backupScheduler,
+        ),
         ChangeNotifierProvider<ThemeProvider>.value(value: themeProvider),
         ChangeNotifierProvider<BookRefreshNotifier>.value(
           value: bookRefreshNotifier,

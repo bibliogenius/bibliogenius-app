@@ -4520,7 +4520,7 @@ class _RollbackTileState extends State<_RollbackTile> {
             onPressed: () => Navigator.of(ctx).pop(true),
             child: Text(TranslationService.translate(
               ctx,
-              'wizard_restore_button_restore',
+              'backup_rollback_dialog_confirm',
             )),
           ),
         ],

@@ -10,20 +10,18 @@
 // orchestrator over those FFI calls.
 //
 // Here we lock the one invariant a future code change is most likely to
-// silently break: the prefs whitelist must mirror the writer's.
+// silently break: the prefs whitelist must mirror the writer's. PR #4
+// moved the whitelist into `backup_prefs_whitelist.dart` and added a
+// drift test; this pin now just guards the v1 contents.
+import 'package:bibliogenius/services/backup_prefs_whitelist.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:bibliogenius/screens/backup_restore_wizard_screen.dart';
-
 void main() {
-  test('kBackupPrefsWhitelist matches the writer whitelist exactly', () {
-    // The reader's whitelist must mirror the writer (BackupActions.runFullBackup
-    // in lib/utils/backup_actions.dart uses the same three keys). PR #4 will
-    // formalize this in Rust with a drift test; until then this constant
-    // pin avoids a silent reader/writer divergence.
+  test('kBackupPrefsWhitelist contains exactly the v1 user-meaningful keys',
+      () {
     expect(
       kBackupPrefsWhitelist,
-      equals(<String>['themeStyle', 'languageCode', 'country']),
+      equals(<String>{'themeStyle', 'languageCode', 'country'}),
     );
   });
 }
