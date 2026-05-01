@@ -9,27 +9,26 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../services/auth_service.dart';
+import '../services/backup_prefs_whitelist.dart';
+import '../services/backup_scheduler_service.dart';
 import '../services/translation_service.dart';
 import '../src/rust/api/frb.dart' as rust;
-
-/// Whitelist of `SharedPreferences` keys that the local-backup writer (PR #2)
-/// captures into `prefs.json` and the restore reader (PR #3) re-applies on
-/// success. Kept identical to `BackupActions.runFullBackup` so a round
-/// trip through write -> read is lossless. PR #4 will move this list into
-/// Rust as the formal whitelist with a drift test.
-const List<String> kBackupPrefsWhitelist = <String>[
-  'themeStyle',
-  'languageCode',
-  'country',
-];
 
 /// 7-step wizard that drives a full `.bgbackup` restore (ADR-037 §5).
 ///
 /// Steps: file picker -> manifest preview -> secret + HMAC verify -> mode
 /// (Replace/Merge) + identity opt-in -> confirmation -> progress -> result
 /// (success forces a restart, failure leaves the live DB untouched).
+///
+/// Pass [initialArchivePath] to skip the file-picker step and land on the
+/// manifest preview directly. Used by the auto-backup bottom sheet when
+/// the user taps "Restaurer" on a listed archive: the file lives in
+/// Application Support (a hidden folder on macOS) so a generic file
+/// picker would force the user to navigate there manually.
 class BackupRestoreWizardScreen extends StatefulWidget {
-  const BackupRestoreWizardScreen({super.key});
+  final String? initialArchivePath;
+
+  const BackupRestoreWizardScreen({super.key, this.initialArchivePath});
 
   @override
   State<BackupRestoreWizardScreen> createState() =>
@@ -52,12 +51,33 @@ class _BackupRestoreWizardScreenState extends State<BackupRestoreWizardScreen> {
   bool _obscureSecret = true;
   String? _secretError;
   bool _verifyingSecret = false;
+  /// True when we successfully auto-unlocked using the secret already in
+  /// secure storage (same-device shortcut). Drives the chip on the mode
+  /// step that explains why the secret prompt was skipped, and lets the
+  /// restore failure path bounce back to the manual prompt with a clear
+  /// hint when the stored secret turns out to no longer match.
+  bool _autoUnlocked = false;
 
   String _progressLabel = '';
   String? _failureMessage;
   rust.FrbRestoreSummary? _resultSummary;
 
   final TextEditingController _secretController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    final preset = widget.initialArchivePath;
+    if (preset != null && preset.isNotEmpty) {
+      _archivePath = preset;
+      // Defer the manifest read until after the first frame so the
+      // wizard renders its progress bar / app bar instead of flashing
+      // an empty pick-file step.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _loadManifest();
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -128,6 +148,13 @@ class _BackupRestoreWizardScreenState extends State<BackupRestoreWizardScreen> {
         _restoreIdentity = defaultIdentity;
         _step = _WizardStep.preview;
       });
+      // Same-device UX shortcut: if the secret used to encrypt the archive
+      // is already on this device's secure storage (typical auto-backup
+      // case), skip the manual prompt entirely. The actual HMAC check
+      // still runs inside `restore_backup`; if the stored secret no
+      // longer matches, we bounce back to the manual prompt with a hint
+      // (see _runRestore's BadSignature branch).
+      await _maybeAutoUnlock(m);
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -137,6 +164,25 @@ class _BackupRestoreWizardScreenState extends State<BackupRestoreWizardScreen> {
         _resultSummary = null;
       });
     }
+  }
+
+  Future<void> _maybeAutoUnlock(rust.FrbBackupManifestPreview m) async {
+    final auth = context.read<AuthService>();
+    String? stored;
+    if (m.unlockKind == BackupSchedulerService.unlockModeRecoveryCode) {
+      stored = await auth.getHubRecoveryCode();
+    } else if (m.unlockKind == BackupSchedulerService.unlockModePassphrase) {
+      stored = await auth.getAutoBackupPassphrase();
+    }
+    if (stored == null || stored.isEmpty) return;
+    if (!mounted) return;
+    final bytes = Uint8List.fromList(utf8.encode(stored));
+    _secretBytes?.fillRange(0, _secretBytes!.length, 0);
+    _secretBytes = bytes;
+    setState(() {
+      _autoUnlocked = true;
+      _step = _WizardStep.mode;
+    });
   }
 
   Future<void> _verifySecret() async {
@@ -200,11 +246,19 @@ class _BackupRestoreWizardScreenState extends State<BackupRestoreWizardScreen> {
           ? _t('wizard_restore_progress_replacing')
           : _t('wizard_restore_progress_merging'));
 
+      // Pass the device's current `library_uuid` so the Replace path can
+      // detect a same-device restore and keep `crypto_keys` intact
+      // (ADR-037 §5). Without this, restoring an auto-backup produced
+      // by THIS device would gratuitously wipe the working identity and
+      // trigger the post-restore "Vérification de sécurité" dialog.
+      final localLibraryUuid = await auth.getOrCreateLibraryUuid();
+
       final summary = await rust.restoreBackupFfi(
         archivePath: path,
         secretBytes: secret,
         mode: _mode,
         restoreIdentity: _restoreIdentity,
+        localLibraryUuid: localLibraryUuid,
         dbPath: db,
         coverDir: coverDir,
       );
@@ -243,6 +297,21 @@ class _BackupRestoreWizardScreenState extends State<BackupRestoreWizardScreen> {
       // anything else is surfaced verbatim. Live DB stays intact whenever
       // restore_backup returns an error before the rename step.
       final msg = e.toString();
+      // Special case: BadSignature after an auto-unlock attempt means the
+      // secret stored in secure storage no longer matches this archive
+      // (recovery code rotated, mode switched, etc.). Bounce back to the
+      // manual prompt with a hint instead of dead-ending on result step.
+      if (msg.contains('bad signature') && _autoUnlocked) {
+        _secretBytes?.fillRange(0, _secretBytes!.length, 0);
+        _secretBytes = null;
+        setState(() {
+          _autoUnlocked = false;
+          _secretError = _t('wizard_restore_secret_auto_unlock_failed');
+          _step = _WizardStep.secret;
+          _failureMessage = null;
+        });
+        return;
+      }
       String friendly;
       if (msg.contains('bad signature')) {
         friendly = _t('wizard_restore_error_bad_secret');
@@ -505,7 +574,21 @@ class _BackupRestoreWizardScreenState extends State<BackupRestoreWizardScreen> {
       children: [
         Text(_t('wizard_restore_step_mode_title'),
             style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 16),
+        const SizedBox(height: 8),
+        if (_autoUnlocked)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Chip(
+              avatar: const Icon(Icons.lock_open, size: 16),
+              label: Text(_t(
+                m.unlockKind == BackupSchedulerService.unlockModePassphrase
+                    ? 'wizard_restore_auto_unlocked_passphrase'
+                    : 'wizard_restore_auto_unlocked_recovery_code',
+              )),
+              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+            ),
+          ),
+        const SizedBox(height: 8),
         RadioListTile<String>(
           title: Text(_t('wizard_restore_mode_replace_title')),
           subtitle: Text(_t('wizard_restore_mode_replace_subtitle')),

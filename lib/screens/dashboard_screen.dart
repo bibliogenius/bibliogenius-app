@@ -22,6 +22,7 @@ import '../services/quote_service.dart';
 import '../models/quote.dart';
 import '../theme/app_design.dart';
 import '../services/backup_reminder_service.dart';
+import '../services/backup_scheduler_service.dart';
 import 'statistics_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -99,7 +100,12 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   void _checkBackupReminder() async {
-    if (await BackupReminderService.shouldShowReminder()) {
+    final scheduler = context.read<BackupSchedulerService>();
+    final shouldShow = await BackupReminderService.shouldShowReminder(
+      autoBackupEnabled: scheduler.isEnabled,
+      lastAutoBackupTs: scheduler.lastBackupTimestamp,
+    );
+    if (shouldShow) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           BackupReminderService.showReminderDialog(context);

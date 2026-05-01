@@ -1229,11 +1229,16 @@ Future<FrbBackupManifestPreview> readManifestFfi({
 /// `db_path` and `cover_dir` are passed explicitly so the caller (which knows
 /// its sandbox layout via `getApplicationSupportDirectory`) is the single
 /// source of truth.
+/// `local_library_uuid`: pass the device's current `library_uuid` so the
+/// Replace path can detect a same-device restore and keep `crypto_keys`
+/// intact (ADR-037 §5). `None` falls back to the cross-device behaviour
+/// (wipe identity unless full clone-mode).
 Future<FrbRestoreSummary> restoreBackupFfi({
   required String archivePath,
   required List<int> secretBytes,
   required String mode,
   required bool restoreIdentity,
+  String? localLibraryUuid,
   required String dbPath,
   required String coverDir,
 }) => RustLib.instance.api.crateApiFrbRestoreBackupFfi(
@@ -1241,6 +1246,7 @@ Future<FrbRestoreSummary> restoreBackupFfi({
   secretBytes: secretBytes,
   mode: mode,
   restoreIdentity: restoreIdentity,
+  localLibraryUuid: localLibraryUuid,
   dbPath: dbPath,
   coverDir: coverDir,
 );
@@ -1260,6 +1266,13 @@ Future<void> restoreFromRollbackFfi({
   rollbackPath: rollbackPath,
   dbPath: dbPath,
 );
+
+/// Watermark used by the Flutter `BackupSchedulerService` to skip a 24h tick
+/// when no catalog change happened. Returns the highest `updated_at` across
+/// `books`, `copies`, `loans`, `library_config`, or `None` for a fresh DB
+/// (ADR-037 §6).
+Future<String?> latestUserDataChangeAtFfi() =>
+    RustLib.instance.api.crateApiFrbLatestUserDataChangeAtFfi();
 
 /// Subset of the manifest surfaced to the wizard's preview screen. Mirrors
 /// `ManifestSummary` field-by-field but flattened for FFI portability.
@@ -2605,6 +2618,7 @@ sealed class FrbRestoreSummary with _$FrbRestoreSummary {
   const factory FrbRestoreSummary({
     required String mode,
     required bool identityRestored,
+    required bool sameDevice,
     String? restoredLibraryUuid,
     required String libraryUuidAction,
     required String prefsJson,

@@ -11,6 +11,10 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'package:bibliogenius/main.dart';
 import 'package:bibliogenius/providers/theme_provider.dart';
+import 'package:bibliogenius/services/auth_service.dart';
+import 'package:bibliogenius/services/backup_scheduler_service.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'dart:io';
 import 'package:network_image_mock/network_image_mock.dart';
@@ -35,6 +39,15 @@ void main() {
   });
 
   testWidgets('App smoke test', (WidgetTester tester) async {
+    SharedPreferences.setMockInitialValues({});
+    FlutterSecureStorage.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+    final scheduler = BackupSchedulerService.production(
+      prefs: prefs,
+      authService: AuthService(),
+    );
+    addTearDown(scheduler.dispose);
+
     await mockNetworkImagesFor(() async {
       // Build our app and trigger a frame.
       await tester.pumpWidget(
@@ -42,6 +55,7 @@ void main() {
           themeProvider: ThemeProvider(),
           useFfi: false,
           envConfig: const {},
+          backupScheduler: scheduler,
         ),
       );
       await tester.pumpAndSettle();

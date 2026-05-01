@@ -19,6 +19,7 @@ import '../providers/notification_provider.dart';
 import '../providers/theme_provider.dart';
 import '../services/api_service.dart';
 import '../services/auth_service.dart';
+import '../services/backup_prefs_whitelist.dart';
 import '../services/mdns_service.dart';
 import '../services/translation_service.dart';
 import '../src/rust/api/frb.dart' as rust;
@@ -666,23 +667,37 @@ class BackupActions {
     try {
       final defaultName =
           'bibliogenius-backup-${_timestampForFilename(DateTime.now())}.bgbackup';
-      final outputPath = await FilePicker.platform.saveFile(
-        dialogTitle: 'Exporter la sauvegarde complète',
-        fileName: defaultName,
-        type: FileType.custom,
-        allowedExtensions: ['bgbackup'],
-      );
-      if (outputPath == null) return;
+
+      // Resolve the FFI output path. Desktop platforms expose a real
+      // file picker that returns a chosen path; iOS/Android cannot --
+      // file_picker's saveFile demands `bytes` upfront on those
+      // platforms (the picker is bytes-in, not path-out). We therefore
+      // write to a temp path first and surface the file through the
+      // system share sheet (Files / iCloud Drive / AirDrop / mail).
+      // Mirrors the catalog-export branching at line ~82.
+      final isDesktop = io.Platform.isMacOS ||
+          io.Platform.isWindows ||
+          io.Platform.isLinux;
+      String? outputPath;
+      if (isDesktop) {
+        outputPath = await FilePicker.platform.saveFile(
+          dialogTitle: 'Exporter la sauvegarde complète',
+          fileName: defaultName,
+          type: FileType.custom,
+          allowedExtensions: ['bgbackup'],
+        );
+        if (outputPath == null) return;
+      } else {
+        final tmpDir = await getTemporaryDirectory();
+        outputPath = '${tmpDir.path}/$defaultName';
+      }
 
       final libraryUuid = await authService.getOrCreateLibraryUuid();
       final appSupport = await getApplicationSupportDirectory();
       final coverDir = '${appSupport.path}/covers';
 
       final prefs = await SharedPreferences.getInstance();
-      final prefsJson = jsonEncode(<String, String>{
-        for (final key in const ['themeStyle', 'languageCode', 'country'])
-          if (prefs.getString(key) != null) key: prefs.getString(key)!,
-      });
+      final prefsJson = exportWhitelistedPrefs(prefs.get);
 
       final summary = await rust.writeBackupFfi(
         outputPath: outputPath,
@@ -694,7 +709,34 @@ class BackupActions {
         coverDir: coverDir,
       );
 
+      // Track the timestamp of the last successful manual export so the
+      // auto-backup nudge ("export with identity for cross-device
+      // migration") can surface only when the user is overdue. Only
+      // identity-included exports count toward this signal -- a
+      // catalogue-only export does not protect against the "phone lost,
+      // peers must re-pair" failure mode the nudge is about.
+      if (input.includeIdentity) {
+        await prefs.setString(
+          'last_full_export_with_identity_at',
+          DateTime.now().toIso8601String(),
+        );
+      }
+
       final sizeKb = (summary.archiveSizeBytes.toInt() / 1024).round();
+
+      if (!isDesktop) {
+        // Hand the freshly-written archive to the OS share sheet so the
+        // user can route it to Files, iCloud Drive, AirDrop, mail, etc.
+        // No explicit cleanup of the temp copy: iOS purges the temp
+        // directory on its own schedule, and a sibling copy made by the
+        // destination app would race a delete here.
+        await Share.shareXFiles(
+          [XFile(outputPath)],
+          subject: defaultName,
+          text: 'Sauvegarde complète BiblioGenius',
+        );
+      }
+
       messenger.showSnackBar(
         SnackBar(
           duration: const Duration(seconds: 6),

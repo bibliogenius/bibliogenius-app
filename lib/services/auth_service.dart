@@ -231,6 +231,26 @@ class AuthService {
     await storage.delete(key: _hubRecoveryCodeKey);
   }
 
+  // ============ Auto-backup passphrase (ADR-037 §6, mode 'passphrase') =====
+  static const _autoBackupPassphraseKey = 'auto_backup_passphrase';
+
+  /// Store the user-chosen passphrase used to encrypt auto-backup
+  /// archives when [BackupSchedulerService.unlockMode] is `'passphrase'`.
+  /// Distinct from the hub recovery code so a passphrase change here
+  /// does not impact hub auth, and a hub re-pair does not silently
+  /// rotate the auto-backup secret.
+  Future<void> saveAutoBackupPassphrase(String passphrase) async {
+    await storage.write(key: _autoBackupPassphraseKey, value: passphrase);
+  }
+
+  Future<String?> getAutoBackupPassphrase() async {
+    return await storage.read(key: _autoBackupPassphraseKey);
+  }
+
+  Future<void> deleteAutoBackupPassphrase() async {
+    await storage.delete(key: _autoBackupPassphraseKey);
+  }
+
   // ============ Library UUID (for P2P deduplication) ============
   static const _libraryUuidKey = 'library_uuid';
 
