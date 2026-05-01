@@ -8167,6 +8167,10 @@ msgstr "Emprunteurs"
 msgid "network_hub_requests_title"
 msgstr "Demandes de suivi"
 
+#. Hub pending requests - explanatory note shown when the public directory is disabled but legacy pending requests still exist server-side
+msgid "hub_pending_legacy_note"
+msgstr "Annuaire public désactivé. Vous pouvez quand même traiter ces demandes existantes pour libérer le compteur."
+
 msgid "lib_filter_all"
 msgstr "Tout"
 

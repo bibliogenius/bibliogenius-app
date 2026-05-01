@@ -1048,12 +1048,15 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
             count: pendingProvider.pendingCount,
             onAction: pendingProvider.refresh,
           ),
-        // Hub follow requests (only when hub directory is enabled)
-        if (hubDirProvider.isHubEnabled &&
-            hubDirProvider.pendingRequests.isNotEmpty)
+        // Hub follow requests. Shown whenever there are pending requests, even
+        // if the public directory is currently off, so users can resolve legacy
+        // requests (otherwise the badge counter sits at "1" with no visible
+        // surface to act on, observed 2026-04-29).
+        if (hubDirProvider.pendingRequests.isNotEmpty)
           _HubRequestsSection(
             requests: hubDirProvider.pendingRequests,
             provider: hubDirProvider,
+            showDisabledHint: !hubDirProvider.isHubEnabled,
           ),
         // Invite banner
         if (_bannerVisible)
@@ -2316,7 +2319,16 @@ class _HubRequestsSection extends StatefulWidget {
   final List<HubFollow> requests;
   final HubDirectoryProvider provider;
 
-  const _HubRequestsSection({required this.requests, required this.provider});
+  /// When true, render a small explainer below the header to clarify that the
+  /// public directory is currently disabled but legacy pending requests still
+  /// exist server-side and can be resolved from here.
+  final bool showDisabledHint;
+
+  const _HubRequestsSection({
+    required this.requests,
+    required this.provider,
+    this.showDisabledHint = false,
+  });
 
   @override
   State<_HubRequestsSection> createState() => _HubRequestsSectionState();
@@ -2328,6 +2340,7 @@ class _HubRequestsSectionState extends State<_HubRequestsSection> {
   @override
   Widget build(BuildContext context) {
     final count = widget.requests.length;
+    final theme = Theme.of(context);
     return Column(
       children: [
         InkWell(
@@ -2336,15 +2349,13 @@ class _HubRequestsSectionState extends State<_HubRequestsSection> {
             header: true,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              color: Theme.of(
-                context,
-              ).colorScheme.errorContainer.withValues(alpha: 0.3),
+              color: theme.colorScheme.errorContainer.withValues(alpha: 0.3),
               child: Row(
                 children: [
                   Icon(
                     Icons.how_to_reg,
                     size: 18,
-                    color: Theme.of(context).colorScheme.error,
+                    color: theme.colorScheme.error,
                   ),
                   const SizedBox(width: 8),
                   Expanded(
@@ -2353,7 +2364,7 @@ class _HubRequestsSectionState extends State<_HubRequestsSection> {
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 13,
-                        color: Theme.of(context).colorScheme.error,
+                        color: theme.colorScheme.error,
                       ),
                     ),
                   ),
@@ -2361,18 +2372,34 @@ class _HubRequestsSectionState extends State<_HubRequestsSection> {
                     _expanded
                         ? Icons.keyboard_arrow_up
                         : Icons.keyboard_arrow_down,
-                    color: Theme.of(context).colorScheme.error,
+                    color: theme.colorScheme.error,
                   ),
                 ],
               ),
             ),
           ),
         ),
-        if (_expanded)
+        if (_expanded) ...[
+          if (widget.showDisabledHint)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: Text(
+                TranslationService.translate(
+                  context,
+                  'hub_pending_legacy_note',
+                ),
+                style: TextStyle(
+                  fontSize: 12,
+                  fontStyle: FontStyle.italic,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
           ...widget.requests.map(
             (follow) =>
                 _IncomingRequestTile(follow: follow, provider: widget.provider),
           ),
+        ],
       ],
     );
   }
