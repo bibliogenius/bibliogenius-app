@@ -2,4 +2,4 @@
 "NSLocalNetworkUsageDescription" = "BiblioGenius findet andere Bibliotheken in deinem lokalen Netzwerk, um Bücher zu teilen.";
 "NSMicrophoneUsageDescription" = "BiblioGenius verwendet das Mikrofon für die Sprachdiktion beim Hinzufügen von Notizen zu deinen Büchern.";
 "NSSpeechRecognitionUsageDescription" = "BiblioGenius verwendet die Spracherkennung, damit du Notizen zu deinen Büchern diktieren kannst.";
-"NSPhotoLibraryUsageDescription" = "Diese App benötigt Zugriff auf deine Fotomediathek, um Fotos von Büchern oder Barcodes auszuwählen.";
+"NSPhotoLibraryUsageDescription" = "BiblioGenius verwendet deine Fotomediathek, um Fotos als individuelle Buchcover auszuwählen.";

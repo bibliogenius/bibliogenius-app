@@ -76,7 +76,7 @@
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>BiblioGenius uses speech recognition to let you dictate notes about your books.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>This app needs access to your photo library to select photos of books or barcodes.</string>
+	<string>BiblioGenius uses your photo library to choose photos as custom book covers.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIFileSharingEnabled</key>

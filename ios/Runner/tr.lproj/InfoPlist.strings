@@ -2,4 +2,4 @@
 "NSLocalNetworkUsageDescription" = "BiblioGenius, kitap paylaşmak için yerel ağınızdaki diğer kütüphaneleri keşfeder.";
 "NSMicrophoneUsageDescription" = "BiblioGenius, kitaplarınıza not eklerken sesli dikte için mikrofonu kullanır.";
 "NSSpeechRecognitionUsageDescription" = "BiblioGenius, kitaplarınız hakkında not dikte etmenize olanak sağlamak için konuşma tanımayı kullanır.";
-"NSPhotoLibraryUsageDescription" = "Bu uygulamanın, kitap veya barkod fotoğraflarını seçmek için fotoğraf kitaplığınıza erişmesi gerekir.";
+"NSPhotoLibraryUsageDescription" = "BiblioGenius, özel kitap kapakları olarak fotoğraf seçmek için fotoğraf kitaplığınızı kullanır.";

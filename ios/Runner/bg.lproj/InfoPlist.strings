@@ -2,4 +2,4 @@
 "NSLocalNetworkUsageDescription" = "BiblioGenius открива други библиотеки във вашата локална мрежа, за да споделя книги.";
 "NSMicrophoneUsageDescription" = "BiblioGenius използва микрофона за гласова диктовка при добавяне на бележки към вашите книги.";
 "NSSpeechRecognitionUsageDescription" = "BiblioGenius използва разпознаване на реч, за да можете да диктувате бележки за вашите книги.";
-"NSPhotoLibraryUsageDescription" = "Това приложение се нуждае от достъп до фотобиблиотеката ви, за да избира снимки на книги или баркодове.";
+"NSPhotoLibraryUsageDescription" = "BiblioGenius използва вашата фотобиблиотека, за да избирате снимки като персонализирани корици на книги.";
