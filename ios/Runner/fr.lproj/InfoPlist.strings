@@ -1,0 +1,5 @@
+"NSCameraUsageDescription" = "L'accès à la caméra est nécessaire pour scanner les codes-barres.";
+"NSLocalNetworkUsageDescription" = "BiblioGenius découvre d'autres bibliothèques sur votre réseau local pour partager des livres.";
+"NSMicrophoneUsageDescription" = "BiblioGenius utilise le microphone pour la dictée vocale lors de l'ajout de notes à vos livres.";
+"NSSpeechRecognitionUsageDescription" = "BiblioGenius utilise la reconnaissance vocale pour vous permettre de dicter des notes sur vos livres.";
+"NSPhotoLibraryUsageDescription" = "Cette application a besoin d'accéder à votre photothèque pour sélectionner des photos de livres ou de codes-barres.";
