@@ -72,7 +72,7 @@
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>BiblioGenius discovers other libraries on your local network to share books</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>This app needs microphone access for voice search or video recording features associated with camera usage.</string>
+	<string>BiblioGenius uses the microphone for voice dictation when adding notes to your books.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>BiblioGenius uses speech recognition to let you dictate notes about your books.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
