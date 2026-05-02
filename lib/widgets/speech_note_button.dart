@@ -92,15 +92,25 @@ class _SpeechNoteButtonState extends State<SpeechNoteButton> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final permissionRefused = _initialized && !_available;
+    final String tooltip;
+    if (permissionRefused) {
+      tooltip = TranslationService.translate(context, 'speech_not_available');
+    } else if (_listening) {
+      tooltip = TranslationService.translate(context, 'speech_listening');
+    } else {
+      tooltip = TranslationService.translate(context, 'tooltip_dictate_note');
+    }
     return IconButton(
-      onPressed: _toggleListening,
+      onPressed: permissionRefused ? null : _toggleListening,
       icon: Icon(
         _listening ? Icons.mic : Icons.mic_none,
-        color: _listening ? Theme.of(context).colorScheme.primary : null,
+        color: permissionRefused
+            ? theme.disabledColor
+            : (_listening ? theme.colorScheme.primary : null),
       ),
-      tooltip: _listening
-          ? TranslationService.translate(context, 'speech_listening')
-          : TranslationService.translate(context, 'tooltip_dictate_note'),
+      tooltip: tooltip,
     );
   }
 }
