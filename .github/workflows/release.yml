@@ -863,39 +863,42 @@ jobs:
           body: |
             # BiblioGenius ${{ github.ref_name }} "Sovereign Librarian"
             
-            🎉 **Release!**
-            
-            ## ✨ Features
-            - 📚 Complete book catalog management (ISBN scan, manual entry)
-            - 🔄 Local network synchronization (LAN/mDNS)
-            - 🤝 Peer-to-peer book sharing with friends
-            - 🏆 Gamification system with badges and levels
-            - 📱 Cross-platform: macOS, Windows, Linux, Android
-            
+            ## ✨ What you get
+            - 📚 Personal book catalog with ISBN scan, manual entry and UNIMARC author resolution
+            - 🤝 Peer-to-peer sharing on LAN (mDNS) and over the internet (hub relay)
+            - 🔐 End-to-end encrypted messaging between peers, with recovery codes (BCrypt)
+            - 💾 Encrypted local backups (`.bgbackup`) with auto-scheduler and 24h rollback
+            - 📖 Loans and borrowings with due-date reminders, split lend/borrow toggles
+            - 🏛️ Optional public hub directory with consent-based discovery and city filter
+            - 🏆 Reading challenges, badges and mini-games (memory, hangman, sliding puzzle)
+            - 📱 Cross-platform: macOS, iOS, Android, Windows, Linux
+
             ## 📥 Downloads
-            
-            | Platform | Status | File |
-            |----------|--------|------|
-            | **macOS** | ✅ Tested | `BiblioGenius-macOS.dmg` |
-            | **Android** | ✅ Tested | `app-release.apk` |
+
+            | Platform | Status | Where |
+            |----------|--------|-------|
+            | **macOS** | ✅ Tested | `BiblioGenius-macOS.dmg` (signed and notarized) |
+            | **iOS** | ✅ Tested | TestFlight (invite required during beta) |
+            | **Android** | ✅ Tested | Google Play (internal/closed track) or `BiblioGenius-Android.apk` |
             | **Windows** | ⚠️ Untested | `BiblioGenius-Windows.zip` |
             | **Linux** | ⚠️ Untested | `BiblioGenius-Linux.tar.gz` |
-            
-            > ⚠️ **Note**: Windows and Linux builds are automated but not manually tested. Please report any issues!
-            
+
+            > ⚠️ **Note**: Windows and Linux builds are automated but not manually tested each release. Please report any issues!
+
             ## 🚀 Getting Started
-            
-            1. Download the appropriate file for your platform
-            2. **macOS**: Open the .dmg, drag to Applications, launch normally (app is signed and notarized)
-            3. **Android**: Enable "Install from unknown sources", install APK
-            4. **Windows**: Extract ZIP, run `bibliogenius.exe`
-            5. **Linux**: Extract tarball, run `./bibliogenius`
-            
+
+            1. Pick the build for your platform from the table above
+            2. **macOS**: open the .dmg, drag to Applications, launch normally
+            3. **iOS**: accept the TestFlight invite, install via TestFlight
+            4. **Android**: install via Google Play (preferred) or sideload the APK after enabling "Install from unknown sources"
+            5. **Windows**: extract the ZIP, run `bibliogenius.exe`
+            6. **Linux**: extract the tarball, run `./bibliogenius`
+
             ## 🐛 Known Limitations
-            - P2P works on local network only (global P2P coming in v2.0)
-            - No iOS build (requires Apple Developer account)
-            - P2P relay requires internet connection
-            
+            - Hub relay and public directory features need internet connectivity
+            - Some help / onboarding pages are still being written
+            - Public directory map view is gated by adoption (coming in a later 1.0.x)
+
             ## 📝 Feedback
             Please report issues on [GitHub Issues](https://github.com/bibliogenius/bibliogenius-app/issues)
             
