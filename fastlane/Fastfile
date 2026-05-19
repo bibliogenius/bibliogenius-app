@@ -1,0 +1,115 @@
+# frozen_string_literal: true
+#
+# BiblioGenius release lanes (local fastlane, no CI).
+#
+# Configuration : copy fastlane/.env.example → fastlane/.env and fill in values.
+# Secrets (.p8, keystore passwords, etc.) : macOS Keychain — see fastlane/README.md.
+#
+# Usage : bundle exec fastlane ios beta_ios
+#
+# Lanes à venir : mac beta_macos, android beta_android.
+
+default_platform(:ios)
+
+REPO_ROOT = File.expand_path('..', __dir__)
+
+# --- Helpers ---------------------------------------------------------------
+
+def fastlane_config(key)
+  ENV.fetch(key) do
+    UI.user_error!("Missing env var: #{key}. Copy fastlane/.env.example to fastlane/.env and fill in.")
+  end
+end
+
+def keychain_secret(service)
+  out = `security find-generic-password -s "#{service}" -a "fastlane" -w 2>/dev/null`.strip
+  UI.user_error!("Keychain entry not found: #{service}") if out.empty?
+  out
+end
+
+# Pubspec version format: "1.0.0-beta.2+441".
+# Apple's CFBundleShortVersionString refuses 4-part versions, so we strip the
+# pre-release suffix and pass the build number separately.
+def read_pubspec_version
+  text = File.read(File.join(REPO_ROOT, 'pubspec.yaml'))
+  m = text.match(/^version:\s*(\S+)/)
+  UI.user_error!('version: not found in pubspec.yaml') unless m
+  version_part, build_part = m[1].split('+', 2)
+  UI.user_error!("missing build number in pubspec version: #{m[1]}") if build_part.nil?
+  { base: version_part.split('-', 2).first, build: build_part.to_i, full: m[1] }
+end
+
+def asc_api_key
+  app_store_connect_api_key(
+    key_id:       keychain_secret('bg-asc-key-id'),
+    issuer_id:    keychain_secret('bg-asc-issuer-id'),
+    key_filepath: keychain_secret('bg-asc-key-path'),
+    in_house:     false
+  )
+end
+
+def write_ios_export_options
+  team_id   = fastlane_config('APPLE_TEAM_ID')
+  bundle_id = fastlane_config('APP_IDENTIFIER')
+  profile   = fastlane_config('IOS_PROFILE_NAME')
+  plist = <<~PLIST
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+    <plist version="1.0">
+    <dict>
+        <key>method</key>
+        <string>app-store</string>
+        <key>teamID</key>
+        <string>#{team_id}</string>
+        <key>provisioningProfiles</key>
+        <dict>
+            <key>#{bundle_id}</key>
+            <string>#{profile}</string>
+        </dict>
+        <key>stripSwiftSymbols</key>
+        <true/>
+        <key>uploadSymbols</key>
+        <true/>
+        <key>compileBitcode</key>
+        <false/>
+        <key>uploadBitcode</key>
+        <false/>
+    </dict>
+    </plist>
+  PLIST
+  path = File.join(REPO_ROOT, 'ios/Runner/ExportOptions.plist')
+  File.write(path, plist)
+  path
+end
+
+# --- iOS -------------------------------------------------------------------
+
+platform :ios do
+  desc 'Build iOS IPA and upload to TestFlight'
+  lane :beta_ios do
+    v = read_pubspec_version
+    UI.message("iOS: name=#{v[:base]} build=#{v[:build]} (from #{v[:full]})")
+
+    export_plist = write_ios_export_options
+
+    begin
+      Dir.chdir(REPO_ROOT) do
+        sh('flutter', 'build', 'ipa', '--release',
+           "--build-name=#{v[:base]}", "--build-number=#{v[:build]}",
+           "--export-options-plist=#{export_plist}")
+      end
+
+      ipa = Dir.glob(File.join(REPO_ROOT, 'build/ios/ipa/*.ipa')).first
+      UI.user_error!('No IPA in build/ios/ipa/') unless ipa
+
+      upload_to_testflight(
+        api_key: asc_api_key,
+        ipa: ipa,
+        skip_waiting_for_build_processing: true,
+        changelog: "Build #{v[:base]} (#{v[:build]})"
+      )
+    ensure
+      FileUtils.rm_f(export_plist)
+    end
+  end
+end
