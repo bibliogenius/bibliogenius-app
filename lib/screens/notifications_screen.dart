@@ -415,6 +415,9 @@ class _NotificationTile extends StatelessWidget {
           context,
           'notif_wishlist_match',
         ).replaceAll('{book}', t).replaceAll('{source}', b ?? '');
+      case 'loan_due_reminder':
+      case 'loan_due_today':
+        return b ?? t;
       case 'welcome':
         return TranslationService.translate(context, 'notif_welcome');
       default:
