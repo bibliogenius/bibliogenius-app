@@ -1954,8 +1954,10 @@ class _ShareContactViewState extends State<ShareContactView> {
           ),
           const SizedBox(height: 16),
           // Copy + Share invite link buttons
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 8,
+            runSpacing: 8,
             children: [
               OutlinedButton.icon(
                 key: const Key('copyInviteLinkBtn'),
@@ -1981,7 +1983,6 @@ class _ShareContactViewState extends State<ShareContactView> {
                   TranslationService.translate(context, 'copy_invite_link'),
                 ),
               ),
-              const SizedBox(width: 8),
               Builder(
                 builder: (btnContext) => OutlinedButton.icon(
                   key: const Key('shareInviteLinkBtn'),
