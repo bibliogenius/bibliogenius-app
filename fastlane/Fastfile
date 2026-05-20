@@ -5,11 +5,14 @@
 # Configuration : copy fastlane/.env.example → fastlane/.env and fill in values.
 # Secrets (.p8, keystore passwords, etc.) : macOS Keychain — see fastlane/README.md.
 #
-# Usage : bundle exec fastlane ios beta_ios
-#
-# Lanes à venir : mac beta_macos, android beta_android.
+# Usage (run without `bundle exec` — it pollutes the env and breaks CocoaPods) :
+#   fastlane ios beta_ios
+#   fastlane mac beta_macos [skip_rust:true]
+#   fastlane android beta_android
 
 default_platform(:ios)
+
+require 'tmpdir'
 
 REPO_ROOT = File.expand_path('..', __dir__)
 
@@ -21,10 +24,23 @@ def fastlane_config(key)
   end
 end
 
-def keychain_secret(service)
+# Reads a secret from the macOS Keychain. Entries are namespaced with
+# KEYCHAIN_PREFIX (e.g. prefix "bg" -> service "bg-asc-key-id").
+def keychain_secret(name)
+  service = "#{fastlane_config('KEYCHAIN_PREFIX')}-#{name}"
   out = `security find-generic-password -s "#{service}" -a "fastlane" -w 2>/dev/null`.strip
   UI.user_error!("Keychain entry not found: #{service}") if out.empty?
   out
+end
+
+# Resolves a signing identity by name from the login keychain.
+# Installer certs are not codesigning identities, hence codesigning:false.
+def find_identity(name, codesigning: true)
+  flag = codesigning ? '-p codesigning' : ''
+  out = `security find-identity -v #{flag}`
+  line = out.lines.find { |l| l =~ /"#{Regexp.escape(name)}[^"]*"/ }
+  UI.user_error!("Signing identity not found: #{name}\n#{out}") unless line
+  line[/"([^"]+)"/, 1]
 end
 
 # Pubspec version format: "1.0.0-beta.2+441".
@@ -41,9 +57,9 @@ end
 
 def asc_api_key
   app_store_connect_api_key(
-    key_id:       keychain_secret('bg-asc-key-id'),
-    issuer_id:    keychain_secret('bg-asc-issuer-id'),
-    key_filepath: keychain_secret('bg-asc-key-path'),
+    key_id:       keychain_secret('asc-key-id'),
+    issuer_id:    keychain_secret('asc-issuer-id'),
+    key_filepath: keychain_secret('asc-key-path'),
     in_house:     false
   )
 end
@@ -82,6 +98,19 @@ def write_ios_export_options
   path
 end
 
+# Runs `flutter build ...` from the repo root with a de-bundlerized
+# environment. Without this, bundler's GEM_HOME/RUBYOPT leak into the `pod`
+# subprocess and break Homebrew's CocoaPods ("installed but broken").
+def flutter_build(*args)
+  Dir.chdir(REPO_ROOT) do
+    if defined?(Bundler) && Bundler.respond_to?(:with_unbundled_env)
+      Bundler.with_unbundled_env { sh('flutter', 'build', *args) }
+    else
+      sh('flutter', 'build', *args)
+    end
+  end
+end
+
 # --- iOS -------------------------------------------------------------------
 
 platform :ios do
@@ -93,11 +122,9 @@ platform :ios do
     export_plist = write_ios_export_options
 
     begin
-      Dir.chdir(REPO_ROOT) do
-        sh('flutter', 'build', 'ipa', '--release',
-           "--build-name=#{v[:base]}", "--build-number=#{v[:build]}",
-           "--export-options-plist=#{export_plist}")
-      end
+      flutter_build('ipa', '--release',
+                    "--build-name=#{v[:base]}", "--build-number=#{v[:build]}",
+                    "--export-options-plist=#{export_plist}")
 
       ipa = Dir.glob(File.join(REPO_ROOT, 'build/ios/ipa/*.ipa')).first
       UI.user_error!('No IPA in build/ios/ipa/') unless ipa
@@ -110,6 +137,162 @@ platform :ios do
       )
     ensure
       FileUtils.rm_f(export_plist)
+    end
+  end
+end
+
+# --- macOS -----------------------------------------------------------------
+
+platform :mac do
+  desc 'Build macOS .app, sign inside-out, package PKG and upload to TestFlight.'
+  desc 'Pass skip_rust:true to reuse already-built Rust backend binaries.'
+  lane :beta_macos do |options|
+    skip_rust = options[:skip_rust].to_s == 'true'
+    v = read_pubspec_version
+    UI.message("macOS: name=#{v[:base]} build=#{v[:build]} (from #{v[:full]})")
+
+    team_id      = fastlane_config('APPLE_TEAM_ID')
+    bundle_id    = fastlane_config('APP_IDENTIFIER')
+    profile_name = fastlane_config('MAC_PROFILE_NAME')
+
+    apple_dist = find_identity('Apple Distribution')
+    installer  = find_identity('3rd Party Mac Developer Installer', codesigning: false)
+
+    rust_root   = File.expand_path('../bibliogenius', REPO_ROOT)
+    backend_x64 = File.join(rust_root, 'target/x86_64-apple-darwin/release/bibliogenius')
+    backend_arm = File.join(rust_root, 'target/aarch64-apple-darwin/release/bibliogenius')
+
+    if skip_rust
+      unless File.exist?(backend_x64) && File.exist?(backend_arm)
+        UI.user_error!("skip_rust:true but Rust binaries missing:\n  #{backend_x64}\n  #{backend_arm}")
+      end
+      UI.message('Skipping Rust build (reusing existing binaries).')
+    else
+      UI.message('Building Rust backend (x86_64 + aarch64). Pass skip_rust:true to bypass.')
+      Dir.chdir(rust_root) do
+        sh('cargo', 'build', '--release',
+           '--target', 'x86_64-apple-darwin',
+           '--target', 'aarch64-apple-darwin')
+      end
+    end
+
+    pbxproj  = File.join(REPO_ROOT, 'macos/Runner.xcodeproj/project.pbxproj')
+    ent_proc = File.join(Dir.tmpdir, 'bibliogenius-release.entitlements')
+
+    begin
+      # Flip the Release config to manual distribution signing. Restored in
+      # `ensure` so dev `flutter run -d macos` keeps automatic signing.
+      sh('sed', '-i', '', 's/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g', pbxproj)
+      sh('sed', '-i', '',
+         's/"CODE_SIGN_IDENTITY\[sdk=macosx\*\]" = "Apple Development";/"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Distribution";/g',
+         pbxproj)
+      sh('sed', '-i', '',
+         %(s/PROVISIONING_PROFILE_SPECIFIER = "";/PROVISIONING_PROFILE_SPECIFIER = "#{profile_name}";/g),
+         pbxproj)
+
+      flutter_build('macos', '--release',
+                    "--build-name=#{v[:base]}", "--build-number=#{v[:build]}")
+
+      app         = File.join(REPO_ROOT, 'build/macos/Build/Products/Release/bibliogenius.app')
+      backend_dir = File.join(app, 'Contents/Resources/backend')
+      UI.user_error!("App bundle missing: #{app}") unless File.exist?(File.join(app, 'Contents/Info.plist'))
+
+      # Inject the universal Rust backend binary.
+      FileUtils.mkdir_p(backend_dir)
+      sh('lipo', '-create', backend_arm, backend_x64, '-output', File.join(backend_dir, 'bibliogenius'))
+      File.chmod(0o755, File.join(backend_dir, 'bibliogenius'))
+
+      # codesign does not expand $(...) build variables, so pre-substitute the
+      # Release entitlements template before signing the main bundle.
+      processed = File.read(File.join(REPO_ROOT, 'macos/Runner/Release.entitlements'))
+                      .gsub('$(AppIdentifierPrefix)', "#{team_id}.")
+                      .gsub('$(CFBundleIdentifier)', bundle_id)
+      File.write(ent_proc, processed)
+
+      # Inside-out signing (ITMS-90885): nested code first with no
+      # application-identifier, backend with sandbox entitlements, app last.
+      Dir.glob(File.join(app, 'Contents/Frameworks/**/*'))
+         .select { |f| f =~ /\.(framework|dylib|bundle)$/ && !File.symlink?(f) }
+         .sort_by { |f| -f.count('/') }
+         .each do |item|
+        sh('codesign', '--force', '--timestamp', '--options', 'runtime',
+           '--sign', apple_dist, item)
+      end
+
+      sh('codesign', '--force', '--timestamp', '--options', 'runtime',
+         '--sign', apple_dist,
+         '--entitlements', File.join(REPO_ROOT, 'macos/Runner/BackendSandbox.entitlements'),
+         File.join(backend_dir, 'bibliogenius'))
+
+      sh('codesign', '--force', '--timestamp', '--options', 'runtime',
+         '--sign', apple_dist, '--entitlements', ent_proc, app)
+
+      sh("codesign --verify --verbose --deep --strict '#{app}' || echo 'codesign verify reported issues (parfois bénin sur certains frameworks)'")
+
+      pkg = File.join(REPO_ROOT, 'build/macos/bibliogenius-testflight.pkg')
+      FileUtils.mkdir_p(File.dirname(pkg))
+      sh('productbuild', '--component', app, '/Applications', '--sign', installer, pkg)
+
+      upload_to_testflight(
+        api_key: asc_api_key,
+        pkg: pkg,
+        skip_waiting_for_build_processing: true,
+        changelog: "Build #{v[:base]} (#{v[:build]})"
+      )
+    ensure
+      sh "git -C '#{REPO_ROOT}' restore macos/Runner.xcodeproj/project.pbxproj 2>/dev/null || true"
+      FileUtils.rm_f(ent_proc)
+    end
+  end
+end
+
+# --- Android ---------------------------------------------------------------
+
+platform :android do
+  desc 'Build Android AAB and upload to Play Console internal track (draft).'
+  lane :beta_android do
+    v = read_pubspec_version
+    UI.message("Android: name=#{v[:base]} versionCode=#{v[:build]} (from #{v[:full]})")
+
+    keystore_path = keychain_secret('android-keystore-path')
+    gplay_json    = keychain_secret('gplay-json')
+    UI.user_error!("Keystore not found: #{keystore_path}") unless File.exist?(keystore_path)
+    UI.user_error!("Play service account JSON not found: #{gplay_json}") unless File.exist?(gplay_json)
+
+    # android/app/build.gradle.kts reads the release signing config from
+    # android/key.properties. Generated here from Keychain, removed in
+    # `ensure`. The file is gitignored.
+    key_props = File.join(REPO_ROOT, 'android/key.properties')
+
+    begin
+      File.write(key_props, <<~PROPS)
+        storeFile=#{keystore_path}
+        storePassword=#{keychain_secret('android-keystore-password')}
+        keyAlias=#{keychain_secret('android-key-alias')}
+        keyPassword=#{keychain_secret('android-key-password')}
+      PROPS
+      File.chmod(0o600, key_props)
+
+      flutter_build('appbundle', '--release',
+                    "--build-name=#{v[:base]}", "--build-number=#{v[:build]}")
+
+      aab = File.join(REPO_ROOT, 'build/app/outputs/bundle/release/app-release.aab')
+      UI.user_error!("AAB missing: #{aab}") unless File.exist?(aab)
+
+      upload_to_play_store(
+        json_key: gplay_json,
+        package_name: fastlane_config('APP_IDENTIFIER'),
+        aab: aab,
+        track: 'internal',
+        release_status: 'draft',
+        skip_upload_apk: true,
+        skip_upload_metadata: true,
+        skip_upload_changelogs: true,
+        skip_upload_images: true,
+        skip_upload_screenshots: true
+      )
+    ensure
+      FileUtils.rm_f(key_props)
     end
   end
 end

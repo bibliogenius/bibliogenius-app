@@ -25,6 +25,34 @@ Build iOS IPA and upload to TestFlight
 
 ----
 
+
+## Mac
+
+### mac beta_macos
+
+```sh
+[bundle exec] fastlane mac beta_macos
+```
+
+Build macOS .app, sign inside-out, package PKG and upload to TestFlight.
+
+Pass skip_rust:true to reuse already-built Rust backend binaries.
+
+----
+
+
+## Android
+
+### android beta_android
+
+```sh
+[bundle exec] fastlane android beta_android
+```
+
+Build Android AAB and upload to Play Console internal track (draft).
+
+----
+
 This README.md is auto-generated and will be re-generated every time [_fastlane_](https://fastlane.tools) is run.
 
 More information about _fastlane_ can be found on [fastlane.tools](https://fastlane.tools).
