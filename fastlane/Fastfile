@@ -6,9 +6,9 @@
 # Secrets (.p8, keystore passwords, etc.) : macOS Keychain — see fastlane/README.md.
 #
 # Usage (run without `bundle exec` — it pollutes the env and breaks CocoaPods) :
-#   fastlane ios beta_ios
-#   fastlane mac beta_macos [skip_rust:true]
-#   fastlane android beta_android
+#   fastlane ios upload
+#   fastlane mac upload [skip_rust:true]
+#   fastlane android upload
 
 default_platform(:ios)
 
@@ -115,7 +115,7 @@ end
 
 platform :ios do
   desc 'Build iOS IPA and upload to TestFlight'
-  lane :beta_ios do
+  lane :upload do
     v = read_pubspec_version
     UI.message("iOS: name=#{v[:base]} build=#{v[:build]} (from #{v[:full]})")
 
@@ -146,7 +146,7 @@ end
 platform :mac do
   desc 'Build macOS .app, sign inside-out, package PKG and upload to TestFlight.'
   desc 'Pass skip_rust:true to reuse already-built Rust backend binaries.'
-  lane :beta_macos do |options|
+  lane :upload do |options|
     skip_rust = options[:skip_rust].to_s == 'true'
     v = read_pubspec_version
     UI.message("macOS: name=#{v[:base]} build=#{v[:build]} (from #{v[:full]})")
@@ -250,7 +250,7 @@ end
 
 platform :android do
   desc 'Build Android AAB and upload to Play Console internal track (draft).'
-  lane :beta_android do
+  lane :upload do
     v = read_pubspec_version
     UI.message("Android: name=#{v[:base]} versionCode=#{v[:build]} (from #{v[:full]})")
 
