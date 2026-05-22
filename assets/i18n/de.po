@@ -2003,6 +2003,14 @@ msgstr "Fehler beim Aktualisieren der Bewertung"
 msgid "error_updating_status"
 msgstr "Fehler beim Aktualisieren des Status"
 
+#. Something went wrong
+msgid "error_unexpected_title"
+msgstr "Etwas ist schiefgelaufen"
+
+#. The app encountered an unexpected error. Please try again.
+msgid "error_unexpected_message"
+msgstr "Die App ist auf einen unerwarteten Fehler gestoßen. Bitte versuchen Sie es erneut."
+
 msgid "existing_tags_section"
 msgstr "Vorhandene Regale"
 
@@ -6572,6 +6580,51 @@ msgstr "Meine Bibliothek online teilen"
 msgid "directory_no_results"
 msgstr "Keine Bibliotheken gefunden"
 
+#. ADR-035 Phase 2: empty state when a country/city filter is active
+msgid "directory_no_results_in_location"
+msgstr "Noch keine Bibliotheken in diesem Gebiet."
+
+#. CTA shown under directory_no_results_in_location, opens settings
+msgid "directory_be_first_share_city"
+msgstr "Seien Sie die erste Bibliothek, die ihre Stadt teilt"
+
+#. Tooltip on the directory filter button (ADR-035 Phase 2)
+msgid "directory_filter_tooltip"
+msgstr "Nach Standort filtern"
+
+#. Tooltip on the X icon of the active filter chip
+msgid "directory_filter_clear"
+msgstr "Filter entfernen"
+
+#. A11y label for the tap-to-filter shortcut on a profile location chip (ADR-035, RGAA A1)
+msgid "directory_filter_by_location_a11y"
+msgstr "Verzeichnis nach diesem Standort filtern"
+
+#. Banner shown above the public directory when the user has registered their
+#. city and at least one peer is in the same city (V1 same-city highlight).
+#. Singular form, used when exactly 1 peer is in the user city.
+msgid "directory_same_city_banner_one"
+msgstr "Es gibt 1 Bibliothek in Ihrer Stadt"
+
+#. Plural form of the same-city banner. %d is replaced with the visible count
+#. (capped at 10). Used for 2 to 10 peers.
+msgid "directory_same_city_banner_other"
+msgstr "Es gibt %d Bibliotheken in Ihrer Stadt"
+
+#. Saturated form of the same-city banner, used when more than 10 peers
+#. share the user city. %d is replaced with the cap (10), so the rendered
+#. text reads "10+ libraries".
+msgid "directory_same_city_banner_more_than"
+msgstr "Es gibt %d+ Bibliotheken in Ihrer Stadt"
+
+#. Action button on the same-city banner; applies the existing city filter.
+msgid "directory_same_city_view_action"
+msgstr "Anzeigen"
+
+#. Tooltip on the same-city banner action button (RGAA A1, A4).
+msgid "directory_same_city_view_tooltip"
+msgstr "Das Verzeichnis auf Bibliotheken in Ihrer Stadt filtern"
+
 msgid "directory_pending"
 msgstr "Ausstehend"
 
@@ -6848,6 +6901,10 @@ msgstr "Ausleiher"
 
 msgid "network_hub_requests_title"
 msgstr "Folgeanfragen"
+
+#. Hub pending requests - explanatory note shown when the public directory is disabled but legacy pending requests still exist server-side
+msgid "hub_pending_legacy_note"
+msgstr "Das öffentliche Verzeichnis ist deaktiviert. Sie können diese vorhandenen Anfragen trotzdem bearbeiten, um den Zähler zurückzusetzen."
 
 msgid "network_tab_discover"
 msgstr "Öffentliches Verzeichnis"
@@ -8609,6 +8666,106 @@ msgstr "Auf dem Gerät speichern"
 msgid "backup_export_share"
 msgstr "Teilen"
 
+#. Settings - Backup section title (top-level accordion)
+msgid "backup_section_title"
+msgstr "Sicherung und Export"
+
+#. Settings - Backup: export catalog tile title
+msgid "backup_export_catalog_title"
+msgstr "Meinen Katalog exportieren"
+
+#. Settings - Backup: export catalog tile subtitle
+msgid "backup_export_catalog_subtitle"
+msgstr "Portable, teilbare Datei zur Archivierung oder zum Import in eine andere Anwendung. Enthält Bücher, Autoren, Tags, Sammlungen und Kontakte."
+
+#. Settings - Backup: full backup tile title
+msgid "backup_full_title"
+msgstr "Vollständige Sicherung"
+
+#. Settings - Backup: full backup tile subtitle
+msgid "backup_full_subtitle"
+msgstr "Verschlüsseltes Archiv, um Ihre Bibliothek vollständig auf diesem oder einem anderen Gerät wiederherzustellen. Aktivieren Sie „Identität einbeziehen“, um auf ein neues Gerät zu migrieren, ohne das E2EE-Pairing mit Ihren Peers zu wiederholen."
+
+#. Settings - Backup: snackbar shown when tapping the disabled full backup tile
+msgid "backup_full_unavailable"
+msgstr "In einer zukünftigen Version verfügbar."
+
+#. Settings - Backup: restore tile title
+msgid "backup_restore_title"
+msgstr "Eine Sicherung wiederherstellen"
+
+#. Settings - Backup: restore tile subtitle
+msgid "backup_restore_subtitle"
+msgstr "Stellt eine Katalog-Exportdatei wieder her. ACHTUNG: ersetzt alle aktuellen Daten."
+
+#. Settings - System section title (top-level accordion)
+msgid "system_section_title"
+msgstr "System"
+
+#. Settings - System: reset tile title
+msgid "system_reset_title"
+msgstr "App zurücksetzen"
+
+#. Settings - System: reset tile subtitle
+msgid "system_reset_subtitle"
+msgstr "Bücher löschen oder neu beginnen."
+
+#. Settings - Content: migration wizard tile title (post option-B refactor)
+msgid "migration_wizard_tile_title"
+msgstr "Meine Bibliothek importieren & organisieren"
+
+#. Settings - Content: migration wizard tile subtitle (post option-B refactor)
+msgid "migration_wizard_tile_subtitle"
+msgstr "Bücher aus einer Datei importieren oder Ihre Regale verwalten."
+
+#. Migration Wizard - AppBar title (post option-B refactor)
+msgid "migration_wizard_screen_title"
+msgstr "Importieren & organisieren"
+
+#. Migration Wizard - Import section title
+msgid "migration_section_import_title"
+msgstr "Importieren & zusammenführen"
+
+#. Migration Wizard - Import section subtitle
+msgid "migration_section_import_subtitle"
+msgstr "Fügen Sie Bücher von anderen Plattformen zu Ihrer aktuellen Bibliothek hinzu."
+
+#. Migration Wizard - CSV import card title
+msgid "migration_card_csv_title"
+msgstr "Datei-Import (CSV / XLSX)"
+
+#. Migration Wizard - CSV import card subtitle
+msgid "migration_card_csv_subtitle"
+msgstr "Goodreads, Babelio, Gleeph oder eine beliebige Datei mit Titel-/ISBN-Spalten."
+
+#. Migration Wizard - Organisation section title
+msgid "migration_section_organisation_title"
+msgstr "Organisation"
+
+#. Migration Wizard - Organisation section subtitle
+msgid "migration_section_organisation_subtitle"
+msgstr "Verwalten Sie die Struktur Ihrer Bibliothek."
+
+#. Migration Wizard - Manage shelves card title
+msgid "migration_card_shelves_title"
+msgstr "Regale verwalten"
+
+#. Migration Wizard - Manage shelves card subtitle
+msgid "migration_card_shelves_subtitle"
+msgstr "Benennen Sie Ihre virtuellen Regale um oder organisieren Sie sie."
+
+#. Migration Wizard - CSV import success message ({count} = number of books)
+msgid "migration_import_success"
+msgstr "Erfolg: {count} Bücher importiert!"
+
+#. Migration Wizard - CSV import failure (no specific error returned)
+msgid "migration_import_failed"
+msgstr "Import fehlgeschlagen"
+
+#. Migration Wizard - Generic error prefix (e.g. "Error: <details>")
+msgid "migration_error_prefix"
+msgstr "Fehler"
+
 #. Already borrowing this book from this peer (accepted loan)
 msgid "borrow_active"
 msgstr "Ausgeliehen"
@@ -8688,6 +8845,38 @@ msgstr "Punktzahlen zurücksetzen"
 #. Country / Market
 msgid "settings_country"
 msgstr "Land"
+
+#. Toggle: opt in to share city in the public directory (ADR-035)
+msgid "settings_share_city"
+msgstr "Meine Stadt teilen"
+
+#. Description for the share-my-city toggle
+msgid "settings_share_city_desc"
+msgstr "Fügt Ihre Stadt zu Ihrem öffentlichen Profil hinzu, damit Leser in der Nähe Sie finden können. Standardmäßig deaktiviert."
+
+#. Placeholder shown in the city picker before the user has chosen one
+msgid "settings_city_pick"
+msgstr "Stadt auswählen"
+
+#. Shown when a stored city id no longer resolves (corrupt local cache)
+msgid "settings_city_unknown"
+msgstr "Unbekannte Stadt"
+
+#. City picker error: hub has no static file for this country yet
+msgid "settings_city_unavailable"
+msgstr "Für dieses Land sind noch keine Stadtdaten verfügbar. Bitte versuchen Sie es später erneut."
+
+#. A11y label for the city picker button in settings (ADR-035, RGAA A1)
+msgid "settings_open_city_picker_a11y"
+msgstr "Stadtauswahl öffnen"
+
+#. City picker empty state: search returned nothing
+msgid "settings_city_no_match"
+msgstr "Keine passende Stadt."
+
+#. Generic search input placeholder (city picker, country picker, etc.)
+msgid "search"
+msgstr "Suchen"
 
 #. Save order (shelf reorder mode)
 msgid "save_shelf_order"
@@ -9293,7 +9482,7 @@ msgid "auto_backup_activation_title"
 msgstr "Auto-Sicherung aktivieren"
 
 msgid "auto_backup_activation_explanation"
-msgstr "Auto-Sicherung erstellt einen verschlüsselten Snapshot Ihres Katalogs (Bücher, Exemplare, Ausleihen, Kontakte), um auf diesem Gerät zurückzurollen. Sie enthält nicht Ihre E2EE-Identität: für die Migration auf ein neues Gerät ohne erneutes Pairing mit Ihren Peers, führen Sie eine manuelle „Vollständige Sicherung" mit aktivierter Option „Identität einbeziehen" aus."
+msgstr "Auto-Sicherung erstellt einen verschlüsselten Snapshot Ihres Katalogs (Bücher, Exemplare, Ausleihen, Kontakte), um auf diesem Gerät zurückzurollen. Sie enthält nicht Ihre E2EE-Identität: für die Migration auf ein neues Gerät ohne erneutes Pairing mit Ihren Peers, führen Sie eine manuelle „Vollständige Sicherung“ mit aktivierter Option „Identität einbeziehen“ aus."
 
 msgid "auto_backup_activation_mode_recovery_code"
 msgstr "Meinen Wiederherstellungscode verwenden"
@@ -9341,7 +9530,7 @@ msgid "auto_backup_clone_nudge_title"
 msgstr "Erwägen Sie einen Vollexport mit Identität"
 
 msgid "auto_backup_clone_nudge_body"
-msgstr "Die Auto-Sicherung umfasst nur Ihren Katalog. Um auf ein neues Gerät zu migrieren ohne das E2EE-Pairing mit Ihren Peers zu wiederholen, führen Sie regelmäßig eine „Vollständige Sicherung" mit aktivierter Option „Identität einbeziehen" aus und bewahren Sie die Datei extern auf (iCloud Drive, verschlüsselter USB-Stick usw.)."
+msgstr "Die Auto-Sicherung umfasst nur Ihren Katalog. Um auf ein neues Gerät zu migrieren ohne das E2EE-Pairing mit Ihren Peers zu wiederholen, führen Sie regelmäßig eine „Vollständige Sicherung“ mit aktivierter Option „Identität einbeziehen“ aus und bewahren Sie die Datei extern auf (iCloud Drive, verschlüsselter USB-Stick usw.)."
 
 msgid "auto_backup_clone_nudge_export"
 msgstr "Jetzt exportieren"
