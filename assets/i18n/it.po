@@ -162,6 +162,10 @@ msgstr "Aggiungi libro manualmente"
 msgid "add_book_title"
 msgstr "Aggiungi Libro"
 
+#. Contextual add book title (with destination name)
+msgid "add_book_to_title"
+msgstr "Aggiungi a"
+
 #. Add Books
 msgid "add_books"
 msgstr "Aggiungi Libri"
@@ -173,6 +177,10 @@ msgstr "Aggiungi libri per vedere le tue statistiche di lettura"
 #. Add Collection
 msgid "add_collection"
 msgstr "Aggiungi Collezione"
+
+#. Add collection hint (inline field placeholder)
+msgid "add_collection_hint"
+msgstr "Scrivi il nome di una collezione..."
 
 #. Add Contact
 msgid "add_contact"
@@ -429,9 +437,17 @@ msgstr "Scopri audiolibri gratuiti da LibriVox e altri"
 msgid "author_hint"
 msgstr "Nome dell'autore"
 
+#. Author - when authors already added
+msgid "author_hint_add"
+msgstr "Aggiungi un altro autore..."
+
 #. Author
 msgid "author_label"
 msgstr "Autore"
+
+#. Helper text for author field
+msgid "author_helper"
+msgstr "Aggiungi più autori uno alla volta"
 
 #. Available
 msgid "availability_available"
@@ -549,13 +565,25 @@ msgstr "Prezzo Medio"
 msgid "avg_duration"
 msgstr "Durata Media"
 
+#. Short-hand for an average loan duration below one day (loan statistics card)
+msgid "avg_duration_under_one_day"
+msgstr "< 1 g"
+
 #. Average Rating
 msgid "avg_rating"
 msgstr "Valutazione Media"
 
+#. Description for average rating insight
+msgid "avg_rating_desc"
+msgstr "Media su %1 libri valutati"
+
 #. Avg. Reading Time
 msgid "avg_reading_time"
 msgstr "Tempo Medio di Lettura"
+
+#. Description for average reading time insight
+msgid "avg_reading_time_desc"
+msgstr "Basato su %1 libri con date di inizio e fine"
 
 #. Back to All
 msgid "back_to_all"
@@ -704,6 +732,14 @@ msgstr "Miglior Serie"
 msgid "book"
 msgstr "libro"
 
+#. Contact has this book in their library
+msgid "contact_has_book"
+msgstr "Ha questo libro"
+
+#. Error borrowing book - library not initialized
+msgid "error_borrow_setup_incomplete"
+msgstr "Impossibile salvare il prestito. Vai nelle Impostazioni per completare la configurazione della biblioteca."
+
 #. Book borrowed from
 msgid "book_borrowed_from"
 msgstr "Libro preso in prestito da"
@@ -800,6 +836,14 @@ msgstr "libri/mese"
 msgid "books_per_year"
 msgstr "libri/anno"
 
+#. Books finished this year
+msgid "books_finished_year"
+msgstr "Finiti quest'anno"
+
+#. Description for books finished this year insight
+msgid "books_finished_year_desc"
+msgstr "Libri finiti nel %1"
+
 #. books read
 msgid "books_read"
 msgstr "libri letti"
@@ -808,6 +852,10 @@ msgstr "libri letti"
 msgid "books_skipped_count"
 msgstr "{count} saltati."
 
+#. books (suffix)
+msgid "books_suffix"
+msgstr "libri"
+
 #. Bookseller
 msgid "bookseller"
 msgstr "Libraio"
@@ -815,6 +863,22 @@ msgstr "Libraio"
 #. Borrow
 msgid "borrow"
 msgstr "Prendi in prestito"
+
+#. Borrow request already pending
+msgid "borrow_pending"
+msgstr "Richiesto"
+
+#. Already borrowing this book from this peer (accepted loan)
+msgid "borrow_active"
+msgstr "In prestito"
+
+#. Currently lending this book to this peer
+msgid "borrow_on_loan"
+msgstr "In prestito"
+
+#. No copies available to borrow
+msgid "borrow_unavailable"
+msgstr "Non disponibile"
 
 #. Borrow a Book
 msgid "borrow_book_title"
@@ -835,6 +899,13 @@ msgstr "Prendi in prestito da un contatto"
 #. Request sent successfully!
 msgid "borrow_request_sent"
 msgstr "Richiesta inviata con successo!"
+
+#. Borrow request auto-rejected
+msgid "borrow_request_rejected_no_copy"
+msgstr "Richiesta rifiutata: nessuna copia disponibile in questa biblioteca."
+
+msgid "borrow_request_accepted"
+msgstr "Prestito accettato! Il libro è stato aggiunto alla tua biblioteca."
 
 #. A borrowed copy will be added to your existing book
 msgid "borrow_copy_added_to_existing"
@@ -994,7 +1065,7 @@ msgstr "Codice"
 
 #. Collection "{title}" created with {count} books.
 msgid "collection_created"
-msgstr "Collezione "{title}" creata con {count} libri."
+msgstr "Collezione \"{title}\" creata con {count} libri."
 
 #. Collection Details
 msgid "collection_details"
@@ -1019,6 +1090,10 @@ msgstr "Collezioni"
 #. Collections
 msgid "collections"
 msgstr "Collezioni"
+
+#. Collection tag (library grouped view)
+msgid "collection_tag"
+msgstr "Collezione"
 
 #. Group books together, e.g. Summer reads, Book club
 msgid "collections_helper"
@@ -1392,6 +1467,15 @@ msgstr "Scatta una foto"
 msgid "cover_take_photo_tooltip"
 msgstr "Scatta una foto della copertina"
 
+msgid "cover_label"
+msgstr "Copertina"
+
+msgid "cover_take_photo_short"
+msgstr "Foto"
+
+msgid "cover_choose_short"
+msgstr "Galleria"
+
 #. Use
 msgid "cover_use_button"
 msgstr "Usa"
@@ -1478,6 +1562,18 @@ msgstr "Seleziona data"
 msgid "days"
 msgstr "giorni"
 
+#. days ago (suffix)
+msgid "days_ago_suffix"
+msgstr "g."
+
+#. Last book finished
+msgid "days_since_last"
+msgstr "Ultimo libro finito"
+
+#. Description for days since last finished book
+msgid "days_since_last_desc"
+msgstr "Tempo dall'ultimo libro finito"
+
 #. day streak
 msgid "days_streak"
 msgstr "giorni consecutivi"
@@ -1498,6 +1594,14 @@ msgstr "Sei sicuro di voler eliminare questo libro?"
 msgid "delete_book_title"
 msgstr "Elimina libro"
 
+#. Return the borrowed copy before deleting.
+msgid "delete_disabled_borrowed_tooltip"
+msgstr "Restituisci la copia presa in prestito prima di eliminarla."
+
+#. Mark the loaned copy as returned before deleting.
+msgid "delete_disabled_lent_tooltip"
+msgstr "Segna la copia prestata come restituita prima di eliminarla."
+
 #. Delete Collection
 msgid "delete_collection"
 msgstr "Elimina collezione"
@@ -1513,6 +1617,18 @@ msgstr "Eliminare collezione?"
 #. Are you sure you want to delete this collection? This cannot be undone.
 msgid "delete_collection_warning"
 msgstr "Sei sicuro di voler eliminare questa collezione? Questa operazione non può essere annullata."
+
+#. Also delete the books in this collection (checkbox label, off by default)
+msgid "delete_collection_include_books"
+msgstr "Elimina anche i libri di questa collezione"
+
+#. "{to_delete} to delete, {to_keep} kept" - preview shown below the checkbox
+msgid "delete_collection_preview_summary"
+msgstr "{to_delete} da eliminare, {to_keep} mantenuti"
+
+#. Legend shown below the preview summary in the delete-with-books confirmation
+msgid "delete_collection_preview_legend"
+msgstr "Libri mantenuti: prestati, presi in prestito, in un'altra collezione o su uno scaffale."
 
 #. Delete
 msgid "delete_contact_btn"
@@ -1541,6 +1657,10 @@ msgstr "Elimina copia"
 #. Delete Shelf
 msgid "delete_shelf"
 msgstr "Elimina scaffalatura"
+
+#. Are you sure you want to delete the shelf "%s"? This action cannot be undone.
+msgid "delete_shelf_confirm"
+msgstr "Sei sicuro di voler eliminare lo scaffale \"%s\"? Questa azione non può essere annullata."
 
 #. This will also delete sub-shelves
 msgid "delete_shelf_warning"
@@ -1625,6 +1745,18 @@ msgstr "Nessuna lista in questa categoria"
 #. + {count} altri...
 msgid "curated_more_books"
 msgstr "+ {count} altri..."
+
+#. Header for collections available in the user's reading languages
+msgid "curated_section_in_your_languages"
+msgstr "Nelle tue lingue"
+
+#. Header for collections in other languages, shown collapsed by default
+msgid "curated_section_other_languages"
+msgstr "Altre lingue"
+
+#. Hint shown below the "other languages" header when collapsed
+msgid "curated_other_languages_hint"
+msgstr "Altri {count} in lingue che non hai selezionato"
 
 #. Discover Curated Collections
 msgid "discover_collections_title"
@@ -1773,6 +1905,10 @@ msgstr "Nessun libro prestato"
 msgid "empty_no_loans_hint"
 msgstr "Presta un libro dalla tua libreria per iniziare"
 
+#. Search placeholder in loans tabs
+msgid "search_loans"
+msgstr "Cerca per titolo o nome..."
+
 #. Clear returned loans history
 msgid "clean_returned_loans"
 msgstr "Cancella cronologia prestiti restituiti"
@@ -1820,6 +1956,26 @@ msgstr "Abilita audiolibri"
 #. Enable Borrowing
 msgid "enable_borrowing_module"
 msgstr "Abilita prestiti"
+
+#. Lending
+msgid "enable_lending_module"
+msgstr "Prestito"
+
+#. Allow lending your books to your contacts
+msgid "lending_module_desc"
+msgstr "Permetti di prestare i tuoi libri ai tuoi contatti"
+
+#. Loans modules disabled
+msgid "loans_disabled_title"
+msgstr "I prestiti sono disattivati"
+
+#. Both lending and borrowing modules are off. Re-enable them in Settings to manage loans here.
+msgid "loans_disabled_body"
+msgstr "I moduli di prestito e di acquisizione in prestito sono entrambi disattivati. Riattivali nelle Impostazioni per gestire i prestiti qui."
+
+#. Open Settings
+msgid "loans_disabled_open_settings"
+msgstr "Apri Impostazioni"
 
 #. Enable Gamification
 msgid "enable_gamification"
@@ -1892,6 +2048,10 @@ msgstr "Errore"
 #. No copies available
 msgid "error_409_conflict"
 msgstr "Nessuna copia disponibile"
+
+#. No available copy for loan request
+msgid "error_no_available_copy"
+msgstr "Questo libro non ha copie disponibili. Tutte le copie sono attualmente in prestito."
 
 #. Error adding
 msgid "error_adding"
@@ -2036,6 +2196,14 @@ msgstr "Errore durante l'aggiornamento della valutazione"
 msgid "error_updating_status"
 msgstr "Errore durante l'aggiornamento dello stato"
 
+#. Something went wrong
+msgid "error_unexpected_title"
+msgstr "Qualcosa è andato storto"
+
+#. The app encountered an unexpected error. Please try again.
+msgid "error_unexpected_message"
+msgstr "L'app ha riscontrato un errore imprevisto. Riprova."
+
 msgid "existing_tags_section"
 msgstr "Scaffali esistenti"
 
@@ -2079,9 +2247,21 @@ msgstr "Libro più veloce"
 msgid "fastest_read"
 msgstr "Lettura più veloce"
 
+#. Description for fastest read insight
+msgid "fastest_read_desc"
+msgstr "Libro finito nel minor tempo"
+
 #. Favorite book
 msgid "favorite_book"
 msgstr "Libro preferito"
+
+#. Description for best rated insight
+msgid "best_rated_desc"
+msgstr "Il tuo libro con la valutazione più alta"
+
+#. Empty state for insights with no data
+msgid "insight_no_data"
+msgstr "Ancora nessun dato"
 
 #. Borrow
 msgid "feature_borrow"
@@ -2234,6 +2414,22 @@ msgstr "Compila tutti i campi"
 #. All
 msgid "filter_all"
 msgstr "Tutti"
+
+#. Active loans (not overdue)
+msgid "filter_active"
+msgstr "Attivi"
+
+#. Overdue loans
+msgid "filter_overdue"
+msgstr "In ritardo"
+
+#. Returned loans
+msgid "filter_returned"
+msgstr "Restituiti"
+
+#. All months (date filter placeholder)
+msgid "filter_all_months"
+msgstr "Tutti i periodi"
 
 #. All my books
 msgid "filter_all_books"
@@ -2415,6 +2611,26 @@ msgstr "Ottieni una chiave gratuita su console.cloud.google.com"
 msgid "google_api_key_label"
 msgstr "Chiave API di Google Books"
 
+#. Tag shown next to the Google Books toggle title to flag it as needing extra setup
+msgid "google_books_advanced_tag"
+msgstr "Avanzato"
+
+#. Badge shown on the Google Books filter chip when no API key is set
+msgid "google_books_no_api_key_badge"
+msgstr "Nessuna chiave API"
+
+#. SnackBar shown when filtering by Google Books without an API key
+msgid "google_books_no_api_key_snackbar"
+msgstr "Google Books esaurisce rapidamente la sua quota anonima. Aggiungi una chiave API nelle Impostazioni."
+
+#. Info banner shown under the Google Books toggle when no API key is set
+msgid "google_books_no_api_key_warning"
+msgstr "Google Books condivide una quota anonima ristretta tra tutti gli utenti senza chiave. Aggiungi una chiave API gratuita qui sotto per risultati affidabili."
+
+#. Clickable link below the Google Books API key field
+msgid "google_books_api_key_help_link"
+msgstr "Come ottenere una chiave API Google"
+
 #. Good afternoon
 msgid "greeting_afternoon"
 msgstr "Buon pomeriggio"
@@ -2593,7 +2809,7 @@ msgstr "Richiedi un libro"
 
 #. Find a book and tap "Request" to ask for a loan
 msgid "help_ctx_network_tip_request_desc"
-msgstr "Trova un libro e tocca "Richiedi" per chiedere un prestito"
+msgstr "Trova un libro e tocca \"Richiedi\" per chiedere un prestito"
 
 #. Network Help
 msgid "help_ctx_network_title"
@@ -2657,7 +2873,7 @@ msgstr "Aiuto sulle Impostazioni"
 
 #. Shelves help you organize your books into categories. Create custom shelves like "To Read", "Favorites", or by genre.
 msgid "help_ctx_shelves_content"
-msgstr "Gli scaffali ti aiutano a organizzare i libri in categorie. Crea scaffali personalizzati come "Da leggere", "Preferiti" o per genere."
+msgstr "Gli scaffali ti aiutano a organizzare i libri in categorie. Crea scaffali personalizzati come \"Da leggere\", \"Preferiti\" o per genere."
 
 #. Assign books
 msgid "help_ctx_shelves_tip_assign"
@@ -2695,9 +2911,13 @@ msgstr "Numero di libri completati ogni mese nell’ultimo anno."
 msgid "help_ctx_stats_publication_year"
 msgstr "Distribuzione dei libri per decade di pubblicazione."
 
+#. Average rating of your books grouped by shelf and collection. Only groups with at least 3 rated books are shown.
+msgid "help_ctx_stats_rating_by_group"
+msgstr "Valutazione media dei tuoi libri raggruppati per scaffale e collezione. Vengono mostrati solo i gruppi con almeno 3 libri valutati."
+
 #. Analyze your reading status distribution. "Read" means finished books, "Reading" are currently in progress.
 msgid "help_ctx_stats_reading_habits"
-msgstr "Analizza la distribuzione dello stato di lettura. "Letti" indica libri completati, "In lettura" indica libri in corso."
+msgstr "Analizza la distribuzione dello stato di lettura. \"Letti\" indica libri completati, \"In lettura\" indica libri in corso."
 
 #. Revenue and sales data for your book sales.
 msgid "help_ctx_stats_sales"
@@ -2713,7 +2933,7 @@ msgstr "Curiosità sulla tua velocità di lettura e preferenze."
 
 #. Go to "My Library" and tap the "+" button. You can scan a barcode or search by title/ISBN.
 msgid "help_desc_add_book"
-msgstr "Vai su "La mia biblioteca" e tocca il pulsante "+". Puoi scansionare un codice a barre o cercare per titolo/ISBN."
+msgstr "Vai su \"La mia biblioteca\" e tocca il pulsante \"+\". Puoi scansionare un codice a barre o cercare per titolo/ISBN."
 
 #. When enabled, the Audio module automatically searches for free audiobook versions of your books on LibriVox, Littérature Audio, and Archive.org. Enable it in your profile settings, then listen directly from each book's details page.
 msgid "help_desc_audio"
@@ -2725,11 +2945,11 @@ msgstr "Le collezioni ti permettono di raggruppare i libri in liste personalizza
 
 #. Go to "Connect Library" to share your QR code or scan a friend's code.
 msgid "help_desc_connect"
-msgstr "Vai su "Connetti Biblioteca" per condividere il tuo codice QR o scansionare quello di un amico."
+msgstr "Vai su \"Connetti Biblioteca\" per condividere il tuo codice QR o scansionare quello di un amico."
 
 #. Go to "Network" to add friends or libraries. You can add borrowers (who can borrow your books) or libraries (whose catalog you can browse).
 msgid "help_desc_contacts"
-msgstr "Vai su "Rete" per aggiungere amici o biblioteche. Puoi aggiungere prestatori (che possono prendere in prestito i tuoi libri) o biblioteche (il cui catalogo puoi sfogliare)."
+msgstr "Vai su \"Rete\" per aggiungere amici o biblioteche. Puoi aggiungere prestatori (che possono prendere in prestito i tuoi libri) o biblioteche (il cui catalogo puoi sfogliare)."
 
 #. Your library data is stored locally on your device. When you connect with friends, only the books you choose to share are visible to them. You can export a backup anytime from your Profile.
 msgid "help_desc_data_privacy"
@@ -2753,23 +2973,51 @@ msgstr "Visualizza le tue statistiche, i badge, gli obiettivi e la classifica"
 
 #. Find the book in your library, tap "Manage Copies", then "Lend". Select a contact to lend to.
 msgid "help_desc_lend"
-msgstr "Trova il libro nella tua libreria, tocca "Gestisci copie", poi "Presta". Seleziona un contatto a cui prestarlo."
+msgstr "Trova il libro nella tua libreria, tocca \"Gestisci copie\", poi \"Presta\". Seleziona un contatto a cui prestarlo."
 
 #. The "Network" section lets you discover and browse catalogs of libraries you've added. You can request to borrow books from there.
 msgid "help_desc_network"
-msgstr "La sezione "Rete" ti permette di scoprire e sfogliare i cataloghi delle librerie che hai aggiunto. Puoi richiedere libri da prendere in prestito da lì."
+msgstr "La sezione \"Rete\" ti permette di scoprire e sfogliare i cataloghi delle librerie che hai aggiunto. Puoi richiedere libri da prendere in prestito da lì."
 
 #. 1. Create thematic shelves for your books (e.g., "SciFi", "Favorites").\n2. In your Library, tap a shelf to filter.\n3. Tap the Sort icon (≡) to enter reorder mode.\n4. Drag books to your preferred order, or tap A→Z for auto-sort by author.\n5. Tap ✓ to save your custom arrangement!
 msgid "help_desc_organize_shelf"
-msgstr "1. Crea scaffali tematici per i tuoi libri (es. "Fantascienza", "Preferiti").\n2. Nella tua Libreria, tocca uno scaffale per filtrare.\n3. Tocca l'icona Ordina (≡) per entrare in modalità riordino.\n4. Trascina i libri nell'ordine desiderato oppure tocca A→Z per ordinare automaticamente per autore.\n5. Tocca ✓ per salvare il tuo ordine personalizzato!"
+msgstr "1. Crea scaffali tematici per i tuoi libri (es. \"Fantascienza\", \"Preferiti\").\n2. Nella tua Libreria, tocca uno scaffale per filtrare.\n3. Tocca l'icona Ordina (≡) per entrare in modalità riordino.\n4. Trascina i libri nell'ordine desiderato oppure tocca A→Z per ordinare automaticamente per autore.\n5. Tocca ✓ per salvare il tuo ordine personalizzato!"
 
 #. Open a book and tap "Mark as Reading" to start tracking. Update your progress as you read. When finished, mark it as "Read" to earn XP and unlock achievements!
 msgid "help_desc_reading_progress"
-msgstr "Apri un libro e tocca "Segna come in lettura" per iniziare a tenere traccia. Aggiorna i tuoi progressi mentre leggi. Quando finisci, segna come "Letto" per guadagnare XP e sbloccare obiettivi!"
+msgstr "Apri un libro e tocca \"Segna come in lettura\" per iniziare a tenere traccia. Aggiorna i tuoi progressi mentre leggi. Quando finisci, segna come \"Letto\" per guadagnare XP e sbloccare obiettivi!"
 
 #. In "Requests", you can see all incoming borrow requests (people wanting your books) and outgoing ones (your requests to others). Accept, decline, or mark as returned.
 msgid "help_desc_requests"
-msgstr "In "Richieste" puoi vedere tutte le richieste in arrivo (persone che vogliono i tuoi libri) e quelle in uscita (le tue richieste agli altri). Accetta, rifiuta o segna come restituito."
+msgstr "In \"Richieste\" puoi vedere tutte le richieste in arrivo (persone che vogliono i tuoi libri) e quelle in uscita (le tue richieste agli altri). Accetta, rifiuta o segna come restituito."
+
+#. Use the barcode scanner to instantly identify books. Point your camera at the ISBN barcode on the back cover. BiblioGenius will search multiple catalogs and auto-fill all metadata (title, author, cover, publisher).
+msgid "help_desc_scan"
+msgstr "Usa lo scanner di codici a barre per identificare istantaneamente i libri. Punta la fotocamera sul codice a barre ISBN sul retro della copertina. BiblioGenius cercherà in più cataloghi e compilerà automaticamente tutti i metadati (titolo, autore, copertina, editore)."
+
+#. View detailed stats about your reading habits: books read per month, favorite genres, top authors, publication years, and more. Track your progress over time and compare with friends on the leaderboard.
+msgid "help_desc_statistics"
+msgstr "Visualizza statistiche dettagliate sulle tue abitudini di lettura: libri letti al mese, generi preferiti, autori principali, anni di pubblicazione e altro ancora. Monitora i tuoi progressi nel tempo e confrontati con gli amici nella classifica."
+
+#. How to scan a barcode?
+msgid "help_topic_scan"
+msgstr "Come scansionare un codice a barre?"
+
+#. My statistics and achievements
+msgid "help_topic_statistics"
+msgstr "Le mie statistiche e i miei obiettivi"
+
+#. Scan a Book
+msgid "help_cta_scan"
+msgstr "Scansiona un libro"
+
+#. Import my books
+msgid "help_cta_import"
+msgstr "Importa i miei libri"
+
+#. View my stats
+msgid "help_cta_go_to_stats"
+msgstr "Vedi le mie statistiche"
 
 #. Frequently Asked Questions
 msgid "help_faq_title"
@@ -2798,6 +3046,10 @@ msgstr "Strumenti per sviluppatori"
 #. Tips
 msgid "help_tips_title"
 msgstr "Suggerimenti"
+
+#. See all help topics
+msgid "help_see_all"
+msgstr "Vedi tutti gli argomenti di aiuto"
 
 #. Help & Support
 msgid "help_title"
@@ -2889,7 +3141,7 @@ msgstr "Gestione gerarchica degli scaffali"
 
 #. Tip: Use "Parent > Child" to create sub-tags
 msgid "hierarchical_tag_hint"
-msgstr "Suggerimento: usa "Genitore > Figlio" per creare sotto-etichetta"
+msgstr "Suggerimento: usa \"Genitore > Figlio\" per creare sotto-etichetta"
 
 #. Home
 msgid "home"
@@ -2897,7 +3149,7 @@ msgstr "Home"
 
 #. Connecting lets you manage loans and sync books. Ask your friend to open their app, go to "Network" and tap +, then "Show My Code". On your side, tap "Scan QR Code" to connect instantly.
 msgid "how_to_add_contact_help_desc"
-msgstr "Connettendoti puoi gestire i prestiti e sincronizzare i libri. Chiedi al tuo amico di aprire l'app, andare su "Rete" e toccare +, poi "Mostra il mio codice". Dalla tua parte, tocca "Scansiona QR Code" per connetterti subito."
+msgstr "Connettendoti puoi gestire i prestiti e sincronizzare i libri. Chiedi al tuo amico di aprire l'app, andare su \"Rete\" e toccare +, poi \"Mostra il mio codice\". Dalla tua parte, tocca \"Scansiona QR Code\" per connetterti subito."
 
 #. Add Contact via QR Code
 msgid "how_to_add_contact_help_title"
@@ -2909,7 +3161,7 @@ msgstr "Come aggiungere un contatto tramite QR Code"
 
 #. Go to the "Network" tab. Tap the + button at the bottom right of the screen and tap "Show My Code". Your friends can scan it by tapping "Scan QR Code" to connect to your library.
 msgid "how_to_show_code_help_desc"
-msgstr "Vai alla scheda "Rete". Tocca il pulsante + in basso a destra e poi "Mostra il mio codice". I tuoi amici possono scansionarlo toccando "Scansiona QR Code" per connettersi alla tua libreria."
+msgstr "Vai alla scheda \"Rete\". Tocca il pulsante + in basso a destra e poi \"Mostra il mio codice\". I tuoi amici possono scansionarlo toccando \"Scansiona QR Code\" per connettersi alla tua libreria."
 
 #. Show My QR Code
 msgid "how_to_show_code_help_title"
@@ -2989,7 +3241,7 @@ msgstr "Questo creerà una nuova collezione con {count} libri."
 
 #. Import "{title}"?
 msgid "import_list_title"
-msgstr "Importare "{title}"?"
+msgstr "Importare \"{title}\"?"
 
 #. Tap to select a .bibliogenius file
 msgid "import_method_file_desc"
@@ -3207,6 +3459,10 @@ msgstr "Lettore"
 msgid "leaderboard_reader_desc"
 msgstr "Libri letti"
 
+#. Shown after a manual leaderboard refresh when the Rust backend hit its 25s per-peer relay timeout
+msgid "leaderboard_sync_timeout"
+msgstr "Alcune biblioteche non hanno risposto in tempo"
+
 #. Leaderboard
 msgid "leaderboard_title"
 msgstr "Classifica"
@@ -3322,6 +3578,14 @@ msgstr "librerie trovate"
 #. Library
 msgid "library"
 msgstr "Libreria"
+
+#. Rename library dialog title
+msgid "rename_library_title"
+msgstr "Nome della biblioteca"
+
+#. Rename library hint
+msgid "rename_library_hint"
+msgstr "Es. La biblioteca di Maria"
 
 #. Library Insights
 msgid "library_insights"
@@ -3463,6 +3727,146 @@ msgstr "In ritardo"
 #. Label for the reminder days stepper (how many days before due date to send a first alert)
 msgid "loan_reminder_days_label"
 msgstr "Promemoria prima della scadenza"
+
+#. Label for per-book loan duration field in book detail
+msgid "loan_duration_book_custom"
+msgstr "Durata del prestito personalizzata"
+
+#. Hint when per-book duration is not set (uses global default)
+msgid "loan_duration_book_default_hint"
+msgstr "Usa la durata predefinita (%d giorni)"
+
+#. Tooltip for clearing per-book duration
+msgid "tooltip_clear_book_loan_duration"
+msgstr "Ripristina la durata predefinita"
+
+#. Snackbar confirmation when loan settings are saved
+msgid "loan_settings_saved"
+msgstr "Impostazioni del prestito salvate"
+
+#. Label for due date in loan dialog
+msgid "loan_due_date_label"
+msgstr "Data di restituzione prevista"
+
+#. Loan offer to peer - notification pending
+msgid "loan_notification_pending"
+msgstr "notifica in sospeso"
+
+#. Recovery code - settings row
+msgid "recovery_code_title"
+msgstr "Codice di recupero"
+
+#. Recovery code - settings row subtitle
+msgid "recovery_code_subtitle"
+msgstr "Recupera il tuo profilo dopo aver reinstallato l'app"
+
+#. Recovery code - display screen title
+msgid "recovery_code_display_title"
+msgstr "Codice di recupero"
+
+#. Recovery code - display screen explanation
+msgid "recovery_code_display_explanation"
+msgstr "Questo codice ti permette di recuperare il tuo profilo, i follower e gli abbonamenti se reinstalli l'app."
+
+#. Recovery code - display screen save advice
+msgid "recovery_code_save_advice"
+msgstr "Conservalo in un luogo sicuro. Può essere usato una sola volta: dopo ogni utilizzo verrà generato un nuovo codice."
+
+#. Recovery code - copy button tooltip
+msgid "recovery_code_copy"
+msgstr "Copia il codice di recupero"
+
+#. Recovery code - copied confirmation
+msgid "recovery_code_copied"
+msgstr "Codice di recupero copiato"
+
+#. Recovery code - first display title
+msgid "recovery_code_first_title"
+msgstr "Codice di recupero"
+
+#. Recovery code - first display explanation
+msgid "recovery_code_first_explanation"
+msgstr "Questo codice ti permette di recuperare il tuo profilo nella directory se reinstalli l'app."
+
+#. Recovery code - first display save notice
+msgid "recovery_code_first_save_notice"
+msgstr "Salvalo in un luogo sicuro (gestore di password, nota scritta a mano...)."
+
+#. Recovery code - first display auto notice
+msgid "recovery_code_first_auto_notice"
+msgstr "Questo codice non verrà più mostrato automaticamente. Puoi trovarlo in Impostazioni > Directory."
+
+#. Recovery code - first display confirm button
+msgid "recovery_code_first_confirm"
+msgstr "Ho salvato il mio codice"
+
+#. Connection lost - dialog title
+msgid "connection_lost_title"
+msgstr "Connessione alla directory persa"
+
+#. Connection lost - dialog body
+msgid "connection_lost_body"
+msgstr "Dopo la reinstallazione, il tuo profilo nella directory non è più accessibile. I tuoi libri e i contatti locali non sono interessati."
+
+#. Connection lost - recovery option
+msgid "connection_lost_recovery_option"
+msgstr "Ho un codice di recupero"
+
+#. Connection lost - recovery option subtitle
+msgid "connection_lost_recovery_subtitle"
+msgstr "Recupera il tuo profilo, i follower e gli abbonamenti"
+
+#. Connection lost - new profile option
+msgid "connection_lost_new_profile"
+msgstr "Crea un nuovo profilo"
+
+#. Connection lost - new profile warning
+msgid "connection_lost_new_profile_warning"
+msgstr "I tuoi follower e abbonamenti attuali andranno persi. Le persone che ti seguono dovranno ritrovarti."
+
+#. Connection lost - later button
+msgid "connection_lost_later"
+msgstr "Più tardi"
+
+#. Recovery input - screen title
+msgid "recovery_input_title"
+msgstr "Recupera il tuo profilo"
+
+#. Recovery input - instructions
+msgid "recovery_input_instructions"
+msgstr "Inserisci il codice di recupero che hai salvato quando ti sei registrato nella directory."
+
+#. Recovery input - submit button
+msgid "recovery_input_submit"
+msgstr "Recupera il mio profilo"
+
+#. Recovery input - success message
+msgid "recovery_input_success"
+msgstr "Profilo recuperato! I tuoi follower e abbonamenti sono intatti."
+
+#. Recovery input - success new code notice
+msgid "recovery_input_success_new_code"
+msgstr "È stato generato un nuovo codice di recupero."
+
+#. Recovery input - error message
+msgid "recovery_input_error"
+msgstr "Questo codice non è valido. Verifica che corrisponda a quello che hai salvato."
+
+#. Recovery code - not available (registered before feature)
+msgid "recovery_code_not_available"
+msgstr "Non disponibile. Registrati di nuovo per generarne uno."
+
+#. Badge shown on experimental features
+msgid "badge_experimental"
+msgstr "Sperimentale"
+
+#. Recovery code - scope legend: what is covered
+msgid "recovery_code_scope_covers"
+msgstr "Recupera: il tuo profilo, i follower e chi segui."
+
+#. Recovery code - scope legend: what is excluded
+msgid "recovery_code_scope_excludes"
+msgstr "Non recuperati: i tuoi libri (memorizzati localmente) e i peer aggiunti manualmente (da aggiungere di nuovo)."
 
 #. Loan Statistics
 msgid "loan_statistics"
@@ -3775,6 +4179,26 @@ msgstr "Dashboard"
 #. Help
 msgid "nav_help"
 msgstr "Aiuto"
+
+#. More (bottom navigation)
+msgid "nav_more"
+msgstr "Altro"
+
+#. Bottom nav short labels
+msgid "btm_library"
+msgstr "Biblioteca"
+
+msgid "btm_network"
+msgstr "Contatti"
+
+msgid "btm_loans"
+msgstr "Prestiti"
+
+msgid "btm_profile"
+msgstr "Profilo"
+
+msgid "btm_stats"
+msgstr "Statistiche"
 
 #. Loans
 msgid "nav_loans"
@@ -4176,6 +4600,10 @@ msgstr "P2P"
 msgid "p2p_title"
 msgstr "Collega Libreria"
 
+#. Pages (suffix)
+msgid "pages_suffix"
+msgstr "p."
+
 #. Parent Shelf (optional)
 msgid "parent_shelf"
 msgstr "Scaffale principale (opzionale)"
@@ -4195,6 +4623,22 @@ msgstr "Utilizzata per autenticarsi al server BiblioGenius."
 #. Password changed successfully
 msgid "password_changed_success"
 msgstr "Password cambiata con successo"
+
+#. Enter your password to unlock the app
+msgid "login_local_password_subtitle"
+msgstr "Inserisci la password per sbloccare la tua biblioteca"
+
+#. Remove password
+msgid "remove_password"
+msgstr "Rimuovi password"
+
+#. Remove password confirmation
+msgid "remove_password_confirm"
+msgstr "Sei sicuro di voler rimuovere la password? Chiunque potrà accedere alla tua biblioteca."
+
+#. Password removed successfully
+msgid "password_removed_success"
+msgstr "Password rimossa con successo"
 
 #. Incorrect password
 msgid "password_incorrect"
@@ -4224,6 +4668,14 @@ msgstr "Incolla dagli appunti"
 msgid "peer_offline"
 msgstr "Offline"
 
+#. Hub-only data hint shown when only ISBN/title/author available
+msgid "hub_only_hint"
+msgstr "Anteprima del catalogo. Connettiti alla stessa rete Wi-Fi per i dettagli completi."
+
+#. Detail hint for hub-only entries
+msgid "hub_only_detail_hint"
+msgstr "Connettiti alla stessa rete Wi-Fi o attendi che questa biblioteca sia online per vedere tutti i dettagli."
+
 #. Offline Library Cache
 msgid "peer_offline_caching"
 msgstr "Cache della libreria offline"
@@ -4252,6 +4704,10 @@ msgstr "ID: %s"
 msgid "peer_search_hint"
 msgstr "Es: Thomas"
 
+#. Title, author, ISBN...
+msgid "peer_library_search_hint"
+msgstr "Titolo, autore, ISBN..."
+
 #. Postal Code
 msgid "postal_code_label"
 msgstr "Codice postale"
@@ -4275,6 +4731,18 @@ msgstr "Bibliotecario"
 #. Reader
 msgid "preset_reader"
 msgstr "Lettore"
+
+#. Reader preset legend
+msgid "preset_reader_legend"
+msgstr "Amo leggere e voglio tenere traccia dei miei libri"
+
+#. Librarian preset legend
+msgid "preset_librarian_legend"
+msgstr "Gestisco una biblioteca o una grande collezione"
+
+#. Bookseller preset legend
+msgid "preset_bookseller_legend"
+msgstr "Vendo libri, professionalmente o per hobby"
 
 #. Price
 msgid "price"
@@ -4347,6 +4815,38 @@ msgstr "Lettore individuale"
 #. Track your reading, wishlists, and personal collection.
 msgid "profile_individual_desc"
 msgstr "Monitora letture, liste dei desideri e collezione personale."
+
+#. Reader
+msgid "profile_reader"
+msgstr "Lettore"
+
+#. Manage your personal library, reading lists, and wishlists.
+msgid "profile_reader_desc"
+msgstr "Gestisci la tua biblioteca personale, le liste di lettura e le liste dei desideri."
+
+#. Family
+msgid "profile_family"
+msgstr "Famiglia"
+
+#. Share a family library with multiple readers.
+msgid "profile_family_desc"
+msgstr "Condividi una biblioteca familiare con più lettori."
+
+#. Educator
+msgid "profile_educator"
+msgstr "Educatore"
+
+#. Manage a classroom or school library.
+msgid "profile_educator_desc"
+msgstr "Gestisci la biblioteca di una classe o di una scuola."
+
+#. Association
+msgid "profile_association"
+msgstr "Associazione"
+
+#. Manage resources for an association or community group.
+msgid "profile_association_desc"
+msgstr "Gestisci le risorse di un'associazione o di un gruppo della comunità."
 
 #. Young Reader
 msgid "profile_kid"
@@ -4456,6 +4956,90 @@ msgstr "Prendi in prestito un libro"
 msgid "quick_create_shelf"
 msgstr "Crea scaffale"
 
+#. My contacts
+msgid "quick_my_contacts"
+msgstr "Contatti"
+
+#. Inventory (batch scan into a shelf)
+msgid "quick_inventory"
+msgstr "Inventario"
+
+#. Add book manually
+msgid "quick_add_manual"
+msgstr "Aggiungi manualmente"
+
+#. Choose shortcut (custom quick action picker)
+msgid "quick_action_choose"
+msgstr "Scegli scorciatoia"
+
+#. Choose a shelf for inventory scan
+msgid "choose_shelf_for_inventory"
+msgstr "Scegli uno scaffale"
+
+#. No shelves exist yet for inventory
+msgid "no_shelves_for_inventory"
+msgstr "Crea prima uno scaffale per usare la modalità inventario."
+
+#. Batch scan
+msgid "quick_batch_scan"
+msgstr "Scansione multipla"
+
+#. Manage shelves
+msgid "quick_manage_shelves"
+msgstr "Gestisci scaffali"
+
+#. Import CSV file
+msgid "quick_import_csv"
+msgstr "Importa CSV"
+
+#. Import from Gleeph
+msgid "quick_import_gleeph"
+msgstr "Importa Gleeph"
+
+#. Import from Goodreads
+msgid "quick_import_goodreads"
+msgstr "Importa Goodreads"
+
+#. Share library
+msgid "quick_share_library"
+msgstr "Condividi biblioteca"
+
+#. Country / Market
+msgid "settings_country"
+msgstr "Paese"
+
+#. Toggle: opt in to share city in the public directory (ADR-035)
+msgid "settings_share_city"
+msgstr "Condividi la mia città"
+
+#. Description for the share-my-city toggle
+msgid "settings_share_city_desc"
+msgstr "Aggiunge la tua città al tuo profilo pubblico così i lettori vicini possono trovarti. Disattivato per impostazione predefinita."
+
+#. Placeholder shown in the city picker before the user has chosen one
+msgid "settings_city_pick"
+msgstr "Scegli una città"
+
+#. Shown when a stored city id no longer resolves (corrupt local cache)
+msgid "settings_city_unknown"
+msgstr "Città sconosciuta"
+
+#. City picker error: hub has no static file for this country yet
+msgid "settings_city_unavailable"
+msgstr "Non sono ancora disponibili dati sulle città per questo paese. Riprova più tardi."
+
+#. A11y label for the city picker button in settings (ADR-035, RGAA A1)
+msgid "settings_open_city_picker_a11y"
+msgstr "Apri il selettore di città"
+
+#. City picker empty state: search returned nothing
+msgid "settings_city_no_match"
+msgstr "Nessuna città corrispondente."
+
+#. Generic search input placeholder (city picker, country picker, etc.)
+msgid "search"
+msgstr "Cerca"
+
 #. Quick Presets
 msgid "quick_presets"
 msgstr "Preset rapidi"
@@ -4484,9 +5068,31 @@ msgstr "Citazioni quotidiane"
 msgid "quotes_module_desc"
 msgstr "Mostra citazioni letterarie ispiratrici"
 
+#. Ratings by Category
+msgid "rating_by_group"
+msgstr "Valutazioni per categoria"
+
+#. By Collection
+msgid "rating_by_group_collections"
+msgstr "Per collezione"
+
+#. %1 rated books
+msgid "rating_by_group_rated_books"
+msgstr "%1 libri valutati"
+
+#. By Shelf
+msgid "rating_by_group_shelves"
+msgstr "Per scaffale"
+
 #. My Rating
 msgid "rating_label"
 msgstr "La mia valutazione"
+
+msgid "page_count_label"
+msgstr "Pagine"
+
+msgid "page_count_hint"
+msgstr "Numero di pagine"
 
 #. Read
 msgid "read_status"
@@ -4511,6 +5117,18 @@ msgstr "Analisi di lettura"
 #. Reading List
 msgid "reading_list"
 msgstr "Lista di lettura"
+
+#. Reading Streak
+msgid "reading_streak"
+msgstr "Serie di letture"
+
+#. Description for reading streak insight
+msgid "reading_streak_desc"
+msgstr "Giorni consecutivi con un libro in corso"
+
+#. Reading streak suffix
+msgid "reading_streak_suffix"
+msgstr "g."
 
 #. Abandoned
 msgid "reading_status_abandoned"
@@ -4647,6 +5265,18 @@ msgstr "Rimuovi libro?"
 msgid "removed_from_collection"
 msgstr "Rimosso dalla collezione"
 
+#. Remove from collection (action label)
+msgid "remove_from_collection"
+msgstr "Rimuovi dalla collezione"
+
+#. Marked as owned (snackbar)
+msgid "marked_as_owned"
+msgstr "Segnato come posseduto"
+
+#. Marked as wanted (snackbar)
+msgid "marked_as_wanted"
+msgstr "Segnato come desiderato"
+
 #. Manual reorder (drag & drop)
 msgid "reorder_manual"
 msgstr "Riordino manuale (trascina e rilascia)"
@@ -4663,6 +5293,10 @@ msgstr "Richiedi"
 msgid "request_from"
 msgstr "Da"
 
+#. Confirm delete request
+msgid "request_delete_confirm"
+msgstr "Eliminare questa richiesta?"
+
 #. Request sent
 msgid "request_sent"
 msgstr "Richiesta inviata"
@@ -4678,6 +5312,124 @@ msgstr "A"
 #. Request to Borrow
 msgid "request_to_borrow"
 msgstr "Richiedi in prestito"
+
+#. Hub Borrow - Via Hub badge
+msgid "hub_borrow_via_hub"
+msgstr "Tramite Hub"
+
+#. Hub Borrow - Follow required
+msgid "hub_borrow_no_follow"
+msgstr "Segui prima questa biblioteca per richiedere un prestito"
+
+#. Hub Borrow - Duplicate pending request
+msgid "hub_borrow_duplicate"
+msgstr "Hai già una richiesta in sospeso per questo libro"
+
+#. Hub - Allow borrowing toggle
+msgid "hub_allow_borrowing"
+msgstr "Consenti richieste di prestito"
+
+#. Hub - Allow borrowing description
+msgid "hub_allow_borrowing_desc"
+msgstr "Consenti ai tuoi follower di richiedere i tuoi libri in prestito tramite l'hub"
+
+#. Hub - Borrowing disabled message
+msgid "hub_borrowing_disabled"
+msgstr "Questa biblioteca non accetta richieste di prestito"
+
+#. Hub - Online features master toggle (title)
+msgid "hub_coming_soon_toggle"
+msgstr "Funzionalità online"
+
+#. Hub - Online features master toggle (subtitle)
+msgid "hub_coming_soon_desc"
+msgstr "Ricevi richieste di follow e di prestito in tempo reale e sblocca le opzioni per pubblicare la tua biblioteca nella directory pubblica."
+
+#. Generic coming soon chip
+msgid "coming_soon_chip"
+msgstr "Prossimamente"
+
+#. Hub - Contact info
+msgid "hub_contact_label"
+msgstr "Informazioni di contatto (visibili ai follower approvati)"
+
+msgid "hub_contact_hint"
+msgstr "Email, telefono, indirizzo..."
+
+msgid "hub_contact_encrypted_notice"
+msgstr "Crittografato - visibile solo ai tuoi follower approvati"
+
+#. Hub - Website
+msgid "hub_website_label"
+msgstr "Sito web (facoltativo)"
+
+#. Hub - Contact info title (peer detail)
+msgid "hub_contact_info_title"
+msgstr "Contatto"
+
+#. Hub - Discover disabled (deprecated: replaced by in-tab CTA banner)
+msgid "hub_disabled_discover"
+msgstr "Attiva la directory pubblica nelle Impostazioni per scoprire altre biblioteche."
+
+#. Hub - Publish CTA banner in Discover tab: title
+msgid "directory_publish_banner_title"
+msgstr "Compari nella directory pubblica"
+
+#. Hub - Publish CTA banner: description
+msgid "directory_publish_banner_desc"
+msgstr "Condividi la tua biblioteca così altri lettori possono trovarla, seguirla e prendere in prestito. Puoi disattivare l'opzione in qualsiasi momento dalle Impostazioni."
+
+#. Hub - Publish CTA banner: button label
+msgid "directory_publish_banner_cta"
+msgstr "Pubblica la mia biblioteca"
+
+#. Hub - Publish CTA banner: success snackbar
+msgid "directory_publish_success"
+msgstr "La tua biblioteca è ora elencata nella directory pubblica."
+
+#. Hub - Onboarding first-time banner: title
+msgid "discover_onboard_title"
+msgstr "Benvenuto nella directory pubblica"
+
+#. Hub - Onboarding first-time banner: description (contrast with P2P)
+msgid "discover_onboard_desc"
+msgstr "Puoi seguire qualsiasi biblioteca pubblica e sfogliarne il catalogo. Questo è diverso dai tuoi contatti P2P diretti: qui la relazione è unidirezionale, non vedono la tua biblioteca a meno che non ti seguano a loro volta."
+
+#. Hub - Onboarding dismiss button
+msgid "discover_onboard_dismiss"
+msgstr "Ho capito"
+
+#. Hub - Discover tab contextual help: title
+msgid "help_ctx_discover_title"
+msgstr "Aiuto sulla directory pubblica"
+
+#. Hub - Discover tab contextual help: main content
+msgid "help_ctx_discover_content"
+msgstr "Esplora le biblioteche di altri lettori BiblioGenius. Segui quelle che ti interessano per accedere al loro catalogo e richiedere prestiti."
+
+#. Hub - Discover help tip: unidirectional
+msgid "help_ctx_discover_tip_unidirectional"
+msgstr "Follow unidirezionale"
+
+#. Hub - Discover help tip: unidirectional description
+msgid "help_ctx_discover_tip_unidirectional_desc"
+msgstr "A differenza di un contatto P2P (bidirezionale), seguire nella directory è unidirezionale: la biblioteca che segui non vede automaticamente la tua."
+
+#. Hub - Discover help tip: follow action
+msgid "help_ctx_discover_tip_follow"
+msgstr "Segui per prendere in prestito"
+
+#. Hub - Discover help tip: follow action description
+msgid "help_ctx_discover_tip_follow_desc"
+msgstr "Tocca \"Segui\" per accedere al catalogo completo e richiedere prestiti di libri da quella biblioteca."
+
+#. Network card badge: direct P2P connection type
+msgid "connection_type_p2p"
+msgstr "Peer diretto"
+
+#. Network card badge: hub follow connection type
+msgid "connection_type_hub"
+msgstr "Follow dalla directory"
 
 #. Requests
 msgid "requests"
@@ -4747,6 +5499,10 @@ msgstr "Connettiti a un relay per comunicazioni fuori dalla tua rete locale"
 msgid "relay_connect"
 msgstr "Connetti"
 
+#. Disconnect from relay
+msgid "relay_disconnect"
+msgstr "Disconnetti"
+
 #. Relay connected status
 msgid "relay_connected"
 msgstr "Connesso"
@@ -4785,6 +5541,22 @@ msgstr "Livello principale (nessun genitore)"
 
 msgid "root_tag"
 msgstr "Principale (nessun genitore)"
+
+#. Shelf Picker
+msgid "search_shelves_hint"
+msgstr "Cerca scaffali..."
+
+#. Shelf Picker
+msgid "shelves_selected"
+msgstr "selezionati"
+
+#. Shelf Picker - Empty state
+msgid "no_shelves_yet"
+msgstr "Ancora nessuno scaffale"
+
+#. Shelf Picker - Search empty
+msgid "no_shelves_match"
+msgstr "Nessuno scaffale corrispondente"
 
 msgid "sale_date"
 msgstr "Data vendita"
@@ -4860,58 +5632,6 @@ msgstr "Nessuna connessione internet"
 
 #. Scan into this collection
 msgid "scan_into_collection"
-msgstr "Scan into this collection"
-
-#. Scan into this shelf
-msgid "scan_into_shelf"
-msgstr "Scan into this shelf"
-
-##. Scan ISBN
-msgid "scan_isbn"
-msgstr "Scansiona ISBN"
-
-#. Scan ISBN barcode
-msgid "scan_isbn_barcode"
-msgstr "Scansiona il codice a barre ISBN"
-
-#. Scan ISBN
-msgid "scan_isbn_title"
-msgstr "Scansiona ISBN"
-
-#. Or scan a QR Code
-msgid "scan_qr_code"
-msgstr "Oppure scansiona un codice QR"
-
-#. Scan to connect
-msgid "scan_to_connect"
-msgstr "Scansiona per connetterti"
-
-#. Search Books
-msgid "search_books"
-msgstr "Cerca libri"
-
-#. Search
-msgid "search_btn"
-msgstr "Cerca"
-
-#. Try adjusting your filters or search terms.
-msgid "search_empty_desc"
-msgstr "Prova ad aggiustare i filtri o i termini di ricerca."
-
-#. Search failed
-msgid "search_failed"
-msgstr "Ricerca fallita"
-
-#. Search books...
-msgid "search_hint"
-msgstr "Cerca libri..."
-
-#. ex: \"Science Fiction\", \"Asimov\"
-msgid "search_hint_example"
-msgstr "es: \"Fantascienza\", \"Asimov\""
-
-#. Scan into this collection
-msgid "scan_into_collection"
 msgstr "Scansiona in questa collezione"
 
 #. Scan into this shelf
@@ -4970,25 +5690,9 @@ msgstr "Cerca in biblioteca"
 msgid "search_library_placeholder"
 msgstr "Cerca nella mia biblioteca..."
 
-#. Search Online
-msgid "search_open_library"
-msgstr "Cerca online"
-
-#. Search (Subject, Author...)
-msgid "search_placeholder"
-msgstr "Cerca (argomento, autore…)"
-
-#. Search Sources
-msgid "search_sources"
-msgstr "Cerca fonti"
-
-#. By Edition
-msgid "search_tab_editions"
-msgstr "Per edizione"
-
-#. Search my library...
-msgid "search_library_placeholder"
-msgstr "Cerca nella mia biblioteca..."
+#. Search books or actions (import, scan...)
+msgid "search_actions_placeholder"
+msgstr "Cerca libri o azioni..."
 
 #. Search Online
 msgid "search_open_library"
@@ -5013,6 +5717,10 @@ msgstr "Elenco"
 #. Title
 msgid "search_title_label"
 msgstr "Titolo"
+
+#. Account section in settings
+msgid "account"
+msgstr "Account"
 
 #. Security
 msgid "security"
@@ -5137,6 +5845,88 @@ msgstr "Modifica impostazioni app"
 msgid "settings_saved"
 msgstr "Impostazioni salvate"
 
+#. Network
+msgid "settings_network_title"
+msgstr "Rete"
+
+#. How sharing works
+msgid "settings_sharing_modes_title"
+msgstr "Come funziona la condivisione"
+
+#. Invite link
+msgid "settings_mode_invite_title"
+msgstr "Link di invito"
+
+#. Works on any network (WiFi, 4G, 5G). Share a link or QR code privately.
+msgid "settings_mode_invite_desc"
+msgstr "Funziona su qualsiasi rete (WiFi, 4G, 5G). Condividi un link o un codice QR in privato."
+
+#. WiFi discovery
+msgid "settings_mode_wifi_title"
+msgstr "Rilevamento WiFi"
+
+#. Auto-detect nearby libraries on your local WiFi.
+msgid "settings_mode_wifi_desc"
+msgstr "Rileva automaticamente le biblioteche vicine sulla tua rete WiFi locale."
+
+#. Public directory
+msgid "settings_mode_directory_title"
+msgstr "Directory pubblica"
+
+#. Be listed for anyone to discover and follow.
+msgid "settings_mode_directory_desc"
+msgstr "Compari nell'elenco così chiunque può scoprirti e seguirti."
+
+#. Reachable remotely
+msgid "settings_remote_reachable"
+msgstr "Raggiungibile da remoto"
+
+#. Your invited contacts can reach you on any network
+msgid "settings_remote_reachable_desc"
+msgstr "I contatti che inviti possono raggiungerti su qualsiasi rete"
+
+#. Technical details
+msgid "settings_remote_reachable_details"
+msgstr "Dettagli tecnici"
+
+#. This link works on any network
+msgid "invite_works_everywhere"
+msgstr "Questo link funziona su qualsiasi rete: WiFi, 4G o 5G. Il destinatario non deve essere nelle vicinanze."
+
+#. Local network
+msgid "settings_network_local"
+msgstr "Rete locale"
+
+#. Automatic discovery on Wi-Fi
+msgid "settings_network_discovery"
+msgstr "Rilevamento automatico su Wi-Fi"
+
+#. Makes your library visible to nearby devices on the same Wi-Fi
+msgid "settings_network_discovery_desc"
+msgstr "Rende la tua biblioteca visibile ai dispositivi vicini sulla stessa rete Wi-Fi"
+
+#. Libraries detected
+msgid "settings_network_peers_detected"
+msgstr "Biblioteche rilevate"
+
+msgid "settings_reshow_invite_banner"
+msgstr "Mostra di nuovo il banner di invito"
+
+msgid "settings_reshow_invite_banner_done"
+msgstr "Il banner di invito riapparirà alla prossima visita"
+
+#. Extended network
+msgid "settings_network_extended"
+msgstr "Rete estesa"
+
+#. Privacy and cache
+msgid "settings_network_privacy"
+msgstr "Privacy e cache"
+
+#. Enable network features first to configure privacy options.
+msgid "settings_network_enable_first"
+msgstr "Attiva prima le funzionalità di rete per configurare le opzioni sulla privacy."
+
 #. Back
 msgid "setup_btn_back"
 msgstr "Indietro"
@@ -5224,6 +6014,18 @@ msgstr "Opzionale - Imposta una password per proteggere la tua biblioteca"
 #. Profile Type
 msgid "setup_profile_type_label"
 msgstr "Tipo di profilo"
+
+#. Your profile
+msgid "setup_profile_step_title"
+msgstr "Il tuo profilo"
+
+#. What type of reader are you?
+msgid "setup_profile_step_desc"
+msgstr "Che tipo di lettore sei?"
+
+#. Coming soon
+msgid "setup_profile_coming_soon"
+msgstr "Prossimamente"
 
 #. Setting up your library...
 msgid "setup_progress"
@@ -5413,6 +6215,22 @@ msgstr "Ottima copertura, specialmente per libri in inglese"
 msgid "source_filter_all"
 msgstr "Tutte le fonti"
 
+#. ADR-032: short label for the chip on a peer card whose relay token is stale
+msgid "stale_connection_badge_label"
+msgstr "Connessione scaduta"
+
+#. ADR-032: accessibility label for the stale-connection chip
+msgid "stale_connection_badge_a11y"
+msgstr "Connessione scaduta, tocca per importare un nuovo invito"
+
+#. ADR-032: title of the dialog shown after tapping the stale-connection badge
+msgid "stale_connection_dialog_title"
+msgstr "Connessione scaduta"
+
+#. ADR-032: body of the dialog, %s is replaced by the peer name
+msgid "stale_connection_dialog_body"
+msgstr "La connessione a %s è scaduta. Chiedi di inviare di nuovo il link di invito e toccalo nell'SMS o nell'email, oppure scansiona il loro codice QR."
+
 #. Start Reading
 msgid "start_reading"
 msgstr "Inizia a leggere"
@@ -5424,6 +6242,9 @@ msgstr "Quando hai iniziato questo libro"
 #. Started Reading
 msgid "started_reading_label"
 msgstr "Inizio lettura"
+
+msgid "started_on"
+msgstr "Iniziato il"
 
 #. Avg. Completion
 msgid "stat_avg_collection_completion"
@@ -5445,6 +6266,10 @@ msgstr "Letti"
 msgid "stat_borrowed"
 msgstr "Presi in prestito"
 
+#. Loans (active)
+msgid "stat_loans"
+msgstr "Prestiti"
+
 #. Completion
 msgid "stat_completion"
 msgstr "Completamento"
@@ -5452,6 +6277,30 @@ msgstr "Completamento"
 #. Oldest Book
 msgid "stat_oldest_book"
 msgstr "Libro più vecchio"
+
+#. View book action
+msgid "action_view_book"
+msgstr "Vedi libro"
+
+#. Active (in progress)
+msgid "stat_active_count"
+msgstr "{count} attivi"
+
+#. Lent
+msgid "stat_lent"
+msgstr "Prestati"
+
+#. Dashboard card label: loans
+msgid "dashboard_lent"
+msgstr "Prestito"
+
+#. Dashboard card label: borrows
+msgid "dashboard_borrowed"
+msgstr "In prestito"
+
+#. Dashboard card subtitle: in progress
+msgid "stat_in_progress"
+msgstr "attivi"
 
 #. Read
 msgid "stat_read"
@@ -5468,6 +6317,14 @@ msgstr "Libri"
 #. Total Collections
 msgid "stat_total_collections"
 msgstr "Collezioni totali"
+
+#. Completed Collections
+msgid "stat_completed_collections"
+msgstr "Completate"
+
+#. Books read in collection
+msgid "stat_collection_read"
+msgstr "%1 letti"
 
 #. Unique Authors
 msgid "stat_unique_authors"
@@ -5540,6 +6397,78 @@ msgstr "%1 operazioni fallite"
 #. Operation log: view details link
 msgid "stat_oplog_view_details"
 msgstr "Visualizza registro operazioni"
+
+#. Section subtitle: sales statistics
+msgid "stat_subtitle_sales"
+msgstr "Ricavi e tendenze delle vendite dei tuoi libri"
+
+#. Section subtitle: monthly progress
+msgid "stat_subtitle_monthly_progress"
+msgstr "Libri finiti ogni mese nell'ultimo anno"
+
+#. Section subtitle: reading insights
+msgid "stat_subtitle_reading_insights"
+msgstr "Tempo di lettura medio e progressi annuali"
+
+#. Section subtitle: rating by group
+msgid "stat_subtitle_rating_by_group"
+msgstr "Valutazione media per scaffale e collezione"
+
+#. Section subtitle: reading habits
+msgid "stat_subtitle_reading_habits"
+msgstr "Distribuzione dei tuoi stati di lettura"
+
+#. Section subtitle: top authors
+msgid "stat_subtitle_top_authors"
+msgstr "Gli autori più rappresentati nella tua biblioteca"
+
+#. Section subtitle: publication timeline
+msgid "stat_subtitle_publication_timeline"
+msgstr "Distribuzione dei tuoi libri per decennio di pubblicazione"
+
+#. Section subtitle: loan statistics
+msgid "stat_subtitle_loan_statistics"
+msgstr "Prestiti attivi e cronologia delle restituzioni"
+
+#. Section subtitle: borrowed statistics
+msgid "stat_subtitle_borrowed_statistics"
+msgstr "Libri presi in prestito da altre biblioteche"
+
+#. Section subtitle: shelf statistics
+msgid "stat_subtitle_shelf_statistics"
+msgstr "Distribuzione dei libri tra i tuoi scaffali"
+
+#. Section subtitle: collections with completion and read %
+msgid "stat_subtitle_collections_detail"
+msgstr "Completamento: %1% - Letti: %2%"
+
+#. Section subtitle: operation log
+msgid "stat_subtitle_operation_log"
+msgstr "Registro delle attività di sincronizzazione"
+
+#. Section title: personal records
+msgid "personal_records"
+msgstr "Record personali"
+
+#. Section subtitle: personal records
+msgid "stat_subtitle_personal_records"
+msgstr "Le tue migliori prestazioni e serie di letture"
+
+#. Profile: statistics summary title
+msgid "profile_stats_title"
+msgstr "Le mie statistiche"
+
+#. Profile: see more statistics link
+msgid "see_more_stats"
+msgstr "Vedi altro"
+
+#. Profile section: gamification
+msgid "gamification"
+msgstr "Obiettivi"
+
+#. Profile section: leaderboard
+msgid "leaderboard"
+msgstr "Classifica della rete"
 
 #. Status
 msgid "status"
@@ -5741,6 +6670,19 @@ msgstr "Sincronizza biblioteca"
 msgid "sync_started"
 msgstr "Sincronizzazione avviata"
 
+msgid "sync_completed"
+msgstr "Rete aggiornata"
+
+#. Last refresh timestamp
+msgid "last_updated_just_now"
+msgstr "Aggiornato proprio ora"
+
+msgid "last_updated_minutes"
+msgstr "Aggiornato %d min fa"
+
+msgid "last_updated_hours"
+msgstr "Aggiornato %d h fa"
+
 #. Prices synced
 msgid "sync_success"
 msgstr "Prezzi sincronizzati"
@@ -5872,6 +6814,22 @@ msgstr "Minimale (Pulito)"
 msgid "theme_title"
 msgstr "Tema"
 
+#. Navigation style label
+msgid "nav_style_label"
+msgstr "Stile di navigazione (mobile)"
+
+#. Navigation style description
+msgid "nav_style_desc"
+msgstr "Scegli come navigare tra le schermate su mobile"
+
+#. Side menu option
+msgid "nav_style_side_menu"
+msgstr "Menu laterale"
+
+#. Bottom bar option
+msgid "nav_style_bottom_bar"
+msgstr "Barra inferiore"
+
 #. Title *
 msgid "title_label"
 msgstr "Titolo *"
@@ -5903,6 +6861,14 @@ msgstr "Rimuovi biblioteca"
 #. Sync Library
 msgid "tooltip_sync"
 msgstr "Sincronizza biblioteca"
+
+#. Top Author (insight card)
+msgid "top_author"
+msgstr "Autore principale"
+
+#. Description for top author insight
+msgid "top_author_desc"
+msgstr "%1 libri"
 
 #. Top Authors
 msgid "top_authors"
@@ -5939,6 +6905,14 @@ msgstr "Ricavi totali"
 #. Shelves
 msgid "total_shelves"
 msgstr "Scaffali"
+
+#. Total pages read
+msgid "total_pages_read"
+msgstr "Pagine lette"
+
+#. Description for total pages read insight
+msgid "total_pages_read_desc"
+msgstr "Pagine totali dei libri finiti"
 
 #. Cataloguer
 msgid "track_cataloguer"
@@ -6493,9 +7467,157 @@ msgstr "Ricostruisci una copertina muovendo le tessere"
 msgid "help_cta_play_puzzle"
 msgstr "Gioca"
 
+#. Help - Hangman Topic
+msgid "help_topic_hangman"
+msgstr "Impiccato"
+
+#. Help - Hangman Description
+msgid "help_desc_hangman"
+msgstr "Indovina il titolo di un libro della tua biblioteca lettera per lettera"
+
+#. Help - Hangman CTA
+msgid "help_cta_play_hangman"
+msgstr "Gioca"
+
+#. Backup - Save dialog title (desktop)
+msgid "save_backup_dialog_title"
+msgstr "Salva backup"
+
+#. Backup - Share text (mobile)
+msgid "backup_share_text"
+msgstr "Il mio backup di BiblioGenius"
+
+#. Backup - Export success
+msgid "backup_export_success"
+msgstr "Backup esportato con successo"
+
+#. Backup - Export error
+msgid "backup_export_error"
+msgstr "Errore di esportazione"
+
+#. Backup - Mobile export choice dialog title
+msgid "backup_export_choice_title"
+msgstr "Esporta backup"
+
+#. Backup - Mobile export choice dialog message
+msgid "backup_export_choice_message"
+msgstr "Come vuoi esportare il tuo backup?"
+
+#. Backup - Mobile export choice: save on device
+msgid "backup_export_save_to_device"
+msgstr "Salva sul dispositivo"
+
+#. Backup - Mobile export choice: share via system sheet
+msgid "backup_export_share"
+msgstr "Condividi"
+
+#. Settings - Backup section title (top-level accordion)
+msgid "backup_section_title"
+msgstr "Backup ed esportazione"
+
+#. Settings - Backup: export catalog tile title
+msgid "backup_export_catalog_title"
+msgstr "Esporta il mio catalogo"
+
+#. Settings - Backup: export catalog tile subtitle
+msgid "backup_export_catalog_subtitle"
+msgstr "File portatile e condivisibile, per l'archiviazione o l'importazione in un'altra applicazione. Contiene libri, autori, tag, collezioni e contatti."
+
+#. Settings - Backup: full backup tile title
+msgid "backup_full_title"
+msgstr "Backup completo"
+
+#. Settings - Backup: full backup tile subtitle
+msgid "backup_full_subtitle"
+msgstr "Archivio crittografato per ripristinare completamente la tua biblioteca su questo o un altro dispositivo. Spunta \"Includi identità\" per migrare verso un nuovo dispositivo senza rifare il pairing E2EE con i tuoi peer."
+
+#. Settings - Backup: snackbar shown when tapping the disabled full backup tile
+msgid "backup_full_unavailable"
+msgstr "Disponibile in una versione futura."
+
+#. Settings - Backup: restore tile title
+msgid "backup_restore_title"
+msgstr "Ripristina un backup"
+
+#. Settings - Backup: restore tile subtitle
+msgid "backup_restore_subtitle"
+msgstr "Ripristina un file di esportazione del catalogo. ATTENZIONE: sostituisce tutti i dati attuali."
+
+#. Settings - System section title (top-level accordion)
+msgid "system_section_title"
+msgstr "Sistema"
+
+#. Settings - System: reset tile title
+msgid "system_reset_title"
+msgstr "Reimposta l'app"
+
+#. Settings - System: reset tile subtitle
+msgid "system_reset_subtitle"
+msgstr "Cancella i libri o ricomincia da capo."
+
+#. Settings - Content: migration wizard tile title (post option-B refactor)
+msgid "migration_wizard_tile_title"
+msgstr "Importa & organizza la mia biblioteca"
+
+#. Settings - Content: migration wizard tile subtitle (post option-B refactor)
+msgid "migration_wizard_tile_subtitle"
+msgstr "Importa libri da un file o gestisci i tuoi scaffali."
+
+#. Migration Wizard - AppBar title (post option-B refactor)
+msgid "migration_wizard_screen_title"
+msgstr "Importa & organizza"
+
+#. Migration Wizard - Import section title
+msgid "migration_section_import_title"
+msgstr "Importa & aggrega"
+
+#. Migration Wizard - Import section subtitle
+msgid "migration_section_import_subtitle"
+msgstr "Aggiungi libri da altre piattaforme alla tua biblioteca attuale."
+
+#. Migration Wizard - CSV import card title
+msgid "migration_card_csv_title"
+msgstr "Importazione file (CSV / XLSX)"
+
+#. Migration Wizard - CSV import card subtitle
+msgid "migration_card_csv_subtitle"
+msgstr "Goodreads, Babelio, Gleeph o qualsiasi file con colonne titolo/ISBN."
+
+#. Migration Wizard - Organisation section title
+msgid "migration_section_organisation_title"
+msgstr "Organizzazione"
+
+#. Migration Wizard - Organisation section subtitle
+msgid "migration_section_organisation_subtitle"
+msgstr "Gestisci la struttura della tua biblioteca."
+
+#. Migration Wizard - Manage shelves card title
+msgid "migration_card_shelves_title"
+msgstr "Gestisci scaffali"
+
+#. Migration Wizard - Manage shelves card subtitle
+msgid "migration_card_shelves_subtitle"
+msgstr "Rinomina o organizza i tuoi scaffali virtuali."
+
+#. Migration Wizard - CSV import success message ({count} = number of books)
+msgid "migration_import_success"
+msgstr "Successo: {count} libri importati!"
+
+#. Migration Wizard - CSV import failure (no specific error returned)
+msgid "migration_import_failed"
+msgstr "Importazione non riuscita"
+
+#. Migration Wizard - Generic error prefix (e.g. "Error: <details>")
+msgid "migration_error_prefix"
+msgstr "Errore"
+
 #. Accessibility - Tooltip: open navigation menu
 msgid "tooltip_open_menu"
 msgstr "Apri menu"
+
+#. Accessibility - Tooltip: open settings
+msgid "tooltip_open_settings"
+msgstr "Apri impostazioni"
 
 #. Accessibility - Tooltip: edit contact
 msgid "tooltip_edit_contact"
@@ -6576,6 +7698,10 @@ msgstr "Notifiche"
 msgid "notifications_empty"
 msgstr "Nessuna notifica"
 
+#. Notifications empty state description
+msgid "notifications_empty_desc"
+msgstr "Le tue notifiche di connessione, prestito e scoperta appariranno qui."
+
 #. Notifications
 msgid "notifications_mark_all_read"
 msgstr "Segna tutto come letto"
@@ -6583,6 +7709,16 @@ msgstr "Segna tutto come letto"
 #. Notifications
 msgid "notifications_dismiss"
 msgstr "Ignora"
+
+msgid "notifications_see_all"
+msgstr "Vedi tutte le notifiche"
+
+#. Clear all notifications
+msgid "notifications_clear_all"
+msgstr "Cancella tutto"
+
+msgid "notifications_clear_all_confirm"
+msgstr "Eliminare tutte le notifiche?"
 
 #. Notifications
 msgid "notifications_filter_all"
@@ -6600,6 +7736,65 @@ msgstr "Prestiti"
 msgid "notifications_filter_discoveries"
 msgstr "Scoperte"
 
+#. Notification display - connection events
+msgid "notif_connection_request"
+msgstr "{name} vuole connettersi"
+
+msgid "notif_connection_accepted"
+msgstr "{name} è ora tra i tuoi contatti"
+
+msgid "notif_new_follower"
+msgstr "{name} ora ti segue"
+
+msgid "notif_follow_request"
+msgstr "{name} vuole seguirti"
+
+#. Notification display - loan events
+msgid "notif_borrow_request"
+msgstr "{name} vuole prendere in prestito \"{book}\""
+
+msgid "notif_borrow_accepted"
+msgstr "{name} ha accettato il prestito di \"{book}\""
+
+msgid "notif_book_returned"
+msgstr "{name} ha restituito \"{book}\""
+
+msgid "notif_book_reclaimed"
+msgstr "{name} ha ritirato \"{book}\""
+
+msgid "notif_borrow_rejected"
+msgstr "{name} ha rifiutato il prestito di \"{book}\""
+
+#. Notification display - discovery events
+msgid "notif_wishlist_match"
+msgstr "\"{book}\" disponibile da {source}"
+
+#. Notification display - system events
+msgid "notif_welcome"
+msgstr "Benvenuto in BiblioGenius! Esplora l'app per gestire la tua biblioteca."
+
+#. Notification tap hints
+msgid "notif_tap_network"
+msgstr "Vedi la rete"
+
+msgid "notif_tap_requests"
+msgstr "Vedi le richieste"
+
+msgid "notif_tap_loans"
+msgstr "Vedi i prestiti"
+
+msgid "notif_tap_discover"
+msgstr "Scopri"
+
+msgid "notif_tap_wishlist"
+msgstr "Vedi la lista dei desideri"
+
+msgid "notif_tap_library"
+msgstr "Vedi la biblioteca"
+
+msgid "settings_search_hint"
+msgstr "Cerca nelle impostazioni..."
+
 #. Notifications
 msgid "time_just_now"
 msgstr "Proprio ora"
@@ -6611,6 +7806,28 @@ msgstr "Stato di lettura"
 #. Quick actions button (short label for mobile)
 msgid "quick_actions_short"
 msgstr "Azioni"
+
+#. Reorderable sections - edit mode
+msgid "sections_edit_mode"
+msgstr "Personalizza le sezioni"
+
+msgid "sections_edit_done"
+msgstr "Fatto"
+
+msgid "sections_reset"
+msgstr "Reimposta"
+
+msgid "sections_hidden"
+msgstr "Nascoste"
+
+msgid "sections_drag_hint"
+msgstr "Tieni premuto per riordinare"
+
+msgid "tooltip_toggle_section"
+msgstr "Mostra/nascondi questa sezione"
+
+msgid "tooltip_edit_sections"
+msgstr "Personalizza il layout"
 
 msgid "invite_error"
 msgstr "Connessione fallita"
@@ -6643,6 +7860,9 @@ msgstr "Copia link"
 msgid "invite_link_copied"
 msgstr "Link d'invito copiato!"
 
+msgid "share_failed"
+msgstr "Condivisione non riuscita. Riprova."
+
 msgid "tooltip_copy_invite"
 msgstr "Copia link d'invito"
 
@@ -6655,6 +7875,10 @@ msgstr "Condividi link d'invito"
 #. Invite share message (used when sharing via SMS/messaging)
 msgid "invite_share_message"
 msgstr "Unisciti a {name} su BiblioGenius per condividere libri: {link}"
+
+#. Loading snackbar while generating invite link
+msgid "generating_invite_link"
+msgstr "Generazione del link di invito..."
 
 #. Profile screen - share invite link
 msgid "profile_share_invite"
@@ -6775,6 +7999,15 @@ msgstr "Codice scaduto"
 msgid "pairing_enter_instruction"
 msgstr "Inserisci il codice a 6 cifre dall'altro dispositivo"
 
+msgid "pairing_no_peers"
+msgstr "Nessun dispositivo trovato sulla rete Wi-Fi"
+
+msgid "pairing_mdns_hint"
+msgstr "Entrambi i dispositivi devono essere sulla stessa rete Wi-Fi con il rilevamento di rete attivo (Impostazioni > Rete)"
+
+msgid "pairing_select_device"
+msgstr "Dispositivo da abbinare"
+
 msgid "pairing_button_pair"
 msgstr "Collega"
 
@@ -6813,6 +8046,44 @@ msgstr "Sincronizza i miei dispositivi"
 
 msgid "settings_linked_devices_desc"
 msgstr "Mantieni la tua biblioteca aggiornata su tutti i tuoi dispositivi (mobile / tablet / desktop) connessi alla stessa rete Wi-Fi. Trasferimento crittografato end-to-end."
+
+msgid "settings_auto_backup"
+msgstr "Backup automatico"
+
+msgid "settings_auto_backup_desc"
+msgstr "Invia i tuoi dati ai dispositivi abbinati sulla stessa rete Wi-Fi all'avvio"
+
+#. Notifications settings section header
+msgid "settings_notifications"
+msgstr "Notifiche"
+
+#. Global notifications toggle
+msgid "settings_notif_enabled"
+msgstr "Attiva le notifiche"
+
+msgid "settings_notif_enabled_desc"
+msgstr "Mostra l'icona e ricevi le notifiche"
+
+#. Notification toggle: connections
+msgid "settings_notif_connections"
+msgstr "Connessioni"
+
+msgid "settings_notif_connections_desc"
+msgstr "Richieste di connessione e nuovi contatti"
+
+#. Notification toggle: loans
+msgid "settings_notif_loans"
+msgstr "Prestiti e acquisizioni in prestito"
+
+msgid "settings_notif_loans_desc"
+msgstr "Richieste di prestito, restituzioni e promemoria"
+
+#. Notification toggle: discoveries
+msgid "settings_notif_discoveries"
+msgstr "Scoperte"
+
+msgid "settings_notif_discoveries_desc"
+msgstr "Nuovi libri nelle biblioteche dei tuoi contatti"
 
 #. Sync Review
 msgid "sync_review_title"
@@ -6935,6 +8206,9 @@ msgstr "Mostra i libri raggruppati per collezione nella biblioteca"
 msgid "directory_title"
 msgstr "Elenco Biblioteche"
 
+msgid "directory_browse_subtitle"
+msgstr "Scopri e segui altre biblioteche BiblioGenius"
+
 msgid "directory_tab_explore"
 msgstr "Esplora"
 
@@ -6947,6 +8221,57 @@ msgstr "Richieste"
 msgid "directory_empty"
 msgstr "Nessuna biblioteca è ancora elencata nella directory."
 
+msgid "directory_search_hint"
+msgstr "Cerca per nome..."
+
+msgid "directory_no_results"
+msgstr "Nessuna biblioteca trovata"
+
+#. ADR-035 Phase 2: empty state when a country/city filter is active
+msgid "directory_no_results_in_location"
+msgstr "Ancora nessuna biblioteca in questa zona."
+
+#. CTA shown under directory_no_results_in_location, opens settings
+msgid "directory_be_first_share_city"
+msgstr "Sii la prima biblioteca a condividere la tua città"
+
+#. Tooltip on the directory filter button (ADR-035 Phase 2)
+msgid "directory_filter_tooltip"
+msgstr "Filtra per luogo"
+
+#. Tooltip on the X icon of the active filter chip
+msgid "directory_filter_clear"
+msgstr "Rimuovi filtro"
+
+#. A11y label for the tap-to-filter shortcut on a profile location chip (ADR-035, RGAA A1)
+msgid "directory_filter_by_location_a11y"
+msgstr "Filtra la directory per questo luogo"
+
+#. Banner shown above the public directory when the user has registered their
+#. city and at least one peer is in the same city (V1 same-city highlight).
+#. Singular form, used when exactly 1 peer is in the user city.
+msgid "directory_same_city_banner_one"
+msgstr "C'è 1 biblioteca nella tua città"
+
+#. Plural form of the same-city banner. %d is replaced with the visible count
+#. (capped at 10). Used for 2 to 10 peers.
+msgid "directory_same_city_banner_other"
+msgstr "Ci sono %d biblioteche nella tua città"
+
+#. Saturated form of the same-city banner, used when more than 10 peers
+#. share the user city. %d is replaced with the cap (10), so the rendered
+#. text reads "10+ libraries".
+msgid "directory_same_city_banner_more_than"
+msgstr "Ci sono %d+ biblioteche nella tua città"
+
+#. Action button on the same-city banner; applies the existing city filter.
+msgid "directory_same_city_view_action"
+msgstr "Vedi"
+
+#. Tooltip on the same-city banner action button (RGAA A1, A4).
+msgid "directory_same_city_view_tooltip"
+msgstr "Filtra la directory sulle biblioteche della tua città"
+
 msgid "directory_following_empty"
 msgstr "Non stai seguendo nessuna biblioteca. Esplora la directory per iniziare."
 
@@ -6955,6 +8280,13 @@ msgstr "Nessuna richiesta di seguito in arrivo."
 
 msgid "directory_books"
 msgstr "libri"
+
+msgid "directory_your_library"
+msgstr "La tua biblioteca"
+
+#. Marker on a Discover card when that library has sent us a pending follow request
+msgid "directory_wants_to_follow_you"
+msgstr "Vuole seguirti"
 
 msgid "directory_follow"
 msgstr "Segui"
@@ -6979,6 +8311,14 @@ msgstr "Non avrai più accesso al catalogo di questa biblioteca."
 
 msgid "directory_follow_error"
 msgstr "Impossibile seguire questa biblioteca. Riprova."
+
+#. Snackbar after a follow request is sent to a library that requires approval
+msgid "directory_follow_request_sent"
+msgstr "Richiesta inviata. Vedrai il catalogo una volta approvata."
+
+#. Snackbar after an auto-approved follow (no approval required)
+msgid "directory_follow_success"
+msgstr "Ora segui questa biblioteca."
 
 msgid "directory_approve"
 msgstr "Approva"
@@ -7022,6 +8362,12 @@ msgstr "Richiedi approvazione per i follower"
 msgid "directory_requires_approval_desc"
 msgstr "I nuovi follower necessitano della tua approvazione prima di accedere al tuo catalogo"
 
+msgid "directory_requires_approval_short"
+msgstr "Approvazione richiesta"
+
+msgid "directory_connected"
+msgstr "Connesso"
+
 msgid "directory_accept_from_title"
 msgstr "Accetta connessioni da"
 
@@ -7043,6 +8389,14 @@ msgstr "Questa biblioteca non ha ancora condiviso libri."
 msgid "directory_catalog_isbn_count"
 msgstr "ISBN condivisi"
 
+#. Filtered result count shown above the catalog grid while searching
+msgid "directory_catalog_search_results"
+msgstr "risultati"
+
+#. Search placeholder in followed library catalog
+msgid "directory_catalog_search"
+msgstr "Cerca per titolo, autore o ISBN..."
+
 msgid "directory_catalog_isbn_label"
 msgstr "ISBN"
 
@@ -7052,13 +8406,534 @@ msgstr "La tua richiesta di seguito è in attesa di approvazione. Potrai vedere 
 msgid "directory_catalog_not_following"
 msgstr "Segui questa biblioteca per accedere al catalogo."
 
+#. Catalog detail
+msgid "catalog_book_details"
+msgstr "Dettagli del libro"
+
+msgid "catalog_add_to_library"
+msgstr "Aggiungi alla mia biblioteca"
+
+msgid "catalog_added_success"
+msgstr "Libro aggiunto alla tua biblioteca"
+
+msgid "catalog_details_unavailable"
+msgstr "Dettagli non disponibili online"
+
+msgid "catalog_loading_details"
+msgstr "Caricamento dei dettagli..."
+
+msgid "catalog_already_in_library"
+msgstr "Già nella tua biblioteca"
+
 msgid "action_retry"
 msgstr "Riprova"
+
+#. Libraries tab
+msgid "tab_libraries"
+msgstr "Biblioteche"
+
+#. Network screen tabs
+msgid "network_tab_my_network"
+msgstr "La mia rete"
+
+msgid "network_tab_discover"
+msgstr "Directory pubblica"
+
+#. Network filters
+msgid "network_filter_all"
+msgstr "Tutti"
+
+msgid "network_filter_borrowers"
+msgstr "Chi prende in prestito"
+
+#. Hub follow requests pending
+msgid "network_hub_requests_title"
+msgstr "Richieste di follow"
+
+#. Hub pending requests - explanatory note shown when the public directory is disabled but legacy pending requests still exist server-side
+msgid "hub_pending_legacy_note"
+msgstr "La directory pubblica è disattivata. Puoi comunque gestire queste richieste esistenti per azzerare il contatore."
+
+msgid "lib_filter_all"
+msgstr "Tutte"
+
+msgid "lib_filter_peers"
+msgstr "Connessioni"
+
+msgid "lib_filter_following"
+msgstr "Seguite"
+
+#. Nearby libraries on WiFi
+msgid "lib_filter_nearby"
+msgstr "Vicine"
+
+#. Discover libraries from the hub directory
+msgid "lib_filter_discover"
+msgstr "Scopri"
+
+msgid "lib_connection_peer"
+msgstr "Abbinata"
+
+msgid "lib_follow_pending"
+msgstr "In sospeso"
+
+msgid "lib_follow_active"
+msgstr "Seguita"
+
+msgid "lib_empty_title"
+msgstr "Ancora nessuna biblioteca connessa"
+
+msgid "lib_empty_hint"
+msgstr "Usa la scheda Scopri per trovare biblioteche, o connettiti a quelle vicine sulla tua rete WiFi."
+
+msgid "lib_unfollow"
+msgstr "Smetti di seguire"
+
+#. Flash message: dismiss tooltip
+msgid "flash_dismiss_tooltip"
+msgstr "Ignora"
+
+#. Flash message: customize library name
+msgid "flash_customize_library_name"
+msgstr "Personalizza il nome della tua biblioteca:"
+
+#. Flash message: library name text field hint
+msgid "flash_library_name_hint"
+msgstr "Nome della biblioteca"
+
+#. Flash message: library name saved confirmation
+msgid "flash_library_name_saved"
+msgstr "Nome della biblioteca salvato"
+
+#. Flash message: discover configuration profiles
+msgid "flash_discover_presets"
+msgstr "Configurazione rapida - scegli il tuo profilo:"
+
+#. Flash message: peer paired (prefix before peer name)
+msgid "flash_peer_connected"
+msgstr "Abbinata con"
+
+#. Flash message: pending connection request (prefix before peer name)
+msgid "flash_peer_pending"
+msgstr "Richiesta di connessione da"
+
+#. Flash message: browse peer's library action
+msgid "flash_peer_browse"
+msgstr "Sfoglia"
+
+#. Flash message: review pending connection action
+msgid "flash_peer_review"
+msgstr "Esamina"
+
+#. Flash message: pending connection hint in dialog
+msgid "flash_peer_pending_hint"
+msgstr "In attesa della tua approvazione"
+
+#. Flash message: see more connections overflow link
+msgid "flash_peer_see_more"
+msgstr "altre connessioni"
+
+#. Flash message: semantic label for see more link
+msgid "flash_peer_see_more_semantic"
+msgstr "Vedi tutte le nuove connessioni"
+
+#. Flash message: dialog title for all connections
+msgid "flash_peer_dialog_title"
+msgstr "Nuove connessioni"
+
+#. Flash message: dismiss all ephemeral flashes
+msgid "flash_peer_dismiss_all"
+msgstr "Ignora tutto"
+
+#. Peer detail screen
+msgid "peer_details_title"
+msgstr "Dettagli della biblioteca"
+
+msgid "peer_edit_display_name"
+msgstr "Modifica nome"
+
+msgid "peer_display_name_label"
+msgstr "Nome visualizzato"
+
+msgid "peer_display_name_hint"
+msgstr "Inserisci un nome personalizzato per questa biblioteca"
+
+#. Caption (label to distinguish contacts with same name)
+msgid "peer_edit_caption"
+msgstr "Aggiungi una didascalia"
+
+msgid "peer_caption_label"
+msgstr "Didascalia"
+
+msgid "peer_caption_hint"
+msgstr "Es. Collega, Vicino, Club del libro..."
+
+msgid "peer_caption_saved"
+msgstr "Didascalia salvata"
+
+msgid "peer_caption_removed"
+msgstr "Didascalia rimossa"
+
+msgid "peer_e2ee_status"
+msgstr "Crittografia end-to-end"
+
+msgid "peer_e2ee_active"
+msgstr "Attiva - le comunicazioni sono crittografate"
+
+msgid "peer_e2ee_inactive"
+msgstr "Inattiva - scambio di chiavi non completato"
+
+msgid "peer_last_seen"
+msgstr "Visto l'ultima volta"
+
+msgid "peer_has_relay"
+msgstr "Raggiungibile anche fuori dalla rete Wi-Fi locale"
+
+#. Relay mailbox expired error
+msgid "peer_relay_mailbox_expired"
+msgstr "La casella di posta relay del peer non esiste più. Chiedi al peer di inviare di nuovo l'invito."
+
+msgid "peer_connection_info"
+msgstr "Connessione"
+
+msgid "peer_node_id"
+msgstr "ID nodo"
+
+#. Bottom sheet: peer actions menu
+msgid "peer_actions"
+msgstr "Azioni"
+
+msgid "view_profile"
+msgstr "Vedi profilo"
+
+#. Avatar tooltip: connection type
+msgid "peer_type_both"
+msgstr "Contatto P2P & follow dalla directory"
+
+msgid "peer_type_direct"
+msgstr "Contatto P2P diretto (bidirezionale)"
+
+msgid "peer_type_following"
+msgstr "Follow dalla directory (unidirezionale)"
+
+msgid "peer_name_saved"
+msgstr "Nome salvato"
+
+msgid "peer_custom_name_indicator"
+msgstr "Nome personalizzato"
+
+#. Empty state: no nearby peers
+msgid "no_nearby_peers"
+msgstr "Nessuna biblioteca nelle vicinanze"
+
+msgid "no_nearby_peers_hint"
+msgstr "Assicurati che il Wi-Fi sia attivo e che altri utenti BiblioGenius siano sulla stessa rete."
+
+#. Empty state: no followed libraries
+msgid "no_following_yet"
+msgstr "Ancora nessuna biblioteca seguita"
+
+msgid "no_following_hint"
+msgstr "Sfoglia la directory per trovare e seguire le biblioteche che ti interessano."
+
+msgid "browse_directory_btn"
+msgstr "Sfoglia la directory"
+
+#. Empty state: no borrowers
+msgid "no_borrowers_yet"
+msgstr "Ancora nessun prestatario"
+
+msgid "no_borrowers_hint"
+msgstr "Aggiungi contatti che prendono in prestito libri dalla tua biblioteca."
+
+#. ISBN validation
+msgid "isbn_checksum_warning"
+msgstr "Questo ISBN potrebbe non essere valido (errore di checksum)"
+
+#. Show library views toggle
+msgid "show_view_count"
+msgstr "Mostra le visualizzazioni della biblioteca"
+
+msgid "show_view_count_desc"
+msgstr "Mostra il numero di visualizzazioni sul tuo profilo"
+
+#. Profile view counter
+msgid "profile_view"
+msgstr "visualizzazione"
+
+msgid "profile_views"
+msgstr "visualizzazioni"
+
+msgid "profile_views_peers"
+msgstr "dai peer"
+
+msgid "profile_views_followers"
+msgstr "dai follower"
+
+#. Peer connectivity status
+#. Profile follower count
+msgid "profile_follower"
+msgstr "follower"
+
+msgid "profile_followers"
+msgstr "follower"
+
+msgid "peer_status_online"
+msgstr "Online"
+
+msgid "peer_status_unreachable"
+msgstr "Non raggiungibile"
+
+#. Peer reachable via relay or hub (not direct WiFi)
+msgid "peer_status_indirect"
+msgstr "Online"
+
+msgid "module_edition_browser"
+msgstr "Sfoglia edizioni"
+
+msgid "module_edition_browser_desc"
+msgstr "Sfoglia e seleziona tra più edizioni quando aggiungi libri"
+
+msgid "confirm"
+msgstr "Conferma"
+
+msgid "reset_scores"
+msgstr "Reimposta punteggi"
+
+msgid "reset_scores_confirm"
+msgstr "Tutti i tuoi punteggi per questo gioco verranno eliminati. L'operazione non può essere annullata."
+
 #. Default library name with device name (e.g. "Library of iPhone")
 msgid "library_of_device"
 msgstr "Biblioteca di %s"
 
-# --- Inline help for Settings > Modules toggles (Phase 1) ---
+#. Hangman game
+msgid "hangman_title"
+msgstr "Impiccato"
+
+msgid "hangman_dashboard_subtitle"
+msgstr "Indovina i titoli dei tuoi libri lettera per lettera"
+
+msgid "hangman_not_enough_books_title"
+msgstr "Fai crescere prima la tua biblioteca!"
+
+msgid "hangman_not_enough_books"
+msgstr "Aggiungi almeno 10 libri per sbloccare questo gioco. Scansiona un codice a barre o aggiungi libri manualmente per iniziare."
+
+msgid "hangman_visual_style"
+msgstr "Stile visivo"
+
+msgid "hangman_style_classic"
+msgstr "Classico"
+
+msgid "hangman_style_books"
+msgstr "Libri"
+
+msgid "hangman_select_difficulty"
+msgstr "Scegli una difficoltà"
+
+msgid "hangman_difficulty_easy"
+msgstr "Facile"
+
+msgid "hangman_difficulty_medium"
+msgstr "Media"
+
+msgid "hangman_difficulty_hard"
+msgstr "Difficile"
+
+msgid "hangman_difficulty_easy_desc"
+msgstr "2 indizi, 5 min -- ideale per principianti"
+
+msgid "hangman_difficulty_medium_desc"
+msgstr "1 indizio, 3 min -- una sfida equilibrata"
+
+msgid "hangman_difficulty_hard_desc"
+msgstr "Nessun indizio, 2 min -- solo per esperti"
+
+msgid "hangman_start"
+msgstr "Inizia"
+
+msgid "hangman_errors"
+msgstr "Errori"
+
+msgid "hangman_hints"
+msgstr "Indizi"
+
+msgid "hangman_score"
+msgstr "Punteggio"
+
+msgid "hangman_time"
+msgstr "Tempo"
+
+msgid "hangman_rank"
+msgstr "Posizione"
+
+msgid "hangman_won"
+msgstr "Ben fatto!"
+
+msgid "hangman_lost"
+msgstr "Hai perso!"
+
+msgid "hangman_play_again"
+msgstr "Gioca ancora"
+
+msgid "hangman_back_to_menu"
+msgstr "Menu"
+
+msgid "hangman_leaderboard"
+msgstr "Classifica"
+
+msgid "hangman_new_best"
+msgstr "Nuovo record personale!"
+
+msgid "hangman_no_scores"
+msgstr "Ancora nessun punteggio. Gioca una partita!"
+
+msgid "achievement_hangman_first_game"
+msgstr "Primo Impiccato"
+
+msgid "achievement_hangman_perfect"
+msgstr "Impiccato perfetto"
+
+msgid "achievement_hangman_master"
+msgstr "Maestro dell'Impiccato"
+
+msgid "pairing_pending_review"
+msgstr "%d in attesa di revisione"
+
+msgid "pairing_last_paired"
+msgstr "Abbinato %s"
+
+msgid "sync_push"
+msgstr "Invia al dispositivo"
+
+msgid "sync_pull"
+msgstr "Ricevi dal dispositivo"
+
+msgid "sync_both"
+msgstr "Sincronizza in entrambe le direzioni"
+
+msgid "sync_reset_all"
+msgstr "Reimposta il registro di sincronizzazione"
+
+msgid "sync_reset_confirm"
+msgstr "Verranno eliminate tutte le operazioni di sincronizzazione in sospeso, applicate e non riuscite. I tuoi libri non saranno interessati. Continuare?"
+
+#. Private Books
+msgid "settings_allow_private_books"
+msgstr "Libri privati"
+
+#. Allow hiding specific books from network peers
+msgid "settings_allow_private_books_desc"
+msgstr "Consenti di nascondere libri specifici così non sono visibili ai tuoi contatti sulla rete"
+
+#. Private book
+msgid "book_private"
+msgstr "Libro privato"
+
+#. This book will not be visible to your contacts on the network
+msgid "book_private_desc"
+msgstr "Questo libro non sarà visibile ai tuoi contatti sulla rete"
+
+#. Tooltip for private book toggle
+msgid "tooltip_private_book"
+msgstr "Nascondi questo libro dalla rete"
+
+#. Section title for reading notes
+msgid "notes_section_title"
+msgstr "Note di lettura"
+
+#. Subtitle hint for reading notes section
+msgid "notes_section_hint"
+msgstr "Annota i tuoi pensieri, citazioni o passaggi memorabili"
+
+#. Subtitle hint for reading notes section (when speech-to-text is enabled)
+msgid "notes_section_hint_speech"
+msgstr "Scrivi o detta i tuoi pensieri, citazioni o passaggi memorabili"
+
+#. Placeholder for the note input field
+msgid "add_note_placeholder"
+msgstr "Aggiungi una nota..."
+
+#. Hint for page number field
+msgid "note_page_label"
+msgstr "Pagina"
+
+#. Link to see all notes
+msgid "view_all_notes"
+msgstr "Vedi tutte le note"
+
+#. Confirmation before deleting a note
+msgid "delete_note_confirm"
+msgstr "Eliminare questa nota?"
+
+#. Shown when there are no notes yet
+msgid "no_notes_yet"
+msgstr "Ancora nessuna nota"
+
+#. Note updated confirmation
+msgid "note_updated"
+msgstr "Nota aggiornata"
+
+#. Note deleted confirmation
+msgid "note_deleted"
+msgstr "Nota eliminata"
+
+#. Edit note dialog title
+msgid "edit_note"
+msgstr "Modifica nota"
+
+#. Tooltip for add note button
+msgid "tooltip_add_note"
+msgstr "Aggiungi una nota"
+
+#. Tooltip for delete note button
+msgid "tooltip_delete_note"
+msgstr "Elimina nota"
+
+#. Tooltip for edit note button
+msgid "tooltip_edit_note"
+msgstr "Modifica nota"
+
+#. Settings label for speech-to-text toggle
+msgid "speech_to_text_setting"
+msgstr "Dettatura vocale per le note"
+
+#. Description for speech-to-text setting
+msgid "speech_to_text_setting_desc"
+msgstr "Aggiungi un pulsante microfono per dettare le tue note di lettura"
+
+#. Tooltip for microphone button
+msgid "tooltip_dictate_note"
+msgstr "Detta una nota"
+
+#. Shown when speech recognition is not available on device
+msgid "speech_not_available"
+msgstr "Riconoscimento vocale non disponibile su questo dispositivo"
+
+#. Shown while listening
+msgid "speech_listening"
+msgstr "In ascolto..."
+
+#. Settings section title for loan duration
+msgid "loan_duration_settings_title"
+msgstr "Durata del prestito"
+
+#. Label for global default loan duration
+msgid "loan_duration_default_label"
+msgstr "Durata predefinita"
+
+#. Unit suffix for days
+msgid "loan_duration_days_suffix"
+msgstr "giorni"
+
+#. Toggle label for per-book duration customization
+msgid "loan_duration_per_book_toggle"
+msgstr "Personalizzazione per libro"
+
+#. Description for per-book duration toggle
+msgid "loan_duration_per_book_desc"
+msgstr "Imposta una durata di prestito diversa per ogni libro"
 
 msgid "quotes_module_help"
 msgstr "Mostra citazioni letterarie ispiratrici nella schermata iniziale. Puramente decorativo: può essere disattivato senza impatto sulle funzionalità."
@@ -7090,13 +8965,14 @@ msgstr "Quando un contatto fidato ti richiede un libro, il prestito viene accett
 msgid "enable_borrowing_module_help"
 msgstr "Attiva il sistema di prestiti: puoi prestare libri ai tuoi contatti e prendere in prestito i loro. Ogni prestito ha una durata predefinita configurabile e genera promemoria automatici."
 
+msgid "enable_lending_module_help"
+msgstr "Ti permette di prestare libri ai tuoi contatti. Quando è disattivato, i pulsanti di prestito scompaiono dai dettagli del libro e i tuoi contatti non possono richiedere prestiti dalla tua biblioteca, ma puoi comunque prendere in prestito dalla loro se il modulo di acquisizione in prestito è attivo."
+
 msgid "settings_allow_private_books_help"
 msgstr "Sblocca l'opzione 'Privato' su ogni libro. Un libro privato rimane nella tua biblioteca ma non viene mai mostrato ad altri utenti — né nel tuo profilo pubblico, né nelle ricerche di rete."
 
 msgid "module_digital_formats_help"
 msgstr "Attiva la distinzione tra formati (carta, ebook, audio) per lo stesso libro. Utile se possiedi più edizioni e vuoi tenere traccia di quale hai letto."
-
-# --- Inline help for Settings > Notifications toggles (Phase 1) ---
 
 msgid "notif_enabled_help"
 msgstr "Abilita o disabilita tutte le notifiche dell'app. Se disattivato, nessun avviso viene mostrato, indipendentemente dalla categoria."
@@ -7110,8 +8986,6 @@ msgstr "Ti notifica delle richieste di prestito ricevute, dei libri restituiti e
 msgid "notif_discoveries_help"
 msgstr "Ti informa quando i tuoi contatti aggiungono nuovi libri alla loro libreria."
 
-# --- Inline help for Settings > Account / Data / Search (Phase 1) ---
-
 msgid "settings_auto_backup_help"
 msgstr "Esegue il backup automatico della tua libreria a intervalli regolari. Ti permette di ripristinare i dati in caso di problemi sul dispositivo."
 
@@ -7123,3 +8997,669 @@ msgstr "Protegge l'accesso alla tua libreria all'avvio dell'app. In modalità lo
 
 msgid "two_factor_auth_help"
 msgstr "Aggiunge un secondo step di verifica al login (codice SMS o app di autenticazione). Aumenta la sicurezza quando usi BiblioGenius con un account server."
+
+msgid "recently_added_title"
+msgstr "Attività"
+
+msgid "badge_days_since_start"
+msgstr "G+%s"
+
+msgid "carousel_hide_tooltip"
+msgstr "Nascondi il carosello"
+
+msgid "carousel_hide_long_press_tooltip"
+msgstr "Tieni premuto per nascondere"
+
+msgid "carousel_expand_tooltip"
+msgstr "Espandi il carosello"
+
+msgid "carousel_collapse_tooltip"
+msgstr "Comprimi il carosello"
+
+msgid "carousel_collapsed_label"
+msgstr "Attività · {count}"
+
+msgid "carousel_hidden_snackbar"
+msgstr "Carosello nascosto"
+
+msgid "action_undo"
+msgstr "Annulla"
+
+msgid "carousel_own_lib_title"
+msgstr "Attività: la mia biblioteca"
+
+msgid "carousel_own_lib_desc"
+msgstr "Mostra i libri che stai leggendo e le ultime aggiunte in cima alla tua biblioteca."
+
+msgid "carousel_peer_lib_title"
+msgstr "Attività: peer"
+
+msgid "carousel_peer_lib_desc"
+msgstr "Mostra i libri che i peer stanno leggendo e le ultime aggiunte in cima alle loro biblioteche."
+
+#. Save order (shelf reorder mode)
+msgid "save_shelf_order"
+msgstr "Salva l'ordine"
+
+#. Reorder shelf
+msgid "reorder_shelf"
+msgstr "Riordina scaffale"
+
+#. Open in browser
+msgid "open_in_browser"
+msgstr "Apri nel browser"
+
+#. Playback speed
+msgid "playback_speed"
+msgstr "Velocità di riproduzione"
+
+#. Search online
+msgid "search_online"
+msgstr "Cerca online"
+
+#. Decrease by 1
+msgid "decrease_by_one"
+msgstr "Diminuisci di 1"
+
+#. Increase by 1
+msgid "increase_by_one"
+msgstr "Aumenta di 1"
+
+#. Scan for nearby peers
+msgid "tooltip_scan_peers"
+msgstr "Cerca dispositivi nelle vicinanze"
+
+#. Rewind 10 seconds
+msgid "tooltip_rewind_10s"
+msgstr "Indietro di 10 secondi"
+
+#. Forward 30 seconds
+msgid "tooltip_forward_30s"
+msgstr "Avanti di 30 secondi"
+
+#. Accept request
+msgid "tooltip_accept"
+msgstr "Accetta"
+
+#. Reject request
+msgid "tooltip_reject"
+msgstr "Rifiuta"
+
+#. Add author
+msgid "tooltip_add_author"
+msgstr "Aggiungi autore"
+
+#. Toggle flashlight / torch
+msgid "tooltip_toggle_flashlight"
+msgstr "Attiva/disattiva torcia"
+
+#. Refresh
+msgid "tooltip_refresh"
+msgstr "Aggiorna"
+
+#. Send message
+msgid "tooltip_send_message"
+msgstr "Invia messaggio"
+
+#. Search peers
+msgid "tooltip_search_peer"
+msgstr "Cerca"
+
+#. Tooltip shown on the owner's book-details screen when a cover upload to the hub has failed and a retry is pending on the next sync.
+msgid "cover_upload_pending_tooltip"
+msgstr "Copertina non sincronizzata. Verrà fatto un nuovo tentativo al prossimo aggiornamento."
+
+#. Settings section header for peer (networked) library cover controls.
+msgid "settings_peer_covers_section"
+msgstr "Copertine delle biblioteche peer"
+
+#. Toggle that controls whether peer libraries show book covers or fall back to the colored-spine view.
+msgid "peer_cover_display_enabled"
+msgstr "Mostra le copertine delle biblioteche peer"
+
+#. Description for the peer cover display toggle.
+msgid "peer_cover_display_enabled_desc"
+msgstr "Quando è disattivato, le biblioteche peer usano la vista a dorsi colorati. Nessuna copertina viene scaricata o memorizzata."
+
+#. Label for the peer cover cache size selector.
+msgid "peer_cover_cache_cap"
+msgstr "Dimensione massima della cache"
+
+#. Description for the peer cover cache size selector.
+msgid "peer_cover_cache_cap_desc"
+msgstr "Spazio su disco per le copertine peer. Le copertine più vecchie vengono rimosse quando è pieno."
+
+#. Title of the current-usage row below the cache size selector.
+msgid "peer_cover_cache_usage_title"
+msgstr "Utilizzo attuale"
+
+#. Body of the current-usage row. Format: "X MB of Y MB". {used} and {cap} are replaced at runtime.
+msgid "peer_cover_cache_usage"
+msgstr "{used} MB di {cap} MB"
+
+#. Tooltip for the refresh icon next to the current-usage row.
+msgid "peer_cover_cache_refresh"
+msgstr "Aggiorna"
+
+#. Destructive action that empties the peer cover cache directory.
+msgid "peer_cover_cache_clear"
+msgstr "Svuota la cache delle copertine peer"
+
+#. Title of the confirmation dialog shown before clearing the peer cover cache.
+msgid "peer_cover_cache_clear_title"
+msgstr "Svuotare la cache delle copertine peer?"
+
+#. Body of the confirmation dialog shown before clearing the peer cover cache.
+msgid "peer_cover_cache_clear_body"
+msgstr "Vengono eliminate le copertine scaricate dalle biblioteche peer. Le copertine della tua biblioteca non sono interessate."
+
+#. Confirm button of the clear peer cover cache dialog.
+msgid "peer_cover_cache_clear_action"
+msgstr "Svuota"
+
+#. Snackbar shown after the peer cover cache has been cleared.
+msgid "peer_cover_cache_clear_done"
+msgstr "Cache delle copertine peer svuotata"
+
+#. Title of the security dialog shown when the encrypted identity cannot be decrypted.
+msgid "identity_recovery_title"
+msgstr "Verifica di sicurezza"
+
+#. Body of the security dialog explaining the situation.
+msgid "identity_recovery_body"
+msgstr "BiblioGenius non riconosce più la chiave di sicurezza di questa biblioteca sul tuo dispositivo. Di solito è un problema temporaneo del sistema che si risolve riprovando."
+
+#. Bullet describing the retry option (recommended path).
+msgid "identity_recovery_bullet_retry"
+msgstr "• Riprova: prova prima questo (consigliato)."
+
+#. Bullet describing the regenerate option (destructive path).
+msgid "identity_recovery_bullet_regenerate"
+msgstr "• Ricomincia da capo: crea una nuova chiave. Le richieste di prestito e altri scambi sicuri con i dispositivi e le biblioteche connessi smetteranno di funzionare finché non li riabbini dalla schermata Rete."
+
+#. Action button for regenerating the encrypted identity.
+msgid "identity_recovery_btn_regenerate"
+msgstr "Ricomincia da capo"
+
+#. Error message shown when retry still fails (recovery dialog stays open).
+msgid "identity_recovery_retry_still_failing"
+msgstr "Continuiamo a non riconoscere questo dispositivo. Se il problema persiste, puoi scegliere \"Ricomincia da capo\"."
+
+#. Error message for unexpected exceptions during retry. {error} is the exception message.
+msgid "identity_recovery_retry_unexpected_error"
+msgstr "Errore imprevisto: {error}"
+
+#. Error message shown when the regeneration step itself fails. {error} is the exception message.
+msgid "identity_recovery_regen_failed"
+msgstr "Reimpostazione non riuscita: {error}"
+
+#. Title of the confirmation sub-dialog before regenerating.
+msgid "identity_recovery_confirm_title"
+msgstr "Ricominciare da capo?"
+
+#. Body of the regenerate confirmation sub-dialog.
+msgid "identity_recovery_confirm_body"
+msgstr "Verrà creata una nuova chiave di sicurezza per questo dispositivo.\n\nGli altri tuoi dispositivi e biblioteche probabilmente continueranno a vedere i tuoi libri, ma le azioni sicure tra di voi (richieste di prestito, aggiornamenti del profilo condiviso, notifiche private) smetteranno di funzionare. Per ripristinarle, dovrai riabbinare ciascuno dalla schermata Rete.\n\nI contenuti della tua biblioteca (libri, scaffali, prestiti) non sono interessati."
+
+#. Title of the success state of the recovery dialog after regen succeeds.
+msgid "identity_recovery_success_title"
+msgstr "Fatto"
+
+#. Body of the success state of the recovery dialog after regen succeeds.
+msgid "identity_recovery_success_body"
+msgstr "Questa biblioteca ha ora una nuova chiave di sicurezza.\n\nGli altri tuoi dispositivi e biblioteche potrebbero continuare a vedere i tuoi libri, ma le azioni sicure con loro (richieste di prestito, profilo condiviso, notifiche private) non funzionano più. Per ripristinarle, vai su Rete e riabbina ciascuno."
+
+#. Acknowledgement button on the success state of the recovery dialog.
+msgid "identity_recovery_success_btn"
+msgstr "OK"
+
+#. Singular form of the success-state heading listing devices/peers to re-pair.
+msgid "identity_recovery_success_repair_title_one"
+msgstr "1 connessione da riabbinare"
+
+#. Plural form of the success-state heading. {count} is the total of devices + peers.
+msgid "identity_recovery_success_repair_title_other"
+msgstr "{count} connessioni da riabbinare"
+
+#. Short intro shown above the list of devices/peers to re-pair after regen.
+msgid "identity_recovery_success_repair_intro"
+msgstr "Riabbina ciascuna dalla schermata Rete per ripristinare le azioni sicure."
+
+#. Primary CTA on the success state when devices/peers must be re-paired.
+msgid "identity_recovery_success_btn_network"
+msgstr "Vai a Rete"
+
+#. Secondary CTA on the success state to dismiss without navigating.
+msgid "identity_recovery_success_btn_later"
+msgstr "Più tardi"
+
+#. Screen-reader label for the icon next to a linked device entry.
+msgid "identity_recovery_success_icon_device_label"
+msgstr "Dispositivo abbinato"
+
+#. Screen-reader label for the icon next to a peer library entry.
+msgid "identity_recovery_success_icon_peer_label"
+msgstr "Biblioteca peer"
+
+#. Backup restore wizard (ADR-037 §5) — added 2026-04-29 with PR #3 reader.
+msgid "wizard_restore_app_bar_title"
+msgstr "Ripristina un backup"
+
+msgid "wizard_restore_picker_dialog_title"
+msgstr "Seleziona un file .bgbackup"
+
+msgid "wizard_restore_step_picker_intro"
+msgstr "Seleziona un backup .bgbackup da ripristinare."
+
+msgid "wizard_restore_button_browse"
+msgstr "Sfoglia..."
+
+msgid "wizard_restore_button_cancel"
+msgstr "Annulla"
+
+msgid "wizard_restore_button_continue"
+msgstr "Continua"
+
+msgid "wizard_restore_button_back"
+msgstr "Indietro"
+
+msgid "wizard_restore_button_restore"
+msgstr "Ripristina"
+
+msgid "wizard_restore_button_close_app"
+msgstr "Chiudi l'app"
+
+msgid "wizard_restore_button_close_to_apply"
+msgstr "Chiudi per applicare"
+
+msgid "wizard_restore_button_close"
+msgstr "Chiudi"
+
+msgid "wizard_restore_button_retry"
+msgstr "Riprova"
+
+msgid "wizard_restore_step_preview_title"
+msgstr "Backup selezionato"
+
+msgid "wizard_restore_kv_export_date"
+msgstr "Data di esportazione"
+
+msgid "wizard_restore_kv_library_uuid"
+msgstr "Identificatore della biblioteca"
+
+msgid "wizard_restore_kv_schema"
+msgstr "Schema"
+
+msgid "wizard_restore_kv_schema_value"
+msgstr "{schema} (attuale: {current})"
+
+msgid "wizard_restore_kv_app_version"
+msgstr "Versione dell'app"
+
+msgid "wizard_restore_kv_identity_included"
+msgstr "Identità inclusa"
+
+msgid "wizard_restore_yes"
+msgstr "sì"
+
+msgid "wizard_restore_no"
+msgstr "no"
+
+msgid "wizard_restore_kv_unlock_kind"
+msgstr "Codice di sblocco"
+
+msgid "wizard_restore_unlock_recovery"
+msgstr "codice di recupero"
+
+msgid "wizard_restore_unlock_passphrase"
+msgstr "passphrase dedicata"
+
+msgid "wizard_restore_step_preview_content"
+msgstr "Contenuto"
+
+msgid "wizard_restore_kv_books"
+msgstr "Libri"
+
+msgid "wizard_restore_kv_copies"
+msgstr "Copie"
+
+msgid "wizard_restore_kv_loans"
+msgstr "Prestiti"
+
+msgid "wizard_restore_kv_contacts"
+msgstr "Contatti"
+
+msgid "wizard_restore_kv_tags"
+msgstr "Scaffali"
+
+msgid "wizard_restore_kv_local_covers"
+msgstr "Copertine locali"
+
+msgid "wizard_restore_step_secret_prompt_recovery"
+msgstr "Inserisci il tuo codice di recupero"
+
+msgid "wizard_restore_step_secret_prompt_passphrase"
+msgstr "Inserisci la passphrase del backup"
+
+msgid "wizard_restore_secret_label_recovery"
+msgstr "Codice di recupero"
+
+msgid "wizard_restore_secret_label_passphrase"
+msgstr "Passphrase"
+
+msgid "wizard_restore_secret_show"
+msgstr "Mostra"
+
+msgid "wizard_restore_secret_hide"
+msgstr "Nascondi"
+
+msgid "wizard_restore_step_secret_hint"
+msgstr "La verifica usa Argon2id e può richiedere alcuni secondi sui dispositivi meno recenti."
+
+msgid "wizard_restore_secret_required"
+msgstr "Inserisci il tuo codice o la passphrase."
+
+msgid "wizard_restore_step_mode_title"
+msgstr "Modalità di ripristino"
+
+msgid "wizard_restore_mode_replace_title"
+msgstr "Sostituisci (consigliato per la migrazione del dispositivo)"
+
+msgid "wizard_restore_mode_replace_subtitle"
+msgstr "La tua biblioteca attuale verrà messa da parte per 24 h (backup di rollback) e poi sostituita da questo archivio."
+
+msgid "wizard_restore_mode_merge_title"
+msgstr "Unisci (aggiungi alla mia biblioteca attuale)"
+
+msgid "wizard_restore_mode_merge_subtitle"
+msgstr "I libri, i contatti e gli scaffali dell'archivio vengono aggiunti ai tuoi. I peer e l'identità non sono interessati."
+
+msgid "wizard_restore_identity_checkbox_title"
+msgstr "Ripristina anche l'identità di questa biblioteca (clone esatto)"
+
+msgid "wizard_restore_identity_checkbox_subtitle"
+msgstr "Selezionato: questo dispositivo verrà riconosciuto dai tuoi peer come il dispositivo originale. Non selezionato: nuova identità, i tuoi peer ti verificheranno di nuovo automaticamente al prossimo contatto."
+
+msgid "wizard_restore_step_confirm_title"
+msgstr "Conferma il ripristino"
+
+msgid "wizard_restore_confirm_summary_replace"
+msgstr "I tuoi dati attuali verranno spostati in un backup di rollback. Puoi tornare indietro entro 24 h dalla schermata Impostazioni."
+
+msgid "wizard_restore_confirm_summary_merge"
+msgstr "Gli elementi dell'archivio verranno aggiunti alla tua biblioteca attuale. Nessuno dei tuoi libri esistenti verrà eliminato."
+
+msgid "wizard_restore_confirm_restart_warning"
+msgstr "Al termine del ripristino, l'app si chiuderà. Dovrai riavviarla manualmente per completare."
+
+msgid "wizard_restore_progress_default"
+msgstr "Ripristino in corso..."
+
+msgid "wizard_restore_progress_verifying"
+msgstr "Verifica del backup..."
+
+msgid "wizard_restore_progress_replacing"
+msgstr "Ripristino del database..."
+
+msgid "wizard_restore_progress_merging"
+msgstr "Unione dei dati..."
+
+msgid "wizard_restore_progress_warning"
+msgstr "Non chiudere l'app."
+
+msgid "wizard_restore_step_result_success_title"
+msgstr "Ripristino riuscito"
+
+msgid "wizard_restore_step_result_failure_title"
+msgstr "Ripristino non riuscito"
+
+msgid "wizard_restore_step_result_failure_intact"
+msgstr "La tua biblioteca attuale è intatta."
+
+#. Wizard: SnackBar shown if the user tries to navigate away (back arrow,
+#. swipe, system back) after a successful Replace/Merge restore. The
+#. on-disk DB has been swapped, so the app must be restarted.
+msgid "wizard_restore_must_restart_hint"
+msgstr "Ripristino applicato. Chiudi l'app con il pulsante qui sotto per completare."
+
+msgid "wizard_restore_step_result_failure_unknown"
+msgstr "Errore sconosciuto"
+
+msgid "wizard_restore_kv_mode"
+msgstr "Modalità"
+
+msgid "wizard_restore_mode_label_replace"
+msgstr "Sostituisci"
+
+msgid "wizard_restore_mode_label_merge"
+msgstr "Unisci"
+
+msgid "wizard_restore_kv_covers_restored"
+msgstr "Copertine ripristinate"
+
+msgid "wizard_restore_kv_identity"
+msgstr "Identità"
+
+msgid "wizard_restore_identity_restored_value"
+msgstr "ripristinata (clone esatto)"
+
+msgid "wizard_restore_kv_rollback_path"
+msgstr "Backup di rollback"
+
+msgid "wizard_restore_error_unreadable"
+msgstr "Archivio illeggibile: {error}"
+
+#. Wizard: shown on the mode step when the wizard auto-unlocked using
+#. the recovery code or passphrase already in secure storage (typical
+#. same-device auto-backup restore).
+msgid "wizard_restore_auto_unlocked_recovery_code"
+msgstr "Sbloccato automaticamente con il tuo codice di recupero"
+
+msgid "wizard_restore_auto_unlocked_passphrase"
+msgstr "Sbloccato automaticamente con la password del backup"
+
+#. Wizard: shown on the secret step when the auto-unlock attempt failed
+#. (stored secret no longer matches this archive). User is asked to
+#. type the original secret manually.
+msgid "wizard_restore_secret_auto_unlock_failed"
+msgstr "Il segreto memorizzato su questo dispositivo non corrisponde più a questo archivio (codice di recupero o password cambiati?). Digita manualmente il segreto originale."
+
+msgid "wizard_restore_error_bad_secret"
+msgstr "Codice errato o archivio danneggiato."
+
+msgid "wizard_restore_error_schema_too_new"
+msgstr "Questo backup è stato creato da una versione più recente di BiblioGenius (schema {schema}, attuale {current}). Aggiorna l'app prima di ripristinare."
+
+msgid "wizard_restore_error_schema_too_new_short"
+msgstr "Questo backup è stato creato da una versione più recente. Aggiorna l'app prima di riprovare."
+
+msgid "wizard_restore_error_db_hash_mismatch"
+msgstr "Hash del database non corrispondente: archivio danneggiato. Ripristino annullato, la tua biblioteca attuale è intatta."
+
+msgid "wizard_restore_error_generic"
+msgstr "Non riuscito: {error}"
+
+#. Backup section: PR #3 tile + rollback card.
+msgid "backup_restore_full_title"
+msgstr "Ripristina un backup completo"
+
+msgid "backup_restore_full_subtitle"
+msgstr "Importa un archivio .bgbackup per sostituire o unire alla tua biblioteca attuale."
+
+msgid "backup_rollback_title"
+msgstr "Annulla il ripristino recente"
+
+msgid "backup_rollback_subtitle"
+msgstr "Torna allo stato precedente all'ultimo ripristino. Ancora possibile per {remaining_hours} h (backup creato {age_hours} h fa)."
+
+msgid "backup_rollback_dialog_title"
+msgstr "Annullare l'ultimo ripristino?"
+
+msgid "backup_rollback_dialog_message"
+msgstr "Lo stato del tuo ultimo ripristino verrà messo da parte per 24 h, poi verrà ripristinata la biblioteca che avevi subito prima di quel ripristino. L'app si chiuderà: riavviala per completare."
+
+#. Inline button on the rollback tile (auto-backup card + settings).
+msgid "backup_rollback_button_undo"
+msgstr "Annulla"
+
+#. Confirm button in the rollback dialog. Spelled out so it does not
+#. collide with the dialog's "Cancel" button.
+msgid "backup_rollback_dialog_confirm"
+msgstr "Annulla ripristino"
+
+msgid "backup_rollback_error"
+msgstr "Impossibile annullare il ripristino: {error}"
+
+#. Auto-backup (ADR-037 §6) - status badge titles + subtitles
+msgid "auto_backup_status_title_never"
+msgstr "Ancora nessun backup"
+
+msgid "auto_backup_status_title_with_age"
+msgstr "Ultimo backup su questo dispositivo: {age}"
+
+msgid "auto_backup_status_subtitle_amber"
+msgstr "Valuta di controllare il backup automatico."
+
+msgid "auto_backup_status_subtitle_red"
+msgstr "I tuoi dati non sono stati protetti di recente."
+
+msgid "auto_backup_status_subtitle_never_enabled"
+msgstr "Il backup automatico creerà a breve il suo primo archivio."
+
+msgid "auto_backup_status_subtitle_disabled"
+msgstr "Il backup automatico è disattivato."
+
+#. Auto-backup - relative-age formatting (Dart computes the value, .po
+#. supplies the unit). {n} is a non-negative integer.
+msgid "auto_backup_age_minutes"
+msgstr "{n} min fa"
+
+msgid "auto_backup_age_hours"
+msgstr "{n} h fa"
+
+msgid "auto_backup_age_days"
+msgstr "{n} g fa"
+
+#. Auto-backup bottom sheet (opened from the status badge)
+msgid "auto_backup_sheet_title"
+msgstr "Backup automatico"
+
+msgid "auto_backup_sheet_toggle_label"
+msgstr "Backup automatico ogni 24 h"
+
+msgid "auto_backup_sheet_toggle_subtitle"
+msgstr "Istantanea crittografata giornaliera del catalogo, solo su questo dispositivo (annullabile per 24 h). Non è una migrazione tra dispositivi."
+
+msgid "auto_backup_sheet_run_now"
+msgstr "Esegui il backup ora"
+
+msgid "auto_backup_sheet_section_archives"
+msgstr "Backup automatici su questo dispositivo"
+
+msgid "auto_backup_sheet_no_archives"
+msgstr "Ancora nessun backup automatico su questo dispositivo."
+
+msgid "auto_backup_sheet_restore_archive"
+msgstr "Ripristina"
+
+msgid "auto_backup_sheet_clear_all"
+msgstr "Elimina i backup automatici"
+
+msgid "auto_backup_sheet_clear_confirm_title"
+msgstr "Eliminare tutti i backup automatici?"
+
+msgid "auto_backup_sheet_clear_confirm_message"
+msgstr "Questa azione non può essere annullata."
+
+msgid "auto_backup_sheet_rollback_subtitle_hours_left"
+msgstr "Torna allo stato precedente all'ultimo ripristino. Ancora possibile per {hours} h."
+
+#. Auto-backup - dialog shown when toggling on without a recovery code
+msgid "auto_backup_recovery_code_required_title"
+msgstr "Codice di recupero richiesto"
+
+msgid "auto_backup_recovery_code_required_message"
+msgstr "Il backup automatico crittografa i tuoi archivi con il tuo codice di recupero. Configura prima la tua directory hub per ottenerne uno, poi torna qui per attivarlo."
+
+#. Auto-backup - SnackBars after manual run / restore-from-list
+msgid "auto_backup_restore_archive_hint"
+msgstr "Per ripristinare {path}, apri Ripristina un backup e seleziona questo file."
+
+msgid "auto_backup_run_skipped_unchanged"
+msgstr "Nessuna modifica dall'ultimo backup."
+
+msgid "auto_backup_run_disabled"
+msgstr "Il backup automatico è disattivato."
+
+msgid "auto_backup_run_no_secret"
+msgstr "Codice di recupero mancante; impossibile crittografare l'archivio."
+
+msgid "auto_backup_run_failed"
+msgstr "Backup non riuscito. Consulta i log per i dettagli."
+
+msgid "auto_backup_run_ok"
+msgstr "Backup riuscito."
+
+#. Auto-backup activation sheet (ADR-037 §6) - shown on every off->on
+#. toggle so the user picks (and sees) the secret used to encrypt
+#. archives before the first one is produced.
+msgid "auto_backup_activation_title"
+msgstr "Attiva il backup automatico"
+
+msgid "auto_backup_activation_explanation"
+msgstr "Il backup automatico crea un'istantanea crittografata del tuo catalogo (libri, copie, prestiti, contatti) per poter tornare indietro su questo dispositivo. Non include la tua identità E2EE: per migrare verso un nuovo dispositivo senza rifare il pairing con i tuoi peer, esegui un \"Backup completo\" manuale con \"Includi identità\" spuntato."
+
+msgid "auto_backup_activation_mode_recovery_code"
+msgstr "Usa il mio codice di recupero"
+
+msgid "auto_backup_activation_mode_recovery_code_hint"
+msgstr "Il codice di recupero della tua directory hub. Consigliato se ne hai già uno."
+
+msgid "auto_backup_activation_mode_passphrase"
+msgstr "Imposta una password dedicata"
+
+msgid "auto_backup_activation_mode_passphrase_hint"
+msgstr "Distinta dal codice di recupero, dedicata ai tuoi backup locali."
+
+msgid "auto_backup_activation_recovery_code_box_label"
+msgstr "Il tuo codice di recupero"
+
+msgid "auto_backup_activation_recovery_code_save_advice"
+msgstr "Annotalo e conservalo al sicuro. Ti servirà per ripristinare i tuoi archivi su un altro dispositivo."
+
+msgid "auto_backup_activation_recovery_code_missing"
+msgstr "Non è ancora stato generato alcun codice di recupero. Configura la tua directory hub per ottenerne uno, oppure scegli una password qui sotto."
+
+msgid "auto_backup_activation_passphrase_label"
+msgstr "Password"
+
+msgid "auto_backup_activation_passphrase_confirm_label"
+msgstr "Conferma password"
+
+msgid "auto_backup_activation_passphrase_save_advice"
+msgstr "Almeno {min} caratteri. Memorizzala; non possiamo recuperarla se la dimentichi."
+
+msgid "auto_backup_activation_passphrase_too_short"
+msgstr "La password deve contenere almeno {min} caratteri."
+
+msgid "auto_backup_activation_passphrase_mismatch"
+msgstr "Le due password non corrispondono."
+
+msgid "auto_backup_activation_activate"
+msgstr "Attiva"
+
+#. Auto-backup clone-export nudge banner: surfaces in the bottom sheet
+#. when the user has been on auto-backup for a while without a recent
+#. clone-mode export (ADR-037 §6).
+msgid "auto_backup_clone_nudge_title"
+msgstr "Valuta un'esportazione completa con identità"
+
+msgid "auto_backup_clone_nudge_body"
+msgstr "Il backup automatico copre solo il tuo catalogo. Per migrare verso un nuovo dispositivo senza rifare il pairing E2EE con i tuoi peer, esegui periodicamente un \"Backup completo\" con \"Includi identità\" spuntato e conserva il file fuori dal dispositivo (iCloud Drive, USB crittografata, ecc.)."
+
+msgid "auto_backup_clone_nudge_export"
+msgstr "Esporta ora"
+
+msgid "auto_backup_clone_nudge_snooze"
+msgstr "Più tardi"
+
