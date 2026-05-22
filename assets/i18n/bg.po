@@ -5829,3 +5829,3843 @@ msgstr "Синхронизирай моите устройства"
 
 msgid "settings_linked_devices_desc"
 msgstr "Поддържайте библиотеката си актуална на всички ваши устройства (мобилно / таблет / настолен), свързани към същата Wi-Fi мрежа. Криптиран от край до край трансфер."
+
+#. 10 Books Collected
+msgid "achievement_collector_10"
+msgstr "Растяща колекция"
+
+#. 100 Books Collected
+msgid "achievement_collector_100"
+msgstr "Центурион"
+
+#. First Book Read
+msgid "achievement_first_read"
+msgstr "Първо четене"
+
+#. First Memory Game
+msgid "achievement_memory_first_game"
+msgstr "Начинаещ в Памет"
+
+#. Master Difficulty
+msgid "achievement_memory_master"
+msgstr "Велик майстор на Памет"
+
+#. Perfect Game
+msgid "achievement_memory_perfect"
+msgstr "Перфектна памет"
+
+#. Sliding Puzzle - First Game
+msgid "achievement_puzzle_first_game"
+msgstr "Начинаещ в пъзела"
+
+#. Sliding Puzzle - Solved in par moves or fewer
+msgid "achievement_puzzle_perfect"
+msgstr "Перфекционист на пъзела"
+
+#. Sliding Puzzle - Completed a 5x5 puzzle
+msgid "achievement_puzzle_master"
+msgstr "Майстор на пъзела"
+
+#. 10 Books Read
+msgid "achievement_reader_10"
+msgstr "Книжен плъх"
+
+#. 30 Day Streak
+msgid "achievement_streak_30"
+msgstr "Шампион на месеца"
+
+#. Browse only — disappears when offline
+msgid "active_explanation"
+msgstr "Само разглеждане — изчезва при офлайн"
+
+#. Browse only — tap + to enable loans and sync
+msgid "active_peer_hint"
+msgstr "Само разглеждане — докоснете +, за да активирате заеми и синхронизация"
+
+#. Contextual add book title (with destination name)
+msgid "add_book_to_title"
+msgstr "Добавяне към"
+
+#. Add collection hint (inline field placeholder)
+msgid "add_collection_hint"
+msgstr "Въведете име на колекция..."
+
+#. Add a connection
+msgid "add_connection_title"
+msgstr "Добавяне на връзка"
+
+#. Searching for audiobook...
+msgid "audio_searching"
+msgstr "Търсене на аудиокнига..."
+
+#. Audiobook Available
+msgid "audio_available"
+msgstr "Налична аудиокнига"
+
+#. Connect to WiFi to stream
+msgid "audio_wifi_required"
+msgstr "Свържете се с WiFi за слушане"
+
+#. Refreshing audiobook search...
+msgid "audio_refreshing"
+msgstr "Обновяване на търсенето на аудиокниги..."
+
+#. Refresh
+msgid "audio_refresh"
+msgstr "Обновяване"
+
+#. Open
+msgid "audio_open"
+msgstr "Отваряне"
+
+#. Author - when authors already added
+msgid "author_hint_add"
+msgstr "Добавяне на още автор..."
+
+#. Helper text for author field
+msgid "author_helper"
+msgstr "Добавяйте няколко автори един по един"
+
+#. Is your copy available or lent out?
+msgid "availability_helper"
+msgstr "Вашето копие налично ли е, или е дадено назаем?"
+
+#. Short-hand for an average loan duration below one day (loan statistics card)
+msgid "avg_duration_under_one_day"
+msgstr "< 1 д"
+
+#. Description for average rating insight
+msgid "avg_rating_desc"
+msgstr "Средно за %1 оценени книги"
+
+#. Description for average reading time insight
+msgid "avg_reading_time_desc"
+msgstr "Въз основа на %1 книги с начална и крайна дата"
+
+#. Contact has this book in their library
+msgid "contact_has_book"
+msgstr "Има тази книга"
+
+#. Error borrowing book - library not initialized
+msgid "error_borrow_setup_incomplete"
+msgstr "Заемането не можа да бъде запазено. Отидете в Настройки, за да завършите настройката на библиотеката си."
+
+#. Books finished this year
+msgid "books_finished_year"
+msgstr "Завършени тази година"
+
+#. Description for books finished this year insight
+msgid "books_finished_year_desc"
+msgstr "Книги, завършени през %1"
+
+#. books (suffix)
+msgid "books_suffix"
+msgstr "книги"
+
+#. Borrow request already pending
+msgid "borrow_pending"
+msgstr "Заявено"
+
+#. Already borrowing this book from this peer (accepted loan)
+msgid "borrow_active"
+msgstr "Заето"
+
+#. Currently lending this book to this peer
+msgid "borrow_on_loan"
+msgstr "Дадено назаем"
+
+#. No copies available to borrow
+msgid "borrow_unavailable"
+msgstr "Недостъпно"
+
+#. Borrow request auto-rejected
+msgid "borrow_request_rejected_no_copy"
+msgstr "Заявката е отхвърлена: няма налично копие в тази библиотека."
+
+msgid "borrow_request_accepted"
+msgstr "Заемането е прието! Книгата е добавена във вашата библиотека."
+
+#. A borrowed copy will be added to your existing book
+msgid "borrow_copy_added_to_existing"
+msgstr "Заето копие ще бъде добавено към съществуващата ви книга"
+
+#. Collection tag (library grouped view)
+msgid "collection_tag"
+msgstr "Колекция"
+
+#. Group books together, e.g. Summer reads, Book club
+msgid "collections_helper"
+msgstr "Групирайте книги заедно, напр. Летни четива, Книжен клуб"
+
+#. Coming soon
+msgid "coming_soon"
+msgstr "Очаквайте скоро"
+
+#. Loans, sync, persists offline, editable
+msgid "connected_explanation"
+msgstr "Заеми, синхронизация, остава офлайн, редактируемо"
+
+#. You can now manage loans and sync books
+msgid "connection_success_hint"
+msgstr "Вече можете да управлявате заеми и да синхронизирате книги"
+
+#. Auto-approve loan requests
+msgid "auto_approve_loans_title"
+msgstr "Автоматично одобряване на заявки за заем"
+
+#. Automatically accept loan requests from approved contacts
+msgid "auto_approve_loans_desc"
+msgstr "Автоматично приемане на заявки за заем от одобрени контакти"
+
+#. You have {count} pending connection request(s)
+msgid "pending_connections_banner"
+msgstr "Имате {count} чакащи заявки за връзка"
+
+#. Review
+msgid "review_connections"
+msgstr "Преглед"
+
+#. Pending requests
+msgid "pending_requests_section"
+msgstr "Чакащи заявки"
+
+#. Accept
+msgid "accept_connection"
+msgstr "Приемане"
+
+#. Reject
+msgid "reject_connection"
+msgstr "Отхвърляне"
+
+#. Cover photo error
+msgid "cover_photo_error"
+msgstr "Снимката не можа да бъде направена"
+
+#. Cover photo saved
+msgid "cover_photo_saved"
+msgstr "Снимката на корицата е запазена"
+
+#. Take a photo
+msgid "cover_take_photo"
+msgstr "Направете снимка"
+
+#. Take a photo of the cover
+msgid "cover_take_photo_tooltip"
+msgstr "Направете снимка на корицата"
+
+msgid "cover_label"
+msgstr "Корица"
+
+msgid "cover_take_photo_short"
+msgstr "Снимка"
+
+msgid "cover_choose_short"
+msgstr "Галерия"
+
+#. days ago (suffix)
+msgid "days_ago_suffix"
+msgstr "д."
+
+#. Last book finished
+msgid "days_since_last"
+msgstr "Последна завършена книга"
+
+#. Description for days since last finished book
+msgid "days_since_last_desc"
+msgstr "Време от последната ви завършена книга"
+
+#. Return the borrowed copy before deleting.
+msgid "delete_disabled_borrowed_tooltip"
+msgstr "Върнете заетото копие, преди да изтриете."
+
+#. Mark the loaned copy as returned before deleting.
+msgid "delete_disabled_lent_tooltip"
+msgstr "Отбележете дадения назаем екземпляр като върнат, преди да изтриете."
+
+#. Also delete the books in this collection (checkbox label, off by default)
+msgid "delete_collection_include_books"
+msgstr "Изтриване и на книгите в тази колекция"
+
+#. "{to_delete} to delete, {to_keep} kept" - preview shown below the checkbox
+msgid "delete_collection_preview_summary"
+msgstr "{to_delete} за изтриване, {to_keep} запазени"
+
+#. Legend shown below the preview summary in the delete-with-books confirmation
+msgid "delete_collection_preview_legend"
+msgstr "Запазени книги: дадени назаем, заети, в друга колекция или на рафт."
+
+#. Are you sure you want to delete the shelf "%s"? This action cannot be undone.
+msgid "delete_shelf_confirm"
+msgstr "Сигурни ли сте, че искате да изтриете рафта „%s“? Това действие е необратимо."
+
+#. Select which formats you own
+msgid "digital_formats_helper"
+msgstr "Изберете кои формати притежавате"
+
+#. Header for collections available in the user's reading languages
+msgid "curated_section_in_your_languages"
+msgstr "На вашите езици"
+
+#. Header for collections in other languages, shown collapsed by default
+msgid "curated_section_other_languages"
+msgstr "Други езици"
+
+#. Hint shown below the "other languages" header when collapsed
+msgid "curated_other_languages_hint"
+msgstr "Още {count} на езици, които не сте избрали"
+
+#. Search placeholder in loans tabs
+msgid "search_loans"
+msgstr "Търсене по заглавие или име..."
+
+#. Clear returned loans history
+msgid "clean_returned_loans"
+msgstr "Изчистване на историята"
+
+#. Confirmation dialog for clearing returned loans
+msgid "clean_returned_loans_confirm"
+msgstr "Да се изтрият %d върнати заема? Това е необратимо."
+
+#. Success message after clearing returned loans
+msgid "clean_returned_loans_success"
+msgstr "%d върнати заема са изтрити"
+
+#. No returned loans to clear
+msgid "clean_returned_loans_empty"
+msgstr "Няма върнати заеми за изчистване"
+
+#. Clear closed requests history
+msgid "clean_closed_requests"
+msgstr "Изчистване на историята"
+
+#. Confirmation dialog for clearing closed requests
+msgid "clean_closed_requests_confirm"
+msgstr "Да се изтрият %d затворени заявки? Това е необратимо."
+
+#. Success message after clearing closed requests
+msgid "clean_closed_requests_success"
+msgstr "%d затворени заявки са изтрити"
+
+#. No closed requests to clear
+msgid "clean_closed_requests_empty"
+msgstr "Няма затворени заявки за изчистване"
+
+#. Lending
+msgid "enable_lending_module"
+msgstr "Даване назаем"
+
+#. Allow lending your books to your contacts
+msgid "lending_module_desc"
+msgstr "Разрешаване на даването на книгите ви назаем на вашите контакти"
+
+#. Loans modules disabled
+msgid "loans_disabled_title"
+msgstr "Заемите са изключени"
+
+#. Both lending and borrowing modules are off. Re-enable them in Settings to manage loans here.
+msgid "loans_disabled_body"
+msgstr "Модулите за даване и вземане назаем са изключени. Включете ги отново в Настройки, за да управлявате заемите тук."
+
+#. Open Settings
+msgid "loans_disabled_open_settings"
+msgstr "Отваряне на настройките"
+
+#. No available copy for loan request
+msgid "error_no_available_copy"
+msgstr "Тази книга няма налично копие. Всички копия в момента са дадени назаем."
+
+#. Something went wrong
+msgid "error_unexpected_title"
+msgstr "Нещо се обърка"
+
+#. The app encountered an unexpected error. Please try again.
+msgid "error_unexpected_message"
+msgstr "Приложението срещна неочаквана грешка. Моля, опитайте отново."
+
+#. Description for fastest read insight
+msgid "fastest_read_desc"
+msgstr "Книга, завършена за най-кратко време"
+
+#. Description for best rated insight
+msgid "best_rated_desc"
+msgstr "Вашата най-високо оценена книга"
+
+#. Empty state for insights with no data
+msgid "insight_no_data"
+msgstr "Все още няма данни"
+
+#. Active loans (not overdue)
+msgid "filter_active"
+msgstr "Активни"
+
+#. Overdue loans
+msgid "filter_overdue"
+msgstr "Просрочени"
+
+#. Returned loans
+msgid "filter_returned"
+msgstr "Върнати"
+
+#. All months (date filter placeholder)
+msgid "filter_all_months"
+msgstr "Всички периоди"
+
+#. Games
+msgid "filter_games"
+msgstr "Игри"
+
+#. When you finished this book
+msgid "finished_reading_helper"
+msgstr "Кога завършихте тази книга"
+
+#. Tag shown next to the Google Books toggle title to flag it as needing extra setup
+msgid "google_books_advanced_tag"
+msgstr "Разширени"
+
+#. Badge shown on the Google Books filter chip when no API key is set
+msgid "google_books_no_api_key_badge"
+msgstr "Без API ключ"
+
+#. SnackBar shown when filtering by Google Books without an API key
+msgid "google_books_no_api_key_snackbar"
+msgstr "Google Books бързо изчерпва анонимната си квота. Добавете API ключ в Настройки."
+
+#. Info banner shown under the Google Books toggle when no API key is set
+msgid "google_books_no_api_key_warning"
+msgstr "Google Books споделя строга анонимна квота между всички потребители без ключ. Добавете безплатен API ключ по-долу за надеждни резултати."
+
+#. Clickable link below the Google Books API key field
+msgid "google_books_api_key_help_link"
+msgstr "Как да получите Google API ключ"
+
+#. Play
+msgid "help_cta_play_memory"
+msgstr "Играй"
+
+#. View my profile
+msgid "help_cta_profile"
+msgstr "Преглед на моя профил"
+
+#. Average rating of your books grouped by shelf and collection. Only groups with at least 3 rated books are shown.
+msgid "help_ctx_stats_rating_by_group"
+msgstr "Средна оценка на книгите ви, групирани по рафт и колекция. Показват се само групи с поне 3 оценени книги."
+
+#. Test your memory with your book covers
+msgid "help_desc_memory_game"
+msgstr "Изпитайте паметта си с кориците на книгите си"
+
+#. Your profile lets you customize the app: change themes, enable optional modules (audio, games, collections), configure external search sources (Google Books, BNF, OpenLibrary), and manage your account.
+msgid "help_desc_profile"
+msgstr "Профилът ви позволява да персонализирате приложението: смяна на теми, активиране на допълнителни модули (аудио, игри, колекции), конфигуриране на външни източници за търсене (Google Books, BNF, OpenLibrary) и управление на акаунта ви."
+
+#. Use the barcode scanner to instantly identify books. Point your camera at the ISBN barcode on the back cover. BiblioGenius will search multiple catalogs and auto-fill all metadata (title, author, cover, publisher).
+msgid "help_desc_scan"
+msgstr "Използвайте скенера на баркодове, за да идентифицирате книги мигновено. Насочете камерата към ISBN баркода на задната корица. BiblioGenius ще претърси няколко каталога и автоматично ще попълни всички метаданни (заглавие, автор, корица, издател)."
+
+#. View detailed stats about your reading habits: books read per month, favorite genres, top authors, publication years, and more. Track your progress over time and compare with friends on the leaderboard.
+msgid "help_desc_statistics"
+msgstr "Вижте подробна статистика за навиците си на четене: книги, прочетени на месец, любими жанрове, най-четени автори, години на издаване и още. Проследявайте напредъка си във времето и се сравнявайте с приятели в класацията."
+
+#. How to scan a barcode?
+msgid "help_topic_scan"
+msgstr "Как да сканирате баркод?"
+
+#. My statistics and achievements
+msgid "help_topic_statistics"
+msgstr "Моята статистика и постижения"
+
+#. Scan a Book
+msgid "help_cta_scan"
+msgstr "Сканиране на книга"
+
+#. Import my books
+msgid "help_cta_import"
+msgstr "Импортиране на моите книги"
+
+#. View my stats
+msgid "help_cta_go_to_stats"
+msgstr "Преглед на моята статистика"
+
+#. See all help topics
+msgid "help_see_all"
+msgstr "Вижте всички помощни теми"
+
+#. Sync multiple devices
+msgid "help_topic_device_sync"
+msgstr "Синхронизиране на няколко устройства"
+
+#. Sync multiple devices
+msgid "help_desc_device_sync"
+msgstr "BiblioGenius може да поддържа библиотеката ви синхронизирана между няколко устройства, които притежавате (телефон, таблет, компютър). Синхронизацията се извършва през локалната ви Wi-Fi мрежа: всички устройства трябва да са свързани към една и съща мрежа. Прехвърлянията са криптирани от край до край, така че нито вашият интернет доставчик, нито посредник може да чете данните ви.\n\nЗа сдвояване на ново устройство:\n1. На първото устройство генерирайте 6-цифрен код.\n2. На второто устройство въведете този код в рамките на 5 минути.\n3. Двете устройства обменят ключове и започват синхронизация.\n\nЗа 3 или повече устройства повторете операцията между всяка двойка."
+
+#. Sync multiple devices CTA
+msgid "help_cta_open_device_sync"
+msgstr "Управление на моите устройства"
+
+#. Memory Game
+msgid "help_topic_memory_game"
+msgstr "Игра на памет"
+
+#. How to customize the app?
+msgid "help_topic_profile"
+msgstr "Как да персонализирате приложението?"
+
+#. No peers at this level
+msgid "leaderboard_empty_filter"
+msgstr "Няма близки библиотеки на това ниво"
+
+#. Shown after a manual leaderboard refresh when the Rust backend hit its 25s per-peer relay timeout
+msgid "leaderboard_sync_timeout"
+msgstr "Някои библиотеки не отговориха навреме"
+
+#. Rename library dialog title
+msgid "rename_library_title"
+msgstr "Име на библиотеката"
+
+#. Rename library hint
+msgid "rename_library_hint"
+msgstr "Напр. Библиотеката на Мария"
+
+#. Libraries detected on your Wi-Fi
+msgid "local_network_hint"
+msgstr "Библиотеки, открити във вашия Wi-Fi"
+
+#. More (bottom navigation)
+msgid "nav_more"
+msgstr "Още"
+
+#. Bottom nav short labels
+msgid "btm_library"
+msgstr "Книги"
+
+msgid "btm_network"
+msgstr "Контакти"
+
+msgid "btm_loans"
+msgstr "Заеми"
+
+msgid "btm_profile"
+msgstr "Профил"
+
+msgid "btm_stats"
+msgstr "Обзор"
+
+#. Pages (suffix)
+msgid "pages_suffix"
+msgstr "стр."
+
+#. Enter your password to unlock the app
+msgid "login_local_password_subtitle"
+msgstr "Въведете паролата си, за да отключите библиотеката си"
+
+#. Remove password
+msgid "remove_password"
+msgstr "Премахване на паролата"
+
+#. Remove password confirmation
+msgid "remove_password_confirm"
+msgstr "Сигурни ли сте, че искате да премахнете паролата? Всеки ще може да достъпи библиотеката ви."
+
+#. Password removed successfully
+msgid "password_removed_success"
+msgstr "Паролата е премахната успешно"
+
+#. Hub-only data hint shown when only ISBN/title/author available
+msgid "hub_only_hint"
+msgstr "Преглед на каталога. Свържете се към същата Wi-Fi мрежа за пълни подробности."
+
+#. Detail hint for hub-only entries
+msgid "hub_only_detail_hint"
+msgstr "Свържете се към същия Wi-Fi или изчакайте тази библиотека да е онлайн, за да видите пълните подробности."
+
+#. Short library ID for peer disambiguation
+msgid "peer_short_id"
+msgstr "ИД: %s"
+
+#. Title, author, ISBN...
+msgid "peer_library_search_hint"
+msgstr "Заглавие, автор, ISBN..."
+
+#. Reader preset legend
+msgid "preset_reader_legend"
+msgstr "Обичам да чета и искам да следя книгите си"
+
+#. Librarian preset legend
+msgid "preset_librarian_legend"
+msgstr "Управлявам библиотека или голяма колекция"
+
+#. Bookseller preset legend
+msgid "preset_bookseller_legend"
+msgstr "Продавам книги, професионално или като хоби"
+
+#. Reader
+msgid "profile_reader"
+msgstr "Читател"
+
+#. Manage your personal library, reading lists, and wishlists.
+msgid "profile_reader_desc"
+msgstr "Управлявайте личната си библиотека, списъци за четене и списъци с желания."
+
+#. Family
+msgid "profile_family"
+msgstr "Семейство"
+
+#. Share a family library with multiple readers.
+msgid "profile_family_desc"
+msgstr "Споделяйте семейна библиотека с няколко читатели."
+
+#. Educator
+msgid "profile_educator"
+msgstr "Преподавател"
+
+#. Manage a classroom or school library.
+msgid "profile_educator_desc"
+msgstr "Управлявайте класна или училищна библиотека."
+
+#. Association
+msgid "profile_association"
+msgstr "Сдружение"
+
+#. Manage resources for an association or community group.
+msgid "profile_association_desc"
+msgstr "Управлявайте ресурси за сдружение или общностна група."
+
+#. My contacts
+msgid "quick_my_contacts"
+msgstr "Контакти"
+
+#. Inventory (batch scan into a shelf)
+msgid "quick_inventory"
+msgstr "Инвентаризация"
+
+#. Add book manually
+msgid "quick_add_manual"
+msgstr "Ръчно добавяне"
+
+#. Choose shortcut (custom quick action picker)
+msgid "quick_action_choose"
+msgstr "Изберете пряк път"
+
+#. Choose a shelf for inventory scan
+msgid "choose_shelf_for_inventory"
+msgstr "Изберете рафт"
+
+#. No shelves exist yet for inventory
+msgid "no_shelves_for_inventory"
+msgstr "Първо създайте рафт, за да използвате режима на инвентаризация."
+
+#. Batch scan
+msgid "quick_batch_scan"
+msgstr "Групово сканиране"
+
+#. Manage shelves
+msgid "quick_manage_shelves"
+msgstr "Управление на рафтове"
+
+#. Import CSV file
+msgid "quick_import_csv"
+msgstr "Импортиране на CSV"
+
+#. Import from Gleeph
+msgid "quick_import_gleeph"
+msgstr "Импортиране от Gleeph"
+
+#. Import from Goodreads
+msgid "quick_import_goodreads"
+msgstr "Импортиране от Goodreads"
+
+#. Share library
+msgid "quick_share_library"
+msgstr "Споделяне на библиотека"
+
+#. Country / Market
+msgid "settings_country"
+msgstr "Държава"
+
+#. Toggle: opt in to share city in the public directory (ADR-035)
+msgid "settings_share_city"
+msgstr "Споделяне на моя град"
+
+#. Description for the share-my-city toggle
+msgid "settings_share_city_desc"
+msgstr "Добавя града ви към публичния ви профил, за да могат близки читатели да ви открият. По подразбиране е изключено."
+
+#. Placeholder shown in the city picker before the user has chosen one
+msgid "settings_city_pick"
+msgstr "Изберете град"
+
+#. Shown when a stored city id no longer resolves (corrupt local cache)
+msgid "settings_city_unknown"
+msgstr "Неизвестен град"
+
+#. City picker error: hub has no static file for this country yet
+msgid "settings_city_unavailable"
+msgstr "За тази държава все още няма данни за градове. Моля, опитайте отново по-късно."
+
+#. A11y label for the city picker button in settings (ADR-035, RGAA A1)
+msgid "settings_open_city_picker_a11y"
+msgstr "Отваряне на избора на град"
+
+#. City picker empty state: search returned nothing
+msgid "settings_city_no_match"
+msgstr "Няма съвпадащ град."
+
+#. Generic search input placeholder (city picker, country picker, etc.)
+msgid "search"
+msgstr "Търсене"
+
+#. Ratings by Category
+msgid "rating_by_group"
+msgstr "Оценки по категория"
+
+#. By Collection
+msgid "rating_by_group_collections"
+msgstr "По колекция"
+
+#. %1 rated books
+msgid "rating_by_group_rated_books"
+msgstr "%1 оценени книги"
+
+#. By Shelf
+msgid "rating_by_group_shelves"
+msgstr "По рафт"
+
+msgid "page_count_label"
+msgstr "Страници"
+
+msgid "page_count_hint"
+msgstr "Брой страници"
+
+#. Reading Streak
+msgid "reading_streak"
+msgstr "Серия на четене"
+
+#. Description for reading streak insight
+msgid "reading_streak_desc"
+msgstr "Последователни дни с книга в процес на четене"
+
+#. Reading streak suffix
+msgid "reading_streak_suffix"
+msgstr "д."
+
+#. Remove from collection (action label)
+msgid "remove_from_collection"
+msgstr "Премахване от колекцията"
+
+#. Marked as owned (snackbar)
+msgid "marked_as_owned"
+msgstr "Отбелязано като притежавано"
+
+#. Marked as wanted (snackbar)
+msgid "marked_as_wanted"
+msgstr "Отбелязано като желано"
+
+#. Confirm delete request
+msgid "request_delete_confirm"
+msgstr "Да се изтрие ли тази заявка?"
+
+#. Hub Borrow - Via Hub badge
+msgid "hub_borrow_via_hub"
+msgstr "Чрез Hub"
+
+#. Hub Borrow - Follow required
+msgid "hub_borrow_no_follow"
+msgstr "Първо последвайте тази библиотека, за да заявите заем"
+
+#. Hub Borrow - Duplicate pending request
+msgid "hub_borrow_duplicate"
+msgstr "Вече имате чакаща заявка за тази книга"
+
+#. Hub - Allow borrowing toggle
+msgid "hub_allow_borrowing"
+msgstr "Разрешаване на заявки за заемане"
+
+#. Hub - Allow borrowing description
+msgid "hub_allow_borrowing_desc"
+msgstr "Позволете на последователите си да заявяват заемане на книгите ви чрез hub"
+
+#. Hub - Borrowing disabled message
+msgid "hub_borrowing_disabled"
+msgstr "Тази библиотека не приема заявки за заемане"
+
+#. Hub - Online features master toggle (title)
+msgid "hub_coming_soon_toggle"
+msgstr "Онлайн функции"
+
+#. Hub - Online features master toggle (subtitle)
+msgid "hub_coming_soon_desc"
+msgstr "Получавайте заявки за следване и заемане в реално време и отключете опции за публикуване на библиотеката си в публичния указател."
+
+#. Generic coming soon chip
+msgid "coming_soon_chip"
+msgstr "Очаквайте скоро"
+
+#. Hub - Contact info
+msgid "hub_contact_label"
+msgstr "Данни за контакт (видими за одобрени последователи)"
+
+msgid "hub_contact_hint"
+msgstr "Имейл, телефон, адрес..."
+
+msgid "hub_contact_encrypted_notice"
+msgstr "Криптирано - видимо само за одобрените ви последователи"
+
+#. Hub - Website
+msgid "hub_website_label"
+msgstr "Уебсайт (по избор)"
+
+#. Hub - Contact info title (peer detail)
+msgid "hub_contact_info_title"
+msgstr "Контакт"
+
+#. Hub - Discover disabled (deprecated: replaced by in-tab CTA banner)
+msgid "hub_disabled_discover"
+msgstr "Активирайте публичния указател в Настройки, за да откривате други библиотеки."
+
+#. Hub - Publish CTA banner in Discover tab: title
+msgid "directory_publish_banner_title"
+msgstr "Появете се в публичния указател"
+
+#. Hub - Publish CTA banner: description
+msgid "directory_publish_banner_desc"
+msgstr "Споделете библиотеката си, за да могат други читатели да я открият, последват и да заемат от нея. Можете да се откажете по всяко време от Настройки."
+
+#. Hub - Publish CTA banner: button label
+msgid "directory_publish_banner_cta"
+msgstr "Публикуване на моята библиотека"
+
+#. Hub - Publish CTA banner: success snackbar
+msgid "directory_publish_success"
+msgstr "Библиотеката ви вече е в публичния указател."
+
+#. Hub - Onboarding first-time banner: title
+msgid "discover_onboard_title"
+msgstr "Добре дошли в публичния указател"
+
+#. Hub - Onboarding first-time banner: description (contrast with P2P)
+msgid "discover_onboard_desc"
+msgstr "Можете да следвате всяка публична библиотека и да разглеждате каталога ѝ. Това е различно от вашите преки P2P контакти: тук връзката е еднопосочна — те не виждат вашата библиотека, освен ако и те не ви последват."
+
+#. Hub - Onboarding dismiss button
+msgid "discover_onboard_dismiss"
+msgstr "Разбрах"
+
+#. Hub - Discover tab contextual help: title
+msgid "help_ctx_discover_title"
+msgstr "Помощ за публичния указател"
+
+#. Hub - Discover tab contextual help: main content
+msgid "help_ctx_discover_content"
+msgstr "Разгледайте библиотеките на други читатели на BiblioGenius. Последвайте онези, които ви интересуват, за да достъпите каталога им и да заявявате заеми."
+
+#. Hub - Discover help tip: unidirectional
+msgid "help_ctx_discover_tip_unidirectional"
+msgstr "Еднопосочно следване"
+
+#. Hub - Discover help tip: unidirectional description
+msgid "help_ctx_discover_tip_unidirectional_desc"
+msgstr "За разлика от P2P контакт (двупосочен), следването в указателя е еднопосочно: библиотеката, която следвате, не вижда автоматично вашата библиотека."
+
+#. Hub - Discover help tip: follow action
+msgid "help_ctx_discover_tip_follow"
+msgstr "Последвайте, за да заемате"
+
+#. Hub - Discover help tip: follow action description
+msgid "help_ctx_discover_tip_follow_desc"
+msgstr "Докоснете „Следване“, за да достъпите пълния каталог и да заявявате заемане на книги от тази библиотека."
+
+#. Network card badge: direct P2P connection type
+msgid "connection_type_p2p"
+msgstr "Пряк партньор"
+
+#. Network card badge: hub follow connection type
+msgid "connection_type_hub"
+msgstr "Следване в указателя"
+
+#. Relay Hub
+msgid "relay_hub_title"
+msgstr "Релеен Hub"
+
+#. Relay hub description
+msgid "relay_hub_desc"
+msgstr "Свържете се с реле за комуникация извън локалната ви мрежа"
+
+#. Connect to relay
+msgid "relay_connect"
+msgstr "Свързване"
+
+#. Disconnect from relay
+msgid "relay_disconnect"
+msgstr "Прекъсване"
+
+#. Relay connected status
+msgid "relay_connected"
+msgstr "Свързано"
+
+#. Relay disconnected status
+msgid "relay_disconnected"
+msgstr "Несвързано"
+
+#. Remote server URL label
+msgid "relay_url_label"
+msgstr "URL на отдалечен сървър"
+
+#. Shelf Picker
+msgid "search_shelves_hint"
+msgstr "Търсене в рафтове..."
+
+#. Shelf Picker
+msgid "shelves_selected"
+msgstr "избрани"
+
+#. Shelf Picker - Empty state
+msgid "no_shelves_yet"
+msgstr "Все още няма рафтове"
+
+#. Shelf Picker - Search empty
+msgid "no_shelves_match"
+msgstr "Няма съвпадащи рафтове"
+
+#. Offline banner shown on scan screen when no internet
+msgid "scan_offline_banner"
+msgstr "Офлайн - търсенето на метаданни е недостъпно"
+
+#. Dialog message when scan fails due to offline
+msgid "scan_offline_message"
+msgstr "Търсенето на метаданни изисква интернет връзка. Можете да добавите тази книга ръчно само с ISBN."
+
+#. Dialog title when scan fails due to offline
+msgid "scan_offline_title"
+msgstr "Няма интернет връзка"
+
+#. Search books or actions (import, scan...)
+msgid "search_actions_placeholder"
+msgstr "Търсене на книги или действия..."
+
+#. Account section in settings
+msgid "account"
+msgstr "Акаунт"
+
+#. Network
+msgid "settings_network_title"
+msgstr "Мрежа"
+
+#. How sharing works
+msgid "settings_sharing_modes_title"
+msgstr "Как работи споделянето"
+
+#. Invite link
+msgid "settings_mode_invite_title"
+msgstr "Връзка за покана"
+
+#. Works on any network (WiFi, 4G, 5G). Share a link or QR code privately.
+msgid "settings_mode_invite_desc"
+msgstr "Работи във всяка мрежа (WiFi, 4G, 5G). Споделете връзка или QR код насаме."
+
+#. WiFi discovery
+msgid "settings_mode_wifi_title"
+msgstr "Откриване чрез WiFi"
+
+#. Auto-detect nearby libraries on your local WiFi.
+msgid "settings_mode_wifi_desc"
+msgstr "Автоматично откриване на близки библиотеки във вашия локален WiFi."
+
+#. Public directory
+msgid "settings_mode_directory_title"
+msgstr "Публичен указател"
+
+#. Be listed for anyone to discover and follow.
+msgid "settings_mode_directory_desc"
+msgstr "Бъдете в списъка, за да ви открива и следва всеки."
+
+#. Reachable remotely
+msgid "settings_remote_reachable"
+msgstr "Достъпно отдалечено"
+
+#. Your invited contacts can reach you on any network
+msgid "settings_remote_reachable_desc"
+msgstr "Поканените ви контакти могат да ви достигнат във всяка мрежа"
+
+#. Technical details
+msgid "settings_remote_reachable_details"
+msgstr "Технически подробности"
+
+#. This link works on any network
+msgid "invite_works_everywhere"
+msgstr "Тази връзка работи във всяка мрежа: WiFi, 4G или 5G. Получателят не е необходимо да е наблизо."
+
+#. Local network
+msgid "settings_network_local"
+msgstr "Локална мрежа"
+
+#. Automatic discovery on Wi-Fi
+msgid "settings_network_discovery"
+msgstr "Автоматично откриване в Wi-Fi"
+
+#. Makes your library visible to nearby devices on the same Wi-Fi
+msgid "settings_network_discovery_desc"
+msgstr "Прави библиотеката ви видима за близки устройства в същия Wi-Fi"
+
+#. Libraries detected
+msgid "settings_network_peers_detected"
+msgstr "Открити библиотеки"
+
+msgid "settings_reshow_invite_banner"
+msgstr "Показване на банера за покана отново"
+
+msgid "settings_reshow_invite_banner_done"
+msgstr "Банерът за покана ще се появи отново при следващото посещение"
+
+#. Extended network
+msgid "settings_network_extended"
+msgstr "Разширена мрежа"
+
+#. Privacy and cache
+msgid "settings_network_privacy"
+msgstr "Поверителност и кеш"
+
+#. Enable network features first to configure privacy options.
+msgid "settings_network_enable_first"
+msgstr "Първо активирайте мрежовите функции, за да конфигурирате опциите за поверителност."
+
+#. Your profile
+msgid "setup_profile_step_title"
+msgstr "Вашият профил"
+
+#. What type of reader are you?
+msgid "setup_profile_step_desc"
+msgstr "Какъв тип читател сте?"
+
+#. Coming soon
+msgid "setup_profile_coming_soon"
+msgstr "Очаквайте скоро"
+
+#. When someone scans this code, they can connect to your library for loans and sync.
+msgid "show_code_explanation"
+msgstr "Когато някой сканира този код, той може да се свърже с библиотеката ви за заеми и синхронизация."
+
+#. Show this code to a friend
+msgid "show_code_step_1"
+msgstr "Покажете този код на приятел"
+
+#. They scan it with their camera or from the app
+msgid "show_code_step_2"
+msgstr "Той го сканира с камерата си или от приложението"
+
+#. You both get access to loans and sync
+msgid "show_code_step_3"
+msgstr "И двамата получавате достъп до заеми и синхронизация"
+
+#. ADR-032: short label for the chip on a peer card whose relay token is stale
+msgid "stale_connection_badge_label"
+msgstr "Връзката изтече"
+
+#. ADR-032: accessibility label for the stale-connection chip
+msgid "stale_connection_badge_a11y"
+msgstr "Връзката изтече, докоснете, за да импортирате нова покана"
+
+#. ADR-032: title of the dialog shown after tapping the stale-connection badge
+msgid "stale_connection_dialog_title"
+msgstr "Връзката изтече"
+
+#. ADR-032: body of the dialog, %s is replaced by the peer name
+msgid "stale_connection_dialog_body"
+msgstr "Връзката с %s изтече. Помолете ги да изпратят отново връзката за покана и я докоснете в SMS или имейл, или сканирайте техния QR код."
+
+#. When you started this book
+msgid "started_reading_helper"
+msgstr "Кога започнахте тази книга"
+
+msgid "started_on"
+msgstr "Започната на"
+
+#. Loans (active)
+msgid "stat_loans"
+msgstr "Заеми"
+
+#. View book action
+msgid "action_view_book"
+msgstr "Преглед на книгата"
+
+#. Active (in progress)
+msgid "stat_active_count"
+msgstr "{count} активни"
+
+#. Lent
+msgid "stat_lent"
+msgstr "Дадени назаем"
+
+#. Dashboard card label: loans
+msgid "dashboard_lent"
+msgstr "Заем"
+
+#. Dashboard card label: borrows
+msgid "dashboard_borrowed"
+msgstr "Заемане"
+
+#. Dashboard card subtitle: in progress
+msgid "stat_in_progress"
+msgstr "активни"
+
+#. Completed Collections
+msgid "stat_completed_collections"
+msgstr "Завършени"
+
+#. Books read in collection
+msgid "stat_collection_read"
+msgstr "%1 прочетени"
+
+#. Chart accessibility: books count suffix
+msgid "stat_chart_books_count"
+msgstr "книги"
+
+#. Chart accessibility: stars suffix
+msgid "stat_chart_stars"
+msgstr "звезди"
+
+#. Contact fallback for unknown contact
+msgid "stat_unknown_contact"
+msgstr "Неизвестен"
+
+#. Accessibility: reading status chart
+msgid "stat_a11y_reading_status_chart"
+msgstr "Диаграма на разпределението по статус на четене"
+
+#. Accessibility: top authors chart
+msgid "stat_a11y_top_authors_chart"
+msgstr "Диаграма на най-четените автори"
+
+#. Accessibility: publication timeline
+msgid "stat_a11y_publication_timeline"
+msgstr "Диаграма на хронологията на издаване"
+
+#. Accessibility: monthly progress chart
+msgid "stat_a11y_monthly_progress_chart"
+msgstr "Диаграма на месечния напредък в четенето"
+
+#. Accessibility: yearly goal progress
+msgid "stat_a11y_yearly_goal_progress"
+msgstr "Напредък по годишната цел за четене"
+
+#. Accessibility: star rating with value
+msgid "stat_a11y_star_rating"
+msgstr "Средна оценка: %1 от 5"
+
+#. Accessibility: view book link
+msgid "stat_a11y_view_book"
+msgstr "Преглед на книгата: %1"
+
+#. Operation log stats section title
+msgid "stat_operation_log_title"
+msgstr "Активност по синхронизация"
+
+#. Operation log: entity types tracked
+msgid "stat_oplog_entity_types"
+msgstr "Проследявани типове обекти"
+
+#. Operation log: health OK
+msgid "stat_oplog_health_ok"
+msgstr "Всички операции са завършени"
+
+#. Operation log: pending (not yet synced)
+msgid "stat_oplog_pending"
+msgstr "Чакаща синхронизация"
+
+#. Operation log: health warning
+msgid "stat_oplog_health_warning"
+msgstr "%1 операции още не са синхронизирани"
+
+#. Operation log: health error
+msgid "stat_oplog_health_error"
+msgstr "%1 неуспешни операции"
+
+#. Operation log: view details link
+msgid "stat_oplog_view_details"
+msgstr "Преглед на дневника на операциите"
+
+#. Section subtitle: sales statistics
+msgid "stat_subtitle_sales"
+msgstr "Приходи и тенденции от продажбите на книгите ви"
+
+#. Section subtitle: monthly progress
+msgid "stat_subtitle_monthly_progress"
+msgstr "Книги, завършени всеки месец през последната година"
+
+#. Section subtitle: reading insights
+msgid "stat_subtitle_reading_insights"
+msgstr "Средно време за четене и годишен напредък"
+
+#. Section subtitle: rating by group
+msgid "stat_subtitle_rating_by_group"
+msgstr "Средна оценка по рафт и колекция"
+
+#. Section subtitle: reading habits
+msgid "stat_subtitle_reading_habits"
+msgstr "Разпределение на статусите ви на четене"
+
+#. Section subtitle: top authors
+msgid "stat_subtitle_top_authors"
+msgstr "Най-представените автори в библиотеката ви"
+
+#. Section subtitle: publication timeline
+msgid "stat_subtitle_publication_timeline"
+msgstr "Разпределение на книгите ви по десетилетие на издаване"
+
+#. Section subtitle: loan statistics
+msgid "stat_subtitle_loan_statistics"
+msgstr "Активни заеми и история на връщанията"
+
+#. Section subtitle: borrowed statistics
+msgid "stat_subtitle_borrowed_statistics"
+msgstr "Книги, заети от други библиотеки"
+
+#. Section subtitle: shelf statistics
+msgid "stat_subtitle_shelf_statistics"
+msgstr "Разпределение на книгите по рафтовете ви"
+
+#. Section subtitle: collections with completion and read %
+msgid "stat_subtitle_collections_detail"
+msgstr "Завършеност: %1% - Прочетени: %2%"
+
+#. Section subtitle: operation log
+msgid "stat_subtitle_operation_log"
+msgstr "Дневник на активността по синхронизация"
+
+#. Section title: personal records
+msgid "personal_records"
+msgstr "Лични рекорди"
+
+#. Section subtitle: personal records
+msgid "stat_subtitle_personal_records"
+msgstr "Вашите най-добри постижения и серии на четене"
+
+#. Profile: statistics summary title
+msgid "profile_stats_title"
+msgstr "Моята статистика"
+
+#. Profile: see more statistics link
+msgid "see_more_stats"
+msgstr "Вижте повече"
+
+#. Profile section: gamification
+msgid "gamification"
+msgstr "Постижения"
+
+#. Profile section: leaderboard
+msgid "leaderboard"
+msgstr "Мрежова класация"
+
+#. Track your reading progress
+msgid "status_helper"
+msgstr "Следете напредъка си в четенето"
+
+msgid "sync_completed"
+msgstr "Мрежата е обновена"
+
+#. Last refresh timestamp
+msgid "last_updated_just_now"
+msgstr "Обновено току-що"
+
+msgid "last_updated_minutes"
+msgstr "Обновено преди %d мин"
+
+msgid "last_updated_hours"
+msgstr "Обновено преди %d ч"
+
+#. Classify your books, e.g. Living room, Fiction > Sci-Fi
+msgid "tags_helper"
+msgstr "Класифицирайте книгите си, напр. Хол, Художествена > Научна фантастика"
+
+#. Navigation style label
+msgid "nav_style_label"
+msgstr "Стил на навигация (мобилен)"
+
+#. Navigation style description
+msgid "nav_style_desc"
+msgstr "Изберете как навигирате между екраните на мобилно устройство"
+
+#. Side menu option
+msgid "nav_style_side_menu"
+msgstr "Странично меню"
+
+#. Bottom bar option
+msgid "nav_style_bottom_bar"
+msgstr "Долна лента"
+
+#. Top Author (insight card)
+msgid "top_author"
+msgstr "Любим автор"
+
+#. Description for top author insight
+msgid "top_author_desc"
+msgstr "%1 книги"
+
+#. Total pages read
+msgid "total_pages_read"
+msgstr "Прочетени страници"
+
+#. Description for total pages read insight
+msgid "total_pages_read_desc"
+msgstr "Общо страници от завършени книги"
+
+#. E2EE enabled tooltip
+msgid "e2ee_enabled"
+msgstr "Криптирането от край до край е активирано"
+
+#. Share invite link
+msgid "share_invite_link"
+msgstr "Споделяне на връзка за покана"
+
+#. Memory Game - Intro tagline
+msgid "memory_game_intro"
+msgstr "Преоткрийте класическата игра Памет със собствените си корици на книги!"
+
+#. Memory Game - Varied congrats messages (generic)
+msgid "memory_congrats_0"
+msgstr "Добра игра!"
+
+msgid "memory_congrats_1"
+msgstr "Отлична памет!"
+
+msgid "memory_congrats_2"
+msgstr "Справи се чудесно!"
+
+msgid "memory_congrats_3"
+msgstr "Какъв ум!"
+
+msgid "memory_congrats_4"
+msgstr "Впечатляваща памет!"
+
+msgid "memory_congrats_5"
+msgstr "Всички двойки са намерени!"
+
+msgid "memory_congrats_6"
+msgstr "Бистър ум!"
+
+msgid "memory_congrats_7"
+msgstr "Браво!"
+
+msgid "memory_congrats_8"
+msgstr "Браво!"
+
+msgid "memory_congrats_9"
+msgstr "Играта е завършена!"
+
+#. Memory Game - Contextual congrats
+msgid "memory_congrats_perfect"
+msgstr "Безупречна победа!"
+
+msgid "memory_congrats_master"
+msgstr "Нивото Майстор е покорено!"
+
+msgid "memory_congrats_expert"
+msgstr "Експертното ниво е сразено!"
+
+#. Memory Game Module
+msgid "memory_game_module"
+msgstr "Игра на памет"
+
+#. Memory Game Module Description
+msgid "memory_game_module_desc"
+msgstr "Играйте игра за съвпадение с кориците на книгите си"
+
+#. Memory Game - Leaderboard
+msgid "memory_leaderboard_title"
+msgstr "Класация"
+
+#. Memory Game - My Scores tab
+msgid "memory_my_scores_tab"
+msgstr "Моите резултати"
+
+#. Memory Game - Network tab
+msgid "memory_network_tab"
+msgstr "Мрежа"
+
+#. Memory Game - No scores yet
+msgid "memory_no_scores_yet"
+msgstr "Все още няма резултати. Изиграйте игра!"
+
+#. Memory Game - No network scores
+msgid "memory_no_network_scores"
+msgstr "Няма налични мрежови резултати"
+
+#. Memory Game - Syncing with nearby libraries
+msgid "memory_leaderboard_refreshing"
+msgstr "Синхронизиране с близки библиотеки..."
+
+#. Memory Game - Empty network leaderboard
+msgid "memory_leaderboard_empty_network"
+msgstr "Все още няма близки резултати. Свържете се с близки библиотеки, за да видите техните резултати!"
+
+#. Memory Game - New personal best
+msgid "memory_rank_new_best"
+msgstr "Нов личен рекорд!"
+
+#. Memory Game - Rank position
+msgid "memory_rank_position"
+msgstr "#%s в най-добрите ви резултати"
+
+#. Memory Game - Rank column header
+msgid "memory_rank_header"
+msgstr "Ранг"
+
+#. Sliding Puzzle - Title
+msgid "sliding_puzzle_title"
+msgstr "Плъзгащ пъзел"
+
+#. Sliding Puzzle - Intro tagline
+msgid "sliding_puzzle_intro"
+msgstr "Плъзгайте плочките, за да възстановите една от кориците на книгите си!"
+
+#. Sliding Puzzle - Choose difficulty
+msgid "sliding_puzzle_choose_difficulty"
+msgstr "Изберете трудност"
+
+#. Sliding Puzzle - Play button
+msgid "sliding_puzzle_play"
+msgstr "Играй"
+
+#. Sliding Puzzle - Not enough books
+msgid "sliding_puzzle_not_enough_books"
+msgstr "Нужна ви е поне 1 книга с корица, за да играете. Добавете книги в библиотеката си!"
+
+#. Sliding Puzzle - Easy difficulty
+msgid "sliding_puzzle_easy"
+msgstr "Лесно"
+
+#. Sliding Puzzle - Medium difficulty
+msgid "sliding_puzzle_medium"
+msgstr "Средно"
+
+#. Sliding Puzzle - Hard difficulty
+msgid "sliding_puzzle_hard"
+msgstr "Трудно"
+
+#. Sliding Puzzle - Time label
+msgid "sliding_puzzle_time"
+msgstr "Време"
+
+#. Sliding Puzzle - Moves label
+msgid "sliding_puzzle_moves"
+msgstr "Ходове"
+
+#. Sliding Puzzle - Par label
+msgid "sliding_puzzle_par"
+msgstr "Норма"
+
+#. Sliding Puzzle - Score label
+msgid "sliding_puzzle_score"
+msgstr "Точки"
+
+#. Sliding Puzzle - Difficulty label
+msgid "sliding_puzzle_difficulty_label"
+msgstr "Трудност"
+
+#. Sliding Puzzle - Congratulations
+msgid "sliding_puzzle_congratulations"
+msgstr "Поздравления!"
+
+#. Sliding Puzzle - Varied congrats messages
+msgid "puzzle_congrats_0"
+msgstr "Добре решено!"
+
+msgid "puzzle_congrats_1"
+msgstr "Чудесно плъзгане!"
+
+msgid "puzzle_congrats_2"
+msgstr "Справи се чудесно!"
+
+msgid "puzzle_congrats_3"
+msgstr "Точни ходове!"
+
+msgid "puzzle_congrats_4"
+msgstr "Пъзелът е завършен!"
+
+#. Sliding Puzzle - Play again
+msgid "sliding_puzzle_play_again"
+msgstr "Играй отново"
+
+#. Sliding Puzzle - Change difficulty
+msgid "sliding_puzzle_change_difficulty"
+msgstr "Смяна на трудността"
+
+#. Sliding Puzzle Module
+msgid "sliding_puzzle_module"
+msgstr "Плъзгащ пъзел"
+
+#. Sliding Puzzle Module Description
+msgid "sliding_puzzle_module_desc"
+msgstr "Плъзгайте плочки, за да възстановите корица на книга"
+
+#. Hangman Module
+msgid "hangman_module"
+msgstr "Бесеница"
+
+#. Hangman Module Description
+msgid "hangman_module_desc"
+msgstr "Познавайте заглавията на книгите си буква по буква"
+
+#. Sliding Puzzle - Dashboard subtitle
+msgid "sliding_puzzle_dashboard_subtitle"
+msgstr "Възстановете кориците си!"
+
+#. Sliding Puzzle - Reference image label
+msgid "sliding_puzzle_reference"
+msgstr "Образец"
+
+#. Sliding Puzzle - New personal best
+msgid "puzzle_new_personal_best"
+msgstr "Нов личен рекорд!"
+
+#. Sliding Puzzle - Rank position
+msgid "puzzle_rank_position"
+msgstr "#%s в най-добрите ви резултати"
+
+#. Sliding Puzzle - Scores title
+msgid "sliding_puzzle_scores_title"
+msgstr "Най-добри резултати"
+
+#. Sliding Puzzle - No scores yet
+msgid "sliding_puzzle_no_scores_yet"
+msgstr "Все още няма резултати. Изиграйте игра!"
+
+#. Sliding Puzzle - Leaderboard
+msgid "puzzle_leaderboard_title"
+msgstr "Класация"
+
+#. Sliding Puzzle - My Scores tab
+msgid "puzzle_my_scores_tab"
+msgstr "Моите резултати"
+
+#. Sliding Puzzle - Network tab
+msgid "puzzle_network_tab"
+msgstr "Мрежа"
+
+#. Sliding Puzzle - Syncing with nearby libraries
+msgid "puzzle_leaderboard_refreshing"
+msgstr "Синхронизиране с близки библиотеки..."
+
+#. Sliding Puzzle - Empty network leaderboard
+msgid "puzzle_leaderboard_empty_network"
+msgstr "Все още няма близки резултати. Свържете се с близки библиотеки, за да видите техните резултати!"
+
+#. Games section title
+msgid "games_section"
+msgstr "Игри"
+
+#. Games module toggle
+msgid "games_module"
+msgstr "Игри"
+
+#. Games module description
+msgid "games_module_desc"
+msgstr "Активиране на мини-игри въз основа на библиотеката ви"
+
+#. Games hub title
+msgid "games_hub_title"
+msgstr "Игри"
+
+#. Games hub subtitle
+msgid "games_hub_subtitle"
+msgstr "Забавлявайте се с кориците на книгите си"
+
+#. Help - Sliding Puzzle topic title
+msgid "help_topic_sliding_puzzle"
+msgstr "Плъзгащ пъзел"
+
+#. Help - Sliding Puzzle description
+msgid "help_desc_sliding_puzzle"
+msgstr "Възстановете корица на книга чрез плъзгане на плочки"
+
+#. Help - Sliding Puzzle CTA
+msgid "help_cta_play_puzzle"
+msgstr "Играй"
+
+#. Help - Hangman Topic
+msgid "help_topic_hangman"
+msgstr "Бесеница"
+
+#. Help - Hangman Description
+msgid "help_desc_hangman"
+msgstr "Познайте заглавието на книга от библиотеката си буква по буква"
+
+#. Help - Hangman CTA
+msgid "help_cta_play_hangman"
+msgstr "Играй"
+
+#. Backup - Save dialog title (desktop)
+msgid "save_backup_dialog_title"
+msgstr "Запазване на резервно копие"
+
+#. Backup - Share text (mobile)
+msgid "backup_share_text"
+msgstr "Моето резервно копие на BiblioGenius"
+
+#. Backup - Export success
+msgid "backup_export_success"
+msgstr "Резервното копие е експортирано успешно"
+
+#. Backup - Export error
+msgid "backup_export_error"
+msgstr "Грешка при експортиране"
+
+#. Backup - Mobile export choice dialog title
+msgid "backup_export_choice_title"
+msgstr "Експортиране на резервно копие"
+
+#. Backup - Mobile export choice dialog message
+msgid "backup_export_choice_message"
+msgstr "Как искате да експортирате резервното си копие?"
+
+#. Backup - Mobile export choice: save on device
+msgid "backup_export_save_to_device"
+msgstr "Запазване на устройството"
+
+#. Backup - Mobile export choice: share via system sheet
+msgid "backup_export_share"
+msgstr "Споделяне"
+
+#. Settings - Backup section title (top-level accordion)
+msgid "backup_section_title"
+msgstr "Резервно копие и експорт"
+
+#. Settings - Backup: export catalog tile title
+msgid "backup_export_catalog_title"
+msgstr "Експортиране на моя каталог"
+
+#. Settings - Backup: export catalog tile subtitle
+msgid "backup_export_catalog_subtitle"
+msgstr "Преносим, споделяем файл за архивиране или импортиране в друго приложение. Съдържа книги, автори, етикети, колекции и контакти."
+
+#. Settings - Backup: full backup tile title
+msgid "backup_full_title"
+msgstr "Пълно резервно копие"
+
+#. Settings - Backup: full backup tile subtitle
+msgid "backup_full_subtitle"
+msgstr "Криптиран архив за пълно възстановяване на библиотеката ви на това или друго устройство. Отметнете „Включи самоличността“, за да мигрирате към ново устройство без повторно E2EE сдвояване с партньорите си."
+
+#. Settings - Backup: snackbar shown when tapping the disabled full backup tile
+msgid "backup_full_unavailable"
+msgstr "Налично в бъдеща версия."
+
+#. Settings - Backup: restore tile title
+msgid "backup_restore_title"
+msgstr "Възстановяване на резервно копие"
+
+#. Settings - Backup: restore tile subtitle
+msgid "backup_restore_subtitle"
+msgstr "Възстановява файл с експорт на каталог. ВНИМАНИЕ: заменя всички текущи данни."
+
+#. Settings - System section title (top-level accordion)
+msgid "system_section_title"
+msgstr "Система"
+
+#. Settings - System: reset tile title
+msgid "system_reset_title"
+msgstr "Нулиране на приложението"
+
+#. Settings - System: reset tile subtitle
+msgid "system_reset_subtitle"
+msgstr "Изтрийте книгите или започнете отначало."
+
+#. Settings - Content: migration wizard tile title (post option-B refactor)
+msgid "migration_wizard_tile_title"
+msgstr "Импортиране и организиране на моята библиотека"
+
+#. Settings - Content: migration wizard tile subtitle (post option-B refactor)
+msgid "migration_wizard_tile_subtitle"
+msgstr "Импортирайте книги от файл или управлявайте рафтовете си."
+
+#. Migration Wizard - AppBar title (post option-B refactor)
+msgid "migration_wizard_screen_title"
+msgstr "Импортиране и организиране"
+
+#. Migration Wizard - Import section title
+msgid "migration_section_import_title"
+msgstr "Импортиране и обединяване"
+
+#. Migration Wizard - Import section subtitle
+msgid "migration_section_import_subtitle"
+msgstr "Добавете книги от други платформи към текущата си библиотека."
+
+#. Migration Wizard - CSV import card title
+msgid "migration_card_csv_title"
+msgstr "Импортиране на файл (CSV / XLSX)"
+
+#. Migration Wizard - CSV import card subtitle
+msgid "migration_card_csv_subtitle"
+msgstr "Goodreads, Babelio, Gleeph или всеки файл с колони заглавие/ISBN."
+
+#. Migration Wizard - Organisation section title
+msgid "migration_section_organisation_title"
+msgstr "Организация"
+
+#. Migration Wizard - Organisation section subtitle
+msgid "migration_section_organisation_subtitle"
+msgstr "Управлявайте структурата на библиотеката си."
+
+#. Migration Wizard - Manage shelves card title
+msgid "migration_card_shelves_title"
+msgstr "Управление на рафтове"
+
+#. Migration Wizard - Manage shelves card subtitle
+msgid "migration_card_shelves_subtitle"
+msgstr "Преименувайте или организирайте виртуалните си рафтове."
+
+#. Migration Wizard - CSV import success message ({count} = number of books)
+msgid "migration_import_success"
+msgstr "Успех: {count} книги са импортирани!"
+
+#. Migration Wizard - CSV import failure (no specific error returned)
+msgid "migration_import_failed"
+msgstr "Импортирането е неуспешно"
+
+#. Migration Wizard - Generic error prefix (e.g. "Error: <details>")
+msgid "migration_error_prefix"
+msgstr "Грешка"
+
+#. Accessibility - Tooltip: open navigation menu
+msgid "tooltip_open_menu"
+msgstr "Отваряне на менюто"
+
+#. Accessibility - Tooltip: open settings
+msgid "tooltip_open_settings"
+msgstr "Отваряне на настройките"
+
+#. Accessibility - Tooltip: edit contact
+msgid "tooltip_edit_contact"
+msgstr "Редактиране на контакта"
+
+#. Accessibility - Tooltip: toggle password visibility
+msgid "tooltip_toggle_password"
+msgstr "Превключване на видимостта на паролата"
+
+#. Accessibility - Tooltip: search by ISBN
+msgid "tooltip_search_isbn"
+msgstr "Търсене по ISBN"
+
+#. Accessibility - Tooltip: lend book
+msgid "tooltip_lend_book"
+msgstr "Дай тази книга назаем"
+
+#. Accessibility - Tooltip: return book
+msgid "tooltip_return_book"
+msgstr "Върни тази книга"
+
+#. Accessibility - Tooltip: borrow book
+msgid "tooltip_borrow_book"
+msgstr "Заеми тази книга"
+
+#. Accessibility - Tooltip: give back book
+msgid "tooltip_give_back"
+msgstr "Върни обратно тази книга"
+
+#. Accessibility - Tooltip: sell book
+msgid "tooltip_sell_book"
+msgstr "Продай тази книга"
+
+#. Accessibility - Tooltip: edit avatar
+msgid "tooltip_edit_avatar"
+msgstr "Редактиране на аватара"
+
+#. Accessibility - Profile avatar label
+msgid "profile_avatar"
+msgstr "Аватар на профила"
+
+#. Accessibility - Progress label
+msgid "progress"
+msgstr "Напредък"
+
+#. Accessibility - Navigation sidebar label
+msgid "navigation"
+msgstr "Навигация"
+
+#. Accessibility - Back button
+msgid "back"
+msgstr "Назад"
+
+#. Invite acceptance screen
+msgid "invite_title"
+msgstr "Покана от"
+
+msgid "invite_description"
+msgstr "иска да се свърже с вас, за да споделяте книги."
+
+msgid "invite_connect"
+msgstr "Свързване"
+
+msgid "invite_decline"
+msgstr "Отказване"
+
+msgid "invite_connecting"
+msgstr "Свързване..."
+
+msgid "invite_success"
+msgstr "Свързано с"
+
+msgid "invite_error"
+msgstr "Връзката е неуспешна"
+
+msgid "invite_self_error"
+msgstr "Не можете да се свържете със собствената си библиотека"
+
+msgid "invite_encrypted"
+msgstr "Криптирано"
+
+msgid "invite_remote_ready"
+msgstr "Готово за отдалечен достъп"
+
+msgid "invite_library_icon"
+msgstr "Икона на библиотеката"
+
+#. Invite share sheet
+msgid "invite_share_title"
+msgstr "Вашата връзка за покана"
+
+msgid "invite_card_title"
+msgstr "Споделете библиотеката си"
+
+msgid "invite_card_subtitle"
+msgstr "Изпратете връзка за покана"
+
+msgid "copy_invite_link"
+msgstr "Копиране на връзката"
+
+msgid "invite_link_copied"
+msgstr "Връзката за покана е копирана!"
+
+msgid "share_failed"
+msgstr "Споделянето е неуспешно. Моля, опитайте отново."
+
+msgid "tooltip_copy_invite"
+msgstr "Копиране на връзката за покана"
+
+msgid "tooltip_share_invite"
+msgstr "Споделяне на връзката за покана"
+
+msgid "share_invite_empty_state"
+msgstr "Споделяне на връзката за покана"
+
+#. Invite share message (used when sharing via SMS/messaging)
+msgid "invite_share_message"
+msgstr "Присъединете се към {name} в BiblioGenius, за да споделяте книги: {link}"
+
+#. Loading snackbar while generating invite link
+msgid "generating_invite_link"
+msgstr "Създаване на връзка за покана..."
+
+#. Profile screen - share invite link
+msgid "profile_share_invite"
+msgstr "Споделяне на моята библиотека"
+
+#. Operation Log Viewer - screen title
+msgid "admin_operation_log_title"
+msgstr "Дневник на операциите"
+
+#. Operation Log Viewer - stats
+msgid "admin_log_stat_total"
+msgstr "Общо"
+
+msgid "admin_log_stat_today"
+msgstr "Днес"
+
+msgid "admin_log_stat_pending"
+msgstr "Чакащи"
+
+msgid "admin_log_stat_errors"
+msgstr "Грешки"
+
+#. Operation Log Viewer - filters
+msgid "admin_log_filter_entity"
+msgstr "Обект"
+
+msgid "admin_log_filter_operation"
+msgstr "Операция"
+
+msgid "admin_log_filter_status"
+msgstr "Статус"
+
+msgid "admin_log_clear_filters"
+msgstr "Изчистване"
+
+#. Operation Log Viewer - empty state
+msgid "admin_log_empty_title"
+msgstr "Няма записани операции"
+
+msgid "admin_log_empty_subtitle"
+msgstr "Промените ще се появяват тук, докато използвате приложението"
+
+#. Operation Log Viewer - pagination
+msgid "admin_log_page_info"
+msgstr "Страница %d от %d"
+
+#. Operation Log Viewer - tooltips
+msgid "tooltip_filter_entity_type"
+msgstr "Филтриране по тип обект"
+
+msgid "tooltip_filter_operation"
+msgstr "Филтриране по операция"
+
+msgid "tooltip_filter_status"
+msgstr "Филтриране по статус"
+
+msgid "tooltip_expand_details"
+msgstr "Показване на подробности"
+
+msgid "tooltip_collapse_details"
+msgstr "Скриване на подробности"
+
+msgid "tooltip_prev_page"
+msgstr "Предишна страница"
+
+msgid "tooltip_next_page"
+msgstr "Следваща страница"
+
+#. Operation Log Viewer - module toggle
+msgid "module_operation_log_viewer"
+msgstr "Дневник на операциите"
+
+msgid "module_operation_log_desc"
+msgstr "Преглед на историята на промените в базата данни"
+
+#. Settings - developer tools section
+msgid "settings_developer_tools"
+msgstr "Инструменти за разработчици"
+
+#. Operation Log Viewer - search
+msgid "admin_log_search_hint"
+msgstr "Търсене в дневниците..."
+
+msgid "admin_log_clear_search"
+msgstr "Изчистване на търсенето"
+
+#. Device Pairing
+msgid "pairing_title"
+msgstr "Свързани устройства"
+
+msgid "pairing_code_title"
+msgstr "Код за сдвояване"
+
+msgid "pairing_enter_title"
+msgstr "Въвеждане на код"
+
+msgid "pairing_empty_title"
+msgstr "Няма свързани устройства"
+
+msgid "pairing_empty_subtitle"
+msgstr "Сдвоете друго устройство, за да синхронизирате библиотеката си"
+
+msgid "pairing_generate_code"
+msgstr "Генериране на код"
+
+msgid "pairing_enter_code"
+msgstr "Въвеждане на код"
+
+msgid "pairing_code_instruction"
+msgstr "Споделете този код с другото устройство"
+
+msgid "pairing_code_expires"
+msgstr "остават %s"
+
+msgid "pairing_code_expired"
+msgstr "Кодът изтече"
+
+msgid "pairing_enter_instruction"
+msgstr "Изберете устройството във вашата Wi-Fi мрежа, след което въведете неговия 6-цифрен код"
+
+msgid "pairing_no_peers"
+msgstr "Не са открити устройства в Wi-Fi мрежата"
+
+msgid "pairing_mdns_hint"
+msgstr "Двете устройства трябва да са в един и същ Wi-Fi с включено мрежово откриване (Настройки > Мрежа)"
+
+msgid "pairing_select_device"
+msgstr "Устройство за сдвояване"
+
+msgid "pairing_button_pair"
+msgstr "Сдвояване"
+
+msgid "pairing_success"
+msgstr "Устройството е сдвоено успешно"
+
+msgid "pairing_error"
+msgstr "Сдвояването е неуспешно"
+
+msgid "pairing_remove_confirm"
+msgstr "Да се премахне ли това устройство?"
+
+msgid "pairing_remove_success"
+msgstr "Устройството е премахнато"
+
+msgid "pairing_paired_on"
+msgstr "Сдвоено на %s"
+
+msgid "pairing_cancel"
+msgstr "Отказ"
+
+msgid "tooltip_remove_device"
+msgstr "Премахване на устройството"
+
+msgid "tooltip_generate_pairing"
+msgstr "Генериране на код за сдвояване"
+
+msgid "tooltip_enter_pairing"
+msgstr "Въвеждане на код за сдвояване"
+
+msgid "tooltip_cancel_pairing"
+msgstr "Отказ на сдвояването"
+
+msgid "settings_auto_backup"
+msgstr "Автоматично архивиране"
+
+msgid "settings_auto_backup_desc"
+msgstr "Изпращане на данните ви към свързани устройства в същия Wi-Fi при стартиране"
+
+#. Notifications settings section header
+msgid "settings_notifications"
+msgstr "Известия"
+
+#. Global notifications toggle
+msgid "settings_notif_enabled"
+msgstr "Включване на известията"
+
+msgid "settings_notif_enabled_desc"
+msgstr "Показване на иконата и получаване на известия"
+
+#. Notification toggle: connections
+msgid "settings_notif_connections"
+msgstr "Връзки"
+
+msgid "settings_notif_connections_desc"
+msgstr "Заявки за връзка и нови контакти"
+
+#. Notification toggle: loans
+msgid "settings_notif_loans"
+msgstr "Заеми и заемания"
+
+msgid "settings_notif_loans_desc"
+msgstr "Заявки за заемане, връщания и напомняния"
+
+#. Notification toggle: discoveries
+msgid "settings_notif_discoveries"
+msgstr "Открития"
+
+msgid "settings_notif_discoveries_desc"
+msgstr "Нови книги в библиотеките на вашите контакти"
+
+#. Sync Review
+msgid "sync_review_title"
+msgstr "Преглед на синхронизацията"
+
+msgid "sync_review_banner"
+msgstr "Получени са %d операции. Прегледайте, преди да приложите."
+
+msgid "sync_review_approve_all"
+msgstr "Одобряване на всички"
+
+msgid "sync_review_reject_all"
+msgstr "Отхвърляне на всички"
+
+msgid "sync_review_approve"
+msgstr "Одобряване"
+
+msgid "sync_review_reject"
+msgstr "Отхвърляне"
+
+msgid "sync_review_empty_title"
+msgstr "Всичко е наред"
+
+msgid "sync_review_empty_subtitle"
+msgstr "Няма операции за преглед"
+
+msgid "sync_review_approved"
+msgstr "%d операции са одобрени"
+
+msgid "sync_review_rejected"
+msgstr "%d операции са отхвърлени"
+
+msgid "sync_review_from"
+msgstr "От:"
+
+msgid "sync_trigger_button"
+msgstr "Синхронизиране"
+
+msgid "sync_result_message"
+msgstr "Изпратени %d, получени %d операции"
+
+msgid "sync_done"
+msgstr "Синхронизацията завърши"
+
+msgid "sync_done_with_pending"
+msgstr "Синхронизацията завърши - %d промени за преглед"
+
+msgid "sync_pending_review_action"
+msgstr "Преглед"
+
+msgid "sync_pending_review_count"
+msgstr "%d чакат преглед"
+
+msgid "sync_safety_title"
+msgstr "Безопасност на синхронизацията"
+
+msgid "sync_safety_subtitle"
+msgstr "Преглеждайте промените, преди да ги приложите"
+
+msgid "tooltip_sync_device"
+msgstr "Синхронизиране с това устройство"
+
+msgid "tooltip_approve_op"
+msgstr "Одобряване на тази операция"
+
+msgid "tooltip_reject_op"
+msgstr "Отхвърляне на тази операция"
+
+#. Relay Library Sync (ADR-012)
+msgid "syncing_via_relay"
+msgstr "Синхронизиране"
+
+msgid "loading_via_relay"
+msgstr "Зареждане"
+
+msgid "connecting_via_relay"
+msgstr "Свързване..."
+
+msgid "toggle_view"
+msgstr "Превключване на изгледа"
+
+#. 404 error page
+msgid "page_not_found_title"
+msgstr "Страницата не е намерена"
+
+msgid "page_not_found_message"
+msgstr "Страницата, която търсите, не съществува."
+
+msgid "back_to_library"
+msgstr "Обратно към библиотеката"
+
+#. Peer library background refresh
+msgid "refreshing_library"
+msgstr "Обновяване..."
+
+#. Collection grouped view - stacked covers widget
+msgid "collection_group_uncollected"
+msgstr "Без колекция"
+
+msgid "collection_group_books_count"
+msgstr "книги"
+
+msgid "collection_group_tap_hint"
+msgstr "Докоснете, за да видите книгите в тази колекция"
+
+msgid "collection_view_all"
+msgstr "Преглед на колекцията"
+
+msgid "collection_owned_count"
+msgstr "{n} притежавани"
+
+msgid "collection_group_empty"
+msgstr "Няма колекции за показване"
+
+#. Library grouped view setting
+msgid "view_mode_grouped_collections"
+msgstr "Групиране по колекция"
+
+msgid "group_by_collections_title"
+msgstr "Групиране по колекция"
+
+msgid "group_by_collections_desc"
+msgstr "Показване на книгите в библиотеката, групирани по колекция"
+
+#. Discover libraries (ADR-015)
+msgid "directory_title"
+msgstr "Откриване на библиотеки"
+
+msgid "directory_browse_subtitle"
+msgstr "Откривайте и следвайте други библиотеки на BiblioGenius"
+
+msgid "directory_tab_explore"
+msgstr "Разглеждане"
+
+msgid "directory_tab_following"
+msgstr "Следвани"
+
+msgid "directory_tab_requests"
+msgstr "Заявки"
+
+msgid "directory_empty"
+msgstr "Все още няма библиотеки за откриване."
+
+msgid "directory_search_hint"
+msgstr "Търсене по име..."
+
+msgid "directory_no_results"
+msgstr "Не са намерени библиотеки"
+
+#. ADR-035 Phase 2: empty state when a country/city filter is active
+msgid "directory_no_results_in_location"
+msgstr "Все още няма библиотеки в тази област."
+
+#. CTA shown under directory_no_results_in_location, opens settings
+msgid "directory_be_first_share_city"
+msgstr "Бъдете първата библиотека, която споделя своя град"
+
+#. Tooltip on the directory filter button (ADR-035 Phase 2)
+msgid "directory_filter_tooltip"
+msgstr "Филтриране по местоположение"
+
+#. Tooltip on the X icon of the active filter chip
+msgid "directory_filter_clear"
+msgstr "Изчистване на филтъра"
+
+#. A11y label for the tap-to-filter shortcut on a profile location chip (ADR-035, RGAA A1)
+msgid "directory_filter_by_location_a11y"
+msgstr "Филтриране на указателя по това местоположение"
+
+#. Banner shown above the public directory when the user has registered their
+#. city and at least one peer is in the same city (V1 same-city highlight).
+#. Singular form, used when exactly 1 peer is in the user city.
+msgid "directory_same_city_banner_one"
+msgstr "Има 1 библиотека във вашия град"
+
+#. Plural form of the same-city banner. %d is replaced with the visible count
+#. (capped at 10). Used for 2 to 10 peers.
+msgid "directory_same_city_banner_other"
+msgstr "Има %d библиотеки във вашия град"
+
+#. Saturated form of the same-city banner, used when more than 10 peers
+#. share the user city. %d is replaced with the cap (10), so the rendered
+#. text reads "10+ libraries".
+msgid "directory_same_city_banner_more_than"
+msgstr "Има %d+ библиотеки във вашия град"
+
+#. Action button on the same-city banner; applies the existing city filter.
+msgid "directory_same_city_view_action"
+msgstr "Преглед"
+
+#. Tooltip on the same-city banner action button (RGAA A1, A4).
+msgid "directory_same_city_view_tooltip"
+msgstr "Филтриране на указателя до библиотеки във вашия град"
+
+msgid "directory_following_empty"
+msgstr "Все още не следвате никакви библиотеки. Използвайте раздела Разглеждане, за да започнете."
+
+msgid "directory_requests_empty"
+msgstr "Няма входящи заявки за следване."
+
+msgid "directory_books"
+msgstr "книги"
+
+msgid "directory_your_library"
+msgstr "Вашата библиотека"
+
+#. Marker on a Discover card when that library has sent us a pending follow request
+msgid "directory_wants_to_follow_you"
+msgstr "Иска да ви следва"
+
+msgid "directory_follow"
+msgstr "Следване"
+
+msgid "directory_request"
+msgstr "Заявяване"
+
+msgid "directory_following"
+msgstr "Следва се"
+
+msgid "directory_pending"
+msgstr "Чакаща"
+
+msgid "directory_unfollow"
+msgstr "Спиране на следването"
+
+msgid "directory_unfollow_title"
+msgstr "Да се спре ли следването на библиотеката?"
+
+msgid "directory_unfollow_confirm"
+msgstr "Вече няма да имате достъп до споделените книги на тази библиотека."
+
+msgid "directory_follow_error"
+msgstr "Тази библиотека не може да бъде следвана. Моля, опитайте отново."
+
+#. Snackbar after a follow request is sent to a library that requires approval
+msgid "directory_follow_request_sent"
+msgstr "Заявката е изпратена. Ще видите каталога, след като я одобрят."
+
+#. Snackbar after an auto-approved follow (no approval required)
+msgid "directory_follow_success"
+msgstr "Вече следвате тази библиотека."
+
+msgid "directory_approve"
+msgstr "Одобряване"
+
+msgid "directory_reject"
+msgstr "Отхвърляне"
+
+msgid "directory_block"
+msgstr "Блокиране"
+
+msgid "directory_pending_outgoing"
+msgstr "Очаква одобрение"
+
+msgid "directory_active_follows"
+msgstr "Активни"
+
+#. Settings section
+msgid "directory_settings_title"
+msgstr "Онлайн споделяне"
+
+msgid "directory_listed_title"
+msgstr "Споделяне на моята библиотека онлайн"
+
+msgid "directory_listed_desc"
+msgstr "Други библиотеки могат да ви откриват и следват"
+
+msgid "directory_browse_button"
+msgstr "Откриване на библиотеки"
+
+msgid "directory_browse_anyway"
+msgstr "Откриване на библиотеки"
+
+msgid "directory_browse_anyway_desc"
+msgstr "Разглеждайте, без да споделяте своята"
+
+msgid "directory_advanced_settings"
+msgstr "Разширени настройки"
+
+msgid "directory_requires_approval_title"
+msgstr "Изискване на одобрение за последователи"
+
+msgid "directory_requires_approval_desc"
+msgstr "Новите последователи се нуждаят от вашето одобрение, преди да достъпят споделените ви книги"
+
+msgid "directory_requires_approval_short"
+msgstr "Изисква се одобрение"
+
+msgid "directory_connected"
+msgstr "Свързана"
+
+msgid "directory_accept_from_title"
+msgstr "Приемане на връзки от"
+
+msgid "directory_accept_from_all"
+msgstr "Всички"
+
+msgid "directory_accept_from_verified"
+msgstr "Проверени"
+
+msgid "directory_accept_from_manual"
+msgstr "Само ръчно"
+
+#. Shared books screen
+msgid "directory_catalog_title"
+msgstr "Споделени книги"
+
+msgid "directory_catalog_empty"
+msgstr "Тази библиотека все още не е споделила книги."
+
+msgid "directory_catalog_isbn_count"
+msgstr "Споделени ISBN-и"
+
+#. Filtered result count shown above the catalog grid while searching
+msgid "directory_catalog_search_results"
+msgstr "резултати"
+
+#. Search placeholder in followed library catalog
+msgid "directory_catalog_search"
+msgstr "Търсене по заглавие, автор или ISBN..."
+
+msgid "directory_catalog_isbn_label"
+msgstr "ISBN"
+
+msgid "directory_catalog_pending"
+msgstr "Заявката ви за следване чака одобрение. Ще можете да видите споделените книги, след като библиотеката я приеме."
+
+msgid "directory_catalog_not_following"
+msgstr "Последвайте тази библиотека, за да видите споделените ѝ книги."
+
+#. Catalog detail
+msgid "catalog_book_details"
+msgstr "Подробности за книгата"
+
+msgid "catalog_add_to_library"
+msgstr "Добавяне към моята библиотека"
+
+msgid "catalog_added_success"
+msgstr "Книгата е добавена във вашата библиотека"
+
+msgid "catalog_details_unavailable"
+msgstr "Подробностите не са налични онлайн"
+
+msgid "catalog_loading_details"
+msgstr "Зареждане на подробности..."
+
+msgid "catalog_already_in_library"
+msgstr "Вече е във вашата библиотека"
+
+#. Generic
+msgid "action_retry"
+msgstr "Опитай отново"
+
+#. Libraries tab
+msgid "tab_libraries"
+msgstr "Библиотеки"
+
+#. Network screen tabs
+msgid "network_tab_my_network"
+msgstr "Моята мрежа"
+
+msgid "network_tab_discover"
+msgstr "Публичен указател"
+
+#. Network filters
+msgid "network_filter_all"
+msgstr "Всички"
+
+msgid "network_filter_borrowers"
+msgstr "Заематели"
+
+#. Hub follow requests pending
+msgid "network_hub_requests_title"
+msgstr "Заявки за следване"
+
+#. Hub pending requests - explanatory note shown when the public directory is disabled but legacy pending requests still exist server-side
+msgid "hub_pending_legacy_note"
+msgstr "Публичният указател е изключен. Все пак можете да разрешите тези съществуващи заявки, за да изчистите брояча."
+
+msgid "lib_filter_all"
+msgstr "Всички"
+
+msgid "lib_filter_peers"
+msgstr "Връзки"
+
+msgid "lib_filter_following"
+msgstr "Следвани"
+
+#. Nearby libraries on WiFi
+msgid "lib_filter_nearby"
+msgstr "Наблизо"
+
+#. Discover libraries from the hub directory
+msgid "lib_filter_discover"
+msgstr "Откриване"
+
+msgid "lib_connection_peer"
+msgstr "Сдвоена"
+
+msgid "lib_follow_pending"
+msgstr "Чакаща"
+
+msgid "lib_follow_active"
+msgstr "Следва се"
+
+msgid "lib_empty_title"
+msgstr "Все още няма свързани библиотеки"
+
+msgid "lib_empty_hint"
+msgstr "Използвайте раздела Откриване, за да намерите библиотеки, или се свържете с близки във вашия WiFi."
+
+msgid "lib_unfollow"
+msgstr "Спиране на следването"
+
+#. Flash message: dismiss tooltip
+msgid "flash_dismiss_tooltip"
+msgstr "Скриване"
+
+#. Flash message: customize library name
+msgid "flash_customize_library_name"
+msgstr "Персонализирайте името на библиотеката си:"
+
+#. Flash message: library name text field hint
+msgid "flash_library_name_hint"
+msgstr "Име на библиотеката"
+
+#. Flash message: library name saved confirmation
+msgid "flash_library_name_saved"
+msgstr "Името на библиотеката е запазено"
+
+#. Flash message: discover configuration profiles
+msgid "flash_discover_presets"
+msgstr "Бърза настройка - изберете своя профил:"
+
+#. Flash message: peer paired (prefix before peer name)
+msgid "flash_peer_connected"
+msgstr "Сдвоено с"
+
+#. Flash message: pending connection request (prefix before peer name)
+msgid "flash_peer_pending"
+msgstr "Заявка за връзка от"
+
+#. Flash message: browse peer's library action
+msgid "flash_peer_browse"
+msgstr "Разглеждане"
+
+#. Flash message: review pending connection action
+msgid "flash_peer_review"
+msgstr "Преглед"
+
+#. Flash message: pending connection hint in dialog
+msgid "flash_peer_pending_hint"
+msgstr "Изчаква вашето одобрение"
+
+#. Flash message: see more connections overflow link
+msgid "flash_peer_see_more"
+msgstr "още връзки"
+
+#. Flash message: semantic label for see more link
+msgid "flash_peer_see_more_semantic"
+msgstr "Вижте всички нови връзки"
+
+#. Flash message: dialog title for all connections
+msgid "flash_peer_dialog_title"
+msgstr "Нови връзки"
+
+#. Flash message: dismiss all ephemeral flashes
+msgid "flash_peer_dismiss_all"
+msgstr "Скриване на всички"
+
+#. Peer detail screen
+msgid "peer_details_title"
+msgstr "Подробности за библиотеката"
+
+msgid "peer_edit_display_name"
+msgstr "Редактиране на името"
+
+msgid "peer_display_name_label"
+msgstr "Показвано име"
+
+msgid "peer_display_name_hint"
+msgstr "Въведете персонализирано име за тази библиотека"
+
+#. Caption (label to distinguish contacts with same name)
+msgid "peer_edit_caption"
+msgstr "Добавяне на надпис"
+
+msgid "peer_caption_label"
+msgstr "Надпис"
+
+msgid "peer_caption_hint"
+msgstr "Напр. Колега, Съсед, Книжен клуб..."
+
+msgid "peer_caption_saved"
+msgstr "Надписът е запазен"
+
+msgid "peer_caption_removed"
+msgstr "Надписът е премахнат"
+
+msgid "peer_e2ee_status"
+msgstr "Криптиране от край до край"
+
+msgid "peer_e2ee_active"
+msgstr "Активно - комуникациите са криптирани"
+
+msgid "peer_e2ee_inactive"
+msgstr "Неактивно - размяната на ключове не е завършена"
+
+msgid "peer_last_seen"
+msgstr "Последно видяна"
+
+msgid "peer_has_relay"
+msgstr "Достъпна дори извън локалния Wi-Fi"
+
+#. Relay mailbox expired error
+msgid "peer_relay_mailbox_expired"
+msgstr "Релейната пощенска кутия на партньора вече не съществува. Помолете партньора да изпрати отново поканата си."
+
+msgid "peer_connection_info"
+msgstr "Връзка"
+
+msgid "peer_node_id"
+msgstr "ИД на възела"
+
+#. Bottom sheet: peer actions menu
+msgid "peer_actions"
+msgstr "Действия"
+
+msgid "view_profile"
+msgstr "Преглед на профила"
+
+#. Avatar tooltip: connection type
+msgid "peer_type_both"
+msgstr "P2P контакт и следване в указателя"
+
+msgid "peer_type_direct"
+msgstr "Пряк P2P контакт (двупосочен)"
+
+msgid "peer_type_following"
+msgstr "Следване в указателя (еднопосочно)"
+
+msgid "peer_name_saved"
+msgstr "Името е запазено"
+
+msgid "peer_custom_name_indicator"
+msgstr "Персонализирано име"
+
+#. Empty state: no nearby peers
+msgid "no_nearby_peers"
+msgstr "Няма близки библиотеки"
+
+msgid "no_nearby_peers_hint"
+msgstr "Уверете се, че Wi-Fi е включен и че други потребители на BiblioGenius са в същата мрежа."
+
+#. Empty state: no followed libraries
+msgid "no_following_yet"
+msgstr "Все още няма следвани библиотеки"
+
+msgid "no_following_hint"
+msgstr "Разгледайте указателя, за да намерите и следвате библиотеки, които ви интересуват."
+
+msgid "browse_directory_btn"
+msgstr "Разглеждане на указателя"
+
+#. Empty state: no borrowers
+msgid "no_borrowers_yet"
+msgstr "Все още няма заематели"
+
+msgid "no_borrowers_hint"
+msgstr "Добавете контакти, които заемат книги от библиотеката ви."
+
+#. ISBN validation
+msgid "isbn_checksum_warning"
+msgstr "Този ISBN може да е невалиден (грешка в контролната сума)"
+
+#. Show library views toggle
+msgid "show_view_count"
+msgstr "Показване на преглежданията на библиотеката"
+
+msgid "show_view_count_desc"
+msgstr "Показване на броя преглеждания във вашия профил"
+
+#. Profile view counter
+msgid "profile_view"
+msgstr "преглеждане"
+
+msgid "profile_views"
+msgstr "преглеждания"
+
+msgid "profile_views_peers"
+msgstr "от връзки"
+
+msgid "profile_views_followers"
+msgstr "от последователи"
+
+#. Peer connectivity status
+#. Profile follower count
+msgid "profile_follower"
+msgstr "последовател"
+
+msgid "profile_followers"
+msgstr "последователи"
+
+msgid "peer_status_online"
+msgstr "Онлайн"
+
+msgid "peer_status_unreachable"
+msgstr "Недостъпна"
+
+#. Peer reachable via relay or hub (not direct WiFi)
+msgid "peer_status_indirect"
+msgstr "Онлайн"
+
+msgid "confirm"
+msgstr "Потвърждаване"
+
+msgid "reset_scores"
+msgstr "Нулиране на резултатите"
+
+msgid "reset_scores_confirm"
+msgstr "Всички ваши резултати за тази игра ще бъдат изтрити. Това е необратимо."
+
+#. Notifications empty state description
+msgid "notifications_empty_desc"
+msgstr "Известията ви за връзки, заеми и открития ще се появяват тук."
+
+msgid "notifications_see_all"
+msgstr "Вижте всички известия"
+
+#. Clear all notifications
+msgid "notifications_clear_all"
+msgstr "Изчистване на всички"
+
+msgid "notifications_clear_all_confirm"
+msgstr "Да се изтрият ли всички известия?"
+
+#. Notification display - connection events
+msgid "notif_connection_request"
+msgstr "{name} иска да се свърже"
+
+msgid "notif_connection_accepted"
+msgstr "{name} вече е във вашите контакти"
+
+msgid "notif_new_follower"
+msgstr "{name} вече ви следва"
+
+msgid "notif_follow_request"
+msgstr "{name} иска да ви следва"
+
+#. Notification display - loan events
+msgid "notif_borrow_request"
+msgstr "{name} иска да заеме „{book}“"
+
+msgid "notif_borrow_accepted"
+msgstr "{name} прие заема на „{book}“"
+
+msgid "notif_book_returned"
+msgstr "{name} върна „{book}“"
+
+msgid "notif_book_reclaimed"
+msgstr "{name} прибра „{book}“"
+
+msgid "notif_borrow_rejected"
+msgstr "{name} отказа заема на „{book}“"
+
+#. Notification display - discovery events
+msgid "notif_wishlist_match"
+msgstr "„{book}“ е налична от {source}"
+
+#. Notification display - system events
+msgid "notif_welcome"
+msgstr "Добре дошли в BiblioGenius! Разгледайте приложението, за да управлявате библиотеката си."
+
+#. Notification tap hints
+msgid "notif_tap_network"
+msgstr "Вижте мрежата"
+
+msgid "notif_tap_requests"
+msgstr "Вижте заявките"
+
+msgid "notif_tap_loans"
+msgstr "Вижте заемите"
+
+msgid "notif_tap_discover"
+msgstr "Откриване"
+
+msgid "notif_tap_wishlist"
+msgstr "Вижте списъка с желания"
+
+msgid "notif_tap_library"
+msgstr "Вижте библиотеката"
+
+msgid "settings_search_hint"
+msgstr "Търсене в настройките..."
+
+#. Reorderable sections - edit mode
+msgid "sections_edit_mode"
+msgstr "Персонализиране на разделите"
+
+msgid "sections_edit_done"
+msgstr "Готово"
+
+msgid "sections_reset"
+msgstr "Нулиране"
+
+msgid "sections_hidden"
+msgstr "Скрит"
+
+msgid "sections_drag_hint"
+msgstr "Задръжте, за да пренаредите"
+
+msgid "tooltip_toggle_section"
+msgstr "Показване/скриване на този раздел"
+
+msgid "tooltip_edit_sections"
+msgstr "Персонализиране на оформлението"
+
+#. Hangman game
+msgid "hangman_title"
+msgstr "Бесеница"
+
+msgid "hangman_dashboard_subtitle"
+msgstr "Познавайте заглавията на книгите си буква по буква"
+
+msgid "hangman_not_enough_books_title"
+msgstr "Първо разширете библиотеката си!"
+
+msgid "hangman_not_enough_books"
+msgstr "Добавете поне 10 книги, за да отключите тази игра. Сканирайте баркод или добавете книги ръчно, за да започнете."
+
+msgid "hangman_visual_style"
+msgstr "Визуален стил"
+
+msgid "hangman_style_classic"
+msgstr "Класически"
+
+msgid "hangman_style_books"
+msgstr "Книги"
+
+msgid "hangman_select_difficulty"
+msgstr "Изберете трудност"
+
+msgid "hangman_difficulty_easy"
+msgstr "Лесно"
+
+msgid "hangman_difficulty_medium"
+msgstr "Средно"
+
+msgid "hangman_difficulty_hard"
+msgstr "Трудно"
+
+msgid "hangman_difficulty_easy_desc"
+msgstr "2 подсказки, 5 мин -- идеално за начинаещи"
+
+msgid "hangman_difficulty_medium_desc"
+msgstr "1 подсказка, 3 мин -- справедливо предизвикателство"
+
+msgid "hangman_difficulty_hard_desc"
+msgstr "Без подсказки, 2 мин -- само за експерти"
+
+msgid "hangman_start"
+msgstr "Играй"
+
+msgid "hangman_errors"
+msgstr "Грешки"
+
+msgid "hangman_hints"
+msgstr "Подсказки"
+
+msgid "hangman_score"
+msgstr "Точки"
+
+msgid "hangman_time"
+msgstr "Време"
+
+msgid "hangman_rank"
+msgstr "Класиране"
+
+msgid "hangman_won"
+msgstr "Браво!"
+
+msgid "hangman_lost"
+msgstr "Край на играта!"
+
+msgid "hangman_play_again"
+msgstr "Играй отново"
+
+msgid "hangman_back_to_menu"
+msgstr "Меню"
+
+msgid "hangman_leaderboard"
+msgstr "Класация"
+
+msgid "hangman_new_best"
+msgstr "Нов личен рекорд!"
+
+msgid "hangman_no_scores"
+msgstr "Все още няма резултати. Изиграйте игра!"
+
+msgid "achievement_hangman_first_game"
+msgstr "Първа бесеница"
+
+msgid "achievement_hangman_perfect"
+msgstr "Перфектна бесеница"
+
+msgid "achievement_hangman_master"
+msgstr "Майстор на бесеницата"
+
+msgid "pairing_pending_review"
+msgstr "%d чакат преглед"
+
+msgid "pairing_last_paired"
+msgstr "Сдвоено %s"
+
+msgid "sync_push"
+msgstr "Изпращане към устройството"
+
+msgid "sync_pull"
+msgstr "Получаване от устройството"
+
+msgid "sync_both"
+msgstr "Двупосочна синхронизация"
+
+msgid "sync_reset_all"
+msgstr "Нулиране на дневника на синхронизацията"
+
+msgid "sync_reset_confirm"
+msgstr "Това ще изтрие всички чакащи, приложени и неуспешни операции по синхронизация. Книгите ви не са засегнати. Да продължа ли?"
+
+#. Private Books
+msgid "settings_allow_private_books"
+msgstr "Лични книги"
+
+#. Allow hiding specific books from network peers
+msgid "settings_allow_private_books_desc"
+msgstr "Позволете скриване на определени книги, така че да не са видими за вашите контакти в мрежата"
+
+#. Private book
+msgid "book_private"
+msgstr "Лична книга"
+
+#. This book will not be visible to your contacts on the network
+msgid "book_private_desc"
+msgstr "Тази книга няма да е видима за вашите контакти в мрежата"
+
+#. Tooltip for private book toggle
+msgid "tooltip_private_book"
+msgstr "Скриване на тази книга от мрежата"
+
+#. ── Book Notes ──────────────────────────────────────────────────────
+#. Section title for reading notes
+msgid "notes_section_title"
+msgstr "Бележки от четенето"
+
+#. Subtitle hint for reading notes section
+msgid "notes_section_hint"
+msgstr "Записвайте мислите, цитатите или запомнящите се пасажи"
+
+#. Subtitle hint for reading notes section (when speech-to-text is enabled)
+msgid "notes_section_hint_speech"
+msgstr "Напишете или продиктувайте мислите, цитатите или запомнящите се пасажи"
+
+#. Placeholder for the note input field
+msgid "add_note_placeholder"
+msgstr "Добавяне на бележка..."
+
+#. Hint for page number field
+msgid "note_page_label"
+msgstr "Страница"
+
+#. Link to see all notes
+msgid "view_all_notes"
+msgstr "Преглед на всички бележки"
+
+#. Confirmation before deleting a note
+msgid "delete_note_confirm"
+msgstr "Да се изтрие ли тази бележка?"
+
+#. Shown when there are no notes yet
+msgid "no_notes_yet"
+msgstr "Все още няма бележки"
+
+#. Note updated confirmation
+msgid "note_updated"
+msgstr "Бележката е обновена"
+
+#. Note deleted confirmation
+msgid "note_deleted"
+msgstr "Бележката е изтрита"
+
+#. Edit note dialog title
+msgid "edit_note"
+msgstr "Редактиране на бележката"
+
+#. Tooltip for add note button
+msgid "tooltip_add_note"
+msgstr "Добавяне на бележка"
+
+#. Tooltip for delete note button
+msgid "tooltip_delete_note"
+msgstr "Изтриване на бележката"
+
+#. Tooltip for edit note button
+msgid "tooltip_edit_note"
+msgstr "Редактиране на бележката"
+
+#. ── Speech-to-text ──────────────────────────────────────────────────
+#. Settings label for speech-to-text toggle
+msgid "speech_to_text_setting"
+msgstr "Гласово диктуване за бележки"
+
+#. Description for speech-to-text setting
+msgid "speech_to_text_setting_desc"
+msgstr "Добавяне на бутон за микрофон за диктуване на бележките ви от четенето"
+
+#. Tooltip for microphone button
+msgid "tooltip_dictate_note"
+msgstr "Диктуване на бележка"
+
+#. Shown when speech recognition is not available on device
+msgid "speech_not_available"
+msgstr "Разпознаването на реч не е налично на това устройство"
+
+#. Shown while listening
+msgid "speech_listening"
+msgstr "Слушане..."
+
+#. ── Loan duration settings ──────────────────────────────────────────
+#. Settings section title for loan duration
+msgid "loan_duration_settings_title"
+msgstr "Продължителност на заема"
+
+#. Label for global default loan duration
+msgid "loan_duration_default_label"
+msgstr "Продължителност по подразбиране"
+
+#. Unit suffix for days
+msgid "loan_duration_days_suffix"
+msgstr "дни"
+
+#. Toggle label for per-book duration customization
+msgid "loan_duration_per_book_toggle"
+msgstr "Персонализиране за всяка книга"
+
+#. Description for per-book duration toggle
+msgid "loan_duration_per_book_desc"
+msgstr "Задайте различна продължителност на заема за всяка книга"
+
+#. Label for per-book loan duration field in book detail
+msgid "loan_duration_book_custom"
+msgstr "Персонализирана продължителност на заема"
+
+#. Hint when per-book duration is not set (uses global default)
+msgid "loan_duration_book_default_hint"
+msgstr "Използва продължителността по подразбиране (%d дни)"
+
+#. Tooltip for clearing per-book duration
+msgid "tooltip_clear_book_loan_duration"
+msgstr "Връщане към продължителността по подразбиране"
+
+#. Snackbar confirmation when loan settings are saved
+msgid "loan_settings_saved"
+msgstr "Настройките за заем са запазени"
+
+#. Label for due date in loan dialog
+msgid "loan_due_date_label"
+msgstr "Очаквана дата на връщане"
+
+#. Loan offer to peer - notification pending
+msgid "loan_notification_pending"
+msgstr "чакащо известие"
+
+#. Recovery code - settings row
+msgid "recovery_code_title"
+msgstr "Код за възстановяване"
+
+#. Recovery code - settings row subtitle
+msgid "recovery_code_subtitle"
+msgstr "Възстановете профила си след преинсталиране на приложението"
+
+#. Recovery code - display screen title
+msgid "recovery_code_display_title"
+msgstr "Код за възстановяване"
+
+#. Recovery code - display screen explanation
+msgid "recovery_code_display_explanation"
+msgstr "Този код ви позволява да възстановите профила, последователите и абонаментите си, ако преинсталирате приложението."
+
+#. Recovery code - display screen save advice
+msgid "recovery_code_save_advice"
+msgstr "Пазете го на сигурно място. Може да се използва само веднъж: след всяка употреба ще се генерира нов код."
+
+#. Recovery code - copy button tooltip
+msgid "recovery_code_copy"
+msgstr "Копиране на кода за възстановяване"
+
+#. Recovery code - copied confirmation
+msgid "recovery_code_copied"
+msgstr "Кодът за възстановяване е копиран"
+
+#. Recovery code - first display title
+msgid "recovery_code_first_title"
+msgstr "Код за възстановяване"
+
+#. Recovery code - first display explanation
+msgid "recovery_code_first_explanation"
+msgstr "Този код ви позволява да възстановите профила си в указателя, ако преинсталирате приложението."
+
+#. Recovery code - first display save notice
+msgid "recovery_code_first_save_notice"
+msgstr "Запазете го на сигурно място (мениджър на пароли, ръкописна бележка...)."
+
+#. Recovery code - first display auto notice
+msgid "recovery_code_first_auto_notice"
+msgstr "Този код няма да бъде показан автоматично отново. Можете да го намерите в Настройки > Указател."
+
+#. Recovery code - first display confirm button
+msgid "recovery_code_first_confirm"
+msgstr "Запазих кода си"
+
+#. Connection lost - dialog title
+msgid "connection_lost_title"
+msgstr "Връзката с указателя е загубена"
+
+#. Connection lost - dialog body
+msgid "connection_lost_body"
+msgstr "След преинсталиране профилът ви в указателя вече не е достъпен. Книгите и локалните ви контакти не са засегнати."
+
+#. Connection lost - recovery option
+msgid "connection_lost_recovery_option"
+msgstr "Имам код за възстановяване"
+
+#. Connection lost - recovery option subtitle
+msgid "connection_lost_recovery_subtitle"
+msgstr "Възстановете профила, последователите и абонаментите си"
+
+#. Connection lost - new profile option
+msgid "connection_lost_new_profile"
+msgstr "Създаване на нов профил"
+
+#. Connection lost - new profile warning
+msgid "connection_lost_new_profile_warning"
+msgstr "Текущите ви последователи и абонаменти ще бъдат загубени. Хората, които ви следват, ще трябва да ви открият отново."
+
+#. Connection lost - later button
+msgid "connection_lost_later"
+msgstr "По-късно"
+
+#. Recovery input - screen title
+msgid "recovery_input_title"
+msgstr "Възстановяване на профила"
+
+#. Recovery input - instructions
+msgid "recovery_input_instructions"
+msgstr "Въведете кода за възстановяване, който запазихте, когато се регистрирахте в указателя."
+
+#. Recovery input - submit button
+msgid "recovery_input_submit"
+msgstr "Възстановяване на моя профил"
+
+#. Recovery input - success message
+msgid "recovery_input_success"
+msgstr "Профилът е възстановен! Последователите и абонаментите ви са непокътнати."
+
+#. Recovery input - success new code notice
+msgid "recovery_input_success_new_code"
+msgstr "Генериран е нов код за възстановяване."
+
+#. Recovery input - error message
+msgid "recovery_input_error"
+msgstr "Този код не е валиден. Проверете дали съвпада с този, който сте запазили."
+
+#. Recovery code - not available (registered before feature)
+msgid "recovery_code_not_available"
+msgstr "Не е налично. Регистрирайте се отново, за да генерирате."
+
+#. Badge shown on experimental features
+msgid "badge_experimental"
+msgstr "Експериментално"
+
+#. Recovery code - scope legend: what is covered
+msgid "recovery_code_scope_covers"
+msgstr "Възстановява: вашия профил, последователи и следвани."
+
+#. Recovery code - scope legend: what is excluded
+msgid "recovery_code_scope_excludes"
+msgstr "Не се възстановява: вашите книги (съхранявани локално) и ръчно добавените партньори (трябва да се добавят отново)."
+
+msgid "quotes_module_help"
+msgstr "Показва вдъхновяващи литературни цитати на началния екран. Изцяло декоративно: може да се изключи без никакво влияние върху функционалността."
+
+msgid "gamification_module_help"
+msgstr "Превръща четенето в игра със значки, нива и проследяване на статистика. Брои прочетените книги, страници и последователни серии на четене."
+
+msgid "games_module_help"
+msgstr "Активира селекция от мини-игри, които използват кориците и заглавията от библиотеката ви. След това всяка игра може да се включва поотделно."
+
+msgid "network_gamification_help"
+msgstr "Показва класация, която сравнява напредъка ви с други библиотеки в локалната ви мрежа. Всеки участник независимо избира какво споделя."
+
+msgid "share_gamification_stats_help"
+msgstr "Позволява на други библиотеки в мрежата ви да виждат статистиката ви (прочетени книги, значки, нива). Без тази опция оставате анонимни в класацията."
+
+msgid "group_by_collections_help"
+msgstr "В изгледа на библиотеката книгите се групират по колекция, вместо да се показват в плосък списък. Полезно, ако имате много тематични колекции."
+
+msgid "commerce_module_help"
+msgstr "Активира функции, предназначени за книжари: управление на наличности, продажни цени, състояние на книгата. Препоръчва се само ако продавате книги."
+
+msgid "speech_to_text_setting_help"
+msgstr "Добавя бутон за микрофон в полетата за въвеждане на бележки и цитати. Използва гласовото разпознаване на системата, за да преобразува речта в текст."
+
+msgid "auto_approve_loans_help"
+msgstr "Когато доверен контакт заяви книга, заемът се приема автоматично без потвърждение. Все пак можете да го отмените след това от екрана със заеми."
+
+msgid "enable_borrowing_module_help"
+msgstr "Активира системата за заеми: можете да заемате книгите си на контактите си и да заемате техните. Всеки заем има конфигурируема продължителност по подразбиране и генерира автоматични напомняния."
+
+msgid "enable_lending_module_help"
+msgstr "Позволява ви да заемате книги на контактите си. Когато е изключено, бутоните за заемане изчезват от подробностите за книгата и контактите ви не могат да заявяват заемане от библиотеката ви — но вие все пак можете да заемате от техните, ако модулът за заемане е включен."
+
+msgid "settings_allow_private_books_help"
+msgstr "Отключва опцията 'Лична' за всяка книга. Личната книга остава в библиотеката ви, но никога не се показва на други потребители — нито в публичния ви профил, нито в мрежовите търсения."
+
+msgid "module_digital_formats_help"
+msgstr "Активира разграничението между формати (хартиен, електронен, аудио) за една и съща книга. Полезно, ако притежавате няколко издания и искате да следите кое сте чели."
+
+msgid "notif_enabled_help"
+msgstr "Включва или изключва всички известия на приложението. Когато е изключено, не се появяват предупреждения, независимо от категорията."
+
+msgid "notif_connections_help"
+msgstr "Известява ви, когато някой ви изпрати заявка за връзка или приеме вашата."
+
+msgid "notif_loans_help"
+msgstr "Известява ви за входящи заявки за заемане, върнати книги и напомняния за връщане при активни заеми."
+
+msgid "notif_discoveries_help"
+msgstr "Уведомява ви, когато контактите ви добавят нови книги в библиотеката си."
+
+msgid "settings_auto_backup_help"
+msgstr "Автоматично архивира библиотеката ви на редовни интервали. Позволява ви да възстановите данните си, ако нещо се обърка на устройството ви."
+
+msgid "search_sources_help"
+msgstr "Изберете кои бази данни се заявяват при търсене по заглавие или автор. Активирането на повече източници подобрява обхвата, но може леко да забави търсенията."
+
+msgid "settings_password_help"
+msgstr "Защитава достъпа до библиотеката ви при стартиране на приложението. В локален режим тази парола остава на устройството ви и никога не се предава."
+
+msgid "two_factor_auth_help"
+msgstr "Добавя втора стъпка за проверка при влизане (SMS код или приложение за удостоверяване). Повишава сигурността при използване на BiblioGenius със сървърен акаунт."
+
+msgid "recently_added_title"
+msgstr "Активност"
+
+msgid "badge_days_since_start"
+msgstr "Д+%s"
+
+msgid "carousel_hide_tooltip"
+msgstr "Скриване на въртележката"
+
+msgid "carousel_hide_long_press_tooltip"
+msgstr "Задръжте за скриване"
+
+msgid "carousel_expand_tooltip"
+msgstr "Разгъване на въртележката"
+
+msgid "carousel_collapse_tooltip"
+msgstr "Свиване на въртележката"
+
+msgid "carousel_collapsed_label"
+msgstr "Активност · {count}"
+
+msgid "carousel_hidden_snackbar"
+msgstr "Въртележката е скрита"
+
+msgid "action_undo"
+msgstr "Отмяна"
+
+msgid "carousel_own_lib_title"
+msgstr "Активност: моята библиотека"
+
+msgid "carousel_own_lib_desc"
+msgstr "Показва книгите, които четете в момента, и последните добавяния в горната част на библиотеката ви."
+
+msgid "carousel_peer_lib_title"
+msgstr "Активност: партньори"
+
+msgid "carousel_peer_lib_desc"
+msgstr "Показва книгите, които партньорите четат в момента, и последните добавяния в горната част на техните библиотеки."
+
+#. Save order (shelf reorder mode)
+msgid "save_shelf_order"
+msgstr "Запазване на подредбата"
+
+#. Reorder shelf
+msgid "reorder_shelf"
+msgstr "Пренареждане на рафта"
+
+#. Open in browser
+msgid "open_in_browser"
+msgstr "Отваряне в браузър"
+
+#. Playback speed
+msgid "playback_speed"
+msgstr "Скорост на възпроизвеждане"
+
+#. Search online
+msgid "search_online"
+msgstr "Търсене онлайн"
+
+#. Decrease by 1
+msgid "decrease_by_one"
+msgstr "Намаляване с 1"
+
+#. Increase by 1
+msgid "increase_by_one"
+msgstr "Увеличаване с 1"
+
+#. Scan for nearby peers
+msgid "tooltip_scan_peers"
+msgstr "Сканиране за близки устройства"
+
+#. Rewind 10 seconds
+msgid "tooltip_rewind_10s"
+msgstr "Превъртане 10 секунди назад"
+
+#. Forward 30 seconds
+msgid "tooltip_forward_30s"
+msgstr "Превъртане 30 секунди напред"
+
+#. Accept request
+msgid "tooltip_accept"
+msgstr "Приемане"
+
+#. Reject request
+msgid "tooltip_reject"
+msgstr "Отхвърляне"
+
+#. Add author
+msgid "tooltip_add_author"
+msgstr "Добавяне на автор"
+
+#. Toggle flashlight / torch
+msgid "tooltip_toggle_flashlight"
+msgstr "Превключване на фенерчето"
+
+#. Refresh
+msgid "tooltip_refresh"
+msgstr "Обновяване"
+
+#. Send message
+msgid "tooltip_send_message"
+msgstr "Изпращане на съобщение"
+
+#. Search peers
+msgid "tooltip_search_peer"
+msgstr "Търсене"
+
+#. Tooltip shown on the owner's book-details screen when a cover upload to the hub has failed and a retry is pending on the next sync.
+msgid "cover_upload_pending_tooltip"
+msgstr "Корицата не е синхронизирана. Нов опит ще се извърши при следващото обновяване."
+
+#. Settings section header for peer (networked) library cover controls.
+msgid "settings_peer_covers_section"
+msgstr "Корици на партньорски библиотеки"
+
+#. Toggle that controls whether peer libraries show book covers or fall back to the colored-spine view.
+msgid "peer_cover_display_enabled"
+msgstr "Показване на кориците на партньорски библиотеки"
+
+#. Description for the peer cover display toggle.
+msgid "peer_cover_display_enabled_desc"
+msgstr "Когато е изключено, партньорските библиотеки използват изгледа с цветни гръбчета. Не се изтеглят и не се съхраняват корици."
+
+#. Label for the peer cover cache size selector.
+msgid "peer_cover_cache_cap"
+msgstr "Макс. размер на кеша"
+
+#. Description for the peer cover cache size selector.
+msgid "peer_cover_cache_cap_desc"
+msgstr "Дисково пространство за партньорски корици. По-старите корици се премахват, когато се запълни."
+
+#. Title of the current-usage row below the cache size selector.
+msgid "peer_cover_cache_usage_title"
+msgstr "Текуща употреба"
+
+#. Body of the current-usage row. Format: "X MB of Y MB". {used} and {cap} are replaced at runtime.
+msgid "peer_cover_cache_usage"
+msgstr "{used} MB от {cap} MB"
+
+#. Tooltip for the refresh icon next to the current-usage row.
+msgid "peer_cover_cache_refresh"
+msgstr "Обновяване"
+
+#. Destructive action that empties the peer cover cache directory.
+msgid "peer_cover_cache_clear"
+msgstr "Изчистване на кеша за партньорски корици"
+
+#. Title of the confirmation dialog shown before clearing the peer cover cache.
+msgid "peer_cover_cache_clear_title"
+msgstr "Да се изчисти ли кешът за партньорски корици?"
+
+#. Body of the confirmation dialog shown before clearing the peer cover cache.
+msgid "peer_cover_cache_clear_body"
+msgstr "Това изтрива корици, изтеглени от партньорски библиотеки. Кориците на собствената ви библиотека не са засегнати."
+
+#. Confirm button of the clear peer cover cache dialog.
+msgid "peer_cover_cache_clear_action"
+msgstr "Изчистване"
+
+#. Snackbar shown after the peer cover cache has been cleared.
+msgid "peer_cover_cache_clear_done"
+msgstr "Кешът за партньорски корици е изчистен"
+
+#. ============ Identity recovery dialog (E2EE wipe hardening) ============
+#. Title of the security dialog shown when the encrypted identity cannot be decrypted.
+msgid "identity_recovery_title"
+msgstr "Проверка на сигурността"
+
+#. Body of the security dialog explaining the situation.
+msgid "identity_recovery_body"
+msgstr "BiblioGenius вече не разпознава ключа за сигурност на тази библиотека на устройството ви. Това обикновено е временен системен проблем, който изчезва при повторен опит."
+
+#. Bullet describing the retry option (recommended path).
+msgid "identity_recovery_bullet_retry"
+msgstr "• Опитай отново: пробвайте първо това (препоръчително)."
+
+#. Bullet describing the regenerate option (destructive path).
+msgid "identity_recovery_bullet_regenerate"
+msgstr "• Започни отначало: създава нов ключ. Заявките за заемане и другите защитени обмени с вашите свързани устройства и библиотеки ще спрат да работят, докато не ги сдвоите отново от екрана Мрежа."
+
+#. Action button for regenerating the encrypted identity.
+msgid "identity_recovery_btn_regenerate"
+msgstr "Започни отначало"
+
+#. Error message shown when retry still fails (recovery dialog stays open).
+msgid "identity_recovery_retry_still_failing"
+msgstr "Все още не разпознаваме това устройство. Ако проблемът продължи, можете да изберете „Започни отначало“."
+
+#. Error message for unexpected exceptions during retry. {error} is the exception message.
+msgid "identity_recovery_retry_unexpected_error"
+msgstr "Неочаквана грешка: {error}"
+
+#. Error message shown when the regeneration step itself fails. {error} is the exception message.
+msgid "identity_recovery_regen_failed"
+msgstr "Нулирането е неуспешно: {error}"
+
+#. Title of the confirmation sub-dialog before regenerating.
+msgid "identity_recovery_confirm_title"
+msgstr "Да започна ли отначало?"
+
+#. Body of the regenerate confirmation sub-dialog.
+msgid "identity_recovery_confirm_body"
+msgstr "За това устройство ще бъде създаден нов ключ за сигурност.\n\nДругите ви устройства и библиотеки вероятно ще продължат да виждат книгите ви, но защитените действия между вас (заявки за заемане, обновявания на споделен профил, лични известия) ще спрат да работят. За да ги възстановите, ще трябва да сдвоите всяко от тях отново от екрана Мрежа.\n\nСъдържанието на библиотеката ви (книги, рафтове, заеми) не е засегнато."
+
+#. Title of the success state of the recovery dialog after regen succeeds.
+msgid "identity_recovery_success_title"
+msgstr "Готово"
+
+#. Body of the success state of the recovery dialog after regen succeeds.
+msgid "identity_recovery_success_body"
+msgstr "Тази библиотека вече има нов ключ за сигурност.\n\nДругите ви устройства и библиотеки може все още да виждат книгите ви, но защитените действия с тях (заявки за заемане, споделен профил, лични известия) вече не работят. За да ги възстановите, отидете в Мрежа и сдвоете всяко от тях отново."
+
+#. Acknowledgement button on the success state of the recovery dialog.
+msgid "identity_recovery_success_btn"
+msgstr "ОК"
+
+#. Singular form of the success-state heading listing devices/peers to re-pair.
+msgid "identity_recovery_success_repair_title_one"
+msgstr "1 връзка за повторно сдвояване"
+
+#. Plural form of the success-state heading. {count} is the total of devices + peers.
+msgid "identity_recovery_success_repair_title_other"
+msgstr "{count} връзки за повторно сдвояване"
+
+#. Short intro shown above the list of devices/peers to re-pair after regen.
+msgid "identity_recovery_success_repair_intro"
+msgstr "Сдвоете всяко от тях отново от Мрежа, за да възстановите защитените действия."
+
+#. Primary CTA on the success state when devices/peers must be re-paired.
+msgid "identity_recovery_success_btn_network"
+msgstr "Към Мрежа"
+
+#. Secondary CTA on the success state to dismiss without navigating.
+msgid "identity_recovery_success_btn_later"
+msgstr "По-късно"
+
+#. Screen-reader label for the icon next to a linked device entry.
+msgid "identity_recovery_success_icon_device_label"
+msgstr "Свързано устройство"
+
+#. Screen-reader label for the icon next to a peer library entry.
+msgid "identity_recovery_success_icon_peer_label"
+msgstr "Партньорска библиотека"
+
+#. Backup restore wizard (ADR-037 §5) — added 2026-04-29 with PR #3 reader.
+msgid "wizard_restore_app_bar_title"
+msgstr "Възстановяване на резервно копие"
+
+msgid "wizard_restore_picker_dialog_title"
+msgstr "Изберете .bgbackup файл"
+
+msgid "wizard_restore_step_picker_intro"
+msgstr "Изберете .bgbackup резервно копие за възстановяване."
+
+msgid "wizard_restore_button_browse"
+msgstr "Преглед..."
+
+msgid "wizard_restore_button_cancel"
+msgstr "Отказ"
+
+msgid "wizard_restore_button_continue"
+msgstr "Продължаване"
+
+msgid "wizard_restore_button_back"
+msgstr "Назад"
+
+msgid "wizard_restore_button_restore"
+msgstr "Възстановяване"
+
+msgid "wizard_restore_button_close_app"
+msgstr "Затваряне на приложението"
+
+msgid "wizard_restore_button_close_to_apply"
+msgstr "Затворете, за да приложите"
+
+msgid "wizard_restore_button_close"
+msgstr "Затваряне"
+
+msgid "wizard_restore_button_retry"
+msgstr "Опитай отново"
+
+msgid "wizard_restore_step_preview_title"
+msgstr "Избрано резервно копие"
+
+msgid "wizard_restore_kv_export_date"
+msgstr "Дата на експортиране"
+
+msgid "wizard_restore_kv_library_uuid"
+msgstr "Идентификатор на библиотеката"
+
+msgid "wizard_restore_kv_schema"
+msgstr "Схема"
+
+msgid "wizard_restore_kv_schema_value"
+msgstr "{schema} (текуща: {current})"
+
+msgid "wizard_restore_kv_app_version"
+msgstr "Версия на приложението"
+
+msgid "wizard_restore_kv_identity_included"
+msgstr "Включена самоличност"
+
+msgid "wizard_restore_yes"
+msgstr "да"
+
+msgid "wizard_restore_no"
+msgstr "не"
+
+msgid "wizard_restore_kv_unlock_kind"
+msgstr "Код за отключване"
+
+msgid "wizard_restore_unlock_recovery"
+msgstr "код за възстановяване"
+
+msgid "wizard_restore_unlock_passphrase"
+msgstr "специална парола"
+
+msgid "wizard_restore_step_preview_content"
+msgstr "Съдържание"
+
+msgid "wizard_restore_kv_books"
+msgstr "Книги"
+
+msgid "wizard_restore_kv_copies"
+msgstr "Екземпляри"
+
+msgid "wizard_restore_kv_loans"
+msgstr "Заеми"
+
+msgid "wizard_restore_kv_contacts"
+msgstr "Контакти"
+
+msgid "wizard_restore_kv_tags"
+msgstr "Рафтове"
+
+msgid "wizard_restore_kv_local_covers"
+msgstr "Локални корици"
+
+msgid "wizard_restore_step_secret_prompt_recovery"
+msgstr "Въведете кода си за възстановяване"
+
+msgid "wizard_restore_step_secret_prompt_passphrase"
+msgstr "Въведете паролата за резервното копие"
+
+msgid "wizard_restore_secret_label_recovery"
+msgstr "Код за възстановяване"
+
+msgid "wizard_restore_secret_label_passphrase"
+msgstr "Парола"
+
+msgid "wizard_restore_secret_show"
+msgstr "Показване"
+
+msgid "wizard_restore_secret_hide"
+msgstr "Скриване"
+
+msgid "wizard_restore_step_secret_hint"
+msgstr "Проверката използва Argon2id и може да отнеме няколко секунди на по-стари устройства."
+
+msgid "wizard_restore_secret_required"
+msgstr "Въведете кода или паролата си."
+
+msgid "wizard_restore_step_mode_title"
+msgstr "Режим на възстановяване"
+
+msgid "wizard_restore_mode_replace_title"
+msgstr "Замяна (препоръчва се при миграция на устройство)"
+
+msgid "wizard_restore_mode_replace_subtitle"
+msgstr "Текущата ви библиотека ще бъде оставена настрана за 24 ч (резервно копие за връщане), след което заменена с този архив."
+
+msgid "wizard_restore_mode_merge_title"
+msgstr "Обединяване (добавяне към текущата ми библиотека)"
+
+msgid "wizard_restore_mode_merge_subtitle"
+msgstr "Книгите, контактите и рафтовете от архива се добавят към вашите. Партньорите и самоличността не са засегнати."
+
+msgid "wizard_restore_identity_checkbox_title"
+msgstr "Възстановяване и на самоличността на тази библиотека (точно копие)"
+
+msgid "wizard_restore_identity_checkbox_subtitle"
+msgstr "Отметнато: това устройство ще бъде разпознато от партньорите ви като оригиналното устройство. Без отметка: нова самоличност, партньорите ви ще ви проверят отново автоматично при следващ контакт."
+
+msgid "wizard_restore_step_confirm_title"
+msgstr "Потвърждаване на възстановяването"
+
+msgid "wizard_restore_confirm_summary_replace"
+msgstr "Текущите ви данни ще бъдат преместени в резервно копие за връщане. Можете да върнете до 24 ч от екрана Настройки."
+
+msgid "wizard_restore_confirm_summary_merge"
+msgstr "Елементите от архива ще бъдат добавени към текущата ви библиотека. Никоя от съществуващите ви книги няма да бъде изтрита."
+
+msgid "wizard_restore_confirm_restart_warning"
+msgstr "Когато възстановяването завърши, приложението ще се затвори. Ще трябва да го стартирате ръчно отново, за да приключите."
+
+msgid "wizard_restore_progress_default"
+msgstr "Възстановяване в ход..."
+
+msgid "wizard_restore_progress_verifying"
+msgstr "Проверка на резервното копие..."
+
+msgid "wizard_restore_progress_replacing"
+msgstr "Възстановяване на базата данни..."
+
+msgid "wizard_restore_progress_merging"
+msgstr "Обединяване на данните..."
+
+msgid "wizard_restore_progress_warning"
+msgstr "Не затваряйте приложението."
+
+msgid "wizard_restore_step_result_success_title"
+msgstr "Възстановяването е успешно"
+
+msgid "wizard_restore_step_result_failure_title"
+msgstr "Възстановяването е неуспешно"
+
+msgid "wizard_restore_step_result_failure_intact"
+msgstr "Текущата ви библиотека е непокътната."
+
+#. Wizard: SnackBar shown if the user tries to navigate away (back arrow,
+#. swipe, system back) after a successful Replace/Merge restore. The
+#. on-disk DB has been swapped, so the app must be restarted.
+msgid "wizard_restore_must_restart_hint"
+msgstr "Възстановяването е приложено. Затворете приложението с бутона по-долу, за да приключите."
+
+msgid "wizard_restore_step_result_failure_unknown"
+msgstr "Неизвестна грешка"
+
+msgid "wizard_restore_kv_mode"
+msgstr "Режим"
+
+msgid "wizard_restore_mode_label_replace"
+msgstr "Замяна"
+
+msgid "wizard_restore_mode_label_merge"
+msgstr "Обединяване"
+
+msgid "wizard_restore_kv_covers_restored"
+msgstr "Възстановени корици"
+
+msgid "wizard_restore_kv_identity"
+msgstr "Самоличност"
+
+msgid "wizard_restore_identity_restored_value"
+msgstr "възстановена (точно копие)"
+
+msgid "wizard_restore_kv_rollback_path"
+msgstr "Резервно копие за връщане"
+
+msgid "wizard_restore_error_unreadable"
+msgstr "Нечетим архив: {error}"
+
+#. Wizard: shown on the mode step when the wizard auto-unlocked using
+#. the recovery code or passphrase already in secure storage (typical
+#. same-device auto-backup restore).
+msgid "wizard_restore_auto_unlocked_recovery_code"
+msgstr "Автоматично отключено с вашия код за възстановяване"
+
+msgid "wizard_restore_auto_unlocked_passphrase"
+msgstr "Автоматично отключено с вашата парола за резервно копие"
+
+#. Wizard: shown on the secret step when the auto-unlock attempt failed
+#. (stored secret no longer matches this archive). User is asked to
+#. type the original secret manually.
+msgid "wizard_restore_secret_auto_unlock_failed"
+msgstr "Тайната, съхранена на това устройство, вече не съответства на този архив (променен код за възстановяване или парола?). Въведете оригиналната тайна ръчно."
+
+msgid "wizard_restore_error_bad_secret"
+msgstr "Неправилен код или повреден архив."
+
+msgid "wizard_restore_error_schema_too_new"
+msgstr "Това резервно копие е създадено от по-нова версия на BiblioGenius (схема {schema}, текуща {current}). Актуализирайте приложението преди възстановяване."
+
+msgid "wizard_restore_error_schema_too_new_short"
+msgstr "Това резервно копие е създадено от по-нова версия. Актуализирайте приложението, преди да опитате отново."
+
+msgid "wizard_restore_error_db_hash_mismatch"
+msgstr "Несъответствие на хеша на базата данни: повреден архив. Възстановяването е отменено, текущата ви библиотека е непокътната."
+
+msgid "wizard_restore_error_generic"
+msgstr "Неуспешно: {error}"
+
+#. Backup section: PR #3 tile + rollback card.
+msgid "backup_restore_full_title"
+msgstr "Възстановяване на пълно резервно копие"
+
+msgid "backup_restore_full_subtitle"
+msgstr "Импортирайте .bgbackup архив, за да замените или обедините с текущата си библиотека."
+
+msgid "backup_rollback_title"
+msgstr "Отмяна на последното възстановяване"
+
+msgid "backup_rollback_subtitle"
+msgstr "Връщане към състоянието отпреди последното ви възстановяване. Възможно е още {remaining_hours} ч (резервното копие е създадено преди {age_hours} ч)."
+
+msgid "backup_rollback_dialog_title"
+msgstr "Да се отмени ли последното възстановяване?"
+
+msgid "backup_rollback_dialog_message"
+msgstr "Състоянието от последното ви възстановяване ще бъде оставено настрана за 24 ч, след което библиотеката, която сте имали точно преди това възстановяване, ще бъде върната. Приложението ще се затвори: стартирайте го отново, за да приключите."
+
+#. Inline button on the rollback tile (auto-backup card + settings).
+msgid "backup_rollback_button_undo"
+msgstr "Отмяна"
+
+#. Confirm button in the rollback dialog. Spelled out so it does not
+#. collide with the dialog's "Cancel" button.
+msgid "backup_rollback_dialog_confirm"
+msgstr "Отмяна на възстановяването"
+
+msgid "backup_rollback_error"
+msgstr "Възстановяването не можа да бъде отменено: {error}"
+
+#. Auto-backup (ADR-037 §6) - status badge titles + subtitles
+msgid "auto_backup_status_title_never"
+msgstr "Все още няма резервно копие"
+
+msgid "auto_backup_status_title_with_age"
+msgstr "Последно резервно копие на това устройство: {age}"
+
+msgid "auto_backup_status_subtitle_amber"
+msgstr "Препоръчително е да проверите автоматичното архивиране."
+
+msgid "auto_backup_status_subtitle_red"
+msgstr "Данните ви не са защитавани наскоро."
+
+msgid "auto_backup_status_subtitle_never_enabled"
+msgstr "Автоматичното архивиране скоро ще създаде първия си архив."
+
+msgid "auto_backup_status_subtitle_disabled"
+msgstr "Автоматичното архивиране е изключено."
+
+#. Auto-backup - relative-age formatting (Dart computes the value, .po
+#. supplies the unit). {n} is a non-negative integer.
+msgid "auto_backup_age_minutes"
+msgstr "преди {n} мин"
+
+msgid "auto_backup_age_hours"
+msgstr "преди {n} ч"
+
+msgid "auto_backup_age_days"
+msgstr "преди {n} д"
+
+#. Auto-backup bottom sheet (opened from the status badge)
+msgid "auto_backup_sheet_title"
+msgstr "Автоматично архивиране"
+
+msgid "auto_backup_sheet_toggle_label"
+msgstr "Автоматично архивиране на всеки 24 ч"
+
+msgid "auto_backup_sheet_toggle_subtitle"
+msgstr "Ежедневна криптирана снимка на каталога, само на това устройство (отменимо за 24 ч). Не е миграция между устройства."
+
+msgid "auto_backup_sheet_run_now"
+msgstr "Архивиране сега"
+
+msgid "auto_backup_sheet_section_archives"
+msgstr "Автоматични копия на това устройство"
+
+msgid "auto_backup_sheet_no_archives"
+msgstr "Все още няма автоматично копие на това устройство."
+
+msgid "auto_backup_sheet_restore_archive"
+msgstr "Възстановяване"
+
+msgid "auto_backup_sheet_clear_all"
+msgstr "Изчистване на автоматичните копия"
+
+msgid "auto_backup_sheet_clear_confirm_title"
+msgstr "Да се изтрият ли всички автоматични копия?"
+
+msgid "auto_backup_sheet_clear_confirm_message"
+msgstr "Това действие е необратимо."
+
+msgid "auto_backup_sheet_rollback_subtitle_hours_left"
+msgstr "Връщане към състоянието отпреди последното ви възстановяване. Възможно е още {hours} ч."
+
+#. Auto-backup - dialog shown when toggling on without a recovery code
+msgid "auto_backup_recovery_code_required_title"
+msgstr "Изисква се код за възстановяване"
+
+msgid "auto_backup_recovery_code_required_message"
+msgstr "Автоматичното архивиране криптира архивите ви с вашия код за възстановяване. Първо настройте своя hub указател, за да получите такъв, след което се върнете тук, за да го активирате."
+
+#. Auto-backup - SnackBars after manual run / restore-from-list
+msgid "auto_backup_restore_archive_hint"
+msgstr "За да възстановите {path}, отворете Възстановяване на резервно копие и изберете този файл."
+
+msgid "auto_backup_run_skipped_unchanged"
+msgstr "Няма промяна от последното резервно копие."
+
+msgid "auto_backup_run_disabled"
+msgstr "Автоматичното архивиране е изключено."
+
+msgid "auto_backup_run_no_secret"
+msgstr "Липсва код за възстановяване; архивът не може да бъде криптиран."
+
+msgid "auto_backup_run_failed"
+msgstr "Архивирането е неуспешно. Вижте дневниците за подробности."
+
+msgid "auto_backup_run_ok"
+msgstr "Архивирането е успешно."
+
+#. Auto-backup activation sheet (ADR-037 §6) - shown on every off->on
+#. toggle so the user picks (and sees) the secret used to encrypt
+#. archives before the first one is produced.
+msgid "auto_backup_activation_title"
+msgstr "Активиране на автоматичното архивиране"
+
+msgid "auto_backup_activation_explanation"
+msgstr "Автоматичното архивиране прави криптирана снимка на каталога ви (книги, екземпляри, заеми, контакти), за да можете да върнете на това устройство. Не включва вашата E2EE самоличност: за да мигрирате към ново устройство без повторно сдвояване с партньорите си, направете ръчно „Пълно резервно копие“ с отметнато „Включи самоличността“."
+
+msgid "auto_backup_activation_mode_recovery_code"
+msgstr "Използване на моя код за възстановяване"
+
+msgid "auto_backup_activation_mode_recovery_code_hint"
+msgstr "Кодът за възстановяване от вашия hub указател. Препоръчва се, ако вече имате такъв."
+
+msgid "auto_backup_activation_mode_passphrase"
+msgstr "Задаване на специална парола"
+
+msgid "auto_backup_activation_mode_passphrase_hint"
+msgstr "Различна от кода за възстановяване, предназначена за вашите локални резервни копия."
+
+msgid "auto_backup_activation_recovery_code_box_label"
+msgstr "Вашият код за възстановяване"
+
+msgid "auto_backup_activation_recovery_code_save_advice"
+msgstr "Запишете го и го пазете на сигурно място. Ще ви е необходим, за да възстановите архивите си на друго устройство."
+
+msgid "auto_backup_activation_recovery_code_missing"
+msgstr "Все още не е генериран код за възстановяване. Настройте своя hub указател, за да получите такъв, или изберете парола по-долу."
+
+msgid "auto_backup_activation_passphrase_label"
+msgstr "Парола"
+
+msgid "auto_backup_activation_passphrase_confirm_label"
+msgstr "Потвърдете паролата"
+
+msgid "auto_backup_activation_passphrase_save_advice"
+msgstr "Поне {min} знака. Запомнете я; не можем да я възстановим, ако я забравите."
+
+msgid "auto_backup_activation_passphrase_too_short"
+msgstr "Паролата трябва да е поне {min} знака."
+
+msgid "auto_backup_activation_passphrase_mismatch"
+msgstr "Двете пароли не съвпадат."
+
+msgid "auto_backup_activation_activate"
+msgstr "Активиране"
+
+#. Auto-backup clone-export nudge banner: surfaces in the bottom sheet
+#. when the user has been on auto-backup for a while without a recent
+#. clone-mode export (ADR-037 §6).
+msgid "auto_backup_clone_nudge_title"
+msgstr "Обмислете пълен експорт със самоличност"
+
+msgid "auto_backup_clone_nudge_body"
+msgstr "Автоматичното архивиране обхваща само каталога ви. За да мигрирате към ново устройство без повторно E2EE сдвояване с партньорите си, периодично правете „Пълно резервно копие“ с отметнато „Включи самоличността“ и пазете файла извън устройството (iCloud Drive, криптиран USB и др.)."
+
+msgid "auto_backup_clone_nudge_export"
+msgstr "Експортиране сега"
+
+msgid "auto_backup_clone_nudge_snooze"
+msgstr "По-късно"

@@ -2601,12 +2601,7 @@ msgstr "\"Ağ\" bölümü, eklediğiniz kütüphanelerin kataloglarını keşfet
 
 #. 1. Create thematic shelves for your books (e.g., \"SciFi\", \"Favorites\").\n2. In your Library, tap a shelf to filter.\n3. Tap the Sort icon (≡) to enter reorder mode.\n4. Drag books to your preferred order, or tap A→Z for auto-sort by author.\n5. Tap ✓ to save your custom arrangement!
 msgid "help_desc_organize_shelf"
-msgstr "1. Kitaplarınız için tematik raflar oluşturun (örn. "Bilim Kurgu", "Favoriler").\n2. Kütüphanenizde, filtrelemek için bir rafa dokunun.\n3. Yeniden düzenleme moduna girmek için Sırala simgesine (≡) dokunun.\n4. Kitapları tercih ettiğiniz sıraya sürükleyin veya yazara göre otomatik sıralama için A→Z'ye dokunun.\n5. Özel düzenlemenizi kaydetmek için ✓ düğmesine dokunun!"
-"1. Create thematic shelves for your books (e.g., \"SciFi\", \"Favorites\").\n"
-"2. In your Library, tap a shelf to filter.\n"
-"3. Tap the Sort icon (≡) to enter reorder mode.\n"
-"4. Drag books to your preferred order, or tap A→Z for auto-sort by author.\n"
-"5. Tap ✓ to save your custom arrangement!"
+msgstr "1. Kitaplarınız için tematik raflar oluşturun (örn. \"Bilim Kurgu\", \"Favoriler\").\n2. Kütüphanenizde, filtrelemek için bir rafa dokunun.\n3. Yeniden düzenleme moduna girmek için Sırala simgesine (≡) dokunun.\n4. Kitapları tercih ettiğiniz sıraya sürükleyin veya yazara göre otomatik sıralama için A→Z'ye dokunun.\n5. Özel düzenlemenizi kaydetmek için ✓ düğmesine dokunun!"
 
 #. Open a book and tap \"Mark as Reading\" to start tracking. Update your progress as you read. When finished, mark it as \"Read\" to earn XP and unlock achievements!
 msgid "help_desc_reading_progress"
@@ -5824,3 +5819,3853 @@ msgstr "Cihazlarımı senkronize et"
 
 msgid "settings_linked_devices_desc"
 msgstr "Aynı Wi-Fi ağına bağlı tüm cihazlarınızda (mobil / tablet / masaüstü) kütüphanenizi güncel tutun. Uçtan uca şifreli aktarım."
+
+#. 10 Books Collected
+msgid "achievement_collector_10"
+msgstr "Büyüyen Koleksiyon"
+
+#. 100 Books Collected
+msgid "achievement_collector_100"
+msgstr "Yüzbaşı"
+
+#. First Book Read
+msgid "achievement_first_read"
+msgstr "İlk Okuma"
+
+#. First Memory Game
+msgid "achievement_memory_first_game"
+msgstr "Hafıza Acemisi"
+
+#. Master Difficulty
+msgid "achievement_memory_master"
+msgstr "Hafıza Büyük Ustası"
+
+#. Perfect Game
+msgid "achievement_memory_perfect"
+msgstr "Kusursuz Hafıza"
+
+#. Sliding Puzzle - First Game
+msgid "achievement_puzzle_first_game"
+msgstr "Yapboz Acemisi"
+
+#. Sliding Puzzle - Solved in par moves or fewer
+msgid "achievement_puzzle_perfect"
+msgstr "Yapboz Mükemmeliyetçisi"
+
+#. Sliding Puzzle - Completed a 5x5 puzzle
+msgid "achievement_puzzle_master"
+msgstr "Yapboz Ustası"
+
+#. 10 Books Read
+msgid "achievement_reader_10"
+msgstr "Kitap Kurdu"
+
+#. 30 Day Streak
+msgid "achievement_streak_30"
+msgstr "Ayın Şampiyonu"
+
+#. Contextual add book title (with destination name)
+msgid "add_book_to_title"
+msgstr "Şuraya ekle"
+
+#. Add collection hint (inline field placeholder)
+msgid "add_collection_hint"
+msgstr "Bir koleksiyon adı yazın..."
+
+#. Author - when authors already added
+msgid "author_hint_add"
+msgstr "Başka bir yazar ekle..."
+
+#. Helper text for author field
+msgid "author_helper"
+msgstr "Birden fazla yazarı tek tek ekleyin"
+
+#. Is your copy available or lent out?
+msgid "availability_helper"
+msgstr "Nüshanız mevcut mu yoksa ödünç mü verildi?"
+
+#. Short-hand for an average loan duration below one day (loan statistics card)
+msgid "avg_duration_under_one_day"
+msgstr "< 1 g"
+
+#. Description for average rating insight
+msgid "avg_rating_desc"
+msgstr "%1 puanlanan kitabın ortalaması"
+
+#. Description for average reading time insight
+msgid "avg_reading_time_desc"
+msgstr "Başlangıç ve bitiş tarihi olan %1 kitaba göre"
+
+#. Contact has this book in their library
+msgid "contact_has_book"
+msgstr "Bu kitaba sahip"
+
+#. Error borrowing book - library not initialized
+msgid "error_borrow_setup_incomplete"
+msgstr "Ödünç alma kaydedilemedi. Kütüphane kurulumunuzu tamamlamak için Ayarlar'a gidin."
+
+#. Books finished this year
+msgid "books_finished_year"
+msgstr "Bu Yıl Bitirilenler"
+
+#. Description for books finished this year insight
+msgid "books_finished_year_desc"
+msgstr "%1 yılında bitirilen kitaplar"
+
+#. books (suffix)
+msgid "books_suffix"
+msgstr "kitap"
+
+#. Borrow request already pending
+msgid "borrow_pending"
+msgstr "Talep edildi"
+
+#. Already borrowing this book from this peer (accepted loan)
+msgid "borrow_active"
+msgstr "Ödünç alındı"
+
+#. Currently lending this book to this peer
+msgid "borrow_on_loan"
+msgstr "Ödünçte"
+
+#. No copies available to borrow
+msgid "borrow_unavailable"
+msgstr "Mevcut değil"
+
+#. Borrow request auto-rejected
+msgid "borrow_request_rejected_no_copy"
+msgstr "Talep reddedildi: bu kütüphanede uygun nüsha yok."
+
+msgid "borrow_request_accepted"
+msgstr "Ödünç alma kabul edildi! Kitap kütüphanenize eklendi."
+
+#. Collection tag (library grouped view)
+msgid "collection_tag"
+msgstr "Koleksiyon"
+
+#. Group books together, e.g. Summer reads, Book club
+msgid "collections_helper"
+msgstr "Kitapları birlikte gruplayın, örn. Yaz okumaları, Kitap kulübü"
+
+#. Coming soon
+msgid "coming_soon"
+msgstr "Yakında"
+
+#. Auto-approve loan requests
+msgid "auto_approve_loans_title"
+msgstr "Ödünç taleplerini otomatik onayla"
+
+#. Automatically accept loan requests from approved contacts
+msgid "auto_approve_loans_desc"
+msgstr "Onaylı kişilerden gelen ödünç taleplerini otomatik kabul et"
+
+#. You have {count} pending connection request(s)
+msgid "pending_connections_banner"
+msgstr "{count} bekleyen bağlantı talebiniz var"
+
+#. Review
+msgid "review_connections"
+msgstr "İncele"
+
+#. Pending requests
+msgid "pending_requests_section"
+msgstr "Bekleyen talepler"
+
+#. Accept
+msgid "accept_connection"
+msgstr "Kabul et"
+
+#. Reject
+msgid "reject_connection"
+msgstr "Reddet"
+
+#. Cover photo error
+msgid "cover_photo_error"
+msgstr "Fotoğraf çekilemedi"
+
+#. Cover photo saved
+msgid "cover_photo_saved"
+msgstr "Kapak fotoğrafı kaydedildi"
+
+#. Take a photo
+msgid "cover_take_photo"
+msgstr "Fotoğraf çek"
+
+#. Take a photo of the cover
+msgid "cover_take_photo_tooltip"
+msgstr "Kapağın fotoğrafını çek"
+
+msgid "cover_label"
+msgstr "Kapak"
+
+msgid "cover_take_photo_short"
+msgstr "Fotoğraf"
+
+msgid "cover_choose_short"
+msgstr "Galeri"
+
+#. days ago (suffix)
+msgid "days_ago_suffix"
+msgstr "g."
+
+#. Last book finished
+msgid "days_since_last"
+msgstr "Son Bitirilen Kitap"
+
+#. Description for days since last finished book
+msgid "days_since_last_desc"
+msgstr "Son bitirdiğiniz kitaptan bu yana geçen süre"
+
+#. Return the borrowed copy before deleting.
+msgid "delete_disabled_borrowed_tooltip"
+msgstr "Silmeden önce ödünç aldığınız nüshayı iade edin."
+
+#. Mark the loaned copy as returned before deleting.
+msgid "delete_disabled_lent_tooltip"
+msgstr "Silmeden önce ödünç verilen nüshayı iade edilmiş olarak işaretleyin."
+
+#. Also delete the books in this collection (checkbox label, off by default)
+msgid "delete_collection_include_books"
+msgstr "Bu koleksiyondaki kitapları da sil"
+
+#. "{to_delete} to delete, {to_keep} kept" - preview shown below the checkbox
+msgid "delete_collection_preview_summary"
+msgstr "{to_delete} silinecek, {to_keep} korunacak"
+
+#. Legend shown below the preview summary in the delete-with-books confirmation
+msgid "delete_collection_preview_legend"
+msgstr "Korunan kitaplar: ödünç verilmiş, ödünç alınmış, başka bir koleksiyonda veya bir rafta."
+
+#. Are you sure you want to delete the shelf "%s"? This action cannot be undone.
+msgid "delete_shelf_confirm"
+msgstr "\"%s\" rafını silmek istediğinizden emin misiniz? Bu işlem geri alınamaz."
+
+#. Select which formats you own
+msgid "digital_formats_helper"
+msgstr "Sahip olduğunuz formatları seçin"
+
+#. Header for collections available in the user's reading languages
+msgid "curated_section_in_your_languages"
+msgstr "Dillerinizde"
+
+#. Header for collections in other languages, shown collapsed by default
+msgid "curated_section_other_languages"
+msgstr "Diğer diller"
+
+#. Hint shown below the "other languages" header when collapsed
+msgid "curated_other_languages_hint"
+msgstr "Seçmediğiniz dillerde {count} tane daha"
+
+#. Search placeholder in loans tabs
+msgid "search_loans"
+msgstr "Başlığa veya ada göre ara..."
+
+#. Clear returned loans history
+msgid "clean_returned_loans"
+msgstr "Geçmişi temizle"
+
+#. Confirmation dialog for clearing returned loans
+msgid "clean_returned_loans_confirm"
+msgstr "%d iade edilen ödünç silinsin mi? Bu işlem geri alınamaz."
+
+#. Success message after clearing returned loans
+msgid "clean_returned_loans_success"
+msgstr "%d iade edilen ödünç silindi"
+
+#. No returned loans to clear
+msgid "clean_returned_loans_empty"
+msgstr "Temizlenecek iade edilmiş ödünç yok"
+
+#. Clear closed requests history
+msgid "clean_closed_requests"
+msgstr "Geçmişi temizle"
+
+#. Confirmation dialog for clearing closed requests
+msgid "clean_closed_requests_confirm"
+msgstr "%d kapatılan talep silinsin mi? Bu işlem geri alınamaz."
+
+#. Success message after clearing closed requests
+msgid "clean_closed_requests_success"
+msgstr "%d kapatılan talep silindi"
+
+#. No closed requests to clear
+msgid "clean_closed_requests_empty"
+msgstr "Temizlenecek kapatılmış talep yok"
+
+#. Lending
+msgid "enable_lending_module"
+msgstr "Ödünç verme"
+
+#. Allow lending your books to your contacts
+msgid "lending_module_desc"
+msgstr "Kitaplarınızı kişilerinize ödünç vermeye izin verin"
+
+#. Loans modules disabled
+msgid "loans_disabled_title"
+msgstr "Ödünçler devre dışı"
+
+#. Both lending and borrowing modules are off. Re-enable them in Settings to manage loans here.
+msgid "loans_disabled_body"
+msgstr "Ödünç verme ve ödünç alma modüllerinin ikisi de kapalı. Ödünçleri burada yönetmek için bunları Ayarlar'dan yeniden etkinleştirin."
+
+#. Open Settings
+msgid "loans_disabled_open_settings"
+msgstr "Ayarları aç"
+
+#. No available copy for loan request
+msgid "error_no_available_copy"
+msgstr "Bu kitabın uygun nüshası yok. Tüm nüshalar şu anda ödünçte."
+
+#. Something went wrong
+msgid "error_unexpected_title"
+msgstr "Bir şeyler ters gitti"
+
+#. The app encountered an unexpected error. Please try again.
+msgid "error_unexpected_message"
+msgstr "Uygulama beklenmeyen bir hatayla karşılaştı. Lütfen tekrar deneyin."
+
+#. Description for fastest read insight
+msgid "fastest_read_desc"
+msgstr "En kısa sürede bitirilen kitap"
+
+#. Description for best rated insight
+msgid "best_rated_desc"
+msgstr "En yüksek puanlı kitabınız"
+
+#. Empty state for insights with no data
+msgid "insight_no_data"
+msgstr "Henüz veri yok"
+
+#. Active loans (not overdue)
+msgid "filter_active"
+msgstr "Devam eden"
+
+#. Overdue loans
+msgid "filter_overdue"
+msgstr "Gecikmiş"
+
+#. Returned loans
+msgid "filter_returned"
+msgstr "İade edildi"
+
+#. All months (date filter placeholder)
+msgid "filter_all_months"
+msgstr "Tüm dönemler"
+
+#. Games
+msgid "filter_games"
+msgstr "Oyunlar"
+
+#. When you finished this book
+msgid "finished_reading_helper"
+msgstr "Bu kitabı ne zaman bitirdiniz"
+
+#. Tag shown next to the Google Books toggle title to flag it as needing extra setup
+msgid "google_books_advanced_tag"
+msgstr "Gelişmiş"
+
+#. Badge shown on the Google Books filter chip when no API key is set
+msgid "google_books_no_api_key_badge"
+msgstr "API anahtarı yok"
+
+#. SnackBar shown when filtering by Google Books without an API key
+msgid "google_books_no_api_key_snackbar"
+msgstr "Google Books anonim kotasını hızla tüketir. Ayarlar'dan bir API anahtarı ekleyin."
+
+#. Info banner shown under the Google Books toggle when no API key is set
+msgid "google_books_no_api_key_warning"
+msgstr "Google Books, anahtarı olmayan tüm kullanıcılar arasında katı bir anonim kota paylaşır. Güvenilir sonuçlar için aşağıya ücretsiz bir API anahtarı ekleyin."
+
+#. Clickable link below the Google Books API key field
+msgid "google_books_api_key_help_link"
+msgstr "Google API anahtarı nasıl alınır"
+
+#. Play
+msgid "help_cta_play_memory"
+msgstr "Oyna"
+
+#. View my profile
+msgid "help_cta_profile"
+msgstr "Profilimi görüntüle"
+
+#. Average rating of your books grouped by shelf and collection. Only groups with at least 3 rated books are shown.
+msgid "help_ctx_stats_rating_by_group"
+msgstr "Raf ve koleksiyona göre gruplanan kitaplarınızın ortalama puanı. Yalnızca en az 3 puanlanmış kitabı olan gruplar gösterilir."
+
+#. Test your memory with your book covers
+msgid "help_desc_memory_game"
+msgstr "Kitap kapaklarınızla hafızanızı sınayın"
+
+#. Your profile lets you customize the app: change themes, enable optional modules (audio, games, collections), configure external search sources (Google Books, BNF, OpenLibrary), and manage your account.
+msgid "help_desc_profile"
+msgstr "Profiliniz, uygulamayı kişiselleştirmenizi sağlar: temaları değiştirin, isteğe bağlı modülleri (ses, oyunlar, koleksiyonlar) etkinleştirin, harici arama kaynaklarını (Google Books, BNF, OpenLibrary) yapılandırın ve hesabınızı yönetin."
+
+#. Use the barcode scanner to instantly identify books. Point your camera at the ISBN barcode on the back cover. BiblioGenius will search multiple catalogs and auto-fill all metadata (title, author, cover, publisher).
+msgid "help_desc_scan"
+msgstr "Kitapları anında tanımlamak için barkod tarayıcıyı kullanın. Kameranızı arka kapaktaki ISBN barkoduna doğrultun. BiblioGenius birden fazla katalogda arama yapar ve tüm üst verileri (başlık, yazar, kapak, yayıncı) otomatik doldurur."
+
+#. View detailed stats about your reading habits: books read per month, favorite genres, top authors, publication years, and more. Track your progress over time and compare with friends on the leaderboard.
+msgid "help_desc_statistics"
+msgstr "Okuma alışkanlıklarınız hakkında ayrıntılı istatistikleri görüntüleyin: aylık okunan kitaplar, favori türler, en çok okunan yazarlar, yayın yılları ve daha fazlası. Zaman içindeki ilerlemenizi takip edin ve sıralamada arkadaşlarınızla karşılaştırın."
+
+#. How to scan a barcode?
+msgid "help_topic_scan"
+msgstr "Barkod nasıl taranır?"
+
+#. My statistics and achievements
+msgid "help_topic_statistics"
+msgstr "İstatistiklerim ve başarılarım"
+
+#. Scan a Book
+msgid "help_cta_scan"
+msgstr "Kitap tara"
+
+#. Import my books
+msgid "help_cta_import"
+msgstr "Kitaplarımı içe aktar"
+
+#. View my stats
+msgid "help_cta_go_to_stats"
+msgstr "İstatistiklerimi görüntüle"
+
+#. See all help topics
+msgid "help_see_all"
+msgstr "Tüm yardım konularını gör"
+
+#. Sync multiple devices
+msgid "help_topic_device_sync"
+msgstr "Birden fazla cihazı eşitle"
+
+#. Sync multiple devices
+msgid "help_desc_device_sync"
+msgstr "BiblioGenius, kütüphanenizi sahip olduğunuz birden fazla cihaz (telefon, tablet, masaüstü) arasında eşitlenmiş tutabilir. Eşitleme yerel Wi-Fi ağınız üzerinden gerçekleşir: tüm cihazlar aynı ağa bağlı olmalıdır. Aktarımlar uçtan uca şifrelidir; bu nedenle ne internet sağlayıcınız ne de herhangi bir aracı verilerinizi okuyabilir.\n\nYeni bir cihazı eşleştirmek için:\n1. İlk cihazınızda 6 haneli bir kod oluşturun.\n2. İkinci cihazda bu kodu 5 dakika içinde girin.\n3. İki cihaz anahtarları değiştirir ve eşitlemeye başlar.\n\n3 veya daha fazla cihaz için işlemi her çift arasında tekrarlayın."
+
+#. Sync multiple devices CTA
+msgid "help_cta_open_device_sync"
+msgstr "Cihazlarımı yönet"
+
+#. Memory Game
+msgid "help_topic_memory_game"
+msgstr "Hafıza Oyunu"
+
+#. How to customize the app?
+msgid "help_topic_profile"
+msgstr "Uygulama nasıl kişiselleştirilir?"
+
+#. No peers at this level
+msgid "leaderboard_empty_filter"
+msgstr "Bu seviyede yakında kütüphane yok"
+
+#. Shown after a manual leaderboard refresh when the Rust backend hit its 25s per-peer relay timeout
+msgid "leaderboard_sync_timeout"
+msgstr "Bazı kütüphaneler zamanında yanıt vermedi"
+
+#. Rename library dialog title
+msgid "rename_library_title"
+msgstr "Kütüphane adı"
+
+#. Rename library hint
+msgid "rename_library_hint"
+msgstr "Örn. Marie'nin Kütüphanesi"
+
+#. More (bottom navigation)
+msgid "nav_more"
+msgstr "Daha fazla"
+
+#. Bottom nav short labels
+msgid "btm_library"
+msgstr "Kitaplar"
+
+msgid "btm_network"
+msgstr "Kişiler"
+
+msgid "btm_loans"
+msgstr "Ödünçler"
+
+msgid "btm_profile"
+msgstr "Profil"
+
+msgid "btm_stats"
+msgstr "Genel bakış"
+
+#. Pages (suffix)
+msgid "pages_suffix"
+msgstr "s."
+
+#. Enter your password to unlock the app
+msgid "login_local_password_subtitle"
+msgstr "Kütüphanenize erişmek için parolanızı girin"
+
+#. Remove password
+msgid "remove_password"
+msgstr "Parolayı kaldır"
+
+#. Remove password confirmation
+msgid "remove_password_confirm"
+msgstr "Parolayı kaldırmak istediğinizden emin misiniz? Herkes kütüphanenize erişebilecek."
+
+#. Password removed successfully
+msgid "password_removed_success"
+msgstr "Parola başarıyla kaldırıldı"
+
+#. Hub-only data hint shown when only ISBN/title/author available
+msgid "hub_only_hint"
+msgstr "Katalog önizlemesi. Tüm ayrıntılar için aynı Wi-Fi ağına bağlanın."
+
+#. Detail hint for hub-only entries
+msgid "hub_only_detail_hint"
+msgstr "Tüm ayrıntıları görmek için aynı Wi-Fi'ye bağlanın veya bu kütüphanenin çevrimiçi olmasını bekleyin."
+
+#. Short library ID for peer disambiguation
+msgid "peer_short_id"
+msgstr "Kimlik: %s"
+
+#. Title, author, ISBN...
+msgid "peer_library_search_hint"
+msgstr "Başlık, yazar, ISBN..."
+
+#. Reader preset legend
+msgid "preset_reader_legend"
+msgstr "Okumayı seviyorum ve kitaplarımı takip etmek istiyorum"
+
+#. Librarian preset legend
+msgid "preset_librarian_legend"
+msgstr "Bir kütüphaneyi veya büyük bir koleksiyonu yönetiyorum"
+
+#. Bookseller preset legend
+msgid "preset_bookseller_legend"
+msgstr "Profesyonel olarak veya hobi olarak kitap satıyorum"
+
+#. Reader
+msgid "profile_reader"
+msgstr "Okuyucu"
+
+#. Manage your personal library, reading lists, and wishlists.
+msgid "profile_reader_desc"
+msgstr "Kişisel kütüphanenizi, okuma listelerinizi ve istek listelerinizi yönetin."
+
+#. Family
+msgid "profile_family"
+msgstr "Aile"
+
+#. Share a family library with multiple readers.
+msgid "profile_family_desc"
+msgstr "Birden fazla okuyucuyla bir aile kütüphanesi paylaşın."
+
+#. Educator
+msgid "profile_educator"
+msgstr "Eğitimci"
+
+#. Manage a classroom or school library.
+msgid "profile_educator_desc"
+msgstr "Bir sınıf veya okul kütüphanesini yönetin."
+
+#. Association
+msgid "profile_association"
+msgstr "Dernek"
+
+#. Manage resources for an association or community group.
+msgid "profile_association_desc"
+msgstr "Bir dernek veya topluluk grubu için kaynakları yönetin."
+
+#. My contacts
+msgid "quick_my_contacts"
+msgstr "Kişiler"
+
+#. Inventory (batch scan into a shelf)
+msgid "quick_inventory"
+msgstr "Envanter"
+
+#. Add book manually
+msgid "quick_add_manual"
+msgstr "Elle ekle"
+
+#. Choose shortcut (custom quick action picker)
+msgid "quick_action_choose"
+msgstr "Kısayol seç"
+
+#. Choose a shelf for inventory scan
+msgid "choose_shelf_for_inventory"
+msgstr "Bir raf seçin"
+
+#. No shelves exist yet for inventory
+msgid "no_shelves_for_inventory"
+msgstr "Envanter modunu kullanmak için önce bir raf oluşturun."
+
+#. Batch scan
+msgid "quick_batch_scan"
+msgstr "Toplu tarama"
+
+#. Manage shelves
+msgid "quick_manage_shelves"
+msgstr "Rafları yönet"
+
+#. Import CSV file
+msgid "quick_import_csv"
+msgstr "CSV içe aktar"
+
+#. Import from Gleeph
+msgid "quick_import_gleeph"
+msgstr "Gleeph içe aktar"
+
+#. Import from Goodreads
+msgid "quick_import_goodreads"
+msgstr "Goodreads içe aktar"
+
+#. Share library
+msgid "quick_share_library"
+msgstr "Kütüphaneyi paylaş"
+
+#. Country / Market
+msgid "settings_country"
+msgstr "Ülke"
+
+#. Toggle: opt in to share city in the public directory (ADR-035)
+msgid "settings_share_city"
+msgstr "Şehrimi paylaş"
+
+#. Description for the share-my-city toggle
+msgid "settings_share_city_desc"
+msgstr "Yakındaki okuyucuların sizi bulabilmesi için şehrinizi herkese açık profilinize ekler. Varsayılan olarak kapalıdır."
+
+#. Placeholder shown in the city picker before the user has chosen one
+msgid "settings_city_pick"
+msgstr "Bir şehir seçin"
+
+#. Shown when a stored city id no longer resolves (corrupt local cache)
+msgid "settings_city_unknown"
+msgstr "Bilinmeyen şehir"
+
+#. City picker error: hub has no static file for this country yet
+msgid "settings_city_unavailable"
+msgstr "Bu ülke için henüz şehir verisi yok. Lütfen daha sonra tekrar deneyin."
+
+#. A11y label for the city picker button in settings (ADR-035, RGAA A1)
+msgid "settings_open_city_picker_a11y"
+msgstr "Şehir seçiciyi aç"
+
+#. City picker empty state: search returned nothing
+msgid "settings_city_no_match"
+msgstr "Eşleşen şehir yok."
+
+#. Generic search input placeholder (city picker, country picker, etc.)
+msgid "search"
+msgstr "Ara"
+
+#. Ratings by Category
+msgid "rating_by_group"
+msgstr "Kategoriye Göre Puanlar"
+
+#. By Collection
+msgid "rating_by_group_collections"
+msgstr "Koleksiyona göre"
+
+#. %1 rated books
+msgid "rating_by_group_rated_books"
+msgstr "%1 puanlanmış kitap"
+
+#. By Shelf
+msgid "rating_by_group_shelves"
+msgstr "Rafa göre"
+
+msgid "page_count_label"
+msgstr "Sayfalar"
+
+msgid "page_count_hint"
+msgstr "Sayfa sayısı"
+
+#. Reading Streak
+msgid "reading_streak"
+msgstr "Okuma Serisi"
+
+#. Description for reading streak insight
+msgid "reading_streak_desc"
+msgstr "Devam eden bir kitapla geçirilen ardışık günler"
+
+#. Reading streak suffix
+msgid "reading_streak_suffix"
+msgstr "g."
+
+#. Remove from collection (action label)
+msgid "remove_from_collection"
+msgstr "Koleksiyondan çıkar"
+
+#. Marked as owned (snackbar)
+msgid "marked_as_owned"
+msgstr "Sahip olarak işaretlendi"
+
+#. Marked as wanted (snackbar)
+msgid "marked_as_wanted"
+msgstr "İstenen olarak işaretlendi"
+
+#. Confirm delete request
+msgid "request_delete_confirm"
+msgstr "Bu talep silinsin mi?"
+
+#. Hub Borrow - Via Hub badge
+msgid "hub_borrow_via_hub"
+msgstr "Hub üzerinden"
+
+#. Hub Borrow - Follow required
+msgid "hub_borrow_no_follow"
+msgstr "Ödünç talep etmek için önce bu kütüphaneyi takip edin"
+
+#. Hub Borrow - Duplicate pending request
+msgid "hub_borrow_duplicate"
+msgstr "Bu kitap için zaten bekleyen bir talebiniz var"
+
+#. Hub - Allow borrowing toggle
+msgid "hub_allow_borrowing"
+msgstr "Ödünç alma taleplerine izin ver"
+
+#. Hub - Allow borrowing description
+msgid "hub_allow_borrowing_desc"
+msgstr "Takipçilerinizin kitaplarınızı hub üzerinden ödünç almayı talep etmesine izin verin"
+
+#. Hub - Borrowing disabled message
+msgid "hub_borrowing_disabled"
+msgstr "Bu kütüphane ödünç alma taleplerini kabul etmiyor"
+
+#. Hub - Online features master toggle (title)
+msgid "hub_coming_soon_toggle"
+msgstr "Çevrimiçi özellikler"
+
+#. Hub - Online features master toggle (subtitle)
+msgid "hub_coming_soon_desc"
+msgstr "Takip ve ödünç taleplerini gerçek zamanlı alın ve kütüphanenizi herkese açık dizinde yayımlama seçeneklerinin kilidini açın."
+
+#. Generic coming soon chip
+msgid "coming_soon_chip"
+msgstr "Yakında"
+
+#. Hub - Contact info
+msgid "hub_contact_label"
+msgstr "İletişim bilgileri (onaylı takipçilere görünür)"
+
+msgid "hub_contact_hint"
+msgstr "E-posta, telefon, adres..."
+
+msgid "hub_contact_encrypted_notice"
+msgstr "Şifreli - yalnızca onaylı takipçilerinize görünür"
+
+#. Hub - Website
+msgid "hub_website_label"
+msgstr "Web sitesi (isteğe bağlı)"
+
+#. Hub - Contact info title (peer detail)
+msgid "hub_contact_info_title"
+msgstr "İletişim"
+
+#. Hub - Discover disabled (deprecated: replaced by in-tab CTA banner)
+msgid "hub_disabled_discover"
+msgstr "Diğer kütüphaneleri keşfetmek için Ayarlar'dan herkese açık dizini etkinleştirin."
+
+#. Hub - Publish CTA banner in Discover tab: title
+msgid "directory_publish_banner_title"
+msgstr "Herkese açık dizinde görünün"
+
+#. Hub - Publish CTA banner: description
+msgid "directory_publish_banner_desc"
+msgstr "Diğer okuyucuların kütüphanenizi bulabilmesi, takip edebilmesi ve ondan ödünç alabilmesi için onu paylaşın. Ayarlar'dan istediğiniz zaman vazgeçebilirsiniz."
+
+#. Hub - Publish CTA banner: button label
+msgid "directory_publish_banner_cta"
+msgstr "Kütüphanemi yayımla"
+
+#. Hub - Publish CTA banner: success snackbar
+msgid "directory_publish_success"
+msgstr "Kütüphaneniz artık herkese açık dizinde listeleniyor."
+
+#. Hub - Onboarding first-time banner: title
+msgid "discover_onboard_title"
+msgstr "Herkese açık dizine hoş geldiniz"
+
+#. Hub - Onboarding first-time banner: description (contrast with P2P)
+msgid "discover_onboard_desc"
+msgstr "Herhangi bir herkese açık kütüphaneyi takip edebilir ve kataloğuna göz atabilirsiniz. Bu, doğrudan P2P kişilerinizden farklıdır: burada ilişki tek yönlüdür - sizi geri takip etmedikleri sürece kütüphanenizi görmezler."
+
+#. Hub - Onboarding dismiss button
+msgid "discover_onboard_dismiss"
+msgstr "Anladım"
+
+#. Hub - Discover tab contextual help: title
+msgid "help_ctx_discover_title"
+msgstr "Herkese açık dizin yardımı"
+
+#. Hub - Discover tab contextual help: main content
+msgid "help_ctx_discover_content"
+msgstr "Diğer BiblioGenius okuyucularının kütüphanelerini keşfedin. Kataloglarına erişmek ve ödünç talep etmek için ilginizi çekenleri takip edin."
+
+#. Hub - Discover help tip: unidirectional
+msgid "help_ctx_discover_tip_unidirectional"
+msgstr "Tek yönlü takip"
+
+#. Hub - Discover help tip: unidirectional description
+msgid "help_ctx_discover_tip_unidirectional_desc"
+msgstr "Bir P2P kişisinin (çift yönlü) aksine, dizin takibi tek yönlüdür: takip ettiğiniz kütüphane kütüphanenizi otomatik olarak görmez."
+
+#. Hub - Discover help tip: follow action
+msgid "help_ctx_discover_tip_follow"
+msgstr "Ödünç almak için takip et"
+
+#. Hub - Discover help tip: follow action description
+msgid "help_ctx_discover_tip_follow_desc"
+msgstr "Tam kataloğa erişmek ve o kütüphaneden kitap ödünç almak için \"Takip et\"e dokunun."
+
+#. Network card badge: direct P2P connection type
+msgid "connection_type_p2p"
+msgstr "Doğrudan eş"
+
+#. Network card badge: hub follow connection type
+msgid "connection_type_hub"
+msgstr "Dizin takibi"
+
+#. Relay Hub
+msgid "relay_hub_title"
+msgstr "Aktarma Hub'ı"
+
+#. Relay hub description
+msgid "relay_hub_desc"
+msgstr "Yerel ağınızın dışında iletişim için bir aktarmaya bağlanın"
+
+#. Connect to relay
+msgid "relay_connect"
+msgstr "Bağlan"
+
+#. Disconnect from relay
+msgid "relay_disconnect"
+msgstr "Bağlantıyı kes"
+
+#. Relay connected status
+msgid "relay_connected"
+msgstr "Bağlandı"
+
+#. Relay disconnected status
+msgid "relay_disconnected"
+msgstr "Bağlı değil"
+
+#. Remote server URL label
+msgid "relay_url_label"
+msgstr "Uzak sunucu URL'si"
+
+#. Shelf Picker
+msgid "search_shelves_hint"
+msgstr "Raflarda ara..."
+
+#. Shelf Picker
+msgid "shelves_selected"
+msgstr "seçili"
+
+#. Shelf Picker - Empty state
+msgid "no_shelves_yet"
+msgstr "Henüz raf yok"
+
+#. Shelf Picker - Search empty
+msgid "no_shelves_match"
+msgstr "Eşleşen raf yok"
+
+#. Offline banner shown on scan screen when no internet
+msgid "scan_offline_banner"
+msgstr "Çevrimdışı - üst veri araması kullanılamıyor"
+
+#. Dialog message when scan fails due to offline
+msgid "scan_offline_message"
+msgstr "Üst veri araması internet bağlantısı gerektirir. Bu kitabı yalnızca ISBN ile elle ekleyebilirsiniz."
+
+#. Dialog title when scan fails due to offline
+msgid "scan_offline_title"
+msgstr "İnternet bağlantısı yok"
+
+#. Search books or actions (import, scan...)
+msgid "search_actions_placeholder"
+msgstr "Kitap veya eylem ara..."
+
+#. Account section in settings
+msgid "account"
+msgstr "Hesap"
+
+#. Network
+msgid "settings_network_title"
+msgstr "Ağ"
+
+#. How sharing works
+msgid "settings_sharing_modes_title"
+msgstr "Paylaşım nasıl çalışır"
+
+#. Invite link
+msgid "settings_mode_invite_title"
+msgstr "Davet bağlantısı"
+
+#. Works on any network (WiFi, 4G, 5G). Share a link or QR code privately.
+msgid "settings_mode_invite_desc"
+msgstr "Her ağda çalışır (Wi-Fi, 4G, 5G). Bir bağlantıyı veya QR kodunu özel olarak paylaşın."
+
+#. WiFi discovery
+msgid "settings_mode_wifi_title"
+msgstr "Wi-Fi keşfi"
+
+#. Auto-detect nearby libraries on your local WiFi.
+msgid "settings_mode_wifi_desc"
+msgstr "Yerel Wi-Fi'nizdeki yakın kütüphaneleri otomatik algılar."
+
+#. Public directory
+msgid "settings_mode_directory_title"
+msgstr "Herkese açık dizin"
+
+#. Be listed for anyone to discover and follow.
+msgid "settings_mode_directory_desc"
+msgstr "Herkesin keşfedip takip edebilmesi için listelenin."
+
+#. Reachable remotely
+msgid "settings_remote_reachable"
+msgstr "Uzaktan erişilebilir"
+
+#. Your invited contacts can reach you on any network
+msgid "settings_remote_reachable_desc"
+msgstr "Davet ettiğiniz kişiler size her ağdan ulaşabilir"
+
+#. Technical details
+msgid "settings_remote_reachable_details"
+msgstr "Teknik ayrıntılar"
+
+#. This link works on any network
+msgid "invite_works_everywhere"
+msgstr "Bu bağlantı her ağda çalışır: Wi-Fi, 4G veya 5G. Alıcının yakında olması gerekmez."
+
+#. Local network
+msgid "settings_network_local"
+msgstr "Yerel ağ"
+
+#. Automatic discovery on Wi-Fi
+msgid "settings_network_discovery"
+msgstr "Wi-Fi'de otomatik keşif"
+
+#. Makes your library visible to nearby devices on the same Wi-Fi
+msgid "settings_network_discovery_desc"
+msgstr "Kütüphanenizi aynı Wi-Fi'deki yakın cihazlara görünür yapar"
+
+#. Libraries detected
+msgid "settings_network_peers_detected"
+msgstr "Algılanan kütüphaneler"
+
+msgid "settings_reshow_invite_banner"
+msgstr "Davet afişini yeniden göster"
+
+msgid "settings_reshow_invite_banner_done"
+msgstr "Davet afişi bir sonraki ziyarette yeniden görünecek"
+
+#. Extended network
+msgid "settings_network_extended"
+msgstr "Genişletilmiş ağ"
+
+#. Privacy and cache
+msgid "settings_network_privacy"
+msgstr "Gizlilik ve önbellek"
+
+#. Enable network features first to configure privacy options.
+msgid "settings_network_enable_first"
+msgstr "Gizlilik seçeneklerini yapılandırmak için önce ağ özelliklerini etkinleştirin."
+
+#. Your profile
+msgid "setup_profile_step_title"
+msgstr "Profiliniz"
+
+#. What type of reader are you?
+msgid "setup_profile_step_desc"
+msgstr "Ne tür bir okuyucusunuz?"
+
+#. Coming soon
+msgid "setup_profile_coming_soon"
+msgstr "Yakında"
+
+#. ADR-032: short label for the chip on a peer card whose relay token is stale
+msgid "stale_connection_badge_label"
+msgstr "Bağlantı süresi doldu"
+
+#. ADR-032: accessibility label for the stale-connection chip
+msgid "stale_connection_badge_a11y"
+msgstr "Bağlantı süresi doldu, yeni bir davet içe aktarmak için dokunun"
+
+#. ADR-032: title of the dialog shown after tapping the stale-connection badge
+msgid "stale_connection_dialog_title"
+msgstr "Bağlantı süresi doldu"
+
+#. ADR-032: body of the dialog, %s is replaced by the peer name
+msgid "stale_connection_dialog_body"
+msgstr "%s ile bağlantınızın süresi doldu. Davet bağlantısını yeniden göndermesini isteyin ve SMS veya e-postadaki bağlantıya dokunun ya da QR kodunu tarayın."
+
+#. When you started this book
+msgid "started_reading_helper"
+msgstr "Bu kitaba ne zaman başladınız"
+
+msgid "started_on"
+msgstr "Başlangıç"
+
+#. Loans (active)
+msgid "stat_loans"
+msgstr "Ödünçler"
+
+#. View book action
+msgid "action_view_book"
+msgstr "Kitabı görüntüle"
+
+#. Active (in progress)
+msgid "stat_active_count"
+msgstr "{count} etkin"
+
+#. Lent
+msgid "stat_lent"
+msgstr "Ödünç verilen"
+
+#. Dashboard card label: loans
+msgid "dashboard_lent"
+msgstr "Ödünç verme"
+
+#. Dashboard card label: borrows
+msgid "dashboard_borrowed"
+msgstr "Ödünç alma"
+
+#. Dashboard card subtitle: in progress
+msgid "stat_in_progress"
+msgstr "devam eden"
+
+#. Completed Collections
+msgid "stat_completed_collections"
+msgstr "Tamamlanan"
+
+#. Books read in collection
+msgid "stat_collection_read"
+msgstr "%1 okundu"
+
+#. Chart accessibility: books count suffix
+msgid "stat_chart_books_count"
+msgstr "kitap"
+
+#. Chart accessibility: stars suffix
+msgid "stat_chart_stars"
+msgstr "yıldız"
+
+#. Contact fallback for unknown contact
+msgid "stat_unknown_contact"
+msgstr "Bilinmiyor"
+
+#. Accessibility: reading status chart
+msgid "stat_a11y_reading_status_chart"
+msgstr "Okuma durumu dağılım grafiği"
+
+#. Accessibility: top authors chart
+msgid "stat_a11y_top_authors_chart"
+msgstr "En çok okunan yazarlar grafiği"
+
+#. Accessibility: publication timeline
+msgid "stat_a11y_publication_timeline"
+msgstr "Yayın zaman çizelgesi grafiği"
+
+#. Accessibility: monthly progress chart
+msgid "stat_a11y_monthly_progress_chart"
+msgstr "Aylık okuma ilerlemesi grafiği"
+
+#. Accessibility: yearly goal progress
+msgid "stat_a11y_yearly_goal_progress"
+msgstr "Yıllık okuma hedefi ilerlemesi"
+
+#. Accessibility: star rating with value
+msgid "stat_a11y_star_rating"
+msgstr "Ortalama puan: 5 üzerinden %1"
+
+#. Accessibility: view book link
+msgid "stat_a11y_view_book"
+msgstr "Kitabı görüntüle: %1"
+
+#. Operation log stats section title
+msgid "stat_operation_log_title"
+msgstr "Eşitleme Etkinliği"
+
+#. Operation log: entity types tracked
+msgid "stat_oplog_entity_types"
+msgstr "İzlenen varlık türleri"
+
+#. Operation log: health OK
+msgid "stat_oplog_health_ok"
+msgstr "Tüm işlemler tamamlandı"
+
+#. Operation log: pending (not yet synced)
+msgid "stat_oplog_pending"
+msgstr "Eşitleme bekliyor"
+
+#. Operation log: health warning
+msgid "stat_oplog_health_warning"
+msgstr "%1 işlem henüz eşitlenmedi"
+
+#. Operation log: health error
+msgid "stat_oplog_health_error"
+msgstr "%1 başarısız işlem"
+
+#. Operation log: view details link
+msgid "stat_oplog_view_details"
+msgstr "İşlem günlüğünü görüntüle"
+
+#. Section subtitle: sales statistics
+msgid "stat_subtitle_sales"
+msgstr "Kitap satışlarınızın geliri ve eğilimleri"
+
+#. Section subtitle: monthly progress
+msgid "stat_subtitle_monthly_progress"
+msgstr "Geçen yıl boyunca her ay bitirilen kitaplar"
+
+#. Section subtitle: reading insights
+msgid "stat_subtitle_reading_insights"
+msgstr "Ortalama okuma süresi ve yıllık ilerleme"
+
+#. Section subtitle: rating by group
+msgid "stat_subtitle_rating_by_group"
+msgstr "Raf ve koleksiyona göre ortalama puan"
+
+#. Section subtitle: reading habits
+msgid "stat_subtitle_reading_habits"
+msgstr "Okuma durumlarınızın dağılımı"
+
+#. Section subtitle: top authors
+msgid "stat_subtitle_top_authors"
+msgstr "Kütüphanenizde en çok yer alan yazarlar"
+
+#. Section subtitle: publication timeline
+msgid "stat_subtitle_publication_timeline"
+msgstr "Kitaplarınızın yayın on yılına göre dağılımı"
+
+#. Section subtitle: loan statistics
+msgid "stat_subtitle_loan_statistics"
+msgstr "Etkin ödünçler ve iade geçmişi"
+
+#. Section subtitle: borrowed statistics
+msgid "stat_subtitle_borrowed_statistics"
+msgstr "Diğer kütüphanelerden ödünç alınan kitaplar"
+
+#. Section subtitle: shelf statistics
+msgid "stat_subtitle_shelf_statistics"
+msgstr "Kitapların raflarınız arasındaki dağılımı"
+
+#. Section subtitle: collections with completion and read %
+msgid "stat_subtitle_collections_detail"
+msgstr "Tamamlanma: %1% - Okunan: %2%"
+
+#. Section subtitle: operation log
+msgid "stat_subtitle_operation_log"
+msgstr "Eşitleme etkinliği günlüğü"
+
+#. Section title: personal records
+msgid "personal_records"
+msgstr "Kişisel Rekorlar"
+
+#. Section subtitle: personal records
+msgid "stat_subtitle_personal_records"
+msgstr "En iyi performanslarınız ve okuma serileriniz"
+
+#. Profile: statistics summary title
+msgid "profile_stats_title"
+msgstr "İstatistiklerim"
+
+#. Profile: see more statistics link
+msgid "see_more_stats"
+msgstr "Daha fazla gör"
+
+#. Profile section: gamification
+msgid "gamification"
+msgstr "Başarılar"
+
+#. Profile section: leaderboard
+msgid "leaderboard"
+msgstr "Ağ Sıralaması"
+
+#. Track your reading progress
+msgid "status_helper"
+msgstr "Okuma ilerlemenizi takip edin"
+
+msgid "sync_completed"
+msgstr "Ağ güncellendi"
+
+#. Last refresh timestamp
+msgid "last_updated_just_now"
+msgstr "Az önce güncellendi"
+
+msgid "last_updated_minutes"
+msgstr "%d dk önce güncellendi"
+
+msgid "last_updated_hours"
+msgstr "%d sa önce güncellendi"
+
+#. Classify your books, e.g. Living room, Fiction > Sci-Fi
+msgid "tags_helper"
+msgstr "Kitaplarınızı sınıflandırın, örn. Oturma odası, Kurgu > Bilim Kurgu"
+
+#. Navigation style label
+msgid "nav_style_label"
+msgstr "Gezinme stili (mobil)"
+
+#. Navigation style description
+msgid "nav_style_desc"
+msgstr "Mobilde ekranlar arasında nasıl gezineceğinizi seçin"
+
+#. Side menu option
+msgid "nav_style_side_menu"
+msgstr "Yan menü"
+
+#. Bottom bar option
+msgid "nav_style_bottom_bar"
+msgstr "Alt çubuk"
+
+#. Top Author (insight card)
+msgid "top_author"
+msgstr "Favori Yazar"
+
+#. Description for top author insight
+msgid "top_author_desc"
+msgstr "%1 kitap"
+
+#. Total pages read
+msgid "total_pages_read"
+msgstr "Okunan Sayfalar"
+
+#. Description for total pages read insight
+msgid "total_pages_read_desc"
+msgstr "Bitirilen kitapların toplam sayfası"
+
+#. E2EE enabled tooltip
+msgid "e2ee_enabled"
+msgstr "Uçtan uca şifreleme etkin"
+
+#. Share invite link
+msgid "share_invite_link"
+msgstr "Davet bağlantısını paylaş"
+
+#. Memory Game
+msgid "memory_game_title"
+msgstr "Hafıza Oyunu"
+
+#. Memory Game - Intro tagline
+msgid "memory_game_intro"
+msgstr "Klasik Hafıza oyununu kendi kitap kapaklarınızla yeniden keşfedin!"
+
+#. Memory Game - Choose difficulty
+msgid "memory_game_choose_difficulty"
+msgstr "Bir zorluk seçin"
+
+#. Memory Game - Play button
+msgid "memory_game_play"
+msgstr "Oyna"
+
+#. Memory Game - Not enough books
+msgid "memory_game_not_enough_books"
+msgstr "Oynamak için kapağı olan en az 3 kitap gerekir. Kütüphanenize daha fazla kitap ekleyin!"
+
+#. Memory Game - Easy difficulty
+msgid "memory_game_easy"
+msgstr "Kolay"
+
+#. Memory Game - Medium difficulty
+msgid "memory_game_medium"
+msgstr "Orta"
+
+#. Memory Game - Hard difficulty
+msgid "memory_game_hard"
+msgstr "Zor"
+
+#. Memory Game - Expert difficulty
+msgid "memory_game_expert"
+msgstr "Uzman"
+
+#. Memory Game - Master difficulty
+msgid "memory_game_master"
+msgstr "Usta"
+
+#. Memory Game - Time label
+msgid "memory_game_time"
+msgstr "Süre"
+
+#. Memory Game - Pairs label
+msgid "memory_game_pairs"
+msgstr "Çiftler"
+
+#. Memory Game - Errors label
+msgid "memory_game_errors"
+msgstr "Hatalar"
+
+#. Memory Game - Score label
+msgid "memory_game_score"
+msgstr "Puan"
+
+#. Memory Game - Difficulty label
+msgid "memory_game_difficulty_label"
+msgstr "Zorluk"
+
+#. Memory Game - Congratulations
+msgid "memory_game_congratulations"
+msgstr "Tebrikler!"
+
+#. Memory Game - Varied congrats messages (generic)
+msgid "memory_congrats_0"
+msgstr "İyi oynadın!"
+
+msgid "memory_congrats_1"
+msgstr "Mükemmel hafıza!"
+
+msgid "memory_congrats_2"
+msgstr "Tam isabet!"
+
+msgid "memory_congrats_3"
+msgstr "Ne beyin ama!"
+
+msgid "memory_congrats_4"
+msgstr "Etkileyici hafıza!"
+
+msgid "memory_congrats_5"
+msgstr "Tüm çiftler bulundu!"
+
+msgid "memory_congrats_6"
+msgstr "Keskin zekâ!"
+
+msgid "memory_congrats_7"
+msgstr "Güzel oynadın!"
+
+msgid "memory_congrats_8"
+msgstr "Bravo!"
+
+msgid "memory_congrats_9"
+msgstr "Oyun tamamlandı!"
+
+#. Memory Game - Contextual congrats
+msgid "memory_congrats_perfect"
+msgstr "Kusursuz zafer!"
+
+msgid "memory_congrats_master"
+msgstr "Usta seviyesi fethedildi!"
+
+msgid "memory_congrats_expert"
+msgstr "Uzman seviyesi ezildi!"
+
+#. Memory Game - Play again
+msgid "memory_game_play_again"
+msgstr "Tekrar oyna"
+
+#. Memory Game - Change difficulty
+msgid "memory_game_change_difficulty"
+msgstr "Zorluğu değiştir"
+
+#. Memory Game Module
+msgid "memory_game_module"
+msgstr "Hafıza Oyunu"
+
+#. Memory Game Module Description
+msgid "memory_game_module_desc"
+msgstr "Kitap kapaklarınızla bir eşleştirme oyunu oynayın"
+
+#. Memory Game - Dashboard subtitle
+msgid "memory_game_dashboard_subtitle"
+msgstr "Kitap kapaklarınızı eşleştirin!"
+
+#. Memory Game - Leaderboard
+msgid "memory_leaderboard_title"
+msgstr "Sıralama"
+
+#. Memory Game - My Scores tab
+msgid "memory_my_scores_tab"
+msgstr "Puanlarım"
+
+#. Memory Game - Network tab
+msgid "memory_network_tab"
+msgstr "Ağ"
+
+#. Memory Game - No scores yet
+msgid "memory_no_scores_yet"
+msgstr "Henüz puan yok. Bir oyun oynayın!"
+
+#. Memory Game - No network scores
+msgid "memory_no_network_scores"
+msgstr "Kullanılabilir ağ puanı yok"
+
+#. Memory Game - Syncing with nearby libraries
+msgid "memory_leaderboard_refreshing"
+msgstr "Yakındaki kütüphanelerle eşitleniyor..."
+
+#. Memory Game - Empty network leaderboard
+msgid "memory_leaderboard_empty_network"
+msgstr "Henüz yakındaki puan yok. Puanlarını görmek için yakındaki kütüphanelere bağlanın!"
+
+#. Memory Game - New personal best
+msgid "memory_rank_new_best"
+msgstr "Yeni kişisel rekor!"
+
+#. Memory Game - Rank position
+msgid "memory_rank_position"
+msgstr "En iyi puanlarınızda #%s"
+
+#. Memory Game - Rank column header
+msgid "memory_rank_header"
+msgstr "Sıra"
+
+#. Sliding Puzzle - Title
+msgid "sliding_puzzle_title"
+msgstr "Kaydırmalı Yapboz"
+
+#. Sliding Puzzle - Intro tagline
+msgid "sliding_puzzle_intro"
+msgstr "Kitap kapaklarınızdan birini yeniden oluşturmak için karoları kaydırın!"
+
+#. Sliding Puzzle - Choose difficulty
+msgid "sliding_puzzle_choose_difficulty"
+msgstr "Bir zorluk seçin"
+
+#. Sliding Puzzle - Play button
+msgid "sliding_puzzle_play"
+msgstr "Oyna"
+
+#. Sliding Puzzle - Not enough books
+msgid "sliding_puzzle_not_enough_books"
+msgstr "Oynamak için kapağı olan en az 1 kitap gerekir. Kütüphanenize kitap ekleyin!"
+
+#. Sliding Puzzle - Easy difficulty
+msgid "sliding_puzzle_easy"
+msgstr "Kolay"
+
+#. Sliding Puzzle - Medium difficulty
+msgid "sliding_puzzle_medium"
+msgstr "Orta"
+
+#. Sliding Puzzle - Hard difficulty
+msgid "sliding_puzzle_hard"
+msgstr "Zor"
+
+#. Sliding Puzzle - Time label
+msgid "sliding_puzzle_time"
+msgstr "Süre"
+
+#. Sliding Puzzle - Moves label
+msgid "sliding_puzzle_moves"
+msgstr "Hamle"
+
+#. Sliding Puzzle - Par label
+msgid "sliding_puzzle_par"
+msgstr "Par"
+
+#. Sliding Puzzle - Score label
+msgid "sliding_puzzle_score"
+msgstr "Puan"
+
+#. Sliding Puzzle - Difficulty label
+msgid "sliding_puzzle_difficulty_label"
+msgstr "Zorluk"
+
+#. Sliding Puzzle - Congratulations
+msgid "sliding_puzzle_congratulations"
+msgstr "Tebrikler!"
+
+#. Sliding Puzzle - Varied congrats messages
+msgid "puzzle_congrats_0"
+msgstr "İyi çözdün!"
+
+msgid "puzzle_congrats_1"
+msgstr "Harika kaydırma!"
+
+msgid "puzzle_congrats_2"
+msgstr "Tam isabet!"
+
+msgid "puzzle_congrats_3"
+msgstr "Keskin hamleler!"
+
+msgid "puzzle_congrats_4"
+msgstr "Yapboz tamamlandı!"
+
+#. Sliding Puzzle - Play again
+msgid "sliding_puzzle_play_again"
+msgstr "Tekrar oyna"
+
+#. Sliding Puzzle - Change difficulty
+msgid "sliding_puzzle_change_difficulty"
+msgstr "Zorluğu değiştir"
+
+#. Sliding Puzzle Module
+msgid "sliding_puzzle_module"
+msgstr "Kaydırmalı Yapboz"
+
+#. Sliding Puzzle Module Description
+msgid "sliding_puzzle_module_desc"
+msgstr "Bir kitap kapağını yeniden oluşturmak için karoları kaydırın"
+
+#. Hangman Module
+msgid "hangman_module"
+msgstr "Adam Asmaca"
+
+#. Hangman Module Description
+msgid "hangman_module_desc"
+msgstr "Kitap başlıklarınızı harf harf tahmin edin"
+
+#. Sliding Puzzle - Dashboard subtitle
+msgid "sliding_puzzle_dashboard_subtitle"
+msgstr "Kapaklarınızı yeniden oluşturun!"
+
+#. Sliding Puzzle - Reference image label
+msgid "sliding_puzzle_reference"
+msgstr "Referans"
+
+#. Sliding Puzzle - New personal best
+msgid "puzzle_new_personal_best"
+msgstr "Yeni kişisel rekor!"
+
+#. Sliding Puzzle - Rank position
+msgid "puzzle_rank_position"
+msgstr "En iyi puanlarınızda #%s"
+
+#. Sliding Puzzle - Scores title
+msgid "sliding_puzzle_scores_title"
+msgstr "En İyi Puanlar"
+
+#. Sliding Puzzle - No scores yet
+msgid "sliding_puzzle_no_scores_yet"
+msgstr "Henüz puan yok. Bir oyun oynayın!"
+
+#. Sliding Puzzle - Leaderboard
+msgid "puzzle_leaderboard_title"
+msgstr "Sıralama"
+
+#. Sliding Puzzle - My Scores tab
+msgid "puzzle_my_scores_tab"
+msgstr "Puanlarım"
+
+#. Sliding Puzzle - Network tab
+msgid "puzzle_network_tab"
+msgstr "Ağ"
+
+#. Sliding Puzzle - Syncing with nearby libraries
+msgid "puzzle_leaderboard_refreshing"
+msgstr "Yakındaki kütüphanelerle eşitleniyor..."
+
+#. Sliding Puzzle - Empty network leaderboard
+msgid "puzzle_leaderboard_empty_network"
+msgstr "Henüz yakındaki puan yok. Puanlarını görmek için yakındaki kütüphanelere bağlanın!"
+
+#. Games section title
+msgid "games_section"
+msgstr "Oyunlar"
+
+#. Games module toggle
+msgid "games_module"
+msgstr "Oyunlar"
+
+#. Games module description
+msgid "games_module_desc"
+msgstr "Kütüphanenize dayalı mini oyunları etkinleştir"
+
+#. Games hub title
+msgid "games_hub_title"
+msgstr "Oyunlar"
+
+#. Games hub subtitle
+msgid "games_hub_subtitle"
+msgstr "Kitap kapaklarınızla eğlenin"
+
+#. Help - Sliding Puzzle topic title
+msgid "help_topic_sliding_puzzle"
+msgstr "Kaydırmalı Yapboz"
+
+#. Help - Sliding Puzzle description
+msgid "help_desc_sliding_puzzle"
+msgstr "Karoları kaydırarak bir kitap kapağını yeniden oluşturun"
+
+#. Help - Sliding Puzzle CTA
+msgid "help_cta_play_puzzle"
+msgstr "Oyna"
+
+#. Help - Hangman Topic
+msgid "help_topic_hangman"
+msgstr "Adam Asmaca"
+
+#. Help - Hangman Description
+msgid "help_desc_hangman"
+msgstr "Kütüphanenizdeki bir kitabın başlığını harf harf tahmin edin"
+
+#. Help - Hangman CTA
+msgid "help_cta_play_hangman"
+msgstr "Oyna"
+
+#. Backup - Save dialog title (desktop)
+msgid "save_backup_dialog_title"
+msgstr "Yedeği kaydet"
+
+#. Backup - Share text (mobile)
+msgid "backup_share_text"
+msgstr "BiblioGenius yedeğim"
+
+#. Backup - Export success
+msgid "backup_export_success"
+msgstr "Yedek başarıyla dışa aktarıldı"
+
+#. Backup - Export error
+msgid "backup_export_error"
+msgstr "Dışa aktarma hatası"
+
+#. Backup - Mobile export choice dialog title
+msgid "backup_export_choice_title"
+msgstr "Yedeği dışa aktar"
+
+#. Backup - Mobile export choice dialog message
+msgid "backup_export_choice_message"
+msgstr "Yedeğinizi nasıl dışa aktarmak istersiniz?"
+
+#. Backup - Mobile export choice: save on device
+msgid "backup_export_save_to_device"
+msgstr "Cihaza kaydet"
+
+#. Backup - Mobile export choice: share via system sheet
+msgid "backup_export_share"
+msgstr "Paylaş"
+
+#. Settings - Backup section title (top-level accordion)
+msgid "backup_section_title"
+msgstr "Yedekleme ve dışa aktarma"
+
+#. Settings - Backup: export catalog tile title
+msgid "backup_export_catalog_title"
+msgstr "Kataloğumu dışa aktar"
+
+#. Settings - Backup: export catalog tile subtitle
+msgid "backup_export_catalog_subtitle"
+msgstr "Arşivleme veya başka bir uygulamaya aktarma için taşınabilir, paylaşılabilir dosya. Kitapları, yazarları, etiketleri, koleksiyonları ve kişileri içerir."
+
+#. Settings - Backup: full backup tile title
+msgid "backup_full_title"
+msgstr "Tam yedek"
+
+#. Settings - Backup: full backup tile subtitle
+msgid "backup_full_subtitle"
+msgstr "Kütüphanenizi bu cihazda veya başka bir cihazda tamamen geri yüklemek için şifreli arşiv. Eşlerinizle E2EE eşleştirmesini yeniden yapmadan yeni bir cihaza geçmek için \"Kimliği dahil et\"i işaretleyin."
+
+#. Settings - Backup: snackbar shown when tapping the disabled full backup tile
+msgid "backup_full_unavailable"
+msgstr "Gelecek bir sürümde kullanılabilir."
+
+#. Settings - Backup: restore tile title
+msgid "backup_restore_title"
+msgstr "Bir yedeği geri yükle"
+
+#. Settings - Backup: restore tile subtitle
+msgid "backup_restore_subtitle"
+msgstr "Bir katalog dışa aktarma dosyasını geri yükler. UYARI: tüm mevcut verileri değiştirir."
+
+#. Settings - System section title (top-level accordion)
+msgid "system_section_title"
+msgstr "Sistem"
+
+#. Settings - System: reset tile title
+msgid "system_reset_title"
+msgstr "Uygulamayı sıfırla"
+
+#. Settings - System: reset tile subtitle
+msgid "system_reset_subtitle"
+msgstr "Kitapları silin veya sıfırdan başlayın."
+
+#. Settings - Content: migration wizard tile title (post option-B refactor)
+msgid "migration_wizard_tile_title"
+msgstr "Kütüphanemi içe aktar ve düzenle"
+
+#. Settings - Content: migration wizard tile subtitle (post option-B refactor)
+msgid "migration_wizard_tile_subtitle"
+msgstr "Bir dosyadan kitap içe aktarın veya raflarınızı yönetin."
+
+#. Migration Wizard - AppBar title (post option-B refactor)
+msgid "migration_wizard_screen_title"
+msgstr "İçe aktar ve düzenle"
+
+#. Migration Wizard - Import section title
+msgid "migration_section_import_title"
+msgstr "İçe aktar ve birleştir"
+
+#. Migration Wizard - Import section subtitle
+msgid "migration_section_import_subtitle"
+msgstr "Diğer platformlardaki kitapları mevcut kütüphanenize ekleyin."
+
+#. Migration Wizard - CSV import card title
+msgid "migration_card_csv_title"
+msgstr "Dosya içe aktarma (CSV / XLSX)"
+
+#. Migration Wizard - CSV import card subtitle
+msgid "migration_card_csv_subtitle"
+msgstr "Goodreads, Babelio, Gleeph veya başlık/ISBN sütunları olan herhangi bir dosya."
+
+#. Migration Wizard - Organisation section title
+msgid "migration_section_organisation_title"
+msgstr "Düzenleme"
+
+#. Migration Wizard - Organisation section subtitle
+msgid "migration_section_organisation_subtitle"
+msgstr "Kütüphanenizin yapısını yönetin."
+
+#. Migration Wizard - Manage shelves card title
+msgid "migration_card_shelves_title"
+msgstr "Rafları yönet"
+
+#. Migration Wizard - Manage shelves card subtitle
+msgid "migration_card_shelves_subtitle"
+msgstr "Sanal raflarınızı yeniden adlandırın veya düzenleyin."
+
+#. Migration Wizard - CSV import success message ({count} = number of books)
+msgid "migration_import_success"
+msgstr "Başarılı: {count} kitap içe aktarıldı!"
+
+#. Migration Wizard - CSV import failure (no specific error returned)
+msgid "migration_import_failed"
+msgstr "İçe aktarma başarısız"
+
+#. Migration Wizard - Generic error prefix (e.g. "Error: <details>")
+msgid "migration_error_prefix"
+msgstr "Hata"
+
+#. Accessibility - Tooltip: open navigation menu
+msgid "tooltip_open_menu"
+msgstr "Menüyü aç"
+
+#. Accessibility - Tooltip: open settings
+msgid "tooltip_open_settings"
+msgstr "Ayarları aç"
+
+#. Accessibility - Tooltip: edit contact
+msgid "tooltip_edit_contact"
+msgstr "Kişiyi düzenle"
+
+#. Accessibility - Tooltip: toggle password visibility
+msgid "tooltip_toggle_password"
+msgstr "Parola görünürlüğünü değiştir"
+
+#. Accessibility - Tooltip: search by ISBN
+msgid "tooltip_search_isbn"
+msgstr "ISBN'e göre ara"
+
+#. Accessibility - Tooltip: lend book
+msgid "tooltip_lend_book"
+msgstr "Bu kitabı ödünç ver"
+
+#. Accessibility - Tooltip: return book
+msgid "tooltip_return_book"
+msgstr "Bu kitabı iade et"
+
+#. Accessibility - Tooltip: borrow book
+msgid "tooltip_borrow_book"
+msgstr "Bu kitabı ödünç al"
+
+#. Accessibility - Tooltip: give back book
+msgid "tooltip_give_back"
+msgstr "Bu kitabı geri ver"
+
+#. Accessibility - Tooltip: sell book
+msgid "tooltip_sell_book"
+msgstr "Bu kitabı sat"
+
+#. Accessibility - Tooltip: edit avatar
+msgid "tooltip_edit_avatar"
+msgstr "Avatarı düzenle"
+
+#. Accessibility - Profile avatar label
+msgid "profile_avatar"
+msgstr "Profil avatarı"
+
+#. Accessibility - Progress label
+msgid "progress"
+msgstr "İlerleme"
+
+#. Accessibility - Navigation sidebar label
+msgid "navigation"
+msgstr "Gezinme"
+
+#. Accessibility - Back button
+msgid "back"
+msgstr "Geri"
+
+#. Invite acceptance screen
+msgid "invite_title"
+msgstr "Davet eden"
+
+msgid "invite_description"
+msgstr "kitap paylaşmak için sizinle bağlanmak istiyor."
+
+msgid "invite_connect"
+msgstr "Bağlan"
+
+msgid "invite_decline"
+msgstr "Reddet"
+
+msgid "invite_connecting"
+msgstr "Bağlanıyor..."
+
+msgid "invite_success"
+msgstr "Şuna bağlanıldı:"
+
+msgid "invite_error"
+msgstr "Bağlantı başarısız"
+
+msgid "invite_self_error"
+msgstr "Kendi kütüphanenize bağlanamazsınız"
+
+msgid "invite_encrypted"
+msgstr "Şifreli"
+
+msgid "invite_remote_ready"
+msgstr "Uzaktan erişime hazır"
+
+msgid "invite_library_icon"
+msgstr "Kütüphane simgesi"
+
+#. Invite share sheet
+msgid "invite_share_title"
+msgstr "Davet bağlantınız"
+
+msgid "invite_card_title"
+msgstr "Kütüphanenizi paylaşın"
+
+msgid "invite_card_subtitle"
+msgstr "Bir davet bağlantısı gönderin"
+
+msgid "copy_invite_link"
+msgstr "Bağlantıyı kopyala"
+
+msgid "invite_link_copied"
+msgstr "Davet bağlantısı kopyalandı!"
+
+msgid "share_failed"
+msgstr "Paylaşım başarısız. Lütfen tekrar deneyin."
+
+msgid "tooltip_copy_invite"
+msgstr "Davet bağlantısını kopyala"
+
+msgid "tooltip_share_invite"
+msgstr "Davet bağlantısını paylaş"
+
+msgid "share_invite_empty_state"
+msgstr "Davet bağlantısını paylaş"
+
+#. Invite share message (used when sharing via SMS/messaging)
+msgid "invite_share_message"
+msgstr "Kitap paylaşmak için BiblioGenius'ta {name} kişisine katılın: {link}"
+
+#. Loading snackbar while generating invite link
+msgid "generating_invite_link"
+msgstr "Davet bağlantısı oluşturuluyor..."
+
+#. Profile screen - share invite link
+msgid "profile_share_invite"
+msgstr "Kütüphanemi paylaş"
+
+#. Operation Log Viewer - screen title
+msgid "admin_operation_log_title"
+msgstr "İşlem Günlüğü"
+
+#. Operation Log Viewer - stats
+msgid "admin_log_stat_total"
+msgstr "Toplam"
+
+msgid "admin_log_stat_today"
+msgstr "Bugün"
+
+msgid "admin_log_stat_pending"
+msgstr "Bekliyor"
+
+msgid "admin_log_stat_errors"
+msgstr "Hatalar"
+
+#. Operation Log Viewer - filters
+msgid "admin_log_filter_entity"
+msgstr "Varlık"
+
+msgid "admin_log_filter_operation"
+msgstr "İşlem"
+
+msgid "admin_log_filter_status"
+msgstr "Durum"
+
+msgid "admin_log_clear_filters"
+msgstr "Temizle"
+
+#. Operation Log Viewer - empty state
+msgid "admin_log_empty_title"
+msgstr "Kaydedilmiş işlem yok"
+
+msgid "admin_log_empty_subtitle"
+msgstr "Değişiklikler uygulamayı kullandıkça burada görünür"
+
+#. Operation Log Viewer - pagination
+msgid "admin_log_page_info"
+msgstr "Sayfa %d / %d"
+
+#. Operation Log Viewer - tooltips
+msgid "tooltip_filter_entity_type"
+msgstr "Varlık türüne göre filtrele"
+
+msgid "tooltip_filter_operation"
+msgstr "İşleme göre filtrele"
+
+msgid "tooltip_filter_status"
+msgstr "Duruma göre filtrele"
+
+msgid "tooltip_expand_details"
+msgstr "Ayrıntıları göster"
+
+msgid "tooltip_collapse_details"
+msgstr "Ayrıntıları gizle"
+
+msgid "tooltip_prev_page"
+msgstr "Önceki sayfa"
+
+msgid "tooltip_next_page"
+msgstr "Sonraki sayfa"
+
+#. Operation Log Viewer - module toggle
+msgid "module_operation_log_viewer"
+msgstr "İşlem Günlüğü"
+
+msgid "module_operation_log_desc"
+msgstr "Veritabanı değişiklik geçmişini görüntüleyin"
+
+#. Settings - developer tools section
+msgid "settings_developer_tools"
+msgstr "Geliştirici Araçları"
+
+#. Operation Log Viewer - search
+msgid "admin_log_search_hint"
+msgstr "Günlüklerde ara..."
+
+msgid "admin_log_clear_search"
+msgstr "Aramayı temizle"
+
+#. Device Pairing
+msgid "pairing_title"
+msgstr "Bağlı Cihazlar"
+
+msgid "pairing_code_title"
+msgstr "Eşleştirme Kodu"
+
+msgid "pairing_enter_title"
+msgstr "Kod Gir"
+
+msgid "pairing_empty_title"
+msgstr "Bağlı cihaz yok"
+
+msgid "pairing_empty_subtitle"
+msgstr "Kütüphanenizi eşitlemek için başka bir cihaz eşleştirin"
+
+msgid "pairing_generate_code"
+msgstr "Kod Oluştur"
+
+msgid "pairing_enter_code"
+msgstr "Kod Gir"
+
+msgid "pairing_code_instruction"
+msgstr "Bu kodu diğer cihazla paylaşın"
+
+msgid "pairing_code_expires"
+msgstr "%s kaldı"
+
+msgid "pairing_code_expired"
+msgstr "Kodun süresi doldu"
+
+msgid "pairing_enter_instruction"
+msgstr "Wi-Fi ağınızdaki cihazı seçin, ardından 6 haneli kodunu girin"
+
+msgid "pairing_no_peers"
+msgstr "Wi-Fi ağında cihaz bulunamadı"
+
+msgid "pairing_mdns_hint"
+msgstr "İki cihaz da ağ keşfi etkin olarak aynı Wi-Fi'de olmalıdır (Ayarlar > Ağ)"
+
+msgid "pairing_select_device"
+msgstr "Eşleştirilecek cihaz"
+
+msgid "pairing_button_pair"
+msgstr "Eşleştir"
+
+msgid "pairing_success"
+msgstr "Cihaz başarıyla eşleştirildi"
+
+msgid "pairing_error"
+msgstr "Eşleştirme başarısız"
+
+msgid "pairing_remove_confirm"
+msgstr "Bu cihaz kaldırılsın mı?"
+
+msgid "pairing_remove_success"
+msgstr "Cihaz kaldırıldı"
+
+msgid "pairing_paired_on"
+msgstr "%s tarihinde eşleştirildi"
+
+msgid "pairing_cancel"
+msgstr "İptal"
+
+msgid "tooltip_remove_device"
+msgstr "Cihazı kaldır"
+
+msgid "tooltip_generate_pairing"
+msgstr "Bir eşleştirme kodu oluştur"
+
+msgid "tooltip_enter_pairing"
+msgstr "Bir eşleştirme kodu gir"
+
+msgid "tooltip_cancel_pairing"
+msgstr "Eşleştirmeyi iptal et"
+
+msgid "settings_auto_backup"
+msgstr "Otomatik yedekleme"
+
+msgid "settings_auto_backup_desc"
+msgstr "Başlangıçta verilerinizi aynı Wi-Fi'deki bağlı cihazlara gönderin"
+
+#. Notifications settings section header
+msgid "settings_notifications"
+msgstr "Bildirimler"
+
+#. Global notifications toggle
+msgid "settings_notif_enabled"
+msgstr "Bildirimleri etkinleştir"
+
+msgid "settings_notif_enabled_desc"
+msgstr "Simgeyi göster ve bildirim al"
+
+#. Notification toggle: connections
+msgid "settings_notif_connections"
+msgstr "Bağlantılar"
+
+msgid "settings_notif_connections_desc"
+msgstr "Bağlantı talepleri ve yeni kişiler"
+
+#. Notification toggle: loans
+msgid "settings_notif_loans"
+msgstr "Ödünç verme ve ödünç alma"
+
+msgid "settings_notif_loans_desc"
+msgstr "Ödünç talepleri, iadeler ve hatırlatmalar"
+
+#. Notification toggle: discoveries
+msgid "settings_notif_discoveries"
+msgstr "Keşifler"
+
+msgid "settings_notif_discoveries_desc"
+msgstr "Kişilerinizin kütüphanelerindeki yeni kitaplar"
+
+#. Sync Review
+msgid "sync_review_title"
+msgstr "Eşitleme İncelemesi"
+
+msgid "sync_review_banner"
+msgstr "%d işlem alındı. Uygulamadan önce inceleyin."
+
+msgid "sync_review_approve_all"
+msgstr "Tümünü onayla"
+
+msgid "sync_review_reject_all"
+msgstr "Tümünü reddet"
+
+msgid "sync_review_approve"
+msgstr "Onayla"
+
+msgid "sync_review_reject"
+msgstr "Reddet"
+
+msgid "sync_review_empty_title"
+msgstr "Her şey yolunda"
+
+msgid "sync_review_empty_subtitle"
+msgstr "İncelenecek işlem yok"
+
+msgid "sync_review_approved"
+msgstr "%d işlem onaylandı"
+
+msgid "sync_review_rejected"
+msgstr "%d işlem reddedildi"
+
+msgid "sync_review_from"
+msgstr "Kaynak:"
+
+msgid "sync_trigger_button"
+msgstr "Eşitle"
+
+msgid "sync_result_message"
+msgstr "%d gönderildi, %d işlem alındı"
+
+msgid "sync_done"
+msgstr "Eşitleme tamamlandı"
+
+msgid "sync_done_with_pending"
+msgstr "Eşitleme tamamlandı - incelenecek %d değişiklik"
+
+msgid "sync_pending_review_action"
+msgstr "İncele"
+
+msgid "sync_pending_review_count"
+msgstr "%d inceleme bekliyor"
+
+msgid "sync_safety_title"
+msgstr "Eşitleme Güvenliği"
+
+msgid "sync_safety_subtitle"
+msgstr "Uygulamadan önce değişiklikleri inceleyin"
+
+msgid "tooltip_sync_device"
+msgstr "Bu cihazla eşitle"
+
+msgid "tooltip_approve_op"
+msgstr "Bu işlemi onayla"
+
+msgid "tooltip_reject_op"
+msgstr "Bu işlemi reddet"
+
+#. Relay Library Sync (ADR-012)
+msgid "syncing_via_relay"
+msgstr "Eşitleniyor"
+
+msgid "loading_via_relay"
+msgstr "Yükleniyor"
+
+msgid "connecting_via_relay"
+msgstr "Bağlanıyor..."
+
+msgid "toggle_view"
+msgstr "Görünümü değiştir"
+
+#. 404 error page
+msgid "page_not_found_title"
+msgstr "Sayfa bulunamadı"
+
+msgid "page_not_found_message"
+msgstr "Aradığınız sayfa mevcut değil."
+
+msgid "back_to_library"
+msgstr "Kütüphaneye dön"
+
+#. Peer library background refresh
+msgid "refreshing_library"
+msgstr "Yenileniyor..."
+
+#. Collection grouped view - stacked covers widget
+msgid "collection_group_uncollected"
+msgstr "Koleksiyonsuz"
+
+msgid "collection_group_books_count"
+msgstr "kitap"
+
+msgid "collection_group_tap_hint"
+msgstr "Bu koleksiyondaki kitapları görmek için dokunun"
+
+msgid "collection_view_all"
+msgstr "Koleksiyonu gör"
+
+msgid "collection_owned_count"
+msgstr "{n} sahip olunan"
+
+msgid "collection_group_empty"
+msgstr "Görüntülenecek koleksiyon yok"
+
+#. Library grouped view setting
+msgid "view_mode_grouped_collections"
+msgstr "Koleksiyona göre grupla"
+
+msgid "group_by_collections_title"
+msgstr "Koleksiyona göre grupla"
+
+msgid "group_by_collections_desc"
+msgstr "Kitapları kütüphanede koleksiyonlarına göre gruplanmış göster"
+
+#. Discover libraries (ADR-015)
+msgid "directory_title"
+msgstr "Kütüphaneleri Keşfet"
+
+msgid "directory_browse_subtitle"
+msgstr "Diğer BiblioGenius kütüphanelerini keşfedin ve takip edin"
+
+msgid "directory_tab_explore"
+msgstr "Keşfet"
+
+msgid "directory_tab_following"
+msgstr "Takip edilenler"
+
+msgid "directory_tab_requests"
+msgstr "Talepler"
+
+msgid "directory_empty"
+msgstr "Henüz keşfedilecek kütüphane yok."
+
+msgid "directory_search_hint"
+msgstr "Ada göre ara..."
+
+msgid "directory_no_results"
+msgstr "Kütüphane bulunamadı"
+
+#. ADR-035 Phase 2: empty state when a country/city filter is active
+msgid "directory_no_results_in_location"
+msgstr "Bu bölgede henüz kütüphane yok."
+
+#. CTA shown under directory_no_results_in_location, opens settings
+msgid "directory_be_first_share_city"
+msgstr "Şehrinizi paylaşan ilk kütüphane olun"
+
+#. Tooltip on the directory filter button (ADR-035 Phase 2)
+msgid "directory_filter_tooltip"
+msgstr "Konuma göre filtrele"
+
+#. Tooltip on the X icon of the active filter chip
+msgid "directory_filter_clear"
+msgstr "Filtreyi temizle"
+
+#. A11y label for the tap-to-filter shortcut on a profile location chip (ADR-035, RGAA A1)
+msgid "directory_filter_by_location_a11y"
+msgstr "Dizini bu konuma göre filtrele"
+
+#. Banner shown above the public directory when the user has registered their
+#. city and at least one peer is in the same city (V1 same-city highlight).
+#. Singular form, used when exactly 1 peer is in the user city.
+msgid "directory_same_city_banner_one"
+msgstr "Şehrinizde 1 kütüphane var"
+
+#. Plural form of the same-city banner. %d is replaced with the visible count
+#. (capped at 10). Used for 2 to 10 peers.
+msgid "directory_same_city_banner_other"
+msgstr "Şehrinizde %d kütüphane var"
+
+#. Saturated form of the same-city banner, used when more than 10 peers
+#. share the user city. %d is replaced with the cap (10), so the rendered
+#. text reads "10+ libraries".
+msgid "directory_same_city_banner_more_than"
+msgstr "Şehrinizde %d+ kütüphane var"
+
+#. Action button on the same-city banner; applies the existing city filter.
+msgid "directory_same_city_view_action"
+msgstr "Gör"
+
+#. Tooltip on the same-city banner action button (RGAA A1, A4).
+msgid "directory_same_city_view_tooltip"
+msgstr "Dizini şehrinizdeki kütüphanelere göre filtrele"
+
+msgid "directory_following_empty"
+msgstr "Henüz hiçbir kütüphaneyi takip etmiyorsunuz. Başlamak için Keşfet sekmesini kullanın."
+
+msgid "directory_requests_empty"
+msgstr "Gelen takip talebi yok."
+
+msgid "directory_books"
+msgstr "kitap"
+
+msgid "directory_your_library"
+msgstr "Kütüphaneniz"
+
+#. Marker on a Discover card when that library has sent us a pending follow request
+msgid "directory_wants_to_follow_you"
+msgstr "Sizi takip etmek istiyor"
+
+msgid "directory_follow"
+msgstr "Takip et"
+
+msgid "directory_request"
+msgstr "Talep et"
+
+msgid "directory_following"
+msgstr "Takip ediliyor"
+
+msgid "directory_pending"
+msgstr "Bekliyor"
+
+msgid "directory_unfollow"
+msgstr "Takibi bırak"
+
+msgid "directory_unfollow_title"
+msgstr "Kütüphane takibi bırakılsın mı?"
+
+msgid "directory_unfollow_confirm"
+msgstr "Bu kütüphanenin paylaştığı kitaplara artık erişiminiz olmayacak."
+
+msgid "directory_follow_error"
+msgstr "Bu kütüphane takip edilemiyor. Lütfen tekrar deneyin."
+
+#. Snackbar after a follow request is sent to a library that requires approval
+msgid "directory_follow_request_sent"
+msgstr "Talep gönderildi. Onayladıklarında kataloğu göreceksiniz."
+
+#. Snackbar after an auto-approved follow (no approval required)
+msgid "directory_follow_success"
+msgstr "Artık bu kütüphaneyi takip ediyorsunuz."
+
+msgid "directory_approve"
+msgstr "Onayla"
+
+msgid "directory_reject"
+msgstr "Reddet"
+
+msgid "directory_block"
+msgstr "Engelle"
+
+msgid "directory_pending_outgoing"
+msgstr "Onay bekleniyor"
+
+msgid "directory_active_follows"
+msgstr "Etkin"
+
+#. Settings section
+msgid "directory_settings_title"
+msgstr "Çevrimiçi Paylaşım"
+
+msgid "directory_listed_title"
+msgstr "Kütüphanemi çevrimiçi paylaş"
+
+msgid "directory_listed_desc"
+msgstr "Diğer kütüphaneler sizi keşfedip takip edebilir"
+
+msgid "directory_browse_button"
+msgstr "Kütüphaneleri keşfet"
+
+msgid "directory_browse_anyway"
+msgstr "Kütüphaneleri keşfet"
+
+msgid "directory_browse_anyway_desc"
+msgstr "Kendinizinkini paylaşmadan keşfedin"
+
+msgid "directory_advanced_settings"
+msgstr "Gelişmiş ayarlar"
+
+msgid "directory_requires_approval_title"
+msgstr "Takipçiler için onay iste"
+
+msgid "directory_requires_approval_desc"
+msgstr "Yeni takipçiler paylaştığınız kitaplara erişmeden önce onayınıza ihtiyaç duyar"
+
+msgid "directory_requires_approval_short"
+msgstr "Onay gerekli"
+
+msgid "directory_connected"
+msgstr "Bağlandı"
+
+msgid "directory_accept_from_title"
+msgstr "Bağlantıları şuradan kabul et:"
+
+msgid "directory_accept_from_all"
+msgstr "Herkes"
+
+msgid "directory_accept_from_verified"
+msgstr "Doğrulanmış"
+
+msgid "directory_accept_from_manual"
+msgstr "Yalnızca elle"
+
+#. Shared books screen
+msgid "directory_catalog_title"
+msgstr "Paylaşılan Kitaplar"
+
+msgid "directory_catalog_empty"
+msgstr "Bu kütüphane henüz hiç kitap paylaşmadı."
+
+msgid "directory_catalog_isbn_count"
+msgstr "Paylaşılan ISBN'ler"
+
+#. Filtered result count shown above the catalog grid while searching
+msgid "directory_catalog_search_results"
+msgstr "sonuç"
+
+#. Search placeholder in followed library catalog
+msgid "directory_catalog_search"
+msgstr "Başlık, yazar veya ISBN'e göre ara..."
+
+msgid "directory_catalog_isbn_label"
+msgstr "ISBN"
+
+msgid "directory_catalog_pending"
+msgstr "Takip talebiniz onay bekliyor. Kütüphane kabul ettiğinde paylaştığı kitapları görebileceksiniz."
+
+msgid "directory_catalog_not_following"
+msgstr "Paylaştığı kitapları görmek için bu kütüphaneyi takip edin."
+
+#. Catalog detail
+msgid "catalog_book_details"
+msgstr "Kitap ayrıntıları"
+
+msgid "catalog_add_to_library"
+msgstr "Kütüphaneme ekle"
+
+msgid "catalog_added_success"
+msgstr "Kitap kütüphanenize eklendi"
+
+msgid "catalog_details_unavailable"
+msgstr "Ayrıntılar çevrimiçi olarak mevcut değil"
+
+msgid "catalog_loading_details"
+msgstr "Ayrıntılar yükleniyor..."
+
+msgid "catalog_already_in_library"
+msgstr "Zaten kütüphanenizde"
+
+#. Generic
+msgid "action_retry"
+msgstr "Tekrar dene"
+
+#. Libraries tab
+msgid "tab_libraries"
+msgstr "Kütüphaneler"
+
+#. Network screen tabs
+msgid "network_tab_my_network"
+msgstr "Ağım"
+
+msgid "network_tab_discover"
+msgstr "Herkese açık dizin"
+
+#. Network filters
+msgid "network_filter_all"
+msgstr "Tümü"
+
+msgid "network_filter_borrowers"
+msgstr "Ödünç alanlar"
+
+#. Hub follow requests pending
+msgid "network_hub_requests_title"
+msgstr "Takip talepleri"
+
+#. Hub pending requests - explanatory note shown when the public directory is disabled but legacy pending requests still exist server-side
+msgid "hub_pending_legacy_note"
+msgstr "Herkese açık dizin kapalı. Sayacı temizlemek için bu mevcut talepleri yine de çözebilirsiniz."
+
+msgid "lib_filter_all"
+msgstr "Tümü"
+
+msgid "lib_filter_peers"
+msgstr "Bağlantılar"
+
+msgid "lib_filter_following"
+msgstr "Takip edilenler"
+
+#. Nearby libraries on WiFi
+msgid "lib_filter_nearby"
+msgstr "Yakındakiler"
+
+#. Discover libraries from the hub directory
+msgid "lib_filter_discover"
+msgstr "Keşfet"
+
+msgid "lib_connection_peer"
+msgstr "Eşleştirildi"
+
+msgid "lib_follow_pending"
+msgstr "Bekliyor"
+
+msgid "lib_follow_active"
+msgstr "Takip ediliyor"
+
+msgid "lib_empty_title"
+msgstr "Henüz bağlı kütüphane yok"
+
+msgid "lib_empty_hint"
+msgstr "Kütüphane bulmak için Keşfet sekmesini kullanın veya Wi-Fi'nizdeki yakındakilere bağlanın."
+
+msgid "lib_unfollow"
+msgstr "Takibi bırak"
+
+#. Flash message: dismiss tooltip
+msgid "flash_dismiss_tooltip"
+msgstr "Kapat"
+
+#. Flash message: customize library name
+msgid "flash_customize_library_name"
+msgstr "Kütüphane adınızı kişiselleştirin:"
+
+#. Flash message: library name text field hint
+msgid "flash_library_name_hint"
+msgstr "Kütüphane adı"
+
+#. Flash message: library name saved confirmation
+msgid "flash_library_name_saved"
+msgstr "Kütüphane adı kaydedildi"
+
+#. Flash message: discover configuration profiles
+msgid "flash_discover_presets"
+msgstr "Hızlı kurulum - profilinizi seçin:"
+
+#. Flash message: peer paired (prefix before peer name)
+msgid "flash_peer_connected"
+msgstr "Şununla eşleştirildi:"
+
+#. Flash message: pending connection request (prefix before peer name)
+msgid "flash_peer_pending"
+msgstr "Bağlantı talebi:"
+
+#. Flash message: browse peer's library action
+msgid "flash_peer_browse"
+msgstr "Göz at"
+
+#. Flash message: review pending connection action
+msgid "flash_peer_review"
+msgstr "İncele"
+
+#. Flash message: pending connection hint in dialog
+msgid "flash_peer_pending_hint"
+msgstr "Onayınız bekleniyor"
+
+#. Flash message: see more connections overflow link
+msgid "flash_peer_see_more"
+msgstr "bağlantı daha"
+
+#. Flash message: semantic label for see more link
+msgid "flash_peer_see_more_semantic"
+msgstr "Tüm yeni eş bağlantılarını gör"
+
+#. Flash message: dialog title for all connections
+msgid "flash_peer_dialog_title"
+msgstr "Yeni bağlantılar"
+
+#. Flash message: dismiss all ephemeral flashes
+msgid "flash_peer_dismiss_all"
+msgstr "Tümünü kapat"
+
+#. Peer detail screen
+msgid "peer_details_title"
+msgstr "Kütüphane Ayrıntıları"
+
+msgid "peer_edit_display_name"
+msgstr "Adı düzenle"
+
+msgid "peer_display_name_label"
+msgstr "Görünen ad"
+
+msgid "peer_display_name_hint"
+msgstr "Bu kütüphane için özel bir ad girin"
+
+#. Caption (label to distinguish contacts with same name)
+msgid "peer_edit_caption"
+msgstr "Bir açıklama ekle"
+
+msgid "peer_caption_label"
+msgstr "Açıklama"
+
+msgid "peer_caption_hint"
+msgstr "Örn. Meslektaş, Komşu, Kitap kulübü..."
+
+msgid "peer_caption_saved"
+msgstr "Açıklama kaydedildi"
+
+msgid "peer_caption_removed"
+msgstr "Açıklama kaldırıldı"
+
+msgid "peer_e2ee_status"
+msgstr "Uçtan uca şifreleme"
+
+msgid "peer_e2ee_active"
+msgstr "Etkin - iletişimler şifrelidir"
+
+msgid "peer_e2ee_inactive"
+msgstr "Etkin değil - anahtar değişimi tamamlanmadı"
+
+msgid "peer_last_seen"
+msgstr "Son görülme"
+
+msgid "peer_has_relay"
+msgstr "Yerel Wi-Fi dışında bile erişilebilir"
+
+#. Relay mailbox expired error
+msgid "peer_relay_mailbox_expired"
+msgstr "Eşin aktarma posta kutusu artık mevcut değil. Eşten davetini yeniden göndermesini isteyin."
+
+msgid "peer_connection_info"
+msgstr "Bağlantı"
+
+msgid "peer_node_id"
+msgstr "Düğüm kimliği"
+
+#. Bottom sheet: peer actions menu
+msgid "peer_actions"
+msgstr "Eylemler"
+
+msgid "view_profile"
+msgstr "Profili görüntüle"
+
+#. Avatar tooltip: connection type
+msgid "peer_type_both"
+msgstr "P2P kişi ve dizin takibi"
+
+msgid "peer_type_direct"
+msgstr "Doğrudan P2P kişi (çift yönlü)"
+
+msgid "peer_type_following"
+msgstr "Dizin takibi (tek yönlü)"
+
+msgid "peer_name_saved"
+msgstr "Ad kaydedildi"
+
+msgid "peer_custom_name_indicator"
+msgstr "Özel ad"
+
+#. Empty state: no nearby peers
+msgid "no_nearby_peers"
+msgstr "Yakında kütüphane yok"
+
+msgid "no_nearby_peers_hint"
+msgstr "Wi-Fi'nin etkin olduğundan ve diğer BiblioGenius kullanıcılarının aynı ağda olduğundan emin olun."
+
+#. Empty state: no followed libraries
+msgid "no_following_yet"
+msgstr "Henüz takip edilen kütüphane yok"
+
+msgid "no_following_hint"
+msgstr "İlginizi çeken kütüphaneleri bulmak ve takip etmek için dizine göz atın."
+
+msgid "browse_directory_btn"
+msgstr "Dizine göz at"
+
+#. Empty state: no borrowers
+msgid "no_borrowers_yet"
+msgstr "Henüz ödünç alan yok"
+
+msgid "no_borrowers_hint"
+msgstr "Kütüphanenizden kitap ödünç alan kişileri ekleyin."
+
+#. ISBN validation
+msgid "isbn_checksum_warning"
+msgstr "Bu ISBN geçersiz olabilir (sağlama toplamı hatası)"
+
+#. Show library views toggle
+msgid "show_view_count"
+msgstr "Kütüphane görüntülemelerini göster"
+
+msgid "show_view_count_desc"
+msgstr "Profilinizde görüntüleme sayısını göster"
+
+#. Profile view counter
+msgid "profile_view"
+msgstr "görüntüleme"
+
+msgid "profile_views"
+msgstr "görüntüleme"
+
+msgid "profile_views_peers"
+msgstr "eşlerden"
+
+msgid "profile_views_followers"
+msgstr "takipçilerden"
+
+#. Peer connectivity status
+#. Profile follower count
+msgid "profile_follower"
+msgstr "takipçi"
+
+msgid "profile_followers"
+msgstr "takipçi"
+
+msgid "peer_status_online"
+msgstr "Çevrimiçi"
+
+msgid "peer_status_unreachable"
+msgstr "Erişilemez"
+
+#. Peer reachable via relay or hub (not direct WiFi)
+msgid "peer_status_indirect"
+msgstr "Çevrimiçi"
+
+msgid "module_edition_browser"
+msgstr "Baskı Tarayıcı"
+
+msgid "module_edition_browser_desc"
+msgstr "Kitap eklerken birden fazla baskıya göz atın ve birini seçin"
+
+msgid "confirm"
+msgstr "Onayla"
+
+msgid "reset_scores"
+msgstr "Puanları sıfırla"
+
+msgid "reset_scores_confirm"
+msgstr "Bu oyundaki tüm puanlarınız silinecek. Bu işlem geri alınamaz."
+
+#. Notifications empty state description
+msgid "notifications_empty_desc"
+msgstr "Bağlantı, ödünç ve keşif bildirimleriniz burada görünecek."
+
+msgid "notifications_see_all"
+msgstr "Tüm bildirimleri gör"
+
+#. Clear all notifications
+msgid "notifications_clear_all"
+msgstr "Tümünü temizle"
+
+msgid "notifications_clear_all_confirm"
+msgstr "Tüm bildirimler silinsin mi?"
+
+#. Notification display - connection events
+msgid "notif_connection_request"
+msgstr "{name} bağlanmak istiyor"
+
+msgid "notif_connection_accepted"
+msgstr "{name} artık kişilerinizde"
+
+msgid "notif_new_follower"
+msgstr "{name} artık sizi takip ediyor"
+
+msgid "notif_follow_request"
+msgstr "{name} sizi takip etmek istiyor"
+
+#. Notification display - loan events
+msgid "notif_borrow_request"
+msgstr "{name}, \"{book}\" kitabını ödünç almak istiyor"
+
+msgid "notif_borrow_accepted"
+msgstr "{name}, \"{book}\" ödüncünü kabul etti"
+
+msgid "notif_book_returned"
+msgstr "{name}, \"{book}\" kitabını iade etti"
+
+msgid "notif_book_reclaimed"
+msgstr "{name}, \"{book}\" kitabını geri aldı"
+
+msgid "notif_borrow_rejected"
+msgstr "{name}, \"{book}\" ödüncünü reddetti"
+
+#. Notification display - discovery events
+msgid "notif_wishlist_match"
+msgstr "\"{book}\", {source} kaynağında mevcut"
+
+#. Notification display - system events
+msgid "notif_welcome"
+msgstr "BiblioGenius'a hoş geldiniz! Kütüphanenizi yönetmek için uygulamayı keşfedin."
+
+#. Notification tap hints
+msgid "notif_tap_network"
+msgstr "Ağı gör"
+
+msgid "notif_tap_requests"
+msgstr "Talepleri gör"
+
+msgid "notif_tap_loans"
+msgstr "Ödünçleri gör"
+
+msgid "notif_tap_discover"
+msgstr "Keşfet"
+
+msgid "notif_tap_wishlist"
+msgstr "İstek listesini gör"
+
+msgid "notif_tap_library"
+msgstr "Kütüphaneyi gör"
+
+msgid "settings_search_hint"
+msgstr "Ayarlarda ara..."
+
+#. Reorderable sections - edit mode
+msgid "sections_edit_mode"
+msgstr "Bölümleri Özelleştir"
+
+msgid "sections_edit_done"
+msgstr "Bitti"
+
+msgid "sections_reset"
+msgstr "Sıfırla"
+
+msgid "sections_hidden"
+msgstr "Gizli"
+
+msgid "sections_drag_hint"
+msgstr "Yeniden sıralamak için basılı tutun"
+
+msgid "tooltip_toggle_section"
+msgstr "Bu bölümü göster/gizle"
+
+msgid "tooltip_edit_sections"
+msgstr "Düzeni özelleştir"
+
+#. Hangman game
+msgid "hangman_title"
+msgstr "Adam Asmaca"
+
+msgid "hangman_dashboard_subtitle"
+msgstr "Kitap başlıklarınızı harf harf tahmin edin"
+
+msgid "hangman_not_enough_books_title"
+msgstr "Önce kütüphanenizi büyütün!"
+
+msgid "hangman_not_enough_books"
+msgstr "Bu oyunun kilidini açmak için en az 10 kitap ekleyin. Başlamak için bir barkod tarayın veya kitapları elle ekleyin."
+
+msgid "hangman_visual_style"
+msgstr "Görsel stil"
+
+msgid "hangman_style_classic"
+msgstr "Klasik"
+
+msgid "hangman_style_books"
+msgstr "Kitaplar"
+
+msgid "hangman_select_difficulty"
+msgstr "Bir zorluk seçin"
+
+msgid "hangman_difficulty_easy"
+msgstr "Kolay"
+
+msgid "hangman_difficulty_medium"
+msgstr "Orta"
+
+msgid "hangman_difficulty_hard"
+msgstr "Zor"
+
+msgid "hangman_difficulty_easy_desc"
+msgstr "2 ipucu, 5 dk -- yeni başlayanlar için ideal"
+
+msgid "hangman_difficulty_medium_desc"
+msgstr "1 ipucu, 3 dk -- adil bir meydan okuma"
+
+msgid "hangman_difficulty_hard_desc"
+msgstr "İpucu yok, 2 dk -- yalnızca uzmanlar için"
+
+msgid "hangman_start"
+msgstr "Oyna"
+
+msgid "hangman_errors"
+msgstr "Hatalar"
+
+msgid "hangman_hints"
+msgstr "İpuçları"
+
+msgid "hangman_score"
+msgstr "Puan"
+
+msgid "hangman_time"
+msgstr "Süre"
+
+msgid "hangman_rank"
+msgstr "Sıralama"
+
+msgid "hangman_won"
+msgstr "Aferin!"
+
+msgid "hangman_lost"
+msgstr "Oyun bitti!"
+
+msgid "hangman_play_again"
+msgstr "Tekrar oyna"
+
+msgid "hangman_back_to_menu"
+msgstr "Menü"
+
+msgid "hangman_leaderboard"
+msgstr "Sıralama"
+
+msgid "hangman_new_best"
+msgstr "Yeni kişisel rekor!"
+
+msgid "hangman_no_scores"
+msgstr "Henüz puan yok. Bir oyun oynayın!"
+
+msgid "achievement_hangman_first_game"
+msgstr "İlk Adam Asmaca"
+
+msgid "achievement_hangman_perfect"
+msgstr "Kusursuz Adam Asmaca"
+
+msgid "achievement_hangman_master"
+msgstr "Adam Asmaca Ustası"
+
+msgid "pairing_pending_review"
+msgstr "%d inceleme bekliyor"
+
+msgid "pairing_last_paired"
+msgstr "%s eşleştirildi"
+
+msgid "sync_push"
+msgstr "Cihaza gönder"
+
+msgid "sync_pull"
+msgstr "Cihazdan al"
+
+msgid "sync_both"
+msgstr "İki yönlü eşitle"
+
+msgid "sync_reset_all"
+msgstr "Eşitleme günlüğünü sıfırla"
+
+msgid "sync_reset_confirm"
+msgstr "Bu, bekleyen, uygulanmış ve başarısız tüm eşitleme işlemlerini siler. Kitaplarınız etkilenmez. Devam edilsin mi?"
+
+#. Private Books
+msgid "settings_allow_private_books"
+msgstr "Özel kitaplar"
+
+#. Allow hiding specific books from network peers
+msgid "settings_allow_private_books_desc"
+msgstr "Belirli kitapları gizleyerek ağdaki kişilerinize görünmemelerini sağlayın"
+
+#. Private book
+msgid "book_private"
+msgstr "Özel kitap"
+
+#. This book will not be visible to your contacts on the network
+msgid "book_private_desc"
+msgstr "Bu kitap ağdaki kişilerinize görünmeyecek"
+
+#. Tooltip for private book toggle
+msgid "tooltip_private_book"
+msgstr "Bu kitabı ağdan gizle"
+
+#. ── Book Notes ──────────────────────────────────────────────────────
+#. Section title for reading notes
+msgid "notes_section_title"
+msgstr "Okuma notları"
+
+#. Subtitle hint for reading notes section
+msgid "notes_section_hint"
+msgstr "Düşüncelerinizi, alıntılarınızı veya akılda kalan bölümleri not edin"
+
+#. Subtitle hint for reading notes section (when speech-to-text is enabled)
+msgid "notes_section_hint_speech"
+msgstr "Düşüncelerinizi, alıntılarınızı veya akılda kalan bölümleri yazın ya da seslendirin"
+
+#. Placeholder for the note input field
+msgid "add_note_placeholder"
+msgstr "Bir not ekle..."
+
+#. Hint for page number field
+msgid "note_page_label"
+msgstr "Sayfa"
+
+#. Link to see all notes
+msgid "view_all_notes"
+msgstr "Tüm notları görüntüle"
+
+#. Confirmation before deleting a note
+msgid "delete_note_confirm"
+msgstr "Bu not silinsin mi?"
+
+#. Shown when there are no notes yet
+msgid "no_notes_yet"
+msgstr "Henüz not yok"
+
+#. Note updated confirmation
+msgid "note_updated"
+msgstr "Not güncellendi"
+
+#. Note deleted confirmation
+msgid "note_deleted"
+msgstr "Not silindi"
+
+#. Edit note dialog title
+msgid "edit_note"
+msgstr "Notu düzenle"
+
+#. Tooltip for add note button
+msgid "tooltip_add_note"
+msgstr "Bir not ekle"
+
+#. Tooltip for delete note button
+msgid "tooltip_delete_note"
+msgstr "Notu sil"
+
+#. Tooltip for edit note button
+msgid "tooltip_edit_note"
+msgstr "Notu düzenle"
+
+#. ── Speech-to-text ──────────────────────────────────────────────────
+#. Settings label for speech-to-text toggle
+msgid "speech_to_text_setting"
+msgstr "Notlar için sesli dikte"
+
+#. Description for speech-to-text setting
+msgid "speech_to_text_setting_desc"
+msgstr "Okuma notlarınızı dikte etmek için bir mikrofon düğmesi ekleyin"
+
+#. Tooltip for microphone button
+msgid "tooltip_dictate_note"
+msgstr "Bir not dikte et"
+
+#. Shown when speech recognition is not available on device
+msgid "speech_not_available"
+msgstr "Bu cihazda konuşma tanıma kullanılamıyor"
+
+#. Shown while listening
+msgid "speech_listening"
+msgstr "Dinliyor..."
+
+#. ── Loan duration settings ──────────────────────────────────────────
+#. Settings section title for loan duration
+msgid "loan_duration_settings_title"
+msgstr "Ödünç süresi"
+
+#. Label for global default loan duration
+msgid "loan_duration_default_label"
+msgstr "Varsayılan süre"
+
+#. Unit suffix for days
+msgid "loan_duration_days_suffix"
+msgstr "gün"
+
+#. Toggle label for per-book duration customization
+msgid "loan_duration_per_book_toggle"
+msgstr "Kitap başına özelleştirme"
+
+#. Description for per-book duration toggle
+msgid "loan_duration_per_book_desc"
+msgstr "Her kitap için farklı bir ödünç süresi belirleyin"
+
+#. Label for per-book loan duration field in book detail
+msgid "loan_duration_book_custom"
+msgstr "Özel ödünç süresi"
+
+#. Hint when per-book duration is not set (uses global default)
+msgid "loan_duration_book_default_hint"
+msgstr "Varsayılan süreyi kullanır (%d gün)"
+
+#. Tooltip for clearing per-book duration
+msgid "tooltip_clear_book_loan_duration"
+msgstr "Varsayılan süreye sıfırla"
+
+#. Snackbar confirmation when loan settings are saved
+msgid "loan_settings_saved"
+msgstr "Ödünç ayarları kaydedildi"
+
+#. Label for due date in loan dialog
+msgid "loan_due_date_label"
+msgstr "Beklenen iade tarihi"
+
+#. Loan offer to peer - notification pending
+msgid "loan_notification_pending"
+msgstr "bildirim bekliyor"
+
+#. Recovery code - settings row
+msgid "recovery_code_title"
+msgstr "Kurtarma kodu"
+
+#. Recovery code - settings row subtitle
+msgid "recovery_code_subtitle"
+msgstr "Uygulamayı yeniden yükledikten sonra profilinizi kurtarın"
+
+#. Recovery code - display screen title
+msgid "recovery_code_display_title"
+msgstr "Kurtarma kodu"
+
+#. Recovery code - display screen explanation
+msgid "recovery_code_display_explanation"
+msgstr "Bu kod, uygulamayı yeniden yüklerseniz profilinizi, takipçilerinizi ve aboneliklerinizi kurtarmanızı sağlar."
+
+#. Recovery code - display screen save advice
+msgid "recovery_code_save_advice"
+msgstr "Güvenli bir yerde saklayın. Yalnızca bir kez kullanılabilir: her kullanımdan sonra yeni bir kod oluşturulur."
+
+#. Recovery code - copy button tooltip
+msgid "recovery_code_copy"
+msgstr "Kurtarma kodunu kopyala"
+
+#. Recovery code - copied confirmation
+msgid "recovery_code_copied"
+msgstr "Kurtarma kodu kopyalandı"
+
+#. Recovery code - first display title
+msgid "recovery_code_first_title"
+msgstr "Kurtarma kodu"
+
+#. Recovery code - first display explanation
+msgid "recovery_code_first_explanation"
+msgstr "Bu kod, uygulamayı yeniden yüklerseniz dizindeki profilinizi kurtarmanızı sağlar."
+
+#. Recovery code - first display save notice
+msgid "recovery_code_first_save_notice"
+msgstr "Güvenli bir yerde saklayın (parola yöneticisi, el yazısı not...)."
+
+#. Recovery code - first display auto notice
+msgid "recovery_code_first_auto_notice"
+msgstr "Bu kod otomatik olarak tekrar gösterilmeyecek. Onu Ayarlar > Dizin'de bulabilirsiniz."
+
+#. Recovery code - first display confirm button
+msgid "recovery_code_first_confirm"
+msgstr "Kodumu kaydettim"
+
+#. Connection lost - dialog title
+msgid "connection_lost_title"
+msgstr "Dizin bağlantısı kayboldu"
+
+#. Connection lost - dialog body
+msgid "connection_lost_body"
+msgstr "Yeniden yükledikten sonra dizindeki profilinize artık erişilemiyor. Kitaplarınız ve yerel kişileriniz etkilenmez."
+
+#. Connection lost - recovery option
+msgid "connection_lost_recovery_option"
+msgstr "Bir kurtarma kodum var"
+
+#. Connection lost - recovery option subtitle
+msgid "connection_lost_recovery_subtitle"
+msgstr "Profilinizi, takipçilerinizi ve aboneliklerinizi kurtarın"
+
+#. Connection lost - new profile option
+msgid "connection_lost_new_profile"
+msgstr "Yeni bir profil oluştur"
+
+#. Connection lost - new profile warning
+msgid "connection_lost_new_profile_warning"
+msgstr "Mevcut takipçileriniz ve abonelikleriniz kaybolacak. Sizi takip edenler sizi yeniden bulmak zorunda kalacak."
+
+#. Connection lost - later button
+msgid "connection_lost_later"
+msgstr "Daha sonra"
+
+#. Recovery input - screen title
+msgid "recovery_input_title"
+msgstr "Profilinizi kurtarın"
+
+#. Recovery input - instructions
+msgid "recovery_input_instructions"
+msgstr "Dizine kaydolurken kaydettiğiniz kurtarma kodunu girin."
+
+#. Recovery input - submit button
+msgid "recovery_input_submit"
+msgstr "Profilimi kurtar"
+
+#. Recovery input - success message
+msgid "recovery_input_success"
+msgstr "Profil kurtarıldı! Takipçileriniz ve abonelikleriniz korundu."
+
+#. Recovery input - success new code notice
+msgid "recovery_input_success_new_code"
+msgstr "Yeni bir kurtarma kodu oluşturuldu."
+
+#. Recovery input - error message
+msgid "recovery_input_error"
+msgstr "Bu kod geçerli değil. Kaydettiğinizle eşleştiğini doğrulayın."
+
+#. Recovery code - not available (registered before feature)
+msgid "recovery_code_not_available"
+msgstr "Mevcut değil. Bir tane oluşturmak için yeniden kaydolun."
+
+#. Badge shown on experimental features
+msgid "badge_experimental"
+msgstr "Deneysel"
+
+#. Recovery code - scope legend: what is covered
+msgid "recovery_code_scope_covers"
+msgstr "Kurtarır: profiliniz, takipçileriniz ve takip ettikleriniz."
+
+#. Recovery code - scope legend: what is excluded
+msgid "recovery_code_scope_excludes"
+msgstr "Kurtarılmaz: kitaplarınız (yerel olarak saklanır) ve elle eklenen eşler (yeniden eklenmelidir)."
+
+msgid "quotes_module_help"
+msgstr "Ana ekranda ilham verici edebi alıntılar gösterir. Tamamen dekoratiftir: işlevsellik üzerinde hiçbir etkisi olmadan devre dışı bırakılabilir."
+
+msgid "gamification_module_help"
+msgstr "Okumayı rozetler, seviyeler ve istatistik takibiyle bir oyuna dönüştürür. Okunan kitapları, sayfaları ve ardışık okuma serilerini sayar."
+
+msgid "games_module_help"
+msgstr "Kütüphanenizin kapaklarını ve başlıklarını kullanan bir mini oyun seçkisini etkinleştirir. Her oyun daha sonra ayrı ayrı açılıp kapatılabilir."
+
+msgid "network_gamification_help"
+msgstr "İlerlemenizi yerel ağınızdaki diğer kütüphanelerle karşılaştıran bir sıralama gösterir. Her katılımcı neyi paylaşacağını bağımsız olarak seçer."
+
+msgid "share_gamification_stats_help"
+msgstr "Ağınızdaki diğer kütüphanelerin istatistiklerinizi (okunan kitaplar, rozetler, seviyeler) görmesine izin verir. Bu seçenek olmadan sıralamada anonim kalırsınız."
+
+msgid "group_by_collections_help"
+msgstr "Kütüphane görünümünde kitaplar düz bir liste yerine koleksiyona göre gruplanır. Birçok tematik koleksiyonunuz varsa kullanışlıdır."
+
+msgid "commerce_module_help"
+msgstr "Kitapçılara yönelik özellikleri etkinleştirir: stok yönetimi, satış fiyatları, kitap durumu. Yalnızca kitap satıyorsanız önerilir."
+
+msgid "speech_to_text_setting_help"
+msgstr "Not ve alıntı giriş alanlarına bir mikrofon düğmesi ekler. Konuşmayı metne dönüştürmek için sistemin ses tanımasını kullanır."
+
+msgid "auto_approve_loans_help"
+msgstr "Güvenilir bir kişi bir kitap istediğinde, ödünç onay olmadan otomatik kabul edilir. Daha sonra ödünçler ekranından yine de iptal edebilirsiniz."
+
+msgid "enable_borrowing_module_help"
+msgstr "Ödünç sistemini etkinleştirir: kitaplarınızı kişilerinize ödünç verebilir ve onlarınkini ödünç alabilirsiniz. Her ödüncün yapılandırılabilir bir varsayılan süresi vardır ve otomatik hatırlatmalar oluşturur."
+
+msgid "enable_lending_module_help"
+msgstr "Kitaplarınızı kişilerinize ödünç vermenizi sağlar. Devre dışı bırakıldığında, ödünç verme düğmeleri kitap ayrıntılarından kaybolur ve kişileriniz kütüphanenizden ödünç almayı talep edemez — ancak ödünç alma modülü etkinse onlardan yine de ödünç alabilirsiniz."
+
+msgid "settings_allow_private_books_help"
+msgstr "Her kitapta 'Özel' seçeneğinin kilidini açar. Özel bir kitap kütüphanenizde kalır ama diğer kullanıcılara asla gösterilmez — ne herkese açık profilinizde ne de ağ aramalarında."
+
+msgid "module_digital_formats_help"
+msgstr "Aynı kitap için formatlar (kağıt, e-kitap, sesli kitap) arasındaki ayrımı etkinleştirir. Birden fazla baskıya sahipseniz ve hangisini okuduğunuzu takip etmek istiyorsanız kullanışlıdır."
+
+msgid "notif_enabled_help"
+msgstr "Tüm uygulama bildirimlerini etkinleştirir veya devre dışı bırakır. Kapalıyken kategorisi ne olursa olsun hiçbir uyarı görünmez."
+
+msgid "notif_connections_help"
+msgstr "Birisi size bir bağlantı talebi gönderdiğinde veya sizinkini kabul ettiğinde sizi bilgilendirir."
+
+msgid "notif_loans_help"
+msgstr "Gelen ödünç talepleri, iade edilen kitaplar ve etkin ödünçler için iade hatırlatmaları konusunda sizi bilgilendirir."
+
+msgid "notif_discoveries_help"
+msgstr "Kişileriniz kütüphanelerine yeni kitaplar eklediğinde sizi bilgilendirir."
+
+msgid "settings_auto_backup_help"
+msgstr "Kütüphanenizi düzenli aralıklarla otomatik olarak yedekler. Cihazınızda bir sorun olursa verilerinizi geri yüklemenizi sağlar."
+
+msgid "search_sources_help"
+msgstr "Başlığa veya yazara göre arama yaparken hangi veritabanlarının sorgulanacağını seçin. Daha fazla kaynak etkinleştirmek kapsamı iyileştirir ancak aramaları biraz yavaşlatabilir."
+
+msgid "settings_password_help"
+msgstr "Uygulama başladığında kütüphanenize erişimi korur. Yerel modda bu parola cihazınızda kalır ve asla iletilmez."
+
+msgid "two_factor_auth_help"
+msgstr "Girişte ikinci bir doğrulama adımı ekler (SMS kodu veya kimlik doğrulayıcı uygulama). BiblioGenius'u bir sunucu hesabıyla kullanırken güvenliği artırır."
+
+msgid "recently_added_title"
+msgstr "Etkinlik"
+
+msgid "badge_days_since_start"
+msgstr "G+%s"
+
+msgid "carousel_hide_tooltip"
+msgstr "Atlı karıncayı gizle"
+
+msgid "carousel_hide_long_press_tooltip"
+msgstr "Gizlemek için uzun basın"
+
+msgid "carousel_expand_tooltip"
+msgstr "Atlı karıncayı genişlet"
+
+msgid "carousel_collapse_tooltip"
+msgstr "Atlı karıncayı daralt"
+
+msgid "carousel_collapsed_label"
+msgstr "Etkinlik · {count}"
+
+msgid "carousel_hidden_snackbar"
+msgstr "Atlı karınca gizlendi"
+
+msgid "action_undo"
+msgstr "Geri al"
+
+msgid "carousel_own_lib_title"
+msgstr "Etkinlik: kütüphanem"
+
+msgid "carousel_own_lib_desc"
+msgstr "Kütüphanenizin üstünde şu anda okuduğunuz kitapları ve son eklediklerinizi gösterir."
+
+msgid "carousel_peer_lib_title"
+msgstr "Etkinlik: eşler"
+
+msgid "carousel_peer_lib_desc"
+msgstr "Eşlerin kütüphanelerinin üstünde şu anda okudukları kitapları ve son eklediklerini gösterir."
+
+#. Save order (shelf reorder mode)
+msgid "save_shelf_order"
+msgstr "Sıralamayı kaydet"
+
+#. Reorder shelf
+msgid "reorder_shelf"
+msgstr "Rafı yeniden sırala"
+
+#. Open in browser
+msgid "open_in_browser"
+msgstr "Tarayıcıda aç"
+
+#. Playback speed
+msgid "playback_speed"
+msgstr "Oynatma hızı"
+
+#. Search online
+msgid "search_online"
+msgstr "Çevrimiçi ara"
+
+#. Decrease by 1
+msgid "decrease_by_one"
+msgstr "1 azalt"
+
+#. Increase by 1
+msgid "increase_by_one"
+msgstr "1 artır"
+
+#. Scan for nearby peers
+msgid "tooltip_scan_peers"
+msgstr "Yakındaki cihazları tara"
+
+#. Rewind 10 seconds
+msgid "tooltip_rewind_10s"
+msgstr "10 saniye geri sar"
+
+#. Forward 30 seconds
+msgid "tooltip_forward_30s"
+msgstr "30 saniye ileri sar"
+
+#. Accept request
+msgid "tooltip_accept"
+msgstr "Kabul et"
+
+#. Reject request
+msgid "tooltip_reject"
+msgstr "Reddet"
+
+#. Add author
+msgid "tooltip_add_author"
+msgstr "Yazar ekle"
+
+#. Toggle flashlight / torch
+msgid "tooltip_toggle_flashlight"
+msgstr "El fenerini aç/kapat"
+
+#. Refresh
+msgid "tooltip_refresh"
+msgstr "Yenile"
+
+#. Send message
+msgid "tooltip_send_message"
+msgstr "Mesaj gönder"
+
+#. Search peers
+msgid "tooltip_search_peer"
+msgstr "Ara"
+
+#. Tooltip shown on the owner's book-details screen when a cover upload to the hub has failed and a retry is pending on the next sync.
+msgid "cover_upload_pending_tooltip"
+msgstr "Kapak eşitlenmedi. Sonraki yenilemede yeni bir deneme yapılacak."
+
+#. Settings section header for peer (networked) library cover controls.
+msgid "settings_peer_covers_section"
+msgstr "Ağ kütüphanelerinin kapakları"
+
+#. Toggle that controls whether peer libraries show book covers or fall back to the colored-spine view.
+msgid "peer_cover_display_enabled"
+msgstr "Ağ kütüphanelerinin kapaklarını göster"
+
+#. Description for the peer cover display toggle.
+msgid "peer_cover_display_enabled_desc"
+msgstr "Kapalıyken ağ kütüphaneleri renkli sırt görünümünü kullanır. Hiçbir kapak indirilmez veya saklanmaz."
+
+#. Label for the peer cover cache size selector.
+msgid "peer_cover_cache_cap"
+msgstr "Maks. önbellek boyutu"
+
+#. Description for the peer cover cache size selector.
+msgid "peer_cover_cache_cap_desc"
+msgstr "Ağ kapakları için disk bütçesi. Dolduğunda eski kapaklar kaldırılır."
+
+#. Title of the current-usage row below the cache size selector.
+msgid "peer_cover_cache_usage_title"
+msgstr "Geçerli kullanım"
+
+#. Body of the current-usage row. Format: "X MB of Y MB". {used} and {cap} are replaced at runtime.
+msgid "peer_cover_cache_usage"
+msgstr "{cap} MB'nin {used} MB'si"
+
+#. Tooltip for the refresh icon next to the current-usage row.
+msgid "peer_cover_cache_refresh"
+msgstr "Yenile"
+
+#. Destructive action that empties the peer cover cache directory.
+msgid "peer_cover_cache_clear"
+msgstr "Ağ kapağı önbelleğini temizle"
+
+#. Title of the confirmation dialog shown before clearing the peer cover cache.
+msgid "peer_cover_cache_clear_title"
+msgstr "Ağ kapağı önbelleği temizlensin mi?"
+
+#. Body of the confirmation dialog shown before clearing the peer cover cache.
+msgid "peer_cover_cache_clear_body"
+msgstr "Bu, ağ kütüphanelerinden indirilen kapakları siler. Kendi kütüphanenizin kapakları etkilenmez."
+
+#. Confirm button of the clear peer cover cache dialog.
+msgid "peer_cover_cache_clear_action"
+msgstr "Temizle"
+
+#. Snackbar shown after the peer cover cache has been cleared.
+msgid "peer_cover_cache_clear_done"
+msgstr "Ağ kapağı önbelleği temizlendi"
+
+#. ============ Identity recovery dialog (E2EE wipe hardening) ============
+#. Title of the security dialog shown when the encrypted identity cannot be decrypted.
+msgid "identity_recovery_title"
+msgstr "Güvenlik denetimi"
+
+#. Body of the security dialog explaining the situation.
+msgid "identity_recovery_body"
+msgstr "BiblioGenius, bu kütüphanenin cihazınızdaki güvenlik anahtarını artık tanımıyor. Bu genellikle yeniden denediğinizde geçen geçici bir sistem aksaklığıdır."
+
+#. Bullet describing the retry option (recommended path).
+msgid "identity_recovery_bullet_retry"
+msgstr "• Tekrar dene: önce bunu deneyin (önerilir)."
+
+#. Bullet describing the regenerate option (destructive path).
+msgid "identity_recovery_bullet_regenerate"
+msgstr "• Sıfırdan başla: yeni bir anahtar oluşturur. Bağlı cihazlarınız ve kütüphanelerinizle ödünç talepleri ve diğer güvenli alışverişler, Ağ ekranından yeniden eşleştirene kadar çalışmayı durdurur."
+
+#. Action button for regenerating the encrypted identity.
+msgid "identity_recovery_btn_regenerate"
+msgstr "Sıfırdan başla"
+
+#. Error message shown when retry still fails (recovery dialog stays open).
+msgid "identity_recovery_retry_still_failing"
+msgstr "Bu cihazı hâlâ tanımıyoruz. Sorun devam ederse \"Sıfırdan başla\"yı seçebilirsiniz."
+
+#. Error message for unexpected exceptions during retry. {error} is the exception message.
+msgid "identity_recovery_retry_unexpected_error"
+msgstr "Beklenmeyen hata: {error}"
+
+#. Error message shown when the regeneration step itself fails. {error} is the exception message.
+msgid "identity_recovery_regen_failed"
+msgstr "Sıfırlama başarısız: {error}"
+
+#. Title of the confirmation sub-dialog before regenerating.
+msgid "identity_recovery_confirm_title"
+msgstr "Sıfırdan başlansın mı?"
+
+#. Body of the regenerate confirmation sub-dialog.
+msgid "identity_recovery_confirm_body"
+msgstr "Bu cihaz için yeni bir güvenlik anahtarı oluşturulacak.\n\nDiğer cihazlarınız ve kütüphaneleriniz büyük olasılıkla kitaplarınızı görmeye devam edecek, ancak aranızdaki güvenli işlemler (ödünç talepleri, paylaşılan profil güncellemeleri, özel bildirimler) çalışmayı durduracak. Bunları geri yüklemek için her birini Ağ ekranından yeniden eşleştirmeniz gerekecek.\n\nKütüphanenizin içeriği (kitaplar, raflar, ödünçler) etkilenmez."
+
+#. Title of the success state of the recovery dialog after regen succeeds.
+msgid "identity_recovery_success_title"
+msgstr "Tamam"
+
+#. Body of the success state of the recovery dialog after regen succeeds.
+msgid "identity_recovery_success_body"
+msgstr "Bu kütüphanenin artık yeni bir güvenlik anahtarı var.\n\nDiğer cihazlarınız ve kütüphaneleriniz hâlâ kitaplarınızı görüyor olabilir, ancak onlarla güvenli işlemler (ödünç talepleri, paylaşılan profil, özel bildirimler) artık çalışmıyor. Bunları geri yüklemek için Ağ'a gidip her birini yeniden eşleştirin."
+
+#. Acknowledgement button on the success state of the recovery dialog.
+msgid "identity_recovery_success_btn"
+msgstr "Tamam"
+
+#. Singular form of the success-state heading listing devices/peers to re-pair.
+msgid "identity_recovery_success_repair_title_one"
+msgstr "Yeniden eşleştirilecek 1 bağlantı"
+
+#. Plural form of the success-state heading. {count} is the total of devices + peers.
+msgid "identity_recovery_success_repair_title_other"
+msgstr "Yeniden eşleştirilecek {count} bağlantı"
+
+#. Short intro shown above the list of devices/peers to re-pair after regen.
+msgid "identity_recovery_success_repair_intro"
+msgstr "Güvenli işlemleri geri yüklemek için her birini Ağ'dan yeniden eşleştirin."
+
+#. Primary CTA on the success state when devices/peers must be re-paired.
+msgid "identity_recovery_success_btn_network"
+msgstr "Ağ'a git"
+
+#. Secondary CTA on the success state to dismiss without navigating.
+msgid "identity_recovery_success_btn_later"
+msgstr "Daha sonra"
+
+#. Screen-reader label for the icon next to a linked device entry.
+msgid "identity_recovery_success_icon_device_label"
+msgstr "Bağlı cihaz"
+
+#. Screen-reader label for the icon next to a peer library entry.
+msgid "identity_recovery_success_icon_peer_label"
+msgstr "Eş kütüphane"
+
+#. Backup restore wizard (ADR-037 §5) — added 2026-04-29 with PR #3 reader.
+msgid "wizard_restore_app_bar_title"
+msgstr "Bir yedeği geri yükle"
+
+msgid "wizard_restore_picker_dialog_title"
+msgstr "Bir .bgbackup dosyası seçin"
+
+msgid "wizard_restore_step_picker_intro"
+msgstr "Geri yüklenecek bir .bgbackup yedeği seçin."
+
+msgid "wizard_restore_button_browse"
+msgstr "Gözat..."
+
+msgid "wizard_restore_button_cancel"
+msgstr "İptal"
+
+msgid "wizard_restore_button_continue"
+msgstr "Devam et"
+
+msgid "wizard_restore_button_back"
+msgstr "Geri"
+
+msgid "wizard_restore_button_restore"
+msgstr "Geri yükle"
+
+msgid "wizard_restore_button_close_app"
+msgstr "Uygulamayı kapat"
+
+msgid "wizard_restore_button_close_to_apply"
+msgstr "Uygulamak için kapat"
+
+msgid "wizard_restore_button_close"
+msgstr "Kapat"
+
+msgid "wizard_restore_button_retry"
+msgstr "Tekrar dene"
+
+msgid "wizard_restore_step_preview_title"
+msgstr "Seçili yedek"
+
+msgid "wizard_restore_kv_export_date"
+msgstr "Dışa aktarma tarihi"
+
+msgid "wizard_restore_kv_library_uuid"
+msgstr "Kütüphane tanımlayıcısı"
+
+msgid "wizard_restore_kv_schema"
+msgstr "Şema"
+
+msgid "wizard_restore_kv_schema_value"
+msgstr "{schema} (geçerli: {current})"
+
+msgid "wizard_restore_kv_app_version"
+msgstr "Uygulama sürümü"
+
+msgid "wizard_restore_kv_identity_included"
+msgstr "Kimlik dahil"
+
+msgid "wizard_restore_yes"
+msgstr "evet"
+
+msgid "wizard_restore_no"
+msgstr "hayır"
+
+msgid "wizard_restore_kv_unlock_kind"
+msgstr "Kilit açma kodu"
+
+msgid "wizard_restore_unlock_recovery"
+msgstr "kurtarma kodu"
+
+msgid "wizard_restore_unlock_passphrase"
+msgstr "özel parola ifadesi"
+
+msgid "wizard_restore_step_preview_content"
+msgstr "İçerik"
+
+msgid "wizard_restore_kv_books"
+msgstr "Kitaplar"
+
+msgid "wizard_restore_kv_copies"
+msgstr "Nüshalar"
+
+msgid "wizard_restore_kv_loans"
+msgstr "Ödünçler"
+
+msgid "wizard_restore_kv_contacts"
+msgstr "Kişiler"
+
+msgid "wizard_restore_kv_tags"
+msgstr "Raflar"
+
+msgid "wizard_restore_kv_local_covers"
+msgstr "Yerel kapaklar"
+
+msgid "wizard_restore_step_secret_prompt_recovery"
+msgstr "Kurtarma kodunuzu girin"
+
+msgid "wizard_restore_step_secret_prompt_passphrase"
+msgstr "Yedekleme parola ifadenizi girin"
+
+msgid "wizard_restore_secret_label_recovery"
+msgstr "Kurtarma kodu"
+
+msgid "wizard_restore_secret_label_passphrase"
+msgstr "Parola ifadesi"
+
+msgid "wizard_restore_secret_show"
+msgstr "Göster"
+
+msgid "wizard_restore_secret_hide"
+msgstr "Gizle"
+
+msgid "wizard_restore_step_secret_hint"
+msgstr "Doğrulama Argon2id kullanır ve eski cihazlarda birkaç saniye sürebilir."
+
+msgid "wizard_restore_secret_required"
+msgstr "Kodunuzu veya parola ifadenizi girin."
+
+msgid "wizard_restore_step_mode_title"
+msgstr "Geri yükleme modu"
+
+msgid "wizard_restore_mode_replace_title"
+msgstr "Değiştir (cihaz geçişi için önerilir)"
+
+msgid "wizard_restore_mode_replace_subtitle"
+msgstr "Mevcut kütüphaneniz 24 saat boyunca bir kenara konacak (geri alma yedeği), ardından bu arşivle değiştirilecek."
+
+msgid "wizard_restore_mode_merge_title"
+msgstr "Birleştir (mevcut kütüphaneme ekle)"
+
+msgid "wizard_restore_mode_merge_subtitle"
+msgstr "Arşivdeki kitaplar, kişiler ve raflar sizinkilere eklenir. Eşler ve kimlik etkilenmez."
+
+msgid "wizard_restore_identity_checkbox_title"
+msgstr "Bu kütüphanenin kimliğini de geri yükle (tam kopya)"
+
+msgid "wizard_restore_identity_checkbox_subtitle"
+msgstr "İşaretli: bu cihaz, eşleriniz tarafından orijinal cihaz olarak tanınacak. İşaretsiz: yeni kimlik, eşleriniz bir sonraki temasta sizi otomatik olarak yeniden doğrulayacak."
+
+msgid "wizard_restore_step_confirm_title"
+msgstr "Geri yüklemeyi onayla"
+
+msgid "wizard_restore_confirm_summary_replace"
+msgstr "Mevcut verileriniz bir geri alma yedeğine taşınacak. Ayarlar ekranından 24 saat içinde geri alabilirsiniz."
+
+msgid "wizard_restore_confirm_summary_merge"
+msgstr "Arşivdeki öğeler mevcut kütüphanenize eklenecek. Mevcut kitaplarınızın hiçbiri silinmeyecek."
+
+msgid "wizard_restore_confirm_restart_warning"
+msgstr "Geri yükleme bittiğinde uygulama kapanacak. Bitirmek için onu elle yeniden başlatmanız gerekecek."
+
+msgid "wizard_restore_progress_default"
+msgstr "Geri yükleme sürüyor..."
+
+msgid "wizard_restore_progress_verifying"
+msgstr "Yedek doğrulanıyor..."
+
+msgid "wizard_restore_progress_replacing"
+msgstr "Veritabanı geri yükleniyor..."
+
+msgid "wizard_restore_progress_merging"
+msgstr "Veriler birleştiriliyor..."
+
+msgid "wizard_restore_progress_warning"
+msgstr "Uygulamayı kapatmayın."
+
+msgid "wizard_restore_step_result_success_title"
+msgstr "Geri yükleme başarılı"
+
+msgid "wizard_restore_step_result_failure_title"
+msgstr "Geri yükleme başarısız"
+
+msgid "wizard_restore_step_result_failure_intact"
+msgstr "Mevcut kütüphaneniz olduğu gibi duruyor."
+
+#. Wizard: SnackBar shown if the user tries to navigate away (back arrow,
+#. swipe, system back) after a successful Replace/Merge restore. The
+#. on-disk DB has been swapped, so the app must be restarted.
+msgid "wizard_restore_must_restart_hint"
+msgstr "Geri yükleme uygulandı. Tamamlamak için aşağıdaki düğmeyle uygulamayı kapatın."
+
+msgid "wizard_restore_step_result_failure_unknown"
+msgstr "Bilinmeyen hata"
+
+msgid "wizard_restore_kv_mode"
+msgstr "Mod"
+
+msgid "wizard_restore_mode_label_replace"
+msgstr "Değiştir"
+
+msgid "wizard_restore_mode_label_merge"
+msgstr "Birleştir"
+
+msgid "wizard_restore_kv_covers_restored"
+msgstr "Geri yüklenen kapaklar"
+
+msgid "wizard_restore_kv_identity"
+msgstr "Kimlik"
+
+msgid "wizard_restore_identity_restored_value"
+msgstr "geri yüklendi (tam kopya)"
+
+msgid "wizard_restore_kv_rollback_path"
+msgstr "Geri alma yedeği"
+
+msgid "wizard_restore_error_unreadable"
+msgstr "Okunamayan arşiv: {error}"
+
+#. Wizard: shown on the mode step when the wizard auto-unlocked using
+#. the recovery code or passphrase already in secure storage (typical
+#. same-device auto-backup restore).
+msgid "wizard_restore_auto_unlocked_recovery_code"
+msgstr "Kurtarma kodunuzla otomatik kilidi açıldı"
+
+msgid "wizard_restore_auto_unlocked_passphrase"
+msgstr "Yedekleme parolanızla otomatik kilidi açıldı"
+
+#. Wizard: shown on the secret step when the auto-unlock attempt failed
+#. (stored secret no longer matches this archive). User is asked to
+#. type the original secret manually.
+msgid "wizard_restore_secret_auto_unlock_failed"
+msgstr "Bu cihazda saklanan gizli bilgi artık bu arşivle eşleşmiyor (kurtarma kodu veya parola mı değişti?). Orijinal gizli bilgiyi elle girin."
+
+msgid "wizard_restore_error_bad_secret"
+msgstr "Yanlış kod veya bozuk arşiv."
+
+msgid "wizard_restore_error_schema_too_new"
+msgstr "Bu yedek, BiblioGenius'un daha yeni bir sürümüyle oluşturuldu (şema {schema}, geçerli {current}). Geri yüklemeden önce uygulamayı güncelleyin."
+
+msgid "wizard_restore_error_schema_too_new_short"
+msgstr "Bu yedek daha yeni bir sürümle oluşturuldu. Tekrar denemeden önce uygulamayı güncelleyin."
+
+msgid "wizard_restore_error_db_hash_mismatch"
+msgstr "Veritabanı karması uyuşmuyor: bozuk arşiv. Geri yükleme iptal edildi, mevcut kütüphaneniz olduğu gibi duruyor."
+
+msgid "wizard_restore_error_generic"
+msgstr "Başarısız: {error}"
+
+#. Backup section: PR #3 tile + rollback card.
+msgid "backup_restore_full_title"
+msgstr "Tam yedeği geri yükle"
+
+msgid "backup_restore_full_subtitle"
+msgstr "Mevcut kütüphanenizle değiştirmek veya birleştirmek için bir .bgbackup arşivi içe aktarın."
+
+msgid "backup_rollback_title"
+msgstr "Son geri yüklemeyi geri al"
+
+msgid "backup_rollback_subtitle"
+msgstr "Son geri yüklemenizden önceki duruma dönün. {remaining_hours} sa daha mümkün (yedek {age_hours} sa önce oluşturuldu)."
+
+msgid "backup_rollback_dialog_title"
+msgstr "Son geri yükleme geri alınsın mı?"
+
+msgid "backup_rollback_dialog_message"
+msgstr "Son geri yüklemenizden gelen durum 24 saat boyunca bir kenara konacak, ardından o geri yüklemeden hemen önce sahip olduğunuz kütüphane geri getirilecek. Uygulama kapanacak: bitirmek için yeniden başlatın."
+
+#. Inline button on the rollback tile (auto-backup card + settings).
+msgid "backup_rollback_button_undo"
+msgstr "Geri al"
+
+#. Confirm button in the rollback dialog. Spelled out so it does not
+#. collide with the dialog's "Cancel" button.
+msgid "backup_rollback_dialog_confirm"
+msgstr "Geri yüklemeyi geri al"
+
+msgid "backup_rollback_error"
+msgstr "Geri yükleme geri alınamadı: {error}"
+
+#. Auto-backup (ADR-037 §6) - status badge titles + subtitles
+msgid "auto_backup_status_title_never"
+msgstr "Henüz yedek yok"
+
+msgid "auto_backup_status_title_with_age"
+msgstr "Bu cihazdaki son yedek: {age}"
+
+msgid "auto_backup_status_subtitle_amber"
+msgstr "Otomatik yedeklemeyi kontrol etmeyi düşünün."
+
+msgid "auto_backup_status_subtitle_red"
+msgstr "Verileriniz son zamanlarda korunmadı."
+
+msgid "auto_backup_status_subtitle_never_enabled"
+msgstr "Otomatik yedekleme kısa süre içinde ilk arşivini oluşturacak."
+
+msgid "auto_backup_status_subtitle_disabled"
+msgstr "Otomatik yedekleme devre dışı."
+
+#. Auto-backup - relative-age formatting (Dart computes the value, .po
+#. supplies the unit). {n} is a non-negative integer.
+msgid "auto_backup_age_minutes"
+msgstr "{n} dk önce"
+
+msgid "auto_backup_age_hours"
+msgstr "{n} sa önce"
+
+msgid "auto_backup_age_days"
+msgstr "{n} g önce"
+
+#. Auto-backup bottom sheet (opened from the status badge)
+msgid "auto_backup_sheet_title"
+msgstr "Otomatik yedekleme"
+
+msgid "auto_backup_sheet_toggle_label"
+msgstr "Her 24 saatte bir otomatik yedekleme"
+
+msgid "auto_backup_sheet_toggle_subtitle"
+msgstr "Kataloğun günlük şifreli anlık görüntüsü, yalnızca bu cihazda (24 saat geri alınabilir). Cihazlar arası geçiş değildir."
+
+msgid "auto_backup_sheet_run_now"
+msgstr "Şimdi yedekle"
+
+msgid "auto_backup_sheet_section_archives"
+msgstr "Bu cihazdaki otomatik yedekler"
+
+msgid "auto_backup_sheet_no_archives"
+msgstr "Bu cihazda henüz otomatik yedek yok."
+
+msgid "auto_backup_sheet_restore_archive"
+msgstr "Geri yükle"
+
+msgid "auto_backup_sheet_clear_all"
+msgstr "Otomatik yedekleri temizle"
+
+msgid "auto_backup_sheet_clear_confirm_title"
+msgstr "Tüm otomatik yedekler silinsin mi?"
+
+msgid "auto_backup_sheet_clear_confirm_message"
+msgstr "Bu işlem geri alınamaz."
+
+msgid "auto_backup_sheet_rollback_subtitle_hours_left"
+msgstr "Son geri yüklemenizden önceki duruma dönün. {hours} sa daha mümkün."
+
+#. Auto-backup - dialog shown when toggling on without a recovery code
+msgid "auto_backup_recovery_code_required_title"
+msgstr "Kurtarma kodu gerekli"
+
+msgid "auto_backup_recovery_code_required_message"
+msgstr "Otomatik yedekleme, arşivlerinizi kurtarma kodunuzla şifreler. Bir tane edinmek için önce hub dizininizi kurun, ardından etkinleştirmek için buraya dönün."
+
+#. Auto-backup - SnackBars after manual run / restore-from-list
+msgid "auto_backup_restore_archive_hint"
+msgstr "{path} öğesini geri yüklemek için Bir yedeği geri yükle'yi açın ve bu dosyayı seçin."
+
+msgid "auto_backup_run_skipped_unchanged"
+msgstr "Son yedekten bu yana değişiklik yok."
+
+msgid "auto_backup_run_disabled"
+msgstr "Otomatik yedekleme devre dışı."
+
+msgid "auto_backup_run_no_secret"
+msgstr "Kurtarma kodu eksik; arşiv şifrelenemiyor."
+
+msgid "auto_backup_run_failed"
+msgstr "Yedekleme başarısız. Ayrıntılar için günlüklere bakın."
+
+msgid "auto_backup_run_ok"
+msgstr "Yedekleme başarılı."
+
+#. Auto-backup activation sheet (ADR-037 §6) - shown on every off->on
+#. toggle so the user picks (and sees) the secret used to encrypt
+#. archives before the first one is produced.
+msgid "auto_backup_activation_title"
+msgstr "Otomatik yedeklemeyi etkinleştir"
+
+msgid "auto_backup_activation_explanation"
+msgstr "Otomatik yedekleme, bu cihazda geri alabilmeniz için kataloğunuzun (kitaplar, nüshalar, ödünçler, kişiler) şifreli bir anlık görüntüsünü alır. E2EE kimliğinizi içermez: eşlerinizle eşleştirmeyi yeniden yapmadan yeni bir cihaza geçmek için \"Kimliği dahil et\" işaretli olarak elle bir \"Tam yedek\" alın."
+
+msgid "auto_backup_activation_mode_recovery_code"
+msgstr "Kurtarma kodumu kullan"
+
+msgid "auto_backup_activation_mode_recovery_code_hint"
+msgstr "Hub dizininizden gelen kurtarma kodu. Zaten bir tane varsa önerilir."
+
+msgid "auto_backup_activation_mode_passphrase"
+msgstr "Özel bir parola belirle"
+
+msgid "auto_backup_activation_mode_passphrase_hint"
+msgstr "Kurtarma kodundan farklı, yerel yedeklerinize özel."
+
+msgid "auto_backup_activation_recovery_code_box_label"
+msgstr "Kurtarma kodunuz"
+
+msgid "auto_backup_activation_recovery_code_save_advice"
+msgstr "Onu yazın ve güvende tutun. Arşivlerinizi başka bir cihazda geri yüklemek için ona ihtiyacınız olacak."
+
+msgid "auto_backup_activation_recovery_code_missing"
+msgstr "Henüz hiç kurtarma kodu oluşturulmadı. Bir tane edinmek için hub dizininizi kurun veya aşağıdan bir parola seçin."
+
+msgid "auto_backup_activation_passphrase_label"
+msgstr "Parola"
+
+msgid "auto_backup_activation_passphrase_confirm_label"
+msgstr "Parolayı onayla"
+
+msgid "auto_backup_activation_passphrase_save_advice"
+msgstr "En az {min} karakter. Onu ezberleyin; unutursanız kurtaramayız."
+
+msgid "auto_backup_activation_passphrase_too_short"
+msgstr "Parola en az {min} karakter olmalıdır."
+
+msgid "auto_backup_activation_passphrase_mismatch"
+msgstr "İki parola eşleşmiyor."
+
+msgid "auto_backup_activation_activate"
+msgstr "Etkinleştir"
+
+#. Auto-backup clone-export nudge banner: surfaces in the bottom sheet
+#. when the user has been on auto-backup for a while without a recent
+#. clone-mode export (ADR-037 §6).
+msgid "auto_backup_clone_nudge_title"
+msgstr "Kimlikle tam dışa aktarmayı düşünün"
+
+msgid "auto_backup_clone_nudge_body"
+msgstr "Otomatik yedekleme yalnızca kataloğunuzu kapsar. Eşlerinizle E2EE eşleştirmesini yeniden yapmadan yeni bir cihaza geçmek için, düzenli olarak \"Kimliği dahil et\" işaretli bir \"Tam yedek\" alın ve dosyayı cihaz dışında saklayın (iCloud Drive, şifreli USB vb.)."
+
+msgid "auto_backup_clone_nudge_export"
+msgstr "Şimdi dışa aktar"
+
+msgid "auto_backup_clone_nudge_snooze"
+msgstr "Daha sonra"
