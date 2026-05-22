@@ -2003,6 +2003,14 @@ msgstr "Error al actualizar la valoración"
 msgid "error_updating_status"
 msgstr "Error al actualizar el estado"
 
+#. Something went wrong
+msgid "error_unexpected_title"
+msgstr "Algo salió mal"
+
+#. The app encountered an unexpected error. Please try again.
+msgid "error_unexpected_message"
+msgstr "La aplicación encontró un error inesperado. Inténtalo de nuevo."
+
 msgid "existing_tags_section"
 msgstr "Estanterías existentes"
 
@@ -6572,6 +6580,51 @@ msgstr "Compartir mi biblioteca en linea"
 msgid "directory_no_results"
 msgstr "No se encontraron bibliotecas"
 
+#. ADR-035 Phase 2: empty state when a country/city filter is active
+msgid "directory_no_results_in_location"
+msgstr "Aún no hay bibliotecas en esta zona."
+
+#. CTA shown under directory_no_results_in_location, opens settings
+msgid "directory_be_first_share_city"
+msgstr "Sé la primera biblioteca en compartir tu ciudad"
+
+#. Tooltip on the directory filter button (ADR-035 Phase 2)
+msgid "directory_filter_tooltip"
+msgstr "Filtrar por ubicación"
+
+#. Tooltip on the X icon of the active filter chip
+msgid "directory_filter_clear"
+msgstr "Quitar filtro"
+
+#. A11y label for the tap-to-filter shortcut on a profile location chip (ADR-035, RGAA A1)
+msgid "directory_filter_by_location_a11y"
+msgstr "Filtrar el directorio por esta ubicación"
+
+#. Banner shown above the public directory when the user has registered their
+#. city and at least one peer is in the same city (V1 same-city highlight).
+#. Singular form, used when exactly 1 peer is in the user city.
+msgid "directory_same_city_banner_one"
+msgstr "Hay 1 biblioteca en tu ciudad"
+
+#. Plural form of the same-city banner. %d is replaced with the visible count
+#. (capped at 10). Used for 2 to 10 peers.
+msgid "directory_same_city_banner_other"
+msgstr "Hay %d bibliotecas en tu ciudad"
+
+#. Saturated form of the same-city banner, used when more than 10 peers
+#. share the user city. %d is replaced with the cap (10), so the rendered
+#. text reads "10+ libraries".
+msgid "directory_same_city_banner_more_than"
+msgstr "Hay %d+ bibliotecas en tu ciudad"
+
+#. Action button on the same-city banner; applies the existing city filter.
+msgid "directory_same_city_view_action"
+msgstr "Ver"
+
+#. Tooltip on the same-city banner action button (RGAA A1, A4).
+msgid "directory_same_city_view_tooltip"
+msgstr "Filtrar el directorio por las bibliotecas de tu ciudad"
+
 msgid "directory_pending"
 msgstr "Pendiente"
 
@@ -6848,6 +6901,10 @@ msgstr "Prestatarios"
 
 msgid "network_hub_requests_title"
 msgstr "Solicitudes de seguimiento"
+
+#. Hub pending requests - explanatory note shown when the public directory is disabled but legacy pending requests still exist server-side
+msgid "hub_pending_legacy_note"
+msgstr "El directorio público está desactivado. Aún puedes resolver estas solicitudes existentes para vaciar el contador."
 
 msgid "network_tab_discover"
 msgstr "Directorio publico"
@@ -8609,6 +8666,106 @@ msgstr "Guardar en el dispositivo"
 msgid "backup_export_share"
 msgstr "Compartir"
 
+#. Settings - Backup section title (top-level accordion)
+msgid "backup_section_title"
+msgstr "Copia de seguridad y exportación"
+
+#. Settings - Backup: export catalog tile title
+msgid "backup_export_catalog_title"
+msgstr "Exportar mi catálogo"
+
+#. Settings - Backup: export catalog tile subtitle
+msgid "backup_export_catalog_subtitle"
+msgstr "Archivo portátil y compartible, para archivar o importar en otra aplicación. Contiene libros, autores, etiquetas, colecciones y contactos."
+
+#. Settings - Backup: full backup tile title
+msgid "backup_full_title"
+msgstr "Copia completa"
+
+#. Settings - Backup: full backup tile subtitle
+msgid "backup_full_subtitle"
+msgstr "Archivo cifrado para restaurar por completo tu biblioteca en este u otro dispositivo. Marca «Incluir identidad» para migrar a un nuevo dispositivo sin rehacer el emparejamiento E2EE con tus pares."
+
+#. Settings - Backup: snackbar shown when tapping the disabled full backup tile
+msgid "backup_full_unavailable"
+msgstr "Disponible en una versión futura."
+
+#. Settings - Backup: restore tile title
+msgid "backup_restore_title"
+msgstr "Restaurar una copia"
+
+#. Settings - Backup: restore tile subtitle
+msgid "backup_restore_subtitle"
+msgstr "Restaura un archivo de exportación del catálogo. ATENCIÓN: reemplaza todos los datos actuales."
+
+#. Settings - System section title (top-level accordion)
+msgid "system_section_title"
+msgstr "Sistema"
+
+#. Settings - System: reset tile title
+msgid "system_reset_title"
+msgstr "Reiniciar la aplicación"
+
+#. Settings - System: reset tile subtitle
+msgid "system_reset_subtitle"
+msgstr "Borra libros o empieza de cero."
+
+#. Settings - Content: migration wizard tile title (post option-B refactor)
+msgid "migration_wizard_tile_title"
+msgstr "Importar & organizar mi biblioteca"
+
+#. Settings - Content: migration wizard tile subtitle (post option-B refactor)
+msgid "migration_wizard_tile_subtitle"
+msgstr "Importa libros desde un archivo o gestiona tus estanterías."
+
+#. Migration Wizard - AppBar title (post option-B refactor)
+msgid "migration_wizard_screen_title"
+msgstr "Importar & organizar"
+
+#. Migration Wizard - Import section title
+msgid "migration_section_import_title"
+msgstr "Importar & agregar"
+
+#. Migration Wizard - Import section subtitle
+msgid "migration_section_import_subtitle"
+msgstr "Añade libros de otras plataformas a tu biblioteca actual."
+
+#. Migration Wizard - CSV import card title
+msgid "migration_card_csv_title"
+msgstr "Importar archivo (CSV / XLSX)"
+
+#. Migration Wizard - CSV import card subtitle
+msgid "migration_card_csv_subtitle"
+msgstr "Goodreads, Babelio, Gleeph o cualquier archivo con columnas de título/ISBN."
+
+#. Migration Wizard - Organisation section title
+msgid "migration_section_organisation_title"
+msgstr "Organización"
+
+#. Migration Wizard - Organisation section subtitle
+msgid "migration_section_organisation_subtitle"
+msgstr "Gestiona la estructura de tu biblioteca."
+
+#. Migration Wizard - Manage shelves card title
+msgid "migration_card_shelves_title"
+msgstr "Gestionar estanterías"
+
+#. Migration Wizard - Manage shelves card subtitle
+msgid "migration_card_shelves_subtitle"
+msgstr "Renombra u organiza tus estanterías virtuales."
+
+#. Migration Wizard - CSV import success message ({count} = number of books)
+msgid "migration_import_success"
+msgstr "¡Éxito! {count} libros importados."
+
+#. Migration Wizard - CSV import failure (no specific error returned)
+msgid "migration_import_failed"
+msgstr "La importación falló"
+
+#. Migration Wizard - Generic error prefix (e.g. "Error: <details>")
+msgid "migration_error_prefix"
+msgstr "Error"
+
 #. Already borrowing this book from this peer (accepted loan)
 msgid "borrow_active"
 msgstr "Tomado prestado"
@@ -8688,6 +8845,38 @@ msgstr "Restablecer puntuaciones"
 #. Country / Market
 msgid "settings_country"
 msgstr "País"
+
+#. Toggle: opt in to share city in the public directory (ADR-035)
+msgid "settings_share_city"
+msgstr "Compartir mi ciudad"
+
+#. Description for the share-my-city toggle
+msgid "settings_share_city_desc"
+msgstr "Añade tu ciudad a tu perfil público para que los lectores cercanos puedan encontrarte. Desactivado por defecto."
+
+#. Placeholder shown in the city picker before the user has chosen one
+msgid "settings_city_pick"
+msgstr "Elegir una ciudad"
+
+#. Shown when a stored city id no longer resolves (corrupt local cache)
+msgid "settings_city_unknown"
+msgstr "Ciudad desconocida"
+
+#. City picker error: hub has no static file for this country yet
+msgid "settings_city_unavailable"
+msgstr "Aún no hay datos de ciudades para este país. Inténtalo de nuevo más tarde."
+
+#. A11y label for the city picker button in settings (ADR-035, RGAA A1)
+msgid "settings_open_city_picker_a11y"
+msgstr "Abrir el selector de ciudad"
+
+#. City picker empty state: search returned nothing
+msgid "settings_city_no_match"
+msgstr "No hay ciudades coincidentes."
+
+#. Generic search input placeholder (city picker, country picker, etc.)
+msgid "search"
+msgstr "Buscar"
 
 #. Save order (shelf reorder mode)
 msgid "save_shelf_order"
