@@ -15,10 +15,10 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 ## iOS
 
-### ios beta_ios
+### ios upload
 
 ```sh
-[bundle exec] fastlane ios beta_ios
+[bundle exec] fastlane ios upload
 ```
 
 Build iOS IPA and upload to TestFlight
@@ -28,10 +28,10 @@ Build iOS IPA and upload to TestFlight
 
 ## Mac
 
-### mac beta_macos
+### mac upload
 
 ```sh
-[bundle exec] fastlane mac beta_macos
+[bundle exec] fastlane mac upload
 ```
 
 Build macOS .app, sign inside-out, package PKG and upload to TestFlight.
@@ -43,10 +43,10 @@ Pass skip_rust:true to reuse already-built Rust backend binaries.
 
 ## Android
 
-### android beta_android
+### android upload
 
 ```sh
-[bundle exec] fastlane android beta_android
+[bundle exec] fastlane android upload
 ```
 
 Build Android AAB and upload to Play Console internal track (draft).
