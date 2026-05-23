@@ -273,6 +273,15 @@ platform :android do
       PROPS
       File.chmod(0o600, key_props)
 
+      # 16 KB page size alignment for Android native libs (Google Play requirement
+      # since 2025-11-01 for apps targeting Android 15+). Cargokit overrides
+      # .cargo/config.toml by setting CARGO_ENCODED_RUSTFLAGS itself, but appends
+      # to its existing value (see rust_builder/cargokit/build_tool/lib/src/
+      # android_environment.dart:188-193), so setting our linker flag here gets
+      # preserved through to rustc. The \x1f separator (ASCII US, 31) is required
+      # by the encoded RUSTFLAGS format.
+      ENV['CARGO_ENCODED_RUSTFLAGS'] = "-C\x1flink-arg=-Wl,-z,max-page-size=16384"
+
       flutter_build('appbundle', '--release',
                     "--build-name=#{v[:base]}", "--build-number=#{v[:build]}")
 
