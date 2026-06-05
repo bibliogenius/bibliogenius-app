@@ -2625,7 +2625,11 @@ msgstr "Google Books quickly exhausts its anonymous quota. Add an API key in Set
 
 #. Info banner shown under the Google Books toggle when no API key is set
 msgid "google_books_no_api_key_warning"
-msgstr "Google Books shares a strict anonymous quota across all users without a key. Add a free API key below for reliable results."
+msgstr "Works without any setup. Add a free API key (Advanced options below) only if you reach Google's usage limits."
+
+#. Expandable section header hiding the optional Google Books API key field
+msgid "google_books_advanced_options"
+msgstr "Advanced (optional)"
 
 #. Clickable link below the Google Books API key field
 msgid "google_books_api_key_help_link"

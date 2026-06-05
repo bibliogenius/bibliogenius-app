@@ -2408,7 +2408,11 @@ msgstr "Google Books agota rápidamente su cuota anónima. Añade una clave API 
 
 #. Info banner shown under the Google Books toggle when no API key is set
 msgid "google_books_no_api_key_warning"
-msgstr "Google Books comparte una cuota anónima estricta entre todos los usuarios sin clave. Añade una clave API gratuita debajo para obtener resultados fiables."
+msgstr "Funciona sin configuración. Añade una clave API gratuita (Avanzado, abajo) solo si alcanzas los límites de uso de Google."
+
+#. Expandable section header hiding the optional Google Books API key field
+msgid "google_books_advanced_options"
+msgstr "Avanzado (opcional)"
 
 #. Good afternoon
 msgid "greeting_afternoon"

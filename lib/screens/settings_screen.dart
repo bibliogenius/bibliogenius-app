@@ -3836,66 +3836,93 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               if (_searchPrefs['google_books'] ?? googleDefault)
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                  child: TextField(
-                    controller: _apiKeyController,
-                    decoration: InputDecoration(
-                      labelText:
-                          TranslationService.translate(
-                            context,
-                            'google_api_key_label',
-                          ) ??
-                          'Google Books API Key',
-                      hintText: 'AIzaSy...',
-                      helperText:
-                          TranslationService.translate(
-                            context,
-                            'google_api_key_helper',
-                          ) ??
-                          'Get a free key at console.cloud.google.com',
-                      helperMaxLines: 2,
-                      suffixIcon: IconButton(
-                        icon: const Icon(Icons.save),
-                        tooltip: TranslationService.translate(context, 'save'),
-                        onPressed: _saveGoogleBooksApiKey,
-                      ),
-                      border: const OutlineInputBorder(),
-                      isDense: true,
-                    ),
-                    obscureText: true,
-                    onSubmitted: (_) => _saveGoogleBooksApiKey(),
-                  ),
-                ),
-              if (_searchPrefs['google_books'] ?? googleDefault)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                  child: InkWell(
-                    onTap: () => launchUrl(
-                      Uri.parse(
-                        'https://support.google.com/googleapi/answer/6158862',
-                      ),
-                      mode: LaunchMode.externalApplication,
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.open_in_new,
-                          size: 14,
+                  padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+                  child: Theme(
+                    data: Theme.of(
+                      context,
+                    ).copyWith(dividerColor: Colors.transparent),
+                    child: ExpansionTile(
+                      key: const PageStorageKey('google_books_advanced'),
+                      initiallyExpanded: _googleBooksApiKey.isNotEmpty,
+                      tilePadding: const EdgeInsets.symmetric(horizontal: 8),
+                      childrenPadding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
+                      title: Text(
+                        TranslationService.translate(
+                          context,
+                          'google_books_advanced_options',
+                        ),
+                        style: TextStyle(
+                          fontSize: 13,
                           color: Theme.of(context).colorScheme.primary,
                         ),
-                        const SizedBox(width: 6),
-                        Text(
-                          TranslationService.translate(
-                            context,
-                            'google_books_api_key_help_link',
+                      ),
+                      children: [
+                        TextField(
+                          controller: _apiKeyController,
+                          decoration: InputDecoration(
+                            labelText:
+                                TranslationService.translate(
+                                  context,
+                                  'google_api_key_label',
+                                ) ??
+                                'Google Books API Key',
+                            hintText: 'AIzaSy...',
+                            helperText:
+                                TranslationService.translate(
+                                  context,
+                                  'google_api_key_helper',
+                                ) ??
+                                'Get a free key at console.cloud.google.com',
+                            helperMaxLines: 2,
+                            suffixIcon: IconButton(
+                              icon: const Icon(Icons.save),
+                              tooltip: TranslationService.translate(
+                                context,
+                                'save',
+                              ),
+                              onPressed: _saveGoogleBooksApiKey,
+                            ),
+                            border: const OutlineInputBorder(),
+                            isDense: true,
                           ),
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Theme.of(context).colorScheme.primary,
-                            decoration: TextDecoration.underline,
-                            decorationColor: Theme.of(
-                              context,
-                            ).colorScheme.primary,
+                          obscureText: true,
+                          onSubmitted: (_) => _saveGoogleBooksApiKey(),
+                        ),
+                        const SizedBox(height: 12),
+                        InkWell(
+                          onTap: () => launchUrl(
+                            Uri.parse(
+                              'https://support.google.com/googleapi/answer/6158862',
+                            ),
+                            mode: LaunchMode.externalApplication,
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.open_in_new,
+                                size: 14,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                              const SizedBox(width: 6),
+                              Flexible(
+                                child: Text(
+                                  TranslationService.translate(
+                                    context,
+                                    'google_books_api_key_help_link',
+                                  ),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],

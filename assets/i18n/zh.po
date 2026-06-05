@@ -2223,6 +2223,10 @@ msgstr ""
 msgid "google_api_key_label"
 msgstr ""
 
+#. Expandable section header hiding the optional Google Books API key field
+msgid "google_books_advanced_options"
+msgstr ""
+
 #. Good afternoon
 msgid "greeting_afternoon"
 msgstr ""

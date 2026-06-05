@@ -6174,7 +6174,11 @@ msgstr "Google Books anonim kotasını hızla tüketir. Ayarlar'dan bir API anah
 
 #. Info banner shown under the Google Books toggle when no API key is set
 msgid "google_books_no_api_key_warning"
-msgstr "Google Books, anahtarı olmayan tüm kullanıcılar arasında katı bir anonim kota paylaşır. Güvenilir sonuçlar için aşağıya ücretsiz bir API anahtarı ekleyin."
+msgstr "Kurulum gerektirmeden çalışır. Yalnızca Google'ın kullanım sınırlarına ulaşırsanız ücretsiz bir API anahtarı ekleyin (aşağıdaki Gelişmiş bölümü)."
+
+#. Expandable section header hiding the optional Google Books API key field
+msgid "google_books_advanced_options"
+msgstr "Gelişmiş (isteğe bağlı)"
 
 #. Clickable link below the Google Books API key field
 msgid "google_books_api_key_help_link"

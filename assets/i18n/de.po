@@ -2408,7 +2408,11 @@ msgstr "Google Books erschöpft sein anonymes Kontingent schnell. Füge in den E
 
 #. Info banner shown under the Google Books toggle when no API key is set
 msgid "google_books_no_api_key_warning"
-msgstr "Google Books teilt ein striktes anonymes Kontingent zwischen allen Nutzern ohne Schlüssel. Füge unten einen kostenlosen API-Schlüssel hinzu, um zuverlässige Ergebnisse zu erhalten."
+msgstr "Funktioniert ohne Einrichtung. Füge einen kostenlosen API-Schlüssel (Erweitert, siehe unten) nur hinzu, wenn du Googles Nutzungslimits erreichst."
+
+#. Expandable section header hiding the optional Google Books API key field
+msgid "google_books_advanced_options"
+msgstr "Erweitert (optional)"
 
 #. Good afternoon
 msgid "greeting_afternoon"
