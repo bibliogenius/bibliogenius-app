@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../widgets/genie_app_bar.dart';
 
 import '../widgets/plus_one_animation.dart';
+import '../services/milestone_celebration.dart';
 import '../widgets/work_edition_card.dart';
 import '../widgets/search_result_card.dart';
 import '../widgets/shimmer_loading.dart';
@@ -783,6 +784,7 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
       debugPrint(
         '📚 Creating book with ISBN: ${doc['isbn']} | Title: ${doc['title']}',
       );
+      final levelsBefore = await MilestoneCelebration.snapshot();
       await api.createBook(bookData);
 
       // Mark as modified so we can refresh the list on return
@@ -798,6 +800,9 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
       if (mounted) {
         // Mario Bros-style +1 animation! 🎮
         PlusOneAnimation.show(context);
+
+        // Celebrate any gamification cap crossed by this add.
+        MilestoneCelebration.celebrate(context, levelsBefore);
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

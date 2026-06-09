@@ -19,10 +19,15 @@ class PlusOneAnimation {
 
     late OverlayEntry entry;
     entry = OverlayEntry(
-      builder: (context) => _PlusOneAnimationWidget(
-        position: animationPosition,
-        text: text,
-        onComplete: () => entry.remove(),
+      // Transparent Material so text doesn't get Flutter's fallback yellow
+      // underline (overlay has no Material ancestor otherwise).
+      builder: (context) => Material(
+        type: MaterialType.transparency,
+        child: _PlusOneAnimationWidget(
+          position: animationPosition,
+          text: text,
+          onComplete: () => entry.remove(),
+        ),
       ),
     );
 

@@ -3,6 +3,7 @@ import '../widgets/achievement_pop_animation.dart';
 import '../widgets/goal_reached_animation.dart';
 import '../widgets/badge_unlock_animation.dart';
 import '../widgets/level_up_animation.dart';
+import '../widgets/gamification_widgets.dart';
 import '../widgets/book_complete_animation.dart';
 import '../widgets/plus_one_animation.dart';
 import '../services/translation_service.dart';
@@ -125,11 +126,12 @@ class AnimationsTestScreen extends StatelessWidget {
                 LevelUpAnimation.show(
                   context,
                   newLevel: 3,
+                  levelLabel: trackLevelLabel(3, trackTierNames(context)),
                   trackName: TranslationService.translate(
                     context,
                     'track_reader',
                   ),
-                  trackColor: Colors.green,
+                  trackColor: trackTierColor(3),
                   trackIcon: Icons.menu_book,
                 );
               },
@@ -175,6 +177,8 @@ class AnimationsTestScreen extends StatelessWidget {
             // Test multiple animations
             ElevatedButton.icon(
               onPressed: () async {
+                // Resolve context-dependent labels before the async gaps.
+                final collectorTier = trackLevelLabel(2, trackTierNames(context));
                 // Trigger sequence of animations
                 AchievementPopAnimation.show(
                   context,
@@ -195,11 +199,12 @@ class AnimationsTestScreen extends StatelessWidget {
                 LevelUpAnimation.show(
                   context,
                   newLevel: 2,
+                  levelLabel: collectorTier,
                   trackName: TranslationService.translate(
                     context,
                     'track_collector',
                   ),
-                  trackColor: Colors.blue,
+                  trackColor: trackTierColor(2),
                   trackIcon: Icons.collections_bookmark,
                 );
               },

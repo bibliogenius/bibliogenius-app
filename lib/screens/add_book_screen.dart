@@ -22,6 +22,7 @@ import '../models/book.dart';
 
 import '../services/search_cache.dart';
 import '../widgets/plus_one_animation.dart';
+import '../services/milestone_celebration.dart';
 import '../widgets/cached_book_cover.dart';
 import '../widgets/collection_selector.dart';
 import '../widgets/hierarchical_tag_selector.dart';
@@ -423,6 +424,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
     );
 
     try {
+      final levelsBefore = await MilestoneCelebration.snapshot();
       final createdBook = await bookRepo.createBook(book.toJson());
       final newBookId = createdBook.id;
 
@@ -468,6 +470,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
         // Mario Bros-style +1 animation! 🎮
         PlusOneAnimation.show(context);
+
+        // Celebrate any gamification cap crossed by this add (e.g. Collector Or
+        // at 500 books, or Cataloguer if the book was tagged).
+        MilestoneCelebration.celebrate(context, levelsBefore);
 
         // Small delay to let animation be visible before navigation
         await Future.delayed(const Duration(milliseconds: 400));

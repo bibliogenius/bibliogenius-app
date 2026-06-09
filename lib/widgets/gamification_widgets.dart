@@ -71,6 +71,41 @@ int getStatusBadgeIndex(int statusLevel) {
   return 0; // Curieux
 }
 
+/// Canonical tier names, index 0..5 -> Novice, Apprenti, Bronze, Argent, Or,
+/// Platine. Single source of truth for the per-track level vocabulary shown
+/// across the app (profile dialog, level-up celebration).
+List<String> trackTierNames(BuildContext context) => [
+  TranslationService.translate(context, 'level_novice'),
+  TranslationService.translate(context, 'level_apprenti'),
+  TranslationService.translate(context, 'level_bronze'),
+  TranslationService.translate(context, 'level_silver'),
+  TranslationService.translate(context, 'level_gold'),
+  TranslationService.translate(context, 'level_platine'),
+];
+
+/// Label for a track *level* number (as returned by the backend): 1..6 map to
+/// Novice..Platine; 7+ are prestige levels shown as "Platine N". Pure, so it can
+/// be used after an async gap without a [BuildContext]; pass [tierNames] from
+/// [trackTierNames].
+String trackLevelLabel(int level, List<String> tierNames) {
+  if (level <= 0) return tierNames.first;
+  if (level <= tierNames.length) return tierNames[level - 1];
+  return '${tierNames.last} ${level - tierNames.length}';
+}
+
+/// Accent colour for a track *level*, so a celebration matches the tier reached.
+/// Follows the medal language used elsewhere in the app (Bronze / Argent / Or),
+/// tuned for legibility (white text) on the dark level-up overlay. Pure; mirrors
+/// [trackLevelLabel]. 7+ (prestige) reuses the Platine accent.
+Color trackTierColor(int level) {
+  if (level <= 1) return const Color(0xFF66BB6A); // Novice
+  if (level == 2) return const Color(0xFF42A5F5); // Apprenti
+  if (level == 3) return const Color(0xFFC17A3F); // Bronze
+  if (level == 4) return const Color(0xFF9AA7B0); // Argent / Silver
+  if (level == 5) return const Color(0xFFE0A516); // Or / Gold
+  return const Color(0xFF26C6DA); // Platine (and prestige)
+}
+
 /// Shows a dialog explaining the level thresholds for a gamification track.
 void showTrackLevelInfo(
   BuildContext context, {
@@ -104,15 +139,8 @@ void showTrackLevelInfo(
 
   final levels = thresholds[trackType] ?? [25, 50, 100, 250, 500, 1000];
 
-  // All tracks now use 6 levels with same names
-  final levelNames = [
-    TranslationService.translate(context, 'level_novice'),
-    TranslationService.translate(context, 'level_apprenti'),
-    TranslationService.translate(context, 'level_bronze'),
-    TranslationService.translate(context, 'level_silver'),
-    TranslationService.translate(context, 'level_gold'),
-    TranslationService.translate(context, 'level_platine'),
-  ];
+  // All tracks now use 6 levels with same names (shared source of truth).
+  final levelNames = trackTierNames(context);
 
   showDialog(
     context: context,
@@ -852,18 +880,7 @@ class TrackProgressWidget extends StatelessWidget {
     );
   }
 
-  Color _getLevelColor(int level) {
-    switch (level) {
-      case 1:
-        return const Color(0xFFCD7F32); // Bronze
-      case 2:
-        return const Color(0xFFC0C0C0); // Silver
-      case 3:
-        return const Color(0xFFFFD700); // Gold
-      default:
-        return Colors.grey;
-    }
-  }
+  Color _getLevelColor(int level) => trackTierColor(level);
 }
 
 /// A row displaying all three gamification tracks.

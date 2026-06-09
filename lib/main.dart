@@ -73,6 +73,7 @@ import 'screens/games_hub_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/statistics_screen.dart';
 import 'screens/help_screen.dart';
+import 'screens/animations_test_screen.dart';
 import 'screens/network_search_screen.dart';
 import 'screens/onboarding_tour_screen.dart';
 import 'screens/network_screen.dart';
@@ -1322,6 +1323,10 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
                 final topicId = state.uri.queryParameters['topic'];
                 return HelpScreen(initialTopicId: topicId);
               },
+            ),
+            GoRoute(
+              path: '/animations-test',
+              builder: (context, state) => const AnimationsTestScreen(),
             ),
             GoRoute(
               path: '/network-search',

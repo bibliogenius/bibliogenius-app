@@ -37,6 +37,7 @@ import '../services/translation_service.dart';
 import '../utils/book_status.dart';
 import '../widgets/cached_book_cover.dart';
 import '../widgets/plus_one_animation.dart';
+import '../services/milestone_celebration.dart';
 import '../widgets/cover_picker_dialog.dart';
 import '../widgets/loan_dialog.dart';
 import '../widgets/metadata_refresh_dialog.dart';
@@ -2464,6 +2465,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         updateData['finished_reading_at'] = selectedDate?.toIso8601String();
       }
 
+      final levelsBefore = await MilestoneCelebration.snapshot();
       await bookRepo.updateBook(_book!.id!, updateData);
 
       if (context.mounted) {
@@ -2471,6 +2473,9 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         if (newStatus == 'read' && previousStatus != 'read') {
           PlusOneAnimation.show(context, text: '\u2713');
         }
+
+        // Celebrate any Reader cap crossed by finishing this book.
+        MilestoneCelebration.celebrate(context, levelsBefore);
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -2846,6 +2851,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           final now = DateTime.now();
           final dueDate = now.add(Duration(days: durationDays));
 
+          final levelsBefore = await MilestoneCelebration.snapshot();
           await loanRepo.createLoan({
             'copy_id': availableCopy.id,
             'contact_id': contact.id,
@@ -2854,6 +2860,9 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           });
 
           if (context.mounted) {
+            // Celebrate any Lender cap crossed by this loan.
+            MilestoneCelebration.celebrate(context, levelsBefore);
+
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(

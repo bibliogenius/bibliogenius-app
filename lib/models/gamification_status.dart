@@ -189,15 +189,20 @@ class GamificationStatus {
   /// Returns status level for badge display.
   /// Uses minTrackLevel for Érudit (requires excellence on ALL tracks)
   /// and maxTrackLevel for lower statuses (rewards early engagement).
-  int get statusLevel {
+  int get statusLevel =>
+      statusLevelFor(minLevel: minTrackLevel, maxLevel: maxTrackLevel);
+
+  /// Pure status-level computation from the track-level extremes. Shared with
+  /// milestone detection so the badge-tier rule has a single source of truth.
+  static int statusLevelFor({required int minLevel, required int maxLevel}) {
     // Érudit requires ALL tracks at level 5+ (Or/Platine)
-    if (minTrackLevel >= 5) return 5;
+    if (minLevel >= 5) return 5;
     // Bibliophile requires ALL tracks at level 3+ (Bronze+)
-    if (minTrackLevel >= 3) return 3;
+    if (minLevel >= 3) return 3;
     // Initié requires at least ONE track at level 2+ (Apprenti)
-    if (maxTrackLevel >= 2) return 2;
+    if (maxLevel >= 2) return 2;
     // Curieux is the default
-    return maxTrackLevel;
+    return maxLevel;
   }
 
   /// Returns true if user has any achievements.

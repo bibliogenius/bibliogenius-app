@@ -11,6 +11,7 @@ import '../data/repositories/copy_repository.dart';
 import '../providers/hub_directory_provider.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
+import '../services/milestone_celebration.dart';
 import '../utils/cover_camera_helper.dart';
 import '../widgets/cached_book_cover.dart';
 import '../providers/theme_provider.dart';
@@ -476,11 +477,16 @@ class _EditBookScreenState extends State<EditBookScreen> {
       if (widget.book.id == null) {
         throw Exception("Book ID is missing");
       }
+      final levelsBefore = await MilestoneCelebration.snapshot();
       await bookRepo.updateBook(widget.book.id!, bookData);
       if (mounted) {
         context.read<HubDirectoryProvider>()
           ..markCatalogDirty()
           ..syncCatalogIfDirty();
+
+        // Celebrate any cap crossed by this edit (e.g. Cataloguer when tagging a
+        // book, or Reader when changing its status to "read").
+        MilestoneCelebration.celebrate(context, levelsBefore);
       }
 
       // If not owned anymore, delete all copies.

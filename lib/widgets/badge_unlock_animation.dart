@@ -16,16 +16,38 @@ class BadgeUnlockAnimation {
     required Color badgeColor,
     String? subtitle,
   }) {
-    final overlay = Overlay.of(context);
+    showInOverlay(
+      Overlay.of(context, rootOverlay: true),
+      badgeName: badgeName,
+      badgeAssetPath: badgeAssetPath,
+      badgeColor: badgeColor,
+      subtitle: subtitle,
+    );
+  }
 
+  /// Same as [show] but targets an explicit [overlay]. Lets a caller capture the
+  /// root overlay before an `await` and fire the animation even after navigating
+  /// away from the screen that triggered it.
+  static void showInOverlay(
+    OverlayState overlay, {
+    required String badgeName,
+    required String badgeAssetPath,
+    required Color badgeColor,
+    String? subtitle,
+  }) {
     late OverlayEntry entry;
     entry = OverlayEntry(
-      builder: (context) => _BadgeUnlockAnimationWidget(
-        badgeName: badgeName,
-        badgeAssetPath: badgeAssetPath,
-        badgeColor: badgeColor,
-        subtitle: subtitle,
-        onComplete: () => entry.remove(),
+      // Transparent Material so text doesn't get Flutter's fallback yellow
+      // underline (overlay has no Material ancestor otherwise).
+      builder: (context) => Material(
+        type: MaterialType.transparency,
+        child: _BadgeUnlockAnimationWidget(
+          badgeName: badgeName,
+          badgeAssetPath: badgeAssetPath,
+          badgeColor: badgeColor,
+          subtitle: subtitle,
+          onComplete: () => entry.remove(),
+        ),
       ),
     );
 
