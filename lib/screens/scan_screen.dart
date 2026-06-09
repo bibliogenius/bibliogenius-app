@@ -867,7 +867,11 @@ class _ScanScreenState extends State<ScanScreen> {
           children: [
             const Icon(Icons.help_outline, color: Colors.orange),
             const SizedBox(width: 8),
-            Text(TranslationService.translate(context, 'book_not_found')),
+            Expanded(
+              child: Text(
+                TranslationService.translate(context, 'book_not_found'),
+              ),
+            ),
           ],
         ),
         content: Text('ISBN: $isbn'),
