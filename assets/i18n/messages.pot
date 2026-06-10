@@ -2521,6 +2521,10 @@ msgstr ""
 msgid "help_contact_us"
 msgstr ""
 
+#. BiblioGenius Contact
+msgid "help_contact_subject"
+msgstr ""
+
 #. Connect Library
 msgid "help_cta_connect_library"
 msgstr ""

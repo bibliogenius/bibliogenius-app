@@ -318,10 +318,17 @@ class _HelpScreenState extends State<HelpScreen> {
                 label: TranslationService.translate(context, 'help_contact_us'),
                 gradient: AppDesign.oceanGradient,
                 onTap: () async {
+                  final String subject = TranslationService.translate(
+                    context,
+                    'help_contact_subject',
+                  );
+                  // Build the query manually so the space encodes as %20, not
+                  // the form-style '+' that Uri.queryParameters produces (mail
+                  // clients render that literally, e.g. 'BiblioGenius+-+Contact').
                   final Uri emailUri = Uri(
                     scheme: 'mailto',
                     path: 'contact@bibliogenius.org',
-                    queryParameters: {'subject': 'BiblioGenius - Contact'},
+                    query: 'subject=${Uri.encodeComponent(subject)}',
                   );
                   if (await canLaunchUrl(emailUri)) {
                     await launchUrl(emailUri);
