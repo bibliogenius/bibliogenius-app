@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -31,6 +33,9 @@ class AudioProvider extends ChangeNotifier {
   bool _isEnabled = false;
   bool _isWifiConnected = false;
   bool _isInitialized = false;
+
+  // Subscription to connectivity changes; cancelled in dispose() to avoid leaks.
+  StreamSubscription<List<ConnectivityResult>>? _connectivitySub;
 
   // Cache of audio resources by bookId (list for multi-language results)
   final Map<int, List<AudioResource>> _audioCache = {};
@@ -75,7 +80,9 @@ class AudioProvider extends ChangeNotifier {
       await _checkConnectivity();
 
       // Listen for connectivity changes
-      _connectivity.onConnectivityChanged.listen(_onConnectivityChanged);
+      _connectivitySub = _connectivity.onConnectivityChanged.listen(
+        _onConnectivityChanged,
+      );
 
       _isInitialized = true;
       notifyListeners();
@@ -240,7 +247,7 @@ class AudioProvider extends ChangeNotifier {
 
   @override
   void dispose() {
-    // Connectivity listener is automatically cleaned up
+    _connectivitySub?.cancel();
     super.dispose();
   }
 }
