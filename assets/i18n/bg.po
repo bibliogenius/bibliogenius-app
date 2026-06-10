@@ -2247,6 +2247,10 @@ msgstr "Тестове на анимации"
 msgid "help_contact_us"
 msgstr "Свържете се с нас"
 
+#. BiblioGenius Contact
+msgid "help_contact_subject"
+msgstr "BiblioGenius Контакт"
+
 #. Connect Library
 msgid "help_cta_connect_library"
 msgstr "Свързване на библиотека"
@@ -7439,7 +7443,11 @@ msgstr "Експортиране на моя каталог"
 
 #. Settings - Backup: export catalog tile subtitle
 msgid "backup_export_catalog_subtitle"
-msgstr "Преносим, споделяем файл за архивиране или импортиране в друго приложение. Съдържа книги, автори, етикети, колекции и контакти."
+msgstr "Преносим файл за архивиране на данните ви или импортиране в друго приложение."
+
+#. Settings - Backup: помощен текст за експорт на каталог
+msgid "backup_export_catalog_help"
+msgstr "Създава преносим, споделяем файл с вашите книги, автори, етикети, колекции и контакти. Удобен за архивиране на данните ви или импортиране в друго приложение. За пълно, криптирано копие на библиотеката ви използвайте „Пълно резервно копие“ вместо това."
 
 #. Settings - Backup: full backup tile title
 msgid "backup_full_title"
@@ -7447,11 +7455,39 @@ msgstr "Пълно резервно копие"
 
 #. Settings - Backup: full backup tile subtitle
 msgid "backup_full_subtitle"
-msgstr "Криптиран архив за пълно възстановяване на библиотеката ви на това или друго устройство. Отметнете „Включи самоличността“, за да мигрирате към ново устройство без повторно E2EE сдвояване с партньорите си."
+msgstr "Криптиран архив за възстановяване на всичко на това или друго устройство."
+
+#. Settings - Backup: помощен текст за пълно резервно копие
+msgid "backup_full_help"
+msgstr "Създава криптиран архив на цялата ви библиотека, който можете да възстановите на това или на друго устройство. Защитете го с тайна фраза или код за възстановяване. Отметнете „Включи самоличността“, за да мигрирате към ново устройство без повторно криптирано сдвояване с партньорите си."
 
 #. Settings - Backup: snackbar shown when tapping the disabled full backup tile
 msgid "backup_full_unavailable"
 msgstr "Налично в бъдеща версия."
+
+#. Settings - Backup: етикет на опцията за отключване с парола
+msgid "backup_unlock_passphrase"
+msgstr "Парола"
+
+#. Settings - Backup: етикет на опцията за отключване с код за възстановяване
+msgid "backup_unlock_recovery_code"
+msgstr "Код за възстановяване"
+
+#. Settings - Backup: етикет на полето за тайната
+msgid "backup_secret_label"
+msgstr "Тайна"
+
+#. Settings - Backup: бутон за експортиране на резервното копие
+msgid "backup_export_button"
+msgstr "Експортиране"
+
+#. Settings - Backup: помощен текст за паролата при отключване
+msgid "backup_unlock_passphrase_hint"
+msgstr "Изберете каквато и да е тайна фраза. Запишете я: ще ви е нужна, за да възстановите това резервно копие."
+
+#. Settings - Backup: помощен текст за кода за възстановяване при отключване
+msgid "backup_unlock_recovery_code_hint"
+msgstr "Използвайте кода за възстановяване на вашия профил, намиращ се в Настройки › Акаунт."
 
 #. Settings - Backup: restore tile title
 msgid "backup_restore_title"
@@ -7459,7 +7495,11 @@ msgstr "Възстановяване на резервно копие"
 
 #. Settings - Backup: restore tile subtitle
 msgid "backup_restore_subtitle"
-msgstr "Възстановява файл с експорт на каталог. ВНИМАНИЕ: заменя всички текущи данни."
+msgstr "Възстановява експорт на каталог. Заменя всички текущи данни."
+
+#. Settings - Backup: помощен текст за възстановяване на каталог
+msgid "backup_restore_help"
+msgstr "Възстановява файл с експорт на каталог. Внимание: това заменя всички ваши текущи данни. За пълно, обратимо възстановяване предпочетете „Възстановяване на пълно резервно копие“."
 
 #. Settings - System section title (top-level accordion)
 msgid "system_section_title"
@@ -9495,7 +9535,11 @@ msgid "backup_restore_full_title"
 msgstr "Възстановяване на пълно резервно копие"
 
 msgid "backup_restore_full_subtitle"
-msgstr "Импортирайте .bgbackup архив, за да замените или обедините с текущата си библиотека."
+msgstr "Импортирайте .bgbackup архив, за да го обедините или замените всичко."
+
+#. Settings - Backup: помощен текст за възстановяване на пълно резервно копие
+msgid "backup_restore_full_help"
+msgstr "Импортира архив с пълно резервно копие (.bgbackup). Можете да обедините съдържанието му с текущата си библиотека или да замените изцяло данните си. Помощник ви насочва през всяка стъпка."
 
 msgid "backup_rollback_title"
 msgstr "Отмяна на последното възстановяване"

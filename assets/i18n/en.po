@@ -2659,6 +2659,10 @@ msgstr "Animation Tests"
 msgid "help_contact_us"
 msgstr "Contact Us"
 
+#. BiblioGenius Contact
+msgid "help_contact_subject"
+msgstr "BiblioGenius Contact"
+
 #. Connect Library
 msgid "help_cta_connect_library"
 msgstr "Connect Library"
@@ -7379,7 +7383,11 @@ msgstr "Export my catalog"
 
 #. Settings - Backup: export catalog tile subtitle
 msgid "backup_export_catalog_subtitle"
-msgstr "Portable, shareable file for archival or import into another application. Contains books, authors, tags, collections and contacts."
+msgstr "Portable file to archive your data or import it into another app."
+
+#. Settings - Backup: export catalog help text
+msgid "backup_export_catalog_help"
+msgstr "Creates a portable, shareable file containing your books, authors, tags, collections and contacts. Handy for archiving your data or importing it into another app. For a complete, encrypted copy of your library, use \"Full backup\" instead."
 
 #. Settings - Backup: full backup tile title
 msgid "backup_full_title"
@@ -7387,11 +7395,39 @@ msgstr "Full backup"
 
 #. Settings - Backup: full backup tile subtitle
 msgid "backup_full_subtitle"
-msgstr "Encrypted archive to fully restore your library on this or another device. Tick \"Include identity\" to migrate to a new device without redoing the E2EE pairing with your peers."
+msgstr "Encrypted archive to restore everything, on this device or another."
+
+#. Settings - Backup: full backup help text
+msgid "backup_full_help"
+msgstr "Creates an encrypted archive of your whole library that you can restore on this device or another one. Protect it with a secret phrase or a recovery code. Tick \"Include identity\" to migrate to a new device without redoing the encrypted pairing with your contacts."
 
 #. Settings - Backup: snackbar shown when tapping the disabled full backup tile
 msgid "backup_full_unavailable"
 msgstr "Available in a future version."
+
+#. Full backup dialog: unlock mode segmented button - passphrase option
+msgid "backup_unlock_passphrase"
+msgstr "Passphrase"
+
+#. Full backup dialog: unlock mode segmented button - recovery code option
+msgid "backup_unlock_recovery_code"
+msgstr "Recovery code"
+
+#. Full backup dialog: secret text field label
+msgid "backup_secret_label"
+msgstr "Secret"
+
+#. Full backup dialog: confirm/export button
+msgid "backup_export_button"
+msgstr "Export"
+
+#. Full backup dialog: hint shown under the field when passphrase mode is selected
+msgid "backup_unlock_passphrase_hint"
+msgstr "Choose any secret phrase. Write it down: you will need it to restore this backup."
+
+#. Full backup dialog: hint shown under the field when recovery code mode is selected
+msgid "backup_unlock_recovery_code_hint"
+msgstr "Use your profile's recovery code, found in Settings › Account."
 
 #. Settings - Backup: restore tile title
 msgid "backup_restore_title"
@@ -7399,7 +7435,11 @@ msgstr "Restore a backup"
 
 #. Settings - Backup: restore tile subtitle
 msgid "backup_restore_subtitle"
-msgstr "Restores a catalog export file. WARNING: replaces all current data."
+msgstr "Restores a catalog export. Replaces all your current data."
+
+#. Settings - Backup: restore help text
+msgid "backup_restore_help"
+msgstr "Restores a catalog export file. Warning: this replaces all of your current data. For a complete, reversible restore, prefer \"Restore a full backup\"."
 
 #. Settings - System section title (top-level accordion)
 msgid "system_section_title"
@@ -9502,7 +9542,11 @@ msgid "backup_restore_full_title"
 msgstr "Restore a full backup"
 
 msgid "backup_restore_full_subtitle"
-msgstr "Import a .bgbackup archive to replace or merge with your current library."
+msgstr "Import a .bgbackup archive to merge it or replace everything."
+
+#. Backup section: restore full backup help text
+msgid "backup_restore_full_help"
+msgstr "Imports a full backup archive (.bgbackup). You can merge its contents with your current library or replace your data entirely. A wizard guides you through each step."
 
 msgid "backup_rollback_title"
 msgstr "Undo recent restore"

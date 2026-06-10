@@ -555,7 +555,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           'backup_export_catalog_subtitle',
                         ),
                       ),
-                      trailing: const Icon(Icons.chevron_right),
+                      trailing: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          HelpAffordance(topicId: 'backup_export_catalog'),
+                          Icon(Icons.chevron_right),
+                        ],
+                      ),
                       onTap: () => BackupActions.exportCatalogJson(context),
                     ),
                     // Sauvegarde complète (.bgbackup, ADR-037 §2 writer).
@@ -576,7 +582,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           'backup_full_subtitle',
                         ),
                       ),
-                      trailing: const Icon(Icons.chevron_right),
+                      trailing: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          HelpAffordance(topicId: 'backup_full'),
+                          Icon(Icons.chevron_right),
+                        ],
+                      ),
                       onTap: () => BackupActions.runFullBackup(context),
                     ),
                     // Restauration .bgbackup (ADR-037 §5 reader).
@@ -597,7 +609,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           'backup_restore_full_subtitle',
                         ),
                       ),
-                      trailing: const Icon(Icons.chevron_right),
+                      trailing: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          HelpAffordance(topicId: 'backup_restore_full'),
+                          Icon(Icons.chevron_right),
+                        ],
+                      ),
                       onTap: () => Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (_) => const BackupRestoreWizardScreen(),
@@ -619,7 +637,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           'backup_restore_subtitle',
                         ),
                       ),
-                      trailing: const Icon(Icons.chevron_right),
+                      trailing: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          HelpAffordance(topicId: 'backup_restore_json'),
+                          Icon(Icons.chevron_right),
+                        ],
+                      ),
                       onTap: () => BackupActions.restoreCatalogJson(context),
                     ),
                     // Carte conditionnelle: rollback de la dernière restauration.

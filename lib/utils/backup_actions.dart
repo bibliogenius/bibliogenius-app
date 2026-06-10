@@ -33,6 +33,32 @@ enum _MobileExportChoice { save, share }
 class BackupActions {
   BackupActions._();
 
+  /// Computes a non-zero anchor [Rect] for the system share sheet.
+  ///
+  /// On iPad (and, more strictly, on recent iOS) `share_plus` presents the
+  /// share sheet as a popover and requires `sharePositionOrigin` to be set
+  /// and non-zero, otherwise it throws
+  /// `PlatformException(... sharePositionOrigin ... must be non-zero ...)`.
+  /// Backup export and full-backup share calls run from a screen-level
+  /// context, so we anchor to that render box when available and fall back
+  /// to a 1x1 rect at the screen centre, which is always inside the source
+  /// view's coordinate space and satisfies the non-zero requirement.
+  static Rect _shareOrigin(BuildContext context) {
+    final renderObject = context.findRenderObject();
+    if (renderObject is RenderBox &&
+        renderObject.hasSize &&
+        renderObject.size.width > 0 &&
+        renderObject.size.height > 0) {
+      return renderObject.localToGlobal(Offset.zero) & renderObject.size;
+    }
+    final size = MediaQuery.maybeOf(context)?.size ?? const Size(400, 800);
+    return Rect.fromCenter(
+      center: Offset(size.width / 2, size.height / 2),
+      width: 1,
+      height: 1,
+    );
+  }
+
   // ---------------------------------------------------------------------------
   // Public entry points
   // ---------------------------------------------------------------------------
@@ -45,6 +71,9 @@ class BackupActions {
   static Future<void> exportCatalogJson(BuildContext context) async {
     final apiService = context.read<ApiService>();
     final messenger = ScaffoldMessenger.of(context);
+    // Capture the share-sheet anchor now, while the screen is mounted, so the
+    // later share call does not touch `context` across async gaps.
+    final shareOrigin = _shareOrigin(context);
     final saveDialogTitle = TranslationService.translate(
       context,
       'save_backup_dialog_title',
@@ -112,7 +141,11 @@ class BackupActions {
             final directory = await getTemporaryDirectory();
             final file = io.File('${directory.path}/$filename');
             await file.writeAsBytes(response.data);
-            await Share.shareXFiles([XFile(file.path)], text: shareText);
+            await Share.shareXFiles(
+              [XFile(file.path)],
+              text: shareText,
+              sharePositionOrigin: shareOrigin,
+            );
             exported = true;
           }
         }
@@ -652,12 +685,13 @@ class BackupActions {
 
   /// Run the full-backup writer: prompt for secret + identity option, save
   /// to a user-chosen path, write the archive via FFI, show a summary
-  /// SnackBar. Localisation of the dialog strings is out of scope for the
-  /// reader PR; the surface currently uses inline FR copy mirroring the
-  /// existing JSON restore dialog (`_showRestoreWarning`).
+  /// SnackBar.
   static Future<void> runFullBackup(BuildContext context) async {
     final messenger = ScaffoldMessenger.of(context);
     final authService = context.read<AuthService>();
+    // Capture the share-sheet anchor now, while the screen is mounted, so the
+    // later share call does not touch `context` across async gaps.
+    final shareOrigin = _shareOrigin(context);
 
     final input = await _showFullBackupDebugDialog(context);
     if (input == null) return;
@@ -734,6 +768,7 @@ class BackupActions {
           [XFile(outputPath)],
           subject: defaultName,
           text: 'Sauvegarde complète BiblioGenius',
+          sharePositionOrigin: shareOrigin,
         );
       }
 
@@ -779,7 +814,9 @@ class BackupActions {
       builder: (dialogCtx) {
         return StatefulBuilder(
           builder: (ctx, setState) => AlertDialog(
-            title: const Text('Sauvegarde complète'),
+            title: Text(
+              TranslationService.translate(context, 'backup_full_title'),
+            ),
             content: SizedBox(
               width: 380,
               child: Column(
@@ -787,14 +824,24 @@ class BackupActions {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   SegmentedButton<String>(
-                    segments: const [
+                    segments: [
                       ButtonSegment(
                         value: 'passphrase',
-                        label: Text('Passphrase'),
+                        label: Text(
+                          TranslationService.translate(
+                            context,
+                            'backup_unlock_passphrase',
+                          ),
+                        ),
                       ),
                       ButtonSegment(
                         value: 'recovery_code',
-                        label: Text('Recovery code'),
+                        label: Text(
+                          TranslationService.translate(
+                            context,
+                            'backup_unlock_recovery_code',
+                          ),
+                        ),
                       ),
                     ],
                     selected: {unlockKind},
@@ -807,7 +854,10 @@ class BackupActions {
                     obscureText: obscure,
                     autofocus: true,
                     decoration: InputDecoration(
-                      labelText: 'Secret',
+                      labelText: TranslationService.translate(
+                        context,
+                        'backup_secret_label',
+                      ),
                       border: const OutlineInputBorder(),
                       suffixIcon: IconButton(
                         icon: Icon(
@@ -818,11 +868,40 @@ class BackupActions {
                     ),
                   ),
                   const SizedBox(height: 8),
+                  // Context-sensitive legend: clarifies that a passphrase is
+                  // freely chosen here, whereas the recovery code is the one
+                  // generated for the profile (Settings > Account).
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        size: 15,
+                        color: Theme.of(ctx).colorScheme.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          TranslationService.translate(
+                            context,
+                            unlockKind == 'passphrase'
+                                ? 'backup_unlock_passphrase_hint'
+                                : 'backup_unlock_recovery_code_hint',
+                          ),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Theme.of(ctx).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
                   CheckboxListTile(
                     contentPadding: EdgeInsets.zero,
                     dense: true,
                     title: const Text(
-                      "Inclure l'identité (clone exact, ADR-037)",
+                      "Inclure l'identité",
                       style: TextStyle(fontSize: 13),
                     ),
                     value: includeIdentity,
@@ -835,7 +914,7 @@ class BackupActions {
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(ctx).pop(),
-                child: const Text('Annuler'),
+                child: Text(TranslationService.translate(context, 'cancel')),
               ),
               FilledButton(
                 onPressed: () {
@@ -852,7 +931,9 @@ class BackupActions {
                     ),
                   );
                 },
-                child: const Text('Exporter'),
+                child: Text(
+                  TranslationService.translate(context, 'backup_export_button'),
+                ),
               ),
             ],
           ),

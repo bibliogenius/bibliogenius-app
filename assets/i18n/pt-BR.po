@@ -2666,6 +2666,10 @@ msgstr "Testes de Animação"
 msgid "help_contact_us"
 msgstr "Entre em Contato"
 
+#. BiblioGenius Contact
+msgid "help_contact_subject"
+msgstr "BiblioGenius Contato"
+
 #. Connect Library
 msgid "help_cta_connect_library"
 msgstr "Conectar Biblioteca"
@@ -4433,7 +4437,11 @@ msgid "backup_restore_full_title"
 msgstr "Restaurar um backup completo"
 
 msgid "backup_restore_full_subtitle"
-msgstr "Importe um arquivo .bgbackup para substituir ou mesclar com sua biblioteca atual."
+msgstr "Importe um arquivo .bgbackup para mesclá-lo ou substituir tudo."
+
+#. Settings - Backup: texto de ajuda da restauração de backup completo
+msgid "backup_restore_full_help"
+msgstr "Importa um arquivo de backup completo (.bgbackup). Você pode mesclar seu conteúdo com sua biblioteca atual ou substituir seus dados por completo. Um assistente guia você por cada etapa."
 
 msgid "backup_rollback_title"
 msgstr "Desfazer restauração recente"
@@ -8274,7 +8282,11 @@ msgstr "Exportar meu catálogo"
 
 #. Settings - Backup: export catalog tile subtitle
 msgid "backup_export_catalog_subtitle"
-msgstr "Arquivo portátil e compartilhável, para arquivamento ou importação em outro aplicativo. Contém livros, autores, etiquetas, coleções e contatos."
+msgstr "Arquivo portátil para arquivar seus dados ou importá-los em outro aplicativo."
+
+#. Settings - Backup: texto de ajuda da exportação do catálogo
+msgid "backup_export_catalog_help"
+msgstr "Cria um arquivo portátil e compartilhável contendo seus livros, autores, etiquetas, coleções e contatos. Prático para arquivar seus dados ou importá-los em outro aplicativo. Para uma cópia completa e criptografada da sua biblioteca, use \"Backup completo\"."
 
 #. Settings - Backup: full backup tile title
 msgid "backup_full_title"
@@ -8282,11 +8294,39 @@ msgstr "Backup completo"
 
 #. Settings - Backup: full backup tile subtitle
 msgid "backup_full_subtitle"
-msgstr "Arquivo criptografado para restaurar totalmente sua biblioteca neste ou em outro dispositivo. Marque \"Incluir identidade\" para migrar para um novo dispositivo sem refazer o pareamento E2EE com seus peers."
+msgstr "Arquivo criptografado para restaurar tudo, neste ou em outro dispositivo."
+
+#. Settings - Backup: texto de ajuda do backup completo
+msgid "backup_full_help"
+msgstr "Cria um arquivo criptografado de toda a sua biblioteca que você pode restaurar neste ou em outro dispositivo. Proteja-o com uma frase secreta ou um código de recuperação. Marque \"Incluir identidade\" para migrar para um novo dispositivo sem refazer o pareamento criptografado com seus contatos."
 
 #. Settings - Backup: snackbar shown when tapping the disabled full backup tile
 msgid "backup_full_unavailable"
 msgstr "Disponível em uma versão futura."
+
+#. Settings - Backup: opção de desbloqueio por frase secreta
+msgid "backup_unlock_passphrase"
+msgstr "Frase secreta"
+
+#. Settings - Backup: opção de desbloqueio por código de recuperação
+msgid "backup_unlock_recovery_code"
+msgstr "Código de recuperação"
+
+#. Settings - Backup: rótulo do campo de segredo
+msgid "backup_secret_label"
+msgstr "Segredo"
+
+#. Settings - Backup: botão para exportar o backup
+msgid "backup_export_button"
+msgstr "Exportar"
+
+#. Settings - Backup: dica do campo de frase secreta para desbloqueio
+msgid "backup_unlock_passphrase_hint"
+msgstr "Escolha qualquer frase secreta. Anote-a: você precisará dela para restaurar este backup."
+
+#. Settings - Backup: dica do campo de código de recuperação para desbloqueio
+msgid "backup_unlock_recovery_code_hint"
+msgstr "Use o código de recuperação do seu perfil, encontrado em Configurações › Conta."
 
 #. Settings - Backup: restore tile title
 msgid "backup_restore_title"
@@ -8294,7 +8334,11 @@ msgstr "Restaurar um backup"
 
 #. Settings - Backup: restore tile subtitle
 msgid "backup_restore_subtitle"
-msgstr "Restaura um arquivo de exportação do catálogo. ATENÇÃO: substitui todos os dados atuais."
+msgstr "Restaura uma exportação do catálogo. Substitui todos os seus dados atuais."
+
+#. Settings - Backup: texto de ajuda da restauração do catálogo
+msgid "backup_restore_help"
+msgstr "Restaura um arquivo de exportação do catálogo. Atenção: isso substitui todos os seus dados atuais. Para uma restauração completa e reversível, prefira \"Restaurar um backup completo\"."
 
 #. Settings - System section title (top-level accordion)
 msgid "system_section_title"

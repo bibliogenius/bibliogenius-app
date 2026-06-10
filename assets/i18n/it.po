@@ -2659,6 +2659,10 @@ msgstr "Test animazioni"
 msgid "help_contact_us"
 msgstr "Contattaci"
 
+#. BiblioGenius Contact
+msgid "help_contact_subject"
+msgstr "BiblioGenius Contatto"
+
 #. Connect Library
 msgid "help_cta_connect_library"
 msgstr "Collega la biblioteca"
@@ -7525,7 +7529,11 @@ msgstr "Esporta il mio catalogo"
 
 #. Settings - Backup: export catalog tile subtitle
 msgid "backup_export_catalog_subtitle"
-msgstr "File portatile e condivisibile, per l'archiviazione o l'importazione in un'altra applicazione. Contiene libri, autori, tag, collezioni e contatti."
+msgstr "File portatile per archiviare i tuoi dati o importarli in un'altra applicazione."
+
+#. Settings - Backup: export catalog tile help
+msgid "backup_export_catalog_help"
+msgstr "Crea un file portatile e condivisibile contenente libri, autori, tag, collezioni e contatti. Comodo per archiviare i tuoi dati o importarli in un'altra applicazione. Per una copia completa e crittografata della tua biblioteca, usa invece \"Backup completo\"."
 
 #. Settings - Backup: full backup tile title
 msgid "backup_full_title"
@@ -7533,11 +7541,39 @@ msgstr "Backup completo"
 
 #. Settings - Backup: full backup tile subtitle
 msgid "backup_full_subtitle"
-msgstr "Archivio crittografato per ripristinare completamente la tua biblioteca su questo o un altro dispositivo. Spunta \"Includi identità\" per migrare verso un nuovo dispositivo senza rifare il pairing E2EE con i tuoi peer."
+msgstr "Archivio crittografato per ripristinare tutto, su questo o un altro dispositivo."
+
+#. Settings - Backup: full backup tile help
+msgid "backup_full_help"
+msgstr "Crea un archivio crittografato dell'intera biblioteca che puoi ripristinare su questo o un altro dispositivo. Proteggilo con una frase segreta o un codice di recupero. Spunta \"Includi identità\" per migrare verso un nuovo dispositivo senza rifare il pairing crittografato con i tuoi contatti."
 
 #. Settings - Backup: snackbar shown when tapping the disabled full backup tile
 msgid "backup_full_unavailable"
 msgstr "Disponibile in una versione futura."
+
+#. Settings - Backup: label for the passphrase unlock method
+msgid "backup_unlock_passphrase"
+msgstr "Passphrase"
+
+#. Settings - Backup: label for the recovery code unlock method
+msgid "backup_unlock_recovery_code"
+msgstr "Codice di recupero"
+
+#. Settings - Backup: label for the secret field
+msgid "backup_secret_label"
+msgstr "Segreto"
+
+#. Settings - Backup: button to export the backup
+msgid "backup_export_button"
+msgstr "Esporta"
+
+#. Settings - Backup: hint explaining the passphrase unlock method
+msgid "backup_unlock_passphrase_hint"
+msgstr "Scegli una frase segreta qualsiasi. Annotala: ti servirà per ripristinare questo backup."
+
+#. Settings - Backup: hint explaining the recovery code unlock method
+msgid "backup_unlock_recovery_code_hint"
+msgstr "Usa il codice di recupero del tuo profilo, lo trovi in Impostazioni › Account."
 
 #. Settings - Backup: restore tile title
 msgid "backup_restore_title"
@@ -7545,7 +7581,11 @@ msgstr "Ripristina un backup"
 
 #. Settings - Backup: restore tile subtitle
 msgid "backup_restore_subtitle"
-msgstr "Ripristina un file di esportazione del catalogo. ATTENZIONE: sostituisce tutti i dati attuali."
+msgstr "Ripristina un'esportazione del catalogo. Sostituisce tutti i dati attuali."
+
+#. Settings - Backup: restore tile help
+msgid "backup_restore_help"
+msgstr "Ripristina un file di esportazione del catalogo. Attenzione: sostituisce tutti i dati attuali. Per un ripristino completo e reversibile, preferisci \"Ripristina un backup completo\"."
 
 #. Settings - System section title (top-level accordion)
 msgid "system_section_title"
@@ -9488,7 +9528,11 @@ msgid "backup_restore_full_title"
 msgstr "Ripristina un backup completo"
 
 msgid "backup_restore_full_subtitle"
-msgstr "Importa un archivio .bgbackup per sostituire o unire alla tua biblioteca attuale."
+msgstr "Importa un archivio .bgbackup per unirlo o sostituire tutto."
+
+#. Backup section: PR #3 tile help.
+msgid "backup_restore_full_help"
+msgstr "Importa un archivio di backup completo (.bgbackup). Puoi unire il suo contenuto alla tua biblioteca attuale oppure sostituire interamente i tuoi dati. Una procedura guidata ti accompagna in ogni passaggio."
 
 msgid "backup_rollback_title"
 msgstr "Annulla il ripristino recente"

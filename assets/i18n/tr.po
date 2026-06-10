@@ -2295,6 +2295,10 @@ msgstr "Animasyon Testleri"
 msgid "help_contact_us"
 msgstr "Bize Ulaşın"
 
+#. BiblioGenius Contact
+msgid "help_contact_subject"
+msgstr "BiblioGenius İletişim"
+
 #. Connect Library
 msgid "help_cta_connect_library"
 msgstr "Kütüphane Bağla"
@@ -7433,7 +7437,11 @@ msgstr "Kataloğumu dışa aktar"
 
 #. Settings - Backup: export catalog tile subtitle
 msgid "backup_export_catalog_subtitle"
-msgstr "Arşivleme veya başka bir uygulamaya aktarma için taşınabilir, paylaşılabilir dosya. Kitapları, yazarları, etiketleri, koleksiyonları ve kişileri içerir."
+msgstr "Verilerinizi arşivlemek veya başka bir uygulamaya aktarmak için taşınabilir dosya."
+
+#. Settings - Backup: export catalog yardım metni
+msgid "backup_export_catalog_help"
+msgstr "Kitaplarınızı, yazarlarınızı, etiketlerinizi, koleksiyonlarınızı ve kişilerinizi içeren taşınabilir, paylaşılabilir bir dosya oluşturur. Verilerinizi arşivlemek veya başka bir uygulamaya aktarmak için kullanışlıdır. Kütüphanenizin eksiksiz, şifreli bir kopyası için bunun yerine \"Tam yedek\"i kullanın."
 
 #. Settings - Backup: full backup tile title
 msgid "backup_full_title"
@@ -7441,11 +7449,39 @@ msgstr "Tam yedek"
 
 #. Settings - Backup: full backup tile subtitle
 msgid "backup_full_subtitle"
-msgstr "Kütüphanenizi bu cihazda veya başka bir cihazda tamamen geri yüklemek için şifreli arşiv. Eşlerinizle E2EE eşleştirmesini yeniden yapmadan yeni bir cihaza geçmek için \"Kimliği dahil et\"i işaretleyin."
+msgstr "Her şeyi bu cihazda veya başka bir cihazda geri yüklemek için şifreli arşiv."
+
+#. Settings - Backup: full backup yardım metni
+msgid "backup_full_help"
+msgstr "Bu cihazda veya başka bir cihazda geri yükleyebileceğiniz, tüm kütüphanenizin şifreli bir arşivini oluşturur. Bir gizli ifade veya kurtarma koduyla koruyun. Kişilerinizle şifreli eşleştirmeyi yeniden yapmadan yeni bir cihaza geçmek için \"Kimliği dahil et\"i işaretleyin."
 
 #. Settings - Backup: snackbar shown when tapping the disabled full backup tile
 msgid "backup_full_unavailable"
 msgstr "Gelecek bir sürümde kullanılabilir."
+
+#. Yedekleme kilidini açma: gizli ifade seçeneği etiketi
+msgid "backup_unlock_passphrase"
+msgstr "Gizli ifade"
+
+#. Yedekleme kilidini açma: kurtarma kodu seçeneği etiketi
+msgid "backup_unlock_recovery_code"
+msgstr "Kurtarma kodu"
+
+#. Yedekleme: gizli değer giriş alanı etiketi
+msgid "backup_secret_label"
+msgstr "Gizli değer"
+
+#. Yedekleme: dışa aktarma düğmesi
+msgid "backup_export_button"
+msgstr "Dışa aktar"
+
+#. Yedekleme kilidini açma: gizli ifade ipucu
+msgid "backup_unlock_passphrase_hint"
+msgstr "Herhangi bir gizli ifade seçin. Bunu bir yere not edin: bu yedeği geri yüklemek için ona ihtiyacınız olacak."
+
+#. Yedekleme kilidini açma: kurtarma kodu ipucu
+msgid "backup_unlock_recovery_code_hint"
+msgstr "Ayarlar › Hesap bölümünde bulunan profilinizin kurtarma kodunu kullanın."
 
 #. Settings - Backup: restore tile title
 msgid "backup_restore_title"
@@ -7453,7 +7489,11 @@ msgstr "Bir yedeği geri yükle"
 
 #. Settings - Backup: restore tile subtitle
 msgid "backup_restore_subtitle"
-msgstr "Bir katalog dışa aktarma dosyasını geri yükler. UYARI: tüm mevcut verileri değiştirir."
+msgstr "Bir katalog dışa aktarmasını geri yükler. Tüm mevcut verilerinizi değiştirir."
+
+#. Settings - Backup: restore yardım metni
+msgid "backup_restore_help"
+msgstr "Bir katalog dışa aktarma dosyasını geri yükler. Uyarı: bu, tüm mevcut verilerinizi değiştirir. Eksiksiz, geri alınabilir bir geri yükleme için \"Tam yedeği geri yükle\"yi tercih edin."
 
 #. Settings - System section title (top-level accordion)
 msgid "system_section_title"
@@ -9495,7 +9535,11 @@ msgid "backup_restore_full_title"
 msgstr "Tam yedeği geri yükle"
 
 msgid "backup_restore_full_subtitle"
-msgstr "Mevcut kütüphanenizle değiştirmek veya birleştirmek için bir .bgbackup arşivi içe aktarın."
+msgstr "Birleştirmek veya her şeyi değiştirmek için bir .bgbackup arşivi içe aktarın."
+
+#. Backup section: PR #3 tam yedeği geri yükle yardım metni
+msgid "backup_restore_full_help"
+msgstr "Tam bir yedek arşivi (.bgbackup) içe aktarır. İçeriğini mevcut kütüphanenizle birleştirebilir veya verilerinizi tamamen değiştirebilirsiniz. Bir sihirbaz her adımda size yol gösterir."
 
 msgid "backup_rollback_title"
 msgstr "Son geri yüklemeyi geri al"

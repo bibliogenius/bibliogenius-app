@@ -390,6 +390,36 @@ class HelpRegistry {
         ),
       ),
 
+      // --- Inline help for Settings > Backup & export tiles ---
+      _GatedTopic(
+        topic: HelpTopic.inline(
+          id: 'backup_export_catalog',
+          titleKey: 'backup_export_catalog_title',
+          descKey: 'backup_export_catalog_help',
+        ),
+      ),
+      _GatedTopic(
+        topic: HelpTopic.inline(
+          id: 'backup_full',
+          titleKey: 'backup_full_title',
+          descKey: 'backup_full_help',
+        ),
+      ),
+      _GatedTopic(
+        topic: HelpTopic.inline(
+          id: 'backup_restore_full',
+          titleKey: 'backup_restore_full_title',
+          descKey: 'backup_restore_full_help',
+        ),
+      ),
+      _GatedTopic(
+        topic: HelpTopic.inline(
+          id: 'backup_restore_json',
+          titleKey: 'backup_restore_title',
+          descKey: 'backup_restore_help',
+        ),
+      ),
+
       // --- Inline help for Settings > Account / Data / Search (Phase 1) ---
       _GatedTopic(
         topic: HelpTopic.inline(
