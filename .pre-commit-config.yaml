@@ -1,0 +1,26 @@
+# Local secret-scanning gate — catches honest mistakes BEFORE a commit lands.
+#
+# Uses a LOCALLY installed gitleaks binary (repo: local), so pre-commit fetches
+# nothing from GitHub. The open-source gitleaks CLI is MIT-licensed: no license
+# key needed (the old GITLEAKS_LICENSE was only for the gitleaks GitHub Action).
+#
+# One-time setup (macOS):
+#   brew install gitleaks pre-commit
+#   pre-commit install
+#
+# Reuses the repo's .gitleaks.toml config.
+#
+# NOTE: a pre-commit hook is client-side and bypassable (git commit --no-verify,
+# fresh clone without `pre-commit install`, an agent skipping it). It is the
+# fast first layer, NOT the guarantee. The unbypassable net is the server-side
+# scan in .forgejo/workflows/security.yml (runs on Codeberg regardless of client).
+repos:
+  - repo: local
+    hooks:
+      - id: gitleaks
+        name: gitleaks (scan staged changes)
+        # `protect --staged` scans staged changes. On gitleaks >= 8.19 you can
+        # switch to: gitleaks git --staged --redact --config .gitleaks.toml
+        entry: gitleaks protect --staged --redact --config .gitleaks.toml
+        language: system
+        pass_filenames: false

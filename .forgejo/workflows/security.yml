@@ -1,0 +1,43 @@
+# Secret scanning on Codeberg (Forgejo Actions) — the unbypassable server-side
+# net behind the local pre-commit hook. Runs the open-source gitleaks CLI
+# (MIT, no license required; the old GITLEAKS_LICENSE was for the GitHub Action).
+#
+# This lives in .forgejo/ on purpose: GitHub reads only .github/workflows/, so
+# this NEVER runs on the GitHub read-only mirror — only on Codeberg.
+#
+# Good-citizen note: Codeberg's shared CI is a donated, community resource.
+# This job is intentionally lean (a few seconds), scans on push/PR to main
+# (real work), with at most a weekly sweep. Do not add heavy or frequent jobs.
+#
+# Prerequisites on Codeberg:
+#   - Enable Actions for this repo (Settings -> Units / Actions).
+#   - Ensure you have access to Codeberg-CI shared runners; confirm the runner
+#     label below ("docker") matches what Codeberg-CI advertises, adjust if not.
+name: Security Scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  # Optional periodic full-history sweep. Weekly is courteous to shared CI.
+  # Delete this block entirely if you'd rather not use scheduled runner time.
+  schedule:
+    - cron: '0 6 * * 1'  # Mondays 06:00 UTC
+  workflow_dispatch:
+
+jobs:
+  gitleaks:
+    runs-on: docker  # Codeberg-CI shared runner label; adjust if yours differs
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # full history so gitleaks can scan past commits
+
+      - name: Run gitleaks (open-source CLI, no license)
+        env:
+          # Pinned for reproducibility; bump to a current release as needed.
+          GITLEAKS_VERSION: "8.18.4"
+        run: |
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" | tar -xz gitleaks
+          ./gitleaks detect --source . --config .gitleaks.toml --redact --verbose

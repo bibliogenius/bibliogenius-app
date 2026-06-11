@@ -1,13 +1,19 @@
-name: Build & Release (Windows)
+name: Build Windows
 
 # Scoped GitHub Actions usage: GitHub is a read-only mirror of Codeberg, and the
 # only reason Actions runs here is Windows, the one platform we cannot build
-# locally (Flutter does not cross-compile Windows from macOS). macOS/Android/Linux
-# assets are built locally/self-hosted and uploaded to the same Release with:
-#   gh release upload <tag> BiblioGenius-macOS.dmg BiblioGenius-Android.apk BiblioGenius-Linux.tar.gz
+# locally (Flutter does not cross-compile Windows from macOS).
+#
+# GitHub is a PURE BUILD FARM: this workflow does NOT publish a GitHub Release.
+# It uploads the built Windows app as a run ARTIFACT (`bibliogenius-windows`).
+# Download it manually from the Actions run page, then host it on
+# bibliogenius.org/downloads/ alongside the locally/self-hosted macOS .dmg,
+# Android .apk and Linux AppImage. No user-facing downloads live on GitHub.
 #
 # Trigger: a `v*` tag pushed on Codeberg is propagated to GitHub by the push
-# mirror, which fires this workflow. `workflow_dispatch` allows manual testing.
+# mirror, which fires this workflow. `workflow_dispatch` allows manual runs.
+# (Every v* tag just produces the artifact now; the old `-ci` skip is no longer
+# needed since there is no release job to skip.)
 
 on:
   push:
@@ -46,7 +52,7 @@ jobs:
           path: target/x86_64-pc-windows-msvc/release/bibliogenius.exe
 
   # =============================================================================
-  # BUILD FLUTTER WINDOWS APP
+  # BUILD FLUTTER WINDOWS APP -> uploads the BiblioGenius-Windows.zip artifact
   # =============================================================================
   build-windows:
     needs: build-rust
@@ -86,62 +92,21 @@ jobs:
           mkdir build\windows\x64\runner\Release\backend
           copy backend\bibliogenius.exe build\windows\x64\runner\Release\backend\
 
-      - name: Create ZIP
-        run: |
-          Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath BiblioGenius-Windows.zip
+      - name: Install Inno Setup
+        run: choco install innosetup -y --no-progress
 
-      - name: Upload Windows app
+      - name: Build installer (Inno Setup)
+        run: |
+          $version = "${{ github.ref_name }}" -replace '^v',''
+          if (-not $version) { $version = "0.0.0-dev" }
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          & $iscc /DMyAppVersion=$version windows\installer\BiblioGenius.iss
+
+      # The final deliverable: a single BiblioGenius-Setup.exe installer. Download
+      # it manually from this run's Artifacts section, then rehost on
+      # bibliogenius.org/downloads/.
+      - name: Upload installer
         uses: actions/upload-artifact@v4
         with:
           name: bibliogenius-windows
-          path: BiblioGenius-Windows.zip
-
-  # =============================================================================
-  # CREATE / UPDATE GITHUB RELEASE (Windows asset only; others uploaded via gh)
-  # =============================================================================
-  release:
-    needs: build-windows
-    runs-on: ubuntu-latest
-    if: "!contains(github.ref, '-ci')"
-    permissions:
-      contents: write
-    steps:
-      - name: Download Windows artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: bibliogenius-windows
-          path: artifacts
-
-      - name: Create Release
-        uses: softprops/action-gh-release@v2
-        with:
-          draft: false
-          prerelease: true
-          generate_release_notes: false
-          body: |
-            # BiblioGenius ${{ github.ref_name }}
-
-            Cross-platform personal library: catalog, peer-to-peer sharing, end-to-end
-            encrypted messaging, loans, local encrypted backups.
-
-            ## Downloads
-
-            | Platform | Status | File |
-            |----------|--------|------|
-            | **macOS** | Signed and notarized | `BiblioGenius-macOS.dmg` |
-            | **Android** | Google Play (preferred) | `BiblioGenius-Android.apk` (sideload) |
-            | **Windows** | Automated, lightly tested | `BiblioGenius-Windows.zip` |
-            | **Linux** | Automated, lightly tested | `BiblioGenius-Linux.tar.gz` |
-
-            > Windows is built here on CI. macOS, Android and Linux assets are built
-            > and signed locally and attached to this same release.
-
-            ## Getting started
-            - **Windows**: extract the ZIP, run `bibliogenius.exe`
-            - **macOS**: open the `.dmg`, drag to Applications
-            - **Android**: install via Google Play, or sideload the APK
-            - **Linux**: extract the tarball, run `./bibliogenius`
-
-            Source of truth and issues: https://codeberg.org/bibliogenius/bibliogenius-app
-          files: |
-            artifacts/BiblioGenius-Windows.zip
+          path: windows/installer/Output/BiblioGenius-Setup.exe
