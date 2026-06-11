@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart'
+    show kIsWeb, defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:go_router/go_router.dart';
@@ -51,25 +53,49 @@ class ScanScreen extends StatefulWidget {
 class _ScanScreenState extends State<ScanScreen> {
   late final MobileScannerController controller;
 
+  /// Controller for the desktop manual-entry fallback (see [_cameraScanSupported]).
+  final TextEditingController _manualIsbnController = TextEditingController();
+
+  /// Whether a live camera scanner can run here. `mobile_scanner` has no
+  /// Linux/Windows desktop backend, so on those platforms we never build/start a
+  /// [MobileScannerController] and fall back to manual ISBN entry instead of a
+  /// blank preview. An injected controller/builder (widget tests) always wins, and
+  /// web is supported. Uses [defaultTargetPlatform] (not dart:io) to stay
+  /// web-compilable.
+  bool get _cameraScanSupported {
+    if (widget.controller != null || widget.scannerBuilder != null) return true;
+    if (kIsWeb) return true;
+    switch (defaultTargetPlatform) {
+      case TargetPlatform.android:
+      case TargetPlatform.iOS:
+      case TargetPlatform.macOS:
+        return true;
+      default:
+        return false;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    controller =
-        widget.controller ??
-        MobileScannerController(
-          autoStart: false,
-          detectionSpeed: DetectionSpeed.normal,
-          facing: CameraFacing.back,
-          torchEnabled: false,
-        );
+    if (_cameraScanSupported) {
+      controller =
+          widget.controller ??
+          MobileScannerController(
+            autoStart: false,
+            detectionSpeed: DetectionSpeed.normal,
+            facing: CameraFacing.back,
+            torchEnabled: false,
+          );
 
-    // Start camera when view is visible only after frame is rendered
-    // to avoid immediate permission denial errors on some platforms
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        controller.start();
-      }
-    });
+      // Start camera when view is visible only after frame is rendered
+      // to avoid immediate permission denial errors on some platforms
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          controller.start();
+        }
+      });
+    }
 
     // Check connectivity to show offline banner
     BookUrlHelper.isOnline().then((online) {
@@ -99,7 +125,9 @@ class _ScanScreenState extends State<ScanScreen> {
     // For safety in production (where it's null), we MUST dispose.
     // In test (where it's provided), we might mock dispose.
     // Let's dispose it. MobileScannerController.dispose() is idempotent usually?
-    controller.dispose();
+    // Only created on camera-capable platforms (see _cameraScanSupported).
+    if (_cameraScanSupported) controller.dispose();
+    _manualIsbnController.dispose();
     super.dispose();
   }
 
@@ -136,18 +164,7 @@ class _ScanScreenState extends State<ScanScreen> {
         // Haptic feedback
         HapticFeedback.lightImpact();
 
-        if (widget.batchMode) {
-          // Batch mode: add book directly and continue scanning
-          _handleBatchScan(rawValue);
-        } else {
-          // Normal mode: return ISBN to previous screen
-          setState(() {
-            _isScanning = false;
-          });
-          if (mounted) {
-            context.pop(rawValue);
-          }
-        }
+        _dispatchValidIsbn(rawValue);
         return;
       }
     }
@@ -161,6 +178,102 @@ class _ScanScreenState extends State<ScanScreen> {
         _showInvalidBarcodeDialog();
       }
     }
+  }
+
+  /// Routes a validated ISBN exactly as a camera detection would: queued in
+  /// batch mode, otherwise returned to the caller. Shared by the camera path
+  /// ([_onDetect]) and the desktop manual-entry fallback ([_submitManualIsbn]).
+  void _dispatchValidIsbn(String isbn) {
+    if (widget.batchMode) {
+      // Batch mode: add book directly and continue scanning
+      _handleBatchScan(isbn);
+    } else {
+      // Normal mode: return ISBN to previous screen
+      setState(() {
+        _isScanning = false;
+      });
+      if (mounted) {
+        context.pop(isbn);
+      }
+    }
+  }
+
+  /// Validates and submits the manually typed ISBN (desktop fallback). A USB
+  /// barcode scanner in keyboard-wedge mode also lands here via the field's
+  /// onSubmitted (it types the digits + Enter).
+  void _submitManualIsbn() {
+    final raw = _manualIsbnController.text.trim();
+    if (raw.isEmpty) return;
+    if (!IsbnValidator.isValid(raw)) {
+      _showInvalidBarcodeDialog();
+      return;
+    }
+    _manualIsbnController.clear();
+    _dispatchValidIsbn(raw);
+  }
+
+  /// Desktop fallback rendered in place of the camera preview when
+  /// mobile_scanner has no backend (Linux/Windows). The field is autofocused so
+  /// a USB barcode scanner (keyboard wedge) types straight into it; Enter submits.
+  Widget _buildManualInputArea(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      color: theme.scaffoldBackgroundColor,
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Center(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.no_photography_outlined,
+                size: 56,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                TranslationService.translate(context, 'camera_error'),
+                textAlign: TextAlign.center,
+                style: theme.textTheme.titleMedium,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                TranslationService.translate(context, 'or_manual_entry'),
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 24),
+              TextField(
+                controller: _manualIsbnController,
+                keyboardType: TextInputType.number,
+                autofocus: true,
+                textInputAction: TextInputAction.search,
+                onSubmitted: (_) => _submitManualIsbn(),
+                decoration: InputDecoration(
+                  labelText: TranslationService.translate(context, 'enter_isbn'),
+                  hintText: '978...',
+                  prefixIcon: const Icon(Icons.qr_code),
+                  border: const OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: _submitManualIsbn,
+                  icon: const Icon(Icons.search),
+                  label: Text(
+                    TranslationService.translate(context, 'tooltip_search_isbn'),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> _handleBatchScan(String isbn) async {
@@ -310,7 +423,7 @@ class _ScanScreenState extends State<ScanScreen> {
       _commitProgress = 0.0;
     });
 
-    controller.stop();
+    if (_cameraScanSupported) controller.stop();
 
     final bookRepo = Provider.of<BookRepository>(context, listen: false);
     final copyRepo = Provider.of<CopyRepository>(context, listen: false);
@@ -1101,47 +1214,57 @@ class _ScanScreenState extends State<ScanScreen> {
           backgroundColor: Colors.transparent,
           elevation: 0,
           actions: [
-            IconButton(
-              icon: Icon(_isTorchOn ? Icons.flash_on : Icons.flash_off),
-              tooltip: TranslationService.translate(
-                context,
-                'tooltip_toggle_flashlight',
+            // Torch + camera switch are meaningless without a live camera.
+            if (_cameraScanSupported) ...[
+              IconButton(
+                icon: Icon(_isTorchOn ? Icons.flash_on : Icons.flash_off),
+                tooltip: TranslationService.translate(
+                  context,
+                  'tooltip_toggle_flashlight',
+                ),
+                onPressed: () {
+                  setState(() {
+                    _isTorchOn = !_isTorchOn;
+                  });
+                  controller.toggleTorch();
+                },
               ),
-              onPressed: () {
-                setState(() {
-                  _isTorchOn = !_isTorchOn;
-                });
-                controller.toggleTorch();
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.cameraswitch),
-              onPressed: () => controller.switchCamera(),
-              tooltip: TranslationService.translate(context, 'switch_camera'),
-            ),
+              IconButton(
+                icon: const Icon(Icons.cameraswitch),
+                onPressed: () => controller.switchCamera(),
+                tooltip: TranslationService.translate(context, 'switch_camera'),
+              ),
+            ],
           ],
         ),
         body: Stack(
           children: [
-            widget.scannerBuilder?.call(context, controller, _onDetect) ??
-                MobileScanner(
-                  controller: controller,
-                  // fit: BoxFit.cover, // Ensure it covers screen
-                  onDetect: _onDetect,
-                  errorBuilder: (context, error, child) {
-                    return Center(
-                      child: Text(
-                        'Error: ${error.errorCode}',
-                        style: const TextStyle(color: Colors.red),
-                      ),
-                    );
-                  },
-                ),
+            // Camera preview on supported platforms; manual ISBN entry on
+            // Linux/Windows where mobile_scanner has no backend. Overlaid batch
+            // panels/banners below keep working in both cases.
+            if (_cameraScanSupported)
+              widget.scannerBuilder?.call(context, controller, _onDetect) ??
+                  MobileScanner(
+                    controller: controller,
+                    // fit: BoxFit.cover, // Ensure it covers screen
+                    onDetect: _onDetect,
+                    errorBuilder: (context, error, child) {
+                      return Center(
+                        child: Text(
+                          'Error: ${error.errorCode}',
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                      );
+                    },
+                  )
+            else
+              _buildManualInputArea(context),
 
-            CustomPaint(
-              painter: ScannerOverlayPainter(scanWindow),
-              child: Container(),
-            ),
+            if (_cameraScanSupported)
+              CustomPaint(
+                painter: ScannerOverlayPainter(scanWindow),
+                child: Container(),
+              ),
 
             // Offline warning banner
             if (_isOffline)
