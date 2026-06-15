@@ -8570,8 +8570,20 @@ msgstr "See library"
 msgid "settings_search_hint"
 msgstr "Search settings..."
 
-msgid "settings_search_suggestions"
-msgstr "Common searches"
+msgid "settings_springboard_title"
+msgstr "What would you like to do?"
+
+msgid "settings_goal_sync_devices"
+msgstr "Read on my other devices"
+
+msgid "settings_goal_backup"
+msgstr "Back up my library"
+
+msgid "settings_goal_public"
+msgstr "Make my library public"
+
+msgid "settings_goal_local_wifi"
+msgstr "Share over my Wi-Fi network"
 
 msgid "time_just_now"
 msgstr "Just now"

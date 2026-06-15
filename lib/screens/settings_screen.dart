@@ -328,54 +328,192 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   bool get _isSearching => _settingsSearch.isNotEmpty;
 
-  /// Drives the settings search from a suggestion chip so the relevant
-  /// accordion auto-expands (sections expand when [_isSearching]).
-  void _applySearchSuggestion(String query) {
-    _settingsSearchController.text = query;
-    setState(() => _settingsSearch = query);
+  /// Opens a focused bottom sheet for a springboard capability: an optional
+  /// goal-phrased title + the relevant toggle(s)/actions, reusing the same
+  /// widgets shown in the settings accordions. Lighter and more reliable than
+  /// navigating into the long accordion list (no scroll math; dismiss with a
+  /// swipe).
+  Future<void> _showCapabilitySheet(
+    BuildContext context, {
+    IconData? icon,
+    String? titleKey,
+    required List<Widget> content,
+  }) {
+    return showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (sheetContext) {
+        final media = MediaQuery.of(sheetContext);
+        return ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: media.size.height * 0.85),
+          child: SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(16, 0, 16, 16 + media.viewInsets.bottom),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (titleKey != null) ...[
+                  Row(
+                    children: [
+                      if (icon != null) ...[
+                        Icon(
+                          icon,
+                          color: Theme.of(sheetContext).colorScheme.primary,
+                        ),
+                        const SizedBox(width: 12),
+                      ],
+                      Expanded(
+                        child: Semantics(
+                          header: true,
+                          child: Text(
+                            TranslationService.translate(sheetContext, titleKey),
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                ],
+                ...content,
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
-  /// Common-search chips shown above the presets when the search box is empty.
-  /// Each chip pre-fills the search with a setting's own label, revealing it
-  /// without the user having to guess where it lives in the accordions.
-  Widget _buildSearchSuggestions(BuildContext context) {
-    // (label i18n key, icon) — labels reuse existing section keys.
-    const suggestions = <(String, IconData)>[
-      ('settings_linked_devices', Icons.devices_rounded),
-      ('backup_section_title', Icons.backup_outlined),
-      ('theme_title', Icons.palette_outlined),
-      ('account', Icons.lock_outline),
-    ];
+  /// Goal-oriented shortcuts shown above the presets when the search box is
+  /// empty. Each tile is phrased as something the user wants to DO (not a
+  /// subsystem name), making capabilities discoverable without spelunking the
+  /// accordions. Tiles either push a dedicated screen or open a focused bottom
+  /// sheet with the relevant capability.
+  Widget _buildSpringboard(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Semantics(
           header: true,
           child: Text(
-            TranslationService.translate(
-              context,
-              'settings_search_suggestions',
-            ),
-            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+            TranslationService.translate(context, 'settings_springboard_title'),
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
         ),
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
+        const SizedBox(height: 12),
+        Row(
           children: [
-            for (final (key, icon) in suggestions)
-              ActionChip(
-                avatar: Icon(icon, size: 18),
-                label: Text(TranslationService.translate(context, key)),
-                onPressed: () => _applySearchSuggestion(
-                  TranslationService.translate(context, key),
+            Expanded(
+              child: _buildGoalTile(
+                context,
+                icon: Icons.devices_rounded,
+                labelKey: 'settings_goal_sync_devices',
+                onTap: () => context.push('/device-pairing'),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: _buildGoalTile(
+                context,
+                icon: Icons.backup_outlined,
+                labelKey: 'settings_goal_backup',
+                onTap: () => _showCapabilitySheet(
+                  context,
+                  icon: Icons.backup_outlined,
+                  titleKey: 'settings_goal_backup',
+                  content: _backupChildren(context),
                 ),
               ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            // Each sharing tile opens a focused sheet with just its toggle +
+            // context, reusing the same widgets as the Network accordion. They
+            // open a sheet rather than flip the switch: making a library public
+            // is privacy-sensitive, so the user must see the toggle + its
+            // explanation before acting.
+            Expanded(
+              child: _buildGoalTile(
+                context,
+                icon: Icons.public,
+                labelKey: 'settings_goal_public',
+                // The directory section carries its own "Annuaire public"
+                // header, so no extra sheet title is needed here.
+                onTap: () => _showCapabilitySheet(
+                  context,
+                  content: [_buildDirectorySection(context)],
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: _buildGoalTile(
+                context,
+                icon: Icons.wifi_tethering,
+                labelKey: 'settings_goal_local_wifi',
+                onTap: () => _showCapabilitySheet(
+                  context,
+                  icon: Icons.wifi_tethering,
+                  titleKey: 'settings_goal_local_wifi',
+                  content: [_buildLocalNetworkCard(context)],
+                ),
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 16),
       ],
+    );
+  }
+
+  /// A single springboard tile: an action icon over a goal-phrased label.
+  Widget _buildGoalTile(
+    BuildContext context, {
+    required IconData icon,
+    required String labelKey,
+    required VoidCallback onTap,
+  }) {
+    final label = TranslationService.translate(context, labelKey);
+    return Semantics(
+      button: true,
+      label: label,
+      child: Card(
+        margin: EdgeInsets.zero,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: onTap,
+          child: ExcludeSemantics(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+              child: Column(
+                children: [
+                  Icon(
+                    icon,
+                    size: 28,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    label,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -427,7 +565,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             const SizedBox(height: 16),
 
             // Common-search shortcuts (hidden during search)
-            if (!_isSearching) _buildSearchSuggestions(context),
+            if (!_isSearching) _buildSpringboard(context),
 
             // Quick Presets Section (hidden during search)
             if (!_isSearching) ...[
@@ -588,125 +726,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ),
                   ),
-                  children: [
-                    // Auto-backup status (ADR-037 §6) sits at the top so the
-                    // green/amber/red state is the first thing the user sees
-                    // when they expand the section.
-                    const Padding(
-                      padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
-                      child: AutoBackupStatusCard(),
-                    ),
-                    ListTile(
-                      leading: const Icon(
-                        Icons.backup,
-                        color: Colors.green,
-                      ),
-                      title: Text(
-                        TranslationService.translate(
-                          context,
-                          'backup_export_catalog_title',
-                        ),
-                      ),
-                      subtitle: Text(
-                        TranslationService.translate(
-                          context,
-                          'backup_export_catalog_subtitle',
-                        ),
-                      ),
-                      trailing: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          HelpAffordance(topicId: 'backup_export_catalog'),
-                          Icon(Icons.chevron_right),
-                        ],
-                      ),
-                      onTap: () => BackupActions.exportCatalogJson(context),
-                    ),
-                    // Sauvegarde complète (.bgbackup, ADR-037 §2 writer).
-                    ListTile(
-                      leading: const Icon(
-                        Icons.shield_outlined,
-                        color: Colors.green,
-                      ),
-                      title: Text(
-                        TranslationService.translate(
-                          context,
-                          'backup_full_title',
-                        ),
-                      ),
-                      subtitle: Text(
-                        TranslationService.translate(
-                          context,
-                          'backup_full_subtitle',
-                        ),
-                      ),
-                      trailing: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          HelpAffordance(topicId: 'backup_full'),
-                          Icon(Icons.chevron_right),
-                        ],
-                      ),
-                      onTap: () => BackupActions.runFullBackup(context),
-                    ),
-                    // Restauration .bgbackup (ADR-037 §5 reader).
-                    ListTile(
-                      leading: const Icon(
-                        Icons.shield,
-                        color: Colors.green,
-                      ),
-                      title: Text(
-                        TranslationService.translate(
-                          context,
-                          'backup_restore_full_title',
-                        ),
-                      ),
-                      subtitle: Text(
-                        TranslationService.translate(
-                          context,
-                          'backup_restore_full_subtitle',
-                        ),
-                      ),
-                      trailing: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          HelpAffordance(topicId: 'backup_restore_full'),
-                          Icon(Icons.chevron_right),
-                        ],
-                      ),
-                      onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const BackupRestoreWizardScreen(),
-                        ),
-                      ),
-                    ),
-                    // Restaurer mon catalogue (JSON, legacy).
-                    ListTile(
-                      leading: const Icon(Icons.restore, color: Colors.red),
-                      title: Text(
-                        TranslationService.translate(
-                          context,
-                          'backup_restore_title',
-                        ),
-                      ),
-                      subtitle: Text(
-                        TranslationService.translate(
-                          context,
-                          'backup_restore_subtitle',
-                        ),
-                      ),
-                      trailing: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          HelpAffordance(topicId: 'backup_restore_json'),
-                          Icon(Icons.chevron_right),
-                        ],
-                      ),
-                      onTap: () => BackupActions.restoreCatalogJson(context),
-                    ),
-                    // Carte conditionnelle: rollback de la dernière restauration.
-                    const _RollbackTile(),
-                  ],
+                  children: _backupChildren(context),
                 ),
               ),
 
@@ -1752,51 +1772,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ),
         const SizedBox(height: 8),
-        Card(
-          margin: const EdgeInsets.only(bottom: 12),
-          child: Column(
-            children: [
-              SwitchListTile(
-                secondary: const Icon(Icons.wifi),
-                title: Text(t('settings_network_discovery')),
-                subtitle: Text(t('settings_network_discovery_desc')),
-                value: themeProvider.networkEnabled,
-                onChanged: (value) => themeProvider.setNetworkEnabled(value),
-              ),
-              if (themeProvider.networkEnabled) ...[
-                const Divider(height: 1),
-                ListTile(
-                  leading: const Icon(Icons.devices),
-                  title: Text(t('settings_network_peers_detected')),
-                  trailing: Text(
-                    '${MdnsService.peers.length}',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-              ],
-              const Divider(height: 1),
-              ListTile(
-                leading: const Icon(Icons.mail_outline),
-                title: Text(t('settings_reshow_invite_banner')),
-                onTap: () async {
-                  final prefs = await SharedPreferences.getInstance();
-                  await prefs.remove('invite_banner_dismissed');
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(t('settings_reshow_invite_banner_done')),
-                        duration: const Duration(seconds: 2),
-                      ),
-                    );
-                  }
-                },
-              ),
-            ],
-          ),
-        ),
+        _buildLocalNetworkCard(context),
 
         // Extended network (public directory) hidden until feature is ready
 
@@ -2012,6 +1988,156 @@ class _SettingsScreenState extends State<SettingsScreen> {
         content: Text(confirmLabel),
         duration: const Duration(seconds: 2),
       ),
+    );
+  }
+
+  /// Backup section content (status card + export/restore actions). Shared
+  /// between the Backup accordion and the springboard "Sauvegarder ma
+  /// bibliothèque" bottom sheet.
+  List<Widget> _backupChildren(BuildContext context) {
+    return [
+      // Auto-backup status (ADR-037 §6) sits at the top so the green/amber/red
+      // state is the first thing the user sees.
+      const Padding(
+        padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
+        child: AutoBackupStatusCard(),
+      ),
+      ListTile(
+        leading: const Icon(Icons.backup, color: Colors.green),
+        title: Text(
+          TranslationService.translate(context, 'backup_export_catalog_title'),
+        ),
+        subtitle: Text(
+          TranslationService.translate(
+            context,
+            'backup_export_catalog_subtitle',
+          ),
+        ),
+        trailing: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            HelpAffordance(topicId: 'backup_export_catalog'),
+            Icon(Icons.chevron_right),
+          ],
+        ),
+        onTap: () => BackupActions.exportCatalogJson(context),
+      ),
+      // Sauvegarde complète (.bgbackup, ADR-037 §2 writer).
+      ListTile(
+        leading: const Icon(Icons.shield_outlined, color: Colors.green),
+        title: Text(
+          TranslationService.translate(context, 'backup_full_title'),
+        ),
+        subtitle: Text(
+          TranslationService.translate(context, 'backup_full_subtitle'),
+        ),
+        trailing: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            HelpAffordance(topicId: 'backup_full'),
+            Icon(Icons.chevron_right),
+          ],
+        ),
+        onTap: () => BackupActions.runFullBackup(context),
+      ),
+      // Restauration .bgbackup (ADR-037 §5 reader).
+      ListTile(
+        leading: const Icon(Icons.shield, color: Colors.green),
+        title: Text(
+          TranslationService.translate(context, 'backup_restore_full_title'),
+        ),
+        subtitle: Text(
+          TranslationService.translate(context, 'backup_restore_full_subtitle'),
+        ),
+        trailing: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            HelpAffordance(topicId: 'backup_restore_full'),
+            Icon(Icons.chevron_right),
+          ],
+        ),
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => const BackupRestoreWizardScreen(),
+          ),
+        ),
+      ),
+      // Restaurer mon catalogue (JSON, legacy).
+      ListTile(
+        leading: const Icon(Icons.restore, color: Colors.red),
+        title: Text(
+          TranslationService.translate(context, 'backup_restore_title'),
+        ),
+        subtitle: Text(
+          TranslationService.translate(context, 'backup_restore_subtitle'),
+        ),
+        trailing: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            HelpAffordance(topicId: 'backup_restore_json'),
+            Icon(Icons.chevron_right),
+          ],
+        ),
+        onTap: () => BackupActions.restoreCatalogJson(context),
+      ),
+      // Carte conditionnelle: rollback de la dernière restauration.
+      const _RollbackTile(),
+    ];
+  }
+
+  /// The local-network (Wi-Fi/mDNS) toggle card. Self-contained (wraps its own
+  /// [Consumer]) so it renders both inside the Network accordion and inside the
+  /// springboard "Partager sur mon réseau Wi-Fi" bottom sheet.
+  Widget _buildLocalNetworkCard(BuildContext context) {
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, _) {
+        String t(String key) => TranslationService.translate(context, key);
+        return Card(
+          margin: const EdgeInsets.only(bottom: 12),
+          child: Column(
+            children: [
+              SwitchListTile(
+                secondary: const Icon(Icons.wifi),
+                title: Text(t('settings_network_discovery')),
+                subtitle: Text(t('settings_network_discovery_desc')),
+                value: themeProvider.networkEnabled,
+                onChanged: (value) => themeProvider.setNetworkEnabled(value),
+              ),
+              if (themeProvider.networkEnabled) ...[
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.devices),
+                  title: Text(t('settings_network_peers_detected')),
+                  trailing: Text(
+                    '${MdnsService.peers.length}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ],
+              const Divider(height: 1),
+              ListTile(
+                leading: const Icon(Icons.mail_outline),
+                title: Text(t('settings_reshow_invite_banner')),
+                onTap: () async {
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.remove('invite_banner_dismissed');
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(t('settings_reshow_invite_banner_done')),
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                  }
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
