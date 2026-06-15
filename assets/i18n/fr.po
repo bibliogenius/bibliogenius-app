@@ -8585,6 +8585,24 @@ msgstr "Rendre ma bibliothèque publique"
 msgid "settings_goal_local_wifi"
 msgstr "Partager sur mon réseau Wi-Fi"
 
+msgid "settings_goal_manage_public"
+msgstr "Gérer mon annuaire public"
+
+msgid "settings_goal_manage_wifi"
+msgstr "Gérer le partage Wi-Fi"
+
+msgid "settings_goal_language"
+msgstr "Ajouter une langue de lecture"
+
+msgid "settings_goal_manage_city"
+msgstr "Gérer ma ville"
+
+msgid "settings_goal_set_country"
+msgstr "Renseigner mon pays"
+
+msgid "settings_share_city_requires_directory"
+msgstr "Activez d'abord « Apparaître dans l'annuaire public »."
+
 msgid "time_just_now"
 msgstr "À l'instant"
 

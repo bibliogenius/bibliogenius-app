@@ -8585,6 +8585,24 @@ msgstr "Make my library public"
 msgid "settings_goal_local_wifi"
 msgstr "Share over my Wi-Fi network"
 
+msgid "settings_goal_manage_public"
+msgstr "Manage my public listing"
+
+msgid "settings_goal_manage_wifi"
+msgstr "Manage Wi-Fi sharing"
+
+msgid "settings_goal_language"
+msgstr "Add a reading language"
+
+msgid "settings_goal_manage_city"
+msgstr "Manage my city"
+
+msgid "settings_goal_set_country"
+msgstr "Set my country"
+
+msgid "settings_share_city_requires_directory"
+msgstr "Enable \"Appear in the public directory\" first."
+
 msgid "time_just_now"
 msgstr "Just now"
 

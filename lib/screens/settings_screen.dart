@@ -53,6 +53,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Map<String, dynamic>? _userStatus;
   Map<String, bool> _searchPrefs = {};
   String _googleBooksApiKey = '';
+  // Reveal state for the Google Books API key field (replaces a nested
+  // ExpansionTile that crashed layout; see _buildSearchConfiguration).
+  bool _showGoogleAdvanced = false;
   String _appVersion = '';
   final _apiKeyController = TextEditingController();
   // Loan settings
@@ -151,7 +154,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _fetchSettings() async {
     final api = Provider.of<ApiService>(context, listen: false);
-    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
 
     setState(() => _isLoading = true);
 
@@ -188,6 +190,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             final apiKeys = config['api_keys'] as Map;
             _googleBooksApiKey = apiKeys['google_books']?.toString() ?? '';
             _apiKeyController.text = _googleBooksApiKey;
+            if (_googleBooksApiKey.isNotEmpty) _showGoogleAdvanced = true;
           }
         }
       }
@@ -205,6 +208,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           if (googleKey.isNotEmpty) {
             _googleBooksApiKey = googleKey;
             _apiKeyController.text = googleKey;
+            _showGoogleAdvanced = true;
           }
         } catch (e) {
           debugPrint('FFI getSearchSettings failed: $e');
@@ -405,19 +409,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: _buildGoalTile(
+        // State-aware tiles: once a capability is enabled its tile flips to a
+        // "manage" variant (with a check badge) instead of disappearing. The
+        // city tile only appears once the library is listed publicly, since
+        // sharing a city is meaningless without a public profile.
+        Consumer2<HubDirectoryProvider, ThemeProvider>(
+          builder: (context, hub, theme, _) {
+            final tiles = <Widget>[
+              _buildGoalTile(
                 context,
                 icon: Icons.devices_rounded,
                 labelKey: 'settings_goal_sync_devices',
                 onTap: () => context.push('/device-pairing'),
               ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: _buildGoalTile(
+              _buildGoalTile(
                 context,
                 icon: Icons.backup_outlined,
                 labelKey: 'settings_goal_backup',
@@ -428,91 +433,173 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   content: _backupChildren(context),
                 ),
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            // Each sharing tile opens a focused sheet with just its toggle +
-            // context, reusing the same widgets as the Network accordion. They
-            // open a sheet rather than flip the switch: making a library public
-            // is privacy-sensitive, so the user must see the toggle + its
-            // explanation before acting.
-            Expanded(
-              child: _buildGoalTile(
+              // Public directory (transform-in-place). Sheet keeps no title:
+              // the directory section carries its own "Annuaire public" header.
+              _buildGoalTile(
                 context,
                 icon: Icons.public,
-                labelKey: 'settings_goal_public',
-                // The directory section carries its own "Annuaire public"
-                // header, so no extra sheet title is needed here.
+                labelKey: hub.isListed
+                    ? 'settings_goal_manage_public'
+                    : 'settings_goal_public',
+                active: hub.isListed,
                 onTap: () => _showCapabilitySheet(
                   context,
                   content: [_buildDirectorySection(context)],
                 ),
               ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: _buildGoalTile(
+              // Local Wi-Fi sharing (transform-in-place).
+              _buildGoalTile(
                 context,
                 icon: Icons.wifi_tethering,
-                labelKey: 'settings_goal_local_wifi',
+                labelKey: theme.networkEnabled
+                    ? 'settings_goal_manage_wifi'
+                    : 'settings_goal_local_wifi',
+                active: theme.networkEnabled,
                 onTap: () => _showCapabilitySheet(
                   context,
                   icon: Icons.wifi_tethering,
-                  titleKey: 'settings_goal_local_wifi',
+                  titleKey: theme.networkEnabled
+                      ? 'settings_goal_manage_wifi'
+                      : 'settings_goal_local_wifi',
                   content: [_buildLocalNetworkCard(context)],
                 ),
               ),
-            ),
-          ],
+              // Invitation to discover multi-language reading. Once the user
+              // has more than one reading language the capability is discovered;
+              // further tweaks live in Settings > Languages.
+              if (theme.userLanguages.length <= 1)
+                _buildGoalTile(
+                  context,
+                  icon: Icons.translate,
+                  labelKey: 'settings_goal_language',
+                  onTap: () => _showCapabilitySheet(
+                    context,
+                    icon: Icons.translate,
+                    titleKey: 'settings_goal_language',
+                    content: [_buildReadingLanguagesField(context)],
+                  ),
+                ),
+              // City surfaces only once the library is listed. The city picker
+              // resolves cities from the user's country, so require a country
+              // first ("Renseigner mon pays" otherwise). Once the city is
+              // actually shared the tile drops off entirely — it's a one-off
+              // setup, manageable later from Settings > Languages.
+              if (hub.isListed && theme.country.isEmpty)
+                _buildGoalTile(
+                  context,
+                  icon: Icons.flag_outlined,
+                  labelKey: 'settings_goal_set_country',
+                  onTap: () => _showCapabilitySheet(
+                    context,
+                    icon: Icons.flag_outlined,
+                    titleKey: 'settings_goal_set_country',
+                    content: [_buildCountryPicker(context, theme)],
+                  ),
+                ),
+              if (hub.isListed &&
+                  theme.country.isNotEmpty &&
+                  !hub.isShareCityEnabled)
+                _buildGoalTile(
+                  context,
+                  icon: Icons.location_city_outlined,
+                  labelKey: 'settings_share_city',
+                  onTap: () => _showCapabilitySheet(
+                    context,
+                    icon: Icons.location_city_outlined,
+                    titleKey: 'settings_share_city',
+                    content: [_buildCitySection(context, theme)],
+                  ),
+                ),
+            ];
+            return _buildTileGrid(tiles);
+          },
         ),
         const SizedBox(height: 16),
       ],
     );
   }
 
-  /// A single springboard tile: an action icon over a goal-phrased label.
+  /// Lays out springboard tiles two per row. Plain Rows (no cross-axis stretch)
+  /// to keep constraints bounded inside the scrolling Column.
+  Widget _buildTileGrid(List<Widget> tiles) {
+    final rows = <Widget>[];
+    for (var i = 0; i < tiles.length; i += 2) {
+      if (rows.isNotEmpty) rows.add(const SizedBox(height: 8));
+      rows.add(
+        Row(
+          children: [
+            Expanded(child: tiles[i]),
+            const SizedBox(width: 8),
+            Expanded(
+              child: i + 1 < tiles.length
+                  ? tiles[i + 1]
+                  : const SizedBox.shrink(),
+            ),
+          ],
+        ),
+      );
+    }
+    return Column(children: rows);
+  }
+
+  /// A single springboard tile: an action icon over a goal-phrased label, with
+  /// an optional check badge when the underlying capability is already enabled.
   Widget _buildGoalTile(
     BuildContext context, {
     required IconData icon,
     required String labelKey,
     required VoidCallback onTap,
+    bool active = false,
   }) {
     final label = TranslationService.translate(context, labelKey);
+    final cs = Theme.of(context).colorScheme;
     return Semantics(
       button: true,
       label: label,
-      child: Card(
-        margin: EdgeInsets.zero,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: onTap,
-          child: ExcludeSemantics(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-              child: Column(
-                children: [
-                  Icon(
-                    icon,
-                    size: 28,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    label,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
+      child: Stack(
+        children: [
+          // width:infinity so the Card fills the Expanded slot (50/50). Without
+          // it the Stack passes loose constraints and the Card shrinks to its
+          // content width.
+          SizedBox(
+            width: double.infinity,
+            child: Card(
+              margin: EdgeInsets.zero,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: onTap,
+                child: ExcludeSemantics(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 16,
+                      horizontal: 12,
+                    ),
+                    child: Column(
+                      children: [
+                        Icon(icon, size: 28, color: cs.primary),
+                        const SizedBox(height: 8),
+                        Text(
+                          label,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
+                ),
               ),
             ),
           ),
-        ),
+          if (active)
+            const Positioned(
+              top: 6,
+              right: 6,
+              child: Icon(Icons.check_circle, size: 16, color: Colors.green),
+            ),
+        ],
       ),
     );
   }
@@ -2926,6 +3013,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Consumer<HubDirectoryProvider>(
       builder: (context, hub, _) {
         final cs = Theme.of(context).colorScheme;
+        // Sharing a city only makes sense if the library is listed in the
+        // public directory (otherwise there is no public profile to attach it
+        // to). Gate the toggle on that, and explain why when it is off.
+        final canShareCity = hub.isListed;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -2940,30 +3031,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
               subtitle: Text(
-                TranslationService.translate(
-                      context,
-                      'settings_share_city_desc',
-                    ) ??
-                    'Adds your city to your public profile so nearby readers can find you. Off by default.',
+                canShareCity
+                    ? (TranslationService.translate(
+                            context,
+                            'settings_share_city_desc',
+                          ) ??
+                          'Adds your city to your public profile so nearby readers can find you. Off by default.')
+                    : TranslationService.translate(
+                        context,
+                        'settings_share_city_requires_directory',
+                      ),
                 style: TextStyle(fontSize: 13, color: Colors.grey[600]),
               ),
-              value: hub.isShareCityEnabled,
+              value: hub.isShareCityEnabled && canShareCity,
               activeColor: cs.primary,
-              onChanged: (value) async {
-                await hub.setShareCity(value);
-                if (!value) {
-                  // User opted out: drop the local pick and clear the hub
-                  // so the public profile no longer carries a city.
-                  await hub.setLocalCityId(null);
-                  try {
-                    await hub.syncLocationCityId(null);
-                  } catch (e) {
-                    debugPrint('Hub locationCityId clear failed: $e');
-                  }
-                }
-              },
+              onChanged: canShareCity
+                  ? (value) async {
+                      await hub.setShareCity(value);
+                      if (!value) {
+                        // User opted out: drop the local pick and clear the hub
+                        // so the public profile no longer carries a city.
+                        await hub.setLocalCityId(null);
+                        try {
+                          await hub.syncLocationCityId(null);
+                        } catch (e) {
+                          debugPrint('Hub locationCityId clear failed: $e');
+                        }
+                      }
+                    }
+                  : null,
             ),
-            if (hub.isShareCityEnabled) ...[
+            if (canShareCity && hub.isShareCityEnabled) ...[
               const SizedBox(height: 8),
               _buildCityPicker(context, themeProvider, hub),
             ],
@@ -3548,11 +3646,74 @@ class _SettingsScreenState extends State<SettingsScreen> {
   // All available reading languages with native names (shared constant)
   static const Map<String, String> _availableLanguages = kLanguageNativeNames;
 
+  /// Reading-language subtitle + selectable chips. Self-contained (wraps its
+  /// own [Consumer]) so it renders in the Languages accordion and in the
+  /// springboard "Add a reading language" bottom sheet.
+  Widget _buildReadingLanguagesField(BuildContext context) {
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, _) {
+        final userLangs = themeProvider.userLanguages;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              TranslationService.translate(context, 'languages_reading') ??
+                  'My reading languages',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              TranslationService.translate(context, 'languages_reading_desc') ??
+                  'Select the languages you read in',
+              style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: _availableLanguages.entries.map((entry) {
+                final code = entry.key;
+                final name = entry.value;
+                final isSelected = userLangs.contains(code);
+                return FilterChip(
+                  label: Text(name),
+                  selected: isSelected,
+                  onSelected: (selected) {
+                    final newLangs = List<String>.from(userLangs);
+                    if (selected) {
+                      newLangs.add(code);
+                    } else {
+                      if (newLangs.length <= 1) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              TranslationService.translate(
+                                    context,
+                                    'languages_min_one',
+                                  ) ??
+                                  'At least one language required',
+                            ),
+                          ),
+                        );
+                        return;
+                      }
+                      newLangs.remove(code);
+                    }
+                    themeProvider.setUserLanguages(newLangs);
+                  },
+                );
+              }).toList(),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Widget _buildLanguageSection(
     BuildContext context,
     ThemeProvider themeProvider,
   ) {
-    final userLangs = themeProvider.userLanguages;
     // Normalize locale tag to match dropdown items (e.g. fr-FR -> fr)
     final rawLocale = themeProvider.localeTag;
     final currentLocale = ThemeProvider.supportedUILanguages.contains(rawLocale)
@@ -3566,58 +3727,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Reading languages subtitle
-        Text(
-          TranslationService.translate(context, 'languages_reading') ??
-              'My reading languages',
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          TranslationService.translate(context, 'languages_reading_desc') ??
-              'Select the languages you read in',
-          style: TextStyle(fontSize: 13, color: Colors.grey[600]),
-        ),
-        const SizedBox(height: 12),
-
-        // Language chips
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: _availableLanguages.entries.map((entry) {
-            final code = entry.key;
-            final name = entry.value;
-            final isSelected = userLangs.contains(code);
-
-            return FilterChip(
-              label: Text(name),
-              selected: isSelected,
-              onSelected: (selected) {
-                final newLangs = List<String>.from(userLangs);
-                if (selected) {
-                  newLangs.add(code);
-                } else {
-                  if (newLangs.length <= 1) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          TranslationService.translate(
-                                context,
-                                'languages_min_one',
-                              ) ??
-                              'At least one language required',
-                        ),
-                      ),
-                    );
-                    return;
-                  }
-                  newLangs.remove(code);
-                }
-                themeProvider.setUserLanguages(newLangs);
-              },
-            );
-          }).toList(),
-        ),
+        // Reading languages (extracted so the springboard "Add a reading
+        // language" sheet can show the same chips).
+        _buildReadingLanguagesField(context),
 
         const SizedBox(height: 24),
 
@@ -4045,26 +4157,45 @@ class _SettingsScreenState extends State<SettingsScreen> {
               if (_searchPrefs['google_books'] ?? googleDefault)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-                  child: Theme(
-                    data: Theme.of(
-                      context,
-                    ).copyWith(dividerColor: Colors.transparent),
-                    child: ExpansionTile(
-                      key: const PageStorageKey('google_books_advanced'),
-                      initiallyExpanded: _googleBooksApiKey.isNotEmpty,
-                      tilePadding: const EdgeInsets.symmetric(horizontal: 8),
-                      childrenPadding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
-                      title: Text(
-                        TranslationService.translate(
-                          context,
-                          'google_books_advanced_options',
-                        ),
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Theme.of(context).colorScheme.primary,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Plain toggle button instead of a nested ExpansionTile:
+                      // a TextField inside nested ExpansionTiles crashes layout
+                      // during the expand animation (intrinsic measurement of a
+                      // TextField -> unbounded constraints). This keeps the same
+                      // collapse/reveal behaviour without the nesting.
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: TextButton.icon(
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            visualDensity: VisualDensity.compact,
+                          ),
+                          icon: Icon(
+                            _showGoogleAdvanced
+                                ? Icons.expand_less
+                                : Icons.expand_more,
+                            size: 18,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          label: Text(
+                            TranslationService.translate(
+                              context,
+                              'google_books_advanced_options',
+                            ),
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                          onPressed: () => setState(
+                            () => _showGoogleAdvanced = !_showGoogleAdvanced,
+                          ),
                         ),
                       ),
-                      children: [
+                      if (_showGoogleAdvanced) ...[
+                        const SizedBox(height: 4),
                         TextField(
                           controller: _apiKeyController,
                           decoration: InputDecoration(
@@ -4134,7 +4265,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                         ),
                       ],
-                    ),
+                    ],
                   ),
                 ),
             ],
