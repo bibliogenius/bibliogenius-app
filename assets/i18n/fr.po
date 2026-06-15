@@ -8570,6 +8570,9 @@ msgstr "Voir la bibliothèque"
 msgid "settings_search_hint"
 msgstr "Rechercher dans les paramètres..."
 
+msgid "settings_search_suggestions"
+msgstr "Recherches fréquentes"
+
 msgid "time_just_now"
 msgstr "À l'instant"
 

@@ -37,6 +37,7 @@ import '../widgets/auto_backup_status_card.dart';
 import '../src/rust/api/frb.dart' as rust;
 import 'backup_restore_wizard_screen.dart';
 import '../utils/language_constants.dart';
+import '../utils/settings_search.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -306,11 +307,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
   /// Returns true if any of the given i18n keys' translated text contains the search query.
   bool _matchesSearch(List<String> keys) {
     if (_settingsSearch.isEmpty) return true;
-    final q = _settingsSearch.toLowerCase();
     for (final key in keys) {
-      final text =
-          TranslationService.translate(context, key)?.toLowerCase() ?? '';
-      if (text.contains(q)) return true;
+      if (settingsKeyMatches(
+        key: key,
+        label: TranslationService.translate(context, key),
+        query: _settingsSearch,
+      )) {
+        return true;
+      }
     }
     return false;
   }
@@ -323,6 +327,57 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   bool get _isSearching => _settingsSearch.isNotEmpty;
+
+  /// Drives the settings search from a suggestion chip so the relevant
+  /// accordion auto-expands (sections expand when [_isSearching]).
+  void _applySearchSuggestion(String query) {
+    _settingsSearchController.text = query;
+    setState(() => _settingsSearch = query);
+  }
+
+  /// Common-search chips shown above the presets when the search box is empty.
+  /// Each chip pre-fills the search with a setting's own label, revealing it
+  /// without the user having to guess where it lives in the accordions.
+  Widget _buildSearchSuggestions(BuildContext context) {
+    // (label i18n key, icon) — labels reuse existing section keys.
+    const suggestions = <(String, IconData)>[
+      ('settings_linked_devices', Icons.devices_rounded),
+      ('backup_section_title', Icons.backup_outlined),
+      ('theme_title', Icons.palette_outlined),
+      ('account', Icons.lock_outline),
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Semantics(
+          header: true,
+          child: Text(
+            TranslationService.translate(
+              context,
+              'settings_search_suggestions',
+            ),
+            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final (key, icon) in suggestions)
+              ActionChip(
+                avatar: Icon(icon, size: 18),
+                label: Text(TranslationService.translate(context, key)),
+                onPressed: () => _applySearchSuggestion(
+                  TranslationService.translate(context, key),
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 16),
+      ],
+    );
+  }
 
   Widget _buildSettingsContent(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
@@ -370,6 +425,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onChanged: (v) => setState(() => _settingsSearch = v),
             ),
             const SizedBox(height: 16),
+
+            // Common-search shortcuts (hidden during search)
+            if (!_isSearching) _buildSearchSuggestions(context),
 
             // Quick Presets Section (hidden during search)
             if (!_isSearching) ...[

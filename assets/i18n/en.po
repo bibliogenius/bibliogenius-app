@@ -8570,6 +8570,9 @@ msgstr "See library"
 msgid "settings_search_hint"
 msgstr "Search settings..."
 
+msgid "settings_search_suggestions"
+msgstr "Common searches"
+
 msgid "time_just_now"
 msgstr "Just now"
 
