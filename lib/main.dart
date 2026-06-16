@@ -1283,7 +1283,9 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
             ),
             GoRoute(
               path: '/settings',
-              builder: (context, state) => const SettingsScreen(),
+              builder: (context, state) => SettingsScreen(
+                initialFocus: state.uri.queryParameters['focus'],
+              ),
               routes: [
                 GoRoute(
                   path: 'migration-wizard',

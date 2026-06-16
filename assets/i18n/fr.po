@@ -8600,6 +8600,9 @@ msgstr "Gérer ma ville"
 msgid "settings_goal_set_country"
 msgstr "Renseigner mon pays"
 
+msgid "dashboard_discover_more"
+msgstr "Pour aller plus loin"
+
 msgid "settings_share_city_requires_directory"
 msgstr "Activez d'abord « Apparaître dans l'annuaire public »."
 

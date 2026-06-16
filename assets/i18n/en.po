@@ -8600,6 +8600,9 @@ msgstr "Manage my city"
 msgid "settings_goal_set_country"
 msgstr "Set my country"
 
+msgid "dashboard_discover_more"
+msgstr "Go further"
+
 msgid "settings_share_city_requires_directory"
 msgstr "Enable \"Appear in the public directory\" first."
 

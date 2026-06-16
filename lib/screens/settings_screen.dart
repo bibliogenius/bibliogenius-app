@@ -38,9 +38,16 @@ import '../src/rust/api/frb.dart' as rust;
 import 'backup_restore_wizard_screen.dart';
 import '../utils/language_constants.dart';
 import '../utils/settings_search.dart';
+import '../widgets/goal_tile.dart';
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key});
+  /// When set (via `/settings?focus=...`), the matching capability bottom sheet
+  /// is opened on arrival. Lets the Dashboard "discover more" tiles deep-link
+  /// straight to a capability, reusing these sheets. Supported: 'wifi',
+  /// 'public', 'backup', 'language'.
+  final String? initialFocus;
+
+  const SettingsScreen({super.key, this.initialFocus});
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -105,6 +112,45 @@ class _SettingsScreenState extends State<SettingsScreen> {
         }
       });
     });
+    // Deep-link from the Dashboard "discover more" tiles: open the matching
+    // capability sheet on arrival.
+    if (widget.initialFocus != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _openFocusSheet(widget.initialFocus!);
+      });
+    }
+  }
+
+  /// Opens the capability sheet matching a `/settings?focus=...` deep link.
+  void _openFocusSheet(String focus) {
+    switch (focus) {
+      case 'wifi':
+        _showCapabilitySheet(
+          context,
+          icon: Icons.wifi_tethering,
+          titleKey: 'settings_goal_local_wifi',
+          content: [_buildLocalNetworkCard(context)],
+        );
+      case 'public':
+        _showCapabilitySheet(
+          context,
+          content: [_buildDirectorySection(context)],
+        );
+      case 'backup':
+        _showCapabilitySheet(
+          context,
+          icon: Icons.backup_outlined,
+          titleKey: 'settings_goal_backup',
+          content: _backupChildren(context),
+        );
+      case 'language':
+        _showCapabilitySheet(
+          context,
+          icon: Icons.translate,
+          titleKey: 'settings_goal_language',
+          content: [_buildReadingLanguagesField(context)],
+        );
+    }
   }
 
   Future<void> _initPackageInfo() async {
@@ -542,8 +588,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Column(children: rows);
   }
 
-  /// A single springboard tile: an action icon over a goal-phrased label, with
-  /// an optional check badge when the underlying capability is already enabled.
+  /// Thin wrapper over the shared [GoalTile] that translates the label key.
   Widget _buildGoalTile(
     BuildContext context, {
     required IconData icon,
@@ -551,56 +596,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required VoidCallback onTap,
     bool active = false,
   }) {
-    final label = TranslationService.translate(context, labelKey);
-    final cs = Theme.of(context).colorScheme;
-    return Semantics(
-      button: true,
-      label: label,
-      child: Stack(
-        children: [
-          // width:infinity so the Card fills the Expanded slot (50/50). Without
-          // it the Stack passes loose constraints and the Card shrinks to its
-          // content width.
-          SizedBox(
-            width: double.infinity,
-            child: Card(
-              margin: EdgeInsets.zero,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(12),
-                onTap: onTap,
-                child: ExcludeSemantics(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 16,
-                      horizontal: 12,
-                    ),
-                    child: Column(
-                      children: [
-                        Icon(icon, size: 28, color: cs.primary),
-                        const SizedBox(height: 8),
-                        Text(
-                          label,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          if (active)
-            const Positioned(
-              top: 6,
-              right: 6,
-              child: Icon(Icons.check_circle, size: 16, color: Colors.green),
-            ),
-        ],
-      ),
+    return GoalTile(
+      icon: icon,
+      label: TranslationService.translate(context, labelKey),
+      onTap: onTap,
+      active: active,
     );
   }
 
