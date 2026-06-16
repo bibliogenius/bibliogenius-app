@@ -2754,7 +2754,17 @@ class ApiService {
 
   /// Save pre-fetched books to local peer_books cache.
   /// Called after relay or live WiFi fetch to avoid redundant re-fetches.
-  Future<void> cachePeerBooks(int peerId, List<Book> books) async {
+  ///
+  /// [isFullSnapshot] MUST be true only when [books] is the peer's entire
+  /// catalog (all pages loaded / a completed relay loop). It tells the backend
+  /// it may prune cached books absent from this batch. Leave it false for a
+  /// partial batch (first page only, or a relay fetch that may be truncated):
+  /// the backend then merges additively and never drains the cache.
+  Future<void> cachePeerBooks(
+    int peerId,
+    List<Book> books, {
+    bool isFullSnapshot = false,
+  }) async {
     try {
       final localDio = Dio(
         BaseOptions(
@@ -2765,7 +2775,10 @@ class ApiService {
       );
       await localDio.post(
         '/api/peers/$peerId/cache_books',
-        data: {'books': books.map((b) => b.toJson()).toList()},
+        data: {
+          'books': books.map((b) => b.toJson()).toList(),
+          'is_full_snapshot': isFullSnapshot,
+        },
       );
     } catch (e) {
       debugPrint('Error caching peer books: $e');

@@ -35,6 +35,19 @@ const Duration _kRelayPublishRetryDelay = Duration(seconds: 5);
 /// the hub when the network is persistently down).
 const Duration _kRelayPublishCooldown = Duration(seconds: 90);
 
+/// SharedPreferences key: epoch milliseconds of the last successful catalog
+/// push to the hub. Drives the keep-alive re-push (see
+/// [_kCatalogKeepAliveInterval]) so a static catalog never silently expires
+/// under the hub's TTL.
+const String _kLastCatalogPushKey = 'hub_last_catalog_push_ms';
+
+/// Re-push the catalog when the last push is older than this, even if nothing
+/// changed locally. Kept well under the hub's 7-day catalog TTL so a stable
+/// library is refreshed before its hub copy is pruned (otherwise the directory
+/// fallback goes empty for peers that cannot reach us live). The hub dedupes
+/// by hash, so an unchanged re-push is near-free.
+const Duration _kCatalogKeepAliveInterval = Duration(days: 4);
+
 /// State manager for the public hub directory feature (ADR-015).
 ///
 /// Responsibilities:
@@ -137,6 +150,11 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// Cooldown between periodic relay publish retry cycles. Override in tests.
   @visibleForTesting
   Duration relayCooldown = _kRelayPublishCooldown;
+
+  /// Keep-alive threshold for re-pushing an unchanged catalog. Override in
+  /// tests to avoid waiting days of wall-clock time.
+  @visibleForTesting
+  Duration catalogKeepAliveInterval = _kCatalogKeepAliveInterval;
 
   HubDirectoryProvider({
     FfiService? ffi,
@@ -2174,7 +2192,10 @@ class HubDirectoryProvider extends ChangeNotifier {
     if (!isRegistered) return 0;
     try {
       final count = await _ffi.hubDirectorySyncCatalog();
-      if (count >= 0) _catalogDirty = false;
+      if (count >= 0) {
+        _catalogDirty = false;
+        await _recordCatalogPush();
+      }
       debugPrint('HubDirectoryProvider syncCatalog: pushed $count ISBNs');
       return count;
     } catch (e) {
@@ -2183,8 +2204,34 @@ class HubDirectoryProvider extends ChangeNotifier {
     }
   }
 
-  /// Push catalog only if dirty and registered. Intended for lifecycle hooks.
-  /// Also retries relay credential publishing if it failed at startup.
+  /// Persist the wall-clock time of a successful catalog push so the keep-alive
+  /// check ([_isHubCatalogStale]) can re-push before the hub TTL prunes us.
+  Future<void> _recordCatalogPush() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(
+      _kLastCatalogPushKey,
+      DateTime.now().millisecondsSinceEpoch,
+    );
+  }
+
+  /// True when the hub copy of our catalog is going stale and should be
+  /// re-pushed even though nothing changed locally. A missing timestamp counts
+  /// as stale so the very first lifecycle hook establishes the baseline.
+  Future<bool> _isHubCatalogStale() async {
+    final prefs = await SharedPreferences.getInstance();
+    final lastMs = prefs.getInt(_kLastCatalogPushKey);
+    if (lastMs == null) return true;
+    final last = DateTime.fromMillisecondsSinceEpoch(lastMs);
+    return DateTime.now().difference(last) >= catalogKeepAliveInterval;
+  }
+
+  /// Push catalog on lifecycle hooks (startup / app resume).
+  ///
+  /// Pushes when the local catalog changed since the last push, OR as a
+  /// keep-alive when the hub copy is going stale (so a library that never
+  /// changes is not pruned by the hub TTL, which would leave the directory
+  /// fallback empty for peers that cannot reach us live). Also retries relay
+  /// credential publishing if it failed at startup.
   Future<void> syncCatalogIfDirty() async {
     // Push catalog when registered, regardless of isListed.
     // isListed controls discoverability by strangers; catalog push enables
@@ -2200,8 +2247,18 @@ class HubDirectoryProvider extends ChangeNotifier {
       }
     }
 
-    if (!_catalogDirty) return;
-    await syncCatalog();
+    // A local change always wins: push immediately and refresh the timestamp.
+    if (_catalogDirty) {
+      await syncCatalog();
+      return;
+    }
+
+    // Nothing changed locally: re-push only if the hub copy is going stale.
+    // syncCatalog() dedupes by hash on the hub side, so this is near-free.
+    if (await _isHubCatalogStale()) {
+      debugPrint('HubDirectory: catalog stale, keep-alive re-push');
+      await syncCatalog();
+    }
   }
 
   // ---------------------------------------------------------------------------

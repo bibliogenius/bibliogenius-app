@@ -686,11 +686,19 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
               'Loaded ${_books.length}/${parsed.total} books (page 0, hasMore=${parsed.hasMore})',
             );
 
-            // Cache first page
+            // Cache first page. Only a full snapshot when the whole library
+            // fit on this page (no more pages to stream in); otherwise the
+            // backend must merge additively so it does not drop the rest.
             if (_offlineCachingEnabled && widget.peerId > 0) {
-              api.cachePeerBooks(widget.peerId, _books).catchError((e) {
-                debugPrint('Failed to cache live books: $e');
-              });
+              api
+                  .cachePeerBooks(
+                    widget.peerId,
+                    _books,
+                    isFullSnapshot: _allBooksLoaded,
+                  )
+                  .catchError((e) {
+                    debugPrint('Failed to cache live books: $e');
+                  });
             }
 
             // Load remaining pages in background for complete library
@@ -821,9 +829,17 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
         _isLoadingMore = false;
       });
 
-      // Update cache with growing book list
+      // Update cache with the growing book list. It is the full catalog only
+      // once the last page has been appended (_allBooksLoaded); intermediate
+      // pages are additive so the not-yet-loaded tail is preserved.
       if (_offlineCachingEnabled && widget.peerId > 0) {
-        api.cachePeerBooks(widget.peerId, _books).catchError((_) {});
+        api
+            .cachePeerBooks(
+              widget.peerId,
+              _books,
+              isFullSnapshot: _allBooksLoaded,
+            )
+            .catchError((_) {});
       }
     } catch (e) {
       debugPrint('Load more books failed: $e');
@@ -874,7 +890,10 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
           _isPeerOnline = true;
         });
         if (_offlineCachingEnabled && widget.peerId > 0) {
-          api.cachePeerBooks(widget.peerId, _books).catchError((_) {});
+          // Full background refresh loaded the entire catalog → snapshot.
+          api
+              .cachePeerBooks(widget.peerId, _books, isFullSnapshot: true)
+              .catchError((_) {});
         }
         debugPrint(
           'Delta refresh OK: ${freshBooks.length} books in one round trip',
@@ -923,7 +942,10 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
         });
 
         if (_offlineCachingEnabled && widget.peerId > 0) {
-          api.cachePeerBooks(widget.peerId, _books).catchError((_) {});
+          // Full background refresh loaded the entire catalog → snapshot.
+          api
+              .cachePeerBooks(widget.peerId, _books, isFullSnapshot: true)
+              .catchError((_) {});
         }
       }
     } catch (e) {
@@ -1286,10 +1308,18 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     // step below runs ONLY when the cache is actually persisted — persisting
     // the delta cursor on top of an empty/failed cache would leave a
     // permanent data gap (next sync = delta from N returns ~nothing).
+    // Only authoritative when we actually received the whole catalog. If a
+    // page timed out and the loop broke early, allBooks holds a subset — cache
+    // it additively so the missing tail is not pruned from a previous sync.
+    final relayFetchComplete = allBooks.length >= totalBooks;
     bool cacheWriteSucceeded = false;
     if (_offlineCachingEnabled && allBooks.isNotEmpty) {
       try {
-        await api.cachePeerBooks(widget.peerId, allBooks);
+        await api.cachePeerBooks(
+          widget.peerId,
+          allBooks,
+          isFullSnapshot: relayFetchComplete,
+        );
         cacheWriteSucceeded = true;
         if (kDebugMode) debugPrint('Cached ${allBooks.length} books for peer');
       } catch (e) {
@@ -1563,11 +1593,22 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
         if (mounted) {
           setState(() => _isSyncing = false);
           if (showFeedback) {
+            // Be honest: the peer is offline, so this only succeeded if the
+            // cache + hub enrichment actually produced books. Claiming
+            // "synced" on an empty result contradicts the "no books" state
+            // the user is looking at.
+            final gotBooks = _books.isNotEmpty;
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
-                  TranslationService.translate(context, 'library_synced'),
+                  TranslationService.translate(
+                    context,
+                    gotBooks ? 'library_synced' : 'peer_offline_cannot_sync',
+                  ),
                 ),
+                backgroundColor: gotBooks
+                    ? null
+                    : Theme.of(context).colorScheme.error,
               ),
             );
           }
