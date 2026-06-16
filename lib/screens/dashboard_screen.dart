@@ -14,6 +14,9 @@ import '../services/translation_service.dart';
 import '../models/book.dart';
 // import 'genie_chat_screen.dart'; // Removed as we use route string
 import '../providers/theme_provider.dart';
+import '../providers/hub_directory_provider.dart';
+import '../widgets/goal_tile.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../widgets/premium_book_card.dart';
 import '../widgets/premium_empty_state.dart';
@@ -50,6 +53,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   List<Book> _allBooks = [];
 
   bool _quoteExpanded = false;
+  bool _discoverDismissed = false;
 
   final GlobalKey _statsKey = GlobalKey(debugLabel: 'dashboard_stats');
   final GlobalKey _menuKey = GlobalKey(debugLabel: 'dashboard_menu');
@@ -71,6 +75,96 @@ class _DashboardScreenState extends State<DashboardScreen>
     _fetchDashboardData();
     Future.delayed(const Duration(seconds: 1), _checkWizard);
     _checkBackupReminder();
+    _loadDiscoverDismissed();
+  }
+
+  static const _kDiscoverDismissedKey = 'dashboard_discover_dismissed';
+
+  Future<void> _loadDiscoverDismissed() async {
+    final prefs = await SharedPreferences.getInstance();
+    final dismissed = prefs.getBool(_kDiscoverDismissedKey) ?? false;
+    if (mounted && dismissed) setState(() => _discoverDismissed = true);
+  }
+
+  Future<void> _dismissDiscover() async {
+    setState(() => _discoverDismissed = true);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_kDiscoverDismissedKey, true);
+  }
+
+  /// "Discover more": up to two not-yet-enabled capabilities, surfaced where the
+  /// user actually looks. Tiles deep-link to the same sheets as the Settings
+  /// springboard (via /settings?focus=). Dismissible (persisted), and hidden
+  /// once every suggestion is done.
+  Widget _buildDiscoverMore(BuildContext context, ThemeProvider themeProvider) {
+    if (_discoverDismissed) return const SizedBox.shrink();
+    return Consumer<HubDirectoryProvider>(
+      builder: (context, hub, _) {
+        final suggestions = <(IconData, String, String)>[
+          if (!themeProvider.networkEnabled)
+            (Icons.wifi_tethering, 'settings_goal_local_wifi', '/settings?focus=wifi'),
+          if (!hub.isListed)
+            (Icons.public, 'settings_goal_public', '/settings?focus=public'),
+          (Icons.devices_rounded, 'settings_goal_sync_devices', '/device-pairing'),
+          if (themeProvider.userLanguages.length <= 1)
+            (Icons.translate, 'settings_goal_language', '/settings?focus=language'),
+        ];
+        final picked = suggestions.take(2).toList();
+        if (picked.isEmpty) return const SizedBox.shrink();
+        final isWide = MediaQuery.of(context).size.width > 600;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Semantics(
+                    header: true,
+                    child: Text(
+                      TranslationService.translate(
+                        context,
+                        'dashboard_discover_more',
+                      ),
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close, size: 20),
+                  tooltip: TranslationService.translate(context, 'close'),
+                  onPressed: _dismissDiscover,
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                for (var i = 0; i < picked.length; i++) ...[
+                  if (i > 0) const SizedBox(width: 12),
+                  Expanded(
+                    child: GoalTile(
+                      icon: picked[i].$1,
+                      label: TranslationService.translate(context, picked[i].$2),
+                      onTap: () => context.push(picked[i].$3),
+                    ),
+                  ),
+                ],
+                // On wide screens keep a single tile at half width instead of
+                // stretching it; on mobile let it span the full row.
+                if (picked.length == 1 && isWide) ...[
+                  const SizedBox(width: 12),
+                  const Expanded(child: SizedBox.shrink()),
+                ],
+              ],
+            ),
+            const SizedBox(height: 24),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -608,6 +702,9 @@ class _DashboardScreenState extends State<DashboardScreen>
                 ),
 
                 const SizedBox(height: 24),
+
+                // Discover more: contextual capability shortcuts.
+                _buildDiscoverMore(context, themeProvider),
 
                 // Main Content
                 Column(
