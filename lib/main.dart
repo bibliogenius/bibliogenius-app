@@ -83,7 +83,6 @@ import 'screens/feedback_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/migration_wizard_screen.dart';
 
-import 'screens/link_device_screen.dart';
 import 'screens/device_pairing_screen.dart';
 import 'screens/sync_review_screen.dart';
 import 'screens/external_search_screen.dart';
@@ -1236,12 +1235,6 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
             GoRoute(
               path: '/profile',
               builder: (context, state) => const ProfileScreen(),
-              routes: [
-                GoRoute(
-                  path: 'link-device',
-                  builder: (context, state) => const LinkDeviceScreen(),
-                ),
-              ],
             ),
             GoRoute(
               path: '/peers',

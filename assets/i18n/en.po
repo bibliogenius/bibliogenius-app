@@ -7764,6 +7764,9 @@ msgstr "No devices found on the Wi-Fi network"
 msgid "pairing_mdns_hint"
 msgstr "Both devices must be on the same Wi-Fi with network discovery enabled (Settings > Network)"
 
+msgid "pairing_identity_note"
+msgstr "Each device keeps its own identity. Pairing syncs your books across your devices, but each one stays a separate library in the public directory."
+
 msgid "pairing_select_device"
 msgstr "Device to pair"
 

@@ -16,13 +16,29 @@ class SyncReviewScreen extends StatefulWidget {
 class _SyncReviewScreenState extends State<SyncReviewScreen> {
   late DeviceSyncProvider _provider;
 
+  /// Linked device id (as string) -> human-readable name, for op sources.
+  Map<String, String> _deviceNames = {};
+
   @override
   void initState() {
     super.initState();
     _provider = context.read<DeviceSyncProvider>();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _provider.loadPendingReview();
+      _loadDeviceNames();
     });
+  }
+
+  Future<void> _loadDeviceNames() async {
+    try {
+      final devices = await frb.deviceListLinked();
+      if (!mounted) return;
+      setState(() {
+        _deviceNames = {for (final d in devices) d.id.toString(): d.name};
+      });
+    } catch (_) {
+      // Non-fatal: _formatSource falls back to the raw device id.
+    }
   }
 
   @override
@@ -480,9 +496,11 @@ class _SyncReviewScreenState extends State<SyncReviewScreen> {
   }
 
   String _formatSource(String source) {
-    // source is "device:<id>" - extract the device name/id
+    // source is "device:<id>" - prefer the linked device's name when known,
+    // falling back to the raw id if the device list has not loaded.
     if (source.startsWith('device:')) {
-      return 'Device ${source.substring(7)}';
+      final id = source.substring(7);
+      return _deviceNames[id] ?? 'Device $id';
     }
     return source;
   }

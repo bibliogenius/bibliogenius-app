@@ -749,6 +749,36 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
     return Column(
       key: const ValueKey('devices'),
       children: [
+        // Make the identity model explicit (ADR-039 Option B): paired devices
+        // share their books but each keeps its own library identity.
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+          child: Semantics(
+            container: true,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.info_outline_rounded,
+                  size: 18,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    TranslationService.translate(
+                      context,
+                      'pairing_identity_note',
+                    ),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
         Expanded(
           child: _isLoadingDevices
               ? const Center(child: CircularProgressIndicator())
