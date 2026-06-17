@@ -9764,3 +9764,142 @@ msgstr "Exporter maintenant"
 msgid "auto_backup_clone_nudge_snooze"
 msgstr "Plus tard"
 
+# Complétude de la bibliothèque / remplissage en masse (ADR-041)
+msgid "completeness_title"
+msgstr "Compléter ma bibliothèque"
+
+msgid "completeness_card_title"
+msgstr "Complétude de la bibliothèque"
+
+msgid "completeness_card_subtitle"
+msgstr "Il manque des détails à {count} livres"
+
+msgid "completeness_percent_label"
+msgstr "Bibliothèque complète à {percent}%"
+
+msgid "completeness_complete"
+msgstr "complète"
+
+msgid "completeness_empty_fields"
+msgstr "{n} champs vides à remplir"
+
+msgid "completeness_last_run_done"
+msgstr "Dernier passage : {filled} livres enrichis, {skipped} sans nouvelle donnée, {errored} erreurs."
+
+msgid "completeness_last_run_cancelled"
+msgstr "Passage annulé : {filled} livres enrichis, {skipped} sans nouvelle donnée, {errored} erreurs."
+
+msgid "completeness_breakdown"
+msgstr "{incomplete} à compléter, {no_isbn} sans ISBN"
+
+msgid "completeness_start_button"
+msgstr "Compléter les champs vides"
+
+msgid "completeness_all_done"
+msgstr "Tous vos livres ont leurs détails. Rien à compléter."
+
+msgid "completeness_after_run_hint"
+msgstr "Les livres restants n'ont pas de donnée disponible dans les sources. Complétez-les à la main ci-dessous, ou relancez la recherche."
+
+msgid "completeness_rerun_button"
+msgstr "Relancer la recherche"
+
+msgid "completeness_resume_hint"
+msgstr "Un traitement précédent a été interrompu. Vous pouvez le reprendre où il s'est arrêté."
+
+msgid "completeness_resume_button"
+msgstr "Reprendre"
+
+msgid "completeness_discard_button"
+msgstr "Abandonner"
+
+msgid "completeness_running_title"
+msgstr "Remplissage des champs vides"
+
+msgid "completeness_progress_count"
+msgstr "{done} sur {total} livres"
+
+msgid "completeness_current"
+msgstr "En cours : {title}"
+
+msgid "completeness_stat_filled"
+msgstr "Remplis : {n}"
+
+msgid "completeness_stat_skipped"
+msgstr "Ignorés : {n}"
+
+msgid "completeness_stat_errored"
+msgstr "Erreurs : {n}"
+
+msgid "completeness_cancel_button"
+msgstr "Annuler"
+
+msgid "completeness_recent_title"
+msgstr "Complétés récemment"
+
+msgid "completeness_tab_todo"
+msgstr "À compléter ({n})"
+
+msgid "completeness_tab_recent"
+msgstr "Récents ({n})"
+
+msgid "completeness_recent_hint"
+msgstr "Touchez Annuler pour effacer un champ ajouté (seulement si vous ne l'avez pas modifié depuis)."
+
+msgid "completeness_undo_book_done"
+msgstr "{n} champ(s) vidé(s)"
+
+msgid "completeness_undo_kept"
+msgstr "Vos saisies ont été conservées"
+
+msgid "completeness_undo_field_reverted"
+msgstr "Champ vidé"
+
+msgid "completeness_undo_field_superseded"
+msgstr "Saisie conservée (modifiée depuis)"
+
+msgid "completeness_view_changes"
+msgstr "Voir les modifications"
+
+msgid "completeness_changes_subtitle"
+msgstr "Champs ajoutés par le remplissage, avec la valeur écrite"
+
+msgid "completeness_open_book"
+msgstr "Ouvrir le livre"
+
+msgid "completeness_all_undone"
+msgstr "Tous les champs ajoutés à ce livre ont été annulés."
+
+msgid "completeness_todo_title"
+msgstr "Livres à compléter ({n})"
+
+msgid "completeness_filter_all"
+msgstr "Tous ({n})"
+
+msgid "completeness_todo_hint"
+msgstr "Touchez un livre pour compléter ses détails à la main. Les plus proches d'être complets sont en premier."
+
+msgid "completeness_no_isbn_chip"
+msgstr "Sans ISBN"
+
+msgid "completeness_no_isbn_title"
+msgstr "Sans ISBN ({n})"
+
+msgid "completeness_no_isbn_hint"
+msgstr "Ces livres n'ont pas d'ISBN et ne peuvent pas être complétés automatiquement. Complétez-les à la main."
+
+msgid "field_summary"
+msgstr "Résumé"
+
+msgid "field_publisher"
+msgstr "Éditeur"
+
+msgid "field_page_count"
+msgstr "Pages"
+
+msgid "field_publication_year"
+msgstr "Année"
+
+msgid "field_cover_url"
+msgstr "Couverture"
+

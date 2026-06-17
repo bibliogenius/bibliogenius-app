@@ -15,6 +15,7 @@ import '../models/book.dart';
 // import 'genie_chat_screen.dart'; // Removed as we use route string
 import '../providers/theme_provider.dart';
 import '../providers/hub_directory_provider.dart';
+import '../providers/metadata_fill_provider.dart';
 import '../widgets/goal_tile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -167,6 +168,115 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
+  /// Completeness card (ADR-041). Lazily loads owned-book completeness once and
+  /// shows the percentage plus a shortcut to "Compléter ma bibliothèque". Hidden
+  /// when there is no processable backlog, so a fully complete library sees no
+  /// clutter.
+  Widget _buildCompletenessCard(BuildContext context) {
+    // Stats are loaded by _fetchDashboardData (init + refresh + tab change).
+    return Consumer<MetadataFillProvider>(
+      builder: (context, provider, _) {
+        final stats = provider.stats;
+        // Surface the card whenever any owned book is incomplete (auto-fillable
+        // or only manually completable); hide it on a fully complete library.
+        if (stats == null || stats.incomplete == 0) {
+          return const SizedBox.shrink();
+        }
+        final percent = provider.completionPercent;
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 24),
+          child: Semantics(
+            button: true,
+            label: TranslationService.translate(
+              context,
+              'completeness_percent_label',
+              params: {'percent': '$percent'},
+            ),
+            child: Card(
+              child: InkWell(
+                onTap: () => context.push('/library-completeness'),
+                borderRadius: BorderRadius.circular(12),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.primaryContainer,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Icon(
+                              Icons.auto_fix_high,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onPrimaryContainer,
+                            ),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  TranslationService.translate(
+                                    context,
+                                    'completeness_card_title',
+                                  ),
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  TranslationService.translate(
+                                    context,
+                                    'completeness_card_subtitle',
+                                    params: {'count': '${stats.incomplete}'},
+                                  ),
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            '$percent%',
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w900,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          const Icon(Icons.chevron_right),
+                        ],
+                      ),
+                      const SizedBox(height: 14),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(6),
+                        child: LinearProgressIndicator(
+                          value: provider.completionRatio,
+                          minHeight: 8,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   void dispose() {
     _tabController.removeListener(_onTabChanged);
@@ -216,6 +326,18 @@ class _DashboardScreenState extends State<DashboardScreen>
     final bookRepo = Provider.of<BookRepository>(context, listen: false);
     final api = Provider.of<ApiService>(context, listen: false);
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    // Load the library completeness stat through this reliable path (init +
+    // pull-to-refresh + tab change), so the completeness card retries even if
+    // the FFI backend was not ready on the very first dashboard build. Deferred
+    // to after the frame: this method runs inside initState, and loadStats()
+    // notifies listeners synchronously, which must not happen during build.
+    final completenessProvider = Provider.of<MetadataFillProvider>(
+      context,
+      listen: false,
+    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) completenessProvider.loadStats();
+    });
     // Dynamic translations from hub disabled: hub endpoint returns 500
     // (Translation table not yet provisioned on hub PostgreSQL).
     // Local .po files provide all translations. Re-enable when hub is ready.
@@ -702,6 +824,10 @@ class _DashboardScreenState extends State<DashboardScreen>
                 ),
 
                 const SizedBox(height: 24),
+
+                // Library completeness (ADR-041): surfaced when there is a
+                // processable backlog of owned books with empty fields.
+                _buildCompletenessCard(context),
 
                 // Discover more: contextual capability shortcuts.
                 _buildDiscoverMore(context, themeProvider),

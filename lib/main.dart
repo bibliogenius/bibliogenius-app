@@ -30,6 +30,7 @@ import 'providers/pending_peers_provider.dart';
 import 'audio/audio_module.dart'; // Audio module (decoupled)
 import 'providers/memory_game_provider.dart';
 import 'providers/device_sync_provider.dart';
+import 'providers/metadata_fill_provider.dart';
 import 'providers/operation_log_provider.dart';
 import 'providers/sliding_puzzle_provider.dart';
 import 'providers/hangman_provider.dart';
@@ -66,6 +67,7 @@ import 'models/library_relation.dart';
 import 'screens/shelf_management_screen.dart';
 import 'screens/search_peer_screen.dart';
 import 'screens/memory_game_screen.dart';
+import 'screens/metadata_fill_screen.dart';
 import 'screens/operation_log_screen.dart';
 import 'screens/sliding_puzzle_screen.dart';
 import 'screens/hangman_screen.dart';
@@ -692,6 +694,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<DeviceSyncProvider>(
           create: (_) => DeviceSyncProvider(),
         ),
+        ChangeNotifierProvider<MetadataFillProvider>(
+          create: (_) => MetadataFillProvider(),
+        ),
         ChangeNotifierProvider<HubDirectoryProvider>(
           create: (_) => HubDirectoryProvider(apiService: apiService)
             ..loadHubEnabled()
@@ -1006,6 +1011,10 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
             GoRoute(
               path: '/device-pairing',
               builder: (context, state) => const DevicePairingScreen(),
+            ),
+            GoRoute(
+              path: '/library-completeness',
+              builder: (context, state) => const MetadataFillScreen(),
             ),
             GoRoute(
               path: '/sync-review',

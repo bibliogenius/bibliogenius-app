@@ -1736,6 +1736,269 @@ as String?,
 }
 
 /// @nodoc
+mixin _$FrbCompletenessStats {
+
+ PlatformInt64 get ownedTotal; PlatformInt64 get complete; PlatformInt64 get incomplete; PlatformInt64 get noIsbn; PlatformInt64 get emptyFields;
+/// Create a copy of FrbCompletenessStats
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$FrbCompletenessStatsCopyWith<FrbCompletenessStats> get copyWith => _$FrbCompletenessStatsCopyWithImpl<FrbCompletenessStats>(this as FrbCompletenessStats, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbCompletenessStats&&(identical(other.ownedTotal, ownedTotal) || other.ownedTotal == ownedTotal)&&(identical(other.complete, complete) || other.complete == complete)&&(identical(other.incomplete, incomplete) || other.incomplete == incomplete)&&(identical(other.noIsbn, noIsbn) || other.noIsbn == noIsbn)&&(identical(other.emptyFields, emptyFields) || other.emptyFields == emptyFields));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,ownedTotal,complete,incomplete,noIsbn,emptyFields);
+
+@override
+String toString() {
+  return 'FrbCompletenessStats(ownedTotal: $ownedTotal, complete: $complete, incomplete: $incomplete, noIsbn: $noIsbn, emptyFields: $emptyFields)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $FrbCompletenessStatsCopyWith<$Res>  {
+  factory $FrbCompletenessStatsCopyWith(FrbCompletenessStats value, $Res Function(FrbCompletenessStats) _then) = _$FrbCompletenessStatsCopyWithImpl;
+@useResult
+$Res call({
+ PlatformInt64 ownedTotal, PlatformInt64 complete, PlatformInt64 incomplete, PlatformInt64 noIsbn, PlatformInt64 emptyFields
+});
+
+
+
+
+}
+/// @nodoc
+class _$FrbCompletenessStatsCopyWithImpl<$Res>
+    implements $FrbCompletenessStatsCopyWith<$Res> {
+  _$FrbCompletenessStatsCopyWithImpl(this._self, this._then);
+
+  final FrbCompletenessStats _self;
+  final $Res Function(FrbCompletenessStats) _then;
+
+/// Create a copy of FrbCompletenessStats
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? ownedTotal = null,Object? complete = null,Object? incomplete = null,Object? noIsbn = null,Object? emptyFields = null,}) {
+  return _then(_self.copyWith(
+ownedTotal: null == ownedTotal ? _self.ownedTotal : ownedTotal // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,complete: null == complete ? _self.complete : complete // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,incomplete: null == incomplete ? _self.incomplete : incomplete // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,noIsbn: null == noIsbn ? _self.noIsbn : noIsbn // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,emptyFields: null == emptyFields ? _self.emptyFields : emptyFields // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [FrbCompletenessStats].
+extension FrbCompletenessStatsPatterns on FrbCompletenessStats {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _FrbCompletenessStats value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _FrbCompletenessStats() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _FrbCompletenessStats value)  $default,){
+final _that = this;
+switch (_that) {
+case _FrbCompletenessStats():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _FrbCompletenessStats value)?  $default,){
+final _that = this;
+switch (_that) {
+case _FrbCompletenessStats() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( PlatformInt64 ownedTotal,  PlatformInt64 complete,  PlatformInt64 incomplete,  PlatformInt64 noIsbn,  PlatformInt64 emptyFields)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _FrbCompletenessStats() when $default != null:
+return $default(_that.ownedTotal,_that.complete,_that.incomplete,_that.noIsbn,_that.emptyFields);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( PlatformInt64 ownedTotal,  PlatformInt64 complete,  PlatformInt64 incomplete,  PlatformInt64 noIsbn,  PlatformInt64 emptyFields)  $default,) {final _that = this;
+switch (_that) {
+case _FrbCompletenessStats():
+return $default(_that.ownedTotal,_that.complete,_that.incomplete,_that.noIsbn,_that.emptyFields);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( PlatformInt64 ownedTotal,  PlatformInt64 complete,  PlatformInt64 incomplete,  PlatformInt64 noIsbn,  PlatformInt64 emptyFields)?  $default,) {final _that = this;
+switch (_that) {
+case _FrbCompletenessStats() when $default != null:
+return $default(_that.ownedTotal,_that.complete,_that.incomplete,_that.noIsbn,_that.emptyFields);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _FrbCompletenessStats implements FrbCompletenessStats {
+  const _FrbCompletenessStats({required this.ownedTotal, required this.complete, required this.incomplete, required this.noIsbn, required this.emptyFields});
+  
+
+@override final  PlatformInt64 ownedTotal;
+@override final  PlatformInt64 complete;
+@override final  PlatformInt64 incomplete;
+@override final  PlatformInt64 noIsbn;
+@override final  PlatformInt64 emptyFields;
+
+/// Create a copy of FrbCompletenessStats
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$FrbCompletenessStatsCopyWith<_FrbCompletenessStats> get copyWith => __$FrbCompletenessStatsCopyWithImpl<_FrbCompletenessStats>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbCompletenessStats&&(identical(other.ownedTotal, ownedTotal) || other.ownedTotal == ownedTotal)&&(identical(other.complete, complete) || other.complete == complete)&&(identical(other.incomplete, incomplete) || other.incomplete == incomplete)&&(identical(other.noIsbn, noIsbn) || other.noIsbn == noIsbn)&&(identical(other.emptyFields, emptyFields) || other.emptyFields == emptyFields));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,ownedTotal,complete,incomplete,noIsbn,emptyFields);
+
+@override
+String toString() {
+  return 'FrbCompletenessStats(ownedTotal: $ownedTotal, complete: $complete, incomplete: $incomplete, noIsbn: $noIsbn, emptyFields: $emptyFields)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$FrbCompletenessStatsCopyWith<$Res> implements $FrbCompletenessStatsCopyWith<$Res> {
+  factory _$FrbCompletenessStatsCopyWith(_FrbCompletenessStats value, $Res Function(_FrbCompletenessStats) _then) = __$FrbCompletenessStatsCopyWithImpl;
+@override @useResult
+$Res call({
+ PlatformInt64 ownedTotal, PlatformInt64 complete, PlatformInt64 incomplete, PlatformInt64 noIsbn, PlatformInt64 emptyFields
+});
+
+
+
+
+}
+/// @nodoc
+class __$FrbCompletenessStatsCopyWithImpl<$Res>
+    implements _$FrbCompletenessStatsCopyWith<$Res> {
+  __$FrbCompletenessStatsCopyWithImpl(this._self, this._then);
+
+  final _FrbCompletenessStats _self;
+  final $Res Function(_FrbCompletenessStats) _then;
+
+/// Create a copy of FrbCompletenessStats
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? ownedTotal = null,Object? complete = null,Object? incomplete = null,Object? noIsbn = null,Object? emptyFields = null,}) {
+  return _then(_FrbCompletenessStats(
+ownedTotal: null == ownedTotal ? _self.ownedTotal : ownedTotal // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,complete: null == complete ? _self.complete : complete // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,incomplete: null == incomplete ? _self.incomplete : incomplete // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,noIsbn: null == noIsbn ? _self.noIsbn : noIsbn // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,emptyFields: null == emptyFields ? _self.emptyFields : emptyFields // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,
+  ));
+}
+
+
+}
+
+/// @nodoc
 mixin _$FrbContact {
 
  int? get id; String get contactType; String get name; String? get firstName; String? get email; String? get phone; String? get address; String? get streetAddress; String? get postalCode; String? get city; String? get country; double? get latitude; double? get longitude; String? get notes; int? get userId; int? get libraryOwnerId; bool get isActive;
@@ -2830,6 +3093,804 @@ as String,
 }
 
 /// @nodoc
+mixin _$FrbFillProgress {
+
+ String get batchId; String get status; PlatformInt64 get total; PlatformInt64 get done; PlatformInt64 get filled; PlatformInt64 get skipped; PlatformInt64 get errored; String? get currentTitle;
+/// Create a copy of FrbFillProgress
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$FrbFillProgressCopyWith<FrbFillProgress> get copyWith => _$FrbFillProgressCopyWithImpl<FrbFillProgress>(this as FrbFillProgress, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbFillProgress&&(identical(other.batchId, batchId) || other.batchId == batchId)&&(identical(other.status, status) || other.status == status)&&(identical(other.total, total) || other.total == total)&&(identical(other.done, done) || other.done == done)&&(identical(other.filled, filled) || other.filled == filled)&&(identical(other.skipped, skipped) || other.skipped == skipped)&&(identical(other.errored, errored) || other.errored == errored)&&(identical(other.currentTitle, currentTitle) || other.currentTitle == currentTitle));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,batchId,status,total,done,filled,skipped,errored,currentTitle);
+
+@override
+String toString() {
+  return 'FrbFillProgress(batchId: $batchId, status: $status, total: $total, done: $done, filled: $filled, skipped: $skipped, errored: $errored, currentTitle: $currentTitle)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $FrbFillProgressCopyWith<$Res>  {
+  factory $FrbFillProgressCopyWith(FrbFillProgress value, $Res Function(FrbFillProgress) _then) = _$FrbFillProgressCopyWithImpl;
+@useResult
+$Res call({
+ String batchId, String status, PlatformInt64 total, PlatformInt64 done, PlatformInt64 filled, PlatformInt64 skipped, PlatformInt64 errored, String? currentTitle
+});
+
+
+
+
+}
+/// @nodoc
+class _$FrbFillProgressCopyWithImpl<$Res>
+    implements $FrbFillProgressCopyWith<$Res> {
+  _$FrbFillProgressCopyWithImpl(this._self, this._then);
+
+  final FrbFillProgress _self;
+  final $Res Function(FrbFillProgress) _then;
+
+/// Create a copy of FrbFillProgress
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? batchId = null,Object? status = null,Object? total = null,Object? done = null,Object? filled = null,Object? skipped = null,Object? errored = null,Object? currentTitle = freezed,}) {
+  return _then(_self.copyWith(
+batchId: null == batchId ? _self.batchId : batchId // ignore: cast_nullable_to_non_nullable
+as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,total: null == total ? _self.total : total // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,done: null == done ? _self.done : done // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,filled: null == filled ? _self.filled : filled // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,skipped: null == skipped ? _self.skipped : skipped // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,errored: null == errored ? _self.errored : errored // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,currentTitle: freezed == currentTitle ? _self.currentTitle : currentTitle // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [FrbFillProgress].
+extension FrbFillProgressPatterns on FrbFillProgress {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _FrbFillProgress value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _FrbFillProgress() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _FrbFillProgress value)  $default,){
+final _that = this;
+switch (_that) {
+case _FrbFillProgress():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _FrbFillProgress value)?  $default,){
+final _that = this;
+switch (_that) {
+case _FrbFillProgress() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String batchId,  String status,  PlatformInt64 total,  PlatformInt64 done,  PlatformInt64 filled,  PlatformInt64 skipped,  PlatformInt64 errored,  String? currentTitle)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _FrbFillProgress() when $default != null:
+return $default(_that.batchId,_that.status,_that.total,_that.done,_that.filled,_that.skipped,_that.errored,_that.currentTitle);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String batchId,  String status,  PlatformInt64 total,  PlatformInt64 done,  PlatformInt64 filled,  PlatformInt64 skipped,  PlatformInt64 errored,  String? currentTitle)  $default,) {final _that = this;
+switch (_that) {
+case _FrbFillProgress():
+return $default(_that.batchId,_that.status,_that.total,_that.done,_that.filled,_that.skipped,_that.errored,_that.currentTitle);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String batchId,  String status,  PlatformInt64 total,  PlatformInt64 done,  PlatformInt64 filled,  PlatformInt64 skipped,  PlatformInt64 errored,  String? currentTitle)?  $default,) {final _that = this;
+switch (_that) {
+case _FrbFillProgress() when $default != null:
+return $default(_that.batchId,_that.status,_that.total,_that.done,_that.filled,_that.skipped,_that.errored,_that.currentTitle);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _FrbFillProgress implements FrbFillProgress {
+  const _FrbFillProgress({required this.batchId, required this.status, required this.total, required this.done, required this.filled, required this.skipped, required this.errored, this.currentTitle});
+  
+
+@override final  String batchId;
+@override final  String status;
+@override final  PlatformInt64 total;
+@override final  PlatformInt64 done;
+@override final  PlatformInt64 filled;
+@override final  PlatformInt64 skipped;
+@override final  PlatformInt64 errored;
+@override final  String? currentTitle;
+
+/// Create a copy of FrbFillProgress
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$FrbFillProgressCopyWith<_FrbFillProgress> get copyWith => __$FrbFillProgressCopyWithImpl<_FrbFillProgress>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbFillProgress&&(identical(other.batchId, batchId) || other.batchId == batchId)&&(identical(other.status, status) || other.status == status)&&(identical(other.total, total) || other.total == total)&&(identical(other.done, done) || other.done == done)&&(identical(other.filled, filled) || other.filled == filled)&&(identical(other.skipped, skipped) || other.skipped == skipped)&&(identical(other.errored, errored) || other.errored == errored)&&(identical(other.currentTitle, currentTitle) || other.currentTitle == currentTitle));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,batchId,status,total,done,filled,skipped,errored,currentTitle);
+
+@override
+String toString() {
+  return 'FrbFillProgress(batchId: $batchId, status: $status, total: $total, done: $done, filled: $filled, skipped: $skipped, errored: $errored, currentTitle: $currentTitle)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$FrbFillProgressCopyWith<$Res> implements $FrbFillProgressCopyWith<$Res> {
+  factory _$FrbFillProgressCopyWith(_FrbFillProgress value, $Res Function(_FrbFillProgress) _then) = __$FrbFillProgressCopyWithImpl;
+@override @useResult
+$Res call({
+ String batchId, String status, PlatformInt64 total, PlatformInt64 done, PlatformInt64 filled, PlatformInt64 skipped, PlatformInt64 errored, String? currentTitle
+});
+
+
+
+
+}
+/// @nodoc
+class __$FrbFillProgressCopyWithImpl<$Res>
+    implements _$FrbFillProgressCopyWith<$Res> {
+  __$FrbFillProgressCopyWithImpl(this._self, this._then);
+
+  final _FrbFillProgress _self;
+  final $Res Function(_FrbFillProgress) _then;
+
+/// Create a copy of FrbFillProgress
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? batchId = null,Object? status = null,Object? total = null,Object? done = null,Object? filled = null,Object? skipped = null,Object? errored = null,Object? currentTitle = freezed,}) {
+  return _then(_FrbFillProgress(
+batchId: null == batchId ? _self.batchId : batchId // ignore: cast_nullable_to_non_nullable
+as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,total: null == total ? _self.total : total // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,done: null == done ? _self.done : done // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,filled: null == filled ? _self.filled : filled // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,skipped: null == skipped ? _self.skipped : skipped // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,errored: null == errored ? _self.errored : errored // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,currentTitle: freezed == currentTitle ? _self.currentTitle : currentTitle // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
+
+/// @nodoc
+mixin _$FrbFilledBook {
+
+ int get bookId; String get title; String? get coverUrl; List<FrbFilledField> get fields;
+/// Create a copy of FrbFilledBook
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$FrbFilledBookCopyWith<FrbFilledBook> get copyWith => _$FrbFilledBookCopyWithImpl<FrbFilledBook>(this as FrbFilledBook, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbFilledBook&&(identical(other.bookId, bookId) || other.bookId == bookId)&&(identical(other.title, title) || other.title == title)&&(identical(other.coverUrl, coverUrl) || other.coverUrl == coverUrl)&&const DeepCollectionEquality().equals(other.fields, fields));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,bookId,title,coverUrl,const DeepCollectionEquality().hash(fields));
+
+@override
+String toString() {
+  return 'FrbFilledBook(bookId: $bookId, title: $title, coverUrl: $coverUrl, fields: $fields)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $FrbFilledBookCopyWith<$Res>  {
+  factory $FrbFilledBookCopyWith(FrbFilledBook value, $Res Function(FrbFilledBook) _then) = _$FrbFilledBookCopyWithImpl;
+@useResult
+$Res call({
+ int bookId, String title, String? coverUrl, List<FrbFilledField> fields
+});
+
+
+
+
+}
+/// @nodoc
+class _$FrbFilledBookCopyWithImpl<$Res>
+    implements $FrbFilledBookCopyWith<$Res> {
+  _$FrbFilledBookCopyWithImpl(this._self, this._then);
+
+  final FrbFilledBook _self;
+  final $Res Function(FrbFilledBook) _then;
+
+/// Create a copy of FrbFilledBook
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? bookId = null,Object? title = null,Object? coverUrl = freezed,Object? fields = null,}) {
+  return _then(_self.copyWith(
+bookId: null == bookId ? _self.bookId : bookId // ignore: cast_nullable_to_non_nullable
+as int,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,coverUrl: freezed == coverUrl ? _self.coverUrl : coverUrl // ignore: cast_nullable_to_non_nullable
+as String?,fields: null == fields ? _self.fields : fields // ignore: cast_nullable_to_non_nullable
+as List<FrbFilledField>,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [FrbFilledBook].
+extension FrbFilledBookPatterns on FrbFilledBook {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _FrbFilledBook value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _FrbFilledBook() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _FrbFilledBook value)  $default,){
+final _that = this;
+switch (_that) {
+case _FrbFilledBook():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _FrbFilledBook value)?  $default,){
+final _that = this;
+switch (_that) {
+case _FrbFilledBook() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int bookId,  String title,  String? coverUrl,  List<FrbFilledField> fields)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _FrbFilledBook() when $default != null:
+return $default(_that.bookId,_that.title,_that.coverUrl,_that.fields);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int bookId,  String title,  String? coverUrl,  List<FrbFilledField> fields)  $default,) {final _that = this;
+switch (_that) {
+case _FrbFilledBook():
+return $default(_that.bookId,_that.title,_that.coverUrl,_that.fields);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int bookId,  String title,  String? coverUrl,  List<FrbFilledField> fields)?  $default,) {final _that = this;
+switch (_that) {
+case _FrbFilledBook() when $default != null:
+return $default(_that.bookId,_that.title,_that.coverUrl,_that.fields);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _FrbFilledBook implements FrbFilledBook {
+  const _FrbFilledBook({required this.bookId, required this.title, this.coverUrl, required final  List<FrbFilledField> fields}): _fields = fields;
+  
+
+@override final  int bookId;
+@override final  String title;
+@override final  String? coverUrl;
+ final  List<FrbFilledField> _fields;
+@override List<FrbFilledField> get fields {
+  if (_fields is EqualUnmodifiableListView) return _fields;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_fields);
+}
+
+
+/// Create a copy of FrbFilledBook
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$FrbFilledBookCopyWith<_FrbFilledBook> get copyWith => __$FrbFilledBookCopyWithImpl<_FrbFilledBook>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbFilledBook&&(identical(other.bookId, bookId) || other.bookId == bookId)&&(identical(other.title, title) || other.title == title)&&(identical(other.coverUrl, coverUrl) || other.coverUrl == coverUrl)&&const DeepCollectionEquality().equals(other._fields, _fields));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,bookId,title,coverUrl,const DeepCollectionEquality().hash(_fields));
+
+@override
+String toString() {
+  return 'FrbFilledBook(bookId: $bookId, title: $title, coverUrl: $coverUrl, fields: $fields)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$FrbFilledBookCopyWith<$Res> implements $FrbFilledBookCopyWith<$Res> {
+  factory _$FrbFilledBookCopyWith(_FrbFilledBook value, $Res Function(_FrbFilledBook) _then) = __$FrbFilledBookCopyWithImpl;
+@override @useResult
+$Res call({
+ int bookId, String title, String? coverUrl, List<FrbFilledField> fields
+});
+
+
+
+
+}
+/// @nodoc
+class __$FrbFilledBookCopyWithImpl<$Res>
+    implements _$FrbFilledBookCopyWith<$Res> {
+  __$FrbFilledBookCopyWithImpl(this._self, this._then);
+
+  final _FrbFilledBook _self;
+  final $Res Function(_FrbFilledBook) _then;
+
+/// Create a copy of FrbFilledBook
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? bookId = null,Object? title = null,Object? coverUrl = freezed,Object? fields = null,}) {
+  return _then(_FrbFilledBook(
+bookId: null == bookId ? _self.bookId : bookId // ignore: cast_nullable_to_non_nullable
+as int,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,coverUrl: freezed == coverUrl ? _self.coverUrl : coverUrl // ignore: cast_nullable_to_non_nullable
+as String?,fields: null == fields ? _self._fields : fields // ignore: cast_nullable_to_non_nullable
+as List<FrbFilledField>,
+  ));
+}
+
+
+}
+
+/// @nodoc
+mixin _$FrbFilledField {
+
+ PlatformInt64 get journalId; String get batchId; String get field; String get value;
+/// Create a copy of FrbFilledField
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$FrbFilledFieldCopyWith<FrbFilledField> get copyWith => _$FrbFilledFieldCopyWithImpl<FrbFilledField>(this as FrbFilledField, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbFilledField&&(identical(other.journalId, journalId) || other.journalId == journalId)&&(identical(other.batchId, batchId) || other.batchId == batchId)&&(identical(other.field, field) || other.field == field)&&(identical(other.value, value) || other.value == value));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,journalId,batchId,field,value);
+
+@override
+String toString() {
+  return 'FrbFilledField(journalId: $journalId, batchId: $batchId, field: $field, value: $value)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $FrbFilledFieldCopyWith<$Res>  {
+  factory $FrbFilledFieldCopyWith(FrbFilledField value, $Res Function(FrbFilledField) _then) = _$FrbFilledFieldCopyWithImpl;
+@useResult
+$Res call({
+ PlatformInt64 journalId, String batchId, String field, String value
+});
+
+
+
+
+}
+/// @nodoc
+class _$FrbFilledFieldCopyWithImpl<$Res>
+    implements $FrbFilledFieldCopyWith<$Res> {
+  _$FrbFilledFieldCopyWithImpl(this._self, this._then);
+
+  final FrbFilledField _self;
+  final $Res Function(FrbFilledField) _then;
+
+/// Create a copy of FrbFilledField
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? journalId = null,Object? batchId = null,Object? field = null,Object? value = null,}) {
+  return _then(_self.copyWith(
+journalId: null == journalId ? _self.journalId : journalId // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,batchId: null == batchId ? _self.batchId : batchId // ignore: cast_nullable_to_non_nullable
+as String,field: null == field ? _self.field : field // ignore: cast_nullable_to_non_nullable
+as String,value: null == value ? _self.value : value // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [FrbFilledField].
+extension FrbFilledFieldPatterns on FrbFilledField {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _FrbFilledField value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _FrbFilledField() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _FrbFilledField value)  $default,){
+final _that = this;
+switch (_that) {
+case _FrbFilledField():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _FrbFilledField value)?  $default,){
+final _that = this;
+switch (_that) {
+case _FrbFilledField() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( PlatformInt64 journalId,  String batchId,  String field,  String value)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _FrbFilledField() when $default != null:
+return $default(_that.journalId,_that.batchId,_that.field,_that.value);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( PlatformInt64 journalId,  String batchId,  String field,  String value)  $default,) {final _that = this;
+switch (_that) {
+case _FrbFilledField():
+return $default(_that.journalId,_that.batchId,_that.field,_that.value);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( PlatformInt64 journalId,  String batchId,  String field,  String value)?  $default,) {final _that = this;
+switch (_that) {
+case _FrbFilledField() when $default != null:
+return $default(_that.journalId,_that.batchId,_that.field,_that.value);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _FrbFilledField implements FrbFilledField {
+  const _FrbFilledField({required this.journalId, required this.batchId, required this.field, required this.value});
+  
+
+@override final  PlatformInt64 journalId;
+@override final  String batchId;
+@override final  String field;
+@override final  String value;
+
+/// Create a copy of FrbFilledField
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$FrbFilledFieldCopyWith<_FrbFilledField> get copyWith => __$FrbFilledFieldCopyWithImpl<_FrbFilledField>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbFilledField&&(identical(other.journalId, journalId) || other.journalId == journalId)&&(identical(other.batchId, batchId) || other.batchId == batchId)&&(identical(other.field, field) || other.field == field)&&(identical(other.value, value) || other.value == value));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,journalId,batchId,field,value);
+
+@override
+String toString() {
+  return 'FrbFilledField(journalId: $journalId, batchId: $batchId, field: $field, value: $value)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$FrbFilledFieldCopyWith<$Res> implements $FrbFilledFieldCopyWith<$Res> {
+  factory _$FrbFilledFieldCopyWith(_FrbFilledField value, $Res Function(_FrbFilledField) _then) = __$FrbFilledFieldCopyWithImpl;
+@override @useResult
+$Res call({
+ PlatformInt64 journalId, String batchId, String field, String value
+});
+
+
+
+
+}
+/// @nodoc
+class __$FrbFilledFieldCopyWithImpl<$Res>
+    implements _$FrbFilledFieldCopyWith<$Res> {
+  __$FrbFilledFieldCopyWithImpl(this._self, this._then);
+
+  final _FrbFilledField _self;
+  final $Res Function(_FrbFilledField) _then;
+
+/// Create a copy of FrbFilledField
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? journalId = null,Object? batchId = null,Object? field = null,Object? value = null,}) {
+  return _then(_FrbFilledField(
+journalId: null == journalId ? _self.journalId : journalId // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,batchId: null == batchId ? _self.batchId : batchId // ignore: cast_nullable_to_non_nullable
+as String,field: null == field ? _self.field : field // ignore: cast_nullable_to_non_nullable
+as String,value: null == value ? _self.value : value // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
 mixin _$FrbHubBorrowRequest {
 
  PlatformInt64 get id; String get requesterNodeId; String get lenderNodeId; String get isbn; String get bookTitle; String get status; String get createdAt; String? get resolvedAt; String? get requesterDisplayName; String? get lenderDisplayName;
@@ -3669,6 +4730,532 @@ as String?,deviceFingerprint: freezed == deviceFingerprint ? _self.deviceFingerp
 as String?,appVersion: freezed == appVersion ? _self.appVersion : appVersion // ignore: cast_nullable_to_non_nullable
 as String?,avatarConfig: freezed == avatarConfig ? _self.avatarConfig : avatarConfig // ignore: cast_nullable_to_non_nullable
 as String?,
+  ));
+}
+
+
+}
+
+/// @nodoc
+mixin _$FrbIncompleteBook {
+
+ int get id; String get title; String? get isbn;
+/// Create a copy of FrbIncompleteBook
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$FrbIncompleteBookCopyWith<FrbIncompleteBook> get copyWith => _$FrbIncompleteBookCopyWithImpl<FrbIncompleteBook>(this as FrbIncompleteBook, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbIncompleteBook&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.isbn, isbn) || other.isbn == isbn));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,id,title,isbn);
+
+@override
+String toString() {
+  return 'FrbIncompleteBook(id: $id, title: $title, isbn: $isbn)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $FrbIncompleteBookCopyWith<$Res>  {
+  factory $FrbIncompleteBookCopyWith(FrbIncompleteBook value, $Res Function(FrbIncompleteBook) _then) = _$FrbIncompleteBookCopyWithImpl;
+@useResult
+$Res call({
+ int id, String title, String? isbn
+});
+
+
+
+
+}
+/// @nodoc
+class _$FrbIncompleteBookCopyWithImpl<$Res>
+    implements $FrbIncompleteBookCopyWith<$Res> {
+  _$FrbIncompleteBookCopyWithImpl(this._self, this._then);
+
+  final FrbIncompleteBook _self;
+  final $Res Function(FrbIncompleteBook) _then;
+
+/// Create a copy of FrbIncompleteBook
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? isbn = freezed,}) {
+  return _then(_self.copyWith(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,isbn: freezed == isbn ? _self.isbn : isbn // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [FrbIncompleteBook].
+extension FrbIncompleteBookPatterns on FrbIncompleteBook {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _FrbIncompleteBook value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _FrbIncompleteBook() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _FrbIncompleteBook value)  $default,){
+final _that = this;
+switch (_that) {
+case _FrbIncompleteBook():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _FrbIncompleteBook value)?  $default,){
+final _that = this;
+switch (_that) {
+case _FrbIncompleteBook() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String title,  String? isbn)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _FrbIncompleteBook() when $default != null:
+return $default(_that.id,_that.title,_that.isbn);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String title,  String? isbn)  $default,) {final _that = this;
+switch (_that) {
+case _FrbIncompleteBook():
+return $default(_that.id,_that.title,_that.isbn);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String title,  String? isbn)?  $default,) {final _that = this;
+switch (_that) {
+case _FrbIncompleteBook() when $default != null:
+return $default(_that.id,_that.title,_that.isbn);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _FrbIncompleteBook implements FrbIncompleteBook {
+  const _FrbIncompleteBook({required this.id, required this.title, this.isbn});
+  
+
+@override final  int id;
+@override final  String title;
+@override final  String? isbn;
+
+/// Create a copy of FrbIncompleteBook
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$FrbIncompleteBookCopyWith<_FrbIncompleteBook> get copyWith => __$FrbIncompleteBookCopyWithImpl<_FrbIncompleteBook>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbIncompleteBook&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.isbn, isbn) || other.isbn == isbn));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,id,title,isbn);
+
+@override
+String toString() {
+  return 'FrbIncompleteBook(id: $id, title: $title, isbn: $isbn)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$FrbIncompleteBookCopyWith<$Res> implements $FrbIncompleteBookCopyWith<$Res> {
+  factory _$FrbIncompleteBookCopyWith(_FrbIncompleteBook value, $Res Function(_FrbIncompleteBook) _then) = __$FrbIncompleteBookCopyWithImpl;
+@override @useResult
+$Res call({
+ int id, String title, String? isbn
+});
+
+
+
+
+}
+/// @nodoc
+class __$FrbIncompleteBookCopyWithImpl<$Res>
+    implements _$FrbIncompleteBookCopyWith<$Res> {
+  __$FrbIncompleteBookCopyWithImpl(this._self, this._then);
+
+  final _FrbIncompleteBook _self;
+  final $Res Function(_FrbIncompleteBook) _then;
+
+/// Create a copy of FrbIncompleteBook
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? isbn = freezed,}) {
+  return _then(_FrbIncompleteBook(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,isbn: freezed == isbn ? _self.isbn : isbn // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
+
+/// @nodoc
+mixin _$FrbIncompleteBookDetail {
+
+ int get id; String get title; String? get isbn; String? get coverUrl; List<String> get missing;
+/// Create a copy of FrbIncompleteBookDetail
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$FrbIncompleteBookDetailCopyWith<FrbIncompleteBookDetail> get copyWith => _$FrbIncompleteBookDetailCopyWithImpl<FrbIncompleteBookDetail>(this as FrbIncompleteBookDetail, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbIncompleteBookDetail&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.isbn, isbn) || other.isbn == isbn)&&(identical(other.coverUrl, coverUrl) || other.coverUrl == coverUrl)&&const DeepCollectionEquality().equals(other.missing, missing));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,id,title,isbn,coverUrl,const DeepCollectionEquality().hash(missing));
+
+@override
+String toString() {
+  return 'FrbIncompleteBookDetail(id: $id, title: $title, isbn: $isbn, coverUrl: $coverUrl, missing: $missing)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $FrbIncompleteBookDetailCopyWith<$Res>  {
+  factory $FrbIncompleteBookDetailCopyWith(FrbIncompleteBookDetail value, $Res Function(FrbIncompleteBookDetail) _then) = _$FrbIncompleteBookDetailCopyWithImpl;
+@useResult
+$Res call({
+ int id, String title, String? isbn, String? coverUrl, List<String> missing
+});
+
+
+
+
+}
+/// @nodoc
+class _$FrbIncompleteBookDetailCopyWithImpl<$Res>
+    implements $FrbIncompleteBookDetailCopyWith<$Res> {
+  _$FrbIncompleteBookDetailCopyWithImpl(this._self, this._then);
+
+  final FrbIncompleteBookDetail _self;
+  final $Res Function(FrbIncompleteBookDetail) _then;
+
+/// Create a copy of FrbIncompleteBookDetail
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? isbn = freezed,Object? coverUrl = freezed,Object? missing = null,}) {
+  return _then(_self.copyWith(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,isbn: freezed == isbn ? _self.isbn : isbn // ignore: cast_nullable_to_non_nullable
+as String?,coverUrl: freezed == coverUrl ? _self.coverUrl : coverUrl // ignore: cast_nullable_to_non_nullable
+as String?,missing: null == missing ? _self.missing : missing // ignore: cast_nullable_to_non_nullable
+as List<String>,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [FrbIncompleteBookDetail].
+extension FrbIncompleteBookDetailPatterns on FrbIncompleteBookDetail {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _FrbIncompleteBookDetail value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _FrbIncompleteBookDetail() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _FrbIncompleteBookDetail value)  $default,){
+final _that = this;
+switch (_that) {
+case _FrbIncompleteBookDetail():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _FrbIncompleteBookDetail value)?  $default,){
+final _that = this;
+switch (_that) {
+case _FrbIncompleteBookDetail() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String title,  String? isbn,  String? coverUrl,  List<String> missing)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _FrbIncompleteBookDetail() when $default != null:
+return $default(_that.id,_that.title,_that.isbn,_that.coverUrl,_that.missing);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String title,  String? isbn,  String? coverUrl,  List<String> missing)  $default,) {final _that = this;
+switch (_that) {
+case _FrbIncompleteBookDetail():
+return $default(_that.id,_that.title,_that.isbn,_that.coverUrl,_that.missing);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String title,  String? isbn,  String? coverUrl,  List<String> missing)?  $default,) {final _that = this;
+switch (_that) {
+case _FrbIncompleteBookDetail() when $default != null:
+return $default(_that.id,_that.title,_that.isbn,_that.coverUrl,_that.missing);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _FrbIncompleteBookDetail implements FrbIncompleteBookDetail {
+  const _FrbIncompleteBookDetail({required this.id, required this.title, this.isbn, this.coverUrl, required final  List<String> missing}): _missing = missing;
+  
+
+@override final  int id;
+@override final  String title;
+@override final  String? isbn;
+@override final  String? coverUrl;
+ final  List<String> _missing;
+@override List<String> get missing {
+  if (_missing is EqualUnmodifiableListView) return _missing;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_missing);
+}
+
+
+/// Create a copy of FrbIncompleteBookDetail
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$FrbIncompleteBookDetailCopyWith<_FrbIncompleteBookDetail> get copyWith => __$FrbIncompleteBookDetailCopyWithImpl<_FrbIncompleteBookDetail>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbIncompleteBookDetail&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.isbn, isbn) || other.isbn == isbn)&&(identical(other.coverUrl, coverUrl) || other.coverUrl == coverUrl)&&const DeepCollectionEquality().equals(other._missing, _missing));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,id,title,isbn,coverUrl,const DeepCollectionEquality().hash(_missing));
+
+@override
+String toString() {
+  return 'FrbIncompleteBookDetail(id: $id, title: $title, isbn: $isbn, coverUrl: $coverUrl, missing: $missing)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$FrbIncompleteBookDetailCopyWith<$Res> implements $FrbIncompleteBookDetailCopyWith<$Res> {
+  factory _$FrbIncompleteBookDetailCopyWith(_FrbIncompleteBookDetail value, $Res Function(_FrbIncompleteBookDetail) _then) = __$FrbIncompleteBookDetailCopyWithImpl;
+@override @useResult
+$Res call({
+ int id, String title, String? isbn, String? coverUrl, List<String> missing
+});
+
+
+
+
+}
+/// @nodoc
+class __$FrbIncompleteBookDetailCopyWithImpl<$Res>
+    implements _$FrbIncompleteBookDetailCopyWith<$Res> {
+  __$FrbIncompleteBookDetailCopyWithImpl(this._self, this._then);
+
+  final _FrbIncompleteBookDetail _self;
+  final $Res Function(_FrbIncompleteBookDetail) _then;
+
+/// Create a copy of FrbIncompleteBookDetail
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? isbn = freezed,Object? coverUrl = freezed,Object? missing = null,}) {
+  return _then(_FrbIncompleteBookDetail(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,isbn: freezed == isbn ? _self.isbn : isbn // ignore: cast_nullable_to_non_nullable
+as String?,coverUrl: freezed == coverUrl ? _self.coverUrl : coverUrl // ignore: cast_nullable_to_non_nullable
+as String?,missing: null == missing ? _self._missing : missing // ignore: cast_nullable_to_non_nullable
+as List<String>,
   ));
 }
 

@@ -8,7 +8,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 part 'frb.freezed.dart';
 
-// These functions are ignored because they are not marked as `pub`: `db`, `device_pairing_svc`, `device_sync_svc`, `entries_to_frb`, `from_info`, `from_manifest`, `from_summary`, `global_app_state`, `hub_db`, `hub_directory_svc`, `install_panic_hook`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `modules_to_fallback_preferences`, `nudge_source_label`, `rename_subject_in_books`, `runtime`, `track_to_frb`, `try_from_summary`, `upsert_directory_catalog_cache`
+// These functions are ignored because they are not marked as `pub`: `db`, `device_pairing_svc`, `device_sync_svc`, `entries_to_frb`, `fill_state`, `from_info`, `from_manifest`, `from_summary`, `global_app_state`, `hub_db`, `hub_directory_svc`, `hub_directory_sync_catalog_inner`, `install_panic_hook`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `modules_to_fallback_preferences`, `nudge_source_label`, `rename_subject_in_books`, `runtime`, `track_to_frb`, `try_from_summary`, `undo_outcome_str`, `upsert_directory_catalog_cache`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
 // These functions are ignored (category: IgnoreBecauseExplicitAttribute): `shared_device_pairing_svc`
 
@@ -224,6 +224,53 @@ Future<FrbBookMetadata?> lookupBookMetadata({
   String? lang,
 }) =>
     RustLib.instance.api.crateApiFrbLookupBookMetadata(isbn: isbn, lang: lang);
+
+/// Completeness statistic for the dashboard "Complétude" card.
+Future<FrbCompletenessStats> metadataFillStats() =>
+    RustLib.instance.api.crateApiFrbMetadataFillStats();
+
+/// Start (or resume) the bulk fill. Returns the batch id. `languages` is the
+/// user's reading-language config (comma-joined) for summary coherence.
+Future<String> metadataFillStart({String? languages}) =>
+    RustLib.instance.api.crateApiFrbMetadataFillStart(languages: languages);
+
+/// Current/last run progress (None if a run has never been started).
+Future<FrbFillProgress?> metadataFillProgress() =>
+    RustLib.instance.api.crateApiFrbMetadataFillProgress();
+
+/// Request cancellation of the active run.
+Future<void> metadataFillCancel() =>
+    RustLib.instance.api.crateApiFrbMetadataFillCancel();
+
+/// Recently completed books with the still-active fields the fill added.
+Future<List<FrbFilledBook>> metadataFillRecent({required int limit}) =>
+    RustLib.instance.api.crateApiFrbMetadataFillRecent(limit: limit);
+
+/// Owned, incomplete books without an ISBN (not processable; manual fix list).
+Future<List<FrbIncompleteBook>> metadataFillBooksWithoutIsbn() =>
+    RustLib.instance.api.crateApiFrbMetadataFillBooksWithoutIsbn();
+
+/// All owned, incomplete books with their missing fields (closest-to-complete
+/// first), for the manual completion overview.
+Future<List<FrbIncompleteBookDetail>> metadataFillIncomplete({int? limit}) =>
+    RustLib.instance.api.crateApiFrbMetadataFillIncomplete(limit: limit);
+
+/// Undo a single filled field. Returns `reverted` | `superseded` | `not_found`.
+Future<String> metadataFillUndoField({required PlatformInt64 journalId}) =>
+    RustLib.instance.api.crateApiFrbMetadataFillUndoField(journalId: journalId);
+
+/// Undo all fields the fill added to one book in a batch. Returns reverted count.
+Future<int> metadataFillUndoBook({
+  required String batchId,
+  required int bookId,
+}) => RustLib.instance.api.crateApiFrbMetadataFillUndoBook(
+  batchId: batchId,
+  bookId: bookId,
+);
+
+/// Undo every field a whole run added. Returns reverted count.
+Future<int> metadataFillUndoRun({required String batchId}) =>
+    RustLib.instance.api.crateApiFrbMetadataFillUndoRun(batchId: batchId);
 
 /// Get all tags with hierarchy info
 Future<List<FrbTag>> getAllTags() =>
@@ -894,7 +941,10 @@ Future<void> hubDirectoryPushCatalog({required List<String> isbnList}) =>
 
 /// Reads all owned books from the local database, collects title, author,
 /// and cover data, and pushes the enriched catalog to the hub.
-/// Books without ISBN are included using book_id as an alternative key.
+/// Every entry carries its local `book_id` so the hub-side cover GC
+/// (ADR-033) can diff the catalog against the `covers/{node}/{id}.jpg`
+/// files on disk. Books without ISBN are still included; the entry is
+/// keyed by `book_id` alone in that case.
 /// Local cover images are resized and uploaded as thumbnails (best-effort).
 /// Returns the number of entries pushed.
 Future<int> hubDirectorySyncCatalog() =>
@@ -1573,6 +1623,18 @@ class FrbCollectionDeletionPreview {
           toKeep == other.toKeep;
 }
 
+/// Library completeness snapshot over owned books.
+@freezed
+sealed class FrbCompletenessStats with _$FrbCompletenessStats {
+  const factory FrbCompletenessStats({
+    required PlatformInt64 ownedTotal,
+    required PlatformInt64 complete,
+    required PlatformInt64 incomplete,
+    required PlatformInt64 noIsbn,
+    required PlatformInt64 emptyFields,
+  }) = _FrbCompletenessStats;
+}
+
 /// Simplified contact structure for FFI
 @freezed
 sealed class FrbContact with _$FrbContact {
@@ -1630,6 +1692,43 @@ sealed class FrbDiscoveredPeer with _$FrbDiscoveredPeer {
     String? x25519PublicKey,
     required String discoveredAt,
   }) = _FrbDiscoveredPeer;
+}
+
+/// Live/last progress of a bulk fill run.
+@freezed
+sealed class FrbFillProgress with _$FrbFillProgress {
+  const factory FrbFillProgress({
+    required String batchId,
+    required String status,
+    required PlatformInt64 total,
+    required PlatformInt64 done,
+    required PlatformInt64 filled,
+    required PlatformInt64 skipped,
+    required PlatformInt64 errored,
+    String? currentTitle,
+  }) = _FrbFillProgress;
+}
+
+/// A recently-completed book with the fields the fill added to it.
+@freezed
+sealed class FrbFilledBook with _$FrbFilledBook {
+  const factory FrbFilledBook({
+    required int bookId,
+    required String title,
+    String? coverUrl,
+    required List<FrbFilledField> fields,
+  }) = _FrbFilledBook;
+}
+
+/// One field added to a book by the bulk fill, for the undo list.
+@freezed
+sealed class FrbFilledField with _$FrbFilledField {
+  const factory FrbFilledField({
+    required PlatformInt64 journalId,
+    required String batchId,
+    required String field,
+    required String value,
+  }) = _FrbFilledField;
 }
 
 /// Gamification config (FFI-safe)
@@ -1952,6 +2051,29 @@ sealed class FrbHubProfile with _$FrbHubProfile {
     String? appVersion,
     String? avatarConfig,
   }) = _FrbHubProfile;
+}
+
+/// A book that could not be processed (no ISBN), for the manual-fix list.
+@freezed
+sealed class FrbIncompleteBook with _$FrbIncompleteBook {
+  const factory FrbIncompleteBook({
+    required int id,
+    required String title,
+    String? isbn,
+  }) = _FrbIncompleteBook;
+}
+
+/// An incomplete owned book with the exact fields still empty, for the manual
+/// "books to complete" overview.
+@freezed
+sealed class FrbIncompleteBookDetail with _$FrbIncompleteBookDetail {
+  const factory FrbIncompleteBookDetail({
+    required int id,
+    required String title,
+    String? isbn,
+    String? coverUrl,
+    required List<String> missing,
+  }) = _FrbIncompleteBookDetail;
 }
 
 /// FFI-safe view of a leaderboard-change event.

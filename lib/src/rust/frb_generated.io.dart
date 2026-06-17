@@ -72,6 +72,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FrbDirectoryConfig dco_decode_box_autoadd_frb_directory_config(dynamic raw);
 
   @protected
+  FrbFillProgress dco_decode_box_autoadd_frb_fill_progress(dynamic raw);
+
+  @protected
   FrbRegisterParams dco_decode_box_autoadd_frb_register_params(dynamic raw);
 
   @protected
@@ -128,6 +131,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  FrbCompletenessStats dco_decode_frb_completeness_stats(dynamic raw);
+
+  @protected
   FrbContact dco_decode_frb_contact(dynamic raw);
 
   @protected
@@ -138,6 +144,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbDiscoveredPeer dco_decode_frb_discovered_peer(dynamic raw);
+
+  @protected
+  FrbFillProgress dco_decode_frb_fill_progress(dynamic raw);
+
+  @protected
+  FrbFilledBook dco_decode_frb_filled_book(dynamic raw);
+
+  @protected
+  FrbFilledField dco_decode_frb_filled_field(dynamic raw);
 
   @protected
   FrbGamificationConfig dco_decode_frb_gamification_config(dynamic raw);
@@ -167,6 +182,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbHubProfile dco_decode_frb_hub_profile(dynamic raw);
+
+  @protected
+  FrbIncompleteBook dco_decode_frb_incomplete_book(dynamic raw);
+
+  @protected
+  FrbIncompleteBookDetail dco_decode_frb_incomplete_book_detail(dynamic raw);
 
   @protected
   FrbLeaderboardChangedEvent dco_decode_frb_leaderboard_changed_event(
@@ -295,6 +316,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<FrbDiscoveredPeer> dco_decode_list_frb_discovered_peer(dynamic raw);
 
   @protected
+  List<FrbFilledBook> dco_decode_list_frb_filled_book(dynamic raw);
+
+  @protected
+  List<FrbFilledField> dco_decode_list_frb_filled_field(dynamic raw);
+
+  @protected
   List<FrbHangmanChar> dco_decode_list_frb_hangman_char(dynamic raw);
 
   @protected
@@ -312,6 +339,14 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<FrbHubProfile> dco_decode_list_frb_hub_profile(dynamic raw);
+
+  @protected
+  List<FrbIncompleteBook> dco_decode_list_frb_incomplete_book(dynamic raw);
+
+  @protected
+  List<FrbIncompleteBookDetail> dco_decode_list_frb_incomplete_book_detail(
+    dynamic raw,
+  );
 
   @protected
   List<FrbLeaderboardEntry> dco_decode_list_frb_leaderboard_entry(dynamic raw);
@@ -398,6 +433,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FrbDirectoryConfig? dco_decode_opt_box_autoadd_frb_directory_config(
     dynamic raw,
   );
+
+  @protected
+  FrbFillProgress? dco_decode_opt_box_autoadd_frb_fill_progress(dynamic raw);
 
   @protected
   FrbRelayConfig? dco_decode_opt_box_autoadd_frb_relay_config(dynamic raw);
@@ -508,6 +546,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  FrbFillProgress sse_decode_box_autoadd_frb_fill_progress(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   FrbRegisterParams sse_decode_box_autoadd_frb_register_params(
     SseDeserializer deserializer,
   );
@@ -574,6 +617,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  FrbCompletenessStats sse_decode_frb_completeness_stats(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   FrbContact sse_decode_frb_contact(SseDeserializer deserializer);
 
   @protected
@@ -590,6 +638,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FrbDiscoveredPeer sse_decode_frb_discovered_peer(
     SseDeserializer deserializer,
   );
+
+  @protected
+  FrbFillProgress sse_decode_frb_fill_progress(SseDeserializer deserializer);
+
+  @protected
+  FrbFilledBook sse_decode_frb_filled_book(SseDeserializer deserializer);
+
+  @protected
+  FrbFilledField sse_decode_frb_filled_field(SseDeserializer deserializer);
 
   @protected
   FrbGamificationConfig sse_decode_frb_gamification_config(
@@ -625,6 +682,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbHubProfile sse_decode_frb_hub_profile(SseDeserializer deserializer);
+
+  @protected
+  FrbIncompleteBook sse_decode_frb_incomplete_book(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  FrbIncompleteBookDetail sse_decode_frb_incomplete_book_detail(
+    SseDeserializer deserializer,
+  );
 
   @protected
   FrbLeaderboardChangedEvent sse_decode_frb_leaderboard_changed_event(
@@ -783,6 +850,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  List<FrbFilledBook> sse_decode_list_frb_filled_book(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  List<FrbFilledField> sse_decode_list_frb_filled_field(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   List<FrbHangmanChar> sse_decode_list_frb_hangman_char(
     SseDeserializer deserializer,
   );
@@ -808,6 +885,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<FrbHubProfile> sse_decode_list_frb_hub_profile(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  List<FrbIncompleteBook> sse_decode_list_frb_incomplete_book(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  List<FrbIncompleteBookDetail> sse_decode_list_frb_incomplete_book_detail(
     SseDeserializer deserializer,
   );
 
@@ -918,6 +1005,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbDirectoryConfig? sse_decode_opt_box_autoadd_frb_directory_config(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  FrbFillProgress? sse_decode_opt_box_autoadd_frb_fill_progress(
     SseDeserializer deserializer,
   );
 
@@ -1046,6 +1138,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_box_autoadd_frb_fill_progress(
+    FrbFillProgress self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_box_autoadd_frb_register_params(
     FrbRegisterParams self,
     SseSerializer serializer,
@@ -1130,6 +1228,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_frb_completeness_stats(
+    FrbCompletenessStats self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_frb_contact(FrbContact self, SseSerializer serializer);
 
   @protected
@@ -1147,6 +1251,21 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_frb_discovered_peer(
     FrbDiscoveredPeer self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_frb_fill_progress(
+    FrbFillProgress self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_frb_filled_book(FrbFilledBook self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_frb_filled_field(
+    FrbFilledField self,
     SseSerializer serializer,
   );
 
@@ -1197,6 +1316,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_frb_hub_profile(FrbHubProfile self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_frb_incomplete_book(
+    FrbIncompleteBook self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_frb_incomplete_book_detail(
+    FrbIncompleteBookDetail self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_frb_leaderboard_changed_event(
@@ -1409,6 +1540,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_list_frb_filled_book(
+    List<FrbFilledBook> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_frb_filled_field(
+    List<FrbFilledField> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_list_frb_hangman_char(
     List<FrbHangmanChar> self,
     SseSerializer serializer,
@@ -1441,6 +1584,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_list_frb_hub_profile(
     List<FrbHubProfile> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_frb_incomplete_book(
+    List<FrbIncompleteBook> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_frb_incomplete_book_detail(
+    List<FrbIncompleteBookDetail> self,
     SseSerializer serializer,
   );
 
@@ -1579,6 +1734,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_opt_box_autoadd_frb_directory_config(
     FrbDirectoryConfig? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_frb_fill_progress(
+    FrbFillProgress? self,
     SseSerializer serializer,
   );
 

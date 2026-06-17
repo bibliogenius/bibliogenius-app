@@ -545,6 +545,53 @@ class FfiService {
     }
   }
 
+  // ============ Bulk Metadata Gap-Fill (ADR-041) ============
+
+  /// Library completeness statistic over owned books.
+  Future<frb.FrbCompletenessStats> metadataFillStats() => frb.metadataFillStats();
+
+  /// Start (or resume) a bulk gap-fill run. Returns the batch id. `languages`
+  /// is the user's reading-language config, joined for summary coherence.
+  Future<String> metadataFillStart({List<String>? languages}) =>
+      frb.metadataFillStart(
+        languages: (languages != null && languages.isNotEmpty)
+            ? languages.join(',')
+            : null,
+      );
+
+  /// Poll current/last run progress (null if never started).
+  Future<frb.FrbFillProgress?> metadataFillProgress() =>
+      frb.metadataFillProgress();
+
+  /// Request cancellation of the active run.
+  Future<void> metadataFillCancel() => frb.metadataFillCancel();
+
+  /// Recently completed books with the still-active fields the fill added.
+  Future<List<frb.FrbFilledBook>> metadataFillRecent({int limit = 50}) =>
+      frb.metadataFillRecent(limit: limit);
+
+  /// Owned, incomplete books with no ISBN (manual-fix list).
+  Future<List<frb.FrbIncompleteBook>> metadataFillBooksWithoutIsbn() =>
+      frb.metadataFillBooksWithoutIsbn();
+
+  /// All owned, incomplete books with their missing fields, closest-to-complete
+  /// first, for the manual completion overview.
+  Future<List<frb.FrbIncompleteBookDetail>> metadataFillIncomplete({
+    int? limit,
+  }) => frb.metadataFillIncomplete(limit: limit);
+
+  /// Undo a single filled field. Returns reverted | superseded | not_found.
+  Future<String> metadataFillUndoField(int journalId) =>
+      frb.metadataFillUndoField(journalId: journalId);
+
+  /// Undo all fields the fill added to one book in a batch. Returns count.
+  Future<int> metadataFillUndoBook(String batchId, int bookId) =>
+      frb.metadataFillUndoBook(batchId: batchId, bookId: bookId);
+
+  /// Undo every field a whole run added. Returns reverted count.
+  Future<int> metadataFillUndoRun(String batchId) =>
+      frb.metadataFillUndoRun(batchId: batchId);
+
   // ============ Converters ============
 
   /// Convert FrbCollection to Collection model

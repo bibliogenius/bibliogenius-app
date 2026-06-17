@@ -9764,3 +9764,142 @@ msgstr "Export now"
 msgid "auto_backup_clone_nudge_snooze"
 msgstr "Later"
 
+# Library completeness / bulk metadata gap-fill (ADR-041)
+msgid "completeness_title"
+msgstr "Complete my library"
+
+msgid "completeness_card_title"
+msgstr "Library completeness"
+
+msgid "completeness_card_subtitle"
+msgstr "{count} books are missing some details"
+
+msgid "completeness_percent_label"
+msgstr "Library {percent}% complete"
+
+msgid "completeness_complete"
+msgstr "complete"
+
+msgid "completeness_empty_fields"
+msgstr "{n} empty fields to fill"
+
+msgid "completeness_last_run_done"
+msgstr "Last run: {filled} books enriched, {skipped} with no new data, {errored} errors."
+
+msgid "completeness_last_run_cancelled"
+msgstr "Run cancelled: {filled} books enriched, {skipped} with no new data, {errored} errors."
+
+msgid "completeness_breakdown"
+msgstr "{incomplete} fillable, {no_isbn} without an ISBN"
+
+msgid "completeness_start_button"
+msgstr "Fill in empty fields"
+
+msgid "completeness_all_done"
+msgstr "Every owned book has its details. Nothing to fill in."
+
+msgid "completeness_after_run_hint"
+msgstr "The remaining books have no data available from the sources. Complete them by hand below, or search again."
+
+msgid "completeness_rerun_button"
+msgstr "Search again"
+
+msgid "completeness_resume_hint"
+msgstr "A previous run was interrupted. You can resume where it left off."
+
+msgid "completeness_resume_button"
+msgstr "Resume"
+
+msgid "completeness_discard_button"
+msgstr "Discard"
+
+msgid "completeness_running_title"
+msgstr "Filling in empty fields"
+
+msgid "completeness_progress_count"
+msgstr "{done} of {total} books"
+
+msgid "completeness_current"
+msgstr "Current: {title}"
+
+msgid "completeness_stat_filled"
+msgstr "Filled: {n}"
+
+msgid "completeness_stat_skipped"
+msgstr "Skipped: {n}"
+
+msgid "completeness_stat_errored"
+msgstr "Errors: {n}"
+
+msgid "completeness_cancel_button"
+msgstr "Cancel"
+
+msgid "completeness_recent_title"
+msgstr "Recently completed"
+
+msgid "completeness_tab_todo"
+msgstr "To complete ({n})"
+
+msgid "completeness_tab_recent"
+msgstr "Recent ({n})"
+
+msgid "completeness_recent_hint"
+msgstr "Tap Undo to clear a field this added (only if you have not edited it since)."
+
+msgid "completeness_undo_book_done"
+msgstr "{n} field(s) cleared"
+
+msgid "completeness_undo_kept"
+msgstr "Your edits were kept"
+
+msgid "completeness_undo_field_reverted"
+msgstr "Field cleared"
+
+msgid "completeness_undo_field_superseded"
+msgstr "Kept your edit (changed since)"
+
+msgid "completeness_view_changes"
+msgstr "View changes"
+
+msgid "completeness_changes_subtitle"
+msgstr "Fields added by the fill, with the value written"
+
+msgid "completeness_open_book"
+msgstr "Open book"
+
+msgid "completeness_all_undone"
+msgstr "All added fields for this book have been undone."
+
+msgid "completeness_todo_title"
+msgstr "Books to complete ({n})"
+
+msgid "completeness_filter_all"
+msgstr "All ({n})"
+
+msgid "completeness_todo_hint"
+msgstr "Tap a book to fill its details by hand. The closest to complete come first."
+
+msgid "completeness_no_isbn_chip"
+msgstr "No ISBN"
+
+msgid "completeness_no_isbn_title"
+msgstr "Without an ISBN ({n})"
+
+msgid "completeness_no_isbn_hint"
+msgstr "These books have no ISBN, so they cannot be filled automatically. Complete them by hand."
+
+msgid "field_summary"
+msgstr "Summary"
+
+msgid "field_publisher"
+msgstr "Publisher"
+
+msgid "field_page_count"
+msgstr "Pages"
+
+msgid "field_publication_year"
+msgstr "Year"
+
+msgid "field_cover_url"
+msgstr "Cover"
+
