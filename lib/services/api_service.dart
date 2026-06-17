@@ -4419,6 +4419,7 @@ class ApiService {
   Future<Map<String, dynamic>?> lookupBook(
     String isbn, {
     Locale? locale,
+    List<String>? languages,
   }) async {
     // Use backend API for lookup to respect enabled sources (OpenLibrary, Inventaire, etc.)
     // In FFI mode, use the local HTTP server directly.
@@ -4433,7 +4434,13 @@ class ApiService {
         }
       }
 
-      final currentLang = locale?.languageCode ?? 'en';
+      // Prefer the user's reading languages (comma-separated) so the backend can
+      // pick a single target language for summary coherence (ADR-040); fall back
+      // to the interface locale for callers that don't pass a list.
+      final currentLang =
+          (languages != null && languages.isNotEmpty)
+          ? languages.join(',')
+          : (locale?.languageCode ?? 'en');
       // Use a dedicated Dio instance with longer timeout for lookups
       // The backend may chain BNF → Inventaire → OpenLibrary → Google Books,
       // which can take 15+ seconds for difficult ISBNs

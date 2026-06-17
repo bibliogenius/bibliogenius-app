@@ -260,10 +260,14 @@ class _AddBookScreenState extends State<AddBookScreen> {
         _isDuplicate = false;
       });
 
-      // Use backend (Inventaire with OpenLibrary cover enrichment)
+      // Use backend (Inventaire with OpenLibrary cover enrichment).
+      // Pass the user's reading languages so the summary comes back in a
+      // coherent language (ADR-040); locale stays as a fallback.
+      final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
       final bookData = await api.lookupBook(
         isbn,
         locale: Localizations.localeOf(context),
+        languages: themeProvider.userLanguages,
       );
 
       if (bookData != null && mounted) {

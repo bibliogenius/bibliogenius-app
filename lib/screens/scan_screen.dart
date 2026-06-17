@@ -15,6 +15,7 @@ import '../utils/book_url_helper.dart';
 import '../models/book.dart';
 import '../providers/book_refresh_notifier.dart';
 import '../providers/flash_message_provider.dart';
+import '../providers/theme_provider.dart';
 
 /// Scan screen with optional batch mode and pre-selected destination.
 ///
@@ -328,9 +329,16 @@ class _ScanScreenState extends State<ScanScreen> {
         final isOnline = await BookUrlHelper.isOnline();
         if (mounted) setState(() => _isOffline = !isOnline);
 
+        // Pass the user's reading languages so the summary comes back in a
+        // coherent language (ADR-040); locale stays as a fallback.
+        final themeProvider = Provider.of<ThemeProvider>(
+          context,
+          listen: false,
+        );
         final bookData = await api.lookupBook(
           isbn,
           locale: Localizations.localeOf(context),
+          languages: themeProvider.userLanguages,
         );
 
         if (bookData != null) {
