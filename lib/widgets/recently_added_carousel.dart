@@ -333,6 +333,12 @@ class _ExpandedStrip extends StatelessWidget {
         children: [
           Row(
             children: [
+              Icon(
+                Icons.auto_stories_rounded,
+                size: 18,
+                color: colorScheme.primary,
+              ),
+              const SizedBox(width: AppDesign.spacingSm),
               Expanded(
                 child: Semantics(
                   header: true,
