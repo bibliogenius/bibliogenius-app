@@ -271,7 +271,10 @@ class NetworkLoadingSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ShimmerLoading(
-      child: Column(
+      // ListView (not Column) so the skeleton scrolls when vertical space is
+      // tight, e.g. landscape on a phone. A bare Column overflows there.
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
         children: List.generate(count, (_) => const NetworkCardSkeleton()),
       ),
     );
