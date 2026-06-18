@@ -997,6 +997,20 @@ class FfiService {
     return await frb.installationProfileGetSearchSettings();
   }
 
+  /// Persist the search-source toggles + API keys directly to the installation
+  /// profile (DB). This is the durable write path in FFI mode: it does not rely
+  /// on the embedded HTTP server, so toggles survive an app restart even when
+  /// that server is down. Symmetric with [getSearchSettings].
+  Future<void> setSearchSettings({
+    required Map<String, bool> fallbackPreferences,
+    required Map<String, String> apiKeys,
+  }) async {
+    await frb.installationProfileSetSearchSettings(
+      fallbackPreferences: fallbackPreferences,
+      apiKeys: apiKeys,
+    );
+  }
+
   // ============ Collections ============
 
   /// Get all collections with book counts.

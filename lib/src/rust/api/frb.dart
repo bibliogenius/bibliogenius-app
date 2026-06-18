@@ -8,7 +8,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 part 'frb.freezed.dart';
 
-// These functions are ignored because they are not marked as `pub`: `db`, `device_pairing_svc`, `device_sync_svc`, `entries_to_frb`, `fill_state`, `from_info`, `from_manifest`, `from_summary`, `global_app_state`, `hub_db`, `hub_directory_svc`, `hub_directory_sync_catalog_inner`, `install_panic_hook`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `modules_to_fallback_preferences`, `nudge_source_label`, `rename_subject_in_books`, `runtime`, `track_to_frb`, `try_from_summary`, `undo_outcome_str`, `upsert_directory_catalog_cache`
+// These functions are ignored because they are not marked as `pub`: `apply_fallback_preferences_to_modules`, `db`, `device_pairing_svc`, `device_sync_svc`, `entries_to_frb`, `fill_state`, `from_info`, `from_manifest`, `from_summary`, `global_app_state`, `hub_db`, `hub_directory_svc`, `hub_directory_sync_catalog_inner`, `install_panic_hook`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `merge_api_keys`, `modules_to_fallback_preferences`, `nudge_source_label`, `rename_subject_in_books`, `runtime`, `track_to_frb`, `try_from_summary`, `undo_outcome_str`, `upsert_directory_catalog_cache`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
 // These functions are ignored (category: IgnoreBecauseExplicitAttribute): `shared_device_pairing_svc`
 
@@ -775,6 +775,26 @@ Future<FrbStreakInfo> gamificationUpdateStreak() =>
 /// missing; callers should fall back to defaults in that case.
 Future<FrbSearchSettings> installationProfileGetSearchSettings() =>
     RustLib.instance.api.crateApiFrbInstallationProfileGetSearchSettings();
+
+/// Persist the installation profile's search settings (source toggles + API
+/// keys) directly to the database.
+///
+/// This is the FFI-mode counterpart of `PUT /api/profile`: native clients call
+/// it so the persisted state survives an app restart even when the embedded
+/// HTTP server is not running. Previously the FFI write path depended on that
+/// server and silently no-op'd when it was down, so toggles reverted on reload.
+/// Read the value back via [`installation_profile_get_search_settings`].
+///
+/// Security: `api_keys` holds secrets; they are merged and stored but never
+/// logged. The profile row (id 1) is the single source of truth, shared with
+/// the HTTP write path, so both stay consistent.
+Future<void> installationProfileSetSearchSettings({
+  required Map<String, bool> fallbackPreferences,
+  required Map<String, String> apiKeys,
+}) => RustLib.instance.api.crateApiFrbInstallationProfileSetSearchSettings(
+  fallbackPreferences: fallbackPreferences,
+  apiKeys: apiKeys,
+);
 
 /// List operation log entries with optional filters
 Future<List<FrbOperationLogEntry>> operationLogList({

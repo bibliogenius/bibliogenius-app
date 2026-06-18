@@ -43,6 +43,23 @@ enum PairingErrorKind {
   unknown,
 }
 
+/// Result of a unified external search: the book list plus any source-level
+/// notices the backend reported out-of-band (via the `X-BiblioGenius-Notices`
+/// header). `notices` may contain `google_books_quota` when Google's anonymous
+/// quota is saturated, letting the UI explain an empty Google Books result.
+class ExternalSearchResult {
+  final List<Map<String, dynamic>> results;
+  final List<String> notices;
+
+  const ExternalSearchResult({required this.results, required this.notices});
+
+  const ExternalSearchResult.empty()
+    : results = const [],
+      notices = const [];
+
+  bool get googleBooksQuotaExceeded => notices.contains('google_books_quota');
+}
+
 /// Thrown by [ApiService.sendPairingCode] so the UI can show a precise,
 /// translated message rather than a raw `DioException`.
 class PairingException implements Exception {
@@ -4317,6 +4334,35 @@ class ApiService {
         });
         await prefs.setString('ffi_api_keys', jsonEncode(merged));
       }
+      // Durable DB write via FFI. The embedded HTTP server may be down in FFI
+      // mode (the rest of the app talks to Rust directly), in which case the
+      // PUT below silently no-ops and toggles/keys would revert on reload. The
+      // FFI setter writes the same profile row the HTTP path uses, so the two
+      // stay consistent. Absent dimensions pass an empty map (a no-op merge).
+      if (data['fallback_preferences'] != null || data['api_keys'] != null) {
+        try {
+          final fallbackPreferences = <String, bool>{};
+          if (data['fallback_preferences'] is Map) {
+            (data['fallback_preferences'] as Map).forEach((key, value) {
+              if (value is bool) fallbackPreferences[key.toString()] = value;
+            });
+          }
+          final apiKeys = <String, String>{};
+          if (data['api_keys'] is Map) {
+            (data['api_keys'] as Map).forEach((key, value) {
+              // An empty/null value signals removal — the Rust merge drops it.
+              apiKeys[key.toString()] = value?.toString() ?? '';
+            });
+          }
+          await FfiService().setSearchSettings(
+            fallbackPreferences: fallbackPreferences,
+            apiKeys: apiKeys,
+          );
+        } catch (e) {
+          // Do not leak key material into logs; report the failure only.
+          debugPrint('❌ updateProfile: FFI setSearchSettings failed: $e');
+        }
+      }
       // Ensure server is running before making HTTP request
       final serverAvailable = await ensureServerRunning();
       if (!serverAvailable) {
@@ -4558,7 +4604,38 @@ class ApiService {
     return null;
   }
 
+  /// Unified external search returning only the result list.
+  /// Thin wrapper over [searchBooksWithNotices] for callers that do not need
+  /// the side-channel notices (e.g. Google Books quota saturation).
   Future<List<Map<String, dynamic>>> searchBooks({
+    String? query,
+    String? title,
+    String? author,
+    String? publisher,
+    String? subject,
+    String? lang,
+    String? source,
+    bool autocomplete = false,
+  }) async {
+    final result = await searchBooksWithNotices(
+      query: query,
+      title: title,
+      author: author,
+      publisher: publisher,
+      subject: subject,
+      lang: lang,
+      source: source,
+      autocomplete: autocomplete,
+    );
+    return result.results;
+  }
+
+  /// Unified external search returning both the result list and any source-level
+  /// notices the backend reported via the `X-BiblioGenius-Notices` response
+  /// header (e.g. `google_books_quota` when Google's anonymous quota is saturated).
+  /// The response body itself stays a bare JSON array, so notices never affect
+  /// result parsing.
+  Future<ExternalSearchResult> searchBooksWithNotices({
     String? query,
     String? title,
     String? author,
@@ -4576,7 +4653,7 @@ class ApiService {
         final serverAvailable = await ensureServerRunning();
         if (!serverAvailable) {
           debugPrint('❌ Search failed: embedded HTTP server not available');
-          return [];
+          return const ExternalSearchResult.empty();
         }
       }
 
@@ -4617,7 +4694,18 @@ class ApiService {
       );
 
       if (response.statusCode == 200 && response.data != null) {
-        return List<Map<String, dynamic>>.from(response.data);
+        final results = List<Map<String, dynamic>>.from(response.data);
+        // Side-channel notices (e.g. Google Books quota saturation) travel in a
+        // response header so the JSON body stays a bare array.
+        final noticeHeader = response.headers.value('x-bibliogenius-notices');
+        final notices = (noticeHeader == null || noticeHeader.isEmpty)
+            ? const <String>[]
+            : noticeHeader
+                  .split(',')
+                  .map((s) => s.trim())
+                  .where((s) => s.isNotEmpty)
+                  .toList();
+        return ExternalSearchResult(results: results, notices: notices);
       }
     } on DioException catch (e) {
       // Mark server as unhealthy on connection errors so next call will try restart
@@ -4629,7 +4717,7 @@ class ApiService {
     } catch (e) {
       debugPrint('Search API Error: $e');
     }
-    return [];
+    return const ExternalSearchResult.empty();
   }
 
   Future<Response> getTranslations(String locale) async {

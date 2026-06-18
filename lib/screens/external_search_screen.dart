@@ -55,6 +55,10 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
   // shows a "no API key" badge and a SnackBar warns on selection (Google's
   // anonymous quota saturates within a few requests).
   bool _googleBooksHasApiKey = false;
+  // Set when the last search hit Google's saturated quota (HTTP 429). Lets the
+  // empty state explain *why* Google Books returned nothing instead of looking
+  // like a malfunction.
+  bool _googleBooksQuotaExceeded = false;
 
   // Language filter (defaults to user's reading languages)
   // _selectedLanguage: null = "my languages" (all userLanguages sent as comma-separated)
@@ -597,6 +601,7 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
       _error = null;
       _searchResults = [];
       _groupedWorks = [];
+      _googleBooksQuotaExceeded = false;
     });
 
     try {
@@ -620,7 +625,7 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
       }
 
       // Use unified search (Inventaire + OpenLibrary + BNF)
-      final results = await api.searchBooks(
+      final searchResult = await api.searchBooksWithNotices(
         title: _titleController.text,
         author: _authorController.text,
         subject: _subjectController.text,
@@ -628,6 +633,8 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
             langForApi, // Used for relevance boosting (user's preferred language)
         source: _upstreamSource, // Filter to specific source(s)
       );
+      final results = searchResult.results;
+      final quotaExceeded = searchResult.googleBooksQuotaExceeded;
 
       // Extract available sources from results
       final sources = results
@@ -641,6 +648,7 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
         _searchResults = results;
         _groupedWorks = _groupResultsByWork(results);
         _availableSources = sources;
+        _googleBooksQuotaExceeded = quotaExceeded;
         // Debug: Print grouping info
         debugPrint('🔍 Search returned ${results.length} results');
         debugPrint('📚 Grouped into ${_groupedWorks.length} works');
@@ -1350,6 +1358,46 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
     // Gradient there is [Color(0xFF6BB0A9), Color(0xFF5C8C9F)]
     const primaryTeal = Color(0xFF5C8C9F); // Darker shade for text/icon
     const secondaryTeal = Color(0xFF6BB0A9); // Lighter shade for background
+
+    // Google Books hit its saturated quota: explain it as a configuration
+    // limit (informational), not a failure, so it does not read as a bug.
+    if (_upstreamSource == 'google_books' && _googleBooksQuotaExceeded) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: secondaryTeal.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.cloud_off_outlined,
+                  size: 64,
+                  color: primaryTeal,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                TranslationService.translate(
+                  context,
+                  'google_books_no_api_key_snackbar',
+                ),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey[700],
+                  height: 1.5,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     return Center(
       child: Padding(
