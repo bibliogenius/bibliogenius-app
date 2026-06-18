@@ -8,6 +8,7 @@ import '../widgets/contextual_help_sheet.dart';
 import '../widgets/streak_celebration.dart';
 import '../data/repositories/book_repository.dart';
 import '../data/repositories/contact_repository.dart';
+import '../utils/network_count.dart';
 import '../data/repositories/loan_repository.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
@@ -397,9 +398,24 @@ class _DashboardScreenState extends State<DashboardScreen>
           listen: false,
         );
         final contacts = await contactRepo.getContacts();
+        // The network is the union of two stores: manual contacts AND connected
+        // peers (paired libraries). Peers are not mirrored into the contacts
+        // table unless a loan happens, so count both sources.
+        List<dynamic> peers = const [];
+        try {
+          final peersRes = await api.getPeers();
+          if (peersRes.statusCode == 200) {
+            peers =
+                ((peersRes.data as Map<String, dynamic>?)?['data']
+                    as List<dynamic>?) ??
+                const [];
+          }
+        } catch (e) {
+          debugPrint('Error fetching peers for contact count: $e');
+        }
         if (mounted) {
           setState(() {
-            _stats['contacts_count'] = contacts.length;
+            _stats['contacts_count'] = countNetworkContacts(contacts, peers);
           });
         }
       } catch (e) {
