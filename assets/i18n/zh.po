@@ -5443,7 +5443,7 @@ msgstr ""
 
 #. Top Authors
 msgid "top_authors"
-msgstr ""
+msgstr "作者"
 
 #. Top Borrowers
 msgid "top_borrowers"
@@ -5739,3 +5739,153 @@ msgstr "同步我的设备"
 
 msgid "settings_linked_devices_desc"
 msgstr "在连接到同一 Wi-Fi 网络的所有设备（手机 / 平板 / 电脑）上保持您的图书馆同步更新。端到端加密传输。"
+
+msgid "monthly_progress_empty"
+msgstr "过去 12 个月内还没有读完的书。"
+
+msgid "monthly_progress_empty_hint"
+msgstr "将图书标记为已读并填写完成日期，即可查看每月进度。"
+
+msgid "monthly_progress_total"
+msgstr "合计"
+
+msgid "monthly_progress_best"
+msgstr "最佳月份"
+
+msgid "completeness_title"
+msgstr "完善我的图书馆"
+
+msgid "completeness_card_title"
+msgstr "图书馆完整度"
+
+msgid "completeness_card_subtitle"
+msgstr "{count} 本书缺少部分信息"
+
+msgid "completeness_percent_label"
+msgstr "图书馆完整度 {percent}%"
+
+msgid "completeness_complete"
+msgstr "完整"
+
+msgid "completeness_empty_fields"
+msgstr "有 {n} 个空白字段待填写"
+
+msgid "completeness_last_run_done"
+msgstr "上次运行：{filled} 本书已补全，{skipped} 本无新数据，{errored} 个错误。"
+
+msgid "completeness_last_run_cancelled"
+msgstr "运行已取消：{filled} 本书已补全，{skipped} 本无新数据，{errored} 个错误。"
+
+msgid "completeness_breakdown"
+msgstr "{incomplete} 本可填写，{no_isbn} 本无 ISBN"
+
+msgid "completeness_start_button"
+msgstr "填写空白字段"
+
+msgid "completeness_all_done"
+msgstr "所有藏书的信息都已完整，无需填写。"
+
+msgid "completeness_after_run_hint"
+msgstr "其余图书在数据源中没有可用数据。请在下方手动补全，或重新搜索。"
+
+msgid "completeness_rerun_button"
+msgstr "重新搜索"
+
+msgid "completeness_resume_hint"
+msgstr "上次运行被中断。您可以从中断处继续。"
+
+msgid "completeness_resume_button"
+msgstr "继续"
+
+msgid "completeness_discard_button"
+msgstr "放弃"
+
+msgid "completeness_running_title"
+msgstr "正在填写空白字段"
+
+msgid "completeness_progress_count"
+msgstr "{total} 本中的第 {done} 本"
+
+msgid "completeness_current"
+msgstr "当前：{title}"
+
+msgid "completeness_stat_filled"
+msgstr "已填写：{n}"
+
+msgid "completeness_stat_skipped"
+msgstr "已跳过：{n}"
+
+msgid "completeness_stat_errored"
+msgstr "错误：{n}"
+
+msgid "completeness_cancel_button"
+msgstr "取消"
+
+msgid "completeness_recent_title"
+msgstr "最近完成"
+
+msgid "completeness_tab_todo"
+msgstr "待完善（{n}）"
+
+msgid "completeness_tab_recent"
+msgstr "最近（{n}）"
+
+msgid "completeness_recent_hint"
+msgstr "点按撤销可清除此处新增的字段（仅当此后未编辑过）。"
+
+msgid "completeness_undo_book_done"
+msgstr "已清除 {n} 个字段"
+
+msgid "completeness_undo_kept"
+msgstr "已保留您的编辑"
+
+msgid "completeness_undo_field_reverted"
+msgstr "字段已清除"
+
+msgid "completeness_undo_field_superseded"
+msgstr "已保留您的编辑（此后已更改）"
+
+msgid "completeness_view_changes"
+msgstr "查看更改"
+
+msgid "completeness_changes_subtitle"
+msgstr "填充新增的字段及写入的值"
+
+msgid "completeness_open_book"
+msgstr "打开图书"
+
+msgid "completeness_all_undone"
+msgstr "本书所有新增的字段均已撤销。"
+
+msgid "completeness_todo_title"
+msgstr "待完善的图书（{n}）"
+
+msgid "completeness_filter_all"
+msgstr "全部（{n}）"
+
+msgid "completeness_todo_hint"
+msgstr "点按图书可手动填写其信息。最接近完整的排在前面。"
+
+msgid "completeness_no_isbn_chip"
+msgstr "无 ISBN"
+
+msgid "completeness_no_isbn_title"
+msgstr "无 ISBN（{n}）"
+
+msgid "completeness_no_isbn_hint"
+msgstr "这些图书没有 ISBN，无法自动填充。请手动补全。"
+
+msgid "field_summary"
+msgstr "简介"
+
+msgid "field_publisher"
+msgstr "出版社"
+
+msgid "field_page_count"
+msgstr "页数"
+
+msgid "field_publication_year"
+msgstr "出版年份"
+
+msgid "field_cover_url"
+msgstr "封面"

@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../providers/device_sync_provider.dart';
 import '../services/api_service.dart';
@@ -17,6 +19,7 @@ import '../providers/theme_provider.dart';
 import '../services/translation_service.dart';
 import '../src/rust/api/frb.dart' as frb;
 import '../theme/app_design.dart';
+import 'pairing_scan_screen.dart';
 
 enum _PairingView { devices, showCode, enterCode }
 
@@ -47,6 +50,13 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
   // mDNS peers for target selection
   List<DiscoveredPeer> _localPeers = [];
   DiscoveredPeer? _selectedPeer;
+
+  // This node's own LAN URL, embedded in the pairing QR (offerer side).
+  String? _pairingUrl;
+
+  // URL captured by scanning a pairing QR (acceptor side); when set it takes
+  // priority over the mDNS-selected peer and carries a guaranteed-fresh address.
+  String? _scannedPeerUrl;
 
   // Auto-refresh timer
   Timer? _refreshTimer;
@@ -99,6 +109,7 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
     _refreshTimer?.cancel();
     _nudgeSub?.cancel();
     _codeController.dispose();
+    WakelockPlus.disable().catchError((Object _) {});
     super.dispose();
   }
 
@@ -139,8 +150,12 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
     });
     try {
       final authService = context.read<AuthService>();
+      final apiService = context.read<ApiService>();
       final libraryUuid = await authService.getOrCreateLibraryUuid();
       final deviceName = Platform.localHostname;
+
+      // Our LAN URL to embed in the QR so the acceptor reaches us directly.
+      final myUrl = await apiService.getMyLanUrl();
 
       final offer = await frb.deviceGeneratePairingOffer(
         deviceName: deviceName,
@@ -150,9 +165,11 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
       if (mounted) {
         setState(() {
           _generatedCode = offer.code;
+          _pairingUrl = myUrl;
           _isGenerating = false;
           _remainingSeconds = 300;
         });
+        _enableWakelock();
         _startCountdown();
       }
     } catch (e) {
@@ -186,6 +203,7 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
       });
       if (_remainingSeconds <= 0) {
         timer.cancel();
+        _releaseWakelock();
         if (mounted) {
           setState(() {
             _generatedCode = null;
@@ -225,14 +243,49 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
     return 'http://$ip:${peer.port}';
   }
 
+  /// The URL to POST the pairing code to: a scanned QR address wins (fresh,
+  /// no mDNS guesswork), otherwise the manually selected mDNS peer.
+  String? _resolveAcceptUrl() {
+    if (_scannedPeerUrl != null) return _scannedPeerUrl;
+    final peer = _selectedPeer;
+    return peer == null ? null : _getPeerUrl(peer);
+  }
+
+  /// Open the camera to scan a pairing QR, then auto-fill the code + target URL
+  /// and pair immediately — skipping manual code entry and peer selection.
+  Future<void> _scanPairingQr() async {
+    final result = await Navigator.of(context).push<PairingScanResult>(
+      MaterialPageRoute(builder: (_) => const PairingScanScreen()),
+    );
+    if (!mounted || result == null) return;
+    setState(() {
+      _scannedPeerUrl = result.url;
+      _codeController.text = result.code;
+    });
+    await _acceptCode();
+  }
+
   Future<void> _acceptCode() async {
     final code = _codeController.text.trim();
-    if (code.length != 6 || _selectedPeer == null) return;
+    if (code.length != 6) return;
 
-    final peerUrl = _getPeerUrl(_selectedPeer!);
+    final peerUrl = _resolveAcceptUrl();
     if (peerUrl == null) return;
 
     setState(() => _isPairing = true);
+    final apiService = Provider.of<ApiService>(context, listen: false);
+
+    // Pre-flight: a peer whose app is backgrounded accepts the TCP socket but
+    // never answers (iOS suspends the process), so a blind POST hangs ~10s and
+    // then surfaces a cryptic error. Probe first and fail fast with guidance.
+    final reachable = await apiService.checkPeerConnectivity(peerUrl);
+    if (!mounted) return;
+    if (!reachable) {
+      setState(() => _isPairing = false);
+      _showPairingError(PairingErrorKind.unreachable);
+      return;
+    }
+
     try {
       final deviceName = Platform.localHostname;
 
@@ -262,7 +315,6 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
       }
 
       // Send code to the remote peer's HTTP server
-      final apiService = Provider.of<ApiService>(context, listen: false);
       final pairingResponse = await apiService.sendPairingCode(
         peerUrl: peerUrl,
         code: code,
@@ -318,6 +370,7 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
         setState(() {
           _isPairing = false;
           _selectedPeer = null;
+          _scannedPeerUrl = null;
           _view = _PairingView.devices;
         });
         _loadDevices();
@@ -326,16 +379,31 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
       debugPrint('DevicePairing: acceptCode error: $e');
       if (mounted) {
         setState(() => _isPairing = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '${TranslationService.translate(context, 'pairing_error')}: $e',
-            ),
-            backgroundColor: Colors.red,
-          ),
-        );
+        final kind = e is PairingException
+            ? e.kind
+            : PairingErrorKind.unknown;
+        _showPairingError(kind);
       }
     }
+  }
+
+  /// Show a precise, translated pairing error (never a raw exception).
+  void _showPairingError(PairingErrorKind kind) {
+    if (!mounted) return;
+    final key = switch (kind) {
+      PairingErrorKind.unreachable => 'pairing_error_unreachable',
+      PairingErrorKind.expired => 'pairing_error_expired',
+      PairingErrorKind.invalid => 'pairing_error_invalid',
+      PairingErrorKind.rateLimited => 'pairing_error_rate_limited',
+      PairingErrorKind.registrationFailed => 'pairing_error_registration',
+      PairingErrorKind.unknown => 'pairing_error',
+    };
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(TranslationService.translate(context, key)),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
 
   /// Try to find the mDNS LAN URL for a linked device.
@@ -679,11 +747,29 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
   void _cancelPairing() {
     _countdownTimer?.cancel();
     _codeController.clear();
+    _releaseWakelock();
     setState(() {
       _view = _PairingView.devices;
       _generatedCode = null;
+      _pairingUrl = null;
+      _scannedPeerUrl = null;
+      _selectedPeer = null;
       _isGenerating = false;
       _isPairing = false;
+    });
+  }
+
+  /// Keep the screen awake while a code is shown: on iOS, a screen lock
+  /// suspends the embedded HTTP server and silently breaks pairing.
+  void _enableWakelock() {
+    WakelockPlus.enable().catchError((Object e) {
+      debugPrint('DevicePairing: wakelock enable failed: $e');
+    });
+  }
+
+  void _releaseWakelock() {
+    WakelockPlus.disable().catchError((Object e) {
+      debugPrint('DevicePairing: wakelock disable failed: $e');
     });
   }
 
@@ -1085,6 +1171,7 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
               icon: const Icon(Icons.copy, size: 16),
               label: Text(TranslationService.translate(context, 'copy')),
             ),
+            _buildPairingQr(theme),
             const SizedBox(height: 24),
             _buildMdnsToggle(theme),
             const SizedBox(height: 24),
@@ -1176,6 +1263,49 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
     );
   }
 
+  /// QR encoding `bibliogenius://pair?code&url` so the acceptor can scan it
+  /// (auto-fills the code and a fresh target URL). Hidden if we have no LAN URL;
+  /// the manual code path remains as fallback.
+  Widget _buildPairingQr(ThemeData theme) {
+    final code = _generatedCode;
+    final url = _pairingUrl;
+    if (code == null || url == null) return const SizedBox.shrink();
+    final payload = Uri(
+      scheme: 'bibliogenius',
+      host: 'pair',
+      queryParameters: {'code': code, 'url': url},
+    ).toString();
+    return Column(
+      children: [
+        const SizedBox(height: 16),
+        Text(
+          TranslationService.translate(context, 'pairing_qr_caption'),
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Semantics(
+          image: true,
+          label: TranslationService.translate(context, 'pairing_qr_caption'),
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
+            ),
+            child: QrImageView(
+              data: payload,
+              version: QrVersions.auto,
+              size: 180,
+              backgroundColor: Colors.white,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   // ─────────────────────────────────────────────────────────────────────────
   // Enter code view
   // ─────────────────────────────────────────────────────────────────────────
@@ -1213,6 +1343,22 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
                 color: theme.colorScheme.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            // Fastest path: scan the QR shown on the other device. It carries
+            // the code AND a fresh URL, so no manual entry or mDNS guesswork.
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.tonalIcon(
+                onPressed: _isPairing ? null : _scanPairingQr,
+                icon: const Icon(Icons.qr_code_scanner),
+                label: Text(
+                  TranslationService.translate(context, 'pairing_scan_button'),
+                ),
+                style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+              ),
             ),
             const SizedBox(height: 16),
             _buildMdnsToggle(theme),
@@ -1294,7 +1440,10 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
                                 color: theme.colorScheme.primary,
                               )
                             : null,
-                        onTap: () => setState(() => _selectedPeer = peer),
+                        onTap: () => setState(() {
+                          _selectedPeer = peer;
+                          _scannedPeerUrl = null;
+                        }),
                       ),
                     ),
                   ),
@@ -1344,7 +1493,7 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
                 onPressed:
                     _codeController.text.length == 6 &&
                         !_isPairing &&
-                        _selectedPeer != null
+                        (_selectedPeer != null || _scannedPeerUrl != null)
                     ? _acceptCode
                     : null,
                 style: FilledButton.styleFrom(

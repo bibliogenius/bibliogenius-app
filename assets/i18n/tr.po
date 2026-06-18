@@ -5527,7 +5527,7 @@ msgstr "Kütüphaneyi Senkronize Et"
 
 #. Top Authors
 msgid "top_authors"
-msgstr "En İyi Yazarlar"
+msgstr "Yazarlar"
 
 #. Top Borrowers
 msgid "top_borrowers"
@@ -7830,6 +7830,33 @@ msgstr "Cihaz başarıyla eşleştirildi"
 msgid "pairing_error"
 msgstr "Eşleştirme başarısız"
 
+msgid "pairing_error_unreachable"
+msgstr "Diğer cihaz yanıt vermiyor. BiblioGenius uygulamasını o cihazda ön planda aç (ekran açık) ve tekrar dene."
+
+msgid "pairing_error_expired"
+msgstr "Bu eşleştirme kodunun süresi doldu. Yeni bir kod oluştur ve tekrar dene."
+
+msgid "pairing_error_invalid"
+msgstr "Geçersiz veya daha önce kullanılmış kod. Diğer cihazda yeni bir kod oluştur."
+
+msgid "pairing_error_rate_limited"
+msgstr "Çok fazla deneme. Bir dakika bekle ve tekrar dene."
+
+msgid "pairing_error_registration"
+msgstr "Cihaz kaydedilemedi. Lütfen tekrar dene."
+
+msgid "pairing_scan_button"
+msgstr "QR kodu tara"
+
+msgid "pairing_scan_instruction"
+msgstr "Kamerayı diğer cihazda görünen koda doğrult."
+
+msgid "pairing_qr_caption"
+msgstr "Veya daha hızlı eşleştirmek için bu kodu tara"
+
+msgid "pairing_error_qr_invalid"
+msgstr "Bu QR kodu bir BiblioGenius eşleştirme kodu değil."
+
 msgid "pairing_remove_confirm"
 msgstr "Bu cihaz kaldırılsın mı?"
 
@@ -9717,3 +9744,153 @@ msgstr "Şimdi dışa aktar"
 
 msgid "auto_backup_clone_nudge_snooze"
 msgstr "Daha sonra"
+
+msgid "monthly_progress_empty"
+msgstr "Son 12 ayda henüz tamamlanan kitap yok."
+
+msgid "monthly_progress_empty_hint"
+msgstr "Aylık ilerlemenizi görmek için kitapları bitiş tarihiyle okundu olarak işaretleyin."
+
+msgid "monthly_progress_total"
+msgstr "Toplam"
+
+msgid "monthly_progress_best"
+msgstr "En iyi ay"
+
+msgid "completeness_title"
+msgstr "Kitaplığımı tamamla"
+
+msgid "completeness_card_title"
+msgstr "Kitaplık eksiksizliği"
+
+msgid "completeness_card_subtitle"
+msgstr "{count} kitapta bazı ayrıntılar eksik"
+
+msgid "completeness_percent_label"
+msgstr "Kitaplık %{percent} tamamlandı"
+
+msgid "completeness_complete"
+msgstr "tamamlandı"
+
+msgid "completeness_empty_fields"
+msgstr "Doldurulacak {n} boş alan"
+
+msgid "completeness_last_run_done"
+msgstr "Son çalıştırma: {filled} kitap zenginleştirildi, {skipped} yeni veri yok, {errored} hata."
+
+msgid "completeness_last_run_cancelled"
+msgstr "Çalıştırma iptal edildi: {filled} kitap zenginleştirildi, {skipped} yeni veri yok, {errored} hata."
+
+msgid "completeness_breakdown"
+msgstr "{incomplete} doldurulabilir, {no_isbn} ISBN'siz"
+
+msgid "completeness_start_button"
+msgstr "Boş alanları doldur"
+
+msgid "completeness_all_done"
+msgstr "Sahip olunan her kitabın ayrıntıları tam. Doldurulacak bir şey yok."
+
+msgid "completeness_after_run_hint"
+msgstr "Kalan kitaplar için kaynaklarda veri yok. Onları aşağıdan elle tamamlayın veya tekrar arayın."
+
+msgid "completeness_rerun_button"
+msgstr "Tekrar ara"
+
+msgid "completeness_resume_hint"
+msgstr "Önceki bir çalıştırma yarıda kaldı. Kaldığı yerden devam edebilirsiniz."
+
+msgid "completeness_resume_button"
+msgstr "Devam et"
+
+msgid "completeness_discard_button"
+msgstr "Sil"
+
+msgid "completeness_running_title"
+msgstr "Boş alanlar dolduruluyor"
+
+msgid "completeness_progress_count"
+msgstr "{total} kitaptan {done} tanesi"
+
+msgid "completeness_current"
+msgstr "Şu an: {title}"
+
+msgid "completeness_stat_filled"
+msgstr "Dolduruldu: {n}"
+
+msgid "completeness_stat_skipped"
+msgstr "Atlandı: {n}"
+
+msgid "completeness_stat_errored"
+msgstr "Hatalar: {n}"
+
+msgid "completeness_cancel_button"
+msgstr "İptal"
+
+msgid "completeness_recent_title"
+msgstr "Son tamamlananlar"
+
+msgid "completeness_tab_todo"
+msgstr "Tamamlanacak ({n})"
+
+msgid "completeness_tab_recent"
+msgstr "Son ({n})"
+
+msgid "completeness_recent_hint"
+msgstr "Bunun eklediği bir alanı temizlemek için Geri Al'a dokunun (yalnızca o zamandan beri düzenlemediyseniz)."
+
+msgid "completeness_undo_book_done"
+msgstr "{n} alan temizlendi"
+
+msgid "completeness_undo_kept"
+msgstr "Düzenlemeleriniz korundu"
+
+msgid "completeness_undo_field_reverted"
+msgstr "Alan temizlendi"
+
+msgid "completeness_undo_field_superseded"
+msgstr "Düzenlemeniz korundu (o zamandan beri değişti)"
+
+msgid "completeness_view_changes"
+msgstr "Değişiklikleri gör"
+
+msgid "completeness_changes_subtitle"
+msgstr "Doldurma ile eklenen alanlar ve yazılan değerleri"
+
+msgid "completeness_open_book"
+msgstr "Kitabı aç"
+
+msgid "completeness_all_undone"
+msgstr "Bu kitap için eklenen tüm alanlar geri alındı."
+
+msgid "completeness_todo_title"
+msgstr "Tamamlanacak kitaplar ({n})"
+
+msgid "completeness_filter_all"
+msgstr "Tümü ({n})"
+
+msgid "completeness_todo_hint"
+msgstr "Ayrıntılarını elle doldurmak için bir kitaba dokunun. Tamamlanmaya en yakın olanlar önce gelir."
+
+msgid "completeness_no_isbn_chip"
+msgstr "ISBN yok"
+
+msgid "completeness_no_isbn_title"
+msgstr "ISBN'siz ({n})"
+
+msgid "completeness_no_isbn_hint"
+msgstr "Bu kitapların ISBN'i yok, bu yüzden otomatik doldurulamaz. Onları elle tamamlayın."
+
+msgid "field_summary"
+msgstr "Özet"
+
+msgid "field_publisher"
+msgstr "Yayıncı"
+
+msgid "field_page_count"
+msgstr "Sayfa"
+
+msgid "field_publication_year"
+msgstr "Yıl"
+
+msgid "field_cover_url"
+msgstr "Kapak"

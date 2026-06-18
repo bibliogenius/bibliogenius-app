@@ -5443,7 +5443,7 @@ msgstr ""
 
 #. Top Authors
 msgid "top_authors"
-msgstr ""
+msgstr "저자"
 
 #. Top Borrowers
 msgid "top_borrowers"
@@ -5739,3 +5739,153 @@ msgstr "내 기기 동기화"
 
 msgid "settings_linked_devices_desc"
 msgstr "동일한 Wi-Fi 네트워크에 연결된 모든 기기(모바일 / 태블릿 / 데스크톱)에서 라이브러리를 최신 상태로 유지하세요. 종단 간 암호화 전송."
+
+msgid "monthly_progress_empty"
+msgstr "최근 12개월 동안 완독한 책이 없습니다."
+
+msgid "monthly_progress_empty_hint"
+msgstr "완독 날짜와 함께 책을 읽음으로 표시하면 월별 진행 상황을 볼 수 있습니다."
+
+msgid "monthly_progress_total"
+msgstr "합계"
+
+msgid "monthly_progress_best"
+msgstr "최고의 달"
+
+msgid "completeness_title"
+msgstr "내 서재 채우기"
+
+msgid "completeness_card_title"
+msgstr "서재 완성도"
+
+msgid "completeness_card_subtitle"
+msgstr "{count}권의 책에 일부 정보가 없습니다"
+
+msgid "completeness_percent_label"
+msgstr "서재 {percent}% 완성"
+
+msgid "completeness_complete"
+msgstr "완성"
+
+msgid "completeness_empty_fields"
+msgstr "채울 빈 항목 {n}개"
+
+msgid "completeness_last_run_done"
+msgstr "마지막 실행: {filled}권 보강, {skipped}권 새 데이터 없음, {errored}건 오류."
+
+msgid "completeness_last_run_cancelled"
+msgstr "실행 취소됨: {filled}권 보강, {skipped}권 새 데이터 없음, {errored}건 오류."
+
+msgid "completeness_breakdown"
+msgstr "{incomplete}권 채우기 가능, {no_isbn}권 ISBN 없음"
+
+msgid "completeness_start_button"
+msgstr "빈 항목 채우기"
+
+msgid "completeness_all_done"
+msgstr "보유한 모든 책에 정보가 있습니다. 채울 것이 없습니다."
+
+msgid "completeness_after_run_hint"
+msgstr "남은 책들은 출처에서 사용할 수 있는 데이터가 없습니다. 아래에서 직접 채우거나 다시 검색하세요."
+
+msgid "completeness_rerun_button"
+msgstr "다시 검색"
+
+msgid "completeness_resume_hint"
+msgstr "이전 실행이 중단되었습니다. 중단된 곳부터 다시 시작할 수 있습니다."
+
+msgid "completeness_resume_button"
+msgstr "다시 시작"
+
+msgid "completeness_discard_button"
+msgstr "버리기"
+
+msgid "completeness_running_title"
+msgstr "빈 항목 채우는 중"
+
+msgid "completeness_progress_count"
+msgstr "{total}권 중 {done}권"
+
+msgid "completeness_current"
+msgstr "현재: {title}"
+
+msgid "completeness_stat_filled"
+msgstr "채움: {n}"
+
+msgid "completeness_stat_skipped"
+msgstr "건너뜀: {n}"
+
+msgid "completeness_stat_errored"
+msgstr "오류: {n}"
+
+msgid "completeness_cancel_button"
+msgstr "취소"
+
+msgid "completeness_recent_title"
+msgstr "최근 완성됨"
+
+msgid "completeness_tab_todo"
+msgstr "채울 항목 ({n})"
+
+msgid "completeness_tab_recent"
+msgstr "최근 ({n})"
+
+msgid "completeness_recent_hint"
+msgstr "실행 취소를 누르면 추가된 항목을 지웁니다(이후 편집하지 않은 경우에만)."
+
+msgid "completeness_undo_book_done"
+msgstr "{n}개 항목 지워짐"
+
+msgid "completeness_undo_kept"
+msgstr "편집한 내용이 유지되었습니다"
+
+msgid "completeness_undo_field_reverted"
+msgstr "항목이 지워졌습니다"
+
+msgid "completeness_undo_field_superseded"
+msgstr "편집한 내용 유지됨(이후 변경됨)"
+
+msgid "completeness_view_changes"
+msgstr "변경 사항 보기"
+
+msgid "completeness_changes_subtitle"
+msgstr "채우기로 추가된 항목과 입력된 값"
+
+msgid "completeness_open_book"
+msgstr "책 열기"
+
+msgid "completeness_all_undone"
+msgstr "이 책에 추가된 모든 항목이 실행 취소되었습니다."
+
+msgid "completeness_todo_title"
+msgstr "채울 책 ({n})"
+
+msgid "completeness_filter_all"
+msgstr "전체 ({n})"
+
+msgid "completeness_todo_hint"
+msgstr "책을 눌러 정보를 직접 채우세요. 완성에 가까운 것부터 표시됩니다."
+
+msgid "completeness_no_isbn_chip"
+msgstr "ISBN 없음"
+
+msgid "completeness_no_isbn_title"
+msgstr "ISBN 없음 ({n})"
+
+msgid "completeness_no_isbn_hint"
+msgstr "이 책들은 ISBN이 없어 자동으로 채울 수 없습니다. 직접 채우세요."
+
+msgid "field_summary"
+msgstr "요약"
+
+msgid "field_publisher"
+msgstr "출판사"
+
+msgid "field_page_count"
+msgstr "페이지"
+
+msgid "field_publication_year"
+msgstr "출판 연도"
+
+msgid "field_cover_url"
+msgstr "표지"

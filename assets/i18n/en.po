@@ -6734,7 +6734,19 @@ msgstr "%1 books"
 
 #. Top Authors
 msgid "top_authors"
-msgstr "Top Authors"
+msgstr "Authors"
+
+msgid "monthly_progress_empty"
+msgstr "No books finished in the last 12 months yet."
+
+msgid "monthly_progress_empty_hint"
+msgstr "Mark books as read with a finish date to see your monthly progress."
+
+msgid "monthly_progress_total"
+msgstr "Total"
+
+msgid "monthly_progress_best"
+msgstr "Best month"
 
 #. Top Borrowers
 msgid "top_borrowers"
@@ -7778,6 +7790,33 @@ msgstr "Device paired successfully"
 
 msgid "pairing_error"
 msgstr "Pairing failed"
+
+msgid "pairing_error_unreachable"
+msgstr "The other device isn't responding. Open the BiblioGenius app in the foreground on it (screen on), then try again."
+
+msgid "pairing_error_expired"
+msgstr "This pairing code has expired. Generate a new one and try again."
+
+msgid "pairing_error_invalid"
+msgstr "Invalid or already-used code. Generate a new one on the other device."
+
+msgid "pairing_error_rate_limited"
+msgstr "Too many attempts. Wait a minute, then try again."
+
+msgid "pairing_error_registration"
+msgstr "The device could not be registered. Please try again."
+
+msgid "pairing_scan_button"
+msgstr "Scan QR code"
+
+msgid "pairing_scan_instruction"
+msgstr "Point the camera at the code shown on the other device."
+
+msgid "pairing_qr_caption"
+msgstr "Or scan this code to pair faster"
+
+msgid "pairing_error_qr_invalid"
+msgstr "That QR code isn't a BiblioGenius pairing code."
 
 msgid "pairing_remove_confirm"
 msgstr "Remove this device?"

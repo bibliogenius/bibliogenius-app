@@ -5466,7 +5466,7 @@ msgstr "Синхронизиране на библиотека"
 
 #. Top Authors
 msgid "top_authors"
-msgstr "Топ автори"
+msgstr "Автори"
 
 #. Top Borrowers
 msgid "top_borrowers"
@@ -7836,6 +7836,33 @@ msgstr "Устройството е сдвоено успешно"
 msgid "pairing_error"
 msgstr "Сдвояването е неуспешно"
 
+msgid "pairing_error_unreachable"
+msgstr "Другото устройство не отговаря. Отвори приложението BiblioGenius на преден план там (с включен екран) и опитай отново."
+
+msgid "pairing_error_expired"
+msgstr "Този код за сдвояване изтече. Генерирай нов и опитай отново."
+
+msgid "pairing_error_invalid"
+msgstr "Невалиден или вече използван код. Генерирай нов на другото устройство."
+
+msgid "pairing_error_rate_limited"
+msgstr "Твърде много опити. Изчакай минута и опитай отново."
+
+msgid "pairing_error_registration"
+msgstr "Устройството не може да бъде регистрирано. Опитай отново."
+
+msgid "pairing_scan_button"
+msgstr "Сканирай QR код"
+
+msgid "pairing_scan_instruction"
+msgstr "Насочи камерата към кода на другото устройство."
+
+msgid "pairing_qr_caption"
+msgstr "Или сканирай този код за по-бързо сдвояване"
+
+msgid "pairing_error_qr_invalid"
+msgstr "Този QR код не е код за сдвояване на BiblioGenius."
+
 msgid "pairing_remove_confirm"
 msgstr "Да се премахне ли това устройство?"
 
@@ -9717,3 +9744,153 @@ msgstr "Експортиране сега"
 
 msgid "auto_backup_clone_nudge_snooze"
 msgstr "По-късно"
+
+msgid "monthly_progress_empty"
+msgstr "Все още няма приключени книги през последните 12 месеца."
+
+msgid "monthly_progress_empty_hint"
+msgstr "Отбележете книги като прочетени с дата на приключване, за да видите месечния си напредък."
+
+msgid "monthly_progress_total"
+msgstr "Общо"
+
+msgid "monthly_progress_best"
+msgstr "Най-добър месец"
+
+msgid "completeness_title"
+msgstr "Допълване на библиотеката"
+
+msgid "completeness_card_title"
+msgstr "Пълнота на библиотеката"
+
+msgid "completeness_card_subtitle"
+msgstr "На {count} книги липсват някои данни"
+
+msgid "completeness_percent_label"
+msgstr "Библиотеката е попълнена на {percent}%"
+
+msgid "completeness_complete"
+msgstr "попълнена"
+
+msgid "completeness_empty_fields"
+msgstr "{n} празни полета за попълване"
+
+msgid "completeness_last_run_done"
+msgstr "Последно изпълнение: {filled} обогатени книги, {skipped} без нови данни, {errored} грешки."
+
+msgid "completeness_last_run_cancelled"
+msgstr "Изпълнението е отменено: {filled} обогатени книги, {skipped} без нови данни, {errored} грешки."
+
+msgid "completeness_breakdown"
+msgstr "{incomplete} за попълване, {no_isbn} без ISBN"
+
+msgid "completeness_start_button"
+msgstr "Попълване на празните полета"
+
+msgid "completeness_all_done"
+msgstr "Всички притежавани книги имат своите данни. Няма какво да се попълва."
+
+msgid "completeness_after_run_hint"
+msgstr "За останалите книги няма налични данни от източниците. Попълнете ги ръчно по-долу или потърсете отново."
+
+msgid "completeness_rerun_button"
+msgstr "Търсене отново"
+
+msgid "completeness_resume_hint"
+msgstr "Предишно изпълнение беше прекъснато. Можете да продължите оттам, докъдето стигна."
+
+msgid "completeness_resume_button"
+msgstr "Продължаване"
+
+msgid "completeness_discard_button"
+msgstr "Отхвърляне"
+
+msgid "completeness_running_title"
+msgstr "Попълване на празните полета"
+
+msgid "completeness_progress_count"
+msgstr "{done} от {total} книги"
+
+msgid "completeness_current"
+msgstr "Текуща: {title}"
+
+msgid "completeness_stat_filled"
+msgstr "Попълнени: {n}"
+
+msgid "completeness_stat_skipped"
+msgstr "Пропуснати: {n}"
+
+msgid "completeness_stat_errored"
+msgstr "Грешки: {n}"
+
+msgid "completeness_cancel_button"
+msgstr "Отказ"
+
+msgid "completeness_recent_title"
+msgstr "Наскоро попълнени"
+
+msgid "completeness_tab_todo"
+msgstr "За попълване ({n})"
+
+msgid "completeness_tab_recent"
+msgstr "Скорошни ({n})"
+
+msgid "completeness_recent_hint"
+msgstr "Докоснете „Отмяна“, за да изчистите добавено поле (само ако не сте го редактирали оттогава)."
+
+msgid "completeness_undo_book_done"
+msgstr "{n} поле(та) изчистени"
+
+msgid "completeness_undo_kept"
+msgstr "Вашите редакции бяха запазени"
+
+msgid "completeness_undo_field_reverted"
+msgstr "Полето е изчистено"
+
+msgid "completeness_undo_field_superseded"
+msgstr "Редакцията ви е запазена (променена оттогава)"
+
+msgid "completeness_view_changes"
+msgstr "Преглед на промените"
+
+msgid "completeness_changes_subtitle"
+msgstr "Полета, добавени при попълването, със записаната стойност"
+
+msgid "completeness_open_book"
+msgstr "Отваряне на книгата"
+
+msgid "completeness_all_undone"
+msgstr "Всички добавени полета за тази книга бяха отменени."
+
+msgid "completeness_todo_title"
+msgstr "Книги за попълване ({n})"
+
+msgid "completeness_filter_all"
+msgstr "Всички ({n})"
+
+msgid "completeness_todo_hint"
+msgstr "Докоснете книга, за да попълните данните ѝ ръчно. Най-близките до завършване са първи."
+
+msgid "completeness_no_isbn_chip"
+msgstr "Без ISBN"
+
+msgid "completeness_no_isbn_title"
+msgstr "Без ISBN ({n})"
+
+msgid "completeness_no_isbn_hint"
+msgstr "Тези книги нямат ISBN, затова не могат да се попълнят автоматично. Попълнете ги ръчно."
+
+msgid "field_summary"
+msgstr "Резюме"
+
+msgid "field_publisher"
+msgstr "Издател"
+
+msgid "field_page_count"
+msgstr "Страници"
+
+msgid "field_publication_year"
+msgstr "Година"
+
+msgid "field_cover_url"
+msgstr "Корица"

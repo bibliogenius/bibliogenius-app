@@ -21,6 +21,38 @@ import 'ffi_service.dart';
 import 'mdns_service.dart';
 import 'translation_service.dart';
 
+/// Why a device-pairing attempt failed. The UI maps each kind to a precise,
+/// translated message instead of surfacing a raw transport exception.
+enum PairingErrorKind {
+  /// Peer not reached: offline, app backgrounded, or wrong/stale IP.
+  unreachable,
+
+  /// The pairing code has expired (5-min TTL).
+  expired,
+
+  /// The code is wrong or was already used.
+  invalid,
+
+  /// Too many attempts in a short window (brute-force guard).
+  rateLimited,
+
+  /// The peer was reached but failed to register the device.
+  registrationFailed,
+
+  /// Anything not otherwise classified.
+  unknown,
+}
+
+/// Thrown by [ApiService.sendPairingCode] so the UI can show a precise,
+/// translated message rather than a raw `DioException`.
+class PairingException implements Exception {
+  final PairingErrorKind kind;
+  const PairingException(this.kind);
+
+  @override
+  String toString() => 'PairingException(${kind.name})';
+}
+
 /// One entry of the peer catalog ETag cache.
 ///
 /// [body] is the full decoded response payload (the same object Dio would
@@ -3531,6 +3563,11 @@ class ApiService {
     return 'http://$myIp:${ApiService.httpPort}';
   }
 
+  /// This node's LAN URL (`http://<ip>:<port>`), or null if no LAN IP is
+  /// available. Used by the offerer to embed a reachable address in the
+  /// pairing QR so the acceptor skips mDNS discovery and stale-IP guesswork.
+  Future<String?> getMyLanUrl() => _getMyUrl();
+
   /// Send a pairing code to a remote peer's HTTP server.
   /// The peer must have generated the code first.
   Future<Map<String, dynamic>> sendPairingCode({
@@ -3547,16 +3584,52 @@ class ApiService {
         receiveTimeout: const Duration(seconds: 10),
       ),
     );
-    final response = await dio.post(
-      '/api/devices/pair/accept',
-      data: {
-        'code': code,
-        'device_name': deviceName,
-        'ed25519_public_key': ed25519PublicKey,
-        'x25519_public_key': x25519PublicKey,
-      },
-    );
-    return response.data as Map<String, dynamic>;
+    try {
+      final response = await dio.post(
+        '/api/devices/pair/accept',
+        data: {
+          'code': code,
+          'device_name': deviceName,
+          'ed25519_public_key': ed25519PublicKey,
+          'x25519_public_key': x25519PublicKey,
+        },
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _classifyPairingError(e);
+    }
+  }
+
+  /// Map a Dio failure from the pairing POST to a [PairingException] so the UI
+  /// can show a precise message. Transport failures mean the peer is offline /
+  /// backgrounded / at a stale IP; HTTP rejections carry a machine-readable
+  /// `code` from the backend (falling back to the status code for older peers).
+  PairingException _classifyPairingError(DioException e) {
+    if (e.type == DioExceptionType.connectionError ||
+        e.type == DioExceptionType.connectionTimeout ||
+        e.type == DioExceptionType.receiveTimeout ||
+        e.type == DioExceptionType.sendTimeout) {
+      return const PairingException(PairingErrorKind.unreachable);
+    }
+    final data = e.response?.data;
+    final code = data is Map ? data['code'] as String? : null;
+    switch (code) {
+      case 'expired':
+        return const PairingException(PairingErrorKind.expired);
+      case 'invalid':
+        return const PairingException(PairingErrorKind.invalid);
+      case 'rate_limited':
+        return const PairingException(PairingErrorKind.rateLimited);
+      case 'registration_failed':
+        return const PairingException(PairingErrorKind.registrationFailed);
+    }
+    switch (e.response?.statusCode) {
+      case 429:
+        return const PairingException(PairingErrorKind.rateLimited);
+      case 400:
+        return const PairingException(PairingErrorKind.invalid);
+    }
+    return const PairingException(PairingErrorKind.unknown);
   }
 
   /// Connect to a locally discovered peer by URL.

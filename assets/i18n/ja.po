@@ -5443,7 +5443,7 @@ msgstr ""
 
 #. Top Authors
 msgid "top_authors"
-msgstr ""
+msgstr "著者"
 
 #. Top Borrowers
 msgid "top_borrowers"
@@ -5739,3 +5739,153 @@ msgstr "デバイスを同期"
 
 msgid "settings_linked_devices_desc"
 msgstr "同じ Wi-Fi ネットワークに接続されたすべてのデバイス（モバイル / タブレット / デスクトップ）でライブラリを最新の状態に保ちます。エンドツーエンドで暗号化された転送。"
+
+msgid "monthly_progress_empty"
+msgstr "過去12か月間に読み終えた本はまだありません。"
+
+msgid "monthly_progress_empty_hint"
+msgstr "本を読了日付きで「読了」にすると、月ごとの進捗が表示されます。"
+
+msgid "monthly_progress_total"
+msgstr "合計"
+
+msgid "monthly_progress_best"
+msgstr "最高の月"
+
+msgid "completeness_title"
+msgstr "ライブラリを完成させる"
+
+msgid "completeness_card_title"
+msgstr "ライブラリの完成度"
+
+msgid "completeness_card_subtitle"
+msgstr "{count}冊の本に未入力の項目があります"
+
+msgid "completeness_percent_label"
+msgstr "ライブラリは{percent}%完成"
+
+msgid "completeness_complete"
+msgstr "完成"
+
+msgid "completeness_empty_fields"
+msgstr "未入力の項目が{n}件"
+
+msgid "completeness_last_run_done"
+msgstr "前回の実行: {filled}冊を補完、{skipped}冊は新しいデータなし、{errored}件のエラー。"
+
+msgid "completeness_last_run_cancelled"
+msgstr "実行をキャンセル: {filled}冊を補完、{skipped}冊は新しいデータなし、{errored}件のエラー。"
+
+msgid "completeness_breakdown"
+msgstr "{incomplete}件が補完可能、{no_isbn}件はISBNなし"
+
+msgid "completeness_start_button"
+msgstr "未入力の項目を補完"
+
+msgid "completeness_all_done"
+msgstr "所蔵するすべての本に詳細が入力済みです。補完する項目はありません。"
+
+msgid "completeness_after_run_hint"
+msgstr "残りの本はソースから利用できるデータがありません。下から手動で補完するか、もう一度検索してください。"
+
+msgid "completeness_rerun_button"
+msgstr "もう一度検索"
+
+msgid "completeness_resume_hint"
+msgstr "前回の実行が中断されました。続きから再開できます。"
+
+msgid "completeness_resume_button"
+msgstr "再開"
+
+msgid "completeness_discard_button"
+msgstr "破棄"
+
+msgid "completeness_running_title"
+msgstr "未入力の項目を補完中"
+
+msgid "completeness_progress_count"
+msgstr "{total}冊中{done}冊"
+
+msgid "completeness_current"
+msgstr "処理中: {title}"
+
+msgid "completeness_stat_filled"
+msgstr "補完済み: {n}"
+
+msgid "completeness_stat_skipped"
+msgstr "スキップ: {n}"
+
+msgid "completeness_stat_errored"
+msgstr "エラー: {n}"
+
+msgid "completeness_cancel_button"
+msgstr "キャンセル"
+
+msgid "completeness_recent_title"
+msgstr "最近補完したもの"
+
+msgid "completeness_tab_todo"
+msgstr "未完成 ({n})"
+
+msgid "completeness_tab_recent"
+msgstr "最近 ({n})"
+
+msgid "completeness_recent_hint"
+msgstr "「元に戻す」をタップすると、追加された項目を消去できます（その後編集していない場合のみ）。"
+
+msgid "completeness_undo_book_done"
+msgstr "{n}件の項目を消去しました"
+
+msgid "completeness_undo_kept"
+msgstr "あなたの編集は保持されました"
+
+msgid "completeness_undo_field_reverted"
+msgstr "項目を消去しました"
+
+msgid "completeness_undo_field_superseded"
+msgstr "あなたの編集を保持しました（その後変更あり）"
+
+msgid "completeness_view_changes"
+msgstr "変更を表示"
+
+msgid "completeness_changes_subtitle"
+msgstr "補完で追加された項目と入力された値"
+
+msgid "completeness_open_book"
+msgstr "本を開く"
+
+msgid "completeness_all_undone"
+msgstr "この本に追加されたすべての項目が元に戻されました。"
+
+msgid "completeness_todo_title"
+msgstr "補完する本 ({n})"
+
+msgid "completeness_filter_all"
+msgstr "すべて ({n})"
+
+msgid "completeness_todo_hint"
+msgstr "本をタップすると詳細を手動で補完できます。完成に近いものから順に表示されます。"
+
+msgid "completeness_no_isbn_chip"
+msgstr "ISBNなし"
+
+msgid "completeness_no_isbn_title"
+msgstr "ISBNなし ({n})"
+
+msgid "completeness_no_isbn_hint"
+msgstr "これらの本はISBNがないため、自動で補完できません。手動で補完してください。"
+
+msgid "field_summary"
+msgstr "あらすじ"
+
+msgid "field_publisher"
+msgstr "出版社"
+
+msgid "field_page_count"
+msgstr "ページ数"
+
+msgid "field_publication_year"
+msgstr "出版年"
+
+msgid "field_cover_url"
+msgstr "表紙"

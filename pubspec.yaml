@@ -39,6 +39,10 @@ dependencies:
   path: ^1.9.1
   url_launcher: ^6.3.2
   app_links: ^6.3.3
+  # Keep the screen awake while a pairing code is displayed: on iOS the OS
+  # suspends the embedded HTTP server when the screen locks, which silently
+  # breaks pairing toward this device.
+  wakelock_plus: ^1.2.8
   cached_network_image: ^3.4.1
   # Direct dep (already pulled transitively by cached_network_image) so we
   # can declare CustomCacheManagers for local vs peer book covers.

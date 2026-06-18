@@ -6734,7 +6734,19 @@ msgstr "%1 livres"
 
 #. Top Authors
 msgid "top_authors"
-msgstr "Auteurs les plus lus"
+msgstr "Auteurs"
+
+msgid "monthly_progress_empty"
+msgstr "Aucun livre terminé sur les 12 derniers mois."
+
+msgid "monthly_progress_empty_hint"
+msgstr "Marquez vos livres comme lus avec une date de fin pour voir votre progression mensuelle."
+
+msgid "monthly_progress_total"
+msgstr "Total"
+
+msgid "monthly_progress_best"
+msgstr "Meilleur mois"
 
 #. Top Borrowers
 msgid "top_borrowers"
@@ -7778,6 +7790,33 @@ msgstr "Appareil appaire avec succes"
 
 msgid "pairing_error"
 msgstr "Echec de l'appairage"
+
+msgid "pairing_error_unreachable"
+msgstr "L'autre appareil ne répond pas. Ouvre l'app BiblioGenius au premier plan dessus (écran allumé), puis réessaie."
+
+msgid "pairing_error_expired"
+msgstr "Ce code d'appairage a expiré. Génère-en un nouveau et réessaie."
+
+msgid "pairing_error_invalid"
+msgstr "Code invalide ou déjà utilisé. Génère-en un nouveau sur l'autre appareil."
+
+msgid "pairing_error_rate_limited"
+msgstr "Trop de tentatives. Attends une minute, puis réessaie."
+
+msgid "pairing_error_registration"
+msgstr "Impossible d'enregistrer l'appareil. Réessaie."
+
+msgid "pairing_scan_button"
+msgstr "Scanner le QR"
+
+msgid "pairing_scan_instruction"
+msgstr "Vise le code affiché sur l'autre appareil."
+
+msgid "pairing_qr_caption"
+msgstr "Ou scanne ce code pour appairer plus vite"
+
+msgid "pairing_error_qr_invalid"
+msgstr "Ce QR n'est pas un code d'appairage BiblioGenius."
 
 msgid "pairing_remove_confirm"
 msgstr "Retirer cet appareil ?"

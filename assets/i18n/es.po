@@ -5852,7 +5852,7 @@ msgstr "Sincronizar biblioteca"
 
 #. Top Authors
 msgid "top_authors"
-msgstr "Autores principales"
+msgstr "Autores"
 
 #. Top Borrowers
 msgid "top_borrowers"
@@ -6985,6 +6985,33 @@ msgstr "Generar codigo"
 
 msgid "pairing_paired_on"
 msgstr "Vinculado el %s"
+
+msgid "pairing_error_unreachable"
+msgstr "El otro dispositivo no responde. Abre la app BiblioGenius en primer plano (pantalla encendida) y vuelve a intentarlo."
+
+msgid "pairing_error_expired"
+msgstr "Este código de emparejamiento ha caducado. Genera uno nuevo e inténtalo de nuevo."
+
+msgid "pairing_error_invalid"
+msgstr "Código no válido o ya usado. Genera uno nuevo en el otro dispositivo."
+
+msgid "pairing_error_rate_limited"
+msgstr "Demasiados intentos. Espera un minuto y vuelve a intentarlo."
+
+msgid "pairing_error_registration"
+msgstr "No se pudo registrar el dispositivo. Inténtalo de nuevo."
+
+msgid "pairing_scan_button"
+msgstr "Escanear código QR"
+
+msgid "pairing_scan_instruction"
+msgstr "Apunta la cámara al código que aparece en el otro dispositivo."
+
+msgid "pairing_qr_caption"
+msgstr "O escanea este código para emparejar más rápido"
+
+msgid "pairing_error_qr_invalid"
+msgstr "Ese código QR no es un código de emparejamiento de BiblioGenius."
 
 msgid "pairing_remove_confirm"
 msgstr "Eliminar este dispositivo?"
@@ -9586,3 +9613,153 @@ msgstr "Exportar ahora"
 msgid "auto_backup_clone_nudge_snooze"
 msgstr "Más tarde"
 
+
+msgid "monthly_progress_empty"
+msgstr "Aún no se han terminado libros en los últimos 12 meses."
+
+msgid "monthly_progress_empty_hint"
+msgstr "Marca libros como leídos con fecha de finalización para ver tu progreso mensual."
+
+msgid "monthly_progress_total"
+msgstr "Total"
+
+msgid "monthly_progress_best"
+msgstr "Mejor mes"
+
+msgid "completeness_title"
+msgstr "Completar mi biblioteca"
+
+msgid "completeness_card_title"
+msgstr "Integridad de la biblioteca"
+
+msgid "completeness_card_subtitle"
+msgstr "A {count} libros les faltan algunos detalles"
+
+msgid "completeness_percent_label"
+msgstr "Biblioteca {percent}% completa"
+
+msgid "completeness_complete"
+msgstr "completa"
+
+msgid "completeness_empty_fields"
+msgstr "{n} campos vacíos por rellenar"
+
+msgid "completeness_last_run_done"
+msgstr "Última ejecución: {filled} libros enriquecidos, {skipped} sin datos nuevos, {errored} errores."
+
+msgid "completeness_last_run_cancelled"
+msgstr "Ejecución cancelada: {filled} libros enriquecidos, {skipped} sin datos nuevos, {errored} errores."
+
+msgid "completeness_breakdown"
+msgstr "{incomplete} rellenables, {no_isbn} sin ISBN"
+
+msgid "completeness_start_button"
+msgstr "Rellenar campos vacíos"
+
+msgid "completeness_all_done"
+msgstr "Todos los libros propios tienen sus detalles. Nada que rellenar."
+
+msgid "completeness_after_run_hint"
+msgstr "Los libros restantes no tienen datos disponibles en las fuentes. Complétalos a mano abajo, o vuelve a buscar."
+
+msgid "completeness_rerun_button"
+msgstr "Buscar de nuevo"
+
+msgid "completeness_resume_hint"
+msgstr "Una ejecución anterior se interrumpió. Puedes reanudarla donde se quedó."
+
+msgid "completeness_resume_button"
+msgstr "Reanudar"
+
+msgid "completeness_discard_button"
+msgstr "Descartar"
+
+msgid "completeness_running_title"
+msgstr "Rellenando campos vacíos"
+
+msgid "completeness_progress_count"
+msgstr "{done} de {total} libros"
+
+msgid "completeness_current"
+msgstr "Actual: {title}"
+
+msgid "completeness_stat_filled"
+msgstr "Rellenados: {n}"
+
+msgid "completeness_stat_skipped"
+msgstr "Omitidos: {n}"
+
+msgid "completeness_stat_errored"
+msgstr "Errores: {n}"
+
+msgid "completeness_cancel_button"
+msgstr "Cancelar"
+
+msgid "completeness_recent_title"
+msgstr "Completados recientemente"
+
+msgid "completeness_tab_todo"
+msgstr "Por completar ({n})"
+
+msgid "completeness_tab_recent"
+msgstr "Recientes ({n})"
+
+msgid "completeness_recent_hint"
+msgstr "Toca Deshacer para borrar un campo que esto añadió (solo si no lo has editado desde entonces)."
+
+msgid "completeness_undo_book_done"
+msgstr "{n} campo(s) borrado(s)"
+
+msgid "completeness_undo_kept"
+msgstr "Se conservaron tus cambios"
+
+msgid "completeness_undo_field_reverted"
+msgstr "Campo borrado"
+
+msgid "completeness_undo_field_superseded"
+msgstr "Se conservó tu edición (cambió desde entonces)"
+
+msgid "completeness_view_changes"
+msgstr "Ver cambios"
+
+msgid "completeness_changes_subtitle"
+msgstr "Campos añadidos por el relleno, con el valor escrito"
+
+msgid "completeness_open_book"
+msgstr "Abrir libro"
+
+msgid "completeness_all_undone"
+msgstr "Se han deshecho todos los campos añadidos para este libro."
+
+msgid "completeness_todo_title"
+msgstr "Libros por completar ({n})"
+
+msgid "completeness_filter_all"
+msgstr "Todos ({n})"
+
+msgid "completeness_todo_hint"
+msgstr "Toca un libro para rellenar sus detalles a mano. Los más cercanos a completar aparecen primero."
+
+msgid "completeness_no_isbn_chip"
+msgstr "Sin ISBN"
+
+msgid "completeness_no_isbn_title"
+msgstr "Sin ISBN ({n})"
+
+msgid "completeness_no_isbn_hint"
+msgstr "Estos libros no tienen ISBN, así que no se pueden rellenar automáticamente. Complétalos a mano."
+
+msgid "field_summary"
+msgstr "Resumen"
+
+msgid "field_publisher"
+msgstr "Editorial"
+
+msgid "field_page_count"
+msgstr "Páginas"
+
+msgid "field_publication_year"
+msgstr "Año"
+
+msgid "field_cover_url"
+msgstr "Portada"
