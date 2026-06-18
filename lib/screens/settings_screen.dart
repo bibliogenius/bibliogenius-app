@@ -2555,7 +2555,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             Card(
               margin: const EdgeInsets.only(bottom: 12),
               child: Column(
@@ -2693,7 +2693,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       // Contact info (mandatory for listed libraries)
                       const Divider(height: 1),
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                         child: TextField(
                           controller: _hubContactController,
                           decoration: InputDecoration(
@@ -2719,6 +2719,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 'Encrypted - only visible to your approved followers',
                             helperMaxLines: 2,
                           ),
+                          // Start at one line (so a single-line email isn't
+                          // glued to the top of a fixed 2-line box) and grow to
+                          // two lines for longer entries like phone + address.
+                          // textAlignVertical is ignored when maxLines > 1, so
+                          // minLines is the correct lever here.
+                          minLines: 1,
                           maxLines: 2,
                           onChanged: (value) =>
                               dirProvider.setContactInfo(value),
@@ -2726,7 +2732,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                       // Website (optional, public)
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                        padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
                         child: TextField(
                           controller: _hubWebsiteController,
                           decoration: InputDecoration(
