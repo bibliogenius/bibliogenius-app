@@ -357,8 +357,11 @@ class AppDesign {
           end: Alignment.bottomRight,
         );
       default:
+        // Brand teal/blue lifted from the app icon, a touch lighter and more
+        // saturated than before so the bar reads less dull. Kept dark enough
+        // that white text/icons stay >= 3:1 contrast (large text / non-text).
         return const LinearGradient(
-          colors: [Color(0xFF3D8B83), Color(0xFF3A7186)],
+          colors: [Color(0xFF3E9C8F), Color(0xFF3C7E94)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         );
