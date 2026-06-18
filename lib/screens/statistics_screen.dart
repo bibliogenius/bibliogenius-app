@@ -450,7 +450,8 @@ class _StatisticsScreenState extends State<StatisticsScreen>
           child: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              gradient: gradient,
+              // Flat solid badge, consistent with the section header icons.
+              color: gradient.colors.first,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(icon, size: 18, color: Colors.white),
@@ -1103,8 +1104,8 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                   ),
           ),
           const SizedBox(width: 10),
+          // Author name is the primary content: give it all remaining width.
           Expanded(
-            flex: 3,
             child: Text(
               name,
               style: TextStyle(
@@ -1114,9 +1115,10 @@ class _StatisticsScreenState extends State<StatisticsScreen>
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          const SizedBox(width: 8),
-          Expanded(
-            flex: 4,
+          const SizedBox(width: 12),
+          // Bar is a secondary visual cue: keep it to a fixed, modest width.
+          SizedBox(
+            width: 64,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(4),
               child: LinearProgressIndicator(
@@ -3441,8 +3443,8 @@ class _StatisticsContentState extends State<StatisticsContent>
                   ),
           ),
           const SizedBox(width: 10),
+          // Author name is the primary content: give it all remaining width.
           Expanded(
-            flex: 3,
             child: Text(
               name,
               style: TextStyle(
@@ -3452,9 +3454,10 @@ class _StatisticsContentState extends State<StatisticsContent>
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          const SizedBox(width: 8),
-          Expanded(
-            flex: 4,
+          const SizedBox(width: 12),
+          // Bar is a secondary visual cue: keep it to a fixed, modest width.
+          SizedBox(
+            width: 64,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(4),
               child: LinearProgressIndicator(

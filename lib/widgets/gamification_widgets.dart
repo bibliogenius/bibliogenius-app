@@ -1130,9 +1130,9 @@ class _GamificationSummaryCardState extends State<GamificationSummaryCard> {
                           Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: [Color(0xFF667eea), Color(0xFF764ba2)],
-                              ),
+                              // Flat solid badge, consistent with the section
+                              // header icons (no gradient).
+                              color: const Color(0xFF667eea),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: const Icon(

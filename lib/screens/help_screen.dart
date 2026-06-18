@@ -190,7 +190,9 @@ class _HelpScreenState extends State<HelpScreen> {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      gradient: topic.gradient,
+                      // Flat solid badge, consistent with the section header
+                      // icons elsewhere in the app (no gradient).
+                      color: topic.gradient.colors.first,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(topic.icon, color: Colors.white, size: 20),

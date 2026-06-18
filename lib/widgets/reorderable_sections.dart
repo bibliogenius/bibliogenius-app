@@ -399,7 +399,9 @@ class _ReorderableSectionsState extends State<ReorderableSections> {
               child: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  gradient: config.gradient,
+                  // Flat solid badge (gradient's start color) for a consistent,
+                  // non-gradient look across all section header icons.
+                  color: config.gradient.colors.first,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(config.icon, size: 18, color: Colors.white),
@@ -516,7 +518,8 @@ class _EditModeTile extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      gradient: config.gradient,
+                      // Flat solid badge, consistent with the header icons.
+                      color: config.gradient.colors.first,
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Icon(config.icon, size: 16, color: Colors.white),
