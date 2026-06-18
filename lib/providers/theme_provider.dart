@@ -1325,6 +1325,30 @@ class ThemeProvider with ChangeNotifier {
       enabledModules.add('allow_private_books');
     }
 
+    // Preserve search-source flags owned by the Settings screen, NOT by
+    // ThemeProvider. `enabled_modules` is a single column shared by two
+    // concerns: ThemeProvider feature toggles (above) and the external-search
+    // source preferences (`enable_google_books`, `disable_fallback:<provider>`).
+    // updateProfile replaces the whole column, so without re-appending these
+    // the startup sync wipes the user's Google Books opt-in every launch.
+    // Re-derive them from the persisted state (the inverse of the backend's
+    // own modules<->preferences mapping) so both concerns coexist.
+    try {
+      final settings = await FfiService().getSearchSettings();
+      settings.fallbackPreferences.forEach((provider, enabled) {
+        if (provider == 'google_books') {
+          if (enabled) enabledModules.add('enable_google_books');
+        } else if (!enabled) {
+          enabledModules.add('disable_fallback:$provider');
+        }
+      });
+    } catch (e) {
+      // Non-fatal: if we cannot read them, fall through rather than risk
+      // sending a list that wipes settings on a transient read failure.
+      debugPrint('Could not preserve search-source flags, skipping sync: $e');
+      return;
+    }
+
     try {
       await apiService.updateProfile(data: {'enabled_modules': enabledModules});
       debugPrint('✅ Synced enabled modules: $enabledModules');
