@@ -938,6 +938,13 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
             return InviteAcceptanceScreen(payload: payload);
           },
         ),
+        // Top-level (root navigator) so it opens full-screen: mobile_scanner's
+        // macOS camera texture renders blank inside the shell's nested
+        // navigator. Must NOT live under the ShellRoute for the same reason.
+        GoRoute(
+          path: '/scan-qr',
+          builder: (context, state) => const ScanQrScreen(),
+        ),
         ShellRoute(
           builder: (context, state, child) {
             return ScaffoldWithNav(child: child);
@@ -1223,10 +1230,6 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
                   batchMode: batch,
                 );
               },
-            ),
-            GoRoute(
-              path: '/scan-qr',
-              builder: (context, state) => const ScanQrScreen(),
             ),
             GoRoute(path: '/p2p', redirect: (context, state) => '/network'),
             GoRoute(

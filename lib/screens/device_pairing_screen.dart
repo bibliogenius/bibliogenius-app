@@ -254,7 +254,13 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
   /// Open the camera to scan a pairing QR, then auto-fill the code + target URL
   /// and pair immediately — skipping manual code entry and peer selection.
   Future<void> _scanPairingQr() async {
-    final result = await Navigator.of(context).push<PairingScanResult>(
+    // Push on the ROOT navigator: mobile_scanner's macOS camera texture renders
+    // blank inside the shell's nested navigator (the nav sidebar stays visible).
+    // The book scanner works precisely because it opens full-screen on root.
+    final result = await Navigator.of(
+      context,
+      rootNavigator: true,
+    ).push<PairingScanResult>(
       MaterialPageRoute(builder: (_) => const PairingScanScreen()),
     );
     if (!mounted || result == null) return;
