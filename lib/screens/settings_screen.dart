@@ -27,7 +27,6 @@ import '../providers/theme_provider.dart';
 import '../providers/hub_directory_provider.dart';
 import '../services/auth_service.dart';
 import '../services/ffi_service.dart';
-import '../services/mdns_service.dart';
 import '../theme/app_design.dart';
 import '../themes/base/theme_registry.dart';
 import '../utils/app_constants.dart';
@@ -2190,20 +2189,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 value: themeProvider.networkEnabled,
                 onChanged: (value) => themeProvider.setNetworkEnabled(value),
               ),
-              if (themeProvider.networkEnabled) ...[
-                const Divider(height: 1),
-                ListTile(
-                  leading: const Icon(Icons.devices),
-                  title: Text(t('settings_network_peers_detected')),
-                  trailing: Text(
-                    '${MdnsService.peers.length}',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-              ],
               const Divider(height: 1),
               ListTile(
                 leading: const Icon(Icons.mail_outline),
