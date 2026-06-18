@@ -874,15 +874,19 @@ class _StatisticsScreenState extends State<StatisticsScreen>
       'unknown': Colors.grey,
     };
 
+    final total = _books.isEmpty ? 1 : _books.length;
     final List<PieChartSectionData> sections = [];
     statusCounts.forEach((status, count) {
       final color = colors[status] ?? Colors.grey;
-      final percentage = (count / _books.length * 100).toStringAsFixed(0);
+      final pct = count / total * 100;
       sections.add(
         PieChartSectionData(
           color: color,
           value: count.toDouble(),
-          title: '$percentage%',
+          // Hide the label on tiny slices: stacked small slices overlap and
+          // become unreadable. The percentage stays available in the legend.
+          showTitle: pct >= 8,
+          title: '${pct.toStringAsFixed(0)}%',
           radius: 70,
           titleStyle: const TextStyle(
             fontSize: 12,
@@ -931,7 +935,8 @@ class _StatisticsScreenState extends State<StatisticsScreen>
             children: statusCounts.entries.map((e) {
               final color = colors[e.key] ?? Colors.grey;
               final label = _formatStatusLabel(e.key);
-              return _buildLegendItem(color, label, e.value);
+              final pct = (e.value / total * 100).round();
+              return _buildLegendItem(color, label, e.value, percentage: pct);
             }).toList(),
           ),
         ],
@@ -965,7 +970,12 @@ class _StatisticsScreenState extends State<StatisticsScreen>
     }
   }
 
-  Widget _buildLegendItem(Color color, String label, int count) {
+  Widget _buildLegendItem(
+    Color color,
+    String label,
+    int count, {
+    int? percentage,
+  }) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -979,7 +989,9 @@ class _StatisticsScreenState extends State<StatisticsScreen>
         ),
         const SizedBox(width: 6),
         Text(
-          '$label ($count)',
+          percentage != null
+              ? '$label ($count · $percentage%)'
+              : '$label ($count)',
           style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
         ),
       ],
@@ -3200,15 +3212,19 @@ class _StatisticsContentState extends State<StatisticsContent>
       'unknown': Colors.grey,
     };
 
+    final total = _books.isEmpty ? 1 : _books.length;
     final List<PieChartSectionData> sections = [];
     statusCounts.forEach((status, count) {
       final color = colors[status] ?? Colors.grey;
-      final percentage = (count / _books.length * 100).toStringAsFixed(0);
+      final pct = count / total * 100;
       sections.add(
         PieChartSectionData(
           color: color,
           value: count.toDouble(),
-          title: '$percentage%',
+          // Hide the label on tiny slices: stacked small slices overlap and
+          // become unreadable. The percentage stays available in the legend.
+          showTitle: pct >= 8,
+          title: '${pct.toStringAsFixed(0)}%',
           radius: 70,
           titleStyle: const TextStyle(
             fontSize: 12,
@@ -3257,7 +3273,8 @@ class _StatisticsContentState extends State<StatisticsContent>
             children: statusCounts.entries.map((e) {
               final color = colors[e.key] ?? Colors.grey;
               final label = _formatStatusLabel(e.key);
-              return _buildLegendItem(color, label, e.value);
+              final pct = (e.value / total * 100).round();
+              return _buildLegendItem(color, label, e.value, percentage: pct);
             }).toList(),
           ),
         ],
@@ -3291,7 +3308,12 @@ class _StatisticsContentState extends State<StatisticsContent>
     }
   }
 
-  Widget _buildLegendItem(Color color, String label, int count) {
+  Widget _buildLegendItem(
+    Color color,
+    String label,
+    int count, {
+    int? percentage,
+  }) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -3305,7 +3327,9 @@ class _StatisticsContentState extends State<StatisticsContent>
         ),
         const SizedBox(width: 6),
         Text(
-          '$label ($count)',
+          percentage != null
+              ? '$label ($count · $percentage%)'
+              : '$label ($count)',
           style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
         ),
       ],
@@ -3629,11 +3653,12 @@ class _StatisticsContentState extends State<StatisticsContent>
   Widget _buildMonthlyProgressChart() {
     // Get books read in the last 12 months
     final now = DateTime.now();
+    final localeName = Localizations.localeOf(context).toString();
     final monthlyData = <String, int>{};
 
     for (int i = 11; i >= 0; i--) {
       final month = DateTime(now.year, now.month - i, 1);
-      final key = DateFormat('MMM').format(month);
+      final key = _monthLabel(month, localeName);
       monthlyData[key] = 0;
     }
 
@@ -3644,7 +3669,7 @@ class _StatisticsContentState extends State<StatisticsContent>
             (now.year - finishedDate.year) * 12 +
             (now.month - finishedDate.month);
         if (monthsDiff >= 0 && monthsDiff < 12) {
-          final key = DateFormat('MMM').format(finishedDate);
+          final key = _monthLabel(finishedDate, localeName);
           if (monthlyData.containsKey(key)) {
             monthlyData[key] = monthlyData[key]! + 1;
           }
@@ -3656,7 +3681,50 @@ class _StatisticsContentState extends State<StatisticsContent>
     final maxValue = sortedData
         .map((e) => e.value)
         .reduce((a, b) => a > b ? a : b);
+    final total = sortedData.fold<int>(0, (s, e) => s + e.value);
+    final theme = Theme.of(context);
 
+    // Empty state: nothing read with a finish date in the window, so the bar
+    // chart would be blank and meaningless. Explain what it needs instead.
+    if (total == 0) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
+        ),
+        child: Column(
+          children: [
+            Icon(
+              Icons.insights_outlined,
+              size: 36,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              TranslationService.translate(context, 'monthly_progress_empty'),
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 6),
+            Text(
+              TranslationService.translate(
+                context,
+                'monthly_progress_empty_hint',
+              ),
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final bestMonth = sortedData.reduce((a, b) => b.value > a.value ? b : a);
+    final yInterval = maxValue <= 4 ? 1.0 : (maxValue / 4).ceilToDouble();
     final monthlyDescription = sortedData
         .where((e) => e.value > 0)
         .map((e) => '${e.key}: ${e.value}')
@@ -3667,86 +3735,183 @@ class _StatisticsContentState extends State<StatisticsContent>
           '${TranslationService.translate(context, 'stat_a11y_monthly_progress_chart')}: $monthlyDescription',
       child: ExcludeSemantics(
         child: Container(
-          height: 220,
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
+            color: theme.cardColor,
             borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
             boxShadow: AppDesign.cardShadow,
           ),
-          child: BarChart(
-            BarChartData(
-              alignment: BarChartAlignment.spaceAround,
-              maxY: (maxValue + 1).toDouble(),
-              barTouchData: BarTouchData(
-                enabled: true,
-                touchTooltipData: BarTouchTooltipData(
-                  getTooltipColor: (group) => const Color(0xFF1E293B),
-                  getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                    return BarTooltipItem(
-                      '${sortedData[groupIndex].key}: ${rod.toY.toInt()} ${TranslationService.translate(context, 'books')}',
-                      const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                      ),
-                    );
-                  },
-                ),
-              ),
-              titlesData: FlTitlesData(
-                show: true,
-                bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    getTitlesWidget: (value, meta) {
-                      if (value.toInt() >= sortedData.length)
-                        return const SizedBox.shrink();
-                      return Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: Text(
-                          sortedData[value.toInt()].key,
-                          style: const TextStyle(fontSize: 11),
-                        ),
-                      );
-                    },
-                    reservedSize: 30,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Readable at-a-glance summary so the chart has immediate meaning.
+              Wrap(
+                spacing: 18,
+                runSpacing: 6,
+                children: [
+                  _chartSummary(
+                    theme,
+                    TranslationService.translate(
+                      context,
+                      'monthly_progress_total',
+                    ),
+                    '$total',
                   ),
-                ),
-                leftTitles: const AxisTitles(
-                  sideTitles: SideTitles(showTitles: false),
-                ),
-                topTitles: const AxisTitles(
-                  sideTitles: SideTitles(showTitles: false),
-                ),
-                rightTitles: const AxisTitles(
-                  sideTitles: SideTitles(showTitles: false),
-                ),
+                  _chartSummary(
+                    theme,
+                    TranslationService.translate(
+                      context,
+                      'monthly_progress_best',
+                    ),
+                    '${bestMonth.key} (${bestMonth.value})',
+                  ),
+                ],
               ),
-              gridData: const FlGridData(show: false),
-              borderData: FlBorderData(show: false),
-              barGroups: sortedData.asMap().entries.map((e) {
-                final isCurrentMonth = e.key == sortedData.length - 1;
-                return BarChartGroupData(
-                  x: e.key,
-                  barRods: [
-                    BarChartRodData(
-                      toY: e.value.value.toDouble(),
-                      gradient: isCurrentMonth
-                          ? AppDesign.accentGradient
-                          : AppDesign.primaryGradient,
-                      width: 16,
-                      borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(4),
+              const SizedBox(height: 16),
+              LayoutBuilder(
+                builder: (context, c) {
+                  // Skip every other month label when narrow so 12 labels
+                  // don't collide on mobile.
+                  final labelStep = c.maxWidth < 420 ? 2 : 1;
+                  return SizedBox(
+                    height: 190,
+                    child: BarChart(
+                      BarChartData(
+                    alignment: BarChartAlignment.spaceAround,
+                    maxY: (maxValue + 1).toDouble(),
+                    barTouchData: BarTouchData(
+                      enabled: true,
+                      touchTooltipData: BarTouchTooltipData(
+                        getTooltipColor: (group) => const Color(0xFF1E293B),
+                        getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                          return BarTooltipItem(
+                            '${sortedData[groupIndex].key}: ${rod.toY.toInt()} ${TranslationService.translate(context, 'books')}',
+                            const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          );
+                        },
                       ),
                     ),
-                  ],
-                );
-              }).toList(),
-            ),
+                    titlesData: FlTitlesData(
+                      show: true,
+                      bottomTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          getTitlesWidget: (value, meta) {
+                            final idx = value.toInt();
+                            if (idx >= sortedData.length ||
+                                idx % labelStep != 0) {
+                              return const SizedBox.shrink();
+                            }
+                            return Padding(
+                              padding: const EdgeInsets.only(top: 8),
+                              child: Text(
+                                sortedData[idx].key,
+                                style: const TextStyle(fontSize: 10),
+                              ),
+                            );
+                          },
+                          reservedSize: 30,
+                        ),
+                      ),
+                      // Y-axis counts, so bar heights are readable without tapping.
+                      leftTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          interval: yInterval,
+                          reservedSize: 28,
+                          getTitlesWidget: (value, meta) {
+                            if (value != value.roundToDouble()) {
+                              return const SizedBox.shrink();
+                            }
+                            return Text(
+                              value.toInt().toString(),
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      topTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
+                      rightTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
+                    ),
+                    gridData: FlGridData(
+                      show: true,
+                      drawVerticalLine: false,
+                      horizontalInterval: yInterval,
+                      getDrawingHorizontalLine: (value) => FlLine(
+                        color: theme.dividerColor.withValues(alpha: 0.3),
+                        strokeWidth: 1,
+                      ),
+                    ),
+                    borderData: FlBorderData(show: false),
+                    barGroups: sortedData.asMap().entries.map((e) {
+                      final isCurrentMonth = e.key == sortedData.length - 1;
+                      return BarChartGroupData(
+                        x: e.key,
+                        barRods: [
+                          BarChartRodData(
+                            toY: e.value.value.toDouble(),
+                            gradient: isCurrentMonth
+                                ? AppDesign.accentGradient
+                                : AppDesign.primaryGradient,
+                            width: 16,
+                            borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(4),
+                            ),
+                          ),
+                        ],
+                      );
+                    }).toList(),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
         ),
       ),
+    );
+  }
+
+  /// Localized 3-letter month abbreviation, falling back to the default locale
+  /// if date symbols for [localeName] are unavailable.
+  String _monthLabel(DateTime d, String localeName) {
+    try {
+      return DateFormat('MMM', localeName).format(d);
+    } catch (_) {
+      return DateFormat('MMM').format(d);
+    }
+  }
+
+  /// A small "label: value" pair for chart summary headers.
+  Widget _chartSummary(ThemeData theme, String label, String value) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          '$label: ',
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+        Text(
+          value,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
     );
   }
 
@@ -3845,35 +4010,20 @@ class _StatisticsContentState extends State<StatisticsContent>
       ),
     };
 
-    // Render visible cards in user-defined order, rows of 2
+    // Render visible cards in user order; one per row on mobile (full width,
+    // no truncated labels), two when there is room.
     final visibleIds = _insightCardOrder
         .where((id) => !_hiddenInsightCards.contains(id))
         .toList();
+    final orderedCards = visibleIds
+        .map((id) => cardWidgets[id] ?? const SizedBox.shrink())
+        .toList();
 
-    final rows = <Widget>[];
-    for (var i = 0; i < visibleIds.length; i += 2) {
-      final first = cardWidgets[visibleIds[i]];
-      final second = i + 1 < visibleIds.length
-          ? cardWidgets[visibleIds[i + 1]]
-          : null;
-      rows.add(
-        Row(
-          children: [
-            Expanded(child: first ?? const SizedBox.shrink()),
-            const SizedBox(width: 12),
-            Expanded(child: second ?? const SizedBox.shrink()),
-          ],
-        ),
-      );
-    }
-
-    return Column(
-      children: [
-        for (var i = 0; i < rows.length; i++) ...[
-          if (i > 0) const SizedBox(height: 12),
-          rows[i],
-        ],
-      ],
+    return LayoutBuilder(
+      builder: (context, c) {
+        final perRow = c.maxWidth < 480 ? 1 : 2;
+        return _statGrid(orderedCards, perRow);
+      },
     );
   }
 
@@ -3903,39 +4053,36 @@ class _StatisticsContentState extends State<StatisticsContent>
 
     final readingStreak = _calculateReadingStreak();
 
+    final recordCards = <Widget>[
+      _buildInsightCard(
+        Icons.speed,
+        fastestDays != null ? fastestDays.toString() : null,
+        TranslationService.translate(context, 'fastest_read'),
+        TranslationService.translate(context, 'days'),
+        const Color(0xFF10B981),
+        description: fastestDays != null
+            ? TranslationService.translate(context, 'fastest_read_desc')
+            : null,
+      ),
+      _buildInsightCard(
+        Icons.local_fire_department,
+        readingStreak > 0 ? readingStreak.toString() : null,
+        TranslationService.translate(context, 'reading_streak'),
+        TranslationService.translate(context, 'reading_streak_suffix'),
+        const Color(0xFFEF4444),
+        description: readingStreak > 0
+            ? TranslationService.translate(context, 'reading_streak_desc')
+            : null,
+      ),
+    ];
+
     return Column(
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: _buildInsightCard(
-                Icons.speed,
-                fastestDays != null ? fastestDays.toString() : null,
-                TranslationService.translate(context, 'fastest_read'),
-                TranslationService.translate(context, 'days'),
-                const Color(0xFF10B981),
-                description: fastestDays != null
-                    ? TranslationService.translate(context, 'fastest_read_desc')
-                    : null,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildInsightCard(
-                Icons.local_fire_department,
-                readingStreak > 0 ? readingStreak.toString() : null,
-                TranslationService.translate(context, 'reading_streak'),
-                TranslationService.translate(context, 'reading_streak_suffix'),
-                const Color(0xFFEF4444),
-                description: readingStreak > 0
-                    ? TranslationService.translate(
-                        context,
-                        'reading_streak_desc',
-                      )
-                    : null,
-              ),
-            ),
-          ],
+        LayoutBuilder(
+          builder: (context, c) {
+            final perRow = c.maxWidth < 480 ? 1 : 2;
+            return _statGrid(recordCards, perRow);
+          },
         ),
         if (fastestBookTitle != null) ...[
           const SizedBox(height: 12),
@@ -4068,15 +4215,8 @@ class _StatisticsContentState extends State<StatisticsContent>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: color.withValues(alpha: isEmpty ? 0.04 : 0.08),
         borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
-        boxShadow: AppDesign.subtleShadow,
-        border: Border(
-          left: BorderSide(
-            color: color.withValues(alpha: isEmpty ? 0.2 : 0.6),
-            width: 3,
-          ),
-        ),
       ),
       child: Stack(
         children: [
@@ -4420,48 +4560,38 @@ class _StatisticsContentState extends State<StatisticsContent>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Summary row: total, avg completion, completed
-        Row(
-          children: [
-            Expanded(
-              child: _buildStatCard(
+        // Summary blocks: one per row on mobile (no squished labels), three wide.
+        LayoutBuilder(
+          builder: (context, c) {
+            final cards = <Widget>[
+              _buildStatCard(
                 TranslationService.translate(context, 'stat_total_collections'),
                 totalCollections.toString(),
                 Icons.collections_bookmark,
-                Colors.transparent,
-                gradient: AppDesign.primaryGradient,
-                textColor: Colors.white,
+                _gradColor(AppDesign.primaryGradient),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildStatCard(
+              _buildStatCard(
                 TranslationService.translate(
                   context,
                   'stat_avg_collection_completion',
                 ),
                 '${avgCompletion.toStringAsFixed(1)}%',
                 Icons.pie_chart_outline,
-                Colors.transparent,
-                gradient: AppDesign.oceanGradient,
-                textColor: Colors.white,
+                _gradColor(AppDesign.oceanGradient),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildStatCard(
+              _buildStatCard(
                 TranslationService.translate(
                   context,
                   'stat_completed_collections',
                 ),
                 completedCount.toString(),
                 Icons.check_circle_outline,
-                Colors.transparent,
-                gradient: AppDesign.successGradient,
-                textColor: Colors.white,
+                _gradColor(AppDesign.successGradient),
               ),
-            ),
-          ],
+            ];
+            final perRow = c.maxWidth < 480 ? 1 : 3;
+            return _statGrid(cards, perRow);
+          },
         ),
         if (sorted.isNotEmpty) ...[
           const SizedBox(height: 20),
