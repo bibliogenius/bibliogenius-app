@@ -710,65 +710,63 @@ class _ProfileScreenState extends State<ProfileScreen> {
         )
         .toList();
 
-    // Build rows of 2
-    final rows = <Widget>[];
-    for (var i = 0; i < visibleIds.length; i += 2) {
-      final first = visibleIds[i];
-      final second = (i + 1 < visibleIds.length) ? visibleIds[i + 1] : null;
-      rows.add(
-        Row(
-          children: [
-            Expanded(
-              child: _buildStatMiniCard(
-                theme,
-                cardDefs[first]!.icon,
-                cardDefs[first]!.value,
-                cardDefs[first]!.label,
-                cardDefs[first]!.color,
-              ),
-            ),
-            const SizedBox(width: 12),
-            if (second != null)
-              Expanded(
-                child: _buildStatMiniCard(
-                  theme,
-                  cardDefs[second]!.icon,
-                  cardDefs[second]!.value,
-                  cardDefs[second]!.label,
-                  cardDefs[second]!.color,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // One card per row on mobile so long labels (e.g. "Terminés cette
+        // année") are not truncated; two per row once there is room.
+        final perRow = constraints.maxWidth < 480 ? 1 : 2;
+        final rows = <Widget>[];
+        for (var i = 0; i < visibleIds.length; i += perRow) {
+          final cells = <Widget>[];
+          for (var j = 0; j < perRow; j++) {
+            if (j > 0) cells.add(const SizedBox(width: 12));
+            final idx = i + j;
+            if (idx < visibleIds.length) {
+              final id = visibleIds[idx];
+              cells.add(
+                Expanded(
+                  child: _buildStatMiniCard(
+                    theme,
+                    cardDefs[id]!.icon,
+                    cardDefs[id]!.value,
+                    cardDefs[id]!.label,
+                    cardDefs[id]!.color,
+                  ),
                 ),
-              )
-            else
-              const Expanded(child: SizedBox()),
-          ],
-        ),
-      );
-    }
+              );
+            } else {
+              cells.add(const Expanded(child: SizedBox()));
+            }
+          }
+          rows.add(Row(children: cells));
+        }
 
-    return Column(
-      children: [
-        ...rows.expand((row) => [row, const SizedBox(height: 12)]),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        return Column(
           children: [
-            IconButton(
-              icon: const Icon(Icons.edit_outlined, size: 18),
-              tooltip: TranslationService.translate(
-                context,
-                'tooltip_edit_sections',
-              ),
-              onPressed: () => setState(() => _statsCardEditMode = true),
-            ),
-            TextButton.icon(
-              onPressed: () => context.push('/dashboard?tab=1'),
-              icon: const Icon(Icons.arrow_forward, size: 16),
-              label: Text(
-                TranslationService.translate(context, 'see_more_stats'),
-              ),
+            ...rows.expand((row) => [row, const SizedBox(height: 12)]),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.edit_outlined, size: 18),
+                  tooltip: TranslationService.translate(
+                    context,
+                    'tooltip_edit_sections',
+                  ),
+                  onPressed: () => setState(() => _statsCardEditMode = true),
+                ),
+                TextButton.icon(
+                  onPressed: () => context.push('/dashboard?tab=1'),
+                  icon: const Icon(Icons.arrow_forward, size: 16),
+                  label: Text(
+                    TranslationService.translate(context, 'see_more_stats'),
+                  ),
+                ),
+              ],
             ),
           ],
-        ),
-      ],
+        );
+      },
     );
   }
 

@@ -708,82 +708,55 @@ class _StatisticsScreenState extends State<StatisticsScreen>
               .map((b) => b.publicationYear!)
               .reduce((a, b) => a < b ? a : b);
 
-    return Column(
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: _buildStatCard(
-                TranslationService.translate(context, 'stat_total_books'),
-                totalBooks.toString(),
-                Icons.library_books,
-                Colors.transparent,
-                gradient: AppDesign.oceanGradient,
-                textColor: Colors.white,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildStatCard(
-                TranslationService.translate(context, 'stat_read'),
-                readBooks.toString(),
-                Icons.check_circle,
-                Colors.transparent,
-                gradient: AppDesign.successGradient,
-                textColor: Colors.white,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildStatCard(
-                TranslationService.translate(context, 'stat_borrowed'),
-                borrowedBooks.toString(),
-                Icons.people,
-                Colors.transparent,
-                gradient: AppDesign.flameGradient,
-                textColor: Colors.white,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: _buildStatCard(
-                TranslationService.translate(context, 'stat_unique_authors'),
-                uniqueAuthors.toString(),
-                Icons.person_outline,
-                Colors.transparent,
-                gradient: AppDesign.orangeGradient,
-                textColor: Colors.white,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildStatCard(
-                TranslationService.translate(context, 'stat_completion'),
-                "$completionRate%",
-                Icons.trending_up,
-                Colors.transparent,
-                gradient: AppDesign.primaryGradient,
-                textColor: Colors.white,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildStatCard(
-                TranslationService.translate(context, 'stat_oldest_book'),
-                oldestYear?.toString() ?? "N/A",
-                Icons.history,
-                Colors.transparent,
-                gradient: AppDesign.anthraciteGradient,
-                textColor: Colors.white,
-              ),
-            ),
-          ],
-        ),
-      ],
+    final cards = <Widget>[
+      _buildStatCard(
+        TranslationService.translate(context, 'stat_total_books'),
+        totalBooks.toString(),
+        Icons.library_books,
+        _gradColor(AppDesign.oceanGradient),
+      ),
+      _buildStatCard(
+        TranslationService.translate(context, 'stat_read'),
+        readBooks.toString(),
+        Icons.check_circle,
+        _gradColor(AppDesign.successGradient),
+      ),
+      _buildStatCard(
+        TranslationService.translate(context, 'stat_borrowed'),
+        borrowedBooks.toString(),
+        Icons.people,
+        _gradColor(AppDesign.flameGradient),
+      ),
+      _buildStatCard(
+        TranslationService.translate(context, 'stat_unique_authors'),
+        uniqueAuthors.toString(),
+        Icons.person_outline,
+        _gradColor(AppDesign.orangeGradient),
+      ),
+      _buildStatCard(
+        TranslationService.translate(context, 'stat_completion'),
+        "$completionRate%",
+        Icons.trending_up,
+        _gradColor(AppDesign.primaryGradient),
+      ),
+      _buildStatCard(
+        TranslationService.translate(context, 'stat_oldest_book'),
+        oldestYear?.toString() ?? "N/A",
+        Icons.history,
+        _gradColor(AppDesign.anthraciteGradient),
+      ),
+    ];
+
+    // One block per row on mobile (no truncation), two on medium, three wide.
+    return LayoutBuilder(
+      builder: (context, c) {
+        final perRow = c.maxWidth < 480
+            ? 1
+            : c.maxWidth < 760
+            ? 2
+            : 3;
+        return _statGrid(cards, perRow);
+      },
     );
   }
 
@@ -791,105 +764,96 @@ class _StatisticsScreenState extends State<StatisticsScreen>
     String label,
     String value,
     IconData icon,
-    Color backgroundColor, {
+    Color color, {
     Gradient? gradient,
-    Color textColor = Colors.white,
+    Color? textColor,
   }) {
-    // Extract accent color from gradient or fall back to backgroundColor
-    final Color accentColor = gradient is LinearGradient
-        ? gradient.colors.first
-        : (backgroundColor == Colors.transparent
-              ? Theme.of(context).colorScheme.primary
-              : backgroundColor);
     final theme = Theme.of(context);
-
+    // Accept the legacy gradient form (used by other call sites) and derive a
+    // single accent color for the colored-background block style.
+    final accent = gradient is LinearGradient
+        ? gradient.colors.first
+        : (color == Colors.transparent ? theme.colorScheme.primary : color);
     return Semantics(
       label: '$label: $value',
       child: Container(
-        height: 140,
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 14),
         decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
-          boxShadow: AppDesign.cardShadow,
+          color: accent.withValues(alpha: 0.10),
+          borderRadius: BorderRadius.circular(14),
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
-          child: Stack(
-            children: [
-              // Left accent bar
-              Positioned(
-                left: 0,
-                top: 0,
-                bottom: 0,
-                child: Container(
-                  width: 4,
-                  decoration: BoxDecoration(
-                    gradient:
-                        gradient ??
-                        LinearGradient(colors: [accentColor, accentColor]),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: accent.withValues(alpha: 0.18),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: accent, size: 20),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    value,
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      color: accent,
+                      height: 1.1,
+                    ),
                   ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Icon with gradient background
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        gradient:
-                            gradient ??
-                            LinearGradient(
-                              colors: [
-                                accentColor,
-                                accentColor.withValues(alpha: 0.8),
-                              ],
-                            ),
-                        borderRadius: BorderRadius.circular(
-                          AppDesign.radiusMedium,
-                        ),
-                      ),
-                      child: Icon(icon, color: Colors.white, size: 20),
+                  const SizedBox(height: 2),
+                  Text(
+                    label,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
                     ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          value,
-                          style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: accentColor,
-                            height: 1.0,
-                            letterSpacing: -0.5,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          label,
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                            color: theme.colorScheme.onSurface.withValues(
-                              alpha: 0.6,
-                            ),
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
+  }
+
+  /// Representative color for a gradient (for the colored-bg block style).
+  Color _gradColor(Gradient g) =>
+      g is LinearGradient ? g.colors.first : Theme.of(context).colorScheme.primary;
+
+  /// Lay a list of stat blocks into [perRow] equal-width columns; equal-height
+  /// rows via IntrinsicHeight. perRow == 1 yields one full-width block per row.
+  Widget _statGrid(List<Widget> cards, int perRow) {
+    final children = <Widget>[];
+    for (var i = 0; i < cards.length; i += perRow) {
+      if (i > 0) children.add(const SizedBox(height: 12));
+      final cells = <Widget>[];
+      for (var j = 0; j < perRow; j++) {
+        if (j > 0) cells.add(const SizedBox(width: 12));
+        final idx = i + j;
+        cells.add(
+          idx < cards.length
+              ? Expanded(child: cards[idx])
+              : const Expanded(child: SizedBox()),
+        );
+      }
+      children.add(
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: cells,
+          ),
+        ),
+      );
+    }
+    return Column(children: children);
   }
 
   Widget _buildStatusPieChart() {
@@ -1607,9 +1571,8 @@ class _StatisticsScreenState extends State<StatisticsScreen>
         horizontal: isDesktop ? 12 : 8,
       ),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.05),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
-        border: Border.all(color: color.withValues(alpha: 0.1)),
       ),
       child: Column(
         children: [
@@ -3015,49 +2978,37 @@ class _StatisticsContentState extends State<StatisticsContent>
         TranslationService.translate(context, 'stat_total_books'),
         totalBooks.toString(),
         Icons.library_books,
-        Colors.transparent,
-        gradient: AppDesign.oceanGradient,
-        textColor: Colors.white,
+        _gradColor(AppDesign.oceanGradient),
       ),
       'read_books': _buildStatCard(
         TranslationService.translate(context, 'stat_read'),
         readBooks.toString(),
         Icons.check_circle,
-        Colors.transparent,
-        gradient: AppDesign.successGradient,
-        textColor: Colors.white,
+        _gradColor(AppDesign.successGradient),
       ),
       'borrowed_books': _buildStatCard(
         thirdCardLabel,
         thirdCardValue,
         thirdCardIcon,
-        Colors.transparent,
-        gradient: AppDesign.flameGradient,
-        textColor: Colors.white,
+        _gradColor(AppDesign.flameGradient),
       ),
       'unique_authors': _buildStatCard(
         TranslationService.translate(context, 'stat_unique_authors'),
         uniqueAuthors.toString(),
         Icons.person_outline,
-        Colors.transparent,
-        gradient: AppDesign.orangeGradient,
-        textColor: Colors.white,
+        _gradColor(AppDesign.orangeGradient),
       ),
       'completion': _buildStatCard(
         TranslationService.translate(context, 'stat_completion'),
         "$completionRate%",
         Icons.trending_up,
-        Colors.transparent,
-        gradient: AppDesign.primaryGradient,
-        textColor: Colors.white,
+        _gradColor(AppDesign.primaryGradient),
       ),
       'oldest_book': _buildStatCard(
         TranslationService.translate(context, 'stat_oldest_book'),
         oldestYear?.toString() ?? "N/A",
         Icons.history,
-        Colors.transparent,
-        gradient: AppDesign.anthraciteGradient,
-        textColor: Colors.white,
+        _gradColor(AppDesign.anthraciteGradient),
       ),
     };
 
@@ -3112,36 +3063,23 @@ class _StatisticsContentState extends State<StatisticsContent>
       );
     }
 
-    // Normal mode: rows of 2
+    // Normal mode: one block per row on mobile, two/three when there is room.
     final visibleIds = _summaryCardOrder
         .where((id) => !_hiddenSummaryCards.contains(id))
         .toList();
+    final orderedCards = visibleIds
+        .map((id) => cardWidgets[id] ?? const SizedBox.shrink())
+        .toList();
 
-    final rows = <Widget>[];
-    for (var i = 0; i < visibleIds.length; i += 2) {
-      final children = <Widget>[];
-      for (var j = 0; j < 2; j++) {
-        if (j > 0) children.add(const SizedBox(width: 12));
-        if (i + j < visibleIds.length) {
-          children.add(
-            Expanded(
-              child: cardWidgets[visibleIds[i + j]] ?? const SizedBox.shrink(),
-            ),
-          );
-        } else {
-          children.add(const Expanded(child: SizedBox.shrink()));
-        }
-      }
-      rows.add(Row(children: children));
-    }
-
-    return Column(
-      children: [
-        for (var i = 0; i < rows.length; i++) ...[
-          if (i > 0) const SizedBox(height: 12),
-          rows[i],
-        ],
-      ],
+    return LayoutBuilder(
+      builder: (context, c) {
+        final perRow = c.maxWidth < 480
+            ? 1
+            : c.maxWidth < 760
+            ? 2
+            : 3;
+        return _statGrid(orderedCards, perRow);
+      },
     );
   }
 
@@ -4829,9 +4767,8 @@ class _StatisticsContentState extends State<StatisticsContent>
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.05),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
-        border: Border.all(color: color.withValues(alpha: 0.1)),
       ),
       child: Column(
         children: [
@@ -5156,87 +5093,95 @@ class _StatisticsContentState extends State<StatisticsContent>
     String label,
     String value,
     IconData icon,
-    Color backgroundColor, {
+    Color color, {
     Gradient? gradient,
-    Color textColor = const Color(0xFF1E293B),
+    Color? textColor,
   }) {
-    // Extract accent color from gradient or fall back to backgroundColor
-    final Color accentColor = gradient is LinearGradient
-        ? gradient.colors.first
-        : (backgroundColor == Colors.transparent
-              ? Theme.of(context).colorScheme.primary
-              : backgroundColor);
     final theme = Theme.of(context);
-
+    // Accept the legacy gradient form (used by other call sites) and derive a
+    // single accent color for the colored-background block style.
+    final accent = gradient is LinearGradient
+        ? gradient.colors.first
+        : (color == Colors.transparent ? theme.colorScheme.primary : color);
     return Semantics(
       label: '$label: $value',
       child: Container(
-        height: 120,
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 14),
         decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
-          boxShadow: AppDesign.cardShadow,
+          color: accent.withValues(alpha: 0.10),
+          borderRadius: BorderRadius.circular(14),
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
-          child: Stack(
-            children: [
-              // Left accent bar
-              Positioned(
-                left: 0,
-                top: 0,
-                bottom: 0,
-                child: Container(
-                  width: 4,
-                  decoration: BoxDecoration(
-                    gradient:
-                        gradient ??
-                        LinearGradient(colors: [accentColor, accentColor]),
-                  ),
-                ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: accent.withValues(alpha: 0.18),
+                borderRadius: BorderRadius.circular(12),
               ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Icon(icon, color: accentColor, size: 22),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          value,
-                          style: TextStyle(
-                            fontSize: 26,
-                            fontWeight: FontWeight.bold,
-                            color: accentColor,
-                            height: 1.0,
-                            letterSpacing: -0.5,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          label,
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: theme.colorScheme.onSurface.withValues(
-                              alpha: 0.6,
-                            ),
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
+              child: Icon(icon, color: accent, size: 20),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    value,
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      color: accent,
+                      height: 1.1,
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    label,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
+  }
+
+  /// Representative color for a gradient (for the colored-bg block style).
+  Color _gradColor(Gradient g) =>
+      g is LinearGradient ? g.colors.first : Theme.of(context).colorScheme.primary;
+
+  /// Lay a list of stat blocks into [perRow] equal-width columns; equal-height
+  /// rows via IntrinsicHeight. perRow == 1 yields one full-width block per row.
+  Widget _statGrid(List<Widget> cards, int perRow) {
+    final children = <Widget>[];
+    for (var i = 0; i < cards.length; i += perRow) {
+      if (i > 0) children.add(const SizedBox(height: 12));
+      final cells = <Widget>[];
+      for (var j = 0; j < perRow; j++) {
+        if (j > 0) cells.add(const SizedBox(width: 12));
+        final idx = i + j;
+        cells.add(
+          idx < cards.length
+              ? Expanded(child: cards[idx])
+              : const Expanded(child: SizedBox()),
+        );
+      }
+      children.add(
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: cells,
+          ),
+        ),
+      );
+    }
+    return Column(children: children);
   }
 }
