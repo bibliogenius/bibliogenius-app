@@ -4,7 +4,8 @@ import 'dart:io' show Platform;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
-import 'package:flutter/foundation.dart' show debugPrint, kDebugMode;
+import 'package:flutter/foundation.dart'
+    show debugPrint, immutable, kDebugMode, visibleForTesting;
 import 'package:flutter/services.dart' show PlatformException;
 
 abstract class SecureStorageInterface {
@@ -134,6 +135,65 @@ class MockSecureStorage implements SecureStorageInterface {
   Future<String?> read({required String key}) async => _data[key];
   @override
   Future<void> delete({required String key}) async => _data.remove(key);
+}
+
+/// Outcome of reconciling the two macOS copies of `library_uuid`: the value to
+/// converge on, plus which store(s) must be (re)written to match it.
+@immutable
+class LibraryUuidReconciliation {
+  /// The UUID both stores should converge on, or `null` when neither store held
+  /// a value (the caller must mint a fresh UUID).
+  final String? chosen;
+
+  /// The Keychain copy must be (re)written to match [chosen].
+  final bool needsSecureWrite;
+
+  /// The NSUserDefaults copy must be (re)written to match [chosen].
+  final bool needsPrefsWrite;
+
+  const LibraryUuidReconciliation({
+    required this.chosen,
+    this.needsSecureWrite = false,
+    this.needsPrefsWrite = false,
+  });
+}
+
+/// Reconcile the macOS Keychain ([secure]) and NSUserDefaults ([prefs]) copies
+/// of `library_uuid` so they converge on a single value, preventing the silent
+/// identity regeneration a Keychain <-> NSUserDefaults swing would otherwise
+/// trigger (see `memory/e2ee_identity_storage_fragility.md`).
+///
+/// Rules (intentionally NON-DESTRUCTIVE — a populated store is never
+/// overwritten with a different value):
+/// - Both present and equal: use it, no writes.
+/// - Both present but different (already mid-swing): use the Keychain copy for
+///   this boot but write NOTHING. The NSUserDefaults copy may be the value that
+///   actually decrypts `crypto_keys`; overwriting it could force an identity
+///   wipe. A wrong pick instead surfaces `E_IDENTITY_DECRYPT_FAILED` from the
+///   Rust layer for user-confirmed recovery, and the alternative value stays
+///   available for a future attempt.
+/// - Exactly one present: adopt it and mirror into the EMPTY store (safe fill).
+/// - Neither present: [chosen] is null; the caller mints a fresh UUID and
+///   writes both stores.
+///
+/// Empty strings are treated as absent.
+@visibleForTesting
+LibraryUuidReconciliation reconcileLibraryUuid(String? secure, String? prefs) {
+  final hasSecure = secure != null && secure.isNotEmpty;
+  final hasPrefs = prefs != null && prefs.isNotEmpty;
+
+  if (hasSecure) {
+    // Both present (equal or not): use Keychain, never clobber the prefs copy.
+    if (hasPrefs) {
+      return LibraryUuidReconciliation(chosen: secure);
+    }
+    // prefs empty: safe to fill it with the Keychain value.
+    return LibraryUuidReconciliation(chosen: secure, needsPrefsWrite: true);
+  }
+  if (hasPrefs) {
+    return LibraryUuidReconciliation(chosen: prefs, needsSecureWrite: true);
+  }
+  return const LibraryUuidReconciliation(chosen: null);
 }
 
 class AuthService {
@@ -272,10 +332,23 @@ class AuthService {
     _uuidCompleter = Completer<String>();
 
     try {
-      var uuid = await storage.read(key: _libraryUuidKey);
-      if (uuid == null) {
-        uuid = const Uuid().v4();
-        await storage.write(key: _libraryUuidKey, value: uuid);
+      final String uuid;
+      if (Platform.isMacOS && !kDebugMode) {
+        // Release macOS is the only target exposed to the Keychain <->
+        // NSUserDefaults swing, so reconcile both stores here. Debug macOS
+        // deliberately stays on the prefs-only store (mirrors the kDebugMode
+        // short-circuit in _createStorage, which avoids Keychain entitlement
+        // issues without an Apple Developer account). iOS (reliable Keychain)
+        // and Android (EncryptedSharedPreferences + resetOnError) keep the
+        // single-secure-store path and gain no plaintext copy.
+        uuid = await _resolveLibraryUuidMacOs();
+      } else {
+        var existing = await storage.read(key: _libraryUuidKey);
+        if (existing == null) {
+          existing = const Uuid().v4();
+          await storage.write(key: _libraryUuidKey, value: existing);
+        }
+        uuid = existing;
       }
       _cachedUuid = uuid;
       _uuidCompleter!.complete(uuid);
@@ -285,6 +358,66 @@ class AuthService {
       _uuidCompleter = null;
       rethrow;
     }
+  }
+
+  /// macOS-only: resolve `library_uuid` from both stores and converge them so a
+  /// future Keychain <-> NSUserDefaults swing cannot lose the value. Reuses
+  /// [setLibraryUuidDualWrite] for the converging write. Best-effort: a store
+  /// that is unreadable is treated as empty and reconciled from the other.
+  Future<String> _resolveLibraryUuidMacOs() async {
+    final secure = await _readSecureLibraryUuid();
+    final prefs = await _readPrefsLibraryUuid();
+    final r = reconcileLibraryUuid(secure, prefs);
+
+    if (r.chosen != null && !r.needsSecureWrite && !r.needsPrefsWrite) {
+      // Stores agree, or they diverge and we deliberately write nothing so the
+      // non-chosen copy is preserved for recovery (see reconcileLibraryUuid).
+      _cachedUuid = r.chosen;
+      return r.chosen!;
+    }
+    final chosen = r.chosen ?? const Uuid().v4();
+    // Fills the empty store / mints a fresh UUID into both. Never overwrites a
+    // populated store with a different value (idempotent; per-store failures
+    // are swallowed by setLibraryUuidDualWrite).
+    await setLibraryUuidDualWrite(chosen);
+    return chosen;
+  }
+
+  /// Reads `library_uuid` from the Keychain directly. Returns null on any
+  /// failure (e.g. -34018 errSecMissingEntitlement) so the caller can fall back
+  /// to the NSUserDefaults copy instead of throwing.
+  Future<String?> _readSecureLibraryUuid() async {
+    try {
+      final v = await const FlutterSecureStorage().read(
+        key: _libraryUuidKey,
+        aOptions: const AndroidOptions(resetOnError: true),
+      );
+      return (v != null && v.isNotEmpty) ? v : null;
+    } catch (e) {
+      debugPrint('getOrCreateLibraryUuid: Keychain read failed: $e');
+      return null;
+    }
+  }
+
+  /// Reads the NSUserDefaults fallback copy of `library_uuid` (same key
+  /// [setLibraryUuidDualWrite] writes). Returns null on any failure.
+  Future<String?> _readPrefsLibraryUuid() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final v = prefs.getString('auth_fallback_$_libraryUuidKey');
+      return (v != null && v.isNotEmpty) ? v : null;
+    } catch (e) {
+      debugPrint('getOrCreateLibraryUuid: prefs read failed: $e');
+      return null;
+    }
+  }
+
+  /// Resets the in-process `library_uuid` cache. Test-only: production never
+  /// needs to clear it within a single process lifetime.
+  @visibleForTesting
+  static void resetLibraryUuidCacheForTest() {
+    _cachedUuid = null;
+    _uuidCompleter = null;
   }
 
   /// Adopt a library UUID from another device during P2P pairing.

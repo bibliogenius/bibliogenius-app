@@ -61,4 +61,76 @@ void main() {
       expect(loggedIn, false);
     });
   });
+
+  // Pure reconciliation logic for the macOS Keychain <-> NSUserDefaults swing
+  // (see e2ee_identity_storage_fragility.md). Platform-independent, so these
+  // run everywhere.
+  group('reconcileLibraryUuid', () {
+    test('both present and equal -> use it, no writes', () {
+      final r = reconcileLibraryUuid('U', 'U');
+      expect(r.chosen, 'U');
+      expect(r.needsSecureWrite, false);
+      expect(r.needsPrefsWrite, false);
+    });
+
+    test('both present but different -> Keychain chosen, NO writes (non-destructive)', () {
+      final r = reconcileLibraryUuid('KC', 'PREF');
+      expect(r.chosen, 'KC');
+      // Crucial: the prefs copy is NOT overwritten — it may be the value that
+      // decrypts crypto_keys. Clobbering it could force an identity wipe.
+      expect(r.needsSecureWrite, false);
+      expect(r.needsPrefsWrite, false);
+    });
+
+    test('only Keychain present -> mirror to prefs', () {
+      final r = reconcileLibraryUuid('KC', null);
+      expect(r.chosen, 'KC');
+      expect(r.needsSecureWrite, false);
+      expect(r.needsPrefsWrite, true);
+    });
+
+    test('only prefs present -> mirror to Keychain', () {
+      final r = reconcileLibraryUuid(null, 'PREF');
+      expect(r.chosen, 'PREF');
+      expect(r.needsSecureWrite, true);
+      expect(r.needsPrefsWrite, false);
+    });
+
+    test('neither present -> chosen is null', () {
+      final r = reconcileLibraryUuid(null, null);
+      expect(r.chosen, null);
+    });
+
+    test('empty strings treated as absent', () {
+      expect(reconcileLibraryUuid('', '').chosen, null);
+      expect(reconcileLibraryUuid('', 'PREF').chosen, 'PREF');
+      expect(reconcileLibraryUuid('KC', '').chosen, 'KC');
+    });
+  });
+
+  // getOrCreateLibraryUuid wiring. The release-only macOS reconciliation path
+  // cannot run under `flutter test` (always kDebugMode), so its logic is
+  // covered by the reconcileLibraryUuid pure tests above. Here we guard the
+  // non-regression of the bootstrap contract in the debug/test environment:
+  // the UUID must persist (never silently regenerate) across calls.
+  group('getOrCreateLibraryUuid (bootstrap contract)', () {
+    setUp(() {
+      AuthService.resetLibraryUuidCacheForTest();
+      FlutterSecureStorage.setMockInitialValues({});
+      SharedPreferences.setMockInitialValues({});
+    });
+
+    test('mints a non-empty UUID on first call', () async {
+      final got = await AuthService().getOrCreateLibraryUuid();
+      expect(got, isNotEmpty);
+    });
+
+    test('returns the same UUID across calls (no silent regeneration)',
+        () async {
+      final first = await AuthService().getOrCreateLibraryUuid();
+      AuthService.resetLibraryUuidCacheForTest();
+      final second = await AuthService().getOrCreateLibraryUuid();
+      expect(second, first);
+    });
+  });
 }
