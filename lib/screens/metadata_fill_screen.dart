@@ -42,6 +42,30 @@ class _MetadataFillScreenState extends State<MetadataFillScreen>
   /// Sentinel filter value for "books without an ISBN" (not a gap-fill field).
   static const _noIsbnFilter = '__no_isbn';
 
+  /// Candidate lot sizes. The selector offers those smaller than the current
+  /// backlog, plus "Tout" (null). Small batches nudge against very long runs.
+  static const List<int> _batchCandidates = [10, 20, 30];
+
+  /// Default lot size, preferred when still valid for the current backlog.
+  static const int _defaultBatch = 20;
+
+  /// Picked lot size (null = "Tout"). Clamped to the offered set at build/run
+  /// time via [_effectiveBatch], so it stays valid as the backlog shrinks.
+  int? _batchSize = _defaultBatch;
+
+  /// Lot options for a given backlog: candidates below it, then "Tout".
+  List<int?> _offeredBatches(int backlog) =>
+      [..._batchCandidates.where((n) => n < backlog), null];
+
+  /// The picked size if still offered, else a sensible default (the default lot,
+  /// else the largest finite option, else "Tout").
+  int? _effectiveBatch(List<int?> offered) {
+    if (offered.contains(_batchSize)) return _batchSize;
+    final finite = offered.whereType<int>().toList();
+    if (finite.contains(_defaultBatch)) return _defaultBatch;
+    return finite.isNotEmpty ? finite.last : null;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -211,31 +235,92 @@ class _MetadataFillScreenState extends State<MetadataFillScreen>
     if (provider.isRunning && progress != null) {
       return _runningStrip(provider, progress);
     }
-    if (provider.isResumable && progress != null) {
-      return _resumeStrip(provider);
-    }
+
     final nothingToDo = provider.processableCount == 0;
-    if (provider.isFinished && progress != null) {
-      return _finishedStrip(provider, progress, nothingToDo);
+    final Widget action;
+    if (provider.isResumable && progress != null) {
+      action = _resumeStrip(provider);
+    } else if (provider.isCompleted && progress != null) {
+      action = _finishedStrip(provider, progress, nothingToDo);
+    } else if (nothingToDo) {
+      action = _allDoneStrip();
+    } else {
+      action = _startButton(provider);
     }
-    if (nothingToDo) return _allDoneStrip();
-    return _startButton(provider);
+
+    // Offer the lot selector above whichever non-running action (start / rerun
+    // / resume), so the user can size the next lot from any state — not only on
+    // the very first run.
+    final offered = _offeredBatches(provider.processableCount);
+    if (nothingToDo || offered.length <= 1) return action;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _batchSelector(offered, _effectiveBatch(offered)),
+        const SizedBox(height: 8),
+        action,
+      ],
+    );
   }
 
   Widget _startButton(MetadataFillProvider provider) {
-    return SizedBox(
-      width: double.infinity,
-      child: FilledButton.icon(
-        onPressed: provider.starting ? null : _start,
-        icon: provider.starting
-            ? const SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
-            : const Icon(Icons.auto_fix_high),
-        label: Text(_t('completeness_start_button')),
-      ),
+    final offered = _offeredBatches(provider.processableCount);
+    final effective = _effectiveBatch(offered);
+    // A real choice exists once at least one finite lot fits under the backlog
+    // (offered always ends with the "Tout" null entry).
+    final hasChoice = offered.length > 1;
+    final count = effective ?? provider.processableCount;
+    return Column(
+      children: [
+        if (hasChoice) ...[
+          _batchSelector(offered, effective),
+          const SizedBox(height: 8),
+        ],
+        SizedBox(
+          width: double.infinity,
+          child: FilledButton.icon(
+            onPressed: provider.starting ? null : _start,
+            icon: provider.starting
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.auto_fix_high),
+            label: Text(
+              count > 0
+                  ? _t('completeness_start_n', params: {'n': '$count'})
+                  : _t('completeness_start_button'),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Chips to pick how many books a fresh run processes before pausing.
+  Widget _batchSelector(List<int?> offered, int? effective) {
+    final theme = Theme.of(context);
+    return Wrap(
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: 6,
+      runSpacing: 4,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(right: 2),
+          child: Text(
+            _t('completeness_batch_label'),
+            style: theme.textTheme.bodySmall,
+          ),
+        ),
+        for (final opt in offered)
+          ChoiceChip(
+            label: Text(opt?.toString() ?? _t('completeness_batch_all')),
+            selected: effective == opt,
+            visualDensity: VisualDensity.compact,
+            onSelected: (_) => setState(() => _batchSize = opt),
+          ),
+      ],
     );
   }
 
@@ -244,8 +329,11 @@ class _MetadataFillScreenState extends State<MetadataFillScreen>
     frb.FrbFillProgress progress,
   ) {
     final theme = Theme.of(context);
-    final total = progress.total;
-    final ratio = total > 0 ? progress.done / total : null;
+    // Lot-relative progress: the bar fills 0→100% for the current lot, while the
+    // teaser card above tracks overall library completeness.
+    final lotDone = provider.lotDone;
+    final lotTotal = provider.lotTotal;
+    final ratio = lotTotal > 0 ? lotDone / lotTotal : null;
     final current = progress.currentTitle ?? '';
     return _stripContainer(
       child: Row(
@@ -261,16 +349,31 @@ class _MetadataFillScreenState extends State<MetadataFillScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${_t('completeness_progress_count', params: {'done': '${progress.done}', 'total': '$total'})}'
+                  '${_t('completeness_progress_count', params: {'done': '$lotDone', 'total': '$lotTotal'})}'
                   '${current.isEmpty ? '' : '  ·  $current'}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.bodyMedium,
                 ),
                 const SizedBox(height: 6),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
-                  child: LinearProgressIndicator(value: ratio, minHeight: 6),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: LinearProgressIndicator(
+                          value: ratio,
+                          minHeight: 6,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      ratio == null ? '—' : '${(ratio * 100).round()}%',
+                      style: theme.textTheme.labelMedium
+                          ?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -286,12 +389,23 @@ class _MetadataFillScreenState extends State<MetadataFillScreen>
   }
 
   Widget _resumeStrip(MetadataFillProvider provider) {
+    final progress = provider.progress;
+    final done = progress?.done ?? 0;
+    final total = progress?.total ?? 0;
+    // A lot pauses the run as "interrupted"; show how far the campaign got so
+    // the strip reads as "continue", not just "a run was interrupted".
+    final label = total > 0
+        ? _t('completeness_progress_count',
+            params: {'done': '$done', 'total': '$total'})
+        : _t('completeness_resume_hint');
     return _stripContainer(
       child: Row(
         children: [
+          const Icon(Icons.pause_circle_outline, size: 20),
+          const SizedBox(width: 8),
           Expanded(
             child: Text(
-              _t('completeness_resume_hint'),
+              label,
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ),
@@ -867,9 +981,11 @@ class _MetadataFillScreenState extends State<MetadataFillScreen>
   // ── Actions ───────────────────────────────────────────────────────────────
 
   Future<void> _start() async {
+    final provider = context.read<MetadataFillProvider>();
+    final batch = _effectiveBatch(_offeredBatches(provider.processableCount));
     final languages =
         Provider.of<ThemeProvider>(context, listen: false).userLanguages;
-    await context.read<MetadataFillProvider>().start(languages);
+    await provider.start(languages, lotLimit: batch);
   }
 
   Future<void> _openBookEditor(int bookId) async {

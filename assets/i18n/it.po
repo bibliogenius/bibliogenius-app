@@ -9887,3 +9887,12 @@ msgstr "Anno"
 
 msgid "field_cover_url"
 msgstr "Copertina"
+
+msgid "completeness_batch_label"
+msgstr "A gruppi di:"
+
+msgid "completeness_batch_all"
+msgstr "Tutto"
+
+msgid "completeness_start_n"
+msgstr "Completa {n} libri"

@@ -9902,3 +9902,12 @@ msgstr "Ano"
 
 msgid "field_cover_url"
 msgstr "Capa"
+
+msgid "completeness_batch_label"
+msgstr "Em lotes de:"
+
+msgid "completeness_batch_all"
+msgstr "Tudo"
+
+msgid "completeness_start_n"
+msgstr "Completar {n} livros"

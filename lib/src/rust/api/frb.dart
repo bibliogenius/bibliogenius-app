@@ -231,8 +231,12 @@ Future<FrbCompletenessStats> metadataFillStats() =>
 
 /// Start (or resume) the bulk fill. Returns the batch id. `languages` is the
 /// user's reading-language config (comma-joined) for summary coherence.
-Future<String> metadataFillStart({String? languages}) =>
-    RustLib.instance.api.crateApiFrbMetadataFillStart(languages: languages);
+/// `lot_limit` caps how many books this invocation processes before pausing the
+/// run as resumable (the "small batches" nudge); `None` runs to completion.
+Future<String> metadataFillStart({String? languages, int? lotLimit}) => RustLib
+    .instance
+    .api
+    .crateApiFrbMetadataFillStart(languages: languages, lotLimit: lotLimit);
 
 /// Current/last run progress (None if a run has never been started).
 Future<FrbFillProgress?> metadataFillProgress() =>

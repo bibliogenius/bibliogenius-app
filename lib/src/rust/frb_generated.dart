@@ -460,7 +460,10 @@ abstract class RustLibApi extends BaseApi {
     required int limit,
   });
 
-  Future<String> crateApiFrbMetadataFillStart({String? languages});
+  Future<String> crateApiFrbMetadataFillStart({
+    String? languages,
+    int? lotLimit,
+  });
 
   Future<FrbCompletenessStats> crateApiFrbMetadataFillStats();
 
@@ -4516,12 +4519,16 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<String> crateApiFrbMetadataFillStart({String? languages}) {
+  Future<String> crateApiFrbMetadataFillStart({
+    String? languages,
+    int? lotLimit,
+  }) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_opt_String(languages, serializer);
+          sse_encode_opt_box_autoadd_u_32(lotLimit, serializer);
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
@@ -4534,7 +4541,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData: sse_decode_String,
         ),
         constMeta: kCrateApiFrbMetadataFillStartConstMeta,
-        argValues: [languages],
+        argValues: [languages, lotLimit],
         apiImpl: this,
       ),
     );
@@ -4543,7 +4550,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   TaskConstMeta get kCrateApiFrbMetadataFillStartConstMeta =>
       const TaskConstMeta(
         debugName: "metadata_fill_start",
-        argNames: ["languages"],
+        argNames: ["languages", "lotLimit"],
       );
 
   @override

@@ -552,11 +552,14 @@ class FfiService {
 
   /// Start (or resume) a bulk gap-fill run. Returns the batch id. `languages`
   /// is the user's reading-language config, joined for summary coherence.
-  Future<String> metadataFillStart({List<String>? languages}) =>
+  /// `lotLimit` caps how many books this invocation processes before the run
+  /// pauses as resumable (the "small batches" nudge); null runs to completion.
+  Future<String> metadataFillStart({List<String>? languages, int? lotLimit}) =>
       frb.metadataFillStart(
         languages: (languages != null && languages.isNotEmpty)
             ? languages.join(',')
             : null,
+        lotLimit: lotLimit,
       );
 
   /// Poll current/last run progress (null if never started).

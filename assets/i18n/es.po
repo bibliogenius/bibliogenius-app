@@ -9763,3 +9763,12 @@ msgstr "Año"
 
 msgid "field_cover_url"
 msgstr "Portada"
+
+msgid "completeness_batch_label"
+msgstr "En lotes de:"
+
+msgid "completeness_batch_all"
+msgstr "Todo"
+
+msgid "completeness_start_n"
+msgstr "Completar {n} libros"

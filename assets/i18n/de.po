@@ -9764,3 +9764,12 @@ msgstr "Jahr"
 msgid "field_cover_url"
 msgstr "Cover"
 
+
+msgid "completeness_batch_label"
+msgstr "In Stapeln von:"
+
+msgid "completeness_batch_all"
+msgstr "Alle"
+
+msgid "completeness_start_n"
+msgstr "{n} Bücher vervollständigen"

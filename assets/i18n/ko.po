@@ -5889,3 +5889,12 @@ msgstr "출판 연도"
 
 msgid "field_cover_url"
 msgstr "표지"
+
+msgid "completeness_batch_label"
+msgstr "배치 처리:"
+
+msgid "completeness_batch_all"
+msgstr "전체"
+
+msgid "completeness_start_n"
+msgstr "{n}권 채우기"

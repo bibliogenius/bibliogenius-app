@@ -9942,3 +9942,12 @@ msgstr "Year"
 msgid "field_cover_url"
 msgstr "Cover"
 
+
+msgid "completeness_batch_label"
+msgstr "In batches of:"
+
+msgid "completeness_batch_all"
+msgstr "All"
+
+msgid "completeness_start_n"
+msgstr "Complete {n} books"

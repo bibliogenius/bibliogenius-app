@@ -8311,3 +8311,12 @@ msgstr ""
 #. Snackbar shown after the peer cover cache has been cleared.
 msgid "peer_cover_cache_clear_done"
 msgstr ""
+
+msgid "completeness_batch_label"
+msgstr ""
+
+msgid "completeness_batch_all"
+msgstr ""
+
+msgid "completeness_start_n"
+msgstr ""

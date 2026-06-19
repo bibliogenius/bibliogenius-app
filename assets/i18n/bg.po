@@ -9894,3 +9894,12 @@ msgstr "Година"
 
 msgid "field_cover_url"
 msgstr "Корица"
+
+msgid "completeness_batch_label"
+msgstr "На партиди по:"
+
+msgid "completeness_batch_all"
+msgstr "Всички"
+
+msgid "completeness_start_n"
+msgstr "Допълни {n} книги"

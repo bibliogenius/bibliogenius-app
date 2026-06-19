@@ -5889,3 +5889,12 @@ msgstr "出版年"
 
 msgid "field_cover_url"
 msgstr "表紙"
+
+msgid "completeness_batch_label"
+msgstr "バッチ処理："
+
+msgid "completeness_batch_all"
+msgstr "すべて"
+
+msgid "completeness_start_n"
+msgstr "{n}冊を補完"

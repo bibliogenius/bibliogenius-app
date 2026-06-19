@@ -5889,3 +5889,12 @@ msgstr "出版年份"
 
 msgid "field_cover_url"
 msgstr "封面"
+
+msgid "completeness_batch_label"
+msgstr "每批处理："
+
+msgid "completeness_batch_all"
+msgstr "全部"
+
+msgid "completeness_start_n"
+msgstr "补全 {n} 本书"

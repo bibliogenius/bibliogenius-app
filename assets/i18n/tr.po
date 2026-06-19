@@ -9894,3 +9894,12 @@ msgstr "Yıl"
 
 msgid "field_cover_url"
 msgstr "Kapak"
+
+msgid "completeness_batch_label"
+msgstr "Toplu işlem:"
+
+msgid "completeness_batch_all"
+msgstr "Tümü"
+
+msgid "completeness_start_n"
+msgstr "{n} kitabı tamamla"

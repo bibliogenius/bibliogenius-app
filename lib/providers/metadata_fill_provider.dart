@@ -27,6 +27,13 @@ class MetadataFillProvider extends ChangeNotifier {
   Timer? _pollTimer;
   bool _disposed = false;
 
+  /// Cumulative `done` at the moment the current lot started, so the run bar can
+  /// show progress *within this lot* rather than across the whole backlog.
+  int _lotStartDone = 0;
+
+  /// Size of the current lot (null = "Tout" → the bar tracks the whole run).
+  int? _lotSize;
+
   frb.FrbCompletenessStats? get stats => _stats;
   frb.FrbFillProgress? get progress => _progress;
   List<frb.FrbFilledBook> get recent => _recent;
@@ -47,6 +54,11 @@ class MetadataFillProvider extends ChangeNotifier {
     return s == 'done' || s == 'cancelled';
   }
 
+  /// The last run finished by completing the work — worth keeping a summary for.
+  /// A *cancelled* run is excluded: the user abandoned it, so the UI returns to
+  /// a clean start state rather than pinning the cancelled-run summary.
+  bool get isCompleted => _progress?.status == 'done';
+
   /// Total empty gap-fill fields across owned books (field-level progress).
   int get emptyFields => _stats?.emptyFields.toInt() ?? 0;
 
@@ -66,6 +78,24 @@ class MetadataFillProvider extends ChangeNotifier {
   }
 
   int get completionPercent => (completionRatio * 100).round();
+
+  /// Books processed in the current lot ("Tout" tracks the whole run instead).
+  int get lotDone {
+    if (_lotSize == null) return _progress?.done ?? 0;
+    final d = (_progress?.done ?? 0) - _lotStartDone;
+    return d < 0 ? 0 : d;
+  }
+
+  /// Denominator for the run bar: the lot size, but capped at the books
+  /// actually remaining when the lot began — so a lot of 20 over 17 remaining
+  /// books shows "/17" and still fills to 100%. "Tout" tracks the whole run.
+  int get lotTotal {
+    final size = _lotSize;
+    if (size == null) return _progress?.total ?? 0;
+    final remaining = (_progress?.total ?? 0) - _lotStartDone;
+    if (remaining <= 0) return size;
+    return remaining < size ? remaining : size;
+  }
 
   /// Load everything for the completeness screen and resume polling if a run
   /// is still live.
@@ -142,13 +172,18 @@ class MetadataFillProvider extends ChangeNotifier {
 
 
   /// Start (or resume) a bulk run, forwarding reading languages for summary
-  /// coherence, then begin polling progress.
-  Future<void> start(List<String> languages) async {
+  /// coherence, then begin polling progress. `lotLimit` bounds this lot (the
+  /// "small batches" nudge); null processes the whole backlog.
+  Future<void> start(List<String> languages, {int? lotLimit}) async {
+    // Lot baseline: a resume continues the same run's cumulative `done`, so the
+    // lot starts from there; a fresh run starts the lot from zero.
+    _lotStartDone = isResumable ? (_progress?.done ?? 0) : 0;
+    _lotSize = lotLimit;
     _starting = true;
     _error = null;
     notifyListeners();
     try {
-      await _ffi.metadataFillStart(languages: languages);
+      await _ffi.metadataFillStart(languages: languages, lotLimit: lotLimit);
       await refreshProgress();
       _startPolling();
     } catch (e) {
@@ -204,7 +239,10 @@ class MetadataFillProvider extends ChangeNotifier {
     _pollTimer?.cancel();
     _pollTimer = Timer.periodic(const Duration(seconds: 1), (_) async {
       await refreshProgress();
-      if (!isRunning) {
+      if (isRunning) {
+        // Keep the completeness teaser climbing live as books are filled.
+        await loadStats();
+      } else {
         _stopPolling();
         await _onRunFinished();
       }
