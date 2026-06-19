@@ -138,6 +138,9 @@ class CachedBookCover extends StatelessWidget {
     final isRelativeApiPath = imageUrl!.startsWith('/api');
 
     if (!isNetworkUrl && !isRelativeApiPath) {
+      // imageUrl is already re-based onto the current covers directory by the
+      // model getter (Book.coverUrl / Loan.resolvedCoverUrl via
+      // LocalCoverResolver) when it came from a stored book row.
       Widget localImage = Image.file(
         File(imageUrl!),
         width: width,

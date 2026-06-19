@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../src/rust/frb_generated.dart';
 import '../src/rust/api/frb.dart' as frb;
 import '../services/api_service.dart';
+import '../utils/local_cover_resolver.dart';
 
 const _migrationFlag = 'db_migration_completed_v1';
 const _dbName = 'bibliogenius.db';
@@ -28,6 +29,11 @@ Future<bool> initializePlatform() async {
 
     // Resolve database path (with auto-migration from Documents → Application Support)
     final dbPath = await _resolveDatabasePath();
+
+    // Cache the current covers directory so stored cover paths can be re-based
+    // onto it (iOS data-container UUID drift across updates). See
+    // [LocalCoverResolver].
+    await LocalCoverResolver.init();
     // Initialize Rust backend with database
     debugPrint('FFI: Calling initBackend...');
     final result = await frb.initBackend(dbPath: dbPath);

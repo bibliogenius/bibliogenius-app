@@ -1,4 +1,5 @@
 import '../utils/cover_url_resolver.dart';
+import '../utils/local_cover_resolver.dart';
 
 class Loan {
   final int id;
@@ -73,6 +74,13 @@ class Loan {
   bool get isReturned => returnDate != null || status == 'returned';
 
   /// Resolved cover URL: explicit cover_url, or OpenLibrary fallback from ISBN.
-  String? get resolvedCoverUrl =>
-      CoverUrlResolver.resolveForLocal(coverUrl: coverUrl, isbn: isbn);
+  /// A local cover path is re-based onto the current covers directory keyed by
+  /// [bookId] (iOS data-container UUID drift; see [LocalCoverResolver]).
+  String? get resolvedCoverUrl {
+    final resolved =
+        CoverUrlResolver.resolveForLocal(coverUrl: coverUrl, isbn: isbn);
+    return resolved == null || bookId == null
+        ? resolved
+        : LocalCoverResolver.resolve(resolved, bookId: bookId);
+  }
 }

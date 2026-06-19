@@ -1,0 +1,74 @@
+import 'package:flutter/foundation.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
+
+/// Re-bases a stored local cover path onto the CURRENT application-support
+/// covers directory, keyed by the book's id.
+///
+/// iOS reassigns the app's data-container UUID across some updates, so an
+/// absolute cover path persisted in the database
+/// (e.g. `/var/mobile/Containers/Data/Application/<old-uuid>/.../covers/42.jpg`)
+/// becomes unreadable after an update even though the file itself survives
+/// under the new container. The database path is recomputed from
+/// `getApplicationSupportDirectory()` every launch, which is why the library
+/// survives an update while custom covers vanish: only the cover path was
+/// frozen as an absolute string.
+///
+/// A device's own custom covers are always named `<bookId>.jpg` in `covers/`
+/// (see `CoverCameraHelper`). We therefore re-base using the CURRENT book id,
+/// not the stored basename. This is critical for cross-device safety: a book
+/// synced from another device (ADR-011) carries that device's raw absolute
+/// path with the SOURCE device's id in the basename, but is inserted under a
+/// fresh local id here. Re-basing by the stored basename could then map it
+/// onto an unrelated local cover with the same numeric name. Guarding on
+/// `basename == '<bookId>.jpg'` rebases only this device's own canonical
+/// cover; any foreign path is returned untouched (its file is absent locally,
+/// so the caller shows a placeholder — never a wrong cover).
+///
+/// On macOS/Android the support directory is keyed by a fixed bundle id, so
+/// re-basing yields the identical path: no behavior change there.
+///
+/// Unlike [CoverUrlResolver] (intentionally stateless), this resolver caches
+/// the covers directory because resolving it is async and must not run inside
+/// a synchronous `build`. Call [init] once during platform startup.
+class LocalCoverResolver {
+  LocalCoverResolver._();
+
+  static String? _coversDirPath;
+
+  /// Resolves and caches the covers directory from the current
+  /// application-support directory. Call once during platform initialization;
+  /// idempotent and safe to call again.
+  static Future<void> init() async {
+    final appSupportDir = await getApplicationSupportDirectory();
+    _coversDirPath = p.join(appSupportDir.path, 'covers');
+  }
+
+  @visibleForTesting
+  static set coversDirPathForTest(String? value) => _coversDirPath = value;
+
+  @visibleForTesting
+  static void resetForTest() => _coversDirPath = null;
+
+  /// Returns the effective on-disk path for a stored cover value.
+  ///
+  /// Non-local values (http(s) URLs, `/api/...` relative paths) and empty
+  /// values are returned unchanged. A local cover path is re-based onto the
+  /// current covers directory only when [bookId] is known, the covers
+  /// directory is known, and the stored basename is exactly `<bookId>.jpg`
+  /// (this device's own canonical cover). Every other value is returned
+  /// untouched so a foreign device's path is never mapped onto a local cover.
+  static String resolve(String storedPath, {int? bookId}) {
+    if (storedPath.isEmpty) return storedPath;
+    if (storedPath.startsWith('http') || storedPath.startsWith('/api')) {
+      return storedPath;
+    }
+
+    final coversDir = _coversDirPath;
+    if (coversDir == null || bookId == null) return storedPath;
+
+    if (p.basename(storedPath) != '$bookId.jpg') return storedPath;
+
+    return p.join(coversDir, '$bookId.jpg');
+  }
+}

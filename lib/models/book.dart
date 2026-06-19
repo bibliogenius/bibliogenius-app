@@ -1,5 +1,6 @@
 import '../utils/app_constants.dart';
 import '../utils/cover_url_resolver.dart';
+import '../utils/local_cover_resolver.dart';
 
 class Book {
   final int? id;
@@ -184,14 +185,24 @@ class Book {
   /// goes through `CoverUrlResolver.resolveForLocal`.
   String? get rawCoverUrl => _coverUrl;
 
-  String? get coverUrl =>
-      CoverUrlResolver.resolveForLocal(coverUrl: _coverUrl, isbn: isbn);
-
-  String? get largeCoverUrl => CoverUrlResolver.resolveForLocal(
-    coverUrl: _coverUrl,
-    isbn: isbn,
-    large: true,
+  String? get coverUrl => _rebaseLocal(
+    CoverUrlResolver.resolveForLocal(coverUrl: _coverUrl, isbn: isbn),
   );
+
+  String? get largeCoverUrl => _rebaseLocal(
+    CoverUrlResolver.resolveForLocal(
+      coverUrl: _coverUrl,
+      isbn: isbn,
+      large: true,
+    ),
+  );
+
+  /// Re-bases a resolved local cover path onto the current covers directory
+  /// (iOS data-container UUID drift). No-op for http/api/null values and when
+  /// the id is unknown. See [LocalCoverResolver].
+  String? _rebaseLocal(String? resolved) => resolved == null || id == null
+      ? resolved
+      : LocalCoverResolver.resolve(resolved, bookId: id);
 
   /// Whether this book has a cover URL explicitly persisted (not auto-derived from ISBN)
   bool get hasPersistedCover => _coverUrl != null && _coverUrl!.isNotEmpty;
