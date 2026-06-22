@@ -152,7 +152,7 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
       final authService = context.read<AuthService>();
       final apiService = context.read<ApiService>();
       final libraryUuid = await authService.getOrCreateLibraryUuid();
-      final deviceName = Platform.localHostname;
+      final deviceName = _pairingDeviceName();
 
       // Our LAN URL to embed in the QR so the acceptor reaches us directly.
       final myUrl = await apiService.getMyLanUrl();
@@ -293,7 +293,7 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
     }
 
     try {
-      final deviceName = Platform.localHostname;
+      final deviceName = _pairingDeviceName();
 
       // Fetch our crypto keys for E2EE exchange (keys are hex-encoded)
       Uint8List ed25519Bytes = Uint8List(0);
@@ -413,9 +413,25 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
   }
 
   /// Try to find the mDNS LAN URL for a linked device.
-  /// Matches by hostname (deviceName), library name, or partial name match.
+  /// Prefers a stable identity match on the ed25519 public key, then falls
+  /// back to name matching (hostname, library name, partial).
   String? _findPeerUrl(frb.FrbLinkedDevice device) {
     final peers = MdnsService.peers;
+
+    // Identity match first: the ed25519 public key is stable and immune to
+    // display-name drift (e.g. a device stored as "localhost" because iOS
+    // reports that as Platform.localHostname). mDNS advertises the peer's
+    // ed25519 as hex; compare against the linked device's key bytes.
+    if (device.ed25519PublicKey.isNotEmpty) {
+      final deviceKeyHex = _hexEncode(device.ed25519PublicKey).toLowerCase();
+      for (final peer in peers) {
+        final peerKeyHex = peer.ed25519PublicKey?.toLowerCase();
+        if (peerKeyHex != null && peerKeyHex == deviceKeyHex) {
+          return _getPeerUrl(peer);
+        }
+      }
+    }
+
     final deviceNameLower = device.name.toLowerCase();
     for (final peer in peers) {
       // Exact match on hostname attribute
@@ -523,7 +539,7 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Text(
-                device.name,
+                _displayDeviceName(device),
                 style: Theme.of(sheetCtx).textTheme.titleMedium,
               ),
             ),
@@ -645,7 +661,7 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
         title: Text(
           TranslationService.translate(context, 'pairing_remove_confirm'),
         ),
-        content: Text(device.name),
+        content: Text(_displayDeviceName(device)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -1003,7 +1019,7 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
 
     return Semantics(
       button: true,
-      label: '${device.name}, $lastSyncedLabel',
+      label: '${_displayDeviceName(device)}, $lastSyncedLabel',
       child: Card(
         margin: const EdgeInsets.only(bottom: 8),
         shape: RoundedRectangleBorder(
@@ -1044,7 +1060,7 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        device.name,
+                        _displayDeviceName(device),
                         style: theme.textTheme.bodyLarge?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
@@ -1549,6 +1565,41 @@ class _DevicePairingScreenState extends State<DevicePairingScreen> {
       bytes[i] = int.parse(hex.substring(i * 2, i * 2 + 2), radix: 16);
     }
     return bytes;
+  }
+
+  /// Encode bytes to a lowercase hex string (to compare against the hex
+  /// ed25519 key advertised over mDNS).
+  static String _hexEncode(List<int> bytes) =>
+      bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
+
+  /// Display name for a linked device. Legacy records can be stored as
+  /// "localhost" (iOS reports that as Platform.localHostname at pairing time);
+  /// when the device is currently discoverable over mDNS, prefer its advertised
+  /// library name, matched by stable ed25519 identity.
+  String _displayDeviceName(frb.FrbLinkedDevice device) {
+    final stored = device.name.trim();
+    final looksBroken = stored.isEmpty || stored.toLowerCase() == 'localhost';
+    if (!looksBroken) return stored;
+    if (device.ed25519PublicKey.isNotEmpty) {
+      final keyHex = _hexEncode(device.ed25519PublicKey).toLowerCase();
+      for (final peer in MdnsService.peers) {
+        if (peer.ed25519PublicKey?.toLowerCase() == keyHex &&
+            peer.name.trim().isNotEmpty) {
+          return peer.name.trim();
+        }
+      }
+    }
+    return stored;
+  }
+
+  /// A meaningful name to advertise to the paired device: the library name
+  /// (what mDNS broadcasts and what the peer should display). Never
+  /// Platform.localHostname, which iOS reports as "localhost".
+  String _pairingDeviceName() {
+    final libraryName = context.read<ThemeProvider>().libraryName.trim();
+    if (libraryName.isNotEmpty) return libraryName;
+    final host = Platform.localHostname;
+    return (host.isEmpty || host == 'localhost') ? 'BiblioGenius' : host;
   }
 
   String _formatLastSynced(String? lastSynced) {
