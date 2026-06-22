@@ -107,7 +107,7 @@ class _DashboardScreenState extends State<DashboardScreen>
             (Icons.wifi_tethering, 'settings_goal_local_wifi', '/settings?focus=wifi'),
           if (!hub.isListed)
             (Icons.public, 'settings_goal_public', '/settings?focus=public'),
-          (Icons.devices_rounded, 'settings_goal_sync_devices', '/device-pairing'),
+          // Device sync suggestion removed 2026-06-22 (feature shelved).
           if (themeProvider.userLanguages.length <= 1)
             (Icons.translate, 'settings_goal_language', '/settings?focus=language'),
         ];
@@ -364,7 +364,10 @@ class _DashboardScreenState extends State<DashboardScreen>
         if (mounted) {
           setState(() {
             _allBooks = books;
-            _stats['total_books'] = books.length;
+            // Count only owned books, matching the canonical "catalog" count
+            // used for the public directory (entries = owned + isbn/title).
+            // Wishlist (owned=false) entries are excluded from the headline stat.
+            _stats['total_books'] = books.where((b) => b.owned).length;
 
             // Sort by recently added (ID desc)
             final sortedBooks = List<Book>.from(books);

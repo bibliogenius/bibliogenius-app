@@ -244,17 +244,7 @@ class HelpRegistry {
       ),
 
       // --- Data & Settings ---
-      _GatedTopic(
-        topic: HelpTopic.faq(
-          id: 'device_sync',
-          icon: Icons.devices_rounded,
-          titleKey: 'help_topic_device_sync',
-          descKey: 'help_desc_device_sync',
-          gradient: AppDesign.oceanGradient,
-          ctaKey: 'help_cta_open_device_sync',
-          ctaRoute: '/device-pairing',
-        ),
-      ),
+      // Device-sync help topic removed 2026-06-22 (feature shelved).
       _GatedTopic(
         topic: HelpTopic.faq(
           id: 'import',

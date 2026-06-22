@@ -461,12 +461,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         Consumer2<HubDirectoryProvider, ThemeProvider>(
           builder: (context, hub, theme, _) {
             final tiles = <Widget>[
-              _buildGoalTile(
-                context,
-                icon: Icons.devices_rounded,
-                labelKey: 'settings_goal_sync_devices',
-                onTap: () => context.push('/device-pairing'),
-              ),
+              // Device sync ("Appareils liés") is hidden from the springboard:
+              // the op-replay sync is not yet reliable enough to surface as a
+              // first-class action. The /device-pairing route still exists.
               _buildGoalTile(
                 context,
                 icon: Icons.backup_outlined,
@@ -1434,49 +1431,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     // === Group 4: Advanced ===
                     _buildModulesGroupHeader(context, 'modules_group_advanced'),
                     _buildMcpModuleToggle(),
-                    // Linked Devices section
-                    const SizedBox(height: 16),
-                    Semantics(
-                      header: true,
-                      child: Text(
-                        TranslationService.translate(
-                          context,
-                          'settings_linked_devices',
-                        ),
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Card(
-                      margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                      child: ListTile(
-                        leading: const Icon(Icons.devices_rounded),
-                        title: Text(
-                          TranslationService.translate(
-                            context,
-                            'settings_linked_devices',
-                          ),
-                        ),
-                        subtitle: Text(
-                          TranslationService.translate(
-                            context,
-                            'settings_linked_devices_desc',
-                          ),
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: const [
-                            HelpAffordance(topicId: 'device_sync'),
-                            SizedBox(width: 4),
-                            Icon(Icons.chevron_right),
-                          ],
-                        ),
-                        onTap: () => context.push('/device-pairing'),
-                      ),
-                    ),
+                    // "Appareils liés" section hidden 2026-06-22: device-to-device
+                    // sync (op-replay) is shelved as not reliable enough. The
+                    // /device-pairing route still exists (dormant). See ADR-011.
 
                     _buildModuleToggle(
                       context,
