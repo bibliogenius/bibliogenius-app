@@ -564,6 +564,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
   /// Lays out springboard tiles two per row. Plain Rows (no cross-axis stretch)
   /// to keep constraints bounded inside the scrolling Column.
   Widget _buildTileGrid(List<Widget> tiles) {
+    // On narrow (mobile) screens, stack each tile full-width; only use two
+    // columns when there is room (tablet/desktop). 600px matches the breakpoint
+    // used elsewhere (e.g. the dashboard "Discover more" grid).
+    final isWide = MediaQuery.of(context).size.width > 600;
+    if (!isWide) {
+      final rows = <Widget>[];
+      for (final tile in tiles) {
+        if (rows.isNotEmpty) rows.add(const SizedBox(height: 8));
+        rows.add(tile);
+      }
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: rows,
+      );
+    }
+
     final rows = <Widget>[];
     for (var i = 0; i < tiles.length; i += 2) {
       if (rows.isNotEmpty) rows.add(const SizedBox(height: 8));
