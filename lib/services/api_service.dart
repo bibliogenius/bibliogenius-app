@@ -21,28 +21,6 @@ import 'ffi_service.dart';
 import 'mdns_service.dart';
 import 'translation_service.dart';
 
-/// Why a device-pairing attempt failed. The UI maps each kind to a precise,
-/// translated message instead of surfacing a raw transport exception.
-enum PairingErrorKind {
-  /// Peer not reached: offline, app backgrounded, or wrong/stale IP.
-  unreachable,
-
-  /// The pairing code has expired (5-min TTL).
-  expired,
-
-  /// The code is wrong or was already used.
-  invalid,
-
-  /// Too many attempts in a short window (brute-force guard).
-  rateLimited,
-
-  /// The peer was reached but failed to register the device.
-  registrationFailed,
-
-  /// Anything not otherwise classified.
-  unknown,
-}
-
 /// Result of a unified external search: the book list plus any source-level
 /// notices the backend reported out-of-band (via the `X-BiblioGenius-Notices`
 /// header). `notices` may contain `google_books_quota` when Google's anonymous
@@ -58,16 +36,6 @@ class ExternalSearchResult {
       notices = const [];
 
   bool get googleBooksQuotaExceeded => notices.contains('google_books_quota');
-}
-
-/// Thrown by [ApiService.sendPairingCode] so the UI can show a precise,
-/// translated message rather than a raw `DioException`.
-class PairingException implements Exception {
-  final PairingErrorKind kind;
-  const PairingException(this.kind);
-
-  @override
-  String toString() => 'PairingException(${kind.name})';
 }
 
 /// One entry of the peer catalog ETag cache.
@@ -1730,45 +1698,6 @@ class ApiService {
         statusCode: 500,
         data: {'error': 'Failed to parse backup file: $e'},
       );
-    }
-  }
-
-  /// Push local backup data to a linked peer via upsert.
-  /// [peerBaseUrl] is the full base URL of the peer (e.g. "http://192.168.1.42:8000").
-  Future<bool> pushBackupToPeer(String peerBaseUrl) async {
-    try {
-      // 1. Export local data
-      final localDio = await _getLocalDio();
-      final exportResp = await localDio.get('/api/export');
-      if (exportResp.statusCode != 200 || exportResp.data == null) {
-        debugPrint(
-          'Auto-backup: export failed (status=${exportResp.statusCode})',
-        );
-        return false;
-      }
-
-      // 2. Push to peer's upsert endpoint
-      final peerDio = Dio(
-        BaseOptions(
-          baseUrl: peerBaseUrl,
-          connectTimeout: const Duration(seconds: 10),
-          receiveTimeout: const Duration(seconds: 30),
-        ),
-      );
-      final importResp = await peerDio.post(
-        '/api/import-upsert',
-        data: exportResp.data,
-      );
-      debugPrint(
-        'Auto-backup: pushed to $peerBaseUrl -> ${importResp.data?['message'] ?? importResp.statusCode}',
-      );
-      return importResp.statusCode == 200;
-    } on DioException catch (e) {
-      debugPrint('Auto-backup: push to $peerBaseUrl failed: ${e.message}');
-      return false;
-    } catch (e) {
-      debugPrint('Auto-backup: push to $peerBaseUrl failed: $e');
-      return false;
     }
   }
 
@@ -3584,70 +3513,6 @@ class ApiService {
   /// available. Used by the offerer to embed a reachable address in the
   /// pairing QR so the acceptor skips mDNS discovery and stale-IP guesswork.
   Future<String?> getMyLanUrl() => _getMyUrl();
-
-  /// Send a pairing code to a remote peer's HTTP server.
-  /// The peer must have generated the code first.
-  Future<Map<String, dynamic>> sendPairingCode({
-    required String peerUrl,
-    required String code,
-    required String deviceName,
-    required List<int> ed25519PublicKey,
-    required List<int> x25519PublicKey,
-  }) async {
-    final dio = Dio(
-      BaseOptions(
-        baseUrl: peerUrl,
-        connectTimeout: const Duration(seconds: 10),
-        receiveTimeout: const Duration(seconds: 10),
-      ),
-    );
-    try {
-      final response = await dio.post(
-        '/api/devices/pair/accept',
-        data: {
-          'code': code,
-          'device_name': deviceName,
-          'ed25519_public_key': ed25519PublicKey,
-          'x25519_public_key': x25519PublicKey,
-        },
-      );
-      return response.data as Map<String, dynamic>;
-    } on DioException catch (e) {
-      throw _classifyPairingError(e);
-    }
-  }
-
-  /// Map a Dio failure from the pairing POST to a [PairingException] so the UI
-  /// can show a precise message. Transport failures mean the peer is offline /
-  /// backgrounded / at a stale IP; HTTP rejections carry a machine-readable
-  /// `code` from the backend (falling back to the status code for older peers).
-  PairingException _classifyPairingError(DioException e) {
-    if (e.type == DioExceptionType.connectionError ||
-        e.type == DioExceptionType.connectionTimeout ||
-        e.type == DioExceptionType.receiveTimeout ||
-        e.type == DioExceptionType.sendTimeout) {
-      return const PairingException(PairingErrorKind.unreachable);
-    }
-    final data = e.response?.data;
-    final code = data is Map ? data['code'] as String? : null;
-    switch (code) {
-      case 'expired':
-        return const PairingException(PairingErrorKind.expired);
-      case 'invalid':
-        return const PairingException(PairingErrorKind.invalid);
-      case 'rate_limited':
-        return const PairingException(PairingErrorKind.rateLimited);
-      case 'registration_failed':
-        return const PairingException(PairingErrorKind.registrationFailed);
-    }
-    switch (e.response?.statusCode) {
-      case 429:
-        return const PairingException(PairingErrorKind.rateLimited);
-      case 400:
-        return const PairingException(PairingErrorKind.invalid);
-    }
-    return const PairingException(PairingErrorKind.unknown);
-  }
 
   /// Connect to a locally discovered peer by URL.
   /// Optional E2EE keys from QR/invite/mDNS are forwarded to the Rust backend.

@@ -8,9 +8,8 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 part 'frb.freezed.dart';
 
-// These functions are ignored because they are not marked as `pub`: `apply_fallback_preferences_to_modules`, `db`, `device_pairing_svc`, `device_sync_svc`, `entries_to_frb`, `fill_state`, `from_info`, `from_manifest`, `from_summary`, `global_app_state`, `hub_db`, `hub_directory_svc`, `hub_directory_sync_catalog_inner`, `install_panic_hook`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `merge_api_keys`, `modules_to_fallback_preferences`, `nudge_source_label`, `rename_subject_in_books`, `runtime`, `track_to_frb`, `try_from_summary`, `undo_outcome_str`, `upsert_directory_catalog_cache`
+// These functions are ignored because they are not marked as `pub`: `apply_fallback_preferences_to_modules`, `covers_dir`, `db`, `entries_to_frb`, `fill_state`, `from_info`, `from_manifest`, `from_summary`, `global_app_state`, `hub_db`, `hub_directory_svc`, `hub_directory_sync_catalog_inner`, `install_panic_hook`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `merge_api_keys`, `modules_to_fallback_preferences`, `nudge_source_label`, `rename_subject_in_books`, `runtime`, `track_to_frb`, `try_from_summary`, `undo_outcome_str`, `upsert_directory_catalog_cache`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
-// These functions are ignored (category: IgnoreBecauseExplicitAttribute): `shared_device_pairing_svc`
 
 /// Initialize the FFI backend with database at the given path
 /// Must be called before any other FFI functions
@@ -824,86 +823,6 @@ Future<FrbOperationLogStats> operationLogStats() =>
 /// Get distinct entity types for filter dropdowns
 Future<List<String>> operationLogEntityTypes() =>
     RustLib.instance.api.crateApiFrbOperationLogEntityTypes();
-
-/// Generate a 6-digit pairing offer for multi-device linking
-Future<FrbPairingOffer> deviceGeneratePairingOffer({
-  required String deviceName,
-  required String libraryUuid,
-  String? relayUrl,
-  String? mailboxId,
-  String? relayWriteToken,
-}) => RustLib.instance.api.crateApiFrbDeviceGeneratePairingOffer(
-  deviceName: deviceName,
-  libraryUuid: libraryUuid,
-  relayUrl: relayUrl,
-  mailboxId: mailboxId,
-  relayWriteToken: relayWriteToken,
-);
-
-/// Accept a pairing offer by entering the 6-digit code.
-/// Returns the offerer's crypto keys and library info.
-Future<FrbPairingConfirmation> deviceAcceptPairing({
-  required String code,
-  required String deviceName,
-  required List<int> ed25519PublicKey,
-  required List<int> x25519PublicKey,
-  String? relayUrl,
-  String? mailboxId,
-  String? relayWriteToken,
-}) => RustLib.instance.api.crateApiFrbDeviceAcceptPairing(
-  code: code,
-  deviceName: deviceName,
-  ed25519PublicKey: ed25519PublicKey,
-  x25519PublicKey: x25519PublicKey,
-  relayUrl: relayUrl,
-  mailboxId: mailboxId,
-  relayWriteToken: relayWriteToken,
-);
-
-/// List all linked devices
-Future<List<FrbLinkedDevice>> deviceListLinked() =>
-    RustLib.instance.api.crateApiFrbDeviceListLinked();
-
-/// Remove a linked device by ID
-Future<void> deviceRemoveLinked({required int deviceId}) =>
-    RustLib.instance.api.crateApiFrbDeviceRemoveLinked(deviceId: deviceId);
-
-/// Trigger sync with a specific linked device.
-/// This is a simplified version - full sync uses the HTTP trigger_sync endpoint
-/// which handles E2EE transport. This FFI function delegates to it.
-Future<FrbSyncResult> deviceTriggerSync({required int deviceId}) =>
-    RustLib.instance.api.crateApiFrbDeviceTriggerSync(deviceId: deviceId);
-
-/// List operations pending review (sync safety mode)
-Future<List<FrbPendingReviewOp>> deviceSyncPendingReview() =>
-    RustLib.instance.api.crateApiFrbDeviceSyncPendingReview();
-
-/// Approve specific pending review operations
-Future<int> deviceSyncApprove({required List<int> ids}) =>
-    RustLib.instance.api.crateApiFrbDeviceSyncApprove(ids: ids);
-
-/// Reject specific pending review operations
-Future<int> deviceSyncReject({required List<int> ids}) =>
-    RustLib.instance.api.crateApiFrbDeviceSyncReject(ids: ids);
-
-/// Approve all pending review operations at once
-Future<int> deviceSyncApproveAll() =>
-    RustLib.instance.api.crateApiFrbDeviceSyncApproveAll();
-
-/// Reject all pending review operations at once
-Future<int> deviceSyncRejectAll() =>
-    RustLib.instance.api.crateApiFrbDeviceSyncRejectAll();
-
-/// Backfill the operation_log with INSERT ops for all existing entities
-/// (books, authors, book_authors, tags, book_tags, contacts, copies, loans,
-/// collections, collection_books, book_notes).
-/// This allows syncing a library that was created before operation logging was added.
-Future<int> deviceSyncBackfill() =>
-    RustLib.instance.api.crateApiFrbDeviceSyncBackfill();
-
-/// Purge the entire operation log and reset sync timestamps on all linked devices
-Future<int> deviceSyncReset() =>
-    RustLib.instance.api.crateApiFrbDeviceSyncReset();
 
 /// Returns the local hub directory settings, or None if not yet registered.
 Future<FrbDirectoryConfig?> hubDirectoryGetConfig() =>
@@ -2184,54 +2103,6 @@ class FrbLeaderboardResponse {
           lastRefreshed == other.lastRefreshed;
 }
 
-/// FFI struct for linked device info
-class FrbLinkedDevice {
-  final int id;
-  final String name;
-  final Uint8List ed25519PublicKey;
-  final Uint8List x25519PublicKey;
-  final String? relayUrl;
-  final String? mailboxId;
-  final String? lastSynced;
-  final String? createdAt;
-
-  const FrbLinkedDevice({
-    required this.id,
-    required this.name,
-    required this.ed25519PublicKey,
-    required this.x25519PublicKey,
-    this.relayUrl,
-    this.mailboxId,
-    this.lastSynced,
-    this.createdAt,
-  });
-
-  @override
-  int get hashCode =>
-      id.hashCode ^
-      name.hashCode ^
-      ed25519PublicKey.hashCode ^
-      x25519PublicKey.hashCode ^
-      relayUrl.hashCode ^
-      mailboxId.hashCode ^
-      lastSynced.hashCode ^
-      createdAt.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is FrbLinkedDevice &&
-          runtimeType == other.runtimeType &&
-          id == other.id &&
-          name == other.name &&
-          ed25519PublicKey == other.ed25519PublicKey &&
-          x25519PublicKey == other.x25519PublicKey &&
-          relayUrl == other.relayUrl &&
-          mailboxId == other.mailboxId &&
-          lastSynced == other.lastSynced &&
-          createdAt == other.createdAt;
-}
-
 /// Simplified loan structure for FFI
 @freezed
 sealed class FrbLoan with _$FrbLoan {
@@ -2466,109 +2337,6 @@ sealed class FrbOperationLogStats with _$FrbOperationLogStats {
     required BigInt pending,
     required BigInt failed,
   }) = _FrbOperationLogStats;
-}
-
-/// FFI struct for pairing confirmation
-class FrbPairingConfirmation {
-  final int deviceId;
-  final String libraryUuid;
-  final Uint8List offererEd25519;
-  final Uint8List offererX25519;
-  final String? offererRelayUrl;
-  final String? offererMailboxId;
-
-  const FrbPairingConfirmation({
-    required this.deviceId,
-    required this.libraryUuid,
-    required this.offererEd25519,
-    required this.offererX25519,
-    this.offererRelayUrl,
-    this.offererMailboxId,
-  });
-
-  @override
-  int get hashCode =>
-      deviceId.hashCode ^
-      libraryUuid.hashCode ^
-      offererEd25519.hashCode ^
-      offererX25519.hashCode ^
-      offererRelayUrl.hashCode ^
-      offererMailboxId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is FrbPairingConfirmation &&
-          runtimeType == other.runtimeType &&
-          deviceId == other.deviceId &&
-          libraryUuid == other.libraryUuid &&
-          offererEd25519 == other.offererEd25519 &&
-          offererX25519 == other.offererX25519 &&
-          offererRelayUrl == other.offererRelayUrl &&
-          offererMailboxId == other.offererMailboxId;
-}
-
-/// FFI struct for pairing offer response
-class FrbPairingOffer {
-  final String code;
-  final BigInt expiresIn;
-
-  const FrbPairingOffer({required this.code, required this.expiresIn});
-
-  @override
-  int get hashCode => code.hashCode ^ expiresIn.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is FrbPairingOffer &&
-          runtimeType == other.runtimeType &&
-          code == other.code &&
-          expiresIn == other.expiresIn;
-}
-
-/// FFI struct for pending review operation
-class FrbPendingReviewOp {
-  final int id;
-  final String entityType;
-  final int entityId;
-  final String operation;
-  final String? payload;
-  final String source;
-  final String createdAt;
-
-  const FrbPendingReviewOp({
-    required this.id,
-    required this.entityType,
-    required this.entityId,
-    required this.operation,
-    this.payload,
-    required this.source,
-    required this.createdAt,
-  });
-
-  @override
-  int get hashCode =>
-      id.hashCode ^
-      entityType.hashCode ^
-      entityId.hashCode ^
-      operation.hashCode ^
-      payload.hashCode ^
-      source.hashCode ^
-      createdAt.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is FrbPendingReviewOp &&
-          runtimeType == other.runtimeType &&
-          id == other.id &&
-          entityType == other.entityType &&
-          entityId == other.entityId &&
-          operation == other.operation &&
-          payload == other.payload &&
-          source == other.source &&
-          createdAt == other.createdAt;
 }
 
 /// FFI-safe view of a peer profile-change event.
@@ -2842,32 +2610,6 @@ class FrbStreakInfo {
           runtimeType == other.runtimeType &&
           current == other.current &&
           longest == other.longest;
-}
-
-/// FFI struct for sync result
-class FrbSyncResult {
-  final int sentCount;
-  final int receivedCount;
-  final int pendingReviewCount;
-
-  const FrbSyncResult({
-    required this.sentCount,
-    required this.receivedCount,
-    required this.pendingReviewCount,
-  });
-
-  @override
-  int get hashCode =>
-      sentCount.hashCode ^ receivedCount.hashCode ^ pendingReviewCount.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is FrbSyncResult &&
-          runtimeType == other.runtimeType &&
-          sentCount == other.sentCount &&
-          receivedCount == other.receivedCount &&
-          pendingReviewCount == other.pendingReviewCount;
 }
 
 /// Simplified tag structure for FFI

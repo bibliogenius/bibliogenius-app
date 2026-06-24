@@ -107,7 +107,6 @@ const Set<String> kBackupPrefsBlacklist = <String>{
   'allowPrivateBooks',
   'audioEnabled',
   'autoApproveLoanRequests',
-  'autoBackupEnabled',
   'bottomNavEnabled',
   'canBorrowBooks',
   'canLendBooks',

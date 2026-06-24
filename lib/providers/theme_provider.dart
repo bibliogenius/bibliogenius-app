@@ -160,10 +160,6 @@ class ThemeProvider with ChangeNotifier {
   bool _bottomNavEnabled = true;
   bool get bottomNavEnabled => _bottomNavEnabled;
 
-  // Auto-backup: push data to linked devices on startup
-  bool _autoBackupEnabled = false;
-  bool get autoBackupEnabled => _autoBackupEnabled;
-
   // Peer Offline Caching: allows viewing cached peer libraries when they're offline
   // Enabled by default for better UX (instant display on revisit)
   bool _peerOfflineCachingEnabled = true;
@@ -376,7 +372,6 @@ class ThemeProvider with ChangeNotifier {
     // Default to false (opt-in) for privacy
     _networkDiscoveryEnabled =
         prefs.getBool('networkDiscoveryEnabled') ?? false;
-    _autoBackupEnabled = prefs.getBool('autoBackupEnabled') ?? false;
     // Default to true - better UX (instant display of peer libraries on revisit)
     _peerOfflineCachingEnabled =
         prefs.getBool('peerOfflineCachingEnabled') ?? true;
@@ -845,7 +840,6 @@ class ThemeProvider with ChangeNotifier {
     _commerceEnabled = false;
     _audioEnabled = false;
     _networkDiscoveryEnabled = false;
-    _autoBackupEnabled = false;
     _networkGamificationEnabled = false;
     _canBorrowBooks = true;
     _allowPrivateBooks = true;
@@ -1093,13 +1087,6 @@ class ThemeProvider with ChangeNotifier {
   /// Enable/disable peer offline caching
   /// When enabled, peer library catalogs are cached locally for offline viewing
   /// Privacy note: This stores the peer's book list on the user's device
-  Future<void> setAutoBackupEnabled(bool enabled) async {
-    _autoBackupEnabled = enabled;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('autoBackupEnabled', enabled);
-    notifyListeners();
-  }
-
   Future<void> setPeerOfflineCachingEnabled(bool enabled) async {
     _peerOfflineCachingEnabled = enabled;
     final prefs = await SharedPreferences.getInstance();

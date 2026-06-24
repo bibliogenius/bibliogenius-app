@@ -270,8 +270,6 @@ class ScaffoldWithNav extends StatelessWidget {
       '/sliding-puzzle',
       '/settings',
       '/operation-log',
-      '/device-pairing',
-      '/sync-review',
       '/help',
     ];
     for (final prefix in morePrefixes) {
@@ -436,8 +434,6 @@ class ScaffoldWithNav extends StatelessWidget {
         matchPrefixes: [
           '/settings',
           '/operation-log',
-          '/device-pairing',
-          '/sync-review',
         ],
         destination: NavigationRailDestination(
           icon: const Icon(Icons.settings),

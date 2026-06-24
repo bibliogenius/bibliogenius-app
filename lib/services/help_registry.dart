@@ -8,7 +8,7 @@ import '../theme/app_design.dart';
 /// contextually next to settings entries.
 ///
 /// [id] is a stable identifier used for deep-linking
-/// (`/help?topic=device_sync`) and for the contextual help sheet
+/// (`/help?topic=import`) and for the contextual help sheet
 /// to look up the right topic from anywhere in the app.
 ///
 /// Two named constructors enforce the FAQ vs inline-help distinction:
@@ -244,7 +244,6 @@ class HelpRegistry {
       ),
 
       // --- Data & Settings ---
-      // Device-sync help topic removed 2026-06-22 (feature shelved).
       _GatedTopic(
         topic: HelpTopic.faq(
           id: 'import',
@@ -411,13 +410,6 @@ class HelpRegistry {
       ),
 
       // --- Inline help for Settings > Account / Data / Search (Phase 1) ---
-      _GatedTopic(
-        topic: HelpTopic.inline(
-          id: 'auto_backup',
-          titleKey: 'settings_auto_backup',
-          descKey: 'settings_auto_backup_help',
-        ),
-      ),
       _GatedTopic(
         topic: HelpTopic.inline(
           id: 'search_sources',

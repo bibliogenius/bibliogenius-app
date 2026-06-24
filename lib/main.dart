@@ -29,7 +29,6 @@ import 'providers/book_refresh_notifier.dart';
 import 'providers/pending_peers_provider.dart';
 import 'audio/audio_module.dart'; // Audio module (decoupled)
 import 'providers/memory_game_provider.dart';
-import 'providers/device_sync_provider.dart';
 import 'providers/metadata_fill_provider.dart';
 import 'providers/operation_log_provider.dart';
 import 'providers/sliding_puzzle_provider.dart';
@@ -85,8 +84,6 @@ import 'screens/feedback_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/migration_wizard_screen.dart';
 
-import 'screens/device_pairing_screen.dart';
-import 'screens/sync_review_screen.dart';
 import 'screens/external_search_screen.dart';
 import 'screens/invite_acceptance_screen.dart';
 import 'screens/library_catalog_screen.dart';
@@ -691,9 +688,6 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<OperationLogProvider>(
           create: (_) => OperationLogProvider(),
         ),
-        ChangeNotifierProvider<DeviceSyncProvider>(
-          create: (_) => DeviceSyncProvider(),
-        ),
         ChangeNotifierProvider<MetadataFillProvider>(
           create: (_) => MetadataFillProvider(),
         ),
@@ -748,7 +742,6 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
     // notifyListeners during build)
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<HubDirectoryProvider>().initAndSyncCatalog();
-      _triggerAutoBackup(themeProvider);
       _maybeShowIdentityRecovery();
     });
 
@@ -1016,16 +1009,8 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
               builder: (context, state) => const OperationLogScreen(),
             ),
             GoRoute(
-              path: '/device-pairing',
-              builder: (context, state) => const DevicePairingScreen(),
-            ),
-            GoRoute(
               path: '/library-completeness',
               builder: (context, state) => const MetadataFillScreen(),
-            ),
-            GoRoute(
-              path: '/sync-review',
-              builder: (context, state) => const SyncReviewScreen(),
             ),
             GoRoute(
               path: '/books',
@@ -1398,46 +1383,6 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
       return;
     }
     IdentityRecoveryDialog.show(context: navCtx, libraryUuid: pendingUuid);
-  }
-
-  /// Fire-and-forget: push local data to linked devices found on mDNS.
-  void _triggerAutoBackup(ThemeProvider themeProvider) {
-    if (!themeProvider.autoBackupEnabled) return;
-
-    () async {
-      try {
-        // 1. Load linked devices
-        final linkedDevices = await frb.deviceListLinked();
-        if (linkedDevices.isEmpty) return;
-
-        // 2. Wait for mDNS to populate peers
-        await Future.delayed(const Duration(seconds: 5));
-        final peers = MdnsService.peers;
-        if (peers.isEmpty) return;
-
-        // 3. Build a set of linked ed25519 public keys (hex)
-        final linkedKeys = <String, bool>{};
-        for (final device in linkedDevices) {
-          final hexKey = device.ed25519PublicKey
-              .map((b) => b.toRadixString(16).padLeft(2, '0'))
-              .join();
-          linkedKeys[hexKey] = true;
-        }
-
-        // 4. Match peers and push
-        final apiService = ApiService(AuthService());
-        for (final peer in peers) {
-          if (peer.ed25519PublicKey != null &&
-              linkedKeys.containsKey(peer.ed25519PublicKey)) {
-            final peerUrl = 'http://${peer.addresses.first}:${peer.port}';
-            debugPrint('Auto-backup: pushing to ${peer.name} ($peerUrl)');
-            apiService.pushBackupToPeer(peerUrl);
-          }
-        }
-      } catch (e) {
-        debugPrint('Auto-backup: error: $e');
-      }
-    }();
   }
 
   void _registerFlashMessages() {

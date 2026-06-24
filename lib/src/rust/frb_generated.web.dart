@@ -203,9 +203,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FrbLeaderboardResponse dco_decode_frb_leaderboard_response(dynamic raw);
 
   @protected
-  FrbLinkedDevice dco_decode_frb_linked_device(dynamic raw);
-
-  @protected
   FrbLoan dco_decode_frb_loan(dynamic raw);
 
   @protected
@@ -233,15 +230,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbOperationLogStats dco_decode_frb_operation_log_stats(dynamic raw);
-
-  @protected
-  FrbPairingConfirmation dco_decode_frb_pairing_confirmation(dynamic raw);
-
-  @protected
-  FrbPairingOffer dco_decode_frb_pairing_offer(dynamic raw);
-
-  @protected
-  FrbPendingReviewOp dco_decode_frb_pending_review_op(dynamic raw);
 
   @protected
   FrbProfileChangedEvent dco_decode_frb_profile_changed_event(dynamic raw);
@@ -274,9 +262,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbStreakInfo dco_decode_frb_streak_info(dynamic raw);
-
-  @protected
-  FrbSyncResult dco_decode_frb_sync_result(dynamic raw);
 
   @protected
   FrbTag dco_decode_frb_tag(dynamic raw);
@@ -354,9 +339,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<FrbLeaderboardEntry> dco_decode_list_frb_leaderboard_entry(dynamic raw);
 
   @protected
-  List<FrbLinkedDevice> dco_decode_list_frb_linked_device(dynamic raw);
-
-  @protected
   List<FrbLoan> dco_decode_list_frb_loan(dynamic raw);
 
   @protected
@@ -377,9 +359,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<FrbOperationLogEntry> dco_decode_list_frb_operation_log_entry(
     dynamic raw,
   );
-
-  @protected
-  List<FrbPendingReviewOp> dco_decode_list_frb_pending_review_op(dynamic raw);
 
   @protected
   List<FrbPuzzleLeaderboardEntry> dco_decode_list_frb_puzzle_leaderboard_entry(
@@ -711,9 +690,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
-  FrbLinkedDevice sse_decode_frb_linked_device(SseDeserializer deserializer);
-
-  @protected
   FrbLoan sse_decode_frb_loan(SseDeserializer deserializer);
 
   @protected
@@ -743,19 +719,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbOperationLogStats sse_decode_frb_operation_log_stats(
-    SseDeserializer deserializer,
-  );
-
-  @protected
-  FrbPairingConfirmation sse_decode_frb_pairing_confirmation(
-    SseDeserializer deserializer,
-  );
-
-  @protected
-  FrbPairingOffer sse_decode_frb_pairing_offer(SseDeserializer deserializer);
-
-  @protected
-  FrbPendingReviewOp sse_decode_frb_pending_review_op(
     SseDeserializer deserializer,
   );
 
@@ -798,9 +761,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbStreakInfo sse_decode_frb_streak_info(SseDeserializer deserializer);
-
-  @protected
-  FrbSyncResult sse_decode_frb_sync_result(SseDeserializer deserializer);
 
   @protected
   FrbTag sse_decode_frb_tag(SseDeserializer deserializer);
@@ -906,11 +866,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
-  List<FrbLinkedDevice> sse_decode_list_frb_linked_device(
-    SseDeserializer deserializer,
-  );
-
-  @protected
   List<FrbLoan> sse_decode_list_frb_loan(SseDeserializer deserializer);
 
   @protected
@@ -935,11 +890,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<FrbOperationLogEntry> sse_decode_list_frb_operation_log_entry(
-    SseDeserializer deserializer,
-  );
-
-  @protected
-  List<FrbPendingReviewOp> sse_decode_list_frb_pending_review_op(
     SseDeserializer deserializer,
   );
 
@@ -1350,12 +1300,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
-  void sse_encode_frb_linked_device(
-    FrbLinkedDevice self,
-    SseSerializer serializer,
-  );
-
-  @protected
   void sse_encode_frb_loan(FrbLoan self, SseSerializer serializer);
 
   @protected
@@ -1397,24 +1341,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_frb_operation_log_stats(
     FrbOperationLogStats self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_frb_pairing_confirmation(
-    FrbPairingConfirmation self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_frb_pairing_offer(
-    FrbPairingOffer self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_frb_pending_review_op(
-    FrbPendingReviewOp self,
     SseSerializer serializer,
   );
 
@@ -1474,9 +1400,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_frb_streak_info(FrbStreakInfo self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_frb_sync_result(FrbSyncResult self, SseSerializer serializer);
 
   @protected
   void sse_encode_frb_tag(FrbTag self, SseSerializer serializer);
@@ -1608,12 +1531,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
-  void sse_encode_list_frb_linked_device(
-    List<FrbLinkedDevice> self,
-    SseSerializer serializer,
-  );
-
-  @protected
   void sse_encode_list_frb_loan(List<FrbLoan> self, SseSerializer serializer);
 
   @protected
@@ -1643,12 +1560,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_list_frb_operation_log_entry(
     List<FrbOperationLogEntry> self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_frb_pending_review_op(
-    List<FrbPendingReviewOp> self,
     SseSerializer serializer,
   );
 

@@ -30,8 +30,8 @@ class IdentityRepairTarget {
 }
 
 /// Loader signature used by [IdentityRecoveryDialog]. Production wires this
-/// to `ApiService.getPeers()` + `frb.deviceListLinked()`. Tests inject a stub
-/// so the dialog can be rendered without FFI or Provider plumbing.
+/// to `ApiService.getPeers()`. Tests inject a stub so the dialog can be
+/// rendered without FFI or Provider plumbing.
 typedef IdentityRepairTargetsLoader =
     Future<List<IdentityRepairTarget>> Function(BuildContext context);
 
@@ -48,7 +48,7 @@ class IdentityRecoveryDialog extends StatefulWidget {
   final String libraryUuid;
 
   /// Override the loader for tests. Defaults to fetching peers via
-  /// `ApiService` and linked devices via the Rust FFI.
+  /// `ApiService`.
   final IdentityRepairTargetsLoader? repairTargetsLoader;
 
   /// Test-only: when provided, opens the dialog directly in the success
@@ -209,15 +209,7 @@ class _IdentityRecoveryDialogState extends State<IdentityRecoveryDialog> {
       return const [];
     }
 
-    final results = await Future.wait<dynamic>([
-      _fetchPeersSafe(api),
-      _fetchLinkedDevicesSafe(),
-    ]);
-
-    final peerEntries = results[0] as List<IdentityRepairTarget>;
-    final deviceEntries = results[1] as List<IdentityRepairTarget>;
-    // Devices first (the user owns them and will recognize them), peers next.
-    return [...deviceEntries, ...peerEntries];
+    return _fetchPeersSafe(api);
   }
 
   Future<List<IdentityRepairTarget>> _fetchPeersSafe(ApiService api) async {
@@ -238,19 +230,6 @@ class _IdentityRecoveryDialogState extends State<IdentityRecoveryDialog> {
         out.add(IdentityRepairTarget(label: label, isDevice: false));
       }
       return out;
-    } catch (_) {
-      return const [];
-    }
-  }
-
-  Future<List<IdentityRepairTarget>> _fetchLinkedDevicesSafe() async {
-    try {
-      final devices = await frb.deviceListLinked();
-      return [
-        for (final d in devices)
-          if (d.name.trim().isNotEmpty)
-            IdentityRepairTarget(label: d.name.trim(), isDevice: true),
-      ];
     } catch (_) {
       return const [];
     }

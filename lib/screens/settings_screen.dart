@@ -461,9 +461,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         Consumer2<HubDirectoryProvider, ThemeProvider>(
           builder: (context, hub, theme, _) {
             final tiles = <Widget>[
-              // Device sync ("Appareils liés") is hidden from the springboard:
-              // the op-replay sync is not yet reliable enough to surface as a
-              // first-class action. The /device-pairing route still exists.
               _buildGoalTile(
                 context,
                 icon: Icons.backup_outlined,
@@ -1447,19 +1444,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     // === Group 4: Advanced ===
                     _buildModulesGroupHeader(context, 'modules_group_advanced'),
                     _buildMcpModuleToggle(),
-                    // "Appareils liés" section hidden 2026-06-22: device-to-device
-                    // sync (op-replay) is shelved as not reliable enough. The
-                    // /device-pairing route still exists (dormant). See ADR-011.
-
-                    _buildModuleToggle(
-                      context,
-                      'settings_auto_backup',
-                      'settings_auto_backup_desc',
-                      Icons.backup_outlined,
-                      themeProvider.autoBackupEnabled,
-                      (value) => themeProvider.setAutoBackupEnabled(value),
-                      helpTopicId: 'auto_backup',
-                    ),
 
                     // Notifications section
                     const SizedBox(height: 16),
