@@ -4863,7 +4863,10 @@ class _RollbackTileState extends State<_RollbackTile> {
         rollbackPath: info.path,
         dbPath: dbPath,
       );
-      if (!mounted) return;
+      // The on-disk DB has been swapped: the global FFI connection is now stale
+      // and every write fails with SQLITE_READONLY_DBMOVED until relaunch. Must
+      // restart unconditionally; exit needs neither context nor `mounted`, and
+      // guarding it would skip the restart if the screen unmounted mid-restore.
       io.exit(0);
     } catch (e) {
       if (!mounted) return;

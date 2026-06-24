@@ -459,12 +459,12 @@ class _AutoBackupBottomSheetState extends State<_AutoBackupBottomSheet> {
         rollbackPath: info.path,
         dbPath: dbPath,
       );
-      if (!mounted) return;
-      // Force a restart; same approach as the main restore wizard.
-      // Avoids the global-state surgery that an in-process swap would
-      // otherwise require.
-      // ignore: avoid_redundant_argument_values
-      await Future<void>.delayed(Duration.zero);
+      // The on-disk DB has been swapped: the global FFI SeaORM connection now
+      // points at the renamed-away inode, so every write fails with
+      // SQLITE_READONLY_DBMOVED (1032) until relaunch. We MUST restart, and
+      // exit(0) needs neither BuildContext nor `mounted`. Never guard it behind
+      // a mounted check: an unmount during the await above would skip the
+      // restart and leave a poisoned connection (the next book write 500s).
       exit(0);
     } catch (e) {
       if (!mounted) return;
