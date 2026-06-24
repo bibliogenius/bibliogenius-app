@@ -44,6 +44,7 @@ class MockApiService extends ApiService {
   Future<Map<String, dynamic>?> lookupBook(
     String isbn, {
     Locale? locale,
+    List<String>? languages,
   }) async {
     lookups.add('lookupBook:$isbn');
     return lookupResult;
