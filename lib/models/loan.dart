@@ -3,6 +3,9 @@ import '../utils/local_cover_resolver.dart';
 
 class Loan {
   final int id;
+
+  /// Stable cross-device identifier (ST-03). Backend-owned, read-only client side.
+  final String? uuid;
   final int copyId;
   final int contactId;
   final int libraryId;
@@ -19,6 +22,7 @@ class Loan {
 
   Loan({
     required this.id,
+    this.uuid,
     required this.copyId,
     required this.contactId,
     required this.libraryId,
@@ -37,6 +41,7 @@ class Loan {
   factory Loan.fromJson(Map<String, dynamic> json) {
     return Loan(
       id: json['id'] as int,
+      uuid: json['uuid'] as String?,
       copyId: json['copy_id'] as int,
       contactId: json['contact_id'] as int,
       libraryId: json['library_id'] as int,

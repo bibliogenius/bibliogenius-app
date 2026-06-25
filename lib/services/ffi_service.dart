@@ -122,6 +122,7 @@ class FfiService {
           .map(
             (t) => Tag(
               id: t.id,
+              uuid: t.uuid,
               name: t.name,
               parentId: t.parentId,
               count: t.count.toInt(),
@@ -629,6 +630,7 @@ class FfiService {
   Book _frbBookToBook(frb.FrbBook fb) {
     return Book(
       id: fb.id,
+      uuid: fb.uuid,
       title: fb.title,
       author: fb.author,
       isbn: fb.isbn,
@@ -661,6 +663,7 @@ class FfiService {
   Contact _frbContactToContact(frb.FrbContact fc) {
     return Contact(
       id: fc.id,
+      uuid: fc.uuid,
       type: fc.contactType,
       name: fc.name,
       firstName: fc.firstName,

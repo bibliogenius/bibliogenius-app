@@ -1350,6 +1350,7 @@ sealed class FrbBook with _$FrbBook {
     int? pageCount,
     String? addedAt,
     String? hubCoverUploadFailedAt,
+    String? uuid,
   }) = _FrbBook;
 }
 
@@ -1599,6 +1600,7 @@ sealed class FrbContact with _$FrbContact {
     int? userId,
     int? libraryOwnerId,
     required bool isActive,
+    String? uuid,
   }) = _FrbContact;
 }
 
@@ -2121,6 +2123,7 @@ sealed class FrbLoan with _$FrbLoan {
     int? bookId,
     String? coverUrl,
     String? isbn,
+    String? uuid,
   }) = _FrbLoan;
 }
 
@@ -2620,6 +2623,7 @@ sealed class FrbTag with _$FrbTag {
     required String name,
     int? parentId,
     required PlatformInt64 count,
+    String? uuid,
   }) = _FrbTag;
 }
 

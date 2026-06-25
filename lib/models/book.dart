@@ -4,6 +4,11 @@ import '../utils/local_cover_resolver.dart';
 
 class Book {
   final int? id;
+
+  /// Stable cross-device identifier (ST-03). Backend-owned; null for
+  /// peer/transient books or rows not yet persisted. Read-only on the client
+  /// (not sent back in [toJson]); the backend generates and preserves it.
+  final String? uuid;
   final String title;
   final String? isbn;
   final String? summary;
@@ -40,6 +45,7 @@ class Book {
 
   Book({
     this.id,
+    this.uuid,
     required this.title,
     this.isbn,
     this.summary,
@@ -66,6 +72,7 @@ class Book {
   factory Book.fromJson(Map<String, dynamic> json) {
     return Book(
       id: json['id'],
+      uuid: json['uuid'],
       title: json['title'],
       isbn: json['isbn'],
       summary: json['summary'],

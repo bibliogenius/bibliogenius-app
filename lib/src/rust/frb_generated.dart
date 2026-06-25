@@ -6329,8 +6329,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   FrbBook dco_decode_frb_book(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 24)
-      throw Exception('unexpected arr length: expect 24 but see ${arr.length}');
+    if (arr.length != 25)
+      throw Exception('unexpected arr length: expect 25 but see ${arr.length}');
     return FrbBook(
       id: dco_decode_opt_box_autoadd_i_32(arr[0]),
       title: dco_decode_String(arr[1]),
@@ -6356,6 +6356,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       pageCount: dco_decode_opt_box_autoadd_i_32(arr[21]),
       addedAt: dco_decode_opt_String(arr[22]),
       hubCoverUploadFailedAt: dco_decode_opt_String(arr[23]),
+      uuid: dco_decode_opt_String(arr[24]),
     );
   }
 
@@ -6491,8 +6492,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   FrbContact dco_decode_frb_contact(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 17)
-      throw Exception('unexpected arr length: expect 17 but see ${arr.length}');
+    if (arr.length != 18)
+      throw Exception('unexpected arr length: expect 18 but see ${arr.length}');
     return FrbContact(
       id: dco_decode_opt_box_autoadd_i_32(arr[0]),
       contactType: dco_decode_String(arr[1]),
@@ -6511,6 +6512,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       userId: dco_decode_opt_box_autoadd_i_32(arr[14]),
       libraryOwnerId: dco_decode_opt_box_autoadd_i_32(arr[15]),
       isActive: dco_decode_bool(arr[16]),
+      uuid: dco_decode_opt_String(arr[17]),
     );
   }
 
@@ -6847,8 +6849,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   FrbLoan dco_decode_frb_loan(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 14)
-      throw Exception('unexpected arr length: expect 14 but see ${arr.length}');
+    if (arr.length != 15)
+      throw Exception('unexpected arr length: expect 15 but see ${arr.length}');
     return FrbLoan(
       id: dco_decode_i_32(arr[0]),
       copyId: dco_decode_i_32(arr[1]),
@@ -6864,6 +6866,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       bookId: dco_decode_opt_box_autoadd_i_32(arr[11]),
       coverUrl: dco_decode_opt_String(arr[12]),
       isbn: dco_decode_opt_String(arr[13]),
+      uuid: dco_decode_opt_String(arr[14]),
     );
   }
 
@@ -7164,13 +7167,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   FrbTag dco_decode_frb_tag(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 4)
-      throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
+    if (arr.length != 5)
+      throw Exception('unexpected arr length: expect 5 but see ${arr.length}');
     return FrbTag(
       id: dco_decode_i_32(arr[0]),
       name: dco_decode_String(arr[1]),
       parentId: dco_decode_opt_box_autoadd_i_32(arr[2]),
       count: dco_decode_i_64(arr[3]),
+      uuid: dco_decode_opt_String(arr[4]),
     );
   }
 
@@ -7877,6 +7881,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_pageCount = sse_decode_opt_box_autoadd_i_32(deserializer);
     var var_addedAt = sse_decode_opt_String(deserializer);
     var var_hubCoverUploadFailedAt = sse_decode_opt_String(deserializer);
+    var var_uuid = sse_decode_opt_String(deserializer);
     return FrbBook(
       id: var_id,
       title: var_title,
@@ -7902,6 +7907,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       pageCount: var_pageCount,
       addedAt: var_addedAt,
       hubCoverUploadFailedAt: var_hubCoverUploadFailedAt,
+      uuid: var_uuid,
     );
   }
 
@@ -8081,6 +8087,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_userId = sse_decode_opt_box_autoadd_i_32(deserializer);
     var var_libraryOwnerId = sse_decode_opt_box_autoadd_i_32(deserializer);
     var var_isActive = sse_decode_bool(deserializer);
+    var var_uuid = sse_decode_opt_String(deserializer);
     return FrbContact(
       id: var_id,
       contactType: var_contactType,
@@ -8099,6 +8106,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       userId: var_userId,
       libraryOwnerId: var_libraryOwnerId,
       isActive: var_isActive,
+      uuid: var_uuid,
     );
   }
 
@@ -8528,6 +8536,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_bookId = sse_decode_opt_box_autoadd_i_32(deserializer);
     var var_coverUrl = sse_decode_opt_String(deserializer);
     var var_isbn = sse_decode_opt_String(deserializer);
+    var var_uuid = sse_decode_opt_String(deserializer);
     return FrbLoan(
       id: var_id,
       copyId: var_copyId,
@@ -8543,6 +8552,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       bookId: var_bookId,
       coverUrl: var_coverUrl,
       isbn: var_isbn,
+      uuid: var_uuid,
     );
   }
 
@@ -8904,11 +8914,13 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_name = sse_decode_String(deserializer);
     var var_parentId = sse_decode_opt_box_autoadd_i_32(deserializer);
     var var_count = sse_decode_i_64(deserializer);
+    var var_uuid = sse_decode_opt_String(deserializer);
     return FrbTag(
       id: var_id,
       name: var_name,
       parentId: var_parentId,
       count: var_count,
+      uuid: var_uuid,
     );
   }
 
@@ -9924,6 +9936,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_opt_box_autoadd_i_32(self.pageCount, serializer);
     sse_encode_opt_String(self.addedAt, serializer);
     sse_encode_opt_String(self.hubCoverUploadFailedAt, serializer);
+    sse_encode_opt_String(self.uuid, serializer);
   }
 
   @protected
@@ -10050,6 +10063,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_opt_box_autoadd_i_32(self.userId, serializer);
     sse_encode_opt_box_autoadd_i_32(self.libraryOwnerId, serializer);
     sse_encode_bool(self.isActive, serializer);
+    sse_encode_opt_String(self.uuid, serializer);
   }
 
   @protected
@@ -10353,6 +10367,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_opt_box_autoadd_i_32(self.bookId, serializer);
     sse_encode_opt_String(self.coverUrl, serializer);
     sse_encode_opt_String(self.isbn, serializer);
+    sse_encode_opt_String(self.uuid, serializer);
   }
 
   @protected
@@ -10615,6 +10630,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_String(self.name, serializer);
     sse_encode_opt_box_autoadd_i_32(self.parentId, serializer);
     sse_encode_i_64(self.count, serializer);
+    sse_encode_opt_String(self.uuid, serializer);
   }
 
   @protected

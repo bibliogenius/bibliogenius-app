@@ -1,5 +1,9 @@
 class Tag {
   final int id;
+
+  /// Stable cross-device identifier (ST-03). Backend-owned; null for synthetic
+  /// legacy (subject-derived) tags that have no `tags` row. Read-only client side.
+  final String? uuid;
   final String name;
   final int? parentId;
   final String path;
@@ -8,6 +12,7 @@ class Tag {
 
   Tag({
     required this.id,
+    this.uuid,
     required this.name,
     this.parentId,
     this.path = '',
@@ -18,6 +23,7 @@ class Tag {
   factory Tag.fromJson(Map<String, dynamic> json) {
     return Tag(
       id: json['id'] as int? ?? 0,
+      uuid: json['uuid'] as String?,
       name: json['name'] as String,
       parentId: json['parent_id'] as int?,
       path: json['path'] as String? ?? '',
@@ -50,6 +56,7 @@ class Tag {
   Tag copyWithChildren(List<Tag> newChildren) {
     return Tag(
       id: id,
+      uuid: uuid,
       name: name,
       parentId: parentId,
       path: path,

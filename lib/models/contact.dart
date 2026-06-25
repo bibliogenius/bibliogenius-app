@@ -1,5 +1,8 @@
 class Contact {
   final int? id;
+
+  /// Stable cross-device identifier (ST-03). Backend-owned, read-only client side.
+  final String? uuid;
   final String type; // 'borrower', 'library', 'user'
   final String name;
   final String? firstName;
@@ -23,6 +26,7 @@ class Contact {
 
   Contact({
     this.id,
+    this.uuid,
     required this.type,
     required this.name,
     this.firstName,
@@ -74,6 +78,7 @@ class Contact {
   factory Contact.fromJson(Map<String, dynamic> json) {
     return Contact(
       id: json['id'] as int?,
+      uuid: json['uuid'] as String?,
       type: (json['type'] ?? json['contact_type'] ?? 'borrower') as String,
       name: json['name'] as String,
       firstName: json['first_name'] as String?,
