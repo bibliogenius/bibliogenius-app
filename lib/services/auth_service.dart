@@ -360,6 +360,38 @@ class AuthService {
     }
   }
 
+  /// Read-only accessor for the device's existing `library_uuid`. Unlike
+  /// [getOrCreateLibraryUuid], it NEVER mints a fresh UUID on a miss and NEVER
+  /// writes to either store. Returns the persisted value, or `null` when the
+  /// device genuinely has none.
+  ///
+  /// Used by the restore wizard so a transiently-dark store cannot make it mint
+  /// a junk UUID mid-restore and wrongly flip the same-device detection into a
+  /// destructive cross-device identity reset (ADR-042 §13.3,
+  /// `e2ee_identity_storage_fragility.md`). On release macOS it consults BOTH
+  /// stores (Keychain + NSUserDefaults) and returns whichever holds the value,
+  /// so a single dark store does not look like "absent".
+  Future<String?> peekLibraryUuid() async {
+    // A value resolved earlier in this process is the real one; reuse it.
+    if (_cachedUuid != null) return _cachedUuid;
+
+    if (Platform.isMacOS && !kDebugMode) {
+      final secure = await _readSecureLibraryUuid();
+      final prefs = await _readPrefsLibraryUuid();
+      // Reuse the converge rules WITHOUT performing any write: we only need the
+      // chosen value, not the store-mirroring side effects.
+      return reconcileLibraryUuid(secure, prefs).chosen;
+    }
+
+    try {
+      final v = await storage.read(key: _libraryUuidKey);
+      return (v != null && v.isNotEmpty) ? v : null;
+    } catch (e) {
+      debugPrint('peekLibraryUuid: read failed: $e');
+      return null;
+    }
+  }
+
   /// macOS-only: resolve `library_uuid` from both stores and converge them so a
   /// future Keychain <-> NSUserDefaults swing cannot lose the value. Reuses
   /// [setLibraryUuidDualWrite] for the converging write. Best-effort: a store

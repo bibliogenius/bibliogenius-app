@@ -9510,11 +9510,37 @@ msgstr "Fusionner (ajouter à ma bibliothèque actuelle)"
 msgid "wizard_restore_mode_merge_subtitle"
 msgstr "Les livres, contacts et étagères de l'archive sont ajoutés aux vôtres. Les pairs et l'identité ne sont pas touchés."
 
-msgid "wizard_restore_identity_checkbox_title"
-msgstr "Restaurer aussi l'identité de cette bibliothèque (clone exact)"
+#. Restore wizard, identity choice (Replace + archive carries an identity).
+#. Makes the cross-device decision explicit: migrate (one shared identity)
+#. vs independent copy (a fresh identity), so a restore is never a surprise
+#. reset.
+msgid "wizard_restore_identity_section_title"
+msgstr "Identité de la bibliothèque"
 
-msgid "wizard_restore_identity_checkbox_subtitle"
-msgstr "Coché : cet appareil sera reconnu par vos pairs comme l'appareil d'origine. Décoché : nouvelle identité, vos pairs vous re-vérifieront automatiquement au prochain contact."
+#. Tooltip / info on the identity section header.
+msgid "wizard_restore_identity_section_tooltip"
+msgstr "L'identité de votre bibliothèque permet à vos pairs de reconnaître cet appareil. Migrer conserve la même identité ; une copie indépendante en génère une nouvelle."
+
+msgid "wizard_restore_identity_choice_migrate_title"
+msgstr "Migrer cette bibliothèque (même identité)"
+
+msgid "wizard_restore_identity_choice_migrate_subtitle"
+msgstr "Pour passer à un nouvel appareil ou remplacer l'ancien. Vos pairs continuent de vous reconnaître comme la même bibliothèque. L'appareil d'origine ne devrait plus être utilisé."
+
+msgid "wizard_restore_identity_choice_copy_title"
+msgstr "Copie indépendante (nouvelle identité)"
+
+msgid "wizard_restore_identity_choice_copy_subtitle"
+msgstr "Crée une bibliothèque distincte à partir de ces données. Cet appareil reçoit une nouvelle identité : vos pairs existants ne le reconnaissent plus et vous devrez les reconnecter manuellement. L'appareil qui a créé la sauvegarde n'est pas affecté : il garde son identité et ses pairs."
+
+#. Reassuring note when the backup was produced by THIS device.
+msgid "wizard_restore_identity_same_device_note"
+msgstr "Cette sauvegarde a été produite par cet appareil : votre identité est préservée dans les deux cas. Aucune revérification nécessaire."
+
+#. Warning note when the backup comes from another device, so the choice
+#. actually changes this device's identity.
+msgid "wizard_restore_identity_cross_device_note"
+msgstr "Cette sauvegarde provient d'un autre appareil. Choisissez avec soin : « Copie indépendante » réinitialise l'identité de cet appareil. C'est un choix explicite, pas une réinitialisation silencieuse."
 
 msgid "wizard_restore_step_confirm_title"
 msgstr "Confirmer la restauration"

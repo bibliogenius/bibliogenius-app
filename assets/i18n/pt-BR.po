@@ -4327,11 +4327,29 @@ msgstr "Mesclar (adicionar à minha biblioteca atual)"
 msgid "wizard_restore_mode_merge_subtitle"
 msgstr "Os livros, contatos e estantes do arquivo são adicionados aos seus. Peers e identidade não são afetados."
 
-msgid "wizard_restore_identity_checkbox_title"
-msgstr "Restaurar também a identidade desta biblioteca (clone exato)"
+msgid "wizard_restore_identity_section_title"
+msgstr "Identidade da biblioteca"
 
-msgid "wizard_restore_identity_checkbox_subtitle"
-msgstr "Marcado: este dispositivo será reconhecido pelos seus peers como o dispositivo original. Desmarcado: nova identidade, seus peers verificarão você novamente de forma automática no próximo contato."
+msgid "wizard_restore_identity_section_tooltip"
+msgstr "A identidade da sua biblioteca permite que seus peers reconheçam este dispositivo. Migrar mantém a mesma identidade; uma cópia independente gera uma nova."
+
+msgid "wizard_restore_identity_choice_migrate_title"
+msgstr "Migrar esta biblioteca (mesma identidade)"
+
+msgid "wizard_restore_identity_choice_migrate_subtitle"
+msgstr "Para mudar para um novo dispositivo ou substituir o antigo. Seus peers continuam reconhecendo você como a mesma biblioteca. O dispositivo original não deve mais ser usado."
+
+msgid "wizard_restore_identity_choice_copy_title"
+msgstr "Cópia independente (nova identidade)"
+
+msgid "wizard_restore_identity_choice_copy_subtitle"
+msgstr "Cria uma biblioteca separada a partir destes dados. Este dispositivo recebe uma nova identidade: seus peers atuais deixam de reconhecê-lo e você precisará reconectá-los manualmente. O dispositivo que criou o backup não é afetado: mantém sua identidade e seus peers."
+
+msgid "wizard_restore_identity_same_device_note"
+msgstr "Este backup foi criado por este dispositivo, então sua identidade é preservada nos dois casos. Nenhuma nova verificação é necessária."
+
+msgid "wizard_restore_identity_cross_device_note"
+msgstr "Este backup vem de outro dispositivo. Escolha com cuidado: \"Cópia independente\" redefine a identidade deste dispositivo. É uma escolha explícita, não uma redefinição silenciosa."
 
 msgid "wizard_restore_step_confirm_title"
 msgstr "Confirmar a restauração"

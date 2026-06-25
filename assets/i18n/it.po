@@ -9445,11 +9445,29 @@ msgstr "Unisci (aggiungi alla mia biblioteca attuale)"
 msgid "wizard_restore_mode_merge_subtitle"
 msgstr "I libri, i contatti e gli scaffali dell'archivio vengono aggiunti ai tuoi. I peer e l'identità non sono interessati."
 
-msgid "wizard_restore_identity_checkbox_title"
-msgstr "Ripristina anche l'identità di questa biblioteca (clone esatto)"
+msgid "wizard_restore_identity_section_title"
+msgstr "Identità della biblioteca"
 
-msgid "wizard_restore_identity_checkbox_subtitle"
-msgstr "Selezionato: questo dispositivo verrà riconosciuto dai tuoi peer come il dispositivo originale. Non selezionato: nuova identità, i tuoi peer ti verificheranno di nuovo automaticamente al prossimo contatto."
+msgid "wizard_restore_identity_section_tooltip"
+msgstr "L'identità della tua biblioteca permette ai tuoi peer di riconoscere questo dispositivo. Migrare mantiene la stessa identità; una copia indipendente ne genera una nuova."
+
+msgid "wizard_restore_identity_choice_migrate_title"
+msgstr "Migra questa biblioteca (stessa identità)"
+
+msgid "wizard_restore_identity_choice_migrate_subtitle"
+msgstr "Per passare a un nuovo dispositivo o sostituire quello vecchio. I tuoi peer continuano a riconoscerti come la stessa biblioteca. Il dispositivo originale non dovrebbe più essere usato."
+
+msgid "wizard_restore_identity_choice_copy_title"
+msgstr "Copia indipendente (nuova identità)"
+
+msgid "wizard_restore_identity_choice_copy_subtitle"
+msgstr "Crea una biblioteca separata a partire da questi dati. Questo dispositivo riceve una nuova identità: i tuoi peer esistenti non lo riconoscono più e dovrai riconnetterli manualmente. Il dispositivo che ha creato il backup non è interessato: mantiene la sua identità e i suoi peer."
+
+msgid "wizard_restore_identity_same_device_note"
+msgstr "Questo backup è stato creato da questo dispositivo, quindi la tua identità è preservata in entrambi i casi. Nessuna nuova verifica necessaria."
+
+msgid "wizard_restore_identity_cross_device_note"
+msgstr "Questo backup proviene da un altro dispositivo. Scegli con attenzione: «Copia indipendente» reimposta l'identità di questo dispositivo. È una scelta esplicita, non un reset silenzioso."
 
 msgid "wizard_restore_step_confirm_title"
 msgstr "Conferma il ripristino"

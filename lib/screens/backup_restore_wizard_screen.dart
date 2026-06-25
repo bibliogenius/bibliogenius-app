@@ -37,6 +37,19 @@ class BackupRestoreWizardScreen extends StatefulWidget {
 
 enum _WizardStep { pickFile, preview, secret, mode, confirm, progress, result }
 
+/// Whether a restore is a same-device restore (the user is restoring a backup
+/// produced by THIS device), given the device's peeked `library_uuid` and the
+/// archive manifest UUID. Mirrors the backend `same_device` rule
+/// (`backup.rs::apply_replace`, ADR-042 §13.3): a `null` or blank local uuid
+/// (absent / transiently unreadable store) is NOT a same-device match. The
+/// local uuid MUST come from `auth.peekLibraryUuid` (read-only, never minted),
+/// otherwise a freshly minted value would falsify this comparison.
+@visibleForTesting
+bool isSameDeviceRestore(String? localLibraryUuid, String manifestLibraryUuid) {
+  final local = localLibraryUuid?.trim() ?? '';
+  return local.isNotEmpty && local == manifestLibraryUuid;
+}
+
 class _BackupRestoreWizardScreenState extends State<BackupRestoreWizardScreen> {
   _WizardStep _step = _WizardStep.pickFile;
 
@@ -48,6 +61,17 @@ class _BackupRestoreWizardScreenState extends State<BackupRestoreWizardScreen> {
   // includes identity AND was written with `unlock_kind == "passphrase"`,
   // i.e. the user explicitly opted into clone export.
   bool _restoreIdentity = false;
+  /// The device's current `library_uuid`, peeked read-only when the manifest
+  /// loads (never minted; see [AuthService.peekLibraryUuid]). `null` when the
+  /// device has no identity yet or its store is transiently unreadable. Passed
+  /// verbatim to the Rust restore so the same-device detection sees honest
+  /// input instead of a freshly minted junk uuid (ADR-042 §13.3).
+  String? _localLibraryUuid;
+  /// True when [_localLibraryUuid] matches the archive's manifest UUID, i.e.
+  /// the user is restoring a backup produced by THIS device. Gates the
+  /// identity-choice UX: same-device restores preserve the identity either way,
+  /// so they get a reassuring note instead of a reset warning.
+  bool _sameDeviceLikely = false;
   bool _obscureSecret = true;
   String? _secretError;
   bool _verifyingSecret = false;
@@ -143,9 +167,18 @@ class _BackupRestoreWizardScreenState extends State<BackupRestoreWizardScreen> {
       // for "user explicitly opted into clone").
       final defaultIdentity =
           m.identityIncluded && m.unlockKind == 'passphrase';
+      // Read-only peek of the device's own `library_uuid`. NEVER mints one
+      // (unlike getOrCreateLibraryUuid): a transiently-dark store must surface
+      // as "absent", not as a junk uuid that would falsify the same-device
+      // detection and trigger a destructive reset (ADR-042 §13.3).
+      final auth = context.read<AuthService>();
+      final localUuid = await auth.peekLibraryUuid();
+      if (!mounted) return;
       setState(() {
         _manifest = m;
         _restoreIdentity = defaultIdentity;
+        _localLibraryUuid = localUuid;
+        _sameDeviceLikely = isSameDeviceRestore(localUuid, m.libraryUuid);
         _step = _WizardStep.preview;
       });
       // Same-device UX shortcut: if the secret used to encrypt the archive
@@ -246,12 +279,14 @@ class _BackupRestoreWizardScreenState extends State<BackupRestoreWizardScreen> {
           ? _t('wizard_restore_progress_replacing')
           : _t('wizard_restore_progress_merging'));
 
-      // Pass the device's current `library_uuid` so the Replace path can
-      // detect a same-device restore and keep `crypto_keys` intact
-      // (ADR-037 §5). Without this, restoring an auto-backup produced
-      // by THIS device would gratuitously wipe the working identity and
-      // trigger the post-restore "Vérification de sécurité" dialog.
-      final localLibraryUuid = await auth.getOrCreateLibraryUuid();
+      // Pass the device's current `library_uuid` (peeked read-only when the
+      // manifest loaded) so the Replace path can detect a same-device restore
+      // and keep `crypto_keys` intact (ADR-037 §5). It is deliberately the
+      // peeked value, NOT getOrCreateLibraryUuid(): minting a fresh uuid here
+      // would never match the manifest and would silently flip a same-device
+      // restore into a destructive cross-device reset (ADR-042 §13.3). A null
+      // value is passed through honestly as "unknown identity".
+      final localLibraryUuid = _localLibraryUuid;
 
       final summary = await rust.restoreBackupFfi(
         archivePath: path,
@@ -623,15 +658,7 @@ class _BackupRestoreWizardScreenState extends State<BackupRestoreWizardScreen> {
           groupValue: _mode,
           onChanged: (v) => setState(() => _mode = v ?? 'merge'),
         ),
-        if (_mode == 'replace' && m.identityIncluded) ...[
-          const Divider(),
-          CheckboxListTile(
-            title: Text(_t('wizard_restore_identity_checkbox_title')),
-            subtitle: Text(_t('wizard_restore_identity_checkbox_subtitle')),
-            value: _restoreIdentity,
-            onChanged: (v) => setState(() => _restoreIdentity = v ?? false),
-          ),
-        ],
+        if (_mode == 'replace' && m.identityIncluded) ..._buildIdentityChoice(),
         const Spacer(),
         Row(
           children: [
@@ -647,6 +674,102 @@ class _BackupRestoreWizardScreenState extends State<BackupRestoreWizardScreen> {
           ],
         ),
       ],
+    );
+  }
+
+  /// Identity outcome chooser for Replace, shown only when the archive carries
+  /// an identity. Makes the cross-device decision EXPLICIT (ADR-042 §13.2,
+  /// §13.3): "migrate" keeps one shared identity (cas 1 clone), "independent
+  /// copy" mints a fresh one (cas 3). A same-device restore preserves the
+  /// identity either way, so it gets a reassuring note rather than a reset
+  /// warning, avoiding a surprise reset for users restoring their own backup.
+  List<Widget> _buildIdentityChoice() {
+    return [
+      const Divider(),
+      Row(
+        children: [
+          Semantics(
+            header: true,
+            child: Text(
+              _t('wizard_restore_identity_section_title'),
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.info_outline, size: 18),
+            tooltip: _t('wizard_restore_identity_section_tooltip'),
+            onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(_t('wizard_restore_identity_section_tooltip')),
+              ),
+            ),
+          ),
+        ],
+      ),
+      // Same-device restore: the backend `same_device` guard preserves the
+      // identity no matter which option is picked (both collapse to "keep" in
+      // backup.rs::apply_replace / frb.rs). Offering a "new identity" choice
+      // that cannot fire would be misleading, so we show only the reassuring
+      // note. The migrate-vs-copy decision is meaningful only cross-device.
+      if (_sameDeviceLikely)
+        _identityNote(sameDevice: true)
+      else ...[
+        RadioListTile<bool>(
+          title: Text(_t('wizard_restore_identity_choice_migrate_title')),
+          subtitle: Text(_t('wizard_restore_identity_choice_migrate_subtitle')),
+          value: true,
+          groupValue: _restoreIdentity,
+          onChanged: (v) => setState(() => _restoreIdentity = v ?? true),
+        ),
+        RadioListTile<bool>(
+          title: Text(_t('wizard_restore_identity_choice_copy_title')),
+          subtitle: Text(_t('wizard_restore_identity_choice_copy_subtitle')),
+          value: false,
+          groupValue: _restoreIdentity,
+          onChanged: (v) => setState(() => _restoreIdentity = v ?? false),
+        ),
+        const SizedBox(height: 8),
+        _identityNote(sameDevice: false),
+      ],
+    ];
+  }
+
+  /// Contextual note under the identity choice: reassuring (secondary) for a
+  /// same-device restore, warning (error) for a cross-device one.
+  Widget _identityNote({required bool sameDevice}) {
+    final cs = Theme.of(context).colorScheme;
+    final bg = sameDevice ? cs.secondaryContainer : cs.errorContainer;
+    final fg = sameDevice ? cs.onSecondaryContainer : cs.onErrorContainer;
+    return Semantics(
+      liveRegion: true,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(
+              sameDevice ? Icons.verified_user : Icons.warning_amber,
+              size: 18,
+              color: fg,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                sameDevice
+                    ? _t('wizard_restore_identity_same_device_note')
+                    : _t('wizard_restore_identity_cross_device_note'),
+                style:
+                    Theme.of(context).textTheme.bodySmall?.copyWith(color: fg),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

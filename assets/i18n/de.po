@@ -9320,11 +9320,29 @@ msgstr "Zusammenführen (zu meiner aktuellen Bibliothek hinzufügen)"
 msgid "wizard_restore_mode_merge_subtitle"
 msgstr "Bücher, Kontakte und Regale aus dem Archiv werden zu Ihren hinzugefügt. Peers und Identität bleiben unberührt."
 
-msgid "wizard_restore_identity_checkbox_title"
-msgstr "Auch die Identität dieser Bibliothek wiederherstellen (exakter Klon)"
+msgid "wizard_restore_identity_section_title"
+msgstr "Bibliotheksidentität"
 
-msgid "wizard_restore_identity_checkbox_subtitle"
-msgstr "Aktiviert: Dieses Gerät wird von Ihren Peers als Originalgerät erkannt. Deaktiviert: neue Identität, Ihre Peers verifizieren Sie beim nächsten Kontakt automatisch erneut."
+msgid "wizard_restore_identity_section_tooltip"
+msgstr "Ihre Bibliotheksidentität ermöglicht es Ihren Peers, dieses Gerät zu erkennen. Migrieren behält dieselbe Identität; eine unabhängige Kopie erzeugt eine neue."
+
+msgid "wizard_restore_identity_choice_migrate_title"
+msgstr "Diese Bibliothek migrieren (gleiche Identität)"
+
+msgid "wizard_restore_identity_choice_migrate_subtitle"
+msgstr "Zum Wechsel auf ein neues Gerät oder zum Ersetzen des alten. Ihre Peers erkennen Sie weiterhin als dieselbe Bibliothek. Das ursprüngliche Gerät sollte nicht mehr verwendet werden."
+
+msgid "wizard_restore_identity_choice_copy_title"
+msgstr "Unabhängige Kopie (neue Identität)"
+
+msgid "wizard_restore_identity_choice_copy_subtitle"
+msgstr "Erstellt aus diesen Daten eine separate Bibliothek. Dieses Gerät erhält eine neue Identität: Ihre bestehenden Peers erkennen es nicht mehr und Sie müssen sie manuell neu verbinden. Das Gerät, das die Sicherung erstellt hat, ist nicht betroffen: Es behält seine Identität und seine Peers."
+
+msgid "wizard_restore_identity_same_device_note"
+msgstr "Diese Sicherung wurde von diesem Gerät erstellt, daher bleibt Ihre Identität in beiden Fällen erhalten. Keine erneute Verifizierung nötig."
+
+msgid "wizard_restore_identity_cross_device_note"
+msgstr "Diese Sicherung stammt von einem anderen Gerät. Wählen Sie sorgfältig: „Unabhängige Kopie“ setzt die Identität dieses Geräts zurück. Das ist eine bewusste Entscheidung, kein stilles Zurücksetzen."
 
 msgid "wizard_restore_step_confirm_title"
 msgstr "Wiederherstellung bestätigen"

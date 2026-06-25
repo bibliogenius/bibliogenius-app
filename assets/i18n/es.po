@@ -9320,11 +9320,29 @@ msgstr "Combinar (añadir a mi biblioteca actual)"
 msgid "wizard_restore_mode_merge_subtitle"
 msgstr "Los libros, contactos y estantes del archivo se añaden a los suyos. Los pares y la identidad no se ven afectados."
 
-msgid "wizard_restore_identity_checkbox_title"
-msgstr "Restaurar también la identidad de esta biblioteca (clon exacto)"
+msgid "wizard_restore_identity_section_title"
+msgstr "Identidad de la biblioteca"
 
-msgid "wizard_restore_identity_checkbox_subtitle"
-msgstr "Marcado: este dispositivo será reconocido por sus pares como el dispositivo original. Desmarcado: nueva identidad, sus pares lo re-verificarán automáticamente en el próximo contacto."
+msgid "wizard_restore_identity_section_tooltip"
+msgstr "La identidad de tu biblioteca permite que tus pares reconozcan este dispositivo. Migrar conserva la misma identidad; una copia independiente genera una nueva."
+
+msgid "wizard_restore_identity_choice_migrate_title"
+msgstr "Migrar esta biblioteca (misma identidad)"
+
+msgid "wizard_restore_identity_choice_migrate_subtitle"
+msgstr "Para pasar a un nuevo dispositivo o reemplazar el anterior. Tus pares siguen reconociéndote como la misma biblioteca. El dispositivo original ya no debería usarse."
+
+msgid "wizard_restore_identity_choice_copy_title"
+msgstr "Copia independiente (nueva identidad)"
+
+msgid "wizard_restore_identity_choice_copy_subtitle"
+msgstr "Crea una biblioteca separada a partir de estos datos. Este dispositivo recibe una nueva identidad: tus pares actuales dejan de reconocerlo y tendrás que volver a conectarlos manualmente. El dispositivo que creó la copia de seguridad no se ve afectado: conserva su identidad y sus pares."
+
+msgid "wizard_restore_identity_same_device_note"
+msgstr "Esta copia de seguridad fue creada por este dispositivo, así que tu identidad se conserva en ambos casos. No hace falta volver a verificar."
+
+msgid "wizard_restore_identity_cross_device_note"
+msgstr "Esta copia de seguridad proviene de otro dispositivo. Elige con cuidado: «Copia independiente» reinicia la identidad de este dispositivo. Es una elección explícita, no un reinicio silencioso."
 
 msgid "wizard_restore_step_confirm_title"
 msgstr "Confirmar la restauración"

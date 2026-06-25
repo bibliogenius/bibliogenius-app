@@ -9510,11 +9510,37 @@ msgstr "Merge (add to my current library)"
 msgid "wizard_restore_mode_merge_subtitle"
 msgstr "Books, contacts and shelves from the archive are added to yours. Peers and identity are not affected."
 
-msgid "wizard_restore_identity_checkbox_title"
-msgstr "Also restore this library's identity (exact clone)"
+#. Restore wizard, identity choice (Replace + archive carries an identity).
+#. Makes the cross-device decision explicit: migrate (one shared identity)
+#. vs independent copy (a fresh identity), so a restore is never a surprise
+#. reset.
+msgid "wizard_restore_identity_section_title"
+msgstr "Library identity"
 
-msgid "wizard_restore_identity_checkbox_subtitle"
-msgstr "Checked: this device will be recognized by your peers as the original device. Unchecked: new identity, your peers will re-verify you automatically on next contact."
+#. Tooltip / info on the identity section header.
+msgid "wizard_restore_identity_section_tooltip"
+msgstr "Your library identity lets your peers recognize this device. Migrating keeps the same identity; an independent copy generates a new one."
+
+msgid "wizard_restore_identity_choice_migrate_title"
+msgstr "Migrate this library (same identity)"
+
+msgid "wizard_restore_identity_choice_migrate_subtitle"
+msgstr "For moving to a new device or replacing the old one. Your peers keep recognizing you as the same library. The original device should no longer be used."
+
+msgid "wizard_restore_identity_choice_copy_title"
+msgstr "Independent copy (new identity)"
+
+msgid "wizard_restore_identity_choice_copy_subtitle"
+msgstr "Creates a separate library from this data. This device gets a new identity: your existing peers no longer recognize it and you will have to reconnect them manually. The device that created the backup is unaffected: it keeps its identity and peers."
+
+#. Reassuring note when the backup was produced by THIS device.
+msgid "wizard_restore_identity_same_device_note"
+msgstr "This backup was produced by this device, so your identity is preserved either way. No re-verification needed."
+
+#. Warning note when the backup comes from another device, so the choice
+#. actually changes this device's identity.
+msgid "wizard_restore_identity_cross_device_note"
+msgstr "This backup comes from another device. Choose carefully: \"Independent copy\" resets this device's identity. This is an explicit choice, not a silent reset."
 
 msgid "wizard_restore_step_confirm_title"
 msgstr "Confirm the restore"

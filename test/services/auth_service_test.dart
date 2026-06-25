@@ -133,4 +133,46 @@ void main() {
       expect(second, first);
     });
   });
+
+  // peekLibraryUuid is the read-only accessor the restore wizard uses to feed
+  // the same-device detection (ADR-042 §13.3). It must NEVER mint or persist a
+  // UUID, so a transiently-empty store cannot become a junk value that wrongly
+  // flips the restore into a destructive cross-device identity reset.
+  group('peekLibraryUuid (read-only, never mints)', () {
+    setUp(() {
+      AuthService.resetLibraryUuidCacheForTest();
+      FlutterSecureStorage.setMockInitialValues({});
+      SharedPreferences.setMockInitialValues({});
+    });
+
+    test('returns null on an empty store and leaves it empty (no mint)',
+        () async {
+      final auth = AuthService();
+      final peeked = await auth.peekLibraryUuid();
+      expect(peeked, isNull);
+
+      // Crucial: peeking must not have written a junk UUID. A subsequent
+      // getOrCreate is what mints, proving the store was untouched by peek.
+      final raw = await AuthService.storage.read(key: 'library_uuid');
+      expect(raw, isNull, reason: 'peek must not persist a fresh UUID');
+    });
+
+    test('returns the persisted UUID when present', () async {
+      final auth = AuthService();
+      final minted = await auth.getOrCreateLibraryUuid();
+      AuthService.resetLibraryUuidCacheForTest();
+
+      final peeked = await auth.peekLibraryUuid();
+      expect(peeked, minted);
+    });
+
+    test('does not mint even when called repeatedly on an empty store',
+        () async {
+      final auth = AuthService();
+      expect(await auth.peekLibraryUuid(), isNull);
+      expect(await auth.peekLibraryUuid(), isNull);
+      final raw = await AuthService.storage.read(key: 'library_uuid');
+      expect(raw, isNull);
+    });
+  });
 }
