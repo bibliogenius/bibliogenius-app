@@ -199,6 +199,30 @@ Future<String> accountRefreshDevicesFfi() =>
 Future<String> accountLogoutFfi() =>
     RustLib.instance.api.crateApiFrbAccountLogoutFfi();
 
+/// Score a candidate passphrase locally for the signup strength meter. No network, no DB,
+/// no logging (SECURITY_GUIDELINES F7: the check is 100% local). Returns JSON
+/// `{score 0-4, length, acceptable, warning, suggestions}`; the UI gates the signup button
+/// on `acceptable` (zxcvbn 4/4 AND length >= 12).
+Future<String> accountCheckPassphraseFfi({required String passphrase}) =>
+    RustLib.instance.api.crateApiFrbAccountCheckPassphraseFfi(
+      passphrase: passphrase,
+    );
+
+/// Create a NEW account on this (first) device with a passphrase (Path A). Enforces the
+/// strength floor, generates and double-wraps the trousseau, publishes the first signed
+/// registry, persists the session, and returns the one-time BIP39 recovery phrase inside the
+/// status JSON (`recovery_phrase`) for the UI to display ONCE. The phrase is never persisted
+/// or logged; losing both passphrase and kit means permanent account loss (ADR-042 §8).
+Future<String> accountSignupFfi({
+  required String email,
+  required String passphrase,
+  required String deviceName,
+}) => RustLib.instance.api.crateApiFrbAccountSignupFfi(
+  email: email,
+  passphrase: passphrase,
+  deviceName: deviceName,
+);
+
 /// Update only the library name in the database (library_config + libraries tables).
 /// This is the FFI-direct path used by the flash editor on the home screen.
 /// Only touches the `name` and `updated_at` fields - no other settings are overwritten.
