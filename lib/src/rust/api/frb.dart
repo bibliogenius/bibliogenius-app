@@ -8,7 +8,8 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 part 'frb.freezed.dart';
 
-// These functions are ignored because they are not marked as `pub`: `apply_fallback_preferences_to_modules`, `covers_dir`, `db`, `entries_to_frb`, `fill_state`, `from_info`, `from_manifest`, `from_summary`, `global_app_state`, `hub_db`, `hub_directory_svc`, `hub_directory_sync_catalog_inner`, `install_panic_hook`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `merge_api_keys`, `modules_to_fallback_preferences`, `nudge_source_label`, `rename_subject_in_books`, `runtime`, `track_to_frb`, `try_from_summary`, `undo_outcome_str`, `upsert_directory_catalog_cache`
+// These functions are ignored because they are not marked as `pub`: `account_device_entry`, `account_library_uuid`, `account_status_json`, `apply_fallback_preferences_to_modules`, `covers_dir`, `db`, `ensure_account_session`, `entries_to_frb`, `fill_state`, `from_info`, `from_manifest`, `from_summary`, `global_app_state`, `hub_db`, `hub_directory_svc`, `hub_directory_sync_catalog_inner`, `install_panic_hook`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `merge_api_keys`, `modules_to_fallback_preferences`, `nudge_source_label`, `rename_subject_in_books`, `runtime`, `track_to_frb`, `try_from_summary`, `undo_outcome_str`, `upsert_directory_catalog_cache`
+// These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `AccountSession`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
 
 /// Initialize the FFI backend with database at the given path
@@ -139,6 +140,64 @@ Future<String> generateInviteLinkFfi({
 /// Parse an invite link, extracting the JSON payload from the URL fragment.
 Future<String> parseInviteLinkFfi({required String link}) =>
     RustLib.instance.api.crateApiFrbParseInviteLinkFfi(link: link);
+
+/// Account session status for the UI. Cheap: reads the plaintext metadata columns and
+/// never decrypts the trousseau or hits the network.
+Future<String> accountStatusFfi() =>
+    RustLib.instance.api.crateApiFrbAccountStatusFfi();
+
+/// Join an EXISTING account on this device with its passphrase (Path A). Unlocks the
+/// trousseau, enrolls this device into the signed registry, and persists the session.
+Future<String> accountEnrollPassphraseFfi({
+  required String email,
+  required String passphrase,
+  required String deviceName,
+}) => RustLib.instance.api.crateApiFrbAccountEnrollPassphraseFfi(
+  email: email,
+  passphrase: passphrase,
+  deviceName: deviceName,
+);
+
+/// NEW device, step 1: generate this device's lane key and return the `bg-pair` QR payload
+/// (its lane key + ADR-039 public keys) for an authorized device to scan. The payload
+/// carries NO secret; the X25519 public key in it is what the authorized device will seal
+/// the trousseau to (ADR-045 authenticated channel).
+Future<String> accountGetDevicePairingQrFfi({required String deviceName}) =>
+    RustLib.instance.api.crateApiFrbAccountGetDevicePairingQrFfi(
+      deviceName: deviceName,
+    );
+
+/// AUTHORIZED device: scan a NEW device's `bg-pair` QR, seal the trousseau to it, and add it
+/// to the signed registry. Returns the `bg-sealed` payload (sealed blob + account email) to
+/// show back as a QR.
+///
+/// SECURITY (ADR-045 / ADR-042 §14 H2): the X25519 key the trousseau is sealed to comes
+/// ONLY from the scanned payload (`req.x25519_pk`) — never a hub field. Do not refactor this
+/// to source the key from anywhere else.
+Future<String> accountAuthorizeDeviceFfi({required String pairingQrPayload}) =>
+    RustLib.instance.api.crateApiFrbAccountAuthorizeDeviceFfi(
+      pairingQrPayload: pairingQrPayload,
+    );
+
+/// NEW device, step 2: scan the `bg-sealed` QR returned by the authorized device, open the
+/// trousseau with this device's X25519 identity, authenticate, and persist the session. The
+/// authorizing device already registered this device, so no registry write happens here.
+Future<String> accountEnrollFromSealedFfi({required String sealedQrPayload}) =>
+    RustLib.instance.api.crateApiFrbAccountEnrollFromSealedFfi(
+      sealedQrPayload: sealedQrPayload,
+    );
+
+/// Fetch and adopt the account's signed device registry, returning the authorized devices
+/// as JSON (`{device_id, name, is_self}`). This is the H3 step `sync_once` runs first; it
+/// is exposed on its own so the UI can list/refresh devices before data sync ships.
+Future<String> accountRefreshDevicesFfi() =>
+    RustLib.instance.api.crateApiFrbAccountRefreshDevicesFfi();
+
+/// Sign out of the account on this device: drop the in-RAM session and delete the encrypted
+/// `account_session` row. Does not revoke the device server-side (that is a registry edit
+/// from another device). Idempotent.
+Future<String> accountLogoutFfi() =>
+    RustLib.instance.api.crateApiFrbAccountLogoutFfi();
 
 /// Update only the library name in the database (library_config + libraries tables).
 /// This is the FFI-direct path used by the flash editor on the home screen.
