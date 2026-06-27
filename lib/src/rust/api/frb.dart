@@ -8,7 +8,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 part 'frb.freezed.dart';
 
-// These functions are ignored because they are not marked as `pub`: `account_device_entry`, `account_library_uuid`, `account_status_json`, `apply_fallback_preferences_to_modules`, `covers_dir`, `db`, `ensure_account_session`, `entries_to_frb`, `fill_state`, `from_info`, `from_manifest`, `from_summary`, `global_app_state`, `hub_db`, `hub_directory_svc`, `hub_directory_sync_catalog_inner`, `install_panic_hook`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `merge_api_keys`, `modules_to_fallback_preferences`, `nudge_source_label`, `rename_subject_in_books`, `runtime`, `store_account_session`, `track_to_frb`, `try_from_summary`, `undo_outcome_str`, `upsert_directory_catalog_cache`
+// These functions are ignored because they are not marked as `pub`: `account_device_entry`, `account_library_uuid`, `account_status_json`, `apply_fallback_preferences_to_modules`, `book_id_by_uuid`, `contact_id_by_uuid`, `covers_dir`, `db`, `ensure_account_session`, `entries_to_frb`, `fill_state`, `from_info`, `from_manifest`, `from_summary`, `global_app_state`, `hub_db`, `hub_directory_svc`, `hub_directory_sync_catalog_inner`, `install_panic_hook`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `loan_id_by_uuid`, `merge_api_keys`, `modules_to_fallback_preferences`, `nudge_source_label`, `rename_subject_in_books`, `runtime`, `store_account_session`, `tag_id_by_uuid`, `track_to_frb`, `try_from_summary`, `undo_outcome_str`, `upsert_directory_catalog_cache`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `AccountSession`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
 
@@ -141,6 +141,109 @@ Future<String> generateInviteLinkFfi({
 Future<String> parseInviteLinkFfi({required String link}) =>
     RustLib.instance.api.crateApiFrbParseInviteLinkFfi(link: link);
 
+/// Fetch a book by its uuid.
+Future<FrbBook> getBookByUuid({required String uuid}) =>
+    RustLib.instance.api.crateApiFrbGetBookByUuid(uuid: uuid);
+
+/// Update a book identified by its uuid.
+Future<FrbBook> updateBookByUuid({
+  required String uuid,
+  required FrbBook book,
+}) => RustLib.instance.api.crateApiFrbUpdateBookByUuid(uuid: uuid, book: book);
+
+/// Delete a book identified by its uuid.
+Future<void> deleteBookByUuid({required String uuid}) =>
+    RustLib.instance.api.crateApiFrbDeleteBookByUuid(uuid: uuid);
+
+/// Update a tag identified by its uuid. `parent_id` stays integer until the
+/// reference columns flip with the database.
+Future<FrbTag> updateTagByUuid({
+  required String uuid,
+  required String name,
+  int? parentId,
+}) => RustLib.instance.api.crateApiFrbUpdateTagByUuid(
+  uuid: uuid,
+  name: name,
+  parentId: parentId,
+);
+
+/// Delete a tag identified by its uuid.
+Future<void> deleteTagByUuid({required String uuid}) =>
+    RustLib.instance.api.crateApiFrbDeleteTagByUuid(uuid: uuid);
+
+/// Fetch a contact by its uuid.
+Future<FrbContact> getContactByUuid({required String uuid}) =>
+    RustLib.instance.api.crateApiFrbGetContactByUuid(uuid: uuid);
+
+/// Delete a contact identified by its uuid.
+Future<void> deleteContactByUuid({required String uuid}) =>
+    RustLib.instance.api.crateApiFrbDeleteContactByUuid(uuid: uuid);
+
+/// Mark the loan identified by its uuid as returned.
+Future<String> returnLoanByUuid({required String uuid}) =>
+    RustLib.instance.api.crateApiFrbReturnLoanByUuid(uuid: uuid);
+
+/// Effective loan duration (days) for the book identified by its uuid.
+Future<int> getEffectiveLoanDurationByBookUuid({required String bookUuid}) =>
+    RustLib.instance.api.crateApiFrbGetEffectiveLoanDurationByBookUuid(
+      bookUuid: bookUuid,
+    );
+
+/// Per-book loan duration override for the book identified by its uuid.
+Future<int?> getBookLoanDurationByBookUuid({required String bookUuid}) =>
+    RustLib.instance.api.crateApiFrbGetBookLoanDurationByBookUuid(
+      bookUuid: bookUuid,
+    );
+
+/// Set the per-book loan duration override for the book identified by its uuid.
+Future<void> setBookLoanDurationByBookUuid({
+  required String bookUuid,
+  int? days,
+}) => RustLib.instance.api.crateApiFrbSetBookLoanDurationByBookUuid(
+  bookUuid: bookUuid,
+  days: days,
+);
+
+/// Add the book identified by its uuid to a collection.
+Future<void> addBookToCollectionByBookUuid({
+  required String collectionId,
+  required String bookUuid,
+}) => RustLib.instance.api.crateApiFrbAddBookToCollectionByBookUuid(
+  collectionId: collectionId,
+  bookUuid: bookUuid,
+);
+
+/// Collections containing the book identified by its uuid.
+Future<List<FrbCollection>> getBookCollectionsByBookUuid({
+  required String bookUuid,
+}) => RustLib.instance.api.crateApiFrbGetBookCollectionsByBookUuid(
+  bookUuid: bookUuid,
+);
+
+/// Notes attached to the book identified by its uuid.
+Future<List<FrbBookNote>> getBookNotesByBookUuid({required String bookUuid}) =>
+    RustLib.instance.api.crateApiFrbGetBookNotesByBookUuid(bookUuid: bookUuid);
+
+/// Create a note on the book identified by its uuid.
+Future<FrbBookNote> createBookNoteByBookUuid({
+  required String bookUuid,
+  required String content,
+  int? page,
+}) => RustLib.instance.api.crateApiFrbCreateBookNoteByBookUuid(
+  bookUuid: bookUuid,
+  content: content,
+  page: page,
+);
+
+/// Undo a metadata-fill batch for the book identified by its uuid.
+Future<int> metadataFillUndoBookByUuid({
+  required String batchId,
+  required String bookUuid,
+}) => RustLib.instance.api.crateApiFrbMetadataFillUndoBookByUuid(
+  batchId: batchId,
+  bookUuid: bookUuid,
+);
+
 /// Account session status for the UI. Cheap: reads the plaintext metadata columns and
 /// never decrypts the trousseau or hits the network.
 Future<String> accountStatusFfi() =>
@@ -193,8 +296,8 @@ Future<String> accountEnrollFromSealedFfi({required String sealedQrPayload}) =>
 Future<String> accountRefreshDevicesFfi() =>
     RustLib.instance.api.crateApiFrbAccountRefreshDevicesFfi();
 
-/// Trigger a sync cycle for this account (ST-05 Phase F / F2). The entrypoint the
-/// Phase E triggers and a manual refresh will share.
+/// Trigger a sync cycle for this account. The entrypoint the
+/// automatic sync triggers and a manual refresh will share.
 ///
 /// HONEST SCOPE: it always runs the real, available step — refreshing the signed
 /// device registry (H3) — and **deliberately does not fake a data convergence**.
