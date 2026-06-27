@@ -323,11 +323,13 @@ class ApiService {
 
         // If the user wanted it owned, manually create the copy using the reliable HTTP endpoint
         if (bookData['owned'] != false) {
-          if (createdBook.id == null) {
-            throw Exception('Native createBook returned null ID');
+          final newLocalId = createdBook.id;
+          final newUuid = createdBook.uuid;
+          if (newLocalId == null || newUuid == null) {
+            throw Exception('Native createBook returned null id/uuid');
           }
           await createCopy({
-            'book_id': createdBook.id,
+            'book_id': newLocalId,
             'is_temporary': false,
             'status': 'available',
             // library_id handled by createCopy default
@@ -336,9 +338,9 @@ class ApiService {
           // [FIX] Update the book itself to owned=true so it shows up correctly in lists
           // Pass only the field we want to update; updateBook handles merging with existing data
           try {
-            await updateBook(createdBook.id!, {'owned': true});
+            await updateBook(newUuid, {'owned': true}, localId: newLocalId);
             debugPrint(
-              '✅ Ownership status updated to true for Book ID ${createdBook.id}',
+              '✅ Ownership status updated to true for Book ID $newLocalId',
             );
           } catch (e) {
             debugPrint('⚠️ Failed to update ownership status: $e');
@@ -351,6 +353,7 @@ class ApiService {
           statusCode: 201,
           data: {
             'id': createdBook.id,
+            'uuid': createdBook.uuid,
             'title': createdBook.title,
             // Add other fields if needed by caller
           },
@@ -368,14 +371,23 @@ class ApiService {
     return await _dio.post('/api/books', data: bookData);
   }
 
-  Future<Response> updateBook(int id, Map<String, dynamic> bookData) async {
+  /// Update a book addressed by its uuid (cross-device identity).
+  ///
+  /// Native platforms update by uuid through FFI. The dormant web HTTP leg
+  /// still uses the integer route via [localId] until the wire flip.
+  Future<Response> updateBook(
+    String uuid,
+    Map<String, dynamic> bookData, {
+    int? localId,
+  }) async {
     if (useFfi) {
       try {
         // Fetch current book to preserve unchanged fields (especially required ones like title)
-        final currentBook = await FfiService().getBook(id);
+        final currentBook = await FfiService().getBook(uuid);
 
         final updatedFrbBook = frb.FrbBook(
-          id: id,
+          // FrbBook.id stays the integer local id; the uuid addresses the row.
+          id: currentBook.localId,
           title: bookData['title'] ?? currentBook.title,
           author: bookData.containsKey('author')
               ? bookData['author']
@@ -460,13 +472,14 @@ class ApiService {
               : currentBook.digitalFormats,
         );
 
-        final result = await FfiService().updateBook(id, updatedFrbBook);
+        final result = await FfiService().updateBook(uuid, updatedFrbBook);
 
         return Response(
-          requestOptions: RequestOptions(path: '/api/books/$id'),
+          requestOptions: RequestOptions(path: '/api/books/$uuid'),
           statusCode: 200,
           data: {
             'id': result.id,
+            'uuid': result.uuid,
             'title': result.title,
             'message': 'Book updated successfully',
           },
@@ -474,34 +487,36 @@ class ApiService {
       } catch (e) {
         debugPrint('FFI updateBook error: $e');
         return Response(
-          requestOptions: RequestOptions(path: '/api/books/$id'),
+          requestOptions: RequestOptions(path: '/api/books/$uuid'),
           statusCode: 500,
           statusMessage: e.toString(),
         );
       }
     }
-    return await _dio.put('/api/books/$id', data: bookData);
+    return await _dio.put('/api/books/$localId', data: bookData);
   }
 
-  Future<Response> deleteBook(int id) async {
+  /// Delete a book addressed by its uuid (cross-device identity). The dormant
+  /// web HTTP leg still uses the integer route via [localId].
+  Future<Response> deleteBook(String uuid, {int? localId}) async {
     if (useFfi) {
       try {
-        await FfiService().deleteBook(id);
+        await FfiService().deleteBook(uuid);
         return Response(
-          requestOptions: RequestOptions(path: '/api/books/$id'),
+          requestOptions: RequestOptions(path: '/api/books/$uuid'),
           statusCode: 200,
           data: {'message': 'Book deleted successfully'},
         );
       } catch (e) {
         debugPrint('FFI deleteBook error: $e');
         return Response(
-          requestOptions: RequestOptions(path: '/api/books/$id'),
+          requestOptions: RequestOptions(path: '/api/books/$uuid'),
           statusCode: 500,
           statusMessage: e.toString(),
         );
       }
     }
-    return await _dio.delete('/api/books/$id');
+    return await _dio.delete('/api/books/$localId');
   }
 
   // Copy management - createCopy with FFI support
@@ -4364,14 +4379,35 @@ class ApiService {
     }
   }
 
-  Future<Book> getBook(int id) async {
+  /// Fetch a book by its uuid (cross-device identity).
+  ///
+  /// Native platforms address the book by uuid through FFI. The web HTTP leg
+  /// is dormant (not shipped) and still uses the integer route; it relies on
+  /// [localId] until the wire flip moves those routes to the uuid.
+  Future<Book> getBook(String uuid, {int? localId}) async {
     // Use FFI for native platforms
     if (useFfi) {
-      return FfiService().getBook(id);
+      return FfiService().getBook(uuid);
     }
+    return _getBookHttp(localId);
+  }
 
+  /// Fetch a book by its transitional integer local id.
+  ///
+  /// Bridges callers that still hold a local id (loans, statistics, peer
+  /// requests) until they carry the uuid. Removed with the wire flip.
+  Future<Book> getBookByLocalId(int localId) async {
+    if (useFfi) {
+      return FfiService().getBookByLocalId(localId);
+    }
+    return _getBookHttp(localId);
+  }
+
+  /// Dormant web HTTP leg shared by [getBook]/[getBookByLocalId] (web not
+  /// shipped). Still keyed by the integer local id until the wire flip.
+  Future<Book> _getBookHttp(int? localId) async {
     try {
-      final response = await _dio.get('/api/books/$id');
+      final response = await _dio.get('/api/books/$localId');
       if (response.statusCode == 200) {
         return Book.fromJson(response.data);
       } else {

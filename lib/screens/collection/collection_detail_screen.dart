@@ -920,8 +920,16 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
       final api = Provider.of<ApiService>(context, listen: false);
       final copyRepo = Provider.of<CopyRepository>(context, listen: false);
 
-      // 1. Update the book's owned status
-      await api.updateBook(book.bookId, {'owned': newStatus});
+      // 1. Update the book's owned status. CollectionBook still carries the
+      // integer local id, so resolve the uuid identity before the update.
+      final resolvedUuid = (await api.getBookByLocalId(book.bookId)).id;
+      if (resolvedUuid != null) {
+        await api.updateBook(
+          resolvedUuid,
+          {'owned': newStatus},
+          localId: book.bookId,
+        );
+      }
 
       // 2. If becoming owned, check/create copy
       if (newStatus) {

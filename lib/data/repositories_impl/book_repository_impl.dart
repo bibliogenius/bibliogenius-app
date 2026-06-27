@@ -23,8 +23,13 @@ class BookRepositoryImpl implements BookRepository {
   }
 
   @override
-  Future<Book> getBook(int id) {
-    return _apiService.getBook(id);
+  Future<Book> getBook(String uuid, {int? localId}) {
+    return _apiService.getBook(uuid, localId: localId);
+  }
+
+  @override
+  Future<Book> getBookByLocalId(int localId) {
+    return _apiService.getBookByLocalId(localId);
   }
 
   @override
@@ -33,13 +38,16 @@ class BookRepositoryImpl implements BookRepository {
     if (response.statusCode == 201 || response.statusCode == 200) {
       final data = response.data;
       if (data is Map<String, dynamic>) {
-        // FFI returns partial data {id, title}, HTTP returns full book
+        // FFI returns partial data {id, uuid, title}, HTTP returns full book
         if (data.containsKey('title')) {
           return Book.fromJson(data);
         }
-        // Minimal response — fetch the full book
-        if (data['id'] != null) {
-          return _apiService.getBook(data['id'] as int);
+        // Minimal response — fetch the full book by its uuid identity
+        if (data['uuid'] != null) {
+          return _apiService.getBook(
+            data['uuid'] as String,
+            localId: data['id'] as int?,
+          );
         }
       }
     }
@@ -47,22 +55,30 @@ class BookRepositoryImpl implements BookRepository {
   }
 
   @override
-  Future<Book> updateBook(int id, Map<String, dynamic> bookData) async {
-    final response = await _apiService.updateBook(id, bookData);
+  Future<Book> updateBook(
+    String uuid,
+    Map<String, dynamic> bookData, {
+    int? localId,
+  }) async {
+    final response = await _apiService.updateBook(
+      uuid,
+      bookData,
+      localId: localId,
+    );
     if (response.statusCode == 200) {
       final data = response.data;
       if (data is Map<String, dynamic> && data.containsKey('title')) {
         return Book.fromJson(data);
       }
       // Response may not contain the full book — re-fetch
-      return _apiService.getBook(id);
+      return _apiService.getBook(uuid, localId: localId);
     }
     throw Exception('Failed to update book (status: ${response.statusCode})');
   }
 
   @override
-  Future<void> deleteBook(int id) async {
-    final response = await _apiService.deleteBook(id);
+  Future<void> deleteBook(String uuid, {int? localId}) async {
+    final response = await _apiService.deleteBook(uuid, localId: localId);
     if (response.statusCode != 200) {
       throw Exception('Failed to delete book (status: ${response.statusCode})');
     }

@@ -8,13 +8,27 @@ abstract class BookRepository {
     String? tag,
   });
 
-  Future<Book> getBook(int id);
+  /// Fetch a book by its uuid (cross-device identity). [localId] feeds the
+  /// dormant web HTTP leg only.
+  Future<Book> getBook(String uuid, {int? localId});
+
+  /// Fetch a book by its transitional integer local id. Bridges callers
+  /// (loans, statistics, peers) that do not yet carry the uuid.
+  Future<Book> getBookByLocalId(int localId);
 
   Future<Book> createBook(Map<String, dynamic> bookData);
 
-  Future<Book> updateBook(int id, Map<String, dynamic> bookData);
+  /// Update a book by its uuid (cross-device identity). [localId] feeds the
+  /// dormant web HTTP leg only.
+  Future<Book> updateBook(
+    String uuid,
+    Map<String, dynamic> bookData, {
+    int? localId,
+  });
 
-  Future<void> deleteBook(int id);
+  /// Delete a book by its uuid (cross-device identity). [localId] feeds the
+  /// dormant web HTTP leg only.
+  Future<void> deleteBook(String uuid, {int? localId});
 
   Future<void> reorderBooks(List<int> bookIds);
 

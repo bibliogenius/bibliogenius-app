@@ -149,7 +149,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   /// the uploader sees and what the visitor sees.
   String? _resolvePeerCoverUrl(Book book) => CoverUrlResolver.resolveForPeer(
     coverUrl: book.rawCoverUrl,
-    bookId: book.id,
+    bookId: book.localId,
     peerUrl: _effectiveUrl,
   );
 

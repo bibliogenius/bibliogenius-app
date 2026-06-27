@@ -371,7 +371,7 @@ class _DashboardScreenState extends State<DashboardScreen>
 
             // Sort by recently added (ID desc)
             final sortedBooks = List<Book>.from(books);
-            sortedBooks.sort((a, b) => (b.id ?? 0).compareTo(a.id ?? 0));
+            sortedBooks.sort((a, b) => (b.localId ?? 0).compareTo(a.localId ?? 0));
             _recentBooks = sortedBooks
                 .where((b) => b.readingStatus != 'to_read')
                 .take(10)
@@ -382,13 +382,13 @@ class _DashboardScreenState extends State<DashboardScreen>
                 .where((b) => b.readingStatus == 'reading')
                 .toList();
             // Sort reading by most recently added/updated if possible, or just ID
-            _readingBooks.sort((a, b) => (b.id ?? 0).compareTo(a.id ?? 0));
+            _readingBooks.sort((a, b) => (b.localId ?? 0).compareTo(a.localId ?? 0));
 
             // À lire
             _toReadBooks = books
                 .where((b) => b.readingStatus == 'to_read')
                 .toList();
-            _toReadBooks.sort((a, b) => (b.id ?? 0).compareTo(a.id ?? 0));
+            _toReadBooks.sort((a, b) => (b.localId ?? 0).compareTo(a.localId ?? 0));
           });
         }
       } catch (e) {

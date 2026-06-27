@@ -1108,15 +1108,17 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
                 GoRoute(
                   path: ':id',
                   builder: (context, state) {
-                    final bookId =
-                        int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
+                    // The route param is the book uuid for migrated callers.
+                    // Legacy callers (loans, stats, peers) may still pass an
+                    // integer local id; BookDetailsScreen resolves either form.
+                    final bookRef = state.pathParameters['id'] ?? '';
                     Book? book;
                     if (state.extra is Book) {
                       book = state.extra as Book;
                     } else if (state.extra is Map<String, dynamic>) {
                       book = Book.fromJson(state.extra as Map<String, dynamic>);
                     }
-                    return BookDetailsScreen(bookId: bookId, book: book);
+                    return BookDetailsScreen(bookId: bookRef, book: book);
                   },
                 ),
                 GoRoute(
@@ -1147,12 +1149,17 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
                 GoRoute(
                   path: ':id/notes',
                   builder: (context, state) {
-                    final bookId =
-                        int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
                     final extra = state.extra as Map<String, dynamic>?;
                     final bookTitle = extra?['bookTitle'] as String? ?? '';
+                    // Notes are a book-scoped sub-resource keyed by the integer
+                    // local id, passed via extra by the uuid-addressed parent;
+                    // fall back to a legacy integer route param.
+                    final localId =
+                        extra?['localId'] as int? ??
+                        int.tryParse(state.pathParameters['id'] ?? '') ??
+                        0;
                     return BookNotesScreen(
-                      bookId: bookId,
+                      bookId: localId,
                       bookTitle: bookTitle,
                     );
                   },
@@ -1160,12 +1167,17 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
                 GoRoute(
                   path: ':id/copies',
                   builder: (context, state) {
-                    final bookId =
-                        int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
                     final extra = state.extra as Map<String, dynamic>?;
                     final bookTitle = extra?['bookTitle'] as String? ?? '';
+                    // Copies are a book-scoped sub-resource keyed by the integer
+                    // local id, passed via extra by the uuid-addressed parent;
+                    // fall back to a legacy integer route param.
+                    final localId =
+                        extra?['localId'] as int? ??
+                        int.tryParse(state.pathParameters['id'] ?? '') ??
+                        0;
                     return BookCopiesScreen(
-                      bookId: bookId,
+                      bookId: localId,
                       bookTitle: bookTitle,
                     );
                   },

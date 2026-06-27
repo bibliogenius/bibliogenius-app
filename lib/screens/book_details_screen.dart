@@ -47,7 +47,11 @@ import 'record_sale_screen.dart';
 
 class BookDetailsScreen extends StatefulWidget {
   final Book? book;
-  final int bookId;
+
+  /// Book reference from the route: the uuid for migrated callers, or a legacy
+  /// integer local id (as a string) from callers that do not yet carry the
+  /// uuid (loans, statistics, peers). [_fetchBookDetails] resolves either form.
+  final String bookId;
 
   const BookDetailsScreen({super.key, this.book, required this.bookId});
 
@@ -86,9 +90,11 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
   Future<void> _fetchCopies() async {
     if (!mounted) return;
+    final localId = _book?.localId;
+    if (localId == null) return;
     try {
       final copyRepo = Provider.of<CopyRepository>(context, listen: false);
-      final copies = await copyRepo.getBookCopies(widget.bookId);
+      final copies = await copyRepo.getBookCopies(localId);
       if (mounted) {
         setState(() {
           _copies = copies;
@@ -110,13 +116,26 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     );
     final loanRepo = Provider.of<LoanRepository>(context, listen: false);
     try {
-      final copiesFuture = copyRepo.getBookCopies(widget.bookId);
-      final collectionsFuture = collectionRepo.getBookCollections(
-        widget.bookId,
-      );
+      // Re-fetch the book to pick up the latest changes (rating, status…). The
+      // route addresses it by uuid for migrated callers; legacy callers (loans,
+      // stats, peers) may still pass an integer local id.
+      final asLocalId = int.tryParse(widget.bookId);
+      final bookFuture = asLocalId != null
+          ? bookRepo.getBookByLocalId(asLocalId)
+          : bookRepo.getBook(widget.bookId);
 
-      // Always fetch fresh book data from DB to get latest changes (e.g. rating)
-      final bookFuture = bookRepo.getBook(widget.bookId);
+      // Book-scoped sub-resources are keyed by the integer local id. When the
+      // book was passed via extra (card tap) its localId is already known, so
+      // fan the sub-resources out in parallel with the re-fetch; on a deep
+      // link, resolve the book first to learn it.
+      final localId = widget.book?.localId ?? (await bookFuture).localId;
+
+      final copiesFuture = localId != null
+          ? copyRepo.getBookCopies(localId)
+          : Future<List<Copy>>.value(<Copy>[]);
+      final collectionsFuture = localId != null
+          ? collectionRepo.getBookCollections(localId)
+          : Future<List<Collection>>.value(<Collection>[]);
 
       // Start loan fetch in parallel — filtered after copies are known
       final loansFuture = loanRepo.getLoans(status: 'active');
@@ -132,10 +151,8 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           final settings = await ffi.getLoanSettings();
           _perBookDurationEnabled = settings.perBookDurationEnabled;
           _defaultLoanDurationDays = settings.defaultLoanDurationDays;
-          if (_perBookDurationEnabled) {
-            _bookLoanDurationDays = await ffi.getBookLoanDuration(
-              widget.bookId,
-            );
+          if (_perBookDurationEnabled && localId != null) {
+            _bookLoanDurationDays = await ffi.getBookLoanDuration(localId);
           }
         }
       } catch (e) {
@@ -618,7 +635,9 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     if (book.id == null) return;
 
     try {
-      final path = await CoverCameraHelper.takePhotoAndSave(bookId: book.id);
+      final path = await CoverCameraHelper.takePhotoAndSave(
+        bookId: book.localId,
+      );
       if (path == null || !mounted) return;
 
       _evictCoverFromCache(_book?.coverUrl);
@@ -665,7 +684,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
     try {
       final targetPath = await CoverCameraHelper.pickFromGalleryAndSave(
-        bookId: book.id,
+        bookId: book.localId,
       );
       if (targetPath == null) return;
 
@@ -792,9 +811,9 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                     _buildMetadataGrid(context, book),
                     const SizedBox(height: 16),
                     // Audio module section (decoupled - only shows if enabled)
-                    if (book.id != null)
+                    if (book.localId != null)
                       AudioSection(
-                        bookId: book.id!,
+                        bookId: book.localId!,
                         bookTitle: book.title,
                         bookAuthor: book.author,
                         bookLanguage: book.language,
@@ -827,9 +846,9 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                       const SizedBox(height: 32),
                     ],
                     // Reading notes section
-                    if (book.id != null)
+                    if (book.localId != null)
                       _BookNotesSection(
-                        bookId: book.id!,
+                        bookId: book.localId!,
                         bookTitle: book.title,
                       ),
                     // Private book toggle - at the bottom of the page
@@ -1361,7 +1380,10 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                     if (_book == null) return;
                     await context.push(
                       '/books/${_book!.id}/copies',
-                      extra: {'bookId': _book!.id, 'bookTitle': _book!.title},
+                      extra: {
+                        'localId': _book!.localId,
+                        'bookTitle': _book!.title,
+                      },
                     );
                     if (!mounted) return;
                     await _fetchCopies();
@@ -2513,7 +2535,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     setState(() => _isRefreshing = true);
 
     // Also refresh audiobook search
-    context.read<AudioProvider>().clearBookCache(book.id!);
+    context.read<AudioProvider>().clearBookCache(book.localId!);
 
     try {
       final apiService = Provider.of<ApiService>(context, listen: false);
@@ -2757,10 +2779,12 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   }
 
   Future<void> _setBookLoanDuration(int? days) async {
+    final localId = _book?.localId;
+    if (localId == null) return;
     setState(() => _bookLoanDurationDays = days);
     try {
       final ffi = FfiService();
-      await ffi.setBookLoanDuration(widget.bookId, days);
+      await ffi.setBookLoanDuration(localId, days);
     } catch (e) {
       debugPrint('Error setting book loan duration: $e');
     }
@@ -2781,7 +2805,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           final api = Provider.of<ApiService>(context, listen: false);
           final response = await api.offerLoanToPeer(
             peerId,
-            bookId: _book!.id,
+            bookId: _book!.localId,
             isbn: _book!.isbn,
           );
           if (context.mounted) {
@@ -2819,7 +2843,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           final copyRepo = Provider.of<CopyRepository>(context, listen: false);
           final loanRepo = Provider.of<LoanRepository>(context, listen: false);
 
-          final copies = await copyRepo.getBookCopies(_book!.id!);
+          final copies = await copyRepo.getBookCopies(_book!.localId!);
           if (copies.isEmpty) {
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -2845,7 +2869,9 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           try {
             final ffi = FfiService();
             if (ffi.isInitialized) {
-              durationDays = await ffi.getEffectiveLoanDuration(_book!.id!);
+              durationDays = await ffi.getEffectiveLoanDuration(
+                _book!.localId!,
+              );
             }
           } catch (_) {}
           final now = DateTime.now();
@@ -2893,7 +2919,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
     try {
       if (_book == null) return;
-      final copies = await copyRepo.getBookCopies(_book!.id!);
+      final copies = await copyRepo.getBookCopies(_book!.localId!);
       if (copies.isEmpty) {
         throw Exception('No copy found for this book');
       }
@@ -3419,7 +3445,10 @@ class _BookNotesSectionState extends State<_BookNotesSection> {
                   child: TextButton(
                     onPressed: () => context.push(
                       '/books/${widget.bookId}/notes',
-                      extra: {'bookTitle': widget.bookTitle},
+                      extra: {
+                        'localId': widget.bookId,
+                        'bookTitle': widget.bookTitle,
+                      },
                     ),
                     child: Text(t(context, 'view_all_notes')),
                   ),

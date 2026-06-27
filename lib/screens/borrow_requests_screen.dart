@@ -248,8 +248,8 @@ class _LoansScreenState extends State<LoansScreen>
         final resolvedMap = <String, int>{};
         for (final isbn in allHubIsbns) {
           final book = await api.findBookByIsbn(isbn);
-          if (book != null && book.id != null) {
-            resolvedMap[isbn] = book.id!;
+          if (book != null && book.localId != null) {
+            resolvedMap[isbn] = book.localId!;
           }
         }
         _isbnToLocalBookId = resolvedMap;

@@ -93,7 +93,7 @@ class CollectionImportService {
             // If creation failed (duplicate), try to find
             final existingBook = await _apiService.findBookByIsbn(isbn);
             if (existingBook != null) {
-              bookId = existingBook.id;
+              bookId = existingBook.localId;
             }
           }
 

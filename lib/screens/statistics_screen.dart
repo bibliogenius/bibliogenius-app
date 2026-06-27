@@ -2595,7 +2595,7 @@ class _StatisticsContentState extends State<StatisticsContent>
       // Build book map for cross-referencing
       final bookMap = <int, Book>{};
       for (final b in books) {
-        if (b.id != null) bookMap[b.id!] = b;
+        if (b.localId != null) bookMap[b.localId!] = b;
       }
 
       // Compute average rating per collection and read counts
@@ -4050,7 +4050,7 @@ class _StatisticsContentState extends State<StatisticsContent>
       if (fastestDays == null || days < fastestDays) {
         fastestDays = days;
         fastestBookTitle = book.title;
-        fastestBookId = book.id;
+        fastestBookId = book.localId;
       }
     }
 

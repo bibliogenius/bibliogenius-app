@@ -2489,7 +2489,7 @@ class _BookListScreenState extends State<BookListScreen>
     setState(() => _isLoading = true);
     final bookRepo = Provider.of<BookRepository>(context, listen: false);
     try {
-      final ids = _filteredBooks.map((b) => b.id!).toList();
+      final ids = _filteredBooks.map((b) => b.localId!).toList();
       await bookRepo.reorderBooks(ids);
 
       setState(() {

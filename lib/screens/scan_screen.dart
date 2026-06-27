@@ -446,13 +446,13 @@ class _ScanScreenState extends State<ScanScreen> {
       try {
         if (book.isNew) {
           final createdBook = await bookRepo.createBook(book.bookPayload!);
-          final bookId = createdBook.id;
+          final bookLocalId = createdBook.localId;
 
-          if (bookId != null && widget.preSelectedCollectionId != null) {
+          if (bookLocalId != null && widget.preSelectedCollectionId != null) {
             try {
               await api.addBookToCollection(
                 widget.preSelectedCollectionId!.toString(),
-                bookId,
+                bookLocalId,
               );
             } catch (e) {
               debugPrint('Error adding to collection: $e');
@@ -460,7 +460,8 @@ class _ScanScreenState extends State<ScanScreen> {
           }
         } else if (book.existingBook != null) {
           final existing = book.existingBook!;
-          final bookId = existing.id;
+          final bookId = existing.id; // uuid (identity)
+          final bookLocalId = existing.localId; // int (collection, copies)
 
           // Add shelf tag if pre-selected
           if (widget.preSelectedShelfId != null && bookId != null) {
@@ -468,16 +469,20 @@ class _ScanScreenState extends State<ScanScreen> {
             if (!currentSubjects.contains(widget.preSelectedShelfId)) {
               final newSubjects = List<String>.from(currentSubjects)
                 ..add(widget.preSelectedShelfId!);
-              await bookRepo.updateBook(bookId, {'subjects': newSubjects});
+              await bookRepo.updateBook(
+                bookId,
+                {'subjects': newSubjects},
+                localId: bookLocalId,
+              );
             }
           }
 
           // Add to collection if specified
-          if (bookId != null && widget.preSelectedCollectionId != null) {
+          if (bookLocalId != null && widget.preSelectedCollectionId != null) {
             try {
               await api.addBookToCollection(
                 widget.preSelectedCollectionId!.toString(),
-                bookId,
+                bookLocalId,
               );
             } catch (e) {
               debugPrint('Error adding to collection: $e');
@@ -487,7 +492,7 @@ class _ScanScreenState extends State<ScanScreen> {
           // Create additional copy for existing owned books
           if (existing.owned) {
             await copyRepo.createCopy({
-              'book_id': bookId,
+              'book_id': bookLocalId,
               'status': 'available',
             });
           }

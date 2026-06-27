@@ -3,12 +3,22 @@ import '../utils/cover_url_resolver.dart';
 import '../utils/local_cover_resolver.dart';
 
 class Book {
-  final int? id;
+  /// Cross-device stable identity (the book's uuid). Backend-owned; null for
+  /// peer/transient books or rows not yet persisted. This is what addresses a
+  /// book over FFI and in routes. Older callers that still hold an integer
+  /// local id resolve through [localId] until the wire flip retires it.
+  final String? id;
 
-  /// Stable cross-device identifier (ST-03). Backend-owned; null for
-  /// peer/transient books or rows not yet persisted. Read-only on the client
-  /// (not sent back in [toJson]); the backend generates and preserves it.
-  final String? uuid;
+  /// Transitional device-local integer id. Still required by sub-resources and
+  /// sinks that have not migrated yet: covers on disk (`<localId>.jpg`),
+  /// book-scoped sub-resources (copies, notes, loan duration), the dormant web
+  /// HTTP leg, peer references, and int-keyed maps/stats. Removed once those
+  /// callers address books by uuid.
+  final int? localId;
+
+  /// Backwards-compatible alias: the uuid is now the primary [id].
+  String? get uuid => id;
+
   final String title;
   final String? isbn;
   final String? summary;
@@ -45,7 +55,7 @@ class Book {
 
   Book({
     this.id,
-    this.uuid,
+    this.localId,
     required this.title,
     this.isbn,
     this.summary,
@@ -71,8 +81,9 @@ class Book {
 
   factory Book.fromJson(Map<String, dynamic> json) {
     return Book(
-      id: json['id'],
-      uuid: json['uuid'],
+      // Identity is the uuid; the integer `id` becomes the transitional localId.
+      id: json['uuid'] as String?,
+      localId: json['id'] as int?,
       title: json['title'],
       isbn: json['isbn'],
       summary: json['summary'],
@@ -120,7 +131,11 @@ class Book {
   Map<String, dynamic> toJson() {
     final now = DateTime.now().toIso8601String();
     return {
-      'id': id,
+      // `id` carries the transitional integer local id; `uuid` is the identity.
+      // Both are emitted so a Book -> JSON -> Book round-trip (e.g. route extra)
+      // preserves identity. The backend owns the uuid and ignores it on write.
+      'id': localId,
+      'uuid': id,
       'title': title,
       'isbn': isbn,
       'summary': summary,
@@ -161,6 +176,7 @@ class Book {
   Book copyWithRating(int? newRating) {
     return Book(
       id: id,
+      localId: localId,
       title: title,
       isbn: isbn,
       summary: summary,
@@ -206,10 +222,11 @@ class Book {
 
   /// Re-bases a resolved local cover path onto the current covers directory
   /// (iOS data-container UUID drift). No-op for http/api/null values and when
-  /// the id is unknown. See [LocalCoverResolver].
-  String? _rebaseLocal(String? resolved) => resolved == null || id == null
+  /// the local id is unknown. Covers on disk are named `<localId>.jpg`, so the
+  /// integer [localId] (not the uuid) drives the re-base. See [LocalCoverResolver].
+  String? _rebaseLocal(String? resolved) => resolved == null || localId == null
       ? resolved
-      : LocalCoverResolver.resolve(resolved, bookId: id);
+      : LocalCoverResolver.resolve(resolved, bookId: localId);
 
   /// Whether this book has a cover URL explicitly persisted (not auto-derived from ISBN)
   bool get hasPersistedCover => _coverUrl != null && _coverUrl!.isNotEmpty;
@@ -218,6 +235,7 @@ class Book {
   Book copyWithCoverUrl(String? newCoverUrl) {
     return Book(
       id: id,
+      localId: localId,
       title: title,
       isbn: isbn,
       summary: summary,

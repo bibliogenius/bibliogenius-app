@@ -430,28 +430,34 @@ class _AddBookScreenState extends State<AddBookScreen> {
     try {
       final levelsBefore = await MilestoneCelebration.snapshot();
       final createdBook = await bookRepo.createBook(book.toJson());
-      final newBookId = createdBook.id;
+      final newBookId = createdBook.id; // uuid (cross-device identity)
+      final newLocalId = createdBook.localId; // integer local id (covers, subs)
 
-      // Rename temp cover file with real book ID
-      if (newBookId != null && _tempCoverPath != null) {
+      // Rename temp cover file with the real local book id (covers are
+      // named `<localId>.jpg` on disk).
+      if (newLocalId != null && _tempCoverPath != null) {
         final newPath = await CoverCameraHelper.renameTempCover(
           _tempCoverPath!,
-          newBookId,
+          newLocalId,
         );
-        if (newPath != null) {
-          await bookRepo.updateBook(newBookId, {'cover_url': newPath});
+        if (newPath != null && newBookId != null) {
+          await bookRepo.updateBook(
+            newBookId,
+            {'cover_url': newPath},
+            localId: newLocalId,
+          );
         }
         _tempCoverPath = null;
       }
 
       // Update collections if any are selected
-      if (newBookId != null && _selectedCollections.isNotEmpty) {
+      if (newLocalId != null && _selectedCollections.isNotEmpty) {
         final collectionRepo = Provider.of<CollectionRepository>(
           context,
           listen: false,
         );
         await collectionRepo.updateBookCollections(
-          newBookId,
+          newLocalId,
           _selectedCollections.map((c) => c.id).toList(),
         );
       }
@@ -484,7 +490,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
         if (mounted) {
           context.read<BookRefreshNotifier>().refresh();
           context.read<FlashMessageProvider>().markHasBooks();
-          context.pop(newBookId); // Return the new book ID
+          // Return the new local book id; callers push it onto the polymorphic
+          // /books/:id route, which resolves a legacy integer local id.
+          context.pop(newLocalId);
         }
         // No need to clear controllers - they are disposed with the screen.
         // Clearing before pop triggers RawAutocomplete listeners on an

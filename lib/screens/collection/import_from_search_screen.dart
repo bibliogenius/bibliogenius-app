@@ -363,7 +363,7 @@ class _ImportFromSearchScreenState extends State<ImportFromSearchScreen>
           if (isbn != null && isbn.isNotEmpty) {
             final existing = await apiService.findBookByIsbn(isbn);
             if (existing != null) {
-              bookId = existing.id;
+              bookId = existing.localId;
             }
           }
 
@@ -372,7 +372,7 @@ class _ImportFromSearchScreenState extends State<ImportFromSearchScreen>
             if (title != null) {
               final books = await apiService.getBooks(title: title);
               if (books.isNotEmpty) {
-                bookId = books.first.id;
+                bookId = books.first.localId;
               }
             }
           }

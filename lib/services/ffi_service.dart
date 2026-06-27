@@ -89,13 +89,27 @@ class FfiService {
     }
   }
 
-  /// Get a single book by ID
-  Future<Book> getBook(int id) async {
+  /// Get a single book by its uuid (cross-device identity).
+  Future<Book> getBook(String uuid) async {
     try {
-      final frbBook = await frb.getBookById(id: id);
+      final frbBook = await frb.getBookByUuid(uuid: uuid);
       return _frbBookToBook(frbBook);
     } catch (e) {
       debugPrint('FFI getBook error: $e');
+      rethrow;
+    }
+  }
+
+  /// Get a single book by its transitional integer local id.
+  ///
+  /// Bridges callers that still hold a local id (loans, statistics, peer
+  /// requests) until they carry the uuid. Removed with the wire flip.
+  Future<Book> getBookByLocalId(int localId) async {
+    try {
+      final frbBook = await frb.getBookById(id: localId);
+      return _frbBookToBook(frbBook);
+    } catch (e) {
+      debugPrint('FFI getBookByLocalId error: $e');
       rethrow;
     }
   }
@@ -424,18 +438,18 @@ class FfiService {
     }
   }
 
-  Future<frb.FrbBook> updateBook(int id, frb.FrbBook book) async {
+  Future<frb.FrbBook> updateBook(String uuid, frb.FrbBook book) async {
     try {
-      return await frb.updateBook(id: id, book: book);
+      return await frb.updateBookByUuid(uuid: uuid, book: book);
     } catch (e) {
       debugPrint('FFI updateBook error: $e');
       rethrow;
     }
   }
 
-  Future<void> deleteBook(int id) async {
+  Future<void> deleteBook(String uuid) async {
     try {
-      await frb.deleteBook(id: id);
+      await frb.deleteBookByUuid(uuid: uuid);
     } catch (e) {
       debugPrint('FFI deleteBook error: $e');
       rethrow;
@@ -596,7 +610,7 @@ class FfiService {
   Future<int> metadataFillUndoRun(String batchId) =>
       frb.metadataFillUndoRun(batchId: batchId);
 
-  // ============ Account E2EE Sync (ST-05 Phase F) ============
+  // ============ Account E2EE Sync ============
   //
   // Thin wrappers over the account-sync FFI. Each returns the raw JSON string
   // the Rust layer produces; the typed parsing lives in AccountSyncProvider.
@@ -690,8 +704,9 @@ class FfiService {
   /// Convert FrbBook to Book model
   Book _frbBookToBook(frb.FrbBook fb) {
     return Book(
-      id: fb.id,
-      uuid: fb.uuid,
+      // Identity is the uuid; the integer FFI id becomes the transitional localId.
+      id: fb.uuid,
+      localId: fb.id,
       title: fb.title,
       author: fb.author,
       isbn: fb.isbn,

@@ -65,7 +65,7 @@ class DemoService {
           if (response.data is Map) {
             bookId = response.data['id'] as int?;
           } else if (response.data is Book) {
-            bookId = (response.data as Book).id;
+            bookId = (response.data as Book).localId;
           }
 
           if (bookId != null) {
