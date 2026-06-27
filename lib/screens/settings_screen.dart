@@ -1629,6 +1629,40 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
 
+            // Multi-device account sync (ST-05 Phase F): a navigational tile to
+            // the dedicated hub screen (create/join account, manage devices).
+            if (_sectionVisible([
+              'account_sync_title',
+              'account_sync_settings_subtitle',
+            ]))
+              Card(
+                margin: const EdgeInsets.only(bottom: 12),
+                child: ListTile(
+                  leading: const Icon(Icons.devices),
+                  title: Semantics(
+                    header: true,
+                    child: Text(
+                      TranslationService.translate(
+                        context,
+                        'account_sync_title',
+                      ),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  subtitle: Text(
+                    TranslationService.translate(
+                      context,
+                      'account_sync_settings_subtitle',
+                    ),
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => context.push('/account-sync'),
+                ),
+              ),
+
             // Search Sources accordion
             if (_sectionVisible(['search_sources']))
               Card(

@@ -9977,3 +9977,179 @@ msgstr "All"
 
 msgid "completeness_start_n"
 msgstr "Complete {n} books"
+
+# ============ Multi-device account sync (ST-05 Phase F) ============
+
+#. Settings tile + hub screen title
+msgid "account_sync_title"
+msgstr "Multi-device sync"
+
+#. Settings tile subtitle
+msgid "account_sync_settings_subtitle"
+msgstr "Share your library across your own devices, end-to-end encrypted"
+
+#. Hub intro when not signed in
+msgid "account_sync_signed_out_intro"
+msgstr "Create an encrypted account to keep your library in sync across your devices. Only your devices can read it; the server never sees your data."
+
+#. Honest note while data convergence is not active yet (Phase E)
+msgid "account_sync_pending_note"
+msgstr "Setup and device management are available now. Automatic library convergence between devices is coming in a later update."
+
+msgid "account_sync_create_account"
+msgstr "Create an account"
+
+msgid "account_sync_join_account"
+msgstr "Join an existing account"
+
+#. {email} = signed-in account email
+msgid "account_sync_signed_in_as"
+msgstr "Signed in as {email}"
+
+msgid "account_sync_devices_title"
+msgstr "Authorized devices"
+
+msgid "account_sync_no_devices"
+msgstr "No devices yet. Refresh to load the list."
+
+msgid "account_sync_this_device"
+msgstr "This device"
+
+msgid "account_sync_add_device"
+msgstr "Add a device"
+
+msgid "account_sync_logout"
+msgstr "Sign out of this device"
+
+msgid "account_sync_logout_confirm_title"
+msgstr "Sign out of this device?"
+
+msgid "account_sync_logout_confirm_body"
+msgstr "This device will stop syncing. Your account and other devices are not affected. You can rejoin later with your passphrase."
+
+#. Signup screen
+msgid "account_sync_signup_title"
+msgstr "Create an account"
+
+msgid "account_sync_signup_intro"
+msgstr "Choose a strong passphrase. It encrypts your library and cannot be reset, so store it safely."
+
+msgid "account_sync_email_label"
+msgstr "Email"
+
+msgid "account_sync_passphrase_label"
+msgstr "Passphrase"
+
+msgid "account_sync_device_name_label"
+msgstr "Name for this device"
+
+msgid "account_sync_strength_label"
+msgstr "Passphrase strength"
+
+msgid "account_sync_strength_0"
+msgstr "Very weak"
+
+msgid "account_sync_strength_1"
+msgstr "Weak"
+
+msgid "account_sync_strength_2"
+msgstr "Fair"
+
+msgid "account_sync_strength_3"
+msgstr "Good"
+
+msgid "account_sync_strength_4"
+msgstr "Strong"
+
+msgid "account_sync_passphrase_hint"
+msgstr "At least 12 characters. A strong, memorable passphrase is required."
+
+msgid "account_sync_create_button"
+msgstr "Create account"
+
+msgid "account_sync_account_exists"
+msgstr "An account already exists for this email."
+
+msgid "account_sync_account_exists_action"
+msgstr "Sign in instead"
+
+msgid "account_sync_weak_passphrase"
+msgstr "This passphrase is too weak. Choose a stronger one."
+
+#. Recovery kit (BIP39) display
+msgid "account_sync_recovery_title"
+msgstr "Your recovery phrase"
+
+msgid "account_sync_recovery_intro"
+msgstr "Write down these 24 words in order and keep them somewhere safe. They are the only way to recover your account if you forget your passphrase."
+
+msgid "account_sync_recovery_warning"
+msgstr "This phrase is shown only once and is never stored. We cannot show it again."
+
+msgid "account_sync_recovery_copy"
+msgstr "Copy phrase"
+
+msgid "account_sync_recovery_copied"
+msgstr "Recovery phrase copied"
+
+msgid "account_sync_recovery_confirm_checkbox"
+msgstr "I have written down my recovery phrase and stored it safely."
+
+msgid "account_sync_recovery_confirm_button"
+msgstr "I've saved it"
+
+#. Join screen
+msgid "account_sync_join_title"
+msgstr "Join an account"
+
+msgid "account_sync_join_intro"
+msgstr "Enter the email and passphrase of your existing account to add this device to it."
+
+msgid "account_sync_join_button"
+msgstr "Join account"
+
+msgid "account_sync_join_failed"
+msgstr "Could not join the account. Check your email and passphrase."
+
+#. Pairing flow
+msgid "account_sync_add_device_title"
+msgstr "Add a device"
+
+#. Signed-out CTA: join an account by pairing with an already-signed-in device
+msgid "account_sync_pair_cta"
+msgstr "Add this device via another device"
+
+msgid "account_sync_pairing_new_intro"
+msgstr "On an existing device, scan this code. Then scan the authorization code it shows back."
+
+msgid "account_sync_pairing_scan_authorization"
+msgstr "Scan the authorization code"
+
+msgid "account_sync_pairing_authorize_intro"
+msgstr "Scan the new device's code, then show it the authorization code below."
+
+msgid "account_sync_pairing_scan_new_device"
+msgstr "Scan the new device"
+
+msgid "account_sync_pairing_sealed_intro"
+msgstr "Show this authorization code to the new device."
+
+#. ADR-045 authenticated-channel invariant, surfaced to the user
+msgid "account_sync_pairing_security_note"
+msgstr "Only ever scan these codes in person, directly between your two devices. Never share them through a message or photo."
+
+msgid "account_sync_device_added"
+msgstr "Device added"
+
+#. Scan screen
+msgid "account_sync_scan_title"
+msgstr "Scan the code"
+
+msgid "account_sync_scan_instruction"
+msgstr "Place the QR code inside the frame"
+
+msgid "account_sync_show_passphrase"
+msgstr "Show passphrase"
+
+msgid "account_sync_hide_passphrase"
+msgstr "Hide passphrase"

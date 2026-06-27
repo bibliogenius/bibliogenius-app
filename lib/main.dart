@@ -28,6 +28,7 @@ import 'providers/theme_provider.dart';
 import 'providers/book_refresh_notifier.dart';
 import 'providers/pending_peers_provider.dart';
 import 'audio/audio_module.dart'; // Audio module (decoupled)
+import 'providers/account_sync_provider.dart';
 import 'providers/memory_game_provider.dart';
 import 'providers/metadata_fill_provider.dart';
 import 'providers/operation_log_provider.dart';
@@ -56,6 +57,11 @@ import 'screens/add_contact_screen.dart';
 import 'screens/contact_details_screen.dart';
 import 'models/book.dart';
 import 'models/contact.dart';
+import 'screens/account_add_device_screen.dart';
+import 'screens/account_join_screen.dart';
+import 'screens/account_scan_qr_screen.dart';
+import 'screens/account_signup_screen.dart';
+import 'screens/account_sync_screen.dart';
 import 'screens/scan_screen.dart';
 import 'screens/scan_qr_screen.dart';
 import 'screens/profile_screen.dart';
@@ -691,6 +697,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<MetadataFillProvider>(
           create: (_) => MetadataFillProvider(),
         ),
+        ChangeNotifierProvider<AccountSyncProvider>(
+          create: (_) => AccountSyncProvider(),
+        ),
         ChangeNotifierProvider<HubDirectoryProvider>(
           create: (_) => HubDirectoryProvider(apiService: apiService)
             ..loadHubEnabled()
@@ -937,6 +946,55 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
         GoRoute(
           path: '/scan-qr',
           builder: (context, state) => const ScanQrScreen(),
+        ),
+        // Multi-device account sync (ST-05 Phase F). Top-level (root navigator)
+        // so the pairing scan child renders the macOS camera texture correctly,
+        // like /scan-qr above. Child screens are added as each slice ships.
+        GoRoute(
+          path: '/account-sync',
+          builder: (context, state) => const AccountSyncScreen(),
+          routes: [
+            GoRoute(
+              path: 'create',
+              builder: (context, state) => const AccountSignupScreen(),
+            ),
+            GoRoute(
+              path: 'join',
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>?;
+                return AccountJoinScreen(
+                  initialEmail: extra?['email'] as String?,
+                );
+              },
+            ),
+            // Authorizer role (this device is signed in, adding another).
+            GoRoute(
+              path: 'add-device',
+              builder: (context, state) => const AccountAddDeviceScreen(
+                role: AccountPairingRole.authorizer,
+              ),
+            ),
+            // New-device role (this device is signed out, joining via pairing).
+            GoRoute(
+              path: 'pair',
+              builder: (context, state) => const AccountAddDeviceScreen(
+                role: AccountPairingRole.newDevice,
+              ),
+            ),
+            // Pairing scanner. Child of /account-sync (root navigator) so the
+            // macOS camera texture renders, like /scan-qr.
+            GoRoute(
+              path: 'scan',
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>? ?? const {};
+                return AccountScanQrScreen(
+                  title: (extra['title'] as String?) ?? '',
+                  instruction: (extra['instruction'] as String?) ?? '',
+                  expectedToken: (extra['token'] as String?) ?? '',
+                );
+              },
+            ),
+          ],
         ),
         ShellRoute(
           builder: (context, state, child) {

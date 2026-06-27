@@ -1,0 +1,162 @@
+import 'package:flutter_test/flutter_test.dart';
+
+import 'package:bibliogenius/providers/account_sync_provider.dart';
+import 'package:bibliogenius/services/ffi_service.dart';
+
+// ---------------------------------------------------------------------------
+// Fake FfiService: returns canned JSON strings, mirroring what the Rust
+// account-sync FFI produces, so the provider's parsing and error routing can
+// be tested without the native backend.
+// ---------------------------------------------------------------------------
+
+class _FakeFfiService extends FfiService {
+  _FakeFfiService() : super.forTest();
+
+  String statusJson = '{"signed_in":false,"email":"","account_id":"","device_id":""}';
+  String? signupResult;
+  Object? signupError;
+  String enrollResult =
+      '{"signed_in":true,"email":"a@b.co","account_id":"acc","device_id":"d1"}';
+  String devicesJson = '{"devices":[]}';
+  String checkJson =
+      '{"score":4,"length":16,"acceptable":true,"warning":"","suggestions":[]}';
+
+  @override
+  Future<String> accountStatus() async => statusJson;
+
+  @override
+  Future<String> accountCheckPassphrase(String passphrase) async => checkJson;
+
+  @override
+  Future<String> accountSignup({
+    required String email,
+    required String passphrase,
+    required String deviceName,
+  }) async {
+    if (signupError != null) throw signupError!;
+    return signupResult!;
+  }
+
+  @override
+  Future<String> accountEnrollPassphrase({
+    required String email,
+    required String passphrase,
+    required String deviceName,
+  }) async => enrollResult;
+
+  @override
+  Future<String> accountRefreshDevices() async => devicesJson;
+
+  @override
+  Future<String> accountLogout() async => 'Signed out';
+}
+
+void main() {
+  late _FakeFfiService ffi;
+  late AccountSyncProvider provider;
+
+  setUp(() {
+    ffi = _FakeFfiService();
+    provider = AccountSyncProvider(ffi: ffi);
+  });
+
+  test('refreshStatus parses the signed-in metadata', () async {
+    ffi.statusJson =
+        '{"signed_in":true,"email":"me@lib.org","account_id":"acc-1","device_id":"dev-1"}';
+    await provider.refreshStatus();
+
+    expect(provider.signedIn, isTrue);
+    expect(provider.status.email, 'me@lib.org');
+    expect(provider.status.accountId, 'acc-1');
+    expect(provider.status.deviceId, 'dev-1');
+  });
+
+  test('signup returns the one-time recovery phrase and sets status', () async {
+    ffi.signupResult =
+        '{"signed_in":true,"email":"me@lib.org","account_id":"acc-9",'
+        '"device_id":"dev-9","recovery_phrase":"word1 word2 word3"}';
+
+    final result = await provider.signup(
+      email: 'me@lib.org',
+      passphrase: 'a-strong-passphrase',
+      deviceName: 'Mac',
+    );
+
+    expect(result.recoveryPhrase, 'word1 word2 word3');
+    expect(result.status.accountId, 'acc-9');
+    expect(provider.signedIn, isTrue);
+  });
+
+  test('signup routes E_ACCOUNT_EXISTS to a recoverable exception', () async {
+    ffi.signupError = Exception('E_ACCOUNT_EXISTS: already registered');
+
+    expect(
+      () => provider.signup(
+        email: 'taken@lib.org',
+        passphrase: 'a-strong-passphrase',
+        deviceName: 'Mac',
+      ),
+      throwsA(
+        isA<AccountSignupException>()
+            .having((e) => e.accountExists, 'accountExists', isTrue)
+            .having((e) => e.weakPassphrase, 'weakPassphrase', isFalse),
+      ),
+    );
+  });
+
+  test('signup routes E_WEAK_PASSPHRASE to the weak-passphrase backstop',
+      () async {
+    ffi.signupError = Exception('E_WEAK_PASSPHRASE: too weak');
+
+    expect(
+      () => provider.signup(
+        email: 'me@lib.org',
+        passphrase: 'weak',
+        deviceName: 'Mac',
+      ),
+      throwsA(
+        isA<AccountSignupException>()
+            .having((e) => e.weakPassphrase, 'weakPassphrase', isTrue)
+            .having((e) => e.accountExists, 'accountExists', isFalse),
+      ),
+    );
+  });
+
+  test('refreshDevices parses the device list and the self flag', () async {
+    ffi.devicesJson =
+        '{"devices":[{"device_id":"d1","name":"Mac","is_self":true},'
+        '{"device_id":"d2","name":"iPhone","is_self":false}]}';
+    await provider.refreshDevices();
+
+    expect(provider.devices.length, 2);
+    expect(provider.devices.first.name, 'Mac');
+    expect(provider.devices.first.isSelf, isTrue);
+    expect(provider.devices[1].isSelf, isFalse);
+  });
+
+  test('checkPassphrase returns empty score for a blank input without FFI',
+      () async {
+    final s = await provider.checkPassphrase('');
+    expect(s.score, 0);
+    expect(s.acceptable, isFalse);
+  });
+
+  test('checkPassphrase parses the score and acceptability', () async {
+    ffi.checkJson =
+        '{"score":4,"length":18,"acceptable":true,"warning":"","suggestions":[]}';
+    final s = await provider.checkPassphrase('a-strong-passphrase');
+    expect(s.score, 4);
+    expect(s.acceptable, isTrue);
+  });
+
+  test('logout clears the session state', () async {
+    ffi.statusJson =
+        '{"signed_in":true,"email":"me@lib.org","account_id":"acc-1","device_id":"dev-1"}';
+    await provider.refreshStatus();
+    expect(provider.signedIn, isTrue);
+
+    await provider.logout();
+    expect(provider.signedIn, isFalse);
+    expect(provider.devices, isEmpty);
+  });
+}

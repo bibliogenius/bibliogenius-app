@@ -596,6 +596,67 @@ class FfiService {
   Future<int> metadataFillUndoRun(String batchId) =>
       frb.metadataFillUndoRun(batchId: batchId);
 
+  // ============ Account E2EE Sync (ST-05 Phase F) ============
+  //
+  // Thin wrappers over the account-sync FFI. Each returns the raw JSON string
+  // the Rust layer produces; the typed parsing lives in AccountSyncProvider.
+
+  /// Cheap signed-in status: plaintext metadata only, no decrypt, no network.
+  /// JSON `{signed_in, email, account_id, device_id}`.
+  Future<String> accountStatus() => frb.accountStatusFfi();
+
+  /// Score a candidate passphrase locally for the signup strength meter (100%
+  /// local). JSON `{score 0-4, length, acceptable, warning, suggestions}`.
+  Future<String> accountCheckPassphrase(String passphrase) =>
+      frb.accountCheckPassphraseFfi(passphrase: passphrase);
+
+  /// Create a NEW account on this device. Returns status JSON including the
+  /// one-time `recovery_phrase` (24-word BIP39) to display ONCE. May fail with
+  /// the routable prefixes `E_ACCOUNT_EXISTS` / `E_WEAK_PASSPHRASE`.
+  Future<String> accountSignup({
+    required String email,
+    required String passphrase,
+    required String deviceName,
+  }) => frb.accountSignupFfi(
+    email: email,
+    passphrase: passphrase,
+    deviceName: deviceName,
+  );
+
+  /// Join an EXISTING account with its passphrase (Path A). Returns status JSON.
+  Future<String> accountEnrollPassphrase({
+    required String email,
+    required String passphrase,
+    required String deviceName,
+  }) => frb.accountEnrollPassphraseFfi(
+    email: email,
+    passphrase: passphrase,
+    deviceName: deviceName,
+  );
+
+  /// NEW device, step 1: generate this device's lane key and return the
+  /// `bg-pair` QR payload for an authorized device to scan (carries no secret).
+  Future<String> accountGetDevicePairingQr(String deviceName) =>
+      frb.accountGetDevicePairingQrFfi(deviceName: deviceName);
+
+  /// AUTHORIZED device: seal the trousseau to the scanned `bg-pair` payload and
+  /// register the device. Returns the `bg-sealed` payload to show back as a QR.
+  Future<String> accountAuthorizeDevice(String pairingQrPayload) =>
+      frb.accountAuthorizeDeviceFfi(pairingQrPayload: pairingQrPayload);
+
+  /// NEW device, step 2: open the scanned `bg-sealed` payload with this device's
+  /// identity, authenticate, and persist the session. Returns status JSON.
+  Future<String> accountEnrollFromSealed(String sealedQrPayload) =>
+      frb.accountEnrollFromSealedFfi(sealedQrPayload: sealedQrPayload);
+
+  /// Fetch and adopt the signed device registry (H3). JSON
+  /// `{devices:[{device_id, name, is_self}]}`.
+  Future<String> accountRefreshDevices() => frb.accountRefreshDevicesFfi();
+
+  /// Sign out on this device: drop the in-RAM session and delete the encrypted
+  /// row. Does not revoke the device server-side. Idempotent.
+  Future<String> accountLogout() => frb.accountLogoutFfi();
+
   // ============ Converters ============
 
   /// Convert FrbCollection to Collection model

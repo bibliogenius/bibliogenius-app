@@ -8,7 +8,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 part 'frb.freezed.dart';
 
-// These functions are ignored because they are not marked as `pub`: `account_device_entry`, `account_library_uuid`, `account_status_json`, `apply_fallback_preferences_to_modules`, `covers_dir`, `db`, `ensure_account_session`, `entries_to_frb`, `fill_state`, `from_info`, `from_manifest`, `from_summary`, `global_app_state`, `hub_db`, `hub_directory_svc`, `hub_directory_sync_catalog_inner`, `install_panic_hook`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `merge_api_keys`, `modules_to_fallback_preferences`, `nudge_source_label`, `rename_subject_in_books`, `runtime`, `track_to_frb`, `try_from_summary`, `undo_outcome_str`, `upsert_directory_catalog_cache`
+// These functions are ignored because they are not marked as `pub`: `account_device_entry`, `account_library_uuid`, `account_status_json`, `apply_fallback_preferences_to_modules`, `covers_dir`, `db`, `ensure_account_session`, `entries_to_frb`, `fill_state`, `from_info`, `from_manifest`, `from_summary`, `global_app_state`, `hub_db`, `hub_directory_svc`, `hub_directory_sync_catalog_inner`, `install_panic_hook`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `merge_api_keys`, `modules_to_fallback_preferences`, `nudge_source_label`, `rename_subject_in_books`, `runtime`, `store_account_session`, `track_to_frb`, `try_from_summary`, `undo_outcome_str`, `upsert_directory_catalog_cache`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `AccountSession`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
 
@@ -192,6 +192,19 @@ Future<String> accountEnrollFromSealedFfi({required String sealedQrPayload}) =>
 /// is exposed on its own so the UI can list/refresh devices before data sync ships.
 Future<String> accountRefreshDevicesFfi() =>
     RustLib.instance.api.crateApiFrbAccountRefreshDevicesFfi();
+
+/// Trigger a sync cycle for this account (ST-05 Phase F / F2). The entrypoint the
+/// Phase E triggers and a manual refresh will share.
+///
+/// HONEST SCOPE: it always runs the real, available step — refreshing the signed
+/// device registry (H3) — and **deliberately does not fake a data convergence**.
+/// The data merge engine is Phase E (and a production cr-sqlite engine wired to
+/// the library DB is C2-prod), neither of which is built into any current binary,
+/// so the data leg is a no-op here. When that engine lands, this calls
+/// [`account_sync_engine::refresh_then_sync`] with it (registry refresh stays
+/// first, ADR-043 H3). Returns JSON `{synced, reason?, devices}`.
+Future<String> accountSyncNowFfi() =>
+    RustLib.instance.api.crateApiFrbAccountSyncNowFfi();
 
 /// Sign out of the account on this device: drop the in-RAM session and delete the encrypted
 /// `account_session` row. Does not revoke the device server-side (that is a registry edit
