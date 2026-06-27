@@ -15,8 +15,8 @@ import '../widgets/genie_app_bar.dart';
 /// signed-in device can only authorize), so it is passed in, never chosen.
 enum AccountPairingRole { newDevice, authorizer }
 
-/// Authenticated QR pairing to add a device to an account (ST-05 Phase F,
-/// ADR-045). New device: shows its `bg-pair` code, then scans the `bg-sealed`
+/// Authenticated QR pairing to add a device to an account (ADR-045).
+/// New device: shows its `bg-pair` code, then scans the `bg-sealed`
 /// code returned to it. Authorizer: scans the new device's `bg-pair` code, then
 /// shows the `bg-sealed` code back.
 ///

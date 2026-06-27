@@ -124,7 +124,7 @@ class AccountSignupException implements Exception {
   String toString() => message;
 }
 
-/// State manager for the multi-device account sync feature (ST-05 Phase F).
+/// State manager for the multi-device account sync feature.
 ///
 /// Centralizes every account FFI call (via [FfiService]) and the JSON parsing,
 /// exposing typed state to the UI. The unlocked trousseau lives only in Rust;

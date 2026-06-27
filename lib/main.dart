@@ -947,7 +947,7 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
           path: '/scan-qr',
           builder: (context, state) => const ScanQrScreen(),
         ),
-        // Multi-device account sync (ST-05 Phase F). Top-level (root navigator)
+        // Multi-device account sync. Top-level (root navigator)
         // so the pairing scan child renders the macOS camera texture correctly,
         // like /scan-qr above. Child screens are added as each slice ships.
         GoRoute(

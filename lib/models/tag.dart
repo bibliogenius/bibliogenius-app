@@ -1,7 +1,7 @@
 class Tag {
   final int id;
 
-  /// Stable cross-device identifier (ST-03). Backend-owned; null for synthetic
+  /// Stable cross-device identifier. Backend-owned; null for synthetic
   /// legacy (subject-derived) tags that have no `tags` row. Read-only client side.
   final String? uuid;
   final String name;

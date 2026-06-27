@@ -1,7 +1,7 @@
 class Contact {
   final int? id;
 
-  /// Stable cross-device identifier (ST-03). Backend-owned, read-only client side.
+  /// Stable cross-device identifier. Backend-owned, read-only client side.
   final String? uuid;
   final String type; // 'borrower', 'library', 'user'
   final String name;

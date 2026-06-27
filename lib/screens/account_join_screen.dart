@@ -9,8 +9,8 @@ import '../services/translation_service.dart';
 import '../theme/app_design.dart';
 import '../widgets/genie_app_bar.dart';
 
-/// Join an EXISTING account on this device with its passphrase (ST-05 Phase F,
-/// Path A). Reached from the hub, or from the signup flow when the email is
+/// Join an EXISTING account on this device with its passphrase.
+/// Reached from the hub, or from the signup flow when the email is
 /// already registered (the email is then prefilled).
 class AccountJoinScreen extends StatefulWidget {
   final String? initialEmail;

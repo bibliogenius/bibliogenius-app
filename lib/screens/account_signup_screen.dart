@@ -12,7 +12,7 @@ import '../theme/app_design.dart';
 import '../widgets/genie_app_bar.dart';
 import '../widgets/recovery_phrase_view.dart';
 
-/// Create-a-new-account flow (ST-05 Phase F, Path A).
+/// Create-a-new-account flow.
 ///
 /// Two phases in one screen: (1) the form with a live, debounced passphrase
 /// strength meter that gates the submit button on `acceptable`; (2) the one-time

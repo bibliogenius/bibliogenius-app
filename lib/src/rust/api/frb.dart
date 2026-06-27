@@ -301,8 +301,8 @@ Future<String> accountRefreshDevicesFfi() =>
 ///
 /// HONEST SCOPE: it always runs the real, available step — refreshing the signed
 /// device registry (H3) — and **deliberately does not fake a data convergence**.
-/// The data merge engine is Phase E (and a production cr-sqlite engine wired to
-/// the library DB is C2-prod), neither of which is built into any current binary,
+/// The data merge engine is not built yet (along with a production cr-sqlite
+/// engine wired to the library DB), neither of which is in any current binary,
 /// so the data leg is a no-op here. When that engine lands, this calls
 /// [`account_sync_engine::refresh_then_sync`] with it (registry refresh stays
 /// first, ADR-043 H3). Returns JSON `{synced, reason?, devices}`.

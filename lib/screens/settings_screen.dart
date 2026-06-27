@@ -1629,7 +1629,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
 
-            // Multi-device account sync (ST-05 Phase F): a navigational tile to
+            // Multi-device account sync: a navigational tile to
             // the dedicated hub screen (create/join account, manage devices).
             if (_sectionVisible([
               'account_sync_title',

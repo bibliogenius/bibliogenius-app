@@ -4,7 +4,7 @@ import '../utils/local_cover_resolver.dart';
 class Loan {
   final int id;
 
-  /// Stable cross-device identifier (ST-03). Backend-owned, read-only client side.
+  /// Stable cross-device identifier. Backend-owned, read-only client side.
   final String? uuid;
   final int copyId;
   final int contactId;

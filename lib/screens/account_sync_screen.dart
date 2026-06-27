@@ -8,11 +8,11 @@ import '../services/translation_service.dart';
 import '../theme/app_design.dart';
 import '../widgets/genie_app_bar.dart';
 
-/// Hub for the multi-device account sync feature (ST-05 Phase F).
+/// Hub for the multi-device account sync feature.
 ///
 /// Signed out: explains the feature and offers create / join. Signed in: shows
 /// the account email, the authorized device list, and add-device / sign-out
-/// actions. Data convergence between devices is not active yet (Phase E); the
+/// actions. Data convergence between devices is not active yet; the
 /// screen says so honestly rather than implying a sync that does not run.
 class AccountSyncScreen extends StatefulWidget {
   const AccountSyncScreen({super.key});
