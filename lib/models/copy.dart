@@ -1,6 +1,6 @@
 class Copy {
-  final int? id;
-  final int bookId;
+  final String? id;
+  final String bookId;
   final int libraryId;
   final String? acquisitionDate;
   final String? notes;
@@ -31,8 +31,8 @@ class Copy {
 
   factory Copy.fromJson(Map<String, dynamic> json) {
     return Copy(
-      id: json['id'],
-      bookId: json['book_id'],
+      id: json['id']?.toString(),
+      bookId: json['book_id'].toString(),
       libraryId: json['library_id'],
       acquisitionDate: json['acquisition_date'],
       notes: json['notes'],

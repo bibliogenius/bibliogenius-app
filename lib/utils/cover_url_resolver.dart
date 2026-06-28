@@ -77,7 +77,7 @@ class CoverUrlResolver {
   ///   let the caller show a placeholder.
   static String? resolveForPeer({
     required String? coverUrl,
-    required int? bookId,
+    required String? bookId,
     required String peerUrl,
   }) {
     if (coverUrl == null || coverUrl.isEmpty) return null;

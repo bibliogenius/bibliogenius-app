@@ -79,7 +79,7 @@ class CollectionImportService {
           };
 
           // Try Create
-          int? bookId;
+          String? bookId;
           final createRes = await _apiService.createBook(bookData);
 
           if (createRes.statusCode == 201) {
@@ -93,7 +93,7 @@ class CollectionImportService {
             // If creation failed (duplicate), try to find
             final existingBook = await _apiService.findBookByIsbn(isbn);
             if (existingBook != null) {
-              bookId = existingBook.localId;
+              bookId = existingBook.id;
             }
           }
 

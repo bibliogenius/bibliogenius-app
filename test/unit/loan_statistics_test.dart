@@ -8,9 +8,9 @@ Loan _loan({
   String? returnDate,
   String status = 'active',
 }) => Loan(
-  localId: id,
-  copyId: id,
-  contactId: id,
+  id: id.toString(),
+  copyId: id.toString(),
+  contactId: id.toString(),
   libraryId: 1,
   loanDate: loanDate,
   dueDate: loanDate,

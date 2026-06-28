@@ -30,7 +30,7 @@ class HangmanProvider extends ChangeNotifier {
   HangmanVisualMode _visualMode = HangmanVisualMode.classic;
 
   // --- Session-level exclusion (avoids same series within app session) ---
-  final List<int> _sessionPlayedBookIds = [];
+  final List<String> _sessionPlayedBookIds = [];
 
   // --- Game state ---
   HangmanPhase _phase = HangmanPhase.setup;
@@ -38,7 +38,7 @@ class HangmanProvider extends ChangeNotifier {
   String _author = '';
   String? _coverUrl;
   List<HangmanChar> _display = [];
-  int _bookId = 0;
+  String _bookId = '';
   Set<String> _guessedChars = {};
   int _errors = 0;
   int _maxErrors = 6;

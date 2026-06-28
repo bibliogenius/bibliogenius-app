@@ -369,9 +369,9 @@ class _DashboardScreenState extends State<DashboardScreen>
             // Wishlist (owned=false) entries are excluded from the headline stat.
             _stats['total_books'] = books.where((b) => b.owned).length;
 
-            // Sort by recently added (ID desc)
+            // Sort by recently added (uuid v7 is time-ordered, so descending = newest first)
             final sortedBooks = List<Book>.from(books);
-            sortedBooks.sort((a, b) => (b.localId ?? 0).compareTo(a.localId ?? 0));
+            sortedBooks.sort((a, b) => (b.id ?? '').compareTo(a.id ?? ''));
             _recentBooks = sortedBooks
                 .where((b) => b.readingStatus != 'to_read')
                 .take(10)
@@ -382,13 +382,13 @@ class _DashboardScreenState extends State<DashboardScreen>
                 .where((b) => b.readingStatus == 'reading')
                 .toList();
             // Sort reading by most recently added/updated if possible, or just ID
-            _readingBooks.sort((a, b) => (b.localId ?? 0).compareTo(a.localId ?? 0));
+            _readingBooks.sort((a, b) => (b.id ?? '').compareTo(a.id ?? ''));
 
             // À lire
             _toReadBooks = books
                 .where((b) => b.readingStatus == 'to_read')
                 .toList();
-            _toReadBooks.sort((a, b) => (b.localId ?? 0).compareTo(a.localId ?? 0));
+            _toReadBooks.sort((a, b) => (b.id ?? '').compareTo(a.id ?? ''));
           });
         }
       } catch (e) {

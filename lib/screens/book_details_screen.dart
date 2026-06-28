@@ -64,7 +64,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   List<Copy> _copies = [];
   List<Collection> _collections = [];
   List<Loan> _activeLoans = [];
-  Map<int, String?> _loanContactNotes = {};
+  Map<String, String?> _loanContactNotes = {};
   bool _isLoadingCopies = true;
   bool _isLoadingBook = false;
   bool _hasChanges = false;
@@ -90,11 +90,11 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
   Future<void> _fetchCopies() async {
     if (!mounted) return;
-    final localId = _book?.localId;
-    if (localId == null) return;
+    final bookUuid = _book?.id;
+    if (bookUuid == null) return;
     try {
       final copyRepo = Provider.of<CopyRepository>(context, listen: false);
-      final copies = await copyRepo.getBookCopies(localId);
+      final copies = await copyRepo.getBookCopies(bookUuid);
       if (mounted) {
         setState(() {
           _copies = copies;
@@ -117,24 +117,20 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     final loanRepo = Provider.of<LoanRepository>(context, listen: false);
     try {
       // Re-fetch the book to pick up the latest changes (rating, status…). The
-      // route addresses it by uuid for migrated callers; legacy callers (loans,
-      // stats, peers) may still pass an integer local id.
-      final asLocalId = int.tryParse(widget.bookId);
-      final bookFuture = asLocalId != null
-          ? bookRepo.getBookByLocalId(asLocalId)
-          : bookRepo.getBook(widget.bookId);
+      // route addresses it by uuid.
+      final bookFuture = bookRepo.getBook(widget.bookId);
 
-      // Book-scoped sub-resources are keyed by the integer local id. When the
-      // book was passed via extra (card tap) its localId is already known, so
-      // fan the sub-resources out in parallel with the re-fetch; on a deep
-      // link, resolve the book first to learn it.
-      final localId = widget.book?.localId ?? (await bookFuture).localId;
+      // Book-scoped sub-resources are keyed by the book uuid. When the book was
+      // passed via extra (card tap) its uuid is already known, so fan the
+      // sub-resources out in parallel with the re-fetch; on a deep link, resolve
+      // the book first to learn it.
+      final bookUuid = widget.book?.id ?? (await bookFuture).id;
 
-      final copiesFuture = localId != null
-          ? copyRepo.getBookCopies(localId)
+      final copiesFuture = bookUuid != null
+          ? copyRepo.getBookCopies(bookUuid)
           : Future<List<Copy>>.value(<Copy>[]);
-      final collectionsFuture = localId != null
-          ? collectionRepo.getBookCollections(localId)
+      final collectionsFuture = bookUuid != null
+          ? collectionRepo.getBookCollections(bookUuid)
           : Future<List<Collection>>.value(<Collection>[]);
 
       // Start loan fetch in parallel — filtered after copies are known
@@ -151,8 +147,8 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           final settings = await ffi.getLoanSettings();
           _perBookDurationEnabled = settings.perBookDurationEnabled;
           _defaultLoanDurationDays = settings.defaultLoanDurationDays;
-          if (_perBookDurationEnabled && localId != null) {
-            _bookLoanDurationDays = await ffi.getBookLoanDuration(localId);
+          if (_perBookDurationEnabled && bookUuid != null) {
+            _bookLoanDurationDays = await ffi.getBookLoanDuration(bookUuid);
           }
         }
       } catch (e) {
@@ -163,7 +159,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       List<Loan> activeLoans = [];
       try {
         final allActive = await loansFuture;
-        final copyIds = copies.map((c) => c.id).whereType<int>().toSet();
+        final copyIds = copies.map((c) => c.id).whereType<String>().toSet();
         activeLoans = allActive
             .where((l) => copyIds.contains(l.copyId))
             .toList();
@@ -172,7 +168,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       }
 
       // Fetch contact notes for each active loan (shown as subtitle on loan row)
-      final contactNotes = <int, String?>{};
+      final contactNotes = <String, String?>{};
       if (activeLoans.isNotEmpty) {
         final contactRepo = Provider.of<ContactRepository>(
           context,
@@ -181,9 +177,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         await Future.wait(
           activeLoans.map((loan) async {
             try {
-              final contact = await contactRepo.getContactByLocalId(
-                loan.contactId,
-              );
+              final contact = await contactRepo.getContact(loan.contactId);
               if (contact.notes?.isNotEmpty == true) {
                 contactNotes[loan.contactId] = contact.notes;
               }
@@ -638,7 +632,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
     try {
       final path = await CoverCameraHelper.takePhotoAndSave(
-        bookId: book.localId,
+        bookId: book.id,
       );
       if (path == null || !mounted) return;
 
@@ -686,7 +680,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
     try {
       final targetPath = await CoverCameraHelper.pickFromGalleryAndSave(
-        bookId: book.localId,
+        bookId: book.id,
       );
       if (targetPath == null) return;
 
@@ -813,9 +807,9 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                     _buildMetadataGrid(context, book),
                     const SizedBox(height: 16),
                     // Audio module section (decoupled - only shows if enabled)
-                    if (book.localId != null)
+                    if (book.id != null)
                       AudioSection(
-                        bookId: book.localId!,
+                        bookId: book.id!,
                         bookTitle: book.title,
                         bookAuthor: book.author,
                         bookLanguage: book.language,
@@ -848,9 +842,9 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                       const SizedBox(height: 32),
                     ],
                     // Reading notes section
-                    if (book.localId != null)
+                    if (book.id != null)
                       _BookNotesSection(
-                        bookId: book.localId!,
+                        bookId: book.id!,
                         bookTitle: book.title,
                       ),
                     // Private book toggle - at the bottom of the page
@@ -1382,10 +1376,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                     if (_book == null) return;
                     await context.push(
                       '/books/${_book!.id}/copies',
-                      extra: {
-                        'localId': _book!.localId,
-                        'bookTitle': _book!.title,
-                      },
+                      extra: {'bookTitle': _book!.title},
                     );
                     if (!mounted) return;
                     await _fetchCopies();
@@ -2537,7 +2528,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     setState(() => _isRefreshing = true);
 
     // Also refresh audiobook search
-    context.read<AudioProvider>().clearBookCache(book.localId!);
+    context.read<AudioProvider>().clearBookCache(book.id!);
 
     try {
       final apiService = Provider.of<ApiService>(context, listen: false);
@@ -2781,12 +2772,12 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   }
 
   Future<void> _setBookLoanDuration(int? days) async {
-    final localId = _book?.localId;
-    if (localId == null) return;
+    final bookUuid = _book?.id;
+    if (bookUuid == null) return;
     setState(() => _bookLoanDurationDays = days);
     try {
       final ffi = FfiService();
-      await ffi.setBookLoanDuration(localId, days);
+      await ffi.setBookLoanDuration(bookUuid, days);
     } catch (e) {
       debugPrint('Error setting book loan duration: $e');
     }
@@ -2807,7 +2798,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           final api = Provider.of<ApiService>(context, listen: false);
           final response = await api.offerLoanToPeer(
             peerId,
-            bookId: _book!.localId,
+            bookId: _book!.id,
             isbn: _book!.isbn,
           );
           if (context.mounted) {
@@ -2845,7 +2836,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           final copyRepo = Provider.of<CopyRepository>(context, listen: false);
           final loanRepo = Provider.of<LoanRepository>(context, listen: false);
 
-          final copies = await copyRepo.getBookCopies(_book!.localId!);
+          final copies = await copyRepo.getBookCopies(_book!.id!);
           if (copies.isEmpty) {
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -2872,7 +2863,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             final ffi = FfiService();
             if (ffi.isInitialized) {
               durationDays = await ffi.getEffectiveLoanDuration(
-                _book!.localId!,
+                _book!.id!,
               );
             }
           } catch (_) {}
@@ -2921,7 +2912,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
     try {
       if (_book == null) return;
-      final copies = await copyRepo.getBookCopies(_book!.localId!);
+      final copies = await copyRepo.getBookCopies(_book!.id!);
       if (copies.isEmpty) {
         throw Exception('No copy found for this book');
       }
@@ -3190,7 +3181,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
 /// Inline section showing the latest reading notes on the book detail page.
 class _BookNotesSection extends StatefulWidget {
-  final int bookId;
+  final String bookId;
   final String bookTitle;
 
   const _BookNotesSection({required this.bookId, required this.bookTitle});
@@ -3450,10 +3441,7 @@ class _BookNotesSectionState extends State<_BookNotesSection> {
                   child: TextButton(
                     onPressed: () => context.push(
                       '/books/${widget.bookId}/notes',
-                      extra: {
-                        'localId': widget.bookId,
-                        'bookTitle': widget.bookTitle,
-                      },
+                      extra: {'bookTitle': widget.bookTitle},
                     ),
                     child: Text(t(context, 'view_all_notes')),
                   ),

@@ -38,10 +38,10 @@ class AudioProvider extends ChangeNotifier {
   StreamSubscription<List<ConnectivityResult>>? _connectivitySub;
 
   // Cache of audio resources by bookId (list for multi-language results)
-  final Map<int, List<AudioResource>> _audioCache = {};
+  final Map<String, List<AudioResource>> _audioCache = {};
 
   // Track ongoing searches to avoid duplicates
-  final Set<int> _searchingBookIds = {};
+  final Set<String> _searchingBookIds = {};
 
   AudioProvider({AudiobookService? service, Connectivity? connectivity})
     : _service = service ?? AudiobookService(),
@@ -56,18 +56,18 @@ class AudioProvider extends ChangeNotifier {
   bool get canStream => _isEnabled && _isWifiConnected;
 
   /// Check if a search is in progress for a specific book
-  bool isSearching(int bookId) => _searchingBookIds.contains(bookId);
+  bool isSearching(String bookId) => _searchingBookIds.contains(bookId);
 
   /// Get first cached audio resource for a book (retro-compatible)
-  AudioResource? getAudioResource(int bookId) =>
+  AudioResource? getAudioResource(String bookId) =>
       _audioCache[bookId]?.firstOrNull;
 
   /// Get all cached audio resources for a book
-  List<AudioResource> getAudioResources(int bookId) =>
+  List<AudioResource> getAudioResources(String bookId) =>
       _audioCache[bookId] ?? [];
 
   /// Check if we've already searched for a book (regardless of result)
-  bool hasSearched(int bookId) => _audioCache.containsKey(bookId);
+  bool hasSearched(String bookId) => _audioCache.containsKey(bookId);
 
   /// Initialize provider: load settings and check connectivity
   Future<void> _initialize() async {
@@ -120,7 +120,7 @@ class AudioProvider extends ChangeNotifier {
   ///
   /// [preferredLanguage] filters results to prioritize the user's language.
   Future<AudioResource?> searchAudiobook({
-    required int bookId,
+    required String bookId,
     required String title,
     String? author,
     String? preferredLanguage,
@@ -170,7 +170,7 @@ class AudioProvider extends ChangeNotifier {
   /// Uses [languages] to search LibriVox per language, Litterature Audio
   /// for French, and always Internet Archive as fallback.
   Future<List<AudioResource>> searchAudiobookMultiLang({
-    required int bookId,
+    required String bookId,
     required String title,
     String? author,
     required List<String> languages,
@@ -212,7 +212,7 @@ class AudioProvider extends ChangeNotifier {
   }
 
   /// Clear cached audio resource for a specific book
-  void clearBookCache(int bookId) {
+  void clearBookCache(String bookId) {
     _audioCache.remove(bookId);
     notifyListeners();
   }

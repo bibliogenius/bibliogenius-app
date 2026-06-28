@@ -6,7 +6,7 @@
 /// - Internet Archive (fallback)
 class AudioResource {
   final int? id;
-  final int bookId;
+  final String bookId;
   final AudioSource source;
   final String sourceId;
   final String title;
@@ -40,7 +40,7 @@ class AudioResource {
   factory AudioResource.fromJson(Map<String, dynamic> json) {
     return AudioResource(
       id: json['id'] as int?,
-      bookId: json['book_id'] as int,
+      bookId: json['book_id'].toString(),
       source: AudioSource.fromString(json['source'] as String),
       sourceId: json['source_id'] as String,
       title: json['title'] as String,
@@ -100,7 +100,7 @@ class AudioResource {
   /// Create a copy with updated fields
   AudioResource copyWith({
     int? id,
-    int? bookId,
+    String? bookId,
     AudioSource? source,
     String? sourceId,
     String? title,

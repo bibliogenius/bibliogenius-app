@@ -39,7 +39,7 @@ class CoverCameraHelper {
 
   /// Opens the camera, saves the photo into covers/ and returns the local path.
   /// Returns null if the user cancelled or the camera is unavailable.
-  static Future<String?> takePhotoAndSave({int? bookId}) async {
+  static Future<String?> takePhotoAndSave({String? bookId}) async {
     // requestFullMetadata: false avoids PHPhotoLibrary access on iOS
     // (prevents crash when tapping "Use Photo")
     final XFile? photo = await _picker.pickImage(
@@ -58,7 +58,7 @@ class CoverCameraHelper {
   /// Uses ImagePicker (not FilePicker) so iOS converts HEIC/HEIF to JPEG via
   /// Apple's PHPickerViewController. The Rust resize pipeline only decodes
   /// JPEG/PNG, so HEIC files would otherwise fail silently.
-  static Future<String?> pickFromGalleryAndSave({int? bookId}) async {
+  static Future<String?> pickFromGalleryAndSave({String? bookId}) async {
     final XFile? picked = await _picker.pickImage(
       source: ImageSource.gallery,
       maxWidth: targetMaxWidth.toDouble(),
@@ -71,7 +71,7 @@ class CoverCameraHelper {
 
   /// Renames a temp cover file to use the real book ID after creation.
   /// Returns the new path, or null if the source file does not exist.
-  static Future<String?> renameTempCover(String tempPath, int bookId) async {
+  static Future<String?> renameTempCover(String tempPath, String bookId) async {
     final file = File(tempPath);
     if (!await file.exists()) return null;
 
@@ -104,7 +104,7 @@ class CoverCameraHelper {
   /// output at ~50 KB. ImagePicker's own maxWidth/imageQuality hints are
   /// not relied upon — they are silently ignored on macOS for PNG
   /// sources, which would otherwise leave 300+ KB files on disk.
-  static Future<String?> _saveToCovers(XFile? picked, int? bookId) async {
+  static Future<String?> _saveToCovers(XFile? picked, String? bookId) async {
     if (picked == null) return null;
 
     final appDir = await getApplicationSupportDirectory();

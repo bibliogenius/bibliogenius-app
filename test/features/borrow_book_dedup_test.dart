@@ -27,7 +27,7 @@ void main() {
       mockBookRepo = MockBookRepository();
       mockCopyRepo = MockCopyRepository();
       testContact = Contact(
-        localId: 42,
+        id: '42',
         type: 'borrower',
         name: 'Alice',
         libraryOwnerId: 1,
@@ -58,7 +58,7 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
 
       mockBookRepo.mockFindByIsbnResult = Book(
-        localId: 7,
+        id: '7',
         title: 'Existing Book',
         isbn: '9782752903570',
         author: 'Jack London',
@@ -91,7 +91,7 @@ void main() {
 
       // Copy was created with EXISTING book ID (7)
       expect(mockCopyRepo.createdCopies, hasLength(1));
-      expect(mockCopyRepo.createdCopies.first['book_id'], 7);
+      expect(mockCopyRepo.createdCopies.first['book_id'], '7');
       expect(mockCopyRepo.createdCopies.first['status'], 'borrowed');
       expect(mockCopyRepo.createdCopies.first['is_temporary'], true);
     });
@@ -132,7 +132,7 @@ void main() {
 
       // Copy created with new book ID (123 from mock)
       expect(mockCopyRepo.createdCopies, hasLength(1));
-      expect(mockCopyRepo.createdCopies.first['book_id'], 123);
+      expect(mockCopyRepo.createdCopies.first['book_id'], '123');
       expect(mockCopyRepo.createdCopies.first['status'], 'borrowed');
       expect(mockCopyRepo.createdCopies.first['is_temporary'], true);
     });
@@ -167,7 +167,7 @@ void main() {
 
       // Copy created
       expect(mockCopyRepo.createdCopies, hasLength(1));
-      expect(mockCopyRepo.createdCopies.first['book_id'], 123);
+      expect(mockCopyRepo.createdCopies.first['book_id'], '123');
     });
   });
 }

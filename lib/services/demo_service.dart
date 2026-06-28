@@ -61,11 +61,11 @@ class DemoService {
 
         // Extract book ID from response and create a copy
         if (response.data != null) {
-          int? bookId;
+          String? bookId;
           if (response.data is Map) {
-            bookId = response.data['id'] as int?;
+            bookId = response.data['id'] as String?;
           } else if (response.data is Book) {
-            bookId = (response.data as Book).localId;
+            bookId = (response.data as Book).id;
           }
 
           if (bookId != null) {

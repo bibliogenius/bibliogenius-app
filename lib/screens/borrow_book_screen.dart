@@ -197,7 +197,7 @@ class _BorrowBookScreenState extends State<BorrowBookScreen> {
       final api = Provider.of<ApiService>(context, listen: false);
 
       // 1. Reuse existing book if detected during ISBN lookup
-      int? bookId = _existingBook?.localId;
+      String? bookId = _existingBook?.id;
 
       // 2. Otherwise create a new book
       if (bookId == null) {

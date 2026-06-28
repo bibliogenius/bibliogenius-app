@@ -158,7 +158,9 @@ class NetworkMember {
   /// Create a NetworkMember from a Contact model
   factory NetworkMember.fromContact(Contact contact) {
     return NetworkMember(
-      id: contact.localId ?? 0,
+      // The int `id` addresses network peers (a local table); a contact-backed
+      // member is identified by its uuid via [contactUuid].
+      id: 0,
       contactUuid: contact.id,
       name: contact.name,
       firstName: contact.firstName,
@@ -263,7 +265,6 @@ class NetworkMember {
   Contact toContact() {
     return Contact(
       id: contactUuid,
-      localId: id,
       type: type == NetworkMemberType.borrower ? 'borrower' : 'library',
       name: name,
       firstName: firstName,

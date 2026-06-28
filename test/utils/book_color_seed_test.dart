@@ -4,18 +4,18 @@ import 'package:bibliogenius/utils/book_color_seed.dart';
 
 void main() {
   group('bookColorSeed', () {
-    test('uses local id when available and non-zero', () {
-      final b = Book(localId:42, title: 'T');
-      expect(bookColorSeed(b), 42);
+    test('uses the uuid hash when available and non-empty', () {
+      final b = Book(id: '42', title: 'T');
+      expect(bookColorSeed(b), '42'.hashCode);
     });
 
     test('falls back to ISBN hash when id is null', () {
-      final b = Book(localId:null, isbn: '9781234567890', title: 'T');
+      final b = Book(id: null, isbn: '9781234567890', title: 'T');
       expect(bookColorSeed(b), '9781234567890'.hashCode);
     });
 
-    test('falls back to ISBN hash when id is 0 (peer library pattern)', () {
-      final b = Book(localId:0, isbn: '9781234567890', title: 'T');
+    test('falls back to ISBN hash when id is empty (peer library pattern)', () {
+      final b = Book(id: '', isbn: '9781234567890', title: 'T');
       expect(bookColorSeed(b), '9781234567890'.hashCode);
     });
 

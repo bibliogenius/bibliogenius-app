@@ -8,7 +8,7 @@ library;
 
 /// A card in the memory game, representing a book cover.
 class MemoryCard {
-  final int bookId;
+  final String bookId;
   final String title;
   final String coverUrl;
 
@@ -26,7 +26,7 @@ class MemoryCard {
 
   factory MemoryCard.fromJson(Map<String, dynamic> json) {
     return MemoryCard(
-      bookId: json['book_id'] as int,
+      bookId: json['book_id'].toString(),
       title: json['title'] as String? ?? '',
       coverUrl: json['cover_url'] as String? ?? '',
     );

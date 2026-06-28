@@ -52,7 +52,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
     with TickerProviderStateMixin {
   List<Book> _books = [];
   List<Loan> _loans = [];
-  Map<int, Contact> _contactsMap = {};
+  Map<String, Contact> _contactsMap = {};
   List<Tag> _tags = [];
   List<Collection> _collections = [];
   Map<String, dynamic>? _salesStats;
@@ -148,12 +148,12 @@ class _StatisticsScreenState extends State<StatisticsScreen>
       }
 
       // Fetch contacts for names
-      Map<int, Contact> contactsMap = {};
+      Map<String, Contact> contactsMap = {};
       try {
         final contacts = await contactRepo.getContacts();
         for (var c in contacts) {
-          if (c.localId != null) {
-            contactsMap[c.localId!] = c;
+          if (c.id != null) {
+            contactsMap[c.id!] = c;
           }
         }
       } catch (e) {}
@@ -2360,7 +2360,7 @@ class _StatisticsContentState extends State<StatisticsContent>
     with TickerProviderStateMixin {
   List<Book> _books = [];
   List<Loan> _loans = [];
-  Map<int, Contact> _contactsMap = {};
+  Map<String, Contact> _contactsMap = {};
   List<Tag> _tags = [];
   List<Collection> _collections = [];
   Map<String, dynamic>? _salesStats;
@@ -2511,12 +2511,12 @@ class _StatisticsContentState extends State<StatisticsContent>
       }
 
       // Fetch contacts for names
-      Map<int, Contact> contactsMap = {};
+      Map<String, Contact> contactsMap = {};
       try {
         final contacts = await contactRepo.getContacts();
         for (var c in contacts) {
-          if (c.localId != null) {
-            contactsMap[c.localId!] = c;
+          if (c.id != null) {
+            contactsMap[c.id!] = c;
           }
         }
       } catch (e) {
@@ -2593,9 +2593,9 @@ class _StatisticsContentState extends State<StatisticsContent>
       }
 
       // Build book map for cross-referencing
-      final bookMap = <int, Book>{};
+      final bookMap = <String, Book>{};
       for (final b in books) {
-        if (b.localId != null) bookMap[b.localId!] = b;
+        if (b.id != null) bookMap[b.id!] = b;
       }
 
       // Compute average rating per collection and read counts
@@ -4042,7 +4042,7 @@ class _StatisticsContentState extends State<StatisticsContent>
 
     int? fastestDays;
     String? fastestBookTitle;
-    int? fastestBookId;
+    String? fastestBookId;
     for (var book in booksWithDuration) {
       final days = book.finishedReadingAt!
           .difference(book.startedReadingAt!)
@@ -4050,7 +4050,7 @@ class _StatisticsContentState extends State<StatisticsContent>
       if (fastestDays == null || days < fastestDays) {
         fastestDays = days;
         fastestBookTitle = book.title;
-        fastestBookId = book.localId;
+        fastestBookId = book.id;
       }
     }
 
@@ -4156,7 +4156,7 @@ class _StatisticsContentState extends State<StatisticsContent>
     required IconData icon,
     required String label,
     required String bookTitle,
-    int? bookId,
+    String? bookId,
     required Color color,
   }) {
     return Semantics(

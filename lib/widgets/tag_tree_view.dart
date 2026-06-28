@@ -9,7 +9,7 @@ import '../utils/app_constants.dart';
 /// Supports optional [searchQuery] to filter and highlight matching nodes.
 class TagTreeView extends StatefulWidget {
   final List<Tag> tags;
-  final Set<int> selectedTagIds;
+  final Set<String> selectedTagIds;
   final Function(Tag) onTagSelected;
   final Function(Tag)? onTagLongPress;
   final bool multiSelect;
@@ -30,17 +30,17 @@ class TagTreeView extends StatefulWidget {
 }
 
 class _TagTreeViewState extends State<TagTreeView> {
-  final Set<int> _userExpandedIds = {};
+  final Set<String> _userExpandedIds = {};
 
   bool get _isSearching =>
       widget.searchQuery != null && widget.searchQuery!.isNotEmpty;
 
-  bool _isExpanded(int id) {
+  bool _isExpanded(String id) {
     if (_isSearching) return true;
     return _userExpandedIds.contains(id);
   }
 
-  void _toggleExpansion(int id) {
+  void _toggleExpansion(String id) {
     if (_isSearching) return;
     setState(() {
       if (_userExpandedIds.contains(id)) {
@@ -120,7 +120,7 @@ class _TagTreeViewState extends State<TagTreeView> {
 
   /// Build tree structure from flat list with parent_id
   List<Tag> _buildTree(List<Tag> flatTags) {
-    final Map<int, Tag> tagMap = {};
+    final Map<String, Tag> tagMap = {};
     final List<Tag> rootTags = [];
 
     // First pass: create map of all tags

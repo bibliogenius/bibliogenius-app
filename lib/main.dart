@@ -1108,9 +1108,7 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
                 GoRoute(
                   path: ':id',
                   builder: (context, state) {
-                    // The route param is the book uuid for migrated callers.
-                    // Legacy callers (loans, stats, peers) may still pass an
-                    // integer local id; BookDetailsScreen resolves either form.
+                    // The route param is the book uuid (cross-device identity).
                     final bookRef = state.pathParameters['id'] ?? '';
                     Book? book;
                     if (state.extra is Book) {
@@ -1151,15 +1149,11 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
                   builder: (context, state) {
                     final extra = state.extra as Map<String, dynamic>?;
                     final bookTitle = extra?['bookTitle'] as String? ?? '';
-                    // Notes are a book-scoped sub-resource keyed by the integer
-                    // local id, passed via extra by the uuid-addressed parent;
-                    // fall back to a legacy integer route param.
-                    final localId =
-                        extra?['localId'] as int? ??
-                        int.tryParse(state.pathParameters['id'] ?? '') ??
-                        0;
+                    // Notes are a book-scoped sub-resource keyed by the book uuid
+                    // (the route param).
+                    final bookUuid = state.pathParameters['id'] ?? '';
                     return BookNotesScreen(
-                      bookId: localId,
+                      bookId: bookUuid,
                       bookTitle: bookTitle,
                     );
                   },
@@ -1169,15 +1163,11 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
                   builder: (context, state) {
                     final extra = state.extra as Map<String, dynamic>?;
                     final bookTitle = extra?['bookTitle'] as String? ?? '';
-                    // Copies are a book-scoped sub-resource keyed by the integer
-                    // local id, passed via extra by the uuid-addressed parent;
-                    // fall back to a legacy integer route param.
-                    final localId =
-                        extra?['localId'] as int? ??
-                        int.tryParse(state.pathParameters['id'] ?? '') ??
-                        0;
+                    // Copies are a book-scoped sub-resource keyed by the book uuid
+                    // (the route param).
+                    final bookUuid = state.pathParameters['id'] ?? '';
                     return BookCopiesScreen(
-                      bookId: localId,
+                      bookId: bookUuid,
                       bookTitle: bookTitle,
                     );
                   },

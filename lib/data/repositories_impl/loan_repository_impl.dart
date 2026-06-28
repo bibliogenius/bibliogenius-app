@@ -33,11 +33,11 @@ class LoanRepositoryImpl implements LoanRepository {
       if (data is Map && data['loan'] is Map) {
         final loanJson = data['loan'] as Map<String, dynamic>;
         // createLoan may return minimal data (just {id}), construct a partial
-        // Loan. The integer id is the transitional localId; uuid follows at S4.
+        // Loan. The id is the loan's uuid.
         return Loan(
-          localId: loanJson['id'] as int?,
-          copyId: loanData['copy_id'] as int,
-          contactId: loanData['contact_id'] as int,
+          id: loanJson['id']?.toString(),
+          copyId: loanData['copy_id'].toString(),
+          contactId: loanData['contact_id'].toString(),
           libraryId: loanData['library_id'] as int? ?? 0,
           loanDate: loanData['loan_date'] as String,
           dueDate: loanData['due_date'] as String,

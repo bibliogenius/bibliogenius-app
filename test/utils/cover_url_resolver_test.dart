@@ -78,7 +78,7 @@ void main() {
     test('HTTP URL passes through', () {
       final out = CoverUrlResolver.resolveForPeer(
         coverUrl: 'https://hub/covers/7',
-        bookId: 7,
+        bookId: '7',
         peerUrl: peerUrl,
       );
       expect(out, 'https://hub/covers/7');
@@ -87,7 +87,7 @@ void main() {
     test('/api path is routed through the local cover-proxy', () {
       final out = CoverUrlResolver.resolveForPeer(
         coverUrl: '/api/books/42/cover',
-        bookId: 42,
+        bookId: '42',
         peerUrl: peerUrl,
       );
       final expectedPeer = Uri.encodeQueryComponent(peerUrl);
@@ -100,7 +100,7 @@ void main() {
       // image to the visitor than to the uploader.
       final out = CoverUrlResolver.resolveForPeer(
         coverUrl: '/var/mobile/cover_42.jpg',
-        bookId: 42,
+        bookId: '42',
         peerUrl: peerUrl,
       );
       expect(out, isNull);
@@ -110,7 +110,7 @@ void main() {
       expect(
         CoverUrlResolver.resolveForPeer(
           coverUrl: null,
-          bookId: 42,
+          bookId: '42',
           peerUrl: peerUrl,
         ),
         isNull,
@@ -118,7 +118,7 @@ void main() {
       expect(
         CoverUrlResolver.resolveForPeer(
           coverUrl: '',
-          bookId: 42,
+          bookId: '42',
           peerUrl: peerUrl,
         ),
         isNull,

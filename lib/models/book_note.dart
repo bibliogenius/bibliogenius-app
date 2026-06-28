@@ -8,7 +8,7 @@ import '../src/rust/api/frb.dart' as frb;
 
 class BookNote {
   final int id;
-  final int bookId;
+  final String bookId;
   final String content;
   final int? page;
   final String createdAt;

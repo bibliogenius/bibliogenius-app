@@ -70,7 +70,7 @@ class _LoansScreenState extends State<LoansScreen>
   List<dynamic> _borrowedBooks = []; // Books I borrowed from others
 
   /// ISBN -> local book ID mapping for hub requests "View book" links
-  Map<String, int> _isbnToLocalBookId = {};
+  Map<String, String> _isbnToLocalBookId = {};
 
   // Search & filters
   final _lentSearchController = TextEditingController();
@@ -245,11 +245,11 @@ class _LoansScreenState extends State<LoansScreen>
           ...hubProvider.incomingHubRequests.map((r) => r.isbn),
           ...hubProvider.outgoingHubRequests.map((r) => r.isbn),
         }.where((isbn) => isbn.isNotEmpty);
-        final resolvedMap = <String, int>{};
+        final resolvedMap = <String, String>{};
         for (final isbn in allHubIsbns) {
           final book = await api.findBookByIsbn(isbn);
-          if (book != null && book.localId != null) {
-            resolvedMap[isbn] = book.localId!;
+          if (book != null && book.id != null) {
+            resolvedMap[isbn] = book.id!;
           }
         }
         _isbnToLocalBookId = resolvedMap;
@@ -1228,7 +1228,7 @@ class _LoansScreenState extends State<LoansScreen>
     final title = book['title'] ?? 'Unknown';
     final acquisitionDate = book['acquisition_date'] ?? '';
     final cover = book['cover'] as String?;
-    final bookId = book['book_id'] as int? ?? book['id'] as int?;
+    final bookId = (book['book_id'] ?? book['id'])?.toString();
 
     final display = BorrowedCopyDisplay.fromBookMap(book);
     final borrowedFrom = display.lenderName;
@@ -1413,7 +1413,7 @@ class _LoansScreenState extends State<LoansScreen>
   }
 
   Future<void> _returnBorrowedBook(Map<String, dynamic> book) async {
-    final copyId = book['id'] as int?;
+    final copyId = book['id'] as String?;
     if (copyId == null) return;
 
     final confirmed = await showDialog<bool>(
@@ -2165,7 +2165,7 @@ class _LoansScreenState extends State<LoansScreen>
   }) {
     final id = req['id']?.toString() ?? '';
     final status = req['status'] ?? 'pending';
-    final bookId = req['book_id'] as int?;
+    final bookId = req['book_id']?.toString();
 
     if (_pendingActions.contains(id)) return;
 

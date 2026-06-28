@@ -7,7 +7,7 @@ Contact _contact({
   String type = 'borrower',
   bool isActive = true,
 }) {
-  return Contact(localId: id, type: type, name: 'c$id', isActive: isActive);
+  return Contact(id: id?.toString(), type: type, name: 'c$id', isActive: isActive);
 }
 
 Map<String, dynamic> _peer({

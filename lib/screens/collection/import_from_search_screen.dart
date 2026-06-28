@@ -266,7 +266,7 @@ class _ImportFromSearchScreenState extends State<ImportFromSearchScreen>
       };
 
       final response = await apiService.createBook(bookData);
-      int? bookId;
+      String? bookId;
 
       if (response.statusCode == 201) {
         final data = response.data;
@@ -334,7 +334,7 @@ class _ImportFromSearchScreenState extends State<ImportFromSearchScreen>
     for (final index in _selectedIndices) {
       final book = _searchResults[index];
       try {
-        int? bookId;
+        String? bookId;
 
         final bookData = {
           'title': book['title'],
@@ -363,7 +363,7 @@ class _ImportFromSearchScreenState extends State<ImportFromSearchScreen>
           if (isbn != null && isbn.isNotEmpty) {
             final existing = await apiService.findBookByIsbn(isbn);
             if (existing != null) {
-              bookId = existing.localId;
+              bookId = existing.id;
             }
           }
 
@@ -372,7 +372,7 @@ class _ImportFromSearchScreenState extends State<ImportFromSearchScreen>
             if (title != null) {
               final books = await apiService.getBooks(title: title);
               if (books.isNotEmpty) {
-                bookId = books.first.localId;
+                bookId = books.first.id;
               }
             }
           }

@@ -23,13 +23,8 @@ class BookRepositoryImpl implements BookRepository {
   }
 
   @override
-  Future<Book> getBook(String uuid, {int? localId}) {
-    return _apiService.getBook(uuid, localId: localId);
-  }
-
-  @override
-  Future<Book> getBookByLocalId(int localId) {
-    return _apiService.getBookByLocalId(localId);
+  Future<Book> getBook(String uuid) {
+    return _apiService.getBook(uuid);
   }
 
   @override
@@ -44,10 +39,7 @@ class BookRepositoryImpl implements BookRepository {
         }
         // Minimal response — fetch the full book by its uuid identity
         if (data['uuid'] != null) {
-          return _apiService.getBook(
-            data['uuid'] as String,
-            localId: data['id'] as int?,
-          );
+          return _apiService.getBook(data['uuid'] as String);
         }
       }
     }
@@ -55,37 +47,29 @@ class BookRepositoryImpl implements BookRepository {
   }
 
   @override
-  Future<Book> updateBook(
-    String uuid,
-    Map<String, dynamic> bookData, {
-    int? localId,
-  }) async {
-    final response = await _apiService.updateBook(
-      uuid,
-      bookData,
-      localId: localId,
-    );
+  Future<Book> updateBook(String uuid, Map<String, dynamic> bookData) async {
+    final response = await _apiService.updateBook(uuid, bookData);
     if (response.statusCode == 200) {
       final data = response.data;
       if (data is Map<String, dynamic> && data.containsKey('title')) {
         return Book.fromJson(data);
       }
       // Response may not contain the full book — re-fetch
-      return _apiService.getBook(uuid, localId: localId);
+      return _apiService.getBook(uuid);
     }
     throw Exception('Failed to update book (status: ${response.statusCode})');
   }
 
   @override
-  Future<void> deleteBook(String uuid, {int? localId}) async {
-    final response = await _apiService.deleteBook(uuid, localId: localId);
+  Future<void> deleteBook(String uuid) async {
+    final response = await _apiService.deleteBook(uuid);
     if (response.statusCode != 200) {
       throw Exception('Failed to delete book (status: ${response.statusCode})');
     }
   }
 
   @override
-  Future<void> reorderBooks(List<int> bookIds) {
+  Future<void> reorderBooks(List<String> bookIds) {
     return _apiService.reorderBooks(bookIds);
   }
 

@@ -100,20 +100,6 @@ class FfiService {
     }
   }
 
-  /// Get a single book by its transitional integer local id.
-  ///
-  /// Bridges callers that still hold a local id (loans, statistics, peer
-  /// requests) until they carry the uuid. Removed with the wire flip.
-  Future<Book> getBookByLocalId(int localId) async {
-    try {
-      final frbBook = await frb.getBookById(id: localId);
-      return _frbBookToBook(frbBook);
-    } catch (e) {
-      debugPrint('FFI getBookByLocalId error: $e');
-      rethrow;
-    }
-  }
-
   /// Count total books
   Future<int> countBooks() async {
     try {
@@ -136,7 +122,6 @@ class FfiService {
           .map(
             (t) => Tag(
               id: t.id,
-              uuid: t.uuid,
               name: t.name,
               parentId: t.parentId,
               count: t.count.toInt(),
@@ -153,12 +138,11 @@ class FfiService {
   }
 
   /// Create a new tag
-  Future<Tag> createTag(String name, {int? parentId}) async {
+  Future<Tag> createTag(String name, {String? parentId}) async {
     try {
       final t = await frb.createTag(name: name, parentId: parentId);
       return Tag(
         id: t.id,
-        uuid: t.uuid,
         name: t.name,
         parentId: t.parentId,
         count: t.count.toInt(),
@@ -169,9 +153,8 @@ class FfiService {
     }
   }
 
-  /// Update a tag addressed by its uuid (cross-device identity). The integer
-  /// parent id stays as-is until the reference columns flip with the database.
-  Future<Tag> updateTag(String uuid, String name, {int? parentId}) async {
+  /// Update a tag addressed by its uuid. The parent reference is also a uuid.
+  Future<Tag> updateTag(String uuid, String name, {String? parentId}) async {
     try {
       final t = await frb.updateTagByUuid(
         uuid: uuid,
@@ -180,7 +163,6 @@ class FfiService {
       );
       return Tag(
         id: t.id,
-        uuid: t.uuid,
         name: t.name,
         parentId: t.parentId,
         count: t.count.toInt(),
@@ -202,7 +184,7 @@ class FfiService {
   }
 
   /// Reorder books by updating shelf positions
-  Future<void> reorderBooks(List<int> bookIds) async {
+  Future<void> reorderBooks(List<String> bookIds) async {
     try {
       await frb.reorderBooks(bookIds: bookIds);
     } catch (e) {
@@ -238,20 +220,6 @@ class FfiService {
     }
   }
 
-  /// Get a single contact by its transitional integer local id.
-  ///
-  /// Bridges callers that still hold a local id (loan references) until they
-  /// carry the uuid. Removed with the wire flip.
-  Future<Contact> getContactByLocalId(int localId) async {
-    try {
-      final frbContact = await frb.getContactById(id: localId);
-      return _frbContactToContact(frbContact);
-    } catch (e) {
-      debugPrint('FFI getContactByLocalId error: $e');
-      rethrow;
-    }
-  }
-
   /// Count total contacts
   Future<int> countContacts() async {
     try {
@@ -267,8 +235,8 @@ class FfiService {
   Future<Contact> createContact(Contact contact) async {
     try {
       final frbContact = frb.FrbContact(
-        // FrbContact.id stays the integer local id; the uuid is backend-owned.
-        id: contact.localId,
+        // FrbContact.id is the contact's uuid (backend-owned; null on create).
+        id: contact.id,
         contactType: contact.type,
         name: contact.name,
         firstName: contact.firstName,
@@ -299,8 +267,8 @@ class FfiService {
   Future<Contact> updateContact(Contact contact) async {
     try {
       final frbContact = frb.FrbContact(
-        // FrbContact.id stays the integer local id; update is addressed by it.
-        id: contact.localId,
+        // FrbContact.id is the contact's uuid; the update is addressed by it.
+        id: contact.id,
         contactType: contact.type,
         name: contact.name,
         firstName: contact.firstName,
@@ -626,7 +594,7 @@ class FfiService {
       frb.metadataFillUndoField(journalId: journalId);
 
   /// Undo all fields the fill added to one book in a batch. Returns count.
-  Future<int> metadataFillUndoBook(String batchId, int bookId) =>
+  Future<int> metadataFillUndoBook(String batchId, String bookId) =>
       frb.metadataFillUndoBook(batchId: batchId, bookId: bookId);
 
   /// Undo every field a whole run added. Returns reverted count.
@@ -727,9 +695,8 @@ class FfiService {
   /// Convert FrbBook to Book model
   Book _frbBookToBook(frb.FrbBook fb) {
     return Book(
-      // Identity is the uuid; the integer FFI id becomes the transitional localId.
-      id: fb.uuid,
-      localId: fb.id,
+      // The FFI `id` is the book's uuid (cross-device identity).
+      id: fb.id,
       title: fb.title,
       author: fb.author,
       isbn: fb.isbn,
@@ -761,9 +728,8 @@ class FfiService {
   /// Convert FrbContact to Contact model
   Contact _frbContactToContact(frb.FrbContact fc) {
     return Contact(
-      // Identity is the uuid; the integer FFI id becomes the transitional localId.
-      id: fc.uuid,
-      localId: fc.id,
+      // The FFI `id` is the contact's uuid (cross-device identity).
+      id: fc.id,
       type: fc.contactType,
       name: fc.name,
       firstName: fc.firstName,
@@ -978,7 +944,7 @@ class FfiService {
   /// [excludeBookIds] -- book IDs already played in the current session.
   Future<frb.FrbHangmanSetup> setupHangman(
     String difficulty, {
-    List<int> excludeBookIds = const [],
+    List<String> excludeBookIds = const [],
   }) async {
     try {
       return await frb.hangmanSetup(
@@ -993,7 +959,7 @@ class FfiService {
 
   /// Submit a completed hangman game and get the score back
   Future<frb.FrbHangmanScore> finishHangman({
-    required int bookId,
+    required String bookId,
     required String difficulty,
     required double elapsedSeconds,
     required int errors,
@@ -1171,7 +1137,7 @@ class FfiService {
   /// Delete a collection along with eligible books (not loaned/borrowed,
   /// not in another collection, not on a shelf). Returns the IDs of books
   /// that were actually removed.
-  Future<List<int>> deleteCollectionWithBooks(String id) async {
+  Future<List<String>> deleteCollectionWithBooks(String id) async {
     try {
       final deleted = await frb.deleteCollectionWithBooks(id: id);
       return deleted.toList();
@@ -1210,7 +1176,7 @@ class FfiService {
   }
 
   /// Add a book to a collection (idempotent).
-  Future<void> addBookToCollection(String collectionId, int bookId) async {
+  Future<void> addBookToCollection(String collectionId, String bookId) async {
     try {
       await frb.addBookToCollection(collectionId: collectionId, bookId: bookId);
     } catch (e) {
@@ -1220,7 +1186,10 @@ class FfiService {
   }
 
   /// Remove a book from a collection.
-  Future<void> removeBookFromCollection(String collectionId, int bookId) async {
+  Future<void> removeBookFromCollection(
+    String collectionId,
+    String bookId,
+  ) async {
     try {
       await frb.removeBookFromCollection(
         collectionId: collectionId,
@@ -1233,7 +1202,7 @@ class FfiService {
   }
 
   /// Get all collections a book belongs to.
-  Future<List<Collection>> getBookCollections(int bookId) async {
+  Future<List<Collection>> getBookCollections(String bookId) async {
     try {
       final frbList = await frb.getBookCollections(bookId: bookId);
       return frbList.map(_frbCollectionToCollection).toList();
@@ -1245,7 +1214,7 @@ class FfiService {
 
   /// Replace the set of collections a book belongs to.
   Future<void> updateBookCollections(
-    int bookId,
+    String bookId,
     List<String> collectionIds,
   ) async {
     try {
@@ -1798,7 +1767,7 @@ class FfiService {
 
   // ── Book Notes ──────────────────────────────────────────────────────
 
-  Future<List<frb.FrbBookNote>> getBookNotes(int bookId) async {
+  Future<List<frb.FrbBookNote>> getBookNotes(String bookId) async {
     try {
       return await frb.getBookNotes(bookId: bookId);
     } catch (e) {
@@ -1808,7 +1777,7 @@ class FfiService {
   }
 
   Future<frb.FrbBookNote> createBookNote({
-    required int bookId,
+    required String bookId,
     required String content,
     int? page,
   }) async {
@@ -1888,7 +1857,7 @@ class FfiService {
   }
 
   /// Get the effective loan duration for a specific book (in days)
-  Future<int> getEffectiveLoanDuration(int bookId) async {
+  Future<int> getEffectiveLoanDuration(String bookId) async {
     try {
       return await frb.getEffectiveLoanDuration(bookId: bookId);
     } catch (e) {
@@ -1898,7 +1867,7 @@ class FfiService {
   }
 
   /// Get the per-book loan duration override (null = uses global default)
-  Future<int?> getBookLoanDuration(int bookId) async {
+  Future<int?> getBookLoanDuration(String bookId) async {
     try {
       return await frb.getBookLoanDuration(bookId: bookId);
     } catch (e) {
@@ -1908,7 +1877,7 @@ class FfiService {
   }
 
   /// Set the per-book loan duration override (null = clear, use global default)
-  Future<void> setBookLoanDuration(int bookId, int? days) async {
+  Future<void> setBookLoanDuration(String bookId, int? days) async {
     try {
       await frb.setBookLoanDuration(bookId: bookId, days: days);
     } catch (e) {

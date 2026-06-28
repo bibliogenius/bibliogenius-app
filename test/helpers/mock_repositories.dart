@@ -28,31 +28,24 @@ class MockBookRepository implements BookRepository {
   }) async => mockBooks;
 
   @override
-  Future<Book> getBook(String uuid, {int? localId}) async =>
-      mockBook ?? (throw Exception('Book not found'));
-
-  @override
-  Future<Book> getBookByLocalId(int localId) async =>
+  Future<Book> getBook(String uuid) async =>
       mockBook ?? (throw Exception('Book not found'));
 
   @override
   Future<Book> createBook(Map<String, dynamic> bookData) async {
     calls.add('createBook:${bookData['isbn']}');
-    return mockBook ?? Book(localId: 1, title: bookData['title'] ?? 'Test');
+    return mockBook ?? Book(id: '1', title: bookData['title'] ?? 'Test');
   }
 
   @override
-  Future<Book> updateBook(
-    String uuid,
-    Map<String, dynamic> bookData, {
-    int? localId,
-  }) async => mockBook ?? Book(id: uuid, title: bookData['title'] ?? 'Updated');
+  Future<Book> updateBook(String uuid, Map<String, dynamic> bookData) async =>
+      mockBook ?? Book(id: uuid, title: bookData['title'] ?? 'Updated');
 
   @override
-  Future<void> deleteBook(String uuid, {int? localId}) async {}
+  Future<void> deleteBook(String uuid) async {}
 
   @override
-  Future<void> reorderBooks(List<int> bookIds) async {}
+  Future<void> reorderBooks(List<String> bookIds) async {}
 
   @override
   Future<Book?> findBookByIsbn(String isbn) async {
@@ -75,12 +68,12 @@ class MockTagRepository implements TagRepository {
   Future<List<Tag>> getTags() async => mockTags;
 
   @override
-  Future<Tag> createTag(String name, {int? parentId}) async =>
-      Tag(id: 1, name: name, parentId: parentId, count: 0);
+  Future<Tag> createTag(String name, {String? parentId}) async =>
+      Tag(id: '1', name: name, parentId: parentId, count: 0);
 
   @override
-  Future<Tag> updateTag(String uuid, String name, {int? parentId}) async =>
-      Tag(id: 1, uuid: uuid, name: name, parentId: parentId, count: 0);
+  Future<Tag> updateTag(String uuid, String name, {String? parentId}) async =>
+      Tag(id: uuid, name: name, parentId: parentId, count: 0);
 
   @override
   Future<void> deleteTag(String uuid) async {}
@@ -98,18 +91,14 @@ class MockContactRepository implements ContactRepository {
   }) async => mockContacts;
 
   @override
-  Future<Contact> getContact(String uuid, {int? localId}) async =>
-      mockContact ?? (throw Exception('Contact not found'));
-
-  @override
-  Future<Contact> getContactByLocalId(int localId) async =>
+  Future<Contact> getContact(String uuid) async =>
       mockContact ?? (throw Exception('Contact not found'));
 
   @override
   Future<Contact> createContact(Map<String, dynamic> contactData) async =>
       mockContact ??
       Contact(
-        localId: 1,
+        id: '1',
         type: contactData['type'] ?? 'borrower',
         name: contactData['name'] ?? 'Test',
         libraryOwnerId: 1,
@@ -117,19 +106,19 @@ class MockContactRepository implements ContactRepository {
 
   @override
   Future<Contact> updateContact(
-    int localId,
+    String uuid,
     Map<String, dynamic> contactData,
   ) async =>
       mockContact ??
       Contact(
-        localId: localId,
+        id: uuid,
         type: contactData['type'] ?? 'borrower',
         name: contactData['name'] ?? 'Updated',
         libraryOwnerId: 1,
       );
 
   @override
-  Future<void> deleteContact(String uuid, {int? localId}) async {}
+  Future<void> deleteContact(String uuid) async {}
 }
 
 class MockCollectionRepository implements CollectionRepository {
@@ -140,12 +129,12 @@ class MockCollectionRepository implements CollectionRepository {
   Future<List<Collection>> getCollections() async => mockCollections;
 
   @override
-  Future<List<Collection>> getBookCollections(int bookId) async =>
+  Future<List<Collection>> getBookCollections(String bookId) async =>
       mockCollections;
 
   @override
   Future<void> updateBookCollections(
-    int bookId,
+    String bookId,
     List<String> collectionIds,
   ) async {}
 
@@ -166,7 +155,7 @@ class MockCollectionRepository implements CollectionRepository {
   Future<void> deleteCollection(String id) async {}
 
   @override
-  Future<List<int>> deleteCollectionWithBooks(String id) async => const [];
+  Future<List<String>> deleteCollectionWithBooks(String id) async => const [];
 
   @override
   Future<CollectionDeletionPreview> getDeletionPreview(String id) async =>
@@ -177,12 +166,12 @@ class MockCollectionRepository implements CollectionRepository {
       mockCollectionBooks;
 
   @override
-  Future<void> addBookToCollection(String collectionId, int bookId) async {}
+  Future<void> addBookToCollection(String collectionId, String bookId) async {}
 
   @override
   Future<void> removeBookFromCollection(
     String collectionId,
-    int bookId,
+    String bookId,
   ) async {}
 }
 
@@ -192,10 +181,10 @@ class MockCopyRepository implements CopyRepository {
   final List<Map<String, dynamic>> createdCopies = [];
 
   @override
-  Future<List<Copy>> getBookCopies(int bookId) async => mockCopies;
+  Future<List<Copy>> getBookCopies(String bookId) async => mockCopies;
 
   @override
-  Future<Copy> getCopy(int copyId) async =>
+  Future<Copy> getCopy(String copyId) async =>
       mockCopy ?? (throw Exception('Copy not found'));
 
   @override
@@ -203,18 +192,18 @@ class MockCopyRepository implements CopyRepository {
     createdCopies.add(Map<String, dynamic>.from(copyData));
     return mockCopy ??
         Copy(
-          id: 1,
-          bookId: copyData['book_id'] as int,
+          id: '1',
+          bookId: copyData['book_id'].toString(),
           libraryId: copyData['library_id'] as int? ?? 1,
         );
   }
 
   @override
-  Future<Copy> updateCopy(int copyId, Map<String, dynamic> data) async =>
-      mockCopy ?? Copy(id: copyId, bookId: 1, libraryId: 1);
+  Future<Copy> updateCopy(String copyId, Map<String, dynamic> data) async =>
+      mockCopy ?? Copy(id: copyId, bookId: '1', libraryId: 1);
 
   @override
-  Future<void> deleteCopy(int copyId) async {}
+  Future<void> deleteCopy(String copyId) async {}
 }
 
 class MockLoanRepository implements LoanRepository {
@@ -227,9 +216,9 @@ class MockLoanRepository implements LoanRepository {
 
   @override
   Future<Loan> createLoan(Map<String, dynamic> loanData) async => Loan(
-    localId: 1,
-    copyId: loanData['copy_id'] as int,
-    contactId: loanData['contact_id'] as int,
+    id: '1',
+    copyId: loanData['copy_id'].toString(),
+    contactId: loanData['contact_id'].toString(),
     libraryId: loanData['library_id'] as int? ?? 1,
     loanDate: loanData['loan_date'] as String,
     dueDate: loanData['due_date'] as String,

@@ -8,7 +8,7 @@ import '../services/translation_service.dart';
 import '../providers/theme_provider.dart';
 
 class BookCopiesScreen extends StatefulWidget {
-  final int bookId;
+  final String bookId;
   final String bookTitle;
 
   const BookCopiesScreen({
@@ -103,7 +103,7 @@ class _BookCopiesScreenState extends State<BookCopiesScreen>
     }
   }
 
-  Future<void> _deleteCopy(int copyId) async {
+  Future<void> _deleteCopy(String copyId) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => _StandardDeleteDialog(),
@@ -479,7 +479,7 @@ class _BookCopiesScreenState extends State<BookCopiesScreen>
 class _WoodenShelf extends StatelessWidget {
   final List<Copy> copies;
   final int shelfIndex;
-  final Function(int) onDelete;
+  final Function(String) onDelete;
   final Function(Copy) onEdit;
 
   const _WoodenShelf({
@@ -558,7 +558,7 @@ class _Book3DState extends State<_Book3D> {
       [const Color(0xFF4A0E4E), const Color(0xFF2A0830)], // Purple
       [const Color(0xFF8B4513), const Color(0xFF5D2E0C)], // Saddle brown
     ];
-    return colors[(widget.copy.id ?? 0) % colors.length];
+    return colors[(widget.copy.id?.hashCode ?? 0).abs() % colors.length];
   }
 
   IconData get _statusIcon {
@@ -1337,7 +1337,7 @@ class _VintageAddCopySheetState extends State<_VintageAddCopySheet> {
 }
 
 class _StandardAddCopySheet extends StatefulWidget {
-  final int bookId;
+  final String bookId;
   final Copy? existingCopy;
   const _StandardAddCopySheet({required this.bookId, this.existingCopy});
 

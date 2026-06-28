@@ -446,7 +446,7 @@ class _ScanScreenState extends State<ScanScreen> {
       try {
         if (book.isNew) {
           final createdBook = await bookRepo.createBook(book.bookPayload!);
-          final bookLocalId = createdBook.localId;
+          final bookLocalId = createdBook.id;
 
           if (bookLocalId != null && widget.preSelectedCollectionId != null) {
             try {
@@ -461,7 +461,7 @@ class _ScanScreenState extends State<ScanScreen> {
         } else if (book.existingBook != null) {
           final existing = book.existingBook!;
           final bookId = existing.id; // uuid (identity)
-          final bookLocalId = existing.localId; // int (collection, copies)
+          final bookLocalId = existing.id; // uuid (collection, copies)
 
           // Add shelf tag if pre-selected
           if (widget.preSelectedShelfId != null && bookId != null) {
@@ -472,7 +472,6 @@ class _ScanScreenState extends State<ScanScreen> {
               await bookRepo.updateBook(
                 bookId,
                 {'subjects': newSubjects},
-                localId: bookLocalId,
               );
             }
           }

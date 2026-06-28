@@ -710,7 +710,7 @@ class _ShelfManagementScreenState extends State<ShelfManagementScreen> {
   }
 
   // CRUD Operations
-  Future<void> _createTag(String name, int? parentId) async {
+  Future<void> _createTag(String name, String? parentId) async {
     try {
       final api = Provider.of<TagRepository>(context, listen: false);
       await api.createTag(name, parentId: parentId);
@@ -724,13 +724,14 @@ class _ShelfManagementScreenState extends State<ShelfManagementScreen> {
     }
   }
 
-  Future<void> _updateTag(int id, String name, int? parentId) async {
+  Future<void> _updateTag(String id, String name, String? parentId) async {
     try {
       final api = Provider.of<TagRepository>(context, listen: false);
 
-      // Legacy tags have negative IDs - they exist in book subjects but not in tags table
-      // Create the tag in DB, then rename subjects in books if name changed
-      if (id < 0) {
+      // Synthetic (subject-derived) tags have an empty uuid - they exist in book
+      // subjects but not in the tags table. Create the tag in DB, then rename
+      // subjects in books if name changed.
+      if (id.isEmpty) {
         final originalTag = _allTags.firstWhere((t) => t.id == id);
         // Create with the OLD name first (so subjects match)
         final created = await api.createTag(
@@ -773,7 +774,7 @@ class _ShelfManagementScreenState extends State<ShelfManagementScreen> {
       final api = Provider.of<TagRepository>(context, listen: false);
 
       // Legacy tags (ID < 0) don't exist in DB - only skip if needed
-      if (tag.id < 0) {
+      if (tag.id.isEmpty) {
         _showSuccess(
           TranslationService.translate(context, 'shelf_deleted') ??
               'Shelf deleted',
@@ -802,7 +803,7 @@ class _ShelfManagementScreenState extends State<ShelfManagementScreen> {
   }
 
   Future<void> _deleteTagRecursive(Tag tag) async {
-    if (tag.id < 0) return; // Skip legacy tags
+    if (tag.id.isEmpty) return; // Skip legacy (synthetic) tags
     final api = Provider.of<TagRepository>(context, listen: false);
     final children = Tag.getDirectChildren(tag.id, _allTags);
     for (final child in children) {

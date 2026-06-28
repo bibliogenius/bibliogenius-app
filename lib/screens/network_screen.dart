@@ -1021,7 +1021,7 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
       final contactUuid = member.contactUuid;
       if (contactUuid == null) return;
       try {
-        await contactRepo.deleteContact(contactUuid, localId: member.id);
+        await contactRepo.deleteContact(contactUuid);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

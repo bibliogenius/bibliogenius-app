@@ -11,17 +11,17 @@ class BookNoteProvider extends ChangeNotifier {
   final FfiService _ffi = FfiService();
 
   List<BookNote> _notes = [];
-  int? _currentBookId;
+  String? _currentBookId;
   bool _isLoading = false;
   String? _error;
 
   List<BookNote> get notes => _notes;
-  int? get currentBookId => _currentBookId;
+  String? get currentBookId => _currentBookId;
   bool get isLoading => _isLoading;
   String? get error => _error;
 
   /// Load all notes for the given book.
-  Future<void> loadNotes(int bookId) async {
+  Future<void> loadNotes(String bookId) async {
     _currentBookId = bookId;
     _isLoading = true;
     _error = null;

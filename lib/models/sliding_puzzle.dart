@@ -8,7 +8,7 @@ library;
 
 /// A generated sliding puzzle board ready to play.
 class PuzzleBoard {
-  final int bookId;
+  final String bookId;
   final String title;
   final String coverUrl;
   final int gridSize;
@@ -28,7 +28,7 @@ class PuzzleBoard {
 
   factory PuzzleBoard.fromJson(Map<String, dynamic> json) {
     return PuzzleBoard(
-      bookId: json['book_id'] as int,
+      bookId: json['book_id'].toString(),
       title: json['title'] as String? ?? '',
       coverUrl: json['cover_url'] as String? ?? '',
       gridSize: (json['grid_size'] as num?)?.toInt() ?? 3,

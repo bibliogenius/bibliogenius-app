@@ -452,7 +452,7 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
               );
               if (result != null && context.mounted) {
                 if (onBookAdded != null) onBookAdded!();
-                if (result is int) {
+                if (result is String) {
                   context.push('/books/$result');
                 }
               }

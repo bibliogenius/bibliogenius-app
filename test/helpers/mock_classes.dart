@@ -56,12 +56,12 @@ class MockApiService extends ApiService {
     return Response(
       requestOptions: RequestOptions(path: '/api/books'),
       statusCode: 201,
-      data: {'id': 123, 'title': bookData['title']},
+      data: {'id': '123', 'title': bookData['title']},
     );
   }
 
   @override
-  Future<void> addBookToCollection(String collectionId, int bookId) async {
+  Future<void> addBookToCollection(String collectionId, String bookId) async {
     lookups.add('addBookToCollection:$collectionId:$bookId');
   }
 
@@ -72,14 +72,14 @@ class MockApiService extends ApiService {
       requestOptions: RequestOptions(path: '/api/copies'),
       statusCode: 201,
       data: {
-        'copy': {'id': 456, ...copyData},
+        'copy': {'id': '456', ...copyData},
         'message': 'Copy created',
       },
     );
   }
 
   @override
-  Future<Response> getBookCopies(int bookId) async {
+  Future<Response> getBookCopies(String bookId) async {
     lookups.add('getBookCopies:$bookId');
     return Response(
       requestOptions: RequestOptions(path: '/api/books/$bookId/copies'),

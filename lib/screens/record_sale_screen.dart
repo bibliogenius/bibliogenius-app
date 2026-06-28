@@ -204,7 +204,7 @@ class _RecordSaleScreenState extends State<RecordSaleScreen> {
       await apiService.recordSale(
         copyId: _selectedCopy!.id!,
         salePrice: price,
-        contactId: _selectedContact?.localId,
+        contactId: _selectedContact?.id,
         notes: _notesController.text.isEmpty ? null : _notesController.text,
       );
 

@@ -186,7 +186,7 @@ class _HierarchicalTagSelectorState extends State<HierarchicalTagSelector> {
 
 class _ShelfPickerSheet extends StatefulWidget {
   final List<Tag> allTags;
-  final Set<int> initialSelectedIds;
+  final Set<String> initialSelectedIds;
 
   const _ShelfPickerSheet({
     required this.allTags,
@@ -198,7 +198,7 @@ class _ShelfPickerSheet extends StatefulWidget {
 }
 
 class _ShelfPickerSheetState extends State<_ShelfPickerSheet> {
-  late Set<int> _selectedIds;
+  late Set<String> _selectedIds;
   late List<Tag> _tags;
   String _searchQuery = '';
   bool _isCreating = false;
@@ -534,7 +534,7 @@ class _ShelfPickerSheetState extends State<_ShelfPickerSheet> {
                         : theme.colorScheme.onSurfaceVariant,
                   ),
                   itemBuilder: (context) {
-                    final validParents = _tags.where((t) => t.id > 0).toList();
+                    final validParents = _tags.where((t) => t.id.isNotEmpty).toList();
                     return [
                       PopupMenuItem<Tag?>(
                         value: null,

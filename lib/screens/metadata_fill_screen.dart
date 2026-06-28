@@ -842,7 +842,7 @@ class _MetadataFillScreenState extends State<MetadataFillScreen>
 
   // ── Per-book changes sheet ────────────────────────────────────────────────
 
-  void _showBookChanges(int bookId) {
+  void _showBookChanges(String bookId) {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -988,7 +988,7 @@ class _MetadataFillScreenState extends State<MetadataFillScreen>
     await provider.start(languages, lotLimit: batch);
   }
 
-  Future<void> _openBookEditor(int bookId) async {
+  Future<void> _openBookEditor(String bookId) async {
     await context.push('/books/$bookId');
     if (!mounted) return;
     await context.read<MetadataFillProvider>().refreshAfterManualEdit();
@@ -997,7 +997,7 @@ class _MetadataFillScreenState extends State<MetadataFillScreen>
   Future<void> _undoBook(
     MetadataFillProvider provider,
     String batchId,
-    int bookId,
+    String bookId,
   ) async {
     final reverted = await provider.undoBook(batchId, bookId);
     if (!mounted) return;

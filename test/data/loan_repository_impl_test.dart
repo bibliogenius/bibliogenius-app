@@ -55,8 +55,8 @@ void main() {
       final result = await repo.getBorrowedCopies();
 
       expect(result.length, 2);
-      expect(result[0].id, 1);
-      expect(result[0].bookId, 10);
+      expect(result[0].id, '1');
+      expect(result[0].bookId, '10');
       expect(result[1].borrowSource, 'peer');
     });
 
@@ -72,7 +72,7 @@ void main() {
       ];
       final result = await repo.getBorrowedCopies();
       expect(result.length, 1);
-      expect(result.first.id, 5);
+      expect(result.first.id, '5');
     });
 
     test('tolerates missing library_id in payload', () async {

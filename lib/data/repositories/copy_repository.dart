@@ -1,13 +1,13 @@
 import '../../models/copy.dart';
 
 abstract class CopyRepository {
-  Future<List<Copy>> getBookCopies(int bookId);
+  Future<List<Copy>> getBookCopies(String bookId);
 
-  Future<Copy> getCopy(int copyId);
+  Future<Copy> getCopy(String copyId);
 
   Future<Copy> createCopy(Map<String, dynamic> copyData);
 
-  Future<Copy> updateCopy(int copyId, Map<String, dynamic> data);
+  Future<Copy> updateCopy(String copyId, Map<String, dynamic> data);
 
-  Future<void> deleteCopy(int copyId);
+  Future<void> deleteCopy(String copyId);
 }

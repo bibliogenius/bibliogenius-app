@@ -10,7 +10,7 @@ import '../widgets/speech_note_button.dart';
 
 /// Dedicated screen showing all reading notes for a book.
 class BookNotesScreen extends StatefulWidget {
-  final int bookId;
+  final String bookId;
   final String bookTitle;
 
   const BookNotesScreen({

@@ -79,7 +79,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
   // Copy availability management
   String _copyStatus = 'available';
-  int? _copyId;
+  String? _copyId;
   bool _owned = true; // Whether I own this book (controls copy creation)
   bool _private = false; // Whether this book is hidden from network peers
   Set<String> _highlightedFields = {};
@@ -182,7 +182,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
         listen: false,
       );
       final collections = await collectionRepo.getBookCollections(
-        widget.book.localId!,
+        widget.book.id!,
       );
       if (mounted) {
         setState(() {
@@ -247,10 +247,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
   Future<void> _loadCopyStatus() async {
     // ... existing implementation
-    if (widget.book.localId == null) return;
+    if (widget.book.id == null) return;
     try {
       final copyRepo = Provider.of<CopyRepository>(context, listen: false);
-      final copies = await copyRepo.getBookCopies(widget.book.localId!);
+      final copies = await copyRepo.getBookCopies(widget.book.id!);
       if (copies.isNotEmpty) {
         final firstCopy = copies.first;
         setState(() {
@@ -495,7 +495,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
       final copyRepo = Provider.of<CopyRepository>(context, listen: false);
       if (!_owned) {
         try {
-          final copies = await copyRepo.getBookCopies(widget.book.localId!);
+          final copies = await copyRepo.getBookCopies(widget.book.id!);
           for (var copy in copies) {
             if (copy.id != null) {
               await copyRepo.deleteCopy(copy.id!);
@@ -522,7 +522,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
           listen: false,
         );
         await collectionRepo.updateBookCollections(
-          widget.book.localId!,
+          widget.book.id!,
           _selectedCollections.map((c) => c.id).toList(),
         );
       }
@@ -1455,7 +1455,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
   Future<void> _takePhoto() async {
     try {
       final path = await CoverCameraHelper.takePhotoAndSave(
-        bookId: widget.book.localId,
+        bookId: widget.book.id,
       );
       if (path == null || !mounted) return;
 
@@ -1498,7 +1498,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
   Future<void> _pickCoverFromFile() async {
     try {
       final targetPath = await CoverCameraHelper.pickFromGalleryAndSave(
-        bookId: widget.book.localId,
+        bookId: widget.book.id,
       );
       if (targetPath == null) return;
 

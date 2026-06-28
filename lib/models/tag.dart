@@ -1,18 +1,18 @@
 class Tag {
-  final int id;
+  /// Cross-device stable identity (the tag's uuid). Empty for synthetic legacy
+  /// (subject-derived) tags that have no `tags` row.
+  final String id;
 
-  /// Stable cross-device identifier. Backend-owned; null for synthetic
-  /// legacy (subject-derived) tags that have no `tags` row. Read-only client side.
-  final String? uuid;
+  /// Backwards-compatible alias: the uuid is now the primary [id].
+  String get uuid => id;
   final String name;
-  final int? parentId;
+  final String? parentId;
   final String path;
   final int count;
   final List<Tag> children;
 
   Tag({
     required this.id,
-    this.uuid,
     required this.name,
     this.parentId,
     this.path = '',
@@ -22,10 +22,9 @@ class Tag {
 
   factory Tag.fromJson(Map<String, dynamic> json) {
     return Tag(
-      id: json['id'] as int? ?? 0,
-      uuid: json['uuid'] as String?,
+      id: (json['uuid'] ?? json['id'])?.toString() ?? '',
       name: json['name'] as String,
-      parentId: json['parent_id'] as int?,
+      parentId: json['parent_id']?.toString(),
       path: json['path'] as String? ?? '',
       count: json['count'] as int? ?? 0,
       children:
@@ -52,11 +51,14 @@ class Tag {
   /// Check if this is a root tag (no parent)
   bool get isRoot => parentId == null;
 
+  /// Whether this tag is backed by a real `tags` row (has a uuid), as opposed
+  /// to a synthetic subject-derived entry.
+  bool get isPersisted => id.isNotEmpty;
+
   /// Create a copy with updated children (for tree building)
   Tag copyWithChildren(List<Tag> newChildren) {
     return Tag(
       id: id,
-      uuid: uuid,
       name: name,
       parentId: parentId,
       path: path,
@@ -67,11 +69,11 @@ class Tag {
 
   /// Get all descendant IDs (children, grandchildren, etc.) for this tag
   /// Requires a flat list of all tags to traverse the hierarchy
-  static Set<int> getDescendantIds(int tagId, List<Tag> allTags) {
-    final descendants = <int>{};
-    void collectChildren(int parentId) {
+  static Set<String> getDescendantIds(String tagId, List<Tag> allTags) {
+    final descendants = <String>{};
+    void collectChildren(String parentId) {
       for (final tag in allTags) {
-        if (tag.parentId == parentId && tag.id > 0) {
+        if (tag.parentId == parentId && tag.id.isNotEmpty) {
           descendants.add(tag.id);
           collectChildren(tag.id);
         }
@@ -117,7 +119,7 @@ class Tag {
   }
 
   /// Get direct children of a tag
-  static List<Tag> getDirectChildren(int tagId, List<Tag> allTags) {
+  static List<Tag> getDirectChildren(String tagId, List<Tag> allTags) {
     return allTags.where((t) => t.parentId == tagId).toList();
   }
 }

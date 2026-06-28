@@ -14,16 +14,14 @@ import 'package:path_provider/path_provider.dart';
 /// survives an update while custom covers vanish: only the cover path was
 /// frozen as an absolute string.
 ///
-/// A device's own custom covers are always named `<bookId>.jpg` in `covers/`
-/// (see `CoverCameraHelper`). We therefore re-base using the CURRENT book id,
-/// not the stored basename. This is critical for cross-device safety: a book
-/// synced from another device (ADR-011) carries that device's raw absolute
-/// path with the SOURCE device's id in the basename, but is inserted under a
-/// fresh local id here. Re-basing by the stored basename could then map it
-/// onto an unrelated local cover with the same numeric name. Guarding on
-/// `basename == '<bookId>.jpg'` rebases only this device's own canonical
-/// cover; any foreign path is returned untouched (its file is absent locally,
-/// so the caller shows a placeholder — never a wrong cover).
+/// A device's own custom covers are always named `<bookId>.jpg` in `covers/`,
+/// where `bookId` is the book's cross-device-stable uuid (see
+/// `CoverCameraHelper`). We therefore re-base using the book's uuid, not the
+/// stored basename. Guarding on `basename == '<bookId>.jpg'` rebases only this
+/// device's own canonical cover; any foreign path is returned untouched (its
+/// file is absent locally, so the caller shows a placeholder — never a wrong
+/// cover). Because the uuid is globally unique, a cover synced from another
+/// device can never be mapped onto an unrelated local cover.
 ///
 /// On macOS/Android the support directory is keyed by a fixed bundle id, so
 /// re-basing yields the identical path: no behavior change there.
@@ -58,7 +56,7 @@ class LocalCoverResolver {
   /// directory is known, and the stored basename is exactly `<bookId>.jpg`
   /// (this device's own canonical cover). Every other value is returned
   /// untouched so a foreign device's path is never mapped onto a local cover.
-  static String resolve(String storedPath, {int? bookId}) {
+  static String resolve(String storedPath, {String? bookId}) {
     if (storedPath.isEmpty) return storedPath;
     if (storedPath.startsWith('http') || storedPath.startsWith('/api')) {
       return storedPath;

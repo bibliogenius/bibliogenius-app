@@ -29,7 +29,7 @@ import 'audio_player_widget.dart';
 /// )
 /// ```
 class AudioSection extends StatefulWidget {
-  final int bookId;
+  final String bookId;
   final String bookTitle;
   final String? bookAuthor;
 

@@ -44,7 +44,7 @@ class AudiobookService {
   /// full language name (e.g., 'French', 'English'). When set, LibriVox results
   /// will be filtered to prioritize audiobooks in that language.
   Future<AudioResource?> searchByTitleAndAuthor({
-    required int bookId,
+    required String bookId,
     required String title,
     String? author,
     String? preferredLanguage,
@@ -127,7 +127,7 @@ class AudiobookService {
   /// if any language is French, and always searches Internet Archive as fallback.
   /// Results are deduplicated by sourceId.
   Future<List<AudioResource>> searchAllLanguages({
-    required int bookId,
+    required String bookId,
     required String title,
     String? author,
     required List<String> languages,
@@ -199,7 +199,7 @@ class AudiobookService {
 
   /// Search LibriVox API
   Future<AudioResource?> _searchLibriVox(
-    int bookId,
+    String bookId,
     String title,
     String? author, {
     String? preferredLanguage,
@@ -317,7 +317,7 @@ class AudiobookService {
 
   Future<AudioResource?> _parseLibriVoxResponse(
     dynamic data,
-    int bookId,
+    String bookId,
     String title, {
     String? preferredLanguage,
   }) async {
@@ -505,7 +505,7 @@ class AudiobookService {
 
   /// Search Litteratureaudio.com WordPress API
   Future<AudioResource?> _searchLitteratureAudio(
-    int bookId,
+    String bookId,
     String title,
     String? author,
   ) async {
@@ -578,7 +578,7 @@ class AudiobookService {
   /// [languages] optional list of ISO 639-1 codes to filter results.
   /// When provided, builds a language filter (e.g. `language:(English OR French)`).
   Future<AudioResource?> _searchInternetArchive(
-    int bookId,
+    String bookId,
     String title,
     String? author, {
     List<String>? languages,

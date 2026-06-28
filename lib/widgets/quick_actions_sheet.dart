@@ -97,7 +97,7 @@ class QuickActionsSheet extends StatelessWidget {
                     '/books/add',
                     extra: extra.isNotEmpty ? extra : null,
                   );
-                  if (result is int) {
+                  if (result is String) {
                     router.push('/books/$result');
                   }
                 },
@@ -185,7 +185,7 @@ class QuickActionsSheet extends StatelessWidget {
                       );
                       if (result != null) {
                         if (onBookAdded != null) onBookAdded!();
-                        if (result is int) {
+                        if (result is String) {
                           router.push('/books/$result');
                         }
                       }
@@ -402,7 +402,7 @@ class QuickActionsSheet extends StatelessWidget {
     final controller = TextEditingController();
     final formKey = GlobalKey<FormState>();
     final api = Provider.of<TagRepository>(context, listen: false);
-    int? selectedParentId;
+    String? selectedParentId;
 
     showDialog(
       context: context,
@@ -459,7 +459,7 @@ class QuickActionsSheet extends StatelessWidget {
                         if (AppConstants.enableHierarchicalTags &&
                             shelves.isNotEmpty) ...[
                           const SizedBox(height: 16),
-                          DropdownButtonFormField<int?>(
+                          DropdownButtonFormField<String?>(
                             value: selectedParentId,
                             decoration: InputDecoration(
                               labelText:
@@ -471,7 +471,7 @@ class QuickActionsSheet extends StatelessWidget {
                               border: const OutlineInputBorder(),
                             ),
                             items: [
-                              DropdownMenuItem<int?>(
+                              DropdownMenuItem<String?>(
                                 value: null,
                                 child: Text(
                                   TranslationService.translate(
@@ -483,7 +483,7 @@ class QuickActionsSheet extends StatelessWidget {
                               ),
                               ...shelves.map((shelf) {
                                 final name = shelf.fullPath ?? shelf.name;
-                                return DropdownMenuItem<int?>(
+                                return DropdownMenuItem<String?>(
                                   value: shelf.id,
                                   child: Text(
                                     name,

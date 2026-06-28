@@ -711,7 +711,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
     );
   }
 
-  Future<void> _updateShelf(int id, String name, {int? parentId}) async {
+  Future<void> _updateShelf(String id, String name, {String? parentId}) async {
     try {
       final api = Provider.of<TagRepository>(context, listen: false);
       // The tag is addressed by its uuid, resolved from the loaded list by its
@@ -1109,7 +1109,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
   }
 
   // Methods for direct shelf creation (copied/adapted from ShelfManagementScreen)
-  Future<void> _createShelf(String name, {int? parentId}) async {
+  Future<void> _createShelf(String name, {String? parentId}) async {
     try {
       final api = Provider.of<TagRepository>(context, listen: false);
       await api.createTag(name, parentId: parentId);

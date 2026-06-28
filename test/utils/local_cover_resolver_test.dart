@@ -8,25 +8,25 @@ void main() {
     test('passes non-local values through unchanged', () {
       LocalCoverResolver.coversDirPathForTest = '/now/covers';
       expect(
-        LocalCoverResolver.resolve('https://cdn/x.jpg', bookId: 42),
+        LocalCoverResolver.resolve('https://cdn/x.jpg', bookId: '42'),
         'https://cdn/x.jpg',
       );
       expect(
-        LocalCoverResolver.resolve('http://cdn/x.jpg', bookId: 42),
+        LocalCoverResolver.resolve('http://cdn/x.jpg', bookId: '42'),
         'http://cdn/x.jpg',
       );
       expect(
-        LocalCoverResolver.resolve('/api/books/1/cover', bookId: 1),
+        LocalCoverResolver.resolve('/api/books/1/cover', bookId: '1'),
         '/api/books/1/cover',
       );
-      expect(LocalCoverResolver.resolve('', bookId: 42), '');
+      expect(LocalCoverResolver.resolve('', bookId: '42'), '');
     });
 
     test('returns the stored path untouched when covers dir is unknown', () {
       LocalCoverResolver.resetForTest();
       const stored =
           '/var/mobile/Containers/Data/Application/OLD-UUID/Library/Application Support/covers/42.jpg';
-      expect(LocalCoverResolver.resolve(stored, bookId: 42), stored);
+      expect(LocalCoverResolver.resolve(stored, bookId: '42'), stored);
     });
 
     test('returns the stored path untouched when bookId is unknown', () {
@@ -41,7 +41,7 @@ void main() {
       const stored =
           '/var/mobile/Containers/Data/Application/OLD-UUID/Library/Application Support/covers/42.jpg';
       expect(
-        LocalCoverResolver.resolve(stored, bookId: 42),
+        LocalCoverResolver.resolve(stored, bookId: '42'),
         '/var/mobile/Containers/Data/Application/NEW-UUID/Library/Application Support/covers/42.jpg',
       );
     });
@@ -53,19 +53,19 @@ void main() {
         // inserted under this device's local id 87. Must NOT map onto 87.jpg.
         LocalCoverResolver.coversDirPathForTest = '/now/covers';
         const stored = '/var/mobile/.../Application Support/covers/42.jpg';
-        expect(LocalCoverResolver.resolve(stored, bookId: 87), stored);
+        expect(LocalCoverResolver.resolve(stored, bookId: '87'), stored);
       },
     );
 
     test('is a no-op when the stored path already lives in the current covers dir', () {
       LocalCoverResolver.coversDirPathForTest = '/Users/x/Application Support/covers';
       const stored = '/Users/x/Application Support/covers/7.jpg';
-      expect(LocalCoverResolver.resolve(stored, bookId: 7), stored);
+      expect(LocalCoverResolver.resolve(stored, bookId: '7'), stored);
     });
 
     test('rebases a bare basename that matches the bookId', () {
       LocalCoverResolver.coversDirPathForTest = '/now/covers';
-      expect(LocalCoverResolver.resolve('42.jpg', bookId: 42), '/now/covers/42.jpg');
+      expect(LocalCoverResolver.resolve('42.jpg', bookId: '42'), '/now/covers/42.jpg');
     });
   });
 }

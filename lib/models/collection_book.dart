@@ -1,5 +1,5 @@
 class CollectionBook {
-  final int bookId;
+  final String bookId;
   final String title;
   final String? author;
   final String? coverUrl;
@@ -21,7 +21,7 @@ class CollectionBook {
 
   factory CollectionBook.fromJson(Map<String, dynamic> json) {
     return CollectionBook(
-      bookId: json['book_id'],
+      bookId: json['book_id'].toString(),
       title: json['title'],
       author: json['author'],
       coverUrl: json['cover_url'],

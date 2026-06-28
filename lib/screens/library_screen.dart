@@ -306,7 +306,7 @@ class _LibraryScreenState extends State<LibraryScreen>
                         );
                         if (result != null && mounted) {
                           _refreshNotifier.value++;
-                          if (result is int) {
+                          if (result is String) {
                             router.push('/books/$result');
                           }
                         }
@@ -336,7 +336,7 @@ class _LibraryScreenState extends State<LibraryScreen>
                       );
                       if (result != null && mounted) {
                         _refreshNotifier.value++;
-                        if (result is int) {
+                        if (result is String) {
                           router.push('/books/$result');
                         }
                       }

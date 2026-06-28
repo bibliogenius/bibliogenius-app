@@ -590,7 +590,7 @@ class _BookListScreenState extends State<BookListScreen>
                           );
                           if (result != null && mounted) {
                             _fetchBooks();
-                            if (result is int) {
+                            if (result is String) {
                               router.push('/books/$result');
                             }
                           }
@@ -734,7 +734,7 @@ class _BookListScreenState extends State<BookListScreen>
       );
       if (result != null && mounted) {
         _fetchBooks();
-        if (result is int) {
+        if (result is String) {
           router.push('/books/$result');
         }
       }
@@ -749,7 +749,7 @@ class _BookListScreenState extends State<BookListScreen>
     );
     if (result != null) {
       _handleRefreshTrigger(); // Use central refresh trigger
-      if (result is int) {
+      if (result is String) {
         router.push('/books/$result');
       }
     }
@@ -930,7 +930,7 @@ class _BookListScreenState extends State<BookListScreen>
       final collections = await collectionRepo.getCollections();
 
       // Build a bookId -> Collection map (first collection wins for each book).
-      final Map<int, Collection> bookToCollection = {};
+      final Map<String, Collection> bookToCollection = {};
       for (final collection in collections) {
         final collectionBooks = await collectionRepo.getCollectionBooks(
           collection.id,
@@ -2489,7 +2489,7 @@ class _BookListScreenState extends State<BookListScreen>
     setState(() => _isLoading = true);
     final bookRepo = Provider.of<BookRepository>(context, listen: false);
     try {
-      final ids = _filteredBooks.map((b) => b.localId!).toList();
+      final ids = _filteredBooks.map((b) => b.id!).toList();
       await bookRepo.reorderBooks(ids);
 
       setState(() {

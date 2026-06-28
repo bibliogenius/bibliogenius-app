@@ -5,9 +5,9 @@ import '../../models/collection_deletion_preview.dart';
 abstract class CollectionRepository {
   Future<List<Collection>> getCollections();
 
-  Future<List<Collection>> getBookCollections(int bookId);
+  Future<List<Collection>> getBookCollections(String bookId);
 
-  Future<void> updateBookCollections(int bookId, List<String> collectionIds);
+  Future<void> updateBookCollections(String bookId, List<String> collectionIds);
 
   Future<Collection> createCollection(String name, {String? description});
 
@@ -17,14 +17,14 @@ abstract class CollectionRepository {
   /// Delete the collection along with eligible books (no loaned/borrowed
   /// copy, not in another collection, on no shelf). Returns the IDs of
   /// books that were actually removed.
-  Future<List<int>> deleteCollectionWithBooks(String id);
+  Future<List<String>> deleteCollectionWithBooks(String id);
 
   /// Counts shown in the confirmation dialog before deleting with books.
   Future<CollectionDeletionPreview> getDeletionPreview(String id);
 
   Future<List<CollectionBook>> getCollectionBooks(String id);
 
-  Future<void> addBookToCollection(String collectionId, int bookId);
+  Future<void> addBookToCollection(String collectionId, String bookId);
 
-  Future<void> removeBookFromCollection(String collectionId, int bookId);
+  Future<void> removeBookFromCollection(String collectionId, String bookId);
 }

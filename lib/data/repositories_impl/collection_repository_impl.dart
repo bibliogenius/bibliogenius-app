@@ -13,11 +13,11 @@ class CollectionRepositoryImpl implements CollectionRepository {
   Future<List<Collection>> getCollections() => _ffi.getCollections();
 
   @override
-  Future<List<Collection>> getBookCollections(int bookId) =>
+  Future<List<Collection>> getBookCollections(String bookId) =>
       _ffi.getBookCollections(bookId);
 
   @override
-  Future<void> updateBookCollections(int bookId, List<String> collectionIds) =>
+  Future<void> updateBookCollections(String bookId, List<String> collectionIds) =>
       _ffi.updateBookCollections(bookId, collectionIds);
 
   @override
@@ -28,7 +28,7 @@ class CollectionRepositoryImpl implements CollectionRepository {
   Future<void> deleteCollection(String id) => _ffi.deleteCollection(id);
 
   @override
-  Future<List<int>> deleteCollectionWithBooks(String id) =>
+  Future<List<String>> deleteCollectionWithBooks(String id) =>
       _ffi.deleteCollectionWithBooks(id);
 
   @override
@@ -40,10 +40,10 @@ class CollectionRepositoryImpl implements CollectionRepository {
       _ffi.getCollectionBooks(id);
 
   @override
-  Future<void> addBookToCollection(String collectionId, int bookId) =>
+  Future<void> addBookToCollection(String collectionId, String bookId) =>
       _ffi.addBookToCollection(collectionId, bookId);
 
   @override
-  Future<void> removeBookFromCollection(String collectionId, int bookId) =>
+  Future<void> removeBookFromCollection(String collectionId, String bookId) =>
       _ffi.removeBookFromCollection(collectionId, bookId);
 }

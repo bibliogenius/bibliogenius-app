@@ -8,7 +8,7 @@ class CopyRepositoryImpl implements CopyRepository {
   CopyRepositoryImpl(this._apiService);
 
   @override
-  Future<List<Copy>> getBookCopies(int bookId) async {
+  Future<List<Copy>> getBookCopies(String bookId) async {
     final response = await _apiService.getBookCopies(bookId);
     if (response.statusCode == 200 && response.data != null) {
       final data = response.data;
@@ -28,7 +28,7 @@ class CopyRepositoryImpl implements CopyRepository {
   }
 
   @override
-  Future<Copy> getCopy(int copyId) async {
+  Future<Copy> getCopy(String copyId) async {
     final response = await _apiService.getCopy(copyId);
     if (response.statusCode == 200 && response.data != null) {
       final data = response.data;
@@ -60,7 +60,7 @@ class CopyRepositoryImpl implements CopyRepository {
   }
 
   @override
-  Future<Copy> updateCopy(int copyId, Map<String, dynamic> data) async {
+  Future<Copy> updateCopy(String copyId, Map<String, dynamic> data) async {
     final response = await _apiService.updateCopy(copyId, data);
     if (response.statusCode == 200 && response.data != null) {
       final responseData = response.data;
@@ -76,7 +76,7 @@ class CopyRepositoryImpl implements CopyRepository {
   }
 
   @override
-  Future<void> deleteCopy(int copyId) async {
+  Future<void> deleteCopy(String copyId) async {
     final response = await _apiService.deleteCopy(copyId);
     if (response.statusCode != 200) {
       throw Exception('Failed to delete copy (status: ${response.statusCode})');

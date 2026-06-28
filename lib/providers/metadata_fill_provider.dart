@@ -211,7 +211,7 @@ class MetadataFillProvider extends ChangeNotifier {
   /// Undo all fields the fill added to one book (the per-book undo button).
   /// Returns how many fields were actually reverted (fields the user re-edited
   /// are left intact and not counted).
-  Future<int> undoBook(String batchId, int bookId) async {
+  Future<int> undoBook(String batchId, String bookId) async {
     int reverted = 0;
     try {
       reverted = await _ffi.metadataFillUndoBook(batchId, bookId);
