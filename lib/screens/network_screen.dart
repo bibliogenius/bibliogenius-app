@@ -1017,8 +1017,11 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
       ),
     );
     if (confirm == true) {
+      // Only local contacts carry a uuid and are deletable as contacts.
+      final contactUuid = member.contactUuid;
+      if (contactUuid == null) return;
       try {
-        await contactRepo.deleteContact(member.id);
+        await contactRepo.deleteContact(contactUuid, localId: member.id);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

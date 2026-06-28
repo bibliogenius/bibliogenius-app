@@ -158,6 +158,7 @@ class FfiService {
       final t = await frb.createTag(name: name, parentId: parentId);
       return Tag(
         id: t.id,
+        uuid: t.uuid,
         name: t.name,
         parentId: t.parentId,
         count: t.count.toInt(),
@@ -168,12 +169,18 @@ class FfiService {
     }
   }
 
-  /// Update a tag
-  Future<Tag> updateTag(int id, String name, {int? parentId}) async {
+  /// Update a tag addressed by its uuid (cross-device identity). The integer
+  /// parent id stays as-is until the reference columns flip with the database.
+  Future<Tag> updateTag(String uuid, String name, {int? parentId}) async {
     try {
-      final t = await frb.updateTag(id: id, name: name, parentId: parentId);
+      final t = await frb.updateTagByUuid(
+        uuid: uuid,
+        name: name,
+        parentId: parentId,
+      );
       return Tag(
         id: t.id,
+        uuid: t.uuid,
         name: t.name,
         parentId: t.parentId,
         count: t.count.toInt(),
@@ -184,10 +191,10 @@ class FfiService {
     }
   }
 
-  /// Delete a tag
-  Future<void> deleteTag(int id) async {
+  /// Delete a tag addressed by its uuid (cross-device identity).
+  Future<void> deleteTag(String uuid) async {
     try {
-      await frb.deleteTag(id: id);
+      await frb.deleteTagByUuid(uuid: uuid);
     } catch (e) {
       debugPrint('FFI deleteTag error: $e');
       rethrow;
@@ -221,12 +228,26 @@ class FfiService {
   }
 
   /// Get a single contact by ID
-  Future<Contact> getContact(int id) async {
+  Future<Contact> getContact(String uuid) async {
     try {
-      final frbContact = await frb.getContactById(id: id);
+      final frbContact = await frb.getContactByUuid(uuid: uuid);
       return _frbContactToContact(frbContact);
     } catch (e) {
       debugPrint('FFI getContact error: $e');
+      rethrow;
+    }
+  }
+
+  /// Get a single contact by its transitional integer local id.
+  ///
+  /// Bridges callers that still hold a local id (loan references) until they
+  /// carry the uuid. Removed with the wire flip.
+  Future<Contact> getContactByLocalId(int localId) async {
+    try {
+      final frbContact = await frb.getContactById(id: localId);
+      return _frbContactToContact(frbContact);
+    } catch (e) {
+      debugPrint('FFI getContactByLocalId error: $e');
       rethrow;
     }
   }
@@ -246,7 +267,8 @@ class FfiService {
   Future<Contact> createContact(Contact contact) async {
     try {
       final frbContact = frb.FrbContact(
-        id: contact.id,
+        // FrbContact.id stays the integer local id; the uuid is backend-owned.
+        id: contact.localId,
         contactType: contact.type,
         name: contact.name,
         firstName: contact.firstName,
@@ -277,7 +299,8 @@ class FfiService {
   Future<Contact> updateContact(Contact contact) async {
     try {
       final frbContact = frb.FrbContact(
-        id: contact.id,
+        // FrbContact.id stays the integer local id; update is addressed by it.
+        id: contact.localId,
         contactType: contact.type,
         name: contact.name,
         firstName: contact.firstName,
@@ -304,10 +327,10 @@ class FfiService {
     }
   }
 
-  /// Delete a contact
-  Future<void> deleteContact(int id) async {
+  /// Delete a contact by its uuid (cross-device identity).
+  Future<void> deleteContact(String uuid) async {
     try {
-      await frb.deleteContact(id: id);
+      await frb.deleteContactByUuid(uuid: uuid);
     } catch (e) {
       debugPrint('FFI deleteContact error: $e');
       rethrow;
@@ -406,9 +429,9 @@ class FfiService {
   }
 
   /// Return a loan
-  Future<void> returnLoan(int id) async {
+  Future<void> returnLoan(String uuid) async {
     try {
-      await frb.returnLoan(id: id);
+      await frb.returnLoanByUuid(uuid: uuid);
     } catch (e) {
       debugPrint('FFI returnLoan error: $e');
       rethrow;
@@ -738,8 +761,9 @@ class FfiService {
   /// Convert FrbContact to Contact model
   Contact _frbContactToContact(frb.FrbContact fc) {
     return Contact(
-      id: fc.id,
-      uuid: fc.uuid,
+      // Identity is the uuid; the integer FFI id becomes the transitional localId.
+      id: fc.uuid,
+      localId: fc.id,
       type: fc.contactType,
       name: fc.name,
       firstName: fc.firstName,

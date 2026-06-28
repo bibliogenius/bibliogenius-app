@@ -337,10 +337,11 @@ class _LoansScreenState extends State<LoansScreen>
     }
   }
 
-  Future<void> _returnLoan(int loanId) async {
+  Future<void> _returnLoan(String? loanUuid) async {
+    if (loanUuid == null) return;
     final loanRepo = Provider.of<LoanRepository>(context, listen: false);
     try {
-      await loanRepo.returnLoan(loanId);
+      await loanRepo.returnLoan(loanUuid);
       _fetchAllData();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

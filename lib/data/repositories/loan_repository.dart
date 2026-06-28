@@ -6,7 +6,8 @@ abstract class LoanRepository {
 
   Future<Loan> createLoan(Map<String, dynamic> loanData);
 
-  Future<void> returnLoan(int loanId);
+  /// Return a loan addressed by its uuid (cross-device identity).
+  Future<void> returnLoan(String uuid);
 
   Future<List<Copy>> getBorrowedCopies();
 }

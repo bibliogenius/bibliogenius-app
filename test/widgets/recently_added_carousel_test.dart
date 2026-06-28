@@ -35,13 +35,13 @@ void main() {
   });
 
   Book newBook({required int id, required String title}) => Book(
-    id: id,
+    id: '$id',
     title: title,
     addedAt: DateTime.now().subtract(const Duration(hours: 1)),
   );
 
   Book oldBook({required int id, required String title}) => Book(
-    id: id,
+    id: '$id',
     title: title,
     addedAt: DateTime.now().subtract(const Duration(days: 365)),
   );
@@ -52,7 +52,7 @@ void main() {
     DateTime? startedAt,
     DateTime? addedAt,
   }) => Book(
-    id: id,
+    id: '$id',
     title: title,
     readingStatus: 'reading',
     startedReadingAt: startedAt,
@@ -268,7 +268,7 @@ void main() {
       buildHarness(
         withPad([
           Book(
-            id: 1,
+            id: '1',
             title: 'Active',
             readingStatus: 'reading',
             addedAt: DateTime.now().subtract(const Duration(hours: 1)),
@@ -287,13 +287,13 @@ void main() {
       buildHarness(
         withPad([
           Book(
-            id: 1,
+            id: '1',
             title: 'Out to friend',
             readingStatus: 'loaned',
             addedAt: DateTime.now().subtract(const Duration(hours: 1)),
           ),
           Book(
-            id: 2,
+            id: '2',
             title: 'From friend',
             readingStatus: 'borrowed',
             addedAt: DateTime.now().subtract(const Duration(hours: 1)),
@@ -360,7 +360,7 @@ void main() {
     // 7-day isNew window). Padding should pull the older books in by addedAt
     // desc to fill the strip.
     Book oldDated({required int id, required int daysAgo}) => Book(
-      id: id,
+      id: '$id',
       title: 'Old $id',
       addedAt: DateTime.now().subtract(Duration(days: daysAgo)),
     );

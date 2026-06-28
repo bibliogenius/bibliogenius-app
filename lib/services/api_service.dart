@@ -661,6 +661,7 @@ class ApiService {
             .map(
               (l) => {
                 'id': l.id,
+                'uuid': l.uuid,
                 'copy_id': l.copyId,
                 'contact_id': l.contactId,
                 'library_id': l.libraryId,
@@ -708,24 +709,26 @@ class ApiService {
     return await _dio.get('/api/copies/borrowed');
   }
 
-  Future<Response> returnLoan(int loanId) async {
+  /// Return a loan addressed by its uuid (cross-device identity). The web HTTP
+  /// leg is dormant (not shipped).
+  Future<Response> returnLoan(String uuid) async {
     if (useFfi) {
       try {
-        await RustLib.instance.api.crateApiFrbReturnLoan(id: loanId);
+        await RustLib.instance.api.crateApiFrbReturnLoanByUuid(uuid: uuid);
         return Response(
-          requestOptions: RequestOptions(path: '/api/loans/$loanId/return'),
+          requestOptions: RequestOptions(path: '/api/loans/$uuid/return'),
           statusCode: 200,
           data: {'message': 'Loan returned successfully'},
         );
       } catch (e) {
         return Response(
-          requestOptions: RequestOptions(path: '/api/loans/$loanId/return'),
+          requestOptions: RequestOptions(path: '/api/loans/$uuid/return'),
           statusCode: 400,
           data: {'error': e.toString()},
         );
       }
     }
-    return await _dio.post('/api/loans/$loanId/return');
+    return await _dio.post('/api/loans/$uuid/return');
   }
 
   /// Borrower-initiated return: notifies the lender and cleans up local data.
@@ -1115,24 +1118,49 @@ class ApiService {
     return await _dio.get('/api/contacts', queryParameters: params);
   }
 
-  Future<Response> getContact(int id) async {
+  /// Fetch a contact by its uuid (cross-device identity). The dormant web HTTP
+  /// leg still uses the integer route via [localId].
+  Future<Response> getContact(String uuid, {int? localId}) async {
     if (useFfi) {
-      try {
-        final contact = await FfiService().getContact(id);
-        return Response(
-          requestOptions: RequestOptions(path: '/api/contacts/$id'),
-          statusCode: 200,
-          data: {'contact': contact.toJson()},
-        );
-      } catch (e) {
-        return Response(
-          requestOptions: RequestOptions(path: '/api/contacts/$id'),
-          statusCode: 404,
-          statusMessage: 'Contact not found',
-        );
-      }
+      return _contactFfiResponse(() => FfiService().getContact(uuid), uuid);
     }
-    return await _dio.get('/api/contacts/$id');
+    return await _dio.get('/api/contacts/$localId');
+  }
+
+  /// Fetch a contact by its transitional integer local id.
+  ///
+  /// Bridges callers that still hold a local id (loan references) until they
+  /// carry the uuid. Removed with the wire flip.
+  Future<Response> getContactByLocalId(int localId) async {
+    if (useFfi) {
+      return _contactFfiResponse(
+        () => FfiService().getContactByLocalId(localId),
+        '$localId',
+      );
+    }
+    return await _dio.get('/api/contacts/$localId');
+  }
+
+  /// Wraps a contact FFI fetch into the `{contact: ...}` Response shape, mapping
+  /// a failure to a 404. [pathRef] is the addressing token, for logging only.
+  Future<Response> _contactFfiResponse(
+    Future<Contact> Function() fetch,
+    String pathRef,
+  ) async {
+    try {
+      final contact = await fetch();
+      return Response(
+        requestOptions: RequestOptions(path: '/api/contacts/$pathRef'),
+        statusCode: 200,
+        data: {'contact': contact.toJson()},
+      );
+    } catch (e) {
+      return Response(
+        requestOptions: RequestOptions(path: '/api/contacts/$pathRef'),
+        statusCode: 404,
+        statusMessage: 'Contact not found',
+      );
+    }
   }
 
   Future<Response> createContact(Map<String, dynamic> contactData) async {
@@ -1180,14 +1208,16 @@ class ApiService {
     return await _dio.post('/api/contacts', data: contactData);
   }
 
+  /// Update a contact addressed by its integer local id. The FFI update is
+  /// struct-based (no uuid variant yet), so this leg stays int-addressed.
   Future<Response> updateContact(
-    int id,
+    int localId,
     Map<String, dynamic> contactData,
   ) async {
     if (useFfi) {
       try {
         final contact = Contact(
-          id: id,
+          localId: localId,
           type: contactData['type'] ?? 'borrower',
           name: contactData['name'] ?? '',
           firstName: contactData['first_name'],
@@ -1209,7 +1239,7 @@ class ApiService {
         final updated = await FfiService().updateContact(contact);
 
         return Response(
-          requestOptions: RequestOptions(path: '/api/contacts/$id'),
+          requestOptions: RequestOptions(path: '/api/contacts/$localId'),
           statusCode: 200,
           data: {
             'contact': updated.toJson(),
@@ -1218,33 +1248,35 @@ class ApiService {
         );
       } catch (e) {
         return Response(
-          requestOptions: RequestOptions(path: '/api/contacts/$id'),
+          requestOptions: RequestOptions(path: '/api/contacts/$localId'),
           statusCode: 500,
           statusMessage: 'Error updating contact: $e',
         );
       }
     }
-    return await _dio.put('/api/contacts/$id', data: contactData);
+    return await _dio.put('/api/contacts/$localId', data: contactData);
   }
 
-  Future<Response> deleteContact(int id) async {
+  /// Delete a contact addressed by its uuid (cross-device identity). The
+  /// dormant web HTTP leg still uses the integer route via [localId].
+  Future<Response> deleteContact(String uuid, {int? localId}) async {
     if (useFfi) {
       try {
-        await FfiService().deleteContact(id);
+        await FfiService().deleteContact(uuid);
         return Response(
-          requestOptions: RequestOptions(path: '/api/contacts/$id'),
+          requestOptions: RequestOptions(path: '/api/contacts/$uuid'),
           statusCode: 200,
           data: {'message': 'Contact deleted successfully'},
         );
       } catch (e) {
         return Response(
-          requestOptions: RequestOptions(path: '/api/contacts/$id'),
+          requestOptions: RequestOptions(path: '/api/contacts/$uuid'),
           statusCode: 500,
           statusMessage: 'Error deleting contact: $e',
         );
       }
     }
-    return await _dio.delete('/api/contacts/$id');
+    return await _dio.delete('/api/contacts/$localId');
   }
 
   Future<Response> deleteCopy(int copyId) async {
@@ -4666,22 +4698,25 @@ class ApiService {
     return Tag.fromJson(response.data['tag']);
   }
 
-  Future<Tag> updateTag(int id, String name, {int? parentId}) async {
+  /// Update a tag addressed by its uuid (cross-device identity). The integer
+  /// parent id is unchanged. The web HTTP leg is dormant (not shipped).
+  Future<Tag> updateTag(String uuid, String name, {int? parentId}) async {
     if (useFfi) {
-      return FfiService().updateTag(id, name, parentId: parentId);
+      return FfiService().updateTag(uuid, name, parentId: parentId);
     }
     final response = await _dio.put(
-      '/api/tags/$id',
+      '/api/tags/$uuid',
       data: {'name': name, 'parent_id': parentId},
     );
     return Tag.fromJson(response.data['tag']);
   }
 
-  Future<void> deleteTag(int id) async {
+  /// Delete a tag addressed by its uuid (cross-device identity).
+  Future<void> deleteTag(String uuid) async {
     if (useFfi) {
-      return FfiService().deleteTag(id);
+      return FfiService().deleteTag(uuid);
     }
-    await _dio.delete('/api/tags/$id');
+    await _dio.delete('/api/tags/$uuid');
   }
 
   // ============ P2P Device Pairing ============

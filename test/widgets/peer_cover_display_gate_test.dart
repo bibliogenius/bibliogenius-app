@@ -61,7 +61,7 @@ void main() {
   });
 
   Book makeBook(int id, String title, {String? coverUrl}) =>
-      Book(id: id, title: title, coverUrl: coverUrl);
+      Book(localId: id, title: title, coverUrl: coverUrl);
 
   Widget harness(ThemeProvider provider, List<Book> books) {
     return MaterialApp(

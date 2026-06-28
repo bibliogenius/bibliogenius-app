@@ -714,7 +714,16 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
   Future<void> _updateShelf(int id, String name, {int? parentId}) async {
     try {
       final api = Provider.of<TagRepository>(context, listen: false);
-      await api.updateTag(id, name, parentId: parentId);
+      // The tag is addressed by its uuid, resolved from the loaded list by its
+      // local id. Synthetic (subject-derived) shelves have no row to update.
+      final uuid = _allTags
+          .firstWhere(
+            (t) => t.id == id,
+            orElse: () => Tag(id: id, name: name, count: 0),
+          )
+          .uuid;
+      if (uuid == null) return;
+      await api.updateTag(uuid, name, parentId: parentId);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -779,7 +788,8 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
   Future<void> _deleteShelf(Tag tag) async {
     try {
       final api = Provider.of<TagRepository>(context, listen: false);
-      await api.deleteTag(tag.id);
+      if (tag.uuid == null) return; // synthetic shelf, no row to delete
+      await api.deleteTag(tag.uuid!);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

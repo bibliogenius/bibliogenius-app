@@ -18,12 +18,12 @@ class TagRepositoryImpl implements TagRepository {
   }
 
   @override
-  Future<Tag> updateTag(int id, String name, {int? parentId}) {
-    return _apiService.updateTag(id, name, parentId: parentId);
+  Future<Tag> updateTag(String uuid, String name, {int? parentId}) {
+    return _apiService.updateTag(uuid, name, parentId: parentId);
   }
 
   @override
-  Future<void> deleteTag(int id) {
-    return _apiService.deleteTag(id);
+  Future<void> deleteTag(String uuid) {
+    return _apiService.deleteTag(uuid);
   }
 }

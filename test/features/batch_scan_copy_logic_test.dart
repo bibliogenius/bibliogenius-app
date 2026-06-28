@@ -70,7 +70,7 @@ void main() {
     test('EXISTING OWNED book: createCopy SHOULD be called', () async {
       // Setup: Book exists and is owned
       mockApi.existingBook = Book(
-        id: 123,
+        localId: 123,
         title: 'Existing Owned Book',
         isbn: '9781234567890',
         owned: true, // User owns this book
@@ -84,7 +84,7 @@ void main() {
       expect(existingBook, isNotNull);
       expect(existingBook!.owned, true);
 
-      final bookId = existingBook.id!;
+      final bookId = existingBook.localId!;
 
       // 2. Book already exists, no need to create
       // (scan_screen.dart skips book creation for existing books)
@@ -106,7 +106,7 @@ void main() {
       () async {
         // Setup: Book exists but is NOT owned (wishlist)
         mockApi.existingBook = Book(
-          id: 456,
+          localId: 456,
           title: 'Wishlist Book',
           isbn: '9780987654321',
           owned: false, // User doesn't own this book
@@ -121,7 +121,7 @@ void main() {
         expect(existingBook, isNotNull);
         expect(existingBook!.owned, false);
 
-        final bookId = existingBook.id!;
+        final bookId = existingBook.localId!;
 
         // 2. Book already exists, no need to create
 
@@ -139,9 +139,9 @@ void main() {
     test('Multiple existing owned books: each gets a copy', () async {
       // Test scanning multiple existing owned books
       final books = [
-        Book(id: 1, title: 'Book 1', isbn: '111', owned: true),
-        Book(id: 2, title: 'Book 2', isbn: '222', owned: true),
-        Book(id: 3, title: 'Book 3', isbn: '333', owned: false), // wishlist
+        Book(localId: 1, title: 'Book 1', isbn: '111', owned: true),
+        Book(localId: 2, title: 'Book 2', isbn: '222', owned: true),
+        Book(localId: 3, title: 'Book 3', isbn: '333', owned: false), // wishlist
       ];
 
       for (final book in books) {
@@ -151,7 +151,7 @@ void main() {
 
         if (existingBook != null && existingBook.owned) {
           await mockApi.createCopy({
-            'book_id': existingBook.id,
+            'book_id': existingBook.localId,
             'status': 'available',
           });
         }

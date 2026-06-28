@@ -20,7 +20,14 @@ enum NetworkMemberSource {
 /// Unified model for displaying both Contacts and Peers in a single list.
 /// This is a display-focused wrapper that abstracts the underlying data source.
 class NetworkMember {
+  /// Transitional integer local id of the underlying contact (or peer id).
   final int id;
+
+  /// Cross-device uuid of the underlying local contact. Null for network peers
+  /// and synthetic members. Carries the contact identity through so the detail
+  /// screen and delete address the contact by uuid. Removed with the wire flip.
+  final String? contactUuid;
+
   final String name;
   final String? firstName;
   final NetworkMemberType type;
@@ -70,6 +77,7 @@ class NetworkMember {
 
   const NetworkMember({
     required this.id,
+    this.contactUuid,
     required this.name,
     this.firstName,
     required this.type,
@@ -118,6 +126,7 @@ class NetworkMember {
   /// Return a copy with an updated caption.
   NetworkMember withCaption(String? newCaption) => NetworkMember(
     id: id,
+    contactUuid: contactUuid,
     name: name,
     firstName: firstName,
     type: type,
@@ -149,7 +158,8 @@ class NetworkMember {
   /// Create a NetworkMember from a Contact model
   factory NetworkMember.fromContact(Contact contact) {
     return NetworkMember(
-      id: contact.id ?? 0,
+      id: contact.localId ?? 0,
+      contactUuid: contact.id,
       name: contact.name,
       firstName: contact.firstName,
       type: contact.type == 'borrower'
@@ -252,7 +262,8 @@ class NetworkMember {
   /// Convert NetworkMember back to Contact (only works for local contacts)
   Contact toContact() {
     return Contact(
-      id: id,
+      id: contactUuid,
+      localId: id,
       type: type == NetworkMemberType.borrower ? 'borrower' : 'library',
       name: name,
       firstName: firstName,

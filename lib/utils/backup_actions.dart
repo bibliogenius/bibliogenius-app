@@ -609,7 +609,10 @@ class BackupActions {
 
       final tags = await tagRepo.getTags();
       for (final tag in tags) {
-        await tagRepo.deleteTag(tag.id);
+        // Synthetic (subject-derived) tags have no row to delete.
+        if (tag.uuid != null) {
+          await tagRepo.deleteTag(tag.uuid!);
+        }
       }
 
       if (themeProvider.collectionsEnabled) {

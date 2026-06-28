@@ -5,7 +5,10 @@ abstract class TagRepository {
 
   Future<Tag> createTag(String name, {int? parentId});
 
-  Future<Tag> updateTag(int id, String name, {int? parentId});
+  /// Update a tag addressed by its uuid (cross-device identity). The integer
+  /// parent id is unchanged.
+  Future<Tag> updateTag(String uuid, String name, {int? parentId});
 
-  Future<void> deleteTag(int id);
+  /// Delete a tag addressed by its uuid (cross-device identity).
+  Future<void> deleteTag(String uuid);
 }

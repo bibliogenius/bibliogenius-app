@@ -2,10 +2,18 @@ import '../utils/cover_url_resolver.dart';
 import '../utils/local_cover_resolver.dart';
 
 class Loan {
-  final int id;
+  /// Cross-device stable identity (the loan's uuid). Backend-owned; null for
+  /// transient loans or rows not yet persisted. Addresses a loan over FFI
+  /// (return). Int-keyed callers resolve through [localId] until the wire flip.
+  final String? id;
 
-  /// Stable cross-device identifier. Backend-owned, read-only client side.
-  final String? uuid;
+  /// Transitional device-local integer id, retained for the dormant web HTTP
+  /// leg and any int-keyed caller until they address loans by uuid.
+  final int? localId;
+
+  /// Backwards-compatible alias: the uuid is now the primary [id].
+  String? get uuid => id;
+
   final int copyId;
   final int contactId;
   final int libraryId;
@@ -21,8 +29,8 @@ class Loan {
   final String? isbn;
 
   Loan({
-    required this.id,
-    this.uuid,
+    this.id,
+    this.localId,
     required this.copyId,
     required this.contactId,
     required this.libraryId,
@@ -40,8 +48,9 @@ class Loan {
 
   factory Loan.fromJson(Map<String, dynamic> json) {
     return Loan(
-      id: json['id'] as int,
-      uuid: json['uuid'] as String?,
+      // Identity is the uuid; the integer `id` becomes the transitional localId.
+      id: json['uuid'] as String?,
+      localId: json['id'] as int?,
       copyId: json['copy_id'] as int,
       contactId: json['contact_id'] as int,
       libraryId: json['library_id'] as int,
@@ -60,7 +69,9 @@ class Loan {
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      // `id` carries the transitional integer local id; `uuid` is the identity.
+      'id': localId,
+      'uuid': id,
       'copy_id': copyId,
       'contact_id': contactId,
       'library_id': libraryId,

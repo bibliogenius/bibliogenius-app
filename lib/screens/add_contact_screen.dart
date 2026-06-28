@@ -119,7 +119,7 @@ class _AddContactScreenState extends State<AddContactScreen> {
       };
 
       if (widget.contact != null) {
-        await contactRepo.updateContact(widget.contact!.id!, contactData);
+        await contactRepo.updateContact(widget.contact!.localId!, contactData);
       } else {
         await contactRepo.createContact(contactData);
       }

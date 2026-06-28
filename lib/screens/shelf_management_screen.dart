@@ -738,16 +738,25 @@ class _ShelfManagementScreenState extends State<ShelfManagementScreen> {
           parentId: parentId,
         );
         // If renamed, update the tag AND rename subjects in all books
-        if (originalTag.name != name) {
-          await api.updateTag(created.id, name, parentId: parentId);
+        if (originalTag.name != name && created.uuid != null) {
+          await api.updateTag(created.uuid!, name, parentId: parentId);
         }
         _showSuccess(
           TranslationService.translate(context, 'shelf_updated') ??
               'Shelf updated',
         );
       } else {
-        // Normal update for tags that already exist in the database
-        await api.updateTag(id, name, parentId: parentId);
+        // Normal update for tags that already exist in the database. The tag is
+        // addressed by its uuid, resolved from the loaded list by its local id.
+        final uuid = _allTags
+            .firstWhere(
+              (t) => t.id == id,
+              orElse: () => Tag(id: id, name: name, count: 0),
+            )
+            .uuid;
+        if (uuid != null) {
+          await api.updateTag(uuid, name, parentId: parentId);
+        }
         _showSuccess(
           TranslationService.translate(context, 'shelf_updated') ??
               'Shelf updated',
@@ -778,8 +787,10 @@ class _ShelfManagementScreenState extends State<ShelfManagementScreen> {
         await _deleteTagRecursive(child);
       }
 
-      // Delete the tag itself
-      await api.deleteTag(tag.id);
+      // Delete the tag itself (addressed by its uuid)
+      if (tag.uuid != null) {
+        await api.deleteTag(tag.uuid!);
+      }
       _showSuccess(
         TranslationService.translate(context, 'shelf_deleted') ??
             'Shelf deleted',
@@ -797,7 +808,9 @@ class _ShelfManagementScreenState extends State<ShelfManagementScreen> {
     for (final child in children) {
       await _deleteTagRecursive(child);
     }
-    await api.deleteTag(tag.id);
+    if (tag.uuid != null) {
+      await api.deleteTag(tag.uuid!);
+    }
   }
 
   void _showSuccess(String message) {

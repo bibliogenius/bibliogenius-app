@@ -27,7 +27,7 @@ void main() {
       mockBookRepo = MockBookRepository();
       mockCopyRepo = MockCopyRepository();
       testContact = Contact(
-        id: 42,
+        localId: 42,
         type: 'borrower',
         name: 'Alice',
         libraryOwnerId: 1,
@@ -58,7 +58,7 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
 
       mockBookRepo.mockFindByIsbnResult = Book(
-        id: 7,
+        localId: 7,
         title: 'Existing Book',
         isbn: '9782752903570',
         author: 'Jack London',

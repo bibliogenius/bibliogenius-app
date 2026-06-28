@@ -32,9 +32,10 @@ class LoanRepositoryImpl implements LoanRepository {
       final data = response.data;
       if (data is Map && data['loan'] is Map) {
         final loanJson = data['loan'] as Map<String, dynamic>;
-        // createLoan may return minimal data (just {id}), construct a partial Loan
+        // createLoan may return minimal data (just {id}), construct a partial
+        // Loan. The integer id is the transitional localId; uuid follows at S4.
         return Loan(
-          id: loanJson['id'] as int,
+          localId: loanJson['id'] as int?,
           copyId: loanData['copy_id'] as int,
           contactId: loanData['contact_id'] as int,
           libraryId: loanData['library_id'] as int? ?? 0,
@@ -51,8 +52,8 @@ class LoanRepositoryImpl implements LoanRepository {
   }
 
   @override
-  Future<void> returnLoan(int loanId) async {
-    final response = await _apiService.returnLoan(loanId);
+  Future<void> returnLoan(String uuid) async {
+    final response = await _apiService.returnLoan(uuid);
     if (response.statusCode != 200) {
       throw Exception('Failed to return loan (status: ${response.statusCode})');
     }

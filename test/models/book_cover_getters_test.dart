@@ -65,7 +65,7 @@ void main() {
 
   group('Loan.resolvedCoverUrl', () {
     Loan loan({String? coverUrl, String? isbn}) => Loan(
-      id: 1,
+      localId: 1,
       copyId: 1,
       contactId: 1,
       libraryId: 1,

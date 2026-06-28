@@ -1,8 +1,18 @@
 class Contact {
-  final int? id;
+  /// Cross-device stable identity (the contact's uuid). Backend-owned; null for
+  /// transient/peer contacts or rows not yet persisted. Addresses a contact
+  /// over FFI. Callers that still hold an integer local id (loan references)
+  /// resolve through [localId] until the wire flip retires it.
+  final String? id;
 
-  /// Stable cross-device identifier. Backend-owned, read-only client side.
-  final String? uuid;
+  /// Transitional device-local integer id. Still required by int-keyed
+  /// references (loans, the dormant web HTTP leg) until those callers address
+  /// contacts by uuid. Removed with the wire flip.
+  final int? localId;
+
+  /// Backwards-compatible alias: the uuid is now the primary [id].
+  String? get uuid => id;
+
   final String type; // 'borrower', 'library', 'user'
   final String name;
   final String? firstName;
@@ -26,7 +36,7 @@ class Contact {
 
   Contact({
     this.id,
-    this.uuid,
+    this.localId,
     required this.type,
     required this.name,
     this.firstName,
@@ -77,8 +87,9 @@ class Contact {
 
   factory Contact.fromJson(Map<String, dynamic> json) {
     return Contact(
-      id: json['id'] as int?,
-      uuid: json['uuid'] as String?,
+      // Identity is the uuid; the integer `id` becomes the transitional localId.
+      id: json['uuid'] as String?,
+      localId: json['id'] as int?,
       type: (json['type'] ?? json['contact_type'] ?? 'borrower') as String,
       name: json['name'] as String,
       firstName: json['first_name'] as String?,
@@ -101,7 +112,9 @@ class Contact {
 
   Map<String, dynamic> toJson() {
     return {
-      if (id != null) 'id': id,
+      // `id` carries the transitional integer local id; `uuid` is the identity.
+      if (localId != null) 'id': localId,
+      if (id != null) 'uuid': id,
       'type': type,
       'name': name,
       'first_name': firstName,

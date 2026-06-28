@@ -30,8 +30,20 @@ class ContactRepositoryImpl implements ContactRepository {
   }
 
   @override
-  Future<Contact> getContact(int id) async {
-    final response = await _apiService.getContact(id);
+  Future<Contact> getContact(String uuid, {int? localId}) async {
+    final response = await _apiService.getContact(uuid, localId: localId);
+    if (response.statusCode == 200 && response.data != null) {
+      final data = response.data;
+      if (data is Map && data['contact'] is Map) {
+        return Contact.fromJson(data['contact'] as Map<String, dynamic>);
+      }
+    }
+    throw Exception('Contact not found');
+  }
+
+  @override
+  Future<Contact> getContactByLocalId(int localId) async {
+    final response = await _apiService.getContactByLocalId(localId);
     if (response.statusCode == 200 && response.data != null) {
       final data = response.data;
       if (data is Map && data['contact'] is Map) {
@@ -57,10 +69,10 @@ class ContactRepositoryImpl implements ContactRepository {
 
   @override
   Future<Contact> updateContact(
-    int id,
+    int localId,
     Map<String, dynamic> contactData,
   ) async {
-    final response = await _apiService.updateContact(id, contactData);
+    final response = await _apiService.updateContact(localId, contactData);
     if (response.statusCode == 200 && response.data != null) {
       final data = response.data;
       if (data is Map && data['contact'] is Map) {
@@ -73,8 +85,8 @@ class ContactRepositoryImpl implements ContactRepository {
   }
 
   @override
-  Future<void> deleteContact(int id) async {
-    final response = await _apiService.deleteContact(id);
+  Future<void> deleteContact(String uuid, {int? localId}) async {
+    final response = await _apiService.deleteContact(uuid, localId: localId);
     if (response.statusCode != 200) {
       throw Exception(
         'Failed to delete contact (status: ${response.statusCode})',

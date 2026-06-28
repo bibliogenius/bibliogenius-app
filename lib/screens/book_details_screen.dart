@@ -181,7 +181,9 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         await Future.wait(
           activeLoans.map((loan) async {
             try {
-              final contact = await contactRepo.getContact(loan.contactId);
+              final contact = await contactRepo.getContactByLocalId(
+                loan.contactId,
+              );
               if (contact.notes?.isNotEmpty == true) {
                 contactNotes[loan.contactId] = contact.notes;
               }
@@ -2959,8 +2961,11 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         final matchingLoans = loans
             .where((l) => l.copyId == lentCopy.id)
             .toList();
-        if (matchingLoans.isNotEmpty) {
-          await loanRepo.returnLoan(matchingLoans.first.id);
+        final loanUuid = matchingLoans.isNotEmpty
+            ? matchingLoans.first.id
+            : null;
+        if (loanUuid != null) {
+          await loanRepo.returnLoan(loanUuid);
         }
       }
 

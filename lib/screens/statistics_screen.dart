@@ -152,8 +152,8 @@ class _StatisticsScreenState extends State<StatisticsScreen>
       try {
         final contacts = await contactRepo.getContacts();
         for (var c in contacts) {
-          if (c.id != null) {
-            contactsMap[c.id!] = c;
+          if (c.localId != null) {
+            contactsMap[c.localId!] = c;
           }
         }
       } catch (e) {}
@@ -2515,8 +2515,8 @@ class _StatisticsContentState extends State<StatisticsContent>
       try {
         final contacts = await contactRepo.getContacts();
         for (var c in contacts) {
-          if (c.id != null) {
-            contactsMap[c.id!] = c;
+          if (c.localId != null) {
+            contactsMap[c.localId!] = c;
           }
         }
       } catch (e) {
