@@ -8,7 +8,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 part 'frb.freezed.dart';
 
-// These functions are ignored because they are not marked as `pub`: `account_device_entry`, `account_library_uuid`, `account_status_json`, `apply_fallback_preferences_to_modules`, `book_id_by_uuid`, `contact_id_by_uuid`, `covers_dir`, `db`, `ensure_account_session`, `entries_to_frb`, `fill_state`, `from_info`, `from_manifest`, `from_summary`, `global_app_state`, `hub_db`, `hub_directory_svc`, `hub_directory_sync_catalog_inner`, `install_panic_hook`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `loan_id_by_uuid`, `merge_api_keys`, `modules_to_fallback_preferences`, `nudge_source_label`, `rename_subject_in_books`, `runtime`, `store_account_session`, `tag_id_by_uuid`, `track_to_frb`, `try_from_summary`, `undo_outcome_str`, `upsert_directory_catalog_cache`
+// These functions are ignored because they are not marked as `pub`: `account_device_entry`, `account_library_uuid`, `account_status_json`, `apply_fallback_preferences_to_modules`, `covers_dir`, `db`, `ensure_account_session`, `entries_to_frb`, `fill_state`, `from_info`, `from_manifest`, `from_summary`, `global_app_state`, `hub_db`, `hub_directory_svc`, `hub_directory_sync_catalog_inner`, `install_panic_hook`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `merge_api_keys`, `modules_to_fallback_preferences`, `nudge_source_label`, `rename_subject_in_books`, `runtime`, `store_account_session`, `track_to_frb`, `try_from_summary`, `undo_outcome_str`, `upsert_directory_catalog_cache`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `AccountSession`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
 
@@ -141,7 +141,7 @@ Future<String> generateInviteLinkFfi({
 Future<String> parseInviteLinkFfi({required String link}) =>
     RustLib.instance.api.crateApiFrbParseInviteLinkFfi(link: link);
 
-/// Fetch a book by its uuid.
+/// Fetch a book by its uuid (single fetch: resolves and enriches at once).
 Future<FrbBook> getBookByUuid({required String uuid}) =>
     RustLib.instance.api.crateApiFrbGetBookByUuid(uuid: uuid);
 
@@ -155,12 +155,11 @@ Future<FrbBook> updateBookByUuid({
 Future<void> deleteBookByUuid({required String uuid}) =>
     RustLib.instance.api.crateApiFrbDeleteBookByUuid(uuid: uuid);
 
-/// Update a tag identified by its uuid. `parent_id` stays integer until the
-/// reference columns flip with the database.
+/// Update a tag identified by its uuid.
 Future<FrbTag> updateTagByUuid({
   required String uuid,
   required String name,
-  int? parentId,
+  String? parentId,
 }) => RustLib.instance.api.crateApiFrbUpdateTagByUuid(
   uuid: uuid,
   name: name,
@@ -171,7 +170,7 @@ Future<FrbTag> updateTagByUuid({
 Future<void> deleteTagByUuid({required String uuid}) =>
     RustLib.instance.api.crateApiFrbDeleteTagByUuid(uuid: uuid);
 
-/// Fetch a contact by its uuid.
+/// Fetch a contact by its uuid (single fetch, no id round-trip).
 Future<FrbContact> getContactByUuid({required String uuid}) =>
     RustLib.instance.api.crateApiFrbGetContactByUuid(uuid: uuid);
 
@@ -301,8 +300,8 @@ Future<String> accountRefreshDevicesFfi() =>
 ///
 /// HONEST SCOPE: it always runs the real, available step — refreshing the signed
 /// device registry (H3) — and **deliberately does not fake a data convergence**.
-/// The data merge engine is not built yet (along with a production cr-sqlite
-/// engine wired to the library DB), neither of which is in any current binary,
+/// The data merge engine is not built yet (and a production cr-sqlite engine wired to
+/// the library DB is future work), neither of which is built into any current binary,
 /// so the data leg is a no-op here. When that engine lands, this calls
 /// [`account_sync_engine::refresh_then_sync`] with it (registry refresh stays
 /// first, ADR-043 H3). Returns JSON `{synced, reason?, devices}`.
@@ -359,18 +358,6 @@ Future<List<FrbBook>> getAllBooks({
   title: title,
   tag: tag,
 );
-
-/// Get a single book by ID
-Future<FrbBook> getBookById({required int id}) =>
-    RustLib.instance.api.crateApiFrbGetBookById(id: id);
-
-/// Update an existing book
-Future<FrbBook> updateBook({required int id, required FrbBook book}) =>
-    RustLib.instance.api.crateApiFrbUpdateBook(id: id, book: book);
-
-/// Delete a book
-Future<void> deleteBook({required int id}) =>
-    RustLib.instance.api.crateApiFrbDeleteBook(id: id);
 
 /// Count total books
 Future<PlatformInt64> countBooks() =>
@@ -464,7 +451,7 @@ Future<String> metadataFillUndoField({required PlatformInt64 journalId}) =>
 /// Undo all fields the fill added to one book in a batch. Returns reverted count.
 Future<int> metadataFillUndoBook({
   required String batchId,
-  required int bookId,
+  required String bookId,
 }) => RustLib.instance.api.crateApiFrbMetadataFillUndoBook(
   batchId: batchId,
   bookId: bookId,
@@ -479,14 +466,14 @@ Future<List<FrbTag>> getAllTags() =>
     RustLib.instance.api.crateApiFrbGetAllTags();
 
 /// Create a new tag
-Future<FrbTag> createTag({required String name, int? parentId}) =>
+Future<FrbTag> createTag({required String name, String? parentId}) =>
     RustLib.instance.api.crateApiFrbCreateTag(name: name, parentId: parentId);
 
 /// Update a tag
 Future<FrbTag> updateTag({
-  required int id,
+  required String id,
   required String name,
-  int? parentId,
+  String? parentId,
 }) => RustLib.instance.api.crateApiFrbUpdateTag(
   id: id,
   name: name,
@@ -503,11 +490,11 @@ Future<void> renameSubject({
 );
 
 /// Delete a tag
-Future<void> deleteTag({required int id}) =>
+Future<void> deleteTag({required String id}) =>
     RustLib.instance.api.crateApiFrbDeleteTag(id: id);
 
 /// Reorder books by updating shelf positions
-Future<void> reorderBooks({required List<int> bookIds}) =>
+Future<void> reorderBooks({required List<String> bookIds}) =>
     RustLib.instance.api.crateApiFrbReorderBooks(bookIds: bookIds);
 
 /// Get all contacts with optional filters
@@ -518,10 +505,6 @@ Future<List<FrbContact>> getAllContacts({
   libraryId: libraryId,
   contactType: contactType,
 );
-
-/// Get a single contact by ID
-Future<FrbContact> getContactById({required int id}) =>
-    RustLib.instance.api.crateApiFrbGetContactById(id: id);
 
 /// Count total contacts
 Future<PlatformInt64> countContacts() =>
@@ -534,10 +517,6 @@ Future<FrbContact> createContact({required FrbContact contact}) =>
 /// Update an existing contact
 Future<FrbContact> updateContact({required FrbContact contact}) =>
     RustLib.instance.api.crateApiFrbUpdateContact(contact: contact);
-
-/// Delete a contact by ID (soft delete)
-Future<void> deleteContact({required int id}) =>
-    RustLib.instance.api.crateApiFrbDeleteContact(id: id);
 
 /// Get all loans with optional filters
 Future<List<FrbLoan>> getAllLoans({
@@ -555,9 +534,9 @@ Future<PlatformInt64> countActiveLoans() =>
     RustLib.instance.api.crateApiFrbCountActiveLoans();
 
 /// Create a new loan
-Future<int> createLoan({
-  required int copyId,
-  required int contactId,
+Future<String> createLoan({
+  required String copyId,
+  required String contactId,
   required int libraryId,
   required String loanDate,
   required String dueDate,
@@ -596,7 +575,7 @@ Future<BigInt> deleteClosedOutgoingRequests() =>
     RustLib.instance.api.crateApiFrbDeleteClosedOutgoingRequests();
 
 /// Return a loan
-Future<String> returnLoan({required int id}) =>
+Future<String> returnLoan({required String id}) =>
     RustLib.instance.api.crateApiFrbReturnLoan(id: id);
 
 /// Get the current loan settings
@@ -627,15 +606,15 @@ Future<int> checkLoanReminders({required String language}) =>
 
 /// Get the effective loan duration for a specific book (in days).
 /// Returns the per-book override if enabled and set, otherwise the global default.
-Future<int> getEffectiveLoanDuration({required int bookId}) =>
+Future<int> getEffectiveLoanDuration({required String bookId}) =>
     RustLib.instance.api.crateApiFrbGetEffectiveLoanDuration(bookId: bookId);
 
 /// Get the per-book loan duration override (None = uses global default)
-Future<int?> getBookLoanDuration({required int bookId}) =>
+Future<int?> getBookLoanDuration({required String bookId}) =>
     RustLib.instance.api.crateApiFrbGetBookLoanDuration(bookId: bookId);
 
 /// Set the per-book loan duration override (pass None to clear and use global default)
-Future<void> setBookLoanDuration({required int bookId, int? days}) => RustLib
+Future<void> setBookLoanDuration({required String bookId, int? days}) => RustLib
     .instance
     .api
     .crateApiFrbSetBookLoanDuration(bookId: bookId, days: days);
@@ -905,7 +884,7 @@ Future<List<String>> hangmanAvailableDifficulties() =>
 /// `exclude_book_ids` -- book IDs already played in the current session (avoids same series).
 Future<FrbHangmanSetup> hangmanSetup({
   required String difficulty,
-  required List<int> excludeBookIds,
+  required List<String> excludeBookIds,
 }) => RustLib.instance.api.crateApiFrbHangmanSetup(
   difficulty: difficulty,
   excludeBookIds: excludeBookIds,
@@ -913,7 +892,7 @@ Future<FrbHangmanSetup> hangmanSetup({
 
 /// Submit a completed hangman game and get the score back
 Future<FrbHangmanScore> hangmanFinish({
-  required int bookId,
+  required String bookId,
   required String difficulty,
   required double elapsedSeconds,
   required int errors,
@@ -1247,7 +1226,7 @@ Future<FrbCollectionDeletionPreview> getCollectionDeletionPreview({
 /// Deletes a collection along with its eligible books (no loaned/borrowed
 /// copy, not in another collection, on no shelf). Returns the IDs of books
 /// that were actually removed.
-Future<Int32List> deleteCollectionWithBooks({required String id}) =>
+Future<List<String>> deleteCollectionWithBooks({required String id}) =>
     RustLib.instance.api.crateApiFrbDeleteCollectionWithBooks(id: id);
 
 /// Returns all books belonging to a collection.
@@ -1260,7 +1239,7 @@ Future<List<FrbCollectionBook>> getCollectionBooks({
 /// Adds a book to a collection (idempotent).
 Future<void> addBookToCollection({
   required String collectionId,
-  required int bookId,
+  required String bookId,
 }) => RustLib.instance.api.crateApiFrbAddBookToCollection(
   collectionId: collectionId,
   bookId: bookId,
@@ -1269,7 +1248,7 @@ Future<void> addBookToCollection({
 /// Removes a book from a collection.
 Future<void> removeBookFromCollection({
   required String collectionId,
-  required int bookId,
+  required String bookId,
 }) => RustLib.instance.api.crateApiFrbRemoveBookFromCollection(
   collectionId: collectionId,
   bookId: bookId,
@@ -1281,12 +1260,12 @@ Future<String> getLibraryViewStats() =>
     RustLib.instance.api.crateApiFrbGetLibraryViewStats();
 
 /// Returns all collections a book belongs to.
-Future<List<FrbCollection>> getBookCollections({required int bookId}) =>
+Future<List<FrbCollection>> getBookCollections({required String bookId}) =>
     RustLib.instance.api.crateApiFrbGetBookCollections(bookId: bookId);
 
 /// Replaces the set of collections a book belongs to.
 Future<void> updateBookCollections({
-  required int bookId,
+  required String bookId,
   required List<String> collectionIds,
 }) => RustLib.instance.api.crateApiFrbUpdateBookCollections(
   bookId: bookId,
@@ -1334,12 +1313,12 @@ Future<void> emitWelcomeNotification() =>
     RustLib.instance.api.crateApiFrbEmitWelcomeNotification();
 
 /// Get all notes for a book, ordered by creation date (newest first).
-Future<List<FrbBookNote>> getBookNotes({required int bookId}) =>
+Future<List<FrbBookNote>> getBookNotes({required String bookId}) =>
     RustLib.instance.api.crateApiFrbGetBookNotes(bookId: bookId);
 
 /// Create a new note for a book.
 Future<FrbBookNote> createBookNote({
-  required int bookId,
+  required String bookId,
   required String content,
   int? page,
 }) => RustLib.instance.api.crateApiFrbCreateBookNote(
@@ -1525,7 +1504,7 @@ sealed class FrbBackupSummary with _$FrbBackupSummary {
 @freezed
 sealed class FrbBook with _$FrbBook {
   const factory FrbBook({
-    int? id,
+    String? id,
     required String title,
     String? author,
     String? isbn,
@@ -1549,7 +1528,6 @@ sealed class FrbBook with _$FrbBook {
     int? pageCount,
     String? addedAt,
     String? hubCoverUploadFailedAt,
-    String? uuid,
   }) = _FrbBook;
 }
 
@@ -1571,7 +1549,7 @@ sealed class FrbBookMetadata with _$FrbBookMetadata {
 /// FFI-safe book note representation.
 class FrbBookNote {
   final int id;
-  final int bookId;
+  final String bookId;
   final String content;
   final int? page;
   final String createdAt;
@@ -1687,7 +1665,7 @@ class FrbCollection {
 
 /// A book entry within a collection, exposed to Flutter.
 class FrbCollectionBook {
-  final int bookId;
+  final String bookId;
   final String title;
   final String? author;
   final String? coverUrl;
@@ -1782,7 +1760,7 @@ sealed class FrbCompletenessStats with _$FrbCompletenessStats {
 @freezed
 sealed class FrbContact with _$FrbContact {
   const factory FrbContact({
-    int? id,
+    String? id,
     required String contactType,
     required String name,
     String? firstName,
@@ -1799,7 +1777,6 @@ sealed class FrbContact with _$FrbContact {
     int? userId,
     int? libraryOwnerId,
     required bool isActive,
-    String? uuid,
   }) = _FrbContact;
 }
 
@@ -1857,7 +1834,7 @@ sealed class FrbFillProgress with _$FrbFillProgress {
 @freezed
 sealed class FrbFilledBook with _$FrbFilledBook {
   const factory FrbFilledBook({
-    required int bookId,
+    required String bookId,
     required String title,
     String? coverUrl,
     required List<FrbFilledField> fields,
@@ -2099,7 +2076,7 @@ class FrbHangmanScore {
 
 /// Game setup returned to Flutter (FFI-safe)
 class FrbHangmanSetup {
-  final int bookId;
+  final String bookId;
   final String title;
   final List<FrbHangmanChar> display;
   final String author;
@@ -2201,7 +2178,7 @@ sealed class FrbHubProfile with _$FrbHubProfile {
 @freezed
 sealed class FrbIncompleteBook with _$FrbIncompleteBook {
   const factory FrbIncompleteBook({
-    required int id,
+    required String id,
     required String title,
     String? isbn,
   }) = _FrbIncompleteBook;
@@ -2212,7 +2189,7 @@ sealed class FrbIncompleteBook with _$FrbIncompleteBook {
 @freezed
 sealed class FrbIncompleteBookDetail with _$FrbIncompleteBookDetail {
   const factory FrbIncompleteBookDetail({
-    required int id,
+    required String id,
     required String title,
     String? isbn,
     String? coverUrl,
@@ -2308,9 +2285,9 @@ class FrbLeaderboardResponse {
 @freezed
 sealed class FrbLoan with _$FrbLoan {
   const factory FrbLoan({
-    required int id,
-    required int copyId,
-    required int contactId,
+    required String id,
+    required String copyId,
+    required String contactId,
     required int libraryId,
     required String loanDate,
     required String dueDate,
@@ -2319,10 +2296,9 @@ sealed class FrbLoan with _$FrbLoan {
     String? notes,
     required String contactName,
     required String bookTitle,
-    int? bookId,
+    String? bookId,
     String? coverUrl,
     String? isbn,
-    String? uuid,
   }) = _FrbLoan;
 }
 
@@ -2338,7 +2314,7 @@ sealed class FrbLoanSettings with _$FrbLoanSettings {
 
 /// A card in the memory game (FFI-safe)
 class FrbMemoryCard {
-  final int bookId;
+  final String bookId;
   final String title;
   final String coverUrl;
 
@@ -2521,7 +2497,7 @@ sealed class FrbOperationLogEntry with _$FrbOperationLogEntry {
   const factory FrbOperationLogEntry({
     required int id,
     required String entityType,
-    required int entityId,
+    required String entityId,
     required String operation,
     String? payload,
     required String status,
@@ -2557,7 +2533,7 @@ sealed class FrbProfileChangedEvent with _$FrbProfileChangedEvent {
 
 /// A generated puzzle board (FFI-safe)
 class FrbPuzzleBoard {
-  final int bookId;
+  final String bookId;
   final String title;
   final String coverUrl;
   final int gridSize;
@@ -2818,11 +2794,10 @@ class FrbStreakInfo {
 @freezed
 sealed class FrbTag with _$FrbTag {
   const factory FrbTag({
-    required int id,
+    required String id,
     required String name,
-    int? parentId,
+    String? parentId,
     required PlatformInt64 count,
-    String? uuid,
   }) = _FrbTag;
 }
 

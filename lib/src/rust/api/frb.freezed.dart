@@ -621,7 +621,7 @@ as String,
 /// @nodoc
 mixin _$FrbBook {
 
- int? get id; String get title; String? get author; String? get isbn; String? get summary; String? get publisher; int? get publicationYear; String? get coverUrl; String? get largeCoverUrl; String? get readingStatus; int? get shelfPosition; int? get userRating; String? get subjects; String? get createdAt; String? get updatedAt; String? get finishedReadingAt; String? get startedReadingAt; bool get owned; double? get price; List<String>? get digitalFormats; bool get private; int? get pageCount; String? get addedAt; String? get hubCoverUploadFailedAt; String? get uuid;
+ String? get id; String get title; String? get author; String? get isbn; String? get summary; String? get publisher; int? get publicationYear; String? get coverUrl; String? get largeCoverUrl; String? get readingStatus; int? get shelfPosition; int? get userRating; String? get subjects; String? get createdAt; String? get updatedAt; String? get finishedReadingAt; String? get startedReadingAt; bool get owned; double? get price; List<String>? get digitalFormats; bool get private; int? get pageCount; String? get addedAt; String? get hubCoverUploadFailedAt;
 /// Create a copy of FrbBook
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -632,16 +632,16 @@ $FrbBookCopyWith<FrbBook> get copyWith => _$FrbBookCopyWithImpl<FrbBook>(this as
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbBook&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.author, author) || other.author == author)&&(identical(other.isbn, isbn) || other.isbn == isbn)&&(identical(other.summary, summary) || other.summary == summary)&&(identical(other.publisher, publisher) || other.publisher == publisher)&&(identical(other.publicationYear, publicationYear) || other.publicationYear == publicationYear)&&(identical(other.coverUrl, coverUrl) || other.coverUrl == coverUrl)&&(identical(other.largeCoverUrl, largeCoverUrl) || other.largeCoverUrl == largeCoverUrl)&&(identical(other.readingStatus, readingStatus) || other.readingStatus == readingStatus)&&(identical(other.shelfPosition, shelfPosition) || other.shelfPosition == shelfPosition)&&(identical(other.userRating, userRating) || other.userRating == userRating)&&(identical(other.subjects, subjects) || other.subjects == subjects)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.finishedReadingAt, finishedReadingAt) || other.finishedReadingAt == finishedReadingAt)&&(identical(other.startedReadingAt, startedReadingAt) || other.startedReadingAt == startedReadingAt)&&(identical(other.owned, owned) || other.owned == owned)&&(identical(other.price, price) || other.price == price)&&const DeepCollectionEquality().equals(other.digitalFormats, digitalFormats)&&(identical(other.private, private) || other.private == private)&&(identical(other.pageCount, pageCount) || other.pageCount == pageCount)&&(identical(other.addedAt, addedAt) || other.addedAt == addedAt)&&(identical(other.hubCoverUploadFailedAt, hubCoverUploadFailedAt) || other.hubCoverUploadFailedAt == hubCoverUploadFailedAt)&&(identical(other.uuid, uuid) || other.uuid == uuid));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbBook&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.author, author) || other.author == author)&&(identical(other.isbn, isbn) || other.isbn == isbn)&&(identical(other.summary, summary) || other.summary == summary)&&(identical(other.publisher, publisher) || other.publisher == publisher)&&(identical(other.publicationYear, publicationYear) || other.publicationYear == publicationYear)&&(identical(other.coverUrl, coverUrl) || other.coverUrl == coverUrl)&&(identical(other.largeCoverUrl, largeCoverUrl) || other.largeCoverUrl == largeCoverUrl)&&(identical(other.readingStatus, readingStatus) || other.readingStatus == readingStatus)&&(identical(other.shelfPosition, shelfPosition) || other.shelfPosition == shelfPosition)&&(identical(other.userRating, userRating) || other.userRating == userRating)&&(identical(other.subjects, subjects) || other.subjects == subjects)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.finishedReadingAt, finishedReadingAt) || other.finishedReadingAt == finishedReadingAt)&&(identical(other.startedReadingAt, startedReadingAt) || other.startedReadingAt == startedReadingAt)&&(identical(other.owned, owned) || other.owned == owned)&&(identical(other.price, price) || other.price == price)&&const DeepCollectionEquality().equals(other.digitalFormats, digitalFormats)&&(identical(other.private, private) || other.private == private)&&(identical(other.pageCount, pageCount) || other.pageCount == pageCount)&&(identical(other.addedAt, addedAt) || other.addedAt == addedAt)&&(identical(other.hubCoverUploadFailedAt, hubCoverUploadFailedAt) || other.hubCoverUploadFailedAt == hubCoverUploadFailedAt));
 }
 
 
 @override
-int get hashCode => Object.hashAll([runtimeType,id,title,author,isbn,summary,publisher,publicationYear,coverUrl,largeCoverUrl,readingStatus,shelfPosition,userRating,subjects,createdAt,updatedAt,finishedReadingAt,startedReadingAt,owned,price,const DeepCollectionEquality().hash(digitalFormats),private,pageCount,addedAt,hubCoverUploadFailedAt,uuid]);
+int get hashCode => Object.hashAll([runtimeType,id,title,author,isbn,summary,publisher,publicationYear,coverUrl,largeCoverUrl,readingStatus,shelfPosition,userRating,subjects,createdAt,updatedAt,finishedReadingAt,startedReadingAt,owned,price,const DeepCollectionEquality().hash(digitalFormats),private,pageCount,addedAt,hubCoverUploadFailedAt]);
 
 @override
 String toString() {
-  return 'FrbBook(id: $id, title: $title, author: $author, isbn: $isbn, summary: $summary, publisher: $publisher, publicationYear: $publicationYear, coverUrl: $coverUrl, largeCoverUrl: $largeCoverUrl, readingStatus: $readingStatus, shelfPosition: $shelfPosition, userRating: $userRating, subjects: $subjects, createdAt: $createdAt, updatedAt: $updatedAt, finishedReadingAt: $finishedReadingAt, startedReadingAt: $startedReadingAt, owned: $owned, price: $price, digitalFormats: $digitalFormats, private: $private, pageCount: $pageCount, addedAt: $addedAt, hubCoverUploadFailedAt: $hubCoverUploadFailedAt, uuid: $uuid)';
+  return 'FrbBook(id: $id, title: $title, author: $author, isbn: $isbn, summary: $summary, publisher: $publisher, publicationYear: $publicationYear, coverUrl: $coverUrl, largeCoverUrl: $largeCoverUrl, readingStatus: $readingStatus, shelfPosition: $shelfPosition, userRating: $userRating, subjects: $subjects, createdAt: $createdAt, updatedAt: $updatedAt, finishedReadingAt: $finishedReadingAt, startedReadingAt: $startedReadingAt, owned: $owned, price: $price, digitalFormats: $digitalFormats, private: $private, pageCount: $pageCount, addedAt: $addedAt, hubCoverUploadFailedAt: $hubCoverUploadFailedAt)';
 }
 
 
@@ -652,7 +652,7 @@ abstract mixin class $FrbBookCopyWith<$Res>  {
   factory $FrbBookCopyWith(FrbBook value, $Res Function(FrbBook) _then) = _$FrbBookCopyWithImpl;
 @useResult
 $Res call({
- int? id, String title, String? author, String? isbn, String? summary, String? publisher, int? publicationYear, String? coverUrl, String? largeCoverUrl, String? readingStatus, int? shelfPosition, int? userRating, String? subjects, String? createdAt, String? updatedAt, String? finishedReadingAt, String? startedReadingAt, bool owned, double? price, List<String>? digitalFormats, bool private, int? pageCount, String? addedAt, String? hubCoverUploadFailedAt, String? uuid
+ String? id, String title, String? author, String? isbn, String? summary, String? publisher, int? publicationYear, String? coverUrl, String? largeCoverUrl, String? readingStatus, int? shelfPosition, int? userRating, String? subjects, String? createdAt, String? updatedAt, String? finishedReadingAt, String? startedReadingAt, bool owned, double? price, List<String>? digitalFormats, bool private, int? pageCount, String? addedAt, String? hubCoverUploadFailedAt
 });
 
 
@@ -669,10 +669,10 @@ class _$FrbBookCopyWithImpl<$Res>
 
 /// Create a copy of FrbBook
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? title = null,Object? author = freezed,Object? isbn = freezed,Object? summary = freezed,Object? publisher = freezed,Object? publicationYear = freezed,Object? coverUrl = freezed,Object? largeCoverUrl = freezed,Object? readingStatus = freezed,Object? shelfPosition = freezed,Object? userRating = freezed,Object? subjects = freezed,Object? createdAt = freezed,Object? updatedAt = freezed,Object? finishedReadingAt = freezed,Object? startedReadingAt = freezed,Object? owned = null,Object? price = freezed,Object? digitalFormats = freezed,Object? private = null,Object? pageCount = freezed,Object? addedAt = freezed,Object? hubCoverUploadFailedAt = freezed,Object? uuid = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? title = null,Object? author = freezed,Object? isbn = freezed,Object? summary = freezed,Object? publisher = freezed,Object? publicationYear = freezed,Object? coverUrl = freezed,Object? largeCoverUrl = freezed,Object? readingStatus = freezed,Object? shelfPosition = freezed,Object? userRating = freezed,Object? subjects = freezed,Object? createdAt = freezed,Object? updatedAt = freezed,Object? finishedReadingAt = freezed,Object? startedReadingAt = freezed,Object? owned = null,Object? price = freezed,Object? digitalFormats = freezed,Object? private = null,Object? pageCount = freezed,Object? addedAt = freezed,Object? hubCoverUploadFailedAt = freezed,}) {
   return _then(_self.copyWith(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as int?,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String?,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,author: freezed == author ? _self.author : author // ignore: cast_nullable_to_non_nullable
 as String?,isbn: freezed == isbn ? _self.isbn : isbn // ignore: cast_nullable_to_non_nullable
 as String?,summary: freezed == summary ? _self.summary : summary // ignore: cast_nullable_to_non_nullable
@@ -695,7 +695,6 @@ as List<String>?,private: null == private ? _self.private : private // ignore: c
 as bool,pageCount: freezed == pageCount ? _self.pageCount : pageCount // ignore: cast_nullable_to_non_nullable
 as int?,addedAt: freezed == addedAt ? _self.addedAt : addedAt // ignore: cast_nullable_to_non_nullable
 as String?,hubCoverUploadFailedAt: freezed == hubCoverUploadFailedAt ? _self.hubCoverUploadFailedAt : hubCoverUploadFailedAt // ignore: cast_nullable_to_non_nullable
-as String?,uuid: freezed == uuid ? _self.uuid : uuid // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -778,10 +777,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  String title,  String? author,  String? isbn,  String? summary,  String? publisher,  int? publicationYear,  String? coverUrl,  String? largeCoverUrl,  String? readingStatus,  int? shelfPosition,  int? userRating,  String? subjects,  String? createdAt,  String? updatedAt,  String? finishedReadingAt,  String? startedReadingAt,  bool owned,  double? price,  List<String>? digitalFormats,  bool private,  int? pageCount,  String? addedAt,  String? hubCoverUploadFailedAt,  String? uuid)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? id,  String title,  String? author,  String? isbn,  String? summary,  String? publisher,  int? publicationYear,  String? coverUrl,  String? largeCoverUrl,  String? readingStatus,  int? shelfPosition,  int? userRating,  String? subjects,  String? createdAt,  String? updatedAt,  String? finishedReadingAt,  String? startedReadingAt,  bool owned,  double? price,  List<String>? digitalFormats,  bool private,  int? pageCount,  String? addedAt,  String? hubCoverUploadFailedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _FrbBook() when $default != null:
-return $default(_that.id,_that.title,_that.author,_that.isbn,_that.summary,_that.publisher,_that.publicationYear,_that.coverUrl,_that.largeCoverUrl,_that.readingStatus,_that.shelfPosition,_that.userRating,_that.subjects,_that.createdAt,_that.updatedAt,_that.finishedReadingAt,_that.startedReadingAt,_that.owned,_that.price,_that.digitalFormats,_that.private,_that.pageCount,_that.addedAt,_that.hubCoverUploadFailedAt,_that.uuid);case _:
+return $default(_that.id,_that.title,_that.author,_that.isbn,_that.summary,_that.publisher,_that.publicationYear,_that.coverUrl,_that.largeCoverUrl,_that.readingStatus,_that.shelfPosition,_that.userRating,_that.subjects,_that.createdAt,_that.updatedAt,_that.finishedReadingAt,_that.startedReadingAt,_that.owned,_that.price,_that.digitalFormats,_that.private,_that.pageCount,_that.addedAt,_that.hubCoverUploadFailedAt);case _:
   return orElse();
 
 }
@@ -799,10 +798,10 @@ return $default(_that.id,_that.title,_that.author,_that.isbn,_that.summary,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  String title,  String? author,  String? isbn,  String? summary,  String? publisher,  int? publicationYear,  String? coverUrl,  String? largeCoverUrl,  String? readingStatus,  int? shelfPosition,  int? userRating,  String? subjects,  String? createdAt,  String? updatedAt,  String? finishedReadingAt,  String? startedReadingAt,  bool owned,  double? price,  List<String>? digitalFormats,  bool private,  int? pageCount,  String? addedAt,  String? hubCoverUploadFailedAt,  String? uuid)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? id,  String title,  String? author,  String? isbn,  String? summary,  String? publisher,  int? publicationYear,  String? coverUrl,  String? largeCoverUrl,  String? readingStatus,  int? shelfPosition,  int? userRating,  String? subjects,  String? createdAt,  String? updatedAt,  String? finishedReadingAt,  String? startedReadingAt,  bool owned,  double? price,  List<String>? digitalFormats,  bool private,  int? pageCount,  String? addedAt,  String? hubCoverUploadFailedAt)  $default,) {final _that = this;
 switch (_that) {
 case _FrbBook():
-return $default(_that.id,_that.title,_that.author,_that.isbn,_that.summary,_that.publisher,_that.publicationYear,_that.coverUrl,_that.largeCoverUrl,_that.readingStatus,_that.shelfPosition,_that.userRating,_that.subjects,_that.createdAt,_that.updatedAt,_that.finishedReadingAt,_that.startedReadingAt,_that.owned,_that.price,_that.digitalFormats,_that.private,_that.pageCount,_that.addedAt,_that.hubCoverUploadFailedAt,_that.uuid);}
+return $default(_that.id,_that.title,_that.author,_that.isbn,_that.summary,_that.publisher,_that.publicationYear,_that.coverUrl,_that.largeCoverUrl,_that.readingStatus,_that.shelfPosition,_that.userRating,_that.subjects,_that.createdAt,_that.updatedAt,_that.finishedReadingAt,_that.startedReadingAt,_that.owned,_that.price,_that.digitalFormats,_that.private,_that.pageCount,_that.addedAt,_that.hubCoverUploadFailedAt);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -816,10 +815,10 @@ return $default(_that.id,_that.title,_that.author,_that.isbn,_that.summary,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  String title,  String? author,  String? isbn,  String? summary,  String? publisher,  int? publicationYear,  String? coverUrl,  String? largeCoverUrl,  String? readingStatus,  int? shelfPosition,  int? userRating,  String? subjects,  String? createdAt,  String? updatedAt,  String? finishedReadingAt,  String? startedReadingAt,  bool owned,  double? price,  List<String>? digitalFormats,  bool private,  int? pageCount,  String? addedAt,  String? hubCoverUploadFailedAt,  String? uuid)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? id,  String title,  String? author,  String? isbn,  String? summary,  String? publisher,  int? publicationYear,  String? coverUrl,  String? largeCoverUrl,  String? readingStatus,  int? shelfPosition,  int? userRating,  String? subjects,  String? createdAt,  String? updatedAt,  String? finishedReadingAt,  String? startedReadingAt,  bool owned,  double? price,  List<String>? digitalFormats,  bool private,  int? pageCount,  String? addedAt,  String? hubCoverUploadFailedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _FrbBook() when $default != null:
-return $default(_that.id,_that.title,_that.author,_that.isbn,_that.summary,_that.publisher,_that.publicationYear,_that.coverUrl,_that.largeCoverUrl,_that.readingStatus,_that.shelfPosition,_that.userRating,_that.subjects,_that.createdAt,_that.updatedAt,_that.finishedReadingAt,_that.startedReadingAt,_that.owned,_that.price,_that.digitalFormats,_that.private,_that.pageCount,_that.addedAt,_that.hubCoverUploadFailedAt,_that.uuid);case _:
+return $default(_that.id,_that.title,_that.author,_that.isbn,_that.summary,_that.publisher,_that.publicationYear,_that.coverUrl,_that.largeCoverUrl,_that.readingStatus,_that.shelfPosition,_that.userRating,_that.subjects,_that.createdAt,_that.updatedAt,_that.finishedReadingAt,_that.startedReadingAt,_that.owned,_that.price,_that.digitalFormats,_that.private,_that.pageCount,_that.addedAt,_that.hubCoverUploadFailedAt);case _:
   return null;
 
 }
@@ -831,10 +830,10 @@ return $default(_that.id,_that.title,_that.author,_that.isbn,_that.summary,_that
 
 
 class _FrbBook implements FrbBook {
-  const _FrbBook({this.id, required this.title, this.author, this.isbn, this.summary, this.publisher, this.publicationYear, this.coverUrl, this.largeCoverUrl, this.readingStatus, this.shelfPosition, this.userRating, this.subjects, this.createdAt, this.updatedAt, this.finishedReadingAt, this.startedReadingAt, required this.owned, this.price, final  List<String>? digitalFormats, required this.private, this.pageCount, this.addedAt, this.hubCoverUploadFailedAt, this.uuid}): _digitalFormats = digitalFormats;
+  const _FrbBook({this.id, required this.title, this.author, this.isbn, this.summary, this.publisher, this.publicationYear, this.coverUrl, this.largeCoverUrl, this.readingStatus, this.shelfPosition, this.userRating, this.subjects, this.createdAt, this.updatedAt, this.finishedReadingAt, this.startedReadingAt, required this.owned, this.price, final  List<String>? digitalFormats, required this.private, this.pageCount, this.addedAt, this.hubCoverUploadFailedAt}): _digitalFormats = digitalFormats;
   
 
-@override final  int? id;
+@override final  String? id;
 @override final  String title;
 @override final  String? author;
 @override final  String? isbn;
@@ -866,7 +865,6 @@ class _FrbBook implements FrbBook {
 @override final  int? pageCount;
 @override final  String? addedAt;
 @override final  String? hubCoverUploadFailedAt;
-@override final  String? uuid;
 
 /// Create a copy of FrbBook
 /// with the given fields replaced by the non-null parameter values.
@@ -878,16 +876,16 @@ _$FrbBookCopyWith<_FrbBook> get copyWith => __$FrbBookCopyWithImpl<_FrbBook>(thi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbBook&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.author, author) || other.author == author)&&(identical(other.isbn, isbn) || other.isbn == isbn)&&(identical(other.summary, summary) || other.summary == summary)&&(identical(other.publisher, publisher) || other.publisher == publisher)&&(identical(other.publicationYear, publicationYear) || other.publicationYear == publicationYear)&&(identical(other.coverUrl, coverUrl) || other.coverUrl == coverUrl)&&(identical(other.largeCoverUrl, largeCoverUrl) || other.largeCoverUrl == largeCoverUrl)&&(identical(other.readingStatus, readingStatus) || other.readingStatus == readingStatus)&&(identical(other.shelfPosition, shelfPosition) || other.shelfPosition == shelfPosition)&&(identical(other.userRating, userRating) || other.userRating == userRating)&&(identical(other.subjects, subjects) || other.subjects == subjects)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.finishedReadingAt, finishedReadingAt) || other.finishedReadingAt == finishedReadingAt)&&(identical(other.startedReadingAt, startedReadingAt) || other.startedReadingAt == startedReadingAt)&&(identical(other.owned, owned) || other.owned == owned)&&(identical(other.price, price) || other.price == price)&&const DeepCollectionEquality().equals(other._digitalFormats, _digitalFormats)&&(identical(other.private, private) || other.private == private)&&(identical(other.pageCount, pageCount) || other.pageCount == pageCount)&&(identical(other.addedAt, addedAt) || other.addedAt == addedAt)&&(identical(other.hubCoverUploadFailedAt, hubCoverUploadFailedAt) || other.hubCoverUploadFailedAt == hubCoverUploadFailedAt)&&(identical(other.uuid, uuid) || other.uuid == uuid));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbBook&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.author, author) || other.author == author)&&(identical(other.isbn, isbn) || other.isbn == isbn)&&(identical(other.summary, summary) || other.summary == summary)&&(identical(other.publisher, publisher) || other.publisher == publisher)&&(identical(other.publicationYear, publicationYear) || other.publicationYear == publicationYear)&&(identical(other.coverUrl, coverUrl) || other.coverUrl == coverUrl)&&(identical(other.largeCoverUrl, largeCoverUrl) || other.largeCoverUrl == largeCoverUrl)&&(identical(other.readingStatus, readingStatus) || other.readingStatus == readingStatus)&&(identical(other.shelfPosition, shelfPosition) || other.shelfPosition == shelfPosition)&&(identical(other.userRating, userRating) || other.userRating == userRating)&&(identical(other.subjects, subjects) || other.subjects == subjects)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.finishedReadingAt, finishedReadingAt) || other.finishedReadingAt == finishedReadingAt)&&(identical(other.startedReadingAt, startedReadingAt) || other.startedReadingAt == startedReadingAt)&&(identical(other.owned, owned) || other.owned == owned)&&(identical(other.price, price) || other.price == price)&&const DeepCollectionEquality().equals(other._digitalFormats, _digitalFormats)&&(identical(other.private, private) || other.private == private)&&(identical(other.pageCount, pageCount) || other.pageCount == pageCount)&&(identical(other.addedAt, addedAt) || other.addedAt == addedAt)&&(identical(other.hubCoverUploadFailedAt, hubCoverUploadFailedAt) || other.hubCoverUploadFailedAt == hubCoverUploadFailedAt));
 }
 
 
 @override
-int get hashCode => Object.hashAll([runtimeType,id,title,author,isbn,summary,publisher,publicationYear,coverUrl,largeCoverUrl,readingStatus,shelfPosition,userRating,subjects,createdAt,updatedAt,finishedReadingAt,startedReadingAt,owned,price,const DeepCollectionEquality().hash(_digitalFormats),private,pageCount,addedAt,hubCoverUploadFailedAt,uuid]);
+int get hashCode => Object.hashAll([runtimeType,id,title,author,isbn,summary,publisher,publicationYear,coverUrl,largeCoverUrl,readingStatus,shelfPosition,userRating,subjects,createdAt,updatedAt,finishedReadingAt,startedReadingAt,owned,price,const DeepCollectionEquality().hash(_digitalFormats),private,pageCount,addedAt,hubCoverUploadFailedAt]);
 
 @override
 String toString() {
-  return 'FrbBook(id: $id, title: $title, author: $author, isbn: $isbn, summary: $summary, publisher: $publisher, publicationYear: $publicationYear, coverUrl: $coverUrl, largeCoverUrl: $largeCoverUrl, readingStatus: $readingStatus, shelfPosition: $shelfPosition, userRating: $userRating, subjects: $subjects, createdAt: $createdAt, updatedAt: $updatedAt, finishedReadingAt: $finishedReadingAt, startedReadingAt: $startedReadingAt, owned: $owned, price: $price, digitalFormats: $digitalFormats, private: $private, pageCount: $pageCount, addedAt: $addedAt, hubCoverUploadFailedAt: $hubCoverUploadFailedAt, uuid: $uuid)';
+  return 'FrbBook(id: $id, title: $title, author: $author, isbn: $isbn, summary: $summary, publisher: $publisher, publicationYear: $publicationYear, coverUrl: $coverUrl, largeCoverUrl: $largeCoverUrl, readingStatus: $readingStatus, shelfPosition: $shelfPosition, userRating: $userRating, subjects: $subjects, createdAt: $createdAt, updatedAt: $updatedAt, finishedReadingAt: $finishedReadingAt, startedReadingAt: $startedReadingAt, owned: $owned, price: $price, digitalFormats: $digitalFormats, private: $private, pageCount: $pageCount, addedAt: $addedAt, hubCoverUploadFailedAt: $hubCoverUploadFailedAt)';
 }
 
 
@@ -898,7 +896,7 @@ abstract mixin class _$FrbBookCopyWith<$Res> implements $FrbBookCopyWith<$Res> {
   factory _$FrbBookCopyWith(_FrbBook value, $Res Function(_FrbBook) _then) = __$FrbBookCopyWithImpl;
 @override @useResult
 $Res call({
- int? id, String title, String? author, String? isbn, String? summary, String? publisher, int? publicationYear, String? coverUrl, String? largeCoverUrl, String? readingStatus, int? shelfPosition, int? userRating, String? subjects, String? createdAt, String? updatedAt, String? finishedReadingAt, String? startedReadingAt, bool owned, double? price, List<String>? digitalFormats, bool private, int? pageCount, String? addedAt, String? hubCoverUploadFailedAt, String? uuid
+ String? id, String title, String? author, String? isbn, String? summary, String? publisher, int? publicationYear, String? coverUrl, String? largeCoverUrl, String? readingStatus, int? shelfPosition, int? userRating, String? subjects, String? createdAt, String? updatedAt, String? finishedReadingAt, String? startedReadingAt, bool owned, double? price, List<String>? digitalFormats, bool private, int? pageCount, String? addedAt, String? hubCoverUploadFailedAt
 });
 
 
@@ -915,10 +913,10 @@ class __$FrbBookCopyWithImpl<$Res>
 
 /// Create a copy of FrbBook
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? title = null,Object? author = freezed,Object? isbn = freezed,Object? summary = freezed,Object? publisher = freezed,Object? publicationYear = freezed,Object? coverUrl = freezed,Object? largeCoverUrl = freezed,Object? readingStatus = freezed,Object? shelfPosition = freezed,Object? userRating = freezed,Object? subjects = freezed,Object? createdAt = freezed,Object? updatedAt = freezed,Object? finishedReadingAt = freezed,Object? startedReadingAt = freezed,Object? owned = null,Object? price = freezed,Object? digitalFormats = freezed,Object? private = null,Object? pageCount = freezed,Object? addedAt = freezed,Object? hubCoverUploadFailedAt = freezed,Object? uuid = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? title = null,Object? author = freezed,Object? isbn = freezed,Object? summary = freezed,Object? publisher = freezed,Object? publicationYear = freezed,Object? coverUrl = freezed,Object? largeCoverUrl = freezed,Object? readingStatus = freezed,Object? shelfPosition = freezed,Object? userRating = freezed,Object? subjects = freezed,Object? createdAt = freezed,Object? updatedAt = freezed,Object? finishedReadingAt = freezed,Object? startedReadingAt = freezed,Object? owned = null,Object? price = freezed,Object? digitalFormats = freezed,Object? private = null,Object? pageCount = freezed,Object? addedAt = freezed,Object? hubCoverUploadFailedAt = freezed,}) {
   return _then(_FrbBook(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as int?,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String?,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,author: freezed == author ? _self.author : author // ignore: cast_nullable_to_non_nullable
 as String?,isbn: freezed == isbn ? _self.isbn : isbn // ignore: cast_nullable_to_non_nullable
 as String?,summary: freezed == summary ? _self.summary : summary // ignore: cast_nullable_to_non_nullable
@@ -941,7 +939,6 @@ as List<String>?,private: null == private ? _self.private : private // ignore: c
 as bool,pageCount: freezed == pageCount ? _self.pageCount : pageCount // ignore: cast_nullable_to_non_nullable
 as int?,addedAt: freezed == addedAt ? _self.addedAt : addedAt // ignore: cast_nullable_to_non_nullable
 as String?,hubCoverUploadFailedAt: freezed == hubCoverUploadFailedAt ? _self.hubCoverUploadFailedAt : hubCoverUploadFailedAt // ignore: cast_nullable_to_non_nullable
-as String?,uuid: freezed == uuid ? _self.uuid : uuid // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -2004,7 +2001,7 @@ as PlatformInt64,
 /// @nodoc
 mixin _$FrbContact {
 
- int? get id; String get contactType; String get name; String? get firstName; String? get email; String? get phone; String? get address; String? get streetAddress; String? get postalCode; String? get city; String? get country; double? get latitude; double? get longitude; String? get notes; int? get userId; int? get libraryOwnerId; bool get isActive; String? get uuid;
+ String? get id; String get contactType; String get name; String? get firstName; String? get email; String? get phone; String? get address; String? get streetAddress; String? get postalCode; String? get city; String? get country; double? get latitude; double? get longitude; String? get notes; int? get userId; int? get libraryOwnerId; bool get isActive;
 /// Create a copy of FrbContact
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -2015,16 +2012,16 @@ $FrbContactCopyWith<FrbContact> get copyWith => _$FrbContactCopyWithImpl<FrbCont
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbContact&&(identical(other.id, id) || other.id == id)&&(identical(other.contactType, contactType) || other.contactType == contactType)&&(identical(other.name, name) || other.name == name)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.email, email) || other.email == email)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.address, address) || other.address == address)&&(identical(other.streetAddress, streetAddress) || other.streetAddress == streetAddress)&&(identical(other.postalCode, postalCode) || other.postalCode == postalCode)&&(identical(other.city, city) || other.city == city)&&(identical(other.country, country) || other.country == country)&&(identical(other.latitude, latitude) || other.latitude == latitude)&&(identical(other.longitude, longitude) || other.longitude == longitude)&&(identical(other.notes, notes) || other.notes == notes)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.libraryOwnerId, libraryOwnerId) || other.libraryOwnerId == libraryOwnerId)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.uuid, uuid) || other.uuid == uuid));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbContact&&(identical(other.id, id) || other.id == id)&&(identical(other.contactType, contactType) || other.contactType == contactType)&&(identical(other.name, name) || other.name == name)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.email, email) || other.email == email)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.address, address) || other.address == address)&&(identical(other.streetAddress, streetAddress) || other.streetAddress == streetAddress)&&(identical(other.postalCode, postalCode) || other.postalCode == postalCode)&&(identical(other.city, city) || other.city == city)&&(identical(other.country, country) || other.country == country)&&(identical(other.latitude, latitude) || other.latitude == latitude)&&(identical(other.longitude, longitude) || other.longitude == longitude)&&(identical(other.notes, notes) || other.notes == notes)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.libraryOwnerId, libraryOwnerId) || other.libraryOwnerId == libraryOwnerId)&&(identical(other.isActive, isActive) || other.isActive == isActive));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,contactType,name,firstName,email,phone,address,streetAddress,postalCode,city,country,latitude,longitude,notes,userId,libraryOwnerId,isActive,uuid);
+int get hashCode => Object.hash(runtimeType,id,contactType,name,firstName,email,phone,address,streetAddress,postalCode,city,country,latitude,longitude,notes,userId,libraryOwnerId,isActive);
 
 @override
 String toString() {
-  return 'FrbContact(id: $id, contactType: $contactType, name: $name, firstName: $firstName, email: $email, phone: $phone, address: $address, streetAddress: $streetAddress, postalCode: $postalCode, city: $city, country: $country, latitude: $latitude, longitude: $longitude, notes: $notes, userId: $userId, libraryOwnerId: $libraryOwnerId, isActive: $isActive, uuid: $uuid)';
+  return 'FrbContact(id: $id, contactType: $contactType, name: $name, firstName: $firstName, email: $email, phone: $phone, address: $address, streetAddress: $streetAddress, postalCode: $postalCode, city: $city, country: $country, latitude: $latitude, longitude: $longitude, notes: $notes, userId: $userId, libraryOwnerId: $libraryOwnerId, isActive: $isActive)';
 }
 
 
@@ -2035,7 +2032,7 @@ abstract mixin class $FrbContactCopyWith<$Res>  {
   factory $FrbContactCopyWith(FrbContact value, $Res Function(FrbContact) _then) = _$FrbContactCopyWithImpl;
 @useResult
 $Res call({
- int? id, String contactType, String name, String? firstName, String? email, String? phone, String? address, String? streetAddress, String? postalCode, String? city, String? country, double? latitude, double? longitude, String? notes, int? userId, int? libraryOwnerId, bool isActive, String? uuid
+ String? id, String contactType, String name, String? firstName, String? email, String? phone, String? address, String? streetAddress, String? postalCode, String? city, String? country, double? latitude, double? longitude, String? notes, int? userId, int? libraryOwnerId, bool isActive
 });
 
 
@@ -2052,10 +2049,10 @@ class _$FrbContactCopyWithImpl<$Res>
 
 /// Create a copy of FrbContact
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? contactType = null,Object? name = null,Object? firstName = freezed,Object? email = freezed,Object? phone = freezed,Object? address = freezed,Object? streetAddress = freezed,Object? postalCode = freezed,Object? city = freezed,Object? country = freezed,Object? latitude = freezed,Object? longitude = freezed,Object? notes = freezed,Object? userId = freezed,Object? libraryOwnerId = freezed,Object? isActive = null,Object? uuid = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? contactType = null,Object? name = null,Object? firstName = freezed,Object? email = freezed,Object? phone = freezed,Object? address = freezed,Object? streetAddress = freezed,Object? postalCode = freezed,Object? city = freezed,Object? country = freezed,Object? latitude = freezed,Object? longitude = freezed,Object? notes = freezed,Object? userId = freezed,Object? libraryOwnerId = freezed,Object? isActive = null,}) {
   return _then(_self.copyWith(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as int?,contactType: null == contactType ? _self.contactType : contactType // ignore: cast_nullable_to_non_nullable
+as String?,contactType: null == contactType ? _self.contactType : contactType // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,firstName: freezed == firstName ? _self.firstName : firstName // ignore: cast_nullable_to_non_nullable
 as String?,email: freezed == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
@@ -2071,8 +2068,7 @@ as double?,notes: freezed == notes ? _self.notes : notes // ignore: cast_nullabl
 as String?,userId: freezed == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as int?,libraryOwnerId: freezed == libraryOwnerId ? _self.libraryOwnerId : libraryOwnerId // ignore: cast_nullable_to_non_nullable
 as int?,isActive: null == isActive ? _self.isActive : isActive // ignore: cast_nullable_to_non_nullable
-as bool,uuid: freezed == uuid ? _self.uuid : uuid // ignore: cast_nullable_to_non_nullable
-as String?,
+as bool,
   ));
 }
 
@@ -2154,10 +2150,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  String contactType,  String name,  String? firstName,  String? email,  String? phone,  String? address,  String? streetAddress,  String? postalCode,  String? city,  String? country,  double? latitude,  double? longitude,  String? notes,  int? userId,  int? libraryOwnerId,  bool isActive,  String? uuid)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? id,  String contactType,  String name,  String? firstName,  String? email,  String? phone,  String? address,  String? streetAddress,  String? postalCode,  String? city,  String? country,  double? latitude,  double? longitude,  String? notes,  int? userId,  int? libraryOwnerId,  bool isActive)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _FrbContact() when $default != null:
-return $default(_that.id,_that.contactType,_that.name,_that.firstName,_that.email,_that.phone,_that.address,_that.streetAddress,_that.postalCode,_that.city,_that.country,_that.latitude,_that.longitude,_that.notes,_that.userId,_that.libraryOwnerId,_that.isActive,_that.uuid);case _:
+return $default(_that.id,_that.contactType,_that.name,_that.firstName,_that.email,_that.phone,_that.address,_that.streetAddress,_that.postalCode,_that.city,_that.country,_that.latitude,_that.longitude,_that.notes,_that.userId,_that.libraryOwnerId,_that.isActive);case _:
   return orElse();
 
 }
@@ -2175,10 +2171,10 @@ return $default(_that.id,_that.contactType,_that.name,_that.firstName,_that.emai
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  String contactType,  String name,  String? firstName,  String? email,  String? phone,  String? address,  String? streetAddress,  String? postalCode,  String? city,  String? country,  double? latitude,  double? longitude,  String? notes,  int? userId,  int? libraryOwnerId,  bool isActive,  String? uuid)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? id,  String contactType,  String name,  String? firstName,  String? email,  String? phone,  String? address,  String? streetAddress,  String? postalCode,  String? city,  String? country,  double? latitude,  double? longitude,  String? notes,  int? userId,  int? libraryOwnerId,  bool isActive)  $default,) {final _that = this;
 switch (_that) {
 case _FrbContact():
-return $default(_that.id,_that.contactType,_that.name,_that.firstName,_that.email,_that.phone,_that.address,_that.streetAddress,_that.postalCode,_that.city,_that.country,_that.latitude,_that.longitude,_that.notes,_that.userId,_that.libraryOwnerId,_that.isActive,_that.uuid);}
+return $default(_that.id,_that.contactType,_that.name,_that.firstName,_that.email,_that.phone,_that.address,_that.streetAddress,_that.postalCode,_that.city,_that.country,_that.latitude,_that.longitude,_that.notes,_that.userId,_that.libraryOwnerId,_that.isActive);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -2192,10 +2188,10 @@ return $default(_that.id,_that.contactType,_that.name,_that.firstName,_that.emai
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  String contactType,  String name,  String? firstName,  String? email,  String? phone,  String? address,  String? streetAddress,  String? postalCode,  String? city,  String? country,  double? latitude,  double? longitude,  String? notes,  int? userId,  int? libraryOwnerId,  bool isActive,  String? uuid)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? id,  String contactType,  String name,  String? firstName,  String? email,  String? phone,  String? address,  String? streetAddress,  String? postalCode,  String? city,  String? country,  double? latitude,  double? longitude,  String? notes,  int? userId,  int? libraryOwnerId,  bool isActive)?  $default,) {final _that = this;
 switch (_that) {
 case _FrbContact() when $default != null:
-return $default(_that.id,_that.contactType,_that.name,_that.firstName,_that.email,_that.phone,_that.address,_that.streetAddress,_that.postalCode,_that.city,_that.country,_that.latitude,_that.longitude,_that.notes,_that.userId,_that.libraryOwnerId,_that.isActive,_that.uuid);case _:
+return $default(_that.id,_that.contactType,_that.name,_that.firstName,_that.email,_that.phone,_that.address,_that.streetAddress,_that.postalCode,_that.city,_that.country,_that.latitude,_that.longitude,_that.notes,_that.userId,_that.libraryOwnerId,_that.isActive);case _:
   return null;
 
 }
@@ -2207,10 +2203,10 @@ return $default(_that.id,_that.contactType,_that.name,_that.firstName,_that.emai
 
 
 class _FrbContact implements FrbContact {
-  const _FrbContact({this.id, required this.contactType, required this.name, this.firstName, this.email, this.phone, this.address, this.streetAddress, this.postalCode, this.city, this.country, this.latitude, this.longitude, this.notes, this.userId, this.libraryOwnerId, required this.isActive, this.uuid});
+  const _FrbContact({this.id, required this.contactType, required this.name, this.firstName, this.email, this.phone, this.address, this.streetAddress, this.postalCode, this.city, this.country, this.latitude, this.longitude, this.notes, this.userId, this.libraryOwnerId, required this.isActive});
   
 
-@override final  int? id;
+@override final  String? id;
 @override final  String contactType;
 @override final  String name;
 @override final  String? firstName;
@@ -2227,7 +2223,6 @@ class _FrbContact implements FrbContact {
 @override final  int? userId;
 @override final  int? libraryOwnerId;
 @override final  bool isActive;
-@override final  String? uuid;
 
 /// Create a copy of FrbContact
 /// with the given fields replaced by the non-null parameter values.
@@ -2239,16 +2234,16 @@ _$FrbContactCopyWith<_FrbContact> get copyWith => __$FrbContactCopyWithImpl<_Frb
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbContact&&(identical(other.id, id) || other.id == id)&&(identical(other.contactType, contactType) || other.contactType == contactType)&&(identical(other.name, name) || other.name == name)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.email, email) || other.email == email)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.address, address) || other.address == address)&&(identical(other.streetAddress, streetAddress) || other.streetAddress == streetAddress)&&(identical(other.postalCode, postalCode) || other.postalCode == postalCode)&&(identical(other.city, city) || other.city == city)&&(identical(other.country, country) || other.country == country)&&(identical(other.latitude, latitude) || other.latitude == latitude)&&(identical(other.longitude, longitude) || other.longitude == longitude)&&(identical(other.notes, notes) || other.notes == notes)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.libraryOwnerId, libraryOwnerId) || other.libraryOwnerId == libraryOwnerId)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.uuid, uuid) || other.uuid == uuid));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbContact&&(identical(other.id, id) || other.id == id)&&(identical(other.contactType, contactType) || other.contactType == contactType)&&(identical(other.name, name) || other.name == name)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.email, email) || other.email == email)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.address, address) || other.address == address)&&(identical(other.streetAddress, streetAddress) || other.streetAddress == streetAddress)&&(identical(other.postalCode, postalCode) || other.postalCode == postalCode)&&(identical(other.city, city) || other.city == city)&&(identical(other.country, country) || other.country == country)&&(identical(other.latitude, latitude) || other.latitude == latitude)&&(identical(other.longitude, longitude) || other.longitude == longitude)&&(identical(other.notes, notes) || other.notes == notes)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.libraryOwnerId, libraryOwnerId) || other.libraryOwnerId == libraryOwnerId)&&(identical(other.isActive, isActive) || other.isActive == isActive));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,contactType,name,firstName,email,phone,address,streetAddress,postalCode,city,country,latitude,longitude,notes,userId,libraryOwnerId,isActive,uuid);
+int get hashCode => Object.hash(runtimeType,id,contactType,name,firstName,email,phone,address,streetAddress,postalCode,city,country,latitude,longitude,notes,userId,libraryOwnerId,isActive);
 
 @override
 String toString() {
-  return 'FrbContact(id: $id, contactType: $contactType, name: $name, firstName: $firstName, email: $email, phone: $phone, address: $address, streetAddress: $streetAddress, postalCode: $postalCode, city: $city, country: $country, latitude: $latitude, longitude: $longitude, notes: $notes, userId: $userId, libraryOwnerId: $libraryOwnerId, isActive: $isActive, uuid: $uuid)';
+  return 'FrbContact(id: $id, contactType: $contactType, name: $name, firstName: $firstName, email: $email, phone: $phone, address: $address, streetAddress: $streetAddress, postalCode: $postalCode, city: $city, country: $country, latitude: $latitude, longitude: $longitude, notes: $notes, userId: $userId, libraryOwnerId: $libraryOwnerId, isActive: $isActive)';
 }
 
 
@@ -2259,7 +2254,7 @@ abstract mixin class _$FrbContactCopyWith<$Res> implements $FrbContactCopyWith<$
   factory _$FrbContactCopyWith(_FrbContact value, $Res Function(_FrbContact) _then) = __$FrbContactCopyWithImpl;
 @override @useResult
 $Res call({
- int? id, String contactType, String name, String? firstName, String? email, String? phone, String? address, String? streetAddress, String? postalCode, String? city, String? country, double? latitude, double? longitude, String? notes, int? userId, int? libraryOwnerId, bool isActive, String? uuid
+ String? id, String contactType, String name, String? firstName, String? email, String? phone, String? address, String? streetAddress, String? postalCode, String? city, String? country, double? latitude, double? longitude, String? notes, int? userId, int? libraryOwnerId, bool isActive
 });
 
 
@@ -2276,10 +2271,10 @@ class __$FrbContactCopyWithImpl<$Res>
 
 /// Create a copy of FrbContact
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? contactType = null,Object? name = null,Object? firstName = freezed,Object? email = freezed,Object? phone = freezed,Object? address = freezed,Object? streetAddress = freezed,Object? postalCode = freezed,Object? city = freezed,Object? country = freezed,Object? latitude = freezed,Object? longitude = freezed,Object? notes = freezed,Object? userId = freezed,Object? libraryOwnerId = freezed,Object? isActive = null,Object? uuid = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? contactType = null,Object? name = null,Object? firstName = freezed,Object? email = freezed,Object? phone = freezed,Object? address = freezed,Object? streetAddress = freezed,Object? postalCode = freezed,Object? city = freezed,Object? country = freezed,Object? latitude = freezed,Object? longitude = freezed,Object? notes = freezed,Object? userId = freezed,Object? libraryOwnerId = freezed,Object? isActive = null,}) {
   return _then(_FrbContact(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as int?,contactType: null == contactType ? _self.contactType : contactType // ignore: cast_nullable_to_non_nullable
+as String?,contactType: null == contactType ? _self.contactType : contactType // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,firstName: freezed == firstName ? _self.firstName : firstName // ignore: cast_nullable_to_non_nullable
 as String?,email: freezed == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
@@ -2295,8 +2290,7 @@ as double?,notes: freezed == notes ? _self.notes : notes // ignore: cast_nullabl
 as String?,userId: freezed == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as int?,libraryOwnerId: freezed == libraryOwnerId ? _self.libraryOwnerId : libraryOwnerId // ignore: cast_nullable_to_non_nullable
 as int?,isActive: null == isActive ? _self.isActive : isActive // ignore: cast_nullable_to_non_nullable
-as bool,uuid: freezed == uuid ? _self.uuid : uuid // ignore: cast_nullable_to_non_nullable
-as String?,
+as bool,
   ));
 }
 
@@ -3373,7 +3367,7 @@ as String?,
 /// @nodoc
 mixin _$FrbFilledBook {
 
- int get bookId; String get title; String? get coverUrl; List<FrbFilledField> get fields;
+ String get bookId; String get title; String? get coverUrl; List<FrbFilledField> get fields;
 /// Create a copy of FrbFilledBook
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -3404,7 +3398,7 @@ abstract mixin class $FrbFilledBookCopyWith<$Res>  {
   factory $FrbFilledBookCopyWith(FrbFilledBook value, $Res Function(FrbFilledBook) _then) = _$FrbFilledBookCopyWithImpl;
 @useResult
 $Res call({
- int bookId, String title, String? coverUrl, List<FrbFilledField> fields
+ String bookId, String title, String? coverUrl, List<FrbFilledField> fields
 });
 
 
@@ -3424,7 +3418,7 @@ class _$FrbFilledBookCopyWithImpl<$Res>
 @pragma('vm:prefer-inline') @override $Res call({Object? bookId = null,Object? title = null,Object? coverUrl = freezed,Object? fields = null,}) {
   return _then(_self.copyWith(
 bookId: null == bookId ? _self.bookId : bookId // ignore: cast_nullable_to_non_nullable
-as int,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,coverUrl: freezed == coverUrl ? _self.coverUrl : coverUrl // ignore: cast_nullable_to_non_nullable
 as String?,fields: null == fields ? _self.fields : fields // ignore: cast_nullable_to_non_nullable
 as List<FrbFilledField>,
@@ -3509,7 +3503,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int bookId,  String title,  String? coverUrl,  List<FrbFilledField> fields)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String bookId,  String title,  String? coverUrl,  List<FrbFilledField> fields)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _FrbFilledBook() when $default != null:
 return $default(_that.bookId,_that.title,_that.coverUrl,_that.fields);case _:
@@ -3530,7 +3524,7 @@ return $default(_that.bookId,_that.title,_that.coverUrl,_that.fields);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int bookId,  String title,  String? coverUrl,  List<FrbFilledField> fields)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String bookId,  String title,  String? coverUrl,  List<FrbFilledField> fields)  $default,) {final _that = this;
 switch (_that) {
 case _FrbFilledBook():
 return $default(_that.bookId,_that.title,_that.coverUrl,_that.fields);}
@@ -3547,7 +3541,7 @@ return $default(_that.bookId,_that.title,_that.coverUrl,_that.fields);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int bookId,  String title,  String? coverUrl,  List<FrbFilledField> fields)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String bookId,  String title,  String? coverUrl,  List<FrbFilledField> fields)?  $default,) {final _that = this;
 switch (_that) {
 case _FrbFilledBook() when $default != null:
 return $default(_that.bookId,_that.title,_that.coverUrl,_that.fields);case _:
@@ -3565,7 +3559,7 @@ class _FrbFilledBook implements FrbFilledBook {
   const _FrbFilledBook({required this.bookId, required this.title, this.coverUrl, required final  List<FrbFilledField> fields}): _fields = fields;
   
 
-@override final  int bookId;
+@override final  String bookId;
 @override final  String title;
 @override final  String? coverUrl;
  final  List<FrbFilledField> _fields;
@@ -3606,7 +3600,7 @@ abstract mixin class _$FrbFilledBookCopyWith<$Res> implements $FrbFilledBookCopy
   factory _$FrbFilledBookCopyWith(_FrbFilledBook value, $Res Function(_FrbFilledBook) _then) = __$FrbFilledBookCopyWithImpl;
 @override @useResult
 $Res call({
- int bookId, String title, String? coverUrl, List<FrbFilledField> fields
+ String bookId, String title, String? coverUrl, List<FrbFilledField> fields
 });
 
 
@@ -3626,7 +3620,7 @@ class __$FrbFilledBookCopyWithImpl<$Res>
 @override @pragma('vm:prefer-inline') $Res call({Object? bookId = null,Object? title = null,Object? coverUrl = freezed,Object? fields = null,}) {
   return _then(_FrbFilledBook(
 bookId: null == bookId ? _self.bookId : bookId // ignore: cast_nullable_to_non_nullable
-as int,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,coverUrl: freezed == coverUrl ? _self.coverUrl : coverUrl // ignore: cast_nullable_to_non_nullable
 as String?,fields: null == fields ? _self._fields : fields // ignore: cast_nullable_to_non_nullable
 as List<FrbFilledField>,
@@ -4745,7 +4739,7 @@ as String?,
 /// @nodoc
 mixin _$FrbIncompleteBook {
 
- int get id; String get title; String? get isbn;
+ String get id; String get title; String? get isbn;
 /// Create a copy of FrbIncompleteBook
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -4776,7 +4770,7 @@ abstract mixin class $FrbIncompleteBookCopyWith<$Res>  {
   factory $FrbIncompleteBookCopyWith(FrbIncompleteBook value, $Res Function(FrbIncompleteBook) _then) = _$FrbIncompleteBookCopyWithImpl;
 @useResult
 $Res call({
- int id, String title, String? isbn
+ String id, String title, String? isbn
 });
 
 
@@ -4796,7 +4790,7 @@ class _$FrbIncompleteBookCopyWithImpl<$Res>
 @pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? isbn = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as int,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,isbn: freezed == isbn ? _self.isbn : isbn // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
@@ -4880,7 +4874,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String title,  String? isbn)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String title,  String? isbn)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _FrbIncompleteBook() when $default != null:
 return $default(_that.id,_that.title,_that.isbn);case _:
@@ -4901,7 +4895,7 @@ return $default(_that.id,_that.title,_that.isbn);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String title,  String? isbn)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String title,  String? isbn)  $default,) {final _that = this;
 switch (_that) {
 case _FrbIncompleteBook():
 return $default(_that.id,_that.title,_that.isbn);}
@@ -4918,7 +4912,7 @@ return $default(_that.id,_that.title,_that.isbn);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String title,  String? isbn)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String title,  String? isbn)?  $default,) {final _that = this;
 switch (_that) {
 case _FrbIncompleteBook() when $default != null:
 return $default(_that.id,_that.title,_that.isbn);case _:
@@ -4936,7 +4930,7 @@ class _FrbIncompleteBook implements FrbIncompleteBook {
   const _FrbIncompleteBook({required this.id, required this.title, this.isbn});
   
 
-@override final  int id;
+@override final  String id;
 @override final  String title;
 @override final  String? isbn;
 
@@ -4970,7 +4964,7 @@ abstract mixin class _$FrbIncompleteBookCopyWith<$Res> implements $FrbIncomplete
   factory _$FrbIncompleteBookCopyWith(_FrbIncompleteBook value, $Res Function(_FrbIncompleteBook) _then) = __$FrbIncompleteBookCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String title, String? isbn
+ String id, String title, String? isbn
 });
 
 
@@ -4990,7 +4984,7 @@ class __$FrbIncompleteBookCopyWithImpl<$Res>
 @override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? isbn = freezed,}) {
   return _then(_FrbIncompleteBook(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as int,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,isbn: freezed == isbn ? _self.isbn : isbn // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
@@ -5002,7 +4996,7 @@ as String?,
 /// @nodoc
 mixin _$FrbIncompleteBookDetail {
 
- int get id; String get title; String? get isbn; String? get coverUrl; List<String> get missing;
+ String get id; String get title; String? get isbn; String? get coverUrl; List<String> get missing;
 /// Create a copy of FrbIncompleteBookDetail
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -5033,7 +5027,7 @@ abstract mixin class $FrbIncompleteBookDetailCopyWith<$Res>  {
   factory $FrbIncompleteBookDetailCopyWith(FrbIncompleteBookDetail value, $Res Function(FrbIncompleteBookDetail) _then) = _$FrbIncompleteBookDetailCopyWithImpl;
 @useResult
 $Res call({
- int id, String title, String? isbn, String? coverUrl, List<String> missing
+ String id, String title, String? isbn, String? coverUrl, List<String> missing
 });
 
 
@@ -5053,7 +5047,7 @@ class _$FrbIncompleteBookDetailCopyWithImpl<$Res>
 @pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? isbn = freezed,Object? coverUrl = freezed,Object? missing = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as int,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,isbn: freezed == isbn ? _self.isbn : isbn // ignore: cast_nullable_to_non_nullable
 as String?,coverUrl: freezed == coverUrl ? _self.coverUrl : coverUrl // ignore: cast_nullable_to_non_nullable
 as String?,missing: null == missing ? _self.missing : missing // ignore: cast_nullable_to_non_nullable
@@ -5139,7 +5133,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String title,  String? isbn,  String? coverUrl,  List<String> missing)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String title,  String? isbn,  String? coverUrl,  List<String> missing)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _FrbIncompleteBookDetail() when $default != null:
 return $default(_that.id,_that.title,_that.isbn,_that.coverUrl,_that.missing);case _:
@@ -5160,7 +5154,7 @@ return $default(_that.id,_that.title,_that.isbn,_that.coverUrl,_that.missing);ca
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String title,  String? isbn,  String? coverUrl,  List<String> missing)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String title,  String? isbn,  String? coverUrl,  List<String> missing)  $default,) {final _that = this;
 switch (_that) {
 case _FrbIncompleteBookDetail():
 return $default(_that.id,_that.title,_that.isbn,_that.coverUrl,_that.missing);}
@@ -5177,7 +5171,7 @@ return $default(_that.id,_that.title,_that.isbn,_that.coverUrl,_that.missing);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String title,  String? isbn,  String? coverUrl,  List<String> missing)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String title,  String? isbn,  String? coverUrl,  List<String> missing)?  $default,) {final _that = this;
 switch (_that) {
 case _FrbIncompleteBookDetail() when $default != null:
 return $default(_that.id,_that.title,_that.isbn,_that.coverUrl,_that.missing);case _:
@@ -5195,7 +5189,7 @@ class _FrbIncompleteBookDetail implements FrbIncompleteBookDetail {
   const _FrbIncompleteBookDetail({required this.id, required this.title, this.isbn, this.coverUrl, required final  List<String> missing}): _missing = missing;
   
 
-@override final  int id;
+@override final  String id;
 @override final  String title;
 @override final  String? isbn;
 @override final  String? coverUrl;
@@ -5237,7 +5231,7 @@ abstract mixin class _$FrbIncompleteBookDetailCopyWith<$Res> implements $FrbInco
   factory _$FrbIncompleteBookDetailCopyWith(_FrbIncompleteBookDetail value, $Res Function(_FrbIncompleteBookDetail) _then) = __$FrbIncompleteBookDetailCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String title, String? isbn, String? coverUrl, List<String> missing
+ String id, String title, String? isbn, String? coverUrl, List<String> missing
 });
 
 
@@ -5257,7 +5251,7 @@ class __$FrbIncompleteBookDetailCopyWithImpl<$Res>
 @override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? isbn = freezed,Object? coverUrl = freezed,Object? missing = null,}) {
   return _then(_FrbIncompleteBookDetail(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as int,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,isbn: freezed == isbn ? _self.isbn : isbn // ignore: cast_nullable_to_non_nullable
 as String?,coverUrl: freezed == coverUrl ? _self.coverUrl : coverUrl // ignore: cast_nullable_to_non_nullable
 as String?,missing: null == missing ? _self._missing : missing // ignore: cast_nullable_to_non_nullable
@@ -5522,7 +5516,7 @@ as int,
 /// @nodoc
 mixin _$FrbLoan {
 
- int get id; int get copyId; int get contactId; int get libraryId; String get loanDate; String get dueDate; String? get returnDate; String get status; String? get notes; String get contactName; String get bookTitle; int? get bookId; String? get coverUrl; String? get isbn; String? get uuid;
+ String get id; String get copyId; String get contactId; int get libraryId; String get loanDate; String get dueDate; String? get returnDate; String get status; String? get notes; String get contactName; String get bookTitle; String? get bookId; String? get coverUrl; String? get isbn;
 /// Create a copy of FrbLoan
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -5533,16 +5527,16 @@ $FrbLoanCopyWith<FrbLoan> get copyWith => _$FrbLoanCopyWithImpl<FrbLoan>(this as
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbLoan&&(identical(other.id, id) || other.id == id)&&(identical(other.copyId, copyId) || other.copyId == copyId)&&(identical(other.contactId, contactId) || other.contactId == contactId)&&(identical(other.libraryId, libraryId) || other.libraryId == libraryId)&&(identical(other.loanDate, loanDate) || other.loanDate == loanDate)&&(identical(other.dueDate, dueDate) || other.dueDate == dueDate)&&(identical(other.returnDate, returnDate) || other.returnDate == returnDate)&&(identical(other.status, status) || other.status == status)&&(identical(other.notes, notes) || other.notes == notes)&&(identical(other.contactName, contactName) || other.contactName == contactName)&&(identical(other.bookTitle, bookTitle) || other.bookTitle == bookTitle)&&(identical(other.bookId, bookId) || other.bookId == bookId)&&(identical(other.coverUrl, coverUrl) || other.coverUrl == coverUrl)&&(identical(other.isbn, isbn) || other.isbn == isbn)&&(identical(other.uuid, uuid) || other.uuid == uuid));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbLoan&&(identical(other.id, id) || other.id == id)&&(identical(other.copyId, copyId) || other.copyId == copyId)&&(identical(other.contactId, contactId) || other.contactId == contactId)&&(identical(other.libraryId, libraryId) || other.libraryId == libraryId)&&(identical(other.loanDate, loanDate) || other.loanDate == loanDate)&&(identical(other.dueDate, dueDate) || other.dueDate == dueDate)&&(identical(other.returnDate, returnDate) || other.returnDate == returnDate)&&(identical(other.status, status) || other.status == status)&&(identical(other.notes, notes) || other.notes == notes)&&(identical(other.contactName, contactName) || other.contactName == contactName)&&(identical(other.bookTitle, bookTitle) || other.bookTitle == bookTitle)&&(identical(other.bookId, bookId) || other.bookId == bookId)&&(identical(other.coverUrl, coverUrl) || other.coverUrl == coverUrl)&&(identical(other.isbn, isbn) || other.isbn == isbn));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,copyId,contactId,libraryId,loanDate,dueDate,returnDate,status,notes,contactName,bookTitle,bookId,coverUrl,isbn,uuid);
+int get hashCode => Object.hash(runtimeType,id,copyId,contactId,libraryId,loanDate,dueDate,returnDate,status,notes,contactName,bookTitle,bookId,coverUrl,isbn);
 
 @override
 String toString() {
-  return 'FrbLoan(id: $id, copyId: $copyId, contactId: $contactId, libraryId: $libraryId, loanDate: $loanDate, dueDate: $dueDate, returnDate: $returnDate, status: $status, notes: $notes, contactName: $contactName, bookTitle: $bookTitle, bookId: $bookId, coverUrl: $coverUrl, isbn: $isbn, uuid: $uuid)';
+  return 'FrbLoan(id: $id, copyId: $copyId, contactId: $contactId, libraryId: $libraryId, loanDate: $loanDate, dueDate: $dueDate, returnDate: $returnDate, status: $status, notes: $notes, contactName: $contactName, bookTitle: $bookTitle, bookId: $bookId, coverUrl: $coverUrl, isbn: $isbn)';
 }
 
 
@@ -5553,7 +5547,7 @@ abstract mixin class $FrbLoanCopyWith<$Res>  {
   factory $FrbLoanCopyWith(FrbLoan value, $Res Function(FrbLoan) _then) = _$FrbLoanCopyWithImpl;
 @useResult
 $Res call({
- int id, int copyId, int contactId, int libraryId, String loanDate, String dueDate, String? returnDate, String status, String? notes, String contactName, String bookTitle, int? bookId, String? coverUrl, String? isbn, String? uuid
+ String id, String copyId, String contactId, int libraryId, String loanDate, String dueDate, String? returnDate, String status, String? notes, String contactName, String bookTitle, String? bookId, String? coverUrl, String? isbn
 });
 
 
@@ -5570,12 +5564,12 @@ class _$FrbLoanCopyWithImpl<$Res>
 
 /// Create a copy of FrbLoan
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? copyId = null,Object? contactId = null,Object? libraryId = null,Object? loanDate = null,Object? dueDate = null,Object? returnDate = freezed,Object? status = null,Object? notes = freezed,Object? contactName = null,Object? bookTitle = null,Object? bookId = freezed,Object? coverUrl = freezed,Object? isbn = freezed,Object? uuid = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? copyId = null,Object? contactId = null,Object? libraryId = null,Object? loanDate = null,Object? dueDate = null,Object? returnDate = freezed,Object? status = null,Object? notes = freezed,Object? contactName = null,Object? bookTitle = null,Object? bookId = freezed,Object? coverUrl = freezed,Object? isbn = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as int,copyId: null == copyId ? _self.copyId : copyId // ignore: cast_nullable_to_non_nullable
-as int,contactId: null == contactId ? _self.contactId : contactId // ignore: cast_nullable_to_non_nullable
-as int,libraryId: null == libraryId ? _self.libraryId : libraryId // ignore: cast_nullable_to_non_nullable
+as String,copyId: null == copyId ? _self.copyId : copyId // ignore: cast_nullable_to_non_nullable
+as String,contactId: null == contactId ? _self.contactId : contactId // ignore: cast_nullable_to_non_nullable
+as String,libraryId: null == libraryId ? _self.libraryId : libraryId // ignore: cast_nullable_to_non_nullable
 as int,loanDate: null == loanDate ? _self.loanDate : loanDate // ignore: cast_nullable_to_non_nullable
 as String,dueDate: null == dueDate ? _self.dueDate : dueDate // ignore: cast_nullable_to_non_nullable
 as String,returnDate: freezed == returnDate ? _self.returnDate : returnDate // ignore: cast_nullable_to_non_nullable
@@ -5584,9 +5578,8 @@ as String,notes: freezed == notes ? _self.notes : notes // ignore: cast_nullable
 as String?,contactName: null == contactName ? _self.contactName : contactName // ignore: cast_nullable_to_non_nullable
 as String,bookTitle: null == bookTitle ? _self.bookTitle : bookTitle // ignore: cast_nullable_to_non_nullable
 as String,bookId: freezed == bookId ? _self.bookId : bookId // ignore: cast_nullable_to_non_nullable
-as int?,coverUrl: freezed == coverUrl ? _self.coverUrl : coverUrl // ignore: cast_nullable_to_non_nullable
+as String?,coverUrl: freezed == coverUrl ? _self.coverUrl : coverUrl // ignore: cast_nullable_to_non_nullable
 as String?,isbn: freezed == isbn ? _self.isbn : isbn // ignore: cast_nullable_to_non_nullable
-as String?,uuid: freezed == uuid ? _self.uuid : uuid // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -5669,10 +5662,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  int copyId,  int contactId,  int libraryId,  String loanDate,  String dueDate,  String? returnDate,  String status,  String? notes,  String contactName,  String bookTitle,  int? bookId,  String? coverUrl,  String? isbn,  String? uuid)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String copyId,  String contactId,  int libraryId,  String loanDate,  String dueDate,  String? returnDate,  String status,  String? notes,  String contactName,  String bookTitle,  String? bookId,  String? coverUrl,  String? isbn)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _FrbLoan() when $default != null:
-return $default(_that.id,_that.copyId,_that.contactId,_that.libraryId,_that.loanDate,_that.dueDate,_that.returnDate,_that.status,_that.notes,_that.contactName,_that.bookTitle,_that.bookId,_that.coverUrl,_that.isbn,_that.uuid);case _:
+return $default(_that.id,_that.copyId,_that.contactId,_that.libraryId,_that.loanDate,_that.dueDate,_that.returnDate,_that.status,_that.notes,_that.contactName,_that.bookTitle,_that.bookId,_that.coverUrl,_that.isbn);case _:
   return orElse();
 
 }
@@ -5690,10 +5683,10 @@ return $default(_that.id,_that.copyId,_that.contactId,_that.libraryId,_that.loan
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  int copyId,  int contactId,  int libraryId,  String loanDate,  String dueDate,  String? returnDate,  String status,  String? notes,  String contactName,  String bookTitle,  int? bookId,  String? coverUrl,  String? isbn,  String? uuid)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String copyId,  String contactId,  int libraryId,  String loanDate,  String dueDate,  String? returnDate,  String status,  String? notes,  String contactName,  String bookTitle,  String? bookId,  String? coverUrl,  String? isbn)  $default,) {final _that = this;
 switch (_that) {
 case _FrbLoan():
-return $default(_that.id,_that.copyId,_that.contactId,_that.libraryId,_that.loanDate,_that.dueDate,_that.returnDate,_that.status,_that.notes,_that.contactName,_that.bookTitle,_that.bookId,_that.coverUrl,_that.isbn,_that.uuid);}
+return $default(_that.id,_that.copyId,_that.contactId,_that.libraryId,_that.loanDate,_that.dueDate,_that.returnDate,_that.status,_that.notes,_that.contactName,_that.bookTitle,_that.bookId,_that.coverUrl,_that.isbn);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -5707,10 +5700,10 @@ return $default(_that.id,_that.copyId,_that.contactId,_that.libraryId,_that.loan
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  int copyId,  int contactId,  int libraryId,  String loanDate,  String dueDate,  String? returnDate,  String status,  String? notes,  String contactName,  String bookTitle,  int? bookId,  String? coverUrl,  String? isbn,  String? uuid)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String copyId,  String contactId,  int libraryId,  String loanDate,  String dueDate,  String? returnDate,  String status,  String? notes,  String contactName,  String bookTitle,  String? bookId,  String? coverUrl,  String? isbn)?  $default,) {final _that = this;
 switch (_that) {
 case _FrbLoan() when $default != null:
-return $default(_that.id,_that.copyId,_that.contactId,_that.libraryId,_that.loanDate,_that.dueDate,_that.returnDate,_that.status,_that.notes,_that.contactName,_that.bookTitle,_that.bookId,_that.coverUrl,_that.isbn,_that.uuid);case _:
+return $default(_that.id,_that.copyId,_that.contactId,_that.libraryId,_that.loanDate,_that.dueDate,_that.returnDate,_that.status,_that.notes,_that.contactName,_that.bookTitle,_that.bookId,_that.coverUrl,_that.isbn);case _:
   return null;
 
 }
@@ -5722,12 +5715,12 @@ return $default(_that.id,_that.copyId,_that.contactId,_that.libraryId,_that.loan
 
 
 class _FrbLoan implements FrbLoan {
-  const _FrbLoan({required this.id, required this.copyId, required this.contactId, required this.libraryId, required this.loanDate, required this.dueDate, this.returnDate, required this.status, this.notes, required this.contactName, required this.bookTitle, this.bookId, this.coverUrl, this.isbn, this.uuid});
+  const _FrbLoan({required this.id, required this.copyId, required this.contactId, required this.libraryId, required this.loanDate, required this.dueDate, this.returnDate, required this.status, this.notes, required this.contactName, required this.bookTitle, this.bookId, this.coverUrl, this.isbn});
   
 
-@override final  int id;
-@override final  int copyId;
-@override final  int contactId;
+@override final  String id;
+@override final  String copyId;
+@override final  String contactId;
 @override final  int libraryId;
 @override final  String loanDate;
 @override final  String dueDate;
@@ -5736,10 +5729,9 @@ class _FrbLoan implements FrbLoan {
 @override final  String? notes;
 @override final  String contactName;
 @override final  String bookTitle;
-@override final  int? bookId;
+@override final  String? bookId;
 @override final  String? coverUrl;
 @override final  String? isbn;
-@override final  String? uuid;
 
 /// Create a copy of FrbLoan
 /// with the given fields replaced by the non-null parameter values.
@@ -5751,16 +5743,16 @@ _$FrbLoanCopyWith<_FrbLoan> get copyWith => __$FrbLoanCopyWithImpl<_FrbLoan>(thi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbLoan&&(identical(other.id, id) || other.id == id)&&(identical(other.copyId, copyId) || other.copyId == copyId)&&(identical(other.contactId, contactId) || other.contactId == contactId)&&(identical(other.libraryId, libraryId) || other.libraryId == libraryId)&&(identical(other.loanDate, loanDate) || other.loanDate == loanDate)&&(identical(other.dueDate, dueDate) || other.dueDate == dueDate)&&(identical(other.returnDate, returnDate) || other.returnDate == returnDate)&&(identical(other.status, status) || other.status == status)&&(identical(other.notes, notes) || other.notes == notes)&&(identical(other.contactName, contactName) || other.contactName == contactName)&&(identical(other.bookTitle, bookTitle) || other.bookTitle == bookTitle)&&(identical(other.bookId, bookId) || other.bookId == bookId)&&(identical(other.coverUrl, coverUrl) || other.coverUrl == coverUrl)&&(identical(other.isbn, isbn) || other.isbn == isbn)&&(identical(other.uuid, uuid) || other.uuid == uuid));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbLoan&&(identical(other.id, id) || other.id == id)&&(identical(other.copyId, copyId) || other.copyId == copyId)&&(identical(other.contactId, contactId) || other.contactId == contactId)&&(identical(other.libraryId, libraryId) || other.libraryId == libraryId)&&(identical(other.loanDate, loanDate) || other.loanDate == loanDate)&&(identical(other.dueDate, dueDate) || other.dueDate == dueDate)&&(identical(other.returnDate, returnDate) || other.returnDate == returnDate)&&(identical(other.status, status) || other.status == status)&&(identical(other.notes, notes) || other.notes == notes)&&(identical(other.contactName, contactName) || other.contactName == contactName)&&(identical(other.bookTitle, bookTitle) || other.bookTitle == bookTitle)&&(identical(other.bookId, bookId) || other.bookId == bookId)&&(identical(other.coverUrl, coverUrl) || other.coverUrl == coverUrl)&&(identical(other.isbn, isbn) || other.isbn == isbn));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,copyId,contactId,libraryId,loanDate,dueDate,returnDate,status,notes,contactName,bookTitle,bookId,coverUrl,isbn,uuid);
+int get hashCode => Object.hash(runtimeType,id,copyId,contactId,libraryId,loanDate,dueDate,returnDate,status,notes,contactName,bookTitle,bookId,coverUrl,isbn);
 
 @override
 String toString() {
-  return 'FrbLoan(id: $id, copyId: $copyId, contactId: $contactId, libraryId: $libraryId, loanDate: $loanDate, dueDate: $dueDate, returnDate: $returnDate, status: $status, notes: $notes, contactName: $contactName, bookTitle: $bookTitle, bookId: $bookId, coverUrl: $coverUrl, isbn: $isbn, uuid: $uuid)';
+  return 'FrbLoan(id: $id, copyId: $copyId, contactId: $contactId, libraryId: $libraryId, loanDate: $loanDate, dueDate: $dueDate, returnDate: $returnDate, status: $status, notes: $notes, contactName: $contactName, bookTitle: $bookTitle, bookId: $bookId, coverUrl: $coverUrl, isbn: $isbn)';
 }
 
 
@@ -5771,7 +5763,7 @@ abstract mixin class _$FrbLoanCopyWith<$Res> implements $FrbLoanCopyWith<$Res> {
   factory _$FrbLoanCopyWith(_FrbLoan value, $Res Function(_FrbLoan) _then) = __$FrbLoanCopyWithImpl;
 @override @useResult
 $Res call({
- int id, int copyId, int contactId, int libraryId, String loanDate, String dueDate, String? returnDate, String status, String? notes, String contactName, String bookTitle, int? bookId, String? coverUrl, String? isbn, String? uuid
+ String id, String copyId, String contactId, int libraryId, String loanDate, String dueDate, String? returnDate, String status, String? notes, String contactName, String bookTitle, String? bookId, String? coverUrl, String? isbn
 });
 
 
@@ -5788,12 +5780,12 @@ class __$FrbLoanCopyWithImpl<$Res>
 
 /// Create a copy of FrbLoan
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? copyId = null,Object? contactId = null,Object? libraryId = null,Object? loanDate = null,Object? dueDate = null,Object? returnDate = freezed,Object? status = null,Object? notes = freezed,Object? contactName = null,Object? bookTitle = null,Object? bookId = freezed,Object? coverUrl = freezed,Object? isbn = freezed,Object? uuid = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? copyId = null,Object? contactId = null,Object? libraryId = null,Object? loanDate = null,Object? dueDate = null,Object? returnDate = freezed,Object? status = null,Object? notes = freezed,Object? contactName = null,Object? bookTitle = null,Object? bookId = freezed,Object? coverUrl = freezed,Object? isbn = freezed,}) {
   return _then(_FrbLoan(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as int,copyId: null == copyId ? _self.copyId : copyId // ignore: cast_nullable_to_non_nullable
-as int,contactId: null == contactId ? _self.contactId : contactId // ignore: cast_nullable_to_non_nullable
-as int,libraryId: null == libraryId ? _self.libraryId : libraryId // ignore: cast_nullable_to_non_nullable
+as String,copyId: null == copyId ? _self.copyId : copyId // ignore: cast_nullable_to_non_nullable
+as String,contactId: null == contactId ? _self.contactId : contactId // ignore: cast_nullable_to_non_nullable
+as String,libraryId: null == libraryId ? _self.libraryId : libraryId // ignore: cast_nullable_to_non_nullable
 as int,loanDate: null == loanDate ? _self.loanDate : loanDate // ignore: cast_nullable_to_non_nullable
 as String,dueDate: null == dueDate ? _self.dueDate : dueDate // ignore: cast_nullable_to_non_nullable
 as String,returnDate: freezed == returnDate ? _self.returnDate : returnDate // ignore: cast_nullable_to_non_nullable
@@ -5802,9 +5794,8 @@ as String,notes: freezed == notes ? _self.notes : notes // ignore: cast_nullable
 as String?,contactName: null == contactName ? _self.contactName : contactName // ignore: cast_nullable_to_non_nullable
 as String,bookTitle: null == bookTitle ? _self.bookTitle : bookTitle // ignore: cast_nullable_to_non_nullable
 as String,bookId: freezed == bookId ? _self.bookId : bookId // ignore: cast_nullable_to_non_nullable
-as int?,coverUrl: freezed == coverUrl ? _self.coverUrl : coverUrl // ignore: cast_nullable_to_non_nullable
+as String?,coverUrl: freezed == coverUrl ? _self.coverUrl : coverUrl // ignore: cast_nullable_to_non_nullable
 as String?,isbn: freezed == isbn ? _self.isbn : isbn // ignore: cast_nullable_to_non_nullable
-as String?,uuid: freezed == uuid ? _self.uuid : uuid // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -6326,7 +6317,7 @@ as String,
 /// @nodoc
 mixin _$FrbOperationLogEntry {
 
- int get id; String get entityType; int get entityId; String get operation; String? get payload; String get status; String? get errorMessage; bool get pinned; String get createdAt;
+ int get id; String get entityType; String get entityId; String get operation; String? get payload; String get status; String? get errorMessage; bool get pinned; String get createdAt;
 /// Create a copy of FrbOperationLogEntry
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -6357,7 +6348,7 @@ abstract mixin class $FrbOperationLogEntryCopyWith<$Res>  {
   factory $FrbOperationLogEntryCopyWith(FrbOperationLogEntry value, $Res Function(FrbOperationLogEntry) _then) = _$FrbOperationLogEntryCopyWithImpl;
 @useResult
 $Res call({
- int id, String entityType, int entityId, String operation, String? payload, String status, String? errorMessage, bool pinned, String createdAt
+ int id, String entityType, String entityId, String operation, String? payload, String status, String? errorMessage, bool pinned, String createdAt
 });
 
 
@@ -6379,7 +6370,7 @@ class _$FrbOperationLogEntryCopyWithImpl<$Res>
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,entityType: null == entityType ? _self.entityType : entityType // ignore: cast_nullable_to_non_nullable
 as String,entityId: null == entityId ? _self.entityId : entityId // ignore: cast_nullable_to_non_nullable
-as int,operation: null == operation ? _self.operation : operation // ignore: cast_nullable_to_non_nullable
+as String,operation: null == operation ? _self.operation : operation // ignore: cast_nullable_to_non_nullable
 as String,payload: freezed == payload ? _self.payload : payload // ignore: cast_nullable_to_non_nullable
 as String?,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as String,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
@@ -6467,7 +6458,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String entityType,  int entityId,  String operation,  String? payload,  String status,  String? errorMessage,  bool pinned,  String createdAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String entityType,  String entityId,  String operation,  String? payload,  String status,  String? errorMessage,  bool pinned,  String createdAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _FrbOperationLogEntry() when $default != null:
 return $default(_that.id,_that.entityType,_that.entityId,_that.operation,_that.payload,_that.status,_that.errorMessage,_that.pinned,_that.createdAt);case _:
@@ -6488,7 +6479,7 @@ return $default(_that.id,_that.entityType,_that.entityId,_that.operation,_that.p
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String entityType,  int entityId,  String operation,  String? payload,  String status,  String? errorMessage,  bool pinned,  String createdAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String entityType,  String entityId,  String operation,  String? payload,  String status,  String? errorMessage,  bool pinned,  String createdAt)  $default,) {final _that = this;
 switch (_that) {
 case _FrbOperationLogEntry():
 return $default(_that.id,_that.entityType,_that.entityId,_that.operation,_that.payload,_that.status,_that.errorMessage,_that.pinned,_that.createdAt);}
@@ -6505,7 +6496,7 @@ return $default(_that.id,_that.entityType,_that.entityId,_that.operation,_that.p
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String entityType,  int entityId,  String operation,  String? payload,  String status,  String? errorMessage,  bool pinned,  String createdAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String entityType,  String entityId,  String operation,  String? payload,  String status,  String? errorMessage,  bool pinned,  String createdAt)?  $default,) {final _that = this;
 switch (_that) {
 case _FrbOperationLogEntry() when $default != null:
 return $default(_that.id,_that.entityType,_that.entityId,_that.operation,_that.payload,_that.status,_that.errorMessage,_that.pinned,_that.createdAt);case _:
@@ -6525,7 +6516,7 @@ class _FrbOperationLogEntry implements FrbOperationLogEntry {
 
 @override final  int id;
 @override final  String entityType;
-@override final  int entityId;
+@override final  String entityId;
 @override final  String operation;
 @override final  String? payload;
 @override final  String status;
@@ -6563,7 +6554,7 @@ abstract mixin class _$FrbOperationLogEntryCopyWith<$Res> implements $FrbOperati
   factory _$FrbOperationLogEntryCopyWith(_FrbOperationLogEntry value, $Res Function(_FrbOperationLogEntry) _then) = __$FrbOperationLogEntryCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String entityType, int entityId, String operation, String? payload, String status, String? errorMessage, bool pinned, String createdAt
+ int id, String entityType, String entityId, String operation, String? payload, String status, String? errorMessage, bool pinned, String createdAt
 });
 
 
@@ -6585,7 +6576,7 @@ class __$FrbOperationLogEntryCopyWithImpl<$Res>
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,entityType: null == entityType ? _self.entityType : entityType // ignore: cast_nullable_to_non_nullable
 as String,entityId: null == entityId ? _self.entityId : entityId // ignore: cast_nullable_to_non_nullable
-as int,operation: null == operation ? _self.operation : operation // ignore: cast_nullable_to_non_nullable
+as String,operation: null == operation ? _self.operation : operation // ignore: cast_nullable_to_non_nullable
 as String,payload: freezed == payload ? _self.payload : payload // ignore: cast_nullable_to_non_nullable
 as String?,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as String,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
@@ -8224,7 +8215,7 @@ as PlatformInt64,
 /// @nodoc
 mixin _$FrbTag {
 
- int get id; String get name; int? get parentId; PlatformInt64 get count; String? get uuid;
+ String get id; String get name; String? get parentId; PlatformInt64 get count;
 /// Create a copy of FrbTag
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -8235,16 +8226,16 @@ $FrbTagCopyWith<FrbTag> get copyWith => _$FrbTagCopyWithImpl<FrbTag>(this as Frb
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbTag&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.parentId, parentId) || other.parentId == parentId)&&(identical(other.count, count) || other.count == count)&&(identical(other.uuid, uuid) || other.uuid == uuid));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbTag&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.parentId, parentId) || other.parentId == parentId)&&(identical(other.count, count) || other.count == count));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,name,parentId,count,uuid);
+int get hashCode => Object.hash(runtimeType,id,name,parentId,count);
 
 @override
 String toString() {
-  return 'FrbTag(id: $id, name: $name, parentId: $parentId, count: $count, uuid: $uuid)';
+  return 'FrbTag(id: $id, name: $name, parentId: $parentId, count: $count)';
 }
 
 
@@ -8255,7 +8246,7 @@ abstract mixin class $FrbTagCopyWith<$Res>  {
   factory $FrbTagCopyWith(FrbTag value, $Res Function(FrbTag) _then) = _$FrbTagCopyWithImpl;
 @useResult
 $Res call({
- int id, String name, int? parentId, PlatformInt64 count, String? uuid
+ String id, String name, String? parentId, PlatformInt64 count
 });
 
 
@@ -8272,14 +8263,13 @@ class _$FrbTagCopyWithImpl<$Res>
 
 /// Create a copy of FrbTag
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? parentId = freezed,Object? count = null,Object? uuid = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? parentId = freezed,Object? count = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,parentId: freezed == parentId ? _self.parentId : parentId // ignore: cast_nullable_to_non_nullable
-as int?,count: null == count ? _self.count : count // ignore: cast_nullable_to_non_nullable
-as PlatformInt64,uuid: freezed == uuid ? _self.uuid : uuid // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,count: null == count ? _self.count : count // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,
   ));
 }
 
@@ -8361,10 +8351,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String name,  int? parentId,  PlatformInt64 count,  String? uuid)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String? parentId,  PlatformInt64 count)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _FrbTag() when $default != null:
-return $default(_that.id,_that.name,_that.parentId,_that.count,_that.uuid);case _:
+return $default(_that.id,_that.name,_that.parentId,_that.count);case _:
   return orElse();
 
 }
@@ -8382,10 +8372,10 @@ return $default(_that.id,_that.name,_that.parentId,_that.count,_that.uuid);case 
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String name,  int? parentId,  PlatformInt64 count,  String? uuid)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String? parentId,  PlatformInt64 count)  $default,) {final _that = this;
 switch (_that) {
 case _FrbTag():
-return $default(_that.id,_that.name,_that.parentId,_that.count,_that.uuid);}
+return $default(_that.id,_that.name,_that.parentId,_that.count);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -8399,10 +8389,10 @@ return $default(_that.id,_that.name,_that.parentId,_that.count,_that.uuid);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String name,  int? parentId,  PlatformInt64 count,  String? uuid)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String? parentId,  PlatformInt64 count)?  $default,) {final _that = this;
 switch (_that) {
 case _FrbTag() when $default != null:
-return $default(_that.id,_that.name,_that.parentId,_that.count,_that.uuid);case _:
+return $default(_that.id,_that.name,_that.parentId,_that.count);case _:
   return null;
 
 }
@@ -8414,14 +8404,13 @@ return $default(_that.id,_that.name,_that.parentId,_that.count,_that.uuid);case 
 
 
 class _FrbTag implements FrbTag {
-  const _FrbTag({required this.id, required this.name, this.parentId, required this.count, this.uuid});
+  const _FrbTag({required this.id, required this.name, this.parentId, required this.count});
   
 
-@override final  int id;
+@override final  String id;
 @override final  String name;
-@override final  int? parentId;
+@override final  String? parentId;
 @override final  PlatformInt64 count;
-@override final  String? uuid;
 
 /// Create a copy of FrbTag
 /// with the given fields replaced by the non-null parameter values.
@@ -8433,16 +8422,16 @@ _$FrbTagCopyWith<_FrbTag> get copyWith => __$FrbTagCopyWithImpl<_FrbTag>(this, _
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbTag&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.parentId, parentId) || other.parentId == parentId)&&(identical(other.count, count) || other.count == count)&&(identical(other.uuid, uuid) || other.uuid == uuid));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbTag&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.parentId, parentId) || other.parentId == parentId)&&(identical(other.count, count) || other.count == count));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,name,parentId,count,uuid);
+int get hashCode => Object.hash(runtimeType,id,name,parentId,count);
 
 @override
 String toString() {
-  return 'FrbTag(id: $id, name: $name, parentId: $parentId, count: $count, uuid: $uuid)';
+  return 'FrbTag(id: $id, name: $name, parentId: $parentId, count: $count)';
 }
 
 
@@ -8453,7 +8442,7 @@ abstract mixin class _$FrbTagCopyWith<$Res> implements $FrbTagCopyWith<$Res> {
   factory _$FrbTagCopyWith(_FrbTag value, $Res Function(_FrbTag) _then) = __$FrbTagCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String name, int? parentId, PlatformInt64 count, String? uuid
+ String id, String name, String? parentId, PlatformInt64 count
 });
 
 
@@ -8470,14 +8459,13 @@ class __$FrbTagCopyWithImpl<$Res>
 
 /// Create a copy of FrbTag
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? parentId = freezed,Object? count = null,Object? uuid = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? parentId = freezed,Object? count = null,}) {
   return _then(_FrbTag(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,parentId: freezed == parentId ? _self.parentId : parentId // ignore: cast_nullable_to_non_nullable
-as int?,count: null == count ? _self.count : count // ignore: cast_nullable_to_non_nullable
-as PlatformInt64,uuid: freezed == uuid ? _self.uuid : uuid // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,count: null == count ? _self.count : count // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,
   ));
 }
 

@@ -373,12 +373,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<FrbTag> dco_decode_list_frb_tag(dynamic raw);
 
   @protected
-  List<int> dco_decode_list_prim_i_32_loose(dynamic raw);
-
-  @protected
-  Int32List dco_decode_list_prim_i_32_strict(dynamic raw);
-
-  @protected
   Int64List dco_decode_list_prim_i_64_strict(dynamic raw);
 
   @protected
@@ -908,12 +902,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<FrbTag> sse_decode_list_frb_tag(SseDeserializer deserializer);
-
-  @protected
-  List<int> sse_decode_list_prim_i_32_loose(SseDeserializer deserializer);
-
-  @protected
-  Int32List sse_decode_list_prim_i_32_strict(SseDeserializer deserializer);
 
   @protected
   Int64List sse_decode_list_prim_i_64_strict(SseDeserializer deserializer);
@@ -1581,18 +1569,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_list_frb_tag(List<FrbTag> self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_list_prim_i_32_loose(
-    List<int> self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_prim_i_32_strict(
-    Int32List self,
-    SseSerializer serializer,
-  );
 
   @protected
   void sse_encode_list_prim_i_64_strict(
