@@ -1633,6 +1633,14 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
       } catch (e) {
         debugPrint('Catalog sync on resume skipped: $e');
       }
+    } else if (state == AppLifecycleState.detached) {
+      // App is shutting down: release the backend's database state. On account-sync
+      // builds this runs crsql_finalize() before the single cr-sqlite connection is
+      // closed; on default builds it is a no-op. Best-effort, never blocks teardown.
+      frb.shutdownBackendFfi().catchError((Object e) {
+        debugPrint('Backend shutdown finalize skipped: $e');
+        return '';
+      });
     }
   }
 

@@ -298,15 +298,27 @@ Future<String> accountRefreshDevicesFfi() =>
 /// Trigger a sync cycle for this account. The entrypoint the
 /// automatic sync triggers and a manual refresh will share.
 ///
-/// HONEST SCOPE: it always runs the real, available step — refreshing the signed
-/// device registry (H3) — and **deliberately does not fake a data convergence**.
-/// The data merge engine is not built yet (and a production cr-sqlite engine wired to
-/// the library DB is future work), neither of which is built into any current binary,
-/// so the data leg is a no-op here. When that engine lands, this calls
-/// [`account_sync_engine::refresh_then_sync`] with it (registry refresh stays
-/// first, ADR-043 H3). Returns JSON `{synced, reason?, devices}`.
+/// On account-sync builds it runs a full cycle through
+/// [`account_sync_engine::refresh_then_sync`]: refresh + adopt the signed device
+/// registry (H3) FIRST, then pull/apply and push the data lanes through the real
+/// cr-sqlite merge engine over the library DB. Returns JSON `{synced, applied, pushed}`.
+///
+/// On default builds (no cr-sqlite linked) it still runs the real, available step —
+/// refreshing the signed registry — and **deliberately does not fake a data
+/// convergence**: the data leg is a no-op, reported honestly as
+/// `{synced:false, reason:"data_engine_unavailable", devices}`.
 Future<String> accountSyncNowFfi() =>
     RustLib.instance.api.crateApiFrbAccountSyncNowFfi();
+
+/// Release the database's cr-sqlite state before the app process exits.
+///
+/// cr-sqlite requires `crsql_finalize()` on any connection that touched a CRR or it
+/// can abort on teardown. Flutter calls this from its app-lifecycle shutdown. On
+/// builds without account sync there is no cr-sqlite state, so this is a no-op.
+/// Best-effort and idempotent: a failure is logged, never surfaced, because the
+/// process is on its way down.
+Future<String> shutdownBackendFfi() =>
+    RustLib.instance.api.crateApiFrbShutdownBackendFfi();
 
 /// Sign out of the account on this device: drop the in-RAM session and delete the encrypted
 /// `account_session` row. Does not revoke the device server-side (that is a registry edit
