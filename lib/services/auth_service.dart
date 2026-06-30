@@ -254,6 +254,13 @@ class AuthService {
     return str != null ? int.tryParse(str) : null;
   }
 
+  /// Drop the cached library id. Used when it no longer matches the current
+  /// database (e.g. a restored or swapped DB whose library row has a different
+  /// id): the next create then sends null so the backend resolves the real one.
+  Future<void> clearLibraryId() async {
+    await storage.delete(key: _libraryIdKey);
+  }
+
   // ============ Hub Write Token (Keychain backup for reinstall recovery) ===
   static const _hubWriteTokenKey = 'hub_write_token';
   static const _hubRecoveryCodeKey = 'hub_recovery_code';

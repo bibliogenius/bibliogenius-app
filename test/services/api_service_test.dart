@@ -11,6 +11,31 @@ class MockAuthService extends AuthService {
   Future<String?> getToken() async => 'fake_token';
 }
 
+// In-memory secure storage so the createCopy self-heal tests can seed and observe
+// the cached library_id. createCopy reads it through `AuthService()` (which uses
+// the static `AuthService.storage`), not the injected AuthService, so we swap the
+// static backend rather than the instance.
+class _InMemorySecureStorage implements SecureStorageInterface {
+  final Map<String, String> store;
+  _InMemorySecureStorage([Map<String, String>? initial])
+    : store = {...?initial};
+
+  @override
+  Future<void> write({required String key, required String? value}) async {
+    if (value == null) {
+      store.remove(key);
+    } else {
+      store[key] = value;
+    }
+  }
+
+  @override
+  Future<String?> read({required String key}) async => store[key];
+
+  @override
+  Future<void> delete({required String key}) async => store.remove(key);
+}
+
 void main() {
   late Dio dio;
   late DioAdapter dioAdapter;
@@ -90,6 +115,125 @@ void main() {
 
       expect(response.statusCode, 200);
       expect(response.data['name'], 'My Library');
+    });
+  });
+
+  group('ApiService createCopy library_id self-heal', () {
+    late SecureStorageInterface originalStorage;
+    setUp(() => originalStorage = AuthService.storage);
+    tearDown(() => AuthService.storage = originalStorage);
+
+    // A /api/copies POST that rejects any non-null library_id with
+    // 400 "library <id> does not exist" and accepts a null one with 201 (the
+    // backend-resolved path). `seen` records the library_id of each attempt.
+    ApiService buildApi(List<dynamic> seen) {
+      final localDio = Dio(BaseOptions(baseUrl: 'http://localhost:8001'));
+      localDio.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (options, handler) {
+            if (options.path == '/api/copies' && options.method == 'POST') {
+              final libId = (options.data as Map)['library_id'];
+              seen.add(libId);
+              if (libId != null) {
+                handler.reject(
+                  DioException(
+                    requestOptions: options,
+                    type: DioExceptionType.badResponse,
+                    response: Response(
+                      requestOptions: options,
+                      statusCode: 400,
+                      data: {'error': 'library $libId does not exist'},
+                    ),
+                  ),
+                );
+              } else {
+                handler.resolve(
+                  Response(
+                    requestOptions: options,
+                    statusCode: 201,
+                    data: {'id': 'copy-uuid', 'library_id': 1},
+                  ),
+                );
+              }
+              return;
+            }
+            handler.next(options);
+          },
+        ),
+      );
+      return ApiService(
+        MockAuthService(),
+        dio: localDio,
+        baseUrl: 'http://localhost:8001',
+      );
+    }
+
+    test('clears a stale cached id and retries with null on '
+        '"library does not exist"', () async {
+      AuthService.storage = _InMemorySecureStorage({'library_id': '16'});
+      final seen = <dynamic>[];
+      final api = buildApi(seen);
+
+      final response = await api.createCopy({
+        'book_id': 'book-uuid',
+        'status': 'available',
+      });
+
+      expect(response.statusCode, 201);
+      expect(
+        seen,
+        [16, null],
+        reason: 'first attempt sends the stale 16, the retry sends null',
+      );
+      expect(
+        await AuthService().getLibraryId(),
+        isNull,
+        reason: 'the stale cached library_id must be cleared',
+      );
+    });
+
+    test('does not retry or clear the cache on an unrelated 400', () async {
+      AuthService.storage = _InMemorySecureStorage({'library_id': '16'});
+      final seen = <dynamic>[];
+      final localDio = Dio(BaseOptions(baseUrl: 'http://localhost:8001'));
+      localDio.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (options, handler) {
+            if (options.path == '/api/copies' && options.method == 'POST') {
+              seen.add((options.data as Map)['library_id']);
+              handler.reject(
+                DioException(
+                  requestOptions: options,
+                  type: DioExceptionType.badResponse,
+                  response: Response(
+                    requestOptions: options,
+                    statusCode: 400,
+                    data: {'error': 'some other validation error'},
+                  ),
+                ),
+              );
+              return;
+            }
+            handler.next(options);
+          },
+        ),
+      );
+      final api = ApiService(
+        MockAuthService(),
+        dio: localDio,
+        baseUrl: 'http://localhost:8001',
+      );
+
+      await expectLater(
+        api.createCopy({'book_id': 'book-uuid', 'status': 'available'}),
+        throwsA(isA<DioException>()),
+      );
+      expect(seen, [16], reason: 'no retry on an unrelated error');
+      expect(
+        await AuthService().getLibraryId(),
+        16,
+        reason: 'an unrelated 400 must NOT clear the cached library_id',
+      );
     });
   });
 }

@@ -570,6 +570,28 @@ class ApiService {
     try {
       return await attemptCreate(enrichedData['library_id']);
     } catch (e) {
+      // A stale cached library_id (a DB restored or swapped under an app that
+      // cached a now-absent id) is rejected by the app-level validation with
+      // 400 "library <id> does not exist". Clear the stale cache and retry once
+      // with null so the backend resolves (and bootstraps) the real library id
+      // - the same path a fresh install already uses. Only retry if we actually
+      // sent a non-null id, so a null retry cannot loop.
+      final sentLibraryId = enrichedData['library_id'];
+      if (sentLibraryId != null &&
+          e is DioException &&
+          e.response?.statusCode == 400 &&
+          e.response?.data.toString().contains('does not exist') == true) {
+        debugPrint(
+          '🛠️ Stale library_id $sentLibraryId rejected; clearing cache and retrying with backend resolution',
+        );
+        try {
+          await AuthService().clearLibraryId();
+        } catch (clearError) {
+          debugPrint('⚠️ Failed to clear stale library_id: $clearError');
+        }
+        return await attemptCreate(null);
+      }
+
       // Brute force recovery failed - DB is likely uninitialized (fresh install with skipped setup)
       if (e is DioException &&
           e.response?.statusCode == 500 &&
