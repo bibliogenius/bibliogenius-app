@@ -9994,7 +9994,7 @@ msgstr "Créez un compte chiffré pour garder votre bibliothèque synchronisée 
 
 #. Honest note while data convergence is not active yet (Phase E)
 msgid "account_sync_pending_note"
-msgstr "La configuration et la gestion des appareils sont disponibles dès maintenant. La synchronisation automatique de la bibliothèque entre appareils arrivera dans une prochaine mise à jour."
+msgstr "La configuration, la gestion des appareils et la synchronisation à la demande fonctionnent dès maintenant. La synchronisation automatique en arrière-plan entre appareils arrivera dans une prochaine mise à jour."
 
 msgid "account_sync_create_account"
 msgstr "Créer un compte"
