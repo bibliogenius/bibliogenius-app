@@ -7,6 +7,7 @@ import '../providers/account_sync_provider.dart';
 import '../providers/theme_provider.dart';
 import '../services/translation_service.dart';
 import '../theme/app_design.dart';
+import '../widgets/account_sync_restart_dialog.dart';
 import '../widgets/genie_app_bar.dart';
 
 /// Join an EXISTING account on this device with its passphrase.
@@ -62,11 +63,13 @@ class _AccountJoinScreenState extends State<AccountJoinScreen> {
     setState(() => _submitting = true);
     final provider = context.read<AccountSyncProvider>();
     try {
-      await provider.joinWithPassphrase(
+      final restartRequired = await provider.joinWithPassphrase(
         email: _emailController.text.trim(),
         passphrase: _passphraseController.text,
         deviceName: _deviceNameController.text.trim(),
       );
+      if (!mounted) return;
+      if (restartRequired) await showAccountSyncRestartDialog(context);
       if (!mounted) return;
       context.pop();
     } catch (e) {

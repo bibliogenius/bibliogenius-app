@@ -9,6 +9,7 @@ import '../providers/account_sync_provider.dart';
 import '../providers/theme_provider.dart';
 import '../services/translation_service.dart';
 import '../theme/app_design.dart';
+import '../widgets/account_sync_restart_dialog.dart';
 import '../widgets/genie_app_bar.dart';
 import '../widgets/recovery_phrase_view.dart';
 
@@ -40,6 +41,9 @@ class _AccountSignupScreenState extends State<AccountSignupScreen> {
   // Recovery phase: non-null once signup succeeds.
   String? _recoveryPhrase;
   bool _savedConfirmed = false;
+  // Data sync activates only after an app restart (the backend CRR-ifies the
+  // database on the next launch); prompt for it when the user leaves the screen.
+  bool _restartRequired = false;
 
   @override
   void dispose() {
@@ -84,7 +88,10 @@ class _AccountSignupScreenState extends State<AccountSignupScreen> {
         deviceName: _deviceNameController.text.trim(),
       );
       if (!mounted) return;
-      setState(() => _recoveryPhrase = result.recoveryPhrase);
+      setState(() {
+        _recoveryPhrase = result.recoveryPhrase;
+        _restartRequired = result.restartRequired;
+      });
     } on AccountSignupException catch (e) {
       if (!mounted) return;
       if (e.accountExists) {
@@ -98,6 +105,14 @@ class _AccountSignupScreenState extends State<AccountSignupScreen> {
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
+  }
+
+  /// Leave the recovery-phrase screen, prompting for the activation restart first
+  /// if the backend asked for one.
+  Future<void> _finishRecovery() async {
+    if (_restartRequired) await showAccountSyncRestartDialog(context);
+    if (!mounted) return;
+    context.pop();
   }
 
   Future<void> _offerSignIn() async {
@@ -264,7 +279,7 @@ class _AccountSignupScreenState extends State<AccountSignupScreen> {
         ),
         const SizedBox(height: AppDesign.spacingSm),
         FilledButton(
-          onPressed: _savedConfirmed ? () => context.pop() : null,
+          onPressed: _savedConfirmed ? _finishRecovery : null,
           child: Text(_t('account_sync_recovery_confirm_button')),
         ),
       ],

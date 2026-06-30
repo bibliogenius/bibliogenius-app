@@ -77,11 +77,16 @@ class _AccountSyncScreenState extends State<AccountSyncScreen> {
     try {
       final result = await _provider.syncNow();
       final json = jsonDecode(result) as Map<String, dynamic>;
-      final applied = (json['applied'] as num?)?.toInt() ?? 0;
-      final pushed = (json['pushed'] as num?)?.toInt() ?? 0;
-      message = (applied == 0 && pushed == 0)
-          ? _t('account_sync_synced_uptodate')
-          : _t('account_sync_synced_done');
+      if (json['reason'] == 'restart_required') {
+        // Enrolled but not yet restarted: sync activates on the next launch.
+        message = _t('account_sync_restart_required_body');
+      } else {
+        final applied = (json['applied'] as num?)?.toInt() ?? 0;
+        final pushed = (json['pushed'] as num?)?.toInt() ?? 0;
+        message = (applied == 0 && pushed == 0)
+            ? _t('account_sync_synced_uptodate')
+            : _t('account_sync_synced_done');
+      }
     } catch (_) {
       message = _t('account_sync_sync_failed');
     }

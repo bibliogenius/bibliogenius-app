@@ -10088,6 +10088,16 @@ msgstr "Sign in instead"
 msgid "account_sync_weak_passphrase"
 msgstr "This passphrase is too weak. Choose a stronger one."
 
+#. Restart prompt shown after enrollment: sync activates on the next launch
+msgid "account_sync_restart_required_title"
+msgstr "Restart to activate sync"
+
+msgid "account_sync_restart_required_body"
+msgstr "This device is now linked to your account. Restart the app to start syncing your library across your devices."
+
+msgid "account_sync_restart_required_ok"
+msgstr "Got it"
+
 #. Recovery kit (BIP39) display
 msgid "account_sync_recovery_title"
 msgstr "Your recovery phrase"

@@ -100,9 +100,14 @@ class AccountSignupResult {
   final AccountStatus status;
   final String recoveryPhrase;
 
+  /// Data sync activates only after an app restart (the backend CRR-ifies the
+  /// database on the next launch, see `account_sync_restart_dialog`).
+  final bool restartRequired;
+
   const AccountSignupResult({
     required this.status,
     required this.recoveryPhrase,
+    required this.restartRequired,
   });
 }
 
@@ -198,6 +203,7 @@ class AccountSyncProvider extends ChangeNotifier {
       return AccountSignupResult(
         status: _status,
         recoveryPhrase: (map['recovery_phrase'] as String?) ?? '',
+        restartRequired: map['restart_required'] == true,
       );
     } catch (e) {
       final msg = e.toString();
@@ -216,7 +222,8 @@ class AccountSyncProvider extends ChangeNotifier {
   }
 
   /// Join an EXISTING account on this device with its passphrase (Path A).
-  Future<void> joinWithPassphrase({
+  /// Returns whether an app restart is required to activate data sync.
+  Future<bool> joinWithPassphrase({
     required String email,
     required String passphrase,
     required String deviceName,
@@ -225,16 +232,17 @@ class AccountSyncProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
     try {
-      _status = AccountStatus.fromJson(
-        jsonDecode(
-              await _ffi.accountEnrollPassphrase(
-                email: email,
-                passphrase: passphrase,
-                deviceName: deviceName,
-              ),
-            )
-            as Map<String, dynamic>,
-      );
+      final map =
+          jsonDecode(
+                await _ffi.accountEnrollPassphrase(
+                  email: email,
+                  passphrase: passphrase,
+                  deviceName: deviceName,
+                ),
+              )
+              as Map<String, dynamic>;
+      _status = AccountStatus.fromJson(map);
+      return map['restart_required'] == true;
     } catch (e) {
       _error = e.toString();
       rethrow;
@@ -258,16 +266,18 @@ class AccountSyncProvider extends ChangeNotifier {
   }
 
   /// NEW device, step 2: open a scanned `bg-sealed` payload and persist the
-  /// session on this device.
-  Future<void> enrollFromSealed(String sealedQrPayload) async {
+  /// session on this device. Returns whether an app restart is required to
+  /// activate data sync.
+  Future<bool> enrollFromSealed(String sealedQrPayload) async {
     _busy = true;
     _error = null;
     notifyListeners();
     try {
-      _status = AccountStatus.fromJson(
-        jsonDecode(await _ffi.accountEnrollFromSealed(sealedQrPayload))
-            as Map<String, dynamic>,
-      );
+      final map =
+          jsonDecode(await _ffi.accountEnrollFromSealed(sealedQrPayload))
+              as Map<String, dynamic>;
+      _status = AccountStatus.fromJson(map);
+      return map['restart_required'] == true;
     } catch (e) {
       _error = e.toString();
       rethrow;

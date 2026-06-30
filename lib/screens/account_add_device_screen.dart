@@ -8,6 +8,7 @@ import '../providers/account_sync_provider.dart';
 import '../providers/theme_provider.dart';
 import '../services/translation_service.dart';
 import '../theme/app_design.dart';
+import '../widgets/account_sync_restart_dialog.dart';
 import '../widgets/genie_app_bar.dart';
 
 /// Which side of the in-person pairing handshake this device plays. The role is
@@ -90,9 +91,11 @@ class _AccountAddDeviceScreenState extends State<AccountAddDeviceScreen> {
     if (sealed == null || !mounted) return;
     setState(() => _busy = true);
     try {
-      await _provider.enrollFromSealed(sealed);
+      final restartRequired = await _provider.enrollFromSealed(sealed);
       if (!mounted) return;
       _showSnack(_t('account_sync_device_added'));
+      if (restartRequired) await showAccountSyncRestartDialog(context);
+      if (!mounted) return;
       context.pop();
     } catch (e) {
       _showError(_t('error_generic'));

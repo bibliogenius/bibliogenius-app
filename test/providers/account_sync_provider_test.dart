@@ -17,6 +17,8 @@ class _FakeFfiService extends FfiService {
   Object? signupError;
   String enrollResult =
       '{"signed_in":true,"email":"a@b.co","account_id":"acc","device_id":"d1"}';
+  String enrollSealedResult =
+      '{"signed_in":true,"email":"a@b.co","account_id":"acc","device_id":"d2"}';
   String devicesJson = '{"devices":[]}';
   String checkJson =
       '{"score":4,"length":16,"acceptable":true,"warning":"","suggestions":[]}';
@@ -44,6 +46,10 @@ class _FakeFfiService extends FfiService {
     required String passphrase,
     required String deviceName,
   }) async => enrollResult;
+
+  @override
+  Future<String> accountEnrollFromSealed(String sealedQrPayload) async =>
+      enrollSealedResult;
 
   @override
   Future<String> accountRefreshDevices() async => devicesJson;
@@ -88,6 +94,59 @@ void main() {
 
     expect(result.recoveryPhrase, 'word1 word2 word3');
     expect(result.status.accountId, 'acc-9');
+    expect(provider.signedIn, isTrue);
+  });
+
+  test('signup surfaces the restart_required flag', () async {
+    ffi.signupResult =
+        '{"signed_in":true,"email":"me@lib.org","account_id":"acc-9",'
+        '"device_id":"dev-9","recovery_phrase":"w1 w2","restart_required":true}';
+
+    final result = await provider.signup(
+      email: 'me@lib.org',
+      passphrase: 'a-strong-passphrase',
+      deviceName: 'Mac',
+    );
+
+    expect(result.restartRequired, isTrue);
+  });
+
+  test('joinWithPassphrase returns restart_required from the response',
+      () async {
+    ffi.enrollResult =
+        '{"signed_in":true,"email":"a@b.co","account_id":"acc",'
+        '"device_id":"d1","restart_required":true}';
+
+    final restartRequired = await provider.joinWithPassphrase(
+      email: 'a@b.co',
+      passphrase: 'a-strong-passphrase',
+      deviceName: 'Mac',
+    );
+
+    expect(restartRequired, isTrue);
+    expect(provider.signedIn, isTrue);
+  });
+
+  test('joinWithPassphrase defaults restart_required to false when absent',
+      () async {
+    // enrollResult has no restart_required key (the default fixture).
+    final restartRequired = await provider.joinWithPassphrase(
+      email: 'a@b.co',
+      passphrase: 'a-strong-passphrase',
+      deviceName: 'Mac',
+    );
+
+    expect(restartRequired, isFalse);
+  });
+
+  test('enrollFromSealed returns restart_required from the response', () async {
+    ffi.enrollSealedResult =
+        '{"signed_in":true,"email":"a@b.co","account_id":"acc",'
+        '"device_id":"d2","restart_required":true}';
+
+    final restartRequired = await provider.enrollFromSealed('bg-sealed.payload');
+
+    expect(restartRequired, isTrue);
     expect(provider.signedIn, isTrue);
   });
 

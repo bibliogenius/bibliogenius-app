@@ -10088,6 +10088,16 @@ msgstr "Se connecter à la place"
 msgid "account_sync_weak_passphrase"
 msgstr "Cette phrase secrète est trop faible. Choisissez-en une plus robuste."
 
+#. Restart prompt shown after enrollment: sync activates on the next launch
+msgid "account_sync_restart_required_title"
+msgstr "Redémarrez pour activer la synchronisation"
+
+msgid "account_sync_restart_required_body"
+msgstr "Cet appareil est maintenant lié à votre compte. Redémarrez l'application pour synchroniser votre bibliothèque entre vos appareils."
+
+msgid "account_sync_restart_required_ok"
+msgstr "J'ai compris"
+
 #. Recovery kit (BIP39) display
 msgid "account_sync_recovery_title"
 msgstr "Votre phrase de récupération"
