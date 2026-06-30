@@ -663,6 +663,11 @@ class FfiService {
   /// (`{synced, applied?, pushed?}` or `{synced:false, reason, devices}`).
   Future<String> accountSyncNow() => frb.accountSyncNowFfi();
 
+  /// Whether this build can actually converge data across devices (compiled with
+  /// the `account_sync` feature). The auto-sync scheduler queries this once and
+  /// stays fully inert on default builds, where the data leg is a no-op.
+  Future<bool> accountSyncCapable() => frb.accountSyncCapableFfi();
+
   /// Sign out on this device: drop the in-RAM session and delete the encrypted
   /// row. Does not revoke the device server-side. Idempotent.
   Future<String> accountLogout() => frb.accountLogoutFfi();

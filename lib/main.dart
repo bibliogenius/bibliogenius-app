@@ -13,6 +13,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'services/auth_service.dart';
 import 'services/api_service.dart';
+import 'services/account_sync_scheduler.dart';
 import 'services/backup_scheduler_service.dart';
 import 'services/sync_service.dart';
 import 'services/translation_service.dart';
@@ -699,6 +700,23 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider<AccountSyncProvider>(
           create: (_) => AccountSyncProvider(),
+        ),
+        // Automatic account-sync triggers (periodic + on-resume). Eager
+        // (`lazy: false`) so it boots with the app; it probes the build
+        // capability and stays fully inert on default builds. FFI mode only.
+        Provider<AccountSyncScheduler>(
+          lazy: false,
+          create: (ctx) {
+            final accountProvider = ctx.read<AccountSyncProvider>();
+            final scheduler = AccountSyncScheduler.production(
+              capable: accountProvider.accountSyncCapable,
+              runSync: accountProvider.autoSyncTick,
+              refreshStatus: accountProvider.refreshStatus,
+            );
+            if (useFfi) unawaited(scheduler.initialize());
+            return scheduler;
+          },
+          dispose: (_, s) => s.dispose(),
         ),
         ChangeNotifierProvider<HubDirectoryProvider>(
           create: (_) => HubDirectoryProvider(apiService: apiService)

@@ -144,6 +144,7 @@ class AccountSyncProvider extends ChangeNotifier {
   List<AccountDevice> _devices = const [];
   bool _busy = false;
   String? _error;
+  bool _autoSyncInFlight = false;
 
   AccountStatus get status => _status;
   bool get signedIn => _status.signedIn;
@@ -327,6 +328,33 @@ class AccountSyncProvider extends ChangeNotifier {
     } finally {
       _busy = false;
       notifyListeners();
+    }
+  }
+
+  /// Whether this build can converge data across devices (the `account_sync`
+  /// Cargo feature is compiled in). Used by the auto-sync scheduler to stay
+  /// inert on default builds, where the data leg is a no-op.
+  Future<bool> accountSyncCapable() => _ffi.accountSyncCapable();
+
+  /// Quiet auto-sync tick driven by the background scheduler (periodic / on
+  /// resume). Unlike [syncNow] it deliberately does NOT flip the [busy] spinner
+  /// or surface failures to [error]: an automatic sync must be invisible, and a
+  /// network failure (e.g. the hub is down) must stay silent. Re-entrant calls
+  /// are coalesced so two triggers cannot run a cycle on the single-connection
+  /// pool at once. No-ops when not signed in. Returns true if a cycle ran (the
+  /// hub was reachable), false if it was skipped or failed silently.
+  Future<bool> autoSyncTick() async {
+    if (_autoSyncInFlight || !signedIn) return false;
+    _autoSyncInFlight = true;
+    try {
+      await _ffi.accountSyncNow();
+      return true;
+    } catch (e) {
+      // Silent by design: do not set _error or notify; just trace it.
+      debugPrint('AccountSyncProvider.autoSyncTick (silent) error: $e');
+      return false;
+    } finally {
+      _autoSyncInFlight = false;
     }
   }
 

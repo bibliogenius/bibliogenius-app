@@ -23,6 +23,8 @@ class _FakeFfiService extends FfiService {
   String checkJson =
       '{"score":4,"length":16,"acceptable":true,"warning":"","suggestions":[]}';
   String syncNowJson = '{"synced":true,"applied":0,"pushed":3}';
+  int syncNowCalls = 0;
+  Object? syncNowError;
 
   @override
   Future<String> accountStatus() async => statusJson;
@@ -55,7 +57,11 @@ class _FakeFfiService extends FfiService {
   Future<String> accountRefreshDevices() async => devicesJson;
 
   @override
-  Future<String> accountSyncNow() async => syncNowJson;
+  Future<String> accountSyncNow() async {
+    syncNowCalls++;
+    if (syncNowError != null) throw syncNowError!;
+    return syncNowJson;
+  }
 
   @override
   Future<String> accountLogout() async => 'Signed out';
@@ -235,5 +241,38 @@ void main() {
     await provider.logout();
     expect(provider.signedIn, isFalse);
     expect(provider.devices, isEmpty);
+  });
+
+  test('autoSyncTick no-ops when signed out', () async {
+    // Default status is signed-out.
+    final ran = await provider.autoSyncTick();
+    expect(ran, isFalse);
+    expect(ffi.syncNowCalls, 0, reason: 'no sync attempted when signed out');
+  });
+
+  test('autoSyncTick runs a cycle when signed in, without touching busy/error',
+      () async {
+    ffi.statusJson =
+        '{"signed_in":true,"email":"me@lib.org","account_id":"acc-1","device_id":"dev-1"}';
+    await provider.refreshStatus();
+
+    final ran = await provider.autoSyncTick();
+    expect(ran, isTrue);
+    expect(ffi.syncNowCalls, 1);
+    // A background tick must stay invisible: no spinner, no surfaced error.
+    expect(provider.busy, isFalse);
+    expect(provider.error, isNull);
+  });
+
+  test('autoSyncTick swallows a network failure silently', () async {
+    ffi.statusJson =
+        '{"signed_in":true,"email":"me@lib.org","account_id":"acc-1","device_id":"dev-1"}';
+    await provider.refreshStatus();
+    ffi.syncNowError = Exception('hub unreachable');
+
+    final ran = await provider.autoSyncTick();
+    expect(ran, isFalse, reason: 'a failed cycle reports not-ran for backoff');
+    expect(provider.error, isNull, reason: 'failure must not surface in the UI');
+    expect(provider.busy, isFalse);
   });
 }
