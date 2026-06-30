@@ -10021,6 +10021,15 @@ msgstr "Ajouter un appareil"
 msgid "account_sync_sync_now"
 msgstr "Synchroniser maintenant"
 
+msgid "account_sync_synced_done"
+msgstr "Synchronisation terminée. Vos appareils sont à jour."
+
+msgid "account_sync_synced_uptodate"
+msgstr "Tout est déjà à jour."
+
+msgid "account_sync_sync_failed"
+msgstr "La synchronisation a échoué. Vérifiez votre connexion et réessayez."
+
 msgid "account_sync_logout"
 msgstr "Se déconnecter de cet appareil"
 
@@ -10028,26 +10037,26 @@ msgid "account_sync_logout_confirm_title"
 msgstr "Se déconnecter de cet appareil ?"
 
 msgid "account_sync_logout_confirm_body"
-msgstr "Cet appareil cessera de se synchroniser. Votre compte et vos autres appareils ne sont pas affectés. Vous pourrez le reconnecter plus tard avec votre phrase de passe."
+msgstr "Cet appareil cessera de se synchroniser. Votre compte et vos autres appareils ne sont pas affectés. Vous pourrez le reconnecter plus tard avec votre phrase secrète."
 
 #. Signup screen
 msgid "account_sync_signup_title"
 msgstr "Créer un compte"
 
 msgid "account_sync_signup_intro"
-msgstr "Choisissez une phrase de passe robuste. Elle chiffre votre bibliothèque et ne peut pas être réinitialisée : conservez-la en lieu sûr."
+msgstr "Choisissez une phrase secrète robuste. Elle chiffre votre bibliothèque et ne peut pas être réinitialisée : conservez-la en lieu sûr."
 
 msgid "account_sync_email_label"
 msgstr "E-mail"
 
 msgid "account_sync_passphrase_label"
-msgstr "Phrase de passe"
+msgstr "Phrase secrète"
 
 msgid "account_sync_device_name_label"
 msgstr "Nom de cet appareil"
 
 msgid "account_sync_strength_label"
-msgstr "Robustesse de la phrase de passe"
+msgstr "Robustesse de la phrase secrète"
 
 msgid "account_sync_strength_0"
 msgstr "Très faible"
@@ -10065,7 +10074,7 @@ msgid "account_sync_strength_4"
 msgstr "Excellente"
 
 msgid "account_sync_passphrase_hint"
-msgstr "Au moins 12 caractères. Une phrase de passe robuste et mémorisable est requise."
+msgstr "Au moins 12 caractères. Une phrase secrète robuste et mémorisable est requise."
 
 msgid "account_sync_create_button"
 msgstr "Créer le compte"
@@ -10077,14 +10086,14 @@ msgid "account_sync_account_exists_action"
 msgstr "Se connecter à la place"
 
 msgid "account_sync_weak_passphrase"
-msgstr "Cette phrase de passe est trop faible. Choisissez-en une plus robuste."
+msgstr "Cette phrase secrète est trop faible. Choisissez-en une plus robuste."
 
 #. Recovery kit (BIP39) display
 msgid "account_sync_recovery_title"
 msgstr "Votre phrase de récupération"
 
 msgid "account_sync_recovery_intro"
-msgstr "Notez ces 24 mots dans l'ordre et conservez-les en lieu sûr. C'est le seul moyen de récupérer votre compte si vous oubliez votre phrase de passe."
+msgstr "Notez ces 24 mots dans l'ordre et conservez-les en lieu sûr. C'est le seul moyen de récupérer votre compte si vous oubliez votre phrase secrète."
 
 msgid "account_sync_recovery_warning"
 msgstr "Cette phrase n'est affichée qu'une seule fois et n'est jamais stockée. Nous ne pourrons pas la réafficher."
@@ -10106,13 +10115,13 @@ msgid "account_sync_join_title"
 msgstr "Rejoindre un compte"
 
 msgid "account_sync_join_intro"
-msgstr "Saisissez l'e-mail et la phrase de passe de votre compte existant pour y ajouter cet appareil."
+msgstr "Saisissez l'e-mail et la phrase secrète de votre compte existant pour y ajouter cet appareil."
 
 msgid "account_sync_join_button"
 msgstr "Rejoindre le compte"
 
 msgid "account_sync_join_failed"
-msgstr "Impossible de rejoindre le compte. Vérifiez votre e-mail et votre phrase de passe."
+msgstr "Impossible de rejoindre le compte. Vérifiez votre e-mail et votre phrase secrète."
 
 #. Pairing flow
 msgid "account_sync_add_device_title"
@@ -10152,7 +10161,7 @@ msgid "account_sync_scan_instruction"
 msgstr "Placez le QR code dans le cadre"
 
 msgid "account_sync_show_passphrase"
-msgstr "Afficher la phrase de passe"
+msgstr "Afficher la phrase secrète"
 
 msgid "account_sync_hide_passphrase"
-msgstr "Masquer la phrase de passe"
+msgstr "Masquer la phrase secrète"

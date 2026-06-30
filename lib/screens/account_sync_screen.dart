@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -67,20 +69,26 @@ class _AccountSyncScreenState extends State<AccountSyncScreen> {
     await _provider.logout();
   }
 
-  /// Manually trigger one sync cycle and surface the backend's raw result
-  /// (e.g. `{"synced":true,"applied":0,"pushed":3}`) in a snackbar. The result
-  /// is backend-produced JSON, shown as-is for diagnostics.
+  /// Manually trigger one sync cycle and show a human confirmation. The backend
+  /// returns JSON (`{synced, applied?, pushed?}`); we translate it into a plain
+  /// message instead of surfacing the raw payload.
   Future<void> _syncNow() async {
     String message;
     try {
-      message = await _provider.syncNow();
-    } catch (e) {
-      message = e.toString();
+      final result = await _provider.syncNow();
+      final json = jsonDecode(result) as Map<String, dynamic>;
+      final applied = (json['applied'] as num?)?.toInt() ?? 0;
+      final pushed = (json['pushed'] as num?)?.toInt() ?? 0;
+      message = (applied == 0 && pushed == 0)
+          ? _t('account_sync_synced_uptodate')
+          : _t('account_sync_synced_done');
+    } catch (_) {
+      message = _t('account_sync_sync_failed');
     }
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), duration: const Duration(seconds: 6)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override

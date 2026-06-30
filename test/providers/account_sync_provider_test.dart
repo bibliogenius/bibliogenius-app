@@ -20,6 +20,7 @@ class _FakeFfiService extends FfiService {
   String devicesJson = '{"devices":[]}';
   String checkJson =
       '{"score":4,"length":16,"acceptable":true,"warning":"","suggestions":[]}';
+  String syncNowJson = '{"synced":true,"applied":0,"pushed":3}';
 
   @override
   Future<String> accountStatus() async => statusJson;
@@ -46,6 +47,9 @@ class _FakeFfiService extends FfiService {
 
   @override
   Future<String> accountRefreshDevices() async => devicesJson;
+
+  @override
+  Future<String> accountSyncNow() async => syncNowJson;
 
   @override
   Future<String> accountLogout() async => 'Signed out';
@@ -147,6 +151,20 @@ void main() {
     final s = await provider.checkPassphrase('a-strong-passphrase');
     expect(s.score, 4);
     expect(s.acceptable, isTrue);
+  });
+
+  test('syncNow returns the backend result and refreshes the device list',
+      () async {
+    ffi.syncNowJson = '{"synced":true,"applied":1,"pushed":2}';
+    ffi.devicesJson =
+        '{"devices":[{"device_id":"d1","name":"Mac","is_self":true}]}';
+
+    final raw = await provider.syncNow();
+
+    expect(raw, contains('"pushed":2'));
+    // syncNow refreshes the registry-derived device list as part of the cycle.
+    expect(provider.devices, hasLength(1));
+    expect(provider.devices.first.name, 'Mac');
   });
 
   test('logout clears the session state', () async {

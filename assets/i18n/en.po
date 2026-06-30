@@ -10021,6 +10021,15 @@ msgstr "Add a device"
 msgid "account_sync_sync_now"
 msgstr "Sync now"
 
+msgid "account_sync_synced_done"
+msgstr "Sync complete. Your devices are up to date."
+
+msgid "account_sync_synced_uptodate"
+msgstr "Everything is already up to date."
+
+msgid "account_sync_sync_failed"
+msgstr "Sync failed. Check your connection and try again."
+
 msgid "account_sync_logout"
 msgstr "Sign out of this device"
 
