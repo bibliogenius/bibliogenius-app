@@ -658,6 +658,11 @@ class FfiService {
   /// `{devices:[{device_id, name, is_self}]}`.
   Future<String> accountRefreshDevices() => frb.accountRefreshDevicesFfi();
 
+  /// Run one sync cycle: refresh the device registry, then (on account-sync
+  /// builds) pull/apply and push the data lanes. Returns status JSON
+  /// (`{synced, applied?, pushed?}` or `{synced:false, reason, devices}`).
+  Future<String> accountSyncNow() => frb.accountSyncNowFfi();
+
   /// Sign out on this device: drop the in-RAM session and delete the encrypted
   /// row. Does not revoke the device server-side. Idempotent.
   Future<String> accountLogout() => frb.accountLogoutFfi();

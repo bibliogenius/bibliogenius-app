@@ -10018,6 +10018,9 @@ msgstr "This device"
 msgid "account_sync_add_device"
 msgstr "Add a device"
 
+msgid "account_sync_sync_now"
+msgstr "Sync now"
+
 msgid "account_sync_logout"
 msgstr "Sign out of this device"
 

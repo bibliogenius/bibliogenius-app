@@ -67,6 +67,22 @@ class _AccountSyncScreenState extends State<AccountSyncScreen> {
     await _provider.logout();
   }
 
+  /// Manually trigger one sync cycle and surface the backend's raw result
+  /// (e.g. `{"synced":true,"applied":0,"pushed":3}`) in a snackbar. The result
+  /// is backend-produced JSON, shown as-is for diagnostics.
+  Future<void> _syncNow() async {
+    String message;
+    try {
+      message = await _provider.syncNow();
+    } catch (e) {
+      message = e.toString();
+    }
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), duration: const Duration(seconds: 6)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -105,6 +121,7 @@ class _AccountSyncScreenState extends State<AccountSyncScreen> {
                           onAddDevice: () =>
                               _openAndReload('/account-sync/add-device'),
                           onLogout: _confirmLogout,
+                          onSyncNow: _syncNow,
                         )
                       : _SignedOutView(
                           onCreate: () =>
@@ -222,10 +239,12 @@ class _SignedInView extends StatelessWidget {
   final AccountSyncProvider provider;
   final VoidCallback onAddDevice;
   final VoidCallback onLogout;
+  final VoidCallback onSyncNow;
   const _SignedInView({
     required this.provider,
     required this.onAddDevice,
     required this.onLogout,
+    required this.onSyncNow,
   });
 
   String _t(BuildContext c, String k) => TranslationService.translate(c, k);
@@ -268,6 +287,12 @@ class _SignedInView extends StatelessWidget {
         else
           ...provider.devices.map((d) => _DeviceTile(device: d)),
         const SizedBox(height: AppDesign.spacingLg),
+        FilledButton.icon(
+          icon: const Icon(Icons.sync),
+          onPressed: provider.busy ? null : onSyncNow,
+          label: Text(_t(context, 'account_sync_sync_now')),
+        ),
+        const SizedBox(height: AppDesign.spacingSm),
         FilledButton.icon(
           icon: const Icon(Icons.add_to_queue),
           onPressed: onAddDevice,

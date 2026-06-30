@@ -299,6 +299,27 @@ class AccountSyncProvider extends ChangeNotifier {
     }
   }
 
+  /// Run one sync cycle now (manual trigger). Returns the raw status JSON from
+  /// the backend so the caller can surface a summary; refreshes the device list
+  /// afterwards. On default (non-account-sync) builds the data leg is a no-op.
+  Future<String> syncNow() async {
+    _busy = true;
+    _error = null;
+    notifyListeners();
+    try {
+      final result = await _ffi.accountSyncNow();
+      await refreshDevices();
+      return result;
+    } catch (e) {
+      _error = e.toString();
+      debugPrint('AccountSyncProvider.syncNow error: $e');
+      rethrow;
+    } finally {
+      _busy = false;
+      notifyListeners();
+    }
+  }
+
   /// Sign out on this device: drop the session and clear local state.
   Future<void> logout() async {
     _busy = true;
