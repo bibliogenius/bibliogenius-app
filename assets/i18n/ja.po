@@ -5928,3 +5928,201 @@ msgstr "「{name}」はライブラリとの同期を停止します。すでに
 msgid "account_sync_remove_device_error"
 msgstr "デバイスを削除できませんでした。接続を確認してもう一度お試しください。"
 
+
+#. --- Account sync: multi-device sync screen ---
+#. Settings tile + hub screen title
+msgid "account_sync_title"
+msgstr "複数デバイス間の同期"
+
+#. Settings tile subtitle
+msgid "account_sync_settings_subtitle"
+msgstr "エンドツーエンドで暗号化して、自分のデバイス間でライブラリを共有します"
+
+#. Hub intro when not signed in
+msgid "account_sync_signed_out_intro"
+msgstr "暗号化されたアカウントを作成すると、デバイス間でライブラリを同期できます。読み取れるのはあなたのデバイスだけで、サーバーがデータを見ることはありません。"
+
+#. Honest note while data convergence is not active yet (Phase E)
+msgid "account_sync_pending_note"
+msgstr "セットアップ、デバイス管理、手動同期は現在ご利用いただけます。デバイス間の自動バックグラウンド同期は今後のアップデートで対応予定です。"
+
+msgid "account_sync_create_account"
+msgstr "アカウントを作成"
+
+msgid "account_sync_join_account"
+msgstr "既存のアカウントに参加"
+
+#. {email} = signed-in account email
+msgid "account_sync_signed_in_as"
+msgstr "{email} でログイン中"
+
+msgid "account_sync_devices_title"
+msgstr "承認済みのデバイス"
+
+msgid "account_sync_no_devices"
+msgstr "まだデバイスがありません。更新して一覧を読み込んでください。"
+
+msgid "account_sync_this_device"
+msgstr "このデバイス"
+
+msgid "account_sync_add_device"
+msgstr "デバイスを追加"
+
+msgid "account_sync_sync_now"
+msgstr "今すぐ同期"
+
+msgid "account_sync_synced_done"
+msgstr "同期が完了しました。デバイスは最新の状態です。"
+
+msgid "account_sync_synced_uptodate"
+msgstr "すべてすでに最新の状態です。"
+
+msgid "account_sync_sync_failed"
+msgstr "同期に失敗しました。接続を確認してもう一度お試しください。"
+
+msgid "account_sync_logout"
+msgstr "このデバイスからログアウト"
+
+msgid "account_sync_logout_confirm_title"
+msgstr "このデバイスからログアウトしますか？"
+
+msgid "account_sync_logout_confirm_body"
+msgstr "このデバイスの同期が停止します。アカウントや他のデバイスには影響しません。パスフレーズがあれば後で再び参加できます。"
+
+#. Signup screen
+msgid "account_sync_signup_title"
+msgstr "アカウントを作成"
+
+msgid "account_sync_signup_intro"
+msgstr "強力なパスフレーズを選んでください。ライブラリを暗号化するもので、リセットはできません。安全に保管してください。"
+
+msgid "account_sync_email_label"
+msgstr "メールアドレス"
+
+msgid "account_sync_passphrase_label"
+msgstr "パスフレーズ"
+
+msgid "account_sync_device_name_label"
+msgstr "このデバイスの名前"
+
+msgid "account_sync_strength_label"
+msgstr "パスフレーズの強度"
+
+msgid "account_sync_strength_0"
+msgstr "非常に弱い"
+
+msgid "account_sync_strength_1"
+msgstr "弱い"
+
+msgid "account_sync_strength_2"
+msgstr "普通"
+
+msgid "account_sync_strength_3"
+msgstr "良好"
+
+msgid "account_sync_strength_4"
+msgstr "強力"
+
+msgid "account_sync_passphrase_hint"
+msgstr "12文字以上。強力で覚えやすいパスフレーズが必要です。"
+
+msgid "account_sync_create_button"
+msgstr "アカウントを作成"
+
+msgid "account_sync_account_exists"
+msgstr "このメールアドレスのアカウントはすでに存在します。"
+
+msgid "account_sync_account_exists_action"
+msgstr "代わりにログイン"
+
+msgid "account_sync_weak_passphrase"
+msgstr "このパスフレーズは弱すぎます。より強力なものを選んでください。"
+
+#. Restart prompt shown after enrollment: sync activates on the next launch
+msgid "account_sync_restart_required_title"
+msgstr "再起動して同期を有効化"
+
+msgid "account_sync_restart_required_body"
+msgstr "このデバイスがアカウントに接続されました。アプリを再起動すると、デバイス間でライブラリの同期を開始します。"
+
+msgid "account_sync_restart_required_ok"
+msgstr "了解しました"
+
+#. Recovery kit (BIP39) display
+msgid "account_sync_recovery_title"
+msgstr "リカバリーフレーズ"
+
+msgid "account_sync_recovery_intro"
+msgstr "この24個の単語を順番どおりに書き留め、安全な場所に保管してください。パスフレーズを忘れた場合に、アカウントを復元できる唯一の方法です。"
+
+msgid "account_sync_recovery_warning"
+msgstr "このフレーズは一度だけ表示され、保存されることはありません。再表示はできません。"
+
+msgid "account_sync_recovery_copy"
+msgstr "フレーズをコピー"
+
+msgid "account_sync_recovery_copied"
+msgstr "リカバリーフレーズをコピーしました"
+
+msgid "account_sync_recovery_confirm_checkbox"
+msgstr "リカバリーフレーズを書き留め、安全に保管しました。"
+
+msgid "account_sync_recovery_confirm_button"
+msgstr "保存しました"
+
+#. Join screen
+msgid "account_sync_join_title"
+msgstr "アカウントに参加"
+
+msgid "account_sync_join_intro"
+msgstr "既存アカウントのメールアドレスとパスフレーズを入力して、このデバイスを追加します。"
+
+msgid "account_sync_join_button"
+msgstr "アカウントに参加"
+
+msgid "account_sync_join_failed"
+msgstr "アカウントに参加できませんでした。メールアドレスとパスフレーズを確認してください。"
+
+#. Pairing flow
+msgid "account_sync_add_device_title"
+msgstr "デバイスを追加"
+
+#. Signed-out CTA: join an account by pairing with an already-signed-in device
+msgid "account_sync_pair_cta"
+msgstr "別のデバイス経由でこのデバイスを追加"
+
+msgid "account_sync_pairing_new_intro"
+msgstr "既存のデバイスでこのコードをスキャンしてください。次に、そのデバイスに表示される承認コードをスキャンします。"
+
+msgid "account_sync_pairing_scan_authorization"
+msgstr "承認コードをスキャン"
+
+msgid "account_sync_pairing_authorize_intro"
+msgstr "新しいデバイスのコードをスキャンし、下の承認コードをそのデバイスに見せてください。"
+
+msgid "account_sync_pairing_scan_new_device"
+msgstr "新しいデバイスをスキャン"
+
+msgid "account_sync_pairing_sealed_intro"
+msgstr "この承認コードを新しいデバイスに見せてください。"
+
+#. ADR-045 authenticated-channel invariant, surfaced to the user
+msgid "account_sync_pairing_security_note"
+msgstr "これらのコードは必ず対面で、2つのデバイス間で直接スキャンしてください。メッセージや写真で共有しないでください。"
+
+msgid "account_sync_device_added"
+msgstr "デバイスを追加しました"
+
+#. Scan screen
+msgid "account_sync_scan_title"
+msgstr "コードをスキャン"
+
+msgid "account_sync_scan_instruction"
+msgstr "QRコードを枠の中に合わせてください"
+
+msgid "account_sync_show_passphrase"
+msgstr "パスフレーズを表示"
+
+msgid "account_sync_hide_passphrase"
+msgstr "パスフレーズを非表示"
+

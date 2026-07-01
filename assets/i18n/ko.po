@@ -5928,3 +5928,201 @@ msgstr "'{name}'이(가) 라이브러리와 동기화를 중지합니다. 이미
 msgid "account_sync_remove_device_error"
 msgstr "기기를 제거할 수 없습니다. 연결을 확인한 후 다시 시도하세요."
 
+
+#. --- Account sync: multi-device sync screen ---
+#. Settings tile + hub screen title
+msgid "account_sync_title"
+msgstr "다중 기기 동기화"
+
+#. Settings tile subtitle
+msgid "account_sync_settings_subtitle"
+msgstr "종단 간 암호화로 내 기기 간에 라이브러리를 공유하세요"
+
+#. Hub intro when not signed in
+msgid "account_sync_signed_out_intro"
+msgstr "암호화된 계정을 만들어 여러 기기에서 라이브러리를 동기화하세요. 내 기기만 라이브러리를 읽을 수 있으며, 서버는 데이터를 절대 볼 수 없습니다."
+
+#. Honest note while data convergence is not active yet (Phase E)
+msgid "account_sync_pending_note"
+msgstr "설정, 기기 관리, 수동 동기화는 지금 사용할 수 있습니다. 기기 간 자동 백그라운드 동기화는 이후 업데이트에서 제공될 예정입니다."
+
+msgid "account_sync_create_account"
+msgstr "계정 만들기"
+
+msgid "account_sync_join_account"
+msgstr "기존 계정에 참여"
+
+#. {email} = signed-in account email
+msgid "account_sync_signed_in_as"
+msgstr "{email}(으)로 로그인됨"
+
+msgid "account_sync_devices_title"
+msgstr "승인된 기기"
+
+msgid "account_sync_no_devices"
+msgstr "아직 기기가 없습니다. 새로고침하여 목록을 불러오세요."
+
+msgid "account_sync_this_device"
+msgstr "이 기기"
+
+msgid "account_sync_add_device"
+msgstr "기기 추가"
+
+msgid "account_sync_sync_now"
+msgstr "지금 동기화"
+
+msgid "account_sync_synced_done"
+msgstr "동기화가 완료되었습니다. 모든 기기가 최신 상태입니다."
+
+msgid "account_sync_synced_uptodate"
+msgstr "이미 모두 최신 상태입니다."
+
+msgid "account_sync_sync_failed"
+msgstr "동기화에 실패했습니다. 연결을 확인한 후 다시 시도하세요."
+
+msgid "account_sync_logout"
+msgstr "이 기기에서 로그아웃"
+
+msgid "account_sync_logout_confirm_title"
+msgstr "이 기기에서 로그아웃할까요?"
+
+msgid "account_sync_logout_confirm_body"
+msgstr "이 기기의 동기화가 중지됩니다. 계정과 다른 기기에는 영향이 없습니다. 나중에 암호 구문으로 다시 참여할 수 있습니다."
+
+#. Signup screen
+msgid "account_sync_signup_title"
+msgstr "계정 만들기"
+
+msgid "account_sync_signup_intro"
+msgstr "강력한 암호 구문을 선택하세요. 이 암호 구문은 라이브러리를 암호화하며 재설정할 수 없으므로 안전하게 보관하세요."
+
+msgid "account_sync_email_label"
+msgstr "이메일"
+
+msgid "account_sync_passphrase_label"
+msgstr "암호 구문"
+
+msgid "account_sync_device_name_label"
+msgstr "이 기기의 이름"
+
+msgid "account_sync_strength_label"
+msgstr "암호 구문 강도"
+
+msgid "account_sync_strength_0"
+msgstr "매우 약함"
+
+msgid "account_sync_strength_1"
+msgstr "약함"
+
+msgid "account_sync_strength_2"
+msgstr "보통"
+
+msgid "account_sync_strength_3"
+msgstr "양호"
+
+msgid "account_sync_strength_4"
+msgstr "강함"
+
+msgid "account_sync_passphrase_hint"
+msgstr "최소 12자 이상. 기억하기 쉬우면서도 강력한 암호 구문이 필요합니다."
+
+msgid "account_sync_create_button"
+msgstr "계정 만들기"
+
+msgid "account_sync_account_exists"
+msgstr "이 이메일로 이미 계정이 존재합니다."
+
+msgid "account_sync_account_exists_action"
+msgstr "대신 로그인"
+
+msgid "account_sync_weak_passphrase"
+msgstr "이 암호 구문은 너무 약합니다. 더 강력한 것을 선택하세요."
+
+#. Restart prompt shown after enrollment: sync activates on the next launch
+msgid "account_sync_restart_required_title"
+msgstr "동기화를 활성화하려면 재시작하세요"
+
+msgid "account_sync_restart_required_body"
+msgstr "이 기기가 계정에 연결되었습니다. 앱을 재시작하여 여러 기기에서 라이브러리 동기화를 시작하세요."
+
+msgid "account_sync_restart_required_ok"
+msgstr "확인"
+
+#. Recovery kit (BIP39) display
+msgid "account_sync_recovery_title"
+msgstr "복구 문구"
+
+msgid "account_sync_recovery_intro"
+msgstr "이 24개 단어를 순서대로 적어 안전한 곳에 보관하세요. 암호 구문을 잊어버렸을 때 계정을 복구할 수 있는 유일한 방법입니다."
+
+msgid "account_sync_recovery_warning"
+msgstr "이 문구는 한 번만 표시되며 저장되지 않습니다. 다시 표시할 수 없습니다."
+
+msgid "account_sync_recovery_copy"
+msgstr "문구 복사"
+
+msgid "account_sync_recovery_copied"
+msgstr "복구 문구가 복사되었습니다"
+
+msgid "account_sync_recovery_confirm_checkbox"
+msgstr "복구 문구를 적어 안전하게 보관했습니다."
+
+msgid "account_sync_recovery_confirm_button"
+msgstr "저장했습니다"
+
+#. Join screen
+msgid "account_sync_join_title"
+msgstr "계정에 참여"
+
+msgid "account_sync_join_intro"
+msgstr "이 기기를 추가하려면 기존 계정의 이메일과 암호 구문을 입력하세요."
+
+msgid "account_sync_join_button"
+msgstr "계정 참여"
+
+msgid "account_sync_join_failed"
+msgstr "계정에 참여할 수 없습니다. 이메일과 암호 구문을 확인하세요."
+
+#. Pairing flow
+msgid "account_sync_add_device_title"
+msgstr "기기 추가"
+
+#. Signed-out CTA: join an account by pairing with an already-signed-in device
+msgid "account_sync_pair_cta"
+msgstr "다른 기기를 통해 이 기기 추가"
+
+msgid "account_sync_pairing_new_intro"
+msgstr "기존 기기에서 이 코드를 스캔하세요. 그런 다음 기존 기기에 표시되는 승인 코드를 스캔하세요."
+
+msgid "account_sync_pairing_scan_authorization"
+msgstr "승인 코드 스캔"
+
+msgid "account_sync_pairing_authorize_intro"
+msgstr "새 기기의 코드를 스캔한 다음, 아래 승인 코드를 새 기기에 보여주세요."
+
+msgid "account_sync_pairing_scan_new_device"
+msgstr "새 기기 스캔"
+
+msgid "account_sync_pairing_sealed_intro"
+msgstr "이 승인 코드를 새 기기에 보여주세요."
+
+#. ADR-045 authenticated-channel invariant, surfaced to the user
+msgid "account_sync_pairing_security_note"
+msgstr "이 코드는 반드시 직접 만나 두 기기 사이에서만 스캔하세요. 메시지나 사진으로 절대 공유하지 마세요."
+
+msgid "account_sync_device_added"
+msgstr "기기가 추가되었습니다"
+
+#. Scan screen
+msgid "account_sync_scan_title"
+msgstr "코드 스캔"
+
+msgid "account_sync_scan_instruction"
+msgstr "QR 코드를 프레임 안에 맞추세요"
+
+msgid "account_sync_show_passphrase"
+msgstr "암호 구문 표시"
+
+msgid "account_sync_hide_passphrase"
+msgstr "암호 구문 숨기기"
+

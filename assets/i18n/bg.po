@@ -9951,3 +9951,201 @@ msgstr "„{name}“ ще спре да се синхронизира с ваш�
 msgid "account_sync_remove_device_error"
 msgstr "Устройството не можа да бъде премахнато. Проверете връзката си и опитайте отново."
 
+
+#. --- Account sync: multi-device sync screen ---
+#. Settings tile + hub screen title
+msgid "account_sync_title"
+msgstr "Синхронизация между устройства"
+
+#. Settings tile subtitle
+msgid "account_sync_settings_subtitle"
+msgstr "Споделяйте библиотеката си между собствените си устройства, криптирана от край до край"
+
+#. Hub intro when not signed in
+msgid "account_sync_signed_out_intro"
+msgstr "Създайте криптиран акаунт, за да поддържате библиотеката си синхронизирана между устройствата си. Само вашите устройства могат да я четат; сървърът никога не вижда данните ви."
+
+#. Honest note while data convergence is not active yet (Phase E)
+msgid "account_sync_pending_note"
+msgstr "Настройката, управлението на устройствата и синхронизацията при поискване вече работят. Автоматичната синхронизация на заден план между устройствата ще бъде добавена в бъдеща актуализация."
+
+msgid "account_sync_create_account"
+msgstr "Създаване на акаунт"
+
+msgid "account_sync_join_account"
+msgstr "Присъединяване към съществуващ акаунт"
+
+#. {email} = signed-in account email
+msgid "account_sync_signed_in_as"
+msgstr "Влезли сте като {email}"
+
+msgid "account_sync_devices_title"
+msgstr "Оторизирани устройства"
+
+msgid "account_sync_no_devices"
+msgstr "Все още няма устройства. Обновете, за да заредите списъка."
+
+msgid "account_sync_this_device"
+msgstr "Това устройство"
+
+msgid "account_sync_add_device"
+msgstr "Добавяне на устройство"
+
+msgid "account_sync_sync_now"
+msgstr "Синхронизиране сега"
+
+msgid "account_sync_synced_done"
+msgstr "Синхронизацията е завършена. Устройствата ви са актуални."
+
+msgid "account_sync_synced_uptodate"
+msgstr "Всичко вече е актуално."
+
+msgid "account_sync_sync_failed"
+msgstr "Синхронизацията е неуспешна. Проверете връзката си и опитайте отново."
+
+msgid "account_sync_logout"
+msgstr "Изход от това устройство"
+
+msgid "account_sync_logout_confirm_title"
+msgstr "Изход от това устройство?"
+
+msgid "account_sync_logout_confirm_body"
+msgstr "Това устройство ще спре да се синхронизира. Акаунтът ви и другите устройства не са засегнати. Можете да се присъедините отново по-късно с вашата тайна фраза."
+
+#. Signup screen
+msgid "account_sync_signup_title"
+msgstr "Създаване на акаунт"
+
+msgid "account_sync_signup_intro"
+msgstr "Изберете силна тайна фраза. Тя криптира библиотеката ви и не може да бъде нулирана, затова я съхранявайте на сигурно място."
+
+msgid "account_sync_email_label"
+msgstr "Имейл"
+
+msgid "account_sync_passphrase_label"
+msgstr "Тайна фраза"
+
+msgid "account_sync_device_name_label"
+msgstr "Име на това устройство"
+
+msgid "account_sync_strength_label"
+msgstr "Сила на тайната фраза"
+
+msgid "account_sync_strength_0"
+msgstr "Много слаба"
+
+msgid "account_sync_strength_1"
+msgstr "Слаба"
+
+msgid "account_sync_strength_2"
+msgstr "Средна"
+
+msgid "account_sync_strength_3"
+msgstr "Добра"
+
+msgid "account_sync_strength_4"
+msgstr "Силна"
+
+msgid "account_sync_passphrase_hint"
+msgstr "Поне 12 знака. Изисква се силна и лесна за запомняне тайна фраза."
+
+msgid "account_sync_create_button"
+msgstr "Създаване на акаунт"
+
+msgid "account_sync_account_exists"
+msgstr "Вече съществува акаунт за този имейл."
+
+msgid "account_sync_account_exists_action"
+msgstr "Влезте вместо това"
+
+msgid "account_sync_weak_passphrase"
+msgstr "Тази тайна фраза е твърде слаба. Изберете по-силна."
+
+#. Restart prompt shown after enrollment: sync activates on the next launch
+msgid "account_sync_restart_required_title"
+msgstr "Рестартирайте, за да активирате синхронизацията"
+
+msgid "account_sync_restart_required_body"
+msgstr "Това устройство вече е свързано с вашия акаунт. Рестартирайте приложението, за да започнете да синхронизирате библиотеката си между устройствата си."
+
+msgid "account_sync_restart_required_ok"
+msgstr "Разбрах"
+
+#. Recovery kit (BIP39) display
+msgid "account_sync_recovery_title"
+msgstr "Вашата фраза за възстановяване"
+
+msgid "account_sync_recovery_intro"
+msgstr "Запишете тези 24 думи по ред и ги съхранявайте на сигурно място. Те са единственият начин да възстановите акаунта си, ако забравите тайната си фраза."
+
+msgid "account_sync_recovery_warning"
+msgstr "Тази фраза се показва само веднъж и никога не се съхранява. Не можем да я покажем отново."
+
+msgid "account_sync_recovery_copy"
+msgstr "Копиране на фразата"
+
+msgid "account_sync_recovery_copied"
+msgstr "Фразата за възстановяване е копирана"
+
+msgid "account_sync_recovery_confirm_checkbox"
+msgstr "Записах фразата си за възстановяване и я съхраних на сигурно място."
+
+msgid "account_sync_recovery_confirm_button"
+msgstr "Запазих я"
+
+#. Join screen
+msgid "account_sync_join_title"
+msgstr "Присъединяване към акаунт"
+
+msgid "account_sync_join_intro"
+msgstr "Въведете имейла и тайната фраза на съществуващия си акаунт, за да добавите това устройство към него."
+
+msgid "account_sync_join_button"
+msgstr "Присъединяване към акаунта"
+
+msgid "account_sync_join_failed"
+msgstr "Присъединяването към акаунта е неуспешно. Проверете имейла и тайната си фраза."
+
+#. Pairing flow
+msgid "account_sync_add_device_title"
+msgstr "Добавяне на устройство"
+
+#. Signed-out CTA: join an account by pairing with an already-signed-in device
+msgid "account_sync_pair_cta"
+msgstr "Добавете това устройство чрез друго устройство"
+
+msgid "account_sync_pairing_new_intro"
+msgstr "На съществуващо устройство сканирайте този код. След това сканирайте кода за оторизация, който то показва в отговор."
+
+msgid "account_sync_pairing_scan_authorization"
+msgstr "Сканирайте кода за оторизация"
+
+msgid "account_sync_pairing_authorize_intro"
+msgstr "Сканирайте кода на новото устройство, след което му покажете кода за оторизация по-долу."
+
+msgid "account_sync_pairing_scan_new_device"
+msgstr "Сканирайте новото устройство"
+
+msgid "account_sync_pairing_sealed_intro"
+msgstr "Покажете този код за оторизация на новото устройство."
+
+#. ADR-045 authenticated-channel invariant, surfaced to the user
+msgid "account_sync_pairing_security_note"
+msgstr "Сканирайте тези кодове само лично, директно между двете си устройства. Никога не ги споделяйте чрез съобщение или снимка."
+
+msgid "account_sync_device_added"
+msgstr "Устройството е добавено"
+
+#. Scan screen
+msgid "account_sync_scan_title"
+msgstr "Сканирайте кода"
+
+msgid "account_sync_scan_instruction"
+msgstr "Поставете QR кода в рамката"
+
+msgid "account_sync_show_passphrase"
+msgstr "Показване на тайната фраза"
+
+msgid "account_sync_hide_passphrase"
+msgstr "Скриване на тайната фраза"
+

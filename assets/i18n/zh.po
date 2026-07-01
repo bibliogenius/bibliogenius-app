@@ -5928,3 +5928,201 @@ msgstr "“{name}”将停止与您的图书馆同步。已下载到该设备的
 msgid "account_sync_remove_device_error"
 msgstr "无法移除该设备。请检查网络连接后重试。"
 
+
+#. --- Account sync: multi-device sync screen ---
+#. Settings tile + hub screen title
+msgid "account_sync_title"
+msgstr "多设备同步"
+
+#. Settings tile subtitle
+msgid "account_sync_settings_subtitle"
+msgstr "在您自己的设备之间共享图书馆，端到端加密"
+
+#. Hub intro when not signed in
+msgid "account_sync_signed_out_intro"
+msgstr "创建一个加密账号，让您的图书馆在各设备之间保持同步。只有您的设备能够读取，服务器永远看不到您的数据。"
+
+#. Honest note while data convergence is not active yet (Phase E)
+msgid "account_sync_pending_note"
+msgstr "设置、设备管理和按需同步现已可用。设备之间的后台自动同步将在后续更新中推出。"
+
+msgid "account_sync_create_account"
+msgstr "创建账号"
+
+msgid "account_sync_join_account"
+msgstr "加入现有账号"
+
+#. {email} = signed-in account email
+msgid "account_sync_signed_in_as"
+msgstr "已登录：{email}"
+
+msgid "account_sync_devices_title"
+msgstr "已授权的设备"
+
+msgid "account_sync_no_devices"
+msgstr "暂无设备。请刷新以加载列表。"
+
+msgid "account_sync_this_device"
+msgstr "此设备"
+
+msgid "account_sync_add_device"
+msgstr "添加设备"
+
+msgid "account_sync_sync_now"
+msgstr "立即同步"
+
+msgid "account_sync_synced_done"
+msgstr "同步完成。您的设备均已是最新状态。"
+
+msgid "account_sync_synced_uptodate"
+msgstr "所有内容均已是最新状态。"
+
+msgid "account_sync_sync_failed"
+msgstr "同步失败。请检查网络连接后重试。"
+
+msgid "account_sync_logout"
+msgstr "从此设备退出登录"
+
+msgid "account_sync_logout_confirm_title"
+msgstr "从此设备退出登录？"
+
+msgid "account_sync_logout_confirm_body"
+msgstr "此设备将停止同步。您的账号和其他设备不受影响。您稍后可以使用密码短语重新加入。"
+
+#. Signup screen
+msgid "account_sync_signup_title"
+msgstr "创建账号"
+
+msgid "account_sync_signup_intro"
+msgstr "请设置一个强度高的密码短语。它用于加密您的图书馆且无法重置，请妥善保管。"
+
+msgid "account_sync_email_label"
+msgstr "电子邮箱"
+
+msgid "account_sync_passphrase_label"
+msgstr "密码短语"
+
+msgid "account_sync_device_name_label"
+msgstr "此设备的名称"
+
+msgid "account_sync_strength_label"
+msgstr "密码短语强度"
+
+msgid "account_sync_strength_0"
+msgstr "非常弱"
+
+msgid "account_sync_strength_1"
+msgstr "弱"
+
+msgid "account_sync_strength_2"
+msgstr "一般"
+
+msgid "account_sync_strength_3"
+msgstr "良好"
+
+msgid "account_sync_strength_4"
+msgstr "强"
+
+msgid "account_sync_passphrase_hint"
+msgstr "至少 12 个字符。需要一个强度高且便于记忆的密码短语。"
+
+msgid "account_sync_create_button"
+msgstr "创建账号"
+
+msgid "account_sync_account_exists"
+msgstr "该电子邮箱已存在账号。"
+
+msgid "account_sync_account_exists_action"
+msgstr "改为登录"
+
+msgid "account_sync_weak_passphrase"
+msgstr "此密码短语强度太弱。请选择一个更强的。"
+
+#. Restart prompt shown after enrollment: sync activates on the next launch
+msgid "account_sync_restart_required_title"
+msgstr "重启以激活同步"
+
+msgid "account_sync_restart_required_body"
+msgstr "此设备现已关联到您的账号。请重启应用，开始在各设备之间同步您的图书馆。"
+
+msgid "account_sync_restart_required_ok"
+msgstr "我知道了"
+
+#. Recovery kit (BIP39) display
+msgid "account_sync_recovery_title"
+msgstr "您的恢复短语"
+
+msgid "account_sync_recovery_intro"
+msgstr "请按顺序记下这 24 个单词，并妥善保管。如果您忘记密码短语，这是恢复账号的唯一方法。"
+
+msgid "account_sync_recovery_warning"
+msgstr "此短语只显示一次，且绝不会被存储。我们无法再次显示它。"
+
+msgid "account_sync_recovery_copy"
+msgstr "复制短语"
+
+msgid "account_sync_recovery_copied"
+msgstr "已复制恢复短语"
+
+msgid "account_sync_recovery_confirm_checkbox"
+msgstr "我已记下恢复短语并妥善保管。"
+
+msgid "account_sync_recovery_confirm_button"
+msgstr "我已保存"
+
+#. Join screen
+msgid "account_sync_join_title"
+msgstr "加入账号"
+
+msgid "account_sync_join_intro"
+msgstr "输入现有账号的电子邮箱和密码短语，即可将此设备添加到该账号。"
+
+msgid "account_sync_join_button"
+msgstr "加入账号"
+
+msgid "account_sync_join_failed"
+msgstr "无法加入账号。请检查您的电子邮箱和密码短语。"
+
+#. Pairing flow
+msgid "account_sync_add_device_title"
+msgstr "添加设备"
+
+#. Signed-out CTA: join an account by pairing with an already-signed-in device
+msgid "account_sync_pair_cta"
+msgstr "通过另一台设备添加此设备"
+
+msgid "account_sync_pairing_new_intro"
+msgstr "在现有设备上扫描此二维码，然后扫描它返回显示的授权码。"
+
+msgid "account_sync_pairing_scan_authorization"
+msgstr "扫描授权码"
+
+msgid "account_sync_pairing_authorize_intro"
+msgstr "扫描新设备的二维码，然后向它出示下方的授权码。"
+
+msgid "account_sync_pairing_scan_new_device"
+msgstr "扫描新设备"
+
+msgid "account_sync_pairing_sealed_intro"
+msgstr "向新设备出示此授权码。"
+
+#. ADR-045 authenticated-channel invariant, surfaced to the user
+msgid "account_sync_pairing_security_note"
+msgstr "请务必当面、直接在您的两台设备之间扫描这些二维码。切勿通过消息或照片分享它们。"
+
+msgid "account_sync_device_added"
+msgstr "设备已添加"
+
+#. Scan screen
+msgid "account_sync_scan_title"
+msgstr "扫描二维码"
+
+msgid "account_sync_scan_instruction"
+msgstr "将二维码放入框内"
+
+msgid "account_sync_show_passphrase"
+msgstr "显示密码短语"
+
+msgid "account_sync_hide_passphrase"
+msgstr "隐藏密码短语"
+

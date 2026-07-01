@@ -9819,3 +9819,201 @@ msgstr "„{name}“ wird nicht mehr mit Ihrer Bibliothek synchronisiert. Die be
 msgid "account_sync_remove_device_error"
 msgstr "Das Gerät konnte nicht entfernt werden. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut."
 
+
+#. --- Account sync: multi-device sync screen ---
+#. Settings tile + hub screen title
+msgid "account_sync_title"
+msgstr "Multi-Geräte-Synchronisierung"
+
+#. Settings tile subtitle
+msgid "account_sync_settings_subtitle"
+msgstr "Teilen Sie Ihre Bibliothek zwischen Ihren eigenen Geräten, Ende-zu-Ende-verschlüsselt"
+
+#. Hub intro when not signed in
+msgid "account_sync_signed_out_intro"
+msgstr "Erstellen Sie ein verschlüsseltes Konto, um Ihre Bibliothek zwischen Ihren Geräten synchron zu halten. Nur Ihre Geräte können sie lesen; der Server sieht Ihre Daten nie."
+
+#. Honest note while data convergence is not active yet (Phase E)
+msgid "account_sync_pending_note"
+msgstr "Einrichtung, Geräteverwaltung und Synchronisierung auf Abruf funktionieren bereits. Die automatische Synchronisierung im Hintergrund zwischen Geräten kommt in einem späteren Update."
+
+msgid "account_sync_create_account"
+msgstr "Konto erstellen"
+
+msgid "account_sync_join_account"
+msgstr "Bestehendem Konto beitreten"
+
+#. {email} = signed-in account email
+msgid "account_sync_signed_in_as"
+msgstr "Angemeldet als {email}"
+
+msgid "account_sync_devices_title"
+msgstr "Autorisierte Geräte"
+
+msgid "account_sync_no_devices"
+msgstr "Noch keine Geräte. Aktualisieren Sie, um die Liste zu laden."
+
+msgid "account_sync_this_device"
+msgstr "Dieses Gerät"
+
+msgid "account_sync_add_device"
+msgstr "Gerät hinzufügen"
+
+msgid "account_sync_sync_now"
+msgstr "Jetzt synchronisieren"
+
+msgid "account_sync_synced_done"
+msgstr "Synchronisierung abgeschlossen. Ihre Geräte sind auf dem neuesten Stand."
+
+msgid "account_sync_synced_uptodate"
+msgstr "Alles ist bereits auf dem neuesten Stand."
+
+msgid "account_sync_sync_failed"
+msgstr "Synchronisierung fehlgeschlagen. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut."
+
+msgid "account_sync_logout"
+msgstr "Von diesem Gerät abmelden"
+
+msgid "account_sync_logout_confirm_title"
+msgstr "Von diesem Gerät abmelden?"
+
+msgid "account_sync_logout_confirm_body"
+msgstr "Dieses Gerät wird nicht mehr synchronisiert. Ihr Konto und Ihre anderen Geräte sind nicht betroffen. Sie können später mit Ihrer Passphrase wieder beitreten."
+
+#. Signup screen
+msgid "account_sync_signup_title"
+msgstr "Konto erstellen"
+
+msgid "account_sync_signup_intro"
+msgstr "Wählen Sie eine starke Passphrase. Sie verschlüsselt Ihre Bibliothek und kann nicht zurückgesetzt werden, bewahren Sie sie also sicher auf."
+
+msgid "account_sync_email_label"
+msgstr "E-Mail"
+
+msgid "account_sync_passphrase_label"
+msgstr "Passphrase"
+
+msgid "account_sync_device_name_label"
+msgstr "Name für dieses Gerät"
+
+msgid "account_sync_strength_label"
+msgstr "Stärke der Passphrase"
+
+msgid "account_sync_strength_0"
+msgstr "Sehr schwach"
+
+msgid "account_sync_strength_1"
+msgstr "Schwach"
+
+msgid "account_sync_strength_2"
+msgstr "Mittel"
+
+msgid "account_sync_strength_3"
+msgstr "Gut"
+
+msgid "account_sync_strength_4"
+msgstr "Stark"
+
+msgid "account_sync_passphrase_hint"
+msgstr "Mindestens 12 Zeichen. Eine starke, einprägsame Passphrase ist erforderlich."
+
+msgid "account_sync_create_button"
+msgstr "Konto erstellen"
+
+msgid "account_sync_account_exists"
+msgstr "Für diese E-Mail existiert bereits ein Konto."
+
+msgid "account_sync_account_exists_action"
+msgstr "Stattdessen anmelden"
+
+msgid "account_sync_weak_passphrase"
+msgstr "Diese Passphrase ist zu schwach. Wählen Sie eine stärkere."
+
+#. Restart prompt shown after enrollment: sync activates on the next launch
+msgid "account_sync_restart_required_title"
+msgstr "Neu starten, um die Synchronisierung zu aktivieren"
+
+msgid "account_sync_restart_required_body"
+msgstr "Dieses Gerät ist jetzt mit Ihrem Konto verknüpft. Starten Sie die App neu, um Ihre Bibliothek zwischen Ihren Geräten zu synchronisieren."
+
+msgid "account_sync_restart_required_ok"
+msgstr "Verstanden"
+
+#. Recovery kit (BIP39) display
+msgid "account_sync_recovery_title"
+msgstr "Ihre Wiederherstellungsphrase"
+
+msgid "account_sync_recovery_intro"
+msgstr "Notieren Sie diese 24 Wörter in der richtigen Reihenfolge und bewahren Sie sie an einem sicheren Ort auf. Sie sind die einzige Möglichkeit, Ihr Konto wiederherzustellen, falls Sie Ihre Passphrase vergessen."
+
+msgid "account_sync_recovery_warning"
+msgstr "Diese Phrase wird nur einmal angezeigt und niemals gespeichert. Wir können sie nicht erneut anzeigen."
+
+msgid "account_sync_recovery_copy"
+msgstr "Phrase kopieren"
+
+msgid "account_sync_recovery_copied"
+msgstr "Wiederherstellungsphrase kopiert"
+
+msgid "account_sync_recovery_confirm_checkbox"
+msgstr "Ich habe meine Wiederherstellungsphrase notiert und sicher aufbewahrt."
+
+msgid "account_sync_recovery_confirm_button"
+msgstr "Ich habe sie gespeichert"
+
+#. Join screen
+msgid "account_sync_join_title"
+msgstr "Konto beitreten"
+
+msgid "account_sync_join_intro"
+msgstr "Geben Sie die E-Mail und die Passphrase Ihres bestehenden Kontos ein, um dieses Gerät hinzuzufügen."
+
+msgid "account_sync_join_button"
+msgstr "Konto beitreten"
+
+msgid "account_sync_join_failed"
+msgstr "Beitritt zum Konto nicht möglich. Prüfen Sie Ihre E-Mail und Passphrase."
+
+#. Pairing flow
+msgid "account_sync_add_device_title"
+msgstr "Gerät hinzufügen"
+
+#. Signed-out CTA: join an account by pairing with an already-signed-in device
+msgid "account_sync_pair_cta"
+msgstr "Dieses Gerät über ein anderes Gerät hinzufügen"
+
+msgid "account_sync_pairing_new_intro"
+msgstr "Scannen Sie auf einem bestehenden Gerät diesen Code. Scannen Sie anschließend den Autorisierungscode, den es zurück anzeigt."
+
+msgid "account_sync_pairing_scan_authorization"
+msgstr "Autorisierungscode scannen"
+
+msgid "account_sync_pairing_authorize_intro"
+msgstr "Scannen Sie den Code des neuen Geräts und zeigen Sie ihm dann den untenstehenden Autorisierungscode."
+
+msgid "account_sync_pairing_scan_new_device"
+msgstr "Neues Gerät scannen"
+
+msgid "account_sync_pairing_sealed_intro"
+msgstr "Zeigen Sie diesen Autorisierungscode dem neuen Gerät."
+
+#. ADR-045 authenticated-channel invariant, surfaced to the user
+msgid "account_sync_pairing_security_note"
+msgstr "Scannen Sie diese Codes ausschließlich persönlich, direkt zwischen Ihren beiden Geräten. Teilen Sie sie niemals per Nachricht oder Foto."
+
+msgid "account_sync_device_added"
+msgstr "Gerät hinzugefügt"
+
+#. Scan screen
+msgid "account_sync_scan_title"
+msgstr "Code scannen"
+
+msgid "account_sync_scan_instruction"
+msgstr "Platzieren Sie den QR-Code innerhalb des Rahmens"
+
+msgid "account_sync_show_passphrase"
+msgstr "Passphrase anzeigen"
+
+msgid "account_sync_hide_passphrase"
+msgstr "Passphrase ausblenden"
+
