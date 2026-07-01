@@ -5898,3 +5898,33 @@ msgstr "전체"
 
 msgid "completeness_start_n"
 msgstr "{n}권 채우기"
+
+#. --- Design refinement: library view modes ---
+#. Library view mode: cover grid
+msgid "view_mode_cover_grid"
+msgstr "그리드 보기"
+
+#. Library view mode: bookshelf spines
+msgid "view_mode_spine_shelf"
+msgstr "책장 보기"
+
+
+#. --- Account sync: remove/soft-revoke a device ---
+#. Label above the account email on the sync screen
+msgid "account_sync_signed_in_label"
+msgstr "로그인 계정"
+
+#. Remove-device (soft revocation) button shown on other devices in the list
+msgid "account_sync_remove_device_button"
+msgstr "제거"
+
+msgid "account_sync_remove_device_confirm_title"
+msgstr "이 기기를 제거할까요?"
+
+#. {name} is the device label. Copy is intentionally honest: removal stops sync but is not a security lock.
+msgid "account_sync_remove_device_confirm_body"
+msgstr "'{name}'이(가) 라이브러리와 동기화를 중지합니다. 이미 다운로드된 데이터는 기기에 남아 있으므로 보안 잠금이 아닙니다. 나중에 다시 추가할 수 있습니다."
+
+msgid "account_sync_remove_device_error"
+msgstr "기기를 제거할 수 없습니다. 연결을 확인한 후 다시 시도하세요."
+

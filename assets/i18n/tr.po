@@ -9921,3 +9921,33 @@ msgstr "Tümü"
 
 msgid "completeness_start_n"
 msgstr "{n} kitabı tamamla"
+
+#. --- Design refinement: library view modes ---
+#. Library view mode: cover grid
+msgid "view_mode_cover_grid"
+msgstr "Izgara görünümü"
+
+#. Library view mode: bookshelf spines
+msgid "view_mode_spine_shelf"
+msgstr "Raf görünümü"
+
+
+#. --- Account sync: remove/soft-revoke a device ---
+#. Label above the account email on the sync screen
+msgid "account_sync_signed_in_label"
+msgstr "Oturum açan"
+
+#. Remove-device (soft revocation) button shown on other devices in the list
+msgid "account_sync_remove_device_button"
+msgstr "Kaldır"
+
+msgid "account_sync_remove_device_confirm_title"
+msgstr "Bu cihaz kaldırılsın mı?"
+
+#. {name} is the device label. Copy is intentionally honest: removal stops sync but is not a security lock.
+msgid "account_sync_remove_device_confirm_body"
+msgstr "“{name}” kitaplığınızla eşitlenmeyi durduracak. Cihazda zaten indirilmiş veriler kalır, dolayısıyla bu bir güvenlik kilidi değildir. Daha sonra tekrar ekleyebilirsiniz."
+
+msgid "account_sync_remove_device_error"
+msgstr "Cihaz kaldırılamadı. Bağlantınızı kontrol edip tekrar deneyin."
+

@@ -5898,3 +5898,33 @@ msgstr "すべて"
 
 msgid "completeness_start_n"
 msgstr "{n}冊を補完"
+
+#. --- Design refinement: library view modes ---
+#. Library view mode: cover grid
+msgid "view_mode_cover_grid"
+msgstr "グリッド表示"
+
+#. Library view mode: bookshelf spines
+msgid "view_mode_spine_shelf"
+msgstr "本棚表示"
+
+
+#. --- Account sync: remove/soft-revoke a device ---
+#. Label above the account email on the sync screen
+msgid "account_sync_signed_in_label"
+msgstr "ログイン中のアカウント"
+
+#. Remove-device (soft revocation) button shown on other devices in the list
+msgid "account_sync_remove_device_button"
+msgstr "削除"
+
+msgid "account_sync_remove_device_confirm_title"
+msgstr "このデバイスを削除しますか？"
+
+#. {name} is the device label. Copy is intentionally honest: removal stops sync but is not a security lock.
+msgid "account_sync_remove_device_confirm_body"
+msgstr "「{name}」はライブラリとの同期を停止します。すでにダウンロード済みのデータは端末に残るため、これはセキュリティロックではありません。後で再び追加できます。"
+
+msgid "account_sync_remove_device_error"
+msgstr "デバイスを削除できませんでした。接続を確認してもう一度お試しください。"
+

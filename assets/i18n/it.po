@@ -9914,3 +9914,33 @@ msgstr "Tutto"
 
 msgid "completeness_start_n"
 msgstr "Completa {n} libri"
+
+#. --- Design refinement: library view modes ---
+#. Library view mode: cover grid
+msgid "view_mode_cover_grid"
+msgstr "Vista a griglia"
+
+#. Library view mode: bookshelf spines
+msgid "view_mode_spine_shelf"
+msgstr "Vista a scaffale"
+
+
+#. --- Account sync: remove/soft-revoke a device ---
+#. Label above the account email on the sync screen
+msgid "account_sync_signed_in_label"
+msgstr "Accesso effettuato come"
+
+#. Remove-device (soft revocation) button shown on other devices in the list
+msgid "account_sync_remove_device_button"
+msgstr "Rimuovi"
+
+msgid "account_sync_remove_device_confirm_title"
+msgstr "Rimuovere questo dispositivo?"
+
+#. {name} is the device label. Copy is intentionally honest: removal stops sync but is not a security lock.
+msgid "account_sync_remove_device_confirm_body"
+msgstr "«{name}» smetterà di sincronizzarsi con la tua biblioteca. Conserva i dati già scaricati, quindi non è un blocco di sicurezza. Potrai aggiungerlo di nuovo in seguito."
+
+msgid "account_sync_remove_device_error"
+msgstr "Impossibile rimuovere il dispositivo. Controlla la connessione e riprova."
+

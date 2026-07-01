@@ -5898,3 +5898,33 @@ msgstr "全部"
 
 msgid "completeness_start_n"
 msgstr "补全 {n} 本书"
+
+#. --- Design refinement: library view modes ---
+#. Library view mode: cover grid
+msgid "view_mode_cover_grid"
+msgstr "网格视图"
+
+#. Library view mode: bookshelf spines
+msgid "view_mode_spine_shelf"
+msgstr "书架视图"
+
+
+#. --- Account sync: remove/soft-revoke a device ---
+#. Label above the account email on the sync screen
+msgid "account_sync_signed_in_label"
+msgstr "登录账号"
+
+#. Remove-device (soft revocation) button shown on other devices in the list
+msgid "account_sync_remove_device_button"
+msgstr "移除"
+
+msgid "account_sync_remove_device_confirm_title"
+msgstr "移除此设备？"
+
+#. {name} is the device label. Copy is intentionally honest: removal stops sync but is not a security lock.
+msgid "account_sync_remove_device_confirm_body"
+msgstr "“{name}”将停止与您的图书馆同步。已下载到该设备的数据会保留，因此这并非安全锁定。您可以稍后重新添加它。"
+
+msgid "account_sync_remove_device_error"
+msgstr "无法移除该设备。请检查网络连接后重试。"
+

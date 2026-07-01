@@ -9921,3 +9921,33 @@ msgstr "Всички"
 
 msgid "completeness_start_n"
 msgstr "Допълни {n} книги"
+
+#. --- Design refinement: library view modes ---
+#. Library view mode: cover grid
+msgid "view_mode_cover_grid"
+msgstr "Изглед в мрежа"
+
+#. Library view mode: bookshelf spines
+msgid "view_mode_spine_shelf"
+msgstr "Изглед на рафт"
+
+
+#. --- Account sync: remove/soft-revoke a device ---
+#. Label above the account email on the sync screen
+msgid "account_sync_signed_in_label"
+msgstr "Влезли сте като"
+
+#. Remove-device (soft revocation) button shown on other devices in the list
+msgid "account_sync_remove_device_button"
+msgstr "Премахване"
+
+msgid "account_sync_remove_device_confirm_title"
+msgstr "Да се премахне ли това устройство?"
+
+#. {name} is the device label. Copy is intentionally honest: removal stops sync but is not a security lock.
+msgid "account_sync_remove_device_confirm_body"
+msgstr "„{name}“ ще спре да се синхронизира с вашата библиотека. Вече изтеглените данни остават на него, така че това не е защитно заключване. Можете да го добавите отново по-късно."
+
+msgid "account_sync_remove_device_error"
+msgstr "Устройството не можа да бъде премахнато. Проверете връзката си и опитайте отново."
+

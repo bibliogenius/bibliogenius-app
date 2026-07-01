@@ -9799,3 +9799,23 @@ msgstr "Alle"
 
 msgid "completeness_start_n"
 msgstr "{n} Bücher vervollständigen"
+
+#. --- Account sync: remove/soft-revoke a device ---
+#. Label above the account email on the sync screen
+msgid "account_sync_signed_in_label"
+msgstr "Angemeldet als"
+
+#. Remove-device (soft revocation) button shown on other devices in the list
+msgid "account_sync_remove_device_button"
+msgstr "Entfernen"
+
+msgid "account_sync_remove_device_confirm_title"
+msgstr "Dieses Gerät entfernen?"
+
+#. {name} is the device label. Copy is intentionally honest: removal stops sync but is not a security lock.
+msgid "account_sync_remove_device_confirm_body"
+msgstr "„{name}“ wird nicht mehr mit Ihrer Bibliothek synchronisiert. Die bereits heruntergeladenen Daten bleiben erhalten, es handelt sich also nicht um eine Sicherheitssperre. Sie können es später wieder hinzufügen."
+
+msgid "account_sync_remove_device_error"
+msgstr "Das Gerät konnte nicht entfernt werden. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut."
+
