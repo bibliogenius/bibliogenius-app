@@ -56,6 +56,17 @@ class _FakeFfiService extends FfiService {
   @override
   Future<String> accountRefreshDevices() async => devicesJson;
 
+  String removeDevicesJson = '{"devices":[]}';
+  String? removedDeviceId;
+  Object? removeError;
+
+  @override
+  Future<String> accountRemoveDevice(String deviceId) async {
+    removedDeviceId = deviceId;
+    if (removeError != null) throw removeError!;
+    return removeDevicesJson;
+  }
+
   @override
   Future<String> accountSyncNow() async {
     syncNowCalls++;
@@ -201,6 +212,36 @@ void main() {
     expect(provider.devices.first.name, 'Mac');
     expect(provider.devices.first.isSelf, isTrue);
     expect(provider.devices[1].isSelf, isFalse);
+  });
+
+  test('removeDevice forwards the id and updates the list from the response',
+      () async {
+    ffi.devicesJson =
+        '{"devices":[{"device_id":"d1","name":"Mac","is_self":true},'
+        '{"device_id":"d2","name":"iPhone","is_self":false}]}';
+    await provider.refreshDevices();
+    expect(provider.devices.length, 2);
+
+    // The FFI returns the shrunk list; the provider adopts it.
+    ffi.removeDevicesJson =
+        '{"devices":[{"device_id":"d1","name":"Mac","is_self":true}]}';
+    await provider.removeDevice('d2');
+
+    expect(ffi.removedDeviceId, 'd2');
+    expect(provider.devices, hasLength(1));
+    expect(provider.devices.single.deviceId, 'd1');
+  });
+
+  test('removeDevice rethrows and leaves the list unchanged on failure',
+      () async {
+    ffi.devicesJson =
+        '{"devices":[{"device_id":"d1","name":"Mac","is_self":true},'
+        '{"device_id":"d2","name":"iPhone","is_self":false}]}';
+    await provider.refreshDevices();
+
+    ffi.removeError = Exception('cannot remove the current device');
+    await expectLater(provider.removeDevice('d1'), throwsA(isA<Exception>()));
+    expect(provider.devices, hasLength(2));
   });
 
   test('checkPassphrase returns empty score for a blank input without FFI',

@@ -658,6 +658,12 @@ class FfiService {
   /// `{devices:[{device_id, name, is_self}]}`.
   Future<String> accountRefreshDevices() => frb.accountRefreshDevicesFfi();
 
+  /// Remove another device from the account's signed registry (soft revocation:
+  /// the device stops syncing but keeps its keys). Refuses the current device.
+  /// Returns the refreshed device list JSON, same shape as [accountRefreshDevices].
+  Future<String> accountRemoveDevice(String deviceId) =>
+      frb.accountRemoveDeviceFfi(deviceId: deviceId);
+
   /// Run one sync cycle: refresh the device registry, then (on account-sync
   /// builds) pull/apply and push the data lanes. Returns status JSON
   /// (`{synced, applied?, pushed?}` or `{synced:false, reason, devices}`).

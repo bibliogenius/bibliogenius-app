@@ -10039,6 +10039,20 @@ msgstr "Se déconnecter de cet appareil ?"
 msgid "account_sync_logout_confirm_body"
 msgstr "Cet appareil cessera de se synchroniser. Votre compte et vos autres appareils ne sont pas affectés. Vous pourrez le reconnecter plus tard avec votre phrase secrète."
 
+#. Remove-device (soft revocation) button shown on other devices in the list
+msgid "account_sync_remove_device_button"
+msgstr "Retirer"
+
+msgid "account_sync_remove_device_confirm_title"
+msgstr "Retirer cet appareil ?"
+
+#. {name} is the device label. Copy is intentionally honest: removal stops sync but is not a security lock.
+msgid "account_sync_remove_device_confirm_body"
+msgstr "« {name} » cessera de se synchroniser avec votre bibliothèque. Il conserve les données déjà téléchargées : ce n'est pas un verrouillage de sécurité. Vous pourrez le rajouter plus tard."
+
+msgid "account_sync_remove_device_error"
+msgstr "Impossible de retirer l'appareil. Vérifiez votre connexion et réessayez."
+
 #. Signup screen
 msgid "account_sync_signup_title"
 msgstr "Créer un compte"

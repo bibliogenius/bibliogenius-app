@@ -69,6 +69,44 @@ class _AccountSyncScreenState extends State<AccountSyncScreen> {
     await _provider.logout();
   }
 
+  /// Confirm and remove another device from the account (soft revocation). The
+  /// copy is deliberately honest: the device stops syncing but keeps the data it
+  /// already downloaded (it is not a security lock — see the removal note).
+  Future<void> _confirmRemoveDevice(AccountDevice device) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(_t('account_sync_remove_device_confirm_title')),
+        content: Text(
+          TranslationService.translate(
+            ctx,
+            'account_sync_remove_device_confirm_body',
+            params: {'name': device.name},
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(_t('cancel')),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(_t('account_sync_remove_device_button')),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    try {
+      await _provider.removeDevice(device.deviceId);
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(_t('account_sync_remove_device_error'))),
+      );
+    }
+  }
+
   /// Manually trigger one sync cycle and show a human confirmation. The backend
   /// returns JSON (`{synced, applied?, pushed?}`); we translate it into a plain
   /// message instead of surfacing the raw payload.
@@ -135,6 +173,7 @@ class _AccountSyncScreenState extends State<AccountSyncScreen> {
                               _openAndReload('/account-sync/add-device'),
                           onLogout: _confirmLogout,
                           onSyncNow: _syncNow,
+                          onRemoveDevice: _confirmRemoveDevice,
                         )
                       : _SignedOutView(
                           onCreate: () =>
@@ -253,11 +292,13 @@ class _SignedInView extends StatelessWidget {
   final VoidCallback onAddDevice;
   final VoidCallback onLogout;
   final VoidCallback onSyncNow;
+  final void Function(AccountDevice) onRemoveDevice;
   const _SignedInView({
     required this.provider,
     required this.onAddDevice,
     required this.onLogout,
     required this.onSyncNow,
+    required this.onRemoveDevice,
   });
 
   String _t(BuildContext c, String k) => TranslationService.translate(c, k);
@@ -298,7 +339,13 @@ class _SignedInView extends StatelessWidget {
             ),
           )
         else
-          ...provider.devices.map((d) => _DeviceTile(device: d)),
+          ...provider.devices.map(
+            (d) => _DeviceTile(
+              device: d,
+              onRemove: d.isSelf ? null : () => onRemoveDevice(d),
+              busy: provider.busy,
+            ),
+          ),
         const SizedBox(height: AppDesign.spacingLg),
         FilledButton.icon(
           icon: const Icon(Icons.sync),
@@ -324,7 +371,15 @@ class _SignedInView extends StatelessWidget {
 
 class _DeviceTile extends StatelessWidget {
   final AccountDevice device;
-  const _DeviceTile({required this.device});
+
+  /// Removes this device from the account. Null for the current device, which is
+  /// removed via sign out instead.
+  final VoidCallback? onRemove;
+
+  /// Whether a request is in flight: the remove button stays visible but disabled
+  /// (consistent with the sync / sign-out buttons below the list).
+  final bool busy;
+  const _DeviceTile({required this.device, this.onRemove, this.busy = false});
 
   @override
   Widget build(BuildContext context) {
@@ -333,23 +388,48 @@ class _DeviceTile extends StatelessWidget {
       context,
       'account_sync_this_device',
     );
+    final tile = Card(
+      margin: const EdgeInsets.symmetric(vertical: AppDesign.spacingXs),
+      child: ListTile(
+        leading: Icon(
+          device.isSelf ? Icons.smartphone : Icons.devices_other,
+          color: cs.primary,
+        ),
+        title: Text(device.name),
+        trailing: device.isSelf
+            ? Chip(label: Text(selfLabel), visualDensity: VisualDensity.compact)
+            : _removeButton(context),
+      ),
+    );
+    // The current device is a purely informational row: merge its label for
+    // assistive tech. Other devices carry an interactive "remove" button, so
+    // keep their natural semantics (excluding them would hide the button).
+    if (device.isSelf) {
+      return Semantics(
+        label: '${device.name}, $selfLabel',
+        excludeSemantics: true,
+        child: tile,
+      );
+    }
+    return tile;
+  }
+
+  Widget? _removeButton(BuildContext context) {
+    if (onRemove == null) return null;
+    final label = TranslationService.translate(
+      context,
+      'account_sync_remove_device_button',
+    );
+    // The visible label is just "Remove"; give assistive tech the device name too.
     return Semantics(
-      label: device.isSelf ? '${device.name}, $selfLabel' : device.name,
-      excludeSemantics: true,
-      child: Card(
-        margin: const EdgeInsets.symmetric(vertical: AppDesign.spacingXs),
-        child: ListTile(
-          leading: Icon(
-            device.isSelf ? Icons.smartphone : Icons.devices_other,
-            color: cs.primary,
-          ),
-          title: Text(device.name),
-          trailing: device.isSelf
-              ? Chip(
-                  label: Text(selfLabel),
-                  visualDensity: VisualDensity.compact,
-                )
-              : null,
+      button: true,
+      enabled: !busy,
+      label: '$label, ${device.name}',
+      child: ExcludeSemantics(
+        child: TextButton.icon(
+          onPressed: busy ? null : onRemove,
+          icon: const Icon(Icons.link_off),
+          label: Text(label),
         ),
       ),
     );

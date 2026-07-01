@@ -288,22 +288,46 @@ class AccountSyncProvider extends ChangeNotifier {
     }
   }
 
+  /// Parse the `{devices:[…]}` JSON returned by the refresh / remove FFIs into
+  /// [_devices]. Shared by [refreshDevices] and [removeDevice].
+  void _adoptDeviceList(String json) {
+    final map = jsonDecode(json) as Map<String, dynamic>;
+    final list = (map['devices'] as List?) ?? const [];
+    _devices = list
+        .map((e) => AccountDevice.fromJson(e as Map<String, dynamic>))
+        .toList(growable: false);
+  }
+
   /// Fetch and adopt the signed device registry (H3), updating [devices].
   Future<void> refreshDevices() async {
     _busy = true;
     _error = null;
     notifyListeners();
     try {
-      final map =
-          jsonDecode(await _ffi.accountRefreshDevices())
-              as Map<String, dynamic>;
-      final list = (map['devices'] as List?) ?? const [];
-      _devices = list
-          .map((e) => AccountDevice.fromJson(e as Map<String, dynamic>))
-          .toList(growable: false);
+      _adoptDeviceList(await _ffi.accountRefreshDevices());
     } catch (e) {
       _error = e.toString();
       debugPrint('AccountSyncProvider.refreshDevices error: $e');
+    } finally {
+      _busy = false;
+      notifyListeners();
+    }
+  }
+
+  /// Remove another device from the account (soft revocation): it stops syncing
+  /// with this library once the other devices adopt the shrunk registry. Updates
+  /// [devices] from the FFI's refreshed list. Rethrows so the UI can report it
+  /// (e.g. the backend refusing to remove the current device).
+  Future<void> removeDevice(String deviceId) async {
+    _busy = true;
+    _error = null;
+    notifyListeners();
+    try {
+      _adoptDeviceList(await _ffi.accountRemoveDevice(deviceId));
+    } catch (e) {
+      _error = e.toString();
+      debugPrint('AccountSyncProvider.removeDevice error: $e');
+      rethrow;
     } finally {
       _busy = false;
       notifyListeners();

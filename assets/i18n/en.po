@@ -10039,6 +10039,20 @@ msgstr "Sign out of this device?"
 msgid "account_sync_logout_confirm_body"
 msgstr "This device will stop syncing. Your account and other devices are not affected. You can rejoin later with your passphrase."
 
+#. Remove-device (soft revocation) button shown on other devices in the list
+msgid "account_sync_remove_device_button"
+msgstr "Remove"
+
+msgid "account_sync_remove_device_confirm_title"
+msgstr "Remove this device?"
+
+#. {name} is the device label. Copy is intentionally honest: removal stops sync but is not a security lock.
+msgid "account_sync_remove_device_confirm_body"
+msgstr "\"{name}\" will stop syncing with your library. It keeps the data already downloaded on it, so this is not a security lock. You can add it back later."
+
+msgid "account_sync_remove_device_error"
+msgstr "Could not remove the device. Check your connection and try again."
+
 #. Signup screen
 msgid "account_sync_signup_title"
 msgstr "Create an account"
