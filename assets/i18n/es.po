@@ -7572,6 +7572,14 @@ msgstr "Mostrar u ocultar contrasena"
 msgid "view_mode_grouped_collections"
 msgstr "Agrupar por coleccion"
 
+#. Library view mode: cover grid
+msgid "view_mode_cover_grid"
+msgstr "Vista cuadrícula"
+
+#. Library view mode: bookshelf spines
+msgid "view_mode_spine_shelf"
+msgstr "Vista estantería"
+
 msgid "confirm"
 msgstr "Confirmar"
 

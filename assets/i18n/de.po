@@ -7572,6 +7572,14 @@ msgstr "Passwort ein-/ausblenden"
 msgid "view_mode_grouped_collections"
 msgstr "Nach Sammlung gruppieren"
 
+#. Library view mode: cover grid
+msgid "view_mode_cover_grid"
+msgstr "Rasteransicht"
+
+#. Library view mode: bookshelf spines
+msgid "view_mode_spine_shelf"
+msgstr "Regalansicht"
+
 msgid "confirm"
 msgstr "Bestätigen"
 

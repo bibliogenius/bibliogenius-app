@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 
 import '../services/translation_service.dart';
+import '../theme/app_design.dart';
 import '../widgets/genie_app_bar.dart';
 import '../widgets/scaffold_with_nav.dart';
 import '../widgets/configurable_action_card.dart';
@@ -170,6 +171,12 @@ class _LibraryScreenState extends State<LibraryScreen>
       title: TranslationService.translate(context, 'library'),
       leading: buildDrawerLeading(context),
       automaticallyImplyLeading: false,
+      headerSearch: IconButton(
+        icon: const Icon(Icons.search, color: Colors.white),
+        tooltip: TranslationService.translate(context, 'search_books'),
+        onPressed: _openSearch,
+        style: AppDesign.headerIconButtonStyle(),
+      ),
       actions: [
         ContextualHelpIconButton(
           titleKey: 'help_ctx_library_title',
@@ -237,6 +244,7 @@ class _LibraryScreenState extends State<LibraryScreen>
                 onOpenSearch: _openSearch,
                 onCloseSearch: _closeSearch,
                 onSearchChanged: _onSearchChanged,
+                showSearchButton: false,
               ),
             ),
           ],

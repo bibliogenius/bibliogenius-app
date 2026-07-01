@@ -1319,6 +1319,128 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
     return Column(
       children: [
+        // --- Primary loan / borrow CTAs (filled, at the top) ---
+        // Each state keeps its own accent color so the current action reads at
+        // a glance; the four states can stack when a title has mixed copies.
+        // Lend book button - available copies, owned, lending module enabled.
+        if (_hasAvailableCopies && book.owned && canLend) ...[
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: () => _lendBook(context),
+              icon: const Icon(Icons.handshake_outlined),
+              label: Text(
+                TranslationService.translate(context, 'lend_book_btn') ??
+                    'Lend this book',
+              ),
+              style: FilledButton.styleFrom(
+                backgroundColor: Colors.purple,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+        ],
+        // Return lent book button - lent copies + lending module enabled.
+        if (_hasLentCopies && canLend) ...[
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: () => _returnBook(context),
+              icon: const Icon(Icons.assignment_return_outlined),
+              label: Text(
+                TranslationService.translate(context, 'return_book_btn') ??
+                    'Return this book',
+              ),
+              style: FilledButton.styleFrom(
+                backgroundColor: Colors.orange,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+        ],
+        // Borrow from a contact - not owned, no borrowed copy yet, module on.
+        if (!book.owned && !_hasBorrowedCopies && canBorrow) ...[
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: () => _borrowBook(context),
+              icon: const Icon(Icons.arrow_downward),
+              label: Text(
+                TranslationService.translate(
+                      context,
+                      'borrow_from_contact_btn',
+                    ) ??
+                    'Borrow from a contact',
+              ),
+              style: FilledButton.styleFrom(
+                backgroundColor: Colors.teal,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+        ],
+        if (_hasBorrowedCopies) ...[
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: () => _giveBackBook(context),
+              icon: const Icon(Icons.keyboard_return_outlined),
+              label: Text(
+                TranslationService.translate(context, 'give_back_book_btn'),
+              ),
+              style: FilledButton.styleFrom(
+                backgroundColor: Colors.teal,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+        ],
+        // Sell book button - only visible if bookseller profile
+        if (Provider.of<ThemeProvider>(context).isBookseller &&
+            _hasAvailableCopies &&
+            book.owned) ...[
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: () => _sellBook(context),
+              icon: const Icon(Icons.sell_outlined),
+              label: Text(
+                TranslationService.translate(context, 'sell_book_btn'),
+              ),
+              style: FilledButton.styleFrom(
+                backgroundColor: Colors.green.shade700,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+        ],
+        // --- Edit + Copies (secondary, outlined) ---
+        const SizedBox(height: 12),
         Row(
           children: [
             Expanded(
@@ -1326,7 +1448,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                 message:
                     TranslationService.translate(context, 'menu_edit') ??
                     'Edit Book',
-                child: ElevatedButton.icon(
+                child: OutlinedButton.icon(
                   onPressed: () async {
                     if (_book == null) return;
                     final result = await context.push(
@@ -1350,9 +1472,11 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                     TranslationService.translate(context, 'menu_edit') ??
                         'Edit',
                   ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    foregroundColor: Colors.white,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Theme.of(context).colorScheme.primary,
+                    side: BorderSide(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -1531,126 +1655,6 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         if (_perBookDurationEnabled && book.owned) ...[
           const SizedBox(height: 12),
           _buildPerBookLoanDuration(context),
-        ],
-        // Lend book button - only visible when there are available copies,
-        // book is owned, AND the lending module is enabled in settings.
-        if (_hasAvailableCopies && book.owned && canLend) ...[
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () => _lendBook(context),
-              icon: const Icon(Icons.handshake_outlined),
-              label: Text(
-                TranslationService.translate(context, 'lend_book_btn') ??
-                    'Lend this book',
-              ),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.purple,
-                side: const BorderSide(color: Colors.purple),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ),
-        ],
-        // Return lent book button - only visible when there are lent copies
-        // AND the lending module is enabled.
-        if (_hasLentCopies && canLend) ...[
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: () => _returnBook(context),
-              icon: const Icon(Icons.assignment_return_outlined),
-              label: Text(
-                TranslationService.translate(context, 'return_book_btn') ??
-                    'Return this book',
-              ),
-              style: FilledButton.styleFrom(
-                backgroundColor: Colors.orange,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ),
-        ],
-        // Borrow from friend button - only visible when book is NOT owned,
-        // has no borrowed copies, AND the loans module is enabled in settings.
-        if (!book.owned && !_hasBorrowedCopies && canBorrow) ...[
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () => _borrowBook(context),
-              icon: const Icon(Icons.arrow_downward),
-              label: Text(
-                TranslationService.translate(
-                      context,
-                      'borrow_from_contact_btn',
-                    ) ??
-                    'Borrow from a contact',
-              ),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.teal,
-                side: const BorderSide(color: Colors.teal),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ),
-        ],
-        if (_hasBorrowedCopies) ...[
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: () => _giveBackBook(context),
-              icon: const Icon(Icons.keyboard_return_outlined),
-              label: Text(
-                TranslationService.translate(context, 'give_back_book_btn'),
-              ),
-              style: FilledButton.styleFrom(
-                backgroundColor: Colors.teal,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ),
-        ],
-        // Sell book button - only visible if bookseller profile
-        if (Provider.of<ThemeProvider>(context).isBookseller &&
-            _hasAvailableCopies &&
-            book.owned) ...[
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: () => _sellBook(context),
-              icon: const Icon(Icons.sell_outlined),
-              label: Text(
-                TranslationService.translate(context, 'sell_book_btn'),
-              ),
-              style: FilledButton.styleFrom(
-                backgroundColor: Colors.green.shade700,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ),
         ],
       ],
     );

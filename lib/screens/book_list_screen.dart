@@ -1244,25 +1244,6 @@ class _BookListScreenState extends State<BookListScreen>
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Row(
         children: [
-          // 1. View Mode Toggles (Left aligned)
-          Container(
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              color: isDark ? Colors.white10 : Colors.grey.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: isDark ? Colors.white24 : Colors.grey.withOpacity(0.2),
-              ),
-            ),
-            child: Row(
-              children: [
-                _buildViewModeToggle(Icons.grid_view, ViewMode.coverGrid),
-                _buildViewModeToggle(Icons.shelves, ViewMode.spineShelf),
-                _buildViewModeToggle(Icons.list, ViewMode.list),
-              ],
-            ),
-          ),
-          const SizedBox(width: 6),
           // Search toggle (separate block) — hidden when the sticky sliver
           // header (LibraryScreen) drives the search instead.
           if (widget.externalSearchQuery == null) ...[
@@ -1635,7 +1616,7 @@ class _BookListScreenState extends State<BookListScreen>
                 color: isFilterActive
                     ? theme.primaryColor.withOpacity(0.1)
                     : (isDark ? theme.cardColor : Colors.white),
-                borderRadius: BorderRadius.circular(18),
+                borderRadius: BorderRadius.circular(AppDesign.radiusSmall),
                 border: Border.all(
                   color: isFilterActive
                       ? theme.primaryColor
@@ -1688,7 +1669,7 @@ class _BookListScreenState extends State<BookListScreen>
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
                   color: Colors.red.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(18),
+                  borderRadius: BorderRadius.circular(AppDesign.radiusSmall),
                   border: Border.all(color: Colors.red.withOpacity(0.3)),
                 ),
                 child: Row(
@@ -1719,7 +1700,7 @@ class _BookListScreenState extends State<BookListScreen>
               padding: const EdgeInsets.symmetric(horizontal: 12),
               decoration: BoxDecoration(
                 color: theme.primaryColor.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(18),
+                borderRadius: BorderRadius.circular(AppDesign.radiusSmall),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -1750,6 +1731,9 @@ class _BookListScreenState extends State<BookListScreen>
               ),
             ),
           ],
+          // 6. View Mode Selector - trailing edge, to the right of the count.
+          const SizedBox(width: 8),
+          _buildViewModeSelector(),
         ],
       ),
     );
@@ -1772,47 +1756,102 @@ class _BookListScreenState extends State<BookListScreen>
     });
   }
 
-  Widget _buildViewModeToggle(
-    IconData icon,
-    ViewMode? mode, {
-    String? tooltip,
-    VoidCallback? onTap,
-  }) {
-    final bool isSelected = mode != null && _viewMode == mode;
-    final isDarkTheme = Theme.of(context).brightness == Brightness.dark;
-    final iconColor = isSelected
-        ? Colors.white
-        : isDarkTheme
-        ? Colors.white70
-        : Colors.black54;
-
-    Widget button = ScaleOnTap(
-      onTap:
-          onTap ??
-          () {
-            setState(() {
-              _viewMode = mode!;
-              if (mode == ViewMode.groupedCollections) {
-                _fetchCollectionGroups();
-              }
-            });
-          },
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? Theme.of(context).primaryColor
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(8),
+  /// Single, compact view-mode control that unfolds a menu of the available
+  /// layouts on tap. Styled to match the sort/filter buttons in the same bar
+  /// (same height and radius) so the toolbar reads as one coherent row.
+  Widget _buildViewModeSelector() {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    return Semantics(
+      button: true,
+      label: TranslationService.translate(context, 'action_change_view'),
+      child: PopupMenuButton<ViewMode>(
+        tooltip: TranslationService.translate(context, 'action_change_view'),
+        onSelected: (mode) {
+          setState(() {
+            _viewMode = mode;
+            if (mode == ViewMode.groupedCollections) {
+              _fetchCollectionGroups();
+            }
+          });
+        },
+        offset: const Offset(0, 44),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
         ),
-        child: Icon(icon, color: iconColor, size: 20),
+        itemBuilder: (context) => [
+          _viewModeMenuItem(
+            ViewMode.coverGrid,
+            Icons.grid_view,
+            'view_mode_cover_grid',
+          ),
+          _viewModeMenuItem(
+            ViewMode.spineShelf,
+            Icons.shelves,
+            'view_mode_spine_shelf',
+          ),
+          _viewModeMenuItem(ViewMode.list, Icons.list, 'view_list'),
+        ],
+        child: Container(
+          height: 36,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            color: isDark ? theme.cardColor : Colors.white,
+            borderRadius: BorderRadius.circular(AppDesign.radiusSmall),
+            border: Border.all(
+              color: isDark ? Colors.white24 : Colors.grey.withOpacity(0.3),
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(_getViewIcon(_viewMode), size: 18, color: theme.primaryColor),
+              const SizedBox(width: 4),
+              Icon(
+                Icons.arrow_drop_down,
+                size: 20,
+                color: theme.iconTheme.color?.withValues(alpha: 0.5),
+              ),
+            ],
+          ),
+        ),
       ),
     );
+  }
 
-    if (tooltip != null) {
-      button = Tooltip(message: tooltip, child: button);
-    }
-    return button;
+  /// One entry of the view-mode menu: icon + translated label, with the active
+  /// mode highlighted and check-marked.
+  PopupMenuItem<ViewMode> _viewModeMenuItem(
+    ViewMode mode,
+    IconData icon,
+    String labelKey,
+  ) {
+    final theme = Theme.of(context);
+    final isSelected = _viewMode == mode;
+    return PopupMenuItem<ViewMode>(
+      value: mode,
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            size: 20,
+            color: isSelected ? theme.primaryColor : theme.iconTheme.color,
+          ),
+          const SizedBox(width: 12),
+          Text(
+            TranslationService.translate(context, labelKey),
+            style: TextStyle(
+              color: isSelected ? theme.primaryColor : null,
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+            ),
+          ),
+          if (isSelected) ...[
+            const Spacer(),
+            Icon(Icons.check, size: 18, color: theme.primaryColor),
+          ],
+        ],
+      ),
+    );
   }
 
   Widget _buildFilterPill({
@@ -1868,7 +1907,7 @@ class _BookListScreenState extends State<BookListScreen>
                       : isDarkTheme
                       ? Theme.of(context).cardColor.withOpacity(0.8)
                       : Colors.white),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(AppDesign.radiusSmall),
             border: Border.all(
               color: isSelected
                   ? Colors.transparent
@@ -1957,7 +1996,7 @@ class _BookListScreenState extends State<BookListScreen>
               padding: const EdgeInsets.symmetric(horizontal: 12),
               decoration: BoxDecoration(
                 color: isDark ? theme.cardColor : Colors.white,
-                borderRadius: BorderRadius.circular(18),
+                borderRadius: BorderRadius.circular(AppDesign.radiusSmall),
                 border: Border.all(
                   color: isDark ? Colors.white24 : Colors.grey.withOpacity(0.3),
                 ),

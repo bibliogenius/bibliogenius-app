@@ -60,6 +60,10 @@ class StickyTabsHeader extends SliverPersistentHeaderDelegate {
   final VoidCallback? onCloseSearch;
   final ValueChanged<String>? onSearchChanged;
 
+  /// When false, the inline search field still works but its trigger icon is
+  /// hidden here (e.g. the library moves the trigger up into the app-bar row).
+  final bool showSearchButton;
+
   const StickyTabsHeader({
     required this.tabController,
     required this.tabs,
@@ -70,6 +74,7 @@ class StickyTabsHeader extends SliverPersistentHeaderDelegate {
     this.onOpenSearch,
     this.onCloseSearch,
     this.onSearchChanged,
+    this.showSearchButton = true,
   });
 
   bool get _searchEnabled =>
@@ -110,7 +115,9 @@ class StickyTabsHeader extends SliverPersistentHeaderDelegate {
                 controller: tabController,
                 tabs: tabs,
                 onTap: onTabTap,
-                onSearchTap: _searchEnabled ? onOpenSearch : null,
+                onSearchTap: (_searchEnabled && showSearchButton)
+                    ? onOpenSearch
+                    : null,
               ),
       ),
     );
@@ -122,6 +129,7 @@ class StickyTabsHeader extends SliverPersistentHeaderDelegate {
         old.tabController != tabController ||
         old.tabs.length != tabs.length ||
         old.themeStyle != themeStyle ||
+        old.showSearchButton != showSearchButton ||
         old._searchEnabled != _searchEnabled;
   }
 }
@@ -144,6 +152,8 @@ class _TabsRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final tabBar = TabBar(
       controller: controller,
+      isScrollable: true,
+      tabAlignment: TabAlignment.start,
       labelColor: Colors.white,
       unselectedLabelColor: Colors.white70,
       indicatorColor: Colors.white,
@@ -159,6 +169,7 @@ class _TabsRow extends StatelessWidget {
           icon: const Icon(Icons.search, color: Colors.white),
           tooltip: TranslationService.translate(context, 'search_books'),
           onPressed: onSearchTap,
+          style: AppDesign.headerIconButtonStyle(),
         ),
       ],
     );

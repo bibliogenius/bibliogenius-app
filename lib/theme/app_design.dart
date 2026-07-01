@@ -282,6 +282,23 @@ class AppDesign {
   static const double radiusRound = 100.0;
 
   // ═══════════════════════════════════════════════════════════════════════════
+  // HEADER ICON BUTTONS
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /// Subtle translucent chip background for app-bar icon buttons (search,
+  /// notifications, settings) so they read as tappable over the header
+  /// gradient. The white tint lightens whatever theme gradient sits behind it,
+  /// keeping the accent coherent across themes.
+  static ButtonStyle headerIconButtonStyle() {
+    return IconButton.styleFrom(
+      backgroundColor: Colors.white.withValues(alpha: 0.15),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(radiusMedium),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
   // SPACING
   // ═══════════════════════════════════════════════════════════════════════════
 

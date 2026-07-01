@@ -122,6 +122,10 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String? destinationName;
   final Widget? thirdSlotOverride;
 
+  /// Optional page-provided search control rendered between the Actions button
+  /// and the notification bell (used by the library header).
+  final Widget? headerSearch;
+
   const GenieAppBar({
     super.key,
     required this.title,
@@ -141,6 +145,7 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.preSelectedCollectionName,
     this.destinationName,
     this.thirdSlotOverride,
+    this.headerSearch,
   });
 
   final bool transparent;
@@ -327,36 +332,7 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final avatarConfig = themeProvider.avatarConfig;
     return [
-      // Notification bell with unread badge (hidden when notifications disabled)
-      if (context.watch<ThemeProvider>().notificationsEnabled)
-        Padding(
-          padding: const EdgeInsets.only(left: 5),
-          child: Consumer<NotificationProvider>(
-            builder: (context, notifProvider, child) {
-              final count = notifProvider.unreadCount;
-              return IconButton(
-                icon: Badge(
-                  isLabelVisible: count > 0,
-                  label: Text(
-                    count > 99 ? '99+' : '$count',
-                    style: const TextStyle(fontSize: 10),
-                  ),
-                  child: const Icon(
-                    Icons.notifications_outlined,
-                    color: Colors.white,
-                  ),
-                ),
-                tooltip: TranslationService.translate(
-                  context,
-                  'notifications_title',
-                ),
-                onPressed: () =>
-                    _showNotificationPopover(context, notifProvider),
-              );
-            },
-          ),
-        ),
-      // Global Quick Actions Button (New)
+      // Global Quick Actions Button (New) - leads the row (before the bell).
       Semantics(
         button: true,
         label: TranslationService.translate(context, 'quick_actions_title'),
@@ -414,22 +390,21 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const Icon(Icons.bolt, color: Colors.white, size: 20),
-                    const SizedBox(width: 4),
-                    Text(
-                      MediaQuery.of(context).size.width > 600
-                          ? TranslationService.translate(
-                              context,
-                              'quick_actions_title',
-                            )
-                          : TranslationService.translate(
-                              context,
-                              'quick_actions_short',
-                            ),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                    // On mobile the button collapses to the bolt icon only;
+                    // the label is kept on wider (tablet/desktop) layouts.
+                    if (MediaQuery.of(context).size.width > 600) ...[
+                      const SizedBox(width: 4),
+                      Text(
+                        TranslationService.translate(
+                          context,
+                          'quick_actions_title',
+                        ),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
               ),
@@ -437,6 +412,39 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ),
       ),
+      // Optional page-provided search icon (library only): sits between the
+      // Actions button and the notification bell.
+      if (headerSearch != null) headerSearch!,
+      // Notification bell with unread badge (hidden when notifications disabled)
+      if (context.watch<ThemeProvider>().notificationsEnabled)
+        Padding(
+          padding: const EdgeInsets.only(left: 5),
+          child: Consumer<NotificationProvider>(
+            builder: (context, notifProvider, child) {
+              final count = notifProvider.unreadCount;
+              return IconButton(
+                icon: Badge(
+                  isLabelVisible: count > 0,
+                  label: Text(
+                    count > 99 ? '99+' : '$count',
+                    style: const TextStyle(fontSize: 10),
+                  ),
+                  child: const Icon(
+                    Icons.notifications_outlined,
+                    color: Colors.white,
+                  ),
+                ),
+                tooltip: TranslationService.translate(
+                  context,
+                  'notifications_title',
+                ),
+                onPressed: () =>
+                    _showNotificationPopover(context, notifProvider),
+                style: AppDesign.headerIconButtonStyle(),
+              );
+            },
+          ),
+        ),
 
       // Quick Action Buttons (Scanner & Online Search) - only when explicitly enabled
       if (showQuickActions) ...[
@@ -473,12 +481,12 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
           },
         ),
       ],
-      if (actions != null) ...actions!,
-      IconButton(
-        icon: const Icon(Icons.settings_outlined, color: Colors.white),
-        tooltip: TranslationService.translate(context, 'tooltip_open_settings'),
-        onPressed: () => context.go('/settings'),
-      ),
+      if (actions != null) ...[
+        const SizedBox(width: 4),
+        ...actions!,
+      ],
+      // Settings is reachable from the main menu, so the header no longer
+      // duplicates it as a shortcut.
       // Avatar
       if (avatarConfig?.style != 'initials')
         Semantics(
@@ -525,6 +533,8 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
             ),
           ),
         ),
+      // Trailing gutter so the last icon is not flush against the window edge.
+      const SizedBox(width: 8),
     ];
   }
 

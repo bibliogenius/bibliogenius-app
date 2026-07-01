@@ -8004,6 +8004,14 @@ msgstr "Aucune collection à afficher"
 msgid "view_mode_grouped_collections"
 msgstr "Grouper par collection"
 
+#. Library view mode: cover grid
+msgid "view_mode_cover_grid"
+msgstr "Vue grille"
+
+#. Library view mode: bookshelf spines
+msgid "view_mode_spine_shelf"
+msgstr "Vue étagère"
+
 msgid "group_by_collections_title"
 msgstr "Grouper par collection"
 
@@ -10005,6 +10013,10 @@ msgstr "Rejoindre un compte existant"
 #. {email} = signed-in account email
 msgid "account_sync_signed_in_as"
 msgstr "Connecté en tant que {email}"
+
+#. Label above the account email on the sync screen
+msgid "account_sync_signed_in_label"
+msgstr "Connecté en tant que"
 
 msgid "account_sync_devices_title"
 msgstr "Appareils autorisés"

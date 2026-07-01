@@ -13,6 +13,7 @@ import 'package:provider/provider.dart';
 import '../providers/metadata_fill_provider.dart';
 import '../providers/theme_provider.dart';
 import '../services/translation_service.dart';
+import '../theme/app_design.dart';
 import '../widgets/cached_book_cover.dart';
 import '../src/rust/api/frb.dart' as frb;
 
@@ -568,9 +569,9 @@ class _MetadataFillScreenState extends State<MetadataFillScreen>
       padding: const EdgeInsets.only(right: 8),
       child: Material(
         color: selected ? active : theme.colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(AppDesign.radiusSmall),
         child: InkWell(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(AppDesign.radiusSmall),
           onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),

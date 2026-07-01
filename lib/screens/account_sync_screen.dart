@@ -205,7 +205,14 @@ class _SectionHeader extends StatelessWidget {
           top: AppDesign.spacingLg,
           bottom: AppDesign.spacingSm,
         ),
-        child: Text(text, style: Theme.of(context).textTheme.titleMedium),
+        child: Text(
+          text.toUpperCase(),
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.8,
+          ),
+        ),
       ),
     );
   }
@@ -221,13 +228,13 @@ class _PendingNote extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppDesign.spacingMd),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest,
+        color: cs.primary.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: cs.onSurfaceVariant),
+          Icon(Icons.info_outline, color: cs.primary),
           const SizedBox(width: AppDesign.spacingSm),
           Expanded(
             child: Text(
@@ -305,26 +312,10 @@ class _SignedInView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          children: [
-            Icon(Icons.verified_user, color: cs.primary),
-            const SizedBox(width: AppDesign.spacingSm),
-            Expanded(
-              child: Text(
-                TranslationService.translate(
-                  context,
-                  'account_sync_signed_in_as',
-                  params: {'email': provider.status.email},
-                ),
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-            ),
-          ],
-        ),
+        _ConnectedCard(email: provider.status.email),
         const SizedBox(height: AppDesign.spacingMd),
         const _PendingNote(),
         _SectionHeader(_t(context, 'account_sync_devices_title')),
@@ -351,20 +342,125 @@ class _SignedInView extends StatelessWidget {
           icon: const Icon(Icons.sync),
           onPressed: provider.busy ? null : onSyncNow,
           label: Text(_t(context, 'account_sync_sync_now')),
-        ),
-        const SizedBox(height: AppDesign.spacingSm),
-        FilledButton.icon(
-          icon: const Icon(Icons.add_to_queue),
-          onPressed: onAddDevice,
-          label: Text(_t(context, 'account_sync_add_device')),
+          style: FilledButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
+            ),
+          ),
         ),
         const SizedBox(height: AppDesign.spacingSm),
         OutlinedButton.icon(
+          icon: const Icon(Icons.add_to_queue),
+          onPressed: onAddDevice,
+          label: Text(_t(context, 'account_sync_add_device')),
+          style: OutlinedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
+            ),
+          ),
+        ),
+        const SizedBox(height: AppDesign.spacingSm),
+        TextButton.icon(
           icon: const Icon(Icons.logout),
           onPressed: provider.busy ? null : onLogout,
           label: Text(_t(context, 'account_sync_logout')),
         ),
       ],
+    );
+  }
+}
+
+/// Shared white surface used by the connected-account card and each device row.
+BoxDecoration _syncCardDecoration(BuildContext context) {
+  final cs = Theme.of(context).colorScheme;
+  final isDark = Theme.of(context).brightness == Brightness.dark;
+  return BoxDecoration(
+    color: isDark ? cs.surfaceContainerHighest : Colors.white,
+    borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
+    border: Border.all(
+      color: isDark ? Colors.white12 : Colors.black.withValues(alpha: 0.06),
+    ),
+  );
+}
+
+/// Rounded, primary-tinted badge that hosts an icon in the sync cards.
+Widget _syncIconBadge(BuildContext context, IconData icon) {
+  final cs = Theme.of(context).colorScheme;
+  return Container(
+    padding: const EdgeInsets.all(AppDesign.spacingSm),
+    decoration: BoxDecoration(
+      color: cs.primary.withValues(alpha: 0.12),
+      borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
+    ),
+    child: Icon(icon, color: cs.primary),
+  );
+}
+
+/// Picks a device-appropriate glyph from the device's display name.
+IconData _deviceIcon(String name) {
+  final n = name.toLowerCase();
+  if (n.contains('ipad') || n.contains('tablet')) return Icons.tablet_mac;
+  if (n.contains('iphone') ||
+      n.contains('android') ||
+      n.contains('phone') ||
+      n.contains('pixel') ||
+      n.contains('galaxy')) {
+    return Icons.smartphone;
+  }
+  if (n.contains('macbook') || n.contains('laptop')) return Icons.laptop_mac;
+  if (n.contains('mac') || n.contains('imac')) return Icons.desktop_mac;
+  if (n.contains('windows') ||
+      n.contains('linux') ||
+      n.contains('desktop') ||
+      n.contains(' pc')) {
+    return Icons.computer;
+  }
+  return Icons.devices_other;
+}
+
+/// Card at the top of the signed-in view: the account the trousseau is bound to.
+class _ConnectedCard extends StatelessWidget {
+  final String email;
+  const _ConnectedCard({required this.email});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.all(AppDesign.spacingMd),
+      decoration: _syncCardDecoration(context),
+      child: Row(
+        children: [
+          _syncIconBadge(context, Icons.verified_user),
+          const SizedBox(width: AppDesign.spacingMd),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  TranslationService.translate(
+                    context,
+                    'account_sync_signed_in_label',
+                  ),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: cs.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  email,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -383,22 +479,35 @@ class _DeviceTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
     final selfLabel = TranslationService.translate(
       context,
       'account_sync_this_device',
     );
-    final tile = Card(
+    final trailing = device.isSelf
+        ? _selfBadge(context, selfLabel)
+        : _removeButton(context);
+    final tile = Container(
       margin: const EdgeInsets.symmetric(vertical: AppDesign.spacingXs),
-      child: ListTile(
-        leading: Icon(
-          device.isSelf ? Icons.smartphone : Icons.devices_other,
-          color: cs.primary,
-        ),
-        title: Text(device.name),
-        trailing: device.isSelf
-            ? Chip(label: Text(selfLabel), visualDensity: VisualDensity.compact)
-            : _removeButton(context),
+      padding: const EdgeInsets.all(AppDesign.spacingMd),
+      decoration: _syncCardDecoration(context),
+      child: Row(
+        children: [
+          _syncIconBadge(context, _deviceIcon(device.name)),
+          const SizedBox(width: AppDesign.spacingMd),
+          Expanded(
+            child: Text(
+              device.name,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          if (trailing != null) ...[
+            const SizedBox(width: AppDesign.spacingSm),
+            trailing,
+          ],
+        ],
       ),
     );
     // The current device is a purely informational row: merge its label for
@@ -426,10 +535,33 @@ class _DeviceTile extends StatelessWidget {
       enabled: !busy,
       label: '$label, ${device.name}',
       child: ExcludeSemantics(
-        child: TextButton.icon(
+        child: IconButton(
           onPressed: busy ? null : onRemove,
           icon: const Icon(Icons.link_off),
-          label: Text(label),
+          tooltip: label,
+          color: Theme.of(context).colorScheme.error,
+        ),
+      ),
+    );
+  }
+
+  /// Primary-tinted pill marking the current device.
+  Widget _selfBadge(BuildContext context, String label) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppDesign.spacingSm,
+        vertical: 6,
+      ),
+      decoration: BoxDecoration(
+        color: cs.primary.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(AppDesign.radiusRound),
+      ),
+      child: Text(
+        label,
+        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+          color: cs.primary,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );

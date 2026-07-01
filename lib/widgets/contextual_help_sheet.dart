@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../theme/app_design.dart';
 import 'package:go_router/go_router.dart';
 import '../services/help_registry.dart';
 import '../services/translation_service.dart';
@@ -366,6 +368,7 @@ class ContextualHelpIconButton extends StatelessWidget {
         contentKey: contentKey,
         tips: tips,
       ),
+      style: AppDesign.headerIconButtonStyle(),
     );
   }
 }
