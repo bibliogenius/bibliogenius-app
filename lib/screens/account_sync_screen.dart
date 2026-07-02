@@ -218,36 +218,6 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
-/// Honest banner: management works now, automatic convergence is not live yet.
-class _PendingNote extends StatelessWidget {
-  const _PendingNote();
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.all(AppDesign.spacingMd),
-      decoration: BoxDecoration(
-        color: cs.primary.withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(Icons.info_outline, color: cs.primary),
-          const SizedBox(width: AppDesign.spacingSm),
-          Expanded(
-            child: Text(
-              TranslationService.translate(context, 'account_sync_pending_note'),
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _SignedOutView extends StatelessWidget {
   final VoidCallback onCreate;
   final VoidCallback onJoin;
@@ -287,8 +257,6 @@ class _SignedOutView extends StatelessWidget {
           onPressed: onPair,
           label: Text(_t(context, 'account_sync_pair_cta')),
         ),
-        const SizedBox(height: AppDesign.spacingLg),
-        const _PendingNote(),
       ],
     );
   }
@@ -317,7 +285,6 @@ class _SignedInView extends StatelessWidget {
       children: [
         _ConnectedCard(email: provider.status.email),
         const SizedBox(height: AppDesign.spacingMd),
-        const _PendingNote(),
         _SectionHeader(_t(context, 'account_sync_devices_title')),
         if (provider.devices.isEmpty)
           Padding(
