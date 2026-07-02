@@ -71,6 +71,21 @@ class Book {
     this.hubCoverUploadFailedAt,
   }) : _coverUrl = coverUrl;
 
+  /// Coerce a JSON value into a nullable int, tolerating numeric strings.
+  ///
+  /// Peer catalogues can arrive from heterogeneous sources (different app
+  /// versions, import pipelines) where a numeric field such as
+  /// `publication_year` is serialized as a string ("2014"). A plain
+  /// `json['x'] as int?` throws "type 'String' is not a subtype of type
+  /// 'int?'" and aborts the whole sync, so we parse defensively here.
+  static int? _asIntOrNull(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    if (value is String) return int.tryParse(value.trim());
+    return null;
+  }
+
   factory Book.fromJson(Map<String, dynamic> json) {
     return Book(
       // Identity is the uuid, carried under `uuid` or (post-flip) `id`.
@@ -79,7 +94,7 @@ class Book {
       isbn: json['isbn'],
       summary: json['summary'],
       publisher: json['publisher'],
-      publicationYear: json['publication_year'],
+      publicationYear: _asIntOrNull(json['publication_year']),
       readingStatus: (() {
         final raw = json['reading_status']?.toString();
         var normalized = raw?.toLowerCase().replaceAll(' ', '_');
@@ -100,16 +115,16 @@ class Book {
       subjects: json['subjects'] != null
           ? List<String>.from(json['subjects'])
           : null,
-      userRating: json['user_rating'],
+      userRating: _asIntOrNull(json['user_rating']),
       owned: json['owned'] ?? true,
       price: json['price'] != null ? (json['price'] as num).toDouble() : null,
       digitalFormats: json['digital_formats'] != null
           ? List<String>.from(json['digital_formats'])
           : null,
       language: json['language'],
-      availableCopies: json['available_copies'],
+      availableCopies: _asIntOrNull(json['available_copies']),
       private: json['private'] ?? false,
-      pageCount: json['page_count'],
+      pageCount: _asIntOrNull(json['page_count']),
       addedAt: json['added_at'] != null
           ? DateTime.tryParse(json['added_at'])
           : null,

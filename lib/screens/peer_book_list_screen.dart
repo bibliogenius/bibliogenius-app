@@ -777,7 +777,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   ) {
     if (data is Map) {
       final booksData = (data['books'] as List<dynamic>?) ?? [];
-      final total = (data['total'] as int?) ?? booksData.length;
+      final total = _coerceInt(data['total']) ?? booksData.length;
       final hasMore = (data['has_more'] as bool?) ?? false;
       return (booksData: booksData, total: total, hasMore: hasMore);
     } else if (data is List) {
@@ -789,8 +789,19 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
   /// Extract just the total from a paginated response (for quick cache-vs-live check).
   int? _parsePaginatedTotal(dynamic data) {
-    if (data is Map) return data['total'] as int?;
+    if (data is Map) return _coerceInt(data['total']);
     if (data is List) return data.length;
+    return null;
+  }
+
+  /// Coerce a paginated envelope count into an int, tolerating numeric strings
+  /// (a peer may serialize `total` as "494"). Mirrors [Book] field coercion so a
+  /// stray string type never aborts the whole catalogue sync.
+  static int? _coerceInt(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    if (value is String) return int.tryParse(value.trim());
     return null;
   }
 
@@ -1210,7 +1221,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     ApiService api,
     Map<String, dynamic> manifest,
   ) async {
-    final totalBooks = manifest['total_books'] as int? ?? 0;
+    final totalBooks = _coerceInt(manifest['total_books']) ?? 0;
     if (mounted) setState(() => _relayBooksTotal = totalBooks);
 
     if (totalBooks == 0) {
