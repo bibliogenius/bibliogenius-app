@@ -103,6 +103,21 @@ class MemoryGameProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Best (fastest) recorded time for a difficulty among the local top scores,
+  /// formatted as m:ss, or null if that tier was never completed. Powers the
+  /// "best time" preview shown when a difficulty is expanded on the setup
+  /// screen.
+  String? bestTimeFor(String difficulty) {
+    final times = _topScores
+        .where((s) => s.difficulty == difficulty)
+        .map((s) => s.elapsedSeconds);
+    if (times.isEmpty) return null;
+    final best = times.reduce((a, b) => a < b ? a : b);
+    final minutes = best ~/ 60;
+    final seconds = (best % 60).toInt();
+    return '$minutes:${seconds.toString().padLeft(2, '0')}';
+  }
+
   // --- Game lifecycle ---
 
   /// Start a new game with the selected difficulty.

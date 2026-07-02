@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import '../models/memory_game.dart';
 import '../providers/memory_game_provider.dart';
+import '../providers/theme_provider.dart';
 import '../services/translation_service.dart';
 import '../theme/app_design.dart';
 import '../widgets/achievement_pop_animation.dart';
@@ -40,6 +41,8 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> {
         _provider.resetToSetup();
       }
       _provider.loadDifficulties();
+      // Preload local top scores so each tier can show its best time.
+      _provider.loadTopScores();
     });
   }
 
@@ -197,117 +200,131 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> {
     }
 
     final theme = Theme.of(context);
-    final isEnabled = provider.selectedDifficulty != null;
+    final themeStyle = context.watch<ThemeProvider>().themeStyle;
+    final selected = provider.selectedDifficulty;
+    final isEnabled = selected != null;
 
-    return Column(
-      children: [
-        Expanded(
-          // Cap the width so the desktop side gutters match the other pages.
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(
-                maxWidth: AppDesign.maxContentWidth,
-              ),
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-                children: [
-                  Text(
-                    TranslationService.translate(context, 'memory_game_intro'),
-                    style: theme.textTheme.bodyLarge?.copyWith(
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+    // The Play button adopts the selected tier's color and names it, e.g.
+    // "Play · Hard", so the choice reads back at the point of action.
+    final playInfo = isEnabled ? _difficultyInfo(selected) : null;
+    final playColors = playInfo != null
+        ? [playInfo.color, playInfo.colorEnd]
+        : [Colors.grey.shade400, Colors.grey.shade400];
+    final playLabel = isEnabled
+        ? '${TranslationService.translate(context, 'memory_game_play')} · '
+              '${TranslationService.translate(context, 'memory_game_$selected')}'
+        : TranslationService.translate(context, 'memory_game_play');
+
+    return DecoratedBox(
+      // Sit the page on the app's signature soft gradient (same as the
+      // dashboard) instead of a flat surface, tying the game to the app shell.
+      decoration: BoxDecoration(
+        gradient: AppDesign.pageGradientForTheme(themeStyle),
+      ),
+      child: Column(
+        children: [
+          Expanded(
+            // Cap the width so the desktop side gutters match the other pages.
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: AppDesign.maxContentWidth,
+                ),
+                child: ListView(
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
+                  children: [
+                    Text(
+                      TranslationService.translate(
+                        context,
+                        'memory_game_intro',
+                      ),
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.7,
+                        ),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    TranslationService.translate(
-                      context,
-                      'memory_game_choose_difficulty',
+                    const SizedBox(height: 20),
+                    _buildSectionHeading(theme, themeStyle),
+                    const SizedBox(height: 16),
+                    ...difficulties.map(
+                      (d) => _buildDifficultyCard(provider, d),
                     ),
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  ...difficulties.map((d) => _buildDifficultyCard(provider, d)),
-                  const SizedBox(height: 8),
-                  // Leaderboard access button
-                  _buildLeaderboardButton(),
-                ],
+                    const SizedBox(height: 8),
+                    // Leaderboard access button
+                    _buildLeaderboardButton(),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-        // Play button — constrained width
-        Padding(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 360),
-              child: AnimatedOpacity(
-                duration: const Duration(milliseconds: 300),
-                opacity: isEnabled ? 1.0 : 0.4,
-                child: Material(
-                  color: Colors.transparent,
-                  borderRadius: BorderRadius.circular(28),
-                  child: InkWell(
-                    onTap: isEnabled ? provider.startGame : null,
+          // Play button — constrained width
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 360),
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 300),
+                  opacity: isEnabled ? 1.0 : 0.4,
+                  child: Material(
+                    color: Colors.transparent,
                     borderRadius: BorderRadius.circular(28),
-                    child: Ink(
-                      height: 56,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(28),
-                        gradient: LinearGradient(
-                          colors: isEnabled
-                              ? const [
-                                  Color(0xFF43A047), // Green
-                                  Color(0xFF26A69A), // Teal
+                    child: InkWell(
+                      onTap: isEnabled ? provider.startGame : null,
+                      borderRadius: BorderRadius.circular(28),
+                      child: Ink(
+                        height: 56,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(28),
+                          gradient: LinearGradient(
+                            colors: playColors,
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                          ),
+                          boxShadow: playInfo != null
+                              ? [
+                                  BoxShadow(
+                                    color: playInfo.color.withValues(
+                                      alpha: 0.4,
+                                    ),
+                                    blurRadius: 20,
+                                    offset: const Offset(0, 6),
+                                  ),
                                 ]
-                              : [Colors.grey.shade400, Colors.grey.shade400],
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
+                              : null,
                         ),
-                        boxShadow: isEnabled
-                            ? [
-                                BoxShadow(
-                                  color: const Color(
-                                    0xFF43A047,
-                                  ).withValues(alpha: 0.4),
-                                  blurRadius: 20,
-                                  offset: const Offset(0, 6),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 36,
+                              height: 36,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white.withValues(alpha: 0.25),
+                              ),
+                              child: const Icon(
+                                Icons.play_arrow_rounded,
+                                color: Colors.white,
+                                size: 24,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Flexible(
+                              child: Text(
+                                playLabel,
+                                overflow: TextOverflow.ellipsis,
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 0.5,
+                                  fontSize: 17,
                                 ),
-                              ]
-                            : null,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            width: 36,
-                            height: 36,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white.withValues(alpha: 0.25),
+                              ),
                             ),
-                            child: const Icon(
-                              Icons.play_arrow_rounded,
-                              color: Colors.white,
-                              size: 24,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            TranslationService.translate(
-                              context,
-                              'memory_game_play',
-                            ),
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 0.5,
-                              fontSize: 17,
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -315,8 +332,37 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> {
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
+    );
+  }
+
+  /// Section heading with the app's accent bar (matches the dashboard sections).
+  Widget _buildSectionHeading(ThemeData theme, String themeStyle) {
+    return Semantics(
+      header: true,
+      child: Row(
+        children: [
+          Container(
+            width: 5,
+            height: 26,
+            decoration: BoxDecoration(
+              gradient: AppDesign.sectionAccentGradient(themeStyle),
+              borderRadius: BorderRadius.circular(3),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Text(
+            TranslationService.translate(
+              context,
+              'memory_game_choose_difficulty',
+            ),
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -325,140 +371,264 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> {
     final info = _difficultyInfo(difficulty);
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final label = TranslationService.translate(
+      context,
+      'memory_game_$difficulty',
+    );
+    final subtitle = TranslationService.translate(
+      context,
+      'memory_game_tier_subtitle',
+    ).replaceAll('{pairs}', '${info.pairs}').replaceAll('{grid}', info.grid);
+
+    // Soft pastel wash over the theme surface, stronger when the tier is picked.
+    final surface = isDark
+        ? theme.colorScheme.surfaceContainerHigh
+        : Colors.white;
+    final tint = Color.alphaBlend(
+      info.color.withValues(
+        alpha: isSelected ? (isDark ? 0.30 : 0.16) : (isDark ? 0.20 : 0.10),
+      ),
+      surface,
+    );
+    // Contrast-vetted subtitle color (darker shade in light mode, lighter in
+    // dark mode) so the colored cards stay readable.
+    final subtitleColor = isDark ? info.colorEnd : info.dark;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: GestureDetector(
-        onTap: () => provider.selectDifficulty(difficulty),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
-          curve: Curves.easeOutCubic,
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            gradient: isSelected
-                ? LinearGradient(
-                    colors: [info.color, info.colorEnd],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  )
-                : LinearGradient(
-                    colors: isDark
-                        ? [
-                            theme.colorScheme.surfaceContainerHigh,
-                            theme.colorScheme.surfaceContainerHigh,
-                          ]
-                        : [Colors.white, info.color.withValues(alpha: 0.04)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-            border: isSelected
-                ? null
-                : Border.all(
-                    color: info.color.withValues(alpha: isDark ? 0.2 : 0.15),
-                  ),
-            boxShadow: isSelected
-                ? [
-                    BoxShadow(
-                      color: info.color.withValues(alpha: 0.4),
-                      blurRadius: 20,
-                      offset: const Offset(0, 6),
-                    ),
-                  ]
-                : [
-                    BoxShadow(
-                      color: info.color.withValues(alpha: isDark ? 0.05 : 0.08),
-                      blurRadius: 12,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-          ),
-          child: Stack(
-            clipBehavior: Clip.hardEdge,
-            children: [
-              // Decorative background icon
-              Positioned(
-                right: -2,
-                bottom: -6,
-                child: Icon(
-                  info.icon,
-                  size: 60,
-                  color: (isSelected ? Colors.white : info.color).withValues(
-                    alpha: isSelected ? 0.18 : 0.10,
-                  ),
-                ),
+      child: Semantics(
+        button: true,
+        selected: isSelected,
+        label: '$label, $subtitle',
+        child: ScaleOnTap(
+          onTap: () => provider.selectDifficulty(difficulty),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeOutCubic,
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+              color: tint,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: isSelected
+                    ? info.color
+                    : info.color.withValues(alpha: isDark ? 0.28 : 0.20),
+                width: isSelected ? 2 : 1,
               ),
-              // Content
-              Row(
-                children: [
-                  // Icon badge
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(14),
-                      color: isSelected
-                          ? Colors.white.withValues(alpha: 0.25)
-                          : info.color.withValues(alpha: 0.12),
-                    ),
-                    child: Icon(
-                      info.icon,
-                      size: 26,
-                      color: isSelected ? Colors.white : info.color,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  // Text
-                  Expanded(
+              boxShadow: isSelected
+                  ? [
+                      BoxShadow(
+                        color: info.color.withValues(alpha: 0.28),
+                        blurRadius: 18,
+                        offset: const Offset(0, 6),
+                      ),
+                    ]
+                  : [
+                      BoxShadow(
+                        color: info.color.withValues(
+                          alpha: isDark ? 0.06 : 0.08,
+                        ),
+                        blurRadius: 10,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+            ),
+            child: Stack(
+              children: [
+                // Left accent bar (stretches to the card's full height).
+                Positioned(
+                  left: 0,
+                  top: 0,
+                  bottom: 0,
+                  child: Container(width: 6, color: info.color),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 14, 16, 14),
+                  child: AnimatedSize(
+                    duration: const Duration(milliseconds: 220),
+                    curve: Curves.easeOutCubic,
+                    alignment: Alignment.topCenter,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
-                          TranslationService.translate(
-                            context,
-                            'memory_game_$difficulty',
-                          ),
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: isSelected
-                                ? Colors.white
-                                : theme.colorScheme.onSurface,
-                          ),
+                        Row(
+                          children: [
+                            // Icon badge
+                            Container(
+                              width: 46,
+                              height: 46,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(13),
+                                color: isSelected ? info.color : surface,
+                                boxShadow: isSelected
+                                    ? null
+                                    : AppDesign.subtleShadow,
+                              ),
+                              child: Icon(
+                                info.icon,
+                                size: 24,
+                                color: isSelected ? Colors.white : info.color,
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            // Title + subtitle
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    label,
+                                    style: theme.textTheme.titleMedium
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          color: theme.colorScheme.onSurface,
+                                        ),
+                                  ),
+                                  const SizedBox(height: 3),
+                                  Text(
+                                    subtitle,
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: subtitleColor,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            // Trailing: check when selected, else difficulty gauge.
+                            if (isSelected)
+                              Container(
+                                width: 28,
+                                height: 28,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: info.color,
+                                ),
+                                child: const Icon(
+                                  Icons.check_rounded,
+                                  size: 18,
+                                  color: Colors.white,
+                                ),
+                              )
+                            else
+                              _difficultyGauge(info),
+                          ],
                         ),
-                        const SizedBox(height: 3),
-                        Text(
-                          info.subtitle,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: isSelected
-                                ? Colors.white.withValues(alpha: 0.85)
-                                : info.color.withValues(alpha: 0.8),
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
+                        // Expanded detail panel: grid preview, card count, best time.
+                        if (isSelected)
+                          _buildTierDetail(provider, difficulty, info, surface),
                       ],
                     ),
                   ),
-                  // Checkmark
-                  if (isSelected)
-                    Container(
-                      width: 30,
-                      height: 30,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white.withValues(alpha: 0.3),
-                      ),
-                      child: const Icon(
-                        Icons.check_rounded,
-                        size: 20,
-                        color: Colors.white,
-                      ),
-                    ),
-                ],
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
+    );
+  }
+
+  /// Detail panel revealed when a tier is expanded: a grid preview, the total
+  /// card count, and the player's best time for that difficulty.
+  Widget _buildTierDetail(
+    MemoryGameProvider provider,
+    String difficulty,
+    _DifficultyInfo info,
+    Color surface,
+  ) {
+    final theme = Theme.of(context);
+    final best = provider.bestTimeFor(difficulty);
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 14),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: surface,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: AppDesign.subtleShadow,
+        ),
+        child: Row(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              child: Icon(Icons.grid_view_rounded, color: info.color, size: 26),
+            ),
+            _detailDivider(theme),
+            Expanded(
+              child: _detailStat(
+                theme,
+                '${info.pairs * 2}',
+                TranslationService.translate(
+                  context,
+                  'memory_game_cards_label',
+                ),
+              ),
+            ),
+            _detailDivider(theme),
+            Expanded(
+              child: _detailStat(
+                theme,
+                best ?? '—',
+                TranslationService.translate(context, 'memory_game_best_label'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _detailDivider(ThemeData theme) {
+    return Container(
+      width: 1,
+      height: 34,
+      color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
+    );
+  }
+
+  Widget _detailStat(ThemeData theme, String value, String label) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          value,
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: theme.colorScheme.onSurface,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          label,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Five-dot gauge that reads a tier's relative difficulty at a glance — a
+  /// playful meter using the tier's own accent color.
+  Widget _difficultyGauge(_DifficultyInfo info) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: List.generate(5, (i) {
+        final filled = i < info.level;
+        return Container(
+          width: 6,
+          height: 6,
+          margin: const EdgeInsets.only(left: 4),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: filled ? info.color : info.color.withValues(alpha: 0.18),
+          ),
+        );
+      }),
     );
   }
 
@@ -621,45 +791,63 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> {
     switch (difficulty) {
       case 'easy':
         return const _DifficultyInfo(
-          Icons.sentiment_satisfied,
-          Color(0xFF43A047),
-          Color(0xFF66BB6A),
-          '3 pairs - 3x2',
+          icon: Icons.sentiment_satisfied,
+          color: Color(0xFF43A047),
+          colorEnd: Color(0xFF66BB6A),
+          dark: Color(0xFF2E7D32),
+          pairs: 3,
+          grid: '3×2',
+          level: 1,
         );
       case 'medium':
         return const _DifficultyInfo(
-          Icons.sentiment_neutral,
-          Color(0xFF1E88E5),
-          Color(0xFF42A5F5),
-          '6 pairs - 3x4',
+          icon: Icons.sentiment_neutral,
+          color: Color(0xFF1E88E5),
+          colorEnd: Color(0xFF42A5F5),
+          dark: Color(0xFF1565C0),
+          pairs: 6,
+          grid: '3×4',
+          level: 2,
         );
       case 'hard':
         return const _DifficultyInfo(
-          Icons.sentiment_dissatisfied,
-          Color(0xFFEF6C00),
-          Color(0xFFFFA726),
-          '8 pairs - 4x4',
+          icon: Icons.sentiment_dissatisfied,
+          color: Color(0xFFEF6C00),
+          colorEnd: Color(0xFFFFA726),
+          dark: Color(0xFFC2410C),
+          pairs: 8,
+          grid: '4×4',
+          level: 3,
         );
       case 'expert':
         return const _DifficultyInfo(
-          Icons.psychology,
-          Color(0xFFE53935),
-          Color(0xFFEF5350),
-          '10 pairs - 5x4',
+          icon: Icons.psychology,
+          color: Color(0xFFE53935),
+          colorEnd: Color(0xFFEF5350),
+          dark: Color(0xFFC62828),
+          pairs: 10,
+          grid: '5×4',
+          level: 4,
         );
       case 'master':
         return const _DifficultyInfo(
-          Icons.local_fire_department,
-          Color(0xFF7B1FA2),
-          Color(0xFFAB47BC),
-          '15 pairs - 5x6',
+          icon: Icons.local_fire_department,
+          color: Color(0xFF7B1FA2),
+          colorEnd: Color(0xFFAB47BC),
+          dark: Color(0xFF6A1B9A),
+          pairs: 15,
+          grid: '5×6',
+          level: 5,
         );
       default:
         return const _DifficultyInfo(
-          Icons.help_outline,
-          Colors.grey,
-          Colors.grey,
-          '',
+          icon: Icons.help_outline,
+          color: Colors.grey,
+          colorEnd: Colors.grey,
+          dark: Color(0xFF616161),
+          pairs: 0,
+          grid: '',
+          level: 0,
         );
     }
   }
@@ -669,9 +857,29 @@ class _DifficultyInfo {
   final IconData icon;
   final Color color;
   final Color colorEnd;
-  final String subtitle;
 
-  const _DifficultyInfo(this.icon, this.color, this.colorEnd, this.subtitle);
+  /// Contrast-vetted darker shade, used for subtitle text on the light card
+  /// wash so the colored cards stay readable (WCAG AA).
+  final Color dark;
+
+  /// Number of pairs for this tier (card count is `pairs * 2`).
+  final int pairs;
+
+  /// Grid layout label, e.g. "4×4".
+  final String grid;
+
+  /// Relative difficulty on a 1-5 scale, drives the difficulty gauge.
+  final int level;
+
+  const _DifficultyInfo({
+    required this.icon,
+    required this.color,
+    required this.colorEnd,
+    required this.dark,
+    required this.pairs,
+    required this.grid,
+    required this.level,
+  });
 }
 
 // ============ Animated Complete View ============

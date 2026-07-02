@@ -6142,6 +6142,18 @@ msgstr "Tiempo"
 msgid "memory_game_pairs"
 msgstr "Parejas"
 
+#. Memory Game - Tier subtitle (pairs count and grid size)
+msgid "memory_game_tier_subtitle"
+msgstr "{pairs} parejas · {grid}"
+
+#. Memory Game - Cards count label (expanded tier detail)
+msgid "memory_game_cards_label"
+msgstr "cartas"
+
+#. Memory Game - Best time label (expanded tier detail)
+msgid "memory_game_best_label"
+msgstr "mejor"
+
 #. Memory Game - Errors label
 msgid "memory_game_errors"
 msgstr "Errores"
