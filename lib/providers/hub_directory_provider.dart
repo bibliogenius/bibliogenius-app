@@ -1994,38 +1994,9 @@ class HubDirectoryProvider extends ChangeNotifier {
     return '${clean.substring(0, 4)}-${clean.substring(4, 8)}-${clean.substring(8, 12)}';
   }
 
-  /// Recovers a hub profile using a one-time recovery code.
-  /// On success: reloads config, resets 401 state, backs up token to Keychain.
-  Future<bool> recoverWithCode(String nodeId, String recoveryCode) async {
-    _configLoading = true;
-    _configError = null;
-    notifyListeners();
-
-    try {
-      final result = await _ffi.hubDirectoryRecover(
-        nodeId: nodeId,
-        recoveryCode: recoveryCode,
-      );
-      if (result != null) {
-        _config = DirectoryConfig.fromFrb(result);
-        _consecutive401Count = 0;
-        _last401At = null;
-        _tokenRecoveredFromKeychain = false;
-        _keychainBackupPending = !await _tryBackupWriteToken();
-        await _tryBackupRecoveryCode();
-        notifyListeners();
-        return true;
-      }
-      return false;
-    } catch (e) {
-      _configError = e.toString();
-      debugPrint('HubDirectoryProvider recoverWithCode error: $e');
-      return false;
-    } finally {
-      _configLoading = false;
-      notifyListeners();
-    }
-  }
+  // NOTE: the manual "reclaim with recovery code" flow was removed with its
+  // UI (the code is internal-only now); recovery via the stored code lives in
+  // the automatic 401 self-heal above.
 
   /// Follow (or request to follow) a library identified by [nodeId].
   /// Updates the following list on success.

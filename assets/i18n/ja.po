@@ -3846,21 +3846,17 @@ msgstr "借りた人を追跡"
 msgid "onboarding_finish"
 msgstr "さあ、始めましょう！"
 
-#. Link with friends and family to share libraries, borrow books, and track who has what.
+#. An encrypted account keeps a copy that only you can read. Get it back on a new device, or share it with others.
 msgid "onboarding_network_desc"
-msgstr "友人や家族とつながり、ライブラリを共有し、本を借り、誰が何を持っているかを把握できます。"
+msgstr "暗号化アカウントが、あなただけが読めるコピーを保管します。新しいデバイスで取り戻したり、他の人と共有したりできます。"
 
-#. Connect Your Network
+#. Never lose your library
 msgid "onboarding_network_title"
-msgstr "ネットワークをつなげよう"
+msgstr "ライブラリを失わないために"
 
 #. Continue
 msgid "onboarding_next"
 msgstr "続ける"
-
-#. Connect with other BiblioGenius users to share your libraries. See what your friends are reading and discover new books.
-msgid "onboarding_p2p_desc"
-msgstr "他のBiblioGeniusユーザーとつながって、ライブラリを共有しましょう。友人が何を読んでいるかを見て、新しい本を発見できます。"
 
 #. Connect & Share
 msgid "onboarding_p2p_title"
@@ -5896,15 +5892,51 @@ msgstr "デバイスを削除できませんでした。接続を確認しても
 #. --- Account sync: multi-device sync screen ---
 #. Settings tile + hub screen title
 msgid "account_sync_title"
-msgstr "複数デバイス間の同期"
+msgstr "暗号化アカウント"
 
 #. Settings tile subtitle
 msgid "account_sync_settings_subtitle"
-msgstr "エンドツーエンドで暗号化して、自分のデバイス間でライブラリを共有します"
+msgstr "暗号化バックアップ、紛失後の復元、共有アクセス。データを読めるのはあなただけです。"
+
+#. Settings - Backup and recovery: share access tile title
+msgid "account_share_access_title"
+msgstr "ライブラリへのアクセスを共有"
+
+#. Settings - Backup and recovery: share access tile subtitle
+msgid "account_share_access_desc"
+msgstr "パスフレーズを使って、複数のデバイスで他の人に共有アクセスを与えられます。"
+
+#. Account screen app-bar title, share-intent entry (short: long titles are hidden by GenieAppBar)
+msgid "account_share_access_short_title"
+msgstr "アクセスを共有"
+
+#. Settings - Backup and recovery: honest note on the shared-account trust model
+msgid "account_shared_trust_note"
+msgstr "このアカウントを共有する人は誰でも、すべてにアクセスできます。アクセスを恒久的に取り消すことはまだできません。"
 
 #. Hub intro when not signed in
 msgid "account_sync_signed_out_intro"
-msgstr "暗号化されたアカウントを作成すると、デバイス間でライブラリを同期できます。読み取れるのはあなたのデバイスだけで、サーバーがデータを見ることはありません。"
+msgstr "ライブラリはこのデバイスに残ります。アカウントは、あなただけが読める暗号化されたコピーを保管します。バックアップ、紛失後の復元、複数のデバイスや他の人とのアクセスに使えます。"
+
+#. Account screen - contextual caption, default (encrypted account) entry
+msgid "account_sync_intro_note"
+msgstr "ライブラリはエンドツーエンドで暗号化されて保存されます。読めるのはあなただけで、このアカウントに接続したすべてのデバイスで利用できます。"
+
+#. Account screen - contextual caption when arriving via the share-access entry
+msgid "account_sync_share_note"
+msgstr "アクセスを共有するには、相手の方が自分のデバイスから、あなたのメールアドレスとパスフレーズでこのアカウントに参加します。参加すると、承認済みのデバイスとして表示されます。"
+
+#. Sync-now feedback when the hub answers 404 account-not-found (account deleted server-side)
+msgid "account_sync_account_gone"
+msgstr "このアカウントはサーバー上に存在しません。このデバイスからサインアウトし、アカウントを作成するか参加してください。"
+
+#. Springboard summary sheet - authorized device count line
+msgid "account_sync_devices_count"
+msgstr "承認済みのデバイス：{count}"
+
+#. Springboard summary sheet - door to the full account management screen
+msgid "account_sync_manage_button"
+msgstr "アカウントを管理"
 
 #. Honest note while data convergence is not active yet (Phase E)
 msgid "account_sync_pending_note"
@@ -5958,7 +5990,11 @@ msgid "account_sync_signup_title"
 msgstr "アカウントを作成"
 
 msgid "account_sync_signup_intro"
-msgstr "強力なパスフレーズを選んでください。ライブラリを暗号化するもので、リセットはできません。安全に保管してください。"
+msgstr "アカウントはライブラリをエンドツーエンドで暗号化します。サーバーが見るのは暗号化されたデータだけで、本の内容を見ることはありません。"
+
+#. Signup screen - the passphrase cannot be reset
+msgid "account_sync_signup_passphrase_note"
+msgstr "パスフレーズは必ず控えてください。リセットはできません。"
 
 msgid "account_sync_email_label"
 msgstr "メールアドレス"
@@ -6984,10 +7020,6 @@ msgstr "インターネット接続がありません"
 msgid "search_actions_placeholder"
 msgstr "本や操作を検索..."
 
-#. Account section in settings
-msgid "account"
-msgstr "アカウント"
-
 #. Network
 msgid "settings_network_title"
 msgstr "ネットワーク"
@@ -7430,6 +7462,18 @@ msgstr "タイム"
 msgid "memory_game_pairs"
 msgstr "ペア"
 
+#. Memory Game - Tier subtitle (pairs count and grid size)
+msgid "memory_game_tier_subtitle"
+msgstr "{pairs}ペア · {grid}"
+
+#. Memory Game - Cards count label (expanded tier detail)
+msgid "memory_game_cards_label"
+msgstr "カード"
+
+#. Memory Game - Best time label (expanded tier detail)
+msgid "memory_game_best_label"
+msgstr "ベスト"
+
 #. Memory Game - Errors label
 msgid "memory_game_errors"
 msgstr "ミス"
@@ -7765,7 +7809,11 @@ msgstr "共有"
 
 #. Settings - Backup section title (top-level accordion)
 msgid "backup_section_title"
-msgstr "バックアップとエクスポート"
+msgstr "バックアップと復元"
+
+#. Settings - Backup and recovery: divider before the local/offline actions
+msgid "backup_offline_divider"
+msgstr "アカウントなし / オフライン"
 
 #. Settings - Backup: export catalog tile title
 msgid "backup_export_catalog_title"
@@ -7795,14 +7843,6 @@ msgstr "ライブラリ全体の暗号化アーカイブを作成し、このデ
 msgid "backup_full_unavailable"
 msgstr "今後のバージョンで利用可能になります。"
 
-#. Full backup dialog: unlock mode segmented button - passphrase option
-msgid "backup_unlock_passphrase"
-msgstr "パスフレーズ"
-
-#. Full backup dialog: unlock mode segmented button - recovery code option
-msgid "backup_unlock_recovery_code"
-msgstr "リカバリーコード"
-
 #. Full backup dialog: secret text field label
 msgid "backup_secret_label"
 msgstr "シークレット"
@@ -7815,9 +7855,13 @@ msgstr "エクスポート"
 msgid "backup_unlock_passphrase_hint"
 msgstr "お好きな秘密のフレーズを選んでください。書き留めておいてください。このバックアップを復元する際に必要になります。"
 
-#. Full backup dialog: hint shown under the field when recovery code mode is selected
-msgid "backup_unlock_recovery_code_hint"
-msgstr "プロフィールのリカバリーコードを使用してください。設定 › アカウント で確認できます。"
+#. Full backup export dialog - include identity checkbox
+msgid "backup_include_identity"
+msgstr "識別情報を含める"
+
+#. Full backup export - failure snackbar ({error} = exception text)
+msgid "backup_full_failed"
+msgstr "完全バックアップに失敗しました：{error}"
 
 #. Settings - Backup: restore tile title
 msgid "backup_restore_title"
@@ -9268,26 +9312,6 @@ msgstr "返却予定日"
 msgid "loan_notification_pending"
 msgstr "通知待ち"
 
-#. Recovery code - settings row
-msgid "recovery_code_title"
-msgstr "リカバリーコード"
-
-#. Recovery code - settings row subtitle
-msgid "recovery_code_subtitle"
-msgstr "アプリを再インストールした後にプロフィールを復元します"
-
-#. Recovery code - display screen title
-msgid "recovery_code_display_title"
-msgstr "リカバリーコード"
-
-#. Recovery code - display screen explanation
-msgid "recovery_code_display_explanation"
-msgstr "このコードを使うと、アプリを再インストールしてもプロフィール、フォロワー、フォロー中を復元できます。"
-
-#. Recovery code - display screen save advice
-msgid "recovery_code_save_advice"
-msgstr "安全な場所に保管してください。使用できるのは一度だけで、使うたびに新しいコードが生成されます。"
-
 #. Recovery code - copy button tooltip
 msgid "recovery_code_copy"
 msgstr "リカバリーコードをコピー"
@@ -9295,26 +9319,6 @@ msgstr "リカバリーコードをコピー"
 #. Recovery code - copied confirmation
 msgid "recovery_code_copied"
 msgstr "リカバリーコードをコピーしました"
-
-#. Recovery code - first display title
-msgid "recovery_code_first_title"
-msgstr "リカバリーコード"
-
-#. Recovery code - first display explanation
-msgid "recovery_code_first_explanation"
-msgstr "このコードを使うと、アプリを再インストールしてもディレクトリ内のプロフィールを復元できます。"
-
-#. Recovery code - first display save notice
-msgid "recovery_code_first_save_notice"
-msgstr "安全な場所（パスワード管理アプリ、手書きのメモなど）に保管してください。"
-
-#. Recovery code - first display auto notice
-msgid "recovery_code_first_auto_notice"
-msgstr "このコードが自動的に再表示されることはありません。「設定 > ディレクトリ」で確認できます。"
-
-#. Recovery code - first display confirm button
-msgid "recovery_code_first_confirm"
-msgstr "コードを保存しました"
 
 #. Connection lost - dialog title
 msgid "connection_lost_title"
@@ -9344,45 +9348,9 @@ msgstr "現在のフォロワーとフォロー中は失われます。あなた
 msgid "connection_lost_later"
 msgstr "後で"
 
-#. Recovery input - screen title
-msgid "recovery_input_title"
-msgstr "プロフィールの復元"
-
-#. Recovery input - instructions
-msgid "recovery_input_instructions"
-msgstr "ディレクトリに登録したときに保存したリカバリーコードを入力してください。"
-
-#. Recovery input - submit button
-msgid "recovery_input_submit"
-msgstr "プロフィールを復元"
-
-#. Recovery input - success message
-msgid "recovery_input_success"
-msgstr "プロフィールを復元しました！フォロワーとフォロー中はそのまま残っています。"
-
-#. Recovery input - success new code notice
-msgid "recovery_input_success_new_code"
-msgstr "新しいリカバリーコードが生成されました。"
-
-#. Recovery input - error message
-msgid "recovery_input_error"
-msgstr "このコードは無効です。保存したコードと一致しているか確認してください。"
-
-#. Recovery code - not available (registered before feature)
-msgid "recovery_code_not_available"
-msgstr "利用できません。生成するには再登録してください。"
-
 #. Badge shown on experimental features
 msgid "badge_experimental"
 msgstr "実験的機能"
-
-#. Recovery code - scope legend: what is covered
-msgid "recovery_code_scope_covers"
-msgstr "復元されるもの: プロフィール、フォロワー、フォロー中。"
-
-#. Recovery code - scope legend: what is excluded
-msgid "recovery_code_scope_excludes"
-msgstr "復元されないもの: あなたの本（ローカルに保存）と手動で追加したピア（再度追加が必要）。"
 
 msgid "quotes_module_help"
 msgstr "ホーム画面に心に響く文学的な名言を表示します。純粋な装飾であり、機能に影響なく無効にできます。"

@@ -58,7 +58,7 @@ class _OnboardingTourScreenState extends State<OnboardingTourScreen>
         descKey: 'onboarding_books_desc',
       ),
       _SlideData(
-        icon: Icons.cloud_sync,
+        icon: Icons.cloud_done,
         gradient: gradients[2],
         titleKey: 'onboarding_network_title',
         descKey: 'onboarding_network_desc',

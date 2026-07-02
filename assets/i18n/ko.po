@@ -3846,21 +3846,17 @@ msgstr "대여자 추적"
 msgid "onboarding_finish"
 msgstr "시작하기!"
 
-#. Link with friends and family to share libraries, borrow books, and track who has what.
+#. An encrypted account keeps a copy that only you can read. Get it back on a new device, or share it with others.
 msgid "onboarding_network_desc"
-msgstr "친구 및 가족과 연결하여 서재를 공유하고, 책을 빌리고, 누가 무엇을 가지고 있는지 추적하세요."
+msgstr "암호화된 계정이 나만 읽을 수 있는 사본을 보관합니다. 새 기기에서 되찾거나 다른 사람과 공유하세요."
 
-#. Connect Your Network
+#. Never lose your library
 msgid "onboarding_network_title"
-msgstr "네트워크 연결하기"
+msgstr "라이브러리를 잃어버리지 마세요"
 
 #. Continue
 msgid "onboarding_next"
 msgstr "계속"
-
-#. Connect with other BiblioGenius users to share your libraries. See what your friends are reading and discover new books.
-msgid "onboarding_p2p_desc"
-msgstr "다른 BiblioGenius 사용자와 연결하여 서재를 공유하세요. 친구들이 무엇을 읽는지 보고 새로운 책을 발견하세요."
 
 #. Connect & Share
 msgid "onboarding_p2p_title"
@@ -5896,15 +5892,51 @@ msgstr "기기를 제거할 수 없습니다. 연결을 확인한 후 다시 시
 #. --- Account sync: multi-device sync screen ---
 #. Settings tile + hub screen title
 msgid "account_sync_title"
-msgstr "다중 기기 동기화"
+msgstr "암호화된 계정"
 
 #. Settings tile subtitle
 msgid "account_sync_settings_subtitle"
-msgstr "종단 간 암호화로 내 기기 간에 라이브러리를 공유하세요"
+msgstr "암호화된 백업, 분실 후 복구, 공유 액세스. 내 데이터는 나만 읽을 수 있습니다."
+
+#. Settings - Backup and recovery: share access tile title
+msgid "account_share_access_title"
+msgstr "내 라이브러리 액세스 공유"
+
+#. Settings - Backup and recovery: share access tile subtitle
+msgid "account_share_access_desc"
+msgstr "암호 구문으로 다른 사람에게 여러 기기에서 공유 액세스를 제공하세요."
+
+#. Account screen app-bar title, share-intent entry (short: long titles are hidden by GenieAppBar)
+msgid "account_share_access_short_title"
+msgstr "액세스 공유"
+
+#. Settings - Backup and recovery: honest note on the shared-account trust model
+msgid "account_shared_trust_note"
+msgstr "이 계정을 공유하는 사람은 누구나 전체 액세스 권한을 갖습니다. 액세스를 영구적으로 제거하는 것은 아직 불가능합니다."
 
 #. Hub intro when not signed in
 msgid "account_sync_signed_out_intro"
-msgstr "암호화된 계정을 만들어 여러 기기에서 라이브러리를 동기화하세요. 내 기기만 라이브러리를 읽을 수 있으며, 서버는 데이터를 절대 볼 수 없습니다."
+msgstr "라이브러리는 이 기기에 그대로 유지됩니다. 계정은 나만 읽을 수 있는 암호화된 사본을 보관합니다. 백업, 분실 후 복구, 여러 기기 및 다른 사람과의 액세스에 사용할 수 있습니다."
+
+#. Account screen - contextual caption, default (encrypted account) entry
+msgid "account_sync_intro_note"
+msgstr "라이브러리는 종단 간 암호화되어 백업됩니다. 나만 읽을 수 있으며, 이 계정에 연결된 모든 기기에서 다시 찾을 수 있습니다."
+
+#. Account screen - contextual caption when arriving via the share-access entry
+msgid "account_sync_share_note"
+msgstr "액세스를 공유하려면 상대방이 자신의 기기에서 내 이메일과 암호 구문으로 이 계정에 참여합니다. 참여하면 승인된 기기로 표시됩니다."
+
+#. Sync-now feedback when the hub answers 404 account-not-found (account deleted server-side)
+msgid "account_sync_account_gone"
+msgstr "이 계정은 더 이상 서버에 존재하지 않습니다. 이 기기에서 로그아웃한 후 계정을 만들거나 참여하세요."
+
+#. Springboard summary sheet - authorized device count line
+msgid "account_sync_devices_count"
+msgstr "승인된 기기: {count}"
+
+#. Springboard summary sheet - door to the full account management screen
+msgid "account_sync_manage_button"
+msgstr "계정 관리"
 
 #. Honest note while data convergence is not active yet (Phase E)
 msgid "account_sync_pending_note"
@@ -5958,7 +5990,11 @@ msgid "account_sync_signup_title"
 msgstr "계정 만들기"
 
 msgid "account_sync_signup_intro"
-msgstr "강력한 암호 구문을 선택하세요. 이 암호 구문은 라이브러리를 암호화하며 재설정할 수 없으므로 안전하게 보관하세요."
+msgstr "계정은 라이브러리를 종단 간 암호화합니다. 서버는 책을 절대 볼 수 없으며 암호화된 데이터만 봅니다."
+
+#. Signup screen - the passphrase cannot be reset
+msgid "account_sync_signup_passphrase_note"
+msgstr "암호 구문을 잘 적어 두세요. 재설정할 수 없습니다."
 
 msgid "account_sync_email_label"
 msgstr "이메일"
@@ -6984,10 +7020,6 @@ msgstr "인터넷 연결 없음"
 msgid "search_actions_placeholder"
 msgstr "책 또는 작업 검색..."
 
-#. Account section in settings
-msgid "account"
-msgstr "계정"
-
 #. Network
 msgid "settings_network_title"
 msgstr "네트워크"
@@ -7430,6 +7462,18 @@ msgstr "시간"
 msgid "memory_game_pairs"
 msgstr "짝"
 
+#. Memory Game - Tier subtitle (pairs count and grid size)
+msgid "memory_game_tier_subtitle"
+msgstr "{pairs}쌍 · {grid}"
+
+#. Memory Game - Cards count label (expanded tier detail)
+msgid "memory_game_cards_label"
+msgstr "카드"
+
+#. Memory Game - Best time label (expanded tier detail)
+msgid "memory_game_best_label"
+msgstr "최고"
+
 #. Memory Game - Errors label
 msgid "memory_game_errors"
 msgstr "실수"
@@ -7765,7 +7809,11 @@ msgstr "공유"
 
 #. Settings - Backup section title (top-level accordion)
 msgid "backup_section_title"
-msgstr "백업 및 내보내기"
+msgstr "백업 및 복구"
+
+#. Settings - Backup and recovery: divider before the local/offline actions
+msgid "backup_offline_divider"
+msgstr "계정 없이 / 오프라인"
 
 #. Settings - Backup: export catalog tile title
 msgid "backup_export_catalog_title"
@@ -7795,14 +7843,6 @@ msgstr "서재 전체의 암호화된 아카이브를 만들어 이 기기나 �
 msgid "backup_full_unavailable"
 msgstr "향후 버전에서 제공됩니다."
 
-#. Full backup dialog: unlock mode segmented button - passphrase option
-msgid "backup_unlock_passphrase"
-msgstr "암호 구문"
-
-#. Full backup dialog: unlock mode segmented button - recovery code option
-msgid "backup_unlock_recovery_code"
-msgstr "복구 코드"
-
 #. Full backup dialog: secret text field label
 msgid "backup_secret_label"
 msgstr "비밀 값"
@@ -7815,9 +7855,13 @@ msgstr "내보내기"
 msgid "backup_unlock_passphrase_hint"
 msgstr "원하는 암호 구문을 자유롭게 선택하세요. 이 백업을 복원할 때 필요하니 꼭 적어두세요."
 
-#. Full backup dialog: hint shown under the field when recovery code mode is selected
-msgid "backup_unlock_recovery_code_hint"
-msgstr "설정 › 계정에 있는 프로필의 복구 코드를 사용하세요."
+#. Full backup export dialog - include identity checkbox
+msgid "backup_include_identity"
+msgstr "신원 정보 포함"
+
+#. Full backup export - failure snackbar ({error} = exception text)
+msgid "backup_full_failed"
+msgstr "전체 백업 실패: {error}"
 
 #. Settings - Backup: restore tile title
 msgid "backup_restore_title"
@@ -9268,26 +9312,6 @@ msgstr "반납 예정일"
 msgid "loan_notification_pending"
 msgstr "알림 대기 중"
 
-#. Recovery code - settings row
-msgid "recovery_code_title"
-msgstr "복구 코드"
-
-#. Recovery code - settings row subtitle
-msgid "recovery_code_subtitle"
-msgstr "앱 재설치 후 프로필을 복구하세요"
-
-#. Recovery code - display screen title
-msgid "recovery_code_display_title"
-msgstr "복구 코드"
-
-#. Recovery code - display screen explanation
-msgid "recovery_code_display_explanation"
-msgstr "이 코드로 앱을 재설치하더라도 프로필, 팔로워, 팔로잉을 복구할 수 있습니다."
-
-#. Recovery code - display screen save advice
-msgid "recovery_code_save_advice"
-msgstr "안전한 곳에 보관하세요. 한 번만 사용할 수 있으며, 사용할 때마다 새 코드가 생성됩니다."
-
 #. Recovery code - copy button tooltip
 msgid "recovery_code_copy"
 msgstr "복구 코드 복사"
@@ -9295,26 +9319,6 @@ msgstr "복구 코드 복사"
 #. Recovery code - copied confirmation
 msgid "recovery_code_copied"
 msgstr "복구 코드가 복사되었습니다"
-
-#. Recovery code - first display title
-msgid "recovery_code_first_title"
-msgstr "복구 코드"
-
-#. Recovery code - first display explanation
-msgid "recovery_code_first_explanation"
-msgstr "이 코드로 앱을 재설치하더라도 디렉터리의 프로필을 복구할 수 있습니다."
-
-#. Recovery code - first display save notice
-msgid "recovery_code_first_save_notice"
-msgstr "안전한 곳에 보관하세요 (비밀번호 관리자, 손으로 쓴 메모 등)."
-
-#. Recovery code - first display auto notice
-msgid "recovery_code_first_auto_notice"
-msgstr "이 코드는 더 이상 자동으로 표시되지 않습니다. 설정 > 디렉터리에서 확인할 수 있습니다."
-
-#. Recovery code - first display confirm button
-msgid "recovery_code_first_confirm"
-msgstr "코드를 저장했습니다"
 
 #. Connection lost - dialog title
 msgid "connection_lost_title"
@@ -9344,45 +9348,9 @@ msgstr "현재 팔로워와 팔로잉이 사라집니다. 나를 팔로우하던
 msgid "connection_lost_later"
 msgstr "나중에"
 
-#. Recovery input - screen title
-msgid "recovery_input_title"
-msgstr "프로필 복구"
-
-#. Recovery input - instructions
-msgid "recovery_input_instructions"
-msgstr "디렉터리에 등록할 때 저장한 복구 코드를 입력하세요."
-
-#. Recovery input - submit button
-msgid "recovery_input_submit"
-msgstr "프로필 복구"
-
-#. Recovery input - success message
-msgid "recovery_input_success"
-msgstr "프로필이 복구되었습니다! 팔로워와 팔로잉이 그대로 유지됩니다."
-
-#. Recovery input - success new code notice
-msgid "recovery_input_success_new_code"
-msgstr "새 복구 코드가 생성되었습니다."
-
-#. Recovery input - error message
-msgid "recovery_input_error"
-msgstr "이 코드는 유효하지 않습니다. 저장한 코드와 일치하는지 확인하세요."
-
-#. Recovery code - not available (registered before feature)
-msgid "recovery_code_not_available"
-msgstr "사용할 수 없습니다. 다시 등록하여 생성하세요."
-
 #. Badge shown on experimental features
 msgid "badge_experimental"
 msgstr "실험적"
-
-#. Recovery code - scope legend: what is covered
-msgid "recovery_code_scope_covers"
-msgstr "복구 항목: 프로필, 팔로워, 팔로잉."
-
-#. Recovery code - scope legend: what is excluded
-msgid "recovery_code_scope_excludes"
-msgstr "복구되지 않음: 책(로컬에 저장됨)과 수동으로 추가한 피어(다시 추가해야 함)."
 
 msgid "quotes_module_help"
 msgstr "홈 화면에 영감을 주는 문학 인용구를 표시합니다. 순전히 장식용이며, 기능에 영향 없이 비활성화할 수 있습니다."

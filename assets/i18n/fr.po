@@ -4363,21 +4363,17 @@ msgstr "Suivez les Emprunteurs"
 msgid "onboarding_finish"
 msgstr "C'est parti !"
 
-#. Link with friends and family to share libraries, borrow books, and track who has what.
+#. An encrypted account keeps a copy that only you can read. Get it back on a new device, or share it with others.
 msgid "onboarding_network_desc"
-msgstr "Reliez-vous avec vos contacts pour savoir à qui vous avez prêté des livres."
+msgstr "Un compte chiffré en garde une copie que vous seul pouvez lire. Retrouvez-la sur un nouvel appareil, ou partagez-la à plusieurs."
 
-#. Connect Your Network
+#. Never lose your library
 msgid "onboarding_network_title"
-msgstr "Ne perdez plus vos livres"
+msgstr "Ne perdez jamais votre bibliothèque"
 
 #. Continue
 msgid "onboarding_next"
 msgstr "Continuer"
-
-#. Connect with other BiblioGenius users to share your libraries. See what your friends are reading and discover new books.
-msgid "onboarding_p2p_desc"
-msgstr "Connectez-vous avec d'autres utilisateurs BiblioGenius pour partager vos bibliothèques. Voyez ce que vos amis lisent et découvrez de nouveaux livres."
 
 #. Connect & Share
 msgid "onboarding_p2p_title"
@@ -5531,10 +5527,6 @@ msgstr "Liste"
 #. Title
 msgid "search_title_label"
 msgstr "Titre"
-
-#. Account section in settings
-msgid "account"
-msgstr "Compte"
 
 #. Security
 msgid "security"
@@ -7347,7 +7339,11 @@ msgstr "Partager"
 
 #. Settings - Backup section title (top-level accordion)
 msgid "backup_section_title"
-msgstr "Sauvegarde et export"
+msgstr "Sauvegarde et récupération"
+
+#. Settings - Backup and recovery: divider before the local/offline actions
+msgid "backup_offline_divider"
+msgstr "Sans compte / hors ligne"
 
 #. Settings - Backup: export catalog tile title
 msgid "backup_export_catalog_title"
@@ -7377,14 +7373,6 @@ msgstr "Crée une archive chiffrée de toute votre bibliothèque, que vous pouve
 msgid "backup_full_unavailable"
 msgstr "Disponible dans une prochaine version."
 
-#. Full backup dialog: unlock mode segmented button - passphrase option
-msgid "backup_unlock_passphrase"
-msgstr "Phrase secrète"
-
-#. Full backup dialog: unlock mode segmented button - recovery code option
-msgid "backup_unlock_recovery_code"
-msgstr "Code de récupération"
-
 #. Full backup dialog: secret text field label
 msgid "backup_secret_label"
 msgstr "Secret"
@@ -7397,9 +7385,13 @@ msgstr "Exporter"
 msgid "backup_unlock_passphrase_hint"
 msgstr "Choisissez librement une phrase secrète. Notez-la : elle sera indispensable pour restaurer cette sauvegarde."
 
-#. Full backup dialog: hint shown under the field when recovery code mode is selected
-msgid "backup_unlock_recovery_code_hint"
-msgstr "Utilisez le code de récupération de votre profil, visible dans Paramètres › Compte."
+#. Full backup export dialog - include identity checkbox
+msgid "backup_include_identity"
+msgstr "Inclure l'identité"
+
+#. Full backup export - failure snackbar ({error} = exception text)
+msgid "backup_full_failed"
+msgstr "Échec de la sauvegarde complète : {error}"
 
 #. Settings - Backup: restore tile title
 msgid "backup_restore_title"
@@ -8915,26 +8907,6 @@ msgstr "Date de retour prevue"
 msgid "loan_notification_pending"
 msgstr "notification en attente"
 
-#. Recovery code - settings row
-msgid "recovery_code_title"
-msgstr "Code de recuperation"
-
-#. Recovery code - settings row subtitle
-msgid "recovery_code_subtitle"
-msgstr "Retrouvez votre profil apres une reinstallation"
-
-#. Recovery code - display screen title
-msgid "recovery_code_display_title"
-msgstr "Code de recuperation"
-
-#. Recovery code - display screen explanation
-msgid "recovery_code_display_explanation"
-msgstr "Ce code vous permet de retrouver votre profil, vos abonnes et abonnements si vous reinstallez l'application."
-
-#. Recovery code - display screen save advice
-msgid "recovery_code_save_advice"
-msgstr "Conservez-le dans un endroit sur. Il ne fonctionnera qu'une seule fois : un nouveau code sera genere apres chaque utilisation."
-
 #. Recovery code - copy button tooltip
 msgid "recovery_code_copy"
 msgstr "Copier le code de recuperation"
@@ -8942,26 +8914,6 @@ msgstr "Copier le code de recuperation"
 #. Recovery code - copied confirmation
 msgid "recovery_code_copied"
 msgstr "Code de recuperation copie"
-
-#. Recovery code - first display title
-msgid "recovery_code_first_title"
-msgstr "Code de recuperation"
-
-#. Recovery code - first display explanation
-msgid "recovery_code_first_explanation"
-msgstr "Ce code vous permet de retrouver votre profil dans l'annuaire si vous reinstallez l'application."
-
-#. Recovery code - first display save notice
-msgid "recovery_code_first_save_notice"
-msgstr "Notez-le dans un endroit sur (gestionnaire de mots de passe, note papier...)."
-
-#. Recovery code - first display auto notice
-msgid "recovery_code_first_auto_notice"
-msgstr "Ce code ne sera plus affiche automatiquement. Vous pourrez le retrouver dans Reglages > Annuaire."
-
-#. Recovery code - first display confirm button
-msgid "recovery_code_first_confirm"
-msgstr "J'ai sauvegarde mon code"
 
 #. Connection lost - dialog title
 msgid "connection_lost_title"
@@ -8991,45 +8943,9 @@ msgstr "Vos abonnes et abonnements actuels seront perdus. Les personnes qui vous
 msgid "connection_lost_later"
 msgstr "Plus tard"
 
-#. Recovery input - screen title
-msgid "recovery_input_title"
-msgstr "Recuperation du profil"
-
-#. Recovery input - instructions
-msgid "recovery_input_instructions"
-msgstr "Saisissez le code de recuperation que vous avez sauvegarde lors de votre inscription a l'annuaire."
-
-#. Recovery input - submit button
-msgid "recovery_input_submit"
-msgstr "Recuperer mon profil"
-
-#. Recovery input - success message
-msgid "recovery_input_success"
-msgstr "Profil recupere ! Vos abonnes et abonnements sont intacts."
-
-#. Recovery input - success new code notice
-msgid "recovery_input_success_new_code"
-msgstr "Un nouveau code de recuperation a ete genere."
-
-#. Recovery input - error message
-msgid "recovery_input_error"
-msgstr "Ce code n'est pas valide. Verifiez qu'il correspond bien a celui que vous aviez sauvegarde."
-
-#. Recovery code - not available (registered before feature)
-msgid "recovery_code_not_available"
-msgstr "Non disponible. Re-inscrivez-vous pour en generer un."
-
 #. Badge shown on experimental features
 msgid "badge_experimental"
 msgstr "Experimental"
-
-#. Recovery code - scope legend: what is covered
-msgid "recovery_code_scope_covers"
-msgstr "Recupere : votre profil, vos abonnes et abonnements."
-
-#. Recovery code - scope legend: what is excluded
-msgid "recovery_code_scope_excludes"
-msgstr "Non recupere : vos livres (stockes localement) et les pairs ajoutes manuellement (a reintroduire)."
 
 # --- Inline help for Settings > Modules toggles (Phase 1) ---
 
@@ -9947,15 +9863,51 @@ msgstr "Compléter {n} livres"
 
 #. Settings tile + hub screen title
 msgid "account_sync_title"
-msgstr "Synchronisation multi-appareils"
+msgstr "Compte chiffré"
 
 #. Settings tile subtitle
 msgid "account_sync_settings_subtitle"
-msgstr "Partagez votre bibliothèque entre vos appareils, chiffrée de bout en bout"
+msgstr "Sauvegarde chiffrée, récupération après une perte, et accès à plusieurs. Vous seul pouvez lire vos données."
+
+#. Settings - Backup and recovery: share access tile title
+msgid "account_share_access_title"
+msgstr "Partager l'accès à ma bibliothèque"
+
+#. Settings - Backup and recovery: share access tile subtitle
+msgid "account_share_access_desc"
+msgstr "Donnez un accès partagé à d'autres personnes avec votre phrase secrète, sur plusieurs appareils."
+
+#. Account screen app-bar title, share-intent entry (short: long titles are hidden by GenieAppBar)
+msgid "account_share_access_short_title"
+msgstr "Partager l'accès"
+
+#. Settings - Backup and recovery: honest note on the shared-account trust model
+msgid "account_shared_trust_note"
+msgstr "Toute personne qui partage ce compte y a un accès complet. Retirer durablement un accès n'est pas encore possible."
 
 #. Hub intro when not signed in
 msgid "account_sync_signed_out_intro"
-msgstr "Créez un compte chiffré pour garder votre bibliothèque synchronisée entre vos appareils. Vous seul pouvez la lire : le serveur ne voit jamais vos données."
+msgstr "Votre bibliothèque reste sur cet appareil. Un compte en garde une copie chiffrée que vous seul pouvez lire : sauvegarde, récupération après une perte, et accès sur plusieurs appareils et avec d'autres personnes."
+
+#. Account screen - contextual caption, default (encrypted account) entry
+msgid "account_sync_intro_note"
+msgstr "Votre bibliothèque est sauvegardée chiffrée de bout en bout. Vous seul pouvez la lire, et vous la retrouvez sur chaque appareil connecté à ce compte."
+
+#. Account screen - contextual caption when arriving via the share-access entry
+msgid "account_sync_share_note"
+msgstr "Pour partager l'accès, l'autre personne rejoint ce compte depuis son appareil, avec votre e-mail et votre phrase secrète. Elle apparaîtra ensuite comme un appareil autorisé."
+
+#. Sync-now feedback when the hub answers 404 account-not-found (account deleted server-side)
+msgid "account_sync_account_gone"
+msgstr "Ce compte n'existe plus sur le serveur. Déconnectez-vous de cet appareil, puis créez ou rejoignez un compte."
+
+#. Springboard summary sheet - authorized device count line
+msgid "account_sync_devices_count"
+msgstr "Appareils autorisés : {count}"
+
+#. Springboard summary sheet - door to the full account management screen
+msgid "account_sync_manage_button"
+msgstr "Gérer le compte"
 
 #. Honest note while data convergence is not active yet (Phase E)
 msgid "account_sync_pending_note"
@@ -10027,7 +9979,11 @@ msgid "account_sync_signup_title"
 msgstr "Créer un compte"
 
 msgid "account_sync_signup_intro"
-msgstr "Choisissez une phrase secrète robuste. Elle chiffre votre bibliothèque et ne peut pas être réinitialisée : conservez-la en lieu sûr."
+msgstr "Votre compte chiffre votre bibliothèque de bout en bout. Le serveur ne voit jamais vos livres, seulement des données chiffrées."
+
+#. Signup screen - the passphrase cannot be reset
+msgid "account_sync_signup_passphrase_note"
+msgstr "Notez bien votre phrase secrète : elle ne peut pas être réinitialisée."
 
 msgid "account_sync_email_label"
 msgstr "E-mail"

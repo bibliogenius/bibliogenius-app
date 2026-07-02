@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -8,16 +6,29 @@ import '../providers/account_sync_provider.dart';
 import '../providers/theme_provider.dart';
 import '../services/translation_service.dart';
 import '../theme/app_design.dart';
+import '../widgets/account_sync_summary_sheet.dart';
 import '../widgets/genie_app_bar.dart';
 
 /// Hub for the multi-device account sync feature.
 ///
 /// Signed out: explains the feature and offers create / join. Signed in: shows
 /// the account email, the authorized device list, and add-device / sign-out
-/// actions. Data convergence between devices is not active yet; the
-/// screen says so honestly rather than implying a sync that does not run.
+/// actions.
+///
+/// Both the "Compte chiffré" and "Partager l'accès" settings entries land
+/// here (one account screen, no separate share flow). [shareIntent] carries
+/// which entry was tapped so the title and the contextual note acknowledge
+/// the share intent instead of silently showing the same screen.
+/// Desktop: cap the content column so the cards and the action-button stack
+/// keep a hand-friendly width instead of stretching across the window.
+/// Narrower than [AppDesign.maxContentWidth] (900, meant for long settings
+/// lists): this screen is a short action stack, closer to an auth form.
+const double _maxBodyWidth = 560.0;
+
 class AccountSyncScreen extends StatefulWidget {
-  const AccountSyncScreen({super.key});
+  final bool shareIntent;
+
+  const AccountSyncScreen({super.key, this.shareIntent = false});
 
   @override
   State<AccountSyncScreen> createState() => _AccountSyncScreenState();
@@ -107,31 +118,15 @@ class _AccountSyncScreenState extends State<AccountSyncScreen> {
     }
   }
 
-  /// Manually trigger one sync cycle and show a human confirmation. The backend
-  /// returns JSON (`{synced, applied?, pushed?}`); we translate it into a plain
-  /// message instead of surfacing the raw payload.
+  /// Manually trigger one sync cycle and show a human confirmation. The
+  /// JSON-to-message mapping lives in the provider (shared with the
+  /// springboard summary sheet).
   Future<void> _syncNow() async {
-    String message;
-    try {
-      final result = await _provider.syncNow();
-      final json = jsonDecode(result) as Map<String, dynamic>;
-      if (json['reason'] == 'restart_required') {
-        // Enrolled but not yet restarted: sync activates on the next launch.
-        message = _t('account_sync_restart_required_body');
-      } else {
-        final applied = (json['applied'] as num?)?.toInt() ?? 0;
-        final pushed = (json['pushed'] as num?)?.toInt() ?? 0;
-        message = (applied == 0 && pushed == 0)
-            ? _t('account_sync_synced_uptodate')
-            : _t('account_sync_synced_done');
-      }
-    } catch (_) {
-      message = _t('account_sync_sync_failed');
-    }
+    final key = await _provider.syncNowMessageKey();
     if (!mounted) return;
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    ).showSnackBar(SnackBar(content: Text(_t(key))));
   }
 
   @override
@@ -139,7 +134,15 @@ class _AccountSyncScreenState extends State<AccountSyncScreen> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: GenieAppBar(
-        title: _t('account_sync_title'),
+        // The share title has a dedicated SHORT form: GenieAppBar hides the
+        // whole title block (title + library subtitle) when the measured
+        // title cannot fit next to the action buttons, and the full tile
+        // label ("Partager l'accès à ma bibliothèque") never fits.
+        title: _t(
+          widget.shareIntent
+              ? 'account_share_access_short_title'
+              : 'account_sync_title',
+        ),
         actions: [
           Consumer<AccountSyncProvider>(
             builder: (context, p, _) => p.signedIn
@@ -153,6 +156,10 @@ class _AccountSyncScreenState extends State<AccountSyncScreen> {
         ],
       ),
       body: Container(
+        // Expand: the Scaffold gives its body loose constraints, so without
+        // this the gradient container shrink-wraps the (short) content and
+        // the plain scaffold background shows below it on tall windows.
+        constraints: const BoxConstraints.expand(),
         decoration: BoxDecoration(
           gradient: AppDesign.pageGradientForTheme(
             context.watch<ThemeProvider>().themeStyle,
@@ -166,21 +173,32 @@ class _AccountSyncScreenState extends State<AccountSyncScreen> {
                 child: SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(AppDesign.spacingMd),
-                  child: p.signedIn
-                      ? _SignedInView(
-                          provider: p,
-                          onAddDevice: () =>
-                              _openAndReload('/account-sync/add-device'),
-                          onLogout: _confirmLogout,
-                          onSyncNow: _syncNow,
-                          onRemoveDevice: _confirmRemoveDevice,
-                        )
-                      : _SignedOutView(
-                          onCreate: () =>
-                              _openAndReload('/account-sync/create'),
-                          onJoin: () => _openAndReload('/account-sync/join'),
-                          onPair: () => _openAndReload('/account-sync/pair'),
-                        ),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        maxWidth: _maxBodyWidth,
+                      ),
+                      child: p.signedIn
+                          ? _SignedInView(
+                              provider: p,
+                              shareIntent: widget.shareIntent,
+                              onAddDevice: () =>
+                                  _openAndReload('/account-sync/add-device'),
+                              onLogout: _confirmLogout,
+                              onSyncNow: _syncNow,
+                              onRemoveDevice: _confirmRemoveDevice,
+                            )
+                          : _SignedOutView(
+                              shareIntent: widget.shareIntent,
+                              onCreate: () =>
+                                  _openAndReload('/account-sync/create'),
+                              onJoin: () =>
+                                  _openAndReload('/account-sync/join'),
+                              onPair: () =>
+                                  _openAndReload('/account-sync/pair'),
+                            ),
+                    ),
+                  ),
                 ),
               );
             },
@@ -218,11 +236,43 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
+/// Contextual caption in a primary-tinted banner. The text follows the entry
+/// point: account benefits by default, join-with-passphrase guidance when the
+/// user came through "Partager l'accès".
+class _InfoNote extends StatelessWidget {
+  final String text;
+  const _InfoNote({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.all(AppDesign.spacingMd),
+      decoration: BoxDecoration(
+        color: cs.primary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.info_outline, size: 20, color: cs.primary),
+          const SizedBox(width: AppDesign.spacingSm),
+          Expanded(
+            child: Text(text, style: Theme.of(context).textTheme.bodyMedium),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _SignedOutView extends StatelessWidget {
+  final bool shareIntent;
   final VoidCallback onCreate;
   final VoidCallback onJoin;
   final VoidCallback onPair;
   const _SignedOutView({
+    required this.shareIntent,
     required this.onCreate,
     required this.onJoin,
     required this.onPair,
@@ -239,23 +289,32 @@ class _SignedOutView extends StatelessWidget {
           _t(context, 'account_sync_signed_out_intro'),
           style: Theme.of(context).textTheme.bodyLarge,
         ),
+        // The default intro already explains the account; only the share
+        // intent needs the extra how-to caption here.
+        if (shareIntent) ...[
+          const SizedBox(height: AppDesign.spacingMd),
+          _InfoNote(text: _t(context, 'account_sync_share_note')),
+        ],
         const SizedBox(height: AppDesign.spacingLg),
         FilledButton.icon(
           icon: const Icon(Icons.person_add_alt_1),
           onPressed: onCreate,
           label: Text(_t(context, 'account_sync_create_account')),
+          style: accountSyncPrimaryActionStyle(context),
         ),
         const SizedBox(height: AppDesign.spacingSm),
         OutlinedButton.icon(
           icon: const Icon(Icons.login),
           onPressed: onJoin,
           label: Text(_t(context, 'account_sync_join_account')),
+          style: accountSyncSecondaryActionStyle(context),
         ),
         const SizedBox(height: AppDesign.spacingSm),
         OutlinedButton.icon(
           icon: const Icon(Icons.qr_code_scanner),
           onPressed: onPair,
           label: Text(_t(context, 'account_sync_pair_cta')),
+          style: accountSyncSecondaryActionStyle(context),
         ),
       ],
     );
@@ -264,12 +323,14 @@ class _SignedOutView extends StatelessWidget {
 
 class _SignedInView extends StatelessWidget {
   final AccountSyncProvider provider;
+  final bool shareIntent;
   final VoidCallback onAddDevice;
   final VoidCallback onLogout;
   final VoidCallback onSyncNow;
   final void Function(AccountDevice) onRemoveDevice;
   const _SignedInView({
     required this.provider,
+    required this.shareIntent,
     required this.onAddDevice,
     required this.onLogout,
     required this.onSyncNow,
@@ -285,6 +346,13 @@ class _SignedInView extends StatelessWidget {
       children: [
         _ConnectedCard(email: provider.status.email),
         const SizedBox(height: AppDesign.spacingMd),
+        _InfoNote(
+          text: _t(
+            context,
+            shareIntent ? 'account_sync_share_note' : 'account_sync_intro_note',
+          ),
+        ),
+        const SizedBox(height: AppDesign.spacingSm),
         _SectionHeader(_t(context, 'account_sync_devices_title')),
         if (provider.devices.isEmpty)
           Padding(
@@ -309,24 +377,14 @@ class _SignedInView extends StatelessWidget {
           icon: const Icon(Icons.sync),
           onPressed: provider.busy ? null : onSyncNow,
           label: Text(_t(context, 'account_sync_sync_now')),
-          style: FilledButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 14),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
-            ),
-          ),
+          style: accountSyncPrimaryActionStyle(context),
         ),
         const SizedBox(height: AppDesign.spacingSm),
         OutlinedButton.icon(
           icon: const Icon(Icons.add_to_queue),
           onPressed: onAddDevice,
           label: Text(_t(context, 'account_sync_add_device')),
-          style: OutlinedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 14),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
-            ),
-          ),
+          style: accountSyncSecondaryActionStyle(context),
         ),
         const SizedBox(height: AppDesign.spacingSm),
         TextButton.icon(

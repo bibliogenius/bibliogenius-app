@@ -972,7 +972,12 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
         // like /scan-qr above. Child screens are added as each slice ships.
         GoRoute(
           path: '/account-sync',
-          builder: (context, state) => const AccountSyncScreen(),
+          // `intent=share` marks arrival through the "Partager l'accès"
+          // entry: same screen, but the title and caption acknowledge the
+          // share intent.
+          builder: (context, state) => AccountSyncScreen(
+            shareIntent: state.uri.queryParameters['intent'] == 'share',
+          ),
           routes: [
             GoRoute(
               path: 'create',

@@ -16,7 +16,6 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../widgets/genie_app_bar.dart';
 import '../widgets/peer_book_cover_cache_manager.dart';
-import '../widgets/recovery_code_widgets.dart';
 import '../widgets/scaffold_with_nav.dart';
 import '../widgets/contextual_help_sheet.dart';
 import '../services/api_service.dart';
@@ -32,6 +31,7 @@ import '../themes/base/theme_registry.dart';
 import '../utils/app_constants.dart';
 import '../utils/backup_actions.dart';
 import '../utils/import_actions.dart';
+import '../widgets/account_sync_summary_sheet.dart';
 import '../widgets/auto_backup_status_card.dart';
 import '../src/rust/api/frb.dart' as rust;
 import 'backup_restore_wizard_screen.dart';
@@ -136,12 +136,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           content: [_buildDirectorySection(context)],
         );
       case 'backup':
-        _showCapabilitySheet(
-          context,
-          icon: Icons.backup_outlined,
-          titleKey: 'settings_goal_backup',
-          content: _backupChildren(context),
-        );
+        _showBackupSheet(context);
       case 'language':
         _showCapabilitySheet(
           context,
@@ -469,16 +464,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
         Consumer2<HubDirectoryProvider, ThemeProvider>(
           builder: (context, hub, theme, _) {
             final tiles = <Widget>[
+              // Backup goal: the sheet leads with the encrypted account (the
+              // recommended safety net), then the local/offline actions.
               _buildGoalTile(
                 context,
                 icon: Icons.backup_outlined,
                 labelKey: 'settings_goal_backup',
-                onTap: () => _showCapabilitySheet(
-                  context,
-                  icon: Icons.backup_outlined,
-                  titleKey: 'settings_goal_backup',
-                  content: _backupChildren(context),
-                ),
+                onTap: () => _showBackupSheet(context),
               ),
               // Public directory (transform-in-place). Sheet keeps no title:
               // the directory section carries its own "Annuaire public" header.
@@ -511,19 +503,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   content: [_buildLocalNetworkCard(context)],
                 ),
               ),
-              // Multi-device account sync: unlike the other goal tiles this opens
-              // the dedicated hub screen (create/join account, manage devices)
-              // rather than a capability sheet, so it navigates instead. Same
-              // visibility gate as the (now removed) bottom tile it replaces.
+              // Encrypted account, phrased as the one goal the backup tile
+              // does not cover (multi-device reading). Opens a state-aware
+              // summary sheet like the other goal tiles; the dedicated hub
+              // screen stays the single management surface behind it.
               if (_sectionVisible([
+                'settings_goal_sync_devices',
                 'account_sync_title',
                 'account_sync_settings_subtitle',
               ]))
                 _buildGoalTile(
                   context,
                   icon: Icons.devices,
-                  labelKey: 'account_sync_title',
-                  onTap: () => context.push('/account-sync'),
+                  labelKey: 'settings_goal_sync_devices',
+                  onTap: () => showAccountSyncSummarySheet(context),
                 ),
               // Invitation to discover multi-language reading. Once the user
               // has more than one reading language the capability is discovered;
@@ -829,17 +822,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
 
-                // Backup and export accordion (catalog JSON + future full backup + restore)
+                // Backup and recovery accordion: the encrypted account (backup,
+                // recovery after a loss, shared access) leads, followed by the
+                // local/offline actions. Merges the former "Backup and export"
+                // and "Account" accordions; the visibility keys are the union
+                // of both plus the former springboard account tile, so search
+                // still surfaces the section for every old query.
                 if (_sectionVisible([
                   'backup_section_title',
                   'backup_export_catalog_title',
                   'backup_full_title',
                   'backup_restore_title',
+                  'account_sync_title',
+                  'account_sync_settings_subtitle',
+                  'account_share_access_title',
+                  'two_factor_auth',
                 ]))
                   Card(
                     margin: const EdgeInsets.only(bottom: 12),
                     child: ExpansionTile(
-                      key: ValueKey('backup_$_isSearching'),
+                      key: ValueKey('backup_recovery_$_isSearching'),
                       initiallyExpanded: _isSearching,
                       leading: const Icon(Icons.backup_outlined),
                       title: Semantics(
@@ -855,33 +857,48 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                         ),
                       ),
-                      children: _backupChildren(context),
-                    ),
-                  ),
-
-                // Account accordion (security + session)
-                if (_sectionVisible([
-                  'account',
-                  'two_factor_auth',
-                  'recovery_code_title',
-                ]))
-                  Card(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    child: ExpansionTile(
-                      key: ValueKey('account_$_isSearching'),
-                      initiallyExpanded: _isSearching,
-                      leading: const Icon(Icons.person_outlined),
-                      title: Semantics(
-                        header: true,
-                        child: Text(
-                          TranslationService.translate(context, 'account'),
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
+                      children: [
+                        _accountSyncTile(context),
+                        ListTile(
+                          leading: const Icon(Icons.group_outlined),
+                          title: Text(
+                            TranslationService.translate(
+                              context,
+                              'account_share_access_title',
+                            ),
+                          ),
+                          subtitle: Text(
+                            TranslationService.translate(
+                              context,
+                              'account_share_access_desc',
+                            ),
+                          ),
+                          trailing: const Icon(Icons.chevron_right),
+                          // Same account screen, share-intent framing (title
+                          // + caption acknowledge the tapped entry).
+                          onTap: () =>
+                              context.push('/account-sync?intent=share'),
+                        ),
+                        // Honest note on the shared-account trust model: every
+                        // holder of the passphrase has full access, and durable
+                        // revocation does not exist yet.
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                          child: Text(
+                            TranslationService.translate(
+                              context,
+                              'account_shared_trust_note',
+                            ),
+                            // Themed muted color: grey[600] fails the AA
+                            // contrast ratio on dark-theme cards.
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
+                            ),
                           ),
                         ),
-                      ),
-                      children: [
                         if (!Provider.of<ApiService>(
                           context,
                           listen: false,
@@ -926,142 +943,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ],
                             ),
                           ),
-                        Consumer<HubDirectoryProvider>(
-                          builder: (context, dirProvider, _) {
-                            final config = dirProvider.config;
-                            if (config == null) {
-                              // Not registered (or config purged): offer manual
-                              // reclaim with a previously-saved recovery code.
-                              return Column(
-                                children: [
-                                  const Divider(height: 1),
-                                  ListTile(
-                                    leading: const Icon(Icons.restore),
-                                    title: Text(
-                                      TranslationService.translate(
-                                            context,
-                                            'recovery_reclaim_title',
-                                          ) ??
-                                          'Reclaim profile with recovery code',
-                                    ),
-                                    subtitle: Text(
-                                      TranslationService.translate(
-                                            context,
-                                            'recovery_reclaim_subtitle',
-                                          ) ??
-                                          'Use your saved recovery code to restore an existing profile',
-                                    ),
-                                    trailing: const Icon(Icons.chevron_right),
-                                    onTap: () async {
-                                      final ok =
-                                          await showRecoveryCodeInputSheet(
-                                            context,
-                                            dirProvider,
-                                          );
-                                      if (!context.mounted) return;
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            ok
-                                                ? (TranslationService.translate(
-                                                        context,
-                                                        'recovery_reclaim_success',
-                                                      ) ??
-                                                      'Profile reclaimed successfully')
-                                                : (TranslationService.translate(
-                                                        context,
-                                                        'recovery_reclaim_failed',
-                                                      ) ??
-                                                      'Could not reclaim profile. Check the code and try again.'),
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ],
-                              );
-                            }
-                            return Column(
-                              children: [
-                                const Divider(height: 1),
-                                ListTile(
-                                  leading: const Icon(Icons.key),
-                                  title: Row(
-                                    children: [
-                                      Text(
-                                        TranslationService.translate(
-                                              context,
-                                              'recovery_code_title',
-                                            ) ??
-                                            'Recovery code',
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Chip(
-                                        label: Text(
-                                          TranslationService.translate(
-                                                context,
-                                                'badge_experimental',
-                                              ) ??
-                                              'Experimental',
-                                          style: const TextStyle(fontSize: 10),
-                                        ),
-                                        padding: EdgeInsets.zero,
-                                        visualDensity: VisualDensity.compact,
-                                        side: BorderSide.none,
-                                        backgroundColor: Theme.of(
-                                          context,
-                                        ).colorScheme.tertiaryContainer,
-                                        labelStyle: TextStyle(
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.onTertiaryContainer,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  subtitle: Text(
-                                    TranslationService.translate(
-                                          context,
-                                          'recovery_code_subtitle',
-                                        ) ??
-                                        'Recover your profile after reinstalling the app',
-                                  ),
-                                  trailing: const Icon(Icons.chevron_right),
-                                  onTap: () async {
-                                    final code = await dirProvider
-                                        .getRecoveryCode();
-                                    if (!context.mounted) return;
-                                    if (code != null) {
-                                      showModalBottomSheet(
-                                        context: context,
-                                        builder: (_) =>
-                                            RecoveryCodeDisplaySheet(
-                                              recoveryCode: code,
-                                            ),
-                                      );
-                                    } else {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            TranslationService.translate(
-                                                  context,
-                                                  'recovery_code_not_available',
-                                                ) ??
-                                                'Not available. Re-register to generate one.',
-                                          ),
-                                        ),
-                                      );
-                                    }
-                                  },
-                                ),
-                              ],
-                            );
-                          },
-                        ),
+                        ..._offlineDividerWidgets(context),
+                        ..._backupChildren(context),
                       ],
                     ),
                   ),
@@ -2050,6 +1933,123 @@ class _SettingsScreenState extends State<SettingsScreen> {
         content: Text(confirmLabel),
         duration: const Duration(seconds: 2),
       ),
+    );
+  }
+
+  /// Tile pointing to the encrypted-account hub (backup + recovery + shared
+  /// access). Reused by the "Backup and recovery" accordion (default: pushes
+  /// the hub screen) and the backup capability sheet ([onTap] swaps the sheet
+  /// content in place instead of stacking a full screen on the popin).
+  Widget _accountSyncTile(BuildContext context, {VoidCallback? onTap}) {
+    return ListTile(
+      leading: const Icon(Icons.lock_outline),
+      title: Text(TranslationService.translate(context, 'account_sync_title')),
+      subtitle: Text(
+        TranslationService.translate(context, 'account_sync_settings_subtitle'),
+      ),
+      trailing: const Icon(Icons.chevron_right),
+      onTap: onTap ?? () => context.push('/account-sync'),
+    );
+  }
+
+  /// Section break between the account-based options above and the local,
+  /// no-account actions below ("Sans compte / hors ligne").
+  List<Widget> _offlineDividerWidgets(BuildContext context) {
+    return [
+      const Divider(height: 24),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+        child: Semantics(
+          header: true,
+          child: Text(
+            TranslationService.translate(context, 'backup_offline_divider'),
+            // Themed muted color: grey[600] fails the AA contrast ratio on
+            // dark-theme cards.
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+      ),
+    ];
+  }
+
+  /// Backup capability sheet (springboard tile + dashboard deep-link): the
+  /// encrypted account leads as the recommended safety net, then the
+  /// local/offline actions follow unchanged. Tapping the account tile swaps
+  /// the sheet content to the account summary IN PLACE (with a back row)
+  /// instead of stacking the hub screen on top of the popin. Opt-in, never
+  /// forced: the no-account path stays fully available below the divider.
+  Future<void> _showBackupSheet(BuildContext context) {
+    var showAccount = false;
+    return _showCapabilitySheet(
+      context,
+      content: [
+        StatefulBuilder(
+          builder: (sheetContext, setSheetState) {
+            if (showAccount) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: TextButton.icon(
+                      icon: const Icon(Icons.arrow_back),
+                      label: Text(
+                        TranslationService.translate(
+                          sheetContext,
+                          'settings_goal_backup',
+                        ),
+                      ),
+                      onPressed: () =>
+                          setSheetState(() => showAccount = false),
+                    ),
+                  ),
+                  const AccountSyncSummaryBody(
+                    titleKey: 'account_sync_title',
+                    icon: Icons.lock_outline,
+                  ),
+                ],
+              );
+            }
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.backup_outlined),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Semantics(
+                        header: true,
+                        child: Text(
+                          TranslationService.translate(
+                            sheetContext,
+                            'settings_goal_backup',
+                          ),
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                _accountSyncTile(
+                  sheetContext,
+                  onTap: () => setSheetState(() => showAccount = true),
+                ),
+                ..._offlineDividerWidgets(sheetContext),
+                ..._backupChildren(sheetContext),
+              ],
+            );
+          },
+        ),
+      ],
     );
   }
 

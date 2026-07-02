@@ -4363,21 +4363,17 @@ msgstr "Track Borrowers"
 msgid "onboarding_finish"
 msgstr "Let's go!"
 
-#. Link with friends and family to share libraries, borrow books, and track who has what.
+#. An encrypted account keeps a copy that only you can read. Get it back on a new device, or share it with others.
 msgid "onboarding_network_desc"
-msgstr "Link with friends and family to share libraries, borrow books, and track who has what."
+msgstr "An encrypted account keeps a copy that only you can read. Get it back on a new device, or share it with others."
 
-#. Connect Your Network
+#. Never lose your library
 msgid "onboarding_network_title"
-msgstr "Connect Your Network"
+msgstr "Never lose your library"
 
 #. Continue
 msgid "onboarding_next"
 msgstr "Continue"
-
-#. Connect with other BiblioGenius users to share your libraries. See what your friends are reading and discover new books.
-msgid "onboarding_p2p_desc"
-msgstr "Connect with other BiblioGenius users to share your libraries. See what your friends are reading and discover new books."
 
 #. Connect & Share
 msgid "onboarding_p2p_title"
@@ -5531,10 +5527,6 @@ msgstr "List"
 #. Title
 msgid "search_title_label"
 msgstr "Title"
-
-#. Account section in settings
-msgid "account"
-msgstr "Account"
 
 #. Security
 msgid "security"
@@ -7347,7 +7339,11 @@ msgstr "Share"
 
 #. Settings - Backup section title (top-level accordion)
 msgid "backup_section_title"
-msgstr "Backup and export"
+msgstr "Backup and recovery"
+
+#. Settings - Backup and recovery: divider before the local/offline actions
+msgid "backup_offline_divider"
+msgstr "Without an account / offline"
 
 #. Settings - Backup: export catalog tile title
 msgid "backup_export_catalog_title"
@@ -7377,14 +7373,6 @@ msgstr "Creates an encrypted archive of your whole library that you can restore 
 msgid "backup_full_unavailable"
 msgstr "Available in a future version."
 
-#. Full backup dialog: unlock mode segmented button - passphrase option
-msgid "backup_unlock_passphrase"
-msgstr "Passphrase"
-
-#. Full backup dialog: unlock mode segmented button - recovery code option
-msgid "backup_unlock_recovery_code"
-msgstr "Recovery code"
-
 #. Full backup dialog: secret text field label
 msgid "backup_secret_label"
 msgstr "Secret"
@@ -7397,9 +7385,13 @@ msgstr "Export"
 msgid "backup_unlock_passphrase_hint"
 msgstr "Choose any secret phrase. Write it down: you will need it to restore this backup."
 
-#. Full backup dialog: hint shown under the field when recovery code mode is selected
-msgid "backup_unlock_recovery_code_hint"
-msgstr "Use your profile's recovery code, found in Settings › Account."
+#. Full backup export dialog - include identity checkbox
+msgid "backup_include_identity"
+msgstr "Include identity"
+
+#. Full backup export - failure snackbar ({error} = exception text)
+msgid "backup_full_failed"
+msgstr "Full backup failed: {error}"
 
 #. Settings - Backup: restore tile title
 msgid "backup_restore_title"
@@ -8915,26 +8907,6 @@ msgstr "Expected return date"
 msgid "loan_notification_pending"
 msgstr "notification pending"
 
-#. Recovery code - settings row
-msgid "recovery_code_title"
-msgstr "Recovery code"
-
-#. Recovery code - settings row subtitle
-msgid "recovery_code_subtitle"
-msgstr "Recover your profile after reinstalling the app"
-
-#. Recovery code - display screen title
-msgid "recovery_code_display_title"
-msgstr "Recovery code"
-
-#. Recovery code - display screen explanation
-msgid "recovery_code_display_explanation"
-msgstr "This code lets you recover your profile, followers and subscriptions if you reinstall the app."
-
-#. Recovery code - display screen save advice
-msgid "recovery_code_save_advice"
-msgstr "Keep it in a safe place. It can only be used once: a new code will be generated after each use."
-
 #. Recovery code - copy button tooltip
 msgid "recovery_code_copy"
 msgstr "Copy recovery code"
@@ -8942,26 +8914,6 @@ msgstr "Copy recovery code"
 #. Recovery code - copied confirmation
 msgid "recovery_code_copied"
 msgstr "Recovery code copied"
-
-#. Recovery code - first display title
-msgid "recovery_code_first_title"
-msgstr "Recovery code"
-
-#. Recovery code - first display explanation
-msgid "recovery_code_first_explanation"
-msgstr "This code lets you recover your profile in the directory if you reinstall the app."
-
-#. Recovery code - first display save notice
-msgid "recovery_code_first_save_notice"
-msgstr "Save it in a safe place (password manager, handwritten note...)."
-
-#. Recovery code - first display auto notice
-msgid "recovery_code_first_auto_notice"
-msgstr "This code will not be shown automatically again. You can find it in Settings > Directory."
-
-#. Recovery code - first display confirm button
-msgid "recovery_code_first_confirm"
-msgstr "I have saved my code"
 
 #. Connection lost - dialog title
 msgid "connection_lost_title"
@@ -8991,45 +8943,9 @@ msgstr "Your current followers and subscriptions will be lost. People who follow
 msgid "connection_lost_later"
 msgstr "Later"
 
-#. Recovery input - screen title
-msgid "recovery_input_title"
-msgstr "Recover your profile"
-
-#. Recovery input - instructions
-msgid "recovery_input_instructions"
-msgstr "Enter the recovery code you saved when you registered in the directory."
-
-#. Recovery input - submit button
-msgid "recovery_input_submit"
-msgstr "Recover my profile"
-
-#. Recovery input - success message
-msgid "recovery_input_success"
-msgstr "Profile recovered! Your followers and subscriptions are intact."
-
-#. Recovery input - success new code notice
-msgid "recovery_input_success_new_code"
-msgstr "A new recovery code has been generated."
-
-#. Recovery input - error message
-msgid "recovery_input_error"
-msgstr "This code is not valid. Check that it matches the one you saved."
-
-#. Recovery code - not available (registered before feature)
-msgid "recovery_code_not_available"
-msgstr "Not available. Re-register to generate one."
-
 #. Badge shown on experimental features
 msgid "badge_experimental"
 msgstr "Experimental"
-
-#. Recovery code - scope legend: what is covered
-msgid "recovery_code_scope_covers"
-msgstr "Recovers: your profile, followers and following."
-
-#. Recovery code - scope legend: what is excluded
-msgid "recovery_code_scope_excludes"
-msgstr "Not recovered: your books (stored locally) and manually added peers (must be re-added)."
 
 # --- Inline help for Settings > Modules toggles (Phase 1) ---
 
@@ -9947,15 +9863,51 @@ msgstr "Complete {n} books"
 
 #. Settings tile + hub screen title
 msgid "account_sync_title"
-msgstr "Multi-device sync"
+msgstr "Encrypted account"
 
 #. Settings tile subtitle
 msgid "account_sync_settings_subtitle"
-msgstr "Share your library across your own devices, end-to-end encrypted"
+msgstr "Encrypted backup, recovery after a loss, and shared access. Only you can read your data."
+
+#. Settings - Backup and recovery: share access tile title
+msgid "account_share_access_title"
+msgstr "Share access to my library"
+
+#. Settings - Backup and recovery: share access tile subtitle
+msgid "account_share_access_desc"
+msgstr "Give other people shared access with your secret phrase, on several devices."
+
+#. Account screen app-bar title, share-intent entry (short: long titles are hidden by GenieAppBar)
+msgid "account_share_access_short_title"
+msgstr "Share access"
+
+#. Settings - Backup and recovery: honest note on the shared-account trust model
+msgid "account_shared_trust_note"
+msgstr "Anyone who shares this account has full access to it. Permanently removing an access is not possible yet."
 
 #. Hub intro when not signed in
 msgid "account_sync_signed_out_intro"
-msgstr "Create an encrypted account to keep your library in sync across your devices. Only your devices can read it; the server never sees your data."
+msgstr "Your library stays on this device. An account keeps an encrypted copy that only you can read: backup, recovery after a loss, and access on several devices and with other people."
+
+#. Account screen - contextual caption, default (encrypted account) entry
+msgid "account_sync_intro_note"
+msgstr "Your library is backed up with end-to-end encryption. Only you can read it, and you get it back on every device signed in to this account."
+
+#. Account screen - contextual caption when arriving via the share-access entry
+msgid "account_sync_share_note"
+msgstr "To share access, the other person joins this account from their device, with your email and your secret phrase. They will then appear as an authorized device."
+
+#. Sync-now feedback when the hub answers 404 account-not-found (account deleted server-side)
+msgid "account_sync_account_gone"
+msgstr "This account no longer exists on the server. Sign out of this device, then create or join an account."
+
+#. Springboard summary sheet - authorized device count line
+msgid "account_sync_devices_count"
+msgstr "Authorized devices: {count}"
+
+#. Springboard summary sheet - door to the full account management screen
+msgid "account_sync_manage_button"
+msgstr "Manage account"
 
 #. Honest note while data convergence is not active yet (Phase E)
 msgid "account_sync_pending_note"
@@ -10027,7 +9979,11 @@ msgid "account_sync_signup_title"
 msgstr "Create an account"
 
 msgid "account_sync_signup_intro"
-msgstr "Choose a strong passphrase. It encrypts your library and cannot be reset, so store it safely."
+msgstr "Your account encrypts your library end to end. The server never sees your books, only encrypted data."
+
+#. Signup screen - the passphrase cannot be reset
+msgid "account_sync_signup_passphrase_note"
+msgstr "Write down your secret phrase: it cannot be reset."
 
 msgid "account_sync_email_label"
 msgstr "Email"

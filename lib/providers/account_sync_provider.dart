@@ -355,6 +355,36 @@ class AccountSyncProvider extends ChangeNotifier {
     }
   }
 
+  /// Runs one manual sync cycle and maps the backend's raw JSON to the i18n
+  /// key of the human confirmation message. Shared by the account screen and
+  /// the springboard summary sheet so the JSON contract (`{synced, applied?,
+  /// pushed?, reason?}`) is interpreted in exactly one place.
+  Future<String> syncNowMessageKey() async {
+    try {
+      final result = await syncNow();
+      final json = jsonDecode(result) as Map<String, dynamic>;
+      if (json['reason'] == 'restart_required') {
+        // Enrolled but not yet restarted: sync activates on the next launch.
+        return 'account_sync_restart_required_body';
+      }
+      final applied = (json['applied'] as num?)?.toInt() ?? 0;
+      final pushed = (json['pushed'] as num?)?.toInt() ?? 0;
+      return (applied == 0 && pushed == 0)
+          ? 'account_sync_synced_uptodate'
+          : 'account_sync_synced_done';
+    } catch (e) {
+      // The hub answers 404 "Account not found" when the account was deleted
+      // server-side while this device still holds a session: surface an
+      // actionable message (sign out, then create/join) instead of a generic
+      // failure the user cannot act on.
+      final msg = e.toString();
+      if (msg.contains('404') && msg.contains('Account not found')) {
+        return 'account_sync_account_gone';
+      }
+      return 'account_sync_sync_failed';
+    }
+  }
+
   /// Whether this build can converge data across devices (the `account_sync`
   /// Cargo feature is compiled in). Used by the auto-sync scheduler to stay
   /// inert on default builds, where the data leg is a no-op.

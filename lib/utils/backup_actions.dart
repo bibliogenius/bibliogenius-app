@@ -695,6 +695,12 @@ class BackupActions {
     // Capture the share-sheet anchor now, while the screen is mounted, so the
     // later share call does not touch `context` across async gaps.
     final shareOrigin = _shareOrigin(context);
+    // Pre-resolve the failure template for the same reason ({error} is
+    // substituted manually in the catch, after the async gaps).
+    final failedTemplate = TranslationService.translate(
+      context,
+      'backup_full_failed',
+    );
 
     final input = await _showFullBackupDebugDialog(context);
     if (input == null) return;
@@ -794,7 +800,7 @@ class BackupActions {
         SnackBar(
           duration: const Duration(seconds: 6),
           backgroundColor: Colors.red,
-          content: Text('Echec sauvegarde complète: $e'),
+          content: Text(failedTemplate.replaceAll('{error}', '$e')),
         ),
       );
     } finally {
@@ -808,7 +814,12 @@ class BackupActions {
     BuildContext context,
   ) async {
     final controller = TextEditingController();
-    String unlockKind = 'passphrase';
+    // Passphrase is the only offered secret for NEW archives: the directory
+    // recovery code is no longer displayed anywhere users could look it up
+    // (its settings tile was removed; it survives internally for the hub 401
+    // self-heal). Restoring OLD recovery-code archives still works: the
+    // restore wizard prompts from the archive's own `unlock_kind`.
+    const unlockKind = 'passphrase';
     bool includeIdentity = false;
     bool obscure = true;
 
@@ -826,32 +837,6 @@ class BackupActions {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  SegmentedButton<String>(
-                    segments: [
-                      ButtonSegment(
-                        value: 'passphrase',
-                        label: Text(
-                          TranslationService.translate(
-                            context,
-                            'backup_unlock_passphrase',
-                          ),
-                        ),
-                      ),
-                      ButtonSegment(
-                        value: 'recovery_code',
-                        label: Text(
-                          TranslationService.translate(
-                            context,
-                            'backup_unlock_recovery_code',
-                          ),
-                        ),
-                      ),
-                    ],
-                    selected: {unlockKind},
-                    onSelectionChanged: (s) =>
-                        setState(() => unlockKind = s.first),
-                  ),
-                  const SizedBox(height: 12),
                   TextField(
                     controller: controller,
                     obscureText: obscure,
@@ -871,9 +856,8 @@ class BackupActions {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  // Context-sensitive legend: clarifies that a passphrase is
-                  // freely chosen here, whereas the recovery code is the one
-                  // generated for the profile (Settings > Account).
+                  // Legend: the passphrase is freely chosen here and cannot
+                  // be recovered later.
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -887,9 +871,7 @@ class BackupActions {
                         child: Text(
                           TranslationService.translate(
                             context,
-                            unlockKind == 'passphrase'
-                                ? 'backup_unlock_passphrase_hint'
-                                : 'backup_unlock_recovery_code_hint',
+                            'backup_unlock_passphrase_hint',
                           ),
                           style: TextStyle(
                             fontSize: 12,
@@ -903,9 +885,12 @@ class BackupActions {
                   CheckboxListTile(
                     contentPadding: EdgeInsets.zero,
                     dense: true,
-                    title: const Text(
-                      "Inclure l'identité",
-                      style: TextStyle(fontSize: 13),
+                    title: Text(
+                      TranslationService.translate(
+                        context,
+                        'backup_include_identity',
+                      ),
+                      style: const TextStyle(fontSize: 13),
                     ),
                     value: includeIdentity,
                     onChanged: (v) =>

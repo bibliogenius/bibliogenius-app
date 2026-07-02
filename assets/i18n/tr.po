@@ -3890,21 +3890,17 @@ msgstr "Ödünç Alanları Takip Edin"
 msgid "onboarding_finish"
 msgstr "Hadi başlayalım!"
 
-#. Link with friends and family to share libraries, borrow books, and track who has what.
+#. An encrypted account keeps a copy that only you can read. Get it back on a new device, or share it with others.
 msgid "onboarding_network_desc"
-msgstr "Kütüphaneleri paylaşmak, kitap ödünç almak ve kimde ne olduğunu takip etmek için arkadaşlarınızla ve ailenizle bağlantı kurun."
+msgstr "Şifreli bir hesap, yalnızca sizin okuyabileceğiniz bir kopyasını saklar. Yeni bir cihazda geri alın veya başkalarıyla paylaşın."
 
-#. Connect Your Network
+#. Never lose your library
 msgid "onboarding_network_title"
-msgstr "Ağınızı Bağlayın"
+msgstr "Kütüphanenizi asla kaybetmeyin"
 
 #. Continue
 msgid "onboarding_next"
 msgstr "Devam Et"
-
-#. Connect with other BiblioGenius users to share your libraries. See what your friends are reading and discover new books.
-msgid "onboarding_p2p_desc"
-msgstr "Kütüphanelerinizi paylaşmak için diğer BiblioGenius kullanıcılarıyla bağlantı kurun. Arkadaşlarınızın ne okuduğunu görün ve yeni kitaplar keşfedin."
 
 #. Connect & Share
 msgid "onboarding_p2p_title"
@@ -6636,10 +6632,6 @@ msgstr "İnternet bağlantısı yok"
 msgid "search_actions_placeholder"
 msgstr "Kitap veya eylem ara..."
 
-#. Account section in settings
-msgid "account"
-msgstr "Hesap"
-
 #. Network
 msgid "settings_network_title"
 msgstr "Ağ"
@@ -7042,6 +7034,18 @@ msgstr "Süre"
 msgid "memory_game_pairs"
 msgstr "Çiftler"
 
+#. Memory Game - Tier subtitle (pairs count and grid size)
+msgid "memory_game_tier_subtitle"
+msgstr "{pairs} çift · {grid}"
+
+#. Memory Game - Cards count label (expanded tier detail)
+msgid "memory_game_cards_label"
+msgstr "kart"
+
+#. Memory Game - Best time label (expanded tier detail)
+msgid "memory_game_best_label"
+msgstr "en iyi"
+
 #. Memory Game - Errors label
 msgid "memory_game_errors"
 msgstr "Hatalar"
@@ -7377,7 +7381,11 @@ msgstr "Paylaş"
 
 #. Settings - Backup section title (top-level accordion)
 msgid "backup_section_title"
-msgstr "Yedekleme ve dışa aktarma"
+msgstr "Yedekleme ve kurtarma"
+
+#. Settings - Backup and recovery: divider before the local/offline actions
+msgid "backup_offline_divider"
+msgstr "Hesapsız / çevrimdışı"
 
 #. Settings - Backup: export catalog tile title
 msgid "backup_export_catalog_title"
@@ -7407,14 +7415,6 @@ msgstr "Bu cihazda veya başka bir cihazda geri yükleyebileceğiniz, tüm küt�
 msgid "backup_full_unavailable"
 msgstr "Gelecek bir sürümde kullanılabilir."
 
-#. Yedekleme kilidini açma: gizli ifade seçeneği etiketi
-msgid "backup_unlock_passphrase"
-msgstr "Gizli ifade"
-
-#. Yedekleme kilidini açma: kurtarma kodu seçeneği etiketi
-msgid "backup_unlock_recovery_code"
-msgstr "Kurtarma kodu"
-
 #. Yedekleme: gizli değer giriş alanı etiketi
 msgid "backup_secret_label"
 msgstr "Gizli değer"
@@ -7427,9 +7427,13 @@ msgstr "Dışa aktar"
 msgid "backup_unlock_passphrase_hint"
 msgstr "Herhangi bir gizli ifade seçin. Bunu bir yere not edin: bu yedeği geri yüklemek için ona ihtiyacınız olacak."
 
-#. Yedekleme kilidini açma: kurtarma kodu ipucu
-msgid "backup_unlock_recovery_code_hint"
-msgstr "Ayarlar › Hesap bölümünde bulunan profilinizin kurtarma kodunu kullanın."
+#. Full backup export dialog - include identity checkbox
+msgid "backup_include_identity"
+msgstr "Kimliği dahil et"
+
+#. Full backup export - failure snackbar ({error} = exception text)
+msgid "backup_full_failed"
+msgstr "Tam yedekleme başarısız oldu: {error}"
 
 #. Settings - Backup: restore tile title
 msgid "backup_restore_title"
@@ -7765,6 +7769,9 @@ msgstr "Wi-Fi ağında cihaz bulunamadı"
 
 msgid "pairing_mdns_hint"
 msgstr "İki cihaz da ağ keşfi etkin olarak aynı Wi-Fi'de olmalıdır (Ayarlar > Ağ)"
+
+msgid "pairing_identity_note"
+msgstr "Her cihaz kendi kimliğini korur. Eşleştirme kitaplarınızı cihazlarınız arasında senkronize eder, ancak her biri herkese açık dizinde ayrı bir kütüphane olarak kalır."
 
 msgid "pairing_select_device"
 msgstr "Eşleştirilecek cihaz"
@@ -8567,6 +8574,42 @@ msgstr "Kütüphaneyi gör"
 msgid "settings_search_hint"
 msgstr "Ayarlarda ara..."
 
+msgid "settings_springboard_title"
+msgstr "Ne yapmak istiyorsunuz?"
+
+msgid "settings_goal_sync_devices"
+msgstr "Diğer cihazlarımda oku"
+
+msgid "settings_goal_backup"
+msgstr "Kütüphanemi yedekle"
+
+msgid "settings_goal_public"
+msgstr "Kütüphanemi herkese açık yap"
+
+msgid "settings_goal_local_wifi"
+msgstr "Wi-Fi ağımda paylaş"
+
+msgid "settings_goal_manage_public"
+msgstr "Herkese açık kaydımı yönet"
+
+msgid "settings_goal_manage_wifi"
+msgstr "Wi-Fi paylaşımını yönet"
+
+msgid "settings_goal_language"
+msgstr "Okuma dili ekle"
+
+msgid "settings_goal_manage_city"
+msgstr "Şehrimi yönet"
+
+msgid "settings_goal_set_country"
+msgstr "Ülkemi belirt"
+
+msgid "dashboard_discover_more"
+msgstr "Daha fazlası"
+
+msgid "settings_share_city_requires_directory"
+msgstr "Önce “Herkese açık dizinde görünün” seçeneğini etkinleştirin."
+
 #. Reorderable sections - edit mode
 msgid "sections_edit_mode"
 msgstr "Bölümleri Özelleştir"
@@ -8844,26 +8887,6 @@ msgstr "Beklenen iade tarihi"
 msgid "loan_notification_pending"
 msgstr "bildirim bekliyor"
 
-#. Recovery code - settings row
-msgid "recovery_code_title"
-msgstr "Kurtarma kodu"
-
-#. Recovery code - settings row subtitle
-msgid "recovery_code_subtitle"
-msgstr "Uygulamayı yeniden yükledikten sonra profilinizi kurtarın"
-
-#. Recovery code - display screen title
-msgid "recovery_code_display_title"
-msgstr "Kurtarma kodu"
-
-#. Recovery code - display screen explanation
-msgid "recovery_code_display_explanation"
-msgstr "Bu kod, uygulamayı yeniden yüklerseniz profilinizi, takipçilerinizi ve aboneliklerinizi kurtarmanızı sağlar."
-
-#. Recovery code - display screen save advice
-msgid "recovery_code_save_advice"
-msgstr "Güvenli bir yerde saklayın. Yalnızca bir kez kullanılabilir: her kullanımdan sonra yeni bir kod oluşturulur."
-
 #. Recovery code - copy button tooltip
 msgid "recovery_code_copy"
 msgstr "Kurtarma kodunu kopyala"
@@ -8871,26 +8894,6 @@ msgstr "Kurtarma kodunu kopyala"
 #. Recovery code - copied confirmation
 msgid "recovery_code_copied"
 msgstr "Kurtarma kodu kopyalandı"
-
-#. Recovery code - first display title
-msgid "recovery_code_first_title"
-msgstr "Kurtarma kodu"
-
-#. Recovery code - first display explanation
-msgid "recovery_code_first_explanation"
-msgstr "Bu kod, uygulamayı yeniden yüklerseniz dizindeki profilinizi kurtarmanızı sağlar."
-
-#. Recovery code - first display save notice
-msgid "recovery_code_first_save_notice"
-msgstr "Güvenli bir yerde saklayın (parola yöneticisi, el yazısı not...)."
-
-#. Recovery code - first display auto notice
-msgid "recovery_code_first_auto_notice"
-msgstr "Bu kod otomatik olarak tekrar gösterilmeyecek. Onu Ayarlar > Dizin'de bulabilirsiniz."
-
-#. Recovery code - first display confirm button
-msgid "recovery_code_first_confirm"
-msgstr "Kodumu kaydettim"
 
 #. Connection lost - dialog title
 msgid "connection_lost_title"
@@ -8920,45 +8923,9 @@ msgstr "Mevcut takipçileriniz ve abonelikleriniz kaybolacak. Sizi takip edenler
 msgid "connection_lost_later"
 msgstr "Daha sonra"
 
-#. Recovery input - screen title
-msgid "recovery_input_title"
-msgstr "Profilinizi kurtarın"
-
-#. Recovery input - instructions
-msgid "recovery_input_instructions"
-msgstr "Dizine kaydolurken kaydettiğiniz kurtarma kodunu girin."
-
-#. Recovery input - submit button
-msgid "recovery_input_submit"
-msgstr "Profilimi kurtar"
-
-#. Recovery input - success message
-msgid "recovery_input_success"
-msgstr "Profil kurtarıldı! Takipçileriniz ve abonelikleriniz korundu."
-
-#. Recovery input - success new code notice
-msgid "recovery_input_success_new_code"
-msgstr "Yeni bir kurtarma kodu oluşturuldu."
-
-#. Recovery input - error message
-msgid "recovery_input_error"
-msgstr "Bu kod geçerli değil. Kaydettiğinizle eşleştiğini doğrulayın."
-
-#. Recovery code - not available (registered before feature)
-msgid "recovery_code_not_available"
-msgstr "Mevcut değil. Bir tane oluşturmak için yeniden kaydolun."
-
 #. Badge shown on experimental features
 msgid "badge_experimental"
 msgstr "Deneysel"
-
-#. Recovery code - scope legend: what is covered
-msgid "recovery_code_scope_covers"
-msgstr "Kurtarır: profiliniz, takipçileriniz ve takip ettikleriniz."
-
-#. Recovery code - scope legend: what is excluded
-msgid "recovery_code_scope_excludes"
-msgstr "Kurtarılmaz: kitaplarınız (yerel olarak saklanır) ve elle eklenen eşler (yeniden eklenmelidir)."
 
 msgid "quotes_module_help"
 msgstr "Ana ekranda ilham verici edebi alıntılar gösterir. Tamamen dekoratiftir: işlevsellik üzerinde hiçbir etkisi olmadan devre dışı bırakılabilir."
@@ -9900,15 +9867,51 @@ msgstr "Cihaz kaldırılamadı. Bağlantınızı kontrol edip tekrar deneyin."
 #. --- Account sync: multi-device sync screen ---
 #. Settings tile + hub screen title
 msgid "account_sync_title"
-msgstr "Çoklu cihaz senkronizasyonu"
+msgstr "Şifreli hesap"
 
 #. Settings tile subtitle
 msgid "account_sync_settings_subtitle"
-msgstr "Kütüphanenizi kendi cihazlarınız arasında uçtan uca şifreli olarak paylaşın"
+msgstr "Şifreli yedekleme, kayıp sonrası kurtarma ve paylaşımlı erişim. Verilerinizi yalnızca siz okuyabilirsiniz."
+
+#. Settings - Backup and recovery: share access tile title
+msgid "account_share_access_title"
+msgstr "Kütüphaneme erişimi paylaş"
+
+#. Settings - Backup and recovery: share access tile subtitle
+msgid "account_share_access_desc"
+msgstr "Gizli ifadenizle başka kişilere, birden fazla cihazda paylaşımlı erişim verin."
+
+#. Account screen app-bar title, share-intent entry (short: long titles are hidden by GenieAppBar)
+msgid "account_share_access_short_title"
+msgstr "Erişimi paylaş"
+
+#. Settings - Backup and recovery: honest note on the shared-account trust model
+msgid "account_shared_trust_note"
+msgstr "Bu hesabı paylaşan herkes hesaba tam erişime sahiptir. Bir erişimi kalıcı olarak kaldırmak henüz mümkün değildir."
 
 #. Hub intro when not signed in
 msgid "account_sync_signed_out_intro"
-msgstr "Kütüphanenizi cihazlarınız arasında senkronize tutmak için şifreli bir hesap oluşturun. Onu yalnızca cihazlarınız okuyabilir; sunucu verilerinizi asla görmez."
+msgstr "Kütüphaneniz bu cihazda kalır. Bir hesap, yalnızca sizin okuyabileceğiniz şifreli bir kopyasını saklar: yedekleme, kayıp sonrası kurtarma ve birden fazla cihazda ve başka kişilerle erişim."
+
+#. Account screen - contextual caption, default (encrypted account) entry
+msgid "account_sync_intro_note"
+msgstr "Kütüphaneniz uçtan uca şifrelenerek yedeklenir. Onu yalnızca siz okuyabilirsiniz ve bu hesaba bağlı her cihazda bulabilirsiniz."
+
+#. Account screen - contextual caption when arriving via the share-access entry
+msgid "account_sync_share_note"
+msgstr "Erişimi paylaşmak için diğer kişi, e-postanız ve gizli ifadenizle kendi cihazından bu hesaba katılır. Ardından yetkili bir cihaz olarak görünür."
+
+#. Sync-now feedback when the hub answers 404 account-not-found (account deleted server-side)
+msgid "account_sync_account_gone"
+msgstr "Bu hesap artık sunucuda mevcut değil. Bu cihazın oturumunu kapatın, ardından bir hesap oluşturun veya bir hesaba katılın."
+
+#. Springboard summary sheet - authorized device count line
+msgid "account_sync_devices_count"
+msgstr "Yetkili cihazlar: {count}"
+
+#. Springboard summary sheet - door to the full account management screen
+msgid "account_sync_manage_button"
+msgstr "Hesabı yönet"
 
 #. Honest note while data convergence is not active yet (Phase E)
 msgid "account_sync_pending_note"
@@ -9962,7 +9965,11 @@ msgid "account_sync_signup_title"
 msgstr "Hesap oluştur"
 
 msgid "account_sync_signup_intro"
-msgstr "Güçlü bir gizli ifade seçin. Kütüphanenizi şifreler ve sıfırlanamaz, bu yüzden onu güvenli bir yerde saklayın."
+msgstr "Hesabınız kütüphanenizi uçtan uca şifreler. Sunucu kitaplarınızı asla görmez, yalnızca şifreli veriler görür."
+
+#. Signup screen - the passphrase cannot be reset
+msgid "account_sync_signup_passphrase_note"
+msgstr "Gizli ifadenizi iyi not edin: sıfırlanamaz."
 
 msgid "account_sync_email_label"
 msgstr "E-posta"

@@ -4078,21 +4078,17 @@ msgstr "Ausleiher verfolgen"
 msgid "onboarding_finish"
 msgstr "Starten"
 
-#. Link with friends and family to share libraries, borrow books, and track who has what.
+#. An encrypted account keeps a copy that only you can read. Get it back on a new device, or share it with others.
 msgid "onboarding_network_desc"
-msgstr "Verbinden Sie sich mit Freunden, um Bibliotheken zu teilen und Bücher auszuleihen."
+msgstr "Ein verschlüsseltes Konto bewahrt eine Kopie auf, die nur Sie lesen können. Holen Sie sie auf einem neuen Gerät zurück oder teilen Sie sie mit anderen."
 
-#. Connect Your Network
+#. Never lose your library
 msgid "onboarding_network_title"
-msgstr "Verbinden Sie Ihr Netzwerk"
+msgstr "Verlieren Sie Ihre Bibliothek nie"
 
 #. Continue
 msgid "onboarding_next"
 msgstr "Weiter"
-
-#. Connect with other BiblioGenius users to share your libraries. See what your friends are reading and discover new books.
-msgid "onboarding_p2p_desc"
-msgstr "Sehen Sie, was Ihre Freunde lesen, und entdecken Sie neue Bücher."
 
 #. Connect & Share
 msgid "onboarding_p2p_title"
@@ -5025,6 +5021,42 @@ msgstr "Einstellungen gespeichert"
 #. Search settings...
 msgid "settings_search_hint"
 msgstr "Einstellungen durchsuchen..."
+
+msgid "settings_springboard_title"
+msgstr "Was möchten Sie tun?"
+
+msgid "settings_goal_sync_devices"
+msgstr "Auf meinen anderen Geräten lesen"
+
+msgid "settings_goal_backup"
+msgstr "Meine Bibliothek sichern"
+
+msgid "settings_goal_public"
+msgstr "Meine Bibliothek öffentlich machen"
+
+msgid "settings_goal_local_wifi"
+msgstr "Über mein WLAN teilen"
+
+msgid "settings_goal_manage_public"
+msgstr "Meinen öffentlichen Eintrag verwalten"
+
+msgid "settings_goal_manage_wifi"
+msgstr "WLAN-Freigabe verwalten"
+
+msgid "settings_goal_language"
+msgstr "Eine Lesesprache hinzufügen"
+
+msgid "settings_goal_manage_city"
+msgstr "Meine Stadt verwalten"
+
+msgid "settings_goal_set_country"
+msgstr "Mein Land angeben"
+
+msgid "dashboard_discover_more"
+msgstr "Mehr entdecken"
+
+msgid "settings_share_city_requires_directory"
+msgstr "Aktivieren Sie zuerst „Im öffentlichen Verzeichnis erscheinen“."
 
 #. Back
 msgid "setup_btn_back"
@@ -6298,9 +6330,6 @@ msgstr "Beim Hinzufügen von Büchern zwischen verschiedenen Ausgaben wählen"
 
 msgid "accept_connection"
 msgstr "Annehmen"
-
-msgid "account"
-msgstr "Konto"
 
 msgid "achievement_puzzle_first_game"
 msgstr "Puzzle-Anfänger"
@@ -8008,6 +8037,9 @@ msgstr "S."
 msgid "pairing_mdns_hint"
 msgstr "Beide Geraete muessen im selben WLAN mit aktivierter Netzwerkerkennung sein (Einstellungen > Netzwerk)"
 
+msgid "pairing_identity_note"
+msgstr "Jedes Gerät behält seine eigene Identität. Beim Koppeln werden Ihre Bücher zwischen Ihren Geräten synchronisiert, aber jedes bleibt eine eigene Bibliothek im öffentlichen Verzeichnis."
+
 #. Pairing - No peers
 msgid "pairing_no_peers"
 msgstr "Kein Geraet im WLAN-Netzwerk gefunden"
@@ -8377,77 +8409,9 @@ msgstr "Wiederherstellungscode kopiert"
 msgid "recovery_code_copy"
 msgstr "Wiederherstellungscode kopieren"
 
-#. Recovery code display explanation
-msgid "recovery_code_display_explanation"
-msgstr "Dieser Code ermoeglicht es Ihnen, Ihr Profil, Ihre Follower und Abonnements wiederherzustellen, falls Sie die App neu installieren."
-
-#. Recovery code display title
-msgid "recovery_code_display_title"
-msgstr "Wiederherstellungscode"
-
-#. Recovery code first auto notice
-msgid "recovery_code_first_auto_notice"
-msgstr "Dieser Code wird nicht automatisch erneut angezeigt. Sie finden ihn unter Einstellungen > Verzeichnis."
-
-#. Recovery code first confirm
-msgid "recovery_code_first_confirm"
-msgstr "Ich habe meinen Code gespeichert"
-
-#. Recovery code first explanation
-msgid "recovery_code_first_explanation"
-msgstr "Dieser Code ermoeglicht es Ihnen, Ihr Profil im Verzeichnis wiederherzustellen, falls Sie die App neu installieren."
-
-#. Recovery code first save notice
-msgid "recovery_code_first_save_notice"
-msgstr "Bewahren Sie ihn an einem sicheren Ort auf (Passwort-Manager, handschriftliche Notiz...)."
-
-#. Recovery code first title
-msgid "recovery_code_first_title"
-msgstr "Wiederherstellungscode"
-
-#. Recovery code not available
-msgid "recovery_code_not_available"
-msgstr "Nicht verfuegbar. Registrieren Sie sich erneut, um einen zu generieren."
-
 #. Badge shown on experimental features
 msgid "badge_experimental"
 msgstr "Experimentell"
-
-#. Recovery code - scope legend: what is covered
-msgid "recovery_code_scope_covers"
-msgstr "Wiederhergestellt: Ihr Profil, Abonnenten und Abonnements."
-
-#. Recovery code - scope legend: what is excluded
-msgid "recovery_code_scope_excludes"
-msgstr "Nicht wiederhergestellt: Ihre Buecher (lokal gespeichert) und manuell hinzugefuegte Kontakte (muessen neu hinzugefuegt werden)."
-
-#. Recovery code save advice
-msgid "recovery_code_save_advice"
-msgstr "Bewahren Sie ihn an einem sicheren Ort auf. Er funktioniert nur einmal: nach jeder Verwendung wird ein neuer Code generiert."
-
-#. Recovery code subtitle
-msgid "recovery_code_subtitle"
-msgstr "Stellen Sie Ihr Profil nach einer Neuinstallation wieder her"
-
-#. Recovery code title
-msgid "recovery_code_title"
-msgstr "Wiederherstellungscode"
-
-#. Recovery input error
-msgid "recovery_input_error"
-msgstr "Dieser Code ist ungueltig. Ueberpruefen Sie, ob er mit dem gespeicherten uebereinstimmt."
-
-#. Recovery input instructions
-msgid "recovery_input_instructions"
-msgstr "Geben Sie den Wiederherstellungscode ein, den Sie bei der Registrierung im Verzeichnis gespeichert haben."
-
-#. Recovery input submit
-msgid "recovery_input_submit"
-msgstr "Mein Profil wiederherstellen"
-
-#. Recovery input title
-msgid "recovery_input_title"
-msgstr "Profilwiederherstellung"
 
 #. Settings - Show invite banner again
 msgid "settings_reshow_invite_banner"
@@ -8528,14 +8492,6 @@ msgstr "Notiz geloescht"
 #. Note updated
 msgid "note_updated"
 msgstr "Notiz aktualisiert"
-
-#. Recovery input success - new code generated
-msgid "recovery_input_success_new_code"
-msgstr "Ein neuer Wiederherstellungscode wurde generiert."
-
-#. Recovery input success
-msgid "recovery_input_success"
-msgstr "Profil wiederhergestellt! Ihre Follower und Abonnements sind intakt."
 
 #. Delete note tooltip
 msgid "tooltip_delete_note"
@@ -8668,7 +8624,11 @@ msgstr "Teilen"
 
 #. Settings - Backup section title (top-level accordion)
 msgid "backup_section_title"
-msgstr "Sicherung und Export"
+msgstr "Sicherung und Wiederherstellung"
+
+#. Settings - Backup and recovery: divider before the local/offline actions
+msgid "backup_offline_divider"
+msgstr "Ohne Konto / offline"
 
 #. Settings - Backup: export catalog tile title
 msgid "backup_export_catalog_title"
@@ -8698,14 +8658,6 @@ msgstr "Erstellt ein verschlüsseltes Archiv Ihrer gesamten Bibliothek, das Sie 
 msgid "backup_full_unavailable"
 msgstr "In einer zukünftigen Version verfügbar."
 
-#. Settings - Backup: Tab-Beschriftung für Entsperrung per geheimer Phrase
-msgid "backup_unlock_passphrase"
-msgstr "Passphrase"
-
-#. Settings - Backup: Tab-Beschriftung für Entsperrung per Wiederherstellungscode
-msgid "backup_unlock_recovery_code"
-msgstr "Wiederherstellungscode"
-
 #. Settings - Backup: Feldbeschriftung für das Geheimnis
 msgid "backup_secret_label"
 msgstr "Geheimnis"
@@ -8718,9 +8670,13 @@ msgstr "Exportieren"
 msgid "backup_unlock_passphrase_hint"
 msgstr "Wählen Sie eine beliebige geheime Phrase. Notieren Sie sie: Sie benötigen sie, um dieses Backup wiederherzustellen."
 
-#. Settings - Backup: Hinweis zur Verwendung des Wiederherstellungscodes
-msgid "backup_unlock_recovery_code_hint"
-msgstr "Verwenden Sie den Wiederherstellungscode Ihres Profils, zu finden unter Einstellungen › Konto."
+#. Full backup export dialog - include identity checkbox
+msgid "backup_include_identity"
+msgstr "Identität einschließen"
+
+#. Full backup export - failure snackbar ({error} = exception text)
+msgid "backup_full_failed"
+msgstr "Vollständige Sicherung fehlgeschlagen: {error}"
 
 #. Settings - Backup: restore tile title
 msgid "backup_restore_title"
@@ -9780,15 +9736,51 @@ msgstr "Das Gerät konnte nicht entfernt werden. Prüfen Sie Ihre Verbindung und
 #. --- Account sync: multi-device sync screen ---
 #. Settings tile + hub screen title
 msgid "account_sync_title"
-msgstr "Multi-Geräte-Synchronisierung"
+msgstr "Verschlüsseltes Konto"
 
 #. Settings tile subtitle
 msgid "account_sync_settings_subtitle"
-msgstr "Teilen Sie Ihre Bibliothek zwischen Ihren eigenen Geräten, Ende-zu-Ende-verschlüsselt"
+msgstr "Verschlüsselte Sicherung, Wiederherstellung nach einem Verlust und gemeinsamer Zugriff. Nur Sie können Ihre Daten lesen."
+
+#. Settings - Backup and recovery: share access tile title
+msgid "account_share_access_title"
+msgstr "Zugriff auf meine Bibliothek teilen"
+
+#. Settings - Backup and recovery: share access tile subtitle
+msgid "account_share_access_desc"
+msgstr "Geben Sie anderen Personen mit Ihrer Passphrase gemeinsamen Zugriff, auf mehreren Geräten."
+
+#. Account screen app-bar title, share-intent entry (short: long titles are hidden by GenieAppBar)
+msgid "account_share_access_short_title"
+msgstr "Zugriff teilen"
+
+#. Settings - Backup and recovery: honest note on the shared-account trust model
+msgid "account_shared_trust_note"
+msgstr "Jede Person, die dieses Konto teilt, hat vollen Zugriff darauf. Einen Zugriff dauerhaft zu entziehen ist noch nicht möglich."
 
 #. Hub intro when not signed in
 msgid "account_sync_signed_out_intro"
-msgstr "Erstellen Sie ein verschlüsseltes Konto, um Ihre Bibliothek zwischen Ihren Geräten synchron zu halten. Nur Ihre Geräte können sie lesen; der Server sieht Ihre Daten nie."
+msgstr "Ihre Bibliothek bleibt auf diesem Gerät. Ein Konto bewahrt eine verschlüsselte Kopie auf, die nur Sie lesen können: Sicherung, Wiederherstellung nach einem Verlust und Zugriff auf mehreren Geräten und mit anderen Personen."
+
+#. Account screen - contextual caption, default (encrypted account) entry
+msgid "account_sync_intro_note"
+msgstr "Ihre Bibliothek wird Ende-zu-Ende-verschlüsselt gesichert. Nur Sie können sie lesen, und Sie finden sie auf jedem mit diesem Konto verbundenen Gerät wieder."
+
+#. Account screen - contextual caption when arriving via the share-access entry
+msgid "account_sync_share_note"
+msgstr "Um den Zugriff zu teilen, tritt die andere Person diesem Konto von ihrem Gerät aus bei, mit Ihrer E-Mail und Ihrer Passphrase. Sie erscheint danach als autorisiertes Gerät."
+
+#. Sync-now feedback when the hub answers 404 account-not-found (account deleted server-side)
+msgid "account_sync_account_gone"
+msgstr "Dieses Konto existiert auf dem Server nicht mehr. Melden Sie dieses Gerät ab und erstellen Sie dann ein Konto oder treten Sie einem bei."
+
+#. Springboard summary sheet - authorized device count line
+msgid "account_sync_devices_count"
+msgstr "Autorisierte Geräte: {count}"
+
+#. Springboard summary sheet - door to the full account management screen
+msgid "account_sync_manage_button"
+msgstr "Konto verwalten"
 
 #. Honest note while data convergence is not active yet (Phase E)
 msgid "account_sync_pending_note"
@@ -9842,7 +9834,11 @@ msgid "account_sync_signup_title"
 msgstr "Konto erstellen"
 
 msgid "account_sync_signup_intro"
-msgstr "Wählen Sie eine starke Passphrase. Sie verschlüsselt Ihre Bibliothek und kann nicht zurückgesetzt werden, bewahren Sie sie also sicher auf."
+msgstr "Ihr Konto verschlüsselt Ihre Bibliothek Ende-zu-Ende. Der Server sieht Ihre Bücher nie, nur verschlüsselte Daten."
+
+#. Signup screen - the passphrase cannot be reset
+msgid "account_sync_signup_passphrase_note"
+msgstr "Notieren Sie Ihre Passphrase gut: Sie kann nicht zurückgesetzt werden."
 
 msgid "account_sync_email_label"
 msgstr "E-Mail"

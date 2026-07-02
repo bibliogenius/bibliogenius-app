@@ -61,7 +61,7 @@ msgstr "Ratón de biblioteca"
 
 #. Regular
 msgid "achievement_streak_3"
-msgstr "Regular"
+msgstr "Constante"
 
 #. Perfect Week
 msgid "achievement_streak_7"
@@ -3049,7 +3049,7 @@ msgstr "Conexiones entrantes"
 
 #. Individual
 msgid "individual"
-msgstr "Individual"
+msgstr "Lector"
 
 #. Individual Reader
 msgid "individual_reader"
@@ -4078,21 +4078,17 @@ msgstr "Rastrea Prestatarios"
 msgid "onboarding_finish"
 msgstr "Comenzar"
 
-#. Link with friends and family to share libraries, borrow books, and track who has what.
+#. An encrypted account keeps a copy that only you can read. Get it back on a new device, or share it with others.
 msgid "onboarding_network_desc"
-msgstr "Conéctate con otros lectores para compartir libros"
+msgstr "Una cuenta cifrada guarda una copia que solo tú puedes leer. Recupérala en un dispositivo nuevo o compártela con otras personas."
 
-#. Connect Your Network
+#. Never lose your library
 msgid "onboarding_network_title"
-msgstr "Red de lectores"
+msgstr "No pierdas nunca tu biblioteca"
 
 #. Continue
 msgid "onboarding_next"
 msgstr "Siguiente"
-
-#. Connect with other BiblioGenius users to share your libraries. See what your friends are reading and discover new books.
-msgid "onboarding_p2p_desc"
-msgstr "Conéctate con otros usuarios de BiblioGenius para compartir bibliotecas. Ve lo que leen tus amigos y descubre nuevos libros."
 
 #. Connect & Share
 msgid "onboarding_p2p_title"
@@ -5025,6 +5021,42 @@ msgstr "Configuración guardada"
 #. Search settings...
 msgid "settings_search_hint"
 msgstr "Buscar en ajustes..."
+
+msgid "settings_springboard_title"
+msgstr "¿Qué quieres hacer?"
+
+msgid "settings_goal_sync_devices"
+msgstr "Leer en mis otros dispositivos"
+
+msgid "settings_goal_backup"
+msgstr "Hacer copia de seguridad de mi biblioteca"
+
+msgid "settings_goal_public"
+msgstr "Hacer pública mi biblioteca"
+
+msgid "settings_goal_local_wifi"
+msgstr "Compartir en mi red Wi-Fi"
+
+msgid "settings_goal_manage_public"
+msgstr "Gestionar mi ficha pública"
+
+msgid "settings_goal_manage_wifi"
+msgstr "Gestionar el uso compartido Wi-Fi"
+
+msgid "settings_goal_language"
+msgstr "Añadir un idioma de lectura"
+
+msgid "settings_goal_manage_city"
+msgstr "Gestionar mi ciudad"
+
+msgid "settings_goal_set_country"
+msgstr "Indicar mi país"
+
+msgid "dashboard_discover_more"
+msgstr "Para ir más allá"
+
+msgid "settings_share_city_requires_directory"
+msgstr "Activa primero «Aparecer en el directorio publico»."
 
 #. Back
 msgid "setup_btn_back"
@@ -6299,9 +6331,6 @@ msgstr "Explorar y seleccionar entre varias ediciones al agregar libros"
 msgid "accept_connection"
 msgstr "Aceptar"
 
-msgid "account"
-msgstr "Cuenta"
-
 msgid "achievement_puzzle_first_game"
 msgstr "Puzle novato"
 
@@ -6751,7 +6780,7 @@ msgid "hub_borrow_no_follow"
 msgstr "Sigue esta biblioteca primero para solicitar un prestamo"
 
 msgid "hub_borrow_via_hub"
-msgstr "Via Hub"
+msgstr "A través del hub"
 
 msgid "hub_borrowing_disabled"
 msgstr "Esta biblioteca no acepta solicitudes de prestamo"
@@ -8008,6 +8037,9 @@ msgstr "p."
 msgid "pairing_mdns_hint"
 msgstr "Ambos dispositivos deben estar en la misma red Wi-Fi con la deteccion de red activada (Ajustes > Red)"
 
+msgid "pairing_identity_note"
+msgstr "Cada dispositivo conserva su propia identidad. El emparejamiento sincroniza tus libros entre tus dispositivos, pero cada uno sigue siendo una biblioteca distinta en el directorio público."
+
 #. Pairing - No peers
 msgid "pairing_no_peers"
 msgstr "Ningun dispositivo detectado en la red Wi-Fi"
@@ -8377,77 +8409,9 @@ msgstr "Codigo de recuperacion copiado"
 msgid "recovery_code_copy"
 msgstr "Copiar el codigo de recuperacion"
 
-#. Recovery code display explanation
-msgid "recovery_code_display_explanation"
-msgstr "Este codigo le permite recuperar su perfil, seguidores y suscripciones si reinstala la aplicacion."
-
-#. Recovery code display title
-msgid "recovery_code_display_title"
-msgstr "Codigo de recuperacion"
-
-#. Recovery code first auto notice
-msgid "recovery_code_first_auto_notice"
-msgstr "Este codigo no se mostrara automaticamente de nuevo. Podra encontrarlo en Ajustes > Directorio."
-
-#. Recovery code first confirm
-msgid "recovery_code_first_confirm"
-msgstr "He guardado mi codigo"
-
-#. Recovery code first explanation
-msgid "recovery_code_first_explanation"
-msgstr "Este codigo le permite recuperar su perfil en el directorio si reinstala la aplicacion."
-
-#. Recovery code first save notice
-msgid "recovery_code_first_save_notice"
-msgstr "Guardelo en un lugar seguro (gestor de contrasenas, nota en papel...)."
-
-#. Recovery code first title
-msgid "recovery_code_first_title"
-msgstr "Codigo de recuperacion"
-
-#. Recovery code not available
-msgid "recovery_code_not_available"
-msgstr "No disponible. Vuelva a registrarse para generar uno."
-
 #. Badge shown on experimental features
 msgid "badge_experimental"
 msgstr "Experimental"
-
-#. Recovery code - scope legend: what is covered
-msgid "recovery_code_scope_covers"
-msgstr "Recupera: su perfil, seguidores y suscripciones."
-
-#. Recovery code - scope legend: what is excluded
-msgid "recovery_code_scope_excludes"
-msgstr "No recuperado: sus libros (almacenados localmente) y los contactos anadidos manualmente (deben volver a anadirse)."
-
-#. Recovery code save advice
-msgid "recovery_code_save_advice"
-msgstr "Guardelo en un lugar seguro. Solo funcionara una vez: se generara un nuevo codigo despues de cada uso."
-
-#. Recovery code subtitle
-msgid "recovery_code_subtitle"
-msgstr "Recupere su perfil despues de reinstalar la aplicacion"
-
-#. Recovery code title
-msgid "recovery_code_title"
-msgstr "Codigo de recuperacion"
-
-#. Recovery input error
-msgid "recovery_input_error"
-msgstr "Este codigo no es valido. Verifique que corresponda al que habia guardado."
-
-#. Recovery input instructions
-msgid "recovery_input_instructions"
-msgstr "Introduzca el codigo de recuperacion que guardo al registrarse en el directorio."
-
-#. Recovery input submit
-msgid "recovery_input_submit"
-msgstr "Recuperar mi perfil"
-
-#. Recovery input title
-msgid "recovery_input_title"
-msgstr "Recuperacion del perfil"
 
 #. Settings - Show invite banner again
 msgid "settings_reshow_invite_banner"
@@ -8528,14 +8492,6 @@ msgstr "Nota eliminada"
 #. Note updated
 msgid "note_updated"
 msgstr "Nota actualizada"
-
-#. Recovery input success - new code generated
-msgid "recovery_input_success_new_code"
-msgstr "Se ha generado un nuevo codigo de recuperacion."
-
-#. Recovery input success
-msgid "recovery_input_success"
-msgstr "Perfil recuperado! Tus seguidores y suscripciones estan intactos."
 
 #. Delete note tooltip
 msgid "tooltip_delete_note"
@@ -8668,7 +8624,11 @@ msgstr "Compartir"
 
 #. Settings - Backup section title (top-level accordion)
 msgid "backup_section_title"
-msgstr "Copia de seguridad y exportación"
+msgstr "Copia de seguridad y recuperación"
+
+#. Settings - Backup and recovery: divider before the local/offline actions
+msgid "backup_offline_divider"
+msgstr "Sin cuenta / sin conexión"
 
 #. Settings - Backup: export catalog tile title
 msgid "backup_export_catalog_title"
@@ -8698,14 +8658,6 @@ msgstr "Crea un archivo cifrado de toda tu biblioteca que puedes restaurar en es
 msgid "backup_full_unavailable"
 msgstr "Disponible en una versión futura."
 
-#. Copia de seguridad: opción de desbloqueo mediante frase de contraseña
-msgid "backup_unlock_passphrase"
-msgstr "Frase de contraseña"
-
-#. Copia de seguridad: opción de desbloqueo mediante código de recuperación
-msgid "backup_unlock_recovery_code"
-msgstr "Código de recuperación"
-
 #. Copia de seguridad: etiqueta del campo secreto
 msgid "backup_secret_label"
 msgstr "Secreto"
@@ -8718,9 +8670,13 @@ msgstr "Exportar"
 msgid "backup_unlock_passphrase_hint"
 msgstr "Elige cualquier frase secreta. Anótala: la necesitarás para restaurar esta copia."
 
-#. Copia de seguridad: ayuda para usar el código de recuperación del perfil
-msgid "backup_unlock_recovery_code_hint"
-msgstr "Usa el código de recuperación de tu perfil, que se encuentra en Configuración › Cuenta."
+#. Full backup export dialog - include identity checkbox
+msgid "backup_include_identity"
+msgstr "Incluir la identidad"
+
+#. Full backup export - failure snackbar ({error} = exception text)
+msgid "backup_full_failed"
+msgstr "Error en la copia de seguridad completa: {error}"
 
 #. Settings - Backup: restore tile title
 msgid "backup_restore_title"
@@ -9779,15 +9735,51 @@ msgstr "No se pudo quitar el dispositivo. Comprueba tu conexión e inténtalo de
 #. --- Account sync: multi-device sync screen ---
 #. Settings tile + hub screen title
 msgid "account_sync_title"
-msgstr "Sincronización multidispositivo"
+msgstr "Cuenta cifrada"
 
 #. Settings tile subtitle
 msgid "account_sync_settings_subtitle"
-msgstr "Comparte tu biblioteca entre tus dispositivos, cifrada de extremo a extremo"
+msgstr "Copia de seguridad cifrada, recuperación tras una pérdida y acceso compartido. Solo tú puedes leer tus datos."
+
+#. Settings - Backup and recovery: share access tile title
+msgid "account_share_access_title"
+msgstr "Compartir el acceso a mi biblioteca"
+
+#. Settings - Backup and recovery: share access tile subtitle
+msgid "account_share_access_desc"
+msgstr "Da acceso compartido a otras personas con tu frase de contraseña, en varios dispositivos."
+
+#. Account screen app-bar title, share-intent entry (short: long titles are hidden by GenieAppBar)
+msgid "account_share_access_short_title"
+msgstr "Compartir el acceso"
+
+#. Settings - Backup and recovery: honest note on the shared-account trust model
+msgid "account_shared_trust_note"
+msgstr "Cualquier persona que comparta esta cuenta tiene acceso completo a ella. Todavía no es posible retirar un acceso de forma permanente."
 
 #. Hub intro when not signed in
 msgid "account_sync_signed_out_intro"
-msgstr "Crea una cuenta cifrada para mantener tu biblioteca sincronizada entre tus dispositivos. Solo tus dispositivos pueden leerla; el servidor nunca ve tus datos."
+msgstr "Tu biblioteca permanece en este dispositivo. Una cuenta guarda una copia cifrada que solo tú puedes leer: copia de seguridad, recuperación tras una pérdida y acceso desde varios dispositivos y con otras personas."
+
+#. Account screen - contextual caption, default (encrypted account) entry
+msgid "account_sync_intro_note"
+msgstr "Tu biblioteca se guarda cifrada de extremo a extremo. Solo tú puedes leerla, y la recuperas en cada dispositivo conectado a esta cuenta."
+
+#. Account screen - contextual caption when arriving via the share-access entry
+msgid "account_sync_share_note"
+msgstr "Para compartir el acceso, la otra persona se une a esta cuenta desde su dispositivo, con tu correo y tu frase de contraseña. Después aparecerá como un dispositivo autorizado."
+
+#. Sync-now feedback when the hub answers 404 account-not-found (account deleted server-side)
+msgid "account_sync_account_gone"
+msgstr "Esta cuenta ya no existe en el servidor. Cierra la sesión en este dispositivo y luego crea una cuenta o únete a una."
+
+#. Springboard summary sheet - authorized device count line
+msgid "account_sync_devices_count"
+msgstr "Dispositivos autorizados: {count}"
+
+#. Springboard summary sheet - door to the full account management screen
+msgid "account_sync_manage_button"
+msgstr "Gestionar la cuenta"
 
 #. Honest note while data convergence is not active yet (Phase E)
 msgid "account_sync_pending_note"
@@ -9841,7 +9833,11 @@ msgid "account_sync_signup_title"
 msgstr "Crear una cuenta"
 
 msgid "account_sync_signup_intro"
-msgstr "Elige una frase de contraseña robusta. Cifra tu biblioteca y no se puede restablecer, así que guárdala en un lugar seguro."
+msgstr "Tu cuenta cifra tu biblioteca de extremo a extremo. El servidor nunca ve tus libros, solo datos cifrados."
+
+#. Signup screen - the passphrase cannot be reset
+msgid "account_sync_signup_passphrase_note"
+msgstr "Anota bien tu frase de contraseña: no se puede restablecer."
 
 msgid "account_sync_email_label"
 msgstr "Correo electrónico"

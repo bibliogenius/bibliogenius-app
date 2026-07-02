@@ -4183,20 +4183,16 @@ msgstr ""
 msgid "onboarding_finish"
 msgstr ""
 
-#. Link with friends and family to share libraries, borrow books, and track who has what.
+#. An encrypted account keeps a copy that only you can read. Get it back on a new device, or share it with others.
 msgid "onboarding_network_desc"
 msgstr ""
 
-#. Connect Your Network
+#. Never lose your library
 msgid "onboarding_network_title"
 msgstr ""
 
 #. Continue
 msgid "onboarding_next"
-msgstr ""
-
-#. Connect with other BiblioGenius users to share your libraries. See what your friends are reading and discover new books.
-msgid "onboarding_p2p_desc"
 msgstr ""
 
 #. Connect & Share
@@ -5265,8 +5261,48 @@ msgstr ""
 msgid "search_title_label"
 msgstr ""
 
-#. Account section in settings
-msgid "account"
+#. Settings - Backup and recovery: divider before the local/offline actions
+msgid "backup_offline_divider"
+msgstr ""
+
+#. Settings - Backup and recovery: share access tile title
+msgid "account_share_access_title"
+msgstr ""
+
+#. Settings - Backup and recovery: share access tile subtitle
+msgid "account_share_access_desc"
+msgstr ""
+
+#. Account screen app-bar title, share-intent entry (short: long titles are hidden by GenieAppBar)
+msgid "account_share_access_short_title"
+msgstr ""
+
+#. Settings - Backup and recovery: honest note on the shared-account trust model
+msgid "account_shared_trust_note"
+msgstr ""
+
+#. Signup screen - the passphrase cannot be reset
+msgid "account_sync_signup_passphrase_note"
+msgstr ""
+
+#. Account screen - contextual caption, default (encrypted account) entry
+msgid "account_sync_intro_note"
+msgstr ""
+
+#. Account screen - contextual caption when arriving via the share-access entry
+msgid "account_sync_share_note"
+msgstr ""
+
+#. Sync-now feedback when the hub answers 404 account-not-found (account deleted server-side)
+msgid "account_sync_account_gone"
+msgstr ""
+
+#. Springboard summary sheet - authorized device count line
+msgid "account_sync_devices_count"
+msgstr ""
+
+#. Springboard summary sheet - door to the full account management screen
+msgid "account_sync_manage_button"
 msgstr ""
 
 #. Security
@@ -8267,4 +8303,12 @@ msgid "completeness_batch_all"
 msgstr ""
 
 msgid "completeness_start_n"
+msgstr ""
+
+#. Full backup export dialog - include identity checkbox
+msgid "backup_include_identity"
+msgstr ""
+
+#. Full backup export - failure snackbar ({error} = exception text)
+msgid "backup_full_failed"
 msgstr ""

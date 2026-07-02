@@ -554,59 +554,59 @@ msgstr "Пакетно сканиране"
 
 #. Already scanned in this session
 msgid "batch_scan_duplicate"
-msgstr "Already scanned"
+msgstr "Вече сканирана"
 
 #. Save scanned books
 msgid "batch_scan_save"
-msgstr "Save"
+msgstr "Запазване"
 
 #. Saving books progress
 msgid "batch_scan_saving"
-msgstr "Saving..."
+msgstr "Запазване..."
 
 #. Batch save result
 msgid "batch_scan_result"
-msgstr "Result"
+msgstr "Резултат"
 
 #. Discard scanned books confirmation title
 msgid "batch_scan_discard_title"
-msgstr "Discard scanned books?"
+msgstr "Отхвърляне на сканираните книги?"
 
 #. Discard scanned books confirmation message
 msgid "batch_scan_discard_message"
-msgstr "scanned books have not been saved yet. They will be lost."
+msgstr "сканирани книги все още не са запазени. Те ще бъдат загубени."
 
 #. Discard button
 msgid "batch_scan_discard"
-msgstr "Discard"
+msgstr "Отхвърляне"
 
 #. Book already in collection - dialog title
 msgid "batch_scan_existing_title"
-msgstr "Already in your library"
+msgstr "Вече е във вашата библиотека"
 
 #. Book already in collection - dialog message
 msgid "batch_scan_existing_message"
-msgstr "This book is already in your collection."
+msgstr "Тази книга вече е във вашата колекция."
 
 #. Skip this book
 msgid "batch_scan_skip"
-msgstr "Skip"
+msgstr "Пропускане"
 
 #. Add another copy
 msgid "batch_scan_add_copy"
-msgstr "Add a copy"
+msgstr "Добавяне на екземпляр"
 
 #. Review scanned books before saving
 msgid "batch_scan_review"
-msgstr "Review before saving"
+msgstr "Преглед преди запазване"
 
 #. Previous book in review
 msgid "batch_scan_prev"
-msgstr "Previous"
+msgstr "Предишна"
 
 #. Next book in review
 msgid "batch_scan_next"
-msgstr "Next"
+msgstr "Следваща"
 
 #. Best Rated
 msgid "best_rated"
@@ -1464,15 +1464,15 @@ msgstr "Разгледайте литературни класики, носит
 
 #. {owned} of {total} books in your library
 msgid "curated_progress_label"
-msgstr "{owned} of {total} books in your library"
+msgstr "{owned} от {total} книги във вашата библиотека"
 
 #. No lists in this category
 msgid "curated_no_lists"
-msgstr "No lists in this category"
+msgstr "Няма списъци в тази категория"
 
 #. + {count} more...
 msgid "curated_more_books"
-msgstr "+ {count} more..."
+msgstr "+ още {count}..."
 
 #. Discover Curated Collections
 msgid "discover_collections_title"
@@ -3845,21 +3845,17 @@ msgstr "Следене на заематели"
 msgid "onboarding_finish"
 msgstr "Завършване"
 
-#. Link with friends and family to share libraries, borrow books, and track who has what.
+#. An encrypted account keeps a copy that only you can read. Get it back on a new device, or share it with others.
 msgid "onboarding_network_desc"
-msgstr "Свържете се с приятели и семейство, за да споделяте библиотеки, заемате книги и следите кой какво има."
+msgstr "Криптиран акаунт пази копие, което само вие можете да четете. Възстановете го на ново устройство или го споделете с други хора."
 
-#. Connect Your Network
+#. Never lose your library
 msgid "onboarding_network_title"
-msgstr "Свързване на вашата мрежа"
+msgstr "Никога не губете библиотеката си"
 
 #. Continue
 msgid "onboarding_next"
 msgstr "Продължаване"
-
-#. Connect with other BiblioGenius users to share your libraries. See what your friends are reading and discover new books.
-msgid "onboarding_p2p_desc"
-msgstr "Свържете се с други потребители на BiblioGenius, за да споделяте библиотеките си. Вижте какво четат вашите приятели и откривайте нови книги."
 
 #. Connect & Share
 msgid "onboarding_p2p_title"
@@ -5716,6 +5712,18 @@ msgstr "Време"
 msgid "memory_game_pairs"
 msgstr "Двойки"
 
+#. Memory Game - Tier subtitle (pairs count and grid size)
+msgid "memory_game_tier_subtitle"
+msgstr "{pairs} двойки · {grid}"
+
+#. Memory Game - Cards count label (expanded tier detail)
+msgid "memory_game_cards_label"
+msgstr "карти"
+
+#. Memory Game - Best time label (expanded tier detail)
+msgid "memory_game_best_label"
+msgstr "най-добър"
+
 #. Memory Game - Errors label
 msgid "memory_game_errors"
 msgstr "Грешки"
@@ -6698,10 +6706,6 @@ msgstr "Няма интернет връзка"
 msgid "search_actions_placeholder"
 msgstr "Търсене на книги или действия..."
 
-#. Account section in settings
-msgid "account"
-msgstr "Акаунт"
-
 #. Network
 msgid "settings_network_title"
 msgstr "Мрежа"
@@ -7383,7 +7387,11 @@ msgstr "Споделяне"
 
 #. Settings - Backup section title (top-level accordion)
 msgid "backup_section_title"
-msgstr "Резервно копие и експорт"
+msgstr "Резервно копие и възстановяване"
+
+#. Settings - Backup and recovery: divider before the local/offline actions
+msgid "backup_offline_divider"
+msgstr "Без акаунт / офлайн"
 
 #. Settings - Backup: export catalog tile title
 msgid "backup_export_catalog_title"
@@ -7413,14 +7421,6 @@ msgstr "Създава криптиран архив на цялата ви би
 msgid "backup_full_unavailable"
 msgstr "Налично в бъдеща версия."
 
-#. Settings - Backup: етикет на опцията за отключване с парола
-msgid "backup_unlock_passphrase"
-msgstr "Парола"
-
-#. Settings - Backup: етикет на опцията за отключване с код за възстановяване
-msgid "backup_unlock_recovery_code"
-msgstr "Код за възстановяване"
-
 #. Settings - Backup: етикет на полето за тайната
 msgid "backup_secret_label"
 msgstr "Тайна"
@@ -7433,9 +7433,13 @@ msgstr "Експортиране"
 msgid "backup_unlock_passphrase_hint"
 msgstr "Изберете каквато и да е тайна фраза. Запишете я: ще ви е нужна, за да възстановите това резервно копие."
 
-#. Settings - Backup: помощен текст за кода за възстановяване при отключване
-msgid "backup_unlock_recovery_code_hint"
-msgstr "Използвайте кода за възстановяване на вашия профил, намиращ се в Настройки › Акаунт."
+#. Full backup export dialog - include identity checkbox
+msgid "backup_include_identity"
+msgstr "Включване на идентичността"
+
+#. Full backup export - failure snackbar ({error} = exception text)
+msgid "backup_full_failed"
+msgstr "Пълното архивиране е неуспешно: {error}"
 
 #. Settings - Backup: restore tile title
 msgid "backup_restore_title"
@@ -7771,6 +7775,9 @@ msgstr "Не са открити устройства в Wi-Fi мрежата"
 
 msgid "pairing_mdns_hint"
 msgstr "Двете устройства трябва да са в един и същ Wi-Fi с включено мрежово откриване (Настройки > Мрежа)"
+
+msgid "pairing_identity_note"
+msgstr "Всяко устройство запазва собствената си идентичност. Сдвояването синхронизира книгите ви между устройствата ви, но всяко остава отделна библиотека в публичния указател."
 
 msgid "pairing_select_device"
 msgstr "Устройство за сдвояване"
@@ -8567,6 +8574,42 @@ msgstr "Вижте библиотеката"
 msgid "settings_search_hint"
 msgstr "Търсене в настройките..."
 
+msgid "settings_springboard_title"
+msgstr "Какво искате да направите?"
+
+msgid "settings_goal_sync_devices"
+msgstr "Четене на другите ми устройства"
+
+msgid "settings_goal_backup"
+msgstr "Архивиране на библиотеката ми"
+
+msgid "settings_goal_public"
+msgstr "Публикуване на библиотеката ми"
+
+msgid "settings_goal_local_wifi"
+msgstr "Споделяне в моята Wi-Fi мрежа"
+
+msgid "settings_goal_manage_public"
+msgstr "Управление на публичния ми запис"
+
+msgid "settings_goal_manage_wifi"
+msgstr "Управление на Wi-Fi споделянето"
+
+msgid "settings_goal_language"
+msgstr "Добавяне на език за четене"
+
+msgid "settings_goal_manage_city"
+msgstr "Управление на моя град"
+
+msgid "settings_goal_set_country"
+msgstr "Посочване на моята държава"
+
+msgid "dashboard_discover_more"
+msgstr "Още възможности"
+
+msgid "settings_share_city_requires_directory"
+msgstr "Първо активирайте „Появете се в публичния указател“."
+
 #. Reorderable sections - edit mode
 msgid "sections_edit_mode"
 msgstr "Персонализиране на разделите"
@@ -8844,26 +8887,6 @@ msgstr "Очаквана дата на връщане"
 msgid "loan_notification_pending"
 msgstr "чакащо известие"
 
-#. Recovery code - settings row
-msgid "recovery_code_title"
-msgstr "Код за възстановяване"
-
-#. Recovery code - settings row subtitle
-msgid "recovery_code_subtitle"
-msgstr "Възстановете профила си след преинсталиране на приложението"
-
-#. Recovery code - display screen title
-msgid "recovery_code_display_title"
-msgstr "Код за възстановяване"
-
-#. Recovery code - display screen explanation
-msgid "recovery_code_display_explanation"
-msgstr "Този код ви позволява да възстановите профила, последователите и абонаментите си, ако преинсталирате приложението."
-
-#. Recovery code - display screen save advice
-msgid "recovery_code_save_advice"
-msgstr "Пазете го на сигурно място. Може да се използва само веднъж: след всяка употреба ще се генерира нов код."
-
 #. Recovery code - copy button tooltip
 msgid "recovery_code_copy"
 msgstr "Копиране на кода за възстановяване"
@@ -8871,26 +8894,6 @@ msgstr "Копиране на кода за възстановяване"
 #. Recovery code - copied confirmation
 msgid "recovery_code_copied"
 msgstr "Кодът за възстановяване е копиран"
-
-#. Recovery code - first display title
-msgid "recovery_code_first_title"
-msgstr "Код за възстановяване"
-
-#. Recovery code - first display explanation
-msgid "recovery_code_first_explanation"
-msgstr "Този код ви позволява да възстановите профила си в указателя, ако преинсталирате приложението."
-
-#. Recovery code - first display save notice
-msgid "recovery_code_first_save_notice"
-msgstr "Запазете го на сигурно място (мениджър на пароли, ръкописна бележка...)."
-
-#. Recovery code - first display auto notice
-msgid "recovery_code_first_auto_notice"
-msgstr "Този код няма да бъде показан автоматично отново. Можете да го намерите в Настройки > Указател."
-
-#. Recovery code - first display confirm button
-msgid "recovery_code_first_confirm"
-msgstr "Запазих кода си"
 
 #. Connection lost - dialog title
 msgid "connection_lost_title"
@@ -8920,45 +8923,9 @@ msgstr "Текущите ви последователи и абонаменти
 msgid "connection_lost_later"
 msgstr "По-късно"
 
-#. Recovery input - screen title
-msgid "recovery_input_title"
-msgstr "Възстановяване на профила"
-
-#. Recovery input - instructions
-msgid "recovery_input_instructions"
-msgstr "Въведете кода за възстановяване, който запазихте, когато се регистрирахте в указателя."
-
-#. Recovery input - submit button
-msgid "recovery_input_submit"
-msgstr "Възстановяване на моя профил"
-
-#. Recovery input - success message
-msgid "recovery_input_success"
-msgstr "Профилът е възстановен! Последователите и абонаментите ви са непокътнати."
-
-#. Recovery input - success new code notice
-msgid "recovery_input_success_new_code"
-msgstr "Генериран е нов код за възстановяване."
-
-#. Recovery input - error message
-msgid "recovery_input_error"
-msgstr "Този код не е валиден. Проверете дали съвпада с този, който сте запазили."
-
-#. Recovery code - not available (registered before feature)
-msgid "recovery_code_not_available"
-msgstr "Не е налично. Регистрирайте се отново, за да генерирате."
-
 #. Badge shown on experimental features
 msgid "badge_experimental"
 msgstr "Експериментално"
-
-#. Recovery code - scope legend: what is covered
-msgid "recovery_code_scope_covers"
-msgstr "Възстановява: вашия профил, последователи и следвани."
-
-#. Recovery code - scope legend: what is excluded
-msgid "recovery_code_scope_excludes"
-msgstr "Не се възстановява: вашите книги (съхранявани локално) и ръчно добавените партньори (трябва да се добавят отново)."
 
 msgid "quotes_module_help"
 msgstr "Показва вдъхновяващи литературни цитати на началния екран. Изцяло декоративно: може да се изключи без никакво влияние върху функционалността."
@@ -9900,15 +9867,51 @@ msgstr "Устройството не можа да бъде премахнат�
 #. --- Account sync: multi-device sync screen ---
 #. Settings tile + hub screen title
 msgid "account_sync_title"
-msgstr "Синхронизация между устройства"
+msgstr "Криптиран акаунт"
 
 #. Settings tile subtitle
 msgid "account_sync_settings_subtitle"
-msgstr "Споделяйте библиотеката си между собствените си устройства, криптирана от край до край"
+msgstr "Криптирано резервно копие, възстановяване след загуба и споделен достъп. Само вие можете да четете данните си."
+
+#. Settings - Backup and recovery: share access tile title
+msgid "account_share_access_title"
+msgstr "Споделяне на достъпа до моята библиотека"
+
+#. Settings - Backup and recovery: share access tile subtitle
+msgid "account_share_access_desc"
+msgstr "Дайте споделен достъп на други хора с вашата тайна фраза, на няколко устройства."
+
+#. Account screen app-bar title, share-intent entry (short: long titles are hidden by GenieAppBar)
+msgid "account_share_access_short_title"
+msgstr "Споделяне на достъпа"
+
+#. Settings - Backup and recovery: honest note on the shared-account trust model
+msgid "account_shared_trust_note"
+msgstr "Всеки, който споделя този акаунт, има пълен достъп до него. Постоянното премахване на достъп все още не е възможно."
 
 #. Hub intro when not signed in
 msgid "account_sync_signed_out_intro"
-msgstr "Създайте криптиран акаунт, за да поддържате библиотеката си синхронизирана между устройствата си. Само вашите устройства могат да я четат; сървърът никога не вижда данните ви."
+msgstr "Библиотеката ви остава на това устройство. Акаунт пази криптирано копие, което само вие можете да четете: резервно копие, възстановяване след загуба и достъп от няколко устройства и с други хора."
+
+#. Account screen - contextual caption, default (encrypted account) entry
+msgid "account_sync_intro_note"
+msgstr "Библиотеката ви се архивира с криптиране от край до край. Само вие можете да я четете и я намирате на всяко устройство, свързано с този акаунт."
+
+#. Account screen - contextual caption when arriving via the share-access entry
+msgid "account_sync_share_note"
+msgstr "За да споделите достъпа, другият човек се присъединява към този акаунт от своето устройство с вашия имейл и тайната ви фраза. След това ще се появи като оторизирано устройство."
+
+#. Sync-now feedback when the hub answers 404 account-not-found (account deleted server-side)
+msgid "account_sync_account_gone"
+msgstr "Този акаунт вече не съществува на сървъра. Излезте от това устройство, след което създайте акаунт или се присъединете към такъв."
+
+#. Springboard summary sheet - authorized device count line
+msgid "account_sync_devices_count"
+msgstr "Оторизирани устройства: {count}"
+
+#. Springboard summary sheet - door to the full account management screen
+msgid "account_sync_manage_button"
+msgstr "Управление на акаунта"
 
 #. Honest note while data convergence is not active yet (Phase E)
 msgid "account_sync_pending_note"
@@ -9962,7 +9965,11 @@ msgid "account_sync_signup_title"
 msgstr "Създаване на акаунт"
 
 msgid "account_sync_signup_intro"
-msgstr "Изберете силна тайна фраза. Тя криптира библиотеката ви и не може да бъде нулирана, затова я съхранявайте на сигурно място."
+msgstr "Акаунтът ви криптира библиотеката ви от край до край. Сървърът никога не вижда книгите ви, а само криптирани данни."
+
+#. Signup screen - the passphrase cannot be reset
+msgid "account_sync_signup_passphrase_note"
+msgstr "Запишете си добре тайната фраза: тя не може да бъде нулирана."
 
 msgid "account_sync_email_label"
 msgstr "Имейл"

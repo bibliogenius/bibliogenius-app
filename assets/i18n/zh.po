@@ -3846,21 +3846,17 @@ msgstr "追踪借阅者"
 msgid "onboarding_finish"
 msgstr "开始吧！"
 
-#. Link with friends and family to share libraries, borrow books, and track who has what.
+#. An encrypted account keeps a copy that only you can read. Get it back on a new device, or share it with others.
 msgid "onboarding_network_desc"
-msgstr "与亲友建立连接，共享图书馆、借阅图书，并掌握谁拥有什么。"
+msgstr "加密账号会保存一份只有您能读取的副本。在新设备上找回，或与他人共享。"
 
-#. Connect Your Network
+#. Never lose your library
 msgid "onboarding_network_title"
-msgstr "连接您的人脉"
+msgstr "永不丢失您的图书馆"
 
 #. Continue
 msgid "onboarding_next"
 msgstr "继续"
-
-#. Connect with other BiblioGenius users to share your libraries. See what your friends are reading and discover new books.
-msgid "onboarding_p2p_desc"
-msgstr "与其他 BiblioGenius 用户建立连接以共享您的图书馆。看看您的朋友在读什么，发现新书。"
 
 #. Connect & Share
 msgid "onboarding_p2p_title"
@@ -5896,15 +5892,51 @@ msgstr "无法移除该设备。请检查网络连接后重试。"
 #. --- Account sync: multi-device sync screen ---
 #. Settings tile + hub screen title
 msgid "account_sync_title"
-msgstr "多设备同步"
+msgstr "加密账号"
 
 #. Settings tile subtitle
 msgid "account_sync_settings_subtitle"
-msgstr "在您自己的设备之间共享图书馆，端到端加密"
+msgstr "加密备份、丢失后恢复、共享访问。只有您能读取您的数据。"
+
+#. Settings - Backup and recovery: share access tile title
+msgid "account_share_access_title"
+msgstr "共享我的图书馆访问权限"
+
+#. Settings - Backup and recovery: share access tile subtitle
+msgid "account_share_access_desc"
+msgstr "通过您的密码短语，让其他人在多台设备上获得共享访问。"
+
+#. Account screen app-bar title, share-intent entry (short: long titles are hidden by GenieAppBar)
+msgid "account_share_access_short_title"
+msgstr "共享访问权限"
+
+#. Settings - Backup and recovery: honest note on the shared-account trust model
+msgid "account_shared_trust_note"
+msgstr "共享此账号的任何人都拥有完整访问权限。目前还无法永久移除某个访问权限。"
 
 #. Hub intro when not signed in
 msgid "account_sync_signed_out_intro"
-msgstr "创建一个加密账号，让您的图书馆在各设备之间保持同步。只有您的设备能够读取，服务器永远看不到您的数据。"
+msgstr "您的图书馆保留在此设备上。账号会保存一份只有您能读取的加密副本：备份、丢失后恢复，以及在多台设备上和与他人共同访问。"
+
+#. Account screen - contextual caption, default (encrypted account) entry
+msgid "account_sync_intro_note"
+msgstr "您的图书馆以端到端加密方式备份。只有您能读取，并且可以在连接到此账号的每台设备上找回。"
+
+#. Account screen - contextual caption when arriving via the share-access entry
+msgid "account_sync_share_note"
+msgstr "要共享访问权限，对方在自己的设备上使用您的邮箱和密码短语加入此账号。之后对方会显示为已授权的设备。"
+
+#. Sync-now feedback when the hub answers 404 account-not-found (account deleted server-side)
+msgid "account_sync_account_gone"
+msgstr "此账号在服务器上已不存在。请在此设备上退出登录，然后创建或加入一个账号。"
+
+#. Springboard summary sheet - authorized device count line
+msgid "account_sync_devices_count"
+msgstr "已授权的设备：{count}"
+
+#. Springboard summary sheet - door to the full account management screen
+msgid "account_sync_manage_button"
+msgstr "管理账号"
 
 #. Honest note while data convergence is not active yet (Phase E)
 msgid "account_sync_pending_note"
@@ -5958,7 +5990,11 @@ msgid "account_sync_signup_title"
 msgstr "创建账号"
 
 msgid "account_sync_signup_intro"
-msgstr "请设置一个强度高的密码短语。它用于加密您的图书馆且无法重置，请妥善保管。"
+msgstr "您的账号对图书馆进行端到端加密。服务器永远看不到您的图书，只能看到加密数据。"
+
+#. Signup screen - the passphrase cannot be reset
+msgid "account_sync_signup_passphrase_note"
+msgstr "请务必记下您的密码短语：它无法重置。"
 
 msgid "account_sync_email_label"
 msgstr "电子邮箱"
@@ -6984,10 +7020,6 @@ msgstr "无互联网连接"
 msgid "search_actions_placeholder"
 msgstr "搜索图书或操作…"
 
-#. Account section in settings
-msgid "account"
-msgstr "账号"
-
 #. Network
 msgid "settings_network_title"
 msgstr "网络"
@@ -7430,6 +7462,18 @@ msgstr "用时"
 msgid "memory_game_pairs"
 msgstr "配对"
 
+#. Memory Game - Tier subtitle (pairs count and grid size)
+msgid "memory_game_tier_subtitle"
+msgstr "{pairs} 对 · {grid}"
+
+#. Memory Game - Cards count label (expanded tier detail)
+msgid "memory_game_cards_label"
+msgstr "卡牌"
+
+#. Memory Game - Best time label (expanded tier detail)
+msgid "memory_game_best_label"
+msgstr "最佳"
+
 #. Memory Game - Errors label
 msgid "memory_game_errors"
 msgstr "错误"
@@ -7765,7 +7809,11 @@ msgstr "分享"
 
 #. Settings - Backup section title (top-level accordion)
 msgid "backup_section_title"
-msgstr "备份与导出"
+msgstr "备份与恢复"
+
+#. Settings - Backup and recovery: divider before the local/offline actions
+msgid "backup_offline_divider"
+msgstr "无账号 / 离线"
 
 #. Settings - Backup: export catalog tile title
 msgid "backup_export_catalog_title"
@@ -7795,14 +7843,6 @@ msgstr "创建整个图书馆的加密存档，可在本设备或其他设备上
 msgid "backup_full_unavailable"
 msgstr "将在后续版本中推出。"
 
-#. Full backup dialog: unlock mode segmented button - passphrase option
-msgid "backup_unlock_passphrase"
-msgstr "密码短语"
-
-#. Full backup dialog: unlock mode segmented button - recovery code option
-msgid "backup_unlock_recovery_code"
-msgstr "恢复码"
-
 #. Full backup dialog: secret text field label
 msgid "backup_secret_label"
 msgstr "密钥"
@@ -7815,9 +7855,13 @@ msgstr "导出"
 msgid "backup_unlock_passphrase_hint"
 msgstr "自由设定一句密码短语。请记下来：还原此备份时需要用到。"
 
-#. Full backup dialog: hint shown under the field when recovery code mode is selected
-msgid "backup_unlock_recovery_code_hint"
-msgstr "使用您个人资料的恢复码，可在“设置 › 账号”中找到。"
+#. Full backup export dialog - include identity checkbox
+msgid "backup_include_identity"
+msgstr "包含身份信息"
+
+#. Full backup export - failure snackbar ({error} = exception text)
+msgid "backup_full_failed"
+msgstr "完整备份失败：{error}"
 
 #. Settings - Backup: restore tile title
 msgid "backup_restore_title"
@@ -9268,26 +9312,6 @@ msgstr "预计归还日期"
 msgid "loan_notification_pending"
 msgstr "通知待处理"
 
-#. Recovery code - settings row
-msgid "recovery_code_title"
-msgstr "恢复码"
-
-#. Recovery code - settings row subtitle
-msgid "recovery_code_subtitle"
-msgstr "重装应用后恢复您的个人资料"
-
-#. Recovery code - display screen title
-msgid "recovery_code_display_title"
-msgstr "恢复码"
-
-#. Recovery code - display screen explanation
-msgid "recovery_code_display_explanation"
-msgstr "此码可让您在重装应用后恢复您的个人资料、关注者和关注对象。"
-
-#. Recovery code - display screen save advice
-msgid "recovery_code_save_advice"
-msgstr "请妥善保管。它只能使用一次：每次使用后都会生成一个新码。"
-
 #. Recovery code - copy button tooltip
 msgid "recovery_code_copy"
 msgstr "复制恢复码"
@@ -9295,26 +9319,6 @@ msgstr "复制恢复码"
 #. Recovery code - copied confirmation
 msgid "recovery_code_copied"
 msgstr "恢复码已复制"
-
-#. Recovery code - first display title
-msgid "recovery_code_first_title"
-msgstr "恢复码"
-
-#. Recovery code - first display explanation
-msgid "recovery_code_first_explanation"
-msgstr "此码可让您在重装应用后恢复您在目录中的个人资料。"
-
-#. Recovery code - first display save notice
-msgid "recovery_code_first_save_notice"
-msgstr "请保存在安全的地方（密码管理器、手写笔记...）。"
-
-#. Recovery code - first display auto notice
-msgid "recovery_code_first_auto_notice"
-msgstr "此码将不再自动显示。您可以在「设置 > 目录」中找到它。"
-
-#. Recovery code - first display confirm button
-msgid "recovery_code_first_confirm"
-msgstr "我已保存我的恢复码"
 
 #. Connection lost - dialog title
 msgid "connection_lost_title"
@@ -9344,45 +9348,9 @@ msgstr "您当前的关注者和关注对象将会丢失。关注您的人需要
 msgid "connection_lost_later"
 msgstr "稍后"
 
-#. Recovery input - screen title
-msgid "recovery_input_title"
-msgstr "恢复您的个人资料"
-
-#. Recovery input - instructions
-msgid "recovery_input_instructions"
-msgstr "请输入您注册目录时保存的恢复码。"
-
-#. Recovery input - submit button
-msgid "recovery_input_submit"
-msgstr "恢复我的个人资料"
-
-#. Recovery input - success message
-msgid "recovery_input_success"
-msgstr "个人资料已恢复！您的关注者和关注对象完好无损。"
-
-#. Recovery input - success new code notice
-msgid "recovery_input_success_new_code"
-msgstr "已生成新的恢复码。"
-
-#. Recovery input - error message
-msgid "recovery_input_error"
-msgstr "此码无效。请核对是否与您保存的一致。"
-
-#. Recovery code - not available (registered before feature)
-msgid "recovery_code_not_available"
-msgstr "不可用。请重新注册以生成一个。"
-
 #. Badge shown on experimental features
 msgid "badge_experimental"
 msgstr "实验性"
-
-#. Recovery code - scope legend: what is covered
-msgid "recovery_code_scope_covers"
-msgstr "可恢复：您的个人资料、关注者和关注对象。"
-
-#. Recovery code - scope legend: what is excluded
-msgid "recovery_code_scope_excludes"
-msgstr "无法恢复：您的图书（存储在本地）和手动添加的网络同伴（需重新添加）。"
 
 msgid "quotes_module_help"
 msgstr "在主屏幕上显示富有启发的文学名句。纯装饰性：可随时关闭，不影响任何功能。"

@@ -15,12 +15,15 @@ const Map<String, String> settingsSearchSynonyms = {
       'appairage pairing jumeler jumelage code synchro synchronisation '
       'synchroniser multi appareil multi device tablette mobile bureau '
       'desktop wifi lan',
+  // Merged "Backup and recovery" section: local backup terms + the former
+  // "Account" accordion terms (the two sections were merged) + the
+  // encrypted-account / recovery / shared-access vocabulary.
   'backup_section_title':
       'sauvegarde sauvegarder backup restaurer restauration restore export '
-      'archive copie',
-  'account':
-      'compte securite security mot de passe password mfa 2fa session '
-      'connexion deconnexion login logout',
+      'archive copie compte account chiffre chiffrement encrypted '
+      'recuperation recovery partage partager acces access securite security '
+      'mot de passe password mfa 2fa session connexion deconnexion login '
+      'logout',
   'theme_title':
       'theme apparence couleur dark mode sombre clair police texte taille '
       'font lisibilite',
