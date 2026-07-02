@@ -1479,8 +1479,22 @@ class FfiService {
     }
   }
 
+  /// True for locally fabricated placeholder node ids (`peer_<row id>`),
+  /// produced by screens when a local peers row has no `library_uuid` yet.
+  /// They can never exist hub-side, so any hub lookup with one is a
+  /// guaranteed 404 that only pollutes the hub's event log.
+  static bool isPlaceholderNodeId(String nodeId) => nodeId.startsWith('peer_');
+
   /// Get a single library profile by nodeId.
+  ///
+  /// Placeholder node ids (see [isPlaceholderNodeId]) are short-circuited
+  /// here, the single choke point for all callers, so none of them can leak
+  /// a guaranteed-404 lookup to the hub.
   Future<frb.FrbHubProfile?> hubDirectoryGetProfile(String nodeId) async {
+    if (isPlaceholderNodeId(nodeId)) {
+      debugPrint('FFI hubDirectoryGetProfile skipped: placeholder nodeId');
+      return null;
+    }
     try {
       return await frb.hubDirectoryGetProfile(nodeId: nodeId);
     } catch (e) {
@@ -1503,9 +1517,17 @@ class FfiService {
   }
 
   /// Get the enriched catalog (ISBN + title + author) of a followed library.
+  ///
+  /// Placeholder node ids (see [isPlaceholderNodeId]) are short-circuited
+  /// here, mirroring [hubDirectoryGetProfile]: some callers guard inline,
+  /// but this choke point covers them all.
   Future<List<frb.FrbCatalogEntry>> hubDirectoryGetCatalog(
     String nodeId,
   ) async {
+    if (isPlaceholderNodeId(nodeId)) {
+      debugPrint('FFI hubDirectoryGetCatalog skipped: placeholder nodeId');
+      return [];
+    }
     try {
       final entries = await frb.hubDirectoryGetCatalog(nodeId: nodeId);
       return entries;
