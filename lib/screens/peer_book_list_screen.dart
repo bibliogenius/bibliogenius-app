@@ -410,7 +410,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     for (final p in MdnsService.peers) {
       // 1. Match by libraryId (UUID) — trusted, no validation needed
       if (widget.nodeId != null &&
-          !widget.nodeId!.startsWith('peer_') &&
+          !FfiService.isPlaceholderNodeId(widget.nodeId!) &&
           p.libraryId == widget.nodeId) {
         _lanUrl = 'http://${p.host}:${p.port}';
         _lanUrlTrusted = true;
@@ -548,7 +548,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
       // If nodeId is a placeholder (peer_XX), try to backfill from the
       // peer's /api/config (deterministic, no name ambiguity).
-      if (nodeId == null || nodeId.startsWith('peer_')) {
+      if (nodeId == null || FfiService.isPlaceholderNodeId(nodeId)) {
         final resolved = await _backfillLibraryUuid();
         if (resolved != null) {
           _resolvedNodeId = resolved;
@@ -557,7 +557,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
         }
       }
 
-      if (nodeId != null && !nodeId.startsWith('peer_')) {
+      if (nodeId != null && !FfiService.isPlaceholderNodeId(nodeId)) {
         // Fire-and-forget: hub updates UI via setState when done
         hubFuture = _books.isNotEmpty
             ? _refreshFromHubCatalog()
@@ -600,7 +600,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
           final validNodeId = _effectiveNodeId;
           if (hubFuture == null &&
               validNodeId != null &&
-              !validNodeId.startsWith('peer_')) {
+              !FfiService.isPlaceholderNodeId(validNodeId)) {
             hubFuture = _books.isNotEmpty
                 ? _refreshFromHubCatalog()
                 : _loadHubCatalog();
@@ -978,7 +978,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   /// cache/list with any books present in the hub but missing locally.
   Future<void> _refreshFromHubCatalog() async {
     final nodeId = _effectiveNodeId;
-    if (nodeId == null || nodeId.startsWith('peer_')) return;
+    if (nodeId == null || FfiService.isPlaceholderNodeId(nodeId)) return;
     try {
       final ffi = FfiService();
       final entries = await ffi.hubDirectoryGetCatalog(nodeId);
@@ -1074,7 +1074,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   /// Books get covers via explicit cover_url or OpenLibrary ISBN fallback.
   Future<void> _loadHubCatalog() async {
     final nodeId = _effectiveNodeId;
-    if (nodeId == null || nodeId.startsWith('peer_')) return;
+    if (nodeId == null || FfiService.isPlaceholderNodeId(nodeId)) return;
     try {
       final ffi = FfiService();
       debugPrint('Hub catalog: fetching for $nodeId');
@@ -1599,7 +1599,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
       // Then enrich with hub catalog (fast, <1s)
       final nodeId = _effectiveNodeId;
-      if (nodeId != null && !nodeId.startsWith('peer_')) {
+      if (nodeId != null && !FfiService.isPlaceholderNodeId(nodeId)) {
         await _refreshFromHubCatalog();
         if (mounted) {
           setState(() => _isSyncing = false);
