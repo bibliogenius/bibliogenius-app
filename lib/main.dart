@@ -255,6 +255,10 @@ Future<String?> _getDeviceName() async {
   return null;
 }
 
+// Guards the one-time purge of the removed local app-lock password hash so it
+// runs at most once per app launch (the redirect fires on every navigation).
+bool _legacyPasswordPurged = false;
+
 void main([List<String>? args]) {
   // runZonedGuarded catches async errors that escape both Flutter's
   // framework path and PlatformDispatcher.onError. ensureInitialized must
@@ -837,6 +841,16 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
         final isInviteRoute = state.uri.path == '/invite';
         final authService = Provider.of<AuthService>(context, listen: false);
 
+        // One-time cleanup of the removed local app-lock password hash.
+        if (!_legacyPasswordPurged) {
+          _legacyPasswordPurged = true;
+          try {
+            await authService.purgeLegacyLocalPassword();
+          } catch (_) {
+            // Secure storage may be unavailable; the stale key is harmless.
+          }
+        }
+
         // Never redirect away from invite screen
         if (isInviteRoute) return null;
 
@@ -868,27 +882,15 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
 
           // Auth check
           var isLoggedIn = await authService.isLoggedIn();
-          final hasPassword = await authService.hasPasswordSet();
 
-          if (hasPassword) {
-            // Password configured - check if user authenticated this session
-            final token = await authService.getToken();
-            final isAutoToken =
-                token != null && token.startsWith('local-auto-token-');
-            if (!isLoggedIn || isAutoToken) {
-              // No token or auto-token: must authenticate with password
-              if (isAutoToken) await authService.logout();
-              if (isLoginRoute) return null;
-              return '/login';
-            }
-          } else if (!isLoggedIn) {
-            // No password - perform auto-login for seamless experience
+          if (!isLoggedIn) {
+            // Perform auto-login for a seamless local experience
             await authService.saveUsername('admin');
             await authService.saveToken(
               'local-auto-token-${DateTime.now().millisecondsSinceEpoch}',
             );
             isLoggedIn = true;
-            debugPrint('✅ Redirect: auto-logged in (no password set)');
+            debugPrint('✅ Redirect: auto-logged in');
           }
 
           // Logged in user trying to access login

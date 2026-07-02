@@ -537,7 +537,7 @@ class AuthService {
     await storage.delete(
       key: _hubWriteTokenKey,
     ); // Clear hub token on full reset
-    await storage.delete(key: _passwordKey);
+    await storage.delete(key: _legacyPasswordKey);
   }
 
   Future<bool> isLoggedIn() async {
@@ -545,56 +545,15 @@ class AuthService {
     return token != null;
   }
 
-  // ============ Password Management (Local Mode) ============
-  static const _passwordKey = 'local_password_hash';
+  // ============ Legacy local password cleanup ============
+  // The optional local app-lock password was removed. Older versions stored a
+  // weak, non-cryptographic hash under this key; purge it so no residual
+  // secret lingers in secure storage.
+  static const _legacyPasswordKey = 'local_password_hash';
 
-  /// Save password locally (stores a simple hash for verification)
-  /// Note: Uses a simple hash since this is local-only protection
-  Future<void> savePassword(String password) async {
-    final hash = _simpleHash(password);
-    await storage.write(key: _passwordKey, value: hash);
-  }
-
-  /// Verify password against stored hash
-  Future<bool> verifyPassword(String password) async {
-    final storedHash = await storage.read(key: _passwordKey);
-    if (storedHash == null) {
-      // No password set - allow access (first-time setup)
-      return true;
-    }
-    return _simpleHash(password) == storedHash;
-  }
-
-  /// Check if a password has been set
-  Future<bool> hasPasswordSet() async {
-    final storedHash = await storage.read(key: _passwordKey);
-    return storedHash != null;
-  }
-
-  /// Change password (requires old password verification)
-  Future<bool> changePassword(String oldPassword, String newPassword) async {
-    final isValid = await verifyPassword(oldPassword);
-    if (!isValid) return false;
-    await savePassword(newPassword);
-    return true;
-  }
-
-  /// Remove password (requires current password verification)
-  Future<bool> removePassword(String currentPassword) async {
-    final isValid = await verifyPassword(currentPassword);
-    if (!isValid) return false;
-    await storage.delete(key: _passwordKey);
-    return true;
-  }
-
-  /// Simple hash function for local password storage
-  /// This is NOT cryptographically secure but sufficient for local-only protection
-  String _simpleHash(String input) {
-    int hash = 0;
-    for (int i = 0; i < input.length; i++) {
-      hash = ((hash << 5) - hash) + input.codeUnitAt(i);
-      hash = hash & 0xFFFFFFFF; // Convert to 32bit integer
-    }
-    return hash.toRadixString(16);
+  /// Delete the residual local password hash left by older app versions.
+  /// Idempotent: a no-op once the key is gone, so it is safe to call on launch.
+  Future<void> purgeLegacyLocalPassword() async {
+    await storage.delete(key: _legacyPasswordKey);
   }
 }

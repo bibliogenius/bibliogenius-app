@@ -2095,10 +2095,6 @@ msgstr "完成于"
 msgid "finished_reading_label"
 msgstr "读完于"
 
-#. Set a password to protect your data
-msgid "first_time_password"
-msgstr "设置密码以保护您的数据"
-
 #. Audiobook
 msgid "format_audiobook"
 msgstr "有声书"
@@ -3953,36 +3949,8 @@ msgstr "上级书架（可选）"
 msgid "password"
 msgstr "密码"
 
-#. Hint text for password in local (FFI) mode
-msgid "password_hint_local"
-msgstr "可选。在应用启动时保护对您图书馆的访问。"
-
-#. Hint text for password in server mode
-msgid "password_hint_server"
-msgstr "用于向 BiblioGenius 服务器进行身份验证。"
-
-#. Password changed successfully
-msgid "password_changed_success"
-msgstr "密码修改成功"
-
-#. Incorrect password
-msgid "password_incorrect"
-msgstr "密码错误"
-
-#. Password is required
-msgid "password_required"
-msgstr "密码为必填项"
-
-#. Password must be at least 4 characters
-msgid "password_too_short"
-msgstr "密码至少需要 4 个字符"
-
 #. Passwords do not match
 msgid "passwords_do_not_match"
-msgstr "两次输入的密码不一致"
-
-#. Passwords do not match
-msgid "passwords_dont_match"
 msgstr "两次输入的密码不一致"
 
 #. Paste from clipboard
@@ -4777,10 +4745,6 @@ msgstr "服务器设置"
 #. Server URL
 msgid "server_url_label"
 msgstr "服务器 URL"
-
-#. Set Password
-msgid "set_password"
-msgstr "设置密码"
 
 #. Do you want to modify your app settings? This will take you to the setup wizard to update your theme and library preferences.
 msgid "settings_dialog_body"
@@ -6647,22 +6611,6 @@ msgstr "洞察"
 #. Pages (suffix)
 msgid "pages_suffix"
 msgstr "页"
-
-#. Enter your password to unlock the app
-msgid "login_local_password_subtitle"
-msgstr "输入密码以解锁您的图书馆"
-
-#. Remove password
-msgid "remove_password"
-msgstr "移除密码"
-
-#. Remove password confirmation
-msgid "remove_password_confirm"
-msgstr "确定要移除密码吗？任何人都将能访问您的图书馆。"
-
-#. Password removed successfully
-msgid "password_removed_success"
-msgstr "密码已成功移除"
 
 #. Hub-only data hint shown when only ISBN/title/author available
 msgid "hub_only_hint"
@@ -9492,9 +9440,6 @@ msgstr "定期自动备份您的图书馆。在您的设备出现问题时可恢
 
 msgid "search_sources_help"
 msgstr "选择按书名或作者搜索时查询哪些数据库。启用更多来源可提高覆盖率，但可能会略微降低搜索速度。"
-
-msgid "settings_password_help"
-msgstr "在应用启动时保护对您图书馆的访问。在本地模式下，此密码保留在您的设备上，绝不会被传输。"
 
 msgid "two_factor_auth_help"
 msgstr "在登录时增加第二重验证（短信验证码或验证器应用）。在配合服务器账号使用 BiblioGenius 时提升安全性。"

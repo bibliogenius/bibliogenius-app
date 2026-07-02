@@ -419,13 +419,6 @@ class HelpRegistry {
       ),
       _GatedTopic(
         topic: HelpTopic.inline(
-          id: 'password_setting',
-          titleKey: 'password',
-          descKey: 'settings_password_help',
-        ),
-      ),
-      _GatedTopic(
-        topic: HelpTopic.inline(
           id: 'two_factor_auth_setting',
           titleKey: 'two_factor_auth',
           descKey: 'two_factor_auth_help',

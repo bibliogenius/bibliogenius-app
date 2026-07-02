@@ -2095,10 +2095,6 @@ msgstr "読了日"
 msgid "finished_reading_label"
 msgstr "読了日"
 
-#. Set a password to protect your data
-msgid "first_time_password"
-msgstr "データを保護するためにパスワードを設定してください"
-
 #. Audiobook
 msgid "format_audiobook"
 msgstr "オーディオブック"
@@ -3953,36 +3949,8 @@ msgstr "親の本棚（任意）"
 msgid "password"
 msgstr "パスワード"
 
-#. Hint text for password in local (FFI) mode
-msgid "password_hint_local"
-msgstr "任意。アプリ起動時にライブラリへのアクセスを保護します。"
-
-#. Hint text for password in server mode
-msgid "password_hint_server"
-msgstr "BiblioGeniusサーバーへの認証に使用します。"
-
-#. Password changed successfully
-msgid "password_changed_success"
-msgstr "パスワードを変更しました"
-
-#. Incorrect password
-msgid "password_incorrect"
-msgstr "パスワードが正しくありません"
-
-#. Password is required
-msgid "password_required"
-msgstr "パスワードを入力してください"
-
-#. Password must be at least 4 characters
-msgid "password_too_short"
-msgstr "パスワードは4文字以上で入力してください"
-
 #. Passwords do not match
 msgid "passwords_do_not_match"
-msgstr "パスワードが一致しません"
-
-#. Passwords do not match
-msgid "passwords_dont_match"
 msgstr "パスワードが一致しません"
 
 #. Paste from clipboard
@@ -4777,10 +4745,6 @@ msgstr "サーバー設定"
 #. Server URL
 msgid "server_url_label"
 msgstr "サーバー URL"
-
-#. Set Password
-msgid "set_password"
-msgstr "パスワードを設定"
 
 #. Do you want to modify your app settings? This will take you to the setup wizard to update your theme and library preferences.
 msgid "settings_dialog_body"
@@ -6647,22 +6611,6 @@ msgstr "概要"
 #. Pages (suffix)
 msgid "pages_suffix"
 msgstr "ページ"
-
-#. Enter your password to unlock the app
-msgid "login_local_password_subtitle"
-msgstr "パスワードを入力してライブラリのロックを解除してください"
-
-#. Remove password
-msgid "remove_password"
-msgstr "パスワードを削除"
-
-#. Remove password confirmation
-msgid "remove_password_confirm"
-msgstr "パスワードを削除してもよろしいですか？誰でもライブラリにアクセスできるようになります。"
-
-#. Password removed successfully
-msgid "password_removed_success"
-msgstr "パスワードを削除しました"
 
 #. Hub-only data hint shown when only ISBN/title/author available
 msgid "hub_only_hint"
@@ -9492,9 +9440,6 @@ msgstr "一定間隔でライブラリを自動的にバックアップします
 
 msgid "search_sources_help"
 msgstr "タイトルや著者で検索するときに照会するデータベースを選びます。ソースを増やすと網羅性は上がりますが、検索が少し遅くなることがあります。"
-
-msgid "settings_password_help"
-msgstr "アプリ起動時にライブラリへのアクセスを保護します。ローカルモードでは、このパスワードはデバイス内にとどまり、送信されることはありません。"
 
 msgid "two_factor_auth_help"
 msgstr "ログイン時に2つ目の確認ステップ（SMSコードまたは認証アプリ）を追加します。サーバーアカウントでBiblioGeniusを使う場合のセキュリティを高めます。"

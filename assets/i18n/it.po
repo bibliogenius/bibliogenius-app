@@ -2483,10 +2483,6 @@ msgstr "Quando hai terminato questo libro"
 msgid "finished_reading_label"
 msgstr "Lettura completata"
 
-#. Set a password to protect your data
-msgid "first_time_password"
-msgstr "Imposta una password per proteggere i tuoi dati"
-
 #. Audiobook
 msgid "format_audiobook"
 msgstr "Audiolibro"
@@ -4620,52 +4616,8 @@ msgstr "Scaffale principale (opzionale)"
 msgid "password"
 msgstr "Password"
 
-#. Hint text for password in local (FFI) mode
-msgid "password_hint_local"
-msgstr "Opzionale. Protegge l'accesso alla tua biblioteca all'avvio dell'applicazione."
-
-#. Hint text for password in server mode
-msgid "password_hint_server"
-msgstr "Utilizzata per autenticarsi al server BiblioGenius."
-
-#. Password changed successfully
-msgid "password_changed_success"
-msgstr "Password cambiata con successo"
-
-#. Enter your password to unlock the app
-msgid "login_local_password_subtitle"
-msgstr "Inserisci la password per sbloccare la tua biblioteca"
-
-#. Remove password
-msgid "remove_password"
-msgstr "Rimuovi password"
-
-#. Remove password confirmation
-msgid "remove_password_confirm"
-msgstr "Sei sicuro di voler rimuovere la password? Chiunque potrà accedere alla tua biblioteca."
-
-#. Password removed successfully
-msgid "password_removed_success"
-msgstr "Password rimossa con successo"
-
-#. Incorrect password
-msgid "password_incorrect"
-msgstr "Password errata"
-
-#. Password is required
-msgid "password_required"
-msgstr "La password è obbligatoria"
-
-#. Password must be at least 4 characters
-msgid "password_too_short"
-msgstr "La password deve contenere almeno 4 caratteri"
-
 #. Passwords do not match
 msgid "passwords_do_not_match"
-msgstr "Le password non corrispondono"
-
-#. Passwords do not match
-msgid "passwords_dont_match"
 msgstr "Le password non corrispondono"
 
 #. Paste from clipboard
@@ -5836,10 +5788,6 @@ msgstr "Impostazioni server"
 #. Server URL
 msgid "server_url_label"
 msgstr "URL del server"
-
-#. Set Password
-msgid "set_password"
-msgstr "Imposta password"
 
 #. Do you want to modify your app settings? This will take you to the setup wizard to update your theme and library preferences.
 msgid "settings_dialog_body"
@@ -9062,9 +9010,6 @@ msgstr "Esegue il backup automatico della tua libreria a intervalli regolari. Ti
 
 msgid "search_sources_help"
 msgstr "Seleziona i database consultati durante la ricerca per titolo o autore. Abilitare più fonti migliora i risultati ma può rallentare leggermente le ricerche."
-
-msgid "settings_password_help"
-msgstr "Protegge l'accesso alla tua libreria all'avvio dell'app. In modalità locale, questa password rimane sul dispositivo e non viene mai trasmessa."
 
 msgid "two_factor_auth_help"
 msgstr "Aggiunge un secondo step di verifica al login (codice SMS o app di autenticazione). Aumenta la sicurezza quando usi BiblioGenius con un account server."

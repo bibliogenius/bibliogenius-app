@@ -2143,10 +2143,6 @@ msgstr "Bitiş tarihi:"
 msgid "finished_reading_label"
 msgstr "Okuma Bitti"
 
-#. Set a password to protect your data
-msgid "first_time_password"
-msgstr "Verilerinizi korumak için bir şifre belirleyin"
-
 #. Audiobook
 msgid "format_audiobook"
 msgstr "Sesli Kitap"
@@ -3997,36 +3993,8 @@ msgstr "Üst Raf (isteğe bağlı)"
 msgid "password"
 msgstr "Şifre"
 
-#. Hint text for password in local (FFI) mode
-msgid "password_hint_local"
-msgstr "İsteğe bağlı. Uygulama başlatıldığında kitaplığınıza erişimi korur."
-
-#. Hint text for password in server mode
-msgid "password_hint_server"
-msgstr "BiblioGenius sunucusunda kimlik doğrulama için kullanılır."
-
-#. Password changed successfully
-msgid "password_changed_success"
-msgstr "Şifre başarıyla değiştirildi"
-
-#. Incorrect password
-msgid "password_incorrect"
-msgstr "Hatalı şifre"
-
-#. Password is required
-msgid "password_required"
-msgstr "Şifre gereklidir"
-
-#. Password must be at least 4 characters
-msgid "password_too_short"
-msgstr "Şifre en az 4 karakter olmalıdır"
-
 #. Passwords do not match
 msgid "passwords_do_not_match"
-msgstr "Şifreler eşleşmiyor"
-
-#. Passwords do not match
-msgid "passwords_dont_match"
 msgstr "Şifreler eşleşmiyor"
 
 #. Paste from clipboard
@@ -4821,10 +4789,6 @@ msgstr "Sunucu Ayarları"
 #. Server URL
 msgid "server_url_label"
 msgstr "Sunucu URL'si"
-
-#. Set Password
-msgid "set_password"
-msgstr "Şifre Belirle"
 
 #. Do you want to modify your app settings? This will take you to the setup wizard to update your theme and library preferences.
 msgid "settings_dialog_body"
@@ -6299,22 +6263,6 @@ msgstr "Genel bakış"
 #. Pages (suffix)
 msgid "pages_suffix"
 msgstr "s."
-
-#. Enter your password to unlock the app
-msgid "login_local_password_subtitle"
-msgstr "Kütüphanenize erişmek için parolanızı girin"
-
-#. Remove password
-msgid "remove_password"
-msgstr "Parolayı kaldır"
-
-#. Remove password confirmation
-msgid "remove_password_confirm"
-msgstr "Parolayı kaldırmak istediğinizden emin misiniz? Herkes kütüphanenize erişebilecek."
-
-#. Password removed successfully
-msgid "password_removed_success"
-msgstr "Parola başarıyla kaldırıldı"
 
 #. Hub-only data hint shown when only ISBN/title/author available
 msgid "hub_only_hint"
@@ -9068,9 +9016,6 @@ msgstr "Kütüphanenizi düzenli aralıklarla otomatik olarak yedekler. Cihazın
 
 msgid "search_sources_help"
 msgstr "Başlığa veya yazara göre arama yaparken hangi veritabanlarının sorgulanacağını seçin. Daha fazla kaynak etkinleştirmek kapsamı iyileştirir ancak aramaları biraz yavaşlatabilir."
-
-msgid "settings_password_help"
-msgstr "Uygulama başladığında kütüphanenize erişimi korur. Yerel modda bu parola cihazınızda kalır ve asla iletilmez."
 
 msgid "two_factor_auth_help"
 msgstr "Girişte ikinci bir doğrulama adımı ekler (SMS kodu veya kimlik doğrulayıcı uygulama). BiblioGenius'u bir sunucu hesabıyla kullanırken güvenliği artırır."

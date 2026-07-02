@@ -2490,10 +2490,6 @@ msgstr "Quando você terminou este livro"
 msgid "finished_reading_label"
 msgstr "Lido"
 
-#. Set a password to protect your data
-msgid "first_time_password"
-msgstr "Defina uma senha para proteger seus dados"
-
 #. Audiobook
 msgid "format_audiobook"
 msgstr "Audiolivro"
@@ -3945,9 +3941,6 @@ msgstr "Faz backup da sua biblioteca automaticamente em intervalos regulares. Pe
 msgid "search_sources_help"
 msgstr "Selecione quais bancos de dados são consultados ao buscar por título ou autor. Ativar mais fontes melhora a cobertura, mas pode deixar as buscas um pouco mais lentas."
 
-msgid "settings_password_help"
-msgstr "Protege o acesso à sua biblioteca quando o aplicativo inicia. No modo local, esta senha permanece no seu dispositivo e nunca é transmitida."
-
 msgid "two_factor_auth_help"
 msgstr "Adiciona uma segunda etapa de verificação no login (código SMS ou aplicativo autenticador). Aumenta a segurança ao usar o BiblioGenius com uma conta de servidor."
 
@@ -5391,52 +5384,8 @@ msgstr "Prateleira Pai (opcional)"
 msgid "password"
 msgstr "Senha"
 
-#. Hint text for password in local (FFI) mode
-msgid "password_hint_local"
-msgstr "Opcional. Protege o acesso à sua biblioteca ao iniciar o aplicativo."
-
-#. Hint text for password in server mode
-msgid "password_hint_server"
-msgstr "Usada para se autenticar no servidor BiblioGenius."
-
-#. Password changed successfully
-msgid "password_changed_success"
-msgstr "Senha alterada com sucesso"
-
-#. Enter your password to unlock the app
-msgid "login_local_password_subtitle"
-msgstr "Digite sua senha para desbloquear sua biblioteca"
-
-#. Remove password
-msgid "remove_password"
-msgstr "Remover senha"
-
-#. Remove password confirmation
-msgid "remove_password_confirm"
-msgstr "Tem certeza de que deseja remover a senha? Qualquer pessoa poderá acessar sua biblioteca."
-
-#. Password removed successfully
-msgid "password_removed_success"
-msgstr "Senha removida com sucesso"
-
-#. Incorrect password
-msgid "password_incorrect"
-msgstr "Senha incorreta"
-
-#. Password is required
-msgid "password_required"
-msgstr "Senha é obrigatória"
-
-#. Password must be at least 4 characters
-msgid "password_too_short"
-msgstr "A senha deve ter pelo menos 4 caracteres"
-
 #. Passwords do not match
 msgid "passwords_do_not_match"
-msgstr "Senhas não coincidem"
-
-#. Passwords do not match
-msgid "passwords_dont_match"
 msgstr "Senhas não coincidem"
 
 #. Paste from clipboard
@@ -6607,10 +6556,6 @@ msgstr "Configurações do Servidor"
 #. Server URL
 msgid "server_url_label"
 msgstr "URL do Servidor"
-
-#. Set Password
-msgid "set_password"
-msgstr "Definir Senha"
 
 #. Do you want to modify your app settings? This will take you to the setup wizard to update your theme and library preferences.
 msgid "settings_dialog_body"

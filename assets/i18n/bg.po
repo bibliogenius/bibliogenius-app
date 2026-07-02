@@ -2095,10 +2095,6 @@ msgstr "Завършено на"
 msgid "finished_reading_label"
 msgstr "Завършено четене"
 
-#. Set a password to protect your data
-msgid "first_time_password"
-msgstr "Задайте парола за защита на вашите данни"
-
 #. Audiobook
 msgid "format_audiobook"
 msgstr "Аудиокнига"
@@ -3952,36 +3948,8 @@ msgstr "Родителска полица (по желание)"
 msgid "password"
 msgstr "Парола"
 
-#. Hint text for password in local (FFI) mode
-msgid "password_hint_local"
-msgstr "По избор. Защитава достъпа до вашата библиотека при стартиране на приложението."
-
-#. Hint text for password in server mode
-msgid "password_hint_server"
-msgstr "Използва се за удостоверяване в сървъра BiblioGenius."
-
-#. Password changed successfully
-msgid "password_changed_success"
-msgstr "Паролата е сменена успешно"
-
-#. Incorrect password
-msgid "password_incorrect"
-msgstr "Неправилна парола"
-
-#. Password is required
-msgid "password_required"
-msgstr "Паролата е задължителна"
-
-#. Password must be at least 4 characters
-msgid "password_too_short"
-msgstr "Паролата трябва да е поне 4 знака"
-
 #. Passwords do not match
 msgid "passwords_do_not_match"
-msgstr "Паролите не съвпадат"
-
-#. Passwords do not match
-msgid "passwords_dont_match"
 msgstr "Паролите не съвпадат"
 
 #. Paste from clipboard
@@ -4776,10 +4744,6 @@ msgstr "Настройки на сървъра"
 #. Server URL
 msgid "server_url_label"
 msgstr "URL на сървъра"
-
-#. Set Password
-msgid "set_password"
-msgstr "Задаване на парола"
 
 #. Do you want to modify your app settings? This will take you to the setup wizard to update your theme and library preferences.
 msgid "settings_dialog_body"
@@ -6361,22 +6325,6 @@ msgstr "Обзор"
 #. Pages (suffix)
 msgid "pages_suffix"
 msgstr "стр."
-
-#. Enter your password to unlock the app
-msgid "login_local_password_subtitle"
-msgstr "Въведете паролата си, за да отключите библиотеката си"
-
-#. Remove password
-msgid "remove_password"
-msgstr "Премахване на паролата"
-
-#. Remove password confirmation
-msgid "remove_password_confirm"
-msgstr "Сигурни ли сте, че искате да премахнете паролата? Всеки ще може да достъпи библиотеката ви."
-
-#. Password removed successfully
-msgid "password_removed_success"
-msgstr "Паролата е премахната успешно"
 
 #. Hub-only data hint shown when only ISBN/title/author available
 msgid "hub_only_hint"
@@ -9068,9 +9016,6 @@ msgstr "Автоматично архивира библиотеката ви н
 
 msgid "search_sources_help"
 msgstr "Изберете кои бази данни се заявяват при търсене по заглавие или автор. Активирането на повече източници подобрява обхвата, но може леко да забави търсенията."
-
-msgid "settings_password_help"
-msgstr "Защитава достъпа до библиотеката ви при стартиране на приложението. В локален режим тази парола остава на устройството ви и никога не се предава."
 
 msgid "two_factor_auth_help"
 msgstr "Добавя втора стъпка за проверка при влизане (SMS код или приложение за удостоверяване). Повишава сигурността при използване на BiblioGenius със сървърен акаунт."

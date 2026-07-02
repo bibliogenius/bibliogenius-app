@@ -2095,10 +2095,6 @@ msgstr "완독일"
 msgid "finished_reading_label"
 msgstr "완독"
 
-#. Set a password to protect your data
-msgid "first_time_password"
-msgstr "데이터를 보호할 암호를 설정하세요"
-
 #. Audiobook
 msgid "format_audiobook"
 msgstr "오디오북"
@@ -3953,36 +3949,8 @@ msgstr "상위 책장 (선택 사항)"
 msgid "password"
 msgstr "비밀번호"
 
-#. Hint text for password in local (FFI) mode
-msgid "password_hint_local"
-msgstr "선택 사항. 앱 시작 시 서재 접근을 보호합니다."
-
-#. Hint text for password in server mode
-msgid "password_hint_server"
-msgstr "BiblioGenius 서버 인증에 사용됩니다."
-
-#. Password changed successfully
-msgid "password_changed_success"
-msgstr "비밀번호가 성공적으로 변경되었습니다"
-
-#. Incorrect password
-msgid "password_incorrect"
-msgstr "비밀번호가 올바르지 않습니다"
-
-#. Password is required
-msgid "password_required"
-msgstr "비밀번호가 필요합니다"
-
-#. Password must be at least 4 characters
-msgid "password_too_short"
-msgstr "비밀번호는 최소 4자 이상이어야 합니다"
-
 #. Passwords do not match
 msgid "passwords_do_not_match"
-msgstr "비밀번호가 일치하지 않습니다"
-
-#. Passwords do not match
-msgid "passwords_dont_match"
 msgstr "비밀번호가 일치하지 않습니다"
 
 #. Paste from clipboard
@@ -4777,10 +4745,6 @@ msgstr "서버 설정"
 #. Server URL
 msgid "server_url_label"
 msgstr "서버 URL"
-
-#. Set Password
-msgid "set_password"
-msgstr "비밀번호 설정"
 
 #. Do you want to modify your app settings? This will take you to the setup wizard to update your theme and library preferences.
 msgid "settings_dialog_body"
@@ -6647,22 +6611,6 @@ msgstr "인사이트"
 #. Pages (suffix)
 msgid "pages_suffix"
 msgstr "쪽"
-
-#. Enter your password to unlock the app
-msgid "login_local_password_subtitle"
-msgstr "라이브러리를 잠금 해제하려면 비밀번호를 입력하세요"
-
-#. Remove password
-msgid "remove_password"
-msgstr "비밀번호 제거"
-
-#. Remove password confirmation
-msgid "remove_password_confirm"
-msgstr "비밀번호를 정말 제거하시겠습니까? 누구나 라이브러리에 접근할 수 있게 됩니다."
-
-#. Password removed successfully
-msgid "password_removed_success"
-msgstr "비밀번호가 제거되었습니다"
 
 #. Hub-only data hint shown when only ISBN/title/author available
 msgid "hub_only_hint"
@@ -9492,9 +9440,6 @@ msgstr "일정한 간격으로 서재를 자동 백업합니다. 기기에 문�
 
 msgid "search_sources_help"
 msgstr "제목이나 저자로 검색할 때 조회할 데이터베이스를 선택합니다. 더 많은 출처를 활성화하면 검색 범위가 넓어지지만 검색이 약간 느려질 수 있습니다."
-
-msgid "settings_password_help"
-msgstr "앱 시작 시 서재 접근을 보호합니다. 로컬 모드에서는 이 비밀번호가 기기에 남아 있으며 절대 전송되지 않습니다."
 
 msgid "two_factor_auth_help"
 msgstr "로그인 시 두 번째 확인 단계(SMS 코드 또는 인증 앱)를 추가합니다. 서버 계정으로 BiblioGenius를 사용할 때 보안을 강화합니다."

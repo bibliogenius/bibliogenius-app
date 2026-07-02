@@ -2369,10 +2369,6 @@ msgstr ""
 msgid "finished_reading_label"
 msgstr ""
 
-#. Set a password to protect your data
-msgid "first_time_password"
-msgstr ""
-
 #. Audiobook
 msgid "format_audiobook"
 msgstr ""
@@ -4294,52 +4290,8 @@ msgstr ""
 msgid "password"
 msgstr ""
 
-#. Hint text for password in local (FFI) mode
-msgid "password_hint_local"
-msgstr ""
-
-#. Hint text for password in server mode
-msgid "password_hint_server"
-msgstr ""
-
-#. Password changed successfully
-msgid "password_changed_success"
-msgstr ""
-
-#. Enter your password to unlock the app
-msgid "login_local_password_subtitle"
-msgstr ""
-
-#. Remove password
-msgid "remove_password"
-msgstr ""
-
-#. Remove password confirmation
-msgid "remove_password_confirm"
-msgstr ""
-
-#. Password removed successfully
-msgid "password_removed_success"
-msgstr ""
-
-#. Incorrect password
-msgid "password_incorrect"
-msgstr ""
-
-#. Password is required
-msgid "password_required"
-msgstr ""
-
-#. Password must be at least 4 characters
-msgid "password_too_short"
-msgstr ""
-
 #. Passwords do not match
 msgid "passwords_do_not_match"
-msgstr ""
-
-#. Passwords do not match
-msgid "passwords_dont_match"
 msgstr ""
 
 #. Paste from clipboard
@@ -5422,10 +5374,6 @@ msgstr ""
 
 #. Server URL
 msgid "server_url_label"
-msgstr ""
-
-#. Set Password
-msgid "set_password"
 msgstr ""
 
 #. Do you want to modify your app settings? This will take you to the setup wizard to update your theme and library preferences.
