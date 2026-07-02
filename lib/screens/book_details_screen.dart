@@ -631,9 +631,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     if (book.id == null) return;
 
     try {
-      final path = await CoverCameraHelper.takePhotoAndSave(
-        bookId: book.id,
-      );
+      final path = await CoverCameraHelper.takePhotoAndSave(bookId: book.id);
       if (path == null || !mounted) return;
 
       _evictCoverFromCache(_book?.coverUrl);
@@ -801,6 +799,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildHeader(context, book),
+                    _buildTaxonomyRow(context, book),
                     const SizedBox(height: 24),
                     _buildActionButtons(context, book),
                     const SizedBox(height: 32),
@@ -1137,6 +1136,122 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     );
   }
 
+  /// Compact "at a glance" row under the author: reading status followed by the
+  /// book's shelves and collections as small pills. This surfaces the same data
+  /// that used to live in three separate labelled sections lower down, so the
+  /// page reads faster without duplicating information.
+  Widget _buildTaxonomyRow(BuildContext context, Book book) {
+    const shelfColors = [
+      Colors.blue,
+      Colors.teal,
+      Colors.purple,
+      Colors.orange,
+      Colors.pink,
+      Colors.indigo,
+    ];
+    const collectionColors = [
+      Colors.amber,
+      Colors.deepPurple,
+      Colors.cyan,
+      Colors.red,
+      Colors.green,
+      Colors.brown,
+    ];
+    // Keep the header light: only a handful of taxonomy pills, the rest folds
+    // into a "+N" indicator (the full list stays editable from the edit screen).
+    const maxTaxonomyPills = 6;
+
+    final subjects = book.subjects ?? const <String>[];
+    final chips = <Widget>[_buildStatusChip(context, book)];
+    var shown = 0;
+
+    for (var i = 0; i < subjects.length && shown < maxTaxonomyPills; i++) {
+      final subject = subjects[i];
+      final color = shelfColors[i % shelfColors.length];
+      chips.add(
+        _taxonomyPill(
+          icon: Icons.tag,
+          label: subject,
+          color: color,
+          onTap: () => context.go(
+            Uri(path: '/books', queryParameters: {'tag': subject}).toString(),
+          ),
+        ),
+      );
+      shown++;
+    }
+
+    for (var i = 0; i < _collections.length && shown < maxTaxonomyPills; i++) {
+      final collection = _collections[i];
+      final color = collectionColors[i % collectionColors.length];
+      chips.add(
+        _taxonomyPill(
+          icon: Icons.collections_bookmark_outlined,
+          label: collection.name,
+          color: color,
+          onTap: () =>
+              context.push('/collections/${collection.id}', extra: collection),
+        ),
+      );
+      shown++;
+    }
+
+    final remaining = subjects.length + _collections.length - shown;
+    if (remaining > 0) {
+      chips.add(
+        _taxonomyPill(
+          icon: Icons.more_horiz,
+          label: '+$remaining',
+          color: Colors.blueGrey,
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Wrap(spacing: 8, runSpacing: 8, children: chips),
+    );
+  }
+
+  /// Small rounded pill used by [_buildTaxonomyRow] for shelves and collections.
+  Widget _taxonomyPill({
+    required IconData icon,
+    required String label,
+    required MaterialColor color,
+    VoidCallback? onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.10),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: color.withValues(alpha: 0.28)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 13, color: color),
+              const SizedBox(width: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  color: color.shade700,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildLoanStatusSection(BuildContext context) {
     if (_activeLoans.isEmpty) return const SizedBox.shrink();
 
@@ -1467,7 +1582,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                       });
                     }
                   },
-                  icon: const Icon(Icons.edit_outlined),
+                  icon: const Icon(Icons.edit_outlined, size: 18),
                   label: Text(
                     TranslationService.translate(context, 'menu_edit') ??
                         'Edit',
@@ -1475,9 +1590,12 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Theme.of(context).colorScheme.primary,
                     side: BorderSide(
-                      color: Theme.of(context).colorScheme.primary,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.4),
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    visualDensity: VisualDensity.compact,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -1508,7 +1626,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                   icon: Badge(
                     label: Text('${_copies.length}'),
                     isLabelVisible: _copies.length > 1,
-                    child: const Icon(Icons.library_books_outlined),
+                    child: const Icon(Icons.library_books_outlined, size: 18),
                   ),
                   label: Text(
                     TranslationService.translate(
@@ -1518,7 +1636,14 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                         'Copies',
                   ),
                   style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    foregroundColor: Theme.of(
+                      context,
+                    ).colorScheme.onSurfaceVariant,
+                    side: BorderSide(
+                      color: Theme.of(context).colorScheme.outlineVariant,
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    visualDensity: VisualDensity.compact,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -1756,26 +1881,8 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           Row(
             children: [
               _buildMetadataItem(context, 'ISBN', book.isbn ?? '-'),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      (TranslationService.translate(context, 'status_label') ??
-                              'Status')
-                          .toUpperCase(),
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.0,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    _buildStatusChip(context, book),
-                  ],
-                ),
-              ),
+              // Reading status now lives in the taxonomy row under the author.
+              const Expanded(child: SizedBox()),
             ],
           ),
           // Rating section
@@ -1911,216 +2018,6 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                   _formatDate(book.finishedReadingAt!),
                 ),
               ],
-            ),
-          ],
-          if (book.subjects != null && book.subjects!.isNotEmpty) ...[
-            const Divider(height: 32),
-            SizedBox(
-              width: double.infinity,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.local_offer_outlined,
-                        size: 16,
-                        color: Colors.grey[600],
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        (TranslationService.translate(context, 'tags') ??
-                                'TAGS')
-                            .toUpperCase(),
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.0,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 10,
-                    children: book.subjects!.asMap().entries.map((entry) {
-                      final index = entry.key;
-                      final subject = entry.value;
-                      // Cycle through colors for visual variety
-                      final colors = [
-                        Colors.blue,
-                        Colors.teal,
-                        Colors.purple,
-                        Colors.orange,
-                        Colors.pink,
-                        Colors.indigo,
-                      ];
-                      final chipColor = colors[index % colors.length];
-
-                      return Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          onTap: () {
-                            context.go(
-                              Uri(
-                                path: '/books',
-                                queryParameters: {'tag': subject},
-                              ).toString(),
-                            );
-                          },
-                          borderRadius: BorderRadius.circular(20),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  chipColor.withValues(alpha: 0.15),
-                                  chipColor.withValues(alpha: 0.08),
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(
-                                color: chipColor.withValues(alpha: 0.3),
-                                width: 1,
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.tag, size: 14, color: chipColor),
-                                const SizedBox(width: 4),
-                                Text(
-                                  subject,
-                                  style: TextStyle(
-                                    color: chipColor.shade700,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ],
-              ),
-            ),
-          ],
-          if (_collections.isNotEmpty) ...[
-            const Divider(height: 32),
-            SizedBox(
-              width: double.infinity,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.collections_bookmark_outlined,
-                        size: 16,
-                        color: Colors.grey[600],
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        TranslationService.translate(
-                          context,
-                          'collections_label',
-                        ).toUpperCase(),
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.0,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 10,
-                    children: _collections.asMap().entries.map((entry) {
-                      final index = entry.key;
-                      final collection = entry.value;
-                      final colors = [
-                        Colors.amber,
-                        Colors.deepPurple,
-                        Colors.cyan,
-                        Colors.red,
-                        Colors.green,
-                        Colors.brown,
-                      ];
-                      final chipColor = colors[index % colors.length];
-
-                      return Semantics(
-                        button: true,
-                        label: collection.name,
-                        child: Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            onTap: () {
-                              context.push(
-                                '/collections/${collection.id}',
-                                extra: collection,
-                              );
-                            },
-                            borderRadius: BorderRadius.circular(20),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 14,
-                                vertical: 8,
-                              ),
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    chipColor.withValues(alpha: 0.15),
-                                    chipColor.withValues(alpha: 0.08),
-                                  ],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                  color: chipColor.withValues(alpha: 0.3),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.collections_bookmark,
-                                    size: 14,
-                                    color: chipColor,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    collection.name,
-                                    style: TextStyle(
-                                      color: chipColor.shade700,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ],
-              ),
             ),
           ],
         ],
@@ -2866,9 +2763,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           try {
             final ffi = FfiService();
             if (ffi.isInitialized) {
-              durationDays = await ffi.getEffectiveLoanDuration(
-                _book!.id!,
-              );
+              durationDays = await ffi.getEffectiveLoanDuration(_book!.id!);
             }
           } catch (_) {}
           final now = DateTime.now();

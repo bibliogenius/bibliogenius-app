@@ -209,7 +209,6 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
         // Responsive breakpoints based on available title width
         final availableWidth = constraints.maxWidth;
         // More aggressive thresholds to hide rather than truncate
-        final hideTitle = availableWidth < 120;
         final hideSubtitle = availableWidth < 180;
         final isCompact = availableWidth < 220;
 
@@ -218,6 +217,29 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
         final titleFontSize = isCompact ? 15.0 : 20.0;
         final subtitleFontSize = isCompact ? 10.0 : 13.0;
         final spacing = isCompact ? 6.0 : 12.0;
+
+        // Hide the title rather than let it fade/truncate. Below a hard floor
+        // there is no usable room; above it, measure the real string so short
+        // titles keep showing while a long one (competing with the action
+        // buttons on a phone, e.g. the library name) collapses to the logo only.
+        var hideTitle = availableWidth < 120;
+        if (!hideTitle && title != null && title is! Widget) {
+          final painter = TextPainter(
+            text: TextSpan(
+              text: title.toString(),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: titleFontSize,
+                letterSpacing: 0.5,
+              ),
+            ),
+            maxLines: 1,
+            textDirection: Directionality.of(context),
+          )..layout();
+          if (painter.width > availableWidth - logoSize - spacing) {
+            hideTitle = true;
+          }
+        }
 
         return MergeSemantics(
           child: ClipRect(
@@ -337,7 +359,7 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
         button: true,
         label: TranslationService.translate(context, 'quick_actions_title'),
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
           child: Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -348,7 +370,8 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
+              // Match the neighbouring header icon buttons (medium radius).
+              borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
               boxShadow: [
                 BoxShadow(
                   color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
@@ -358,7 +381,7 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
               ],
             ),
             child: InkWell(
-              borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
+              borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
               onTap: () {
                 showModalBottomSheet(
                   context: context,
@@ -381,33 +404,41 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
                   ),
                 );
               },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.bolt, color: Colors.white, size: 20),
-                    // On mobile the button collapses to the bolt icon only;
-                    // the label is kept on wider (tablet/desktop) layouts.
-                    if (MediaQuery.of(context).size.width > 600) ...[
-                      const SizedBox(width: 4),
-                      Text(
-                        TranslationService.translate(
-                          context,
-                          'quick_actions_title',
-                        ),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
+              // On phones the button collapses to a bolt-only square that
+              // mirrors the neighbouring header icon buttons (same ~40px
+              // footprint and medium radius). Wider layouts keep the labelled
+              // pill.
+              child: MediaQuery.of(context).size.width > 600
+                  ? Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
                       ),
-                    ],
-                  ],
-                ),
-              ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.bolt, color: Colors.white, size: 20),
+                          const SizedBox(width: 4),
+                          Text(
+                            TranslationService.translate(
+                              context,
+                              'quick_actions_title',
+                            ),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : const SizedBox(
+                      width: 40,
+                      height: 40,
+                      child: Center(
+                        child: Icon(Icons.bolt, color: Colors.white, size: 22),
+                      ),
+                    ),
             ),
           ),
         ),
@@ -481,10 +512,7 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
           },
         ),
       ],
-      if (actions != null) ...[
-        const SizedBox(width: 4),
-        ...actions!,
-      ],
+      if (actions != null) ...[const SizedBox(width: 4), ...actions!],
       // Settings is reachable from the main menu, so the header no longer
       // duplicates it as a shortcut.
       // Avatar

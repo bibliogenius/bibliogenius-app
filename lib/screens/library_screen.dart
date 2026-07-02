@@ -13,6 +13,7 @@ import '../widgets/contextual_help_sheet.dart';
 import '../widgets/quick_actions_sheet.dart';
 import '../widgets/sticky_tabs_header.dart';
 import '../providers/theme_provider.dart';
+import '../data/repositories/book_repository.dart';
 import 'book_list_screen.dart';
 import 'shelves_screen.dart';
 import 'collection/collection_list_screen.dart';
@@ -38,6 +39,13 @@ class _LibraryScreenState extends State<LibraryScreen>
   final ValueNotifier<int> _shelvesRefreshNotifier = ValueNotifier<int>(0);
   int _collectionsRefreshKey = 0;
 
+  // The contextual-help button is onboarding aid: show it only while the
+  // library is still small (a new user). Once the shelf fills up the user
+  // knows the ropes, and help stays reachable from the main menu. Null while
+  // the count is loading (help shown by default so newcomers never miss it).
+  static const int _kOnboardingHelpMaxBooks = 5;
+  int? _bookCount;
+
   // Global search state (lifted from BookListScreen so the search field in the
   // sticky sliver header can drive filtering of the active tab's content).
   final ValueNotifier<String> _searchQuery = ValueNotifier<String>('');
@@ -53,6 +61,22 @@ class _LibraryScreenState extends State<LibraryScreen>
       listen: false,
     ).collectionsEnabled;
     _createTabController(widget.initialIndex);
+    // Reload the count whenever the library content changes so the help button
+    // disappears the moment the user crosses the onboarding threshold.
+    _refreshNotifier.addListener(_loadBookCount);
+    _loadBookCount();
+  }
+
+  Future<void> _loadBookCount() async {
+    try {
+      final books = await Provider.of<BookRepository>(
+        context,
+        listen: false,
+      ).getBooks();
+      if (mounted) setState(() => _bookCount = books.length);
+    } catch (_) {
+      // Non-critical: on failure keep the help visible (treat as a new user).
+    }
   }
 
   void _createTabController(int initialIndex) {
@@ -98,6 +122,7 @@ class _LibraryScreenState extends State<LibraryScreen>
   void dispose() {
     _tabController.removeListener(_handleTabSelection);
     _tabController.dispose();
+    _refreshNotifier.removeListener(_loadBookCount);
     _refreshNotifier.dispose();
     _shelvesRefreshNotifier.dispose();
     _searchQuery.dispose();
@@ -178,30 +203,31 @@ class _LibraryScreenState extends State<LibraryScreen>
         style: AppDesign.headerIconButtonStyle(),
       ),
       actions: [
-        ContextualHelpIconButton(
-          titleKey: 'help_ctx_library_title',
-          contentKey: 'help_ctx_library_content',
-          tips: const [
-            HelpTip(
-              icon: Icons.add_circle,
-              color: Colors.blue,
-              titleKey: 'help_ctx_library_tip_add',
-              descriptionKey: 'help_ctx_library_tip_add_desc',
-            ),
-            HelpTip(
-              icon: Icons.shelves,
-              color: Colors.green,
-              titleKey: 'help_ctx_library_tip_shelves',
-              descriptionKey: 'help_ctx_library_tip_shelves_desc',
-            ),
-            HelpTip(
-              icon: Icons.search,
-              color: Colors.orange,
-              titleKey: 'help_ctx_library_tip_search',
-              descriptionKey: 'help_ctx_library_tip_search_desc',
-            ),
-          ],
-        ),
+        if (_bookCount == null || _bookCount! < _kOnboardingHelpMaxBooks)
+          ContextualHelpIconButton(
+            titleKey: 'help_ctx_library_title',
+            contentKey: 'help_ctx_library_content',
+            tips: const [
+              HelpTip(
+                icon: Icons.add_circle,
+                color: Colors.blue,
+                titleKey: 'help_ctx_library_tip_add',
+                descriptionKey: 'help_ctx_library_tip_add_desc',
+              ),
+              HelpTip(
+                icon: Icons.shelves,
+                color: Colors.green,
+                titleKey: 'help_ctx_library_tip_shelves',
+                descriptionKey: 'help_ctx_library_tip_shelves_desc',
+              ),
+              HelpTip(
+                icon: Icons.search,
+                color: Colors.orange,
+                titleKey: 'help_ctx_library_tip_search',
+                descriptionKey: 'help_ctx_library_tip_search_desc',
+              ),
+            ],
+          ),
       ],
       contextualQuickActions: _buildQuickActions(context),
       onBookAdded: () => _refreshNotifier.value++,
