@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../providers/sliding_puzzle_provider.dart';
 import '../services/translation_service.dart';
+import '../theme/app_design.dart';
 import '../widgets/achievement_pop_animation.dart';
 import '../widgets/app_snack_bar.dart';
 import '../widgets/puzzle_board_widget.dart';
@@ -193,30 +194,41 @@ class _SlidingPuzzleScreenState extends State<SlidingPuzzleScreen> {
     return Column(
       children: [
         Expanded(
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-            children: [
-              Text(
-                TranslationService.translate(context, 'sliding_puzzle_intro'),
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                ),
+          // Cap the width so the desktop side gutters match the other pages.
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxWidth: AppDesign.maxContentWidth,
               ),
-              const SizedBox(height: 20),
-              Text(
-                TranslationService.translate(
-                  context,
-                  'sliding_puzzle_choose_difficulty',
-                ),
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                children: [
+                  Text(
+                    TranslationService.translate(
+                      context,
+                      'sliding_puzzle_intro',
+                    ),
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    TranslationService.translate(
+                      context,
+                      'sliding_puzzle_choose_difficulty',
+                    ),
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  ...difficulties.map((d) => _buildDifficultyCard(provider, d)),
+                  const SizedBox(height: 8),
+                  _buildLeaderboardButton(),
+                ],
               ),
-              const SizedBox(height: 16),
-              ...difficulties.map((d) => _buildDifficultyCard(provider, d)),
-              const SizedBox(height: 8),
-              _buildLeaderboardButton(),
-            ],
+            ),
           ),
         ),
         Padding(

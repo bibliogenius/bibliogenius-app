@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 
 import '../providers/hangman_provider.dart';
 import '../services/translation_service.dart';
+import '../theme/app_design.dart';
 import '../widgets/achievement_pop_animation.dart' show AchievementPopAnimation;
 import '../widgets/app_snack_bar.dart';
 import '../widgets/hangman_keyboard.dart';
@@ -274,137 +275,157 @@ class _HangmanScreenState extends State<HangmanScreen> {
       );
     }
 
-    return ListView(
-      padding: const EdgeInsets.all(24),
-      children: [
-        // Visual preview + mode toggle
-        Center(
-          child: SizedBox(
-            height: 120,
-            child: HangmanPainterWidget(
-              errors: 0,
-              maxErrors: 6,
-              visualMode: provider.visualMode,
-            ),
-          ),
-        ),
-        const SizedBox(height: 12),
-        Center(
-          child: SegmentedButton<HangmanVisualMode>(
-            segments: [
-              ButtonSegment(
-                value: HangmanVisualMode.classic,
-                icon: const Icon(Icons.person_outline, size: 18),
-                label: Text(
-                  TranslationService.translate(
-                    context,
-                    'hangman_style_classic',
-                  ),
-                ),
-              ),
-              ButtonSegment(
-                value: HangmanVisualMode.books,
-                icon: const Icon(Icons.menu_book_outlined, size: 18),
-                label: Text(
-                  TranslationService.translate(context, 'hangman_style_books'),
-                ),
-              ),
-            ],
-            selected: {provider.visualMode},
-            onSelectionChanged: (modes) {
-              provider.setVisualMode(modes.first);
-            },
-          ),
-        ),
-        const SizedBox(height: 28),
-        // Difficulty selection
-        Text(
-          TranslationService.translate(context, 'hangman_select_difficulty'),
-          style: theme.textTheme.titleMedium,
-        ),
-        const SizedBox(height: 12),
-        ...provider.availableDifficulties.map((d) {
-          final info = _difficultyInfo(d);
-          final selected = provider.selectedDifficulty == d;
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: Card(
-              elevation: selected ? 2 : 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
-                side: BorderSide(
-                  color: selected
-                      ? info.color
-                      : theme.colorScheme.outline.withValues(alpha: 0.2),
-                  width: selected ? 2 : 1,
-                ),
-              ),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(14),
-                onTap: () => provider.selectDifficulty(d),
-                child: Padding(
-                  padding: const EdgeInsets.all(14),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 44,
-                        height: 44,
-                        decoration: BoxDecoration(
-                          color: info.color.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(info.icon, color: info.color, size: 24),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              TranslationService.translate(
-                                context,
-                                'hangman_difficulty_$d',
-                              ),
-                              style: theme.textTheme.titleSmall?.copyWith(
-                                color: selected
-                                    ? info.color
-                                    : theme.colorScheme.onSurface,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              TranslationService.translate(
-                                context,
-                                'hangman_difficulty_${d}_desc',
-                              ),
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: theme.colorScheme.onSurfaceVariant,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      if (selected)
-                        Icon(Icons.check_circle, color: info.color, size: 22),
-                    ],
-                  ),
+    // Cap the width so the desktop side gutters match the other pages.
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: AppDesign.maxContentWidth),
+        child: ListView(
+          padding: const EdgeInsets.all(24),
+          children: [
+            // Visual preview + mode toggle
+            Center(
+              child: SizedBox(
+                height: 120,
+                child: HangmanPainterWidget(
+                  errors: 0,
+                  maxErrors: 6,
+                  visualMode: provider.visualMode,
                 ),
               ),
             ),
-          );
-        }),
-        const SizedBox(height: 16),
-        FilledButton.icon(
-          onPressed: provider.selectedDifficulty != null
-              ? provider.startGame
-              : null,
-          icon: const Icon(Icons.play_arrow),
-          label: Text(TranslationService.translate(context, 'hangman_start')),
-          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+            const SizedBox(height: 12),
+            Center(
+              child: SegmentedButton<HangmanVisualMode>(
+                segments: [
+                  ButtonSegment(
+                    value: HangmanVisualMode.classic,
+                    icon: const Icon(Icons.person_outline, size: 18),
+                    label: Text(
+                      TranslationService.translate(
+                        context,
+                        'hangman_style_classic',
+                      ),
+                    ),
+                  ),
+                  ButtonSegment(
+                    value: HangmanVisualMode.books,
+                    icon: const Icon(Icons.menu_book_outlined, size: 18),
+                    label: Text(
+                      TranslationService.translate(
+                        context,
+                        'hangman_style_books',
+                      ),
+                    ),
+                  ),
+                ],
+                selected: {provider.visualMode},
+                onSelectionChanged: (modes) {
+                  provider.setVisualMode(modes.first);
+                },
+              ),
+            ),
+            const SizedBox(height: 28),
+            // Difficulty selection
+            Text(
+              TranslationService.translate(
+                context,
+                'hangman_select_difficulty',
+              ),
+              style: theme.textTheme.titleMedium,
+            ),
+            const SizedBox(height: 12),
+            ...provider.availableDifficulties.map((d) {
+              final info = _difficultyInfo(d);
+              final selected = provider.selectedDifficulty == d;
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Card(
+                  elevation: selected ? 2 : 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    side: BorderSide(
+                      color: selected
+                          ? info.color
+                          : theme.colorScheme.outline.withValues(alpha: 0.2),
+                      width: selected ? 2 : 1,
+                    ),
+                  ),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(14),
+                    onTap: () => provider.selectDifficulty(d),
+                    child: Padding(
+                      padding: const EdgeInsets.all(14),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 44,
+                            height: 44,
+                            decoration: BoxDecoration(
+                              color: info.color.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Icon(info.icon, color: info.color, size: 24),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  TranslationService.translate(
+                                    context,
+                                    'hangman_difficulty_$d',
+                                  ),
+                                  style: theme.textTheme.titleSmall?.copyWith(
+                                    color: selected
+                                        ? info.color
+                                        : theme.colorScheme.onSurface,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  TranslationService.translate(
+                                    context,
+                                    'hangman_difficulty_${d}_desc',
+                                  ),
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: theme.colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (selected)
+                            Icon(
+                              Icons.check_circle,
+                              color: info.color,
+                              size: 22,
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }),
+            const SizedBox(height: 16),
+            FilledButton.icon(
+              onPressed: provider.selectedDifficulty != null
+                  ? provider.startGame
+                  : null,
+              icon: const Icon(Icons.play_arrow),
+              label: Text(
+                TranslationService.translate(context, 'hangman_start'),
+              ),
+              style: FilledButton.styleFrom(
+                minimumSize: const Size.fromHeight(48),
+              ),
+            ),
+            const SizedBox(height: 12),
+            _buildLeaderboardButton(theme),
+          ],
         ),
-        const SizedBox(height: 12),
-        _buildLeaderboardButton(theme),
-      ],
+      ),
     );
   }
 

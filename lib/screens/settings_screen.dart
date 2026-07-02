@@ -397,7 +397,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
         return ConstrainedBox(
           constraints: BoxConstraints(maxHeight: media.size.height * 0.85),
           child: SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(16, 0, 16, 16 + media.viewInsets.bottom),
+            padding: EdgeInsets.fromLTRB(
+              16,
+              0,
+              16,
+              16 + media.viewInsets.bottom,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
@@ -416,7 +421,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         child: Semantics(
                           header: true,
                           child: Text(
-                            TranslationService.translate(sheetContext, titleKey),
+                            TranslationService.translate(
+                              sheetContext,
+                              titleKey,
+                            ),
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -503,6 +511,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   content: [_buildLocalNetworkCard(context)],
                 ),
               ),
+              // Multi-device account sync: unlike the other goal tiles this opens
+              // the dedicated hub screen (create/join account, manage devices)
+              // rather than a capability sheet, so it navigates instead. Same
+              // visibility gate as the (now removed) bottom tile it replaces.
+              if (_sectionVisible([
+                'account_sync_title',
+                'account_sync_settings_subtitle',
+              ]))
+                _buildGoalTile(
+                  context,
+                  icon: Icons.devices,
+                  labelKey: 'account_sync_title',
+                  onTap: () => context.push('/account-sync'),
+                ),
               // Invitation to discover multi-language reading. Once the user
               // has more than one reading language the capability is discovered;
               // further tweaks live in Settings > Languages.
@@ -623,1062 +645,209 @@ class _SettingsScreenState extends State<SettingsScreen> {
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Search bar
-            TextField(
-              controller: _settingsSearchController,
-              decoration: InputDecoration(
-                hintText: TranslationService.translate(
-                  context,
-                  'settings_search_hint',
-                ),
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: _settingsSearch.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        tooltip: TranslationService.translate(
-                          context,
-                          'action_clear',
-                        ),
-                        onPressed: () {
-                          _settingsSearchController.clear();
-                          setState(() => _settingsSearch = '');
-                        },
-                      )
-                    : null,
-                filled: true,
-                fillColor: Theme.of(context).cardColor,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding: const EdgeInsets.symmetric(vertical: 0),
-              ),
-              onChanged: (v) => setState(() => _settingsSearch = v),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: AppDesign.maxContentWidth,
             ),
-            const SizedBox(height: 16),
-
-            // Common-search shortcuts (hidden during search)
-            if (!_isSearching) _buildSpringboard(context),
-
-            // Quick Presets Section (hidden during search)
-            if (!_isSearching) ...[
-              Text(
-                TranslationService.translate(context, 'quick_presets') ??
-                    'Quick Presets',
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                TranslationService.translate(context, 'quick_presets_desc') ??
-                    'Apply a configuration adapted to your usage:',
-                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildPresetButton(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Search bar
+                TextField(
+                  controller: _settingsSearchController,
+                  decoration: InputDecoration(
+                    hintText: TranslationService.translate(
                       context,
-                      'reader',
-                      TranslationService.translate(context, 'preset_reader') ??
-                          'Reader',
-                      Icons.menu_book,
-                      Colors.teal,
-                      themeProvider,
+                      'settings_search_hint',
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _buildPresetButton(
-                      context,
-                      'librarian',
-                      TranslationService.translate(
-                            context,
-                            'preset_librarian',
-                          ) ??
-                          'Librarian',
-                      Icons.local_library,
-                      Colors.indigo,
-                      themeProvider,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _buildPresetButton(
-                      context,
-                      'bookseller',
-                      TranslationService.translate(
-                            context,
-                            'preset_bookseller',
-                          ) ??
-                          'Bookseller',
-                      Icons.storefront,
-                      Colors.orange,
-                      themeProvider,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-            ],
-
-            // Data Management
-            // Content accordion
-            if (_sectionVisible([
-              'content',
-              'migration_card_csv_title',
-              'migration_card_shelves_title',
-            ]))
-              Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                child: ExpansionTile(
-                  key: ValueKey('content_$_isSearching'),
-                  initiallyExpanded: _isSearching,
-                  leading: const Icon(Icons.inventory_2_outlined),
-                  title: Semantics(
-                    header: true,
-                    child: Text(
-                      TranslationService.translate(context, 'content'),
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  children: [
-                    ListTile(
-                      leading: Icon(
-                        Icons.import_contacts,
-                        color: Colors.orange.shade400,
-                      ),
-                      title: Text(
-                        TranslationService.translate(
-                          context,
-                          'migration_card_csv_title',
-                        ),
-                      ),
-                      subtitle: Text(
-                        TranslationService.translate(
-                          context,
-                          'migration_card_csv_subtitle',
-                        ),
-                      ),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () => ImportActions.importCsv(context),
-                    ),
-                    ListTile(
-                      leading: Icon(
-                        Icons.folder_special,
-                        color: Colors.blue.shade400,
-                      ),
-                      title: Text(
-                        TranslationService.translate(
-                          context,
-                          'migration_card_shelves_title',
-                        ),
-                      ),
-                      subtitle: Text(
-                        TranslationService.translate(
-                          context,
-                          'migration_card_shelves_subtitle',
-                        ),
-                      ),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () => context.push('/shelves-management'),
-                    ),
-                  ],
-                ),
-              ),
-
-            // Backup and export accordion (catalog JSON + future full backup + restore)
-            if (_sectionVisible([
-              'backup_section_title',
-              'backup_export_catalog_title',
-              'backup_full_title',
-              'backup_restore_title',
-            ]))
-              Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                child: ExpansionTile(
-                  key: ValueKey('backup_$_isSearching'),
-                  initiallyExpanded: _isSearching,
-                  leading: const Icon(Icons.backup_outlined),
-                  title: Semantics(
-                    header: true,
-                    child: Text(
-                      TranslationService.translate(
-                        context,
-                        'backup_section_title',
-                      ),
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  children: _backupChildren(context),
-                ),
-              ),
-
-            // Account accordion (security + session)
-            if (_sectionVisible([
-              'account',
-              'password',
-              'two_factor_auth',
-              'recovery_code_title',
-            ]))
-              Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                child: ExpansionTile(
-                  key: ValueKey('account_$_isSearching'),
-                  initiallyExpanded: _isSearching,
-                  leading: const Icon(Icons.person_outlined),
-                  title: Semantics(
-                    header: true,
-                    child: Text(
-                      TranslationService.translate(context, 'account'),
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  children: [
-                    ListTile(
-                      leading: const Icon(Icons.lock),
-                      title: Text(
-                        TranslationService.translate(context, 'password') ??
-                            'Password',
-                      ),
-                      subtitle: Text(
-                        hasPassword
-                            ? '********'
-                            : (TranslationService.translate(
-                                    context,
-                                    'not_set',
-                                  ) ??
-                                  'Not set'),
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const HelpAffordance(topicId: 'password_setting'),
-                          TextButton(
-                            onPressed: _showChangePasswordDialog,
-                            child: Text(
-                              TranslationService.translate(context, 'change') ??
-                                  'Change',
+                    prefixIcon: const Icon(Icons.search),
+                    suffixIcon: _settingsSearch.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear),
+                            tooltip: TranslationService.translate(
+                              context,
+                              'action_clear',
                             ),
-                          ),
-                        ],
-                      ),
+                            onPressed: () {
+                              _settingsSearchController.clear();
+                              setState(() => _settingsSearch = '');
+                            },
+                          )
+                        : null,
+                    filled: true,
+                    fillColor: Theme.of(context).cardColor,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          Provider.of<ApiService>(context, listen: false).useFfi
-                              ? (TranslationService.translate(
-                                      context,
-                                      'password_hint_local',
-                                    ) ??
-                                    'Optional. Protects access to your library when the app starts.')
-                              : (TranslationService.translate(
-                                      context,
-                                      'password_hint_server',
-                                    ) ??
-                                    'Used to authenticate to the BiblioGenius server.'),
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurfaceVariant
-                                    .withValues(alpha: 0.7),
-                              ),
-                        ),
-                      ),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                  ),
+                  onChanged: (v) => setState(() => _settingsSearch = v),
+                ),
+                const SizedBox(height: 16),
+
+                // Common-search shortcuts (hidden during search)
+                if (!_isSearching) _buildSpringboard(context),
+
+                // Quick Presets Section (hidden during search)
+                if (!_isSearching) ...[
+                  Text(
+                    TranslationService.translate(context, 'quick_presets') ??
+                        'Quick Presets',
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
                     ),
-                    const SizedBox(height: 8),
-                    if (!Provider.of<ApiService>(context, listen: false).useFfi)
-                      ListTile(
-                        leading: const Icon(Icons.security),
-                        title: Text(
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    TranslationService.translate(
+                          context,
+                          'quick_presets_desc',
+                        ) ??
+                        'Apply a configuration adapted to your usage:',
+                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildPresetButton(
+                          context,
+                          'reader',
                           TranslationService.translate(
                                 context,
-                                'two_factor_auth',
+                                'preset_reader',
                               ) ??
-                              'Two-Factor Authentication',
-                        ),
-                        subtitle: Text(
-                          mfaEnabled
-                              ? (TranslationService.translate(
-                                      context,
-                                      'enabled',
-                                    ) ??
-                                    'Enabled')
-                              : (TranslationService.translate(
-                                      context,
-                                      'disabled',
-                                    ) ??
-                                    'Disabled'),
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const HelpAffordance(
-                              topicId: 'two_factor_auth_setting',
-                            ),
-                            const SizedBox(width: 4),
-                            Switch(
-                              value: mfaEnabled,
-                              onChanged: (val) {
-                                if (val) {
-                                  _setupMfa();
-                                }
-                              },
-                            ),
-                          ],
+                              'Reader',
+                          Icons.menu_book,
+                          Colors.teal,
+                          themeProvider,
                         ),
                       ),
-                    Consumer<HubDirectoryProvider>(
-                      builder: (context, dirProvider, _) {
-                        final config = dirProvider.config;
-                        if (config == null) {
-                          // Not registered (or config purged): offer manual
-                          // reclaim with a previously-saved recovery code.
-                          return Column(
-                            children: [
-                              const Divider(height: 1),
-                              ListTile(
-                                leading: const Icon(Icons.restore),
-                                title: Text(
-                                  TranslationService.translate(
-                                        context,
-                                        'recovery_reclaim_title',
-                                      ) ??
-                                      'Reclaim profile with recovery code',
-                                ),
-                                subtitle: Text(
-                                  TranslationService.translate(
-                                        context,
-                                        'recovery_reclaim_subtitle',
-                                      ) ??
-                                      'Use your saved recovery code to restore an existing profile',
-                                ),
-                                trailing: const Icon(Icons.chevron_right),
-                                onTap: () async {
-                                  final ok = await showRecoveryCodeInputSheet(
-                                    context,
-                                    dirProvider,
-                                  );
-                                  if (!context.mounted) return;
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        ok
-                                            ? (TranslationService.translate(
-                                                    context,
-                                                    'recovery_reclaim_success',
-                                                  ) ??
-                                                  'Profile reclaimed successfully')
-                                            : (TranslationService.translate(
-                                                    context,
-                                                    'recovery_reclaim_failed',
-                                                  ) ??
-                                                  'Could not reclaim profile. Check the code and try again.'),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
-                          );
-                        }
-                        return Column(
-                          children: [
-                            const Divider(height: 1),
-                            ListTile(
-                              leading: const Icon(Icons.key),
-                              title: Row(
-                                children: [
-                                  Text(
-                                    TranslationService.translate(
-                                          context,
-                                          'recovery_code_title',
-                                        ) ??
-                                        'Recovery code',
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Chip(
-                                    label: Text(
-                                      TranslationService.translate(
-                                            context,
-                                            'badge_experimental',
-                                          ) ??
-                                          'Experimental',
-                                      style: const TextStyle(fontSize: 10),
-                                    ),
-                                    padding: EdgeInsets.zero,
-                                    visualDensity: VisualDensity.compact,
-                                    side: BorderSide.none,
-                                    backgroundColor: Theme.of(
-                                      context,
-                                    ).colorScheme.tertiaryContainer,
-                                    labelStyle: TextStyle(
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.onTertiaryContainer,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              subtitle: Text(
-                                TranslationService.translate(
-                                      context,
-                                      'recovery_code_subtitle',
-                                    ) ??
-                                    'Recover your profile after reinstalling the app',
-                              ),
-                              trailing: const Icon(Icons.chevron_right),
-                              onTap: () async {
-                                final code = await dirProvider
-                                    .getRecoveryCode();
-                                if (!context.mounted) return;
-                                if (code != null) {
-                                  showModalBottomSheet(
-                                    context: context,
-                                    builder: (_) => RecoveryCodeDisplaySheet(
-                                      recoveryCode: code,
-                                    ),
-                                  );
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        TranslationService.translate(
-                                              context,
-                                              'recovery_code_not_available',
-                                            ) ??
-                                            'Not available. Re-register to generate one.',
-                                      ),
-                                    ),
-                                  );
-                                }
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            // Theme accordion (theme + text size)
-            if (_sectionVisible([
-              'theme_title',
-              'nav_style_label',
-              'nav_style_side_menu',
-              'nav_style_bottom_bar',
-            ]))
-              Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                child: ExpansionTile(
-                  key: ValueKey('theme_$_isSearching'),
-                  initiallyExpanded: _isSearching,
-                  leading: const Icon(Icons.palette_outlined),
-                  title: Semantics(
-                    header: true,
-                    child: Text(
-                      TranslationService.translate(context, 'theme_title'),
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildThemeSelector(context, themeProvider),
-                          const SizedBox(height: 24),
-                          _buildTextScaleSlider(context, themeProvider),
-                          const SizedBox(height: 24),
-                          _buildNavStyleSelector(context, themeProvider),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-            // Languages accordion
-            if (_sectionVisible([
-              'languages_section',
-              'languages_reading',
-              'languages_ui',
-              'settings_country',
-            ]))
-              Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                child: ExpansionTile(
-                  key: ValueKey('languages_$_isSearching'),
-                  initiallyExpanded: _isSearching,
-                  leading: const Icon(Icons.translate),
-                  title: Semantics(
-                    header: true,
-                    child: Text(
-                      TranslationService.translate(
-                        context,
-                        'languages_section',
-                      ),
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                      child: _buildLanguageSection(context, themeProvider),
-                    ),
-                  ],
-                ),
-              ),
-
-            // Modules accordion
-            if (_sectionVisible([
-              'modules',
-              'quotes_module',
-              'quotes_module_desc',
-              'gamification_module',
-              'gamification_desc',
-              'games_module',
-              'games_module_desc',
-              'memory_game_module',
-              'memory_game_module_desc',
-              'sliding_puzzle_module',
-              'sliding_puzzle_module_desc',
-              'network_gamification',
-              'network_gamification_desc',
-              'share_gamification_stats',
-              'share_gamification_stats_desc',
-              'collections_module',
-              'collections_module_desc',
-              'group_by_collections_title',
-              'group_by_collections_desc',
-              'commerce_module',
-              'commerce_module_desc',
-              'audio_module',
-              'audio_module_desc',
-              'auto_approve_loans_title',
-              'auto_approve_loans_desc',
-              'enable_borrowing_module',
-              'borrowing_module_desc',
-              'settings_allow_private_books',
-              'settings_allow_private_books_desc',
-              'module_digital_formats',
-              'module_digital_formats_desc',
-              'mcp_integration',
-              'mcp_description',
-              'settings_linked_devices',
-              'settings_linked_devices_desc',
-              'settings_notif_enabled',
-              'settings_notif_enabled_desc',
-              'settings_notif_connections',
-              'settings_notif_connections_desc',
-              'settings_notif_loans',
-              'settings_notif_loans_desc',
-              'settings_notif_discoveries',
-              'settings_notif_discoveries_desc',
-              'module_operation_log_viewer',
-              'module_operation_log_desc',
-              'enable_taxonomy',
-              'settings_notifications',
-              'settings_developer_tools',
-            ]))
-              Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                child: ExpansionTile(
-                  key: ValueKey('modules_$_isSearching'),
-                  initiallyExpanded: _isSearching,
-                  leading: const Icon(Icons.extension_outlined),
-                  title: Semantics(
-                    header: true,
-                    child: Text(
-                      TranslationService.translate(context, 'modules'),
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  children: [
-                    // === Group 1: Reading & Fun ===
-                    _buildModulesGroupHeader(
-                      context,
-                      'modules_group_reading_fun',
-                    ),
-                    _buildModuleToggle(
-                      context,
-                      'quotes_module',
-                      'quotes_module_desc',
-                      Icons.format_quote,
-                      themeProvider.quotesEnabled,
-                      (value) => themeProvider.setQuotesEnabled(value),
-                      helpTopicId: 'quotes_module',
-                    ),
-                    _buildModuleToggle(
-                      context,
-                      'gamification_module',
-                      'gamification_desc',
-                      Icons.emoji_events,
-                      themeProvider.gamificationEnabled,
-                      (value) => themeProvider.setGamificationEnabled(value),
-                      helpTopicId: 'gamification_module',
-                    ),
-                    _buildModuleToggle(
-                      context,
-                      'games_module',
-                      'games_module_desc',
-                      Icons.sports_esports,
-                      themeProvider.gamesEnabled,
-                      (value) => themeProvider.setGamesEnabled(value),
-                      helpTopicId: 'games_module',
-                    ),
-                    if (themeProvider.gamesEnabled)
-                      Padding(
-                        padding: const EdgeInsets.only(left: 16.0),
-                        child: _buildModuleToggle(
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _buildPresetButton(
                           context,
-                          'memory_game_module',
-                          'memory_game_module_desc',
-                          Icons.auto_stories,
-                          themeProvider.memoryGameEnabled,
-                          (value) => themeProvider.setMemoryGameEnabled(value),
-                          helpTopicId: 'memory_game',
+                          'librarian',
+                          TranslationService.translate(
+                                context,
+                                'preset_librarian',
+                              ) ??
+                              'Librarian',
+                          Icons.local_library,
+                          Colors.indigo,
+                          themeProvider,
                         ),
                       ),
-                    if (themeProvider.gamesEnabled)
-                      Padding(
-                        padding: const EdgeInsets.only(left: 16.0),
-                        child: _buildModuleToggle(
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _buildPresetButton(
                           context,
-                          'sliding_puzzle_module',
-                          'sliding_puzzle_module_desc',
-                          Icons.grid_view,
-                          themeProvider.slidingPuzzleEnabled,
-                          (value) =>
-                              themeProvider.setSlidingPuzzleEnabled(value),
-                          helpTopicId: 'sliding_puzzle',
+                          'bookseller',
+                          TranslationService.translate(
+                                context,
+                                'preset_bookseller',
+                              ) ??
+                              'Bookseller',
+                          Icons.storefront,
+                          Colors.orange,
+                          themeProvider,
                         ),
-                      ),
-                    if (themeProvider.gamesEnabled)
-                      Padding(
-                        padding: const EdgeInsets.only(left: 16.0),
-                        child: _buildModuleToggle(
-                          context,
-                          'hangman_module',
-                          'hangman_module_desc',
-                          Icons.text_fields,
-                          themeProvider.hangmanEnabled,
-                          (value) => themeProvider.setHangmanEnabled(value),
-                          helpTopicId: 'hangman',
-                        ),
-                      ),
-                    if (themeProvider.gamificationEnabled &&
-                        themeProvider.networkEnabled)
-                      Padding(
-                        padding: const EdgeInsets.only(left: 16.0),
-                        child: _buildModuleToggle(
-                          context,
-                          'network_gamification',
-                          'network_gamification_desc',
-                          Icons.leaderboard,
-                          themeProvider.networkGamificationEnabled,
-                          (value) => themeProvider
-                              .setNetworkGamificationEnabled(value),
-                          helpTopicId: 'network_gamification',
-                        ),
-                      ),
-                    if (themeProvider.networkGamificationEnabled &&
-                        themeProvider.gamificationEnabled &&
-                        themeProvider.networkEnabled)
-                      Padding(
-                        padding: const EdgeInsets.only(left: 32.0),
-                        child: _buildModuleToggle(
-                          context,
-                          'share_gamification_stats',
-                          'share_gamification_stats_desc',
-                          Icons.share,
-                          themeProvider.shareGamificationStats,
-                          (value) =>
-                              themeProvider.setShareGamificationStats(value),
-                          helpTopicId: 'share_gamification_stats',
-                        ),
-                      ),
-                    // === Group 2: Content & Library ===
-                    _buildModulesGroupHeader(context, 'modules_group_content'),
-                    _buildModuleToggle(
-                      context,
-                      'collections_module',
-                      'collections_module_desc',
-                      Icons.collections_bookmark,
-                      themeProvider.collectionsEnabled,
-                      (value) => themeProvider.setCollectionsEnabled(value),
-                      helpTopicId: 'collections',
-                    ),
-                    if (themeProvider.collectionsEnabled)
-                      _buildModuleToggle(
-                        context,
-                        'group_by_collections_title',
-                        'group_by_collections_desc',
-                        Icons.auto_stories,
-                        themeProvider.groupByCollections,
-                        (value) => themeProvider.setGroupByCollections(value),
-                        helpTopicId: 'group_by_collections',
-                      ),
-                    _buildModuleToggle(
-                      context,
-                      'carousel_own_lib_title',
-                      'carousel_own_lib_desc',
-                      Icons.new_releases_outlined,
-                      !themeProvider.carouselHiddenOwnLib,
-                      (value) => themeProvider.setCarouselHiddenOwnLib(!value),
-                    ),
-                    _buildModuleToggle(
-                      context,
-                      'carousel_peer_lib_title',
-                      'carousel_peer_lib_desc',
-                      Icons.new_releases,
-                      !themeProvider.carouselHiddenPeerLib,
-                      (value) => themeProvider.setCarouselHiddenPeerLib(!value),
-                    ),
-                    _buildModuleToggle(
-                      context,
-                      'commerce_module',
-                      'commerce_module_desc',
-                      Icons.storefront,
-                      themeProvider.commerceEnabled,
-                      (value) => themeProvider.setCommerceEnabled(value),
-                      helpTopicId: 'commerce_module',
-                    ),
-                    _buildModuleToggle(
-                      context,
-                      'audio_module',
-                      'audio_module_desc',
-                      Icons.headphones,
-                      themeProvider.audioEnabled,
-                      (value) => themeProvider.setAudioEnabled(value),
-                      helpTopicId: 'audio',
-                    ),
-                    _buildModuleToggle(
-                      context,
-                      'speech_to_text_setting',
-                      'speech_to_text_setting_desc',
-                      Icons.mic,
-                      themeProvider.speechToTextEnabled,
-                      (value) => themeProvider.setSpeechToTextEnabled(value),
-                      helpTopicId: 'speech_to_text',
-                    ),
-                    // === Group 3: Lending & Formats ===
-                    _buildModulesGroupHeader(context, 'modules_group_lending'),
-                    _buildModuleToggle(
-                      context,
-                      'auto_approve_loans_title',
-                      'auto_approve_loans_desc',
-                      Icons.auto_awesome,
-                      themeProvider.autoApproveLoanRequests,
-                      (value) =>
-                          themeProvider.setAutoApproveLoanRequests(value),
-                      helpTopicId: 'auto_approve_loans',
-                    ),
-                    if (_loanSettingsLoaded) _buildLoanDurationSection(context),
-                    _buildModuleToggle(
-                      context,
-                      'enable_borrowing_module',
-                      'borrowing_module_desc',
-                      Icons.swap_horiz,
-                      themeProvider.canBorrowBooks,
-                      (value) => themeProvider.setCanBorrowBooks(value),
-                      helpTopicId: 'enable_borrowing',
-                    ),
-                    _buildModuleToggle(
-                      context,
-                      'enable_lending_module',
-                      'lending_module_desc',
-                      Icons.handshake_outlined,
-                      themeProvider.canLendBooks,
-                      (value) => themeProvider.setCanLendBooks(value),
-                      helpTopicId: 'enable_lending',
-                    ),
-                    if (themeProvider.networkEnabled)
-                      _buildModuleToggle(
-                        context,
-                        'settings_allow_private_books',
-                        'settings_allow_private_books_desc',
-                        Icons.visibility_off,
-                        themeProvider.allowPrivateBooks,
-                        (value) => themeProvider.setAllowPrivateBooks(value),
-                        helpTopicId: 'allow_private_books',
-                      ),
-                    _buildModuleToggle(
-                      context,
-                      'module_digital_formats',
-                      'module_digital_formats_desc',
-                      Icons.tablet_mac,
-                      themeProvider.digitalFormatsEnabled,
-                      (value) => themeProvider.setDigitalFormatsEnabled(value),
-                      helpTopicId: 'digital_formats',
-                    ),
-                    // === Group 4: Advanced ===
-                    _buildModulesGroupHeader(context, 'modules_group_advanced'),
-                    _buildMcpModuleToggle(),
-
-                    // Notifications section
-                    const SizedBox(height: 16),
-                    Semantics(
-                      header: true,
-                      child: Text(
-                        TranslationService.translate(
-                          context,
-                          'settings_notifications',
-                        ),
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    _buildModuleToggle(
-                      context,
-                      'settings_notif_enabled',
-                      'settings_notif_enabled_desc',
-                      Icons.notifications_outlined,
-                      themeProvider.notificationsEnabled,
-                      (value) => themeProvider.setNotificationsEnabled(value),
-                      helpTopicId: 'notif_enabled',
-                    ),
-                    if (themeProvider.notificationsEnabled) ...[
-                      _buildModuleToggle(
-                        context,
-                        'settings_notif_connections',
-                        'settings_notif_connections_desc',
-                        Icons.people_outline,
-                        themeProvider.notifConnectionsEnabled,
-                        (value) =>
-                            themeProvider.setNotifConnectionsEnabled(value),
-                        helpTopicId: 'notif_connections',
-                      ),
-                      _buildModuleToggle(
-                        context,
-                        'settings_notif_loans',
-                        'settings_notif_loans_desc',
-                        Icons.menu_book_outlined,
-                        themeProvider.notifLoansEnabled,
-                        (value) => themeProvider.setNotifLoansEnabled(value),
-                        helpTopicId: 'notif_loans',
-                      ),
-                      _buildModuleToggle(
-                        context,
-                        'settings_notif_discoveries',
-                        'settings_notif_discoveries_desc',
-                        Icons.explore_outlined,
-                        themeProvider.notifDiscoveriesEnabled,
-                        (value) =>
-                            themeProvider.setNotifDiscoveriesEnabled(value),
-                        helpTopicId: 'notif_discoveries',
                       ),
                     ],
+                  ),
+                  const SizedBox(height: 16),
+                ],
 
-                    // Developer Tools section
-                    const SizedBox(height: 16),
-                    Semantics(
-                      header: true,
-                      child: Text(
-                        TranslationService.translate(
-                              context,
-                              'settings_developer_tools',
-                            ) ??
-                            'Developer Tools',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    _buildModuleToggle(
-                      context,
-                      'module_operation_log_viewer',
-                      'module_operation_log_desc',
-                      Icons.receipt_long_rounded,
-                      themeProvider.operationLogViewerEnabled,
-                      (value) =>
-                          themeProvider.setOperationLogViewerEnabled(value),
-                    ),
-                    if (themeProvider.operationLogViewerEnabled)
-                      Padding(
-                        padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
-                        child: Card(
-                          child: ListTile(
-                            leading: const Icon(Icons.terminal_rounded),
-                            title: Text(
-                              TranslationService.translate(
-                                    context,
-                                    'admin_operation_log_title',
-                                  ) ??
-                                  'Operation Log',
-                            ),
-                            trailing: const Icon(Icons.chevron_right),
-                            onTap: () => context.go('/operation-log'),
+                // Data Management
+                // Content accordion
+                if (_sectionVisible([
+                  'content',
+                  'migration_card_csv_title',
+                  'migration_card_shelves_title',
+                ]))
+                  Card(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    child: ExpansionTile(
+                      key: ValueKey('content_$_isSearching'),
+                      initiallyExpanded: _isSearching,
+                      leading: const Icon(Icons.inventory_2_outlined),
+                      title: Semantics(
+                        header: true,
+                        child: Text(
+                          TranslationService.translate(context, 'content'),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
-                    Card(
-                      margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                      child: SwitchListTile(
-                        secondary: const Icon(Icons.account_tree),
-                        title: Text(
-                          TranslationService.translate(
-                                context,
-                                'enable_taxonomy',
-                              ) ??
-                              'Hierarchical Tags',
+                      children: [
+                        ListTile(
+                          leading: Icon(
+                            Icons.import_contacts,
+                            color: Colors.orange.shade400,
+                          ),
+                          title: Text(
+                            TranslationService.translate(
+                              context,
+                              'migration_card_csv_title',
+                            ),
+                          ),
+                          subtitle: Text(
+                            TranslationService.translate(
+                              context,
+                              'migration_card_csv_subtitle',
+                            ),
+                          ),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () => ImportActions.importCsv(context),
                         ),
-                        subtitle: const Text('Gestion de sous-étagères'),
-                        value: AppConstants.enableHierarchicalTags,
-                        onChanged: (bool value) async {
-                          setState(() {
-                            AppConstants.enableHierarchicalTags = value;
-                          });
-                          final prefs = await SharedPreferences.getInstance();
-                          await prefs.setBool('enableHierarchicalTags', value);
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  TranslationService.translate(
-                                        context,
-                                        'restart_required_for_changes',
-                                      ) ??
-                                      'Please restart the app for changes to take full effect',
-                                ),
-                              ),
-                            );
-                          }
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-            // Network accordion (local + remote reachability + public directory)
-            if (_sectionVisible([
-              'settings_network_title',
-              'settings_remote_reachable',
-              'settings_remote_reachable_desc',
-              'hub_coming_soon_toggle',
-              'directory_settings_title',
-              'directory_listed_title',
-            ]))
-              Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                child: ExpansionTile(
-                  key: ValueKey('network_$_isSearching'),
-                  initiallyExpanded: _isSearching,
-                  leading: const Icon(Icons.wifi),
-                  title: Semantics(
-                    header: true,
-                    child: Text(
-                      TranslationService.translate(
-                        context,
-                        'settings_network_title',
-                      ),
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
+                        ListTile(
+                          leading: Icon(
+                            Icons.folder_special,
+                            color: Colors.blue.shade400,
+                          ),
+                          title: Text(
+                            TranslationService.translate(
+                              context,
+                              'migration_card_shelves_title',
+                            ),
+                          ),
+                          subtitle: Text(
+                            TranslationService.translate(
+                              context,
+                              'migration_card_shelves_subtitle',
+                            ),
+                          ),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () => context.push('/shelves-management'),
+                        ),
+                      ],
                     ),
                   ),
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildNetworkSection(context, themeProvider),
-                          const SizedBox(height: 12),
-                          _buildDirectorySection(context),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
 
-            // Multi-device account sync: a navigational tile to
-            // the dedicated hub screen (create/join account, manage devices).
-            if (_sectionVisible([
-              'account_sync_title',
-              'account_sync_settings_subtitle',
-            ]))
-              Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                child: ListTile(
-                  leading: const Icon(Icons.devices),
-                  title: Semantics(
-                    header: true,
-                    child: Text(
-                      TranslationService.translate(
-                        context,
-                        'account_sync_title',
-                      ),
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  subtitle: Text(
-                    TranslationService.translate(
-                      context,
-                      'account_sync_settings_subtitle',
-                    ),
-                  ),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => context.push('/account-sync'),
-                ),
-              ),
-
-            // Search Sources accordion
-            if (_sectionVisible(['search_sources']))
-              Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                child: ExpansionTile(
-                  key: ValueKey('search_sources_$_isSearching'),
-                  initiallyExpanded: _isSearching,
-                  leading: const Icon(Icons.saved_search),
-                  title: Row(
-                    children: [
-                      Semantics(
+                // Backup and export accordion (catalog JSON + future full backup + restore)
+                if (_sectionVisible([
+                  'backup_section_title',
+                  'backup_export_catalog_title',
+                  'backup_full_title',
+                  'backup_restore_title',
+                ]))
+                  Card(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    child: ExpansionTile(
+                      key: ValueKey('backup_$_isSearching'),
+                      initiallyExpanded: _isSearching,
+                      leading: const Icon(Icons.backup_outlined),
+                      title: Semantics(
                         header: true,
                         child: Text(
                           TranslationService.translate(
                             context,
-                            'search_sources',
+                            'backup_section_title',
                           ),
                           style: const TextStyle(
                             fontSize: 16,
@@ -1686,98 +855,977 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 4),
-                      const HelpAffordance(topicId: 'search_sources'),
-                    ],
-                  ),
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                      child: _buildSearchConfiguration(context),
+                      children: _backupChildren(context),
                     ),
-                  ],
-                ),
-              ),
+                  ),
 
-            const SizedBox(height: 24),
+                // Account accordion (security + session)
+                if (_sectionVisible([
+                  'account',
+                  'password',
+                  'two_factor_auth',
+                  'recovery_code_title',
+                ]))
+                  Card(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    child: ExpansionTile(
+                      key: ValueKey('account_$_isSearching'),
+                      initiallyExpanded: _isSearching,
+                      leading: const Icon(Icons.person_outlined),
+                      title: Semantics(
+                        header: true,
+                        child: Text(
+                          TranslationService.translate(context, 'account'),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      children: [
+                        ListTile(
+                          leading: const Icon(Icons.lock),
+                          title: Text(
+                            TranslationService.translate(context, 'password') ??
+                                'Password',
+                          ),
+                          subtitle: Text(
+                            hasPassword
+                                ? '********'
+                                : (TranslationService.translate(
+                                        context,
+                                        'not_set',
+                                      ) ??
+                                      'Not set'),
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const HelpAffordance(topicId: 'password_setting'),
+                              TextButton(
+                                onPressed: _showChangePasswordDialog,
+                                child: Text(
+                                  TranslationService.translate(
+                                        context,
+                                        'change',
+                                      ) ??
+                                      'Change',
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              Provider.of<ApiService>(
+                                    context,
+                                    listen: false,
+                                  ).useFfi
+                                  ? (TranslationService.translate(
+                                          context,
+                                          'password_hint_local',
+                                        ) ??
+                                        'Optional. Protects access to your library when the app starts.')
+                                  : (TranslationService.translate(
+                                          context,
+                                          'password_hint_server',
+                                        ) ??
+                                        'Used to authenticate to the BiblioGenius server.'),
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant
+                                        .withValues(alpha: 0.7),
+                                  ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        if (!Provider.of<ApiService>(
+                          context,
+                          listen: false,
+                        ).useFfi)
+                          ListTile(
+                            leading: const Icon(Icons.security),
+                            title: Text(
+                              TranslationService.translate(
+                                    context,
+                                    'two_factor_auth',
+                                  ) ??
+                                  'Two-Factor Authentication',
+                            ),
+                            subtitle: Text(
+                              mfaEnabled
+                                  ? (TranslationService.translate(
+                                          context,
+                                          'enabled',
+                                        ) ??
+                                        'Enabled')
+                                  : (TranslationService.translate(
+                                          context,
+                                          'disabled',
+                                        ) ??
+                                        'Disabled'),
+                            ),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const HelpAffordance(
+                                  topicId: 'two_factor_auth_setting',
+                                ),
+                                const SizedBox(width: 4),
+                                Switch(
+                                  value: mfaEnabled,
+                                  onChanged: (val) {
+                                    if (val) {
+                                      _setupMfa();
+                                    }
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        Consumer<HubDirectoryProvider>(
+                          builder: (context, dirProvider, _) {
+                            final config = dirProvider.config;
+                            if (config == null) {
+                              // Not registered (or config purged): offer manual
+                              // reclaim with a previously-saved recovery code.
+                              return Column(
+                                children: [
+                                  const Divider(height: 1),
+                                  ListTile(
+                                    leading: const Icon(Icons.restore),
+                                    title: Text(
+                                      TranslationService.translate(
+                                            context,
+                                            'recovery_reclaim_title',
+                                          ) ??
+                                          'Reclaim profile with recovery code',
+                                    ),
+                                    subtitle: Text(
+                                      TranslationService.translate(
+                                            context,
+                                            'recovery_reclaim_subtitle',
+                                          ) ??
+                                          'Use your saved recovery code to restore an existing profile',
+                                    ),
+                                    trailing: const Icon(Icons.chevron_right),
+                                    onTap: () async {
+                                      final ok =
+                                          await showRecoveryCodeInputSheet(
+                                            context,
+                                            dirProvider,
+                                          );
+                                      if (!context.mounted) return;
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            ok
+                                                ? (TranslationService.translate(
+                                                        context,
+                                                        'recovery_reclaim_success',
+                                                      ) ??
+                                                      'Profile reclaimed successfully')
+                                                : (TranslationService.translate(
+                                                        context,
+                                                        'recovery_reclaim_failed',
+                                                      ) ??
+                                                      'Could not reclaim profile. Check the code and try again.'),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ],
+                              );
+                            }
+                            return Column(
+                              children: [
+                                const Divider(height: 1),
+                                ListTile(
+                                  leading: const Icon(Icons.key),
+                                  title: Row(
+                                    children: [
+                                      Text(
+                                        TranslationService.translate(
+                                              context,
+                                              'recovery_code_title',
+                                            ) ??
+                                            'Recovery code',
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Chip(
+                                        label: Text(
+                                          TranslationService.translate(
+                                                context,
+                                                'badge_experimental',
+                                              ) ??
+                                              'Experimental',
+                                          style: const TextStyle(fontSize: 10),
+                                        ),
+                                        padding: EdgeInsets.zero,
+                                        visualDensity: VisualDensity.compact,
+                                        side: BorderSide.none,
+                                        backgroundColor: Theme.of(
+                                          context,
+                                        ).colorScheme.tertiaryContainer,
+                                        labelStyle: TextStyle(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onTertiaryContainer,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  subtitle: Text(
+                                    TranslationService.translate(
+                                          context,
+                                          'recovery_code_subtitle',
+                                        ) ??
+                                        'Recover your profile after reinstalling the app',
+                                  ),
+                                  trailing: const Icon(Icons.chevron_right),
+                                  onTap: () async {
+                                    final code = await dirProvider
+                                        .getRecoveryCode();
+                                    if (!context.mounted) return;
+                                    if (code != null) {
+                                      showModalBottomSheet(
+                                        context: context,
+                                        builder: (_) =>
+                                            RecoveryCodeDisplaySheet(
+                                              recoveryCode: code,
+                                            ),
+                                      );
+                                    } else {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            TranslationService.translate(
+                                                  context,
+                                                  'recovery_code_not_available',
+                                                ) ??
+                                                'Not available. Re-register to generate one.',
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                // Theme accordion (theme + text size)
+                if (_sectionVisible([
+                  'theme_title',
+                  'nav_style_label',
+                  'nav_style_side_menu',
+                  'nav_style_bottom_bar',
+                ]))
+                  Card(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    child: ExpansionTile(
+                      key: ValueKey('theme_$_isSearching'),
+                      initiallyExpanded: _isSearching,
+                      leading: const Icon(Icons.palette_outlined),
+                      title: Semantics(
+                        header: true,
+                        child: Text(
+                          TranslationService.translate(context, 'theme_title'),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildThemeSelector(context, themeProvider),
+                              const SizedBox(height: 24),
+                              _buildTextScaleSlider(context, themeProvider),
+                              const SizedBox(height: 24),
+                              _buildNavStyleSelector(context, themeProvider),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
 
-            // Session / Logout (only shown for authenticated users)
-            if (hasPassword)
-              OutlinedButton.icon(
-                onPressed: () async {
-                  final authService = Provider.of<AuthService>(
-                    context,
-                    listen: false,
-                  );
-                  await Future.delayed(const Duration(milliseconds: 200));
-                  await authService.logout();
-                  if (mounted) {
-                    context.go('/login');
-                  }
-                },
-                icon: const Icon(Icons.logout),
-                label: Text(TranslationService.translate(context, 'logout')),
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 50),
-                  foregroundColor: Colors.red,
-                ),
-              ),
-            if (_sectionVisible([
-              'system_reset_title',
-              'system_reset_subtitle',
-            ])) ...[
-              const SizedBox(height: 32),
-              Card(
-                margin: EdgeInsets.zero,
-                color: Colors.red.shade50,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  side: BorderSide(color: Colors.red.shade200),
-                ),
-                child: ListTile(
-                  leading: Icon(
-                    Icons.delete_forever,
-                    color: Colors.red.shade700,
-                  ),
-                  title: Text(
-                    TranslationService.translate(
-                      context,
-                      'system_reset_title',
-                    ),
-                    style: TextStyle(
-                      color: Colors.red.shade700,
-                      fontWeight: FontWeight.w600,
+                // Languages accordion
+                if (_sectionVisible([
+                  'languages_section',
+                  'languages_reading',
+                  'languages_ui',
+                  'settings_country',
+                ]))
+                  Card(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    child: ExpansionTile(
+                      key: ValueKey('languages_$_isSearching'),
+                      initiallyExpanded: _isSearching,
+                      leading: const Icon(Icons.translate),
+                      title: Semantics(
+                        header: true,
+                        child: Text(
+                          TranslationService.translate(
+                            context,
+                            'languages_section',
+                          ),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                          child: _buildLanguageSection(context, themeProvider),
+                        ),
+                      ],
                     ),
                   ),
-                  subtitle: Text(
-                    TranslationService.translate(
-                      context,
-                      'system_reset_subtitle',
+
+                // Modules accordion
+                if (_sectionVisible([
+                  'modules',
+                  'quotes_module',
+                  'quotes_module_desc',
+                  'gamification_module',
+                  'gamification_desc',
+                  'games_module',
+                  'games_module_desc',
+                  'memory_game_module',
+                  'memory_game_module_desc',
+                  'sliding_puzzle_module',
+                  'sliding_puzzle_module_desc',
+                  'network_gamification',
+                  'network_gamification_desc',
+                  'share_gamification_stats',
+                  'share_gamification_stats_desc',
+                  'collections_module',
+                  'collections_module_desc',
+                  'group_by_collections_title',
+                  'group_by_collections_desc',
+                  'commerce_module',
+                  'commerce_module_desc',
+                  'audio_module',
+                  'audio_module_desc',
+                  'auto_approve_loans_title',
+                  'auto_approve_loans_desc',
+                  'enable_borrowing_module',
+                  'borrowing_module_desc',
+                  'settings_allow_private_books',
+                  'settings_allow_private_books_desc',
+                  'module_digital_formats',
+                  'module_digital_formats_desc',
+                  'mcp_integration',
+                  'mcp_description',
+                  'settings_linked_devices',
+                  'settings_linked_devices_desc',
+                  'settings_notif_enabled',
+                  'settings_notif_enabled_desc',
+                  'settings_notif_connections',
+                  'settings_notif_connections_desc',
+                  'settings_notif_loans',
+                  'settings_notif_loans_desc',
+                  'settings_notif_discoveries',
+                  'settings_notif_discoveries_desc',
+                  'module_operation_log_viewer',
+                  'module_operation_log_desc',
+                  'enable_taxonomy',
+                  'settings_notifications',
+                  'settings_developer_tools',
+                ]))
+                  Card(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    child: ExpansionTile(
+                      key: ValueKey('modules_$_isSearching'),
+                      initiallyExpanded: _isSearching,
+                      leading: const Icon(Icons.extension_outlined),
+                      title: Semantics(
+                        header: true,
+                        child: Text(
+                          TranslationService.translate(context, 'modules'),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      children: [
+                        // === Group 1: Reading & Fun ===
+                        _buildModulesGroupHeader(
+                          context,
+                          'modules_group_reading_fun',
+                        ),
+                        _buildModuleToggle(
+                          context,
+                          'quotes_module',
+                          'quotes_module_desc',
+                          Icons.format_quote,
+                          themeProvider.quotesEnabled,
+                          (value) => themeProvider.setQuotesEnabled(value),
+                          helpTopicId: 'quotes_module',
+                        ),
+                        _buildModuleToggle(
+                          context,
+                          'gamification_module',
+                          'gamification_desc',
+                          Icons.emoji_events,
+                          themeProvider.gamificationEnabled,
+                          (value) =>
+                              themeProvider.setGamificationEnabled(value),
+                          helpTopicId: 'gamification_module',
+                        ),
+                        _buildModuleToggle(
+                          context,
+                          'games_module',
+                          'games_module_desc',
+                          Icons.sports_esports,
+                          themeProvider.gamesEnabled,
+                          (value) => themeProvider.setGamesEnabled(value),
+                          helpTopicId: 'games_module',
+                        ),
+                        if (themeProvider.gamesEnabled)
+                          Padding(
+                            padding: const EdgeInsets.only(left: 16.0),
+                            child: _buildModuleToggle(
+                              context,
+                              'memory_game_module',
+                              'memory_game_module_desc',
+                              Icons.auto_stories,
+                              themeProvider.memoryGameEnabled,
+                              (value) =>
+                                  themeProvider.setMemoryGameEnabled(value),
+                              helpTopicId: 'memory_game',
+                            ),
+                          ),
+                        if (themeProvider.gamesEnabled)
+                          Padding(
+                            padding: const EdgeInsets.only(left: 16.0),
+                            child: _buildModuleToggle(
+                              context,
+                              'sliding_puzzle_module',
+                              'sliding_puzzle_module_desc',
+                              Icons.grid_view,
+                              themeProvider.slidingPuzzleEnabled,
+                              (value) =>
+                                  themeProvider.setSlidingPuzzleEnabled(value),
+                              helpTopicId: 'sliding_puzzle',
+                            ),
+                          ),
+                        if (themeProvider.gamesEnabled)
+                          Padding(
+                            padding: const EdgeInsets.only(left: 16.0),
+                            child: _buildModuleToggle(
+                              context,
+                              'hangman_module',
+                              'hangman_module_desc',
+                              Icons.text_fields,
+                              themeProvider.hangmanEnabled,
+                              (value) => themeProvider.setHangmanEnabled(value),
+                              helpTopicId: 'hangman',
+                            ),
+                          ),
+                        if (themeProvider.gamificationEnabled &&
+                            themeProvider.networkEnabled)
+                          Padding(
+                            padding: const EdgeInsets.only(left: 16.0),
+                            child: _buildModuleToggle(
+                              context,
+                              'network_gamification',
+                              'network_gamification_desc',
+                              Icons.leaderboard,
+                              themeProvider.networkGamificationEnabled,
+                              (value) => themeProvider
+                                  .setNetworkGamificationEnabled(value),
+                              helpTopicId: 'network_gamification',
+                            ),
+                          ),
+                        if (themeProvider.networkGamificationEnabled &&
+                            themeProvider.gamificationEnabled &&
+                            themeProvider.networkEnabled)
+                          Padding(
+                            padding: const EdgeInsets.only(left: 32.0),
+                            child: _buildModuleToggle(
+                              context,
+                              'share_gamification_stats',
+                              'share_gamification_stats_desc',
+                              Icons.share,
+                              themeProvider.shareGamificationStats,
+                              (value) => themeProvider
+                                  .setShareGamificationStats(value),
+                              helpTopicId: 'share_gamification_stats',
+                            ),
+                          ),
+                        // === Group 2: Content & Library ===
+                        _buildModulesGroupHeader(
+                          context,
+                          'modules_group_content',
+                        ),
+                        _buildModuleToggle(
+                          context,
+                          'collections_module',
+                          'collections_module_desc',
+                          Icons.collections_bookmark,
+                          themeProvider.collectionsEnabled,
+                          (value) => themeProvider.setCollectionsEnabled(value),
+                          helpTopicId: 'collections',
+                        ),
+                        if (themeProvider.collectionsEnabled)
+                          _buildModuleToggle(
+                            context,
+                            'group_by_collections_title',
+                            'group_by_collections_desc',
+                            Icons.auto_stories,
+                            themeProvider.groupByCollections,
+                            (value) =>
+                                themeProvider.setGroupByCollections(value),
+                            helpTopicId: 'group_by_collections',
+                          ),
+                        _buildModuleToggle(
+                          context,
+                          'carousel_own_lib_title',
+                          'carousel_own_lib_desc',
+                          Icons.new_releases_outlined,
+                          !themeProvider.carouselHiddenOwnLib,
+                          (value) =>
+                              themeProvider.setCarouselHiddenOwnLib(!value),
+                        ),
+                        _buildModuleToggle(
+                          context,
+                          'carousel_peer_lib_title',
+                          'carousel_peer_lib_desc',
+                          Icons.new_releases,
+                          !themeProvider.carouselHiddenPeerLib,
+                          (value) =>
+                              themeProvider.setCarouselHiddenPeerLib(!value),
+                        ),
+                        _buildModuleToggle(
+                          context,
+                          'commerce_module',
+                          'commerce_module_desc',
+                          Icons.storefront,
+                          themeProvider.commerceEnabled,
+                          (value) => themeProvider.setCommerceEnabled(value),
+                          helpTopicId: 'commerce_module',
+                        ),
+                        _buildModuleToggle(
+                          context,
+                          'audio_module',
+                          'audio_module_desc',
+                          Icons.headphones,
+                          themeProvider.audioEnabled,
+                          (value) => themeProvider.setAudioEnabled(value),
+                          helpTopicId: 'audio',
+                        ),
+                        _buildModuleToggle(
+                          context,
+                          'speech_to_text_setting',
+                          'speech_to_text_setting_desc',
+                          Icons.mic,
+                          themeProvider.speechToTextEnabled,
+                          (value) =>
+                              themeProvider.setSpeechToTextEnabled(value),
+                          helpTopicId: 'speech_to_text',
+                        ),
+                        // === Group 3: Lending & Formats ===
+                        _buildModulesGroupHeader(
+                          context,
+                          'modules_group_lending',
+                        ),
+                        _buildModuleToggle(
+                          context,
+                          'auto_approve_loans_title',
+                          'auto_approve_loans_desc',
+                          Icons.auto_awesome,
+                          themeProvider.autoApproveLoanRequests,
+                          (value) =>
+                              themeProvider.setAutoApproveLoanRequests(value),
+                          helpTopicId: 'auto_approve_loans',
+                        ),
+                        if (_loanSettingsLoaded)
+                          _buildLoanDurationSection(context),
+                        _buildModuleToggle(
+                          context,
+                          'enable_borrowing_module',
+                          'borrowing_module_desc',
+                          Icons.swap_horiz,
+                          themeProvider.canBorrowBooks,
+                          (value) => themeProvider.setCanBorrowBooks(value),
+                          helpTopicId: 'enable_borrowing',
+                        ),
+                        _buildModuleToggle(
+                          context,
+                          'enable_lending_module',
+                          'lending_module_desc',
+                          Icons.handshake_outlined,
+                          themeProvider.canLendBooks,
+                          (value) => themeProvider.setCanLendBooks(value),
+                          helpTopicId: 'enable_lending',
+                        ),
+                        if (themeProvider.networkEnabled)
+                          _buildModuleToggle(
+                            context,
+                            'settings_allow_private_books',
+                            'settings_allow_private_books_desc',
+                            Icons.visibility_off,
+                            themeProvider.allowPrivateBooks,
+                            (value) =>
+                                themeProvider.setAllowPrivateBooks(value),
+                            helpTopicId: 'allow_private_books',
+                          ),
+                        _buildModuleToggle(
+                          context,
+                          'module_digital_formats',
+                          'module_digital_formats_desc',
+                          Icons.tablet_mac,
+                          themeProvider.digitalFormatsEnabled,
+                          (value) =>
+                              themeProvider.setDigitalFormatsEnabled(value),
+                          helpTopicId: 'digital_formats',
+                        ),
+                        // === Group 4: Advanced ===
+                        _buildModulesGroupHeader(
+                          context,
+                          'modules_group_advanced',
+                        ),
+                        _buildMcpModuleToggle(),
+
+                        // Notifications section
+                        const SizedBox(height: 16),
+                        Semantics(
+                          header: true,
+                          child: Text(
+                            TranslationService.translate(
+                              context,
+                              'settings_notifications',
+                            ),
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        _buildModuleToggle(
+                          context,
+                          'settings_notif_enabled',
+                          'settings_notif_enabled_desc',
+                          Icons.notifications_outlined,
+                          themeProvider.notificationsEnabled,
+                          (value) =>
+                              themeProvider.setNotificationsEnabled(value),
+                          helpTopicId: 'notif_enabled',
+                        ),
+                        if (themeProvider.notificationsEnabled) ...[
+                          _buildModuleToggle(
+                            context,
+                            'settings_notif_connections',
+                            'settings_notif_connections_desc',
+                            Icons.people_outline,
+                            themeProvider.notifConnectionsEnabled,
+                            (value) =>
+                                themeProvider.setNotifConnectionsEnabled(value),
+                            helpTopicId: 'notif_connections',
+                          ),
+                          _buildModuleToggle(
+                            context,
+                            'settings_notif_loans',
+                            'settings_notif_loans_desc',
+                            Icons.menu_book_outlined,
+                            themeProvider.notifLoansEnabled,
+                            (value) =>
+                                themeProvider.setNotifLoansEnabled(value),
+                            helpTopicId: 'notif_loans',
+                          ),
+                          _buildModuleToggle(
+                            context,
+                            'settings_notif_discoveries',
+                            'settings_notif_discoveries_desc',
+                            Icons.explore_outlined,
+                            themeProvider.notifDiscoveriesEnabled,
+                            (value) =>
+                                themeProvider.setNotifDiscoveriesEnabled(value),
+                            helpTopicId: 'notif_discoveries',
+                          ),
+                        ],
+
+                        // Developer Tools section
+                        const SizedBox(height: 16),
+                        Semantics(
+                          header: true,
+                          child: Text(
+                            TranslationService.translate(
+                                  context,
+                                  'settings_developer_tools',
+                                ) ??
+                                'Developer Tools',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        _buildModuleToggle(
+                          context,
+                          'module_operation_log_viewer',
+                          'module_operation_log_desc',
+                          Icons.receipt_long_rounded,
+                          themeProvider.operationLogViewerEnabled,
+                          (value) =>
+                              themeProvider.setOperationLogViewerEnabled(value),
+                        ),
+                        if (themeProvider.operationLogViewerEnabled)
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              left: 16.0,
+                              bottom: 8.0,
+                            ),
+                            child: Card(
+                              child: ListTile(
+                                leading: const Icon(Icons.terminal_rounded),
+                                title: Text(
+                                  TranslationService.translate(
+                                        context,
+                                        'admin_operation_log_title',
+                                      ) ??
+                                      'Operation Log',
+                                ),
+                                trailing: const Icon(Icons.chevron_right),
+                                onTap: () => context.go('/operation-log'),
+                              ),
+                            ),
+                          ),
+                        Card(
+                          margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                          child: SwitchListTile(
+                            secondary: const Icon(Icons.account_tree),
+                            title: Text(
+                              TranslationService.translate(
+                                    context,
+                                    'enable_taxonomy',
+                                  ) ??
+                                  'Hierarchical Tags',
+                            ),
+                            subtitle: const Text('Gestion de sous-étagères'),
+                            value: AppConstants.enableHierarchicalTags,
+                            onChanged: (bool value) async {
+                              setState(() {
+                                AppConstants.enableHierarchicalTags = value;
+                              });
+                              final prefs =
+                                  await SharedPreferences.getInstance();
+                              await prefs.setBool(
+                                'enableHierarchicalTags',
+                                value,
+                              );
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      TranslationService.translate(
+                                            context,
+                                            'restart_required_for_changes',
+                                          ) ??
+                                          'Please restart the app for changes to take full effect',
+                                    ),
+                                  ),
+                                );
+                              }
+                            },
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  trailing: Icon(
-                    Icons.chevron_right,
-                    color: Colors.red.shade700,
+
+                // Network accordion (local + remote reachability + public directory)
+                if (_sectionVisible([
+                  'settings_network_title',
+                  'settings_remote_reachable',
+                  'settings_remote_reachable_desc',
+                  'hub_coming_soon_toggle',
+                  'directory_settings_title',
+                  'directory_listed_title',
+                ]))
+                  Card(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    child: ExpansionTile(
+                      key: ValueKey('network_$_isSearching'),
+                      initiallyExpanded: _isSearching,
+                      leading: const Icon(Icons.wifi),
+                      title: Semantics(
+                        header: true,
+                        child: Text(
+                          TranslationService.translate(
+                            context,
+                            'settings_network_title',
+                          ),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildNetworkSection(context, themeProvider),
+                              const SizedBox(height: 12),
+                              _buildDirectorySection(context),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  onTap: () => BackupActions.showResetDialog(context),
-                ),
-              ),
-            ],
-            if (_appVersion.isNotEmpty) ...[
-              const SizedBox(height: 32),
-              Center(
-                child: Text(
-                  'BiblioGenius v$_appVersion',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.4),
+
+                // (Multi-device account sync moved to the "Que voulez-vous faire ?"
+                // springboard tile above so it is reachable without scrolling.)
+
+                // Search Sources accordion
+                if (_sectionVisible(['search_sources']))
+                  Card(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    child: ExpansionTile(
+                      key: ValueKey('search_sources_$_isSearching'),
+                      initiallyExpanded: _isSearching,
+                      leading: const Icon(Icons.saved_search),
+                      title: Row(
+                        children: [
+                          Semantics(
+                            header: true,
+                            child: Text(
+                              TranslationService.translate(
+                                context,
+                                'search_sources',
+                              ),
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          const HelpAffordance(topicId: 'search_sources'),
+                        ],
+                      ),
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                          child: _buildSearchConfiguration(context),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ),
-            ],
-            const SizedBox(height: 100),
-          ],
+
+                const SizedBox(height: 24),
+
+                // Session / Logout (only shown for authenticated users)
+                if (hasPassword)
+                  OutlinedButton.icon(
+                    onPressed: () async {
+                      final authService = Provider.of<AuthService>(
+                        context,
+                        listen: false,
+                      );
+                      await Future.delayed(const Duration(milliseconds: 200));
+                      await authService.logout();
+                      if (mounted) {
+                        context.go('/login');
+                      }
+                    },
+                    icon: const Icon(Icons.logout),
+                    label: Text(
+                      TranslationService.translate(context, 'logout'),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 50),
+                      foregroundColor: Colors.red,
+                    ),
+                  ),
+                if (_sectionVisible([
+                  'system_reset_title',
+                  'system_reset_subtitle',
+                ])) ...[
+                  const SizedBox(height: 32),
+                  Card(
+                    margin: EdgeInsets.zero,
+                    color: Colors.red.shade50,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(color: Colors.red.shade200),
+                    ),
+                    child: ListTile(
+                      leading: Icon(
+                        Icons.delete_forever,
+                        color: Colors.red.shade700,
+                      ),
+                      title: Text(
+                        TranslationService.translate(
+                          context,
+                          'system_reset_title',
+                        ),
+                        style: TextStyle(
+                          color: Colors.red.shade700,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      subtitle: Text(
+                        TranslationService.translate(
+                          context,
+                          'system_reset_subtitle',
+                        ),
+                      ),
+                      trailing: Icon(
+                        Icons.chevron_right,
+                        color: Colors.red.shade700,
+                      ),
+                      onTap: () => BackupActions.showResetDialog(context),
+                    ),
+                  ),
+                ],
+                if (_appVersion.isNotEmpty) ...[
+                  const SizedBox(height: 32),
+                  Center(
+                    child: Text(
+                      'BiblioGenius v$_appVersion',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.4),
+                      ),
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 100),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -2102,9 +2150,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       // Sauvegarde complète (.bgbackup, ADR-037 §2 writer).
       ListTile(
         leading: const Icon(Icons.shield_outlined, color: Colors.green),
-        title: Text(
-          TranslationService.translate(context, 'backup_full_title'),
-        ),
+        title: Text(TranslationService.translate(context, 'backup_full_title')),
         subtitle: Text(
           TranslationService.translate(context, 'backup_full_subtitle'),
         ),
@@ -2134,9 +2180,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ],
         ),
         onTap: () => Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => const BackupRestoreWizardScreen(),
-          ),
+          MaterialPageRoute(builder: (_) => const BackupRestoreWizardScreen()),
         ),
       ),
       // Restaurer mon catalogue (JSON, legacy).
@@ -4848,28 +4892,27 @@ class _RollbackTileState extends State<_RollbackTile> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(TranslationService.translate(
-          ctx,
-          'backup_rollback_dialog_title',
-        )),
-        content: Text(TranslationService.translate(
-          ctx,
-          'backup_rollback_dialog_message',
-        )),
+        title: Text(
+          TranslationService.translate(ctx, 'backup_rollback_dialog_title'),
+        ),
+        content: Text(
+          TranslationService.translate(ctx, 'backup_rollback_dialog_message'),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(TranslationService.translate(
-              ctx,
-              'wizard_restore_button_cancel',
-            )),
+            child: Text(
+              TranslationService.translate(ctx, 'wizard_restore_button_cancel'),
+            ),
           ),
           FilledButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text(TranslationService.translate(
-              ctx,
-              'backup_rollback_dialog_confirm',
-            )),
+            child: Text(
+              TranslationService.translate(
+                ctx,
+                'backup_rollback_dialog_confirm',
+              ),
+            ),
           ),
         ],
       ),
@@ -4891,11 +4934,13 @@ class _RollbackTileState extends State<_RollbackTile> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.red,
-          content: Text(TranslationService.translate(
-            context,
-            'backup_rollback_error',
-            params: {'error': '$e'},
-          )),
+          content: Text(
+            TranslationService.translate(
+              context,
+              'backup_rollback_error',
+              params: {'error': '$e'},
+            ),
+          ),
         ),
       );
     }
@@ -4910,18 +4955,19 @@ class _RollbackTileState extends State<_RollbackTile> {
     final remainingHours = 24 - ageHours;
     return ListTile(
       leading: const Icon(Icons.history, color: Colors.orange),
-      title: Text(TranslationService.translate(
-        context,
-        'backup_rollback_title',
-      )),
-      subtitle: Text(TranslationService.translate(
-        context,
-        'backup_rollback_subtitle',
-        params: {
-          'age_hours': '$ageHours',
-          'remaining_hours': '$remainingHours',
-        },
-      )),
+      title: Text(
+        TranslationService.translate(context, 'backup_rollback_title'),
+      ),
+      subtitle: Text(
+        TranslationService.translate(
+          context,
+          'backup_rollback_subtitle',
+          params: {
+            'age_hours': '$ageHours',
+            'remaining_hours': '$remainingHours',
+          },
+        ),
+      ),
       trailing: const Icon(Icons.chevron_right),
       onTap: _confirm,
     );

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
 import '../services/translation_service.dart';
+import '../theme/app_design.dart';
 import '../widgets/genie_app_bar.dart';
 import '../widgets/scaffold_with_nav.dart';
 
@@ -19,41 +20,50 @@ class GamesHubScreen extends StatelessWidget {
         leading: buildDrawerLeading(context),
         automaticallyImplyLeading: false,
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(24),
-        children: [
-          Text(
-            TranslationService.translate(context, 'games_hub_subtitle'),
-            style: theme.textTheme.bodyLarge?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
+      // Cap the content width so the desktop side gutters match the other
+      // pages (based on the real body width, so the nav rail is accounted for).
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxWidth: AppDesign.maxContentWidth,
           ),
-          const SizedBox(height: 24),
-          if (themeProvider.memoryGameEnabled)
-            _buildGameCard(
-              context,
-              icon: Icons.auto_stories,
-              titleKey: 'memory_game_title',
-              subtitleKey: 'memory_game_dashboard_subtitle',
-              route: '/memory-game',
-            ),
-          if (themeProvider.slidingPuzzleEnabled)
-            _buildGameCard(
-              context,
-              icon: Icons.grid_view,
-              titleKey: 'sliding_puzzle_title',
-              subtitleKey: 'sliding_puzzle_dashboard_subtitle',
-              route: '/sliding-puzzle',
-            ),
-          if (themeProvider.hangmanEnabled)
-            _buildGameCard(
-              context,
-              icon: Icons.text_fields,
-              titleKey: 'hangman_title',
-              subtitleKey: 'hangman_dashboard_subtitle',
-              route: '/hangman',
-            ),
-        ],
+          child: ListView(
+            padding: const EdgeInsets.all(24),
+            children: [
+              Text(
+                TranslationService.translate(context, 'games_hub_subtitle'),
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 24),
+              if (themeProvider.memoryGameEnabled)
+                _buildGameCard(
+                  context,
+                  icon: Icons.auto_stories,
+                  titleKey: 'memory_game_title',
+                  subtitleKey: 'memory_game_dashboard_subtitle',
+                  route: '/memory-game',
+                ),
+              if (themeProvider.slidingPuzzleEnabled)
+                _buildGameCard(
+                  context,
+                  icon: Icons.grid_view,
+                  titleKey: 'sliding_puzzle_title',
+                  subtitleKey: 'sliding_puzzle_dashboard_subtitle',
+                  route: '/sliding-puzzle',
+                ),
+              if (themeProvider.hangmanEnabled)
+                _buildGameCard(
+                  context,
+                  icon: Icons.text_fields,
+                  titleKey: 'hangman_title',
+                  subtitleKey: 'hangman_dashboard_subtitle',
+                  route: '/hangman',
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }

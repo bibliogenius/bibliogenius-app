@@ -302,6 +302,14 @@ class AppDesign {
   // SPACING
   // ═══════════════════════════════════════════════════════════════════════════
 
+  /// Max content width used to keep page side gutters consistent on wide
+  /// (desktop/tablet) windows instead of letting content stretch edge to edge.
+  /// Wrap a page's scroll view with `Center(child: ConstrainedBox(constraints:
+  /// BoxConstraints(maxWidth: AppDesign.maxContentWidth), child: ...))` so the
+  /// cap is based on the real body width (correct with the desktop nav rail),
+  /// matching the dashboard.
+  static const double maxContentWidth = 900.0;
+
   static const double spacingXs = 4.0;
   static const double spacingSm = 8.0;
   static const double spacingMd = 16.0;

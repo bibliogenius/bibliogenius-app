@@ -365,12 +365,21 @@ class _NetworkScreenState extends State<NetworkScreen>
           ],
         ),
       ),
-      body: TabBarView(
-        controller: _mainTabController,
-        children: [
-          _MyNetworkView(key: _myNetworkKey),
-          const _DiscoverView(),
-        ],
+      // Cap the tab content width so the desktop side gutters match the other
+      // pages; the tab bar itself stays full width in the app bar.
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxWidth: AppDesign.maxContentWidth,
+          ),
+          child: TabBarView(
+            controller: _mainTabController,
+            children: [
+              _MyNetworkView(key: _myNetworkKey),
+              const _DiscoverView(),
+            ],
+          ),
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         key: const Key('networkAddFab'),

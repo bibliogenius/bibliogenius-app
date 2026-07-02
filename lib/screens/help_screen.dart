@@ -68,88 +68,98 @@ class _HelpScreenState extends State<HelpScreen> {
         leading: buildDrawerLeading(context),
         automaticallyImplyLeading: false,
       ),
-      body: ListView(
-        controller: _scrollController,
-        padding: const EdgeInsets.all(16),
-        children: [
-          // Header Card
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              gradient: AppDesign.primaryGradient,
-              borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
-              boxShadow: AppDesign.cardShadow,
-            ),
-            child: Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.help_outline,
-                    size: 40,
-                    color: Colors.white,
-                  ),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxWidth: AppDesign.maxContentWidth,
+          ),
+          child: ListView(
+            controller: _scrollController,
+            padding: const EdgeInsets.all(16),
+            children: [
+              // Header Card
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  gradient: AppDesign.primaryGradient,
+                  borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
+                  boxShadow: AppDesign.cardShadow,
                 ),
-                const SizedBox(height: 16),
-                Text(
-                  TranslationService.translate(context, 'help_welcome_title'),
-                  style: const TextStyle(
-                    fontSize: 24,
+                child: Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.help_outline,
+                        size: 40,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      TranslationService.translate(
+                        context,
+                        'help_welcome_title',
+                      ),
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      TranslationService.translate(
+                        context,
+                        'help_welcome_subtitle',
+                      ),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.white.withValues(alpha: 0.9),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              // Section title
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                child: Text(
+                  TranslationService.translate(context, 'help_faq_title'),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
                   ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  TranslationService.translate(
-                    context,
-                    'help_welcome_subtitle',
-                  ),
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.white.withValues(alpha: 0.9),
-                  ),
-                ),
-              ],
-            ),
+              ),
+
+              // Help Topics
+              ...List.generate(_topics.length, (index) {
+                final topic = _topics[index];
+                final isExpanded = _expandedIndex == index;
+                final cardKey = _cardKeys.putIfAbsent(index, () => GlobalKey());
+
+                return Padding(
+                  key: cardKey,
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: _buildHelpCard(context, topic, index, isExpanded),
+                );
+              }),
+
+              const SizedBox(height: 24),
+
+              // Quick Actions
+              _buildQuickActions(context),
+            ],
           ),
-
-          const SizedBox(height: 24),
-
-          // Section title
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-            child: Text(
-              TranslationService.translate(context, 'help_faq_title'),
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-            ),
-          ),
-
-          // Help Topics
-          ...List.generate(_topics.length, (index) {
-            final topic = _topics[index];
-            final isExpanded = _expandedIndex == index;
-            final cardKey = _cardKeys.putIfAbsent(index, () => GlobalKey());
-
-            return Padding(
-              key: cardKey,
-              padding: const EdgeInsets.only(bottom: 12),
-              child: _buildHelpCard(context, topic, index, isExpanded),
-            );
-          }),
-
-          const SizedBox(height: 24),
-
-          // Quick Actions
-          _buildQuickActions(context),
-        ],
+        ),
       ),
     );
   }
