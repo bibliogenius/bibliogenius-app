@@ -9,6 +9,7 @@ import '../services/api_service.dart';
 import '../services/ffi_service.dart';
 import '../models/book.dart';
 import '../utils/cover_url_resolver.dart';
+import '../utils/isbn_validator.dart';
 import '../models/hub_directory.dart';
 import '../widgets/book_cover_card.dart';
 import '../widgets/bookshelf_view.dart';
@@ -994,10 +995,15 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       // books based on hub — only live P2P or relay sync are authoritative
       // for deletions.
 
+      // Keyed on the canonical ISBN form (ISBN-13 when valid, raw otherwise):
+      // the same book may be ISBN-10 locally and ISBN-13 in the hub catalog,
+      // and a raw-form match would duplicate it in the list.
       final knownIsbns = <String, Book>{};
       final knownTitles = <String, Book>{};
       for (final b in _books) {
-        if (b.isbn != null && b.isbn!.isNotEmpty) knownIsbns[b.isbn!] = b;
+        if (b.isbn != null && b.isbn!.isNotEmpty) {
+          knownIsbns[IsbnValidator.canonicalKey(b.isbn!)] = b;
+        }
         if (b.title.isNotEmpty) knownTitles[b.title.toLowerCase()] = b;
       }
 
@@ -1008,7 +1014,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
         if (e.isbn.isEmpty && e.title.isEmpty) continue;
         // Match by ISBN first, then by title for no-ISBN books
         final existing = e.isbn.isNotEmpty
-            ? knownIsbns[e.isbn]
+            ? knownIsbns[IsbnValidator.canonicalKey(e.isbn)]
             : knownTitles[e.title.toLowerCase()];
         if (existing != null) {
           // Update title/author if hub has newer metadata
