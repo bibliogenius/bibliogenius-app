@@ -156,4 +156,89 @@ void main() {
       expect(mockApi.syncedUrls, isEmpty); // still in backoff
     });
   });
+
+  group('SyncService mDNS-aware backoff', () {
+    // A peer that iOS suspends in the background legitimately fails the LAN
+    // connectivity check and enters backoff (up to 30 min). When the peer
+    // comes back to the foreground it re-announces over mDNS, which is proof
+    // it is reachable *now*. A fresh mDNS discovery must therefore clear the
+    // peer's backoff so the very next sync retries it instead of waiting out
+    // the penalty. Regression guard for the "stuck on Internet/hub for 30 min
+    // even though the peer is live on the LAN" bug.
+    test(
+      'fresh mDNS discovery clears backoff so a returned peer is retried',
+      () async {
+        mockApi.shouldThrow = true;
+        // Only the iPhone will be re-discovered on the LAN; the MacBook stays
+        // absent and must remain in backoff.
+        var iphoneOnLan = false;
+        final svc = SyncService(
+          mockApi,
+          isLanEnabled: () => true,
+          checkConnectivity: () async => [ConnectivityResult.wifi],
+          isPeerDiscovered: (url) =>
+              iphoneOnLan && url == 'http://192.168.1.20:8080',
+        );
+
+        // Round 1: both peers unreachable -> both enter backoff.
+        await svc.syncAllPeers();
+        expect(mockApi.syncedUrls, isEmpty);
+
+        // The iPhone re-announces over mDNS (app back to foreground) and is up.
+        iphoneOnLan = true;
+        mockApi.shouldThrow = false;
+
+        // Round 2: the freshly discovered peer bypasses its backoff and is
+        // retried; the still-absent MacBook remains skipped.
+        await svc.syncAllPeers();
+        expect(mockApi.syncedUrls, ['http://192.168.1.20:8080']);
+      },
+    );
+
+    test(
+      'without mDNS discovery the backoff is still honored (no regression)',
+      () async {
+        mockApi.shouldThrow = true;
+        final svc = SyncService(
+          mockApi,
+          isLanEnabled: () => true,
+          checkConnectivity: () async => [ConnectivityResult.wifi],
+          isPeerDiscovered: (_) => false,
+        );
+
+        await svc.syncAllPeers();
+        expect(mockApi.syncedUrls, isEmpty);
+
+        // Peer is NOT discovered on the LAN -> backoff must keep skipping it.
+        mockApi.shouldThrow = false;
+        await svc.syncAllPeers();
+        expect(mockApi.syncedUrls, isEmpty);
+      },
+    );
+  });
+
+  group('SyncService manual refresh', () {
+    // A manual pull-to-refresh is an explicit user request to retry now, so it
+    // must forget every peer's backoff penalty instead of silently skipping
+    // peers that are still in their backoff window.
+    test('resetAllBackoff clears penalties so peers are retried', () async {
+      mockApi.shouldThrow = true;
+      final svc = SyncService(
+        mockApi,
+        isLanEnabled: () => true,
+        checkConnectivity: () async => [ConnectivityResult.wifi],
+      );
+
+      // Both peers fail -> both enter backoff.
+      await svc.syncAllPeers();
+      expect(mockApi.syncedUrls, isEmpty);
+
+      // Manual pull-to-refresh forgets the penalties.
+      svc.resetAllBackoff();
+      mockApi.shouldThrow = false;
+
+      await svc.syncAllPeers();
+      expect(mockApi.syncedUrls.length, 2);
+    });
+  });
 }

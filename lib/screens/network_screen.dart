@@ -543,8 +543,10 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
     // 1. Reload from local DB/API instantly - the user sees fresh data right away
     await _loadAll();
     if (!mounted) return;
-    // 2. Sync peers in background, then reload when done
+    // 2. Sync peers in background, then reload when done. A manual pull-to-
+    // refresh is an explicit "retry now", so clear any backoff first.
     final syncService = Provider.of<SyncService>(context, listen: false);
+    syncService.resetAllBackoff();
     syncService.syncAllPeers().then((_) {
       if (mounted) {
         _loadAll();

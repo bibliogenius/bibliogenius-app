@@ -677,6 +677,7 @@ class MyApp extends StatelessWidget {
           create: (_) => SyncService(
             apiService,
             isLanEnabled: () => themeProvider.networkDiscoveryEnabled,
+            isPeerDiscovered: (url) => MdnsService.isUrlDiscovered(url),
           ),
         ),
         // Audio module (decoupled, can be removed without breaking the app)

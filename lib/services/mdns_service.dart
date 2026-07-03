@@ -80,6 +80,21 @@ class MdnsService {
     return _peers.values.toList();
   }
 
+  /// Whether a peer reachable at [url] is currently announced on the LAN via
+  /// mDNS. Stale entries are excluded (the getter purges them). Used to let a
+  /// fresh discovery override the sync backoff of a peer that had gone
+  /// unreachable (e.g. an iOS app suspended in the background) once it
+  /// re-announces itself on the foreground.
+  ///
+  /// Matching is done on host + port only, so it tolerates a trailing slash,
+  /// scheme differences, or a path in the stored URL. Returns false for
+  /// unparseable or non-host URLs (e.g. `relay://`), which are never LAN peers.
+  static bool isUrlDiscovered(String url) {
+    final target = Uri.tryParse(url);
+    if (target == null || target.host.isEmpty) return false;
+    return peers.any((p) => p.host == target.host && p.port == target.port);
+  }
+
   /// Check if an IP address is a link-local address (169.254.x.x)
   /// These addresses are auto-assigned when DHCP fails and are not routable
   static bool _isLinkLocalAddress(String ip) {

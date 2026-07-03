@@ -22,19 +22,29 @@ class SyncService {
   final ApiService _apiService;
   final bool Function() _isLanEnabled;
   final Future<List<ConnectivityResult>> Function() _checkConnectivity;
+  final bool Function(String url) _isPeerDiscovered;
   final Map<String, _PeerBackoff> _backoff = {};
 
   SyncService(
     this._apiService, {
     required bool Function() isLanEnabled,
     Future<List<ConnectivityResult>> Function()? checkConnectivity,
+    bool Function(String url)? isPeerDiscovered,
   }) : _isLanEnabled = isLanEnabled,
        _checkConnectivity =
-           checkConnectivity ?? (() => Connectivity().checkConnectivity());
+           checkConnectivity ?? (() => Connectivity().checkConnectivity()),
+       _isPeerDiscovered = isPeerDiscovered ?? ((_) => false);
 
   /// Reset backoff for a specific peer (e.g. on manual refresh).
   void resetBackoff(String url) {
     _backoff.remove(url);
+  }
+
+  /// Forget every peer's backoff penalty. Called on an explicit manual
+  /// pull-to-refresh so the user's "retry now" gesture is honored even for
+  /// peers still inside their backoff window.
+  void resetAllBackoff() {
+    _backoff.clear();
   }
 
   Future<void> syncAllPeers() async {
@@ -71,11 +81,21 @@ class SyncService {
             final url = peer['url'] as String;
             final name = peer['name'] ?? url;
 
-            // Skip peers still in backoff
+            // Skip peers still in backoff, unless mDNS currently sees the peer
+            // on the LAN: a live announcement proves it is reachable now (e.g.
+            // an iOS peer whose embedded server was suspended in the background
+            // is back to the foreground), so a fresh discovery overrides the
+            // backoff penalty and lets us retry immediately.
             final bo = _backoff[url];
             if (bo != null && now.isBefore(bo.nextRetry)) {
-              debugPrint("Skipping peer $name (backoff until ${bo.nextRetry})");
-              return;
+              if (_isPeerDiscovered(url)) {
+                _backoff.remove(url);
+              } else {
+                debugPrint(
+                  "Skipping peer $name (backoff until ${bo.nextRetry})",
+                );
+                return;
+              }
             }
 
             try {
