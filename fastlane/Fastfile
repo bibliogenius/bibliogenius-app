@@ -170,7 +170,12 @@ platform :mac do
     else
       UI.message('Building Rust backend (x86_64 + aarch64). Pass skip_rust:true to bypass.')
       Dir.chdir(rust_root) do
+        # account_sync + static cr-sqlite must match the FFI app build: this
+        # binary shares the Application Support database, and once a device
+        # enrolls the replicated tables carry crsql_* triggers that a
+        # non-cr-sqlite process cannot write through.
         sh('cargo', 'build', '--release',
+           '--features', 'account_sync,crsqlite-static',
            '--target', 'x86_64-apple-darwin',
            '--target', 'aarch64-apple-darwin')
       end
