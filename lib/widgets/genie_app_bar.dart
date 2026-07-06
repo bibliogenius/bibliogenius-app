@@ -446,35 +446,35 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
       // Optional page-provided search icon (library only): sits between the
       // Actions button and the notification bell.
       if (headerSearch != null) headerSearch!,
-      // Notification bell with unread badge (hidden when notifications disabled)
+      // Notification bell with unread badge (hidden when notifications disabled).
+      // No extra padding: the IconButton's 48px tap target around its 40px
+      // visual already leaves a 4px margin, matching the neighbours' 4px
+      // padding for a uniform 8px visible gap across the header.
       if (context.watch<ThemeProvider>().notificationsEnabled)
-        Padding(
-          padding: const EdgeInsets.only(left: 5),
-          child: Consumer<NotificationProvider>(
-            builder: (context, notifProvider, child) {
-              final count = notifProvider.unreadCount;
-              return IconButton(
-                icon: Badge(
-                  isLabelVisible: count > 0,
-                  label: Text(
-                    count > 99 ? '99+' : '$count',
-                    style: const TextStyle(fontSize: 10),
-                  ),
-                  child: const Icon(
-                    Icons.notifications_outlined,
-                    color: Colors.white,
-                  ),
+        Consumer<NotificationProvider>(
+          builder: (context, notifProvider, child) {
+            final count = notifProvider.unreadCount;
+            return IconButton(
+              icon: Badge(
+                isLabelVisible: count > 0,
+                label: Text(
+                  count > 99 ? '99+' : '$count',
+                  style: const TextStyle(fontSize: 10),
                 ),
-                tooltip: TranslationService.translate(
-                  context,
-                  'notifications_title',
+                child: const Icon(
+                  Icons.notifications_outlined,
+                  color: Colors.white,
                 ),
-                onPressed: () =>
-                    _showNotificationPopover(context, notifProvider),
-                style: AppDesign.headerIconButtonStyle(),
-              );
-            },
-          ),
+              ),
+              tooltip: TranslationService.translate(
+                context,
+                'notifications_title',
+              ),
+              onPressed: () =>
+                  _showNotificationPopover(context, notifProvider),
+              style: AppDesign.headerIconButtonStyle(),
+            );
+          },
         ),
 
       // Quick Action Buttons (Scanner & Online Search) - only when explicitly enabled
@@ -512,7 +512,9 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
           },
         ),
       ],
-      if (actions != null) ...[const SizedBox(width: 4), ...actions!],
+      // No spacer: header action buttons carry their own 4px tap-target
+      // margin on each side, which already yields the uniform 8px gap.
+      if (actions != null) ...actions!,
       // Settings is reachable from the main menu, so the header no longer
       // duplicates it as a shortcut.
       // Avatar
@@ -521,7 +523,9 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
           button: true,
           label: TranslationService.translate(context, 'nav_profile'),
           child: Padding(
-            padding: const EdgeInsets.only(right: 16, left: 8),
+            // left: 4 + the preceding IconButton's invisible 4px tap-target
+            // margin = the same 8px visible gap as between the other icons.
+            padding: const EdgeInsets.only(right: 16, left: 4),
             child: GestureDetector(
               onTap: () => context.push('/profile'),
               child: Container(
