@@ -206,31 +206,37 @@ class _CollectionListScreenState extends State<CollectionListScreen> {
         automaticallyImplyLeading: false,
         showQuickActions: true,
         actions: [
-          TextButton.icon(
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.white,
-              backgroundColor: Colors.white.withValues(alpha: 0.1),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-            ),
-            icon: const Icon(Icons.auto_awesome, size: 16),
-            label: Text(TranslationService.translate(context, 'discover')),
-            onPressed: () async {
-              final result = await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      const import_curated.ImportCuratedListScreen(),
+          // Header actions carry their own 4px margin (see GenieAppBar).
+          // Unlike an IconButton, this pill has no invisible tap-target
+          // margin: its background reaches the widget edge, so it needs an
+          // explicit 4px on each side to keep the uniform 8px visible gap.
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: TextButton.icon(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.white.withValues(alpha: 0.1),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
                 ),
-              );
-              if (result == true) {
-                _loadCollections();
-                widget.onImportSuccess?.call();
-              }
-            },
+              ),
+              icon: const Icon(Icons.auto_awesome, size: 16),
+              label: Text(TranslationService.translate(context, 'discover')),
+              onPressed: () async {
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        const import_curated.ImportCuratedListScreen(),
+                  ),
+                );
+                if (result == true) {
+                  _loadCollections();
+                  widget.onImportSuccess?.call();
+                }
+              },
+            ),
           ),
-          const SizedBox(width: 4),
           IconButton(
             icon: const Icon(Icons.file_open, color: Colors.white),
             tooltip: TranslationService.translate(context, 'import'),
