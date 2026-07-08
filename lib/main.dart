@@ -427,13 +427,22 @@ Future<void> _runApp() async {
       debugPrint('Startup library name sync (non-fatal): $e');
     }
 
-    int httpPort = 8000;
+    int httpPort = ApiService.defaultHttpPort;
     try {
-      final startedPort = await FfiService().startServer(8000);
+      final startedPort = await FfiService().startServer(
+        ApiService.defaultHttpPort,
+      );
       if (startedPort != null) {
         httpPort = startedPort;
         ApiService.setHttpPort(httpPort); // Store the actual port globally
         debugPrint('FFI: HTTP server confirmed running on port $httpPort');
+        if (httpPort != ApiService.defaultHttpPort) {
+          debugPrint(
+            '⚠️ Port ${ApiService.defaultHttpPort} occupied by another '
+            'process, server bound to $httpPort: peers holding our '
+            ':${ApiService.defaultHttpPort} URL cannot reach us directly',
+          );
+        }
       }
     } catch (e) {
       debugPrint('FFI: Failed to start HTTP server: $e');
@@ -1518,6 +1527,22 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
           excludedRoutes: ['/settings', '/onboarding', '/profile'],
           contentBuilder: (ctx, dismiss) =>
               _FlashPresetSelector(onDismiss: dismiss),
+        ),
+      );
+
+      // Diagnostic: the embedded server could not bind its usual port and
+      // slid to the next free one. Peers keep contacting the usual port,
+      // where whatever occupies it answers in our place, so direct
+      // reachability is silently broken. Session-only dismissal: the
+      // warning must resurface on the next launch if the conflict persists.
+      flashProvider.register(
+        FlashMessageDefinition(
+          key: 'flash_port_conflict',
+          textKey: 'flash_port_conflict',
+          icon: Icons.lan_outlined,
+          persistDismissal: false,
+          condition: (_) => ApiService.httpPort != ApiService.defaultHttpPort,
+          excludedRoutes: ['/onboarding'],
         ),
       );
 

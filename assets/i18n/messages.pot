@@ -6036,6 +6036,10 @@ msgstr ""
 msgid "status_damaged"
 msgstr ""
 
+#. SEND FAILED
+msgid "status_failed"
+msgstr ""
+
 #. Inactive
 msgid "status_inactive"
 msgstr ""
@@ -7742,6 +7746,10 @@ msgstr ""
 
 #. Flash message: discover configuration profiles
 msgid "flash_discover_presets"
+msgstr ""
+
+#. Another app is using the usual network port (8000). Other libraries cannot reach yours directly while it is running.
+msgid "flash_port_conflict"
 msgstr ""
 
 #. Flash message: peer paired (prefix before peer name)

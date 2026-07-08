@@ -5487,6 +5487,10 @@ msgstr "Verbunden"
 msgid "status_damaged"
 msgstr "Beschädigt/Reparatur"
 
+#. SEND FAILED
+msgid "status_failed"
+msgstr "SENDEN FEHLGESCHLAGEN"
+
 #. Inactive
 msgid "status_inactive"
 msgstr "Inaktiv"
@@ -6681,6 +6685,10 @@ msgstr "Personalisieren Sie den Namen Ihrer Bibliothek:"
 
 msgid "flash_discover_presets"
 msgstr "Schnelleinrichtung - wählen Sie Ihr Profil:"
+
+#. Another app is using the usual network port (8000). Other libraries cannot reach yours directly while it is running.
+msgid "flash_port_conflict"
+msgstr "Eine andere App belegt den üblichen Netzwerk-Port (8000). Andere Bibliotheken können Ihre derzeit nicht direkt erreichen."
 
 msgid "flash_dismiss_tooltip"
 msgstr "Ausblenden"

@@ -107,8 +107,13 @@ class ApiService {
     return 'http://localhost:8081';
   }
 
-  /// The actual HTTP server port (may differ from 8000 if occupied)
-  static int httpPort = 8000;
+  /// Preferred port for the embedded HTTP server. Peers store URLs built on
+  /// this port, so binding anywhere else leaves them unable to reach us
+  /// directly (whatever occupies the port answers in our place).
+  static const int defaultHttpPort = 8000;
+
+  /// The actual HTTP server port (may differ from [defaultHttpPort] if occupied)
+  static int httpPort = defaultHttpPort;
 
   /// Track if server is known to be running
   static bool _serverKnownHealthy = false;

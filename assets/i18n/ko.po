@@ -5082,6 +5082,10 @@ msgstr "연결됨"
 msgid "status_damaged"
 msgstr "손상/수리"
 
+#. SEND FAILED
+msgid "status_failed"
+msgstr "전송 실패"
+
 #. Inactive
 msgid "status_inactive"
 msgstr "비활성"
@@ -8734,6 +8738,10 @@ msgstr "서재 이름이 저장되었습니다"
 #. Flash message: discover configuration profiles
 msgid "flash_discover_presets"
 msgstr "빠른 설정 - 프로필을 선택하세요:"
+
+#. Another app is using the usual network port (8000). Other libraries cannot reach yours directly while it is running.
+msgid "flash_port_conflict"
+msgstr "다른 앱이 기본 네트워크 포트(8000)를 사용 중입니다. 지금은 다른 라이브러리가 내 라이브러리에 직접 연결할 수 없습니다."
 
 #. Flash message: peer paired (prefix before peer name)
 msgid "flash_peer_connected"

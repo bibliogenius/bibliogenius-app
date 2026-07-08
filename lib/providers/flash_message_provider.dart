@@ -37,6 +37,12 @@ class FlashMessageDefinition {
   /// provide their own visual elements (e.g. preset cards with icons).
   final bool fullWidthContent;
 
+  /// When false, dismissing hides the flash for the current session only
+  /// (no SharedPreferences write). Use for diagnostic warnings about
+  /// conditions that can recur, so they resurface on the next launch if
+  /// the condition still holds.
+  final bool persistDismissal;
+
   const FlashMessageDefinition({
     required this.key,
     required this.textKey,
@@ -48,6 +54,7 @@ class FlashMessageDefinition {
     this.allowedRoutes,
     this.icon,
     this.fullWidthContent = false,
+    this.persistDismissal = true,
   });
 }
 
@@ -137,10 +144,19 @@ class FlashMessageProvider extends ChangeNotifier {
   /// Check if a flash message has been dismissed.
   bool isDismissed(String key) => _dismissed.contains(key);
 
-  /// Dismiss a flash message permanently.
+  /// Dismiss a flash message. Persists across launches unless the
+  /// definition opted out via `persistDismissal: false` (session-only).
   Future<void> dismiss(String key) async {
     _dismissed.add(key);
     notifyListeners();
+    var persist = true;
+    for (final def in _definitions) {
+      if (def.key == key) {
+        persist = def.persistDismissal;
+        break;
+      }
+    }
+    if (!persist) return;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('${key}_dismissed', true);
   }

@@ -5082,6 +5082,10 @@ msgstr "已连接"
 msgid "status_damaged"
 msgstr "损坏/维修"
 
+#. SEND FAILED
+msgid "status_failed"
+msgstr "发送失败"
+
 #. Inactive
 msgid "status_inactive"
 msgstr "未活跃"
@@ -8734,6 +8738,10 @@ msgstr "图书馆名称已保存"
 #. Flash message: discover configuration profiles
 msgid "flash_discover_presets"
 msgstr "快速设置——选择您的档案："
+
+#. Another app is using the usual network port (8000). Other libraries cannot reach yours directly while it is running.
+msgid "flash_port_conflict"
+msgstr "另一个应用正在使用常用网络端口（8000）。其他图书馆目前无法直接连接到您的图书馆。"
 
 #. Flash message: peer paired (prefix before peer name)
 msgid "flash_peer_connected"

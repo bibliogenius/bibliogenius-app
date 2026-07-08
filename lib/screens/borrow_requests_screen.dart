@@ -2141,6 +2141,8 @@ class _LoansScreenState extends State<LoansScreen>
         return Colors.green;
       case 'rejected':
         return Colors.red;
+      case 'failed':
+        return Colors.deepOrange;
       case 'pending':
       default:
         return Colors.orange;
