@@ -292,6 +292,12 @@ class AppDesign {
   static ButtonStyle headerIconButtonStyle() {
     return IconButton.styleFrom(
       backgroundColor: Colors.white.withValues(alpha: 0.15),
+      // Desktop ThemeData defaults (compact density + shrinkWrap tap target)
+      // collapse the 48px tap target onto the 40px chip, gluing neighbouring
+      // header buttons together. Pin the mobile metrics so every platform
+      // keeps the invisible 4px margin the header spacing relies on.
+      visualDensity: VisualDensity.standard,
+      tapTargetSize: MaterialTapTargetSize.padded,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(radiusMedium),
       ),

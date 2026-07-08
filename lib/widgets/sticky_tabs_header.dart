@@ -181,6 +181,13 @@ class _SearchRow extends StatelessWidget {
   final VoidCallback onClose;
   final ValueChanged<String> onChanged;
 
+  // Borderless rounded outline shared by every input state so the fill alone
+  // delimits the field.
+  static final OutlineInputBorder _fieldBorder = OutlineInputBorder(
+    borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
+    borderSide: BorderSide.none,
+  );
+
   const _SearchRow({
     super.key,
     required this.controller,
@@ -209,10 +216,18 @@ class _SearchRow extends StatelessWidget {
               decoration: InputDecoration(
                 hintText: TranslationService.translate(context, 'search_books'),
                 hintStyle: const TextStyle(color: Colors.white70),
-                filled: false,
-                border: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                focusedBorder: InputBorder.none,
+                // Subtle translucent fill so the input reads as a field over
+                // the gradient (same tint family as headerIconButtonStyle).
+                filled: true,
+                fillColor: Colors.white.withValues(alpha: 0.12),
+                isDense: true,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
+                border: _fieldBorder,
+                enabledBorder: _fieldBorder,
+                focusedBorder: _fieldBorder,
               ),
             ),
           ),
