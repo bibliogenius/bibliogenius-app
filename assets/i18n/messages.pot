@@ -8320,3 +8320,19 @@ msgstr ""
 #. Full backup export - failure snackbar ({error} = exception text)
 msgid "backup_full_failed"
 msgstr ""
+
+#. Badge on a book the user has read or borrowed but does not own.
+msgid "not_owned"
+msgstr ""
+
+msgid "return_kept_title"
+msgstr ""
+
+msgid "return_kept_body"
+msgstr ""
+
+msgid "return_keep_action"
+msgstr ""
+
+msgid "return_remove_action"
+msgstr ""

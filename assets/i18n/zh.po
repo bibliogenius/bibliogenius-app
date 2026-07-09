@@ -10115,3 +10115,19 @@ msgstr "立即导出"
 msgid "auto_backup_clone_nudge_snooze"
 msgstr "稍后"
 
+
+#. Badge on a book the user has read or borrowed but does not own.
+msgid "not_owned"
+msgstr "未拥有"
+
+msgid "return_kept_title"
+msgstr "图书已归还"
+
+msgid "return_kept_body"
+msgstr "这本书将保留在您的图书馆中，标记为未拥有。您的阅读日期、评分和笔记都会保留。"
+
+msgid "return_keep_action"
+msgstr "保留"
+
+msgid "return_remove_action"
+msgstr "移除"

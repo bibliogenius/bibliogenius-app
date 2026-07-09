@@ -9977,3 +9977,19 @@ msgstr "Mostrar la frase de contraseña"
 msgid "account_sync_hide_passphrase"
 msgstr "Ocultar la frase de contraseña"
 
+
+#. Badge on a book the user has read or borrowed but does not own.
+msgid "not_owned"
+msgstr "No poseído"
+
+msgid "return_kept_title"
+msgstr "Libro devuelto"
+
+msgid "return_kept_body"
+msgstr "Este libro permanece en tu biblioteca, marcado como no poseído. Se conservan tus fechas de lectura, tu valoración y tus notas."
+
+msgid "return_keep_action"
+msgstr "Conservarlo"
+
+msgid "return_remove_action"
+msgstr "Quitarlo"

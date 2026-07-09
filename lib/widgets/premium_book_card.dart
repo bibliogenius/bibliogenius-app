@@ -8,6 +8,87 @@ import '../utils/book_status.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+/// Values the backend writes into `readingStatus` that are NOT reading statuses.
+///
+/// `book_service.rs` overlays the possession axis onto the reading one: when a
+/// copy is borrowed or lent, it replaces the stored status before serialising.
+/// So `readingStatus` conflates two unrelated things, and Flutter has no other
+/// source for the loan state. Reading them here is deliberate, and confined to
+/// this file: when the DTO grows a proper loan-state field, this set is the only
+/// thing that has to change.
+const _loanStateOverlay = {'borrowed', 'lent'};
+
+/// Whether the card should mark this book as not owned.
+///
+/// A borrowed or lent book already wears a badge that says where it stands, and a
+/// wished-for book (`wanting`, a genuine reading status) already reads as one. A
+/// second badge on any of them would be noise. The marker is for the case nothing
+/// else names: a book read, or simply held, without being owned.
+bool showsNotOwnedBadge(Book book) {
+  if (book.owned) return false;
+  final status = book.readingStatus;
+  if (_loanStateOverlay.contains(status)) return false;
+  return status != 'wanting';
+}
+
+/// Pill marking a book the user does not own.
+///
+/// [onCover] picks the treatment: translucent black over a cover image, where
+/// theme colours cannot be trusted against arbitrary artwork, and an outlined
+/// theme pill on the card surface.
+class _NotOwnedPill extends StatelessWidget {
+  const _NotOwnedPill({this.onCover = false});
+
+  final bool onCover;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final label = TranslationService.translate(context, 'not_owned');
+    final foreground = onCover
+        ? Colors.white
+        : theme.colorScheme.onSurfaceVariant;
+
+    return Semantics(
+      label: label,
+      // The child Text repeats the label in upper case, which a screen reader
+      // may spell out letter by letter. Announce the label once, in its natural
+      // casing, and drop the decorative icon and text from the tree.
+      excludeSemantics: true,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: onCover
+              ? Colors.black.withValues(alpha: 0.65)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: onCover
+                ? Colors.white.withValues(alpha: 0.6)
+                : theme.colorScheme.outline,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.bookmark_remove_outlined, size: 11, color: foreground),
+            const SizedBox(width: 4),
+            Text(
+              label.toUpperCase(),
+              style: TextStyle(
+                color: foreground,
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class PremiumBookCard extends StatefulWidget {
   final Book book;
   final double width;
@@ -301,6 +382,12 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                                   ),
                                   const SizedBox(height: 12),
                                 ],
+                                // Ownership marker, independent of the status pill
+                                // above: a book can be read without being owned.
+                                if (showsNotOwnedBadge(widget.book)) ...[
+                                  const _NotOwnedPill(),
+                                  const SizedBox(height: 12),
+                                ],
                                 // Title
                                 Text(
                                   widget.book.title,
@@ -436,6 +523,15 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                           ),
                         ),
                       ),
+                      // Ownership badge, opposite the reading-status badge. A book
+                      // read but not owned is otherwise indistinguishable from the
+                      // rest of the shelf.
+                      if (showsNotOwnedBadge(widget.book))
+                        const Positioned(
+                          top: 8,
+                          left: 8,
+                          child: _NotOwnedPill(onCover: true),
+                        ),
                       // Status Badge (tappable to edit)
                       if (widget.showStatus &&
                           widget.book.readingStatus != null)

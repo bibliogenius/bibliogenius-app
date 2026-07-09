@@ -28,6 +28,7 @@ import '../theme/app_design.dart';
 import '../providers/theme_provider.dart';
 import '../providers/book_refresh_notifier.dart';
 import '../providers/sort_preference_provider.dart';
+import '../utils/book_filters.dart';
 import '../utils/book_sort.dart';
 import '../utils/book_status.dart';
 
@@ -807,62 +808,22 @@ class _BookListScreenState extends State<BookListScreen>
 
     // Default view (no status selected): show books I physically have
     // (owned + borrowed). Wanting/wishlist excluded unless explicitly selected.
+    // Predicates live in utils/book_filters.dart, where they are unit-tested.
     if (_selectedStatus == null) {
       tempBooks = tempBooks
           .where(
-            (b) =>
-                b.owned ||
-                b.readingStatus == 'borrowed' ||
-                b.readingStatus == 'lent',
+            (b) => matchesDefaultView(b, showBorrowed: _showBorrowedConfig),
           )
           .toList();
-      // Apply "show borrowed" config: hide borrowed/lent if user disabled it in settings
-      if (!_showBorrowedConfig) {
-        tempBooks = tempBooks
-            .where(
-              (b) => b.readingStatus != 'borrowed' && b.readingStatus != 'lent',
-            )
-            .toList();
-      }
       debugPrint(
         '🔍 _filterBooks: After default filter: ${tempBooks.length} books',
       );
     } else {
       // Explicit status selected via dropdown
       debugPrint('🔍 _filterBooks: Filtering by status=$_selectedStatus');
-
-      if (_selectedStatus == 'uncategorized') {
-        // "Non classés" = owned books with no reading status (null or empty)
-        tempBooks = tempBooks
-            .where(
-              (book) =>
-                  book.owned &&
-                  (book.readingStatus == null || book.readingStatus!.isEmpty),
-            )
-            .toList();
-      } else if (_selectedStatus == 'wanting') {
-        // Wishlist: not owned, wanting status
-        tempBooks = tempBooks
-            .where((book) => book.readingStatus == 'wanting')
-            .toList();
-      } else if (_selectedStatus == 'borrowed') {
-        // Borrowed: books I borrowed from someone
-        tempBooks = tempBooks
-            .where((book) => book.readingStatus == 'borrowed')
-            .toList();
-      } else if (_selectedStatus == 'lent') {
-        // Lent: books I lent to someone (own copy with status "borrowed")
-        tempBooks = tempBooks
-            .where((book) => book.readingStatus == 'lent')
-            .toList();
-      } else {
-        // Other statuses (reading, to_read, read): owned books with that status
-        tempBooks = tempBooks
-            .where(
-              (book) => book.owned && book.readingStatus == _selectedStatus,
-            )
-            .toList();
-      }
+      tempBooks = tempBooks
+          .where((book) => matchesStatusFilter(book, _selectedStatus!))
+          .toList();
       debugPrint(
         '🔍 _filterBooks: After status filter: ${tempBooks.length} books',
       );
@@ -1805,7 +1766,11 @@ class _BookListScreenState extends State<BookListScreen>
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(_getViewIcon(_viewMode), size: 18, color: theme.primaryColor),
+              Icon(
+                _getViewIcon(_viewMode),
+                size: 18,
+                color: theme.primaryColor,
+              ),
               const SizedBox(width: 4),
               Icon(
                 Icons.arrow_drop_down,

@@ -10109,3 +10109,19 @@ msgstr "Gizli ifadeyi göster"
 msgid "account_sync_hide_passphrase"
 msgstr "Gizli ifadeyi gizle"
 
+
+#. Badge on a book the user has read or borrowed but does not own.
+msgid "not_owned"
+msgstr "Sahip değil"
+
+msgid "return_kept_title"
+msgstr "Kitap iade edildi"
+
+msgid "return_kept_body"
+msgstr "Bu kitap kitaplığınızda kalır ve sahip olunmayan olarak işaretlenir. Okuma tarihleriniz, puanınız ve notlarınız korunur."
+
+msgid "return_keep_action"
+msgstr "Sakla"
+
+msgid "return_remove_action"
+msgstr "Kaldır"

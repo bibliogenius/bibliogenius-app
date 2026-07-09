@@ -10109,3 +10109,19 @@ msgstr "Показване на тайната фраза"
 msgid "account_sync_hide_passphrase"
 msgstr "Скриване на тайната фраза"
 
+
+#. Badge on a book the user has read or borrowed but does not own.
+msgid "not_owned"
+msgstr "Не притежавана"
+
+msgid "return_kept_title"
+msgstr "Книгата е върната"
+
+msgid "return_kept_body"
+msgstr "Тази книга остава в библиотеката ви, отбелязана като непритежавана. Датите на четене, оценката и бележките се запазват."
+
+msgid "return_keep_action"
+msgstr "Запази я"
+
+msgid "return_remove_action"
+msgstr "Премахни я"

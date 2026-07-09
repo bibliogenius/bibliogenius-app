@@ -10115,3 +10115,19 @@ msgstr "지금 내보내기"
 msgid "auto_backup_clone_nudge_snooze"
 msgstr "나중에"
 
+
+#. Badge on a book the user has read or borrowed but does not own.
+msgid "not_owned"
+msgstr "미소장"
+
+msgid "return_kept_title"
+msgstr "책을 반납했습니다"
+
+msgid "return_kept_body"
+msgstr "이 책은 미소장으로 표시되어 서재에 남습니다. 독서 날짜, 평점, 메모는 유지됩니다."
+
+msgid "return_keep_action"
+msgstr "유지"
+
+msgid "return_remove_action"
+msgstr "삭제"

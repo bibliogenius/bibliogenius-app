@@ -10115,3 +10115,19 @@ msgstr "今すぐエクスポート"
 msgid "auto_backup_clone_nudge_snooze"
 msgstr "後で"
 
+
+#. Badge on a book the user has read or borrowed but does not own.
+msgid "not_owned"
+msgstr "未所有"
+
+msgid "return_kept_title"
+msgstr "本を返却しました"
+
+msgid "return_kept_body"
+msgstr "この本は未所有として書棚に残ります。読書日、評価、メモは保持されます。"
+
+msgid "return_keep_action"
+msgstr "残す"
+
+msgid "return_remove_action"
+msgstr "削除する"

@@ -10,6 +10,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../utils/cover_camera_helper.dart';
+import '../utils/returned_book.dart';
 
 import '../audio/audio_module.dart';
 import '../data/repositories/book_repository.dart';
@@ -3045,22 +3046,48 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
     if (confirmed != true) return;
 
+    // Captured before the call: the backend deletes the borrowed copy, so this is
+    // the only reliable view of what the book had.
+    final book = _book!;
+    final copiesBeforeReturn = List<Copy>.from(_copies);
+
     try {
       final api = Provider.of<ApiService>(context, listen: false);
       // Notify lender via P2P (E2EE or plaintext) and clean up locally
       await api.returnBorrowedBook(copyId: borrowedCopy.id!);
 
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              TranslationService.translate(context, 'book_returned_success'),
-            ),
-            backgroundColor: Colors.green,
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            TranslationService.translate(context, 'book_returned_success'),
           ),
-        );
-        // Backend deleted the borrowed copy (and the book if no remaining copies).
-        // Navigate back - the book is no longer in the user's library.
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      // The backend deleted the borrowed copy and kept the book, which now reads
+      // as not owned. Offer to remove it, never do it unasked.
+      if (canOfferToRemove(book, copiesBeforeReturn)) {
+        final remove = await askToRemoveReturnedBook(context, book);
+        if (remove && context.mounted) {
+          // `deleteBook` reports failure through the status code rather than an
+          // exception: leaving the screen on a 500 would claim a removal that
+          // never happened.
+          final response = await api.deleteBook(book.id!);
+          if (response.statusCode != 200 && context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  TranslationService.translate(context, 'error_deleting_book'),
+                ),
+              ),
+            );
+          }
+        }
+      }
+
+      if (context.mounted) {
         context.read<BookRefreshNotifier>().refresh();
         Navigator.of(context).pop(true);
       }
