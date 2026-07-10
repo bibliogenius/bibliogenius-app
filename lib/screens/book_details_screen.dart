@@ -10,6 +10,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../utils/cover_camera_helper.dart';
+import '../utils/loan_return_feedback.dart';
 import '../utils/returned_book.dart';
 
 import '../audio/audio_module.dart';
@@ -3054,17 +3055,14 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     try {
       final api = Provider.of<ApiService>(context, listen: false);
       // Notify lender via P2P (E2EE or plaintext) and clean up locally
-      await api.returnBorrowedBook(copyId: borrowedCopy.id!);
+      final lenderNotified = await api.returnBorrowedBook(
+        copyId: borrowedCopy.id!,
+      );
 
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            TranslationService.translate(context, 'book_returned_success'),
-          ),
-          backgroundColor: Colors.green,
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(returnOutcomeSnackBar(context, lenderNotified));
 
       // The backend deleted the borrowed copy and kept the book, which now reads
       // as not owned. Offer to remove it, never do it unasked.

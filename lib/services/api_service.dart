@@ -754,15 +754,25 @@ class ApiService {
   }
 
   /// Borrower-initiated return: notifies the lender and cleans up local data.
-  Future<Response> returnBorrowedBook({required String copyId}) async {
+  ///
+  /// Returns whether the lender was actually told. The local copy is removed on
+  /// every path, so the 200 says nothing on its own; when this is false the book
+  /// stays out on loan on the lender's side and only the user can close it.
+  Future<bool> returnBorrowedBook({required String copyId}) async {
+    final Response response;
     if (useFfi) {
       final localDio = Dio(BaseOptions(baseUrl: 'http://127.0.0.1:$httpPort'));
-      return await localDio.post(
+      response = await localDio.post(
+        '/api/peers/return_book',
+        data: {'copy_id': copyId},
+      );
+    } else {
+      response = await _dio.post(
         '/api/peers/return_book',
         data: {'copy_id': copyId},
       );
     }
-    return await _dio.post('/api/peers/return_book', data: {'copy_id': copyId});
+    return response.data is Map && response.data['lender_notified'] == true;
   }
 
   // Helper to get a Dio instance for local FFI server with retry logic

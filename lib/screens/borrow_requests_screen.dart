@@ -11,6 +11,7 @@ import 'package:dio/dio.dart';
 import 'dart:async';
 import '../data/repositories/copy_repository.dart';
 import '../utils/borrowed_copy_display.dart';
+import '../utils/loan_return_feedback.dart';
 import '../data/repositories/loan_repository.dart';
 import '../models/loan.dart';
 import '../services/api_service.dart';
@@ -1442,17 +1443,12 @@ class _LoansScreenState extends State<LoansScreen>
       try {
         final api = Provider.of<ApiService>(context, listen: false);
         // Notify lender and clean up via backend
-        await api.returnBorrowedBook(copyId: copyId);
+        final lenderNotified = await api.returnBorrowedBook(copyId: copyId);
         _fetchAllData();
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                TranslationService.translate(context, 'book_returned_success'),
-              ),
-              backgroundColor: Colors.green,
-            ),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(returnOutcomeSnackBar(context, lenderNotified));
         }
       } catch (e) {
         if (mounted) {
