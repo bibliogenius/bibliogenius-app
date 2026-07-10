@@ -8,7 +8,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 part 'frb.freezed.dart';
 
-// These functions are ignored because they are not marked as `pub`: `account_device_entry`, `account_devices_json`, `account_library_uuid`, `account_status_json`, `apply_fallback_preferences_to_modules`, `covers_dir`, `db`, `enrollment_restart_required`, `enrollment_status_json`, `ensure_account_session`, `entries_to_frb`, `fill_state`, `from_info`, `from_manifest`, `from_summary`, `global_app_state`, `hub_db`, `hub_directory_svc`, `hub_directory_sync_catalog_inner`, `install_panic_hook`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `merge_api_keys`, `modules_to_fallback_preferences`, `nudge_source_label`, `rename_subject_in_books`, `runtime`, `store_account_session`, `track_to_frb`, `try_from_summary`, `undo_outcome_str`, `upsert_directory_catalog_cache`
+// These functions are ignored because they are not marked as `pub`: `account_device_entry`, `account_devices_json`, `account_library_uuid`, `account_status_json`, `apply_fallback_preferences_to_modules`, `covers_dir`, `db`, `enrollment_restart_required`, `enrollment_status_json`, `ensure_account_session`, `entries_to_frb`, `fill_state`, `from_info`, `from_manifest`, `from_summary`, `global_app_state`, `hub_db`, `hub_directory_svc`, `hub_directory_sync_catalog_inner`, `install_panic_hook`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `merge_api_keys`, `merge_directory_entry`, `modules_to_fallback_preferences`, `nudge_source_label`, `rename_subject_in_books`, `runtime`, `store_account_session`, `track_to_frb`, `try_from_summary`, `undo_outcome_str`, `upsert_directory_catalog_cache`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `AccountSession`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
 
@@ -1562,6 +1562,8 @@ sealed class FrbBook with _$FrbBook {
     int? pageCount,
     String? addedAt,
     String? hubCoverUploadFailedAt,
+    bool? isBorrowed,
+    bool? isLent,
   }) = _FrbBook;
 }
 

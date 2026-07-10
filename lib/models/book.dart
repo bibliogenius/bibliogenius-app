@@ -46,6 +46,27 @@ class Book {
   /// a warning badge on the book-details screen while a retry pends.
   final DateTime? hubCoverUploadFailedAt;
 
+  /// Whether at least one copy of this book is currently borrowed, from a peer
+  /// or from a contact. Possession, not reading: a borrowed book carries its own
+  /// [readingStatus] like any other.
+  ///
+  /// Independent of [isLent]: our copy can be at a friend's while another copy
+  /// sits borrowed on our shelf, so both can be true. Null means UNKNOWN, never
+  /// false: only the owner's library listing computes it. Use [isBorrowed] over
+  /// `readingStatus == 'borrowed'`, which the backend no longer emits.
+  final bool? isBorrowed;
+
+  /// Whether at least one copy the user owns is currently lent out.
+  /// See [isBorrowed] for the axis and the null semantics.
+  final bool? isLent;
+
+  /// Whether the book sits on either side of a loan.
+  ///
+  /// An unknown flag reads as "no", not as "yes": a book whose possession was
+  /// never computed must not claim to be on loan. This is the one place that
+  /// rule lives, so filters and badges cannot drift apart.
+  bool get isOnLoan => (isBorrowed ?? false) || (isLent ?? false);
+
   Book({
     this.id,
     required this.title,
@@ -69,6 +90,8 @@ class Book {
     this.pageCount,
     this.addedAt,
     this.hubCoverUploadFailedAt,
+    this.isBorrowed,
+    this.isLent,
   }) : _coverUrl = coverUrl;
 
   /// Coerce a JSON value into a nullable int, tolerating numeric strings.
@@ -86,7 +109,47 @@ class Book {
     return null;
   }
 
+  /// Coerce a JSON value into a nullable bool. Absent stays absent: null means
+  /// "the sender did not compute this", which is not the same as false.
+  static bool? _asBoolOrNull(dynamic value) {
+    if (value is bool) return value;
+    if (value is num) return value != 0;
+    if (value is String) {
+      final v = value.trim().toLowerCase();
+      if (v == 'true' || v == '1') return true;
+      if (v == 'false' || v == '0') return false;
+    }
+    return null;
+  }
+
+  /// The raw `reading_status`, lowercased, with legacy spellings folded in.
+  static String? _rawReadingStatus(Map<String, dynamic> json) {
+    final raw = json['reading_status']?.toString();
+    var normalized = raw?.toLowerCase().replaceAll(' ', '_');
+    // Normalize legacy 'wanted' to 'wanting' for backward compatibility
+    if (normalized == 'wanted') normalized = 'wanting';
+    return normalized;
+  }
+
+  /// The reading status, stripped of the possession values an older backend
+  /// used to write over it. "borrowed" and "lent" were never reading statuses
+  /// and are absent from the picker: surfacing them paints the badge a default
+  /// blue and opens the picker on a value it does not offer.
+  static String? _readingStatusOf(String? rawStatus) {
+    if (rawStatus == 'borrowed' || rawStatus == 'lent') return null;
+    return rawStatus;
+  }
+
+  /// Reads a legacy possession value out of `reading_status`. Returns null when
+  /// the field says nothing about [state], so a caller's `??` keeps looking.
+  static bool? _legacyLoanState(String? rawStatus, String state) {
+    return rawStatus == state ? true : null;
+  }
+
   factory Book.fromJson(Map<String, dynamic> json) {
+    // Normalized once: three readers below share it, and this runs per book on
+    // every catalogue decode.
+    final rawStatus = _rawReadingStatus(json);
     return Book(
       // Identity is the uuid, carried under `uuid` or (post-flip) `id`.
       id: (json['uuid'] ?? json['id'])?.toString(),
@@ -95,13 +158,15 @@ class Book {
       summary: json['summary'],
       publisher: json['publisher'],
       publicationYear: _asIntOrNull(json['publication_year']),
-      readingStatus: (() {
-        final raw = json['reading_status']?.toString();
-        var normalized = raw?.toLowerCase().replaceAll(' ', '_');
-        // Normalize legacy 'wanted' to 'wanting' for backward compatibility
-        if (normalized == 'wanted') normalized = 'wanting';
-        return normalized;
-      })(),
+      readingStatus: _readingStatusOf(rawStatus),
+      // A payload written before the possession flags existed smuggled the loan
+      // state through `reading_status`. Recover it rather than lose it, and let
+      // an explicit flag win when both are present.
+      isBorrowed:
+          _asBoolOrNull(json['is_borrowed']) ??
+          _legacyLoanState(rawStatus, 'borrowed'),
+      isLent:
+          _asBoolOrNull(json['is_lent']) ?? _legacyLoanState(rawStatus, 'lent'),
       finishedReadingAt: json['finished_reading_at'] != null
           ? DateTime.tryParse(json['finished_reading_at'])
           : null,
@@ -201,6 +266,8 @@ class Book {
       pageCount: pageCount,
       addedAt: addedAt,
       hubCoverUploadFailedAt: hubCoverUploadFailedAt,
+      isBorrowed: isBorrowed,
+      isLent: isLent,
     );
   }
 
@@ -259,6 +326,8 @@ class Book {
       pageCount: pageCount,
       addedAt: addedAt,
       hubCoverUploadFailedAt: hubCoverUploadFailedAt,
+      isBorrowed: isBorrowed,
+      isLent: isLent,
     );
   }
 

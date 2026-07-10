@@ -7,8 +7,18 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-Book book({required bool owned, String? status}) =>
-    Book(title: 'Le Livre', owned: owned, readingStatus: status);
+Book book({
+  required bool owned,
+  String? status,
+  bool? isBorrowed,
+  bool? isLent,
+}) => Book(
+  title: 'Le Livre',
+  owned: owned,
+  readingStatus: status,
+  isBorrowed: isBorrowed,
+  isLent: isLent,
+);
 
 void main() {
   group('showsNotOwnedBadge', () {
@@ -22,26 +32,48 @@ void main() {
     });
 
     test('never marks an owned book', () {
-      for (final status in ['read', 'to_read', 'reading', 'lent', null]) {
+      for (final status in ['read', 'to_read', 'reading', null]) {
         expect(
           showsNotOwnedBadge(book(owned: true, status: status)),
           isFalse,
           reason: 'owned book with status $status',
         );
       }
+      expect(showsNotOwnedBadge(book(owned: true, isLent: true)), isFalse);
     });
 
-    // These already wear a status badge that says the same thing.
+    // A book on loan wears the possession pill, and a wished-for book reads as
+    // one already. The not-owned marker names what nothing else does.
     test('does not double up on borrowed, lent or wished-for books', () {
-      expect(
-        showsNotOwnedBadge(book(owned: false, status: 'borrowed')),
-        isFalse,
-      );
-      expect(showsNotOwnedBadge(book(owned: false, status: 'lent')), isFalse);
+      expect(showsNotOwnedBadge(book(owned: false, isBorrowed: true)), isFalse);
+      expect(showsNotOwnedBadge(book(owned: false, isLent: true)), isFalse);
       expect(
         showsNotOwnedBadge(book(owned: false, status: 'wanting')),
         isFalse,
       );
+    });
+
+    // The point of the split: possession no longer masks the reading status.
+    test('a borrowed book keeps its reading status and wears the loan pill', () {
+      final borrowedAndRead = book(
+        owned: false,
+        status: 'read',
+        isBorrowed: true,
+      );
+      expect(borrowedAndRead.readingStatus, 'read');
+      expect(showsLoanStateBadge(borrowedAndRead), isTrue);
+      expect(showsNotOwnedBadge(borrowedAndRead), isFalse);
+    });
+
+    test('an unknown possession flag shows no loan pill', () {
+      expect(showsLoanStateBadge(book(owned: true, status: 'read')), isFalse);
+    });
+
+    // Lent and borrowed at once: the copy in hand is the borrowed one.
+    test('a book both lent and borrowed wears the borrowed label', () {
+      final both = book(owned: true, isBorrowed: true, isLent: true);
+      expect(showsLoanStateBadge(both), isTrue);
+      expect(both.isBorrowed, isTrue);
     });
   });
 
@@ -52,7 +84,11 @@ void main() {
       SharedPreferences.setMockInitialValues({});
       provider = ThemeProvider();
       TranslationService.setPoTranslationsForTest({
-        'en': {'not_owned': 'Not owned', 'reading_status_read': 'Read'},
+        'en': {
+          'not_owned': 'Not owned',
+          'reading_status_read': 'Read',
+          'reading_status_borrowed': 'Borrowed',
+        },
       });
     });
 
@@ -110,8 +146,13 @@ void main() {
     testWidgets('and away from a borrowed book, already badged', (
       tester,
     ) async {
-      await pump(tester, book(owned: false, status: 'borrowed'), isHero: true);
+      await pump(
+        tester,
+        book(owned: false, status: 'read', isBorrowed: true),
+        isHero: true,
+      );
       expect(find.text('NOT OWNED'), findsNothing);
+      expect(find.text('BORROWED'), findsOneWidget);
     });
   });
 }

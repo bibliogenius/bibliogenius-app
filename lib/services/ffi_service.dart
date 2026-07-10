@@ -738,6 +738,10 @@ class FfiService {
       hubCoverUploadFailedAt: fb.hubCoverUploadFailedAt != null
           ? DateTime.tryParse(fb.hubCoverUploadFailedAt!)
           : null,
+      // Null on write paths, which do not compute possession. Kept null rather
+      // than coerced to false so the UI can tell "not lent" from "unknown".
+      isBorrowed: fb.isBorrowed,
+      isLent: fb.isLent,
     );
   }
 

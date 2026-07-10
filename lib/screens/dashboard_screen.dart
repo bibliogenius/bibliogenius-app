@@ -356,7 +356,7 @@ class _DashboardScreenState extends State<DashboardScreen>
         if (configRes.statusCode == 200) {
           final config = configRes.data;
           if (config['show_borrowed_books'] != true) {
-            books = books.where((b) => b.readingStatus != 'borrowed').toList();
+            books = books.where((b) => b.isBorrowed != true).toList();
           }
           // Library name is managed by ThemeProvider (SharedPreferences + FFI)
         }
