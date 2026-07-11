@@ -8,6 +8,7 @@ import '../data/repositories/book_repository.dart';
 import '../data/repositories/copy_repository.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
+import '../utils/borrowed_copy_payload.dart';
 import '../widgets/genie_app_bar.dart';
 import 'scan_screen.dart';
 
@@ -225,21 +226,16 @@ class _BorrowBookScreenState extends State<BorrowBookScreen> {
         }
       }
 
-      // 3. Create temporary copy with borrowed status
-      // The copy tracks who we borrowed from in the notes field
-      final borrowedFrom = TranslationService.translate(
-        context,
-        'borrowed_from',
-      );
+      // 3. Create the borrowed copy. ADR-034: the lender goes in the typed
+      // columns, same shape as the borrow flow in book_details_screen.
       final copyRepo = Provider.of<CopyRepository>(context, listen: false);
-      await copyRepo.createCopy({
-        'book_id': bookId,
-        'status': 'borrowed',
-        'is_temporary': true,
-        'notes':
-            '$borrowedFrom: ${widget.contact.displayName} (ID: ${widget.contact.id})',
-        'acquisition_date': DateTime.now().toIso8601String().split('T')[0],
-      });
+      await copyRepo.createCopy(
+        contactLoanCopyPayload(
+          bookId: bookId,
+          lenderDisplayName: widget.contact.fullName,
+          acquisitionDate: DateTime.now().toIso8601String().split('T')[0],
+        ),
+      );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

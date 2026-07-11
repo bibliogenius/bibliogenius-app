@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../utils/borrowed_copy_payload.dart';
 import '../utils/cover_camera_helper.dart';
 import '../utils/loan_return_feedback.dart';
 import '../utils/returned_book.dart';
@@ -2890,7 +2891,8 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     final contactRepo = Provider.of<ContactRepository>(context, listen: false);
 
     try {
-      if (_book == null) return;
+      final bookId = _book?.id;
+      if (bookId == null) return;
 
       // 1. Fetch contacts, annotating with has_book if the book has an ISBN.
       final contactsList = await contactRepo.getContacts(bookIsbn: _book?.isbn);
@@ -2977,14 +2979,12 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       // ADR-034: send structured loan metadata; the backend stores it on
       // typed columns and the reader renders it via TranslationService.
       final copyRepo = Provider.of<CopyRepository>(context, listen: false);
-      await copyRepo.createCopy({
-        'book_id': _book!.id,
-        // library_id resolved by backend
-        'status': 'borrowed',
-        'is_temporary': false,
-        'lender_display_name': selectedContact.fullName,
-        'borrow_source': 'contact',
-      });
+      await copyRepo.createCopy(
+        contactLoanCopyPayload(
+          bookId: bookId,
+          lenderDisplayName: selectedContact.fullName,
+        ),
+      );
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

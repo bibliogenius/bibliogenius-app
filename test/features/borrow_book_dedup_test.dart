@@ -91,9 +91,16 @@ void main() {
 
       // Copy was created with EXISTING book ID (7)
       expect(mockCopyRepo.createdCopies, hasLength(1));
-      expect(mockCopyRepo.createdCopies.first['book_id'], '7');
-      expect(mockCopyRepo.createdCopies.first['status'], 'borrowed');
-      expect(mockCopyRepo.createdCopies.first['is_temporary'], true);
+      final copy = mockCopyRepo.createdCopies.first;
+      expect(copy['book_id'], '7');
+      expect(copy['status'], 'borrowed');
+      // ADR-034 shape: the lender lands in the typed columns, and the copy is
+      // not flagged temporary (that flag scopes the peer queries). The borrowed
+      // list keys on `status`, so this row still shows up there.
+      expect(copy['is_temporary'], false);
+      expect(copy['borrow_source'], 'contact');
+      expect(copy['lender_display_name'], isNotEmpty);
+      expect(copy.containsKey('notes'), isFalse);
     });
 
     testWidgets('creates new book when ISBN not in library', (
@@ -132,9 +139,11 @@ void main() {
 
       // Copy created with new book ID (123 from mock)
       expect(mockCopyRepo.createdCopies, hasLength(1));
-      expect(mockCopyRepo.createdCopies.first['book_id'], '123');
-      expect(mockCopyRepo.createdCopies.first['status'], 'borrowed');
-      expect(mockCopyRepo.createdCopies.first['is_temporary'], true);
+      final copy = mockCopyRepo.createdCopies.first;
+      expect(copy['book_id'], '123');
+      expect(copy['status'], 'borrowed');
+      expect(copy['is_temporary'], false);
+      expect(copy['borrow_source'], 'contact');
     });
 
     testWidgets('creates new book when no ISBN provided (manual title entry)', (
