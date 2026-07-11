@@ -668,6 +668,10 @@ msgstr "本を返却しました"
 msgid "book_returned_success"
 msgstr "本を返却しました"
 
+#. Shown when the copy was removed but the lender could not be told about it
+msgid "book_returned_lender_not_notified"
+msgstr "本はライブラリから削除されましたが、貸主に通知できませんでした。貸出を終了できるよう、貸主にお知らせください。"
+
 #. Summary
 msgid "book_summary"
 msgstr "あらすじ"

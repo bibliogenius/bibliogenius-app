@@ -668,6 +668,10 @@ msgstr "图书已收回"
 msgid "book_returned_success"
 msgstr "图书归还成功"
 
+#. Shown when the copy was removed but the lender could not be told about it
+msgid "book_returned_lender_not_notified"
+msgstr "图书已从您的书库中移除，但未能通知出借人。请告知对方，以便其结束这笔借阅。"
+
 #. Summary
 msgid "book_summary"
 msgstr "简介"

@@ -704,6 +704,10 @@ msgstr "Kitap iade edildi"
 msgid "book_returned_success"
 msgstr "Kitap başarıyla iade edildi"
 
+#. Shown when the copy was removed but the lender could not be told about it
+msgid "book_returned_lender_not_notified"
+msgstr "Kitap kitaplığınızdan kaldırıldı, ancak ödünç veren kişiye bildirilemedi. Ödünç işlemini kapatabilmesi için ona haber verin."
+
 #. Summary
 msgid "book_summary"
 msgstr "Özet"

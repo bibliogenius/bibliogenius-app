@@ -668,6 +668,10 @@ msgstr "책을 회수함"
 msgid "book_returned_success"
 msgstr "책을 반납했습니다"
 
+#. Shown when the copy was removed but the lender could not be told about it
+msgid "book_returned_lender_not_notified"
+msgstr "책이 서재에서 제거되었지만 빌려준 사람에게 알리지 못했습니다. 대출을 종료할 수 있도록 알려 주세요."
+
 #. Summary
 msgid "book_summary"
 msgstr "요약"

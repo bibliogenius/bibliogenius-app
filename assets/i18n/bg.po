@@ -668,6 +668,10 @@ msgstr "Книгата е върната"
 msgid "book_returned_success"
 msgstr "Книгата е върната успешно"
 
+#. Shown when the copy was removed but the lender could not be told about it
+msgid "book_returned_lender_not_notified"
+msgstr "Книгата е премахната от библиотеката ви, но заемодателят не можа да бъде уведомен. Съобщете му, за да може да приключи заема."
+
 #. Summary
 msgid "book_summary"
 msgstr "Резюме"

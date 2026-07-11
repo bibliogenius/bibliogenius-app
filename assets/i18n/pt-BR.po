@@ -795,6 +795,10 @@ msgstr "Livro devolvido"
 msgid "book_returned_success"
 msgstr "Livro devolvido com sucesso"
 
+#. Shown when the copy was removed but the lender could not be told about it
+msgid "book_returned_lender_not_notified"
+msgstr "Livro removido da sua biblioteca, mas não foi possível notificar quem emprestou. Avise a pessoa para que possa encerrar o empréstimo."
+
 #. Summary
 msgid "book_summary"
 msgstr "Sumário"
