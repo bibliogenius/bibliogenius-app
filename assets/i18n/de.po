@@ -10242,3 +10242,49 @@ msgstr "Behalten"
 
 msgid "return_remove_action"
 msgstr "Entfernen"
+
+#. Series (reading-order timeline)
+msgid "collection_series_toggle"
+msgstr "Reihe"
+
+msgid "collection_series_toggle_desc"
+msgstr "Bände ordnen"
+
+msgid "series_frieze_title"
+msgstr "Reihe"
+
+msgid "series_edit_volume"
+msgstr "Bandnummer"
+
+msgid "series_volume_number"
+msgstr "Bandnummer"
+
+msgid "series_volume_hint"
+msgstr "z. B. 3"
+
+msgid "series_volume_abbrev"
+msgstr "Bd."
+
+msgid "series_clear_volume"
+msgstr "Löschen"
+
+msgid "series_invalid_volume"
+msgstr "Bitte eine positive Zahl eingeben"
+
+msgid "series_unnumbered"
+msgstr "Ohne Nummer"
+
+msgid "series_read"
+msgstr "gelesen"
+
+msgid "series_unread"
+msgstr "ungelesen"
+
+msgid "series_current_volume"
+msgstr "aktueller Band"
+
+msgid "series_reorder_handle"
+msgstr "Zum Umsortieren ziehen"
+
+msgid "series_help_text"
+msgstr "Ziehe die Bände am Griff, um die Reihenfolge zu ändern, oder tippe auf die Nummer auf einem Cover, um sie einzugeben."

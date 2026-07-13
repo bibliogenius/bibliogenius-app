@@ -10241,3 +10241,49 @@ msgstr "Conservarlo"
 
 msgid "return_remove_action"
 msgstr "Quitarlo"
+
+#. Series (reading-order timeline)
+msgid "collection_series_toggle"
+msgstr "Serie"
+
+msgid "collection_series_toggle_desc"
+msgstr "Ordena los tomos"
+
+msgid "series_frieze_title"
+msgstr "Serie"
+
+msgid "series_edit_volume"
+msgstr "Número de tomo"
+
+msgid "series_volume_number"
+msgstr "Número de tomo"
+
+msgid "series_volume_hint"
+msgstr "Ej. 3"
+
+msgid "series_volume_abbrev"
+msgstr "Vol."
+
+msgid "series_clear_volume"
+msgstr "Borrar"
+
+msgid "series_invalid_volume"
+msgstr "Introduce un número positivo"
+
+msgid "series_unnumbered"
+msgstr "Sin numerar"
+
+msgid "series_read"
+msgstr "leído"
+
+msgid "series_unread"
+msgstr "no leído"
+
+msgid "series_current_volume"
+msgstr "tomo actual"
+
+msgid "series_reorder_handle"
+msgstr "Arrastrar para reordenar"
+
+msgid "series_help_text"
+msgstr "Arrastra los tomos por el asa para cambiar el orden, o toca el número en una portada para introducirlo."

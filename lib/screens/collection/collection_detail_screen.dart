@@ -5,7 +5,11 @@ import '../../data/repositories/copy_repository.dart';
 import '../../services/api_service.dart';
 import '../../services/collection_export_service.dart';
 import '../../services/translation_service.dart';
+import '../../providers/theme_provider.dart';
+import '../../utils/book_status.dart';
+import '../../utils/series_ordering.dart';
 import '../../widgets/app_snack_bar.dart';
+import '../../widgets/volume_badge.dart';
 import '../../widgets/cached_book_cover.dart';
 import '../../widgets/configurable_action_card.dart';
 import '../../widgets/premium_empty_state.dart';
@@ -15,7 +19,14 @@ import 'package:provider/provider.dart';
 
 import 'package:go_router/go_router.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../widgets/genie_app_bar.dart';
+
+/// A readable-on-light variant of a status color: Material swatches drop to
+/// their 700 shade (enough contrast for text/icons on a light tinted pill);
+/// any non-swatch color is returned unchanged.
+Color _readableOnLight(Color color) =>
+    color is MaterialColor ? color.shade700 : color;
 
 class CollectionDetailScreen extends StatefulWidget {
   final Collection collection;
@@ -30,19 +41,122 @@ class CollectionDetailScreen extends StatefulWidget {
 class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
   late Future<List<CollectionBook>> _booksFuture;
 
+  /// Whether this collection is a series (ordered reading list). Mutable copy of
+  /// `widget.collection.isSeries` so the toggle can flip it without rebuilding
+  /// the whole screen from a fresh Collection.
+  late bool _isSeries;
+
+  /// Optimistic ordering applied right after a drag-and-drop, before the backend
+  /// round-trip resolves. While set, it is the source of truth for the list so
+  /// the reordered row does not snap back or flash a spinner. Cleared by
+  /// `_refreshBooks`, which reloads the authoritative order.
+  List<CollectionBook>? _localOrder;
+
+  /// Dismissal of the "how ordering works" help card, persisted so it stays
+  /// hidden once the user closes it (loaded from SharedPreferences on open).
+  bool _seriesHelpDismissed = true;
+
+  static const _seriesHelpDismissedKey = 'series_help_dismissed';
+
   @override
   void initState() {
     super.initState();
+    _isSeries = widget.collection.isSeries;
+    _loadSeriesHelpDismissed();
     _refreshBooks();
+  }
+
+  Future<void> _loadSeriesHelpDismissed() async {
+    final prefs = await SharedPreferences.getInstance();
+    final dismissed = prefs.getBool(_seriesHelpDismissedKey) ?? false;
+    if (mounted) setState(() => _seriesHelpDismissed = dismissed);
+  }
+
+  Future<void> _dismissSeriesHelp() async {
+    setState(() => _seriesHelpDismissed = true);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_seriesHelpDismissedKey, true);
   }
 
   void _refreshBooks() {
     setState(() {
+      _localOrder = null;
       _booksFuture = Provider.of<CollectionRepository>(
         context,
         listen: false,
       ).getCollectionBooks(widget.collection.id);
     });
+  }
+
+  /// Persist a drag-and-drop reorder: renumber the volumes 1..N in the new order.
+  /// Applies the new order optimistically so the UI stays stable, then writes the
+  /// positions to the backend (shared with the book-detail frise).
+  Future<void> _reorderVolumes(
+    List<CollectionBook> books,
+    int oldIndex,
+    int newIndex,
+  ) async {
+    final updated = reorderedSequentialVolumes(books, oldIndex, newIndex);
+    // Apply the new order after this frame. Mutating the list synchronously
+    // inside onReorder marks the MouseRegion-bearing rows (tooltips, ink hover)
+    // dirty while the mouse tracker is mid device-update; a fast drop on desktop
+    // then trips a framework assertion (mouse_tracker _debugDuringDeviceUpdate)
+    // that breaks the build and blanks the list.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) setState(() => _localOrder = updated);
+    });
+
+    final repo = Provider.of<CollectionRepository>(context, listen: false);
+    try {
+      await persistVolumeNumbers(repo, widget.collection.id, updated, books);
+    } catch (e) {
+      if (mounted) {
+        AppSnackBar.error(
+          context,
+          '${TranslationService.translate(context, 'error')}: $e',
+        );
+        _refreshBooks();
+      }
+    }
+  }
+
+  Future<void> _toggleSeries(bool value) async {
+    final repo = Provider.of<CollectionRepository>(context, listen: false);
+    // Optimistic flip so the per-volume controls appear immediately.
+    setState(() => _isSeries = value);
+    try {
+      await repo.markCollectionAsSeries(widget.collection.id, value);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isSeries = !value);
+      AppSnackBar.error(
+        context,
+        '${TranslationService.translate(context, 'error')}: $e',
+      );
+    }
+  }
+
+  /// Prompt for a volume number (empty clears it), then persist and re-sort.
+  Future<void> _editVolume(CollectionBook book) async {
+    final result = await showVolumeEditor(context, current: book.volumeNumber);
+    if (result == null || !mounted) return;
+
+    final repo = Provider.of<CollectionRepository>(context, listen: false);
+    try {
+      await repo.setBookVolumeNumber(
+        widget.collection.id,
+        book.bookId,
+        result.volumeNumber,
+      );
+      if (mounted) _refreshBooks();
+    } catch (e) {
+      if (mounted) {
+        AppSnackBar.error(
+          context,
+          '${TranslationService.translate(context, 'error')}: $e',
+        );
+      }
+    }
   }
 
   Future<void> _deleteCollection() async {
@@ -359,8 +473,25 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
       body: FutureBuilder<List<CollectionBook>>(
         future: _booksFuture,
         builder: (context, snapshot) {
-          final books = snapshot.data ?? [];
-          final loading = snapshot.connectionState == ConnectionState.waiting;
+          final books = _localOrder ?? snapshot.data ?? [];
+          // While an optimistic reorder is in flight, keep showing the list
+          // instead of the loading spinner.
+          final loading =
+              snapshot.connectionState == ConnectionState.waiting &&
+              _localOrder == null;
+
+          // Reading-status vocabulary, built once per rebuild and shared by
+          // every row rather than re-translated per teaser.
+          final statusByValue = {
+            for (final s in getStatusOptions(
+              context,
+              Provider.of<ThemeProvider>(
+                context,
+                listen: false,
+              ).inventoryStatusesEnabled,
+            ))
+              s.value: s,
+          };
 
           // Stats Calculation
           final totalCount = books.length;
@@ -480,6 +611,10 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                 ),
               ),
 
+              // Collapsible series section: the on/off switch plus the folded
+              // description + ordering help.
+              _buildSeriesSection(),
+
               // 📚 Book List
               Expanded(
                 child: loading
@@ -515,13 +650,22 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                           onAction: _addBook,
                         ),
                       )
-                    : ListView.builder(
+                    : ReorderableListView.builder(
                         padding: const EdgeInsets.only(
                           top: 16,
                           left: 16,
                           right: 16,
                           bottom: 100,
                         ),
+                        // Dragging is offered only in series mode, via the
+                        // explicit handle below; a manual collection keeps a
+                        // plain, non-draggable list.
+                        buildDefaultDragHandles: false,
+                        onReorder: (oldIndex, newIndex) {
+                          if (_isSeries) {
+                            _reorderVolumes(books, oldIndex, newIndex);
+                          }
+                        },
                         itemCount: books.length,
                         itemBuilder: (context, index) {
                           final book = books[index];
@@ -608,22 +752,29 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                                     padding: const EdgeInsets.all(12),
                                     child: Row(
                                       children: [
-                                        ClipRRect(
-                                          borderRadius: BorderRadius.circular(
-                                            8,
+                                        if (_isSeries) ...[
+                                          ReorderableDragStartListener(
+                                            index: index,
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(
+                                                right: 6,
+                                              ),
+                                              child: Icon(
+                                                Icons.drag_indicator,
+                                                color: Theme.of(
+                                                  context,
+                                                ).colorScheme.outline,
+                                                semanticLabel:
+                                                    TranslationService.translate(
+                                                      context,
+                                                      'series_reorder_handle',
+                                                    ),
+                                              ),
+                                            ),
                                           ),
-                                          child: CachedBookCover(
-                                            imageUrl: book.coverUrl,
-                                            width: 50,
-                                            height: 75,
-                                            semanticLabel:
-                                                book.author != null &&
-                                                    book.author!.isNotEmpty
-                                                ? '${book.title}, ${book.author}'
-                                                : book.title,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 16),
+                                        ],
+                                        _buildCoverWithVolume(book),
+                                        const SizedBox(width: 14),
                                         Expanded(
                                           child: Column(
                                             crossAxisAlignment:
@@ -688,6 +839,10 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                                                       TextOverflow.ellipsis,
                                                 ),
                                               ],
+                                              _buildReadingStatusChip(
+                                                book,
+                                                statusByValue,
+                                              ),
                                             ],
                                           ),
                                         ),
@@ -705,11 +860,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                                                     'status_wanted',
                                                   ),
                                             child: Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 8,
-                                                    vertical: 4,
-                                                  ),
+                                              padding: const EdgeInsets.all(7),
                                               decoration: BoxDecoration(
                                                 color: book.isOwned
                                                     ? Colors.green.withValues(
@@ -731,39 +882,14 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                                                             ),
                                                 ),
                                               ),
-                                              child: Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Icon(
-                                                    book.isOwned
-                                                        ? Icons.check_circle
-                                                        : Icons.bookmark_border,
-                                                    size: 14,
-                                                    color: book.isOwned
-                                                        ? Colors.green
-                                                        : Colors.orange,
-                                                  ),
-                                                  const SizedBox(width: 4),
-                                                  Text(
-                                                    book.isOwned
-                                                        ? TranslationService.translate(
-                                                            context,
-                                                            'status_owned',
-                                                          )
-                                                        : TranslationService.translate(
-                                                            context,
-                                                            'status_wanted',
-                                                          ),
-                                                    style: TextStyle(
-                                                      fontSize: 11,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                      color: book.isOwned
-                                                          ? Colors.green
-                                                          : Colors.orange,
-                                                    ),
-                                                  ),
-                                                ],
+                                              child: Icon(
+                                                book.isOwned
+                                                    ? Icons.check_circle
+                                                    : Icons.bookmark_border,
+                                                size: 16,
+                                                color: book.isOwned
+                                                    ? Colors.green.shade700
+                                                    : Colors.orange.shade700,
                                               ),
                                             ),
                                           ),
@@ -852,6 +978,192 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
           );
         },
       ),
+    );
+  }
+
+  /// Compact, low-emphasis series toggle. It is an optional setting, so it stays
+  /// a slim row (small inline icon + label + switch) rather than a prominent
+  /// card. The ordering help appears below only once the collection is actually
+  /// a series (and until the user dismisses it).
+  Widget _buildSeriesSection() {
+    final theme = Theme.of(context);
+    final active = _isSeries;
+    final accent = theme.colorScheme.primary;
+    return Padding(
+      // Symmetric with the book list's 16px top padding so the encart sits
+      // balanced between the header banner and the first book.
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Material(
+            color: active
+                ? accent.withValues(alpha: 0.06)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+            child: SwitchListTile(
+              value: _isSeries,
+              onChanged: _toggleSeries,
+              activeThumbColor: accent,
+              dense: true,
+              visualDensity: VisualDensity.compact,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+              secondary: Icon(
+                Icons.auto_stories_outlined,
+                size: 22,
+                color: active ? accent : theme.colorScheme.onSurfaceVariant,
+              ),
+              title: Text(
+                TranslationService.translate(
+                  context,
+                  'collection_series_toggle',
+                ),
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+          if (active) _buildSeriesHelp(),
+        ],
+      ),
+    );
+  }
+
+  /// Dismissible contextual help explaining how to order the volumes (drag by
+  /// the handle, or tap the cover number). Shown only while the collection is a
+  /// series and the user has not dismissed it this session.
+  Widget _buildSeriesHelp() {
+    if (!_isSeries || _seriesHelpDismissed) return const SizedBox.shrink();
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(top: 10),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(12, 10, 4, 10),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surfaceContainerHighest.withValues(
+            alpha: 0.5,
+          ),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(
+              Icons.info_outline,
+              size: 18,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                TranslationService.translate(context, 'series_help_text'),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+            InkWell(
+              onTap: _dismissSeriesHelp,
+              borderRadius: BorderRadius.circular(20),
+              child: Tooltip(
+                message: TranslationService.translate(context, 'close'),
+                child: Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: Icon(
+                    Icons.close,
+                    size: 16,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Small reading-status pill (to read / reading / read / wishlist) for the
+  /// teaser, reusing the shared status vocabulary so labels, icons and colors
+  /// match the rest of the app. Renders nothing when the status is empty or
+  /// outside the known set. [statusByValue] is precomputed once per build so the
+  /// status list is not rebuilt and re-translated for every row.
+  Widget _buildReadingStatusChip(
+    CollectionBook book,
+    Map<String, BookStatus> statusByValue,
+  ) {
+    final value = book.readingStatus;
+    if (value == null || value.isEmpty) return const SizedBox.shrink();
+    final status = statusByValue[value];
+    if (status == null) return const SizedBox.shrink();
+
+    // Darken the status color for text/icon so it meets WCAG AA on the light
+    // tinted background; keep the original hue for the fill and border.
+    final textColor = _readableOnLight(status.color);
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 6),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        decoration: BoxDecoration(
+          color: status.color.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: status.color.withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(status.icon, size: 13, color: textColor),
+            const SizedBox(width: 4),
+            // Flexible so a long label (e.g. "En cours de lecture") ellipsizes
+            // inside a narrow teaser instead of overflowing on mobile.
+            Flexible(
+              child: Text(
+                status.label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: textColor,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// The book cover, with the tappable volume badge overlaid on its top-left
+  /// corner in series mode. Overlaying keeps the row compact so the title and
+  /// metadata stay readable on a narrow phone.
+  Widget _buildCoverWithVolume(CollectionBook book) {
+    final cover = ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: CachedBookCover(
+        imageUrl: book.coverUrl,
+        width: 50,
+        height: 75,
+        semanticLabel: book.author != null && book.author!.isNotEmpty
+            ? '${book.title}, ${book.author}'
+            : book.title,
+      ),
+    );
+    if (!_isSeries) return cover;
+    return Stack(
+      children: [
+        cover,
+        Positioned(
+          top: 2,
+          left: 2,
+          child: VolumeBadge(
+            volumeNumber: book.volumeNumber,
+            onTap: () => _editVolume(book),
+          ),
+        ),
+      ],
     );
   }
 

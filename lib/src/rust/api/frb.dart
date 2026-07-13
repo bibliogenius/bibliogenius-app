@@ -1288,6 +1288,31 @@ Future<void> removeBookFromCollection({
   bookId: bookId,
 );
 
+/// Marks a collection as a series (`source = 'series'`) or reverts it to a plain
+/// manual collection. A series collection drives the reading-order frise on the
+/// book-detail screen; membership and volume numbers are set with
+/// `add_book_to_collection` + `set_book_volume_number`.
+Future<void> markCollectionAsSeries({
+  required String collectionId,
+  required bool isSeries,
+}) => RustLib.instance.api.crateApiFrbMarkCollectionAsSeries(
+  collectionId: collectionId,
+  isSeries: isSeries,
+);
+
+/// Sets (or clears, with `None`) a book's reading-order position within a
+/// collection. No-op if the book is not a member. Used by the collection-detail
+/// screen when numbering the volumes of a series.
+Future<void> setBookVolumeNumber({
+  required String collectionId,
+  required String bookId,
+  int? volumeNumber,
+}) => RustLib.instance.api.crateApiFrbSetBookVolumeNumber(
+  collectionId: collectionId,
+  bookId: bookId,
+  volumeNumber: volumeNumber,
+);
+
 /// Get library view statistics (peer and follower views).
 /// Returns a JSON string with total_peer, total_follower, total, and daily breakdown.
 Future<String> getLibraryViewStats() =>
@@ -1711,6 +1736,14 @@ class FrbCollectionBook {
   final bool isOwned;
   final List<String>? digitalFormats;
 
+  /// Personal reading status of the book (`to_read`, `reading`, `read`,
+  /// `wanting`, `abandoned`). Drives the "unread = dimmed" frise rendering.
+  final String? readingStatus;
+
+  /// Reading-order position within a series-typed collection. `None` for
+  /// unnumbered members (rendered after the numbered ones).
+  final int? volumeNumber;
+
   const FrbCollectionBook({
     required this.bookId,
     required this.title,
@@ -1721,6 +1754,8 @@ class FrbCollectionBook {
     required this.addedAt,
     required this.isOwned,
     this.digitalFormats,
+    this.readingStatus,
+    this.volumeNumber,
   });
 
   @override
@@ -1733,7 +1768,9 @@ class FrbCollectionBook {
       publicationYear.hashCode ^
       addedAt.hashCode ^
       isOwned.hashCode ^
-      digitalFormats.hashCode;
+      digitalFormats.hashCode ^
+      readingStatus.hashCode ^
+      volumeNumber.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -1748,7 +1785,9 @@ class FrbCollectionBook {
           publicationYear == other.publicationYear &&
           addedAt == other.addedAt &&
           isOwned == other.isOwned &&
-          digitalFormats == other.digitalFormats;
+          digitalFormats == other.digitalFormats &&
+          readingStatus == other.readingStatus &&
+          volumeNumber == other.volumeNumber;
 }
 
 /// Preview data for the "delete collection with its books" flow.

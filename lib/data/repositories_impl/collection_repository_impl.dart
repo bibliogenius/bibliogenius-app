@@ -46,4 +46,15 @@ class CollectionRepositoryImpl implements CollectionRepository {
   @override
   Future<void> removeBookFromCollection(String collectionId, String bookId) =>
       _ffi.removeBookFromCollection(collectionId, bookId);
+
+  @override
+  Future<void> markCollectionAsSeries(String collectionId, bool isSeries) =>
+      _ffi.markCollectionAsSeries(collectionId, isSeries);
+
+  @override
+  Future<void> setBookVolumeNumber(
+    String collectionId,
+    String bookId,
+    int? volumeNumber,
+  ) => _ffi.setBookVolumeNumber(collectionId, bookId, volumeNumber);
 }

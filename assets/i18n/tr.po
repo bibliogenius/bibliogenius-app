@@ -10373,3 +10373,49 @@ msgstr "Sakla"
 
 msgid "return_remove_action"
 msgstr "Kaldır"
+
+#. Series (reading-order timeline)
+msgid "collection_series_toggle"
+msgstr "Seri"
+
+msgid "collection_series_toggle_desc"
+msgstr "Ciltleri sıralayın"
+
+msgid "series_frieze_title"
+msgstr "Seri"
+
+msgid "series_edit_volume"
+msgstr "Cilt numarası"
+
+msgid "series_volume_number"
+msgstr "Cilt numarası"
+
+msgid "series_volume_hint"
+msgstr "Örn. 3"
+
+msgid "series_volume_abbrev"
+msgstr "Cilt"
+
+msgid "series_clear_volume"
+msgstr "Temizle"
+
+msgid "series_invalid_volume"
+msgstr "Pozitif bir sayı girin"
+
+msgid "series_unnumbered"
+msgstr "Numarasız"
+
+msgid "series_read"
+msgstr "okundu"
+
+msgid "series_unread"
+msgstr "okunmadı"
+
+msgid "series_current_volume"
+msgstr "geçerli cilt"
+
+msgid "series_reorder_handle"
+msgstr "Yeniden sıralamak için sürükleyin"
+
+msgid "series_help_text"
+msgstr "Sırayı değiştirmek için ciltleri tutamaçtan sürükleyin ya da girmek için kapaktaki numaraya dokunun."

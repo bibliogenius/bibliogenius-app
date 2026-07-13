@@ -39,6 +39,7 @@ import '../services/ffi_service.dart';
 import '../services/translation_service.dart';
 import '../utils/book_status.dart';
 import '../widgets/cached_book_cover.dart';
+import '../widgets/series_frieze_widget.dart';
 import '../widgets/plus_one_animation.dart';
 import '../services/milestone_celebration.dart';
 import '../widgets/cover_picker_dialog.dart';
@@ -808,6 +809,15 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                     const SizedBox(height: 32),
                     _buildMetadataGrid(context, book),
                     const SizedBox(height: 16),
+                    // Series frieze(s): one ordered reading-order timeline per
+                    // series-typed collection this book belongs to. Non-series
+                    // books produce an empty loop here, so no extra render cost.
+                    for (final series
+                        in _collections.where((c) => c.isSeries))
+                      SeriesFriezeWidget(
+                        collection: series,
+                        currentBookId: book.id ?? '',
+                      ),
                     // Audio module section (decoupled - only shows if enabled)
                     if (book.id != null)
                       AudioSection(
@@ -3225,14 +3235,28 @@ class _BookNotesSectionState extends State<_BookNotesSection> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Section header
+            // Section header: icon + title in the primary color, matching the
+            // series frise header so the fiche's section labels read alike.
             Semantics(
               header: true,
-              child: Text(
-                t(context, 'notes_section_title'),
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.edit_note,
+                    size: 22,
+                    color: theme.colorScheme.primary,
+                  ),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      t(context, 'notes_section_title'),
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: theme.colorScheme.primary,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 4),

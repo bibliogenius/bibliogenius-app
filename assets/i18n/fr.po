@@ -10386,3 +10386,49 @@ msgstr "Le garder"
 
 msgid "return_remove_action"
 msgstr "Le retirer"
+
+#. Series (reading-order timeline)
+msgid "collection_series_toggle"
+msgstr "Série"
+
+msgid "collection_series_toggle_desc"
+msgstr "Ordonnez les tomes"
+
+msgid "series_reorder_handle"
+msgstr "Glisser pour réordonner"
+
+msgid "series_help_text"
+msgstr "Glissez les tomes par la poignée pour changer l'ordre, ou touchez le numéro sur la couverture pour le saisir."
+
+msgid "series_frieze_title"
+msgstr "Série"
+
+msgid "series_edit_volume"
+msgstr "Numéro de tome"
+
+msgid "series_volume_number"
+msgstr "Numéro de tome"
+
+msgid "series_volume_hint"
+msgstr "Ex. 3"
+
+msgid "series_volume_abbrev"
+msgstr "T."
+
+msgid "series_clear_volume"
+msgstr "Effacer"
+
+msgid "series_invalid_volume"
+msgstr "Entrez un nombre positif"
+
+msgid "series_unnumbered"
+msgstr "Non numéroté"
+
+msgid "series_read"
+msgstr "lu"
+
+msgid "series_unread"
+msgstr "non lu"
+
+msgid "series_current_volume"
+msgstr "tome actuel"

@@ -19,6 +19,10 @@ class Collection {
     this.ownedBooks = 0,
   });
 
+  /// A series-typed collection: its members form an ordered reading list and
+  /// drive the frise on the book-detail screen.
+  bool get isSeries => source == 'series';
+
   factory Collection.fromJson(Map<String, dynamic> json) {
     return Collection(
       id: json['id'],

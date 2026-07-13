@@ -10381,3 +10381,49 @@ msgstr "Manter"
 
 msgid "return_remove_action"
 msgstr "Remover"
+
+#. Series (reading-order timeline)
+msgid "collection_series_toggle"
+msgstr "Série"
+
+msgid "collection_series_toggle_desc"
+msgstr "Ordene os volumes"
+
+msgid "series_frieze_title"
+msgstr "Série"
+
+msgid "series_edit_volume"
+msgstr "Número do volume"
+
+msgid "series_volume_number"
+msgstr "Número do volume"
+
+msgid "series_volume_hint"
+msgstr "Ex.: 3"
+
+msgid "series_volume_abbrev"
+msgstr "Vol."
+
+msgid "series_clear_volume"
+msgstr "Limpar"
+
+msgid "series_invalid_volume"
+msgstr "Digite um número positivo"
+
+msgid "series_unnumbered"
+msgstr "Sem número"
+
+msgid "series_read"
+msgstr "lido"
+
+msgid "series_unread"
+msgstr "não lido"
+
+msgid "series_current_volume"
+msgstr "volume atual"
+
+msgid "series_reorder_handle"
+msgstr "Arraste para reordenar"
+
+msgid "series_help_text"
+msgstr "Arraste os volumes pela alça para mudar a ordem, ou toque no número em uma capa para defini-lo."

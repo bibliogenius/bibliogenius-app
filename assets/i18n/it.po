@@ -10366,3 +10366,49 @@ msgstr "Conservalo"
 
 msgid "return_remove_action"
 msgstr "Rimuovilo"
+
+#. Series (reading-order timeline)
+msgid "collection_series_toggle"
+msgstr "Serie"
+
+msgid "collection_series_toggle_desc"
+msgstr "Ordina i volumi"
+
+msgid "series_frieze_title"
+msgstr "Serie"
+
+msgid "series_edit_volume"
+msgstr "Numero del volume"
+
+msgid "series_volume_number"
+msgstr "Numero del volume"
+
+msgid "series_volume_hint"
+msgstr "Es. 3"
+
+msgid "series_volume_abbrev"
+msgstr "Vol."
+
+msgid "series_clear_volume"
+msgstr "Cancella"
+
+msgid "series_invalid_volume"
+msgstr "Inserisci un numero positivo"
+
+msgid "series_unnumbered"
+msgstr "Senza numero"
+
+msgid "series_read"
+msgstr "letto"
+
+msgid "series_unread"
+msgstr "non letto"
+
+msgid "series_current_volume"
+msgstr "volume attuale"
+
+msgid "series_reorder_handle"
+msgstr "Trascina per riordinare"
+
+msgid "series_help_text"
+msgstr "Trascina i volumi dalla maniglia per cambiare l'ordine, oppure tocca il numero su una copertina per inserirlo."

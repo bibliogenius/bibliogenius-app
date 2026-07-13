@@ -173,6 +173,19 @@ class MockCollectionRepository implements CollectionRepository {
     String collectionId,
     String bookId,
   ) async {}
+
+  @override
+  Future<void> markCollectionAsSeries(
+    String collectionId,
+    bool isSeries,
+  ) async {}
+
+  @override
+  Future<void> setBookVolumeNumber(
+    String collectionId,
+    String bookId,
+    int? volumeNumber,
+  ) async {}
 }
 
 class MockCopyRepository implements CopyRepository {

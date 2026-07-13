@@ -10373,3 +10373,49 @@ msgstr "Запази я"
 
 msgid "return_remove_action"
 msgstr "Премахни я"
+
+#. Series (reading-order timeline)
+msgid "collection_series_toggle"
+msgstr "Поредица"
+
+msgid "collection_series_toggle_desc"
+msgstr "Подредете томовете"
+
+msgid "series_frieze_title"
+msgstr "Поредица"
+
+msgid "series_edit_volume"
+msgstr "Номер на тома"
+
+msgid "series_volume_number"
+msgstr "Номер на тома"
+
+msgid "series_volume_hint"
+msgstr "Напр. 3"
+
+msgid "series_volume_abbrev"
+msgstr "Т."
+
+msgid "series_clear_volume"
+msgstr "Изчисти"
+
+msgid "series_invalid_volume"
+msgstr "Въведете положително число"
+
+msgid "series_unnumbered"
+msgstr "Без номер"
+
+msgid "series_read"
+msgstr "прочетена"
+
+msgid "series_unread"
+msgstr "непрочетена"
+
+msgid "series_current_volume"
+msgstr "текущ том"
+
+msgid "series_reorder_handle"
+msgstr "Плъзнете за пренареждане"
+
+msgid "series_help_text"
+msgstr "Плъзнете томовете чрез дръжката, за да промените реда, или докоснете номера върху корица, за да го въведете."

@@ -705,6 +705,8 @@ class FfiService {
       publicationYear: cb.publicationYear,
       addedAt: DateTime.parse(cb.addedAt),
       isOwned: cb.isOwned,
+      readingStatus: cb.readingStatus,
+      volumeNumber: cb.volumeNumber,
     );
   }
 
@@ -1244,6 +1246,39 @@ class FfiService {
       );
     } catch (e) {
       debugPrint('FFI updateBookCollections error: $e');
+      rethrow;
+    }
+  }
+
+  /// Mark a collection as a series (`source = 'series'`) or revert it to a plain
+  /// manual collection. A series drives the reading-order frise on book detail.
+  Future<void> markCollectionAsSeries(String collectionId, bool isSeries) async {
+    try {
+      await frb.markCollectionAsSeries(
+        collectionId: collectionId,
+        isSeries: isSeries,
+      );
+    } catch (e) {
+      debugPrint('FFI markCollectionAsSeries error: $e');
+      rethrow;
+    }
+  }
+
+  /// Set (or clear, with `null`) a book's reading-order position within a
+  /// collection. No-op if the book is not a member.
+  Future<void> setBookVolumeNumber(
+    String collectionId,
+    String bookId,
+    int? volumeNumber,
+  ) async {
+    try {
+      await frb.setBookVolumeNumber(
+        collectionId: collectionId,
+        bookId: bookId,
+        volumeNumber: volumeNumber,
+      );
+    } catch (e) {
+      debugPrint('FFI setBookVolumeNumber error: $e');
       rethrow;
     }
   }

@@ -27,4 +27,16 @@ abstract class CollectionRepository {
   Future<void> addBookToCollection(String collectionId, String bookId);
 
   Future<void> removeBookFromCollection(String collectionId, String bookId);
+
+  /// Mark a collection as a series (ordered reading list) or revert it to a
+  /// plain manual collection.
+  Future<void> markCollectionAsSeries(String collectionId, bool isSeries);
+
+  /// Set (or clear, with `null`) a book's reading-order position within a
+  /// collection.
+  Future<void> setBookVolumeNumber(
+    String collectionId,
+    String bookId,
+    int? volumeNumber,
+  );
 }
