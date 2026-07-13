@@ -2223,9 +2223,253 @@ msgstr "Serinizi oluşturmak için uygulamayı her gün kullanın!"
 msgid "generic_error"
 msgstr "Hata"
 
+#. Alternate history
+msgid "genre_alternate_history"
+msgstr "Alternatif tarih"
+
+#. Antiquity
+msgid "genre_antiquity"
+msgstr "Antik Çağ"
+
+#. Architecture
+msgid "genre_architecture"
+msgstr "Mimarlık"
+
+#. Art & illustrated books
+msgid "genre_arts"
+msgstr "Sanat & resimli kitaplar"
+
+#. Biography
+msgid "genre_biography"
+msgstr "Biyografi"
+
+#. Cinema
+msgid "genre_cinema"
+msgstr "Sinema"
+
+#. Classic fiction
+msgid "genre_classic_fiction"
+msgstr "Klasik roman"
+
+#. Comics & manga
+msgid "genre_comics"
+msgstr "Çizgi roman & manga"
+
+#. American comics
+msgid "genre_comics_us"
+msgstr "Amerikan çizgi romanı"
+
+#. Contemporary fiction
+msgid "genre_contemporary_fiction"
+msgstr "Çağdaş roman"
+
+#. Cooking
+msgid "genre_cooking"
+msgstr "Yemek"
+
+#. Crime & thriller
+msgid "genre_crime"
+msgstr "Polisiye & gerilim"
+
+#. Cyberpunk
+msgid "genre_cyberpunk"
+msgstr "Siberpunk"
+
+#. Detective novel
+msgid "genre_detective"
+msgstr "Dedektif romanı"
+
 #. Genre Diversity
 msgid "genre_diversity"
 msgstr "Tür Çeşitliliği"
+
+#. Dystopia
+msgid "genre_dystopia"
+msgstr "Distopya"
+
+#. Early modern
+msgid "genre_early_modern"
+msgstr "Yeni Çağ"
+
+#. Epic fantasy
+msgid "genre_epic_fantasy"
+msgstr "Epik fantastik"
+
+#. Essays & non-fiction
+msgid "genre_essay"
+msgstr "Deneme & belgesel"
+
+#. Fantasy
+msgid "genre_fantasy"
+msgstr "Fantastik"
+
+#. Fine arts
+msgid "genre_fine_arts"
+msgstr "Güzel sanatlar"
+
+#. First reads
+msgid "genre_first_reads"
+msgstr "İlk okuma"
+
+#. Franco-Belgian comics
+msgid "genre_franco_belgian"
+msgstr "Fransız-Belçika çizgi romanı"
+
+#. Graphic novel
+msgid "genre_graphic_novel"
+msgstr "Grafik roman"
+
+#. Historical fiction
+msgid "genre_historical_fiction"
+msgstr "Tarihi roman"
+
+#. History
+msgid "genre_history"
+msgstr "Tarih"
+
+#. Horror
+msgid "genre_horror"
+msgstr "Korku"
+
+#. Manga
+msgid "genre_manga"
+msgstr "Manga"
+
+#. Middle Ages
+msgid "genre_middle_ages"
+msgstr "Orta Çağ"
+
+#. Music
+msgid "genre_music"
+msgstr "Müzik"
+
+#. Nature & garden
+msgid "genre_nature_garden"
+msgstr "Doğa & bahçe"
+
+#. Near future
+msgid "genre_near_future"
+msgstr "Yakın gelecek"
+
+#. Noir
+msgid "genre_noir"
+msgstr "Kara roman"
+
+#. Fiction
+msgid "genre_novel"
+msgstr "Roman"
+
+#. Philosophy
+msgid "genre_philosophy"
+msgstr "Felsefe"
+
+#. Photography
+msgid "genre_photography"
+msgstr "Fotoğraf"
+
+#. Suggested genres. Picking one files the book on a shelf.
+msgid "genre_picker_helper"
+msgstr "Önerilen türler. Birini seçmek kitabı bir rafa yerleştirir."
+
+#. Genre
+msgid "genre_picker_label"
+msgstr "Tür"
+
+#. Picture book
+msgid "genre_picture_book"
+msgstr "Resimli kitap"
+
+#. Poetry & theatre
+msgid "genre_poetry_theatre"
+msgstr "Şiir & tiyatro"
+
+#. Politics & society
+msgid "genre_politics_society"
+msgstr "Siyaset & toplum"
+
+#. Practical & hobbies
+msgid "genre_practical"
+msgstr "Pratik & hobi"
+
+#. Refine (optional)
+msgid "genre_refine"
+msgstr "Ayrıntılandır (isteğe bağlı)"
+
+#. Romance
+msgid "genre_romance"
+msgstr "Aşk romanı"
+
+#. Genre
+msgid "genre_root"
+msgstr "Tür"
+
+#. Science
+msgid "genre_science"
+msgstr "Bilim"
+
+#. Science fiction
+msgid "genre_scifi"
+msgstr "Bilim kurgu"
+
+#. Short stories
+msgid "genre_short_stories"
+msgstr "Öykü"
+
+#. Space opera
+msgid "genre_space_opera"
+msgstr "Uzay operası"
+
+#. Spirituality
+msgid "genre_spirituality"
+msgstr "Maneviyat"
+
+#. Sport
+msgid "genre_sport"
+msgstr "Spor"
+
+#. Spy fiction
+msgid "genre_spy"
+msgstr "Casusluk"
+
+#. Supernatural
+msgid "genre_supernatural"
+msgstr "Doğaüstü"
+
+#. Teen fiction
+msgid "genre_teen_fiction"
+msgstr "Gençlik romanı"
+
+#. Thriller
+msgid "genre_thriller"
+msgstr "Gerilim"
+
+#. Travel
+msgid "genre_travel"
+msgstr "Seyahat"
+
+#. True crime
+msgid "genre_true_crime"
+msgstr "Gerçek suç"
+
+#. 20th century
+msgid "genre_twentieth_century"
+msgstr "20. yüzyıl"
+
+#. Urban fantasy
+msgid "genre_urban_fantasy"
+msgstr "Kentsel fantastik"
+
+#. Wellbeing
+msgid "genre_wellbeing"
+msgstr "Sağlıklı yaşam"
+
+#. Young adult
+msgid "genre_young_adult"
+msgstr "Young adult"
+
+#. Children & teens
+msgid "genre_youth"
+msgstr "Çocuk & gençlik"
 
 #. genres explored
 msgid "genres_explored"

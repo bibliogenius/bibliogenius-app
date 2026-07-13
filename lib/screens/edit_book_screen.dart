@@ -17,6 +17,7 @@ import '../widgets/cached_book_cover.dart';
 import '../providers/theme_provider.dart';
 import '../utils/book_status.dart';
 import '../models/book.dart';
+import '../widgets/genre_chips_selector.dart';
 import '../widgets/hierarchical_tag_selector.dart';
 import '../models/tag.dart';
 import '../widgets/collection_selector.dart';
@@ -1368,6 +1369,19 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
               // === Section 4: Organization ===
               _buildSectionDivider(),
+
+              // Genres: a closed list of suggestions that file the book on an
+              // ordinary shelf under "Genre".
+              GenreChipsSelector(
+                selectedShelves: _selectedTags,
+                onShelvesChanged: (shelves) {
+                  setState(() {
+                    _selectedTags = shelves;
+                    _hasChanges = true;
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
 
               // Tags
               HierarchicalTagSelector(

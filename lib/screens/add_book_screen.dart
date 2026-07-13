@@ -25,6 +25,7 @@ import '../widgets/plus_one_animation.dart';
 import '../services/milestone_celebration.dart';
 import '../widgets/cached_book_cover.dart';
 import '../widgets/collection_selector.dart';
+import '../widgets/genre_chips_selector.dart';
 import '../widgets/hierarchical_tag_selector.dart';
 import '../widgets/shimmer_loading.dart';
 import '../widgets/edition_picker_sheet.dart';
@@ -1752,9 +1753,27 @@ class _AddBookScreenState extends State<AddBookScreen> {
               ),
               _buildSectionDivider(),
 
+              // Genres: a closed list of suggestions that file the book on an
+              // ordinary shelf under "Genre".
+              GenreChipsSelector(
+                selectedShelves: _selectedTags,
+                onShelvesChanged: (shelves) {
+                  setState(() {
+                    _selectedTags.clear();
+                    _selectedTags.addAll(shelves);
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
+
               // Tags (shelves)
               HierarchicalTagSelector(
-                selectedTags: _selectedTags,
+                // A copy, not the field: the selector only re-reads its
+                // selection when the list it is handed differs from the
+                // previous one, and `_selectedTags` is mutated in place.
+                // Passing the field itself would leave a genre picked above
+                // invisible here until the widget happens to be rebuilt.
+                selectedTags: List.of(_selectedTags),
                 onTagsChanged: (tags) {
                   setState(() {
                     _selectedTags.clear();

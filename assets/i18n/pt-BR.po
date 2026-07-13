@@ -2570,9 +2570,253 @@ msgstr "Use o app diariamente para construir sua sequência!"
 msgid "generic_error"
 msgstr "Erro"
 
+#. Alternate history
+msgid "genre_alternate_history"
+msgstr "Ucronia"
+
+#. Antiquity
+msgid "genre_antiquity"
+msgstr "Antiguidade"
+
+#. Architecture
+msgid "genre_architecture"
+msgstr "Arquitetura"
+
+#. Art & illustrated books
+msgid "genre_arts"
+msgstr "Arte & livros ilustrados"
+
+#. Biography
+msgid "genre_biography"
+msgstr "Biografia"
+
+#. Cinema
+msgid "genre_cinema"
+msgstr "Cinema"
+
+#. Classic fiction
+msgid "genre_classic_fiction"
+msgstr "Romance clássico"
+
+#. Comics & manga
+msgid "genre_comics"
+msgstr "Quadrinhos & mangá"
+
+#. American comics
+msgid "genre_comics_us"
+msgstr "Quadrinhos americanos"
+
+#. Contemporary fiction
+msgid "genre_contemporary_fiction"
+msgstr "Romance contemporâneo"
+
+#. Cooking
+msgid "genre_cooking"
+msgstr "Culinária"
+
+#. Crime & thriller
+msgid "genre_crime"
+msgstr "Policial & suspense"
+
+#. Cyberpunk
+msgid "genre_cyberpunk"
+msgstr "Cyberpunk"
+
+#. Detective novel
+msgid "genre_detective"
+msgstr "Romance policial"
+
 #. Genre Diversity
 msgid "genre_diversity"
 msgstr "Diversidade de Gênero"
+
+#. Dystopia
+msgid "genre_dystopia"
+msgstr "Distopia"
+
+#. Early modern
+msgid "genre_early_modern"
+msgstr "Idade Moderna"
+
+#. Epic fantasy
+msgid "genre_epic_fantasy"
+msgstr "Fantasia épica"
+
+#. Essays & non-fiction
+msgid "genre_essay"
+msgstr "Ensaio & documento"
+
+#. Fantasy
+msgid "genre_fantasy"
+msgstr "Fantasia"
+
+#. Fine arts
+msgid "genre_fine_arts"
+msgstr "Belas-artes"
+
+#. First reads
+msgid "genre_first_reads"
+msgstr "Primeiras leituras"
+
+#. Franco-Belgian comics
+msgid "genre_franco_belgian"
+msgstr "Quadrinhos franco-belgas"
+
+#. Graphic novel
+msgid "genre_graphic_novel"
+msgstr "Romance gráfico"
+
+#. Historical fiction
+msgid "genre_historical_fiction"
+msgstr "Romance histórico"
+
+#. History
+msgid "genre_history"
+msgstr "História"
+
+#. Horror
+msgid "genre_horror"
+msgstr "Terror"
+
+#. Manga
+msgid "genre_manga"
+msgstr "Mangá"
+
+#. Middle Ages
+msgid "genre_middle_ages"
+msgstr "Idade Média"
+
+#. Music
+msgid "genre_music"
+msgstr "Música"
+
+#. Nature & garden
+msgid "genre_nature_garden"
+msgstr "Natureza & jardim"
+
+#. Near future
+msgid "genre_near_future"
+msgstr "Antecipação"
+
+#. Noir
+msgid "genre_noir"
+msgstr "Noir"
+
+#. Fiction
+msgid "genre_novel"
+msgstr "Ficção"
+
+#. Philosophy
+msgid "genre_philosophy"
+msgstr "Filosofia"
+
+#. Photography
+msgid "genre_photography"
+msgstr "Fotografia"
+
+#. Suggested genres. Picking one files the book on a shelf.
+msgid "genre_picker_helper"
+msgstr "Gêneros sugeridos. Escolher um coloca o livro em uma estante."
+
+#. Genre
+msgid "genre_picker_label"
+msgstr "Gênero"
+
+#. Picture book
+msgid "genre_picture_book"
+msgstr "Livro ilustrado"
+
+#. Poetry & theatre
+msgid "genre_poetry_theatre"
+msgstr "Poesia & teatro"
+
+#. Politics & society
+msgid "genre_politics_society"
+msgstr "Política & sociedade"
+
+#. Practical & hobbies
+msgid "genre_practical"
+msgstr "Prática & lazer"
+
+#. Refine (optional)
+msgid "genre_refine"
+msgstr "Detalhar (opcional)"
+
+#. Romance
+msgid "genre_romance"
+msgstr "Romance sentimental"
+
+#. Genre
+msgid "genre_root"
+msgstr "Gênero"
+
+#. Science
+msgid "genre_science"
+msgstr "Ciências"
+
+#. Science fiction
+msgid "genre_scifi"
+msgstr "Ficção científica"
+
+#. Short stories
+msgid "genre_short_stories"
+msgstr "Contos"
+
+#. Space opera
+msgid "genre_space_opera"
+msgstr "Space opera"
+
+#. Spirituality
+msgid "genre_spirituality"
+msgstr "Espiritualidade"
+
+#. Sport
+msgid "genre_sport"
+msgstr "Esporte"
+
+#. Spy fiction
+msgid "genre_spy"
+msgstr "Espionagem"
+
+#. Supernatural
+msgid "genre_supernatural"
+msgstr "Fantástico"
+
+#. Teen fiction
+msgid "genre_teen_fiction"
+msgstr "Romance adolescente"
+
+#. Thriller
+msgid "genre_thriller"
+msgstr "Suspense"
+
+#. Travel
+msgid "genre_travel"
+msgstr "Viagem"
+
+#. True crime
+msgid "genre_true_crime"
+msgstr "Crime real"
+
+#. 20th century
+msgid "genre_twentieth_century"
+msgstr "Século XX"
+
+#. Urban fantasy
+msgid "genre_urban_fantasy"
+msgstr "Fantasia urbana"
+
+#. Wellbeing
+msgid "genre_wellbeing"
+msgstr "Bem-estar"
+
+#. Young adult
+msgid "genre_young_adult"
+msgstr "Young adult"
+
+#. Children & teens
+msgid "genre_youth"
+msgstr "Infantojuvenil"
 
 #. genres explored
 msgid "genres_explored"

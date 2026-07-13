@@ -2175,9 +2175,253 @@ msgstr "Използвайте приложението всеки ден, за 
 msgid "generic_error"
 msgstr "Грешка"
 
+#. Alternate history
+msgid "genre_alternate_history"
+msgstr "Алтернативна история"
+
+#. Antiquity
+msgid "genre_antiquity"
+msgstr "Античност"
+
+#. Architecture
+msgid "genre_architecture"
+msgstr "Архитектура"
+
+#. Art & illustrated books
+msgid "genre_arts"
+msgstr "Изкуство и илюстровани книги"
+
+#. Biography
+msgid "genre_biography"
+msgstr "Биография"
+
+#. Cinema
+msgid "genre_cinema"
+msgstr "Кино"
+
+#. Classic fiction
+msgid "genre_classic_fiction"
+msgstr "Класически роман"
+
+#. Comics & manga
+msgid "genre_comics"
+msgstr "Комикси и манга"
+
+#. American comics
+msgid "genre_comics_us"
+msgstr "Американски комикс"
+
+#. Contemporary fiction
+msgid "genre_contemporary_fiction"
+msgstr "Съвременен роман"
+
+#. Cooking
+msgid "genre_cooking"
+msgstr "Кулинария"
+
+#. Crime & thriller
+msgid "genre_crime"
+msgstr "Криминале и трилър"
+
+#. Cyberpunk
+msgid "genre_cyberpunk"
+msgstr "Киберпънк"
+
+#. Detective novel
+msgid "genre_detective"
+msgstr "Детективски роман"
+
 #. Genre Diversity
 msgid "genre_diversity"
 msgstr "Жанрово разнообразие"
+
+#. Dystopia
+msgid "genre_dystopia"
+msgstr "Антиутопия"
+
+#. Early modern
+msgid "genre_early_modern"
+msgstr "Ново време"
+
+#. Epic fantasy
+msgid "genre_epic_fantasy"
+msgstr "Епично фентъзи"
+
+#. Essays & non-fiction
+msgid "genre_essay"
+msgstr "Есеистика и документалистика"
+
+#. Fantasy
+msgid "genre_fantasy"
+msgstr "Фентъзи"
+
+#. Fine arts
+msgid "genre_fine_arts"
+msgstr "Изящни изкуства"
+
+#. First reads
+msgid "genre_first_reads"
+msgstr "Първо четене"
+
+#. Franco-Belgian comics
+msgid "genre_franco_belgian"
+msgstr "Френско-белгийски комикс"
+
+#. Graphic novel
+msgid "genre_graphic_novel"
+msgstr "Графичен роман"
+
+#. Historical fiction
+msgid "genre_historical_fiction"
+msgstr "Исторически роман"
+
+#. History
+msgid "genre_history"
+msgstr "История"
+
+#. Horror
+msgid "genre_horror"
+msgstr "Ужаси"
+
+#. Manga
+msgid "genre_manga"
+msgstr "Манга"
+
+#. Middle Ages
+msgid "genre_middle_ages"
+msgstr "Средновековие"
+
+#. Music
+msgid "genre_music"
+msgstr "Музика"
+
+#. Nature & garden
+msgid "genre_nature_garden"
+msgstr "Природа и градина"
+
+#. Near future
+msgid "genre_near_future"
+msgstr "Близко бъдеще"
+
+#. Noir
+msgid "genre_noir"
+msgstr "Ноар"
+
+#. Fiction
+msgid "genre_novel"
+msgstr "Художествена литература"
+
+#. Philosophy
+msgid "genre_philosophy"
+msgstr "Философия"
+
+#. Photography
+msgid "genre_photography"
+msgstr "Фотография"
+
+#. Suggested genres. Picking one files the book on a shelf.
+msgid "genre_picker_helper"
+msgstr "Предложени жанрове. Изборът поставя книгата на етажерка."
+
+#. Genre
+msgid "genre_picker_label"
+msgstr "Жанр"
+
+#. Picture book
+msgid "genre_picture_book"
+msgstr "Картинна книга"
+
+#. Poetry & theatre
+msgid "genre_poetry_theatre"
+msgstr "Поезия и театър"
+
+#. Politics & society
+msgid "genre_politics_society"
+msgstr "Политика и общество"
+
+#. Practical & hobbies
+msgid "genre_practical"
+msgstr "Практика и хоби"
+
+#. Refine (optional)
+msgid "genre_refine"
+msgstr "Уточни (по избор)"
+
+#. Romance
+msgid "genre_romance"
+msgstr "Любовен роман"
+
+#. Genre
+msgid "genre_root"
+msgstr "Жанр"
+
+#. Science
+msgid "genre_science"
+msgstr "Наука"
+
+#. Science fiction
+msgid "genre_scifi"
+msgstr "Научна фантастика"
+
+#. Short stories
+msgid "genre_short_stories"
+msgstr "Разкази"
+
+#. Space opera
+msgid "genre_space_opera"
+msgstr "Космическа опера"
+
+#. Spirituality
+msgid "genre_spirituality"
+msgstr "Духовност"
+
+#. Sport
+msgid "genre_sport"
+msgstr "Спорт"
+
+#. Spy fiction
+msgid "genre_spy"
+msgstr "Шпионски роман"
+
+#. Supernatural
+msgid "genre_supernatural"
+msgstr "Свръхестествено"
+
+#. Teen fiction
+msgid "genre_teen_fiction"
+msgstr "Юношески роман"
+
+#. Thriller
+msgid "genre_thriller"
+msgstr "Трилър"
+
+#. Travel
+msgid "genre_travel"
+msgstr "Пътешествия"
+
+#. True crime
+msgid "genre_true_crime"
+msgstr "Истински престъпления"
+
+#. 20th century
+msgid "genre_twentieth_century"
+msgstr "XX век"
+
+#. Urban fantasy
+msgid "genre_urban_fantasy"
+msgstr "Градско фентъзи"
+
+#. Wellbeing
+msgid "genre_wellbeing"
+msgstr "Благополучие"
+
+#. Young adult
+msgid "genre_young_adult"
+msgstr "Млади възрастни"
+
+#. Children & teens
+msgid "genre_youth"
+msgstr "Детска и юношеска"
 
 #. genres explored
 msgid "genres_explored"
