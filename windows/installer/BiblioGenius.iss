@@ -50,6 +50,10 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 ; The whole Flutter release bundle: bibliogenius.exe + DLLs + data\ + backend\.
+; The recursive copy deliberately carries crsqlite.dll TWICE (app root AND
+; backend\): the Flutter runner and the bundled backend each resolve the
+; cr-sqlite extension next to their own executable at runtime (ADR-044 dynamic
+; path, see crsqlite_dynamic.rs). Do not deduplicate.
 Source: "..\..\build\windows\x64\runner\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]

@@ -25,6 +25,17 @@ env:
   # Keep in sync with the Flutter version you build with locally
   # (pubspec Dart SDK constraint is ^3.10.1). Bump if `flutter --version` differs.
   FLUTTER_VERSION: '3.38.4'
+  # cr-sqlite loadable extension shipped next to the app (DYNAMIC path, ADR-044).
+  # Windows cannot reuse the static-link ship path of the other platforms: the
+  # mandatory symbol-localization relink (vendor/crsqlite/vendor-static.sh, ld -r +
+  # objcopy) is Unix-only with no proven COFF/MSVC equivalent, and Windows allows
+  # runtime extension loading anyway (the static constraint comes from iOS).
+  CRSQLITE_VERSION: 'v0.16.3'
+  # SHA-256 of the official crsqlite-win-x86_64.zip release asset (supply-chain
+  # pin, same spirit as bibliogenius/vendor/crsqlite/CHECKSUMS.txt). The dll inside
+  # exports the exact entry point `sqlite3_crsqlite_init` hardcoded in db.rs
+  # (verified with objdump on this pinned artifact).
+  CRSQLITE_WIN_X64_ZIP_SHA256: '401f9950dc274a52c0aaf180f175c603bebc272c561734baafff4211437ea5da'
 
 jobs:
   # =============================================================================
@@ -43,7 +54,13 @@ jobs:
           targets: x86_64-pc-windows-msvc
 
       - name: Build Rust backend
-        run: cargo build --release --target x86_64-pc-windows-msvc
+        # account_sync + a cr-sqlite loader must match the FFI app build: this
+        # binary shares the same database, and once a device enrolls the replicated
+        # tables carry crsql_* triggers that a non-cr-sqlite process cannot write
+        # through (same invariant as the macOS Fastfile mac lane). Windows uses the
+        # DYNAMIC loader (crsqlite.dll resolved next to the exe at runtime, see
+        # crsqlite_dynamic.rs), not the static archive of the other platforms.
+        run: cargo build --release --target x86_64-pc-windows-msvc --features account_sync,crsqlite
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -63,6 +80,22 @@ jobs:
       # CMakeLists.txt (rust_builder/windows) finds the Rust source at this path
       - name: Clone Rust repository
         run: git clone https://github.com/bibliogenius/bibliogenius.git rust_builder/bibliogenius
+
+      # cargokit.yaml in the Rust repo is global to every platform and selects the
+      # STATIC cr-sqlite ship path (iOS forbids dlopen). Windows ships the DYNAMIC
+      # path instead (see env above), so patch the CLONE only: the repo file must
+      # stay untouched. Flips every profile (release/profile/debug); CI only builds
+      # release, but a static build would panic in build.rs on this target anyway
+      # (no vendored Windows archive).
+      - name: Switch cargokit to the dynamic cr-sqlite feature
+        run: |
+          $f = "rust_builder/bibliogenius/cargokit.yaml"
+          $content = Get-Content $f -Raw
+          if ($content -notmatch 'account_sync,crsqlite-static') {
+            throw "cargokit.yaml no longer lists account_sync,crsqlite-static; update this patch step"
+          }
+          $content = $content -replace 'account_sync,crsqlite-static', 'account_sync,crsqlite'
+          Set-Content -Path $f -Value $content
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
@@ -91,6 +124,25 @@ jobs:
         run: |
           mkdir build\windows\x64\runner\Release\backend
           copy backend\bibliogenius.exe build\windows\x64\runner\Release\backend\
+
+      - name: Fetch crsqlite.dll (official vlcn release, checksum-pinned)
+        run: |
+          $url = "https://github.com/vlcn-io/cr-sqlite/releases/download/$env:CRSQLITE_VERSION/crsqlite-win-x86_64.zip"
+          Invoke-WebRequest -Uri $url -OutFile crsqlite-win-x86_64.zip
+          $sha = (Get-FileHash crsqlite-win-x86_64.zip -Algorithm SHA256).Hash.ToLower()
+          if ($sha -ne $env:CRSQLITE_WIN_X64_ZIP_SHA256) {
+            throw "crsqlite-win-x86_64.zip checksum mismatch: got $sha, expected $env:CRSQLITE_WIN_X64_ZIP_SHA256"
+          }
+          Expand-Archive crsqlite-win-x86_64.zip -DestinationPath crsqlite-dist
+
+      # Both processes that open the database resolve crsqlite.dll in their OWN
+      # executable directory (see crsqlite_dynamic.rs): the Flutter runner at the
+      # bundle root and the bundled backend in backend\. Ship one copy in each;
+      # duplicating ~1 MB beats a shared-path lookup that breaks if the tree moves.
+      - name: Bundle crsqlite.dll (app root + backend)
+        run: |
+          copy crsqlite-dist\crsqlite.dll build\windows\x64\runner\Release\
+          copy crsqlite-dist\crsqlite.dll build\windows\x64\runner\Release\backend\
 
       - name: Install Inno Setup
         run: choco install innosetup -y --no-progress
