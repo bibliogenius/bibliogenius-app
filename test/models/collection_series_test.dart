@@ -67,5 +67,34 @@ void main() {
       expect(cb.volumeNumber, isNull);
       expect(cb.readingStatus, isNull);
     });
+
+    // A CRR row synced from a peer or restored from a legacy backup can carry an
+    // empty or non-ISO `added_at` (the column is NOT NULL with no DEFAULT). One
+    // such row must not blow up the whole Collections tab, so parsing degrades
+    // to null instead of throwing FormatException.
+    test('tolerates an empty or invalid added_at without throwing', () {
+      final empty = CollectionBook.fromJson({
+        'book_id': 'b-1',
+        'title': 'Bad date',
+        'added_at': '',
+        'is_owned': true,
+      });
+      expect(empty.addedAt, isNull);
+
+      final garbage = CollectionBook.fromJson({
+        'book_id': 'b-2',
+        'title': 'Bad date',
+        'added_at': 'not-a-date',
+        'is_owned': true,
+      });
+      expect(garbage.addedAt, isNull);
+
+      final missing = CollectionBook.fromJson({
+        'book_id': 'b-3',
+        'title': 'No date',
+        'is_owned': true,
+      });
+      expect(missing.addedAt, isNull);
+    });
   });
 }

@@ -5,7 +5,11 @@ class CollectionBook {
   final String? coverUrl;
   final String? publisher;
   final int? publicationYear;
-  final DateTime addedAt;
+
+  /// When the book joined the collection. Null when the source row carries an
+  /// empty or non-ISO value (a CRR row synced from a peer or a legacy/restored
+  /// backup), which the UI does not render anyway.
+  final DateTime? addedAt;
   final bool isOwned;
 
   /// Personal reading status (`to_read`, `reading`, `read`, `wanting`,
@@ -23,7 +27,7 @@ class CollectionBook {
     this.coverUrl,
     this.publisher,
     this.publicationYear,
-    required this.addedAt,
+    this.addedAt,
     required this.isOwned,
     this.readingStatus,
     this.volumeNumber,
@@ -56,7 +60,9 @@ class CollectionBook {
       coverUrl: json['cover_url'],
       publisher: json['publisher'],
       publicationYear: json['publication_year'],
-      addedAt: DateTime.parse(json['added_at']),
+      addedAt: json['added_at'] != null
+          ? DateTime.tryParse(json['added_at'] as String)
+          : null,
       isOwned: json['is_owned'] ?? false,
       readingStatus: json['reading_status'],
       volumeNumber: json['volume_number'],

@@ -703,7 +703,7 @@ class FfiService {
       coverUrl: cb.coverUrl,
       publisher: cb.publisher,
       publicationYear: cb.publicationYear,
-      addedAt: DateTime.parse(cb.addedAt),
+      addedAt: DateTime.tryParse(cb.addedAt),
       isOwned: cb.isOwned,
       readingStatus: cb.readingStatus,
       volumeNumber: cb.volumeNumber,
