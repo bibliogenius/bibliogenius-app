@@ -32,6 +32,23 @@ import '../src/rust/api/frb.dart'
 
 enum _PeerViewMode { coverGrid, shelf, list }
 
+/// Whether a post-delta cache reload may replace the books currently shown.
+///
+/// The peer_books cache is only one of the screen's data sources: the hub
+/// directory fallback and the relay manifest preview also populate the
+/// display, and neither writes to peer_books. An empty cache therefore means
+/// "nothing cached for this peer", not "the peer has no books" - replacing a
+/// non-empty display with it would blank the screen and reset last_synced.
+/// A non-empty cache is authoritative and always wins, including shrinking
+/// the list (books deleted on the peer).
+@visibleForTesting
+bool shouldReplaceDisplayedBooks({
+  required int cachedCount,
+  required int displayedCount,
+}) {
+  return cachedCount > 0 || displayedCount == 0;
+}
+
 class PeerBookListScreen extends StatefulWidget {
   final int peerId;
   final String peerName;
@@ -105,6 +122,12 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   /// Hub catalog fallback: true when books come from hub (limited metadata)
   bool _isHubOnly = false;
 
+  /// Why the hub could not serve this library's catalog (see
+  /// FrbHubCatalogResult.errorCode): "follow_required", "catalog_unavailable",
+  /// "not_found", `http_<status>` or "network". Null when the hub answered.
+  /// Drives an honest empty state instead of a bare "no books found".
+  String? _hubErrorCode;
+
   /// Hub contact info (decrypted)
   String? _decryptedContact;
   HubProfile? _hubProfile;
@@ -137,6 +160,15 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
   /// Effective peer URL: mDNS LAN URL if resolved, otherwise saved URL.
   String get _effectiveUrl => _lanUrl ?? widget.peerUrl;
+
+  /// i18n key for the hub failure explainer in the empty state, or null when
+  /// the hub gave no actionable reason (network errors keep the plain
+  /// offline caption).
+  String? get _hubEmptyStateKey => switch (_hubErrorCode) {
+    'follow_required' => 'hub_catalog_follow_required',
+    'catalog_unavailable' => 'hub_catalog_unavailable',
+    _ => null,
+  };
 
   /// Effective node ID: mDNS libraryId if resolved, otherwise widget.nodeId.
   String? get _effectiveNodeId => _resolvedNodeId ?? widget.nodeId;
@@ -380,6 +412,20 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
         '[DEBUG-CATALOG] cache reload: got ${booksData.length} books from '
         'peer_books (previously _books.length=${_books.length})',
       );
+      if (!shouldReplaceDisplayedBooks(
+        cachedCount: booksData.length,
+        displayedCount: _books.length,
+      )) {
+        // The screen is already showing data from another source (hub
+        // directory fallback or relay preview) and the local peer_books
+        // cache has nothing for this peer: replacing would wipe a good
+        // display with an empty list (and reset last_synced to null).
+        debugPrint(
+          '[DEBUG-CATALOG] cache reload skipped: empty cache would wipe '
+          '${_books.length} displayed books',
+        );
+        return;
+      }
       setState(() {
         _books = booksData.map((json) => Book.fromJson(json)).toList();
         _filteredBooks = _isSearching && _searchController.text.isNotEmpty
@@ -1084,9 +1130,23 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     try {
       final ffi = FfiService();
       debugPrint('Hub catalog: fetching for $nodeId');
-      final entries = await ffi.hubDirectoryGetCatalog(nodeId);
-      debugPrint('Hub catalog: got ${entries.length} entries');
-      if (!mounted || entries.isEmpty) return;
+      final result = await ffi.hubDirectoryGetCatalogDetailed(nodeId);
+      final entries = result?.entries ?? [];
+      debugPrint(
+        'Hub catalog: got ${entries.length} entries '
+        '(source=${result?.source}, error=${result?.errorCode})',
+      );
+      if (!mounted) return;
+      if (entries.isEmpty) {
+        // Keep the reason around: the empty state renders an honest message
+        // ("approval required" / "catalog expired") instead of a bare
+        // "no books found" that is indistinguishable from an empty library.
+        final code = result?.errorCode;
+        if (code != null && code != _hubErrorCode) {
+          setState(() => _hubErrorCode = code);
+        }
+        return;
+      }
       // Don't override if live/cached data arrived while we were fetching
       if (_books.isNotEmpty) {
         debugPrint(
@@ -1110,6 +1170,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
         _books = books;
         _filteredBooks = _books;
         _isHubOnly = true;
+        _hubErrorCode = null;
         _lastSynced = DateTime.now().toIso8601String();
         _isLoading = false;
       });
@@ -2375,6 +2436,25 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                                           style: TextStyle(
                                             fontSize: 12,
                                             color: Colors.orange[700],
+                                          ),
+                                        ),
+                                      ],
+                                      if (_hubEmptyStateKey != null) ...[
+                                        const SizedBox(height: 12),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 32,
+                                          ),
+                                          child: Text(
+                                            TranslationService.translate(
+                                              context,
+                                              _hubEmptyStateKey!,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              color: Colors.grey[700],
+                                            ),
                                           ),
                                         ),
                                       ],

@@ -1576,6 +1576,24 @@ class FfiService {
     }
   }
 
+  /// Same as [hubDirectoryGetCatalog] but keeps the failure reason, so the
+  /// caller can distinguish an empty catalog from a denied (follow_required)
+  /// or expired (catalog_unavailable) one. Returns null on FFI failure.
+  Future<frb.FrbHubCatalogResult?> hubDirectoryGetCatalogDetailed(
+    String nodeId,
+  ) async {
+    if (isPlaceholderNodeId(nodeId)) {
+      debugPrint('FFI hubDirectoryGetCatalogDetailed skipped: placeholder');
+      return null;
+    }
+    try {
+      return await frb.hubDirectoryGetCatalogDetailed(nodeId: nodeId);
+    } catch (e) {
+      debugPrint('FFI hubDirectoryGetCatalogDetailed error: $e');
+      return null;
+    }
+  }
+
   /// Follow (or request to follow) a library.
   /// Throws on error so the caller can display the message.
   Future<frb.FrbHubFollow?> hubDirectoryFollow(String nodeId) async {

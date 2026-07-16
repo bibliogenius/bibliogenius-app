@@ -269,16 +269,20 @@ class HubDirectoryProvider extends ChangeNotifier {
     }
   }
 
-  void _onNudgeEvent(FrbNudgeEvent _) {
+  Future<void> _onNudgeEvent(FrbNudgeEvent _) async {
     if (!_hubEnabled || !isRegistered) return;
     // A hub nudge is generic - we cannot tell whether it was caused by an
     // incoming follow request, an incoming borrow, or an update to our own
     // follows (e.g. another library just approved our pending request). Refresh
     // all three lightweight lists so every state transition surfaces without a
     // manual pull-to-refresh. Each list is a single GET, cheap, idempotent.
-    loadPendingRequests();
     _silentRefreshIncomingBorrow();
-    loadFollowing();
+    await Future.wait([loadPendingRequests(), loadFollowing()]);
+    // ADR-053: a nudge may be the follow request of a freshly paired peer;
+    // reconciling here approves it immediately instead of at next cold start.
+    // The follow lists were refreshed just above, so the reconciliation
+    // reuses them instead of re-fetching (refreshLists: false).
+    unawaited(reconcilePairedPeerFollows(refreshLists: false));
   }
 
   Future<void> _silentRefreshIncomingBorrow() async {
@@ -809,6 +813,11 @@ class HubDirectoryProvider extends ChangeNotifier {
         // Start listening for relay nudges so incoming follow/borrow events
         // refresh instantly instead of waiting for the next polling cycle.
         _subscribeNudgeStream();
+        // ADR-053: make sure every accepted paired peer holds (and grants)
+        // hub catalog access, so the offline fallback survives
+        // requires_approval on either side. Fire-and-forget: errors are
+        // logged inside and the next trigger retries.
+        unawaited(reconcilePairedPeerFollows());
       }
     } catch (e) {
       debugPrint('HubDirectory: initAndSyncCatalog error: $e');
@@ -2096,6 +2105,116 @@ class HubDirectoryProvider extends ChangeNotifier {
       debugPrint('HubDirectoryProvider loadPendingRequests error: $e');
     }
     notifyListeners();
+  }
+
+  // ---------------------------------------------------------------------------
+  // Paired-peer follow reconciliation (ADR-053)
+  // ---------------------------------------------------------------------------
+
+  /// Guard against overlapping reconciliation runs (startup + nudge bursts).
+  bool _reconcilingFollows = false;
+
+  /// nodeIds an auto-follow was already sent for in this session, so a peer
+  /// that has not approved yet is not re-requested on every nudge.
+  final Set<String> _autoFollowRequested = {};
+
+  /// ADR-053: materialize P2P pairings as mutual hub follows.
+  ///
+  /// A paired peer already holds far stronger privileges than a follower
+  /// (live catalog sync, loans, E2EE messaging), yet the hub's catalog
+  /// endpoint only understands follows: when either side publishes in the
+  /// public directory with requires_approval, the other side's offline
+  /// hub-catalog fallback dies with a 403. This reconciliation:
+  ///   1. follows every accepted paired peer not already followed,
+  ///   2. approves pending incoming follow requests from accepted paired
+  ///      peers, attaching the sealed contact blob like a manual approval.
+  /// Runs at startup, after accepting a pairing, and on relay nudges;
+  /// no-ops quickly when there is nothing to do.
+  ///
+  /// [refreshLists] - when true (default), re-fetches the following and
+  /// pending lists from the hub before reconciling. Pass false only when the
+  /// caller just refreshed them itself (the nudge handler does), to avoid
+  /// duplicate GETs on every nudge.
+  Future<void> reconcilePairedPeerFollows({bool refreshLists = true}) async {
+    if (_reconcilingFollows) return;
+    if (!isRegistered) return;
+    final api = _apiService;
+    if (api == null) return;
+
+    _reconcilingFollows = true;
+    try {
+      final pairedUuids = await _acceptedPairedPeerUuids(api);
+      if (pairedUuids.isEmpty) return;
+
+      if (refreshLists) {
+        await Future.wait([loadFollowing(), loadPendingRequests()]);
+      }
+
+      // 1. Outgoing: follow paired peers we do not follow yet.
+      final followed = _following.map((f) => f.followedNodeId).toSet();
+      for (final uuid in pairedUuids) {
+        if (followed.contains(uuid)) continue;
+        if (!_autoFollowRequested.add(uuid)) continue;
+        debugPrint('[ADR-053] auto-follow paired peer $uuid');
+        final ok = await follow(uuid);
+        if (!ok) {
+          // Transient failure (hub down, network): allow the next trigger
+          // (nudge or startup) to retry instead of blocking until restart.
+          _autoFollowRequested.remove(uuid);
+          debugPrint(
+            '[ADR-053] auto-follow failed for $uuid '
+            '(${_actionError ?? "unknown"})',
+          );
+        }
+      }
+
+      // 2. Incoming: approve pending requests from paired peers. The pending
+      // list was refreshed above (or by the nudge handler); our own outgoing
+      // follows in step 1 cannot have changed it.
+      final fromPaired = _pendingRequests
+          .where((f) => pairedUuids.contains(f.followerNodeId))
+          .toList();
+      for (final req in fromPaired) {
+        String? blob;
+        final key = req.followerX25519PublicKey;
+        if (key != null && key.isNotEmpty) {
+          blob = await sealContactFor(key);
+        }
+        debugPrint(
+          '[ADR-053] auto-approve follow ${req.id} from paired peer '
+          '${req.followerNodeId}',
+        );
+        await resolveFollow(req.id, 'approve', encryptedContact: blob);
+      }
+    } catch (e) {
+      debugPrint('[ADR-053] reconcilePairedPeerFollows error: $e');
+    } finally {
+      _reconcilingFollows = false;
+    }
+  }
+
+  /// Library uuids of accepted paired peers, excluding self and placeholder
+  /// ids (peer rows created before the uuid handshake completed).
+  Future<Set<String>> _acceptedPairedPeerUuids(ApiService api) async {
+    final uuids = <String>{};
+    try {
+      final res = await api.getPeers();
+      final data = res.data;
+      final list = (data is Map ? data['data'] : data) as List? ?? const [];
+      for (final raw in list) {
+        if (raw is! Map) continue;
+        final status = raw['connection_status'] as String? ?? 'accepted';
+        if (status != 'accepted') continue;
+        final uuid = raw['library_uuid'] as String?;
+        if (uuid == null || uuid.isEmpty) continue;
+        if (FfiService.isPlaceholderNodeId(uuid)) continue;
+        if (uuid == _config?.nodeId) continue;
+        uuids.add(uuid);
+      }
+    } catch (e) {
+      debugPrint('[ADR-053] getPeers failed during reconcile: $e');
+    }
+    return uuids;
   }
 
   // ---------------------------------------------------------------------------

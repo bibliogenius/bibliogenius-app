@@ -4726,6 +4726,14 @@ msgstr "Paste from clipboard"
 msgid "peer_offline"
 msgstr "Offline"
 
+#. Empty state when the hub refuses the catalog (follow approval missing)
+msgid "hub_catalog_follow_required"
+msgstr "This library shares its catalog on approval only. Your access request has not been approved yet."
+
+#. Empty state when the hub has no catalog for this library (expired or never pushed)
+msgid "hub_catalog_unavailable"
+msgstr "This library's online catalog has expired. It will reappear when its owner comes back online."
+
 #. Hub-only data hint shown when only ISBN/title/author available
 msgid "hub_only_hint"
 msgstr "Catalog preview. Connect to the same Wi-Fi network for full details."

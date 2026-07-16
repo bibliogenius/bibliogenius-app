@@ -6512,6 +6512,14 @@ msgstr "Genel bakış"
 msgid "pages_suffix"
 msgstr "s."
 
+#. Empty state when the hub refuses the catalog (follow approval missing)
+msgid "hub_catalog_follow_required"
+msgstr "Bu kütüphane kataloğunu yalnızca onayla paylaşır. Erişim isteğiniz henüz onaylanmadı."
+
+#. Empty state when the hub has no catalog for this library (expired or never pushed)
+msgid "hub_catalog_unavailable"
+msgstr "Bu kütüphanenin çevrimiçi kataloğunun süresi doldu. Sahibi tekrar çevrimiçi olduğunda yeniden görünecek."
+
 #. Hub-only data hint shown when only ISBN/title/author available
 msgid "hub_only_hint"
 msgstr "Katalog önizlemesi. Tüm ayrıntılar için aynı Wi-Fi ağına bağlanın."

@@ -6586,6 +6586,14 @@ msgstr "Обзор"
 msgid "pages_suffix"
 msgstr "стр."
 
+#. Empty state when the hub refuses the catalog (follow approval missing)
+msgid "hub_catalog_follow_required"
+msgstr "Тази библиотека споделя каталога си само след одобрение. Заявката ви за достъп още не е одобрена."
+
+#. Empty state when the hub has no catalog for this library (expired or never pushed)
+msgid "hub_catalog_unavailable"
+msgstr "Онлайн каталогът на тази библиотека е изтекъл. Ще се появи отново, когато собственикът се свърже отново."
+
 #. Hub-only data hint shown when only ISBN/title/author available
 msgid "hub_only_hint"
 msgstr "Преглед на каталога. Свържете се към същата Wi-Fi мрежа за пълни подробности."

@@ -7080,6 +7080,14 @@ msgstr "Online-Funktionen"
 msgid "hub_only_detail_hint"
 msgstr "Verbinden Sie sich mit demselben Wi-Fi oder warten Sie, bis diese Bibliothek online ist, um alle Details zu sehen."
 
+#. Empty state when the hub refuses the catalog (follow approval missing)
+msgid "hub_catalog_follow_required"
+msgstr "Diese Bibliothek teilt ihren Katalog nur nach Freigabe. Ihre Zugriffsanfrage wurde noch nicht genehmigt."
+
+#. Empty state when the hub has no catalog for this library (expired or never pushed)
+msgid "hub_catalog_unavailable"
+msgstr "Der Online-Katalog dieser Bibliothek ist abgelaufen. Er erscheint wieder, sobald der Besitzer wieder online ist."
+
 msgid "hub_only_hint"
 msgstr "Katalogvorschau. Verbinden Sie sich mit demselben Wi-Fi-Netzwerk, um alle Details zu sehen."
 

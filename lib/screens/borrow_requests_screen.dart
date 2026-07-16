@@ -2240,8 +2240,12 @@ class _LoansScreenState extends State<LoansScreen>
 
   Future<void> _acceptConnection(Map<String, dynamic> peer) async {
     final api = Provider.of<ApiService>(context, listen: false);
+    final hubDir = Provider.of<HubDirectoryProvider>(context, listen: false);
     try {
       await api.updatePeerStatus(peer['id'], 'active');
+      // ADR-053: a freshly accepted pairing must also hold hub catalog
+      // access; the reconciliation sends/approves the mutual follow.
+      unawaited(hubDir.reconcilePairedPeerFollows());
       _fetchAllData();
     } catch (e) {
       if (mounted) {

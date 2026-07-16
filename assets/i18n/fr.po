@@ -4726,6 +4726,14 @@ msgstr "Coller depuis le presse-papiers"
 msgid "peer_offline"
 msgstr "Hors ligne"
 
+#. Empty state when the hub refuses the catalog (follow approval missing)
+msgid "hub_catalog_follow_required"
+msgstr "Cette bibliothèque ne partage son catalogue que sur approbation. Votre demande d'accès n'a pas encore été approuvée."
+
+#. Empty state when the hub has no catalog for this library (expired or never pushed)
+msgid "hub_catalog_unavailable"
+msgstr "Le catalogue en ligne de cette bibliothèque a expiré. Il réapparaîtra quand son propriétaire se reconnectera."
+
 #. Hub-only data hint shown when only ISBN/title/author available
 msgid "hub_only_hint"
 msgstr "Aperçu du catalogue. Connectez-vous au même réseau Wi-Fi pour voir tous les détails."

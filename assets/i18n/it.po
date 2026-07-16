@@ -4796,6 +4796,14 @@ msgstr "Incolla dagli appunti"
 msgid "peer_offline"
 msgstr "Offline"
 
+#. Empty state when the hub refuses the catalog (follow approval missing)
+msgid "hub_catalog_follow_required"
+msgstr "Questa biblioteca condivide il catalogo solo su approvazione. La tua richiesta di accesso non è ancora stata approvata."
+
+#. Empty state when the hub has no catalog for this library (expired or never pushed)
+msgid "hub_catalog_unavailable"
+msgstr "Il catalogo online di questa biblioteca è scaduto. Riapparirà quando il proprietario tornerà online."
+
 #. Hub-only data hint shown when only ISBN/title/author available
 msgid "hub_only_hint"
 msgstr "Anteprima del catalogo. Connettiti alla stessa rete Wi-Fi per i dettagli completi."

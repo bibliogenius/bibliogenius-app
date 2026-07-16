@@ -6656,6 +6656,14 @@ msgstr "概要"
 msgid "pages_suffix"
 msgstr "ページ"
 
+#. Empty state when the hub refuses the catalog (follow approval missing)
+msgid "hub_catalog_follow_required"
+msgstr "このライブラリはカタログを承認制で共有しています。アクセスリクエストはまだ承認されていません。"
+
+#. Empty state when the hub has no catalog for this library (expired or never pushed)
+msgid "hub_catalog_unavailable"
+msgstr "このライブラリのオンラインカタログは期限切れです。所有者が再びオンラインになると再表示されます。"
+
 #. Hub-only data hint shown when only ISBN/title/author available
 msgid "hub_only_hint"
 msgstr "カタログのプレビュー。詳細をすべて見るには同じ Wi-Fi ネットワークに接続してください。"

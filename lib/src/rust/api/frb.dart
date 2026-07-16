@@ -8,7 +8,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 part 'frb.freezed.dart';
 
-// These functions are ignored because they are not marked as `pub`: `account_device_entry`, `account_devices_json`, `account_library_uuid`, `account_status_json`, `apply_fallback_preferences_to_modules`, `covers_dir`, `db`, `enrollment_restart_required`, `enrollment_status_json`, `ensure_account_session`, `entries_to_frb`, `fill_state`, `from_info`, `from_manifest`, `from_summary`, `global_app_state`, `hub_db`, `hub_directory_svc`, `hub_directory_sync_catalog_inner`, `install_panic_hook`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `merge_api_keys`, `merge_directory_entry`, `modules_to_fallback_preferences`, `nudge_source_label`, `rename_subject_in_books`, `runtime`, `store_account_session`, `track_to_frb`, `try_from_summary`, `undo_outcome_str`, `upsert_directory_catalog_cache`
+// These functions are ignored because they are not marked as `pub`: `account_device_entry`, `account_devices_json`, `account_library_uuid`, `account_status_json`, `apply_fallback_preferences_to_modules`, `covers_dir`, `db`, `enrollment_restart_required`, `enrollment_status_json`, `ensure_account_session`, `entries_to_frb`, `fill_state`, `from_info`, `from_manifest`, `from_summary`, `global_app_state`, `hub_catalog_error_code`, `hub_db`, `hub_directory_svc`, `hub_directory_sync_catalog_inner`, `install_panic_hook`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `log_sync_failure`, `merge_api_keys`, `merge_directory_entry`, `modules_to_fallback_preferences`, `nudge_source_label`, `rename_subject_in_books`, `runtime`, `store_account_session`, `track_to_frb`, `try_from_summary`, `undo_outcome_str`, `upsert_directory_catalog_cache`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `AccountSession`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
 
@@ -1129,7 +1129,16 @@ Future<FrbHubProfile> hubDirectoryGetProfile({required String nodeId}) =>
 
 /// Gets the catalog of a library (public or approved follow).
 /// Fetches from hub, upserts into local cache, and returns entries with added_at.
-/// If the hub fetch fails, returns the cached entries (offline-first).
+/// If the hub fetch fails, returns the cached entries (offline-first) along
+/// with an honest error code describing why the hub could not serve.
+Future<FrbHubCatalogResult> hubDirectoryGetCatalogDetailed({
+  required String nodeId,
+}) => RustLib.instance.api.crateApiFrbHubDirectoryGetCatalogDetailed(
+  nodeId: nodeId,
+);
+
+/// Compatibility wrapper around [hub_directory_get_catalog_detailed] for
+/// callers that only need the entries (directory browsing screens).
 Future<List<FrbCatalogEntry>> hubDirectoryGetCatalog({
   required String nodeId,
 }) => RustLib.instance.api.crateApiFrbHubDirectoryGetCatalog(nodeId: nodeId);
@@ -2211,6 +2220,45 @@ sealed class FrbHubBorrowRequest with _$FrbHubBorrowRequest {
     String? requesterDisplayName,
     String? lenderDisplayName,
   }) = _FrbHubBorrowRequest;
+}
+
+/// Detailed outcome of a hub catalog fetch, so the UI can distinguish an
+/// empty catalog from a denied, expired, or unreachable one instead of
+/// rendering every failure as "no books".
+class FrbHubCatalogResult {
+  final List<FrbCatalogEntry> entries;
+
+  /// "hub" when entries come from a live hub response, "cache" when the
+  /// hub fetch failed and entries are the local offline cache.
+  final String source;
+
+  /// Machine-readable failure reason, set only when `source == "cache"`:
+  /// - "follow_required": the library gates its catalog behind an
+  ///   approved follow (hub 403 with code)
+  /// - "catalog_unavailable": access is fine but the hub holds no
+  ///   catalog (expired TTL or never pushed)
+  /// - "not_found": no hub profile for this node id
+  /// - "http_<status>": other hub error without a machine code
+  /// - "network": transport failure or local config issue
+  final String? errorCode;
+
+  const FrbHubCatalogResult({
+    required this.entries,
+    required this.source,
+    this.errorCode,
+  });
+
+  @override
+  int get hashCode => entries.hashCode ^ source.hashCode ^ errorCode.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FrbHubCatalogResult &&
+          runtimeType == other.runtimeType &&
+          entries == other.entries &&
+          source == other.source &&
+          errorCode == other.errorCode;
 }
 
 @freezed

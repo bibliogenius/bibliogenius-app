@@ -6656,6 +6656,14 @@ msgstr "洞察"
 msgid "pages_suffix"
 msgstr "页"
 
+#. Empty state when the hub refuses the catalog (follow approval missing)
+msgid "hub_catalog_follow_required"
+msgstr "该书库仅在获得批准后共享其目录。您的访问请求尚未获得批准。"
+
+#. Empty state when the hub has no catalog for this library (expired or never pushed)
+msgid "hub_catalog_unavailable"
+msgstr "该书库的在线目录已过期。当其所有者重新上线时将再次显示。"
+
 #. Hub-only data hint shown when only ISBN/title/author available
 msgid "hub_only_hint"
 msgstr "目录预览。连接到同一 Wi-Fi 网络以查看完整详情。"

@@ -7080,6 +7080,14 @@ msgstr "Funciones en linea"
 msgid "hub_only_detail_hint"
 msgstr "Conectate al mismo Wi-Fi o espera a que esta biblioteca este en linea para ver los detalles completos."
 
+#. Empty state when the hub refuses the catalog (follow approval missing)
+msgid "hub_catalog_follow_required"
+msgstr "Esta biblioteca solo comparte su catálogo con aprobación. Tu solicitud de acceso aún no ha sido aprobada."
+
+#. Empty state when the hub has no catalog for this library (expired or never pushed)
+msgid "hub_catalog_unavailable"
+msgstr "El catálogo en línea de esta biblioteca ha caducado. Reaparecerá cuando su propietario vuelva a conectarse."
+
 msgid "hub_only_hint"
 msgstr "Vista previa del catalogo. Conectate a la misma red Wi-Fi para ver todos los detalles."
 

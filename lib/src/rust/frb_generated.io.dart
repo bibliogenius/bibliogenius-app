@@ -178,6 +178,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FrbHubBorrowRequest dco_decode_frb_hub_borrow_request(dynamic raw);
 
   @protected
+  FrbHubCatalogResult dco_decode_frb_hub_catalog_result(dynamic raw);
+
+  @protected
   FrbHubFollow dco_decode_frb_hub_follow(dynamic raw);
 
   @protected
@@ -647,6 +650,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbHubBorrowRequest sse_decode_frb_hub_borrow_request(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  FrbHubCatalogResult sse_decode_frb_hub_catalog_result(
     SseDeserializer deserializer,
   );
 
@@ -1246,6 +1254,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_frb_hub_borrow_request(
     FrbHubBorrowRequest self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_frb_hub_catalog_result(
+    FrbHubCatalogResult self,
     SseSerializer serializer,
   );
 
