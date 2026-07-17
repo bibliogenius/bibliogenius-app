@@ -10143,3 +10143,19 @@ msgstr "残す"
 
 msgid "return_remove_action"
 msgstr "削除する"
+
+#. Network screen: account-synced libraries not paired on this device (ADR-054)
+msgid "known_libraries_title"
+msgstr "既知のライブラリ"
+
+msgid "known_libraries_hint"
+msgstr "アカウント経由で登録済み、この端末では未ペアリング"
+
+msgid "known_library_not_paired"
+msgstr "この端末では未ペアリング"
+
+msgid "known_library_pairing_explain"
+msgstr "このライブラリはアカウントを通じて登録されていますが、ペアリングは端末ごとに行われます。この端末から接続するには、招待リンクを相手に共有するか、相手の端末で作成された招待を受け入れてください。"
+
+msgid "known_library_delete_account_wide"
+msgstr "この連絡先はアカウントと同期されています。すべての端末から削除されます。このライブラリが接続されている端末のペアリングには影響しません。"

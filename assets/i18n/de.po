@@ -10296,3 +10296,19 @@ msgstr "Zum Umsortieren ziehen"
 
 msgid "series_help_text"
 msgstr "Ziehe die Bände am Griff, um die Reihenfolge zu ändern, oder tippe auf die Nummer auf einem Cover, um sie einzugeben."
+
+#. Network screen: account-synced libraries not paired on this device (ADR-054)
+msgid "known_libraries_title"
+msgstr "Bekannte Bibliotheken"
+
+msgid "known_libraries_hint"
+msgstr "Aus deinem Konto, auf diesem Gerät nicht gekoppelt"
+
+msgid "known_library_not_paired"
+msgstr "Auf diesem Gerät nicht gekoppelt"
+
+msgid "known_library_pairing_explain"
+msgstr "Diese Bibliothek ist über dein Konto bekannt, die Kopplung erfolgt jedoch pro Gerät. Um dich von diesem Gerät aus zu verbinden, teile deinen Einladungslink mit ihr oder akzeptiere eine Einladung, die auf ihrem Gerät erstellt wurde."
+
+msgid "known_library_delete_account_wide"
+msgstr "Dieser Kontakt wird mit deinem Konto synchronisiert: Er wird auf allen deinen Geräten entfernt. Die Kopplung auf dem Gerät, auf dem diese Bibliothek verbunden ist, bleibt unberührt."

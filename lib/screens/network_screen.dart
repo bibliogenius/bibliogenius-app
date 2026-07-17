@@ -13,12 +13,14 @@ import '../widgets/invite_share_sheet.dart';
 import '../widgets/configurable_action_card.dart';
 import '../widgets/shimmer_loading.dart';
 import '../utils/invite_payload.dart';
+import '../utils/known_libraries.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 import 'dart:convert';
 import '../models/avatar_config.dart';
+import '../models/contact.dart';
 import '../models/network_member.dart';
 import '../models/library_relation.dart';
 import '../data/repositories/contact_repository.dart';
@@ -406,10 +408,12 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
   static List<NetworkMember> _cachedBorrowers = [];
   static List<LibraryRelation> _cachedRelations = [];
   static List<DiscoveredPeer> _cachedLocalPeers = [];
+  static List<Contact> _cachedKnownLibraries = [];
 
   List<NetworkMember> _borrowers = [];
   List<LibraryRelation> _relations = [];
   List<DiscoveredPeer> _localPeers = [];
+  List<Contact> _knownLibraries = [];
   bool _isLoading = true;
   bool _bannerVisible = false;
   DateTime? _lastRefreshTime;
@@ -442,6 +446,7 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
       _borrowers = List.of(_cachedBorrowers);
       _relations = List.of(_cachedRelations);
       _localPeers = List.of(_cachedLocalPeers);
+      _knownLibraries = List.of(_cachedKnownLibraries);
       _isLoading = false;
     }
     _dirProvider = Provider.of<HubDirectoryProvider>(context, listen: false);
@@ -913,11 +918,26 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
         return true;
       }).toList();
 
+      // Account-replicated Library contacts with no matching local pairing
+      // (ADR-054 Phase 1). Pairings are device-local by design (ADR-044), so
+      // a peer paired on another device of the account only arrives here as a
+      // replicated contact; surface it honestly instead of hiding it.
+      final knownLibraries = selectUnpairedLibraryContacts(
+        contacts: contactsList.whereType<Contact>().toList(),
+        pairedNames: normalizedNameSet([
+          for (final r in relations) r.name,
+          for (final r in relations)
+            if (r.peer != null) r.peer!.name,
+          for (final p in mdnsPeers) p.name,
+        ]),
+      );
+
       if (mounted) {
         setState(() {
           _borrowers = borrowers;
           _relations = relations;
           _localPeers = localPeers;
+          _knownLibraries = knownLibraries;
           _isLoading = false;
           _lastRefreshTime = DateTime.now();
         });
@@ -925,6 +945,7 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
         _cachedBorrowers = borrowers;
         _cachedRelations = relations;
         _cachedLocalPeers = localPeers;
+        _cachedKnownLibraries = knownLibraries;
         // Check peer connectivity (fire-and-forget, non-blocking)
         _checkPeersConnectivity(relations);
       }
@@ -998,19 +1019,29 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
     return byFilter.where((p) => _matchesSearch(p.name)).toList();
   }
 
+  List<Contact> get _filteredKnownLibraries {
+    if (_filter != LibraryFilter.all) return const [];
+    if (_searchQuery.isEmpty) return _knownLibraries;
+    return _knownLibraries.where((c) => _matchesSearch(c.name)).toList();
+  }
+
   bool get _isEmpty =>
       _filteredRelations.isEmpty &&
       _filteredBorrowers.isEmpty &&
-      _visibleLocalPeers.isEmpty;
+      _visibleLocalPeers.isEmpty &&
+      _filteredKnownLibraries.isEmpty;
 
-  Future<void> _deleteContact(NetworkMember member) async {
+  /// [warningKey] appends a translated warning line to the confirmation
+  /// (e.g. account-wide deletion semantics for replicated contacts).
+  Future<void> _deleteContact(NetworkMember member, {String? warningKey}) async {
     final contactRepo = Provider.of<ContactRepository>(context, listen: false);
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(TranslationService.translate(ctx, 'delete_contact_title')),
         content: Text(
-          '${TranslationService.translate(ctx, 'confirm_delete')} ${member.displayName}?',
+          '${TranslationService.translate(ctx, 'confirm_delete')} ${member.displayName}?'
+          '${warningKey != null ? '\n\n${TranslationService.translate(ctx, warningKey)}' : ''}',
         ),
         actions: [
           TextButton(
@@ -1232,6 +1263,29 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
                                 isOnline: _peerOnlineStatus[r.nodeId],
                               ),
                             ),
+                            // Account-known libraries, not paired on this
+                            // device (ADR-054 Phase 1)
+                            if (_filteredKnownLibraries.isNotEmpty) ...[
+                              const SizedBox(height: 8),
+                              _sectionHeader(
+                                context,
+                                TranslationService.translate(
+                                  context,
+                                  'known_libraries_title',
+                                ),
+                                Icons.cloud_outlined,
+                                subtitle: TranslationService.translate(
+                                  context,
+                                  'known_libraries_hint',
+                                ),
+                                key: const Key('knownLibrariesSection'),
+                              ),
+                              ..._filteredKnownLibraries.map(
+                                _buildKnownLibraryTile,
+                              ),
+                              if (_filteredBorrowers.isNotEmpty)
+                                const Divider(height: 8),
+                            ],
                             // Borrowers
                             ..._filteredBorrowers.map(_buildBorrowerTile),
                           ],
@@ -1388,6 +1442,131 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  /// Tile for an account-replicated Library contact with no local pairing
+  /// (ADR-054 Phase 1): no online affordance, no catalog access, just an
+  /// honest badge and guidance toward re-pairing from this device.
+  Widget _buildKnownLibraryTile(Contact contact) {
+    final cs = Theme.of(context).colorScheme;
+    final badgeText = TranslationService.translate(
+      context,
+      'known_library_not_paired',
+    );
+    return Semantics(
+      button: true,
+      label: '${contact.name}, $badgeText',
+      child: Card(
+        surfaceTintColor: Colors.transparent,
+        key: Key('knownLibraryTile_${contact.id}'),
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () => _showKnownLibraryDialog(contact),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 18,
+                  backgroundColor: cs.surfaceContainerHighest,
+                  child: Icon(
+                    Icons.link_off,
+                    color: cs.onSurfaceVariant,
+                    size: 18,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        contact.name,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: cs.surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          badgeText,
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: cs.onSurfaceVariant,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(
+                    Icons.delete_outline,
+                    size: 20,
+                    color: cs.error,
+                  ),
+                  tooltip: TranslationService.translate(context, 'delete'),
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(
+                    minWidth: 32,
+                    minHeight: 32,
+                  ),
+                  onPressed: () => _deleteContact(
+                    NetworkMember.fromContact(contact),
+                    warningKey: 'known_library_delete_account_wide',
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Explains why the library is not connected here and offers the re-pairing
+  /// gesture (share this device's invite link).
+  void _showKnownLibraryDialog(Contact contact) {
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(contact.name),
+        content: Text(
+          TranslationService.translate(ctx, 'known_library_pairing_explain'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(TranslationService.translate(ctx, 'close')),
+          ),
+          FilledButton.icon(
+            onPressed: () {
+              Navigator.pop(ctx);
+              shareInviteLinkDirect(context);
+            },
+            icon: const Icon(Icons.share, size: 18),
+            label: Text(
+              TranslationService.translate(ctx, 'share_invite_link'),
+            ),
+          ),
+        ],
       ),
     );
   }

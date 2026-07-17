@@ -10440,3 +10440,19 @@ msgstr "unread"
 
 msgid "series_current_volume"
 msgstr "current volume"
+
+#. Network screen: account-synced libraries not paired on this device (ADR-054)
+msgid "known_libraries_title"
+msgstr "Known libraries"
+
+msgid "known_libraries_hint"
+msgstr "From your account, not paired on this device"
+
+msgid "known_library_not_paired"
+msgstr "Not paired on this device"
+
+msgid "known_library_pairing_explain"
+msgstr "This library is known from your account, but pairing is done per device. To connect from this device, share your invite link with it, or accept an invitation generated on its device."
+
+msgid "known_library_delete_account_wide"
+msgstr "This contact is synced with your account: it will be removed on all your devices. The pairing on the device where this library is connected is not affected."

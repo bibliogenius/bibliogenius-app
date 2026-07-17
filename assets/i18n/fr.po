@@ -10440,3 +10440,19 @@ msgstr "non lu"
 
 msgid "series_current_volume"
 msgstr "tome actuel"
+
+#. Network screen: account-synced libraries not paired on this device (ADR-054)
+msgid "known_libraries_title"
+msgstr "Bibliothèques connues"
+
+msgid "known_libraries_hint"
+msgstr "Issues de votre compte, non appairées sur cet appareil"
+
+msgid "known_library_not_paired"
+msgstr "Non appairée sur cet appareil"
+
+msgid "known_library_pairing_explain"
+msgstr "Cette bibliothèque est connue via votre compte, mais l'appairage se fait appareil par appareil. Pour vous connecter depuis cet appareil, partagez-lui votre lien d'invitation, ou acceptez une invitation générée depuis son appareil."
+
+msgid "known_library_delete_account_wide"
+msgstr "Ce contact est synchronisé avec votre compte : il sera retiré sur tous vos appareils. L'appairage sur l'appareil où cette bibliothèque est connectée n'est pas affecté."

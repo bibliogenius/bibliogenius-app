@@ -10435,3 +10435,19 @@ msgstr "Arraste para reordenar"
 
 msgid "series_help_text"
 msgstr "Arraste os volumes pela alça para mudar a ordem, ou toque no número em uma capa para defini-lo."
+
+#. Network screen: account-synced libraries not paired on this device (ADR-054)
+msgid "known_libraries_title"
+msgstr "Bibliotecas conhecidas"
+
+msgid "known_libraries_hint"
+msgstr "Da sua conta, não pareadas neste dispositivo"
+
+msgid "known_library_not_paired"
+msgstr "Não pareada neste dispositivo"
+
+msgid "known_library_pairing_explain"
+msgstr "Esta biblioteca é conhecida pela sua conta, mas o pareamento é feito por dispositivo. Para conectar a partir deste dispositivo, compartilhe seu link de convite com ela ou aceite um convite gerado no dispositivo dela."
+
+msgid "known_library_delete_account_wide"
+msgstr "Este contato está sincronizado com a sua conta: ele será removido em todos os seus dispositivos. O pareamento no dispositivo em que esta biblioteca está conectada não é afetado."

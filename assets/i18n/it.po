@@ -10420,3 +10420,19 @@ msgstr "Trascina per riordinare"
 
 msgid "series_help_text"
 msgstr "Trascina i volumi dalla maniglia per cambiare l'ordine, oppure tocca il numero su una copertina per inserirlo."
+
+#. Network screen: account-synced libraries not paired on this device (ADR-054)
+msgid "known_libraries_title"
+msgstr "Biblioteche conosciute"
+
+msgid "known_libraries_hint"
+msgstr "Dal tuo account, non associate su questo dispositivo"
+
+msgid "known_library_not_paired"
+msgstr "Non associata su questo dispositivo"
+
+msgid "known_library_pairing_explain"
+msgstr "Questa biblioteca è conosciuta tramite il tuo account, ma l'associazione avviene per dispositivo. Per connetterti da questo dispositivo, condividi con essa il tuo link di invito oppure accetta un invito generato sul suo dispositivo."
+
+msgid "known_library_delete_account_wide"
+msgstr "Questo contatto è sincronizzato con il tuo account: verrà rimosso su tutti i tuoi dispositivi. L'associazione sul dispositivo in cui questa biblioteca è connessa non viene toccata."

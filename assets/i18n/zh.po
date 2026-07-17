@@ -10143,3 +10143,19 @@ msgstr "保留"
 
 msgid "return_remove_action"
 msgstr "移除"
+
+#. Network screen: account-synced libraries not paired on this device (ADR-054)
+msgid "known_libraries_title"
+msgstr "已知图书馆"
+
+msgid "known_libraries_hint"
+msgstr "来自您的账户，未在此设备上配对"
+
+msgid "known_library_not_paired"
+msgstr "未在此设备上配对"
+
+msgid "known_library_pairing_explain"
+msgstr "此图书馆通过您的账户已知，但配对需在每台设备上单独进行。要从此设备连接，请与其分享您的邀请链接，或接受在其设备上生成的邀请。"
+
+msgid "known_library_delete_account_wide"
+msgstr "此联系人与您的账户同步：将从您的所有设备中移除。此图书馆已连接设备上的配对不受影响。"

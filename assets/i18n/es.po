@@ -10295,3 +10295,19 @@ msgstr "Arrastrar para reordenar"
 
 msgid "series_help_text"
 msgstr "Arrastra los tomos por el asa para cambiar el orden, o toca el número en una portada para introducirlo."
+
+#. Network screen: account-synced libraries not paired on this device (ADR-054)
+msgid "known_libraries_title"
+msgstr "Bibliotecas conocidas"
+
+msgid "known_libraries_hint"
+msgstr "De tu cuenta, no emparejadas en este dispositivo"
+
+msgid "known_library_not_paired"
+msgstr "No emparejada en este dispositivo"
+
+msgid "known_library_pairing_explain"
+msgstr "Esta biblioteca es conocida a través de tu cuenta, pero el emparejamiento se hace por dispositivo. Para conectarte desde este dispositivo, comparte con ella tu enlace de invitación o acepta una invitación generada en su dispositivo."
+
+msgid "known_library_delete_account_wide"
+msgstr "Este contacto está sincronizado con tu cuenta: se eliminará en todos tus dispositivos. El emparejamiento en el dispositivo donde esta biblioteca está conectada no se ve afectado."

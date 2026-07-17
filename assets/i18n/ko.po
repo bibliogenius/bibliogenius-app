@@ -10143,3 +10143,19 @@ msgstr "유지"
 
 msgid "return_remove_action"
 msgstr "삭제"
+
+#. Network screen: account-synced libraries not paired on this device (ADR-054)
+msgid "known_libraries_title"
+msgstr "알려진 서재"
+
+msgid "known_libraries_hint"
+msgstr "계정을 통해 알려짐, 이 기기에서는 페어링되지 않음"
+
+msgid "known_library_not_paired"
+msgstr "이 기기에서 페어링되지 않음"
+
+msgid "known_library_pairing_explain"
+msgstr "이 서재는 계정을 통해 알려져 있지만 페어링은 기기별로 이루어집니다. 이 기기에서 연결하려면 초대 링크를 공유하거나 상대방 기기에서 생성된 초대를 수락하세요."
+
+msgid "known_library_delete_account_wide"
+msgstr "이 연락처는 계정과 동기화되어 있어 모든 기기에서 제거됩니다. 이 서재가 연결된 기기의 페어링에는 영향이 없습니다."

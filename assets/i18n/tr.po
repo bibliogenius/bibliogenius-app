@@ -10427,3 +10427,19 @@ msgstr "Yeniden sıralamak için sürükleyin"
 
 msgid "series_help_text"
 msgstr "Sırayı değiştirmek için ciltleri tutamaçtan sürükleyin ya da girmek için kapaktaki numaraya dokunun."
+
+#. Network screen: account-synced libraries not paired on this device (ADR-054)
+msgid "known_libraries_title"
+msgstr "Bilinen kütüphaneler"
+
+msgid "known_libraries_hint"
+msgstr "Hesabınızdan, bu cihazda eşleştirilmemiş"
+
+msgid "known_library_not_paired"
+msgstr "Bu cihazda eşleştirilmemiş"
+
+msgid "known_library_pairing_explain"
+msgstr "Bu kütüphane hesabınız üzerinden biliniyor, ancak eşleştirme cihaz başına yapılır. Bu cihazdan bağlanmak için davet bağlantınızı onunla paylaşın veya onun cihazında oluşturulan bir daveti kabul edin."
+
+msgid "known_library_delete_account_wide"
+msgstr "Bu kişi hesabınızla eşitleniyor: tüm cihazlarınızdan kaldırılacak. Bu kütüphanenin bağlı olduğu cihazdaki eşleştirme etkilenmez."
