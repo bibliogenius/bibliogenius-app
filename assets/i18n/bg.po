@@ -10443,3 +10443,7 @@ msgstr "Тази библиотека е позната чрез вашия ак
 
 msgid "known_library_delete_account_wide"
 msgstr "Този контакт се синхронизира с вашия акаунт: ще бъде премахнат от всички ваши устройства. Сдвояването на устройството, където тази библиотека е свързана, не се засяга."
+
+#. Placeholder for a book whose title is missing and that has no ISBN either
+msgid "book_untitled"
+msgstr "Книга без заглавие"

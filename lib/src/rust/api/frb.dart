@@ -1090,10 +1090,6 @@ Future<FrbDirectoryConfig> hubDirectoryRegister({
   required FrbRegisterParams params,
 }) => RustLib.instance.api.crateApiFrbHubDirectoryRegister(params: params);
 
-/// Pushes the local ISBN list to the hub catalog cache (legacy, ISBN-only).
-Future<void> hubDirectoryPushCatalog({required List<String> isbnList}) =>
-    RustLib.instance.api.crateApiFrbHubDirectoryPushCatalog(isbnList: isbnList);
-
 /// Reads all owned books from the local database, collects title, author,
 /// and cover data, and pushes the enriched catalog to the hub.
 /// Every entry carries its local `book_id` so the hub-side cover GC

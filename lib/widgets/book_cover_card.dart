@@ -5,6 +5,7 @@ import '../services/translation_service.dart';
 import '../providers/theme_provider.dart';
 import '../theme/app_design.dart';
 import '../utils/book_color_seed.dart';
+import '../utils/book_display.dart';
 import '../utils/book_status.dart';
 import 'cached_book_cover.dart';
 
@@ -65,9 +66,7 @@ class BookCoverCard extends StatelessWidget {
                       const SizedBox.shrink(), // Show fallback while loading
                   errorWidget:
                       const SizedBox.shrink(), // Show fallback on error
-                  semanticLabel: book.author != null && book.author!.isNotEmpty
-                      ? '${book.title}, ${book.author}'
-                      : book.title,
+                  semanticLabel: BookDisplay.coverLabelOf(context, book),
                   isPeerCover: isPeerCover,
                 ),
 
@@ -167,7 +166,10 @@ class BookCoverCard extends StatelessWidget {
             children: [
               Flexible(
                 child: Text(
-                  book.title,
+                  // A book pushed without a title would otherwise render as a
+                  // blank coloured tile: fall back to its ISBN, then to the
+                  // translated placeholder.
+                  BookDisplay.titleOf(context, book),
                   maxLines: titleMaxLines,
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,

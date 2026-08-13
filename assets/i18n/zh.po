@@ -10159,3 +10159,7 @@ msgstr "此图书馆通过您的账户已知，但配对需在每台设备上单
 
 msgid "known_library_delete_account_wide"
 msgstr "此联系人与您的账户同步：将从您的所有设备中移除。此图书馆已连接设备上的配对不受影响。"
+
+#. Placeholder for a book whose title is missing and that has no ISBN either
+msgid "book_untitled"
+msgstr "无标题书籍"

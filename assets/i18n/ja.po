@@ -10159,3 +10159,7 @@ msgstr "このライブラリはアカウントを通じて登録されていま
 
 msgid "known_library_delete_account_wide"
 msgstr "この連絡先はアカウントと同期されています。すべての端末から削除されます。このライブラリが接続されている端末のペアリングには影響しません。"
+
+#. Placeholder for a book whose title is missing and that has no ISBN either
+msgid "book_untitled"
+msgstr "タイトルなしの本"

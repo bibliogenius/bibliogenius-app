@@ -12,6 +12,7 @@ import '../src/rust/api/frb.dart' show FrbBook, FrbCatalogEntry;
 import '../theme/app_design.dart';
 import '../providers/theme_provider.dart';
 import '../utils/app_constants.dart';
+import '../utils/book_display.dart';
 import '../widgets/book_cover_card.dart';
 import '../widgets/genie_app_bar.dart';
 import '../widgets/hub_location_label.dart';
@@ -349,9 +350,7 @@ class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
                 final entry = filtered[index];
                 final book = _entryToBook(entry);
                 final isNew = _isEntryNew(entry);
-                final semanticLabel = book.author != null
-                    ? '${book.title}, ${book.author}'
-                    : book.title;
+                final semanticLabel = BookDisplay.coverLabelOf(context, book);
                 return Semantics(
                   button: true,
                   label: semanticLabel,
@@ -380,7 +379,10 @@ class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
   /// reimplementing cover logic on this screen.
   Book _entryToBook(FrbCatalogEntry entry) {
     return Book(
-      title: entry.title.isNotEmpty ? entry.title : entry.isbn,
+      // Title kept verbatim: the ISBN / placeholder fallback for title-less
+      // books belongs to the display layer (BookDisplay), which every
+      // renderer of this Book already goes through.
+      title: entry.title,
       isbn: entry.isbn,
       author: entry.author,
       coverUrl: entry.coverUrl,
@@ -567,9 +569,14 @@ class _BookDetailSheetState extends State<_BookDetailSheet> {
     final summary = _meta?['summary'];
     final publisher = _meta?['publisher'];
     final year = _meta?['publication_year'];
-    final title =
-        _meta?['title'] ??
-        (widget.entry.title.isNotEmpty ? widget.entry.title : null);
+    final metaTitle = _meta?['title'];
+    final title = (metaTitle != null && metaTitle.isNotEmpty)
+        ? metaTitle
+        : BookDisplay.titleFor(
+            context,
+            title: widget.entry.title,
+            isbn: widget.entry.isbn,
+          );
     final author = _meta?['author'] ?? widget.entry.author;
     final closeLabel = TranslationService.translate(context, 'close');
 
@@ -633,9 +640,10 @@ class _BookDetailSheetState extends State<_BookDetailSheet> {
                                     borderRadius: BorderRadius.circular(8),
                                     child: Semantics(
                                       image: true,
-                                      label: title != null && author != null
-                                          ? '$title, $author'
-                                          : title ?? widget.entry.isbn,
+                                      label: BookDisplay.resolveCoverLabel(
+                                        title: title,
+                                        author: author,
+                                      ),
                                       child: CachedNetworkImage(
                                         imageUrl: coverUrl,
                                         fit: BoxFit.cover,
@@ -654,12 +662,12 @@ class _BookDetailSheetState extends State<_BookDetailSheet> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                if (title != null)
-                                  Text(
-                                    title,
-                                    style: theme.textTheme.titleMedium
-                                        ?.copyWith(fontWeight: FontWeight.w600),
+                                Text(
+                                  title,
+                                  style: theme.textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.w600,
                                   ),
+                                ),
                                 if (author != null) ...[
                                   const SizedBox(height: 4),
                                   Text(

@@ -10456,3 +10456,7 @@ msgstr "This library is known from your account, but pairing is done per device.
 
 msgid "known_library_delete_account_wide"
 msgstr "This contact is synced with your account: it will be removed on all your devices. The pairing on the device where this library is connected is not affected."
+
+#. Placeholder for a book whose title is missing and that has no ISBN either
+msgid "book_untitled"
+msgstr "Untitled book"

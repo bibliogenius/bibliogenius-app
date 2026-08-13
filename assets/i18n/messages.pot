@@ -8336,3 +8336,7 @@ msgstr ""
 
 msgid "return_remove_action"
 msgstr ""
+
+#. Placeholder for a book whose title is missing and that has no ISBN either
+msgid "book_untitled"
+msgstr ""

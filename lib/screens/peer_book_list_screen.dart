@@ -8,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../services/api_service.dart';
 import '../services/ffi_service.dart';
 import '../models/book.dart';
+import '../utils/book_display.dart';
 import '../utils/cover_url_resolver.dart';
 import '../utils/isbn_validator.dart';
 import '../models/hub_directory.dart';
@@ -2564,17 +2565,16 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                                       onTapPlaceholder: () =>
                                           _reloadCover(book),
                                       isPeerCover: true,
-                                      semanticLabel:
-                                          book.author != null &&
-                                              book.author!.isNotEmpty
-                                          ? '${book.title}, ${book.author}'
-                                          : book.title,
+                                      semanticLabel: BookDisplay.coverLabelOf(
+                                        context,
+                                        book,
+                                      ),
                                     ),
                                     title: Row(
                                       children: [
                                         Expanded(
                                           child: Text(
-                                            book.title,
+                                            BookDisplay.titleOf(context, book),
                                             style: const TextStyle(
                                               fontSize: 16,
                                               fontWeight: FontWeight.w600,
@@ -2741,10 +2741,10 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                             borderRadius: BorderRadius.circular(8),
                             onTapPlaceholder: () => _reloadCover(book),
                             isPeerCover: true,
-                            semanticLabel:
-                                book.author != null && book.author!.isNotEmpty
-                                ? '${book.title}, ${book.author}'
-                                : book.title,
+                            semanticLabel: BookDisplay.coverLabelOf(
+                              context,
+                              book,
+                            ),
                           ),
                           const SizedBox(width: 16),
                           Expanded(
@@ -2752,7 +2752,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  book.title,
+                                  BookDisplay.titleOf(context, book),
                                   style: theme.textTheme.titleMedium?.copyWith(
                                     fontWeight: FontWeight.w600,
                                   ),

@@ -1583,6 +1583,12 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// Whether borrowing is enabled in the current config.
   bool get allowBorrowing => _config?.allowBorrowing ?? true;
 
+  /// Registers or updates the public profile on the hub.
+  ///
+  /// [bookCount] is no longer what the hub stores: the Rust side derives the
+  /// public number from the catalog it pushes, so the library header can never
+  /// announce books a follower cannot see. The parameter is kept because the
+  /// FFI struct still carries the field.
   Future<bool> register({
     required String nodeId,
     required String displayName,

@@ -3,6 +3,7 @@ import 'dart:math';
 import '../models/book.dart';
 import '../services/translation_service.dart';
 import '../utils/book_color_seed.dart';
+import '../utils/book_display.dart';
 
 /// A book spine widget that renders a colored vertical strip with the title.
 ///
@@ -11,6 +12,11 @@ import '../utils/book_color_seed.dart';
 /// based on the seed value.
 class BookSpine extends StatelessWidget {
   final String title;
+
+  /// Fallback identity when [title] is empty (see [BookDisplay]). A book can
+  /// legitimately reach a peer without a title; the spine would otherwise be
+  /// a blank coloured strip.
+  final String? isbn;
   final String? subtitle;
   final int colorSeed;
   final double height;
@@ -28,6 +34,7 @@ class BookSpine extends StatelessWidget {
     this.width = 40,
     this.showNewBand = false,
   }) : title = book.title,
+       isbn = book.isbn,
        subtitle = book.publisher,
        colorSeed = bookColorSeed(book),
        opacity = book.owned ? 1.0 : 0.5;
@@ -37,6 +44,7 @@ class BookSpine extends StatelessWidget {
   const BookSpine({
     super.key,
     required this.title,
+    this.isbn,
     this.subtitle,
     required this.colorSeed,
     this.height = 150,
@@ -57,6 +65,11 @@ class BookSpine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final displayTitle = BookDisplay.titleFor(
+      context,
+      title: title,
+      isbn: isbn,
+    );
     final baseColor = _getColor();
 
     final spine = Container(
@@ -98,7 +111,7 @@ class BookSpine extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  title,
+                  displayTitle,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
@@ -130,7 +143,10 @@ class BookSpine extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: showNewBand ? 5 : 3),
       child: Semantics(
-        label: subtitle != null ? '$title, $subtitle' : title,
+        label: BookDisplay.resolveCoverLabel(
+          title: displayTitle,
+          author: subtitle,
+        ),
         child: Opacity(
           opacity: opacity,
           child: showNewBand

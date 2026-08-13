@@ -10312,3 +10312,7 @@ msgstr "Diese Bibliothek ist über dein Konto bekannt, die Kopplung erfolgt jedo
 
 msgid "known_library_delete_account_wide"
 msgstr "Dieser Kontakt wird mit deinem Konto synchronisiert: Er wird auf allen deinen Geräten entfernt. Die Kopplung auf dem Gerät, auf dem diese Bibliothek verbunden ist, bleibt unberührt."
+
+#. Placeholder for a book whose title is missing and that has no ISBN either
+msgid "book_untitled"
+msgstr "Buch ohne Titel"

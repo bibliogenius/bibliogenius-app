@@ -1472,17 +1472,6 @@ class FfiService {
     }
   }
 
-  /// Push the local ISBN catalog to the hub (call after book changes).
-  Future<bool> hubDirectoryPushCatalog(List<String> isbnList) async {
-    try {
-      await frb.hubDirectoryPushCatalog(isbnList: isbnList);
-      return true;
-    } catch (e) {
-      debugPrint('FFI hubDirectoryPushCatalog error: $e');
-      return false;
-    }
-  }
-
   /// Read all non-null ISBNs from the local DB and push them to the hub.
   /// Returns the number of ISBNs pushed, or -1 on error.
   Future<int> hubDirectorySyncCatalog() async {
