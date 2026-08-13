@@ -10440,3 +10440,7 @@ msgstr "Questo contatto è sincronizzato con il tuo account: verrà rimosso su t
 #. Placeholder for a book whose title is missing and that has no ISBN either
 msgid "book_untitled"
 msgstr "Libro senza titolo"
+
+#. Label of the book title field, used by the completeness chips
+msgid "field_title"
+msgstr "Titolo"

@@ -8340,3 +8340,7 @@ msgstr ""
 #. Placeholder for a book whose title is missing and that has no ISBN either
 msgid "book_untitled"
 msgstr ""
+
+#. Label of the book title field, used by the completeness chips
+msgid "field_title"
+msgstr ""

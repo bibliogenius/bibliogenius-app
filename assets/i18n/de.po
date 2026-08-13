@@ -10316,3 +10316,7 @@ msgstr "Dieser Kontakt wird mit deinem Konto synchronisiert: Er wird auf allen d
 #. Placeholder for a book whose title is missing and that has no ISBN either
 msgid "book_untitled"
 msgstr "Buch ohne Titel"
+
+#. Label of the book title field, used by the completeness chips
+msgid "field_title"
+msgstr "Titel"

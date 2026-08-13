@@ -253,7 +253,10 @@ class _ScanScreenState extends State<ScanScreen> {
                 textInputAction: TextInputAction.search,
                 onSubmitted: (_) => _submitManualIsbn(),
                 decoration: InputDecoration(
-                  labelText: TranslationService.translate(context, 'enter_isbn'),
+                  labelText: TranslationService.translate(
+                    context,
+                    'enter_isbn',
+                  ),
                   hintText: '978...',
                   prefixIcon: const Icon(Icons.qr_code),
                   border: const OutlineInputBorder(),
@@ -266,7 +269,10 @@ class _ScanScreenState extends State<ScanScreen> {
                   onPressed: _submitManualIsbn,
                   icon: const Icon(Icons.search),
                   label: Text(
-                    TranslationService.translate(context, 'tooltip_search_isbn'),
+                    TranslationService.translate(
+                      context,
+                      'tooltip_search_isbn',
+                    ),
                   ),
                 ),
               ),
@@ -469,10 +475,7 @@ class _ScanScreenState extends State<ScanScreen> {
             if (!currentSubjects.contains(widget.preSelectedShelfId)) {
               final newSubjects = List<String>.from(currentSubjects)
                 ..add(widget.preSelectedShelfId!);
-              await bookRepo.updateBook(
-                bookId,
-                {'subjects': newSubjects},
-              );
+              await bookRepo.updateBook(bookId, {'subjects': newSubjects});
             }
           }
 
@@ -678,7 +681,26 @@ class _ScanScreenState extends State<ScanScreen> {
       if (index >= _batchedBooks.length) return;
       final book = _batchedBooks[index];
       if (book.isNew && book.bookPayload != null) {
-        book.bookPayload!['title'] = titleCtrl.text;
+        // A blank title would create a book nothing can identify: it renders
+        // as an empty tile here and on every peer that caches the catalog.
+        // The backend refuses it at creation, so keeping the previous value
+        // and saying so now beats losing the book at commit time. This sheet
+        // is the one editor that could clear a title, since the add form has
+        // a validator on the field.
+        final typedTitle = titleCtrl.text.trim();
+        if (typedTitle.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                TranslationService.translate(context, 'enter_title_error'),
+              ),
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+          );
+        } else {
+          book.bookPayload!['title'] = typedTitle;
+          book.title = typedTitle;
+        }
         book.bookPayload!['author'] = authorCtrl.text;
         book.bookPayload!['publisher'] = publisherCtrl.text.isEmpty
             ? null
@@ -687,7 +709,6 @@ class _ScanScreenState extends State<ScanScreen> {
         book.bookPayload!['publication_year'] = yearText.isEmpty
             ? null
             : int.tryParse(yearText);
-        book.title = titleCtrl.text.isNotEmpty ? titleCtrl.text : book.isbn;
       }
       setState(() {});
     }

@@ -14,6 +14,7 @@ import '../providers/metadata_fill_provider.dart';
 import '../providers/theme_provider.dart';
 import '../services/translation_service.dart';
 import '../theme/app_design.dart';
+import '../utils/book_display.dart';
 import '../widgets/cached_book_cover.dart';
 import '../src/rust/api/frb.dart' as frb;
 
@@ -31,8 +32,10 @@ class _MetadataFillScreenState extends State<MetadataFillScreen>
   /// Active "missing field" filter on the to-complete list (null = all).
   String? _missingFilter;
 
-  /// Canonical gap-fill field order for filter chips.
+  /// Canonical gap-fill field order for filter chips. Title leads: a book
+  /// without one is unidentifiable everywhere, including on peers.
   static const _fillFields = [
+    'title',
     'summary',
     'publisher',
     'page_count',
@@ -55,8 +58,10 @@ class _MetadataFillScreenState extends State<MetadataFillScreen>
   int? _batchSize = _defaultBatch;
 
   /// Lot options for a given backlog: candidates below it, then "Tout".
-  List<int?> _offeredBatches(int backlog) =>
-      [..._batchCandidates.where((n) => n < backlog), null];
+  List<int?> _offeredBatches(int backlog) => [
+    ..._batchCandidates.where((n) => n < backlog),
+    null,
+  ];
 
   /// The picked size if still offered, else a sensible default (the default lot,
   /// else the largest finite option, else "Tout").
@@ -90,6 +95,8 @@ class _MetadataFillScreenState extends State<MetadataFillScreen>
 
   String _fieldLabel(String field) {
     switch (field) {
+      case 'title':
+        return _t('field_title');
       case 'summary':
         return _t('field_summary');
       case 'publisher':
@@ -182,15 +189,18 @@ class _MetadataFillScreenState extends State<MetadataFillScreen>
                         header: true,
                         child: Text(
                           _t('completeness_card_title'),
-                          style: theme.textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.bold),
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 2),
                       if (stats != null)
                         Text(
-                          _t('completeness_empty_fields',
-                              params: {'n': '${provider.emptyFields}'}),
+                          _t(
+                            'completeness_empty_fields',
+                            params: {'n': '${provider.emptyFields}'},
+                          ),
                           style: theme.textTheme.bodySmall,
                         ),
                     ],
@@ -371,8 +381,9 @@ class _MetadataFillScreenState extends State<MetadataFillScreen>
                     const SizedBox(width: 8),
                     Text(
                       ratio == null ? '—' : '${(ratio * 100).round()}%',
-                      style: theme.textTheme.labelMedium
-                          ?.copyWith(fontWeight: FontWeight.bold),
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
@@ -396,8 +407,10 @@ class _MetadataFillScreenState extends State<MetadataFillScreen>
     // A lot pauses the run as "interrupted"; show how far the campaign got so
     // the strip reads as "continue", not just "a run was interrupted".
     final label = total > 0
-        ? _t('completeness_progress_count',
-            params: {'done': '$done', 'total': '$total'})
+        ? _t(
+            'completeness_progress_count',
+            params: {'done': '$done', 'total': '$total'},
+          )
         : _t('completeness_resume_hint');
     return _stripContainer(
       child: Row(
@@ -405,10 +418,7 @@ class _MetadataFillScreenState extends State<MetadataFillScreen>
           const Icon(Icons.pause_circle_outline, size: 20),
           const SizedBox(width: 8),
           Expanded(
-            child: Text(
-              label,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
+            child: Text(label, style: Theme.of(context).textTheme.bodySmall),
           ),
           TextButton(
             onPressed: provider.cancel,
@@ -441,11 +451,14 @@ class _MetadataFillScreenState extends State<MetadataFillScreen>
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              _t(key, params: {
-                'filled': '${progress.filled}',
-                'skipped': '${progress.skipped}',
-                'errored': '${progress.errored}',
-              }),
+              _t(
+                key,
+                params: {
+                  'filled': '${progress.filled}',
+                  'skipped': '${progress.skipped}',
+                  'errored': '${progress.errored}',
+                },
+              ),
               style: theme.textTheme.bodySmall,
             ),
           ),
@@ -496,12 +509,16 @@ class _MetadataFillScreenState extends State<MetadataFillScreen>
       indicatorWeight: 3,
       tabs: [
         Tab(
-          text: _t('completeness_tab_todo',
-              params: {'n': '${provider.incomplete.length}'}),
+          text: _t(
+            'completeness_tab_todo',
+            params: {'n': '${provider.incomplete.length}'},
+          ),
         ),
         Tab(
-          text: _t('completeness_tab_recent',
-              params: {'n': '${provider.recent.length}'}),
+          text: _t(
+            'completeness_tab_recent',
+            params: {'n': '${provider.recent.length}'},
+          ),
         ),
       ],
     );
@@ -517,10 +534,12 @@ class _MetadataFillScreenState extends State<MetadataFillScreen>
         counts[f] = (counts[f] ?? 0) + 1;
       }
     }
-    final filterFields =
-        _fillFields.where((f) => (counts[f] ?? 0) > 0).toList();
-    final noIsbnCount =
-        books.where((b) => (b.isbn ?? '').trim().isEmpty).length;
+    final filterFields = _fillFields
+        .where((f) => (counts[f] ?? 0) > 0)
+        .toList();
+    final noIsbnCount = books
+        .where((b) => (b.isbn ?? '').trim().isEmpty)
+        .length;
     final optionCount = filterFields.length + (noIsbnCount > 0 ? 1 : 0);
     if (optionCount <= 1) return const SizedBox(height: 8);
 
@@ -531,7 +550,10 @@ class _MetadataFillScreenState extends State<MetadataFillScreen>
       child: Row(
         children: [
           _filterPill(
-            label: _t('completeness_filter_all', params: {'n': '${books.length}'}),
+            label: _t(
+              'completeness_filter_all',
+              params: {'n': '${books.length}'},
+            ),
             selected: filter == null,
             onTap: () => setState(() => _missingFilter = null),
           ),
@@ -548,8 +570,9 @@ class _MetadataFillScreenState extends State<MetadataFillScreen>
               selected: filter == _noIsbnFilter,
               warn: true,
               onTap: () => setState(
-                () => _missingFilter =
-                    filter == _noIsbnFilter ? null : _noIsbnFilter,
+                () => _missingFilter = filter == _noIsbnFilter
+                    ? null
+                    : _noIsbnFilter,
               ),
             ),
         ],
@@ -630,9 +653,9 @@ class _MetadataFillScreenState extends State<MetadataFillScreen>
     final List<Widget> cards;
     if (isTodo) {
       hint = _t('completeness_todo_hint');
-      cards = _filteredTodo(provider)
-          .map((b) => _buildTodoCard(provider, b))
-          .toList();
+      cards = _filteredTodo(
+        provider,
+      ).map((b) => _buildTodoCard(provider, b)).toList();
     } else {
       hint = _t('completeness_recent_hint');
       cards = provider.recent
@@ -652,8 +675,7 @@ class _MetadataFillScreenState extends State<MetadataFillScreen>
             : avail >= 330
             ? 2
             : 1;
-        final cellW =
-            cols <= 1 ? avail : (avail - spacing * (cols - 1)) / cols;
+        final cellW = cols <= 1 ? avail : (avail - spacing * (cols - 1)) / cols;
         return SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.fromLTRB(16, 10, 16, 24),
@@ -686,8 +708,9 @@ class _MetadataFillScreenState extends State<MetadataFillScreen>
         counts[f] = (counts[f] ?? 0) + 1;
       }
     }
-    final noIsbnCount =
-        books.where((b) => (b.isbn ?? '').trim().isEmpty).length;
+    final noIsbnCount = books
+        .where((b) => (b.isbn ?? '').trim().isEmpty)
+        .length;
     final filter = _validFilter(counts, noIsbnCount);
     if (filter == null) return books;
     if (filter == _noIsbnFilter) {
@@ -704,6 +727,14 @@ class _MetadataFillScreenState extends State<MetadataFillScreen>
   ) {
     final theme = Theme.of(context);
     final hasIsbn = (book.isbn ?? '').trim().isNotEmpty;
+    // A book listed here may be the one missing its very title: resolve it to
+    // its ISBN, or to the placeholder, so the row reporting the gap is not
+    // itself blank.
+    final displayTitle = BookDisplay.titleFor(
+      context,
+      title: book.title,
+      isbn: book.isbn,
+    );
     return Card(
       margin: EdgeInsets.zero,
       child: InkWell(
@@ -719,12 +750,12 @@ class _MetadataFillScreenState extends State<MetadataFillScreen>
                   CompactBookCover(
                     imageUrl: book.coverUrl,
                     size: 44,
-                    semanticLabel: book.title,
+                    semanticLabel: displayTitle,
                   ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      book.title,
+                      displayTitle,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: theme.textTheme.titleSmall,
@@ -740,7 +771,8 @@ class _MetadataFillScreenState extends State<MetadataFillScreen>
                 spacing: 6,
                 runSpacing: 6,
                 children: [
-                  if (!hasIsbn) _tag(_t('completeness_no_isbn_chip'), warn: true),
+                  if (!hasIsbn)
+                    _tag(_t('completeness_no_isbn_chip'), warn: true),
                   ...book.missing.map((f) => _tag(_fieldLabel(f))),
                 ],
               ),
@@ -756,6 +788,7 @@ class _MetadataFillScreenState extends State<MetadataFillScreen>
     frb.FrbFilledBook book,
   ) {
     final theme = Theme.of(context);
+    final displayTitle = BookDisplay.titleFor(context, title: book.title);
     final batchId = book.fields.isNotEmpty ? book.fields.first.batchId : '';
     return Card(
       margin: EdgeInsets.zero,
@@ -772,12 +805,12 @@ class _MetadataFillScreenState extends State<MetadataFillScreen>
                   CompactBookCover(
                     imageUrl: book.coverUrl,
                     size: 44,
-                    semanticLabel: book.title,
+                    semanticLabel: displayTitle,
                   ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      book.title,
+                      displayTitle,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: theme.textTheme.titleSmall,
@@ -881,7 +914,10 @@ class _MetadataFillScreenState extends State<MetadataFillScreen>
                             CompactBookCover(
                               imageUrl: book.coverUrl,
                               size: 40,
-                              semanticLabel: book.title,
+                              semanticLabel: BookDisplay.titleFor(
+                                context,
+                                title: book.title,
+                              ),
                             ),
                             const SizedBox(width: 12),
                             Expanded(
@@ -891,16 +927,21 @@ class _MetadataFillScreenState extends State<MetadataFillScreen>
                                   Semantics(
                                     header: true,
                                     child: Text(
-                                      book.title,
-                                      style:
-                                          Theme.of(context).textTheme.titleMedium,
+                                      BookDisplay.titleFor(
+                                        context,
+                                        title: book.title,
+                                      ),
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.titleMedium,
                                     ),
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
                                     _t('completeness_changes_subtitle'),
-                                    style:
-                                        Theme.of(context).textTheme.bodySmall,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodySmall,
                                   ),
                                 ],
                               ),
@@ -984,8 +1025,10 @@ class _MetadataFillScreenState extends State<MetadataFillScreen>
   Future<void> _start() async {
     final provider = context.read<MetadataFillProvider>();
     final batch = _effectiveBatch(_offeredBatches(provider.processableCount));
-    final languages =
-        Provider.of<ThemeProvider>(context, listen: false).userLanguages;
+    final languages = Provider.of<ThemeProvider>(
+      context,
+      listen: false,
+    ).userLanguages;
     await provider.start(languages, lotLimit: batch);
   }
 

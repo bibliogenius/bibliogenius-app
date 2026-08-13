@@ -10163,3 +10163,7 @@ msgstr "此联系人与您的账户同步：将从您的所有设备中移除。
 #. Placeholder for a book whose title is missing and that has no ISBN either
 msgid "book_untitled"
 msgstr "无标题书籍"
+
+#. Label of the book title field, used by the completeness chips
+msgid "field_title"
+msgstr "标题"

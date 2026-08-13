@@ -10447,3 +10447,7 @@ msgstr "Този контакт се синхронизира с вашия ак
 #. Placeholder for a book whose title is missing and that has no ISBN either
 msgid "book_untitled"
 msgstr "Книга без заглавие"
+
+#. Label of the book title field, used by the completeness chips
+msgid "field_title"
+msgstr "Заглавие"

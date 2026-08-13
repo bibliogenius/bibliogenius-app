@@ -10163,3 +10163,7 @@ msgstr "이 연락처는 계정과 동기화되어 있어 모든 기기에서 �
 #. Placeholder for a book whose title is missing and that has no ISBN either
 msgid "book_untitled"
 msgstr "제목 없는 책"
+
+#. Label of the book title field, used by the completeness chips
+msgid "field_title"
+msgstr "제목"
