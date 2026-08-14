@@ -355,11 +355,12 @@ class AccountSyncProvider extends ChangeNotifier {
     }
   }
 
-  /// Lanes the backend pulled but could not merge, read from a sync-status
-  /// payload. The engine skips them so one unappliable entity cannot freeze the
-  /// whole account (ADR-056), which means the cycle reports success while this
-  /// device stays behind on those entities: the count is the only thing that
-  /// says so.
+  /// Lanes this device is still behind on when a cycle ends, read from a
+  /// sync-status payload. The engine skips a lane it cannot merge so one
+  /// unappliable entity cannot freeze the whole account (ADR-056) and queues it
+  /// for a bounded number of retries on later cycles (ADR-058), which means the
+  /// cycle reports success while this device stays behind on those entities:
+  /// the count is the only thing that says so.
   ///
   /// Never throws and never rethrows. A payload this build cannot parse must not
   /// turn a successful cycle into a reported failure, so an absent, non-numeric
@@ -436,9 +437,9 @@ class AccountSyncProvider extends ChangeNotifier {
       final failed = failedLaneCount(result);
       if (failed > 0) {
         debugPrint(
-          'AccountSyncProvider.autoSyncTick: $failed lane(s) pulled but not '
-          'merged on this device; they stay behind until their sender pushes '
-          'them again',
+          'AccountSyncProvider.autoSyncTick: $failed lane(s) not merged on this '
+          'device; they are retried on the next cycles, and stay behind until '
+          'they merge or their sender pushes them again',
         );
       }
       return true;
