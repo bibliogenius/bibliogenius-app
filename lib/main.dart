@@ -1685,11 +1685,14 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
         debugPrint('Catalog sync on resume skipped: $e');
       }
     } else if (state == AppLifecycleState.detached) {
-      // App is shutting down: release the backend's database state. On account-sync
-      // builds this runs crsql_finalize() before the single cr-sqlite connection is
-      // closed; on default builds it is a no-op. Best-effort, never blocks teardown.
+      // App is detaching. The backend hook is deliberately inert: `detached` does
+      // not mean the process is dying on Android (the activity can be destroyed
+      // while the process and the Rust pool survive), so nothing here may retire
+      // the database. Releasing cr-sqlite's state from here used to wedge every
+      // later account-sync merge. The call is kept as the seam for a real backend
+      // teardown, should one ever exist. Best-effort, never blocks teardown.
       frb.shutdownBackendFfi().catchError((Object e) {
-        debugPrint('Backend shutdown finalize skipped: $e');
+        debugPrint('Backend detach hook failed: $e');
         return '';
       });
     }

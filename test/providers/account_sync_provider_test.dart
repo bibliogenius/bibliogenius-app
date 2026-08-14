@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:bibliogenius/providers/account_sync_provider.dart';
@@ -315,5 +316,103 @@ void main() {
     expect(ran, isFalse, reason: 'a failed cycle reports not-ran for backoff');
     expect(provider.error, isNull, reason: 'failure must not surface in the UI');
     expect(provider.busy, isFalse);
+  });
+
+  // ---------------------------------------------------------------------------
+  // Skipped lanes (ADR-056). The engine skips a lane it cannot merge so one
+  // unappliable entity cannot freeze the account's whole sync, which means the
+  // cycle succeeds while this device stays behind. The count is the only thing
+  // that says so, so it must reach the user on the manual path and the log on
+  // the automatic one.
+  // ---------------------------------------------------------------------------
+
+  group('syncNowMessageKey', () {
+    setUp(() async {
+      ffi.statusJson =
+          '{"signed_in":true,"email":"me@lib.org","account_id":"acc-1","device_id":"dev-1"}';
+      await provider.refreshStatus();
+    });
+
+    test('a cycle that skipped lanes is reported as partial, never as done',
+        () async {
+      ffi.syncNowJson = '{"synced":true,"applied":12,"pushed":0,"failed":3}';
+
+      expect(await provider.syncNowMessageKey(), 'account_sync_synced_partial');
+    });
+
+    test('skipped lanes outrank an otherwise idle cycle', () async {
+      // The dangerous shape: nothing applied, nothing pushed, lanes dropped.
+      // Read on `applied`/`pushed` alone this is "everything is up to date",
+      // which is exactly the silent divergence ADR-056 exists to end.
+      ffi.syncNowJson = '{"synced":true,"applied":0,"pushed":0,"failed":1}';
+
+      expect(await provider.syncNowMessageKey(), 'account_sync_synced_partial');
+    });
+
+    test('a clean cycle that moved data reports done', () async {
+      ffi.syncNowJson = '{"synced":true,"applied":2,"pushed":1,"failed":0}';
+
+      expect(await provider.syncNowMessageKey(), 'account_sync_synced_done');
+    });
+
+    test('a clean cycle with nothing to do reports up to date', () async {
+      // No `failed` key at all: the payload shape older builds produce.
+      ffi.syncNowJson = '{"synced":true,"applied":0,"pushed":0}';
+
+      expect(
+        await provider.syncNowMessageKey(),
+        'account_sync_synced_uptodate',
+      );
+    });
+
+    test('a restart-gated cycle still wins over everything else', () async {
+      ffi.syncNowJson = '{"synced":false,"reason":"restart_required"}';
+
+      expect(
+        await provider.syncNowMessageKey(),
+        'account_sync_restart_required_body',
+      );
+    });
+  });
+
+  test('autoSyncTick logs the skipped lanes instead of dropping them', () async {
+    ffi.statusJson =
+        '{"signed_in":true,"email":"me@lib.org","account_id":"acc-1","device_id":"dev-1"}';
+    await provider.refreshStatus();
+    ffi.syncNowJson = '{"synced":true,"applied":5,"pushed":0,"failed":2}';
+
+    final printed = <String>[];
+    final original = debugPrint;
+    debugPrint = (String? message, {int? wrapWidth}) {
+      if (message != null) printed.add(message);
+    };
+    final bool ran;
+    try {
+      ran = await provider.autoSyncTick();
+    } finally {
+      debugPrint = original;
+    }
+
+    expect(ran, isTrue);
+    expect(
+      printed.where((m) => m.contains('2 lane(s)')),
+      hasLength(1),
+      reason: 'an automatic cycle must not swallow the count: $printed',
+    );
+    // Still invisible in the UI, as an automatic tick must be.
+    expect(provider.busy, isFalse);
+    expect(provider.error, isNull);
+  });
+
+  test('failedLaneCount never turns an unreadable payload into a failure', () {
+    // A build that cannot parse the payload must not claim lanes were dropped.
+    for (final payload in ['', 'not json', '[]', '{}', '{"failed":null}']) {
+      expect(
+        AccountSyncProvider.failedLaneCount(payload),
+        0,
+        reason: 'payload: $payload',
+      );
+    }
+    expect(AccountSyncProvider.failedLaneCount('{"failed":4}'), 4);
   });
 }

@@ -666,7 +666,9 @@ class FfiService {
 
   /// Run one sync cycle: refresh the device registry, then (on account-sync
   /// builds) pull/apply and push the data lanes. Returns status JSON
-  /// (`{synced, applied?, pushed?}` or `{synced:false, reason, devices}`).
+  /// (`{synced, applied?, pushed?, failed?}` or `{synced:false, reason, devices}`).
+  /// `failed` counts lanes pulled but not merged: they are skipped so one
+  /// unappliable entity cannot freeze the account's sync (ADR-056).
   Future<String> accountSyncNow() => frb.accountSyncNowFfi();
 
   /// Whether this build can actually converge data across devices (compiled with

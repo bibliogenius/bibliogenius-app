@@ -10212,6 +10212,9 @@ msgstr "Synchronisation terminée. Vos appareils sont à jour."
 msgid "account_sync_synced_uptodate"
 msgstr "Tout est déjà à jour."
 
+msgid "account_sync_synced_partial"
+msgstr "Synchronisation partielle : certains éléments n'ont pas pu être appliqués sur cet appareil. Mettez vos appareils à jour, puis réessayez."
+
 msgid "account_sync_sync_failed"
 msgstr "La synchronisation a échoué. Vérifiez votre connexion et réessayez."
 

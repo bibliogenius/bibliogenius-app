@@ -355,10 +355,32 @@ class AccountSyncProvider extends ChangeNotifier {
     }
   }
 
+  /// Lanes the backend pulled but could not merge, read from a sync-status
+  /// payload. The engine skips them so one unappliable entity cannot freeze the
+  /// whole account (ADR-056), which means the cycle reports success while this
+  /// device stays behind on those entities: the count is the only thing that
+  /// says so.
+  ///
+  /// Never throws and never rethrows. A payload this build cannot parse must not
+  /// turn a successful cycle into a reported failure, so an absent, non-numeric
+  /// or malformed `failed` reads as zero.
+  @visibleForTesting
+  static int failedLaneCount(String statusJson) {
+    try {
+      final json = jsonDecode(statusJson);
+      if (json is Map<String, dynamic>) {
+        return (json['failed'] as num?)?.toInt() ?? 0;
+      }
+    } catch (_) {
+      // Fall through: an unreadable payload is not evidence of a skipped lane.
+    }
+    return 0;
+  }
+
   /// Runs one manual sync cycle and maps the backend's raw JSON to the i18n
   /// key of the human confirmation message. Shared by the account screen and
   /// the springboard summary sheet so the JSON contract (`{synced, applied?,
-  /// pushed?, reason?}`) is interpreted in exactly one place.
+  /// pushed?, failed?, reason?}`) is interpreted in exactly one place.
   Future<String> syncNowMessageKey() async {
     try {
       final result = await syncNow();
@@ -369,6 +391,11 @@ class AccountSyncProvider extends ChangeNotifier {
       }
       final applied = (json['applied'] as num?)?.toInt() ?? 0;
       final pushed = (json['pushed'] as num?)?.toInt() ?? 0;
+      // Reporting a cycle that skipped lanes as "up to date" would repeat the
+      // silent divergence ADR-056 exists to end.
+      if (failedLaneCount(result) > 0) {
+        return 'account_sync_synced_partial';
+      }
       return (applied == 0 && pushed == 0)
           ? 'account_sync_synced_uptodate'
           : 'account_sync_synced_done';
@@ -401,7 +428,19 @@ class AccountSyncProvider extends ChangeNotifier {
     if (_autoSyncInFlight || !signedIn) return false;
     _autoSyncInFlight = true;
     try {
-      await _ffi.accountSyncNow();
+      final result = await _ffi.accountSyncNow();
+      // Silent in the UI, never in the log. A cycle can succeed while lanes were
+      // skipped (ADR-056), and auto-sync is the dominant path: without this the
+      // count would only ever surface on a manual sync. The engine already warns
+      // per lane; this ties those warnings to a cycle.
+      final failed = failedLaneCount(result);
+      if (failed > 0) {
+        debugPrint(
+          'AccountSyncProvider.autoSyncTick: $failed lane(s) pulled but not '
+          'merged on this device; they stay behind until their sender pushes '
+          'them again',
+        );
+      }
       return true;
     } catch (e) {
       // Silent by design: do not set _error or notify; just trace it.

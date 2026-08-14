@@ -10212,6 +10212,9 @@ msgstr "Sync complete. Your devices are up to date."
 msgid "account_sync_synced_uptodate"
 msgstr "Everything is already up to date."
 
+msgid "account_sync_synced_partial"
+msgstr "Partial sync: some items could not be applied on this device. Update your devices, then try again."
+
 msgid "account_sync_sync_failed"
 msgstr "Sync failed. Check your connection and try again."
 
