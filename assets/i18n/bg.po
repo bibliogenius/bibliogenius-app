@@ -8339,6 +8339,10 @@ msgstr "Все още не следвате никакви библиотеки.
 msgid "directory_requests_empty"
 msgstr "Няма входящи заявки за следване."
 
+#. Link under the incoming follow-request preview; opens the full list in a sheet
+msgid "directory_requests_see_all"
+msgstr "Вижте всички заявки"
+
 msgid "directory_books"
 msgstr "книги"
 

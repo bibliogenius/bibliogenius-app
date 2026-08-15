@@ -8517,6 +8517,10 @@ msgstr "まだどのライブラリもフォローしていません。「探索
 msgid "directory_requests_empty"
 msgstr "受信中のフォローリクエストはありません。"
 
+#. Link under the incoming follow-request preview; opens the full list in a sheet
+msgid "directory_requests_see_all"
+msgstr "すべてのリクエストを表示"
+
 msgid "directory_books"
 msgstr "冊"
 

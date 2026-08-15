@@ -8524,6 +8524,10 @@ msgstr "Non stai seguendo nessuna biblioteca. Esplora la directory per iniziare.
 msgid "directory_requests_empty"
 msgstr "Nessuna richiesta di seguito in arrivo."
 
+#. Link under the incoming follow-request preview; opens the full list in a sheet
+msgid "directory_requests_see_all"
+msgstr "Vedi tutte le richieste"
+
 msgid "directory_books"
 msgstr "libri"
 

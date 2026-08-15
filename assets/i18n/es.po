@@ -6889,6 +6889,10 @@ msgstr "Solicitar"
 msgid "directory_requests_empty"
 msgstr "No hay solicitudes de seguimiento pendientes."
 
+#. Link under the incoming follow-request preview; opens the full list in a sheet
+msgid "directory_requests_see_all"
+msgstr "Ver todas las solicitudes"
+
 msgid "directory_requires_approval_desc"
 msgstr "Los nuevos seguidores necesitan tu aprobacion antes de acceder a tus libros compartidos"
 

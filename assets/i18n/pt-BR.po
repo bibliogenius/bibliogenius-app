@@ -9530,6 +9530,10 @@ msgstr "Você ainda não segue nenhuma biblioteca. Use a aba Descobrir para come
 msgid "directory_requests_empty"
 msgstr "Nenhuma solicitação de seguir recebida."
 
+#. Link under the incoming follow-request preview; opens the full list in a sheet
+msgid "directory_requests_see_all"
+msgstr "Ver todas as solicitações"
+
 msgid "directory_books"
 msgstr "livros"
 

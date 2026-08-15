@@ -8306,6 +8306,10 @@ msgstr "You are not following any libraries yet. Use the Discover tab to get sta
 msgid "directory_requests_empty"
 msgstr "No incoming follow requests."
 
+#. Link under the incoming follow-request preview; opens the full list in a sheet
+msgid "directory_requests_see_all"
+msgstr "See all requests"
+
 msgid "directory_books"
 msgstr "books"
 

@@ -6889,6 +6889,10 @@ msgstr "Anfragen"
 msgid "directory_requests_empty"
 msgstr "Keine eingehenden Folgeanfragen."
 
+#. Link under the incoming follow-request preview; opens the full list in a sheet
+msgid "directory_requests_see_all"
+msgstr "Alle Anfragen anzeigen"
+
 msgid "directory_requires_approval_desc"
 msgstr "Neue Follower müssen genehmigt werden, bevor sie auf Ihre geteilten Bücher zugreifen können"
 

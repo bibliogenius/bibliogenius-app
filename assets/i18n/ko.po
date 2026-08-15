@@ -8517,6 +8517,10 @@ msgstr "아직 팔로우하는 서재가 없습니다. 탐색 탭에서 시작�
 msgid "directory_requests_empty"
 msgstr "받은 팔로우 요청이 없습니다."
 
+#. Link under the incoming follow-request preview; opens the full list in a sheet
+msgid "directory_requests_see_all"
+msgstr "모든 요청 보기"
+
 msgid "directory_books"
 msgstr "권"
 

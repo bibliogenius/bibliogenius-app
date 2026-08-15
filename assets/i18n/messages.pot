@@ -7518,6 +7518,10 @@ msgstr ""
 msgid "directory_requests_empty"
 msgstr ""
 
+#. Link under the incoming follow-request preview; opens the full list in a sheet
+msgid "directory_requests_see_all"
+msgstr ""
+
 msgid "directory_books"
 msgstr ""
 

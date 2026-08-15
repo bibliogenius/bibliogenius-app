@@ -761,6 +761,14 @@ class HubDirectoryProvider extends ChangeNotifier {
   bool get actionInProgress => _busyNodes.isNotEmpty;
   String? get actionError => _actionError;
 
+  /// Busy key of an in-flight [resolveFollow]. Kept next to the getter so the
+  /// key format lives in one place only.
+  String _resolveFollowKey(int followId) => 'resolve_$followId';
+
+  /// True while [resolveFollow] is in flight for this request, so the UI can
+  /// disable its approve/reject/block affordances instead of firing twice.
+  bool isResolvingFollow(int followId) => isBusy(_resolveFollowKey(followId));
+
   // ---------------------------------------------------------------------------
   // Config
   // ---------------------------------------------------------------------------
@@ -2239,7 +2247,7 @@ class HubDirectoryProvider extends ChangeNotifier {
     String resolution, {
     String? encryptedContact,
   }) async {
-    final key = 'resolve_$followId';
+    final key = _resolveFollowKey(followId);
     _busyNodes.add(key);
     _actionError = null;
     notifyListeners();

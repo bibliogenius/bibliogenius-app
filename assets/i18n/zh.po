@@ -8517,6 +8517,10 @@ msgstr "您还没有关注任何图书馆。使用“发现”标签页开始探
 msgid "directory_requests_empty"
 msgstr "暂无收到的关注请求。"
 
+#. Link under the incoming follow-request preview; opens the full list in a sheet
+msgid "directory_requests_see_all"
+msgstr "查看所有请求"
+
 msgid "directory_books"
 msgstr "本书"
 

@@ -8306,6 +8306,10 @@ msgstr "Vous ne suivez encore aucune bibliothèque. Utilisez l'onglet Découvrir
 msgid "directory_requests_empty"
 msgstr "Aucune demande de suivi en attente."
 
+#. Link under the incoming follow-request preview; opens the full list in a sheet
+msgid "directory_requests_see_all"
+msgstr "Voir toutes les demandes"
+
 msgid "directory_books"
 msgstr "livres"
 
