@@ -42,7 +42,7 @@ void main() {
       );
     });
 
-    testWidgets('falls back to local initials when no avatar is configured', (
+    testWidgets('falls back to the first letter when no avatar is configured', (
       tester,
     ) async {
       await tester.pumpWidget(_harness(_avatar(config: null)));
@@ -58,7 +58,7 @@ void main() {
       );
     });
 
-    testWidgets('shows the initials while the remote avatar is loading', (
+    testWidgets('shows the letter while the remote avatar is loading', (
       tester,
     ) async {
       await tester.pumpWidget(
@@ -84,23 +84,7 @@ void main() {
       expect(find.text('?'), findsOneWidget);
     });
 
-    testWidgets('a generated library name shows both ends, not just "B"', (
-      tester,
-    ) async {
-      await tester.pumpWidget(
-        _harness(_avatar(config: null, name: 'Bibliothèque de iPad de Chloé')),
-      );
-
-      expect(
-        find.text('BC'),
-        findsOneWidget,
-        reason:
-            'Generated names all open with "Bibliothèque de", so the first '
-            'letter alone renders "B" for every library in the list.',
-      );
-    });
-
-    testWidgets('keeps the initials out of the semantics tree', (tester) async {
+    testWidgets('keeps the letter out of the semantics tree', (tester) async {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(_harness(_avatar(config: null)));
 
@@ -136,39 +120,25 @@ void main() {
     });
   });
 
-  group('LibraryAvatar.initialsFor', () {
-    test('takes the first and last word, matching the previous renderer', () {
-      expect(LibraryAvatar.initialsFor('Bibliothèque de iPad de Chloé'), 'BC');
-      expect(LibraryAvatar.initialsFor('Library of MacBook-Pro'), 'LM');
-    });
-
-    test('drops the generated name tag instead of turning it into a letter', () {
-      expect(
-        LibraryAvatar.initialsFor('Bibliothèque de iMac #A3F'),
-        'BI',
-        reason:
-            'compute_default_library_name_seed appends "#<tag>", which is not '
-            'an initial.',
-      );
-    });
-
-    test('a single word yields a single letter', () {
-      expect(LibraryAvatar.initialsFor('Chloé'), 'C');
+  group('LibraryAvatar.initialFor', () {
+    test('takes the first letter of the name', () {
+      expect(LibraryAvatar.initialFor('Bibliotheque de iPad de Chloe'), 'B');
+      expect(LibraryAvatar.initialFor('chloe'), 'C');
     });
 
     test('keeps a letter outside the BMP whole', () {
-      // U+10348 GOTHIC LETTER HWAIR is a surrogate pair: indexing the string
-      // with [0] returns half of it, which renders as a replacement glyph.
       expect(
-        LibraryAvatar.initialsFor('\u{10348}ibliothek von Chloé'),
-        '\u{10348}C',
+        LibraryAvatar.initialFor('\u{10348}ibliothek von Chloe'),
+        '\u{10348}',
+        reason:
+            'Indexing with [] would return half a surrogate pair and render '
+            'as a replacement glyph.',
       );
     });
 
-    test('falls back to "?" when nothing usable remains', () {
-      expect(LibraryAvatar.initialsFor(''), '?');
-      expect(LibraryAvatar.initialsFor('   '), '?');
-      expect(LibraryAvatar.initialsFor('#123 @!'), '?');
+    test('falls back to "?" when there is no letter to take', () {
+      expect(LibraryAvatar.initialFor(''), '?');
+      expect(LibraryAvatar.initialFor('   '), '?');
     });
   });
 

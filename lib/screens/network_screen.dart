@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -21,7 +22,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 import 'dart:convert';
 import '../models/avatar_config.dart';
-import '../widgets/library_avatar.dart';
 import '../models/contact.dart';
 import '../models/network_member.dart';
 import '../models/library_relation.dart';
@@ -1034,10 +1034,7 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
 
   /// [warningKey] appends a translated warning line to the confirmation
   /// (e.g. account-wide deletion semantics for replicated contacts).
-  Future<void> _deleteContact(
-    NetworkMember member, {
-    String? warningKey,
-  }) async {
+  Future<void> _deleteContact(NetworkMember member, {String? warningKey}) async {
     final contactRepo = Provider.of<ContactRepository>(context, listen: false);
     final confirm = await showDialog<bool>(
       context: context,
@@ -1520,7 +1517,11 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
                   ),
                 ),
                 IconButton(
-                  icon: Icon(Icons.delete_outline, size: 20, color: cs.error),
+                  icon: Icon(
+                    Icons.delete_outline,
+                    size: 20,
+                    color: cs.error,
+                  ),
                   tooltip: TranslationService.translate(context, 'delete'),
                   visualDensity: VisualDensity.compact,
                   padding: EdgeInsets.zero,
@@ -1562,7 +1563,9 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
               shareInviteLinkDirect(context);
             },
             icon: const Icon(Icons.share, size: 18),
-            label: Text(TranslationService.translate(ctx, 'share_invite_link')),
+            label: Text(
+              TranslationService.translate(ctx, 'share_invite_link'),
+            ),
           ),
         ],
       ),
@@ -3181,9 +3184,8 @@ class _LibraryRelationCard extends StatelessWidget {
     );
   }
 
-  /// Build the peer avatar: configured avatar if available, local initials
-  /// otherwise. Uses Selector to rebuild only when the hub avatar for this
-  /// specific node changes.
+  /// Build the peer avatar: custom DiceBear if available, DiceBear initials fallback.
+  /// Uses Selector to rebuild only when the hub avatar for this specific node changes.
   Widget _peerAvatar(
     BuildContext context,
     LibraryRelation relation,
@@ -3215,13 +3217,48 @@ class _LibraryRelationCard extends StatelessWidget {
     LibraryRelation relation,
     Color fallbackColor,
   ) {
-    return LibraryAvatar(
-      config: config,
-      name: relation.name,
+    final String url;
+    if (config != null && !config.isAsset) {
+      url = config.toUrl(size: 72);
+    } else {
+      url = AvatarConfig(
+        seed: relation.name,
+        style: 'initials',
+      ).toUrl(size: 72);
+    }
+    return CircleAvatar(
       radius: 18,
-      // Encodes the connection type, see avatarColor above.
-      backgroundColor: fallbackColor,
-      foregroundColor: Colors.white,
+      backgroundColor: fallbackColor.withValues(alpha: 0.15),
+      child: ClipOval(
+        child: CachedNetworkImage(
+          imageUrl: url,
+          width: 36,
+          height: 36,
+          fit: BoxFit.cover,
+          placeholder: (_, _) =>
+              _initialLetterFallback(relation, fallbackColor),
+          errorWidget: (_, _, _) =>
+              _initialLetterFallback(relation, fallbackColor),
+        ),
+      ),
+    );
+  }
+
+  /// Synchronous single-letter fallback shown while CachedNetworkImage loads.
+  Widget _initialLetterFallback(LibraryRelation relation, Color bgColor) {
+    final name = relation.name;
+    final letter = name.isNotEmpty ? name[0].toUpperCase() : '?';
+    return CircleAvatar(
+      radius: 18,
+      backgroundColor: bgColor,
+      child: Text(
+        letter,
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 14,
+        ),
+      ),
     );
   }
 }
