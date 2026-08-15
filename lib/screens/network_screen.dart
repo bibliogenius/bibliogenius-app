@@ -3182,7 +3182,7 @@ class _DiscoverViewState extends State<_DiscoverView> {
               );
             }
             final profile = provider.profiles[index];
-            return _DiscoverCard(profile: profile);
+            return DiscoverCard(profile: profile);
           },
         ),
       ),
@@ -3191,10 +3191,10 @@ class _DiscoverViewState extends State<_DiscoverView> {
 }
 
 /// Card for a hub library profile in the Discover tab.
-class _DiscoverCard extends StatelessWidget {
+class DiscoverCard extends StatelessWidget {
   final HubProfile profile;
 
-  const _DiscoverCard({required this.profile});
+  const DiscoverCard({super.key, required this.profile});
 
   bool _isOwnLibrary(HubDirectoryProvider provider) =>
       provider.config?.nodeId == profile.nodeId;
@@ -3242,8 +3242,11 @@ class _DiscoverCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Top row: avatar + name + badge + action
+                // Top row: avatar + name + badge + action.
+                // Top-aligned: the name may wrap to a second line, and the
+                // action chip must stay level with the first one.
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Gradient avatar
                     Container(
@@ -3280,6 +3283,7 @@ class _DiscoverCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Flexible(
                                 child: Text(
@@ -3288,7 +3292,12 @@ class _DiscoverCard extends StatelessWidget {
                                     fontWeight: FontWeight.w600,
                                     fontSize: 15,
                                   ),
-                                  maxLines: 1,
+                                  // Names share the line with the action chip,
+                                  // which leaves roughly 150 of 360 logical
+                                  // pixels on a phone. Since they are generated
+                                  // from the device name, one line cut exactly
+                                  // the part that tells two libraries apart.
+                                  maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
@@ -3345,47 +3354,56 @@ class _DiscoverCard extends StatelessWidget {
                                 // alongside the explicit filter button.
                                 // Wrapped in Semantics so a screen reader
                                 // user knows the chip is tappable (RGAA A1).
-                                Semantics(
-                                  button: true,
-                                  label:
-                                      TranslationService.translate(
-                                        context,
-                                        'directory_filter_by_location_a11y',
-                                      ) ??
-                                      'Filter directory by this location',
-                                  child: InkWell(
-                                    borderRadius: BorderRadius.circular(4),
-                                    onTap: () {
-                                      context
-                                          .read<HubDirectoryProvider>()
-                                          .loadDirectory(
-                                            country: profile.locationCountry,
-                                            cityId: profile.locationCityId ?? 0,
-                                          );
-                                    },
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 2,
-                                        vertical: 1,
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(
-                                            Icons.location_on_outlined,
-                                            size: 14,
-                                            color: cs.onSurfaceVariant,
-                                          ),
-                                          const SizedBox(width: 2),
-                                          HubLocationLabel(
-                                            country: profile.locationCountry,
-                                            cityId: profile.locationCityId,
-                                            style: TextStyle(
-                                              fontSize: 13,
+                                // Flexible: city names run long ("Paris 20
+                                // Ménilmontant") and the meta row has no room
+                                // to spare next to the action chip.
+                                Flexible(
+                                  child: Semantics(
+                                    button: true,
+                                    label:
+                                        TranslationService.translate(
+                                          context,
+                                          'directory_filter_by_location_a11y',
+                                        ) ??
+                                        'Filter directory by this location',
+                                    child: InkWell(
+                                      borderRadius: BorderRadius.circular(4),
+                                      onTap: () {
+                                        context
+                                            .read<HubDirectoryProvider>()
+                                            .loadDirectory(
+                                              country: profile.locationCountry,
+                                              cityId:
+                                                  profile.locationCityId ?? 0,
+                                            );
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 2,
+                                          vertical: 1,
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(
+                                              Icons.location_on_outlined,
+                                              size: 14,
                                               color: cs.onSurfaceVariant,
                                             ),
-                                          ),
-                                        ],
+                                            const SizedBox(width: 2),
+                                            Flexible(
+                                              child: HubLocationLabel(
+                                                country:
+                                                    profile.locationCountry,
+                                                cityId: profile.locationCityId,
+                                                style: TextStyle(
+                                                  fontSize: 13,
+                                                  color: cs.onSurfaceVariant,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),

@@ -73,7 +73,12 @@ class _HubLocationLabelState extends State<HubLocationLabel> {
     }
 
     if (_lookup == null) {
-      return Text(cc, style: fallbackStyle);
+      return Text(
+        cc,
+        style: fallbackStyle,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      );
     }
 
     return FutureBuilder<CityRecord?>(
@@ -83,7 +88,15 @@ class _HubLocationLabelState extends State<HubLocationLabel> {
         // never has to deal with a flicker from an empty placeholder.
         final city = snapshot.data?.name;
         final label = city == null ? cc : '$cc · $city';
-        return Text(label, style: fallbackStyle);
+        // Every call site puts this on a single metadata line next to other
+        // chips. City names run long ("Paris 20 Ménilmontant"), so the label
+        // truncates itself rather than pushing its row into an overflow.
+        return Text(
+          label,
+          style: fallbackStyle,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        );
       },
     );
   }
