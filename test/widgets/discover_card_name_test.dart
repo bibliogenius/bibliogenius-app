@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bibliogenius/models/hub_directory.dart';
 import 'package:bibliogenius/providers/hub_directory_provider.dart';
 import 'package:bibliogenius/providers/theme_provider.dart';
-import 'package:bibliogenius/screens/network_screen.dart';
+import 'package:bibliogenius/widgets/discover_card.dart';
 import 'package:bibliogenius/services/auth_service.dart';
 import 'package:bibliogenius/services/device_service.dart';
 import 'package:bibliogenius/services/ffi_service.dart';
