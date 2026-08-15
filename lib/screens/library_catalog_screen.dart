@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../models/avatar_config.dart';
 import '../models/book.dart';
 import '../models/hub_directory.dart';
 import '../providers/hub_directory_provider.dart';
@@ -16,6 +17,7 @@ import '../utils/book_display.dart';
 import '../widgets/book_cover_card.dart';
 import '../widgets/genie_app_bar.dart';
 import '../widgets/hub_location_label.dart';
+import '../widgets/library_avatar.dart';
 
 /// Displays a library's public catalog (list of ISBNs) fetched from the hub.
 ///
@@ -873,19 +875,12 @@ class _ProfileHeader extends StatelessWidget {
           // -- Identity row --
           Row(
             children: [
-              CircleAvatar(
+              LibraryAvatar(
+                config: AvatarConfig.tryParse(profile.avatarConfig),
+                name: profile.displayName,
                 radius: 22,
                 backgroundColor: cs.primary,
-                child: Text(
-                  profile.displayName.isNotEmpty
-                      ? profile.displayName[0].toUpperCase()
-                      : '?',
-                  style: TextStyle(
-                    color: cs.onPrimary,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
-                ),
+                foregroundColor: cs.onPrimary,
               ),
               const SizedBox(width: 14),
               Expanded(

@@ -1,12 +1,10 @@
-import 'dart:convert';
-
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/avatar_config.dart';
+import '../widgets/library_avatar.dart';
 import '../models/hub_directory.dart';
 import '../models/library_relation.dart';
 import '../services/api_service.dart';
@@ -62,13 +60,11 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
         setState(() {
           _hubProfile = hp;
           // Use hub avatar as fallback when peer avatar is missing
-          if (_relation.avatarConfig == null && hp.avatarConfig != null) {
-            try {
-              final parsed = AvatarConfig.fromJson(
-                jsonDecode(hp.avatarConfig!) as Map<String, dynamic>,
-              );
+          if (_relation.avatarConfig == null) {
+            final parsed = AvatarConfig.tryParse(hp.avatarConfig);
+            if (parsed != null) {
               _relation = _relation.withHubAvatarConfig(parsed);
-            } catch (_) {}
+            }
           }
         });
       }
@@ -78,54 +74,13 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
   }
 
   Widget _buildAvatar(Color fallbackColor) {
-    final config = _relation.avatarConfig;
-    final String url;
-    if (config != null && !config.isAsset) {
-      url = config.toUrl(size: 192);
-    } else {
-      url = AvatarConfig(
-        seed: _relation.name,
-        style: 'initials',
-      ).toUrl(size: 192);
-    }
-    final letter = _relation.name.isNotEmpty
-        ? _relation.name[0].toUpperCase()
-        : '?';
-    return CircleAvatar(
+    return LibraryAvatar(
+      config: _relation.avatarConfig,
+      name: _relation.name,
       radius: 48,
-      backgroundColor: fallbackColor.withValues(alpha: 0.15),
-      child: ClipOval(
-        child: CachedNetworkImage(
-          imageUrl: url,
-          width: 96,
-          height: 96,
-          fit: BoxFit.cover,
-          placeholder: (_, _) => CircleAvatar(
-            radius: 48,
-            backgroundColor: fallbackColor,
-            child: Text(
-              letter,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 32,
-              ),
-            ),
-          ),
-          errorWidget: (_, _, _) => CircleAvatar(
-            radius: 48,
-            backgroundColor: fallbackColor,
-            child: Text(
-              letter,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 32,
-              ),
-            ),
-          ),
-        ),
-      ),
+      // Encodes the connection type, see avatarColor in build().
+      backgroundColor: fallbackColor,
+      foregroundColor: Colors.white,
     );
   }
 

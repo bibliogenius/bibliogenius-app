@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/api_service.dart';
 import '../services/ffi_service.dart';
+import '../models/avatar_config.dart';
 import '../models/book.dart';
 import '../utils/book_display.dart';
 import '../utils/cover_url_resolver.dart';
@@ -15,6 +16,7 @@ import '../models/hub_directory.dart';
 import '../widgets/book_cover_card.dart';
 import '../widgets/bookshelf_view.dart';
 import '../widgets/hub_location_label.dart';
+import '../widgets/library_avatar.dart';
 import '../widgets/cached_book_cover.dart';
 import '../widgets/peer_book_cover_cache_manager.dart';
 import '../widgets/recently_added_carousel.dart';
@@ -2039,19 +2041,12 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
           // Identity row
           Row(
             children: [
-              CircleAvatar(
+              LibraryAvatar(
+                config: AvatarConfig.tryParse(_hubProfile!.avatarConfig),
+                name: _hubProfile!.displayName,
                 radius: 22,
                 backgroundColor: cs.primary,
-                child: Text(
-                  _hubProfile!.displayName.isNotEmpty
-                      ? _hubProfile!.displayName[0].toUpperCase()
-                      : '?',
-                  style: TextStyle(
-                    color: cs.onPrimary,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
-                ),
+                foregroundColor: cs.onPrimary,
               ),
               const SizedBox(width: 14),
               Expanded(

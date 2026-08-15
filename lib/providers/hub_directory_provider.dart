@@ -729,13 +729,8 @@ class HubDirectoryProvider extends ChangeNotifier {
 
   /// Parse and cache an avatar_config JSON string for a node.
   void _cacheAvatar(String nodeId, String? avatarConfigJson) {
-    if (avatarConfigJson == null || avatarConfigJson.isEmpty) return;
-    try {
-      final parsed = AvatarConfig.fromJson(
-        jsonDecode(avatarConfigJson) as Map<String, dynamic>,
-      );
-      _avatarCache[nodeId] = parsed;
-    } catch (_) {}
+    final parsed = AvatarConfig.tryParse(avatarConfigJson);
+    if (parsed != null) _avatarCache[nodeId] = parsed;
   }
 
   /// Returns the cached hub avatar for [nodeId], if available.

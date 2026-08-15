@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class AvatarConfig {
   final String style; // 'avataaars', 'lorelei', 'adventurer', 'genie'
   final String? hairStyle;
@@ -132,7 +134,13 @@ class AvatarConfig {
         )
         .join('&');
 
-    return 'https://api.dicebear.com/7.x/$apiStyle/$format?$queryString';
+    // The style is encoded like every query parameter: a config parsed from a
+    // hub profile or a peer record is remote data, and an unencoded style
+    // would let it steer the path and the query string of the request. The
+    // host itself is not reachable that way (the prefix is fixed), but there
+    // is no reason to let a peer choose what we ask DiceBear for.
+    return 'https://api.dicebear.com/7.x/'
+        '${Uri.encodeComponent(apiStyle)}/$format?$queryString';
   }
 
   // Convert to JSON for storage
@@ -174,6 +182,18 @@ class AvatarConfig {
     eyes: json['eyes'] ?? 'default',
     seed: json['seed'] ?? 'default',
   );
+
+  /// Parse an `avatar_config` JSON string as stored on the hub profile, the
+  /// peer record or SharedPreferences. Returns null when the string is absent,
+  /// empty or not a valid config, so callers can fall back to initials.
+  static AvatarConfig? tryParse(String? json) {
+    if (json == null || json.isEmpty) return null;
+    try {
+      return AvatarConfig.fromJson(jsonDecode(json) as Map<String, dynamic>);
+    } catch (_) {
+      return null;
+    }
+  }
 
   // Create copy with changes
   AvatarConfig copyWith({
