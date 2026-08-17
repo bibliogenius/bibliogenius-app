@@ -274,38 +274,51 @@ class _LibraryScreenState extends State<LibraryScreen>
               ),
             ),
           ],
-          body: IndexedStack(
-            sizing: StackFit.expand,
-            index: _tabController.index,
-            children: [
-              BookListScreen(
-                key: ValueKey(tagFilter),
-                isTabView: true,
-                refreshNotifier: _refreshNotifier,
-                externalSearchQuery: _searchQuery,
-              ),
-              widget.shelfTagFilter != null
-                  ? BookListScreen(
-                      key: ValueKey('shelf_${widget.shelfTagFilter}'),
-                      isTabView: true,
-                      refreshNotifier: _refreshNotifier,
-                      initialTagFilter: widget.shelfTagFilter,
-                      showBackToShelves: true,
-                      externalSearchQuery: _searchQuery,
-                    )
-                  : ShelvesScreen(
-                      isTabView: true,
-                      refreshNotifier: _shelvesRefreshNotifier,
-                    ),
-              if (themeProvider.collectionsEnabled)
-                CollectionListScreen(
-                  key: ValueKey('collections_$_collectionsRefreshKey'),
+          // The IndexedStack keeps every tab mounted, so all of their scroll
+          // views stay attached to the single PrimaryScrollController that
+          // NestedScrollView injects into its body. On desktop the default
+          // ScrollBehavior wraps each vertical scroll view in a Scrollbar,
+          // which requires exactly one attached ScrollPosition and throws
+          // "attached to more than one ScrollPosition" on every scroll frame.
+          // Dropping the scrollbars here keeps the sliver header coordination
+          // intact; the scrollbars could not paint anyway.
+          body: ScrollConfiguration(
+            behavior: ScrollConfiguration.of(
+              context,
+            ).copyWith(scrollbars: false),
+            child: IndexedStack(
+              sizing: StackFit.expand,
+              index: _tabController.index,
+              children: [
+                BookListScreen(
+                  key: ValueKey(tagFilter),
                   isTabView: true,
-                  onImportSuccess: () {
-                    _refreshNotifier.value++;
-                  },
+                  refreshNotifier: _refreshNotifier,
+                  externalSearchQuery: _searchQuery,
                 ),
-            ],
+                widget.shelfTagFilter != null
+                    ? BookListScreen(
+                        key: ValueKey('shelf_${widget.shelfTagFilter}'),
+                        isTabView: true,
+                        refreshNotifier: _refreshNotifier,
+                        initialTagFilter: widget.shelfTagFilter,
+                        showBackToShelves: true,
+                        externalSearchQuery: _searchQuery,
+                      )
+                    : ShelvesScreen(
+                        isTabView: true,
+                        refreshNotifier: _shelvesRefreshNotifier,
+                      ),
+                if (themeProvider.collectionsEnabled)
+                  CollectionListScreen(
+                    key: ValueKey('collections_$_collectionsRefreshKey'),
+                    isTabView: true,
+                    onImportSuccess: () {
+                      _refreshNotifier.value++;
+                    },
+                  ),
+              ],
+            ),
           ),
         ),
       ),
