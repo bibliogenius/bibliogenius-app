@@ -8987,6 +8987,9 @@ msgstr "{name} 想要借阅“{book}”"
 msgid "notif_borrow_accepted"
 msgstr "{name} 接受了“{book}”的借阅"
 
+msgid "notif_loan_offered"
+msgstr "{name} 把“{book}”借给了您"
+
 msgid "notif_book_returned"
 msgstr "{name} 已归还“{book}”"
 

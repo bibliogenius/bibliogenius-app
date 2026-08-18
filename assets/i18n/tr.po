@@ -8803,6 +8803,9 @@ msgstr "{name}, \"{book}\" kitabını ödünç almak istiyor"
 msgid "notif_borrow_accepted"
 msgstr "{name}, \"{book}\" ödüncünü kabul etti"
 
+msgid "notif_loan_offered"
+msgstr "{name}, \"{book}\" kitabını size ödünç verdi"
+
 msgid "notif_book_returned"
 msgstr "{name}, \"{book}\" kitabını iade etti"
 

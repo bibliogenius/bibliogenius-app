@@ -8946,6 +8946,9 @@ msgstr "{name} quer pegar emprestado \"{book}\""
 msgid "notif_borrow_accepted"
 msgstr "{name} aceitou o empréstimo de \"{book}\""
 
+msgid "notif_loan_offered"
+msgstr "{name} está emprestando \"{book}\" para você"
+
 msgid "notif_book_returned"
 msgstr "{name} devolveu \"{book}\""
 

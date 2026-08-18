@@ -7936,6 +7936,9 @@ msgstr "{name} vuole prendere in prestito \"{book}\""
 msgid "notif_borrow_accepted"
 msgstr "{name} ha accettato il prestito di \"{book}\""
 
+msgid "notif_loan_offered"
+msgstr "{name} ti presta \"{book}\""
+
 msgid "notif_book_returned"
 msgstr "{name} ha restituito \"{book}\""
 

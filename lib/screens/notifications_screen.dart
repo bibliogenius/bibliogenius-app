@@ -160,6 +160,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         context.push('/requests?tab=requests');
         break;
       case 'borrow_accepted':
+      case 'loan_offered':
         // Go to borrowing tab
         context.push('/requests?tab=borrowed');
         break;
@@ -334,6 +335,8 @@ class _NotificationTile extends StatelessWidget {
         return Icons.menu_book;
       case 'borrow_accepted':
         return Icons.check_circle_outline;
+      case 'loan_offered':
+        return Icons.auto_stories;
       case 'borrow_rejected':
         return Icons.cancel_outlined;
       case 'book_returned':
@@ -394,6 +397,11 @@ class _NotificationTile extends StatelessWidget {
         return TranslationService.translate(
           context,
           'notif_borrow_accepted',
+        ).replaceAll('{name}', b ?? '').replaceAll('{book}', t);
+      case 'loan_offered':
+        return TranslationService.translate(
+          context,
+          'notif_loan_offered',
         ).replaceAll('{name}', b ?? '').replaceAll('{book}', t);
       case 'borrow_rejected':
         return TranslationService.translate(

@@ -8237,6 +8237,9 @@ msgstr "{name} ha rechazado el préstamo de \"{book}\""
 msgid "notif_borrow_accepted"
 msgstr "{name} ha aceptado el prestamo de \"{book}\""
 
+msgid "notif_loan_offered"
+msgstr "{name} te presta \"{book}\""
+
 #. Notification display - loan events
 msgid "notif_borrow_request"
 msgstr "{name} quiere tomar prestado \"{book}\""

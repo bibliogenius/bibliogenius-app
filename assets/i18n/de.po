@@ -8237,6 +8237,9 @@ msgstr "{name} hat die Ausleihe von \"{book}\" abgelehnt"
 msgid "notif_borrow_accepted"
 msgstr "{name} hat den Verleih von \"{book}\" akzeptiert"
 
+msgid "notif_loan_offered"
+msgstr "{name} leiht Ihnen \"{book}\""
+
 #. Notification display - loan events
 msgid "notif_borrow_request"
 msgstr "{name} moechte \"{book}\" ausleihen"

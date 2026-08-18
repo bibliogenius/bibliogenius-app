@@ -8987,6 +8987,9 @@ msgstr "{name}님이 “{book}”을(를) 빌리고 싶어합니다"
 msgid "notif_borrow_accepted"
 msgstr "{name}님이 “{book}” 대출을 수락했습니다"
 
+msgid "notif_loan_offered"
+msgstr "{name}님이 “{book}”을(를) 빌려주었습니다"
+
 msgid "notif_book_returned"
 msgstr "{name}님이 “{book}”을(를) 반납했습니다"
 

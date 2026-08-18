@@ -889,6 +889,8 @@ IconData _iconForEvent(String eventType) {
       return Icons.menu_book;
     case 'borrow_accepted':
       return Icons.check_circle_outline;
+    case 'loan_offered':
+      return Icons.auto_stories;
     case 'book_returned':
       return Icons.assignment_return;
     case 'book_reclaimed':
@@ -927,6 +929,11 @@ String _formatTitle(BuildContext context, FrbNotification n) {
       return TranslationService.translate(
         context,
         'notif_borrow_accepted',
+      ).replaceAll('{name}', b ?? '').replaceAll('{book}', t);
+    case 'loan_offered':
+      return TranslationService.translate(
+        context,
+        'notif_loan_offered',
       ).replaceAll('{name}', b ?? '').replaceAll('{book}', t);
     case 'book_returned':
       return TranslationService.translate(
@@ -986,6 +993,7 @@ void _navigateForNotification(BuildContext context, FrbNotification notif) {
       context.push('/requests?tab=requests');
       break;
     case 'borrow_accepted':
+    case 'loan_offered':
       context.push('/requests?tab=borrowed');
       break;
     case 'book_returned':
