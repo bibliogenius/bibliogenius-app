@@ -10448,3 +10448,19 @@ msgstr "Libro senza titolo"
 #. Label of the book title field, used by the completeness chips
 msgid "field_title"
 msgstr "Titolo"
+
+#. Available from
+msgid "wishlist_available_from"
+msgstr "Disponibile presso"
+
+#. Aggregated wishlist match for a curated list import
+msgid "notif_wishlist_match_import"
+msgstr "{count} libro/i di \"{list}\" disponibili nella tua rete"
+
+#. Accessibility/tooltip label for the wishlist availability badge
+msgid "wishlist_badge_available"
+msgstr "Disponibile presso {source}"
+
+#. Curated list import: how many books are available in the network
+msgid "curated_import_available_network"
+msgstr "{count} disponibili nella tua rete"

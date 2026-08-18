@@ -1851,6 +1851,52 @@ class FfiService {
     }
   }
 
+  // ── Wishlist providers ──────────────────────────────────────────────
+
+  /// Providers (paired peers / followed libraries) for the current
+  /// wishlist. [isbn] narrows to one wish (book details screen).
+  Future<List<frb.FrbWishlistProvider>> getWishlistProviders({
+    String? isbn,
+  }) async {
+    try {
+      return await frb.getWishlistProviders(isbn: isbn);
+    } catch (e) {
+      debugPrint('FFI getWishlistProviders error: $e');
+      return [];
+    }
+  }
+
+  /// Providers for arbitrary ISBNs (curated list preview, before import).
+  Future<List<frb.FrbWishlistProvider>> getIsbnProviders(
+    List<String> isbns,
+  ) async {
+    try {
+      return await frb.getIsbnProviders(isbns: isbns);
+    } catch (e) {
+      debugPrint('FFI getIsbnProviders error: $e');
+      return [];
+    }
+  }
+
+  /// Collapse the per-book wishlist_match notifications from a list import
+  /// into one aggregated notification. Returns the matched ISBN count.
+  Future<int> aggregateWishlistImportNotification({
+    required String batchRef,
+    required String listTitle,
+    required List<String> isbns,
+  }) async {
+    try {
+      return await frb.aggregateWishlistImportNotification(
+        batchRef: batchRef,
+        listTitle: listTitle,
+        isbns: isbns,
+      );
+    } catch (e) {
+      debugPrint('FFI aggregateWishlistImportNotification error: $e');
+      return 0;
+    }
+  }
+
   // ── Book Notes ──────────────────────────────────────────────────────
 
   Future<List<frb.FrbBookNote>> getBookNotes(String bookId) async {

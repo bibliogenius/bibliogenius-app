@@ -10455,3 +10455,19 @@ msgstr "Книга без заглавие"
 #. Label of the book title field, used by the completeness chips
 msgid "field_title"
 msgstr "Заглавие"
+
+#. Available from
+msgid "wishlist_available_from"
+msgstr "Налична при"
+
+#. Aggregated wishlist match for a curated list import
+msgid "notif_wishlist_match_import"
+msgstr "{count} книги от \"{list}\" са налични във вашата мрежа"
+
+#. Accessibility/tooltip label for the wishlist availability badge
+msgid "wishlist_badge_available"
+msgstr "Налична при {source}"
+
+#. Curated list import: how many books are available in the network
+msgid "curated_import_available_network"
+msgstr "{count} налични във вашата мрежа"

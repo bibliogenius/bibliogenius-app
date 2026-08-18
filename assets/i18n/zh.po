@@ -10171,3 +10171,19 @@ msgstr "无标题书籍"
 #. Label of the book title field, used by the completeness chips
 msgid "field_title"
 msgstr "标题"
+
+#. Available from
+msgid "wishlist_available_from"
+msgstr "可借来源"
+
+#. Aggregated wishlist match for a curated list import
+msgid "notif_wishlist_match_import"
+msgstr "\"{list}\"中的 {count} 本书可在您的网络中借阅"
+
+#. Accessibility/tooltip label for the wishlist availability badge
+msgid "wishlist_badge_available"
+msgstr "{source} 有此书"
+
+#. Curated list import: how many books are available in the network
+msgid "curated_import_available_network"
+msgstr "网络中有 {count} 本可借"

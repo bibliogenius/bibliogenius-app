@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 import '../models/collection.dart';
 import 'api_service.dart';
 import 'curated_lists_service.dart';
+import 'ffi_service.dart';
 
 class CollectionImportResult {
   final int successCount;
@@ -12,12 +13,17 @@ class CollectionImportResult {
   final String? error;
   final Collection? collection;
 
+  /// Cleaned ISBNs (digits and X only, backend storage form) of the books
+  /// actually created or linked during the import.
+  final List<String> importedIsbns;
+
   CollectionImportResult({
     required this.successCount,
     required this.totalCount,
     this.errorCount = 0,
     this.error,
     this.collection,
+    this.importedIsbns = const [],
   });
 
   bool get hasError => error != null || errorCount > 0;
@@ -27,6 +33,9 @@ class CollectionImportService {
   final ApiService _apiService;
 
   CollectionImportService(this._apiService);
+
+  /// Normalize an ISBN the way the backend stores it (digits and X only).
+  static String cleanIsbn(String isbn) => isbn.replaceAll(RegExp(r'[^0-9X]'), '');
 
   Future<CollectionImportResult> importList({
     required CuratedList list,
@@ -38,6 +47,7 @@ class CollectionImportService {
     final listDescription = list.getDescription(langCode);
     int successCount = 0;
     int errorCount = 0;
+    final importedIsbns = <String>[];
 
     try {
       // 1. Create the collection
@@ -101,6 +111,8 @@ class CollectionImportService {
           if (bookId != null) {
             await _apiService.addBookToCollection(collectionId, bookId);
             successCount++;
+            final clean = cleanIsbn(isbn);
+            if (clean.isNotEmpty) importedIsbns.add(clean);
           } else {
             errorCount++;
           }
@@ -110,11 +122,25 @@ class CollectionImportService {
         }
       }
 
+      // A wishlist import fired one wishlist_match notification per matched
+      // book (backend create-book trigger); collapse them into one
+      // aggregated notification for the batch. Living here covers every
+      // entry point (curated lists AND shared YAML imports). Errors are
+      // swallowed by the FFI wrapper.
+      if (readingStatus == 'wanting' && importedIsbns.isNotEmpty) {
+        await FfiService().aggregateWishlistImportNotification(
+          batchRef: collectionId,
+          listTitle: listTitle,
+          isbns: importedIsbns,
+        );
+      }
+
       return CollectionImportResult(
         successCount: successCount,
         totalCount: list.books.length,
         errorCount: errorCount,
         collection: collection,
+        importedIsbns: importedIsbns,
       );
     } catch (e) {
       return CollectionImportResult(
@@ -122,6 +148,7 @@ class CollectionImportService {
         totalCount: list.books.length,
         errorCount: errorCount,
         error: e.toString(),
+        importedIsbns: importedIsbns,
       );
     }
   }

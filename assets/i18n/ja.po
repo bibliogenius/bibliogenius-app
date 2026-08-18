@@ -10171,3 +10171,19 @@ msgstr "タイトルなしの本"
 #. Label of the book title field, used by the completeness chips
 msgid "field_title"
 msgstr "タイトル"
+
+#. Available from
+msgid "wishlist_available_from"
+msgstr "所蔵している相手"
+
+#. Aggregated wishlist match for a curated list import
+msgid "notif_wishlist_match_import"
+msgstr "「{list}」の{count}冊がネットワーク内にあります"
+
+#. Accessibility/tooltip label for the wishlist availability badge
+msgid "wishlist_badge_available"
+msgstr "{source}が所蔵しています"
+
+#. Curated list import: how many books are available in the network
+msgid "curated_import_available_network"
+msgstr "ネットワーク内に{count}冊あり"

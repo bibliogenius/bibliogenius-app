@@ -8,6 +8,7 @@ import '../utils/book_color_seed.dart';
 import '../utils/book_display.dart';
 import '../utils/book_status.dart';
 import 'cached_book_cover.dart';
+import 'wishlist_availability_badge.dart';
 
 class BookCoverCard extends StatelessWidget {
   final Book book;
@@ -20,12 +21,18 @@ class BookCoverCard extends StatelessWidget {
   /// tell us which cache to hit.
   final bool isPeerCover;
 
+  /// Already-translated label for the wishlist availability badge
+  /// ("available from X"). Null (the default) renders no badge; only the
+  /// wishlist filter passes it, and only for books with a provider.
+  final String? availabilityLabel;
+
   const BookCoverCard({
     super.key,
     required this.book,
     required this.onTap,
     this.onStatusChanged,
     this.isPeerCover = false,
+    this.availabilityLabel,
   });
 
   Color _getColorFromSeed(BuildContext context, int seed) {
@@ -131,6 +138,14 @@ class BookCoverCard extends StatelessWidget {
                       );
                     },
                   ),
+                ),
+
+              // Wishlist availability badge (wanted book, provider found)
+              if (availabilityLabel != null)
+                Positioned(
+                  bottom: 8,
+                  left: 8,
+                  child: WishlistAvailabilityBadge(label: availabilityLabel!),
                 ),
             ],
           ),

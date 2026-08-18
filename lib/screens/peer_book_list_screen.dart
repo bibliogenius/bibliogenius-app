@@ -10,6 +10,7 @@ import '../services/ffi_service.dart';
 import '../models/avatar_config.dart';
 import '../models/book.dart';
 import '../utils/book_display.dart';
+import '../utils/borrow_eligibility.dart';
 import '../utils/cover_url_resolver.dart';
 import '../utils/isbn_validator.dart';
 import '../models/hub_directory.dart';
@@ -1787,47 +1788,20 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
   Future<void> _loadPendingBorrowRequests() async {
     final api = Provider.of<ApiService>(context, listen: false);
-    try {
-      // Outgoing requests: pending = button shows "Requested", accepted = "Borrowed"
-      final outgoing = await api.getOutgoingRequests();
-      final outgoingList = outgoing.data as List<dynamic>? ?? [];
-      final forThisPeer = outgoingList.where(
-        (r) => r['peer_url']?.toString() == widget.peerUrl,
-      );
-
-      final pending = forThisPeer
-          .where((r) => r['status'] == 'pending')
-          .map((r) => r['book_isbn']?.toString() ?? '')
-          .where((isbn) => isbn.isNotEmpty)
-          .toSet();
-      final active = forThisPeer
-          .where((r) => r['status'] == 'accepted')
-          .map((r) => r['book_isbn']?.toString() ?? '')
-          .where((isbn) => isbn.isNotEmpty)
-          .toSet();
-
-      // Incoming requests: accepted from this peer = user is lending it to them
-      final incoming = await api.getIncomingRequests();
-      final incomingList = incoming.data as List<dynamic>? ?? [];
-      final lending = incomingList
-          .where(
-            (r) =>
-                r['peer_url']?.toString() == widget.peerUrl &&
-                r['status'] == 'accepted',
-          )
-          .map((r) => r['book_isbn']?.toString() ?? '')
-          .where((isbn) => isbn.isNotEmpty)
-          .toSet();
-
-      if (mounted) {
-        setState(() {
-          _pendingBorrowIsbns = pending;
-          _activeBorrowIsbns = active;
-          _lendingIsbns = lending;
-        });
-      }
-    } catch (_) {
-      // Non-blocking: if we can't load, just don't disable any button
+    // Non-blocking: a failed load returns null and the previously known
+    // sets are kept, so no button flips state on a transient error.
+    final snapshot = await BorrowRequestSnapshot.load(api);
+    if (snapshot == null) return;
+    if (mounted) {
+      setState(() {
+        // Outgoing: pending = button shows "Requested", accepted = "Borrowed".
+        _pendingBorrowIsbns = snapshot.pendingIsbns(peerUrl: widget.peerUrl);
+        _activeBorrowIsbns = snapshot.activeBorrowIsbns(
+          peerUrl: widget.peerUrl,
+        );
+        // Incoming accepted from this peer = user is lending it to them.
+        _lendingIsbns = snapshot.lendingIsbns(peerUrl: widget.peerUrl);
+      });
     }
   }
 
@@ -1853,14 +1827,15 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   }
 
   bool _canBorrow(Book book) {
-    // Can't borrow a book the peer doesn't own (e.g. they borrowed it themselves)
-    // For hub catalog books, owned defaults to true (unknown = allow request,
-    // server auto-rejects if no available copy).
-    if (!book.owned) return false;
-    return !_hasPendingRequest(book) &&
-        !_isActiveBorrow(book) &&
-        !_isLending(book) &&
-        !_hasNoCopiesAvailable(book);
+    // Shared rule (utils/borrow_eligibility.dart), also used by the book
+    // details availability card. Do not inline it back here.
+    return canBorrowBook(
+      owned: book.owned,
+      availableCopies: book.availableCopies,
+      hasPendingRequest: _hasPendingRequest(book),
+      isActiveBorrow: _isActiveBorrow(book),
+      isLending: _isLending(book),
+    );
   }
 
   Future<void> _requestBorrow(Book book) async {

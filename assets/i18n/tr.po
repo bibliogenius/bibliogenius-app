@@ -10455,3 +10455,19 @@ msgstr "Başlıksız kitap"
 #. Label of the book title field, used by the completeness chips
 msgid "field_title"
 msgstr "Başlık"
+
+#. Available from
+msgid "wishlist_available_from"
+msgstr "Şurada mevcut"
+
+#. Aggregated wishlist match for a curated list import
+msgid "notif_wishlist_match_import"
+msgstr "\"{list}\" listesinden {count} kitap ağınızda mevcut"
+
+#. Accessibility/tooltip label for the wishlist availability badge
+msgid "wishlist_badge_available"
+msgstr "{source} kütüphanesinde mevcut"
+
+#. Curated list import: how many books are available in the network
+msgid "curated_import_available_network"
+msgstr "{count} tanesi ağınızda mevcut"

@@ -7,11 +7,17 @@ class BookCoverGrid extends StatelessWidget {
   final Function(Book) onBookTap;
   final void Function(Book book, String newStatus)? onStatusChanged;
 
+  /// Already-translated wishlist availability labels, keyed by ISBN.
+  /// Only the wishlist filter passes this; books without an entry render
+  /// no badge.
+  final Map<String, String>? availabilityLabels;
+
   const BookCoverGrid({
     super.key,
     required this.books,
     required this.onBookTap,
     this.onStatusChanged,
+    this.availabilityLabels,
   });
 
   @override
@@ -51,6 +57,8 @@ class BookCoverGrid extends StatelessWidget {
           onStatusChanged: onStatusChanged != null
               ? (status) => onStatusChanged!(book, status)
               : null,
+          // Map lookup with a null ISBN just returns null (no badge).
+          availabilityLabel: availabilityLabels?[book.isbn],
         );
       },
     );

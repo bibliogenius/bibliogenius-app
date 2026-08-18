@@ -47,6 +47,7 @@ import '../widgets/loan_dialog.dart';
 import '../widgets/metadata_refresh_dialog.dart';
 import '../widgets/speech_note_button.dart';
 import '../widgets/star_rating_widget.dart';
+import '../widgets/wishlist_availability_card.dart';
 import 'record_sale_screen.dart';
 
 class BookDetailsScreen extends StatefulWidget {
@@ -807,6 +808,13 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                     const SizedBox(height: 24),
                     _buildActionButtons(context, book),
                     const SizedBox(height: 32),
+                    // "Available from" card for wanted books. Renders nothing
+                    // when the shared wishlist join returns no provider.
+                    if (book.readingStatus == 'wanting')
+                      WishlistAvailabilityCard(
+                        key: ValueKey('wishlist-availability-${book.isbn}'),
+                        book: book,
+                      ),
                     _buildMetadataGrid(context, book),
                     const SizedBox(height: 16),
                     // Series frieze(s): one ordered reading-order timeline per

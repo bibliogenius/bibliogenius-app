@@ -10,7 +10,7 @@ part 'frb.freezed.dart';
 
 // These functions are ignored because they are not marked as `pub`: `account_device_entry`, `account_devices_json`, `account_library_uuid`, `account_status_json`, `apply_fallback_preferences_to_modules`, `covers_dir`, `db`, `enrollment_restart_required`, `enrollment_status_json`, `ensure_account_session`, `entries_to_frb`, `fill_state`, `from_info`, `from_manifest`, `from_summary`, `global_app_state`, `hub_catalog_error_code`, `hub_db`, `hub_directory_svc`, `hub_directory_sync_catalog_inner`, `install_panic_hook`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `log_sync_failure`, `merge_api_keys`, `merge_directory_entry`, `modules_to_fallback_preferences`, `nudge_source_label`, `rename_subject_in_books`, `runtime`, `store_account_session`, `track_to_frb`, `try_from_summary`, `undo_outcome_str`, `upsert_directory_catalog_cache`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `AccountSession`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
 
 /// Initialize the FFI backend with database at the given path
 /// Must be called before any other FFI functions
@@ -332,13 +332,29 @@ Future<bool> accountSyncCapableFfi() =>
 Future<String> accountSyncNowFfi() =>
     RustLib.instance.api.crateApiFrbAccountSyncNowFfi();
 
-/// Release the database's cr-sqlite state before the app process exits.
+/// App-lifecycle shutdown hook. Deliberately does nothing to the database.
 ///
-/// cr-sqlite requires `crsql_finalize()` on any connection that touched a CRR or it
-/// can abort on teardown. Flutter calls this from its app-lifecycle shutdown. On
-/// builds without account sync there is no cr-sqlite state, so this is a no-op.
-/// Best-effort and idempotent: a failure is logged, never surfaced, because the
-/// process is on its way down.
+/// This used to run `crsql_finalize()` on the live pool, which is the one thing it
+/// must never do. `crsql_finalize` is only valid on a connection that will not be
+/// used again (see `crsqlite_crr::finalize`), and this hook cannot promise that:
+/// Flutter calls it on `AppLifecycleState.detached`, and on Android `detached`
+/// does not mean the process is dying. The activity can be destroyed while the
+/// process, the Flutter engine and the Rust pool all survive; the user reopens the
+/// app onto the same connection, and from then on every account-sync merge fails
+/// with `Failed to update CRR table information` until the process is really
+/// killed. That is what wedged a production device (ADR-056).
+///
+/// Nothing was lost by removing it. The finalize protected no close: the pool is
+/// never closed on this path, and a process that is genuinely ending does not run
+/// destructors for the statics holding it. The two places that DO retire a
+/// connection pair finalize with a close themselves
+/// (`crsqlite_crr::finalize_and_close`, and the server binary's exit path).
+///
+/// The entry point is kept, and Flutter keeps calling it, so the seam exists if a
+/// real backend teardown is ever built. That is a bigger change than it looks:
+/// closing the pool would also have to stop the embedded HTTP server, the relay
+/// poller, the WS nudge listener, the operation processor and the oplog pruner,
+/// each of which holds its own clone of the connection.
 Future<String> shutdownBackendFfi() =>
     RustLib.instance.api.crateApiFrbShutdownBackendFfi();
 
@@ -1508,6 +1524,32 @@ Future<void> restoreFromRollbackFfi({
 /// (ADR-037 §6).
 Future<String?> latestUserDataChangeAtFfi() =>
     RustLib.instance.api.crateApiFrbLatestUserDataChangeAtFfi();
+
+/// Providers for the current wishlist (wanting, non-private, with an ISBN).
+/// `isbn` narrows to a single wish (book details); None returns every match
+/// (wishlist filter badges).
+Future<List<FrbWishlistProvider>> getWishlistProviders({String? isbn}) =>
+    RustLib.instance.api.crateApiFrbGetWishlistProviders(isbn: isbn);
+
+/// Providers for arbitrary ISBNs, without going through the local books
+/// lane. Used by the curated list import screen to show availability
+/// BEFORE the books exist locally.
+Future<List<FrbWishlistProvider>> getIsbnProviders({
+  required List<String> isbns,
+}) => RustLib.instance.api.crateApiFrbGetIsbnProviders(isbns: isbns);
+
+/// Collapse the per-book wishlist_match notifications emitted during a
+/// curated list import into one aggregated notification (ref_type =
+/// "import", ref_id = batch_ref). Returns the number of matched ISBNs.
+Future<int> aggregateWishlistImportNotification({
+  required String batchRef,
+  required String listTitle,
+  required List<String> isbns,
+}) => RustLib.instance.api.crateApiFrbAggregateWishlistImportNotification(
+  batchRef: batchRef,
+  listTitle: listTitle,
+  isbns: isbns,
+);
 
 /// Subset of the manifest surfaced to the wizard's preview screen. Mirrors
 /// `ManifestSummary` field-by-field but flattened for FFI portability.
@@ -2950,4 +2992,54 @@ class FrbTrackProgress {
           progress == other.progress &&
           current == other.current &&
           nextThreshold == other.nextThreshold;
+}
+
+/// A cached peer/directory book matching a wishlist entry.
+class FrbWishlistProvider {
+  final String isbn;
+
+  /// Local wanting book id (None when matching arbitrary ISBNs).
+  final String? bookId;
+
+  /// Peer id; 0 = directory-only (followed library, not paired).
+  final int peerId;
+  final String? nodeId;
+  final String sourceName;
+
+  /// Paired peer URL for the P2P borrow path; None = hub borrow path.
+  final String? peerUrl;
+  final int? availableCopies;
+
+  const FrbWishlistProvider({
+    required this.isbn,
+    this.bookId,
+    required this.peerId,
+    this.nodeId,
+    required this.sourceName,
+    this.peerUrl,
+    this.availableCopies,
+  });
+
+  @override
+  int get hashCode =>
+      isbn.hashCode ^
+      bookId.hashCode ^
+      peerId.hashCode ^
+      nodeId.hashCode ^
+      sourceName.hashCode ^
+      peerUrl.hashCode ^
+      availableCopies.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FrbWishlistProvider &&
+          runtimeType == other.runtimeType &&
+          isbn == other.isbn &&
+          bookId == other.bookId &&
+          peerId == other.peerId &&
+          nodeId == other.nodeId &&
+          sourceName == other.sourceName &&
+          peerUrl == other.peerUrl &&
+          availableCopies == other.availableCopies;
 }

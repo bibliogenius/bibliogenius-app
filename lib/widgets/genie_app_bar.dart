@@ -944,6 +944,14 @@ String _formatTitle(BuildContext context, FrbNotification n) {
         'notif_borrow_rejected',
       ).replaceAll('{name}', b ?? '').replaceAll('{book}', t);
     case 'wishlist_match':
+      // Aggregated form for curated list imports (ref_type 'import'):
+      // title = list name, body = matched book count.
+      if (n.refType == 'import') {
+        return TranslationService.translate(
+          context,
+          'notif_wishlist_match_import',
+        ).replaceAll('{list}', t).replaceAll('{count}', b ?? '');
+      }
       return TranslationService.translate(
         context,
         'notif_wishlist_match',

@@ -5,6 +5,7 @@ import '../../providers/theme_provider.dart';
 import '../../services/curated_lists_service.dart';
 import '../../services/api_service.dart';
 import '../../services/collection_import_service.dart';
+import '../../services/ffi_service.dart';
 import '../../services/translation_service.dart';
 import '../../utils/language_constants.dart';
 
@@ -26,6 +27,10 @@ class _ImportCuratedListScreenState extends State<ImportCuratedListScreen> {
   List<CuratedList> _currentLists = [];
   Set<String> _libraryIsbns = {};
   bool _otherLanguagesExpanded = false;
+
+  /// Cleaned ISBNs of the displayed lists that at least one paired peer or
+  /// followed library owns (shared Rust wishlist join, ISBN-only mode).
+  Set<String> _networkIsbns = {};
 
   /// Extract display title from a curated book note.
   /// Notes may contain "Title - Author (Year)" format; return just the title.
@@ -102,7 +107,30 @@ class _ImportCuratedListScreenState extends State<ImportCuratedListScreen> {
         _currentLists = lists;
         _isLoading = false;
       });
+      _loadNetworkAvailability();
     }
+  }
+
+  /// Normalize an ISBN the way the backend stores it (digits and X only).
+  String _cleanIsbn(String isbn) => isbn.replaceAll(RegExp(r'[^0-9X]'), '');
+
+  /// Query which of the displayed ISBNs are available in the user's
+  /// network. Fire-and-forget; no result means no badge (no empty state).
+  Future<void> _loadNetworkAvailability() async {
+    final ffi = FfiService();
+    if (!ffi.isInitialized) return;
+    final langCode = _currentLangCode;
+    final isbns = <String>{};
+    for (final list in _currentLists) {
+      for (final book in list.books) {
+        final clean = _cleanIsbn(book.getIsbnForLanguage(langCode));
+        if (clean.isNotEmpty) isbns.add(clean);
+      }
+    }
+    if (isbns.isEmpty) return;
+    final providers = await ffi.getIsbnProviders(isbns.toList());
+    if (!mounted || providers.isEmpty) return;
+    setState(() => _networkIsbns = providers.map((p) => p.isbn).toSet());
   }
 
   /// User's preferred reading languages, de-duplicated and normalized.
@@ -297,6 +325,9 @@ class _ImportCuratedListScreenState extends State<ImportCuratedListScreen> {
       );
 
       if (!mounted) return;
+
+      // The wishlist-match aggregation for the batch happens inside
+      // CollectionImportService.importList, shared with the YAML import.
 
       if (result.hasError) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -606,9 +637,21 @@ class _ImportCuratedListScreenState extends State<ImportCuratedListScreen> {
   int _countOwnedBooks(CuratedList list, String langCode) {
     int count = 0;
     for (final book in list.books) {
-      final isbn = book.getIsbnForLanguage(langCode);
-      final clean = isbn.replaceAll(RegExp(r'[^0-9X]'), '');
+      final clean = _cleanIsbn(book.getIsbnForLanguage(langCode));
       if (_libraryIsbns.contains(clean)) count++;
+    }
+    return count;
+  }
+
+  /// Books of the list not yet in the library but owned by someone in the
+  /// user's network (borrowable instead of bought).
+  int _countNetworkBooks(CuratedList list, String langCode) {
+    int count = 0;
+    for (final book in list.books) {
+      final clean = _cleanIsbn(book.getIsbnForLanguage(langCode));
+      if (!_libraryIsbns.contains(clean) && _networkIsbns.contains(clean)) {
+        count++;
+      }
     }
     return count;
   }
@@ -748,6 +791,38 @@ class _ImportCuratedListScreenState extends State<ImportCuratedListScreen> {
                   ),
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
+                // Network availability: shown only when at least one
+                // not-yet-owned book has a provider (no empty state).
+                if (_countNetworkBooks(list, langCode) > 0)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.people,
+                          size: 16,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            TranslationService.translate(
+                              context,
+                              'curated_import_available_network',
+                              params: {
+                                'count':
+                                    '${_countNetworkBooks(list, langCode)}',
+                              },
+                            ),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 const SizedBox(height: 8),
 
                 // Preview first 3 books (show note if available)

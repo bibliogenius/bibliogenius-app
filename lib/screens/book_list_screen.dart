@@ -15,6 +15,7 @@ import '../data/repositories/collection_repository.dart';
 import '../data/repositories/tag_repository.dart';
 import '../models/collection.dart';
 import '../services/api_service.dart';
+import '../services/ffi_service.dart';
 import '../services/sync_service.dart';
 import '../services/translation_service.dart';
 import '../models/book.dart';
@@ -24,6 +25,7 @@ import '../widgets/collection_stack_widget.dart';
 import '../widgets/premium_empty_state.dart';
 import '../widgets/book_cover_grid.dart';
 import '../widgets/premium_book_card.dart';
+import '../widgets/wishlist_availability_badge.dart';
 import '../theme/app_design.dart';
 import '../providers/theme_provider.dart';
 import '../providers/book_refresh_notifier.dart';
@@ -103,6 +105,12 @@ class _BookListScreenState extends State<BookListScreen>
   bool _isSearching = false;
   bool _isReordering = false;
   String? _libraryName; // Store library name for title
+
+  // Wishlist availability (wanting filter only): isbn -> provider names.
+  // Loaded lazily from the shared Rust join the first time the wanting
+  // filter is shown after a fetch; empty map = no badge anywhere.
+  Map<String, List<String>> _wishlistAvailability = {};
+  bool _wishlistAvailabilityLoaded = false;
 
   final GlobalKey _addKey = GlobalKey();
   final GlobalKey _searchKey = GlobalKey();
@@ -787,6 +795,10 @@ class _BookListScreenState extends State<BookListScreen>
           _books = books; // Store ALL books, filtering happens in _filterBooks
           _allTags = tags; // Store tags for hierarchy traversal
           _libraryName = libraryName;
+          // Availability may have changed (new wish, fresh peer sync):
+          // re-query it the next time the wanting filter renders.
+          _wishlistAvailability = {};
+          _wishlistAvailabilityLoaded = false;
           _filterBooks(); // Apply filters after fetching all books
           if (!silent) _isLoading = false;
         });
@@ -799,8 +811,29 @@ class _BookListScreenState extends State<BookListScreen>
     }
   }
 
+  /// Loads the wishlist providers (shared Rust join) for the badge shown
+  /// under the wanting filter. Fire-and-forget; an empty result simply
+  /// renders no badge.
+  Future<void> _loadWishlistAvailability() async {
+    final ffi = FfiService();
+    if (!ffi.isInitialized) return;
+    final providers = await ffi.getWishlistProviders();
+    if (!mounted || providers.isEmpty) return;
+    final byIsbn = <String, List<String>>{};
+    for (final p in providers) {
+      byIsbn.putIfAbsent(p.isbn, () => []).add(p.sourceName);
+    }
+    setState(() => _wishlistAvailability = byIsbn);
+  }
+
   // Triggered when filters change or search query changes
   void _filterBooks() {
+    // Lazily query wishlist availability the first time the wanting
+    // filter is shown after a fetch.
+    if (_selectedStatus == 'wanting' && !_wishlistAvailabilityLoaded) {
+      _wishlistAvailabilityLoaded = true;
+      _loadWishlistAvailability();
+    }
     List<Book> tempBooks = List.from(_books);
     debugPrint(
       '🔍 _filterBooks: Starting with ${tempBooks.length} books, _selectedStatus=$_selectedStatus',
@@ -2395,6 +2428,7 @@ class _BookListScreenState extends State<BookListScreen>
             books: _filteredBooks,
             onBookTap: _onBookTap,
             onStatusChanged: _onStatusChanged,
+            availabilityLabels: _availabilityLabels(context),
           ),
         );
       case ViewMode.spineShelf:
@@ -2471,21 +2505,54 @@ class _BookListScreenState extends State<BookListScreen>
       );
     }
 
+    final availabilityLabels = _availabilityLabels(context);
     return ListView.builder(
       itemCount: _filteredBooks.length,
       padding: const EdgeInsets.all(16),
       itemBuilder: (context, index) {
         final book = _filteredBooks[index];
+        // Map lookup with a null ISBN just returns null (no badge).
+        final availabilityLabel = availabilityLabels?[book.isbn];
+        final card = PremiumBookCard(
+          book: book,
+          isHero: true,
+          width: double.infinity,
+          onStatusChanged: (status) => _onStatusChanged(book, status),
+        );
         return Padding(
           padding: const EdgeInsets.only(bottom: 16),
-          child: PremiumBookCard(
-            book: book,
-            isHero: true,
-            width: double.infinity,
-            onStatusChanged: (status) => _onStatusChanged(book, status),
-          ),
+          child: availabilityLabel == null
+              ? card
+              : Stack(
+                  children: [
+                    card,
+                    Positioned(
+                      bottom: 8,
+                      left: 8,
+                      child: WishlistAvailabilityBadge(
+                        label: availabilityLabel,
+                      ),
+                    ),
+                  ],
+                ),
         );
       },
+    );
+  }
+
+  /// Translated badge labels for the wanting filter, keyed by ISBN.
+  /// Null outside the wanting filter or when no wish has a provider.
+  Map<String, String>? _availabilityLabels(BuildContext context) {
+    if (_selectedStatus != 'wanting' || _wishlistAvailability.isEmpty) {
+      return null;
+    }
+    final template = TranslationService.translate(
+      context,
+      'wishlist_badge_available',
+    );
+    return _wishlistAvailability.map(
+      (isbn, sources) =>
+          MapEntry(isbn, template.replaceAll('{source}', sources.join(', '))),
     );
   }
 

@@ -273,6 +273,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FrbTrackProgress dco_decode_frb_track_progress(dynamic raw);
 
   @protected
+  FrbWishlistProvider dco_decode_frb_wishlist_provider(dynamic raw);
+
+  @protected
   int dco_decode_i_32(dynamic raw);
 
   @protected
@@ -376,6 +379,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<FrbTag> dco_decode_list_frb_tag(dynamic raw);
+
+  @protected
+  List<FrbWishlistProvider> dco_decode_list_frb_wishlist_provider(dynamic raw);
 
   @protected
   Int64List dco_decode_list_prim_i_64_strict(dynamic raw);
@@ -771,6 +777,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FrbTrackProgress sse_decode_frb_track_progress(SseDeserializer deserializer);
 
   @protected
+  FrbWishlistProvider sse_decode_frb_wishlist_provider(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   int sse_decode_i_32(SseDeserializer deserializer);
 
   @protected
@@ -912,6 +923,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<FrbTag> sse_decode_list_frb_tag(SseDeserializer deserializer);
+
+  @protected
+  List<FrbWishlistProvider> sse_decode_list_frb_wishlist_provider(
+    SseDeserializer deserializer,
+  );
 
   @protected
   Int64List sse_decode_list_prim_i_64_strict(SseDeserializer deserializer);
@@ -1413,6 +1429,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_frb_wishlist_provider(
+    FrbWishlistProvider self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_i_32(int self, SseSerializer serializer);
 
   @protected
@@ -1585,6 +1607,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_list_frb_tag(List<FrbTag> self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_list_frb_wishlist_provider(
+    List<FrbWishlistProvider> self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_list_prim_i_64_strict(
