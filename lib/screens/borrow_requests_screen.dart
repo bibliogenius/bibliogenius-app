@@ -614,12 +614,16 @@ class _LoansScreenState extends State<LoansScreen>
       return true;
     }).toList();
 
-    // Sort: active/overdue first, returned last
+    // Sort: active/overdue first, returned last; newest loan first within
+    // each group (Dart's sort is not stable, so without the secondary key
+    // the intra-group order was arbitrary).
     if (_lentStatusFilter == 'all') {
       filtered.sort((a, b) {
         if (a.isReturned != b.isReturned) return a.isReturned ? 1 : -1;
-        return 0;
+        return b.loanDate.compareTo(a.loanDate);
       });
+    } else {
+      filtered.sort((a, b) => b.loanDate.compareTo(a.loanDate));
     }
 
     return RefreshIndicator(
