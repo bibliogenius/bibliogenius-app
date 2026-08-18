@@ -103,6 +103,7 @@ import 'providers/sort_preference_provider.dart';
 import 'package:app_links/app_links.dart';
 
 import 'services/wizard_service.dart';
+import 'widgets/cached_book_cover.dart';
 import 'widgets/identity_recovery_dialog.dart';
 import 'widgets/peer_book_cover_cache_manager.dart';
 import 'widgets/scaffold_with_nav.dart';
@@ -363,6 +364,21 @@ Future<void> _runApp() async {
     // recovers from a real disk footprint exceeding the saved cap.
     await PeerBookCoverCacheManager.configure(
       capMb: themeProvider.peerCoverCacheCapMb,
+    );
+    // Reclaim the bytes of covers that flutter_cache_manager dropped from its
+    // index but failed to delete from disk. Best-effort and non-throwing, and
+    // nothing downstream depends on it, so it must not delay the first frame:
+    // on a heavily leaked cache the sweep stats thousands of files.
+    unawaited(
+      BookCoverCacheManager.sweepOrphanFiles().then((reclaimedCoverBytes) {
+        if (reclaimedCoverBytes > 0) {
+          debugPrint(
+            'Reclaimed '
+            '${(reclaimedCoverBytes / (1024 * 1024)).toStringAsFixed(1)} '
+            'MB of orphaned cover files',
+          );
+        }
+      }),
     );
     // Auto-initialize defaults if first launch (skip setup wizard)
     final authService = AuthService();
