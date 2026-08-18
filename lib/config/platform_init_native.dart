@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../src/rust/frb_generated.dart';
 import '../src/rust/api/frb.dart' as frb;
 import '../services/api_service.dart';
+import '../services/ffi_service.dart';
 import '../utils/local_cover_resolver.dart';
 
 const _migrationFlag = 'db_migration_completed_v1';
@@ -44,6 +45,13 @@ Future<bool> initializePlatform() async {
     await frb.setHubUrlFfi(hubUrl: ApiService.hubUrl);
     if (kDebugMode) debugPrint('FFI: HUB_URL configured');
     debugPrint('FFI: useFfi set to TRUE');
+
+    // Flip the singleton flag every `ffi.isInitialized` guard reads. The
+    // method existed since the FFI mode landed but was never called, so
+    // those guards were permanently false and silently disabled their
+    // features (wishlist cards, list badges, milestone celebrations,
+    // per-book loan settings).
+    FfiService().markInitialized();
 
     return true; // useFfi = true
   } catch (e) {
