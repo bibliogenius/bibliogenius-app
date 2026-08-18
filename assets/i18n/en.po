@@ -10487,3 +10487,15 @@ msgstr "Available from {source}"
 #. Curated list import: how many books are available in the network
 msgid "curated_import_available_network"
 msgstr "{count} available in your network"
+
+#. Header of the "wanted by" card on an owned book's details page
+msgid "wishlist_wanted_by"
+msgstr "Wanted by"
+
+#. Short lend button next to a peer who wants this book
+msgid "wishlist_lend_action"
+msgstr "Lend"
+
+#. Discreet mutual-wish hint under the lend action (never an obligation)
+msgid "wishlist_mutual_hint"
+msgstr "You are also looking for {title}, which {name} has."

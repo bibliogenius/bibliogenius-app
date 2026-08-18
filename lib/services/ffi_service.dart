@@ -554,7 +554,8 @@ class FfiService {
   // ============ Bulk Metadata Gap-Fill (ADR-041) ============
 
   /// Library completeness statistic over owned books.
-  Future<frb.FrbCompletenessStats> metadataFillStats() => frb.metadataFillStats();
+  Future<frb.FrbCompletenessStats> metadataFillStats() =>
+      frb.metadataFillStats();
 
   /// Start (or resume) a bulk gap-fill run. Returns the batch id. `languages`
   /// is the user's reading-language config, joined for summary coherence.
@@ -1254,7 +1255,10 @@ class FfiService {
 
   /// Mark a collection as a series (`source = 'series'`) or revert it to a plain
   /// manual collection. A series drives the reading-order frise on book detail.
-  Future<void> markCollectionAsSeries(String collectionId, bool isSeries) async {
+  Future<void> markCollectionAsSeries(
+    String collectionId,
+    bool isSeries,
+  ) async {
     try {
       await frb.markCollectionAsSeries(
         collectionId: collectionId,
@@ -1862,6 +1866,17 @@ class FfiService {
       return await frb.getWishlistProviders(isbn: isbn);
     } catch (e) {
       debugPrint('FFI getWishlistProviders error: $e');
+      return [];
+    }
+  }
+
+  /// Inverse direction: peers / followed libraries that WANT the given
+  /// owned book of mine ("wanted by" card on the book details page).
+  Future<List<frb.FrbWishlistSeeker>> getWishlistSeekers(String isbn) async {
+    try {
+      return await frb.getWishlistSeekers(isbn: isbn);
+    } catch (e) {
+      debugPrint('FFI getWishlistSeekers error: $e');
       return [];
     }
   }

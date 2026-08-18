@@ -10,7 +10,7 @@ part 'frb.freezed.dart';
 
 // These functions are ignored because they are not marked as `pub`: `account_device_entry`, `account_devices_json`, `account_library_uuid`, `account_status_json`, `apply_fallback_preferences_to_modules`, `covers_dir`, `db`, `enrollment_restart_required`, `enrollment_status_json`, `ensure_account_session`, `entries_to_frb`, `fill_state`, `from_info`, `from_manifest`, `from_summary`, `global_app_state`, `hub_catalog_error_code`, `hub_db`, `hub_directory_svc`, `hub_directory_sync_catalog_inner`, `install_panic_hook`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `log_sync_failure`, `merge_api_keys`, `merge_directory_entry`, `modules_to_fallback_preferences`, `nudge_source_label`, `rename_subject_in_books`, `runtime`, `store_account_session`, `track_to_frb`, `try_from_summary`, `undo_outcome_str`, `upsert_directory_catalog_cache`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `AccountSession`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
 
 /// Initialize the FFI backend with database at the given path
 /// Must be called before any other FFI functions
@@ -1538,6 +1538,12 @@ Future<List<FrbWishlistProvider>> getIsbnProviders({
   required List<String> isbns,
 }) => RustLib.instance.api.crateApiFrbGetIsbnProviders(isbns: isbns);
 
+/// Who wants the given book of mine? Backs the "wanted by" card on the
+/// details page of an owned book. Only explicit `wanted = true` cache rows
+/// qualify; peers on builds without the flag simply produce no marker.
+Future<List<FrbWishlistSeeker>> getWishlistSeekers({required String isbn}) =>
+    RustLib.instance.api.crateApiFrbGetWishlistSeekers(isbn: isbn);
+
 /// Collapse the per-book wishlist_match notifications emitted during a
 /// curated list import into one aggregated notification (ref_type =
 /// "import", ref_id = batch_ref). Returns the number of matched ISBNs.
@@ -3042,4 +3048,54 @@ class FrbWishlistProvider {
           sourceName == other.sourceName &&
           peerUrl == other.peerUrl &&
           availableCopies == other.availableCopies;
+}
+
+/// A peer / followed library that WANTS one of my books (their wishlist,
+/// mirrored through the additive `wanted` catalog flag).
+class FrbWishlistSeeker {
+  final String isbn;
+
+  /// Resolved peer id; 0 = directory-only entry (followed, not paired).
+  /// The lend-offer path (`/api/peers/{id}/offer-loan`) needs a paired id.
+  final int peerId;
+  final String? nodeId;
+  final String sourceName;
+
+  /// Present for paired peers only; its presence is what distinguishes
+  /// "can be offered a loan" from "display-only" in the UI.
+  final String? peerUrl;
+
+  /// Titles of MY wishlist entries this seeker owns (mutual-exchange
+  /// hint, capped in the service). Empty = no mutual wish.
+  final List<String> mutualWishTitles;
+
+  const FrbWishlistSeeker({
+    required this.isbn,
+    required this.peerId,
+    this.nodeId,
+    required this.sourceName,
+    this.peerUrl,
+    required this.mutualWishTitles,
+  });
+
+  @override
+  int get hashCode =>
+      isbn.hashCode ^
+      peerId.hashCode ^
+      nodeId.hashCode ^
+      sourceName.hashCode ^
+      peerUrl.hashCode ^
+      mutualWishTitles.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FrbWishlistSeeker &&
+          runtimeType == other.runtimeType &&
+          isbn == other.isbn &&
+          peerId == other.peerId &&
+          nodeId == other.nodeId &&
+          sourceName == other.sourceName &&
+          peerUrl == other.peerUrl &&
+          mutualWishTitles == other.mutualWishTitles;
 }

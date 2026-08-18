@@ -274,6 +274,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FrbWishlistProvider dco_decode_frb_wishlist_provider(dynamic raw);
 
   @protected
+  FrbWishlistSeeker dco_decode_frb_wishlist_seeker(dynamic raw);
+
+  @protected
   int dco_decode_i_32(dynamic raw);
 
   @protected
@@ -380,6 +383,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<FrbWishlistProvider> dco_decode_list_frb_wishlist_provider(dynamic raw);
+
+  @protected
+  List<FrbWishlistSeeker> dco_decode_list_frb_wishlist_seeker(dynamic raw);
 
   @protected
   Int64List dco_decode_list_prim_i_64_strict(dynamic raw);
@@ -780,6 +786,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  FrbWishlistSeeker sse_decode_frb_wishlist_seeker(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   int sse_decode_i_32(SseDeserializer deserializer);
 
   @protected
@@ -924,6 +935,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<FrbWishlistProvider> sse_decode_list_frb_wishlist_provider(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  List<FrbWishlistSeeker> sse_decode_list_frb_wishlist_seeker(
     SseDeserializer deserializer,
   );
 
@@ -1433,6 +1449,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_frb_wishlist_seeker(
+    FrbWishlistSeeker self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_i_32(int self, SseSerializer serializer);
 
   @protected
@@ -1609,6 +1631,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_list_frb_wishlist_provider(
     List<FrbWishlistProvider> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_frb_wishlist_seeker(
+    List<FrbWishlistSeeker> self,
     SseSerializer serializer,
   );
 

@@ -48,6 +48,7 @@ import '../widgets/metadata_refresh_dialog.dart';
 import '../widgets/speech_note_button.dart';
 import '../widgets/star_rating_widget.dart';
 import '../widgets/wishlist_availability_card.dart';
+import '../widgets/wishlist_seeker_card.dart';
 import 'record_sale_screen.dart';
 
 class BookDetailsScreen extends StatefulWidget {
@@ -815,13 +816,19 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                         key: ValueKey('wishlist-availability-${book.isbn}'),
                         book: book,
                       ),
+                    // Inverse direction, for owned books: who wants this
+                    // one? Renders nothing when no peer broadcast a wish.
+                    if (book.owned)
+                      WishlistSeekerCard(
+                        key: ValueKey('wishlist-seekers-${book.isbn}'),
+                        book: book,
+                      ),
                     _buildMetadataGrid(context, book),
                     const SizedBox(height: 16),
                     // Series frieze(s): one ordered reading-order timeline per
                     // series-typed collection this book belongs to. Non-series
                     // books produce an empty loop here, so no extra render cost.
-                    for (final series
-                        in _collections.where((c) => c.isSeries))
+                    for (final series in _collections.where((c) => c.isSeries))
                       SeriesFriezeWidget(
                         collection: series,
                         currentBookId: book.id ?? '',

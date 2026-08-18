@@ -60,6 +60,14 @@ class Book {
   /// See [isBorrowed] for the axis and the null semantics.
   final bool? isLent;
 
+  /// Peer catalog only: true when the OWNING PEER wants this book (their
+  /// wishlist, broadcast as an additive wire flag). Null means "not
+  /// stated" (older peer build, or simply not wanted) and must never be
+  /// inferred from [owned] being false, which also covers books the peer
+  /// merely borrowed. Round-trips through toJson so the peer-cache upload
+  /// (cachePeerBooks) preserves it.
+  final bool? wanted;
+
   /// Whether the book sits on either side of a loan.
   ///
   /// An unknown flag reads as "no", not as "yes": a book whose possession was
@@ -92,6 +100,7 @@ class Book {
     this.hubCoverUploadFailedAt,
     this.isBorrowed,
     this.isLent,
+    this.wanted,
   }) : _coverUrl = coverUrl;
 
   /// Coerce a JSON value into a nullable int, tolerating numeric strings.
@@ -167,6 +176,8 @@ class Book {
           _legacyLoanState(rawStatus, 'borrowed'),
       isLent:
           _asBoolOrNull(json['is_lent']) ?? _legacyLoanState(rawStatus, 'lent'),
+      // Absent stays absent: no fallback on owned == false (see field doc).
+      wanted: _asBoolOrNull(json['wanted']),
       finishedReadingAt: json['finished_reading_at'] != null
           ? DateTime.tryParse(json['finished_reading_at'])
           : null,
@@ -226,6 +237,7 @@ class Book {
       'page_count': pageCount,
       'added_at': addedAt?.toIso8601String(),
       'hub_cover_upload_failed_at': hubCoverUploadFailedAt?.toIso8601String(),
+      if (wanted != null) 'wanted': wanted,
       'created_at': now,
       'updated_at': now,
     };
@@ -268,6 +280,7 @@ class Book {
       hubCoverUploadFailedAt: hubCoverUploadFailedAt,
       isBorrowed: isBorrowed,
       isLent: isLent,
+      wanted: wanted,
     );
   }
 
@@ -328,6 +341,7 @@ class Book {
       hubCoverUploadFailedAt: hubCoverUploadFailedAt,
       isBorrowed: isBorrowed,
       isLent: isLent,
+      wanted: wanted,
     );
   }
 
