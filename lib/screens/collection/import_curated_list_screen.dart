@@ -383,6 +383,8 @@ class _ImportCuratedListScreenState extends State<ImportCuratedListScreen> {
         return Icons.category;
       case 'auto_stories':
         return Icons.auto_stories;
+      case 'school':
+        return Icons.school;
       case 'menu_book':
         return Icons.menu_book;
       default:

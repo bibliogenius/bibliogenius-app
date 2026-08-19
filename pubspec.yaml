@@ -98,4 +98,5 @@ flutter:
     - assets/curated_lists/institutions/
     - assets/curated_lists/tech/
     - assets/curated_lists/jeunesse/
+    - assets/curated_lists/rentree/
     - assets/i18n/

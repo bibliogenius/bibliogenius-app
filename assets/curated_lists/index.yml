@@ -140,6 +140,27 @@ categories:
       - naruto
       - death-note
 
+  # Sits next to `jeunesse`, its nearest neighbour. Deliberately NOT first:
+  # the screen auto-selects the first category, so leading with a seasonal
+  # school list would put it in front of every user all year round.
+  #
+  # French-only title, ON PURPOSE. Do not "fix" this by adding en/es/de.
+  # This category is tied to one national school system and holds only French
+  # books. `partitionCuratedListsByLanguage` never hides a list, and when a
+  # category has nothing in the reader's languages it renders its lists
+  # expanded rather than collapsed, so a translated chip would invite readers
+  # with no French straight into content they cannot use. `getTitle` falls back
+  # to `title.values.first`, so every locale shows the French label and the
+  # chip says what it is. The list inside stays translated: someone who walks
+  # in deliberately (a French teacher abroad, a bilingual family) still needs
+  # to read what the list covers.
+  - id: rentree
+    title:
+      fr: Rentrée des classes
+    icon: school
+    lists:
+      - entree-en-6e
+
   - id: jeunesse
     title:
       fr: Jeunesse & BD Franco-Belge

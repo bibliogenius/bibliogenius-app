@@ -4,6 +4,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/services.dart';
 import 'package:yaml/yaml.dart';
+import 'package:bibliogenius/services/curated_lists_service.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -51,6 +52,96 @@ void main() {
       expect(parsed['description'], isNotNull);
       expect(parsed['books'], isA<YamlList>());
       expect((parsed['books'] as YamlList).length, greaterThan(0));
+    });
+  });
+
+  group('Curated Lists Asset Bundling', () {
+    // Two independent things must line up for a category to render, and
+    // neither failure produces a build error or an analyzer warning:
+    //  1. its directory is declared under `flutter: assets:` in pubspec.yaml,
+    //     otherwise the YAML is absent from the bundle;
+    //  2. its directory name is listed in `loadList`'s `directories` array,
+    //     which is hardcoded and NOT derived from the category ids.
+    // Going through the real service covers both. Reading rootBundle directly
+    // only covers the first, and passes while the category shows up empty.
+    test('every category resolves all the lists index.yml declares', () async {
+      final service = CuratedListsService.instance;
+      service.clearCache();
+      final categories = await service.loadCategories();
+
+      expect(categories, isNotEmpty, reason: 'index.yml declared no category');
+
+      for (final category in categories) {
+        final lists = await service.loadListsForCategory(category);
+        final resolved = lists.map((l) => l.id).toSet();
+        final missing = category.listIds.where((id) => !resolved.contains(id));
+
+        expect(
+          missing,
+          isEmpty,
+          reason:
+              'Category "${category.id}" declares ${category.listIds.length} '
+              'list(s) but resolved ${lists.length}. Unresolved: '
+              '${missing.join(', ')}. Check that '
+              '"assets/curated_lists/${category.id}/" is declared under '
+              'flutter > assets in pubspec.yaml AND that "${category.id}" is '
+              'in the directories array of CuratedListsService.loadList.',
+        );
+
+        for (final list in lists) {
+          expect(
+            list.books,
+            isNotEmpty,
+            reason: '${category.id}/${list.id} has an empty books list',
+          );
+        }
+      }
+    });
+
+    // Editorial decision, not an oversight: the `rentree` category keeps a
+    // French-only title so its chip does not invite readers with no French
+    // into a French-curriculum list. `partitionCuratedListsByLanguage` never
+    // hides a list, and a category with nothing in the reader's languages
+    // renders expanded, so the chip label is the only honest signal left.
+    // Delete this test if that decision is reversed.
+    test('the rentree chip stays in French for every locale', () async {
+      final service = CuratedListsService.instance;
+      final categories = await service.loadCategories();
+      final rentree = categories.firstWhere((c) => c.id == 'rentree');
+
+      for (final locale in ['fr', 'en', 'es', 'de', 'it']) {
+        expect(
+          rentree.getTitle(locale),
+          equals('Rentrée des classes'),
+          reason:
+              'Adding a "$locale" title to the rentree category in index.yml '
+              'makes the chip advertise content that does not exist in that '
+              'language.',
+        );
+      }
+    });
+
+    // The import service falls back to the title parsed out of `note` when the
+    // ISBN lookup returns nothing, and the backend refuses books without a
+    // title. An entry with a malformed ISBN and no note fails to import.
+    test('every curated book has a well-formed ISBN', () async {
+      final service = CuratedListsService.instance;
+      final categories = await service.loadCategories();
+
+      for (final category in categories) {
+        for (final list in await service.loadListsForCategory(category)) {
+          for (final book in list.books) {
+            final clean = book.isbn.replaceAll(RegExp(r'[^0-9X]'), '');
+            expect(
+              clean.length,
+              anyOf(10, 13),
+              reason:
+                  '${category.id}/${list.id}: "${book.isbn}" is not a 10 or '
+                  '13 character ISBN',
+            );
+          }
+        }
+      }
     });
   });
 }

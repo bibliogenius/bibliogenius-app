@@ -1,0 +1,133 @@
+# Entree en 6e - lectures de rentree
+#
+# Structure: the five thematic entries of the French "culture litteraire et
+# artistique" programme for classe de sixieme (BO du 17 avril 2025, applicable
+# to sixieme since the 2025 rentree). The programme prescribes themes and
+# genres, never titles or editions: every book below is an editorial choice,
+# not an official prescription.
+#
+# REVIEW DEADLINE: re-check before the September 2027 rentree. The same
+# programme reaches CM2 at the 2026-2027 rentree, and a later revision would
+# invalidate the section headings. Bump `version` when the selection changes.
+#
+# Every ISBN below was resolved against catalogue.bnf.fr (the first source in
+# the backend lookup chain for 978-2 ISBNs) on 2026-08-19: title, author,
+# publisher and year come from the BNF record for that exact ISBN.
+id: entree-en-6e
+version: 1
+
+title:
+  fr: "Entrée en 6e - lectures de rentrée"
+  en: "Starting Year 7 - back-to-school reading"
+  es: "Entrada en 6e - lecturas de vuelta al cole"
+  de: "Eintritt in die 6. Klasse - Lektüre zum Schulbeginn"
+
+description:
+  fr: "Quatorze lectures pour aborder la 6e, une par grande entrée du programme de français : récits des origines, mots et merveilles, ruses en action, aventure et rencontre des monstres. Structure d'après le programme publié au Bulletin officiel du 17 avril 2025. Éditions de poche courantes, vérifiées au catalogue de la BnF."
+  en: "Fourteen books for the start of the first year of French collège, mapped onto the official French-language curriculum strands: origin stories, words and wonders, trickery, adventure and encountering monsters. Structure follows the programme published in the Bulletin officiel of 17 April 2025. Current paperback editions, checked against the BnF catalogue."
+  es: "Catorce lecturas para empezar el primer curso del collège francés, organizadas según los ejes del programa oficial de francés: relatos de los orígenes, palabras y maravillas, astucias, aventura y encuentro con los monstruos. Estructura basada en el programa publicado en el Bulletin officiel del 17 de abril de 2025. Ediciones de bolsillo actuales, verificadas en el catálogo de la BnF."
+  de: "Vierzehn Bücher für den Start in die 6. Klasse, geordnet nach den Themenfeldern des französischen Lehrplans: Ursprungserzählungen, Worte und Wunder, List, Abenteuer und Begegnung mit Monstern. Struktur nach dem im Bulletin officiel vom 17. April 2025 veröffentlichten Lehrplan. Aktuelle Taschenbuchausgaben, im BnF-Katalog geprüft."
+
+cover_url: "https://covers.openlibrary.org/b/isbn/9782070612758-L.jpg"
+contributor: BiblioGenius
+tags: [rentrée, collège, sixième, école, jeunesse, classiques]
+content_languages: [fr]
+
+# Per-book `cover_url` is deliberately omitted: the import service lets a YAML
+# cover_url override the lookup result, and covers.openlibrary.org has no image
+# for 11 of these 14 ISBNs. Leaving it unset lets the BnF-first lookup chain
+# supply the cover instead of pinning a dead URL.
+books:
+  # 1. Créer, recréer le monde : récits des origines
+  - isbn: "9782211207973"
+    note: "Ulysse aux mille ruses - Yvan Pommaux (d'après l'Odyssée d'Homère)"
+    publisher: "L'École des loisirs"
+    published_date: "2011"
+    authors: ["Yvan Pommaux"]
+    description: "Le retour d'Ulysse raconté et illustré comme un album-BD : le cyclope, Circé, les sirènes, puis Ithaque. La porte d'entrée la plus lisible vers l'Odyssée pour un lecteur de 11 ans."
+  - isbn: "9782211237628"
+    note: "Thésée : comment naissent les légendes - Yvan Pommaux"
+    publisher: "L'École des loisirs"
+    published_date: "2018"
+    authors: ["Yvan Pommaux"]
+    description: "Le fil d'Ariane, le labyrinthe et le Minotaure. Pommaux montre aussi comment un fait divers devient un mythe, ce qui donne au récit des origines son sujet même."
+
+  # 2. Chanter, enchanter le monde : mots et merveilles
+  - isbn: "9782080237514"
+    note: "Fables choisies - Jean de La Fontaine"
+    publisher: "Flammarion jeunesse"
+    published_date: "2021"
+    authors: ["Jean de La Fontaine"]
+    description: "Sélection de fables commentée pour le collège. Le corbeau, le loup, la grenouille : la poésie y sert d'abord à faire mouche, ce qui la rend abordable avant d'être savante."
+  - isbn: "9782080494665"
+    note: "Contes - Charles Perrault"
+    publisher: "Flammarion"
+    published_date: "2025"
+    authors: ["Charles Perrault"]
+    description: "Le texte intégral des contes, avec présentation, notes et dossier. Édition revue, dans la collection scolaire de référence pour ce titre."
+
+  # 3. Se masquer, jouer, déjouer : ruses en action
+  - isbn: "9782080239938"
+    note: "Le roman de Renart : récits choisis - Michel Laporte (adaptation)"
+    publisher: "Flammarion jeunesse"
+    published_date: "2021"
+    authors: ["Michel Laporte", "Anonyme"]
+    description: "Les branches les plus célèbres du Roman de Renart en français moderne. Renart trompe Ysengrin, le lion et tout le monde : la ruse contre la force, exactement le sujet de l'entrée."
+  - isbn: "9782915732511"
+    note: "Le Petit Nicolas - René Goscinny et Jean-Jacques Sempé"
+    publisher: "IMAV éditions"
+    published_date: "2013"
+    authors: ["René Goscinny", "Jean-Jacques Sempé"]
+    description: "L'école vue d'en bas, en chapitres courts et autonomes. Utile en début d'année : un élève qui lit peu peut en lire un seul et avoir fini quelque chose."
+
+  # 4. Partir à l'aventure !
+  - isbn: "9782081394438"
+    note: "Vendredi ou la vie sauvage - Michel Tournier"
+    publisher: "Flammarion jeunesse"
+    published_date: "2017"
+    authors: ["Michel Tournier"]
+    description: "Robinson seul sur son île, puis Robinson avec Vendredi qui lui apprend l'inverse de ce qu'il croyait savoir. La réécriture jeunesse par Tournier de son propre roman."
+  - isbn: "9782095000677"
+    note: "Tomek - Jean-Claude Mourlevat (La rivière à l'envers, tome 1)"
+    publisher: "Nathan"
+    published_date: "2023"
+    authors: ["Jean-Claude Mourlevat"]
+    description: "Tomek quitte son épicerie pour chercher la rivière qui remonte à sa source et dont l'eau empêche de mourir. Roman d'aventures et de quête, très souvent lu en 6e."
+  - isbn: "9782070644353"
+    note: "Cheval de guerre - Michael Morpurgo"
+    publisher: "Gallimard jeunesse"
+    published_date: "2012"
+    authors: ["Michael Morpurgo"]
+    description: "La guerre de 14-18 racontée par Joey, cheval de ferme réquisitionné, qui passe d'un camp à l'autre. Récit d'aventure et première approche du récit de guerre."
+  - isbn: "9782070612758"
+    note: "Le Petit Prince - Antoine de Saint-Exupéry"
+    publisher: "Gallimard"
+    published_date: "2007"
+    authors: ["Antoine de Saint-Exupéry"]
+    description: "Le voyage de planète en planète, avec les aquarelles de l'auteur. Court, relu à tous les âges, et souvent le premier livre qu'un élève possède vraiment."
+
+  # 5. Rencontrer des monstres : expérience de l'autre, expérience de soi
+  - isbn: "9782095001445"
+    note: "L'Œil du loup - Daniel Pennac"
+    publisher: "Nathan"
+    published_date: "2023"
+    authors: ["Daniel Pennac"]
+    description: "Un enfant et un loup borgne se regardent à travers la grille d'un zoo, et chacun raconte sa vie à l'autre. Très court, construit en miroir, redoutablement efficace en classe."
+  - isbn: "9782070653690"
+    note: "Le Lion - Joseph Kessel"
+    publisher: "Gallimard jeunesse"
+    published_date: "2013"
+    authors: ["Joseph Kessel"]
+    description: "Au Kenya, l'amitié entre une fillette et un lion sauvage, et ce que les adultes en font. Le texte de Kessel, sans abrègement, dans l'édition jeunesse."
+  - isbn: "9782211235624"
+    note: "Verte - Marie Desplechin"
+    publisher: "L'École des loisirs"
+    published_date: "2017"
+    authors: ["Marie Desplechin"]
+    description: "Verte a onze ans, sa mère est sorcière et exige qu'elle le devienne aussi. Quatre narratrices, un ton drôle, et la question de ce qu'on hérite de sa famille."
+  - isbn: "9782070612635"
+    note: "Charlie et la chocolaterie - Roald Dahl"
+    publisher: "Gallimard jeunesse"
+    published_date: "2007"
+    authors: ["Roald Dahl"]
+    description: "Le ticket d'or, l'usine de Wonka et l'élimination méthodique des quatre autres enfants. Dahl illustré par Quentin Blake, dans la traduction de référence."

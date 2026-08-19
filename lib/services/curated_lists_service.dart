@@ -256,7 +256,10 @@ class CuratedListsService {
       return _listsCache[listId];
     }
 
-    // Try to find the list in known directories
+    // Try to find the list in known directories.
+    // This list is NOT derived from the category ids in index.yml: a new
+    // category directory must be added here as well, or its lists silently
+    // resolve to null and the category renders as empty.
     final directories = [
       'awards',
       'genres',
@@ -266,6 +269,7 @@ class CuratedListsService {
       'manga',
       'tech',
       'jeunesse',
+      'rentree',
     ];
 
     for (final dir in directories) {
