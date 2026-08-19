@@ -6770,7 +6770,7 @@ msgstr "İletişim"
 
 #. Hub - Discover disabled (deprecated: replaced by in-tab CTA banner)
 msgid "hub_disabled_discover"
-msgstr "Diğer kütüphaneleri keşfetmek için Ayarlar'dan herkese açık dizini etkinleştirin."
+msgstr "Diğer kütüphaneleri keşfetmek için Ayarlar'dan dizini etkinleştirin."
 
 #. Hub - Publish CTA banner in Discover tab: title
 msgid "directory_publish_banner_title"
@@ -6790,7 +6790,7 @@ msgstr "Kütüphaneniz artık herkese açık dizinde listeleniyor."
 
 #. Hub - Onboarding first-time banner: title
 msgid "discover_onboard_title"
-msgstr "Herkese açık dizine hoş geldiniz"
+msgstr "Dizine hoş geldiniz"
 
 #. Hub - Onboarding first-time banner: description (contrast with P2P)
 msgid "discover_onboard_desc"
@@ -6802,7 +6802,7 @@ msgstr "Anladım"
 
 #. Hub - Discover tab contextual help: title
 msgid "help_ctx_discover_title"
-msgstr "Herkese açık dizin yardımı"
+msgstr "Dizin yardımı"
 
 #. Hub - Discover tab contextual help: main content
 msgid "help_ctx_discover_content"
@@ -6918,7 +6918,7 @@ msgstr "Yerel Wi-Fi'nizdeki yakın kütüphaneleri otomatik algılar."
 
 #. Public directory
 msgid "settings_mode_directory_title"
-msgstr "Herkese açık dizin"
+msgstr "Dizin"
 
 #. Be listed for anyone to discover and follow.
 msgid "settings_mode_directory_desc"
@@ -8031,7 +8031,7 @@ msgid "pairing_mdns_hint"
 msgstr "İki cihaz da ağ keşfi etkin olarak aynı Wi-Fi'de olmalıdır (Ayarlar > Ağ)"
 
 msgid "pairing_identity_note"
-msgstr "Her cihaz kendi kimliğini korur. Eşleştirme kitaplarınızı cihazlarınız arasında senkronize eder, ancak her biri herkese açık dizinde ayrı bir kütüphane olarak kalır."
+msgstr "Her cihaz kendi kimliğini korur. Eşleştirme kitaplarınızı cihazlarınız arasında senkronize eder, ancak her biri dizinde ayrı bir kütüphane olarak kalır."
 
 msgid "pairing_select_device"
 msgstr "Eşleştirilecek cihaz"
@@ -8499,7 +8499,7 @@ msgid "network_tab_my_network"
 msgstr "Ağım"
 
 msgid "network_tab_discover"
-msgstr "Herkese açık dizin"
+msgstr "Dizin"
 
 #. Network filters
 msgid "network_filter_all"
@@ -8514,7 +8514,7 @@ msgstr "Takip talepleri"
 
 #. Hub pending requests - explanatory note shown when the public directory is disabled but legacy pending requests still exist server-side
 msgid "hub_pending_legacy_note"
-msgstr "Herkese açık dizin kapalı. Sayacı temizlemek için bu mevcut talepleri yine de çözebilirsiniz."
+msgstr "Dizin kapalı. Sayacı temizlemek için bu mevcut talepleri yine de çözebilirsiniz."
 
 msgid "lib_filter_all"
 msgstr "Tümü"
@@ -8879,7 +8879,7 @@ msgid "dashboard_discover_more"
 msgstr "Daha fazlası"
 
 msgid "settings_share_city_requires_directory"
-msgstr "Önce “Herkese açık dizinde görünün” seçeneğini etkinleştirin."
+msgstr "Önce “Dizinde görünün” seçeneğini etkinleştirin."
 
 #. Reorderable sections - edit mode
 msgid "sections_edit_mode"

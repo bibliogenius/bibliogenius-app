@@ -5304,7 +5304,7 @@ msgid "dashboard_discover_more"
 msgstr "Mehr entdecken"
 
 msgid "settings_share_city_requires_directory"
-msgstr "Aktivieren Sie zuerst „Im öffentlichen Verzeichnis erscheinen“."
+msgstr "Aktivieren Sie zuerst „Im Verzeichnis erscheinen“."
 
 #. Back
 msgid "setup_btn_back"
@@ -7058,7 +7058,7 @@ msgid "hub_contact_label"
 msgstr "Kontaktdaten (sichtbar für genehmigte Follower)"
 
 msgid "hub_disabled_discover"
-msgstr "Aktivieren Sie das öffentliche Verzeichnis in den Einstellungen, um andere Bibliotheken zu entdecken"
+msgstr "Aktivieren Sie das Verzeichnis in den Einstellungen, um andere Bibliotheken zu entdecken"
 
 msgid "directory_publish_banner_title"
 msgstr "Im öffentlichen Verzeichnis erscheinen"
@@ -7169,10 +7169,10 @@ msgstr "Folgeanfragen"
 
 #. Hub pending requests - explanatory note shown when the public directory is disabled but legacy pending requests still exist server-side
 msgid "hub_pending_legacy_note"
-msgstr "Das öffentliche Verzeichnis ist deaktiviert. Sie können diese vorhandenen Anfragen trotzdem bearbeiten, um den Zähler zurückzusetzen."
+msgstr "Das Verzeichnis ist deaktiviert. Sie können diese vorhandenen Anfragen trotzdem bearbeiten, um den Zähler zurückzusetzen."
 
 msgid "network_tab_discover"
-msgstr "Öffentliches Verzeichnis"
+msgstr "Verzeichnis"
 
 msgid "network_tab_my_network"
 msgstr "Mein Netzwerk"
@@ -7483,7 +7483,7 @@ msgid "settings_mode_directory_desc"
 msgstr "Im Verzeichnis gelistet werden, damit andere Sie entdecken und Ihnen folgen können."
 
 msgid "settings_mode_directory_title"
-msgstr "Öffentliches Verzeichnis"
+msgstr "Verzeichnis"
 
 msgid "settings_mode_invite_desc"
 msgstr "Funktioniert in jedem Netzwerk (Wi-Fi, 4G, 5G). Teilen Sie einen Link oder QR-Code privat."
@@ -8309,7 +8309,7 @@ msgid "pairing_mdns_hint"
 msgstr "Beide Geraete muessen im selben WLAN mit aktivierter Netzwerkerkennung sein (Einstellungen > Netzwerk)"
 
 msgid "pairing_identity_note"
-msgstr "Jedes Gerät behält seine eigene Identität. Beim Koppeln werden Ihre Bücher zwischen Ihren Geräten synchronisiert, aber jedes bleibt eine eigene Bibliothek im öffentlichen Verzeichnis."
+msgstr "Jedes Gerät behält seine eigene Identität. Beim Koppeln werden Ihre Bücher zwischen Ihren Geräten synchronisiert, aber jedes bleibt eine eigene Bibliothek im Verzeichnis."
 
 #. Pairing - No peers
 msgid "pairing_no_peers"
@@ -9059,7 +9059,7 @@ msgstr "Verstanden"
 
 #. Hub - Onboarding first-time banner: title
 msgid "discover_onboard_title"
-msgstr "Willkommen im öffentlichen Verzeichnis"
+msgstr "Willkommen im Verzeichnis"
 
 #. Error borrowing book - library not initialized
 msgid "error_borrow_setup_incomplete"
@@ -9087,7 +9087,7 @@ msgstr "Einseitiges Folgen"
 
 #. Hub - Discover tab contextual help: title
 msgid "help_ctx_discover_title"
-msgstr "Hilfe — Öffentliches Verzeichnis"
+msgstr "Hilfe — Verzeichnis"
 
 #. Shown after a manual leaderboard refresh when the Rust backend hit its 25s per-peer relay timeout
 msgid "leaderboard_sync_timeout"

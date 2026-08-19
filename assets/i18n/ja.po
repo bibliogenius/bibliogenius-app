@@ -2377,7 +2377,7 @@ msgstr "ライブラリのヘルプ"
 
 #. The Network screen lets you connect with friends and other libraries. You can browse their catalogs, request to borrow books, and share your own collection.
 msgid "help_ctx_network_content"
-msgstr "「つながり」画面には2つのモードがあります。「マイネットワーク」：直接のP2P連絡先（双方向・相互）。「公開ディレクトリ」：任意の公開ライブラリを一方的にフォロー。大きな違いは、P2Pでは関係が相互である一方、ディレクトリでは相手側の承認なしにフォローできる点です。"
+msgstr "「つながり」画面には2つのモードがあります。「マイネットワーク」：直接のP2P連絡先（双方向・相互）。「ディレクトリ」：任意の公開ライブラリを一方的にフォロー。大きな違いは、P2Pでは関係が相互である一方、ディレクトリでは相手側の承認なしにフォローできる点です。"
 
 #. Add a contact
 msgid "help_ctx_network_tip_add"
@@ -6914,7 +6914,7 @@ msgstr "連絡先"
 
 #. Hub - Discover disabled (deprecated: replaced by in-tab CTA banner)
 msgid "hub_disabled_discover"
-msgstr "他のライブラリを探すには、設定で公開ディレクトリを有効にしてください。"
+msgstr "他のライブラリを探すには、設定でディレクトリを有効にしてください。"
 
 #. Hub - Publish CTA banner in Discover tab: title
 msgid "directory_publish_banner_title"
@@ -6934,7 +6934,7 @@ msgstr "ライブラリが公開ディレクトリに掲載されました。"
 
 #. Hub - Onboarding first-time banner: title
 msgid "discover_onboard_title"
-msgstr "公開ディレクトリへようこそ"
+msgstr "ディレクトリへようこそ"
 
 #. Hub - Onboarding first-time banner: description (contrast with P2P)
 msgid "discover_onboard_desc"
@@ -6946,7 +6946,7 @@ msgstr "了解しました"
 
 #. Hub - Discover tab contextual help: title
 msgid "help_ctx_discover_title"
-msgstr "公開ディレクトリのヘルプ"
+msgstr "ディレクトリのヘルプ"
 
 #. Hub - Discover tab contextual help: main content
 msgid "help_ctx_discover_content"
@@ -7062,7 +7062,7 @@ msgstr "ローカルWiFi上の近くのライブラリを自動検出します�
 
 #. Public directory
 msgid "settings_mode_directory_title"
-msgstr "公開ディレクトリ"
+msgstr "ディレクトリ"
 
 #. Be listed for anyone to discover and follow.
 msgid "settings_mode_directory_desc"
@@ -8215,7 +8215,7 @@ msgid "pairing_mdns_hint"
 msgstr "両方のデバイスが同じ Wi-Fi に接続され、ネットワーク検出が有効になっている必要があります（設定 > ネットワーク）"
 
 msgid "pairing_identity_note"
-msgstr "各デバイスは独自のアイデンティティを保持します。ペアリングすると本がデバイス間で同期されますが、公開ディレクトリではそれぞれが別々のライブラリとして扱われます。"
+msgstr "各デバイスは独自のアイデンティティを保持します。ペアリングすると本がデバイス間で同期されますが、ディレクトリではそれぞれが別々のライブラリとして扱われます。"
 
 msgid "pairing_select_device"
 msgstr "ペアリングするデバイス"
@@ -8683,7 +8683,7 @@ msgid "network_tab_my_network"
 msgstr "マイネットワーク"
 
 msgid "network_tab_discover"
-msgstr "公開ディレクトリ"
+msgstr "ディレクトリ"
 
 #. Network filters
 msgid "network_filter_all"
@@ -8698,7 +8698,7 @@ msgstr "フォローリクエスト"
 
 #. Hub pending requests - explanatory note shown when the public directory is disabled but legacy pending requests still exist server-side
 msgid "hub_pending_legacy_note"
-msgstr "公開ディレクトリは無効です。既存のリクエストを処理してカウンターを消去することはできます。"
+msgstr "ディレクトリは無効です。既存のリクエストを処理してカウンターを消去することはできます。"
 
 msgid "lib_filter_all"
 msgstr "すべて"
@@ -9063,7 +9063,7 @@ msgid "dashboard_discover_more"
 msgstr "さらに活用する"
 
 msgid "settings_share_city_requires_directory"
-msgstr "先に「公開ディレクトリに表示」を有効にしてください。"
+msgstr "先に「ディレクトリに表示」を有効にしてください。"
 
 #. Reorderable sections - edit mode
 msgid "sections_edit_mode"

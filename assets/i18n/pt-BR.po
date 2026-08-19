@@ -6273,7 +6273,7 @@ msgstr "Contato"
 
 #. Hub - Discover disabled (deprecated: replaced by in-tab CTA banner)
 msgid "hub_disabled_discover"
-msgstr "Ative o diretório público em Configurações para descobrir outras bibliotecas."
+msgstr "Ative o diretório em Configurações para descobrir outras bibliotecas."
 
 #. Hub - Publish CTA banner in Discover tab: title
 msgid "directory_publish_banner_title"
@@ -6293,7 +6293,7 @@ msgstr "Sua biblioteca agora está listada no diretório público."
 
 #. Hub - Onboarding first-time banner: title
 msgid "discover_onboard_title"
-msgstr "Bem-vindo ao diretório público"
+msgstr "Bem-vindo ao diretório"
 
 #. Hub - Onboarding first-time banner: description (contrast with P2P)
 msgid "discover_onboard_desc"
@@ -6305,7 +6305,7 @@ msgstr "Entendi"
 
 #. Hub - Discover tab contextual help: title
 msgid "help_ctx_discover_title"
-msgstr "Ajuda do diretório público"
+msgstr "Ajuda do diretório"
 
 #. Hub - Discover tab contextual help: main content
 msgid "help_ctx_discover_content"
@@ -6767,7 +6767,7 @@ msgstr "Detecta automaticamente bibliotecas próximas na sua rede Wi-Fi local."
 
 #. Public directory
 msgid "settings_mode_directory_title"
-msgstr "Diretório público"
+msgstr "Diretório"
 
 #. Be listed for anyone to discover and follow.
 msgid "settings_mode_directory_desc"
@@ -8815,7 +8815,7 @@ msgid "pairing_mdns_hint"
 msgstr "Os dois dispositivos devem estar na mesma rede Wi-Fi com a descoberta de rede ativada (Configurações > Rede)"
 
 msgid "pairing_identity_note"
-msgstr "Cada dispositivo mantém sua própria identidade. O pareamento sincroniza seus livros entre seus dispositivos, mas cada um continua sendo uma biblioteca distinta no diretório público."
+msgstr "Cada dispositivo mantém sua própria identidade. O pareamento sincroniza seus livros entre seus dispositivos, mas cada um continua sendo uma biblioteca distinta no diretório."
 
 msgid "pairing_select_device"
 msgstr "Dispositivo para parear"
@@ -9022,7 +9022,7 @@ msgid "dashboard_discover_more"
 msgstr "Para ir além"
 
 msgid "settings_share_city_requires_directory"
-msgstr "Ative primeiro “Apareça no diretório público”."
+msgstr "Ative primeiro “Apareça no diretório”."
 
 #. Notifications
 msgid "time_just_now"
@@ -9699,7 +9699,7 @@ msgid "network_tab_my_network"
 msgstr "Minha rede"
 
 msgid "network_tab_discover"
-msgstr "Diretório público"
+msgstr "Diretório"
 
 #. Network filters
 msgid "network_filter_all"
@@ -9714,7 +9714,7 @@ msgstr "Solicitações de seguir"
 
 #. Hub pending requests - explanatory note shown when the public directory is disabled but legacy pending requests still exist server-side
 msgid "hub_pending_legacy_note"
-msgstr "O diretório público está desativado. Você ainda pode resolver estas solicitações existentes para zerar o contador."
+msgstr "O diretório está desativado. Você ainda pode resolver estas solicitações existentes para zerar o contador."
 
 msgid "lib_filter_all"
 msgstr "Todas"

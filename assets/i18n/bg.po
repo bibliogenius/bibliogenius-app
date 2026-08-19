@@ -6844,7 +6844,7 @@ msgstr "Контакт"
 
 #. Hub - Discover disabled (deprecated: replaced by in-tab CTA banner)
 msgid "hub_disabled_discover"
-msgstr "Активирайте публичния указател в Настройки, за да откривате други библиотеки."
+msgstr "Активирайте указателя в Настройки, за да откривате други библиотеки."
 
 #. Hub - Publish CTA banner in Discover tab: title
 msgid "directory_publish_banner_title"
@@ -6864,7 +6864,7 @@ msgstr "Библиотеката ви вече е в публичния указ
 
 #. Hub - Onboarding first-time banner: title
 msgid "discover_onboard_title"
-msgstr "Добре дошли в публичния указател"
+msgstr "Добре дошли в указателя"
 
 #. Hub - Onboarding first-time banner: description (contrast with P2P)
 msgid "discover_onboard_desc"
@@ -6876,7 +6876,7 @@ msgstr "Разбрах"
 
 #. Hub - Discover tab contextual help: title
 msgid "help_ctx_discover_title"
-msgstr "Помощ за публичния указател"
+msgstr "Помощ за указателя"
 
 #. Hub - Discover tab contextual help: main content
 msgid "help_ctx_discover_content"
@@ -6992,7 +6992,7 @@ msgstr "Автоматично откриване на близки библио
 
 #. Public directory
 msgid "settings_mode_directory_title"
-msgstr "Публичен указател"
+msgstr "Указател"
 
 #. Be listed for anyone to discover and follow.
 msgid "settings_mode_directory_desc"
@@ -8037,7 +8037,7 @@ msgid "pairing_mdns_hint"
 msgstr "Двете устройства трябва да са в един и същ Wi-Fi с включено мрежово откриване (Настройки > Мрежа)"
 
 msgid "pairing_identity_note"
-msgstr "Всяко устройство запазва собствената си идентичност. Сдвояването синхронизира книгите ви между устройствата ви, но всяко остава отделна библиотека в публичния указател."
+msgstr "Всяко устройство запазва собствената си идентичност. Сдвояването синхронизира книгите ви между устройствата ви, но всяко остава отделна библиотека в указателя."
 
 msgid "pairing_select_device"
 msgstr "Устройство за сдвояване"
@@ -8505,7 +8505,7 @@ msgid "network_tab_my_network"
 msgstr "Моята мрежа"
 
 msgid "network_tab_discover"
-msgstr "Публичен указател"
+msgstr "Указател"
 
 #. Network filters
 msgid "network_filter_all"
@@ -8520,7 +8520,7 @@ msgstr "Заявки за следване"
 
 #. Hub pending requests - explanatory note shown when the public directory is disabled but legacy pending requests still exist server-side
 msgid "hub_pending_legacy_note"
-msgstr "Публичният указател е изключен. Все пак можете да разрешите тези съществуващи заявки, за да изчистите брояча."
+msgstr "Указателят е изключен. Все пак можете да разрешите тези съществуващи заявки, за да изчистите брояча."
 
 msgid "lib_filter_all"
 msgstr "Всички"
@@ -8879,7 +8879,7 @@ msgid "dashboard_discover_more"
 msgstr "Още възможности"
 
 msgid "settings_share_city_requires_directory"
-msgstr "Първо активирайте „Появете се в публичния указател“."
+msgstr "Първо активирайте „Появете се в указателя“."
 
 #. Reorderable sections - edit mode
 msgid "sections_edit_mode"

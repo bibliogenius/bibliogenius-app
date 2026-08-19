@@ -2377,7 +2377,7 @@ msgstr "서재 도움말"
 
 #. The Network screen lets you connect with friends and other libraries. You can browse their catalogs, request to borrow books, and share your own collection.
 msgid "help_ctx_network_content"
-msgstr "네트워크 화면에는 두 가지 모드가 있습니다. \"내 네트워크\": 직접 P2P 연락처(양방향, 상호). \"공개 디렉터리\": 모든 공개 서재를 일방적으로 팔로우. 핵심 차이: P2P에서는 관계가 상호적이지만, 디렉터리에서는 상호 요구 없이 팔로우합니다."
+msgstr "네트워크 화면에는 두 가지 모드가 있습니다. \"내 네트워크\": 직접 P2P 연락처(양방향, 상호). \"디렉터리\": 모든 공개 서재를 일방적으로 팔로우. 핵심 차이: P2P에서는 관계가 상호적이지만, 디렉터리에서는 상호 요구 없이 팔로우합니다."
 
 #. Add a contact
 msgid "help_ctx_network_tip_add"
@@ -6914,7 +6914,7 @@ msgstr "연락처"
 
 #. Hub - Discover disabled (deprecated: replaced by in-tab CTA banner)
 msgid "hub_disabled_discover"
-msgstr "다른 서재를 발견하려면 설정에서 공개 디렉터리를 활성화하세요."
+msgstr "다른 서재를 발견하려면 설정에서 디렉터리를 활성화하세요."
 
 #. Hub - Publish CTA banner in Discover tab: title
 msgid "directory_publish_banner_title"
@@ -6934,7 +6934,7 @@ msgstr "이제 내 서재가 공개 디렉터리에 등록되었습니다."
 
 #. Hub - Onboarding first-time banner: title
 msgid "discover_onboard_title"
-msgstr "공개 디렉터리에 오신 것을 환영합니다"
+msgstr "디렉터리에 오신 것을 환영합니다"
 
 #. Hub - Onboarding first-time banner: description (contrast with P2P)
 msgid "discover_onboard_desc"
@@ -6946,7 +6946,7 @@ msgstr "확인"
 
 #. Hub - Discover tab contextual help: title
 msgid "help_ctx_discover_title"
-msgstr "공개 디렉터리 도움말"
+msgstr "디렉터리 도움말"
 
 #. Hub - Discover tab contextual help: main content
 msgid "help_ctx_discover_content"
@@ -7062,7 +7062,7 @@ msgstr "로컬 WiFi에서 가까운 서재를 자동으로 감지합니다."
 
 #. Public directory
 msgid "settings_mode_directory_title"
-msgstr "공개 디렉터리"
+msgstr "디렉터리"
 
 #. Be listed for anyone to discover and follow.
 msgid "settings_mode_directory_desc"
@@ -8215,7 +8215,7 @@ msgid "pairing_mdns_hint"
 msgstr "두 기기가 동일한 Wi-Fi에 연결되어 있고 네트워크 검색이 활성화되어 있어야 합니다 (설정 > 네트워크)"
 
 msgid "pairing_identity_note"
-msgstr "각 기기는 고유한 정체성을 유지합니다. 페어링하면 기기 간에 책이 동기화되지만, 공개 디렉터리에서는 각 기기가 별도의 서재로 유지됩니다."
+msgstr "각 기기는 고유한 정체성을 유지합니다. 페어링하면 기기 간에 책이 동기화되지만, 디렉터리에서는 각 기기가 별도의 서재로 유지됩니다."
 
 msgid "pairing_select_device"
 msgstr "페어링할 기기"
@@ -8683,7 +8683,7 @@ msgid "network_tab_my_network"
 msgstr "내 네트워크"
 
 msgid "network_tab_discover"
-msgstr "공개 디렉터리"
+msgstr "디렉터리"
 
 #. Network filters
 msgid "network_filter_all"
@@ -8698,7 +8698,7 @@ msgstr "팔로우 요청"
 
 #. Hub pending requests - explanatory note shown when the public directory is disabled but legacy pending requests still exist server-side
 msgid "hub_pending_legacy_note"
-msgstr "공개 디렉터리가 꺼져 있습니다. 기존 요청을 처리하여 카운터를 정리할 수 있습니다."
+msgstr "디렉터리가 꺼져 있습니다. 기존 요청을 처리하여 카운터를 정리할 수 있습니다."
 
 msgid "lib_filter_all"
 msgstr "전체"
@@ -9063,7 +9063,7 @@ msgid "dashboard_discover_more"
 msgstr "더 알아보기"
 
 msgid "settings_share_city_requires_directory"
-msgstr "먼저 “공개 디렉터리에 표시”를 활성화하세요."
+msgstr "먼저 “디렉터리에 표시”를 활성화하세요."
 
 #. Reorderable sections - edit mode
 msgid "sections_edit_mode"

@@ -5505,7 +5505,7 @@ msgstr "Contatto"
 
 #. Hub - Discover disabled (deprecated: replaced by in-tab CTA banner)
 msgid "hub_disabled_discover"
-msgstr "Attiva la directory pubblica nelle Impostazioni per scoprire altre biblioteche."
+msgstr "Attiva la directory nelle Impostazioni per scoprire altre biblioteche."
 
 #. Hub - Publish CTA banner in Discover tab: title
 msgid "directory_publish_banner_title"
@@ -5525,7 +5525,7 @@ msgstr "La tua biblioteca è ora elencata nella directory pubblica."
 
 #. Hub - Onboarding first-time banner: title
 msgid "discover_onboard_title"
-msgstr "Benvenuto nella directory pubblica"
+msgstr "Benvenuto nella directory"
 
 #. Hub - Onboarding first-time banner: description (contrast with P2P)
 msgid "discover_onboard_desc"
@@ -5537,7 +5537,7 @@ msgstr "Ho capito"
 
 #. Hub - Discover tab contextual help: title
 msgid "help_ctx_discover_title"
-msgstr "Aiuto sulla directory pubblica"
+msgstr "Aiuto sulla directory"
 
 #. Hub - Discover tab contextual help: main content
 msgid "help_ctx_discover_content"
@@ -5999,7 +5999,7 @@ msgstr "Rileva automaticamente le biblioteche vicine sulla tua rete WiFi locale.
 
 #. Public directory
 msgid "settings_mode_directory_title"
-msgstr "Directory pubblica"
+msgstr "Directory"
 
 #. Be listed for anyone to discover and follow.
 msgid "settings_mode_directory_desc"
@@ -8012,7 +8012,7 @@ msgid "dashboard_discover_more"
 msgstr "Per andare oltre"
 
 msgid "settings_share_city_requires_directory"
-msgstr "Attiva prima «Compari nella directory pubblica»."
+msgstr "Attiva prima «Compari nella directory»."
 
 #. Notifications
 msgid "time_just_now"
@@ -8225,7 +8225,7 @@ msgid "pairing_mdns_hint"
 msgstr "Entrambi i dispositivi devono essere sulla stessa rete Wi-Fi con il rilevamento di rete attivo (Impostazioni > Rete)"
 
 msgid "pairing_identity_note"
-msgstr "Ogni dispositivo mantiene la propria identità. L'abbinamento sincronizza i tuoi libri tra i tuoi dispositivi, ma ognuno resta una biblioteca distinta nella directory pubblica."
+msgstr "Ogni dispositivo mantiene la propria identità. L'abbinamento sincronizza i tuoi libri tra i tuoi dispositivi, ma ognuno resta una biblioteca distinta nella directory."
 
 msgid "pairing_select_device"
 msgstr "Dispositivo da abbinare"
@@ -8589,7 +8589,7 @@ msgid "directory_active_follows"
 msgstr "Attive"
 
 msgid "directory_settings_title"
-msgstr "Directory pubblica"
+msgstr "Directory"
 
 msgid "directory_listed_title"
 msgstr "Elenca la mia biblioteca nella directory"
@@ -8690,7 +8690,7 @@ msgid "network_tab_my_network"
 msgstr "La mia rete"
 
 msgid "network_tab_discover"
-msgstr "Directory pubblica"
+msgstr "Directory"
 
 #. Network filters
 msgid "network_filter_all"
@@ -8705,7 +8705,7 @@ msgstr "Richieste di follow"
 
 #. Hub pending requests - explanatory note shown when the public directory is disabled but legacy pending requests still exist server-side
 msgid "hub_pending_legacy_note"
-msgstr "La directory pubblica è disattivata. Puoi comunque gestire queste richieste esistenti per azzerare il contatore."
+msgstr "La directory è disattivata. Puoi comunque gestire queste richieste esistenti per azzerare il contatore."
 
 msgid "lib_filter_all"
 msgstr "Tutte"
