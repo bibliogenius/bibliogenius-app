@@ -6,6 +6,14 @@
 # genres, never titles or editions: every book below is an editorial choice,
 # not an official prescription.
 #
+# BALANCE (version 2): the official selections aim for a mix of patrimonial
+# works, classics of youth literature and RECENT works. Version 1 had none of
+# the third kind, its most recent original text dating from 2000. Version 2
+# adds Le Grand Mechant Renard (2015), Freres d'exil (2016) and Wonder (2014),
+# one per thematic entry, and drops Pommaux's Thesee: same author and same
+# collection as Ulysse aux mille ruses, so it was the one title here whose
+# presence rested on the least.
+#
 # REVIEW DEADLINE: re-check before the September 2027 rentree. The same
 # programme reaches CM2 at the 2026-2027 rentree, and a later revision would
 # invalidate the section headings. Bump `version` when the selection changes.
@@ -14,7 +22,7 @@
 # the backend lookup chain for 978-2 ISBNs) on 2026-08-19: title, author,
 # publisher and year come from the BNF record for that exact ISBN.
 id: entree-en-6e
-version: 1
+version: 2
 
 title:
   fr: "Entrée en 6e - lectures de rentrée"
@@ -23,20 +31,38 @@ title:
   de: "Eintritt in die 6. Klasse - Lektüre zum Schulbeginn"
 
 description:
-  fr: "Quatorze lectures pour aborder la 6e, une par grande entrée du programme de français : récits des origines, mots et merveilles, ruses en action, aventure et rencontre des monstres. Structure d'après le programme publié au Bulletin officiel du 17 avril 2025. Éditions de poche courantes, vérifiées au catalogue de la BnF."
-  en: "Fourteen books for the start of the first year of French collège, mapped onto the official French-language curriculum strands: origin stories, words and wonders, trickery, adventure and encountering monsters. Structure follows the programme published in the Bulletin officiel of 17 April 2025. Current paperback editions, checked against the BnF catalogue."
-  es: "Catorce lecturas para empezar el primer curso del collège francés, organizadas según los ejes del programa oficial de francés: relatos de los orígenes, palabras y maravillas, astucias, aventura y encuentro con los monstruos. Estructura basada en el programa publicado en el Bulletin officiel del 17 de abril de 2025. Ediciones de bolsillo actuales, verificadas en el catálogo de la BnF."
-  de: "Vierzehn Bücher für den Start in die 6. Klasse, geordnet nach den Themenfeldern des französischen Lehrplans: Ursprungserzählungen, Worte und Wunder, List, Abenteuer und Begegnung mit Monstern. Struktur nach dem im Bulletin officiel vom 17. April 2025 veröffentlichten Lehrplan. Aktuelle Taschenbuchausgaben, im BnF-Katalog geprüft."
+  fr: "Seize lectures pour aborder la 6e, une par grande entrée du programme de français : récits des origines, mots et merveilles, ruses en action, aventure et rencontre des monstres. Structure d'après le programme publié au Bulletin officiel du 17 avril 2025. Éditions de poche courantes, vérifiées au catalogue de la BnF."
+  en: "Sixteen books for the start of the first year of French collège, mapped onto the official French-language curriculum strands: origin stories, words and wonders, trickery, adventure and encountering monsters. Structure follows the programme published in the Bulletin officiel of 17 April 2025. Current paperback editions, checked against the BnF catalogue."
+  es: "Dieciséis lecturas para empezar el primer curso del collège francés, organizadas según los ejes del programa oficial de francés: relatos de los orígenes, palabras y maravillas, astucias, aventura y encuentro con los monstruos. Estructura basada en el programa publicado en el Bulletin officiel del 17 de abril de 2025. Ediciones de bolsillo actuales, verificadas en el catálogo de la BnF."
+  de: "Sechzehn Bücher für den Start in die 6. Klasse, geordnet nach den Themenfeldern des französischen Lehrplans: Ursprungserzählungen, Worte und Wunder, List, Abenteuer und Begegnung mit Monstern. Struktur nach dem im Bulletin officiel vom 17. April 2025 veröffentlichten Lehrplan. Aktuelle Taschenbuchausgaben, im BnF-Katalog geprüft."
 
 cover_url: "https://covers.openlibrary.org/b/isbn/9782070612758-L.jpg"
 contributor: BiblioGenius
 tags: [rentrée, collège, sixième, école, jeunesse, classiques]
 content_languages: [fr]
 
-# Per-book `cover_url` is deliberately omitted: the import service lets a YAML
-# cover_url override the lookup result, and covers.openlibrary.org has no image
-# for 11 of these 14 ISBNs. Leaving it unset lets the BnF-first lookup chain
-# supply the cover instead of pinning a dead URL.
+# Per-book `cover_url` is set ONLY where a cover was found on a free source AND
+# opened to confirm it shows this exact edition: 16 of 16. It is not a fallback,
+# the import service prefers it over the lookup result, so a wrong or dead URL
+# is worse than none. The other seven entries carry no cover_url on purpose and
+# let the BnF-first lookup chain supply one at import time.
+#
+# Where a printing had no cover anywhere, the entry was moved to a SIBLING
+# printing of the same book that does, picked among ISBNs the BnF had already
+# attested. The exact printing carries no editorial meaning here (the programme
+# prescribes none), and the widely held paperback is also the one most likely
+# to be on a shelf already, which is what the owned/total badge compares.
+#
+# Sources tried on 2026-08-19: covers.openlibrary.org, inventaire.io (works by
+# `isbn:` URI, needs an `Accept: application/json` header) and the BnF
+# `couverture` service, which answers HTTP 500 for every ark, GET and HEAD
+# alike, so it contributes nothing today.
+#
+# Every candidate image was opened before being pinned, which caught three bad
+# ones: Inventaire serves the Dyscool "lecture facilitée" cover for Tomek and
+# the "intégrale" cover for the tome 1 ISBN, and Open Library serves a "Le
+# Lion" cover for ISBN 2070334457, which the BnF attributes to Tournier's
+# Vendredi. An ISBN match alone never proves the image is right.
 books:
   # 1. Créer, recréer le monde : récits des origines
   - isbn: "9782211207973"
@@ -45,12 +71,7 @@ books:
     published_date: "2011"
     authors: ["Yvan Pommaux"]
     description: "Le retour d'Ulysse raconté et illustré comme un album-BD : le cyclope, Circé, les sirènes, puis Ithaque. La porte d'entrée la plus lisible vers l'Odyssée pour un lecteur de 11 ans."
-  - isbn: "9782211237628"
-    note: "Thésée : comment naissent les légendes - Yvan Pommaux"
-    publisher: "L'École des loisirs"
-    published_date: "2018"
-    authors: ["Yvan Pommaux"]
-    description: "Le fil d'Ariane, le labyrinthe et le Minotaure. Pommaux montre aussi comment un fait divers devient un mythe, ce qui donne au récit des origines son sujet même."
+    cover_url: "https://inventaire.io/img/entities/1ada2969a7c64ba93e8ff09bd3cc121b5a12bf7d"
 
   # 2. Chanter, enchanter le monde : mots et merveilles
   - isbn: "9782080237514"
@@ -59,75 +80,109 @@ books:
     published_date: "2021"
     authors: ["Jean de La Fontaine"]
     description: "Sélection de fables commentée pour le collège. Le corbeau, le loup, la grenouille : la poésie y sert d'abord à faire mouche, ce qui la rend abordable avant d'être savante."
-  - isbn: "9782080494665"
+    cover_url: "https://covers.openlibrary.org/b/isbn/9782080237514-L.jpg?default=false"
+  - isbn: "9782081293922"
     note: "Contes - Charles Perrault"
     publisher: "Flammarion"
-    published_date: "2025"
+    published_date: "2013"
     authors: ["Charles Perrault"]
     description: "Le texte intégral des contes, avec présentation, notes et dossier. Édition revue, dans la collection scolaire de référence pour ce titre."
-
+    cover_url: "https://inventaire.io/img/entities/87ae4df48ce7d83b7867bfcf49a182a4f233fe40"
   # 3. Se masquer, jouer, déjouer : ruses en action
-  - isbn: "9782080239938"
-    note: "Le roman de Renart : récits choisis - Michel Laporte (adaptation)"
+  - isbn: "9782081244191"
+    note: "Le roman de Renart en 19 récits - Michel Laporte (adaptation)"
     publisher: "Flammarion jeunesse"
-    published_date: "2021"
+    published_date: "2011"
     authors: ["Michel Laporte", "Anonyme"]
     description: "Les branches les plus célèbres du Roman de Renart en français moderne. Renart trompe Ysengrin, le lion et tout le monde : la ruse contre la force, exactement le sujet de l'entrée."
+    cover_url: "https://inventaire.io/img/entities/d6172411eafac06a8598a917932d980012e40524"
   - isbn: "9782915732511"
     note: "Le Petit Nicolas - René Goscinny et Jean-Jacques Sempé"
     publisher: "IMAV éditions"
     published_date: "2013"
     authors: ["René Goscinny", "Jean-Jacques Sempé"]
     description: "L'école vue d'en bas, en chapitres courts et autonomes. Utile en début d'année : un élève qui lit peu peut en lire un seul et avoir fini quelque chose."
+    cover_url: "https://inventaire.io/img/entities/d258b49c4a3c1e2ebd8ff6e788455757794790f5"
+
+  - isbn: "9782756051246"
+    note: "Le Grand Méchant Renard - Benjamin Renner"
+    publisher: "Delcourt"
+    published_date: "2015"
+    authors: ["Benjamin Renner"]
+    description: "Un renard trop maigre pour effrayer qui que ce soit vole trois oeufs pour élever des poussins qui le prennent pour leur mère. La ruse retournée contre elle-même, en bande dessinée."
+    cover_url: "https://inventaire.io/img/entities/35d8c16824dfb1c3c72f4e10620be10d1ce29e4a"
 
   # 4. Partir à l'aventure !
-  - isbn: "9782081394438"
+  - isbn: "2070513297"
     note: "Vendredi ou la vie sauvage - Michel Tournier"
-    publisher: "Flammarion jeunesse"
-    published_date: "2017"
+    publisher: "Gallimard jeunesse"
+    published_date: "1997"
     authors: ["Michel Tournier"]
     description: "Robinson seul sur son île, puis Robinson avec Vendredi qui lui apprend l'inverse de ce qu'il croyait savoir. La réécriture jeunesse par Tournier de son propre roman."
-  - isbn: "9782095000677"
-    note: "Tomek - Jean-Claude Mourlevat (La rivière à l'envers, tome 1)"
-    publisher: "Nathan"
-    published_date: "2023"
+    cover_url: "https://inventaire.io/img/entities/6fc7356b132ed2c238233f2de1e6b0f691fd8737"
+  - isbn: "2266104330"
+    note: "La rivière à l'envers - Jean-Claude Mourlevat (tome 1, Tomek)"
+    publisher: "Pocket jeunesse"
+    published_date: "2000"
     authors: ["Jean-Claude Mourlevat"]
     description: "Tomek quitte son épicerie pour chercher la rivière qui remonte à sa source et dont l'eau empêche de mourir. Roman d'aventures et de quête, très souvent lu en 6e."
-  - isbn: "9782070644353"
+    cover_url: "https://inventaire.io/img/entities/1e1ea41939e4f969110a2f25d878aa6a13e3a9e1"
+  - isbn: "9782070619474"
     note: "Cheval de guerre - Michael Morpurgo"
     publisher: "Gallimard jeunesse"
-    published_date: "2012"
+    published_date: "2008"
     authors: ["Michael Morpurgo"]
     description: "La guerre de 14-18 racontée par Joey, cheval de ferme réquisitionné, qui passe d'un camp à l'autre. Récit d'aventure et première approche du récit de guerre."
+    cover_url: "https://inventaire.io/img/entities/00c6fd0efbc83610d6a1f54a3bcc31ce5cfcf652"
   - isbn: "9782070612758"
     note: "Le Petit Prince - Antoine de Saint-Exupéry"
     publisher: "Gallimard"
     published_date: "2007"
     authors: ["Antoine de Saint-Exupéry"]
     description: "Le voyage de planète en planète, avec les aquarelles de l'auteur. Court, relu à tous les âges, et souvent le premier livre qu'un élève possède vraiment."
+    cover_url: "https://covers.openlibrary.org/b/isbn/9782070612758-L.jpg?default=false"
+
+  - isbn: "9782081389533"
+    note: "Frères d'exil - Kochka"
+    publisher: "Flammarion jeunesse"
+    published_date: "2016"
+    authors: ["Kochka"]
+    description: "Une île qui s'enfonce, une famille qui part, et deux enfants qui apprennent à vivre ailleurs. Le départ raconté du point de vue de ceux qui n'ont pas choisi de partir."
+    cover_url: "https://inventaire.io/img/entities/a9fba8fd8a708943442e59c3f9f84e44c1bcdb76"
 
   # 5. Rencontrer des monstres : expérience de l'autre, expérience de soi
-  - isbn: "9782095001445"
+  - isbn: "9782092493588"
     note: "L'Œil du loup - Daniel Pennac"
     publisher: "Nathan"
-    published_date: "2023"
+    published_date: "2021"
     authors: ["Daniel Pennac"]
     description: "Un enfant et un loup borgne se regardent à travers la grille d'un zoo, et chacun raconte sa vie à l'autre. Très court, construit en miroir, redoutablement efficace en classe."
+    cover_url: "https://inventaire.io/img/entities/0ae67bc5036c885b0d5f98ddf358ac2e6cdf4f78"
   - isbn: "9782070653690"
     note: "Le Lion - Joseph Kessel"
     publisher: "Gallimard jeunesse"
     published_date: "2013"
     authors: ["Joseph Kessel"]
     description: "Au Kenya, l'amitié entre une fillette et un lion sauvage, et ce que les adultes en font. Le texte de Kessel, sans abrègement, dans l'édition jeunesse."
+    cover_url: "https://inventaire.io/img/entities/175d389379b47391bfdf72b67dff0a3dc3bb2ddd"
   - isbn: "9782211235624"
     note: "Verte - Marie Desplechin"
     publisher: "L'École des loisirs"
     published_date: "2017"
     authors: ["Marie Desplechin"]
     description: "Verte a onze ans, sa mère est sorcière et exige qu'elle le devienne aussi. Quatre narratrices, un ton drôle, et la question de ce qu'on hérite de sa famille."
+    cover_url: "https://inventaire.io/img/entities/a7fa6f675d268ffe8c94cc045dffe2b0aef1a7a3"
   - isbn: "9782070612635"
     note: "Charlie et la chocolaterie - Roald Dahl"
     publisher: "Gallimard jeunesse"
     published_date: "2007"
     authors: ["Roald Dahl"]
     description: "Le ticket d'or, l'usine de Wonka et l'élimination méthodique des quatre autres enfants. Dahl illustré par Quentin Blake, dans la traduction de référence."
+    cover_url: "https://covers.openlibrary.org/b/isbn/9782070612635-L.jpg?default=false"
+  - isbn: "9782266249621"
+    note: "Wonder - R. J. Palacio"
+    publisher: "Pocket jeunesse"
+    published_date: "2014"
+    authors: ["R. J. Palacio"]
+    description: "August a dix ans, un visage que personne ne regarde en face, et il entre à l'école pour la première fois. Le monstre que les autres croient voir, raconté par plusieurs voix dont la sienne."
+    cover_url: "https://inventaire.io/img/entities/fa3d2ce5fab897fbb58e54109a50914644f718df"

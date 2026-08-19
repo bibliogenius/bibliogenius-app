@@ -5,6 +5,21 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/services.dart';
 import 'package:yaml/yaml.dart';
 import 'package:bibliogenius/services/curated_lists_service.dart';
+import 'package:bibliogenius/utils/isbn_validator.dart';
+
+/// ISBNs already in the catalogue that fail their own check digit. See the
+/// comment at the assertion that uses this set.
+const knownBadLegacyIsbns = <String>{
+  '9782253059536', // genres/romans-historiques
+  '9781033903178', // genres/thriller-psychologique
+  '9781789537965', // tech/programming-drupal
+  '9781594200318', // themes/cuisine-gastronomie
+  '9782874950317', // themes/histoire-essentiels
+  // Three more live in lists index.yml has commented out
+  // (classics/guardian-100-21st-century, themes/dev-personnel-classiques).
+  // They are deliberately NOT listed here: re-enabling one of those lists
+  // should fail this test until its ISBNs are sourced again.
+};
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -139,6 +154,28 @@ void main() {
                   '${category.id}/${list.id}: "${book.isbn}" is not a 10 or '
                   '13 character ISBN',
             );
+            // Length alone is not enough: a typo inside the digits keeps the
+            // length and still points at nothing. A curated entry whose ISBN
+            // does not resolve fails its import outright, because the backend
+            // refuses books without a title.
+            //
+            // Ratchet, not a clean sweep: five entries authored before this
+            // check already fail it. Measured 2026-08-19: 8 invalid ISBNs out
+            // of 894 across every list, five in lists index.yml loads and three
+            // in lists it has commented out.
+            // They are named here so the debt stays visible and cannot grow,
+            // rather than weakening the assertion for everyone. Fixing them
+            // means sourcing a real edition per title, which is content work,
+            // not a test change. Remove an entry from this set as it is fixed.
+            if (!knownBadLegacyIsbns.contains(clean)) {
+              expect(
+                IsbnValidator.isValid(clean),
+                isTrue,
+                reason:
+                    '${category.id}/${list.id}: "${book.isbn}" fails its own '
+                    'ISBN check digit, so it identifies no real edition',
+              );
+            }
           }
         }
       }

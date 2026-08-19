@@ -1,0 +1,133 @@
+# Entree en 5e - lectures de rentree
+#
+# Structure: the four literary entries of the NEW French programme for the
+# classe de 5e (BO du 5 mars 2026), which applies to 5e from the September 2026
+# rentree. The same reform reaches 4e in 2027 and 3e in 2028, which is why this
+# list is per level and not "cycle 4": that cycle has no coherent programme
+# before 2028. Add the next level the year it switches.
+#
+# The programme prescribes an entry and a genre, never a title or an edition:
+# every book below is an editorial choice. Genres are respected, the poetry
+# entry holds poetry and the theatre entry holds theatre.
+#
+# REVIEW DEADLINE: nothing to do before the 2027 rentree, when the 4e switches
+# and deserves its own list. Bump `version` if this selection changes.
+#
+# Editions were picked among ISBNs attested by catalogue.bnf.fr, preferring the
+# widely held paperback over the most recent printing: it is the one a family
+# is most likely to own already, which is what the owned/total badge compares.
+id: entree-en-5e
+version: 1
+
+title:
+  fr: "Entrée en 5e - lectures de rentrée"
+  en: "Starting Year 8 - back-to-school reading"
+  es: "Entrada en 5e - lecturas de vuelta al cole"
+  de: "Eintritt in die 5. Klasse - Lektüre zum Schulbeginn"
+
+description:
+  fr: "Onze lectures pour la 5e, une par entrée du nouveau programme de français : devenir héros, voyager en poésie, jouer le théâtre, imaginer et raisonner. Structure d'après le programme publié au Bulletin officiel du 5 mars 2026, applicable à la 5e depuis la rentrée 2026. Éditions de poche courantes, vérifiées au catalogue de la BnF."
+  en: "Eleven books for the second year of French collège, mapped onto the new French-language curriculum strands: becoming a hero, travelling through poetry, playing theatre, imagining and reasoning. Structure follows the programme published in the Bulletin officiel of 5 March 2026, in force for that year since the 2026 rentree. Current paperback editions, checked against the BnF catalogue."
+  es: "Once lecturas para el segundo curso del collège francés, organizadas según los ejes del nuevo programa de francés: convertirse en héroe, viajar en poesía, jugar al teatro, imaginar y razonar. Estructura basada en el programa publicado en el Bulletin officiel del 5 de marzo de 2026. Ediciones de bolsillo actuales, verificadas en el catálogo de la BnF."
+  de: "Elf Bücher für die 5. Klasse, geordnet nach den Themenfeldern des neuen französischen Lehrplans: Held werden, in der Poesie reisen, Theater spielen, sich vorstellen und begründen. Struktur nach dem im Bulletin officiel vom 5. März 2026 veröffentlichten Lehrplan. Aktuelle Taschenbuchausgaben, im BnF-Katalog geprüft."
+
+cover_url: "https://inventaire.io/img/entities/90850eacc0c6cf9abba297ae868d85ed981c4590"
+contributor: BiblioGenius
+tags: [rentrée, collège, cinquième, école, jeunesse, classiques]
+content_languages: [fr]
+
+# Per-book `cover_url` is set ONLY where a cover was found on a free source AND
+# opened to confirm it shows this exact edition: 10 of 11. It is not a fallback,
+# the import service prefers it over the lookup result, so a wrong or dead URL
+# is worse than none. The three without one let the lookup chain try at import.
+#
+# Checking the image is not optional. Rejected here: Gallimard's 9782070618606
+# Grimm collection, whose cover turns out to be a livre-CD for young children,
+# wrong register for a 5e list; and Inventaire's image for Tobie Lolness, which
+# answers HTTP 200 with a zero-byte body (Open Library served it instead).
+books:
+  # 1. Devenir héroïne, héros : destins romanesques (récit, fiction)
+  - isbn: "9782070793693"
+    note: "Yvain ou Le chevalier au lion - Chrétien de Troyes"
+    publisher: "Gallimard"
+    published_date: "2017"
+    authors: ["Chrétien de Troyes"]
+    description: "Yvain gagne un royaume, perd la confiance de sa dame, puis reconquiert l'une et l'autre avec un lion pour compagnon. Le roman de chevalerie fondateur, en texte intégral dans l'édition collège."
+    cover_url: "https://inventaire.io/img/entities/90850eacc0c6cf9abba297ae868d85ed981c4590"
+  - isbn: "2290315699"
+    note: "Tristan et Iseut - légende médiévale"
+    publisher: "Librio"
+    published_date: "2000"
+    authors: ["Anonyme"]
+    description: "Le philtre bu par erreur, l'amour plus fort que la loyauté, et deux amants que rien ne sépare. La légende médiévale dans une édition de poche à petit prix."
+    cover_url: "https://covers.openlibrary.org/b/isbn/2290315699-L.jpg?default=false"
+  - isbn: "9782013224055"
+    note: "Le Chevalier au bouclier vert - Odile Weulersse"
+    publisher: "Le Livre de Poche Jeunesse"
+    published_date: "2007"
+    authors: ["Odile Weulersse"]
+    description: "Thibaut part en croisade pour laver son honneur et découvre que le courage ne ressemble pas à ce qu'on lui avait promis. Un classique du roman historique pour le collège."
+    cover_url: "https://inventaire.io/img/entities/211f8994c106a74fccff5e963eea5416ae0f5bf0"
+  - isbn: "9782013223973"
+    note: "L'Île au trésor - Robert Louis Stevenson"
+    publisher: "Le Livre de Poche Jeunesse"
+    published_date: "2010"
+    authors: ["Robert Louis Stevenson"]
+    description: "Une carte, un perroquet, et Long John Silver dont on ne sait jamais de quel côté il se tient. Le roman d'aventures qui a fixé le genre."
+    cover_url: "https://inventaire.io/img/entities/b7f6a4e27b69f9fc36e798418cb099f6b6737a2c"
+  - isbn: "9782070629459"
+    note: "Tobie Lolness, tome 1 : La vie suspendue - Timothée de Fombelle"
+    publisher: "Gallimard jeunesse"
+    published_date: "2010"
+    authors: ["Timothée de Fombelle"]
+    description: "Tobie mesure un millimètre et demi, vit dans un arbre, et devient un fugitif à treize ans. Un des grands romans jeunesse français des vingt dernières années."
+    cover_url: "https://covers.openlibrary.org/b/isbn/9782070629459-L.jpg?default=false"
+
+  # 2. Voyager en poésie (poésie)
+  - isbn: "9782290225394"
+    note: "Le Bateau ivre et autres poèmes - Arthur Rimbaud"
+    publisher: "Librio"
+    published_date: "2020"
+    authors: ["Arthur Rimbaud"]
+    description: "Le poème du fleuve et de la dérive, accompagné d'un choix de textes et d'un supplément pédagogique. Le voyage en poésie dans sa version la plus célèbre."
+    cover_url: "https://inventaire.io/img/entities/f7ef6a089e574a8e8025080a2967a03e04ac0162"
+  - isbn: "9782081365339"
+    note: "Poèmes à dire comme tu voudras - Bernard Friot"
+    publisher: "Flammarion jeunesse"
+    published_date: "2016"
+    authors: ["Bernard Friot"]
+    description: "Des poèmes écrits pour être lus à voix haute, drôles et courts, qui donnent envie de continuer. Le contrepoint contemporain et accessible à Rimbaud."
+
+  # 3. Expérimenter et jouer le théâtre : la société à l'envers (théâtre)
+  - isbn: "2070302385"
+    note: "Les Fourberies de Scapin - Molière"
+    publisher: "Gallimard"
+    published_date: "2003"
+    authors: ["Molière"]
+    description: "Scapin ment, manipule et enferme un père dans un sac, et le public prend son parti contre l'ordre établi. Texte intégral et dossier."
+    cover_url: "https://inventaire.io/img/entities/69e13ac85e98e0ca5fe375f1d016f3693b964e60"
+  - isbn: "9782211051729"
+    note: "Mange-moi - Nathalie Papin"
+    publisher: "L'École des loisirs"
+    published_date: "2004"
+    authors: ["Nathalie Papin"]
+    description: "Une petite fille qui mange sans fin part chercher au pays des ogres pourquoi elle a si faim. Du théâtre jeunesse contemporain, écrit pour être joué en classe."
+    cover_url: "https://inventaire.io/img/entities/cc9b123d809a29bff54feb2dbd102d1c0d5057e3"
+
+  # 4. Imaginer, sentir, raisonner (conte et fable)
+  - isbn: "9782070627622"
+    note: "Sindbâd de la mer - Contes des Mille et Une Nuits"
+    publisher: "Gallimard jeunesse"
+    published_date: "2009"
+    authors: ["Anonyme"]
+    description: "Sept voyages, sept naufrages, et un marchand qui repart toujours. Les contes des Mille et Une Nuits dans la traduction de Jamel Eddine Bencheikh, gravures de Gustave Doré."
+    cover_url: "https://inventaire.io/img/entities/8fa5e025518454eb6fc42e75d5a548bed9253b93"
+
+  # Lecture cursive : aventure contemporaine
+  - isbn: "9782070631247"
+    note: "Vango, tome 1 : Entre ciel et terre - Timothée de Fombelle"
+    publisher: "Gallimard jeunesse"
+    published_date: "2010"
+    authors: ["Timothée de Fombelle"]
+    description: "Accusé d'un meurtre le jour de son ordination, Vango s'enfuit par les toits de Paris et par un zeppelin. Aventure, énigme et Europe des années trente."
+    cover_url: "https://inventaire.io/img/entities/e53a30a028850d9b89b4b4cb9c36b9a19644fbc2"
