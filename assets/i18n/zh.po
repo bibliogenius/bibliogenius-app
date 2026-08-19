@@ -2377,7 +2377,7 @@ msgstr "图书馆帮助"
 
 #. The Network screen lets you connect with friends and other libraries. You can browse their catalogs, request to borrow books, and share your own collection.
 msgid "help_ctx_network_content"
-msgstr "网络界面有两种模式。“我的网络”：直接的 P2P 联系人（双向、互相）。“目录”：单向关注任何公开图书馆。关键区别：在 P2P 中关系是相互的——而在目录中，您关注对方无需对方回关。"
+msgstr "网络界面有两种模式。“我的网络”：直接的 P2P 联系人（双向、互相）。“名录”：单向关注任何公开图书馆。关键区别：在 P2P 中关系是相互的——而在名录中，您关注对方无需对方回关。"
 
 #. Add a contact
 msgid "help_ctx_network_tip_add"
@@ -8215,7 +8215,7 @@ msgid "pairing_mdns_hint"
 msgstr "两台设备必须连接到同一 Wi-Fi，并已启用网络发现（设置 > 网络）"
 
 msgid "pairing_identity_note"
-msgstr "每台设备都保留各自的身份。配对会在您的设备之间同步图书，但在目录中，每台设备仍是一个独立的图书馆。"
+msgstr "每台设备都保留各自的身份。配对会在您的设备之间同步图书，但在名录中，每台设备仍是一个独立的图书馆。"
 
 msgid "pairing_select_device"
 msgstr "要配对的设备"
@@ -8683,7 +8683,7 @@ msgid "network_tab_my_network"
 msgstr "我的网络"
 
 msgid "network_tab_discover"
-msgstr "目录"
+msgstr "名录"
 
 #. Network filters
 msgid "network_filter_all"
@@ -8698,7 +8698,7 @@ msgstr "关注请求"
 
 #. Hub pending requests - explanatory note shown when the public directory is disabled but legacy pending requests still exist server-side
 msgid "hub_pending_legacy_note"
-msgstr "目录已关闭。您仍可处理这些现有请求以清除计数。"
+msgstr "名录已关闭。您仍可处理这些现有请求以清除计数。"
 
 msgid "lib_filter_all"
 msgstr "全部"
@@ -8864,7 +8864,7 @@ msgid "peer_type_direct"
 msgstr "直接 P2P 联系人（双向）"
 
 msgid "peer_type_following"
-msgstr "目录关注（单向）"
+msgstr "名录关注（单向）"
 
 msgid "peer_name_saved"
 msgstr "名称已保存"
@@ -9063,7 +9063,7 @@ msgid "dashboard_discover_more"
 msgstr "更进一步"
 
 msgid "settings_share_city_requires_directory"
-msgstr "请先启用“出现在目录中”。"
+msgstr "请先启用“出现在公开名录中”。"
 
 #. Reorderable sections - edit mode
 msgid "sections_edit_mode"
