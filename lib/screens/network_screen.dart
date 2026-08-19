@@ -1034,7 +1034,10 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
 
   /// [warningKey] appends a translated warning line to the confirmation
   /// (e.g. account-wide deletion semantics for replicated contacts).
-  Future<void> _deleteContact(NetworkMember member, {String? warningKey}) async {
+  Future<void> _deleteContact(
+    NetworkMember member, {
+    String? warningKey,
+  }) async {
     final contactRepo = Provider.of<ContactRepository>(context, listen: false);
     final confirm = await showDialog<bool>(
       context: context,
@@ -1517,11 +1520,7 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
                   ),
                 ),
                 IconButton(
-                  icon: Icon(
-                    Icons.delete_outline,
-                    size: 20,
-                    color: cs.error,
-                  ),
+                  icon: Icon(Icons.delete_outline, size: 20, color: cs.error),
                   tooltip: TranslationService.translate(context, 'delete'),
                   visualDensity: VisualDensity.compact,
                   padding: EdgeInsets.zero,
@@ -1563,9 +1562,7 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
               shareInviteLinkDirect(context);
             },
             icon: const Icon(Icons.share, size: 18),
-            label: Text(
-              TranslationService.translate(ctx, 'share_invite_link'),
-            ),
+            label: Text(TranslationService.translate(ctx, 'share_invite_link')),
           ),
         ],
       ),
@@ -2673,6 +2670,20 @@ class _DiscoverViewState extends State<_DiscoverView> {
                     ),
                     onPressed: () => _openFilterPicker(provider),
                   ),
+                  // Permanent way back to one's own outbound view, next to the
+                  // tools for browsing everyone else's. Unconditional: the
+                  // publish banner carries the same shortcut but vanishes on
+                  // registration, and "what am I exposing?" is a question that
+                  // outlives the decision to publish.
+                  IconButton(
+                    key: const Key('directoryPeerViewAction'),
+                    icon: const Icon(Icons.preview_outlined),
+                    tooltip: TranslationService.translate(
+                      context,
+                      'peer_view_title',
+                    ),
+                    onPressed: () => context.push('/peer-view'),
+                  ),
                 ],
               ),
             ),
@@ -3446,9 +3457,28 @@ class _PublishToDirectoryBannerState extends State<_PublishToDirectoryBanner> {
               ),
             ),
             const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+            // Wrap, not Row: two actions plus a translated label overflow a
+            // narrow phone banner.
+            Wrap(
+              alignment: WrapAlignment.end,
+              spacing: 8,
+              runSpacing: 4,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
+                // Inspect before committing. This is the moment the question
+                // is actually asked, and the primary action publishes on a
+                // single tap with nothing shown beforehand.
+                TextButton.icon(
+                  key: const Key('directoryPreviewBeforePublish'),
+                  onPressed: _busy ? null : () => context.push('/peer-view'),
+                  icon: const Icon(Icons.preview_outlined, size: 18),
+                  label: Text(
+                    TranslationService.translate(
+                      context,
+                      'peer_view_before_publishing',
+                    ),
+                  ),
+                ),
                 FilledButton.icon(
                   key: const Key('directoryPublishCta'),
                   onPressed: _busy ? null : _onPublish,

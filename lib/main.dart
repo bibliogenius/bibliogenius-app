@@ -75,6 +75,7 @@ import 'screens/search_peer_screen.dart';
 import 'screens/memory_game_screen.dart';
 import 'screens/metadata_fill_screen.dart';
 import 'screens/operation_log_screen.dart';
+import 'screens/peer_view_screen.dart';
 import 'screens/sliding_puzzle_screen.dart';
 import 'screens/hangman_screen.dart';
 import 'screens/games_hub_screen.dart';
@@ -1120,6 +1121,10 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
             GoRoute(
               path: '/library-completeness',
               builder: (context, state) => const MetadataFillScreen(),
+            ),
+            GoRoute(
+              path: '/peer-view',
+              builder: (context, state) => const PeerViewScreen(),
             ),
             GoRoute(
               path: '/books',

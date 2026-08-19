@@ -3037,7 +3037,7 @@ msgstr "Library Help"
 
 #. The Network screen lets you connect with friends and other libraries. You can browse their catalogs, request to borrow books, and share your own collection.
 msgid "help_ctx_network_content"
-msgstr "The Network screen has two modes. \"My Network\": direct P2P contacts (bidirectional, mutual). \"Public directory\": follow any public library unilaterally. Key difference: with P2P the relationship is mutual - in the directory, you follow without a reciprocal requirement."
+msgstr "The Network screen has two modes. \"My Network\": direct P2P contacts (bidirectional, mutual). \"Directory\": follow any public library unilaterally. Key difference: with P2P the relationship is mutual - in the directory, you follow without a reciprocal requirement."
 
 #. Add a contact
 msgid "help_ctx_network_tip_add"
@@ -5435,7 +5435,7 @@ msgstr "Contact"
 
 #. Hub - Discover disabled (deprecated: replaced by in-tab CTA banner)
 msgid "hub_disabled_discover"
-msgstr "Enable the public directory in Settings to discover other libraries."
+msgstr "Enable the directory in Settings to discover other libraries."
 
 #. Hub - Publish CTA banner in Discover tab: title
 msgid "directory_publish_banner_title"
@@ -5455,7 +5455,7 @@ msgstr "Your library is now listed in the public directory."
 
 #. Hub - Onboarding first-time banner: title
 msgid "discover_onboard_title"
-msgstr "Welcome to the public directory"
+msgstr "Welcome to the directory"
 
 #. Hub - Onboarding first-time banner: description (contrast with P2P)
 msgid "discover_onboard_desc"
@@ -5467,7 +5467,7 @@ msgstr "Got it"
 
 #. Hub - Discover tab contextual help: title
 msgid "help_ctx_discover_title"
-msgstr "Public directory help"
+msgstr "Directory help"
 
 #. Hub - Discover tab contextual help: main content
 msgid "help_ctx_discover_content"
@@ -5929,7 +5929,7 @@ msgstr "Auto-detect nearby libraries on your local WiFi."
 
 #. Public directory
 msgid "settings_mode_directory_title"
-msgstr "Public directory"
+msgstr "Directory"
 
 #. Be listed for anyone to discover and follow.
 msgid "settings_mode_directory_desc"
@@ -7989,7 +7989,7 @@ msgid "pairing_mdns_hint"
 msgstr "Both devices must be on the same Wi-Fi with network discovery enabled (Settings > Network)"
 
 msgid "pairing_identity_note"
-msgstr "Each device keeps its own identity. Pairing syncs your books across your devices, but each one stays a separate library in the public directory."
+msgstr "Each device keeps its own identity. Pairing syncs your books across your devices, but each one stays a separate library in the directory."
 
 msgid "pairing_select_device"
 msgstr "Device to pair"
@@ -8372,7 +8372,7 @@ msgid "directory_settings_title"
 msgstr "Online Sharing"
 
 msgid "directory_listed_title"
-msgstr "Share my library online"
+msgstr "Make my library visible to other libraries"
 
 msgid "directory_listed_desc"
 msgstr "Other libraries can discover and follow you"
@@ -8472,7 +8472,7 @@ msgid "network_tab_my_network"
 msgstr "My network"
 
 msgid "network_tab_discover"
-msgstr "Public directory"
+msgstr "Directory"
 
 #. Network filters
 msgid "network_filter_all"
@@ -8487,7 +8487,7 @@ msgstr "Follow requests"
 
 #. Hub pending requests - explanatory note shown when the public directory is disabled but legacy pending requests still exist server-side
 msgid "hub_pending_legacy_note"
-msgstr "Public directory is off. You can still resolve these existing requests to clear the counter."
+msgstr "Directory is off. You can still resolve these existing requests to clear the counter."
 
 msgid "lib_filter_all"
 msgstr "All"
@@ -8876,8 +8876,53 @@ msgstr "Set my country"
 msgid "dashboard_discover_more"
 msgstr "Go further"
 
+msgid "discover_dismiss_suggestion"
+msgstr "Hide this suggestion"
+
+#. Peer view mirror: screen title and Settings entry
+msgid "peer_view_title"
+msgstr "What other libraries see"
+
+msgid "peer_view_entry_desc"
+msgstr "Preview your catalogue as it is published"
+
+#. Peer view mirror: entry from the public directory sheet, before opting in
+msgid "peer_view_entry_preflight_desc"
+msgstr "Worth checking before you make yourself visible"
+
+#. Peer view mirror: same entry, once already listed
+msgid "peer_view_entry_listed_desc"
+msgstr "What another library receives from you"
+
+#. Peer view mirror: secondary action on the Discover tab publish banner
+msgid "peer_view_before_publishing"
+msgstr "See before publishing"
+
+#. Peer view mirror: the directory lane publishes strictly less than this list
+msgid "peer_view_directory_scope"
+msgstr "The directory sends less than this: only the title, author, cover and ISBN of the books you own."
+
+#. Peer view mirror: explanation card
+msgid "peer_view_intro"
+msgstr "This list is the exact response your device sends to another library browsing your catalogue. Nothing is recomputed here: same data, same filtering code."
+
+msgid "peer_view_hidden_note"
+msgstr "Your private books are absent, along with your notes, reading status, ratings, purchase prices and current loans."
+
+msgid "peer_view_count"
+msgstr "{count} books visible"
+
+msgid "peer_view_empty"
+msgstr "No book is visible right now."
+
+msgid "peer_view_error"
+msgstr "Could not read your published catalogue."
+
+msgid "peer_view_available_copies"
+msgstr "{count} available"
+
 msgid "settings_share_city_requires_directory"
-msgstr "Enable \"Appear in the public directory\" first."
+msgstr "Enable \"Make my library visible to other libraries\" first."
 
 msgid "time_just_now"
 msgstr "Just now"

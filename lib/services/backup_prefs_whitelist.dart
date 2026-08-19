@@ -144,6 +144,10 @@ const Set<String> kBackupPrefsBlacklist = <String>{
   // Listed here for review trail.
   'last_app_version', // BackupReminderService._lastVersionKey
   'last_backup_reminder', // BackupReminderService._lastReminderKey
+  // Dashboard suggestions the user has waved away; feature-discovery state,
+  // meaningful only on the install that saw the suggestion.
+  'dashboard_discover_dismissed_ids', // DiscoverDismissalService.dismissedIdsKey
+  'dashboard_discover_dismissed', // legacy global flag, migrated then removed
 };
 
 /// Encode the user-meaningful subset of the caller's preferences store

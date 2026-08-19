@@ -18,7 +18,6 @@ import '../providers/theme_provider.dart';
 import '../providers/hub_directory_provider.dart';
 import '../providers/metadata_fill_provider.dart';
 import '../widgets/goal_tile.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../widgets/premium_book_card.dart';
 import '../widgets/premium_empty_state.dart';
@@ -28,7 +27,24 @@ import '../models/quote.dart';
 import '../theme/app_design.dart';
 import '../services/backup_reminder_service.dart';
 import '../services/backup_scheduler_service.dart';
+import '../services/discover_dismissal_service.dart';
 import 'statistics_screen.dart';
+
+/// One "Discover more" entry: a capability the user has not enabled yet.
+class _DiscoverSuggestion {
+  /// Persisted dismissal key, see [DiscoverSuggestionIds].
+  final String id;
+  final IconData icon;
+  final String labelKey;
+  final String route;
+
+  const _DiscoverSuggestion({
+    required this.id,
+    required this.icon,
+    required this.labelKey,
+    required this.route,
+  });
+}
 
 class DashboardScreen extends StatefulWidget {
   final int initialTab;
@@ -55,7 +71,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   List<Book> _allBooks = [];
 
   bool _quoteExpanded = false;
-  bool _discoverDismissed = false;
+  Set<String> _dismissedDiscoverIds = const <String>{};
 
   final GlobalKey _statsKey = GlobalKey(debugLabel: 'dashboard_stats');
   final GlobalKey _menuKey = GlobalKey(debugLabel: 'dashboard_menu');
@@ -80,66 +96,74 @@ class _DashboardScreenState extends State<DashboardScreen>
     _loadDiscoverDismissed();
   }
 
-  static const _kDiscoverDismissedKey = 'dashboard_discover_dismissed';
-
   Future<void> _loadDiscoverDismissed() async {
-    final prefs = await SharedPreferences.getInstance();
-    final dismissed = prefs.getBool(_kDiscoverDismissedKey) ?? false;
-    if (mounted && dismissed) setState(() => _discoverDismissed = true);
+    final dismissed = await DiscoverDismissalService.loadDismissed();
+    if (mounted && dismissed.isNotEmpty) {
+      setState(() => _dismissedDiscoverIds = dismissed);
+    }
   }
 
-  Future<void> _dismissDiscover() async {
-    setState(() => _discoverDismissed = true);
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_kDiscoverDismissedKey, true);
+  Future<void> _dismissDiscoverSuggestion(String id) async {
+    setState(() => _dismissedDiscoverIds = {..._dismissedDiscoverIds, id});
+    await DiscoverDismissalService.dismiss(id);
   }
 
   /// "Discover more": up to two not-yet-enabled capabilities, surfaced where the
   /// user actually looks. Tiles deep-link to the same sheets as the Settings
-  /// springboard (via /settings?focus=). Dismissible (persisted), and hidden
-  /// once every suggestion is done.
+  /// springboard (via /settings?focus=).
+  ///
+  /// Each tile carries its own dismiss button and its own persisted flag: closing
+  /// one suggestion never hides the others, and a suggestion the user has not
+  /// seen yet can still surface later. The section disappears on its own once
+  /// every suggestion is either enabled or dismissed.
   Widget _buildDiscoverMore(BuildContext context, ThemeProvider themeProvider) {
-    if (_discoverDismissed) return const SizedBox.shrink();
     return Consumer<HubDirectoryProvider>(
       builder: (context, hub, _) {
-        final suggestions = <(IconData, String, String)>[
+        final suggestions = <_DiscoverSuggestion>[
           if (!themeProvider.networkEnabled)
-            (Icons.wifi_tethering, 'settings_goal_local_wifi', '/settings?focus=wifi'),
+            const _DiscoverSuggestion(
+              id: DiscoverSuggestionIds.localWifi,
+              icon: Icons.wifi_tethering,
+              labelKey: 'settings_goal_local_wifi',
+              route: '/settings?focus=wifi',
+            ),
           if (!hub.isListed)
-            (Icons.public, 'settings_goal_public', '/settings?focus=public'),
+            const _DiscoverSuggestion(
+              id: DiscoverSuggestionIds.publicDirectory,
+              icon: Icons.public,
+              labelKey: 'settings_goal_public',
+              route: '/settings?focus=public',
+            ),
           // Device sync suggestion removed 2026-06-22 (feature shelved).
           if (themeProvider.userLanguages.length <= 1)
-            (Icons.translate, 'settings_goal_language', '/settings?focus=language'),
+            const _DiscoverSuggestion(
+              id: DiscoverSuggestionIds.readingLanguages,
+              icon: Icons.translate,
+              labelKey: 'settings_goal_language',
+              route: '/settings?focus=language',
+            ),
         ];
-        final picked = suggestions.take(2).toList();
+        final picked = suggestions
+            .where((s) => !_dismissedDiscoverIds.contains(s.id))
+            .take(2)
+            .toList();
         if (picked.isEmpty) return const SizedBox.shrink();
         final isWide = MediaQuery.of(context).size.width > 600;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Semantics(
-                    header: true,
-                    child: Text(
-                      TranslationService.translate(
-                        context,
-                        'dashboard_discover_more',
-                      ),
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
+            Semantics(
+              header: true,
+              child: Text(
+                TranslationService.translate(
+                  context,
+                  'dashboard_discover_more',
                 ),
-                IconButton(
-                  icon: const Icon(Icons.close, size: 20),
-                  tooltip: TranslationService.translate(context, 'close'),
-                  onPressed: _dismissDiscover,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
                 ),
-              ],
+              ),
             ),
             const SizedBox(height: 8),
             Row(
@@ -148,9 +172,17 @@ class _DashboardScreenState extends State<DashboardScreen>
                   if (i > 0) const SizedBox(width: 12),
                   Expanded(
                     child: GoalTile(
-                      icon: picked[i].$1,
-                      label: TranslationService.translate(context, picked[i].$2),
-                      onTap: () => context.push(picked[i].$3),
+                      icon: picked[i].icon,
+                      label: TranslationService.translate(
+                        context,
+                        picked[i].labelKey,
+                      ),
+                      onTap: () => context.push(picked[i].route),
+                      onDismiss: () => _dismissDiscoverSuggestion(picked[i].id),
+                      dismissTooltip: TranslationService.translate(
+                        context,
+                        'discover_dismiss_suggestion',
+                      ),
                     ),
                   ),
                 ],

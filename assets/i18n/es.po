@@ -5303,8 +5303,53 @@ msgstr "Indicar mi país"
 msgid "dashboard_discover_more"
 msgstr "Para ir más allá"
 
+msgid "discover_dismiss_suggestion"
+msgstr "Ocultar esta sugerencia"
+
+#. Peer view mirror: screen title and Settings entry
+msgid "peer_view_title"
+msgstr "Lo que ven otras bibliotecas"
+
+msgid "peer_view_entry_desc"
+msgstr "Vista previa de tu catálogo tal como se publica"
+
+#. Peer view mirror: entry from the public directory sheet, before opting in
+msgid "peer_view_entry_preflight_desc"
+msgstr "Conviene revisarlo antes de hacerte visible"
+
+#. Peer view mirror: same entry, once already listed
+msgid "peer_view_entry_listed_desc"
+msgstr "Lo que otra biblioteca recibe de ti"
+
+#. Peer view mirror: secondary action on the Discover tab publish banner
+msgid "peer_view_before_publishing"
+msgstr "Ver antes de publicar"
+
+#. Peer view mirror: the directory lane publishes strictly less than this list
+msgid "peer_view_directory_scope"
+msgstr "El directorio envía menos: solo el título, el autor, la portada y el ISBN de los libros que posees."
+
+#. Peer view mirror: explanation card
+msgid "peer_view_intro"
+msgstr "Esta lista es la respuesta exacta que tu dispositivo envía a otra biblioteca que consulta tu catálogo. Aquí no se recalcula nada: son los mismos datos, filtrados por el mismo código."
+
+msgid "peer_view_hidden_note"
+msgstr "Tus libros privados no aparecen, ni tus notas, tu estado de lectura, tus valoraciones, tus precios de compra ni tus préstamos en curso."
+
+msgid "peer_view_count"
+msgstr "{count} libros visibles"
+
+msgid "peer_view_empty"
+msgstr "Ningún libro es visible por ahora."
+
+msgid "peer_view_error"
+msgstr "No se ha podido leer tu catálogo publicado."
+
+msgid "peer_view_available_copies"
+msgstr "{count} disponible(s)"
+
 msgid "settings_share_city_requires_directory"
-msgstr "Activa primero «Aparecer en el directorio publico»."
+msgstr "Activa primero «Hacer visible mi biblioteca ante otras bibliotecas»."
 
 #. Back
 msgid "setup_btn_back"
@@ -6824,7 +6869,7 @@ msgid "directory_listed_desc"
 msgstr "Otras bibliotecas pueden descubrirte y seguirte"
 
 msgid "directory_listed_title"
-msgstr "Compartir mi biblioteca en linea"
+msgstr "Hacer visible mi biblioteca ante otras bibliotecas"
 
 msgid "directory_no_results"
 msgstr "No se encontraron bibliotecas"
@@ -7058,7 +7103,7 @@ msgid "hub_contact_label"
 msgstr "Datos de contacto (visibles para tus seguidores aprobados)"
 
 msgid "hub_disabled_discover"
-msgstr "Activa el directorio publico en Ajustes para descubrir otras bibliotecas"
+msgstr "Activa el directorio en Ajustes para descubrir otras bibliotecas"
 
 msgid "directory_publish_banner_title"
 msgstr "Aparecer en el directorio publico"
@@ -7169,10 +7214,10 @@ msgstr "Solicitudes de seguimiento"
 
 #. Hub pending requests - explanatory note shown when the public directory is disabled but legacy pending requests still exist server-side
 msgid "hub_pending_legacy_note"
-msgstr "El directorio público está desactivado. Aún puedes resolver estas solicitudes existentes para vaciar el contador."
+msgstr "El directorio está desactivado. Aún puedes resolver estas solicitudes existentes para vaciar el contador."
 
 msgid "network_tab_discover"
-msgstr "Directorio publico"
+msgstr "Directorio"
 
 msgid "network_tab_my_network"
 msgstr "Mi red"
@@ -7483,7 +7528,7 @@ msgid "settings_mode_directory_desc"
 msgstr "Estar listada para que otros puedan descubrirte y seguirte."
 
 msgid "settings_mode_directory_title"
-msgstr "Directorio publico"
+msgstr "Directorio"
 
 msgid "settings_mode_invite_desc"
 msgstr "Funciona en cualquier red (WiFi, 4G, 5G). Comparte un enlace o codigo QR en privado."
@@ -8309,7 +8354,7 @@ msgid "pairing_mdns_hint"
 msgstr "Ambos dispositivos deben estar en la misma red Wi-Fi con la deteccion de red activada (Ajustes > Red)"
 
 msgid "pairing_identity_note"
-msgstr "Cada dispositivo conserva su propia identidad. El emparejamiento sincroniza tus libros entre tus dispositivos, pero cada uno sigue siendo una biblioteca distinta en el directorio público."
+msgstr "Cada dispositivo conserva su propia identidad. El emparejamiento sincroniza tus libros entre tus dispositivos, pero cada uno sigue siendo una biblioteca distinta en el directorio."
 
 #. Pairing - No peers
 msgid "pairing_no_peers"
@@ -9059,7 +9104,7 @@ msgstr "Entendido"
 
 #. Hub - Onboarding first-time banner: title
 msgid "discover_onboard_title"
-msgstr "Bienvenido al directorio público"
+msgstr "Bienvenido al directorio"
 
 #. Error borrowing book - library not initialized
 msgid "error_borrow_setup_incomplete"
@@ -9087,7 +9132,7 @@ msgstr "Seguimiento unidireccional"
 
 #. Hub - Discover tab contextual help: title
 msgid "help_ctx_discover_title"
-msgstr "Ayuda — Directorio público"
+msgstr "Ayuda — Directorio"
 
 #. Shown after a manual leaderboard refresh when the Rust backend hit its 25s per-peer relay timeout
 msgid "leaderboard_sync_timeout"

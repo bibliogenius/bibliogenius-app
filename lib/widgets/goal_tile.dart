@@ -12,26 +12,41 @@ class GoalTile extends StatelessWidget {
   final VoidCallback onTap;
   final bool active;
 
+  /// When set, the tile shows a close affordance that dismisses this tile only.
+  /// Used by the Dashboard suggestions, where each tile is independently
+  /// dismissible; the Settings springboard leaves it null.
+  final VoidCallback? onDismiss;
+
+  /// Already-translated tooltip / semantic label for the dismiss affordance.
+  /// Required whenever [onDismiss] is set, so the button is never unlabelled
+  /// for screen readers.
+  final String? dismissTooltip;
+
   const GoalTile({
     super.key,
     required this.icon,
     required this.label,
     required this.onTap,
     this.active = false,
-  });
+    this.onDismiss,
+    this.dismissTooltip,
+  }) : assert(
+         onDismiss == null || dismissTooltip != null,
+         'a dismissible tile needs a translated dismissTooltip',
+       );
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return Semantics(
-      button: true,
-      label: label,
-      child: Stack(
-        children: [
+    return Stack(
+      children: [
+        Semantics(
+          button: true,
+          label: label,
           // width:infinity so the Card fills its slot (e.g. an Expanded in a
           // two-column grid); otherwise the Stack passes loose constraints and
           // the Card shrinks to its content width.
-          SizedBox(
+          child: SizedBox(
             width: double.infinity,
             child: Card(
               margin: EdgeInsets.zero,
@@ -63,14 +78,31 @@ class GoalTile extends StatelessWidget {
               ),
             ),
           ),
-          if (active)
-            const Positioned(
-              top: 6,
-              right: 6,
-              child: Icon(Icons.check_circle, size: 16, color: Colors.green),
+        ),
+        if (active)
+          const Positioned(
+            top: 6,
+            right: 6,
+            child: Icon(Icons.check_circle, size: 16, color: Colors.green),
+          ),
+        // A tile is never both "already enabled" and "suggested", so the badge
+        // and the dismiss button cannot collide in the same corner.
+        if (onDismiss != null)
+          Positioned(
+            top: 0,
+            right: 0,
+            child: IconButton(
+              icon: const Icon(Icons.close, size: 16),
+              iconSize: 16,
+              visualDensity: VisualDensity.compact,
+              padding: const EdgeInsets.all(4),
+              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+              tooltip: dismissTooltip,
+              color: cs.onSurfaceVariant,
+              onPressed: onDismiss,
             ),
-        ],
-      ),
+          ),
+      ],
     );
   }
 }

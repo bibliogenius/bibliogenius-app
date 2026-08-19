@@ -133,7 +133,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       case 'public':
         _showCapabilitySheet(
           context,
-          content: [_buildDirectorySection(context)],
+          content: [_buildDirectorySection(context, showPeerViewLink: true)],
         );
       case 'backup':
         _showBackupSheet(context);
@@ -473,7 +473,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onTap: () => _showBackupSheet(context),
               ),
               // Public directory (transform-in-place). Sheet keeps no title:
-              // the directory section carries its own "Annuaire public" header.
+              // the directory section carries its own "Annuaire" header.
               _buildGoalTile(
                 context,
                 icon: Icons.public,
@@ -483,7 +483,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 active: hub.isListed,
                 onTap: () => _showCapabilitySheet(
                   context,
-                  content: [_buildDirectorySection(context)],
+                  content: [
+                    _buildDirectorySection(context, showPeerViewLink: true),
+                  ],
                 ),
               ),
               // Local Wi-Fi sharing (transform-in-place).
@@ -1488,6 +1490,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   'hub_coming_soon_toggle',
                   'directory_settings_title',
                   'directory_listed_title',
+                  'peer_view_title',
                 ]))
                   Card(
                     margin: const EdgeInsets.only(bottom: 12),
@@ -1744,6 +1747,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: Column(
                 children: [
                   if (anyNetworkActive) ...[
+                    // Mirror of what actually leaves the device. Placed first:
+                    // the toggles below are easier to arbitrate once you have
+                    // seen the payload they govern.
+                    ListTile(
+                      leading: const Icon(Icons.preview_outlined),
+                      title: Text(t('peer_view_title')),
+                      subtitle: Text(t('peer_view_entry_desc')),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => context.push('/peer-view'),
+                    ),
+                    const Divider(height: 1),
                     SwitchListTile(
                       secondary: const Icon(Icons.cloud_off),
                       title: Text(t('peer_offline_caching')),
@@ -2003,8 +2017,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           'settings_goal_backup',
                         ),
                       ),
-                      onPressed: () =>
-                          setSheetState(() => showAccount = false),
+                      onPressed: () => setSheetState(() => showAccount = false),
                     ),
                   ),
                   const AccountSyncSummaryBody(
@@ -2489,7 +2502,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
   // Public Directory section
   // ---------------------------------------------------------------------------
 
-  Widget _buildDirectorySection(BuildContext context) {
+  /// [showPeerViewLink] adds the "what another library receives" shortcut at the
+  /// bottom of the card. Set on the standalone capability sheet, where the user
+  /// is deciding whether to make themselves visible and has nothing else on
+  /// screen; left off inside the Network accordion, which already carries the
+  /// same shortcut in its privacy sub-group.
+  Widget _buildDirectorySection(
+    BuildContext context, {
+    bool showPeerViewLink = false,
+  }) {
     return Consumer<HubDirectoryProvider>(
       builder: (context, dirProvider, _) {
         final config = dirProvider.config;
@@ -2709,6 +2730,38 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ],
                   ], // if (dirProvider.isHubEnabled)
+                  // Pre-flight: what actually leaves the library. Offered in
+                  // every hub state, since the question ("what would I be
+                  // exposing?") comes up before the toggles, not after.
+                  if (showPeerViewLink) ...[
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(Icons.preview_outlined),
+                      title: Text(
+                        TranslationService.translate(
+                          context,
+                          'peer_view_title',
+                        ),
+                      ),
+                      subtitle: Text(
+                        TranslationService.translate(
+                          context,
+                          isListed
+                              ? 'peer_view_entry_listed_desc'
+                              : 'peer_view_entry_preflight_desc',
+                        ),
+                      ),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () {
+                        // Resolve the router before popping: after the sheet
+                        // closes this element is on its way out and can no
+                        // longer look up an inherited widget.
+                        final router = GoRouter.of(context);
+                        Navigator.of(context).pop();
+                        router.push('/peer-view');
+                      },
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -4514,7 +4567,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       }
     }
   }
-
 }
 
 /// Conditional "Restaurer la version précédente" tile (ADR-037 §5).
