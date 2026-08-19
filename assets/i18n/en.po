@@ -5074,9 +5074,29 @@ msgstr "Share library"
 msgid "settings_country"
 msgstr "Country"
 
+#. Section heading: the city stored on this device (ADR-035 amended)
+msgid "settings_city_title"
+msgstr "My city"
+
+#. Explains that filling in a city is local and does not publish anything
+msgid "settings_city_local_desc"
+msgstr "Saved on this device. Sharing it in the public directory is a separate choice."
+
+#. Shown instead of the city picker when no country is set yet
+msgid "settings_city_requires_country"
+msgstr "Choose your country first, so the city list can be loaded."
+
+#. Tooltip: remove the city stored on this device
+msgid "settings_city_clear"
+msgstr "Remove my city"
+
 #. Toggle: opt in to share city in the public directory (ADR-035)
 msgid "settings_share_city"
 msgstr "Share my city"
+
+#. Shown under the share toggle when no city has been picked yet
+msgid "settings_share_city_requires_city"
+msgstr "Pick a city above first."
 
 #. Description for the share-my-city toggle
 msgid "settings_share_city_desc"
@@ -8869,6 +8889,9 @@ msgstr "Add a reading language"
 
 msgid "settings_goal_manage_city"
 msgstr "Manage my city"
+
+msgid "settings_goal_set_city"
+msgstr "Set my city"
 
 msgid "settings_goal_set_country"
 msgstr "Set my country"

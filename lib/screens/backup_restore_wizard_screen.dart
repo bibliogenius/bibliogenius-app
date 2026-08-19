@@ -392,6 +392,11 @@ class _BackupRestoreWizardScreenState extends State<BackupRestoreWizardScreen> {
         final v = raw[key];
         if (v is String) {
           await prefs.setString(key, v);
+        } else if (v is int) {
+          // The whitelist is not all strings: the picked city is stored as a
+          // GeoNames integer id. Without this branch it would be exported into
+          // the archive and then silently dropped on restore.
+          await prefs.setInt(key, v);
         }
       }
     } catch (e) {

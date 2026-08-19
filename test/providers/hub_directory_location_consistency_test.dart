@@ -457,6 +457,7 @@ void main() {
           prefs: const {
             'hub_local_location_city_id': 2988507,
             'hub_local_location_city_country': 'FR',
+            'hub_share_city': true,
           },
         );
         ffi.registerParamsLog.clear();
@@ -656,6 +657,13 @@ void main() {
   // omits the cityId silently wipes the hub-stored value. This group nails
   // the invariant that every cross-cutting register path (relay, display
   // name, country picker, etc.) re-asserts the local cityId.
+  //
+  // Every fixture here sets `hub_share_city` because that is what the group
+  // is about: a user who publishes their city. Since ADR-035 §3 was amended
+  // the city is a local preference that exists without being published, so
+  // re-asserting it now requires that consent. The complementary cases, "it
+  // must NOT be re-asserted without consent", live in
+  // hub_directory_local_city_test.dart.
   // -------------------------------------------------------------------------
   group('every register() path preserves location_city_id', () {
     test(
@@ -667,6 +675,7 @@ void main() {
           prefs: const {
             'hub_local_location_city_id': 2988507,
             'hub_local_location_city_country': 'FR',
+            'hub_share_city': true,
           },
         );
         await provider.loadLocalCityId();
@@ -705,6 +714,7 @@ void main() {
         prefs: const {
           'hub_local_location_city_id': 2988507,
           'hub_local_location_city_country': 'FR',
+          'hub_share_city': true,
         },
       );
       await provider.loadLocalCityId();
@@ -730,6 +740,7 @@ void main() {
         prefs: const {
           'hub_local_location_city_id': 2988507,
           'hub_local_location_city_country': 'FR',
+          'hub_share_city': true,
         },
       );
       provider.relayRetryDelay = Duration.zero;

@@ -17,12 +17,16 @@
 /// arbitration decision: user-meaningful (whitelist) or install-only
 /// (blacklist)?
 ///
-/// Conservative v1 policy: only the three keys the writer captured before
-/// this commit live in the whitelist (theme, language, country). Anything
-/// else stays in the blacklist until we have user-research evidence that
-/// it is meaningful to restore. Widening the whitelist must come with a
-/// migration discussion: "is the user happier or more confused if this
-/// value is silently overwritten on restore?"
+/// Conservative v1 policy: the whitelist holds only the keys that answer
+/// "who and where am I" (theme, language, country, city). Anything else
+/// stays in the blacklist until we have user-research evidence that it is
+/// meaningful to restore. Widening the whitelist must come with a migration
+/// discussion: "is the user happier or more confused if this value is
+/// silently overwritten on restore?"
+///
+/// A value and the consent to publish it are separate arbitrations. The
+/// city is restored; the toggle that shares it in the public directory is
+/// not (see `hub_share_city` in the blacklist).
 ///
 /// Dynamically computed keys (e.g. `prefs.setString(_versionKey, ...)`
 /// where `_versionKey = 'last_app_version'`) are NOT enumerated by the
@@ -39,6 +43,15 @@ const Set<String> kBackupPrefsWhitelist = <String>{
   'themeStyle',
   'languageCode',
   'country',
+  // The city the user picked for themselves. Local data by construction
+  // (ADR-035 §3 as amended): it exists on the device whether or not it is
+  // published. Someone restoring a backup obviously wants their city back,
+  // exactly as they want their country back - the two are the same kind of
+  // answer to "where am I". The companion country code is the alpha-2 the
+  // picker resolved for that city; it travels with the id or the restored
+  // value cannot be resolved without re-downloading the right country file.
+  'hub_local_location_city_id',
+  'hub_local_location_city_country',
 };
 
 /// Keys the writer deliberately drops. Inclusion here is documentation:
@@ -148,6 +161,17 @@ const Set<String> kBackupPrefsBlacklist = <String>{
   // meaningful only on the install that saw the suggestion.
   'dashboard_discover_dismissed_ids', // DiscoverDismissalService.dismissedIdsKey
   'dashboard_discover_dismissed', // legacy global flag, migrated then removed
+  // Consent to publish the city in the public directory. Deliberately NOT
+  // whitelisted alongside the city itself: restoring an archive must give
+  // the user their data back, never re-consent on their behalf. Silently
+  // inheriting "yes, publish where I live" from an old install is the one
+  // outcome this whole split exists to prevent.
+  'hub_share_city', // HubDirectoryProvider._kShareCityKey
+  // One-shot marker: this install has already asked the hub whether it holds
+  // a city to recover locally. Bookkeeping about a probe that happened on
+  // this device, meaningless anywhere else, and a restored install should
+  // run its own probe rather than inherit someone else's answer.
+  'hub_city_backfill_probed', // HubDirectoryProvider._kCityBackfillProbedKey
 };
 
 /// Encode the user-meaningful subset of the caller's preferences store

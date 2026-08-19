@@ -27,6 +27,31 @@ void main() {
     );
   });
 
+  test('the local city round-trips, the sharing consent does not', () {
+    // The city is a local preference: someone restoring a backup expects
+    // their city back. The decision to publish it in the public directory
+    // is a separate gesture and must be made again on the restored install,
+    // never inherited silently from an archive.
+    expect(kBackupPrefsWhitelist, contains('hub_local_location_city_id'));
+    expect(kBackupPrefsWhitelist, contains('hub_local_location_city_country'));
+    expect(kBackupPrefsBlacklist, contains('hub_share_city'));
+
+    const stored = <String, Object?>{
+      'hub_local_location_city_id': 2988507,
+      'hub_local_location_city_country': 'FR',
+      'hub_share_city': true,
+    };
+    final json = exportWhitelistedPrefs((k) => stored[k]);
+
+    expect(json.contains('"hub_local_location_city_id":2988507'), isTrue);
+    expect(json.contains('"hub_local_location_city_country":"FR"'), isTrue);
+    expect(
+      json.contains('hub_share_city'),
+      isFalse,
+      reason: 'publication consent must not travel in the archive',
+    );
+  });
+
   test('whitelist and blacklist do not overlap', () {
     final overlap = kBackupPrefsWhitelist.intersection(kBackupPrefsBlacklist);
     expect(

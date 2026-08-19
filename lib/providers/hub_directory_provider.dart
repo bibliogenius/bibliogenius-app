@@ -120,6 +120,20 @@ const String _kLocalLocationCityCountryKey = 'hub_local_location_city_country';
 const String _kPendingLocationCityCountryKey =
     'hub_pending_location_city_country';
 
+/// SharedPreferences key: set once the hub profile has been probed for a city
+/// to recover into [_kLocalLocationCityIdKey]. The probe answers "nothing to
+/// adopt" for every user who never picked a city, which is most of them since
+/// sharing is opt-in and off by default: without this flag they would each pay
+/// a hub round-trip on every cold start, exactly the users who benefit least.
+const String _kCityBackfillProbedKey = 'hub_city_backfill_probed';
+
+/// Strict ISO 3166-1 alpha-2 shape, mirroring `CityRepository._kIso2Country`.
+/// Applied to any country code arriving from the hub before it is persisted:
+/// the value ends up in a pref that is exported into `.bgbackup` archives and
+/// re-applied on restore, and country codes become path and URL segments
+/// downstream.
+final RegExp _kIso2CountryCode = RegExp(r'^[A-Z]{2}$');
+
 /// SharedPreferences keys: snapshot of the last successful (cityId, country)
 /// pair pushed to the hub. Used by the init-time remediation pass to detect
 /// drift (e.g. legacy installs that registered city without country) and
@@ -370,6 +384,12 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// id when enabling, `null` when disabling) so the hub state matches the
   /// local intent. Splitting the two concerns keeps this setter cheap and
   /// lets the picker UI sequence "save id then mirror to hub" in one step.
+  ///
+  /// Turning this OFF must not clear [localCityId]: the city is the user's
+  /// own data and withdrawing it from the public profile is not the same as
+  /// deleting it from the device. The publication itself is stopped in two
+  /// places - the explicit `syncLocationCityId(null)` the caller issues, and
+  /// the permanent gate in [_currentLocationForRegister].
   Future<void> setShareCity(bool value) async {
     _shareCity = value;
     final prefs = await SharedPreferences.getInstance();
@@ -386,10 +406,19 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// the user has not picked one yet (fresh install) or has cleared it.
   int? get localCityId => _localCityId;
 
+  String? _localCityCountry;
+
+  /// Alpha-2 country the picker resolved alongside [localCityId]. Exposed so
+  /// callers that push the city to the hub can always carry the pair, instead
+  /// of relying on the CityRepository happening to have the right country
+  /// file resident (it is not, on a cold start where the picker never opened).
+  String? get localCityCountry => _localCityCountry;
+
   Future<void> loadLocalCityId() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getInt(_kLocalLocationCityIdKey);
     _localCityId = (raw != null && raw > 0) ? raw : null;
+    _localCityCountry = prefs.getString(_kLocalLocationCityCountryKey);
     notifyListeners();
   }
 
@@ -407,15 +436,17 @@ class HubDirectoryProvider extends ChangeNotifier {
     _localCityId = (id != null && id > 0) ? id : null;
     final prefs = await SharedPreferences.getInstance();
     if (_localCityId == null) {
+      _localCityCountry = null;
       await prefs.remove(_kLocalLocationCityIdKey);
       await prefs.remove(_kLocalLocationCityCountryKey);
     } else {
       await prefs.setInt(_kLocalLocationCityIdKey, _localCityId!);
       final trimmedCountry = country?.trim();
       if (trimmedCountry != null && trimmedCountry.isNotEmpty) {
+        _localCityCountry = trimmedCountry.toUpperCase();
         await prefs.setString(
           _kLocalLocationCityCountryKey,
-          trimmedCountry.toUpperCase(),
+          _localCityCountry!,
         );
       }
       // Intentionally do NOT remove the country key when [country] is
@@ -808,6 +839,10 @@ class HubDirectoryProvider extends ChangeNotifier {
         await _consumePendingLocationCountry();
         // Same replay for a deferred city pick / clear (ADR-035 Phase 1).
         await _consumePendingLocationCityId();
+        // Recover the city on a device that never picked it locally (second
+        // device, or an install predating the local mirror). Runs after the
+        // replay so a pending user intent always wins over the hub state.
+        await adoptHubCityIfLocalEmpty();
         // Heal pre-fix installs where the city was pushed without its
         // country, leaving the hub-stored country NULL and silently
         // excluding the profile from country+city directory filters.
@@ -1207,15 +1242,153 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// rename retry, etc.) each one wiping the city the previous user
   /// gesture had just set. Without this helper the same-city banner
   /// converged for milliseconds and then went blank.
+  ///
+  /// The city is a local preference (ADR-035 §3 as amended): it exists on the
+  /// device whether or not the user publishes it, and [_kShareCityKey] is the
+  /// only authorisation to copy it to the hub. That gate belongs HERE rather
+  /// than at the picker, because the picker is not the dangerous caller: this
+  /// helper feeds relay publishing, renames and country changes, and
+  /// [initAndSyncCatalog] runs them on every cold start. Without the gate a
+  /// purely local city would be published on the next app launch with no user
+  /// gesture at all.
+  ///
+  /// The toggle is read from storage rather than from [_shareCity]: register()
+  /// also fires from paths that never went through [loadShareCity] (the flash
+  /// rename at first run, the network screen registration), and an unloaded
+  /// in-memory default of false would wipe the hub city of a user who did opt
+  /// in.
   Future<({int? cityId, String? country})> _currentLocationForRegister() async {
     final cityId = _localCityId;
     if (cityId == null) {
       return (cityId: null, country: null);
     }
     final prefs = await SharedPreferences.getInstance();
+    if (!(prefs.getBool(_kShareCityKey) ?? false)) {
+      return (cityId: null, country: null);
+    }
+    // Deliberately NOT also gated on [isListed]. It reads as a free extra
+    // guarantee, but `_ensureSilentRegistration` re-registers with
+    // is_listed=false after a config purge or Keychain recovery, and blanking
+    // the hub city there is exactly the loss that path already goes out of
+    // its way to prevent. Withdrawal from the directory is handled where the
+    // user performs it: the un-listing flow calls [setShareCity] with false,
+    // and this gate then keeps the city off every subsequent register.
     final hint = prefs.getString(_kLocalLocationCityCountryKey);
     final country = await _resolveCityCountry(cityId, hint);
     return (cityId: cityId, country: country);
+  }
+
+  /// Backfill the local city from this node's own hub profile when the device
+  /// has none. Returns true when a value was actually adopted.
+  ///
+  /// The case this serves is narrow, and worth stating precisely so it is not
+  /// mistaken for a general multi-device sync: a node id is device-local
+  /// (`AuthService.getOrCreateLibraryUuid`), so a freshly paired second device
+  /// has its own hub profile and nothing to adopt. What is left is an install
+  /// whose SharedPreferences were reset while its hub identity survived (the
+  /// Keychain-backed stores on iOS and macOS), an install predating the local
+  /// mirror, or a clone restored with its identity. The recovery matters
+  /// because the Rust serializer always emits `location_city_id` (null when
+  /// absent, see `hub_directory_service::build_register_body`), so a device
+  /// with an empty local value WIPES the hub city on its next register.
+  ///
+  /// Adopting also turns [_kShareCityKey] on. That is not a widening of the
+  /// disclosure: the city being on the profile means the user already opted
+  /// into publishing it. Leaving the toggle off would instead make the very
+  /// next register drop the city, silently un-sharing something they chose.
+  @visibleForTesting
+  Future<bool> adoptHubCityIfLocalEmpty() async {
+    final cfg = _config;
+    if (cfg == null) return false;
+    if (_localCityId != null) return false;
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool(_kCityBackfillProbedKey) ?? false) return false;
+    // A deferred clear that has not reached the hub yet leaves the local
+    // value empty while the profile still carries the old city. Adopting it
+    // back would resurrect exactly what the user asked to remove.
+    if ((await _getPendingLocationCityId()).hasPending) return false;
+
+    frb.FrbHubProfile? profile;
+    try {
+      profile = await _ffi.hubDirectoryGetProfile(cfg.nodeId);
+    } catch (e) {
+      debugPrint('HubDirectory: own profile lookup failed for city adopt: $e');
+      return false;
+    }
+    // FfiService turns transport errors into a null profile, so "no profile"
+    // and "hub unreachable" are indistinguishable here. Only a profile we
+    // actually read counts as an answer: marking the probe done on a failed
+    // read would lose the recovery for anyone whose first launch was offline.
+    if (profile == null) return false;
+
+    final remoteCityId = profile.locationCityId;
+    var adopted = false;
+    if (remoteCityId != null && remoteCityId > 0) {
+      debugPrint('HubDirectory: adopting hub city $remoteCityId as local value');
+      await setShareCity(true);
+      await setLocalCityId(
+        remoteCityId.toInt(),
+        country: _sanitizeCountryCode(profile.locationCountry),
+      );
+      adopted = true;
+    }
+    // Written last, once the outcome is durable. Marking the probe before the
+    // adoption would make a write that failed halfway unrecoverable: the flag
+    // would survive, the city would not, and no later launch would retry.
+    await prefs.setBool(_kCityBackfillProbedKey, true);
+    return adopted;
+  }
+
+  /// Returns [raw] uppercased when it is a well-formed ISO 3166-1 alpha-2
+  /// code, `null` otherwise. Used on every country code coming from the hub
+  /// before it reaches local storage.
+  static String? _sanitizeCountryCode(String? raw) {
+    final trimmed = raw?.trim().toUpperCase();
+    if (trimmed == null || !_kIso2CountryCode.hasMatch(trimmed)) return null;
+    return trimmed;
+  }
+
+  /// Remove the city from the device, and from the public profile when it was
+  /// being shared. Sharing is switched off in that case: the toggle cannot
+  /// stay on with nothing to publish, and re-picking a city later should not
+  /// silently resume a disclosure the user interrupted.
+  Future<void> clearCity() async {
+    final wasShared = _shareCity;
+    await setLocalCityId(null);
+    if (!wasShared) return;
+    await setShareCity(false);
+    try {
+      await syncLocationCityId(null);
+    } catch (e) {
+      debugPrint('HubDirectory: city clear push failed: $e');
+    }
+  }
+
+  /// Drop the local city when it no longer belongs to [newCountry]. Returns
+  /// true when the city was dropped.
+  ///
+  /// The picker resolves cities from the user's country file, so a city kept
+  /// across a country change can no longer be resolved: it renders as
+  /// "unknown city" and, if shared, publishes a country+city pair that no
+  /// directory filter can match (ADR-035 §7 allows exactly one city, and it
+  /// is implicitly one in the declared country).
+  ///
+  /// Deliberately conservative when the companion country was never recorded
+  /// (legacy installs stored the id alone): we cannot tell whether it matches,
+  /// and deleting the user's city on a guess is worse than showing a stale one.
+  Future<bool> dropCityForCountryChange(String newCountry) async {
+    if (_localCityId == null) return false;
+    final target = _sanitizeCountryCode(newCountry);
+    if (target == null) return false;
+    final current = _localCityCountry;
+    if (current == null || current.isEmpty) return false;
+    if (current == target) return false;
+
+    debugPrint(
+      'HubDirectory: dropping city of $current, country changed to $target',
+    );
+    await clearCity();
+    return true;
   }
 
   /// Best-effort country derivation for a [cityId]. Returns the explicit

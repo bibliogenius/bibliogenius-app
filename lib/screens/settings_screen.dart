@@ -535,11 +535,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     content: [_buildReadingLanguagesField(context)],
                   ),
                 ),
-              // City surfaces only once the library is listed. The city picker
-              // resolves cities from the user's country, so require a country
-              // first ("Renseigner mon pays" otherwise). Once the city is
-              // actually shared the tile drops off entirely — it's a one-off
-              // setup, manageable later from Settings > Languages.
+              // Country first: the city picker resolves its list from the
+              // user's country file, so there is nothing to pick without one.
               if (hub.isListed && theme.country.isEmpty)
                 _buildGoalTile(
                   context,
@@ -552,17 +549,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     content: [_buildCountryPicker(context, theme)],
                   ),
                 ),
-              if (hub.isListed &&
-                  theme.country.isNotEmpty &&
-                  !hub.isShareCityEnabled)
+              // Then the city itself. Not gated on being listed: the city is
+              // a local preference, and inviting only public profiles to fill
+              // it in is what made it look like a directory feature. The tile
+              // drops off once a city is set: a one-off setup, manageable
+              // later from Settings > Languages.
+              if (theme.country.isNotEmpty && hub.localCityId == null)
                 _buildGoalTile(
                   context,
                   icon: Icons.location_city_outlined,
-                  labelKey: 'settings_share_city',
+                  labelKey: 'settings_goal_set_city',
                   onTap: () => _showCapabilitySheet(
                     context,
                     icon: Icons.location_city_outlined,
-                    titleKey: 'settings_share_city',
+                    titleKey: 'settings_goal_set_city',
                     content: [_buildCitySection(context, theme)],
                   ),
                 ),
@@ -2826,6 +2826,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
       website: website,
     );
 
+    if (ok && !newValue) {
+      // Leaving the directory withdraws the city with it. The register call
+      // above already sends location_city_id null (the Rust serializer always
+      // emits the field), but without dropping the consent the next cold
+      // start would re-assert the city through ensureRelayPublished and
+      // quietly republish it. The local value stays on the device.
+      await dirProvider.setShareCity(false);
+    }
+
     if (ok && newValue) {
       // Push the full ISBN catalog to the hub after listing.
       await dirProvider.syncCatalog();
@@ -3022,41 +3031,84 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  /// Opt-in city sharing block (ADR-035 Phase 1). Renders the second toggle
-  /// "Partager ma ville" and, when ON, the picker that resolves a GeoNames
-  /// id from the user's country file.
+  /// City block (ADR-035 §3, amended). Two stacked concerns, deliberately in
+  /// this order:
+  ///
+  ///  1. The city itself, a purely local preference. Available to everyone
+  ///     who has set a country, whether or not they are listed in the public
+  ///     directory. Filling it in writes to the device and nothing else.
+  ///  2. "Partager ma ville", the opt-in that publishes it. Still gated on
+  ///     the library being listed, since there is no public profile to attach
+  ///     a city to otherwise.
+  ///
+  /// Putting the picker behind the toggle (the pre-amendment layout) made the
+  /// city look like a directory feature, and a solo offline user could not
+  /// record where they live without opting into publication.
   Widget _buildCitySection(BuildContext context, ThemeProvider themeProvider) {
     return Consumer<HubDirectoryProvider>(
       builder: (context, hub, _) {
         final cs = Theme.of(context).colorScheme;
-        // Sharing a city only makes sense if the library is listed in the
-        // public directory (otherwise there is no public profile to attach it
-        // to). Gate the toggle on that, and explain why when it is off.
-        final canShareCity = hub.isListed;
+        final hasCountry = themeProvider.country.isNotEmpty;
+        // Sharing needs a public profile to attach the city to, and a city to
+        // put on it. Each missing precondition gets its own explanation.
+        final canShareCity = hub.isListed && hub.localCityId != null;
+        final String shareSubtitle;
+        if (!hub.isListed) {
+          shareSubtitle = TranslationService.translate(
+            context,
+            'settings_share_city_requires_directory',
+          );
+        } else if (hub.localCityId == null) {
+          shareSubtitle = TranslationService.translate(
+            context,
+            'settings_share_city_requires_city',
+          );
+        } else {
+          shareSubtitle = TranslationService.translate(
+            context,
+            'settings_share_city_desc',
+          );
+        }
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Semantics(
+              header: true,
+              child: Text(
+                TranslationService.translate(context, 'settings_city_title'),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              TranslationService.translate(
+                context,
+                hasCountry
+                    ? 'settings_city_local_desc'
+                    : 'settings_city_requires_country',
+              ),
+              style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+            ),
+            if (hasCountry) ...[
+              const SizedBox(height: 8),
+              _buildCityPicker(context, themeProvider, hub),
+            ],
+            const SizedBox(height: 8),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
               title: Text(
-                TranslationService.translate(context, 'settings_share_city') ??
-                    'Share my city',
+                TranslationService.translate(context, 'settings_share_city'),
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               subtitle: Text(
-                canShareCity
-                    ? (TranslationService.translate(
-                            context,
-                            'settings_share_city_desc',
-                          ) ??
-                          'Adds your city to your public profile so nearby readers can find you. Off by default.')
-                    : TranslationService.translate(
-                        context,
-                        'settings_share_city_requires_directory',
-                      ),
+                shareSubtitle,
                 style: TextStyle(fontSize: 13, color: Colors.grey[600]),
               ),
               value: hub.isShareCityEnabled && canShareCity,
@@ -3064,23 +3116,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onChanged: canShareCity
                   ? (value) async {
                       await hub.setShareCity(value);
-                      if (!value) {
-                        // User opted out: drop the local pick and clear the hub
-                        // so the public profile no longer carries a city.
-                        await hub.setLocalCityId(null);
-                        try {
-                          await hub.syncLocationCityId(null);
-                        } catch (e) {
-                          debugPrint('Hub locationCityId clear failed: $e');
-                        }
+                      // Mirror the decision to the hub, in both directions.
+                      // Opting out clears the published copy but deliberately
+                      // keeps the local pick: the user withdrew a disclosure,
+                      // they did not forget where they live.
+                      try {
+                        await hub.syncLocationCityId(
+                          value ? hub.localCityId : null,
+                          country: value ? hub.localCityCountry : null,
+                        );
+                      } catch (e) {
+                        debugPrint('Hub locationCityId update failed: $e');
                       }
                     }
                   : null,
             ),
-            if (canShareCity && hub.isShareCityEnabled) ...[
-              const SizedBox(height: 8),
-              _buildCityPicker(context, themeProvider, hub),
-            ],
           ],
         );
       },
@@ -3096,6 +3146,38 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final country = themeProvider.country;
     final pickedId = hub.localCityId;
 
+    // The clear action is a SIBLING of the picker, never a child of it: an
+    // actionable widget nested inside a Semantics(button: true) node gives
+    // screen readers two overlapping targets in what is declared as one
+    // button, and makes hit-testing between the IconButton and the enclosing
+    // InkWell ambiguous (RGAA A1).
+    return Row(
+      children: [
+        Expanded(child: _cityPickerField(context, country, hub, primary)),
+        if (pickedId != null)
+          IconButton(
+            icon: const Icon(Icons.clear),
+            color: primary,
+            tooltip: TranslationService.translate(
+              context,
+              'settings_city_clear',
+            ),
+            onPressed: () => hub.clearCity(),
+          ),
+      ],
+    );
+  }
+
+  /// The tappable field itself: current selection plus the affordance to open
+  /// the picker sheet. Split out of [_buildCityPicker] so the clear action can
+  /// sit next to it rather than inside its semantics node.
+  Widget _cityPickerField(
+    BuildContext context,
+    String country,
+    HubDirectoryProvider hub,
+    Color primary,
+  ) {
+    final pickedId = hub.localCityId;
     return Material(
       color: Colors.transparent,
       // Semantics(button: true, label: ...) makes the picker discoverable
@@ -3200,12 +3282,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
       builder: (sheetCtx) => CityPickerSheet(country: country),
     );
     if (picked == null) return;
-    // The picked CityRecord knows its country - thread it through both
-    // calls so the hub upsert always carries the (city, country) pair.
-    // Without this, the city was pushed alone and the hub-stored country
-    // could stay NULL, silently excluding this profile from the
-    // country+city directory filter (asymmetry observed iPhone-vs-Mac).
+    // Local first, always: recording where you live is not a publication.
     await hub.setLocalCityId(picked.id, country: picked.country);
+    if (!hub.isShareCityEnabled) return;
+    // The picked CityRecord knows its country - thread it through so the hub
+    // upsert always carries the (city, country) pair. Without this, the city
+    // was pushed alone and the hub-stored country could stay NULL, silently
+    // excluding this profile from the country+city directory filter
+    // (asymmetry observed iPhone-vs-Mac).
     try {
       await hub.syncLocationCityId(picked.id, country: picked.country);
     } catch (e) {
@@ -3252,10 +3336,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
             onSelect: (Country selected) async {
               await themeProvider.setCountry(selected.countryCode);
               if (!context.mounted) return;
+              final hub = context.read<HubDirectoryProvider>();
+              // A city belongs to a country. Keeping one from the previous
+              // country leaves the picker showing "unknown city" (it resolves
+              // selections from the current country file) and, when shared,
+              // publishes a country+city pair no directory filter can match.
+              await hub.dropCityForCountryChange(selected.countryCode);
               try {
-                await context.read<HubDirectoryProvider>().syncLocationCountry(
-                  selected.countryCode,
-                );
+                await hub.syncLocationCountry(selected.countryCode);
               } catch (e) {
                 debugPrint('Hub locationCountry update failed: $e');
               }

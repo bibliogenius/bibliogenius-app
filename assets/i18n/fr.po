@@ -5074,9 +5074,29 @@ msgstr "Partager"
 msgid "settings_country"
 msgstr "Pays"
 
+#. Section heading: the city stored on this device (ADR-035 amended)
+msgid "settings_city_title"
+msgstr "Ma ville"
+
+#. Explains that filling in a city is local and does not publish anything
+msgid "settings_city_local_desc"
+msgstr "Enregistrée sur cet appareil. La partager dans l'annuaire public est un choix distinct."
+
+#. Shown instead of the city picker when no country is set yet
+msgid "settings_city_requires_country"
+msgstr "Choisissez d'abord votre pays, pour que la liste des villes puisse être chargée."
+
+#. Tooltip: remove the city stored on this device
+msgid "settings_city_clear"
+msgstr "Retirer ma ville"
+
 #. Toggle: opt in to share city in the public directory (ADR-035)
 msgid "settings_share_city"
 msgstr "Partager ma ville"
+
+#. Shown under the share toggle when no city has been picked yet
+msgid "settings_share_city_requires_city"
+msgstr "Choisissez d'abord une ville ci-dessus."
 
 #. Description for the share-my-city toggle
 msgid "settings_share_city_desc"
@@ -8869,6 +8889,9 @@ msgstr "Ajouter une langue de lecture"
 
 msgid "settings_goal_manage_city"
 msgstr "Gérer ma ville"
+
+msgid "settings_goal_set_city"
+msgstr "Renseigner ma ville"
 
 msgid "settings_goal_set_country"
 msgstr "Renseigner mon pays"
