@@ -47,6 +47,7 @@ import '../widgets/loan_dialog.dart';
 import '../widgets/metadata_refresh_dialog.dart';
 import '../widgets/speech_note_button.dart';
 import '../widgets/star_rating_widget.dart';
+import '../widgets/indie_bookshop_link.dart';
 import '../widgets/wishlist_availability_card.dart';
 import '../widgets/wishlist_seeker_card.dart';
 import 'record_sale_screen.dart';
@@ -814,6 +815,14 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                     if (book.readingStatus == 'wanting')
                       WishlistAvailabilityCard(
                         key: ValueKey('wishlist-availability-${book.isbn}'),
+                        book: book,
+                      ),
+                    // Buying comes after borrowing, on purpose: the card above
+                    // offers the copy a contact already owns, this link only
+                    // offers the shop. Renders nothing outside France.
+                    if (book.readingStatus == 'wanting')
+                      IndieBookshopLink(
+                        key: ValueKey('bookshop-link-${book.isbn}'),
                         book: book,
                       ),
                     // Inverse direction, for owned books: who wants this
