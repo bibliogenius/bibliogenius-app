@@ -10570,12 +10570,3 @@ msgstr "Prêter"
 #. Discreet mutual-wish hint under the lend action (never an obligation)
 msgid "wishlist_mutual_hint"
 msgstr "Vous cherchez aussi {title}, que {name} possède."
-
-#. Link under the "available from a contact" card, on a wanted book: buy it at
-#. a nearby independent bookshop. Shown only to readers whose country is FR.
-msgid "bookshop_order_indie"
-msgstr "Commander chez un libraire indépendant"
-
-#. Error toast when the bookshop page cannot be opened in a browser
-msgid "bookshop_open_failed"
-msgstr "Impossible d'ouvrir la page du libraire"
