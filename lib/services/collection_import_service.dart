@@ -35,7 +35,34 @@ class CollectionImportService {
   CollectionImportService(this._apiService);
 
   /// Normalize an ISBN the way the backend stores it (digits and X only).
-  static String cleanIsbn(String isbn) => isbn.replaceAll(RegExp(r'[^0-9X]'), '');
+  static String cleanIsbn(String isbn) =>
+      isbn.replaceAll(RegExp(r'[^0-9X]'), '');
+
+  /// True when the curated entry already carries everything [createBook] needs,
+  /// so the network lookup would add nothing.
+  ///
+  /// Of the six fields the import writes, four already read the YAML first;
+  /// only `title` and `author` prefer the lookup. When `note` and `authors`
+  /// are both present those two are covered as well, by curated values that
+  /// were chosen and reviewed rather than pulled from a catalogue. Skipping
+  /// the call then costs no quality at all.
+  ///
+  /// What it buys: the import used to await one lookup per book, in sequence,
+  /// and a single lookup can take 15+ seconds when the backend walks its whole
+  /// BnF/Inventaire/OpenLibrary/Google chain. A fully described list now makes
+  /// no network call at all and imports offline.
+  ///
+  /// Deliberately strict, `cover_url` included: without it the lookup is the
+  /// only thing that can supply a cover, and it earns its cost. Lists written
+  /// before this guard carry only `isbn` and `note`, so it never fires for
+  /// them and their behaviour is unchanged.
+  static bool isSelfSufficient(CuratedBook book) =>
+      (book.note?.isNotEmpty ?? false) &&
+      (book.authors?.isNotEmpty ?? false) &&
+      (book.publisher?.isNotEmpty ?? false) &&
+      (book.publishedDate?.isNotEmpty ?? false) &&
+      (book.description?.isNotEmpty ?? false) &&
+      (book.coverUrl?.isNotEmpty ?? false);
 
   Future<CollectionImportResult> importList({
     required CuratedList list,
@@ -63,8 +90,16 @@ class CollectionImportService {
         try {
           final isbn = book.getIsbnForLanguage(langCode);
 
-          // Lookup metadata from external sources (cover, author, publisher...)
-          final lookup = await _apiService.lookupBook(isbn);
+          // Lookup metadata from external sources (cover, author, publisher...),
+          // unless the curated entry already has all of it: see
+          // [isSelfSufficient]. Kept sequential on purpose. Running these
+          // concurrently would turn one import into a burst against the same
+          // external catalogues, which is what rate limiters look for, and the
+          // Rust side already settled this question the other way by sleeping
+          // 500ms between books in its cover enrichment loop.
+          final lookup = isSelfSufficient(book)
+              ? null
+              : await _apiService.lookupBook(isbn);
 
           // Prepare book data: lookup results enriched with YAML overrides
           // Prefer lookup title over note (note may contain "Title - Author (Year)")
