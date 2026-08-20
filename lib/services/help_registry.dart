@@ -389,6 +389,13 @@ class HelpRegistry {
       ),
       _GatedTopic(
         topic: HelpTopic.inline(
+          id: 'backup_export_csv',
+          titleKey: 'backup_export_csv_title',
+          descKey: 'backup_export_csv_help',
+        ),
+      ),
+      _GatedTopic(
+        topic: HelpTopic.inline(
           id: 'backup_full',
           titleKey: 'backup_full_title',
           descKey: 'backup_full_help',

@@ -1739,6 +1739,36 @@ class ApiService {
     );
   }
 
+  /// Fetch the catalog as a spreadsheet-readable CSV listing.
+  ///
+  /// Same local-HTTP path as [exportData]: the CSV is built by the Rust core,
+  /// which owns the schema, and the endpoint stays available to the server
+  /// mode. Readable inventory only, not a backup: it cannot be re-imported.
+  Future<Response> exportCsv() async {
+    if (useFfi) {
+      // Delegate to the local HTTP server, as the JSON export does.
+      try {
+        final localDio = await _getLocalDio();
+        return await localDio.get(
+          '/api/export/csv',
+          options: Options(responseType: ResponseType.bytes),
+        );
+      } catch (e) {
+        debugPrint('FFI CSV export error: $e');
+        return Response(
+          requestOptions: RequestOptions(path: '/api/export/csv'),
+          statusCode: 500,
+          statusMessage: 'CSV export failed: $e',
+        );
+      }
+    }
+
+    return await _dio.get(
+      '/api/export/csv',
+      options: Options(responseType: ResponseType.bytes),
+    );
+  }
+
   /// Import a JSON backup file to restore library data
   Future<Response> importBackup(List<int> jsonBytes) async {
     // Parse the JSON to send as structured data

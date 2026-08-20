@@ -833,6 +833,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 if (_sectionVisible([
                   'backup_section_title',
                   'backup_export_catalog_title',
+                  'backup_export_csv_title',
                   'backup_full_title',
                   'backup_restore_title',
                   'account_sync_title',
@@ -2096,6 +2097,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ],
         ),
         onTap: () => BackupActions.exportCatalogJson(context),
+      ),
+      // Readable CSV listing (inventory), next to the JSON export: same
+      // delivery flow, different shape. Neither replaces the .bgbackup archive.
+      ListTile(
+        leading: const Icon(Icons.table_view, color: Colors.green),
+        title: Text(
+          TranslationService.translate(context, 'backup_export_csv_title'),
+        ),
+        subtitle: Text(
+          TranslationService.translate(context, 'backup_export_csv_subtitle'),
+        ),
+        trailing: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            HelpAffordance(topicId: 'backup_export_csv'),
+            Icon(Icons.chevron_right),
+          ],
+        ),
+        onTap: () => BackupActions.exportCatalogCsv(context),
       ),
       // Sauvegarde complète (.bgbackup, ADR-037 §2 writer).
       ListTile(

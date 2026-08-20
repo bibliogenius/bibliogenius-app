@@ -23,7 +23,8 @@ const Map<String, String> settingsSearchSynonyms = {
       'archive copie compte account chiffre chiffrement encrypted '
       'recuperation recovery partage partager acces access securite security '
       'mot de passe password mfa 2fa session connexion deconnexion login '
-      'logout',
+      'logout csv tableur tableau excel spreadsheet listing liste inventaire '
+      'inventory assurance',
   'theme_title':
       'theme apparence couleur dark mode sombre clair police texte taille '
       'font lisibilite',

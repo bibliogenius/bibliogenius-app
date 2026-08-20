@@ -7843,6 +7843,70 @@ msgstr "データを保管したり別のアプリにインポートしたりで
 msgid "backup_export_catalog_help"
 msgstr "本、著者、タグ、コレクション、連絡先を含む、共有可能なポータブルファイルを作成します。データの保管や、別のアプリへのインポートに便利です。ライブラリの完全な暗号化コピーが必要な場合は、代わりに「完全バックアップ」を使用してください。"
 
+#. Settings - Backup: export catalog as CSV tile title
+msgid "backup_export_csv_title"
+msgstr "CSV で書き出す（表計算）"
+
+#. Settings - Backup: export catalog as CSV tile subtitle
+msgid "backup_export_csv_subtitle"
+msgstr "表計算ソフトで開ける、読みやすい蔵書リストです。"
+
+#. Settings - Backup: export catalog as CSV contextual help
+msgid "backup_export_csv_help"
+msgstr "1 冊につき 1 行の CSV ファイルを作成します（タイトル、著者、ISBN、出版社、出版年、言語、所有状況、読書状況、評価、価格、タグ、追加日）。蔵書目録などのために、表計算ソフトで読んだり並べ替えたりすることを想定しています。このファイルは読み込み直せません。蔵書を復元するには完全バックアップをお使いください。"
+
+#. CSV export - Column header: book title
+msgid "csv_header_title"
+msgstr "タイトル"
+
+#. CSV export - Column header: authors
+msgid "csv_header_authors"
+msgstr "著者"
+
+#. CSV export - Column header: ISBN
+msgid "csv_header_isbn"
+msgstr "ISBN"
+
+#. CSV export - Column header: publisher
+msgid "csv_header_publisher"
+msgstr "出版社"
+
+#. CSV export - Column header: publication year
+msgid "csv_header_publication_year"
+msgstr "出版年"
+
+#. CSV export - Column header: language
+msgid "csv_header_language"
+msgstr "言語"
+
+#. CSV export - Column header: owned / borrowed / wishlist
+msgid "csv_header_ownership_status"
+msgstr "所有状況"
+
+#. CSV export - Column header: reading status
+msgid "csv_header_reading_status"
+msgstr "読書状況"
+
+#. CSV export - Column header: personal rating
+msgid "csv_header_user_rating"
+msgstr "評価"
+
+#. CSV export - Column header: price
+msgid "csv_header_price"
+msgstr "価格"
+
+#. CSV export - Column header: tags
+msgid "csv_header_tags"
+msgstr "タグ"
+
+#. CSV export - Column header: date added to the library
+msgid "csv_header_added_at"
+msgstr "追加日"
+
+#. CSV export - ownership_status value: on the wishlist, not owned yet
+msgid "csv_ownership_wishlist"
+msgstr "欲しい本"
+
 #. Settings - Backup: full backup tile title
 msgid "backup_full_title"
 msgstr "完全バックアップ"

@@ -7843,6 +7843,70 @@ msgstr "便携文件，用于归档您的数据或导入到其他应用。"
 msgid "backup_export_catalog_help"
 msgstr "创建一个便携、可分享的文件，包含您的书籍、作者、标签、合集和联系人。方便归档数据或导入到其他应用。如需图书馆完整的加密副本，请改用“完整备份”。"
 
+#. Settings - Backup: export catalog as CSV tile title
+msgid "backup_export_csv_title"
+msgstr "导出为 CSV（电子表格）"
+
+#. Settings - Backup: export catalog as CSV tile subtitle
+msgid "backup_export_csv_subtitle"
+msgstr "可读的藏书清单，可用电子表格打开。"
+
+#. Settings - Backup: export catalog as CSV contextual help
+msgid "backup_export_csv_help"
+msgstr "生成一个 CSV 文件，每本书一行：书名、作者、ISBN、出版社、年份、语言、持有状态、阅读状态、评分、价格、标签和添加日期。适合在电子表格中阅读和排序，例如用于清点藏书。此文件无法重新导入：要恢复藏书，请使用完整备份。"
+
+#. CSV export - Column header: book title
+msgid "csv_header_title"
+msgstr "书名"
+
+#. CSV export - Column header: authors
+msgid "csv_header_authors"
+msgstr "作者"
+
+#. CSV export - Column header: ISBN
+msgid "csv_header_isbn"
+msgstr "ISBN"
+
+#. CSV export - Column header: publisher
+msgid "csv_header_publisher"
+msgstr "出版社"
+
+#. CSV export - Column header: publication year
+msgid "csv_header_publication_year"
+msgstr "出版年份"
+
+#. CSV export - Column header: language
+msgid "csv_header_language"
+msgstr "语言"
+
+#. CSV export - Column header: owned / borrowed / wishlist
+msgid "csv_header_ownership_status"
+msgstr "持有状态"
+
+#. CSV export - Column header: reading status
+msgid "csv_header_reading_status"
+msgstr "阅读状态"
+
+#. CSV export - Column header: personal rating
+msgid "csv_header_user_rating"
+msgstr "评分"
+
+#. CSV export - Column header: price
+msgid "csv_header_price"
+msgstr "价格"
+
+#. CSV export - Column header: tags
+msgid "csv_header_tags"
+msgstr "标签"
+
+#. CSV export - Column header: date added to the library
+msgid "csv_header_added_at"
+msgstr "添加日期"
+
+#. CSV export - ownership_status value: on the wishlist, not owned yet
+msgid "csv_ownership_wishlist"
+msgstr "心愿单"
+
 #. Settings - Backup: full backup tile title
 msgid "backup_full_title"
 msgstr "完整备份"

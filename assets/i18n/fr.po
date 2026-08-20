@@ -7637,6 +7637,70 @@ msgstr "Fichier portable pour archiver vos données ou les importer dans une aut
 msgid "backup_export_catalog_help"
 msgstr "Crée un fichier portable et partageable contenant vos livres, auteurs, tags, collections et contacts. Pratique pour archiver vos données ou les importer dans une autre application. Pour une copie complète et chiffrée de votre bibliothèque, utilisez plutôt « Sauvegarde complète »."
 
+#. Settings - Backup: export catalog as CSV tile title
+msgid "backup_export_csv_title"
+msgstr "Exporter en CSV (tableur)"
+
+#. Settings - Backup: export catalog as CSV tile subtitle
+msgid "backup_export_csv_subtitle"
+msgstr "Liste lisible de vos livres, à ouvrir dans un tableur."
+
+#. Settings - Backup: export catalog as CSV contextual help
+msgid "backup_export_csv_help"
+msgstr "Crée un fichier CSV avec une ligne par livre : titre, auteurs, ISBN, éditeur, année, langue, possession, statut de lecture, note, prix, étiquettes et date d'ajout. Pensé pour être lu et trié dans un tableur, par exemple pour un inventaire. Ce fichier ne se réimporte pas : pour restaurer votre bibliothèque, utilisez « Sauvegarde complète »."
+
+#. CSV export - Column header: book title
+msgid "csv_header_title"
+msgstr "titre"
+
+#. CSV export - Column header: authors
+msgid "csv_header_authors"
+msgstr "auteurs"
+
+#. CSV export - Column header: ISBN
+msgid "csv_header_isbn"
+msgstr "isbn"
+
+#. CSV export - Column header: publisher
+msgid "csv_header_publisher"
+msgstr "éditeur"
+
+#. CSV export - Column header: publication year
+msgid "csv_header_publication_year"
+msgstr "année de publication"
+
+#. CSV export - Column header: language
+msgid "csv_header_language"
+msgstr "langue"
+
+#. CSV export - Column header: owned / borrowed / wishlist
+msgid "csv_header_ownership_status"
+msgstr "possession"
+
+#. CSV export - Column header: reading status
+msgid "csv_header_reading_status"
+msgstr "statut de lecture"
+
+#. CSV export - Column header: personal rating
+msgid "csv_header_user_rating"
+msgstr "note"
+
+#. CSV export - Column header: price
+msgid "csv_header_price"
+msgstr "prix"
+
+#. CSV export - Column header: tags
+msgid "csv_header_tags"
+msgstr "étiquettes"
+
+#. CSV export - Column header: date added to the library
+msgid "csv_header_added_at"
+msgstr "date d'ajout"
+
+#. CSV export - ownership_status value: on the wishlist, not owned yet
+msgid "csv_ownership_wishlist"
+msgstr "Souhaité"
+
 #. Settings - Backup: full backup tile title (coming soon)
 msgid "backup_full_title"
 msgstr "Sauvegarde complète"

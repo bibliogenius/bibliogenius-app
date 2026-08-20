@@ -7032,6 +7032,70 @@ msgstr ""
 msgid "backup_export_share"
 msgstr ""
 
+#. Settings - Backup: export catalog as CSV tile title
+msgid "backup_export_csv_title"
+msgstr ""
+
+#. Settings - Backup: export catalog as CSV tile subtitle
+msgid "backup_export_csv_subtitle"
+msgstr ""
+
+#. Settings - Backup: export catalog as CSV contextual help
+msgid "backup_export_csv_help"
+msgstr ""
+
+#. CSV export - Column header: book title
+msgid "csv_header_title"
+msgstr ""
+
+#. CSV export - Column header: authors
+msgid "csv_header_authors"
+msgstr ""
+
+#. CSV export - Column header: ISBN
+msgid "csv_header_isbn"
+msgstr ""
+
+#. CSV export - Column header: publisher
+msgid "csv_header_publisher"
+msgstr ""
+
+#. CSV export - Column header: publication year
+msgid "csv_header_publication_year"
+msgstr ""
+
+#. CSV export - Column header: language
+msgid "csv_header_language"
+msgstr ""
+
+#. CSV export - Column header: owned / borrowed / wishlist
+msgid "csv_header_ownership_status"
+msgstr ""
+
+#. CSV export - Column header: reading status
+msgid "csv_header_reading_status"
+msgstr ""
+
+#. CSV export - Column header: personal rating
+msgid "csv_header_user_rating"
+msgstr ""
+
+#. CSV export - Column header: price
+msgid "csv_header_price"
+msgstr ""
+
+#. CSV export - Column header: tags
+msgid "csv_header_tags"
+msgstr ""
+
+#. CSV export - Column header: date added to the library
+msgid "csv_header_added_at"
+msgstr ""
+
+#. CSV export - ownership_status value: on the wishlist, not owned yet
+msgid "csv_ownership_wishlist"
+msgstr ""
+
 #. Accessibility - Tooltip: open navigation menu
 msgid "tooltip_open_menu"
 msgstr ""
