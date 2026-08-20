@@ -1,0 +1,136 @@
+# CM1 et CM2 - lectures de rentree
+#
+# Structure: the six literary entries of the NEW French programme for cycle 3
+# (BO du 17 avril 2025). The rollout is now complete for that cycle: CM1 and
+# 6e switched at the 2025 rentree, CM2 switches at the 2026 one. With
+# entree-en-6e.yml this covers the whole cycle.
+#
+# The CM1-CM2 entries are NOT the ones the 6e list uses: the programme gives
+# six here against five there, with their own wording and their own genres.
+# The two lists are structurally distinct, not a duplicate.
+#
+# Two official constraints shaped this selection, and they are the reason it
+# leans further towards youth literature than the collège lists do:
+#   - five youth-literature works and two classics per level, read in full, as
+#     a stated minimum;
+#   - alternate the FORMS, "texte seul, album, BD". Hence two albums (Yakouba,
+#     Otto) and one comic (Akissi), which entree-en-6e and entree-en-5e lack.
+#
+# REVIEW DEADLINE: nothing before the 2027 rentree. The cycle is fully switched
+# and its programme is not scheduled to move again.
+#
+# Editions were picked among ISBNs attested by catalogue.bnf.fr, preferring the
+# widely held paperback over the most recent printing: it is the one a family
+# is most likely to own already, which is what the owned/total badge compares.
+id: cm1-cm2
+version: 1
+
+title:
+  fr: "CM1 et CM2 - lectures de rentrée"
+  en: "Years 5 and 6 - back-to-school reading"
+  es: "CM1 y CM2 - lecturas de vuelta al cole"
+  de: "CM1 und CM2 - Lektüre zum Schulbeginn"
+
+description:
+  fr: "Onze lectures pour le CM1 et le CM2, réparties sur les six entrées du nouveau programme de français : héroïnes et héros, merveilleux et étrange, autres vies, morale, poésie, et le rapport aux autres. Structure d'après le programme publié au Bulletin officiel du 17 avril 2025, applicable au CM2 depuis la rentrée 2026. Albums, bande dessinée et romans, comme le programme le demande. Éditions courantes vérifiées au catalogue de la BnF."
+  en: "Eleven books for the last two years of French primary school, spread over the six strands of the new French-language curriculum: heroines and heroes, the marvellous and the strange, other lives, morality, poetry, and how we stand with others. Structure follows the programme published in the Bulletin officiel of 17 April 2025. Picture books, a comic and novels, as the programme asks. Current editions checked against the BnF catalogue."
+  es: "Once lecturas para los dos últimos cursos de primaria en Francia, repartidas en los seis ejes del nuevo programa de francés: heroínas y héroes, lo maravilloso y lo extraño, otras vidas, la moral, la poesía y la relación con los demás. Estructura basada en el programa publicado en el Bulletin officiel del 17 de abril de 2025. Álbumes, cómic y novelas, como pide el programa. Ediciones actuales verificadas en el catálogo de la BnF."
+  de: "Elf Bücher für die letzten beiden Grundschuljahre, geordnet nach den sechs Themenfeldern des neuen französischen Lehrplans: Heldinnen und Helden, Wunderbares und Fremdes, andere Leben, Moral, Poesie und das Verhältnis zu anderen. Struktur nach dem im Bulletin officiel vom 17. April 2025 veröffentlichten Lehrplan. Bilderbücher, ein Comic und Romane, wie der Lehrplan es verlangt. Aktuelle Ausgaben, im BnF-Katalog geprüft."
+
+cover_url: "https://inventaire.io/img/entities/8ea74f2e6e952638b0adf5b878c174ddb89632d9"
+contributor: BiblioGenius
+tags: [rentrée, primaire, CM1, CM2, école, jeunesse, album]
+content_languages: [fr]
+
+# Per-book `cover_url` is set ONLY where a cover was found on a free source AND
+# opened to confirm it shows this exact edition: 10 of 11. Sacrees sorcieres is
+# the exception on purpose, the only image available carries a second-hand
+# reseller's watermark, so the lookup chain gets to try instead.
+books:
+  # 1. Découvrir des héroïnes, des héros (récit : roman, conte, épopée)
+  - isbn: "2747019268"
+    note: "Le Feuilleton d'Hermès - Murielle Szac"
+    publisher: "Bayard jeunesse"
+    published_date: "2006"
+    authors: ["Murielle Szac"]
+    description: "La mythologie grecque en cent épisodes courts, un par jour. Hermès, Zeus, les Titans et les héros, dans une forme faite pour être lue à voix haute en classe ou le soir."
+    cover_url: "https://inventaire.io/img/entities/8ea74f2e6e952638b0adf5b878c174ddb89632d9"
+
+  # 2. Se confronter au merveilleux, à l'étrange (récit : conte, légende)
+  - isbn: "2710300249"
+    note: "Contes de la rue Broca - Pierre Gripari"
+    publisher: "La Table Ronde"
+    published_date: "2003"
+    authors: ["Pierre Gripari"]
+    description: "La sorcière du placard aux balais, la paire de chaussures amoureuses, le géant aux chaussettes rouges. Des contes modernes nés dans une rue de Paris, drôles et légèrement inquiétants."
+    cover_url: "https://inventaire.io/img/entities/f28c7c24f02b00b27c0d9466261759578a7c2900"
+  - isbn: "2070501833"
+    note: "Sacrées sorcières - Roald Dahl"
+    publisher: "Gallimard"
+    published_date: "1984"
+    authors: ["Roald Dahl"]
+    description: "Les sorcières existent, elles détestent les enfants, et on peut les reconnaître si on sait quoi regarder. Dahl à son plus inquiétant, et à son plus drôle."
+
+  # 3. Imaginer et vivre d'autres vies (récit : roman, nouvelle)
+  - isbn: "9782211306430"
+    note: "Journal d'un chat assassin - Anne Fine"
+    publisher: "L'École des loisirs"
+    published_date: "2020"
+    authors: ["Anne Fine"]
+    description: "Tuffy est un chat, il rapporte des oiseaux morts, et il ne voit vraiment pas où est le problème. Très court, raconté par le chat, et hilarant de mauvaise foi."
+    cover_url: "https://inventaire.io/img/entities/274e7b2a351a0d25c4020753a2a1721a24ff150e"
+  - isbn: "9782070544974"
+    note: "Le Royaume de Kensuké - Michael Morpurgo"
+    publisher: "Gallimard jeunesse"
+    published_date: "2007"
+    authors: ["Michael Morpurgo"]
+    description: "Tombé d'un voilier, Michael échoue sur une île déjà habitée par un vieil homme qui refuse de lui parler. Une robinsonnade à deux, où l'autre vient d'un autre monde."
+    cover_url: "https://inventaire.io/img/entities/a11454969db10453b198efd2da6ecd0449fbd0f4"
+
+  # 4. Comprendre et interroger la morale (récit, fable) - deux albums
+  - isbn: "2020498480"
+    note: "Yakouba - Thierry Dedieu"
+    publisher: "Seuil jeunesse"
+    published_date: "2001"
+    authors: ["Thierry Dedieu"]
+    description: "Pour devenir guerrier, Yakouba doit tuer un lion. Le lion est blessé et lui propose autre chose. Un album sans issue facile, qui laisse la question ouverte."
+    cover_url: "https://inventaire.io/img/entities/73386889d6f7d3178a97d18feb1e823acf624468"
+  - isbn: "2211055435"
+    note: "Otto, autobiographie d'un ours en peluche - Tomi Ungerer"
+    publisher: "L'École des loisirs"
+    published_date: "1999"
+    authors: ["Tomi Ungerer"]
+    description: "Un ours en peluche traverse la guerre, perd ses enfants, et les retrouve cinquante ans plus tard. L'Histoire racontée par un objet, ce qui la rend abordable sans rien édulcorer."
+    cover_url: "https://inventaire.io/img/entities/68e1a1585eb963a3a750061a2f1e8de358673216"
+
+  # 5. Savourer le goût des mots, imaginer et créer en poésie (poésie)
+  - isbn: "2912084733"
+    note: "Il pleut des poèmes - anthologie réunie par Jean-Marie Henry"
+    publisher: "Rue du monde"
+    published_date: "2003"
+    authors: ["Jean-Marie Henry"]
+    description: "Une anthologie de poèmes minuscules, deux ou trois vers chacun, illustrée par Zaü. Assez courts pour être appris sans effort, assez justes pour rester."
+    cover_url: "https://inventaire.io/img/entities/2fa293b405f4912d7d4e6ac82ca57fe9d0731158"
+  - isbn: "9782070617784"
+    note: "Mes 66 plus belles poésies - anthologie"
+    publisher: "Gallimard jeunesse"
+    published_date: "2008"
+    authors: ["Collectif"]
+    description: "Le répertoire classique de l'école élémentaire, de Victor Hugo à Jacques Prévert, réuni en un seul volume illustré."
+    cover_url: "https://covers.openlibrary.org/b/isbn/9782070617784-L.jpg?default=false"
+
+  # 6. Se découvrir, s'affirmer dans le rapport aux autres (récit, théâtre, BD)
+  - isbn: "9782070628025"
+    note: "Akissi, tome 1 : Attaque de chats - Marguerite Abouet et Mathieu Sapin"
+    publisher: "Gallimard jeunesse"
+    published_date: "2010"
+    authors: ["Marguerite Abouet", "Mathieu Sapin"]
+    description: "Akissi vit à Abidjan, son grand frère la martyrise et les chats du quartier lui volent son poisson. Une bande dessinée drôle, où l'enfance se joue ailleurs qu'ici."
+    cover_url: "https://inventaire.io/img/entities/698f7a4ab235b2a2945482639d047daf718dd7a2"
+  - isbn: "9782748512625"
+    note: "Momo, petit prince des Bleuets - Yaël Hassan"
+    publisher: "Syros"
+    published_date: "2012"
+    authors: ["Yaël Hassan"]
+    description: "Momo vit en cité, découvre la bibliothèque, puis un vieux monsieur sur un banc. Une amitié entre deux âges et deux mondes, sans une once de misérabilisme."
+    cover_url: "https://inventaire.io/img/entities/dda3f2407b46e640f493d37e078c6952f74eb525"

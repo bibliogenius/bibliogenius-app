@@ -159,6 +159,7 @@ categories:
       fr: Rentrée des classes
     icon: school
     lists:
+      - cm1-cm2
       - entree-en-6e
       - entree-en-5e
 
