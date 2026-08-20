@@ -3203,9 +3203,9 @@ msgstr "Connect with friends by scanning their QR code, sharing an invite link, 
 msgid "help_desc_contacts"
 msgstr "Go to \"Network\" to add friends or libraries. You can add borrowers (who can borrow your books) or libraries (whose shared books you can browse)."
 
-#. Your library data is stored locally on your device. When you connect with friends, your catalog is visible to them. You can mark specific books as private to hide them from the network. You can export a backup anytime from your Profile.
+#. Your library data is stored locally on your device. When you connect with friends, your catalog is visible to them. You can mark specific books as private to hide them from the network. You can export or back up your data at any time from Settings > Backup and recovery.
 msgid "help_desc_data_privacy"
-msgstr "Your library data is stored locally on your device. When you connect with friends, your catalog is visible to them. You can mark specific books as private to hide them from the network. You can export a backup anytime from your Profile."
+msgstr "Your library data is stored locally on your device. When you connect with friends, your catalog is visible to them. You can mark specific books as private to hide them from the network. You can export or back up your data at any time from Settings > Backup and recovery."
 
 #. Use the search icon to find books in external catalogs like BNF (French National Library), OpenLibrary, and Inventaire. When you find a book, tap it to add it to your library with all its metadata.
 msgid "help_desc_external_search"
@@ -3336,13 +3336,13 @@ msgstr "How to manage contacts?"
 msgid "help_topic_data_privacy"
 msgstr "Where is my data stored?"
 
-#. Sync multiple devices
+#. What is the encrypted account for?
 msgid "help_topic_device_sync"
-msgstr "Sync multiple devices"
+msgstr "What is the encrypted account for?"
 
-#. Sync multiple devices
+#. The optional encrypted account: what it is for, creating one, adding a device, and what does not sync.
 msgid "help_desc_device_sync"
-msgstr "BiblioGenius can keep your library in sync across multiple devices you own (phone, tablet, desktop). Sync happens over your local Wi-Fi network: all devices must be connected to the same network. Transfers are end-to-end encrypted, so neither your internet provider nor any intermediary can read your data.\n\nTo pair a new device:\n1. On your first device, generate a 6-digit code.\n2. On the second device, enter that code within 5 minutes.\n3. Both devices exchange keys and start syncing.\n\nFor 3 devices or more, repeat the operation between each pair."
+msgstr "BiblioGenius works on your device, with no account. The encrypted account is optional: it keeps an encrypted copy of your library that only you can read, so you can recover it after a loss and use it on several devices.\n\nCreating one asks for an email address and a passphrase. That passphrase cannot be reset: write down the 24-word recovery phrase shown once at creation.\n\nTo add a device, put both of them side by side: the new device shows a QR code, the device already signed in scans it, then shows an authorization code back. Only scan these codes in person.\n\nYour books, shelves, collections, loans, contacts and custom covers sync. The encrypted pairings with your contacts do not: pairing is done device by device, so a contact can show up as “Not paired on this device” until you pair again from it."
 
 #. Sync multiple devices CTA
 msgid "help_cta_open_device_sync"
@@ -10687,3 +10687,47 @@ msgstr "Suggestion hidden"
 #. Empty state of the full suggestions screen (everything dismissed)
 msgid "recommendations_empty"
 msgstr "No suggestions right now"
+
+#. How do I back up and export my library?
+msgid "help_topic_backup"
+msgstr "How do I back up and export my library?"
+
+#. Everything happens in Settings > Backup and recovery. Export my catalog, Export as CSV, Full backup and the automatic daily snapshot, and what each one is for.
+msgid "help_desc_backup"
+msgstr "Everything happens in Settings > Backup and recovery.\n\n“Export my catalog” creates a portable file with your books, authors, tags, collections and contacts, which BiblioGenius can re-import.\n\n“Export as CSV (spreadsheet)” creates a readable list, one row per book, to open in a spreadsheet. That file cannot be re-imported.\n\n“Full backup” creates an encrypted archive of your whole library, restorable here or on another device. Protect it with a passphrase or your recovery phrase, and keep it somewhere other than the device it protects.\n\nAutomatic backup takes a daily encrypted snapshot, on this device only. It does not carry your library elsewhere: to move to another device, use a full backup or an encrypted account."
+
+#. Backup and export CTA
+msgid "help_cta_open_backup"
+msgstr "Open backup settings"
+
+#. How does my wishlist work?
+msgid "help_topic_wishlist"
+msgstr "How does my wishlist work?"
+
+#. The wishlist: marking a wanted book, seeing who owns it, and who is after the books you own.
+msgid "help_desc_wishlist"
+msgstr "A book you want but do not own has its place here: add it, then give it the “Wishlist” status.\n\nOn its details page an “Available from” card appears when a library in your network owns it, with a borrow request one tap away. On the books you own, a “Wanted by” card shows who is after them, with a short “Lend” action. Lending stays free and one-sided: nobody is told that you saw their search.\n\nMatches only ever cover books that are actually shared. A book marked private never shows up."
+
+#. Where do reading suggestions come from?
+msgid "help_topic_recommendations"
+msgstr "Where do reading suggestions come from?"
+
+#. Where the suggestions show up, why a book is suggested, and how to dismiss one. Says the sources will widen: drop that sentence once they do.
+msgid "help_desc_recommendations"
+msgstr "“Suggestions for you” on the dashboard and “You might also like” on a book page offer titles drawn from your own library. The feature keeps growing: coming versions will widen the suggestions beyond your own shelves.\n\nEach card says why: same author, similar subject, same publisher, same period, a book you rated highly, or one already sitting in your to-read pile.\n\n“Not interested” hides a suggestion everywhere it appears, with an undo right after. That choice is kept on this device."
+
+#. Reading suggestions CTA
+msgid "help_cta_see_suggestions"
+msgstr "See the suggestions"
+
+#. What is the library directory for?
+msgid "help_topic_directory"
+msgstr "What is the library directory for?"
+
+#. Being listed in the directory, following a library, and how that differs from pairing.
+msgid "help_desc_directory"
+msgstr "The directory lists the libraries that chose to be visible. Turn on “Make my library visible to other libraries” in Settings > Online Sharing to appear there. You can require your approval before a new follower reaches your shared books, and your city is only published if you choose to share it.\n\nIn Network > Explore you browse the published libraries and follow the ones you like: enough to see a catalogue and ask for a loan.\n\nPairing is something else: a direct encrypted link between two devices, made device by device."
+
+#. Help screen quick action: opens the online guides in the browser
+msgid "help_online_docs"
+msgstr "Online guides"

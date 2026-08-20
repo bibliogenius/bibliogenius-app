@@ -2974,9 +2974,9 @@ msgstr "Verbinden Sie sich mit Freunden, indem Sie deren QR-Code scannen, einen 
 msgid "help_desc_contacts"
 msgstr "Gehen Sie zu \"Netzwerk\", um Freunde oder Bibliotheken hinzuzufügen. Sie können Ausleiher (die Ihre Bücher ausleihen können) oder Bibliotheken (deren Katalog Sie durchsuchen können) hinzufügen."
 
-#. Your library data is stored locally on your device. When you connect with friends, your catalog is visible to them. You can mark specific books as private to hide them from the network. You can export a backup anytime from your Profile.
+#. Your library data is stored locally on your device. When you connect with friends, your catalog is visible to them. You can mark specific books as private to hide them from the network. You can export or back up your data at any time from Settings > Backup and recovery.
 msgid "help_desc_data_privacy"
-msgstr "Ihre Bibliotheksdaten werden lokal auf Ihrem Gerät gespeichert. Wenn Sie sich mit Freunden verbinden, ist Ihr Katalog für sie sichtbar. Sie können bestimmte Bücher als privat markieren, um sie im Netzwerk auszublenden. Sie können jederzeit eine Sicherung über Ihr Profil exportieren."
+msgstr "Ihre Bibliotheksdaten werden lokal auf Ihrem Gerät gespeichert. Wenn Sie sich mit Freunden verbinden, ist Ihr Katalog für sie sichtbar. Sie können bestimmte Bücher als privat markieren, um sie im Netzwerk auszublenden. Sie können Ihre Daten jederzeit unter Einstellungen > Sicherung und Wiederherstellung exportieren oder sichern."
 
 #. Use the search icon to find books in external catalogs like BNF (French National Library), OpenLibrary, and Inventaire. When you find a book, tap it to add it to your library with all its metadata.
 msgid "help_desc_external_search"
@@ -3071,13 +3071,13 @@ msgstr "Wie verwalte ich Kontakte?"
 msgid "help_topic_data_privacy"
 msgstr "Wo werden meine Daten gespeichert?"
 
-#. Sync multiple devices
+#. What is the encrypted account for?
 msgid "help_topic_device_sync"
-msgstr "Mehrere Geräte synchronisieren"
+msgstr "Wozu dient das verschlüsselte Konto?"
 
-#. Sync multiple devices
+#. The optional encrypted account: what it is for, creating one, adding a device, and what does not sync.
 msgid "help_desc_device_sync"
-msgstr "BiblioGenius kann Ihre Bibliothek zwischen mehreren Geräten, die Sie besitzen (Smartphone, Tablet, Desktop), synchronisieren. Die Synchronisation erfolgt über Ihr lokales WLAN: Alle Geräte müssen mit demselben Netzwerk verbunden sein. Die Übertragungen sind Ende-zu-Ende verschlüsselt: Weder Ihr Internetanbieter noch ein möglicher Vermittler kann Ihre Daten lesen.\n\nUm ein neues Gerät zu koppeln:\n1. Erzeugen Sie auf dem ersten Gerät einen 6-stelligen Code.\n2. Geben Sie diesen Code innerhalb von 5 Minuten auf dem zweiten Gerät ein.\n3. Beide Geräte tauschen ihre Schlüssel aus und starten die Synchronisation.\n\nFür 3 oder mehr Geräte wiederholen Sie den Vorgang zwischen jedem Paar."
+msgstr "BiblioGenius läuft ohne Konto auf Ihrem Gerät. Das verschlüsselte Konto ist optional: Es bewahrt eine verschlüsselte Kopie Ihrer Bibliothek auf, die nur Sie lesen können, damit Sie sie nach einem Verlust zurückbekommen und auf mehreren Geräten nutzen können.\n\nFür die Erstellung brauchen Sie eine E-Mail-Adresse und eine Passphrase. Diese Passphrase kann nicht zurückgesetzt werden: Notieren Sie die 24-Wörter-Wiederherstellungsphrase, die einmalig angezeigt wird.\n\nZum Hinzufügen eines Geräts legen Sie beide nebeneinander: Das neue Gerät zeigt einen QR-Code, das bereits angemeldete Gerät scannt ihn und zeigt im Gegenzug einen Autorisierungscode. Scannen Sie diese Codes nur persönlich.\n\nBücher, Regale, Sammlungen, Ausleihen, Kontakte und eigene Cover werden synchronisiert. Die verschlüsselten Kopplungen mit Ihren Kontakten nicht: Die Kopplung erfolgt Gerät für Gerät, ein Kontakt kann also als „Auf diesem Gerät nicht gekoppelt“ erscheinen, bis Sie die Kopplung von dort aus erneuern."
 
 #. Sync multiple devices CTA
 msgid "help_cta_open_device_sync"
@@ -10472,3 +10472,47 @@ msgstr "Vorschlag ausgeblendet"
 #. Empty state of the full suggestions screen (everything dismissed)
 msgid "recommendations_empty"
 msgstr "Zurzeit keine Vorschläge"
+
+#. How do I back up and export my library?
+msgid "help_topic_backup"
+msgstr "Wie sichere und exportiere ich meine Bibliothek?"
+
+#. Everything happens in Settings > Backup and recovery. Export my catalog, Export as CSV, Full backup and the automatic daily snapshot, and what each one is for.
+msgid "help_desc_backup"
+msgstr "Alles passiert unter Einstellungen > Sicherung und Wiederherstellung.\n\n„Meinen Katalog exportieren“ erstellt eine portable Datei mit Ihren Büchern, Autoren, Schlagwörtern, Sammlungen und Kontakten, die BiblioGenius wieder importieren kann.\n\n„Als CSV exportieren (Tabelle)“ erstellt eine lesbare Liste mit einer Zeile pro Buch, zum Öffnen in einer Tabellenkalkulation. Diese Datei lässt sich nicht zurückimportieren.\n\n„Vollständige Sicherung“ erstellt ein verschlüsseltes Archiv Ihrer gesamten Bibliothek, wiederherstellbar hier oder auf einem anderen Gerät. Schützen Sie es mit einer Passphrase oder Ihrer Wiederherstellungsphrase und bewahren Sie es nicht auf dem Gerät auf, das es schützt.\n\nDie automatische Sicherung erstellt täglich einen verschlüsselten Schnappschuss, nur auf diesem Gerät. Sie bringt Ihre Bibliothek nicht anderswohin: für einen Gerätewechsel nutzen Sie eine vollständige Sicherung oder ein verschlüsseltes Konto."
+
+#. Backup and export CTA
+msgid "help_cta_open_backup"
+msgstr "Sicherungen öffnen"
+
+#. How does my wishlist work?
+msgid "help_topic_wishlist"
+msgstr "Wie funktioniert mein Wunschzettel?"
+
+#. The wishlist: marking a wanted book, seeing who owns it, and who is after the books you own.
+msgid "help_desc_wishlist"
+msgstr "Ein Buch, das Sie lesen möchten, aber nicht besitzen, gehört hierher: Fügen Sie es hinzu und geben Sie ihm den Status „Wunschliste“.\n\nAuf seiner Detailseite erscheint eine Karte „Verfügbar bei“, sobald eine Bibliothek in Ihrem Netzwerk es besitzt, mit der Ausleihanfrage direkt daneben. Bei Ihren eigenen Büchern zeigt die Karte „Gesucht von“, wer danach sucht, mit einer kurzen Aktion „Verleihen“. Verleihen bleibt eine freie, einseitige Geste: Niemand erfährt, dass Sie die Suche gesehen haben.\n\nTreffer betreffen nur tatsächlich geteilte Bücher. Ein als privat markiertes Buch taucht nie auf."
+
+#. Where do reading suggestions come from?
+msgid "help_topic_recommendations"
+msgstr "Woher kommen die Lesevorschläge?"
+
+#. Where the suggestions show up, why a book is suggested, and how to dismiss one. Says the sources will widen: drop that sentence once they do.
+msgid "help_desc_recommendations"
+msgstr "„Vorschläge für Sie“ auf dem Dashboard und „Das könnte Ihnen auch gefallen“ auf der Buchseite schlagen Titel aus Ihrer eigenen Bibliothek vor. Die Funktion wächst weiter: Kommende Versionen weiten die Vorschläge über Ihre eigenen Regale hinaus aus.\n\nJede Karte nennt den Grund: gleicher Autor, ähnliches Thema, gleicher Verlag, gleiche Zeit, ein von Ihnen gut bewertetes Buch oder eines, das schon auf Ihrem Lesestapel liegt.\n\n„Kein Interesse“ blendet einen Vorschlag überall aus, mit einer Rückgängig-Option direkt danach. Diese Entscheidung bleibt auf diesem Gerät."
+
+#. Reading suggestions CTA
+msgid "help_cta_see_suggestions"
+msgstr "Vorschläge ansehen"
+
+#. What is the library directory for?
+msgid "help_topic_directory"
+msgstr "Wozu dient das Bibliotheksverzeichnis?"
+
+#. Being listed in the directory, following a library, and how that differs from pairing.
+msgid "help_desc_directory"
+msgstr "Das Verzeichnis führt die Bibliotheken auf, die sich sichtbar gemacht haben. Aktivieren Sie „Meine Bibliothek für andere Bibliotheken sichtbar machen“ unter Einstellungen > Online-Freigabe, um dort zu erscheinen. Sie können Ihre Zustimmung verlangen, bevor ein neuer Follower Ihre geteilten Bücher erreicht, und Ihre Stadt wird nur veröffentlicht, wenn Sie sie teilen möchten.\n\nUnter Netzwerk > Entdecken durchstöbern Sie die veröffentlichten Bibliotheken und folgen denen, die Ihnen gefallen: genug, um einen Katalog zu sehen und eine Ausleihe anzufragen.\n\nDie Kopplung ist etwas anderes: eine direkte verschlüsselte Verbindung zwischen zwei Geräten, Gerät für Gerät hergestellt."
+
+#. Help screen quick action: opens the online guides in the browser
+msgid "help_online_docs"
+msgstr "Online-Anleitungen"

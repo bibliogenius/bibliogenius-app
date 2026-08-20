@@ -3203,9 +3203,9 @@ msgstr "Connectez-vous avec vos amis en scannant leur QR code, en partageant un 
 msgid "help_desc_contacts"
 msgstr "Allez dans \"Réseau\" pour ajouter des amis ou bibliothèques. Vous pouvez ajouter des emprunteurs ou des bibliothèques dont vous pouvez consulter les livres partagés."
 
-#. Your library data is stored locally on your device. When you connect with friends, your catalog is visible to them. You can mark specific books as private to hide them from the network. You can export a backup anytime from your Profile.
+#. Your library data is stored locally on your device. When you connect with friends, your catalog is visible to them. You can mark specific books as private to hide them from the network. You can export or back up your data at any time from Settings > Backup and recovery.
 msgid "help_desc_data_privacy"
-msgstr "Les données de votre bibliothèque sont stockées localement sur votre appareil. Quand vous vous connectez avec des amis, votre catalogue leur est visible. Vous pouvez marquer certains livres comme privés pour les masquer du réseau. Vous pouvez exporter une sauvegarde à tout moment depuis votre Profil."
+msgstr "Les données de votre bibliothèque sont stockées localement sur votre appareil. Quand vous vous connectez avec des amis, votre catalogue leur est visible. Vous pouvez marquer certains livres comme privés pour les masquer du réseau. Vous pouvez exporter vos données ou en faire une sauvegarde à tout moment depuis Paramètres > Sauvegarde et récupération."
 
 #. Use the search icon to find books in external catalogs like BNF (French National Library), OpenLibrary, and Inventaire. When you find a book, tap it to add it to your library with all its metadata.
 msgid "help_desc_external_search"
@@ -3336,13 +3336,13 @@ msgstr "Comment gérer mes contacts ?"
 msgid "help_topic_data_privacy"
 msgstr "Où sont stockées mes données ?"
 
-#. Sync multiple devices
+#. What is the encrypted account for?
 msgid "help_topic_device_sync"
-msgstr "Synchroniser plusieurs appareils"
+msgstr "À quoi sert le compte chiffré ?"
 
-#. Sync multiple devices
+#. The optional encrypted account: what it is for, creating one, adding a device, and what does not sync.
 msgid "help_desc_device_sync"
-msgstr "BiblioGenius peut synchroniser votre bibliothèque entre plusieurs appareils que vous possédez (mobile, tablette, ordinateur). La synchronisation se fait par Wi-Fi local : tous vos appareils doivent être connectés au même réseau. Les transferts sont chiffrés de bout en bout : ni votre fournisseur d'accès, ni un éventuel intermédiaire ne peut lire vos données.\n\nPour appairer un nouvel appareil :\n1. Sur le premier appareil, génère un code à 6 chiffres.\n2. Sur le second appareil, saisis ce code dans les 5 minutes.\n3. Les deux appareils s'échangent leurs clés et démarrent la synchronisation.\n\nPour 3 appareils ou plus, répète l'opération entre chaque paire."
+msgstr "BiblioGenius fonctionne sur votre appareil, sans compte. Le compte chiffré est une option : il garde une copie chiffrée de votre bibliothèque, que vous seul pouvez lire, pour la retrouver après une perte et l'utiliser sur plusieurs appareils.\n\nSa création demande une adresse e-mail et une phrase secrète. Cette phrase ne peut pas être réinitialisée : notez la phrase de récupération de 24 mots affichée une seule fois.\n\nPour ajouter un appareil, mettez les deux côte à côte : le nouvel appareil affiche un code QR, l'appareil déjà connecté le scanne, puis lui montre un code d'autorisation en retour. Ne scannez ces codes qu'en personne.\n\nVos livres, étagères, collections, prêts, contacts et couvertures personnalisées se synchronisent. Les appairages chiffrés avec vos contacts, non : l'appairage se fait appareil par appareil, un contact peut donc apparaître comme « Non appairée sur cet appareil » tant que vous ne l'avez pas refait depuis celui-ci."
 
 #. Sync multiple devices CTA
 msgid "help_cta_open_device_sync"
@@ -7579,7 +7579,7 @@ msgstr "Pendu"
 
 #. Help - Hangman Description
 msgid "help_desc_hangman"
-msgstr "Devinez le titre d'un livre de votre bibliotheque lettre par lettre"
+msgstr "Devinez le titre d'un livre de votre bibliothèque lettre par lettre"
 
 #. Help - Hangman CTA
 msgid "help_cta_play_hangman"
@@ -10687,3 +10687,47 @@ msgstr "Suggestion masquée"
 #. Empty state of the full suggestions screen (everything dismissed)
 msgid "recommendations_empty"
 msgstr "Aucune suggestion pour le moment"
+
+#. How do I back up and export my library?
+msgid "help_topic_backup"
+msgstr "Comment sauvegarder et exporter ma bibliothèque ?"
+
+#. Everything happens in Settings > Backup and recovery. Export my catalog, Export as CSV, Full backup and the automatic daily snapshot, and what each one is for.
+msgid "help_desc_backup"
+msgstr "Tout se passe dans Paramètres > Sauvegarde et récupération.\n\n« Exporter mon catalogue » crée un fichier portable contenant vos livres, auteurs, étiquettes, collections et contacts, que BiblioGenius sait réimporter.\n\n« Exporter en CSV (tableur) » crée une liste lisible, une ligne par livre, à ouvrir dans un tableur. Ce fichier ne se réimporte pas.\n\n« Sauvegarde complète » crée une archive chiffrée de toute votre bibliothèque, restaurable ici ou sur un autre appareil. Protégez-la avec une phrase secrète ou votre phrase de récupération, et conservez-la ailleurs que sur l'appareil qu'elle protège.\n\nLa sauvegarde automatique crée un instantané chiffré chaque jour, sur cet appareil seulement. Elle ne transporte pas votre bibliothèque ailleurs : pour changer d'appareil, utilisez une sauvegarde complète ou un compte chiffré."
+
+#. Backup and export CTA
+msgid "help_cta_open_backup"
+msgstr "Ouvrir les sauvegardes"
+
+#. How does my wishlist work?
+msgid "help_topic_wishlist"
+msgstr "Comment fonctionne ma liste de souhaits ?"
+
+#. The wishlist: marking a wanted book, seeing who owns it, and who is after the books you own.
+msgid "help_desc_wishlist"
+msgstr "Un livre que vous voulez lire sans le posséder a sa place ici : ajoutez-le, puis donnez-lui le statut « Liste de souhaits ».\n\nSur sa fiche, une carte « Disponible chez » apparaît quand une bibliothèque de votre réseau le possède, avec la demande d'emprunt à portée de doigt. Sur vos propres livres, une carte « Recherché par » montre qui les cherche, avec un bouton « Prêter ». Prêter reste un geste libre et unilatéral : personne n'est prévenu que vous avez vu sa recherche.\n\nLes correspondances ne portent que sur les livres réellement partagés. Un livre marqué privé n'apparaît jamais."
+
+#. Where do reading suggestions come from?
+msgid "help_topic_recommendations"
+msgstr "D'où viennent les suggestions de lecture ?"
+
+#. Where the suggestions show up, why a book is suggested, and how to dismiss one. Says the sources will widen: drop that sentence once they do.
+msgid "help_desc_recommendations"
+msgstr "« Suggestions pour vous » sur le tableau de bord et « Vous pourriez aussi aimer » sur la fiche d'un livre proposent des titres tirés de votre propre bibliothèque. La fonctionnalité continue d'évoluer : les prochaines versions élargiront les suggestions au-delà de vos propres rayons.\n\nChaque carte dit pourquoi : même auteur, sujet similaire, même éditeur, même période, un livre que vous avez bien noté, ou un livre déjà dans votre pile à lire.\n\n« Ça ne m'intéresse pas » masque une suggestion partout où elle apparaît, avec une annulation juste après. Ce choix est conservé sur cet appareil."
+
+#. Reading suggestions CTA
+msgid "help_cta_see_suggestions"
+msgstr "Voir les suggestions"
+
+#. What is the library directory for?
+msgid "help_topic_directory"
+msgstr "À quoi sert l'annuaire des bibliothèques ?"
+
+#. Being listed in the directory, following a library, and how that differs from pairing.
+msgid "help_desc_directory"
+msgstr "L'annuaire liste les bibliothèques qui ont choisi d'être visibles. Activez « Me rendre visible auprès des autres bibliothèques » dans Paramètres > Partage en ligne pour y figurer. Vous pouvez exiger votre approbation avant qu'un nouvel abonné accède à vos livres partagés, et votre ville n'est publiée que si vous choisissez de la partager.\n\nDans Réseau > Explorer, vous parcourez les bibliothèques publiées et suivez celles qui vous intéressent : de quoi consulter un catalogue et demander un emprunt.\n\nL'appairage est autre chose : un lien chiffré direct entre deux appareils, à refaire appareil par appareil."
+
+#. Help screen quick action: opens the online guides in the browser
+msgid "help_online_docs"
+msgstr "Guides en ligne"

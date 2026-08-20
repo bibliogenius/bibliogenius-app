@@ -2539,9 +2539,9 @@ msgstr "通过扫描好友的二维码、分享邀请链接或使用枢纽目录
 msgid "help_desc_contacts"
 msgstr "前往“网络”以添加好友或图书馆。您可以添加借阅人（可借您的图书）或图书馆（可浏览其共享的图书）。"
 
-#. Your library data is stored locally on your device. When you connect with friends, only the books you choose to share are visible to them. You can export a backup anytime from your Profile.
+#. Your library data is stored locally on your device. When you connect with friends, your catalog is visible to them. You can mark specific books as private to hide them from the network. You can export or back up your data at any time from Settings > Backup and recovery.
 msgid "help_desc_data_privacy"
-msgstr "您的图书馆数据存储在本地设备上。当您与好友连接时，您的目录对他们可见。您可以把特定图书标记为私密，使其在网络中隐藏。您可以随时从个人资料中导出备份。"
+msgstr "您的图书馆数据存储在本地设备上。当您与好友连接时，您的目录对他们可见。您可以把特定图书标记为私密，使其在网络中隐藏。您可以随时在“设置 > 备份与恢复”中导出数据或创建备份。"
 
 #. Use the search icon to find books in external catalogs like BNF (French National Library), OpenLibrary, and Inventaire. When you find a book, tap it to add it to your library with all its metadata.
 msgid "help_desc_external_search"
@@ -6592,13 +6592,13 @@ msgstr "查看我的统计"
 msgid "help_see_all"
 msgstr "查看所有帮助主题"
 
-#. Sync multiple devices
+#. What is the encrypted account for?
 msgid "help_topic_device_sync"
-msgstr "同步多台设备"
+msgstr "加密账号有什么用？"
 
-#. Sync multiple devices
+#. The optional encrypted account: what it is for, creating one, adding a device, and what does not sync.
 msgid "help_desc_device_sync"
-msgstr "BiblioGenius 可以在您拥有的多台设备（手机、平板、电脑）之间同步图书馆。同步通过您的本地 Wi-Fi 网络进行：所有设备必须连接到同一网络。传输采用端到端加密，因此无论是您的网络服务商还是任何中间方都无法读取您的数据。\n\n配对新设备：\n1. 在第一台设备上生成一个 6 位数字代码。\n2. 在第二台设备上于 5 分钟内输入该代码。\n3. 两台设备交换密钥并开始同步。\n\n如需同步 3 台或更多设备，请在每一对设备之间重复此操作。"
+msgstr "BiblioGenius 无需账号即可在你的设备上运行。加密账号是可选的：它保存一份只有你能读取的加密书库副本，便于丢失后恢复以及在多台设备上使用。\n\n创建账号需要一个电子邮箱和一个密码短语。该短语无法重置：请记下创建时仅显示一次的24 个词恢复短语。\n\n添加设备时把两台设备放在一起：新设备显示二维码，已登录的设备扫描它，然后回示一个授权码。请只在当面时扫描这些码。\n\n图书、书架、收藏集、借阅、联系人和自定义封面会同步。与联系人之间的加密配对不会：配对按设备逐台完成，因此在你从该设备重新配对之前，某个联系人可能显示为“未在此设备上配对”。"
 
 #. Sync multiple devices CTA
 msgid "help_cta_open_device_sync"
@@ -10319,3 +10319,47 @@ msgstr "已隐藏该建议"
 #. Empty state of the full suggestions screen (everything dismissed)
 msgid "recommendations_empty"
 msgstr "暂无建议"
+
+#. How do I back up and export my library?
+msgid "help_topic_backup"
+msgstr "如何备份和导出我的书库？"
+
+#. Everything happens in Settings > Backup and recovery. Export my catalog, Export as CSV, Full backup and the automatic daily snapshot, and what each one is for.
+msgid "help_desc_backup"
+msgstr "所有操作都在“设置 > 备份与恢复”中。\n\n“导出我的目录”会生成一个可移植文件，包含你的图书、作者、标签、收藏集和联系人，BiblioGenius 可以重新导入。\n\n“导出为 CSV（电子表格）”会生成一份每本书一行的可读清单，用于在电子表格中打开。该文件无法重新导入。\n\n“完整备份”会生成整个书库的加密归档，可在本机或另一台设备上恢复。请用密码短语或恢复短语保护它，并保存在被保护设备以外的地方。\n\n自动备份每天在本设备上生成一份加密快照，仅限本设备。它不会把书库搬到别处：更换设备请使用完整备份或加密账号。"
+
+#. Backup and export CTA
+msgid "help_cta_open_backup"
+msgstr "打开备份"
+
+#. How does my wishlist work?
+msgid "help_topic_wishlist"
+msgstr "我的心愿单怎么用？"
+
+#. The wishlist: marking a wanted book, seeing who owns it, and who is after the books you own.
+msgid "help_desc_wishlist"
+msgstr "想读却还没有的书也有位置：把它加进来，然后把状态设为“心愿单”。\n\n在这本书的详情页，当你网络中的某个书库拥有它时会出现“可借自”卡片，借阅请求触手可及。在你自己的书上，“正在寻找”卡片会显示谁在找它，并提供“出借”按钮。出借始终是自由的单向行为：对方不会知道你看到了他的寻找。\n\n匹配只涉及真正共享的图书。标记为私密的书永远不会出现。"
+
+#. Where do reading suggestions come from?
+msgid "help_topic_recommendations"
+msgstr "阅读推荐从哪里来？"
+
+#. Where the suggestions show up, why a book is suggested, and how to dismiss one. Says the sources will widen: drop that sentence once they do.
+msgid "help_desc_recommendations"
+msgstr "仪表盘上的“为你推荐”和图书详情页的“你可能也喜欢”，都取自你自己的书库。这项功能仍在成长：后续版本会把推荐扩展到你的书架之外。\n\n每张卡片都会说明理由：同一作者、相似主题、同一出版社、相近年代、你评分很高的书，或已在待读堆里的书。\n\n“不感兴趣”会在所有位置隐藏该推荐，紧接着可以撤销。这个选择保存在本设备上。"
+
+#. Reading suggestions CTA
+msgid "help_cta_see_suggestions"
+msgstr "查看推荐"
+
+#. What is the library directory for?
+msgid "help_topic_directory"
+msgstr "书库目录有什么用？"
+
+#. Being listed in the directory, following a library, and how that differs from pairing.
+msgid "help_desc_directory"
+msgstr "目录中只有选择公开的书库。在“设置 > 在线共享”中打开“让其他书库看到我的书库”，即可出现在目录里。你可以要求先经你批准，新的关注者才能访问你共享的书，城市也只有在你选择共享时才会公开。\n\n在“网络 > 探索”中浏览已公开的书库并关注感兴趣的对象：足以查看目录并请求借阅。\n\n配对是另一回事：两台设备之间直接的加密连接，需要逐台设备建立。"
+
+#. Help screen quick action: opens the online guides in the browser
+msgid "help_online_docs"
+msgstr "在线指南"

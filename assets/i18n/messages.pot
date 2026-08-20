@@ -2817,7 +2817,7 @@ msgstr ""
 msgid "help_desc_contacts"
 msgstr ""
 
-#. Your library data is stored locally on your device. When you connect with friends, your catalog is visible to them. You can mark specific books as private to hide them from the network. You can export a backup anytime from your Profile.
+#. Your library data is stored locally on your device. When you connect with friends, your catalog is visible to them. You can mark specific books as private to hide them from the network. You can export or back up your data at any time from Settings > Backup and recovery.
 msgid "help_desc_data_privacy"
 msgstr ""
 
@@ -8467,4 +8467,60 @@ msgstr ""
 
 #. Empty state of the full suggestions screen (everything dismissed)
 msgid "recommendations_empty"
+msgstr ""
+
+#. What is the encrypted account for?
+msgid "help_topic_device_sync"
+msgstr ""
+
+#. The optional encrypted account: what it is for, creating one, adding a device, and what does not sync.
+msgid "help_desc_device_sync"
+msgstr ""
+
+#. Encrypted account CTA
+msgid "help_cta_open_device_sync"
+msgstr ""
+
+#. How do I back up and export my library?
+msgid "help_topic_backup"
+msgstr ""
+
+#. Everything happens in Settings > Backup and recovery. Export my catalog, Export as CSV, Full backup and the automatic daily snapshot, and what each one is for.
+msgid "help_desc_backup"
+msgstr ""
+
+#. Backup and export CTA
+msgid "help_cta_open_backup"
+msgstr ""
+
+#. How does my wishlist work?
+msgid "help_topic_wishlist"
+msgstr ""
+
+#. The wishlist: marking a wanted book, seeing who owns it, and who is after the books you own.
+msgid "help_desc_wishlist"
+msgstr ""
+
+#. Where do reading suggestions come from?
+msgid "help_topic_recommendations"
+msgstr ""
+
+#. Where the suggestions show up, why a book is suggested, and how to dismiss one. Says the sources will widen: drop that sentence once they do.
+msgid "help_desc_recommendations"
+msgstr ""
+
+#. Reading suggestions CTA
+msgid "help_cta_see_suggestions"
+msgstr ""
+
+#. What is the library directory for?
+msgid "help_topic_directory"
+msgstr ""
+
+#. Being listed in the directory, following a library, and how that differs from pairing.
+msgid "help_desc_directory"
+msgstr ""
+
+#. Help screen quick action: opens the online guides in the browser
+msgid "help_online_docs"
 msgstr ""

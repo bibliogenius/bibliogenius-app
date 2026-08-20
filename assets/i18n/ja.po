@@ -2539,9 +2539,9 @@ msgstr "友達のQRコードをスキャンしたり、招待リンクを共有�
 msgid "help_desc_contacts"
 msgstr "「つながり」を開いて友達やライブラリを追加します。借り手（あなたの本を借りられる人）や、ライブラリ（共有された本を閲覧できる相手）を追加できます。"
 
-#. Your library data is stored locally on your device. When you connect with friends, only the books you choose to share are visible to them. You can export a backup anytime from your Profile.
+#. Your library data is stored locally on your device. When you connect with friends, your catalog is visible to them. You can mark specific books as private to hide them from the network. You can export or back up your data at any time from Settings > Backup and recovery.
 msgid "help_desc_data_privacy"
-msgstr "あなたのライブラリのデータはお使いのデバイスにローカルで保存されます。友達とつながると、あなたのカタログが相手に表示されます。特定の本を非公開にして、ネットワークから隠すこともできます。バックアップはいつでもプロフィールからエクスポートできます。"
+msgstr "あなたのライブラリのデータはお使いのデバイスにローカルで保存されます。友達とつながると、あなたのカタログが相手に表示されます。特定の本を非公開にして、ネットワークから隠すこともできます。データのエクスポートやバックアップは、「設定 > バックアップと復元」からいつでも行えます。"
 
 #. Use the search icon to find books in external catalogs like BNF (French National Library), OpenLibrary, and Inventaire. When you find a book, tap it to add it to your library with all its metadata.
 msgid "help_desc_external_search"
@@ -6592,13 +6592,13 @@ msgstr "統計を見る"
 msgid "help_see_all"
 msgstr "すべてのヘルプトピックを見る"
 
-#. Sync multiple devices
+#. What is the encrypted account for?
 msgid "help_topic_device_sync"
-msgstr "複数のデバイスを同期"
+msgstr "暗号化アカウントは何のため？"
 
-#. Sync multiple devices
+#. The optional encrypted account: what it is for, creating one, adding a device, and what does not sync.
 msgid "help_desc_device_sync"
-msgstr "BiblioGenius は、所有する複数のデバイス（スマートフォン、タブレット、デスクトップ）間でライブラリを同期できます。同期はローカルの Wi-Fi ネットワーク経由で行われます：すべてのデバイスが同じネットワークに接続されている必要があります。転送はエンドツーエンドで暗号化されるため、インターネットプロバイダーも仲介者もデータを読み取ることはできません。\n\n新しいデバイスをペアリングするには：\n1. 最初のデバイスで6桁のコードを生成します。\n2. 2台目のデバイスで、そのコードを5分以内に入力します。\n3. 両方のデバイスが鍵を交換し、同期を開始します。\n\n3台以上の場合は、各ペア間でこの操作を繰り返します。"
+msgstr "BiblioGenius はアカウントなしで端末上で動作します。暗号化アカウントは任意です。あなただけが読める暗号化されたライブラリの控えを保管し、紛失後の復旧や複数端末での利用を可能にします。\n\n作成にはメールアドレスとパスフレーズが必要です。パスフレーズは再設定できません。作成時に一度だけ表示される 24 語の復元フレーズを控えてください。\n\n端末を追加するときは 2 台を並べます。新しい端末が QR コードを表示し、すでにログインしている端末がそれを読み取り、続いて認証コードを表示します。これらのコードは必ず対面で読み取ってください。\n\n蔵書・本棚・コレクション・貸出・連絡先・カスタム表紙は同期されます。連絡先との暗号化ペアリングは同期されません。ペアリングは端末ごとに行うため、その端末でやり直すまで連絡先が「この端末では未ペアリング」と表示されることがあります。"
 
 #. Sync multiple devices CTA
 msgid "help_cta_open_device_sync"
@@ -10319,3 +10319,47 @@ msgstr "提案を非表示にしました"
 #. Empty state of the full suggestions screen (everything dismissed)
 msgid "recommendations_empty"
 msgstr "現在、提案はありません"
+
+#. How do I back up and export my library?
+msgid "help_topic_backup"
+msgstr "ライブラリをバックアップ・書き出すには？"
+
+#. Everything happens in Settings > Backup and recovery. Export my catalog, Export as CSV, Full backup and the automatic daily snapshot, and what each one is for.
+msgid "help_desc_backup"
+msgstr "すべて「設定 > バックアップと復元」で行えます。\n\n「カタログをエクスポート」は、蔵書・著者・タグ・コレクション・連絡先を含む持ち運び可能なファイルを作ります。BiblioGenius で再度読み込めます。\n\n「CSV で書き出す（表計算）」は、1 冊 1 行の読みやすい一覧を作ります。表計算ソフトで開くためのもので、再読み込みはできません。\n\n「完全バックアップ」は、ライブラリ全体の暗号化アーカイブを作ります。この端末でも別の端末でも復元でき、パスフレーズまたは復元フレーズで保護します。保護対象の端末とは別の場所に保管してください。\n\n自動バックアップは毎日、この端末のみに暗号化スナップショットを作ります。ライブラリを他所へ移すものではありません。端末を変えるときは完全バックアップか暗号化アカウントを使ってください。"
+
+#. Backup and export CTA
+msgid "help_cta_open_backup"
+msgstr "バックアップを開く"
+
+#. How does my wishlist work?
+msgid "help_topic_wishlist"
+msgstr "ほしい本リストはどう使う？"
+
+#. The wishlist: marking a wanted book, seeing who owns it, and who is after the books you own.
+msgid "help_desc_wishlist"
+msgstr "持っていないけれど読みたい本もここに置けます。追加して「ほしい本リスト」の状態を選んでください。\n\nその本のページには、ネットワーク内の誰かが所蔵していると「所蔵あり」カードが表示され、そのまま貸出をお願いできます。自分の蔵書のページには「探している人」カードが出て、「貸す」ボタンから一手で申し出られます。貸すことはあくまで自由な一方通行の行為で、相手の希望を見たことは通知されません。\n\n照合の対象は実際に共有されている本だけです。非公開にした本は決して現れません。"
+
+#. Where do reading suggestions come from?
+msgid "help_topic_recommendations"
+msgstr "読書のおすすめはどこから来る？"
+
+#. Where the suggestions show up, why a book is suggested, and how to dismiss one. Says the sources will widen: drop that sentence once they do.
+msgid "help_desc_recommendations"
+msgstr "ダッシュボードの「あなたへのおすすめ」と、本のページの「こちらもおすすめ」は、あなた自身の蔵書から選ばれます。この機能は成長を続けています。今後のバージョンでは、あなたの本棚の外へも提案が広がります。\n\n各カードには理由が付きます。同じ著者、似た主題、同じ出版社、近い年代、高く評価した本、すでに積読にある本、といった具合です。\n\n「興味がない」を押すと、その提案はどこでも非表示になり、直後に取り消しもできます。この選択はこの端末に保存されます。"
+
+#. Reading suggestions CTA
+msgid "help_cta_see_suggestions"
+msgstr "おすすめを見る"
+
+#. What is the library directory for?
+msgid "help_topic_directory"
+msgstr "図書館ディレクトリは何のため？"
+
+#. Being listed in the directory, following a library, and how that differs from pairing.
+msgid "help_desc_directory"
+msgstr "ディレクトリには、公開を選んだ蔵書だけが並びます。「設定 > オンライン共有」で「他の図書館に自分の図書館を公開する」をオンにすると掲載されます。新しいフォロワーが共有中の本に触れる前に承認を必須にでき、都市名は共有を選んだ場合にのみ公開されます。\n\n「ネットワーク > さがす」では公開中の図書館を見て、気になる相手をフォローできます。カタログを見て貸出をお願いするにはこれで十分です。\n\nペアリングは別のしくみで、2 台の端末を直接つなぐ暗号化されたリンクです。端末ごとに設定します。"
+
+#. Help screen quick action: opens the online guides in the browser
+msgid "help_online_docs"
+msgstr "オンラインガイド"

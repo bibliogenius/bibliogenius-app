@@ -2974,9 +2974,9 @@ msgstr "Conéctate con tus amigos escaneando su código QR, compartiendo un enla
 msgid "help_desc_contacts"
 msgstr "Ve a \"Red\" para añadir amigos o bibliotecas. Puedes añadir prestatarios (que pueden tomar prestados tus libros) o bibliotecas (cuyo catálogo puedes consultar)."
 
-#. Your library data is stored locally on your device. When you connect with friends, your catalog is visible to them. You can mark specific books as private to hide them from the network. You can export a backup anytime from your Profile.
+#. Your library data is stored locally on your device. When you connect with friends, your catalog is visible to them. You can mark specific books as private to hide them from the network. You can export or back up your data at any time from Settings > Backup and recovery.
 msgid "help_desc_data_privacy"
-msgstr "Los datos de tu biblioteca se almacenan localmente en tu dispositivo. Cuando te conectas con amigos, tu catálogo les es visible. Puedes marcar ciertos libros como privados para ocultarlos de la red. Puedes exportar una copia de seguridad en cualquier momento desde tu Perfil."
+msgstr "Los datos de tu biblioteca se almacenan localmente en tu dispositivo. Cuando te conectas con amigos, tu catálogo les es visible. Puedes marcar ciertos libros como privados para ocultarlos de la red. Puedes exportar tus datos o crear una copia de seguridad en cualquier momento desde Configuración > Copia de seguridad y recuperación."
 
 #. Use the search icon to find books in external catalogs like BNF (French National Library), OpenLibrary, and Inventaire. When you find a book, tap it to add it to your library with all its metadata.
 msgid "help_desc_external_search"
@@ -3071,13 +3071,13 @@ msgstr "¿Cómo gestionar contactos?"
 msgid "help_topic_data_privacy"
 msgstr "¿Dónde se almacenan mis datos?"
 
-#. Sync multiple devices
+#. What is the encrypted account for?
 msgid "help_topic_device_sync"
-msgstr "Sincronizar varios dispositivos"
+msgstr "¿Para qué sirve la cuenta cifrada?"
 
-#. Sync multiple devices
+#. The optional encrypted account: what it is for, creating one, adding a device, and what does not sync.
 msgid "help_desc_device_sync"
-msgstr "BiblioGenius puede sincronizar tu biblioteca entre varios dispositivos que poseas (móvil, tableta, ordenador). La sincronización se realiza por Wi-Fi local: todos tus dispositivos deben estar conectados a la misma red. Las transferencias están cifradas de extremo a extremo: ni tu proveedor de Internet ni ningún intermediario pueden leer tus datos.\n\nPara vincular un nuevo dispositivo:\n1. En el primer dispositivo, genera un código de 6 dígitos.\n2. En el segundo dispositivo, introduce ese código en los próximos 5 minutos.\n3. Ambos dispositivos intercambian sus claves y comienzan la sincronización.\n\nPara 3 dispositivos o más, repite la operación entre cada par."
+msgstr "BiblioGenius funciona en tu dispositivo, sin cuenta. La cuenta cifrada es opcional: guarda una copia cifrada de tu biblioteca que solo tú puedes leer, para recuperarla tras una pérdida y usarla en varios dispositivos.\n\nCrearla requiere un correo electrónico y una frase secreta. Esa frase no se puede restablecer: anota la frase de recuperación de 24 palabras que se muestra una sola vez al crearla.\n\nPara añadir un dispositivo, ponlos uno junto al otro: el nuevo muestra un código QR, el dispositivo ya conectado lo escanea y le muestra a cambio un código de autorización. Escanea estos códigos solo en persona.\n\nSe sincronizan tus libros, estanterías, colecciones, préstamos, contactos y portadas personalizadas. Los emparejamientos cifrados con tus contactos, no: el emparejamiento se hace dispositivo por dispositivo, así que un contacto puede aparecer como «No emparejada en este dispositivo» hasta que lo repitas desde él."
 
 #. Sync multiple devices CTA
 msgid "help_cta_open_device_sync"
@@ -10516,3 +10516,47 @@ msgstr "Sugerencia oculta"
 #. Empty state of the full suggestions screen (everything dismissed)
 msgid "recommendations_empty"
 msgstr "No hay sugerencias por ahora"
+
+#. How do I back up and export my library?
+msgid "help_topic_backup"
+msgstr "¿Cómo guardar y exportar mi biblioteca?"
+
+#. Everything happens in Settings > Backup and recovery. Export my catalog, Export as CSV, Full backup and the automatic daily snapshot, and what each one is for.
+msgid "help_desc_backup"
+msgstr "Todo ocurre en Configuración > Copia de seguridad y recuperación.\n\n«Exportar mi catálogo» crea un archivo portátil con tus libros, autores, etiquetas, colecciones y contactos, que BiblioGenius puede volver a importar.\n\n«Exportar en CSV (hoja de cálculo)» crea una lista legible, una fila por libro, para abrir en una hoja de cálculo. Ese archivo no se puede reimportar.\n\n«Copia completa» crea un archivo cifrado de toda tu biblioteca, restaurable aquí o en otro dispositivo. Protégelo con una frase secreta o con tu frase de recuperación, y guárdalo en un sitio distinto del dispositivo que protege.\n\nLa copia automática crea una instantánea cifrada cada día, solo en este dispositivo. No lleva tu biblioteca a otro sitio: para cambiar de dispositivo, usa una copia completa o una cuenta cifrada."
+
+#. Backup and export CTA
+msgid "help_cta_open_backup"
+msgstr "Abrir las copias de seguridad"
+
+#. How does my wishlist work?
+msgid "help_topic_wishlist"
+msgstr "¿Cómo funciona mi lista de deseos?"
+
+#. The wishlist: marking a wanted book, seeing who owns it, and who is after the books you own.
+msgid "help_desc_wishlist"
+msgstr "Un libro que quieres leer sin tenerlo tiene su sitio aquí: añádelo y dale el estado «Lista de deseos».\n\nEn su ficha aparece una tarjeta «Disponible en» cuando una biblioteca de tu red lo tiene, con la solicitud de préstamo a un toque. En tus propios libros, la tarjeta «Buscado por» muestra quién los busca, con un botón «Prestar». Prestar sigue siendo un gesto libre y unilateral: nadie sabe que has visto su búsqueda.\n\nLas coincidencias solo cubren los libros realmente compartidos. Un libro marcado como privado nunca aparece."
+
+#. Where do reading suggestions come from?
+msgid "help_topic_recommendations"
+msgstr "¿De dónde vienen las sugerencias de lectura?"
+
+#. Where the suggestions show up, why a book is suggested, and how to dismiss one. Says the sources will widen: drop that sentence once they do.
+msgid "help_desc_recommendations"
+msgstr "«Sugerencias para ti» en el panel y «También te podría gustar» en la ficha de un libro proponen títulos sacados de tu propia biblioteca. La función sigue creciendo: las próximas versiones ampliarán las sugerencias más allá de tus propios estantes.\n\nCada tarjeta dice por qué: mismo autor, tema similar, misma editorial, misma época, un libro que valoraste bien o uno que ya está en tu pila de pendientes.\n\n«No me interesa» oculta una sugerencia en todas partes, con la opción de deshacer justo después. Esa elección se guarda en este dispositivo."
+
+#. Reading suggestions CTA
+msgid "help_cta_see_suggestions"
+msgstr "Ver las sugerencias"
+
+#. What is the library directory for?
+msgid "help_topic_directory"
+msgstr "¿Para qué sirve el directorio de bibliotecas?"
+
+#. Being listed in the directory, following a library, and how that differs from pairing.
+msgid "help_desc_directory"
+msgstr "El directorio reúne las bibliotecas que han elegido ser visibles. Activa «Hacer visible mi biblioteca para otras bibliotecas» en Configuración > Compartir en línea para figurar en él. Puedes exigir tu aprobación antes de que un nuevo seguidor acceda a tus libros compartidos, y tu ciudad solo se publica si eliges compartirla.\n\nEn Red > Explorar recorres las bibliotecas publicadas y sigues las que te interesan: basta para consultar un catálogo y pedir un préstamo.\n\nEl emparejamiento es otra cosa: un enlace cifrado directo entre dos dispositivos, que se rehace dispositivo por dispositivo."
+
+#. Help screen quick action: opens the online guides in the browser
+msgid "help_online_docs"
+msgstr "Guías en línea"

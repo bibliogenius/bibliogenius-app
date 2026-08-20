@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../providers/theme_provider.dart';
 import '../widgets/genie_app_bar.dart';
 import '../widgets/scaffold_with_nav.dart';
 import '../services/help_registry.dart';
@@ -294,6 +296,20 @@ class _HelpScreenState extends State<HelpScreen> {
     );
   }
 
+  /// The online guides exist in French (site root) and English only, so any
+  /// other locale goes to the English set rather than to a 404.
+  String _docsUrlForLocale(BuildContext context) {
+    // The app language, not the device one: a user reading BiblioGenius in
+    // French wants the French guides whatever the system locale says.
+    final String code = Provider.of<ThemeProvider>(
+      context,
+      listen: false,
+    ).locale.languageCode;
+    return code == 'fr'
+        ? 'https://bibliogenius.org/docs/'
+        : 'https://bibliogenius.org/en/docs/';
+  }
+
   Widget _buildQuickActions(BuildContext context) {
     // Check if dev tools should be shown (via .env flag)
     final showDevTools = dotenv.env['SHOW_DEV_TOOLS']?.toLowerCase() == 'true';
@@ -379,6 +395,23 @@ class _HelpScreenState extends State<HelpScreen> {
               ),
             ),
           ],
+        ),
+
+        const SizedBox(height: 12),
+
+        // Third row: the online guides. Full width, since it opens the
+        // browser rather than an in-app screen like the four cards above.
+        _buildActionCard(
+          context,
+          icon: Icons.menu_book,
+          label: TranslationService.translate(context, 'help_online_docs'),
+          gradient: AppDesign.darkGradient,
+          onTap: () async {
+            final Uri docsUri = Uri.parse(_docsUrlForLocale(context));
+            if (await canLaunchUrl(docsUri)) {
+              await launchUrl(docsUri, mode: LaunchMode.externalApplication);
+            }
+          },
         ),
 
         // Developer Tools Section (only shown if SHOW_DEV_TOOLS=true in .env)

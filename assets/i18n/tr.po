@@ -2827,9 +2827,9 @@ msgstr "QR kodunuzu paylaşmak veya bir arkadaşınızın kodunu taramak için \
 msgid "help_desc_contacts"
 msgstr "Arkadaşlarınızı veya kütüphaneleri eklemek için \"Ağ\"a gidin. Ödünç alanları (kitaplarınızı ödünç alabilenler) veya kütüphaneleri (kataloglarına göz atabildiğiniz yerler) ekleyebilirsiniz."
 
-#. Your library data is stored locally on your device. When you connect with friends, only the books you choose to share are visible to them. You can export a backup anytime from your Profile.
+#. Your library data is stored locally on your device. When you connect with friends, your catalog is visible to them. You can mark specific books as private to hide them from the network. You can export or back up your data at any time from Settings > Backup and recovery.
 msgid "help_desc_data_privacy"
-msgstr "Kütüphane verileriniz yerel olarak cihazınızda saklanır. Arkadaşlarınızla bağlantı kurduğunuzda, sadece paylaşmayı seçtiğiniz kitaplar onlara görünür. Profilinizden istediğiniz zaman yedeğinizi dışa aktarabilirsiniz."
+msgstr "Kütüphane verileriniz yerel olarak cihazınızda saklanır. Arkadaşlarınızla bağlantı kurduğunuzda, sadece paylaşmayı seçtiğiniz kitaplar onlara görünür. Verilerinizi Ayarlar > Yedekleme ve kurtarma bölümünden istediğiniz zaman dışa aktarabilir veya yedekleyebilirsiniz."
 
 #. Use the search icon to find books in external catalogs like BNF (French National Library), OpenLibrary, and Inventaire. When you find a book, tap it to add it to your library with all its metadata.
 msgid "help_desc_external_search"
@@ -6452,13 +6452,13 @@ msgstr "İstatistiklerimi görüntüle"
 msgid "help_see_all"
 msgstr "Tüm yardım konularını gör"
 
-#. Sync multiple devices
+#. What is the encrypted account for?
 msgid "help_topic_device_sync"
-msgstr "Birden fazla cihazı eşitle"
+msgstr "Şifreli hesap ne işe yarar?"
 
-#. Sync multiple devices
+#. The optional encrypted account: what it is for, creating one, adding a device, and what does not sync.
 msgid "help_desc_device_sync"
-msgstr "BiblioGenius, kütüphanenizi sahip olduğunuz birden fazla cihaz (telefon, tablet, masaüstü) arasında eşitlenmiş tutabilir. Eşitleme yerel Wi-Fi ağınız üzerinden gerçekleşir: tüm cihazlar aynı ağa bağlı olmalıdır. Aktarımlar uçtan uca şifrelidir; bu nedenle ne internet sağlayıcınız ne de herhangi bir aracı verilerinizi okuyabilir.\n\nYeni bir cihazı eşleştirmek için:\n1. İlk cihazınızda 6 haneli bir kod oluşturun.\n2. İkinci cihazda bu kodu 5 dakika içinde girin.\n3. İki cihaz anahtarları değiştirir ve eşitlemeye başlar.\n\n3 veya daha fazla cihaz için işlemi her çift arasında tekrarlayın."
+msgstr "BiblioGenius hesapsız olarak cihazınızda çalışır. Şifreli hesap isteğe bağlıdır: kitaplığınızın yalnızca sizin okuyabileceğiniz şifreli bir kopyasını tutar; böylece bir kayıptan sonra geri alabilir ve birden çok cihazda kullanabilirsiniz.\n\nOluşturmak için bir e-posta adresi ve bir parola cümlesi gerekir. Bu cümle sıfırlanamaz: hesap oluşturulurken bir kez gösterilen 24 kelimelik kurtarma cümlesini not edin.\n\nCihaz eklemek için ikisini yan yana koyun: yeni cihaz bir QR kod gösterir, oturumu açık cihaz onu tarar ve karşılığında bir yetkilendirme kodu gösterir. Bu kodları yalnızca yüz yüze tarayın.\n\nKitaplarınız, rafarınız, koleksiyonlarınız, ödünçleriniz, kişileriniz ve özel kapaklarınız eşitlenir. Kişilerinizle kurulan şifreli eşleşmeler eşitlenmez: eşleşme cihaz cihaz yapılır, bu yüzden bir kişi, o cihazdan yeniden eşleşene kadar “Bu cihazda eşleşmemiş” olarak görünebilir."
 
 #. Sync multiple devices CTA
 msgid "help_cta_open_device_sync"
@@ -10603,3 +10603,47 @@ msgstr "Öneri gizlendi"
 #. Empty state of the full suggestions screen (everything dismissed)
 msgid "recommendations_empty"
 msgstr "Şu anda öneri yok"
+
+#. How do I back up and export my library?
+msgid "help_topic_backup"
+msgstr "Kitaplığımı nasıl yedekler ve dışa aktarırım?"
+
+#. Everything happens in Settings > Backup and recovery. Export my catalog, Export as CSV, Full backup and the automatic daily snapshot, and what each one is for.
+msgid "help_desc_backup"
+msgstr "Her şey Ayarlar > Yedekleme ve kurtarma bölümünde olur.\n\n“Kataloğumu dışa aktar” kitaplarınızı, yazarlarınızı, etiketlerinizi, koleksiyonlarınızı ve kişilerinizi içeren taşınabilir bir dosya oluşturur; BiblioGenius bunu yeniden içe aktarabilir.\n\n“CSV olarak dışa aktar (hesap tablosu)” her kitap için bir satır içeren, hesap tablosunda açılabilen okunaklı bir liste oluşturur. Bu dosya yeniden içe aktarılamaz.\n\n“Tam yedek” tüm kitaplığınızın şifreli bir arşivini oluşturur; burada ya da başka bir cihazda geri yüklenebilir. Bir parola cümlesi veya kurtarma cümlenizle koruyun ve koruduğu cihazdan başka bir yerde saklayın.\n\nOtomatik yedekleme her gün şifreli bir anlık görüntü alır, yalnızca bu cihazda. Kitaplığınızı başka bir yere taşımaz: cihaz değiştirmek için tam yedek ya da şifreli hesap kullanın."
+
+#. Backup and export CTA
+msgid "help_cta_open_backup"
+msgstr "Yedeklemeyi aç"
+
+#. How does my wishlist work?
+msgid "help_topic_wishlist"
+msgstr "İstek listem nasıl çalışır?"
+
+#. The wishlist: marking a wanted book, seeing who owns it, and who is after the books you own.
+msgid "help_desc_wishlist"
+msgstr "Sahip olmadığınız ama okumak istediğiniz bir kitabın yeri burasıdır: ekleyin ve ona “İstek listesi” durumunu verin.\n\nKitabın sayfasında, ağınızdaki bir kitaplık ona sahip olduğunda “Şurada mevcut” kartı belirir; ödünç isteği bir dokunuş uzaktadır. Sahip olduğunuz kitaplarda ise “Arayan” kartı kimin aradığını gösterir ve kısa bir “Ödünç ver” eylemi sunar. Ödünç vermek özgür ve tek taraflı bir jest olarak kalır: aramasını gördüğünüz kimseye bildirilmez.\n\nEşleşmeler yalnızca gerçekten paylaşılan kitapları kapsar. Özel işaretlenmiş bir kitap asla görünmez."
+
+#. Where do reading suggestions come from?
+msgid "help_topic_recommendations"
+msgstr "Okuma önerileri nereden geliyor?"
+
+#. Where the suggestions show up, why a book is suggested, and how to dismiss one. Says the sources will widen: drop that sentence once they do.
+msgid "help_desc_recommendations"
+msgstr "Panodaki “Size özel öneriler” ve kitap sayfasındaki “Bunları da beğenebilirsiniz” kendi kitaplığınızdan alınan başlıklar sunar. Özellik gelişmeye devam ediyor: sonraki sürümler önerileri kendi raflarınızın ötesine genişletecek.\n\nHer kart nedenini söyler: aynı yazar, benzer konu, aynı yayınevi, aynı dönem, iyi puan verdiğiniz bir kitap ya da okuma yığınınızda bekleyen bir kitap.\n\n“İlgilenmiyorum” bir öneriyi göründüğü her yerde gizler, hemen ardından geri alma sunulur. Bu seçim bu cihazda saklanır."
+
+#. Reading suggestions CTA
+msgid "help_cta_see_suggestions"
+msgstr "Önerileri gör"
+
+#. What is the library directory for?
+msgid "help_topic_directory"
+msgstr "Kitaplık dizini ne işe yarar?"
+
+#. Being listed in the directory, following a library, and how that differs from pairing.
+msgid "help_desc_directory"
+msgstr "Dizin, görünür olmayı seçen kitaplıkları listeler. Dizinde yer almak için Ayarlar > Çevrimiçi paylaşım bölümünden “Kitaplığımı diğer kitaplıklara görünür yap” seçeneğini açın. Yeni bir takipçinin paylaştığınız kitaplara ulaşmadan önce onayınızı gerektirebilirsiniz ve şehriniz yalnızca paylaşmayı seçerseniz yayımlanır.\n\nAğ > Keşfet bölümünde yayımlanmış kitaplıkları gezer, beğendiklerinizi takip edersiniz: bir kataloğu görmeye ve ödünç istemeye yeter.\n\nEşleştirme başka bir şeydir: iki cihaz arasında doğrudan şifreli bir bağ, cihaz cihaz kurulur."
+
+#. Help screen quick action: opens the online guides in the browser
+msgid "help_online_docs"
+msgstr "Çevrimiçi rehberler"

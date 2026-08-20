@@ -139,6 +139,28 @@ class HelpRegistry {
           ctaRoute: '/books',
         ),
       ),
+      _GatedTopic(
+        topic: HelpTopic.faq(
+          id: 'wishlist',
+          icon: Icons.favorite_border,
+          titleKey: 'help_topic_wishlist',
+          descKey: 'help_desc_wishlist',
+          gradient: AppDesign.accentGradient,
+          ctaKey: 'help_cta_go_to_library',
+          ctaRoute: '/books',
+        ),
+      ),
+      _GatedTopic(
+        topic: HelpTopic.faq(
+          id: 'recommendations',
+          icon: Icons.auto_awesome,
+          titleKey: 'help_topic_recommendations',
+          descKey: 'help_desc_recommendations',
+          gradient: AppDesign.primaryGradient,
+          ctaKey: 'help_cta_see_suggestions',
+          ctaRoute: '/recommendations',
+        ),
+      ),
 
       // --- Network & Sharing ---
       _GatedTopic(
@@ -172,6 +194,17 @@ class HelpRegistry {
           gradient: AppDesign.warningGradient,
           ctaKey: 'help_cta_view_requests',
           ctaRoute: '/requests',
+        ),
+      ),
+      _GatedTopic(
+        topic: HelpTopic.faq(
+          id: 'directory',
+          icon: Icons.public,
+          titleKey: 'help_topic_directory',
+          descKey: 'help_desc_directory',
+          gradient: AppDesign.oceanGradient,
+          ctaKey: 'help_cta_explore_network',
+          ctaRoute: '/network',
         ),
       ),
 
@@ -288,6 +321,31 @@ class HelpRegistry {
           gradient: AppDesign.darkGradient,
           ctaKey: 'help_cta_go_to_profile',
           ctaRoute: '/profile',
+        ),
+      ),
+      // The backup tiles carry their own inline help next to each setting;
+      // this FAQ is the entry point for someone who opens /help looking for
+      // "how do I get my books out", and sends them to the same section.
+      _GatedTopic(
+        topic: HelpTopic.faq(
+          id: 'backup',
+          icon: Icons.backup_outlined,
+          titleKey: 'help_topic_backup',
+          descKey: 'help_desc_backup',
+          gradient: AppDesign.successGradient,
+          ctaKey: 'help_cta_open_backup',
+          ctaRoute: '/settings?focus=backup',
+        ),
+      ),
+      _GatedTopic(
+        topic: HelpTopic.faq(
+          id: 'device_sync',
+          icon: Icons.devices,
+          titleKey: 'help_topic_device_sync',
+          descKey: 'help_desc_device_sync',
+          gradient: AppDesign.oceanGradient,
+          ctaKey: 'help_cta_open_device_sync',
+          ctaRoute: '/account-sync',
         ),
       ),
 
