@@ -24,8 +24,8 @@ content_languages: [fr]
 books:
   - isbn: "9782226257017"
     note: "Sapiens - Yuval Noah Harari"
-  - isbn: "9782874950317"
-    note: "Eric Hobsbawm - L'Âge des extrêmes"
+  - isbn: "9782874950117"
+    note: "L'Âge des extrêmes - Eric Hobsbawm"
   - isbn: "9782070325696"
     note: "L'Étrange Défaite - Marc Bloch"
   - isbn: "9782253061687"

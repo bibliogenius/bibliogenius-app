@@ -25,8 +25,8 @@ content_languages: [fr]
 books:
 - isbn: '9782266240369'
   note: Hilary Mantel - Dans l'ombre des Tudors
-- isbn: '9782253059536'
-  note: Ken Follett - Les Piliers de la terre
+- isbn: '9782253059530'
+  note: Les Piliers de la terre - Ken Follett
 - isbn: '9782253008880'
   note: Alexandre Dumas - Les Trois Mousquetaires
 - isbn: '9782253009030'
@@ -42,4 +42,4 @@ books:
 - isbn: '9782253045281'
   note: Anthony Doerr - Toute la lumière que nous ne pouvons voir
 - isbn: '9782266175968'
-  note: Markus Zusak - La Voleuse de livres
+  note: La Voleuse de livres - Markus Zusak

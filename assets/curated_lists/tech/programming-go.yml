@@ -23,7 +23,7 @@ content_languages: [en]
 
 books:
   - isbn: "9780134190440"
-    note: "Alan A. A. Donovan - The Go Programming Language"
+    note: "The Go Programming Language - Alan A. A. Donovan"
   - isbn: "9781492077183"
     note: "Learning Go - Jon Bodner (O'Reilly)"
   - isbn: "9781617291784"

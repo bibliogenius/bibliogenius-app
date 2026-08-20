@@ -10,15 +10,13 @@ import 'package:bibliogenius/utils/isbn_validator.dart';
 /// ISBNs already in the catalogue that fail their own check digit. See the
 /// comment at the assertion that uses this set.
 const knownBadLegacyIsbns = <String>{
-  '9782253059536', // genres/romans-historiques
-  '9781033903178', // genres/thriller-psychologique
-  '9781789537965', // tech/programming-drupal
-  '9781594200318', // themes/cuisine-gastronomie
-  '9782874950317', // themes/histoire-essentiels
-  // Three more live in lists index.yml has commented out
-  // (classics/guardian-100-21st-century, themes/dev-personnel-classiques).
-  // They are deliberately NOT listed here: re-enabling one of those lists
-  // should fail this test until its ISBNs are sourced again.
+  // Empty, and meant to stay that way. The five entries this set was created
+  // for turned out to be transcription slips rather than fabrications, four of
+  // them a single digit off the real number, and all five have been resourced.
+  // Three invalid ISBNs remain in lists index.yml has commented out
+  // (classics/guardian-100-21st-century, themes/dev-personnel-classiques);
+  // they are deliberately absent here, so re-enabling one of those lists fails
+  // this test until its ISBNs are sourced again.
 };
 
 void main() {
@@ -159,10 +157,10 @@ void main() {
             // does not resolve fails its import outright, because the backend
             // refuses books without a title.
             //
-            // Ratchet, not a clean sweep: five entries authored before this
-            // check already fail it. Measured 2026-08-19: 8 invalid ISBNs out
-            // of 894 across every list, five in lists index.yml loads and three
-            // in lists it has commented out.
+            // Every ISBN in a loaded list now passes. The exemption set is
+            // empty and should stay so: an entry that fails its check digit
+            // identifies no real edition, and the import then falls back to
+            // the title parsed out of `note`.
             // They are named here so the debt stays visible and cannot grow,
             // rather than weakening the assertion for everyone. Fixing them
             // means sourcing a real edition per title, which is content work,

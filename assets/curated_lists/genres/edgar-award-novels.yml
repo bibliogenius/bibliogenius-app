@@ -23,7 +23,7 @@ content_languages: [fr]
 
 books:
   - isbn: "9782266207638"
-    note: "Tana French - Dans les bois (2008)"
+    note: "Dans les bois - Tana French (2008)"
   - isbn: "9782070793822"
     note: "Cormac McCarthy - No Country for Old Men (2006)"
   - isbn: "9782253044901"
