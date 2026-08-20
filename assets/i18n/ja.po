@@ -10303,3 +10303,19 @@ msgstr "高く評価した本です"
 #. Recommendation reason: the book already sits in the to-read pile
 msgid "reason_in_reading_pile"
 msgstr "積読リストにある本です"
+
+#. Dashboard: link under the suggestions digest to the full list (ADR-059)
+msgid "see_all_recommendations"
+msgstr "すべて見る"
+
+#. Tooltip / label of the dismiss button on a recommendation card
+msgid "recommendation_not_interested"
+msgstr "興味なし"
+
+#. SnackBar shown after dismissing a recommendation, next to the Undo action
+msgid "recommendation_dismissed"
+msgstr "提案を非表示にしました"
+
+#. Empty state of the full suggestions screen (everything dismissed)
+msgid "recommendations_empty"
+msgstr "現在、提案はありません"

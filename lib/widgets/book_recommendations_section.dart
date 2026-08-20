@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../data/repositories/recommendation_repository.dart';
 import '../models/book.dart';
 import '../models/recommendation.dart';
+import '../providers/recommendation_provider.dart';
 import '../services/translation_service.dart';
 import '../theme/app_design.dart';
 import '../utils/recommendation_display.dart';
@@ -18,7 +19,9 @@ import 'reason_chip.dart';
 ///
 /// Loads lazily after the details render (non-blocking) and renders
 /// nothing while loading, on failure, or with fewer than 2 suggestions
-/// (a single card is more noise than help).
+/// (a single card is more noise than help). "Not interested" dismissals
+/// come from [RecommendationProvider], apply to every recommendation
+/// surface, and are filtered out BEFORE the two-suggestion floor.
 class BookRecommendationsSection extends StatefulWidget {
   final Book book;
 
@@ -64,17 +67,32 @@ class _BookRecommendationsSectionState
     final recs = await repository.getBookRecommendations(bookId);
     if (!mounted) return;
     // Reasonless cards cannot be explained: drop them defensively (the
-    // engine should never emit any).
-    final explained = recs.where((r) => r.reasons.isNotEmpty).toList();
-    if (explained.length < _minRecommendations) return;
-    setState(() => _recommendations = explained);
+    // engine should never emit any). Dismissals are filtered at build time
+    // so an Undo can bring a card back without refetching.
+    setState(
+      () => _recommendations = recs.where((r) => r.reasons.isNotEmpty).toList(),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_recommendations.length < _minRecommendations) {
+    // Narrow subscription: this section has its own similar-books list and
+    // only depends on the provider for dismissals, so select the dismissed
+    // set instead of watching every provider notification.
+    final dismissed = context.select<RecommendationProvider, Set<String>>(
+      (provider) => provider.dismissedBookIds,
+    );
+    final visible = _recommendations
+        .where((r) => !dismissed.contains(r.book.id))
+        .toList();
+    if (visible.length < _minRecommendations) {
       return const SizedBox.shrink();
     }
+
+    final dismissTooltip = TranslationService.translate(
+      context,
+      'recommendation_not_interested',
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -97,17 +115,22 @@ class _BookRecommendationsSectionState
                 MediaQuery.textScalerOf(context).scale(_metadataHeight),
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
-              itemCount: _recommendations.length,
+              itemCount: visible.length,
               separatorBuilder: (_, _) =>
                   const SizedBox(width: AppDesign.spacingMd),
               itemBuilder: (context, index) {
-                final rec = _recommendations[index];
+                final rec = visible[index];
+                final bookId = rec.book.id;
                 return _RecommendationCard(
                   recommendation: rec,
                   width: _cardWidth,
                   coverHeight: _coverHeight,
                   onTap: () =>
                       context.push('/books/${rec.book.id}', extra: rec.book),
+                  onDismiss: bookId == null
+                      ? null
+                      : () => dismissRecommendationWithUndo(context, bookId),
+                  dismissTooltip: dismissTooltip,
                 );
               },
             ),
@@ -125,12 +148,23 @@ class _RecommendationCard extends StatelessWidget {
     required this.width,
     required this.coverHeight,
     required this.onTap,
-  });
+    this.onDismiss,
+    this.dismissTooltip,
+  }) : assert(
+         onDismiss == null || dismissTooltip != null,
+         'a dismissible card needs a translated dismissTooltip',
+       );
 
   final Recommendation recommendation;
   final double width;
   final double coverHeight;
   final VoidCallback onTap;
+
+  /// Dismisses this suggestion ("Not interested"); shown as a small close
+  /// button over the cover corner, outside the card's summarized semantics
+  /// so it keeps its own translated label (Rules A1/A4).
+  final VoidCallback? onDismiss;
+  final String? dismissTooltip;
 
   @override
   Widget build(BuildContext context) {
@@ -143,51 +177,77 @@ class _RecommendationCard extends StatelessWidget {
 
     return SizedBox(
       width: width,
-      child: Semantics(
-        button: true,
-        // The card is read as one announcement; its inner Texts are already
-        // summarized here.
-        excludeSemantics: true,
-        label: [
-          book.title,
-          if (author != null && author.isNotEmpty) author,
-          reasonLabel,
-        ].join('. '),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              height: coverHeight,
-              child: BookCoverCard(book: book, onTap: onTap),
-            ),
-            const SizedBox(height: 8),
-            Text(
+      child: Stack(
+        children: [
+          Semantics(
+            button: true,
+            // The card is read as one announcement; its inner Texts are
+            // already summarized here. The dismiss button lives OUTSIDE
+            // this subtree so it keeps its own semantics.
+            excludeSemantics: true,
+            label: [
               book.title,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: textTheme.labelMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-                height: 1.25,
-              ),
-            ),
-            if (author != null && author.isNotEmpty)
-              Text(
-                author,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: textTheme.labelSmall?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
+              if (author != null && author.isNotEmpty) author,
+              reasonLabel,
+            ].join('. '),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  height: coverHeight,
+                  child: BookCoverCard(book: book, onTap: onTap),
                 ),
-              ),
-            const SizedBox(height: 6),
-            // Compact form: the icon carries "same author", the pill carries
-            // the value, and the full sentence stays in the tooltip.
-            Align(
-              alignment: Alignment.centerLeft,
-              child: ReasonChip(reason: reason, compact: true),
+                const SizedBox(height: 8),
+                Text(
+                  book.title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: textTheme.labelMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    height: 1.25,
+                  ),
+                ),
+                if (author != null && author.isNotEmpty)
+                  Text(
+                    author,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: textTheme.labelSmall?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                const SizedBox(height: 6),
+                // Compact form: the icon carries "same author", the pill
+                // carries the value, and the full sentence stays in the
+                // tooltip.
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: ReasonChip(reason: reason, compact: true),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          if (onDismiss != null)
+            Positioned(
+              top: 2,
+              right: 2,
+              child: IconButton(
+                icon: const Icon(Icons.close, size: 14),
+                iconSize: 14,
+                visualDensity: VisualDensity.compact,
+                padding: const EdgeInsets.all(4),
+                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                tooltip: dismissTooltip,
+                // Covers are arbitrary art: a translucent surface disc keeps
+                // the icon above WCAG contrast whatever sits underneath.
+                style: IconButton.styleFrom(
+                  backgroundColor: colorScheme.surface.withValues(alpha: 0.85),
+                  foregroundColor: colorScheme.onSurface,
+                ),
+                onPressed: onDismiss,
+              ),
+            ),
+        ],
       ),
     );
   }

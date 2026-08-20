@@ -6,7 +6,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bibliogenius/data/repositories/recommendation_repository.dart';
 import 'package:bibliogenius/models/book.dart';
 import 'package:bibliogenius/models/recommendation.dart';
+import 'package:bibliogenius/providers/book_refresh_notifier.dart';
+import 'package:bibliogenius/providers/recommendation_provider.dart';
 import 'package:bibliogenius/providers/theme_provider.dart';
+import 'package:bibliogenius/services/recommendation_dismissal_service.dart';
 import 'package:bibliogenius/services/translation_service.dart';
 import 'package:bibliogenius/widgets/book_recommendations_section.dart';
 
@@ -47,12 +50,15 @@ Widget _harness({
   required ThemeProvider theme,
   required List<Recommendation> similar,
 }) {
+  final repository = _FakeRepository(similar);
   return MaterialApp(
     home: MultiProvider(
       providers: [
         ChangeNotifierProvider<ThemeProvider>.value(value: theme),
-        Provider<RecommendationRepository>.value(
-          value: _FakeRepository(similar),
+        Provider<RecommendationRepository>.value(value: repository),
+        ChangeNotifierProvider<RecommendationProvider>(
+          create: (_) =>
+              RecommendationProvider(repository, BookRefreshNotifier()),
         ),
       ],
       child: Scaffold(
@@ -78,6 +84,9 @@ void main() {
         'reason_same_author': 'Same author: {value}',
         'reason_same_author_short': 'Same author',
         'reason_shared_subject': 'Same shelf: {value}',
+        'recommendation_not_interested': 'Not interested',
+        'recommendation_dismissed': 'Suggestion hidden',
+        'action_undo': 'Undo',
       },
     });
   });
@@ -164,5 +173,85 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('You might also like'), findsNothing);
+  });
+
+  testWidgets('"Not interested" hides the card and Undo restores it', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _harness(
+        theme: theme,
+        similar: [
+          _similar(title: 'La Peste', author: 'Albert Camus'),
+          _similar(title: 'La Chute', author: 'Albert Camus'),
+          _similar(title: 'Caligula', author: 'Albert Camus'),
+        ],
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Caligula'), findsWidgets);
+    expect(find.byTooltip('Not interested'), findsNWidgets(3));
+
+    // Dismiss the last card.
+    await tester.tap(find.byTooltip('Not interested').last);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Caligula'), findsNothing);
+    expect(find.text('La Peste'), findsWidgets);
+    expect(find.text('Suggestion hidden'), findsOneWidget);
+
+    // Undo brings it straight back.
+    await tester.tap(find.text('Undo'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Caligula'), findsWidgets);
+  });
+
+  testWidgets('the two-card floor is evaluated after dismissal filtering', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _harness(
+        theme: theme,
+        similar: [
+          _similar(title: 'La Peste', author: 'Albert Camus'),
+          _similar(title: 'La Chute', author: 'Albert Camus'),
+        ],
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('You might also like'), findsOneWidget);
+
+    // One dismissal leaves a single visible card: the whole section folds.
+    await tester.tap(find.byTooltip('Not interested').first);
+    await tester.pumpAndSettle();
+
+    expect(find.text('You might also like'), findsNothing);
+  });
+
+  testWidgets('a dismissal persisted on a previous launch stays filtered', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({
+      RecommendationDismissalService.dismissedBookIdsKey: ['book-Caligula'],
+    });
+
+    await tester.pumpWidget(
+      _harness(
+        theme: theme,
+        similar: [
+          _similar(title: 'La Peste', author: 'Albert Camus'),
+          _similar(title: 'La Chute', author: 'Albert Camus'),
+          _similar(title: 'Caligula', author: 'Albert Camus'),
+        ],
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('You might also like'), findsOneWidget);
+    expect(find.text('Caligula'), findsNothing);
+    expect(find.text('La Peste'), findsWidgets);
   });
 }

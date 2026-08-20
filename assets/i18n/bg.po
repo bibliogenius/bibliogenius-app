@@ -10587,3 +10587,19 @@ msgstr "Оценили сте тази книга високо"
 #. Recommendation reason: the book already sits in the to-read pile
 msgid "reason_in_reading_pile"
 msgstr "Вече е в купчината ви за четене"
+
+#. Dashboard: link under the suggestions digest to the full list (ADR-059)
+msgid "see_all_recommendations"
+msgstr "Виж всички"
+
+#. Tooltip / label of the dismiss button on a recommendation card
+msgid "recommendation_not_interested"
+msgstr "Не ме интересува"
+
+#. SnackBar shown after dismissing a recommendation, next to the Undo action
+msgid "recommendation_dismissed"
+msgstr "Предложението е скрито"
+
+#. Empty state of the full suggestions screen (everything dismissed)
+msgid "recommendations_empty"
+msgstr "Засега няма предложения"

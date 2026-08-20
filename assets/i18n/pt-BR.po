@@ -10595,3 +10595,19 @@ msgstr "Você avaliou bem este livro"
 #. Recommendation reason: the book already sits in the to-read pile
 msgid "reason_in_reading_pile"
 msgstr "Já está na sua pilha de leitura"
+
+#. Dashboard: link under the suggestions digest to the full list (ADR-059)
+msgid "see_all_recommendations"
+msgstr "Ver tudo"
+
+#. Tooltip / label of the dismiss button on a recommendation card
+msgid "recommendation_not_interested"
+msgstr "Não tenho interesse"
+
+#. SnackBar shown after dismissing a recommendation, next to the Undo action
+msgid "recommendation_dismissed"
+msgstr "Sugestão ocultada"
+
+#. Empty state of the full suggestions screen (everything dismissed)
+msgid "recommendations_empty"
+msgstr "Nenhuma sugestão no momento"

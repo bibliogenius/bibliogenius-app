@@ -9,6 +9,7 @@ import 'package:bibliogenius/models/recommendation.dart';
 import 'package:bibliogenius/providers/book_refresh_notifier.dart';
 import 'package:bibliogenius/providers/recommendation_provider.dart';
 import 'package:bibliogenius/providers/theme_provider.dart';
+import 'package:bibliogenius/services/recommendation_dismissal_service.dart';
 import 'package:bibliogenius/services/translation_service.dart';
 import 'package:bibliogenius/widgets/personal_suggestions_section.dart';
 
@@ -86,6 +87,10 @@ void main() {
         'reason_same_author_short': 'Same author',
         'reason_shared_subject': 'Same shelf: {value}',
         'reason_highly_rated': 'Highly rated: {value}',
+        'recommendation_not_interested': 'Not interested',
+        'recommendation_dismissed': 'Suggestion hidden',
+        'action_undo': 'Undo',
+        'see_all_recommendations': 'See all',
       },
     });
   });
@@ -234,5 +239,118 @@ void main() {
       reason: 'the tile must be announced once, not echoed line by line',
     );
     semantics.dispose();
+  });
+
+  testWidgets('"Not interested" hides the tile and Undo restores it', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _harness(
+        theme: theme,
+        suggestions: [
+          _suggestion(title: 'La Peste', author: 'Albert Camus'),
+          _suggestion(title: 'Le Mythe de Sisyphe', author: 'Albert Camus'),
+          _suggestion(title: 'Caligula', author: 'Albert Camus'),
+        ],
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byTooltip('Not interested'), findsNWidgets(3));
+
+    // Dismiss the last tile.
+    await tester.tap(find.byTooltip('Not interested').last);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Caligula'), findsNothing);
+    expect(find.text('La Peste'), findsOneWidget);
+    expect(find.text('Suggestion hidden'), findsOneWidget);
+
+    // Undo brings it straight back.
+    await tester.tap(find.text('Undo'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Caligula'), findsOneWidget);
+  });
+
+  testWidgets('the two-tile floor is evaluated after dismissal filtering', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _harness(
+        theme: theme,
+        suggestions: [
+          _suggestion(title: 'La Peste', author: 'Albert Camus'),
+          _suggestion(title: 'Le Mythe de Sisyphe', author: 'Albert Camus'),
+        ],
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Suggestions for you'), findsOneWidget);
+
+    // One dismissal leaves a single visible tile: the whole section folds.
+    await tester.tap(find.byTooltip('Not interested').first);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Suggestions for you'), findsNothing);
+  });
+
+  testWidgets('a dismissal persisted on a previous launch stays filtered', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({
+      RecommendationDismissalService.dismissedBookIdsKey: ['book-Caligula'],
+    });
+
+    await tester.pumpWidget(
+      _harness(
+        theme: theme,
+        suggestions: [
+          _suggestion(title: 'La Peste', author: 'Albert Camus'),
+          _suggestion(title: 'Le Mythe de Sisyphe', author: 'Albert Camus'),
+          _suggestion(title: 'Caligula', author: 'Albert Camus'),
+        ],
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Suggestions for you'), findsOneWidget);
+    expect(find.text('Caligula'), findsNothing);
+    expect(find.text('La Peste'), findsOneWidget);
+  });
+
+  testWidgets('links to the full list only when the digest truncates it', (
+    tester,
+  ) async {
+    // Six visible suggestions: the digest caps at five, the link appears.
+    await tester.pumpWidget(
+      _harness(
+        theme: theme,
+        suggestions: [
+          for (final title in ['A', 'B', 'C', 'D', 'E', 'F'])
+            _suggestion(title: title, author: 'Albert Camus'),
+        ],
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('E'), findsOneWidget);
+    expect(find.text('F'), findsNothing, reason: 'the digest caps at five');
+    expect(find.text('See all'), findsOneWidget);
+
+    // Five or fewer: everything is already on the dashboard, no link.
+    await tester.pumpWidget(
+      _harness(
+        theme: theme,
+        suggestions: [
+          for (final title in ['A', 'B', 'C'])
+            _suggestion(title: title, author: 'Albert Camus'),
+        ],
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('See all'), findsNothing);
   });
 }

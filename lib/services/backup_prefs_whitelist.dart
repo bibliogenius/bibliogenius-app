@@ -161,6 +161,9 @@ const Set<String> kBackupPrefsBlacklist = <String>{
   // meaningful only on the install that saw the suggestion.
   'dashboard_discover_dismissed_ids', // DiscoverDismissalService.dismissedIdsKey
   'dashboard_discover_dismissed', // legacy global flag, migrated then removed
+  // Recommendations the user marked "Not interested" (ADR-059 follow-up).
+  // Device-local by decision: replicating dismissals would need its own ADR.
+  'dismissed_recommendation_book_uuids', // RecommendationDismissalService.dismissedBookIdsKey
   // Consent to publish the city in the public directory. Deliberately NOT
   // whitelisted alongside the city itself: restoring an archive must give
   // the user their data back, never re-consent on their behalf. Silently

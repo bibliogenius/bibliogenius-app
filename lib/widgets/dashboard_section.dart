@@ -68,6 +68,57 @@ class SectionHeader extends StatelessWidget {
   }
 }
 
+/// "See all" pill closing a dashboard section: same visual as the inline
+/// footer links of the book-list sections, extracted so widget-based
+/// sections (e.g. the personal suggestions) can reuse it, with button
+/// semantics for screen readers (Rule A1).
+class SeeAllLink extends StatelessWidget {
+  const SeeAllLink({super.key, required this.label, required this.onTap});
+
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final primary = Theme.of(context).colorScheme.primary;
+
+    return Semantics(
+      button: true,
+      label: label,
+      child: ExcludeSemantics(
+        child: ScaleOnTap(
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              color: primary.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(AppDesign.radiusRound),
+              border: Border.all(color: primary.withValues(alpha: 0.15)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: primary,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13,
+                    letterSpacing: 0.2,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Icon(Icons.arrow_forward_rounded, size: 16, color: primary),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// Section body of the dashboard: a rounded surface card topped by the theme
 /// accent gradient. Shared for the same reason as [SectionHeader].
 class SectionCard extends StatelessWidget {

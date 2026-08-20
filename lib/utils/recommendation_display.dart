@@ -1,7 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../models/recommendation.dart';
+import '../providers/recommendation_provider.dart';
 import '../services/translation_service.dart';
+import '../widgets/app_snack_bar.dart';
+
+/// The "Not interested" gesture, shared by every recommendation surface
+/// (dashboard digest, "See all" screen, similar-books carousel): dismiss
+/// [bookId] through [RecommendationProvider] and show the SnackBar with its
+/// immediate Undo, so wording and behaviour never drift between surfaces.
+void dismissRecommendationWithUndo(BuildContext context, String bookId) {
+  final provider = context.read<RecommendationProvider>();
+  provider.dismiss(bookId);
+  AppSnackBar.info(
+    context,
+    TranslationService.translate(context, 'recommendation_dismissed'),
+    action: SnackBarAction(
+      label: TranslationService.translate(context, 'action_undo'),
+      onPressed: () => provider.restoreDismissed(bookId),
+    ),
+  );
+}
 
 /// Translate one recommendation reason into a display line.
 ///

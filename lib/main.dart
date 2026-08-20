@@ -79,6 +79,7 @@ import 'screens/memory_game_screen.dart';
 import 'screens/metadata_fill_screen.dart';
 import 'screens/operation_log_screen.dart';
 import 'screens/peer_view_screen.dart';
+import 'screens/recommendations_screen.dart';
 import 'screens/sliding_puzzle_screen.dart';
 import 'screens/hangman_screen.dart';
 import 'screens/games_hub_screen.dart';
@@ -1137,6 +1138,12 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
             GoRoute(
               path: '/peer-view',
               builder: (context, state) => const PeerViewScreen(),
+            ),
+            // Full ranked list behind the dashboard "Suggestions for you"
+            // digest (ADR-059 follow-up).
+            GoRoute(
+              path: '/recommendations',
+              builder: (context, state) => const RecommendationsScreen(),
             ),
             GoRoute(
               path: '/books',
