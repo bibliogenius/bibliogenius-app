@@ -10,7 +10,7 @@ part 'frb.freezed.dart';
 
 // These functions are ignored because they are not marked as `pub`: `account_device_entry`, `account_devices_json`, `account_library_uuid`, `account_status_json`, `apply_fallback_preferences_to_modules`, `covers_dir`, `db`, `enrollment_restart_required`, `enrollment_status_json`, `ensure_account_session`, `entries_to_frb`, `fill_state`, `from_info`, `from_manifest`, `from_summary`, `global_app_state`, `hub_catalog_error_code`, `hub_db`, `hub_directory_svc`, `hub_directory_sync_catalog_inner`, `install_panic_hook`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `log_sync_failure`, `merge_api_keys`, `merge_directory_entry`, `modules_to_fallback_preferences`, `nudge_source_label`, `rename_subject_in_books`, `runtime`, `store_account_session`, `track_to_frb`, `try_from_summary`, `undo_outcome_str`, `upsert_directory_catalog_cache`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `AccountSession`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
 
 /// Initialize the FFI backend with database at the given path
 /// Must be called before any other FFI functions
@@ -1557,6 +1557,21 @@ Future<int> aggregateWishlistImportNotification({
   isbns: isbns,
 );
 
+/// "You might also like": books from the local library similar to the given
+/// one. Computed on demand; the Flutter side caches (Rule F4).
+Future<List<FrbRecommendation>> getBookRecommendations({
+  required String bookId,
+  int? limit,
+}) => RustLib.instance.api.crateApiFrbGetBookRecommendations(
+  bookId: bookId,
+  limit: limit,
+);
+
+/// "Suggestions for you": unread books scored against the taste profile
+/// built from the user's read, rated and favorite books.
+Future<FrbRecommendationResponse> getPersonalRecommendations({int? limit}) =>
+    RustLib.instance.api.crateApiFrbGetPersonalRecommendations(limit: limit);
+
 /// Subset of the manifest surfaced to the wizard's preview screen. Mirrors
 /// `ManifestSummary` field-by-field but flattened for FFI portability.
 /// Counts cross the FFI as `i64`.
@@ -2834,6 +2849,90 @@ class FrbPuzzleScore {
           normalizedScore == other.normalizedScore &&
           playedAt == other.playedAt &&
           newAchievements == other.newAchievements;
+}
+
+/// One recommendation: the book, its score, and the human-readable reasons
+/// (strongest first). Explainability is the trust contract of the feature:
+/// the UI must always show at least the first reason.
+class FrbRecommendation {
+  final FrbBook book;
+  final double score;
+  final List<FrbRecommendationReason> reasons;
+
+  const FrbRecommendation({
+    required this.book,
+    required this.score,
+    required this.reasons,
+  });
+
+  @override
+  int get hashCode => book.hashCode ^ score.hashCode ^ reasons.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FrbRecommendation &&
+          runtimeType == other.runtimeType &&
+          book == other.book &&
+          score == other.score &&
+          reasons == other.reasons;
+}
+
+/// One reason a book was recommended, as a stable wire pair. `reason_type`
+/// maps to an i18n key on the Flutter side ("same_author" ->
+/// "reason_same_author"), `value` is the display payload ("Albert Camus").
+class FrbRecommendationReason {
+  final String reasonType;
+  final String value;
+
+  const FrbRecommendationReason({
+    required this.reasonType,
+    required this.value,
+  });
+
+  @override
+  int get hashCode => reasonType.hashCode ^ value.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FrbRecommendationReason &&
+          runtimeType == other.runtimeType &&
+          reasonType == other.reasonType &&
+          value == other.value;
+}
+
+/// Dashboard response: suggestions plus the taste-profile summary that
+/// produced them. `scored_books_count` gates the section (hidden below 5).
+class FrbRecommendationResponse {
+  final List<FrbRecommendation> recommendations;
+  final List<String> topSubjects;
+  final List<String> favoriteAuthors;
+  final int scoredBooksCount;
+
+  const FrbRecommendationResponse({
+    required this.recommendations,
+    required this.topSubjects,
+    required this.favoriteAuthors,
+    required this.scoredBooksCount,
+  });
+
+  @override
+  int get hashCode =>
+      recommendations.hashCode ^
+      topSubjects.hashCode ^
+      favoriteAuthors.hashCode ^
+      scoredBooksCount.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FrbRecommendationResponse &&
+          runtimeType == other.runtimeType &&
+          recommendations == other.recommendations &&
+          topSubjects == other.topSubjects &&
+          favoriteAuthors == other.favoriteAuthors &&
+          scoredBooksCount == other.scoredBooksCount;
 }
 
 @freezed

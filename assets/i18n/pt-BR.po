@@ -10558,3 +10558,40 @@ msgstr "Emprestar"
 #. Discreet mutual-wish hint under the lend action (never an obligation)
 msgid "wishlist_mutual_hint"
 msgstr "Você também procura {title}, que {name} possui."
+
+#. Book details: header of the similar-books carousel (ADR-059)
+msgid "recommendations_similar"
+msgstr "Você também pode gostar"
+
+#. Dashboard: header of the personal suggestions section (ADR-059)
+msgid "recommendations_personal"
+msgstr "Sugestões para você"
+
+#. Recommendation reason: shares an author, {value} is the author name
+msgid "reason_same_author"
+msgstr "Mesmo autor: {value}"
+
+#. Recommendation reason, short form used on the chips: the author name is
+#. already printed on the card, so repeating it inside the chip is noise
+msgid "reason_same_author_short"
+msgstr "Mesmo autor"
+
+#. Recommendation reason: shares a shelf/genre label, {value} is the label
+msgid "reason_shared_subject"
+msgstr "Assunto semelhante: {value}"
+
+#. Recommendation reason: same publisher, {value} is the publisher name
+msgid "reason_same_publisher"
+msgstr "Mesma editora: {value}"
+
+#. Recommendation reason: published within 10 years, {value} is 'YYYY / YYYY'
+msgid "reason_close_period"
+msgstr "Mesma época: {value}"
+
+#. Recommendation reason: the suggested book carries a high user rating
+msgid "reason_highly_rated"
+msgstr "Você avaliou bem este livro"
+
+#. Recommendation reason: the book already sits in the to-read pile
+msgid "reason_in_reading_pile"
+msgstr "Já está na sua pilha de leitura"

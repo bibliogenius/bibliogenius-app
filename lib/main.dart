@@ -35,18 +35,21 @@ import 'providers/metadata_fill_provider.dart';
 import 'providers/operation_log_provider.dart';
 import 'providers/sliding_puzzle_provider.dart';
 import 'providers/hangman_provider.dart';
+import 'providers/recommendation_provider.dart';
 import 'data/repositories/book_repository.dart';
 import 'data/repositories/tag_repository.dart';
 import 'data/repositories/contact_repository.dart';
 import 'data/repositories/collection_repository.dart';
 import 'data/repositories/copy_repository.dart';
 import 'data/repositories/loan_repository.dart';
+import 'data/repositories/recommendation_repository.dart';
 import 'data/repositories_impl/book_repository_impl.dart';
 import 'data/repositories_impl/tag_repository_impl.dart';
 import 'data/repositories_impl/contact_repository_impl.dart';
 import 'data/repositories_impl/collection_repository_impl.dart';
 import 'data/repositories_impl/copy_repository_impl.dart';
 import 'data/repositories_impl/loan_repository_impl.dart';
+import 'data/repositories_impl/recommendation_repository_impl.dart';
 
 import 'screens/login_screen.dart';
 import 'screens/add_book_screen.dart';
@@ -699,6 +702,15 @@ class MyApp extends StatelessWidget {
         ),
         Provider<CopyRepository>.value(value: CopyRepositoryImpl(apiService)),
         Provider<LoanRepository>.value(value: LoanRepositoryImpl(apiService)),
+        Provider<RecommendationRepository>.value(
+          value: RecommendationRepositoryImpl(FfiService()),
+        ),
+        ChangeNotifierProvider<RecommendationProvider>(
+          create: (context) => RecommendationProvider(
+            context.read<RecommendationRepository>(),
+            bookRefreshNotifier,
+          ),
+        ),
         Provider<SyncService>(
           create: (_) => SyncService(
             apiService,

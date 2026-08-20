@@ -18,6 +18,8 @@ import '../providers/theme_provider.dart';
 import '../providers/hub_directory_provider.dart';
 import '../providers/metadata_fill_provider.dart';
 import '../widgets/goal_tile.dart';
+import '../widgets/dashboard_section.dart';
+import '../widgets/personal_suggestions_section.dart';
 
 import '../widgets/premium_book_card.dart';
 import '../widgets/premium_empty_state.dart';
@@ -924,6 +926,11 @@ class _DashboardScreenState extends State<DashboardScreen>
                         showStatus: false,
                       ),
 
+                    // Suggestions for you (ADR-059): unread books scored
+                    // against the taste profile. The widget hides itself
+                    // below 5 profile books or 2 suggestions.
+                    const PersonalSuggestionsSection(),
+
                     // 3. Livres récents (Recent Books)
                     if (_recentBooks.isNotEmpty)
                       _buildBookListSection(
@@ -1256,84 +1263,53 @@ class _DashboardScreenState extends State<DashboardScreen>
       children: [
         _buildSectionTitle(context, title),
         const SizedBox(height: 16),
-        Container(
-          clipBehavior: Clip.antiAlias,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(AppDesign.radiusXLarge),
-            boxShadow: AppDesign.cardShadow,
-          ),
+        SectionCard(
           child: Column(
             children: [
-              // Accent gradient bar at top
-              Container(
-                height: 3,
-                decoration: BoxDecoration(
-                  gradient: AppDesign.sectionAccentGradient(
-                    Provider.of<ThemeProvider>(
-                      context,
-                      listen: false,
-                    ).themeStyle,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    // Show max 10 items in horizontal list
-                    _buildBookList(
-                      context,
-                      books.take(10).toList(),
-                      emptyMessage,
-                    ),
+              // Show max 10 items in horizontal list
+              _buildBookList(context, books.take(10).toList(), emptyMessage),
 
-                    const SizedBox(height: 12),
-                    // See All Link
-                    ScaleOnTap(
-                      onTap: () => context.go(seeAllRoute),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 10,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.primary.withValues(alpha: 0.08),
-                          borderRadius: BorderRadius.circular(
-                            AppDesign.radiusRound,
-                          ),
-                          border: Border.all(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.primary.withValues(alpha: 0.15),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              seeAllLabel,
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.primary,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 13,
-                                letterSpacing: 0.2,
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            Icon(
-                              Icons.arrow_forward_rounded,
-                              size: 16,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                          ],
+              const SizedBox(height: 12),
+              // See All Link
+              ScaleOnTap(
+                onTap: () => context.go(seeAllRoute),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(AppDesign.radiusRound),
+                    border: Border.all(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.15),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        seeAllLabel,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 13,
+                          letterSpacing: 0.2,
                         ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 6),
+                      Icon(
+                        Icons.arrow_forward_rounded,
+                        size: 16,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -1695,51 +1671,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       icon = Icons.bolt;
     }
 
-    final themeStyle = Provider.of<ThemeProvider>(
-      context,
-      listen: false,
-    ).themeStyle;
-    final theme = Theme.of(context);
-    final accentGradient = AppDesign.sectionAccentGradient(themeStyle);
-    final iconColor = theme.colorScheme.primary;
-
-    return Semantics(
-      header: true,
-      child: Container(
-        margin: const EdgeInsets.only(top: 8),
-        child: Row(
-          children: [
-            Container(
-              width: 5,
-              height: 32,
-              decoration: BoxDecoration(
-                gradient: accentGradient,
-                borderRadius: BorderRadius.circular(3),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Container(
-              padding: const EdgeInsets.all(9),
-              decoration: BoxDecoration(
-                color: iconColor.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
-              ),
-              child: Icon(icon, size: 20, color: iconColor),
-            ),
-            const SizedBox(width: 12),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
-                color: theme.colorScheme.onSurface,
-                letterSpacing: 0.2,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+    return SectionHeader(icon: icon, title: title);
   }
 
   Widget _buildBookList(

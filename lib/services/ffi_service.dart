@@ -11,6 +11,7 @@ import '../models/collection_book.dart';
 import '../models/collection_deletion_preview.dart';
 import '../models/contact.dart';
 import '../models/cover_candidate.dart';
+import '../models/recommendation.dart';
 import '../models/tag.dart';
 import '../src/rust/api/frb.dart' as frb;
 import 'dart:convert';
@@ -1909,6 +1910,56 @@ class FfiService {
     } catch (e) {
       debugPrint('FFI aggregateWishlistImportNotification error: $e');
       return 0;
+    }
+  }
+
+  // ── Reading recommendations (ADR-059) ───────────────────────────────
+
+  Recommendation _frbRecommendationToModel(frb.FrbRecommendation r) {
+    return Recommendation(
+      book: _frbBookToBook(r.book),
+      score: r.score,
+      reasons: r.reasons
+          .map((f) => RecommendationReason(type: f.reasonType, value: f.value))
+          .toList(),
+    );
+  }
+
+  /// "You might also like": local-library books similar to [bookId].
+  Future<List<Recommendation>> getBookRecommendations(
+    String bookId, {
+    int? limit,
+  }) async {
+    try {
+      final recs = await frb.getBookRecommendations(
+        bookId: bookId,
+        limit: limit,
+      );
+      return recs.map(_frbRecommendationToModel).toList();
+    } catch (e) {
+      debugPrint('FFI getBookRecommendations error: $e');
+      return [];
+    }
+  }
+
+  /// "Suggestions for you": unread books scored against the taste profile.
+  /// Null on failure so callers can tell "engine unavailable" from "no
+  /// suggestions".
+  Future<PersonalRecommendations?> getPersonalRecommendations({
+    int? limit,
+  }) async {
+    try {
+      final resp = await frb.getPersonalRecommendations(limit: limit);
+      return PersonalRecommendations(
+        recommendations:
+            resp.recommendations.map(_frbRecommendationToModel).toList(),
+        topSubjects: resp.topSubjects,
+        favoriteAuthors: resp.favoriteAuthors,
+        scoredBooksCount: resp.scoredBooksCount,
+      );
+    } catch (e) {
+      debugPrint('FFI getPersonalRecommendations error: $e');
+      return null;
     }
   }
 

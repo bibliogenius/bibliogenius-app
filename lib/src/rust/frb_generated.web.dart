@@ -249,6 +249,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FrbPuzzleScore dco_decode_frb_puzzle_score(dynamic raw);
 
   @protected
+  FrbRecommendation dco_decode_frb_recommendation(dynamic raw);
+
+  @protected
+  FrbRecommendationReason dco_decode_frb_recommendation_reason(dynamic raw);
+
+  @protected
+  FrbRecommendationResponse dco_decode_frb_recommendation_response(dynamic raw);
+
+  @protected
   FrbRegisterParams dco_decode_frb_register_params(dynamic raw);
 
   @protected
@@ -376,6 +385,14 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<FrbPuzzleScore> dco_decode_list_frb_puzzle_score(dynamic raw);
+
+  @protected
+  List<FrbRecommendation> dco_decode_list_frb_recommendation(dynamic raw);
+
+  @protected
+  List<FrbRecommendationReason> dco_decode_list_frb_recommendation_reason(
+    dynamic raw,
+  );
 
   @protected
   List<FrbRollbackInfo> dco_decode_list_frb_rollback_info(dynamic raw);
@@ -753,6 +770,19 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FrbPuzzleScore sse_decode_frb_puzzle_score(SseDeserializer deserializer);
 
   @protected
+  FrbRecommendation sse_decode_frb_recommendation(SseDeserializer deserializer);
+
+  @protected
+  FrbRecommendationReason sse_decode_frb_recommendation_reason(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  FrbRecommendationResponse sse_decode_frb_recommendation_response(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   FrbRegisterParams sse_decode_frb_register_params(
     SseDeserializer deserializer,
   );
@@ -924,6 +954,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<FrbPuzzleScore> sse_decode_list_frb_puzzle_score(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  List<FrbRecommendation> sse_decode_list_frb_recommendation(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  List<FrbRecommendationReason> sse_decode_list_frb_recommendation_reason(
     SseDeserializer deserializer,
   );
 
@@ -1403,6 +1443,24 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_frb_recommendation(
+    FrbRecommendation self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_frb_recommendation_reason(
+    FrbRecommendationReason self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_frb_recommendation_response(
+    FrbRecommendationResponse self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_frb_register_params(
     FrbRegisterParams self,
     SseSerializer serializer,
@@ -1618,6 +1676,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_list_frb_puzzle_score(
     List<FrbPuzzleScore> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_frb_recommendation(
+    List<FrbRecommendation> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_frb_recommendation_reason(
+    List<FrbRecommendationReason> self,
     SseSerializer serializer,
   );
 

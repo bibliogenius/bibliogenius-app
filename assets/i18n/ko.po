@@ -10266,3 +10266,40 @@ msgstr "빌려주기"
 #. Discreet mutual-wish hint under the lend action (never an obligation)
 msgid "wishlist_mutual_hint"
 msgstr "회원님도 {title}을(를) 찾고 있습니다. {name} 님이 소장하고 있습니다."
+
+#. Book details: header of the similar-books carousel (ADR-059)
+msgid "recommendations_similar"
+msgstr "이런 책도 좋아하실 수 있어요"
+
+#. Dashboard: header of the personal suggestions section (ADR-059)
+msgid "recommendations_personal"
+msgstr "회원님을 위한 추천"
+
+#. Recommendation reason: shares an author, {value} is the author name
+msgid "reason_same_author"
+msgstr "같은 저자: {value}"
+
+#. Recommendation reason, short form used on the chips: the author name is
+#. already printed on the card, so repeating it inside the chip is noise
+msgid "reason_same_author_short"
+msgstr "같은 저자"
+
+#. Recommendation reason: shares a shelf/genre label, {value} is the label
+msgid "reason_shared_subject"
+msgstr "공통 주제: {value}"
+
+#. Recommendation reason: same publisher, {value} is the publisher name
+msgid "reason_same_publisher"
+msgstr "같은 출판사: {value}"
+
+#. Recommendation reason: published within 10 years, {value} is 'YYYY / YYYY'
+msgid "reason_close_period"
+msgstr "같은 시대: {value}"
+
+#. Recommendation reason: the suggested book carries a high user rating
+msgid "reason_highly_rated"
+msgstr "높게 평가한 책입니다"
+
+#. Recommendation reason: the book already sits in the to-read pile
+msgid "reason_in_reading_pile"
+msgstr "이미 읽을 목록에 있는 책입니다"

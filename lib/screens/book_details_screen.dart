@@ -32,6 +32,7 @@ import '../providers/book_note_provider.dart'
     show BookNoteProvider, maxNoteContentLength;
 import '../providers/book_refresh_notifier.dart';
 import '../widgets/book_note_tile.dart';
+import '../widgets/book_recommendations_section.dart';
 import '../providers/hub_directory_provider.dart';
 import '../providers/theme_provider.dart';
 import '../services/api_service.dart';
@@ -908,6 +909,16 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                         );
                       },
                     ),
+                    // "You might also like" closes the page: local-library
+                    // books similar to this one (ADR-059). Lazy,
+                    // non-blocking, renders nothing below 2 suggestions.
+                    if (book.id != null) ...[
+                      const SizedBox(height: 32),
+                      BookRecommendationsSection(
+                        key: ValueKey('recommendations-${book.id}'),
+                        book: book,
+                      ),
+                    ],
                   ],
                 ),
               ),
