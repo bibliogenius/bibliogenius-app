@@ -5,6 +5,7 @@ import '../../data/repositories/copy_repository.dart';
 import '../../services/api_service.dart';
 import '../../services/collection_export_service.dart';
 import '../../services/translation_service.dart';
+import '../../providers/book_refresh_notifier.dart';
 import '../../providers/theme_provider.dart';
 import '../../utils/book_status.dart';
 import '../../utils/series_ordering.dart';
@@ -122,10 +123,15 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
 
   Future<void> _toggleSeries(bool value) async {
     final repo = Provider.of<CollectionRepository>(context, listen: false);
+    final refresher = context.read<BookRefreshNotifier>();
     // Optimistic flip so the per-volume controls appear immediately.
     setState(() => _isSeries = value);
     try {
       await repo.markCollectionAsSeries(widget.collection.id, value);
+      // Flipping series-ness changes what external discovery derives
+      // (ADR-060): stale the recommendation caches like any catalogue
+      // mutation.
+      refresher.refresh();
     } catch (e) {
       if (!mounted) return;
       setState(() => _isSeries = !value);
@@ -161,6 +167,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
 
   Future<void> _deleteCollection() async {
     final repo = Provider.of<CollectionRepository>(context, listen: false);
+    final refresher = context.read<BookRefreshNotifier>();
     final outcome = await confirmCollectionDeletion(
       context,
       repo,
@@ -175,6 +182,8 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
       } else {
         await repo.deleteCollection(widget.collection.id);
       }
+      // A deleted series collection must drop its external cards.
+      refresher.refresh();
       if (mounted) {
         context.pop();
       }
@@ -314,11 +323,14 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
   }
 
   Future<void> _removeBook(CollectionBook book) async {
+    final refresher = context.read<BookRefreshNotifier>();
     try {
       await Provider.of<CollectionRepository>(
         context,
         listen: false,
       ).removeBookFromCollection(widget.collection.id, book.bookId);
+      // Membership drives the series discovery lookups (ADR-060).
+      refresher.refresh();
 
       AppSnackBar.success(
         context,

@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import '../data/repositories/book_repository.dart';
 import '../data/repositories/collection_repository.dart';
 import '../data/repositories/copy_repository.dart';
+import '../providers/book_refresh_notifier.dart';
 import '../providers/hub_directory_provider.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
@@ -526,6 +527,13 @@ class _EditBookScreenState extends State<EditBookScreen> {
           widget.book.id!,
           _selectedCollections.map((c) => c.id).toList(),
         );
+      }
+
+      if (mounted) {
+        // A saved edit (fields and collection membership) must stale the
+        // recommendation caches like any other catalogue mutation; series
+        // membership feeds the external discovery lookups (ADR-060).
+        context.read<BookRefreshNotifier>().refresh();
       }
 
       if (mounted) {
