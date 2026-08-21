@@ -9350,10 +9350,10 @@ msgid "action_undo"
 msgstr "Geri al"
 
 msgid "carousel_own_lib_title"
-msgstr "Etkinlik: kütüphanem"
+msgstr "Kitaplığımın üst bölümü"
 
 msgid "carousel_own_lib_desc"
-msgstr "Kütüphanenizin üstünde şu anda okuduğunuz kitapları ve son eklediklerinizi gösterir."
+msgstr "Kitaplığımın üstünde okumakta olduklarımı, son eklenenleri ve okuma önerilerini gösterir."
 
 msgid "carousel_peer_lib_title"
 msgstr "Etkinlik: eşler"
@@ -10570,7 +10570,7 @@ msgstr "Aynı yazar: {value}"
 #. Recommendation reason, short form used on the chips: the author name is
 #. already printed on the card, so repeating it inside the chip is noise
 msgid "reason_same_author_short"
-msgstr "Aynı yazar"
+msgstr "Daha önce okuduğunuz yazar"
 
 #. Recommendation reason: shares a shelf/genre label, {value} is the label
 msgid "reason_shared_subject"
@@ -10703,3 +10703,35 @@ msgstr "Keşfedilecek"
 #. Screen-reader label of a tappable author name opening the author page, {author} is the author name
 msgid "author_page_open_semantic"
 msgstr "{author} kitapları"
+
+#. Segment of the library top slot showing recent activity, {count} is how many books it lists (ADR-062)
+msgid "books_slot_segment_activity"
+msgstr "Etkinlik · {count}"
+
+#. Segment of the library top slot showing reading suggestions, {count} is how many are available (ADR-062)
+msgid "books_slot_segment_discover"
+msgstr "Keşfedilecek · {count}"
+
+#. Tooltip of the library app-bar action opening the reading suggestions (ADR-062)
+msgid "tooltip_open_recommendations"
+msgstr "Okuma önerileri"
+
+#. Suggestions page, line naming how many read books the taste profile rests on, {count} is how many
+msgid "recommendations_basis_books"
+msgstr "Okuduğunuz {count} kitaba göre"
+
+#. Suggestions page, label of the authors the taste profile drew out
+msgid "recommendations_basis_authors"
+msgstr "Geri döndüğünüz yazarlar"
+
+#. Suggestions page, label of the subjects the taste profile drew out
+msgid "recommendations_basis_subjects"
+msgstr "Okuduğunuz konular"
+
+#. Suggestions page, second line of the empty state saying what brings suggestions back
+msgid "recommendations_empty_hint"
+msgstr "Birkaç kitap ekleyin ya da bitirin, öneriler geri gelecek."
+
+#. Screen-reader label of the suggestions page while the engine is still answering
+msgid "recommendations_loading"
+msgstr "Öneriler yükleniyor"

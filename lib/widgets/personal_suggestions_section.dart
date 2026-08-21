@@ -36,10 +36,9 @@ class PersonalSuggestionsSection extends StatefulWidget {
 
 class _PersonalSuggestionsSectionState
     extends State<PersonalSuggestionsSection> {
-  static const int _minSuggestions = 2;
-
-  /// The dashboard shows a digest, not the full ranked list.
-  static const int _maxDisplayed = 5;
+  /// The dashboard shows a digest, not the full ranked list. The floor it
+  /// renders above lives on the provider, shared with the library slot.
+  static const int _maxDisplayed = RecommendationProvider.dashboardMaxDisplayed;
 
   @override
   void initState() {
@@ -64,21 +63,21 @@ class _PersonalSuggestionsSectionState
     final provider = context.watch<RecommendationProvider>();
     if (provider.personal == null) return const SizedBox.shrink();
 
-    final visible = provider.visiblePersonal;
-    if (visible.length < _minSuggestions) {
+    if (!provider.hasVisibleSuggestions) {
       return const SizedBox.shrink();
     }
-    // Blend (ADR-060 section 4.4): externals take at most 2 of the 5
-    // slots and sit after the locals, so the first local suggestions are
-    // never displaced by discovery.
-    final externals = provider.visibleExternal
-        .take(RecommendationProvider.dashboardMaxExternal)
-        .toList();
-    final locals = visible.take(_maxDisplayed - externals.length).toList();
-    final suggestions = [...locals, ...externals];
-    final truncated =
-        visible.length > locals.length ||
-        provider.visibleExternal.length > externals.length;
+    // Blend (ADR-060 section 4.4): externals take at most 2 of the 5 slots
+    // and sit after the locals, so the first local suggestions are never
+    // displaced by discovery. The rule lives in the provider (ADR-062
+    // section 5) so this digest and the library slot cannot drift apart.
+    final suggestions = provider.blendedDigest(
+      maxDisplayed: _maxDisplayed,
+      maxExternal: RecommendationProvider.dashboardMaxExternal,
+    );
+    final truncated = provider.digestIsTruncated(
+      maxDisplayed: _maxDisplayed,
+      maxExternal: RecommendationProvider.dashboardMaxExternal,
+    );
 
     final dismissTooltip = TranslationService.translate(
       context,

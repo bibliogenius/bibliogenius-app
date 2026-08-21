@@ -189,6 +189,7 @@ class DiscoveryService {
       ],
       source: RecommendationSource.external,
       externalKey: isbn != null ? 'isbn:$isbn' : 'series:$sourceId:$ordinal',
+      seriesCollectionId: lookup.collectionId,
     );
   }
 

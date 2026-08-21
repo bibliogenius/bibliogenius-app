@@ -9531,10 +9531,10 @@ msgid "action_undo"
 msgstr "元に戻す"
 
 msgid "carousel_own_lib_title"
-msgstr "アクティビティ: マイライブラリ"
+msgstr "ライブラリ上部の帯"
 
 msgid "carousel_own_lib_desc"
-msgstr "読書中の本と最近追加した本を、マイライブラリの上部に表示します。"
+msgstr "読書中の本、最近の追加、読書のおすすめをライブラリ上部に表示します。"
 
 msgid "carousel_peer_lib_title"
 msgstr "アクティビティ: ピア"
@@ -10282,7 +10282,7 @@ msgstr "同じ著者: {value}"
 #. Recommendation reason, short form used on the chips: the author name is
 #. already printed on the card, so repeating it inside the chip is noise
 msgid "reason_same_author_short"
-msgstr "同じ著者"
+msgstr "読んだことのある著者"
 
 #. Recommendation reason: shares a shelf/genre label, {value} is the label
 msgid "reason_shared_subject"
@@ -10415,3 +10415,35 @@ msgstr "新しい出会い"
 #. Screen-reader label of a tappable author name opening the author page, {author} is the author name
 msgid "author_page_open_semantic"
 msgstr "{author} の作品"
+
+#. Segment of the library top slot showing recent activity, {count} is how many books it lists (ADR-062)
+msgid "books_slot_segment_activity"
+msgstr "最近の動き · {count}"
+
+#. Segment of the library top slot showing reading suggestions, {count} is how many are available (ADR-062)
+msgid "books_slot_segment_discover"
+msgstr "発見 · {count}"
+
+#. Tooltip of the library app-bar action opening the reading suggestions (ADR-062)
+msgid "tooltip_open_recommendations"
+msgstr "読書のおすすめ"
+
+#. Suggestions page, line naming how many read books the taste profile rests on, {count} is how many
+msgid "recommendations_basis_books"
+msgstr "読み終えた{count}冊をもとに"
+
+#. Suggestions page, label of the authors the taste profile drew out
+msgid "recommendations_basis_authors"
+msgstr "繰り返し読んでいる著者"
+
+#. Suggestions page, label of the subjects the taste profile drew out
+msgid "recommendations_basis_subjects"
+msgstr "読んでいるテーマ"
+
+#. Suggestions page, second line of the empty state saying what brings suggestions back
+msgid "recommendations_empty_hint"
+msgstr "本を追加するか読み終えると、おすすめが戻ってきます。"
+
+#. Screen-reader label of the suggestions page while the engine is still answering
+msgid "recommendations_loading"
+msgstr "おすすめを読み込んでいます"

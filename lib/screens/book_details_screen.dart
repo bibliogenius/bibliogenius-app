@@ -12,6 +12,7 @@ import 'package:provider/provider.dart';
 import '../utils/borrowed_copy_payload.dart';
 import '../utils/cover_camera_helper.dart';
 import '../utils/loan_return_feedback.dart';
+import '../utils/recommendation_display.dart';
 import '../utils/returned_book.dart';
 
 import '../audio/audio_module.dart';
@@ -31,6 +32,7 @@ import '../models/book_note.dart';
 import '../providers/book_note_provider.dart'
     show BookNoteProvider, maxNoteContentLength;
 import '../providers/book_refresh_notifier.dart';
+import '../widgets/app_snack_bar.dart';
 import '../widgets/book_note_tile.dart';
 import '../widgets/book_recommendations_section.dart';
 import '../widgets/author_links.dart';
@@ -2468,12 +2470,17 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         // Celebrate any Reader cap crossed by finishing this book.
         MilestoneCelebration.celebrate(context, levelsBefore);
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              TranslationService.translate(context, 'status_updated') ??
-                  'Status updated',
-            ),
+        // Finishing a book is the one moment a reader naturally asks
+        // "what next?", so the feedback they already get carries one way
+        // there (ADR-062 R5). Null unless this is the transition into
+        // "read" and the suggestion floors pass.
+        AppSnackBar.success(
+          context,
+          TranslationService.translate(context, 'status_updated'),
+          action: readCompletionSuggestionsAction(
+            context,
+            newStatus: newStatus,
+            previousStatus: previousStatus,
           ),
         );
 

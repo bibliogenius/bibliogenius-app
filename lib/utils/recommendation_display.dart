@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../models/recommendation.dart';
@@ -25,6 +26,29 @@ void dismissExternalSuggestionWithUndo(BuildContext context, String externalKey)
   _showDismissUndoSnackBar(
     context,
     () => provider.restoreDismissedExternal(externalKey),
+  );
+}
+
+/// The "just finished a book" moment (ADR-062 R5): one action added to the
+/// completion feedback the reader already gets, never a dialog and never an
+/// interruption.
+///
+/// Returns null unless this is the TRANSITION into `read` (a re-save of an
+/// already finished book is not the moment) and there is actually something
+/// to show, gated on the same ADR-059 floors as every other surface. The
+/// caller passes it straight to its existing SnackBar.
+SnackBarAction? readCompletionSuggestionsAction(
+  BuildContext context, {
+  required String newStatus,
+  required String? previousStatus,
+}) {
+  if (newStatus != 'read' || previousStatus == 'read') return null;
+  final provider = context.read<RecommendationProvider>();
+  if (!provider.hasVisibleSuggestions) return null;
+
+  return SnackBarAction(
+    label: TranslationService.translate(context, 'help_cta_see_suggestions'),
+    onPressed: () => context.push('/recommendations'),
   );
 }
 

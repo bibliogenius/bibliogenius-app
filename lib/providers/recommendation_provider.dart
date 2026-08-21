@@ -82,6 +82,31 @@ class RecommendationProvider extends ChangeNotifier {
   /// never drowns "read what is already at home".
   static const int dashboardMaxExternal = 2;
 
+  /// The ADR-059 visible-suggestions floor: below this many surviving
+  /// suggestions, a digest surface renders nothing rather than a thin one.
+  static const int minVisibleSuggestions = 2;
+
+  /// Cards in the dashboard digest.
+  static const int dashboardMaxDisplayed = 5;
+
+  /// Cards in the library-screen slot (ADR-062 section 5).
+  ///
+  /// Deliberately LARGER than the dashboard digest, which is the opposite of
+  /// what it shipped as. The digest cap of 5 exists to protect vertical
+  /// space: on the dashboard each suggestion is a stacked row, so ten of
+  /// them cost ten row heights. The slot is a horizontal strip, where an
+  /// extra card costs nothing vertically and only rewards a scroll the
+  /// reader has already started. Capping it at 3 imported a constraint from
+  /// a context that does not apply here, and left the strip looking
+  /// truncated next to a "see all" card.
+  static const int slotMaxDisplayed = 8;
+
+  /// External cap inside the slot. Scales with the larger digest, and stays
+  /// a minority of it: ADR-060 section 4.4 caps discovery so it never drowns
+  /// "read what is already at home". That rule bounds the EXTERNAL cards,
+  /// not the total, which is why the two caps move independently.
+  static const int slotMaxExternal = 2;
+
   /// See-all cap on external cards, appended after the locals.
   static const int seeAllMaxExternal = 10;
 
@@ -127,6 +152,53 @@ class RecommendationProvider extends ChangeNotifier {
     ..._pickPerLookup(_externalCandidates, 1),
     ..._pickPerLookup(_externalAuthorCandidates, authorMaxWorks),
   ];
+
+  /// True while the first personal fetch of this screen is still in flight
+  /// and nothing has ever landed. Surfaces need it to tell a cold cache
+  /// apart from a genuinely empty list: an empty state shown while the
+  /// engine is still answering is simply false.
+  bool get isLoadingFirstPersonal => _loading && _personal == null;
+
+  /// The ADR-059 profile floor, as the client can see it: the engine
+  /// answered at all. Below 5 scored books the Rust side returns nothing,
+  /// so a null payload IS the floor failing. Distinct from
+  /// [hasVisibleSuggestions] on purpose (ADR-062 section 6): an entry point
+  /// gated on this one never leads to an empty screen, yet does not blink
+  /// in and out as the reader dismisses cards.
+  bool get hasReachedProfileFloor => _personal != null;
+
+  /// The ADR-059 visible-suggestions floor: at least [minVisibleSuggestions]
+  /// suggestions survive dismissal filtering. A rendering rule, evaluated
+  /// on [visiblePersonal] so dismissals count.
+  bool get hasVisibleSuggestions =>
+      visiblePersonal.length >= minVisibleSuggestions;
+
+  /// One blend rule for every digest surface (ADR-062 section 5): the
+  /// dashboard section and the library slot call THIS, so they cannot
+  /// drift apart. Externals take at most [maxExternal] of the
+  /// [maxDisplayed] slots and sit AFTER the locals, so the strongest local
+  /// suggestions are never displaced by discovery (ADR-060 section 4.4).
+  List<Recommendation> blendedDigest({
+    required int maxDisplayed,
+    required int maxExternal,
+  }) {
+    final externals = visibleExternal.take(maxExternal).toList();
+    final locals = visiblePersonal
+        .take(maxDisplayed - externals.length)
+        .toList();
+    return [...locals, ...externals];
+  }
+
+  /// Whether a [blendedDigest] with the same caps left anything out, which
+  /// is what earns a "see all" link.
+  bool digestIsTruncated({
+    required int maxDisplayed,
+    required int maxExternal,
+  }) {
+    final externals = visibleExternal.take(maxExternal).length;
+    final locals = visiblePersonal.take(maxDisplayed - externals).length;
+    return visiblePersonal.length > locals || visibleExternal.length > externals;
+  }
 
   /// First [perLookup] non-dismissed cards of each lookup, in lookup
   /// order. A dismissal therefore promotes the next candidate of the same
@@ -286,6 +358,8 @@ class RecommendationProvider extends ChangeNotifier {
   Future<void> loadPersonal({bool force = false}) async {
     if (_loading || (!_stale && !force && _personal != null)) return;
     _loading = true;
+    // Let a cold surface paint its loading state instead of its empty one.
+    if (_personal == null) notifyListeners();
     try {
       final fresh = await _repository.getPersonalRecommendations();
       if (fresh != null) {
@@ -295,6 +369,7 @@ class RecommendationProvider extends ChangeNotifier {
       }
     } finally {
       _loading = false;
+      notifyListeners();
     }
   }
 

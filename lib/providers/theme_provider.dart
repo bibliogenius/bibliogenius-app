@@ -226,6 +226,14 @@ class ThemeProvider with ChangeNotifier {
   bool _carouselCollapsedPeerLib = false;
   bool get carouselCollapsedPeerLib => _carouselCollapsedPeerLib;
 
+  // Which segment of the library top slot is showing (ADR-062 section 1):
+  // false = Activity (the default, nothing ever auto-switches), true = the
+  // discovery segment. Session-scoped like the collapsed flags above and
+  // for the same reason: a segment remembered forever would silently bury
+  // Activity for a reader who looked at suggestions once.
+  bool _booksSlotShowsDiscovery = false;
+  bool get booksSlotShowsDiscovery => _booksSlotShowsDiscovery;
+
   // Show View Count: display library view counter on profile
   // Enabled by default (visible on own profile only)
   bool _showViewCount = true;
@@ -1081,6 +1089,12 @@ class ThemeProvider with ChangeNotifier {
   void setCarouselCollapsedPeerLib(bool collapsed) {
     if (_carouselCollapsedPeerLib == collapsed) return;
     _carouselCollapsedPeerLib = collapsed;
+    notifyListeners();
+  }
+
+  void setBooksSlotShowsDiscovery(bool showsDiscovery) {
+    if (_booksSlotShowsDiscovery == showsDiscovery) return;
+    _booksSlotShowsDiscovery = showsDiscovery;
     notifyListeners();
   }
 

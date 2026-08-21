@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../data/repositories/collection_repository.dart';
 import '../models/recommendation.dart';
 import '../providers/book_refresh_notifier.dart';
 import '../providers/recommendation_provider.dart';
@@ -61,6 +62,53 @@ class _ExternalSuggestionSheetState extends State<ExternalSuggestionSheet> {
     setState(() => _availableInNetwork = true);
   }
 
+  /// The ordinal the card announced, when this suggestion completes a
+  /// series. It becomes the new book's volume number so the frieze places
+  /// it at the right position instead of appending it.
+  int? get _seriesOrdinal {
+    for (final reason in widget.suggestion.reasons) {
+      if (reason.type != 'series_missing_volume') continue;
+      return int.tryParse(reason.params?['ordinal'] ?? reason.value);
+    }
+    return null;
+  }
+
+  /// File a series-lane addition into the LOCAL series collection it
+  /// completes (ADR-062 section 11). Unowned wishlist books are already
+  /// first-class collection members, and the frieze renders them with its
+  /// "wanted" treatment, so this writes into a state the app displays.
+  ///
+  /// Best-effort by design: the book is created first and kept whatever
+  /// happens here. Failing to file must never cost the reader the add.
+  Future<void> _fileIntoSeriesCollection(
+    CollectionRepository collections,
+    String bookId,
+  ) async {
+    final collectionId = widget.suggestion.seriesCollectionId;
+    if (collectionId == null) return;
+    try {
+      await collections.addBookToCollection(collectionId, bookId);
+      await collections.setBookVolumeNumber(
+        collectionId,
+        bookId,
+        _seriesOrdinal,
+      );
+    } catch (e) {
+      debugPrint('ExternalSuggestionSheet: series filing failed: $e');
+    }
+  }
+
+  /// The created book's uuid, which the create endpoint answers either at
+  /// the top level or nested under `book` (the curated-import pattern).
+  String? _createdBookId(dynamic data) {
+    if (data is Map && data['book'] is Map) {
+      final id = data['book']['id'];
+      return id is String ? id : null;
+    }
+    if (data is Map && data['id'] is String) return data['id'] as String;
+    return null;
+  }
+
   /// Add to wishlist with ISBN dedup on creation: create first, and when
   /// creation rejects a duplicate, find the existing book instead (the
   /// curated-import pattern).
@@ -71,10 +119,12 @@ class _ExternalSuggestionSheetState extends State<ExternalSuggestionSheet> {
     final api = context.read<ApiService>();
     final refresher = context.read<BookRefreshNotifier>();
     final recommendations = context.read<RecommendationProvider>();
+    final collections = context.read<CollectionRepository>();
     final externalKey = widget.suggestion.externalKey;
 
     var added = false;
     var alreadyThere = false;
+    String? bookId;
     try {
       final response = await api.createBook({
         if (book.isbn != null) 'isbn': book.isbn,
@@ -88,11 +138,18 @@ class _ExternalSuggestionSheetState extends State<ExternalSuggestionSheet> {
       });
       if (response.statusCode == 201) {
         added = true;
+        bookId = _createdBookId(response.data);
       } else if (book.isbn != null) {
-        alreadyThere = await api.findBookByIsbn(book.isbn!) != null;
+        final existing = await api.findBookByIsbn(book.isbn!);
+        alreadyThere = existing != null;
+        bookId = existing?.id;
       }
     } catch (e) {
       debugPrint('ExternalSuggestionSheet: wishlist add failed: $e');
+    }
+
+    if ((added || alreadyThere) && bookId != null) {
+      await _fileIntoSeriesCollection(collections, bookId);
     }
 
     if (!mounted) return;

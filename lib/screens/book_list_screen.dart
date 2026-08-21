@@ -3,8 +3,9 @@ import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import '../widgets/books_top_slot.dart';
 import '../widgets/genie_app_bar.dart';
-import '../widgets/recently_added_carousel.dart';
+import '../widgets/suggestions_app_bar_action.dart';
 import '../widgets/scaffold_with_nav.dart';
 import '../widgets/configurable_action_card.dart';
 import '../widgets/quick_actions_sheet.dart';
@@ -429,11 +430,7 @@ class _BookListScreenState extends State<BookListScreen>
                 ),
 
               _buildFilterBar(),
-              if (!_isLoading)
-                RecentlyAddedCarousel(
-                  books: _books,
-                  scope: RecentlyAddedCarouselScope.ownLib,
-                ),
+              if (!_isLoading) BooksTopSlot(books: _books),
               Expanded(
                 child: NotificationListener<ScrollNotification>(
                   onNotification: _handleBodyScroll,
@@ -563,6 +560,9 @@ class _BookListScreenState extends State<BookListScreen>
                 });
               },
             ),
+            // Last in the row so the frequently used search and view
+            // buttons never move when it appears (ADR-062 R4).
+            const SuggestionsAppBarAction(color: Colors.white),
           ],
         ],
         contextualQuickActions: [
@@ -688,11 +688,7 @@ class _BookListScreenState extends State<BookListScreen>
             children: [
               // _buildHeader(context), // Header removed, avatar now in AppBar
               _buildFilterBar(),
-              if (!_isLoading)
-                RecentlyAddedCarousel(
-                  books: _books,
-                  scope: RecentlyAddedCarouselScope.ownLib,
-                ),
+              if (!_isLoading) BooksTopSlot(books: _books),
               Expanded(
                 child: NotificationListener<ScrollNotification>(
                   onNotification: _handleBodyScroll,

@@ -9531,10 +9531,10 @@ msgid "action_undo"
 msgstr "撤销"
 
 msgid "carousel_own_lib_title"
-msgstr "动态：我的图书馆"
+msgstr "书库顶部栏"
 
 msgid "carousel_own_lib_desc"
-msgstr "在我的图书馆顶部显示我正在阅读的图书和最新添加的图书。"
+msgstr "在书库顶部显示正在阅读的书、最近添加的书和阅读推荐。"
 
 msgid "carousel_peer_lib_title"
 msgstr "动态：网络同伴"
@@ -10282,7 +10282,7 @@ msgstr "同一作者：{value}"
 #. Recommendation reason, short form used on the chips: the author name is
 #. already printed on the card, so repeating it inside the chip is noise
 msgid "reason_same_author_short"
-msgstr "同一作者"
+msgstr "读过的作者"
 
 #. Recommendation reason: shares a shelf/genre label, {value} is the label
 msgid "reason_shared_subject"
@@ -10415,3 +10415,35 @@ msgstr "待发现"
 #. Screen-reader label of a tappable author name opening the author page, {author} is the author name
 msgid "author_page_open_semantic"
 msgstr "{author} 的作品"
+
+#. Segment of the library top slot showing recent activity, {count} is how many books it lists (ADR-062)
+msgid "books_slot_segment_activity"
+msgstr "近期动态 · {count}"
+
+#. Segment of the library top slot showing reading suggestions, {count} is how many are available (ADR-062)
+msgid "books_slot_segment_discover"
+msgstr "待发现 · {count}"
+
+#. Tooltip of the library app-bar action opening the reading suggestions (ADR-062)
+msgid "tooltip_open_recommendations"
+msgstr "阅读推荐"
+
+#. Suggestions page, line naming how many read books the taste profile rests on, {count} is how many
+msgid "recommendations_basis_books"
+msgstr "基于你读过的 {count} 本书"
+
+#. Suggestions page, label of the authors the taste profile drew out
+msgid "recommendations_basis_authors"
+msgstr "你反复阅读的作者"
+
+#. Suggestions page, label of the subjects the taste profile drew out
+msgid "recommendations_basis_subjects"
+msgstr "你阅读的主题"
+
+#. Suggestions page, second line of the empty state saying what brings suggestions back
+msgid "recommendations_empty_hint"
+msgstr "添加或读完几本书，推荐就会回来。"
+
+#. Screen-reader label of the suggestions page while the engine is still answering
+msgid "recommendations_loading"
+msgstr "正在加载推荐"

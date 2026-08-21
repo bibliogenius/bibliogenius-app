@@ -8866,10 +8866,10 @@ msgid "action_undo"
 msgstr "Rückgängig"
 
 msgid "carousel_own_lib_title"
-msgstr "Aktivität: meine Bibliothek"
+msgstr "Kopfbereich meiner Bibliothek"
 
 msgid "carousel_own_lib_desc"
-msgstr "Zeigt oben in deiner Bibliothek deine aktuellen Lektüren und zuletzt hinzugefügten Bücher."
+msgstr "Zeigt oben in meiner Bibliothek aktuelle Lektüren, letzte Neuzugänge und Lesevorschläge."
 
 msgid "carousel_peer_lib_title"
 msgstr "Aktivität: Peers"
@@ -10439,7 +10439,7 @@ msgstr "Gleicher Autor: {value}"
 #. Recommendation reason, short form used on the chips: the author name is
 #. already printed on the card, so repeating it inside the chip is noise
 msgid "reason_same_author_short"
-msgstr "Gleicher Autor"
+msgstr "Bereits gelesene Autorin/Autor"
 
 #. Recommendation reason: shares a shelf/genre label, {value} is the label
 msgid "reason_shared_subject"
@@ -10572,3 +10572,35 @@ msgstr "Zu entdecken"
 #. Screen-reader label of a tappable author name opening the author page, {author} is the author name
 msgid "author_page_open_semantic"
 msgstr "Bücher von {author}"
+
+#. Segment of the library top slot showing recent activity, {count} is how many books it lists (ADR-062)
+msgid "books_slot_segment_activity"
+msgstr "Aktivität · {count}"
+
+#. Segment of the library top slot showing reading suggestions, {count} is how many are available (ADR-062)
+msgid "books_slot_segment_discover"
+msgstr "Zu entdecken · {count}"
+
+#. Tooltip of the library app-bar action opening the reading suggestions (ADR-062)
+msgid "tooltip_open_recommendations"
+msgstr "Lesevorschläge"
+
+#. Suggestions page, line naming how many read books the taste profile rests on, {count} is how many
+msgid "recommendations_basis_books"
+msgstr "Auf Basis von {count} gelesenen Büchern"
+
+#. Suggestions page, label of the authors the taste profile drew out
+msgid "recommendations_basis_authors"
+msgstr "Autorinnen und Autoren, zu denen Sie zurückkehren"
+
+#. Suggestions page, label of the subjects the taste profile drew out
+msgid "recommendations_basis_subjects"
+msgstr "Themen, die Sie lesen"
+
+#. Suggestions page, second line of the empty state saying what brings suggestions back
+msgid "recommendations_empty_hint"
+msgstr "Fügen Sie Bücher hinzu oder lesen Sie welche zu Ende, dann kommen die Vorschläge zurück."
+
+#. Screen-reader label of the suggestions page while the engine is still answering
+msgid "recommendations_loading"
+msgstr "Vorschläge werden geladen"

@@ -39,12 +39,22 @@ class RecommendationReason {
 /// cards (ADR-060); [externalKey] is the namespaced dismissal key of an
 /// external card (`isbn:<isbn13>` or `series:<source_id>:<ordinal>`),
 /// null on library cards, whose dismissal keys on the book uuid.
+///
+/// [seriesCollectionId] is set on series-lane cards only (ADR-062 section
+/// 11): the LOCAL series collection whose missing volume this card offers,
+/// so adding the book files it back into that collection from any surface.
+/// It has to ride on the card rather than be looked up later: a cycle and
+/// an omnibus resolving to the same hub series (ADR-052) produce two cards
+/// sharing one [externalKey], and only a value set inside the per-lookup
+/// loop tells them apart. Null on library and author-lane cards, which
+/// belong to no series collection and write nothing.
 class Recommendation {
   final Book book;
   final double score;
   final List<RecommendationReason> reasons;
   final String source;
   final String? externalKey;
+  final String? seriesCollectionId;
 
   const Recommendation({
     required this.book,
@@ -52,6 +62,7 @@ class Recommendation {
     required this.reasons,
     this.source = RecommendationSource.library,
     this.externalKey,
+    this.seriesCollectionId,
   });
 
   bool get isExternal => source == RecommendationSource.external;

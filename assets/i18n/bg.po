@@ -9350,10 +9350,10 @@ msgid "action_undo"
 msgstr "Отмяна"
 
 msgid "carousel_own_lib_title"
-msgstr "Активност: моята библиотека"
+msgstr "Горна лента на библиотеката ми"
 
 msgid "carousel_own_lib_desc"
-msgstr "Показва книгите, които четете в момента, и последните добавяния в горната част на библиотеката ви."
+msgstr "Показва в горната част на библиотеката ми текущите четива, последните добавяния и предложенията за четене."
 
 msgid "carousel_peer_lib_title"
 msgstr "Активност: партньори"
@@ -10570,7 +10570,7 @@ msgstr "Същият автор: {value}"
 #. Recommendation reason, short form used on the chips: the author name is
 #. already printed on the card, so repeating it inside the chip is noise
 msgid "reason_same_author_short"
-msgstr "Същият автор"
+msgstr "Вече четен автор"
 
 #. Recommendation reason: shares a shelf/genre label, {value} is the label
 msgid "reason_shared_subject"
@@ -10703,3 +10703,35 @@ msgstr "За откриване"
 #. Screen-reader label of a tappable author name opening the author page, {author} is the author name
 msgid "author_page_open_semantic"
 msgstr "Книги от {author}"
+
+#. Segment of the library top slot showing recent activity, {count} is how many books it lists (ADR-062)
+msgid "books_slot_segment_activity"
+msgstr "Активност · {count}"
+
+#. Segment of the library top slot showing reading suggestions, {count} is how many are available (ADR-062)
+msgid "books_slot_segment_discover"
+msgstr "За откриване · {count}"
+
+#. Tooltip of the library app-bar action opening the reading suggestions (ADR-062)
+msgid "tooltip_open_recommendations"
+msgstr "Предложения за четене"
+
+#. Suggestions page, line naming how many read books the taste profile rests on, {count} is how many
+msgid "recommendations_basis_books"
+msgstr "Въз основа на {count} прочетени книги"
+
+#. Suggestions page, label of the authors the taste profile drew out
+msgid "recommendations_basis_authors"
+msgstr "Авторите, към които се връщате"
+
+#. Suggestions page, label of the subjects the taste profile drew out
+msgid "recommendations_basis_subjects"
+msgstr "Темите, които четете"
+
+#. Suggestions page, second line of the empty state saying what brings suggestions back
+msgid "recommendations_empty_hint"
+msgstr "Добавете или довършете няколко книги и предложенията ще се върнат."
+
+#. Screen-reader label of the suggestions page while the engine is still answering
+msgid "recommendations_loading"
+msgstr "Зареждане на предложенията"

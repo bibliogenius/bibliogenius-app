@@ -53,7 +53,15 @@ class SuggestionTile extends StatelessWidget {
 
   /// Screen-reader summary of the tile: what the eye reads in the title,
   /// author and chips, spoken once as a single button label.
-  String _semanticsLabel(BuildContext context) {
+  ///
+  /// Static and public so the compact card of the library slot (ADR-062
+  /// section 5) announces itself EXACTLY like the tile. Two surfaces
+  /// composing their own label would drift, and per ADR-061 A2 a nested
+  /// focusable node cannot fix an incomplete one.
+  static String semanticsLabel(
+    BuildContext context,
+    Recommendation suggestion,
+  ) {
     final book = suggestion.book;
     final reasons = suggestion.reasons
         .take(2)
@@ -87,7 +95,7 @@ class SuggestionTile extends StatelessWidget {
           // echo. The dismiss button lives OUTSIDE this subtree so it keeps
           // its own semantics.
           excludeSemantics: true,
-          label: _semanticsLabel(context),
+          label: semanticsLabel(context, suggestion),
           child: InkWell(
             onTap:
                 onTap ?? () => context.push('/books/${book.id}', extra: book),
@@ -102,7 +110,7 @@ class SuggestionTile extends StatelessWidget {
                 // the number of reason chips underneath.
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _Cover(book: book),
+                  SuggestionCover(book: book),
                   const SizedBox(width: _coverGap),
                   Expanded(
                     child: Padding(
@@ -138,7 +146,7 @@ class SuggestionTile extends StatelessWidget {
                             ),
                           ],
                           const SizedBox(height: 8),
-                          _ReasonChips(
+                          SuggestionReasonChips(
                             reasons: suggestion.reasons,
                             badgeLabel: recommendationSourceBadgeLabel(
                               context,
@@ -197,10 +205,17 @@ class SuggestionSeparator extends StatelessWidget {
 
 /// Cover thumbnail, or a neutral placeholder keeping the same footprint so the
 /// text column never shifts between suggestions.
-class _Cover extends StatelessWidget {
-  const _Cover({required this.book});
+///
+/// Public so the compact card of the library slot (ADR-062 section 5)
+/// composes the SAME cover treatment at its own size instead of copying it.
+class SuggestionCover extends StatelessWidget {
+  const SuggestionCover({super.key, required this.book, this.width, this.height});
 
   final Book book;
+
+  /// Defaults to the tile's own footprint; the compact card passes its own.
+  final double? width;
+  final double? height;
 
   @override
   Widget build(BuildContext context) {
@@ -209,8 +224,8 @@ class _Cover extends StatelessWidget {
     final hasCover = coverUrl != null && coverUrl.isNotEmpty;
 
     return Container(
-      width: SuggestionTile.coverWidth,
-      height: SuggestionTile.coverHeight,
+      width: width ?? SuggestionTile.coverWidth,
+      height: height ?? SuggestionTile.coverHeight,
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppDesign.radiusSmall),
@@ -239,11 +254,23 @@ class _Cover extends StatelessWidget {
 /// external cards (ADR-060). They keep their natural width and wrap onto a
 /// second line when the row is too narrow, rather than each taking half
 /// the row and truncating mid-word.
-class _ReasonChips extends StatelessWidget {
-  const _ReasonChips({required this.reasons, this.badgeLabel});
+/// Public so the compact card of the library slot (ADR-062 section 5)
+/// shows the same badge and the same reasons, in the same order.
+class SuggestionReasonChips extends StatelessWidget {
+  const SuggestionReasonChips({
+    super.key,
+    required this.reasons,
+    this.badgeLabel,
+    this.maxReasons = 2,
+    this.compact = false,
+  });
 
   final List<RecommendationReason> reasons;
   final String? badgeLabel;
+
+  /// The compact card has room for one reason, the tile for two.
+  final int maxReasons;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -251,8 +278,9 @@ class _ReasonChips extends StatelessWidget {
       spacing: 6,
       runSpacing: 6,
       children: [
-        if (badgeLabel != null) _SourceBadge(label: badgeLabel!),
-        for (final reason in reasons.take(2)) ReasonChip(reason: reason),
+        if (badgeLabel != null) SuggestionSourceBadge(label: badgeLabel!),
+        for (final reason in reasons.take(maxReasons))
+          ReasonChip(reason: reason, compact: compact),
       ],
     );
   }
@@ -262,8 +290,8 @@ class _ReasonChips extends StatelessWidget {
 /// a different vocabulary from the primary-tinted reason chips. Rendered
 /// inside the excluded subtree; the tile's single semantics label already
 /// speaks it.
-class _SourceBadge extends StatelessWidget {
-  const _SourceBadge({required this.label});
+class SuggestionSourceBadge extends StatelessWidget {
+  const SuggestionSourceBadge({super.key, required this.label});
 
   final String label;
 

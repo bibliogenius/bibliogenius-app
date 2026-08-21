@@ -35,11 +35,29 @@ class RecentlyAddedCarousel extends StatelessWidget {
     required this.scope,
     this.maxItems = 20,
     this.onBookTap,
+    this.headerTitle,
+    this.bodyOverride,
+    this.collapsedSummary,
   });
 
   final List<Book> books;
   final RecentlyAddedCarouselScope scope;
   final int maxItems;
+
+  /// Replaces the default title in the header row, keeping the collapse
+  /// chevron and its long-press-to-hide beside it. The library top slot
+  /// (ADR-062) passes its segmented control here so the whole slot rides
+  /// on this widget's hide/collapse machinery instead of duplicating it.
+  final Widget? headerTitle;
+
+  /// Replaces the strip of covers. When set, the Activity auto-hide
+  /// heuristic no longer vetoes rendering: the caller has already decided
+  /// the slot has something to show.
+  final Widget? bodyOverride;
+
+  /// Replaces the collapsed bar's summary line, so a collapsed slot does
+  /// not describe recent additions while the reader is on another segment.
+  final String? collapsedSummary;
 
   /// Optional override for tap handling. Defaults to GoRouter push to
   /// `/books/:id` (own-lib route). Peer lib screens should pass a custom
@@ -112,7 +130,9 @@ class RecentlyAddedCarousel extends StatelessWidget {
   /// — if there's still room — padding with the most-recently-added books
   /// regardless of the isNew threshold so the strip stays useful in libraries
   /// that haven't been touched in the last [AppConstants.newBadgeDays] days.
-  List<Book> _selectBooks() {
+  List<Book> _selectBooks() => _select(books, maxItems);
+
+  static List<Book> _select(List<Book> books, int maxItems) {
     final reading = books.where((b) => b.readingStatus == 'reading').toList();
     reading.sort((a, b) {
       final aStarted = a.startedReadingAt;
@@ -147,7 +167,9 @@ class RecentlyAddedCarousel extends StatelessWidget {
   /// Hide when there is nothing to show. If the activity list is dominated
   /// by brand-new books in a small library, hide too: the carousel would
   /// duplicate the grid underneath and add no value.
-  bool _shouldAutoHide(List<Book> selected) {
+  bool _shouldAutoHide(List<Book> selected) => _autoHide(books, selected);
+
+  static bool _autoHide(List<Book> books, List<Book> selected) {
     if (selected.isEmpty) return true;
     final hasReading = selected.any((b) => b.readingStatus == 'reading');
     if (hasReading) return false;
@@ -156,13 +178,25 @@ class RecentlyAddedCarousel extends StatelessWidget {
     return newCount / books.length > _maxRecentRatio;
   }
 
+  /// The Activity selection, empty when the strip has nothing worth
+  /// showing. Public so the library top slot (ADR-062 section 4) can ask
+  /// whether the Activity segment exists at all without copying the
+  /// auto-hide heuristic, which would then drift from this one.
+  static List<Book> activitySelection(List<Book> books, {int maxItems = 20}) {
+    final selected = _select(books, maxItems);
+    return _autoHide(books, selected) ? const [] : selected;
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ThemeProvider>();
     if (_hidden(provider)) return const SizedBox.shrink();
 
     final selected = _selectBooks();
-    if (_shouldAutoHide(selected)) {
+    // A caller supplying its own body owns the "is there anything to show"
+    // decision (ADR-062 section 4): the Activity heuristic must not veto a
+    // slot that is showing suggestions.
+    if (bodyOverride == null && _shouldAutoHide(selected)) {
       return const SizedBox.shrink();
     }
 
@@ -198,6 +232,7 @@ class RecentlyAddedCarousel extends StatelessWidget {
               ? _CollapsedBar(
                   key: const ValueKey('collapsed'),
                   count: selected.length,
+                  summaryOverride: collapsedSummary,
                   onExpand: () => _setCollapsed(provider, false),
                   onLongPress: () => _dismiss(context, provider),
                 )
@@ -206,6 +241,8 @@ class RecentlyAddedCarousel extends StatelessWidget {
                   books: selected,
                   coverWidth: coverWidth,
                   coverHeight: coverHeight,
+                  titleOverride: headerTitle,
+                  bodyOverride: bodyOverride,
                   onCollapse: () => _setCollapsed(provider, true),
                   onLongPress: () => _dismiss(context, provider),
                   onTap: (book) {
@@ -228,21 +265,25 @@ class _CollapsedBar extends StatelessWidget {
     required this.count,
     required this.onExpand,
     required this.onLongPress,
+    this.summaryOverride,
   });
 
   final int count;
   final VoidCallback onExpand;
   final VoidCallback onLongPress;
+  final String? summaryOverride;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final label = TranslationService.translate(
-      context,
-      'carousel_collapsed_label',
-      params: {'count': count.toString()},
-    );
+    final label =
+        summaryOverride ??
+        TranslationService.translate(
+          context,
+          'carousel_collapsed_label',
+          params: {'count': count.toString()},
+        );
     final expandHint = TranslationService.translate(
       context,
       'carousel_expand_tooltip',
@@ -299,6 +340,8 @@ class _ExpandedStrip extends StatelessWidget {
     required this.onCollapse,
     required this.onLongPress,
     required this.onTap,
+    this.titleOverride,
+    this.bodyOverride,
   });
 
   final List<Book> books;
@@ -307,6 +350,8 @@ class _ExpandedStrip extends StatelessWidget {
   final VoidCallback onCollapse;
   final VoidCallback onLongPress;
   final void Function(Book book) onTap;
+  final Widget? titleOverride;
+  final Widget? bodyOverride;
 
   @override
   Widget build(BuildContext context) {
@@ -333,25 +378,29 @@ class _ExpandedStrip extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(
-                Icons.auto_stories_rounded,
-                size: 18,
-                color: colorScheme.primary,
-              ),
-              const SizedBox(width: AppDesign.spacingSm),
-              Expanded(
-                child: Semantics(
-                  header: true,
-                  child: Text(
-                    TranslationService.translate(
-                      context,
-                      'recently_added_title',
-                    ),
-                    style: textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+              if (titleOverride == null) ...[
+                Icon(
+                  Icons.auto_stories_rounded,
+                  size: 18,
+                  color: colorScheme.primary,
                 ),
+                const SizedBox(width: AppDesign.spacingSm),
+              ],
+              Expanded(
+                child:
+                    titleOverride ??
+                    Semantics(
+                      header: true,
+                      child: Text(
+                        TranslationService.translate(
+                          context,
+                          'recently_added_title',
+                        ),
+                        style: textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
               ),
               Tooltip(
                 message: '$collapseTooltip · $longPressHint',
@@ -376,24 +425,25 @@ class _ExpandedStrip extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppDesign.spacingSm),
-          SizedBox(
-            height: coverHeight,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: books.length,
-              separatorBuilder: (_, _) =>
-                  const SizedBox(width: AppDesign.spacingSm),
-              itemBuilder: (context, index) {
-                final book = books[index];
-                return _CarouselCover(
-                  book: book,
-                  width: coverWidth,
-                  height: coverHeight,
-                  onTap: () => onTap(book),
-                );
-              },
-            ),
-          ),
+          bodyOverride ??
+              SizedBox(
+                height: coverHeight,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: books.length,
+                  separatorBuilder: (_, _) =>
+                      const SizedBox(width: AppDesign.spacingSm),
+                  itemBuilder: (context, index) {
+                    final book = books[index];
+                    return _CarouselCover(
+                      book: book,
+                      width: coverWidth,
+                      height: coverHeight,
+                      onTap: () => onTap(book),
+                    );
+                  },
+                ),
+              ),
         ],
       ),
     );
