@@ -183,22 +183,27 @@ class DiscoveryService {
   /// Among the returned editions (already filtered hub-side to the reader
   /// languages plus the original), prefer a reading-language one and fall
   /// back to the first (the original edition when known) otherwise.
+  ///
+  /// The reader's languages are tried IN ORDER, each against the whole
+  /// payload: a trilingual reader whose first language is French must get
+  /// the French edition even when the payload happens to list a Spanish one
+  /// first. Matching a set of languages in payload order would satisfy "a
+  /// reading-language edition" to the letter while defeating the point of
+  /// sending the reader's languages at all.
   static Map<dynamic, dynamic>? _pickEdition(
     List<Map<dynamic, dynamic>> editions,
     List<String> langs,
   ) {
     if (editions.isEmpty) return null;
-    final wanted = <String>{};
     for (final lang in langs) {
       final lower = lang.toLowerCase();
-      wanted.add(lower);
       final dash = lower.indexOf('-');
-      if (dash > 0) wanted.add(lower.substring(0, dash));
-    }
-    for (final edition in editions) {
-      final lang = edition['lang'];
-      if (lang is String && wanted.contains(lang.toLowerCase())) {
-        return edition;
+      final base = dash > 0 ? lower.substring(0, dash) : lower;
+      for (final edition in editions) {
+        final editionLang = edition['lang'];
+        if (editionLang is! String) continue;
+        final normalized = editionLang.toLowerCase();
+        if (normalized == lower || normalized == base) return edition;
       }
     }
     return editions.first;

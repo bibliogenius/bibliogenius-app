@@ -180,6 +180,30 @@ void main() {
       expect(noMatchCard.book.isbn, '9780747532699');
     });
 
+    test('reading languages are honoured in order, not in payload order', () {
+      // A trilingual reader: the payload happens to list Spanish first, but
+      // French is their first reading language and a French edition exists.
+      final editions = [
+        {'isbn': '9788478884957', 'lang': 'es', 'cover_url': null},
+        {'isbn': '9780439064866', 'lang': 'en', 'cover_url': null},
+        {'isbn': '9782070643035', 'lang': 'fr', 'cover_url': null},
+      ];
+      final card = DiscoveryService.buildSeriesCandidates(
+        inputs: inputs(),
+        cache: cacheWith([volume(2, 'Chamber of Secrets', editions: editions)]),
+        langs: const ['fr', 'es', 'en'],
+      ).first.first;
+      expect(card.book.isbn, '9782070643035');
+
+      // Reordering the reader's languages reorders the pick.
+      final esCard = DiscoveryService.buildSeriesCandidates(
+        inputs: inputs(),
+        cache: cacheWith([volume(2, 'Chamber of Secrets', editions: editions)]),
+        langs: const ['es', 'fr', 'en'],
+      ).first.first;
+      expect(esCard.book.isbn, '9788478884957');
+    });
+
     test('an edition-less volume still yields a title card with a series key',
         () {
       final card = DiscoveryService.buildSeriesCandidates(
