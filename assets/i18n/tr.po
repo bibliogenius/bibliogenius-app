@@ -10628,9 +10628,9 @@ msgstr "Sahip olmadığınız ama okumak istediğiniz bir kitabın yeri burasıd
 msgid "help_topic_recommendations"
 msgstr "Okuma önerileri nereden geliyor?"
 
-#. Where the suggestions show up, why a book is suggested, and how to dismiss one. Says the sources will widen: drop that sentence once they do.
+#. Where the suggestions show up, why a book is suggested, and how to dismiss one. Mentions series completion through an anonymous hub search (ADR-060).
 msgid "help_desc_recommendations"
-msgstr "Panodaki “Size özel öneriler” ve kitap sayfasındaki “Bunları da beğenebilirsiniz” kendi kitaplığınızdan alınan başlıklar sunar. Özellik gelişmeye devam ediyor: sonraki sürümler önerileri kendi raflarınızın ötesine genişletecek.\n\nHer kart nedenini söyler: aynı yazar, benzer konu, aynı yayınevi, aynı dönem, iyi puan verdiğiniz bir kitap ya da okuma yığınınızda bekleyen bir kitap.\n\n“İlgilenmiyorum” bir öneriyi göründüğü her yerde gizler, hemen ardından geri alma sunulur. Bu seçim bu cihazda saklanır."
+msgstr "Panodaki “Size özel öneriler” ve kitap sayfasındaki “Bunları da beğenebilirsiniz” kendi kitaplığınızdan alınan başlıklar sunar. Bir seriye sahipseniz eksik olan sonraki cilt de önerilebilir: anonim bir arama onu bulur, hesaplamanın kendisi bu cihazda kalır.\n\nHer kart nedenini söyler: aynı yazar, benzer konu, aynı yayınevi, aynı dönem, iyi puan verdiğiniz bir kitap ya da okuma yığınınızda bekleyen bir kitap.\n\n“İlgilenmiyorum” bir öneriyi göründüğü her yerde gizler, hemen ardından geri alma sunulur. Bu seçim bu cihazda saklanır."
 
 #. Reading suggestions CTA
 msgid "help_cta_see_suggestions"
@@ -10647,3 +10647,31 @@ msgstr "Dizin, görünür olmayı seçen kitaplıkları listeler. Dizinde yer al
 #. Help screen quick action: opens the online guides in the browser
 msgid "help_online_docs"
 msgstr "Çevrimiçi rehberler"
+
+#. External suggestion reason: the missing volume of an owned series. {ordinal} is the volume number, {series} the series name (ADR-060)
+msgid "reason_series_missing_volume"
+msgstr "{series} serisinin {ordinal}. cildi"
+
+#. Badge on suggestion cards for books not in the library yet (external discovery, ADR-060)
+msgid "suggestion_badge_external"
+msgstr "Keşfedilecek"
+
+#. CTA of the external-suggestion preview sheet: add the book to the wishlist
+msgid "external_suggestion_add_wishlist"
+msgstr "İstek listesine ekle"
+
+#. SnackBar after the preview sheet added the book to the wishlist
+msgid "external_suggestion_added"
+msgstr "İstek listenize eklendi"
+
+#. SnackBar when the suggested book turned out to already exist locally (ISBN dedup on creation)
+msgid "external_suggestion_already_in_library"
+msgstr "Bu kitap zaten kitaplığınızda"
+
+#. SnackBar when the wishlist add failed
+msgid "external_suggestion_add_failed"
+msgstr "Kitap eklenemedi. Tekrar deneyin."
+
+#. Line in the preview sheet: a library in the user's network holds this ISBN
+msgid "external_suggestion_available_network"
+msgstr "Ağınızda mevcut"

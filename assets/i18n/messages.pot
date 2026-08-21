@@ -8505,7 +8505,7 @@ msgstr ""
 msgid "help_topic_recommendations"
 msgstr ""
 
-#. Where the suggestions show up, why a book is suggested, and how to dismiss one. Says the sources will widen: drop that sentence once they do.
+#. Where the suggestions show up, why a book is suggested, and how to dismiss one. Mentions series completion through an anonymous hub search (ADR-060).
 msgid "help_desc_recommendations"
 msgstr ""
 
@@ -8523,4 +8523,32 @@ msgstr ""
 
 #. Help screen quick action: opens the online guides in the browser
 msgid "help_online_docs"
+msgstr ""
+
+#. External suggestion reason: the missing volume of an owned series. {ordinal} is the volume number, {series} the series name (ADR-060)
+msgid "reason_series_missing_volume"
+msgstr ""
+
+#. Badge on suggestion cards for books not in the library yet (external discovery, ADR-060)
+msgid "suggestion_badge_external"
+msgstr ""
+
+#. CTA of the external-suggestion preview sheet: add the book to the wishlist
+msgid "external_suggestion_add_wishlist"
+msgstr ""
+
+#. SnackBar after the preview sheet added the book to the wishlist
+msgid "external_suggestion_added"
+msgstr ""
+
+#. SnackBar when the suggested book turned out to already exist locally (ISBN dedup on creation)
+msgid "external_suggestion_already_in_library"
+msgstr ""
+
+#. SnackBar when the wishlist add failed
+msgid "external_suggestion_add_failed"
+msgstr ""
+
+#. Line in the preview sheet: a library in the user's network holds this ISBN
+msgid "external_suggestion_available_network"
 msgstr ""

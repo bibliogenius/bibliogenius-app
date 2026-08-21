@@ -21,12 +21,18 @@ class SuggestionTile extends StatelessWidget {
     required this.suggestion,
     this.onDismiss,
     this.dismissTooltip,
+    this.onTap,
   }) : assert(
          onDismiss == null || dismissTooltip != null,
          'a dismissible tile needs a translated dismissTooltip',
        );
 
   final Recommendation suggestion;
+
+  /// Overrides the default navigation to the book details. External cards
+  /// (ADR-060) have no local book to navigate to: their surfaces pass the
+  /// pre-import preview sheet here instead.
+  final VoidCallback? onTap;
 
   /// Dismisses this suggestion ("Not interested"). The caller owns the
   /// persistence and the undo SnackBar.
@@ -54,9 +60,14 @@ class SuggestionTile extends StatelessWidget {
         .map((r) => recommendationReasonSpokenLabel(context, r))
         .join(' · ');
     final author = book.author;
+    // The tile excludes its inner semantics, so anything visible must be
+    // folded in here or screen readers never hear it: the source badge
+    // included (ADR-060, Rule A1).
+    final badge = recommendationSourceBadgeLabel(context, suggestion.source);
     return [
       book.title,
       if (author != null && author.isNotEmpty) author,
+      if (badge != null) badge,
       reasons,
     ].join('. ');
   }
@@ -78,7 +89,8 @@ class SuggestionTile extends StatelessWidget {
           excludeSemantics: true,
           label: _semanticsLabel(context),
           child: InkWell(
-            onTap: () => context.push('/books/${book.id}', extra: book),
+            onTap:
+                onTap ?? () => context.push('/books/${book.id}', extra: book),
             borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
             child: Padding(
               padding: const EdgeInsets.symmetric(
@@ -126,7 +138,13 @@ class SuggestionTile extends StatelessWidget {
                             ),
                           ],
                           const SizedBox(height: 8),
-                          _ReasonChips(reasons: suggestion.reasons),
+                          _ReasonChips(
+                            reasons: suggestion.reasons,
+                            badgeLabel: recommendationSourceBadgeLabel(
+                              context,
+                              suggestion.source,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -217,13 +235,15 @@ class _Cover extends StatelessWidget {
   }
 }
 
-/// Up to two "why this book" chips. They keep their natural width and wrap
-/// onto a second line when the row is too narrow, rather than each taking half
+/// Up to two "why this book" chips, preceded by the source badge on
+/// external cards (ADR-060). They keep their natural width and wrap onto a
+/// second line when the row is too narrow, rather than each taking half
 /// the row and truncating mid-word.
 class _ReasonChips extends StatelessWidget {
-  const _ReasonChips({required this.reasons});
+  const _ReasonChips({required this.reasons, this.badgeLabel});
 
   final List<RecommendationReason> reasons;
+  final String? badgeLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -231,8 +251,47 @@ class _ReasonChips extends StatelessWidget {
       spacing: 6,
       runSpacing: 6,
       children: [
+        if (badgeLabel != null) _SourceBadge(label: badgeLabel!),
         for (final reason in reasons.take(2)) ReasonChip(reason: reason),
       ],
+    );
+  }
+}
+
+/// "To discover" marker on external cards: tertiary-tinted so it reads as
+/// a different vocabulary from the primary-tinted reason chips. Rendered
+/// inside the excluded subtree; the tile's single semantics label already
+/// speaks it.
+class _SourceBadge extends StatelessWidget {
+  const _SourceBadge({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: colorScheme.tertiary.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(AppDesign.radiusRound),
+        border: Border.all(color: colorScheme.tertiary.withValues(alpha: 0.35)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.explore_outlined, size: 12, color: colorScheme.tertiary),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: colorScheme.tertiary,
+              fontWeight: FontWeight.w600,
+              height: 1.2,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

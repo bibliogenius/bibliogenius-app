@@ -10344,9 +10344,9 @@ msgstr "想读却还没有的书也有位置：把它加进来，然后把状态
 msgid "help_topic_recommendations"
 msgstr "阅读推荐从哪里来？"
 
-#. Where the suggestions show up, why a book is suggested, and how to dismiss one. Says the sources will widen: drop that sentence once they do.
+#. Where the suggestions show up, why a book is suggested, and how to dismiss one. Mentions series completion through an anonymous hub search (ADR-060).
 msgid "help_desc_recommendations"
-msgstr "仪表盘上的“为你推荐”和图书详情页的“你可能也喜欢”，都取自你自己的书库。这项功能仍在成长：后续版本会把推荐扩展到你的书架之外。\n\n每张卡片都会说明理由：同一作者、相似主题、同一出版社、相近年代、你评分很高的书，或已在待读堆里的书。\n\n“不感兴趣”会在所有位置隐藏该推荐，紧接着可以撤销。这个选择保存在本设备上。"
+msgstr "仪表盘上的“为你推荐”和图书详情页的“你可能也喜欢”，都取自你自己的书库。如果你收藏了某个系列，缺少的下一卷也可能被推荐：一次匿名搜索会找到它，而计算本身保留在本设备上。\n\n每张卡片都会说明理由：同一作者、相似主题、同一出版社、相近年代、你评分很高的书，或已在待读堆里的书。\n\n“不感兴趣”会在所有位置隐藏该推荐，紧接着可以撤销。这个选择保存在本设备上。"
 
 #. Reading suggestions CTA
 msgid "help_cta_see_suggestions"
@@ -10363,3 +10363,31 @@ msgstr "目录中只有选择公开的书库。在“设置 > 在线共享”中
 #. Help screen quick action: opens the online guides in the browser
 msgid "help_online_docs"
 msgstr "在线指南"
+
+#. External suggestion reason: the missing volume of an owned series. {ordinal} is the volume number, {series} the series name (ADR-060)
+msgid "reason_series_missing_volume"
+msgstr "{series}第{ordinal}卷"
+
+#. Badge on suggestion cards for books not in the library yet (external discovery, ADR-060)
+msgid "suggestion_badge_external"
+msgstr "待发现"
+
+#. CTA of the external-suggestion preview sheet: add the book to the wishlist
+msgid "external_suggestion_add_wishlist"
+msgstr "加入心愿单"
+
+#. SnackBar after the preview sheet added the book to the wishlist
+msgid "external_suggestion_added"
+msgstr "已加入心愿单"
+
+#. SnackBar when the suggested book turned out to already exist locally (ISBN dedup on creation)
+msgid "external_suggestion_already_in_library"
+msgstr "这本书已在你的书库中"
+
+#. SnackBar when the wishlist add failed
+msgid "external_suggestion_add_failed"
+msgstr "无法添加这本书，请重试。"
+
+#. Line in the preview sheet: a library in the user's network holds this ISBN
+msgid "external_suggestion_available_network"
+msgstr "你的网络中有此书"

@@ -13,14 +13,38 @@ import '../widgets/app_snack_bar.dart';
 void dismissRecommendationWithUndo(BuildContext context, String bookId) {
   final provider = context.read<RecommendationProvider>();
   provider.dismiss(bookId);
+  _showDismissUndoSnackBar(context, () => provider.restoreDismissed(bookId));
+}
+
+/// Same gesture for an EXTERNAL discovery card (ADR-060 section 4.5):
+/// keyed by the namespaced [externalKey] through the second store, same
+/// SnackBar and Undo so both card kinds feel identical.
+void dismissExternalSuggestionWithUndo(BuildContext context, String externalKey) {
+  final provider = context.read<RecommendationProvider>();
+  provider.dismissExternal(externalKey);
+  _showDismissUndoSnackBar(
+    context,
+    () => provider.restoreDismissedExternal(externalKey),
+  );
+}
+
+void _showDismissUndoSnackBar(BuildContext context, VoidCallback onUndo) {
   AppSnackBar.info(
     context,
     TranslationService.translate(context, 'recommendation_dismissed'),
     action: SnackBarAction(
       label: TranslationService.translate(context, 'action_undo'),
-      onPressed: () => provider.restoreDismissed(bookId),
+      onPressed: onUndo,
     ),
   );
+}
+
+/// Badge label for a suggestion source (Dart-only field, ADR-060). Only
+/// external cards carry a badge; library cards return null and render
+/// unchanged.
+String? recommendationSourceBadgeLabel(BuildContext context, String source) {
+  if (source != RecommendationSource.external) return null;
+  return TranslationService.translate(context, 'suggestion_badge_external');
 }
 
 /// Translate one recommendation reason into a display line.
@@ -40,12 +64,15 @@ String recommendationReasonLabel(
     'close_period',
     'highly_rated',
     'in_reading_pile',
+    'series_missing_volume',
   };
   if (!knownTypes.contains(reason.type)) return reason.value;
   return TranslationService.translate(
     context,
     'reason_${reason.type}',
-    params: {'value': reason.value},
+    // Client-built reasons (external cards) may carry several
+    // placeholders; wire reasons keep the {value} convention.
+    params: reason.params ?? {'value': reason.value},
   );
 }
 
@@ -109,6 +136,8 @@ IconData recommendationReasonIcon(RecommendationReason reason) {
       return Icons.star_outline;
     case 'in_reading_pile':
       return Icons.bookmark_outline;
+    case 'series_missing_volume':
+      return Icons.collections_bookmark_outlined;
     default:
       return Icons.label_outline;
   }

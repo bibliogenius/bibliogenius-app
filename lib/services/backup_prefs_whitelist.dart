@@ -164,6 +164,13 @@ const Set<String> kBackupPrefsBlacklist = <String>{
   // Recommendations the user marked "Not interested" (ADR-059 follow-up).
   // Device-local by decision: replicating dismissals would need its own ADR.
   'dismissed_recommendation_book_uuids', // RecommendationDismissalService.dismissedBookIdsKey
+  // External discovery dismissals (ADR-060): namespaced keys for cards
+  // that have no local uuid. Device-local by the same decision as the
+  // uuid-keyed sibling above.
+  'dismissed_external_suggestion_keys', // ExternalSuggestionDismissalService.dismissedKeysKey
+  // Pooled-resolver answers cached per series lookup (ADR-060): a bounded
+  // device-local cache the next install rebuilds by asking the hub again.
+  'discovery_series_cache_v1', // DiscoveryService.cacheKey
   // Consent to publish the city in the public directory. Deliberately NOT
   // whitelisted alongside the city itself: restoring an archive must give
   // the user their data back, never re-consent on their behalf. Silently

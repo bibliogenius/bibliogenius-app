@@ -11,6 +11,7 @@ import '../models/collection_book.dart';
 import '../models/collection_deletion_preview.dart';
 import '../models/contact.dart';
 import '../models/cover_candidate.dart';
+import '../models/discovery.dart';
 import '../models/recommendation.dart';
 import '../models/tag.dart';
 import '../src/rust/api/frb.dart' as frb;
@@ -1959,6 +1960,43 @@ class FfiService {
       );
     } catch (e) {
       debugPrint('FFI getPersonalRecommendations error: $e');
+      return null;
+    }
+  }
+
+  // ── External discovery lookup inputs (ADR-060) ──────────────────────
+
+  /// What the discovery service may ask the hub resolver, plus the
+  /// library identity index that filters the answers. Null on failure so
+  /// callers can tell "engine unavailable" from "nothing to look up".
+  Future<DiscoveryLookupInputs?> getDiscoveryLookupInputs() async {
+    try {
+      final inputs = await frb.getDiscoveryLookupInputs();
+      return DiscoveryLookupInputs(
+        series: inputs.series
+            .map(
+              (s) => DiscoverySeriesLookup(
+                collectionId: s.collectionId,
+                name: s.name,
+                anchorIsbns: s.anchorIsbns,
+                memberIsbns: s.memberIsbns.toSet(),
+                memberTitleAuthorKeys: s.memberTitleAuthorKeys.toSet(),
+              ),
+            )
+            .toList(),
+        authors: inputs.authors
+            .map(
+              (a) => DiscoveryAuthorLookup(
+                name: a.name,
+                anchorIsbns: a.anchorIsbns,
+              ),
+            )
+            .toList(),
+        libraryIsbns: inputs.libraryIsbns.toSet(),
+        libraryTitleAuthorKeys: inputs.libraryTitleAuthorKeys.toSet(),
+      );
+    } catch (e) {
+      debugPrint('FFI getDiscoveryLookupInputs error: $e');
       return null;
     }
   }

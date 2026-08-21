@@ -10712,9 +10712,9 @@ msgstr "A book you want but do not own has its place here: add it, then give it 
 msgid "help_topic_recommendations"
 msgstr "Where do reading suggestions come from?"
 
-#. Where the suggestions show up, why a book is suggested, and how to dismiss one. Says the sources will widen: drop that sentence once they do.
+#. Where the suggestions show up, why a book is suggested, and how to dismiss one. Mentions series completion through an anonymous hub search (ADR-060).
 msgid "help_desc_recommendations"
-msgstr "“Suggestions for you” on the dashboard and “You might also like” on a book page offer titles drawn from your own library. The feature keeps growing: coming versions will widen the suggestions beyond your own shelves.\n\nEach card says why: same author, similar subject, same publisher, same period, a book you rated highly, or one already sitting in your to-read pile.\n\n“Not interested” hides a suggestion everywhere it appears, with an undo right after. That choice is kept on this device."
+msgstr "“Suggestions for you” on the dashboard and “You might also like” on a book page offer titles drawn from your own library. When you own a series, the next missing volume can also be suggested: an anonymous search finds it, and the scoring itself stays on this device.\n\nEach card says why: same author, similar subject, same publisher, same period, a book you rated highly, or one already sitting in your to-read pile.\n\n“Not interested” hides a suggestion everywhere it appears, with an undo right after. That choice is kept on this device."
 
 #. Reading suggestions CTA
 msgid "help_cta_see_suggestions"
@@ -10731,3 +10731,31 @@ msgstr "The directory lists the libraries that chose to be visible. Turn on “M
 #. Help screen quick action: opens the online guides in the browser
 msgid "help_online_docs"
 msgstr "Online guides"
+
+#. External suggestion reason: the missing volume of an owned series. {ordinal} is the volume number, {series} the series name (ADR-060)
+msgid "reason_series_missing_volume"
+msgstr "Volume {ordinal} of {series}"
+
+#. Badge on suggestion cards for books not in the library yet (external discovery, ADR-060)
+msgid "suggestion_badge_external"
+msgstr "To discover"
+
+#. CTA of the external-suggestion preview sheet: add the book to the wishlist
+msgid "external_suggestion_add_wishlist"
+msgstr "Add to wishlist"
+
+#. SnackBar after the preview sheet added the book to the wishlist
+msgid "external_suggestion_added"
+msgstr "Added to your wishlist"
+
+#. SnackBar when the suggested book turned out to already exist locally (ISBN dedup on creation)
+msgid "external_suggestion_already_in_library"
+msgstr "This book is already in your library"
+
+#. SnackBar when the wishlist add failed
+msgid "external_suggestion_add_failed"
+msgstr "Could not add the book. Try again."
+
+#. Line in the preview sheet: a library in the user's network holds this ISBN
+msgid "external_suggestion_available_network"
+msgstr "Available in your network"

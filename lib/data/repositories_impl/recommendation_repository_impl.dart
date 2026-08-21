@@ -1,3 +1,4 @@
+import '../../models/discovery.dart';
 import '../../models/recommendation.dart';
 import '../../services/ffi_service.dart';
 import '../repositories/recommendation_repository.dart';
@@ -21,5 +22,10 @@ class RecommendationRepositoryImpl implements RecommendationRepository {
   @override
   Future<PersonalRecommendations?> getPersonalRecommendations({int? limit}) {
     return _ffiService.getPersonalRecommendations(limit: limit);
+  }
+
+  @override
+  Future<DiscoveryLookupInputs?> getDiscoveryLookupInputs() {
+    return _ffiService.getDiscoveryLookupInputs();
   }
 }

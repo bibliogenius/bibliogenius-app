@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:bibliogenius/data/repositories/recommendation_repository.dart';
 import 'package:bibliogenius/models/book.dart';
+import 'package:bibliogenius/models/discovery.dart';
 import 'package:bibliogenius/models/recommendation.dart';
 import 'package:bibliogenius/providers/book_refresh_notifier.dart';
 import 'package:bibliogenius/providers/recommendation_provider.dart';
@@ -29,6 +30,9 @@ class _FakeRepository implements RecommendationRepository {
   Future<PersonalRecommendations?> getPersonalRecommendations({
     int? limit,
   }) async => payload;
+
+  @override
+  Future<DiscoveryLookupInputs?> getDiscoveryLookupInputs() async => null;
 }
 
 Recommendation _suggestion(String title) {

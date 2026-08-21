@@ -10636,9 +10636,9 @@ msgstr "Um livro que você quer ler sem possuir tem lugar aqui: adicione-o e dê
 msgid "help_topic_recommendations"
 msgstr "De onde vêm as sugestões de leitura?"
 
-#. Where the suggestions show up, why a book is suggested, and how to dismiss one. Says the sources will widen: drop that sentence once they do.
+#. Where the suggestions show up, why a book is suggested, and how to dismiss one. Mentions series completion through an anonymous hub search (ADR-060).
 msgid "help_desc_recommendations"
-msgstr "“Sugestões para você” no painel e “Você também pode gostar” na página de um livro oferecem títulos tirados da sua própria biblioteca. O recurso continua crescendo: as próximas versões vão ampliar as sugestões para além das suas próprias prateleiras.\n\nCada cartão diz por quê: mesmo autor, assunto parecido, mesma editora, mesma época, um livro que você avaliou bem ou um que já está na sua pilha de leitura.\n\n“Não tenho interesse” esconde uma sugestão em todos os lugares, com um desfazer logo depois. Essa escolha fica neste dispositivo."
+msgstr "“Sugestões para você” no painel e “Você também pode gostar” na página de um livro oferecem títulos tirados da sua própria biblioteca. Se você tem uma série, o próximo volume que falta também pode ser sugerido: uma busca anônima o encontra, e o cálculo em si fica neste dispositivo.\n\nCada cartão diz por quê: mesmo autor, assunto parecido, mesma editora, mesma época, um livro que você avaliou bem ou um que já está na sua pilha de leitura.\n\n“Não tenho interesse” esconde uma sugestão em todos os lugares, com um desfazer logo depois. Essa escolha fica neste dispositivo."
 
 #. Reading suggestions CTA
 msgid "help_cta_see_suggestions"
@@ -10655,3 +10655,31 @@ msgstr "O diretório reúne as bibliotecas que escolheram ficar visíveis. Ative
 #. Help screen quick action: opens the online guides in the browser
 msgid "help_online_docs"
 msgstr "Guias online"
+
+#. External suggestion reason: the missing volume of an owned series. {ordinal} is the volume number, {series} the series name (ADR-060)
+msgid "reason_series_missing_volume"
+msgstr "Volume {ordinal} de {series}"
+
+#. Badge on suggestion cards for books not in the library yet (external discovery, ADR-060)
+msgid "suggestion_badge_external"
+msgstr "Para descobrir"
+
+#. CTA of the external-suggestion preview sheet: add the book to the wishlist
+msgid "external_suggestion_add_wishlist"
+msgstr "Adicionar à lista de desejos"
+
+#. SnackBar after the preview sheet added the book to the wishlist
+msgid "external_suggestion_added"
+msgstr "Adicionado à sua lista de desejos"
+
+#. SnackBar when the suggested book turned out to already exist locally (ISBN dedup on creation)
+msgid "external_suggestion_already_in_library"
+msgstr "Este livro já está na sua biblioteca"
+
+#. SnackBar when the wishlist add failed
+msgid "external_suggestion_add_failed"
+msgstr "Não foi possível adicionar o livro. Tente de novo."
+
+#. Line in the preview sheet: a library in the user's network holds this ISBN
+msgid "external_suggestion_available_network"
+msgstr "Disponível na sua rede"

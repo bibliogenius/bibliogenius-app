@@ -148,6 +148,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FrbDiscoveredPeer dco_decode_frb_discovered_peer(dynamic raw);
 
   @protected
+  FrbDiscoveryAuthorLookup dco_decode_frb_discovery_author_lookup(dynamic raw);
+
+  @protected
+  FrbDiscoveryLookupInputs dco_decode_frb_discovery_lookup_inputs(dynamic raw);
+
+  @protected
+  FrbDiscoverySeriesLookup dco_decode_frb_discovery_series_lookup(dynamic raw);
+
+  @protected
   FrbFillProgress dco_decode_frb_fill_progress(dynamic raw);
 
   @protected
@@ -319,6 +328,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<FrbDiscoveredPeer> dco_decode_list_frb_discovered_peer(dynamic raw);
+
+  @protected
+  List<FrbDiscoveryAuthorLookup> dco_decode_list_frb_discovery_author_lookup(
+    dynamic raw,
+  );
+
+  @protected
+  List<FrbDiscoverySeriesLookup> dco_decode_list_frb_discovery_series_lookup(
+    dynamic raw,
+  );
 
   @protected
   List<FrbFilledBook> dco_decode_list_frb_filled_book(dynamic raw);
@@ -647,6 +666,21 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  FrbDiscoveryAuthorLookup sse_decode_frb_discovery_author_lookup(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  FrbDiscoveryLookupInputs sse_decode_frb_discovery_lookup_inputs(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  FrbDiscoverySeriesLookup sse_decode_frb_discovery_series_lookup(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   FrbFillProgress sse_decode_frb_fill_progress(SseDeserializer deserializer);
 
   @protected
@@ -862,6 +896,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<FrbDiscoveredPeer> sse_decode_list_frb_discovered_peer(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  List<FrbDiscoveryAuthorLookup> sse_decode_list_frb_discovery_author_lookup(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  List<FrbDiscoverySeriesLookup> sse_decode_list_frb_discovery_series_lookup(
     SseDeserializer deserializer,
   );
 
@@ -1275,6 +1319,24 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_frb_discovery_author_lookup(
+    FrbDiscoveryAuthorLookup self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_frb_discovery_lookup_inputs(
+    FrbDiscoveryLookupInputs self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_frb_discovery_series_lookup(
+    FrbDiscoverySeriesLookup self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_frb_fill_progress(
     FrbFillProgress self,
     SseSerializer serializer,
@@ -1565,6 +1627,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_list_frb_discovered_peer(
     List<FrbDiscoveredPeer> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_frb_discovery_author_lookup(
+    List<FrbDiscoveryAuthorLookup> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_frb_discovery_series_lookup(
+    List<FrbDiscoverySeriesLookup> self,
     SseSerializer serializer,
   );
 

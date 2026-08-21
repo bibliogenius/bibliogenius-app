@@ -3,9 +3,11 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/recommendation_provider.dart';
+import '../providers/theme_provider.dart';
 import '../services/translation_service.dart';
 import '../utils/recommendation_display.dart';
 import '../widgets/dashboard_section.dart';
+import '../widgets/external_suggestion_sheet.dart';
 import '../widgets/suggestion_tile.dart';
 
 /// "Suggestions for you" on the dashboard: a short vertical list of unread
@@ -19,6 +21,11 @@ import '../widgets/suggestion_tile.dart';
 /// dashboard load, invalidates on catalogue mutations, and owns the
 /// dismissal set. A "See all" link opens the full ranked list when the
 /// digest cannot show everything.
+///
+/// External "complete the series" cards (ADR-060) blend into the same
+/// list: at most 2 on the dashboard, appended after the locals so the
+/// first local suggestions are never displaced, each with its source
+/// badge and its pre-import tap flow.
 class PersonalSuggestionsSection extends StatefulWidget {
   const PersonalSuggestionsSection({super.key});
 
@@ -38,9 +45,17 @@ class _PersonalSuggestionsSectionState
   void initState() {
     super.initState();
     // Stale-while-revalidate: render the cached list now, refresh behind.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
-      context.read<RecommendationProvider>().loadPersonal();
+      final provider = context.read<RecommendationProvider>();
+      await provider.loadPersonal();
+      if (!mounted) return;
+      // External sweep only after the local suggestions load (ADR-060
+      // section 4.3: never blocking them). Reading languages drive the
+      // hub-side edition filtering.
+      await provider.loadExternal(
+        langs: context.read<ThemeProvider>().userLanguages,
+      );
     });
   }
 
@@ -53,7 +68,17 @@ class _PersonalSuggestionsSectionState
     if (visible.length < _minSuggestions) {
       return const SizedBox.shrink();
     }
-    final suggestions = visible.take(_maxDisplayed).toList();
+    // Blend (ADR-060 section 4.4): externals take at most 2 of the 5
+    // slots and sit after the locals, so the first local suggestions are
+    // never displaced by discovery.
+    final externals = provider.visibleExternal
+        .take(RecommendationProvider.dashboardMaxExternal)
+        .toList();
+    final locals = visible.take(_maxDisplayed - externals.length).toList();
+    final suggestions = [...locals, ...externals];
+    final truncated =
+        visible.length > locals.length ||
+        provider.visibleExternal.length > externals.length;
 
     final dismissTooltip = TranslationService.translate(
       context,
@@ -79,19 +104,31 @@ class _PersonalSuggestionsSectionState
                 if (i > 0) const SuggestionSeparator(),
                 SuggestionTile(
                   suggestion: suggestions[i],
-                  onDismiss: switch (suggestions[i].book.id) {
-                    null => null,
-                    final bookId => () => dismissRecommendationWithUndo(
-                      context,
-                      bookId,
-                    ),
+                  onTap: suggestions[i].isExternal
+                      ? () => ExternalSuggestionSheet.show(
+                          context,
+                          suggestions[i],
+                        )
+                      : null,
+                  onDismiss: switch ((
+                    suggestions[i].externalKey,
+                    suggestions[i].book.id,
+                  )) {
+                    (final String externalKey, _) =>
+                      () => dismissExternalSuggestionWithUndo(
+                        context,
+                        externalKey,
+                      ),
+                    (null, final String bookId) =>
+                      () => dismissRecommendationWithUndo(context, bookId),
+                    _ => null,
                   },
                   dismissTooltip: dismissTooltip,
                 ),
               ],
               // The full ranked list only earns a link when the digest
               // actually truncates it.
-              if (visible.length > _maxDisplayed)
+              if (truncated)
                 Padding(
                   padding: const EdgeInsets.only(top: 10, bottom: 6),
                   child: SeeAllLink(

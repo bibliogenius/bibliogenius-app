@@ -10344,9 +10344,9 @@ msgstr "갖고 있지 않지만 읽고 싶은 책도 여기에 둘 수 있습니
 msgid "help_topic_recommendations"
 msgstr "읽을거리 추천은 어디에서 오나요?"
 
-#. Where the suggestions show up, why a book is suggested, and how to dismiss one. Says the sources will widen: drop that sentence once they do.
+#. Where the suggestions show up, why a book is suggested, and how to dismiss one. Mentions series completion through an anonymous hub search (ADR-060).
 msgid "help_desc_recommendations"
-msgstr "대시보드의 “당신을 위한 추천”과 책 상세 화면의 “이런 책도 좋아할 거예요”는 내 서재에서 뽑은 책을 보여줍니다. 이 기능은 계속 발전하고 있습니다. 다음 버전에서는 추천이 내 책장 밖으로 넓어집니다.\n\n각 카드에는 이유가 붙습니다. 같은 저자, 비슷한 주제, 같은 출판사, 비슷한 시기, 높게 평가한 책, 이미 읽을 책 더미에 있는 책 등입니다.\n\n“관심 없음”을 누르면 그 추천이 모든 화면에서 숨겨지고, 직후에 실행 취소할 수 있습니다. 이 선택은 이 기기에 저장됩니다."
+msgstr "대시보드의 “당신을 위한 추천”과 책 상세 화면의 “이런 책도 좋아할 거예요”는 내 서재에서 뽑은 책을 보여줍니다. 시리즈를 소장하고 있다면 빠진 다음 권도 추천될 수 있습니다. 익명 검색이 그것을 찾고, 계산 자체는 이 기기에서 이루어집니다.\n\n각 카드에는 이유가 붙습니다. 같은 저자, 비슷한 주제, 같은 출판사, 비슷한 시기, 높게 평가한 책, 이미 읽을 책 더미에 있는 책 등입니다.\n\n“관심 없음”을 누르면 그 추천이 모든 화면에서 숨겨지고, 직후에 실행 취소할 수 있습니다. 이 선택은 이 기기에 저장됩니다."
 
 #. Reading suggestions CTA
 msgid "help_cta_see_suggestions"
@@ -10363,3 +10363,31 @@ msgstr "디렉터리에는 공개를 선택한 서재만 실립니다. 설정 > 
 #. Help screen quick action: opens the online guides in the browser
 msgid "help_online_docs"
 msgstr "온라인 가이드"
+
+#. External suggestion reason: the missing volume of an owned series. {ordinal} is the volume number, {series} the series name (ADR-060)
+msgid "reason_series_missing_volume"
+msgstr "{series} {ordinal}권"
+
+#. Badge on suggestion cards for books not in the library yet (external discovery, ADR-060)
+msgid "suggestion_badge_external"
+msgstr "새로운 발견"
+
+#. CTA of the external-suggestion preview sheet: add the book to the wishlist
+msgid "external_suggestion_add_wishlist"
+msgstr "위시리스트에 추가"
+
+#. SnackBar after the preview sheet added the book to the wishlist
+msgid "external_suggestion_added"
+msgstr "위시리스트에 추가되었습니다"
+
+#. SnackBar when the suggested book turned out to already exist locally (ISBN dedup on creation)
+msgid "external_suggestion_already_in_library"
+msgstr "이 책은 이미 서재에 있습니다"
+
+#. SnackBar when the wishlist add failed
+msgid "external_suggestion_add_failed"
+msgstr "책을 추가하지 못했습니다. 다시 시도해 주세요."
+
+#. Line in the preview sheet: a library in the user's network holds this ISBN
+msgid "external_suggestion_available_network"
+msgstr "내 네트워크에서 구할 수 있습니다"

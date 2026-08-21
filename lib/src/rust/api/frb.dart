@@ -10,7 +10,7 @@ part 'frb.freezed.dart';
 
 // These functions are ignored because they are not marked as `pub`: `account_device_entry`, `account_devices_json`, `account_library_uuid`, `account_status_json`, `apply_fallback_preferences_to_modules`, `covers_dir`, `db`, `enrollment_restart_required`, `enrollment_status_json`, `ensure_account_session`, `entries_to_frb`, `fill_state`, `from_info`, `from_manifest`, `from_summary`, `global_app_state`, `hub_catalog_error_code`, `hub_db`, `hub_directory_svc`, `hub_directory_sync_catalog_inner`, `install_panic_hook`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `log_sync_failure`, `merge_api_keys`, `merge_directory_entry`, `modules_to_fallback_preferences`, `nudge_source_label`, `rename_subject_in_books`, `runtime`, `store_account_session`, `track_to_frb`, `try_from_summary`, `undo_outcome_str`, `upsert_directory_catalog_cache`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `AccountSession`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
 
 /// Initialize the FFI backend with database at the given path
 /// Must be called before any other FFI functions
@@ -1572,6 +1572,13 @@ Future<List<FrbRecommendation>> getBookRecommendations({
 Future<FrbRecommendationResponse> getPersonalRecommendations({int? limit}) =>
     RustLib.instance.api.crateApiFrbGetPersonalRecommendations(limit: limit);
 
+/// Inputs of the external discovery lookups (ADR-060): what to ask the hub
+/// resolver and how to filter its answers. The Flutter side owns the HTTP
+/// call, the 24h throttle and the cache (Rule F4); this function only
+/// derives the inputs from one local library pass.
+Future<FrbDiscoveryLookupInputs> getDiscoveryLookupInputs() =>
+    RustLib.instance.api.crateApiFrbGetDiscoveryLookupInputs();
+
 /// Subset of the manifest surfaced to the wizard's preview screen. Mirrors
 /// `ManifestSummary` field-by-field but flattened for FFI portability.
 /// Counts cross the FFI as `i64`.
@@ -1956,6 +1963,116 @@ sealed class FrbDiscoveredPeer with _$FrbDiscoveredPeer {
     String? x25519PublicKey,
     required String discoveredAt,
   }) = _FrbDiscoveredPeer;
+}
+
+/// One "complete the author" lookup: the profile author name plus up to 3
+/// anchor ISBNs of liked books by that author, for hub-side verification.
+class FrbDiscoveryAuthorLookup {
+  final String name;
+  final List<String> anchorIsbns;
+
+  const FrbDiscoveryAuthorLookup({
+    required this.name,
+    required this.anchorIsbns,
+  });
+
+  @override
+  int get hashCode => name.hashCode ^ anchorIsbns.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FrbDiscoveryAuthorLookup &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          anchorIsbns == other.anchorIsbns;
+}
+
+/// Everything the Dart discovery service needs: the lookups derived from
+/// the library and the identity index that filters the answers (a volume
+/// or work matching by ISBN or title+author is never suggested). Empty
+/// below the ADR-059 profile threshold: no lookups without local signal.
+class FrbDiscoveryLookupInputs {
+  final List<FrbDiscoverySeriesLookup> series;
+  final List<FrbDiscoveryAuthorLookup> authors;
+
+  /// Library ISBNs (all statuses including `wanting`), both 10/13 forms.
+  final List<String> libraryIsbns;
+
+  /// Normalized "title|author" keys for every library book.
+  final List<String> libraryTitleAuthorKeys;
+
+  const FrbDiscoveryLookupInputs({
+    required this.series,
+    required this.authors,
+    required this.libraryIsbns,
+    required this.libraryTitleAuthorKeys,
+  });
+
+  @override
+  int get hashCode =>
+      series.hashCode ^
+      authors.hashCode ^
+      libraryIsbns.hashCode ^
+      libraryTitleAuthorKeys.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FrbDiscoveryLookupInputs &&
+          runtimeType == other.runtimeType &&
+          series == other.series &&
+          authors == other.authors &&
+          libraryIsbns == other.libraryIsbns &&
+          libraryTitleAuthorKeys == other.libraryTitleAuthorKeys;
+}
+
+/// One "complete the series" lookup for the hub discovery resolver: the
+/// anchors identify the series, the member identity lets the client match
+/// returned volumes against owned ones (source ordinals are truth; local
+/// `volume_number` is never consulted).
+class FrbDiscoverySeriesLookup {
+  /// Local collection id: client-side throttle/cache key, never sent.
+  final String collectionId;
+
+  /// User-authored series name, opaque tiebreaker for the hub.
+  final String name;
+
+  /// Up to 3 checksum-valid member ISBNs (canonical ISBN-13).
+  final List<String> anchorIsbns;
+
+  /// All member ISBNs in both ISBN-10/13 forms.
+  final List<String> memberIsbns;
+
+  /// Normalized "title|author" keys of the members, one per author.
+  final List<String> memberTitleAuthorKeys;
+
+  const FrbDiscoverySeriesLookup({
+    required this.collectionId,
+    required this.name,
+    required this.anchorIsbns,
+    required this.memberIsbns,
+    required this.memberTitleAuthorKeys,
+  });
+
+  @override
+  int get hashCode =>
+      collectionId.hashCode ^
+      name.hashCode ^
+      anchorIsbns.hashCode ^
+      memberIsbns.hashCode ^
+      memberTitleAuthorKeys.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FrbDiscoverySeriesLookup &&
+          runtimeType == other.runtimeType &&
+          collectionId == other.collectionId &&
+          name == other.name &&
+          anchorIsbns == other.anchorIsbns &&
+          memberIsbns == other.memberIsbns &&
+          memberTitleAuthorKeys == other.memberTitleAuthorKeys;
 }
 
 /// Live/last progress of a bulk fill run.

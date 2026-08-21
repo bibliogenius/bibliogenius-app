@@ -10344,9 +10344,9 @@ msgstr "持っていないけれど読みたい本もここに置けます。追
 msgid "help_topic_recommendations"
 msgstr "読書のおすすめはどこから来る？"
 
-#. Where the suggestions show up, why a book is suggested, and how to dismiss one. Says the sources will widen: drop that sentence once they do.
+#. Where the suggestions show up, why a book is suggested, and how to dismiss one. Mentions series completion through an anonymous hub search (ADR-060).
 msgid "help_desc_recommendations"
-msgstr "ダッシュボードの「あなたへのおすすめ」と、本のページの「こちらもおすすめ」は、あなた自身の蔵書から選ばれます。この機能は成長を続けています。今後のバージョンでは、あなたの本棚の外へも提案が広がります。\n\n各カードには理由が付きます。同じ著者、似た主題、同じ出版社、近い年代、高く評価した本、すでに積読にある本、といった具合です。\n\n「興味がない」を押すと、その提案はどこでも非表示になり、直後に取り消しもできます。この選択はこの端末に保存されます。"
+msgstr "ダッシュボードの「あなたへのおすすめ」と、本のページの「こちらもおすすめ」は、あなた自身の蔵書から選ばれます。シリーズをお持ちの場合は、足りない次の巻も提案されます。匿名の検索がそれを見つけ、計算自体はこの端末内で行われます。\n\n各カードには理由が付きます。同じ著者、似た主題、同じ出版社、近い年代、高く評価した本、すでに積読にある本、といった具合です。\n\n「興味がない」を押すと、その提案はどこでも非表示になり、直後に取り消しもできます。この選択はこの端末に保存されます。"
 
 #. Reading suggestions CTA
 msgid "help_cta_see_suggestions"
@@ -10363,3 +10363,31 @@ msgstr "ディレクトリには、公開を選んだ蔵書だけが並びます
 #. Help screen quick action: opens the online guides in the browser
 msgid "help_online_docs"
 msgstr "オンラインガイド"
+
+#. External suggestion reason: the missing volume of an owned series. {ordinal} is the volume number, {series} the series name (ADR-060)
+msgid "reason_series_missing_volume"
+msgstr "{series} 第{ordinal}巻"
+
+#. Badge on suggestion cards for books not in the library yet (external discovery, ADR-060)
+msgid "suggestion_badge_external"
+msgstr "新しい出会い"
+
+#. CTA of the external-suggestion preview sheet: add the book to the wishlist
+msgid "external_suggestion_add_wishlist"
+msgstr "ほしいものリストに追加"
+
+#. SnackBar after the preview sheet added the book to the wishlist
+msgid "external_suggestion_added"
+msgstr "ほしいものリストに追加しました"
+
+#. SnackBar when the suggested book turned out to already exist locally (ISBN dedup on creation)
+msgid "external_suggestion_already_in_library"
+msgstr "この本はすでに蔵書にあります"
+
+#. SnackBar when the wishlist add failed
+msgid "external_suggestion_add_failed"
+msgstr "本を追加できませんでした。もう一度お試しください。"
+
+#. Line in the preview sheet: a library in the user's network holds this ISBN
+msgid "external_suggestion_available_network"
+msgstr "あなたのネットワークで入手できます"
