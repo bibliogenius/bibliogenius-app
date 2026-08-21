@@ -10391,3 +10391,7 @@ msgstr "책을 추가하지 못했습니다. 다시 시도해 주세요."
 #. Line in the preview sheet: a library in the user's network holds this ISBN
 msgid "external_suggestion_available_network"
 msgstr "내 네트워크에서 구할 수 있습니다"
+
+#. Recommendation reason on an external card: an unowned work of an author the reader likes, {author} is the author name
+msgid "reason_author_completion"
+msgstr "좋아하는 작가: {author}"

@@ -19,7 +19,7 @@ import 'package:bibliogenius/widgets/personal_suggestions_section.dart';
 /// ADR-060 blend rules on the dashboard section: external cards append
 /// after the locals with their source badge, at most 2 of the 5 slots,
 /// externally-keyed dismissal with Undo, one card per series (lowest
-/// missing ordinal first).
+/// missing ordinal first) and author-completion cards behind them.
 class _FakeRepository implements RecommendationRepository {
   _FakeRepository(this.payload, this.inputs);
 
@@ -89,10 +89,35 @@ Map<String, dynamic> _cachedSeries(
   };
 }
 
+Map<String, dynamic> _cachedAuthor(String sourceId, List<String> works) {
+  return {
+    'at': DateTime.now().millisecondsSinceEpoch,
+    'status': 'resolved',
+    'author': {
+      'source': 'wikidata',
+      'source_id': sourceId,
+      'label': 'Albert Camus',
+      'works': [
+        for (final (index, title) in works.indexed)
+          {
+            'title': title,
+            'titles': [title],
+            'authors': const ['Albert Camus'],
+            'year': 1947,
+            'editions_count': 40 - index,
+            'editions': const [],
+            'other_langs_exist': false,
+          },
+      ],
+    },
+  };
+}
+
 Widget _harness({
   required ThemeProvider theme,
   required List<Recommendation> locals,
   required List<DiscoverySeriesLookup> lookups,
+  List<DiscoveryAuthorLookup> authorLookups = const [],
 }) {
   final provider = RecommendationProvider(
     _FakeRepository(
@@ -104,7 +129,7 @@ Widget _harness({
       ),
       DiscoveryLookupInputs(
         series: lookups,
-        authors: const [],
+        authors: authorLookups,
         libraryIsbns: const {},
         libraryTitleAuthorKeys: const {},
       ),
@@ -137,6 +162,7 @@ void main() {
         'reason_same_author': 'Same author: {value}',
         'reason_same_author_short': 'Same author',
         'reason_series_missing_volume': 'Volume {ordinal} of {series}',
+        'reason_author_completion': 'Author you like: {author}',
         'suggestion_badge_external': 'To discover',
         'recommendation_not_interested': 'Not interested',
         'recommendation_dismissed': 'Suggestion hidden',
@@ -150,9 +176,13 @@ void main() {
     TranslationService.setPoTranslationsForTest({});
   });
 
-  Future<void> _seedCache(Map<String, dynamic> cache) async {
+  Future<void> _seedCache(
+    Map<String, dynamic> cache, {
+    Map<String, dynamic> authors = const {},
+  }) async {
     SharedPreferences.setMockInitialValues({
       DiscoveryService.cacheKey: jsonEncode(cache),
+      DiscoveryService.authorCacheKey: jsonEncode(authors),
     });
   }
 
@@ -253,5 +283,70 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Volume Two'), findsOneWidget);
     expect(find.text('Volume Three'), findsNothing);
+  });
+
+  testWidgets('an author card carries its reason, badge and single label', (
+    tester,
+  ) async {
+    await _seedCache(
+      const {},
+      authors: {'Albert Camus': _cachedAuthor('Q34670', ['The Plague'])},
+    );
+    await tester.pumpWidget(
+      _harness(
+        theme: theme,
+        locals: [_local('La Peste'), _local('Le Mythe de Sisyphe')],
+        lookups: const [],
+        authorLookups: const [
+          DiscoveryAuthorLookup(
+            name: 'Albert Camus',
+            anchorIsbns: ['9782070360024'],
+          ),
+        ],
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('The Plague'), findsOneWidget);
+    expect(find.text('Author you like: Albert Camus'), findsOneWidget);
+    expect(find.text('To discover'), findsOneWidget);
+    // Rule A1: title, author, badge and reason are spoken once, by the
+    // tile's own label (excludeSemantics swallows the rest).
+    expect(
+      find.bySemanticsLabel(
+        RegExp('The Plague.*To discover.*Author you like: Albert Camus'),
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('a series card takes the external slot ahead of an author', (
+    tester,
+  ) async {
+    await _seedCache(
+      {'col-1': _cachedSeries('Q1', [(3, 'The Missing Volume')])},
+      authors: {
+        'Albert Camus': _cachedAuthor('Q34670', ['The Plague', 'The Fall']),
+      },
+    );
+    await tester.pumpWidget(
+      _harness(
+        theme: theme,
+        locals: [_local('Local A'), _local('Local B'), _local('Local C')],
+        lookups: [_lookup('col-1', 'My Series')],
+        authorLookups: const [
+          DiscoveryAuthorLookup(
+            name: 'Albert Camus',
+            anchorIsbns: ['9782070360024'],
+          ),
+        ],
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Two external slots: the series card first, then one author work.
+    expect(find.text('The Missing Volume'), findsOneWidget);
+    expect(find.text('The Plague'), findsOneWidget);
+    expect(find.text('The Fall'), findsNothing);
   });
 }

@@ -65,6 +65,7 @@ String recommendationReasonLabel(
     'highly_rated',
     'in_reading_pile',
     'series_missing_volume',
+    'author_completion',
   };
   if (!knownTypes.contains(reason.type)) return reason.value;
   return TranslationService.translate(
@@ -138,6 +139,8 @@ IconData recommendationReasonIcon(RecommendationReason reason) {
       return Icons.bookmark_outline;
     case 'series_missing_volume':
       return Icons.collections_bookmark_outlined;
+    case 'author_completion':
+      return Icons.person_search_outlined;
     default:
       return Icons.label_outline;
   }

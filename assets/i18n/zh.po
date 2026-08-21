@@ -10391,3 +10391,7 @@ msgstr "无法添加这本书，请重试。"
 #. Line in the preview sheet: a library in the user's network holds this ISBN
 msgid "external_suggestion_available_network"
 msgstr "你的网络中有此书"
+
+#. Recommendation reason on an external card: an unowned work of an author the reader likes, {author} is the author name
+msgid "reason_author_completion"
+msgstr "您喜欢的作者：{author}"

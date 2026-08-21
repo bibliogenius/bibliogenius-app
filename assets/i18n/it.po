@@ -10668,3 +10668,7 @@ msgstr "Impossibile aggiungere il libro. Riprova."
 #. Line in the preview sheet: a library in the user's network holds this ISBN
 msgid "external_suggestion_available_network"
 msgstr "Disponibile nella tua rete"
+
+#. Recommendation reason on an external card: an unowned work of an author the reader likes, {author} is the author name
+msgid "reason_author_completion"
+msgstr "Autore che ti piace: {author}"

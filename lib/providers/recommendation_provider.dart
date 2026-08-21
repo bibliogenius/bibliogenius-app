@@ -21,12 +21,13 @@ import 'book_refresh_notifier.dart';
 /// surface, and persist device-locally through
 /// [RecommendationDismissalService].
 ///
-/// External discovery (ADR-060, series lane): the provider additionally
-/// blends "complete the series" cards resolved by the hub. The candidates
-/// come from [DiscoveryService] (cache-first, throttled sweep behind),
-/// their dismissal uses the second, namespaced store
-/// ([ExternalSuggestionDismissalService]), and the blend rules live here:
-/// one card per series (lowest missing ordinal), locals never displaced by
+/// External discovery (ADR-060): the provider additionally blends
+/// "complete the series" and "complete the author" cards resolved by the
+/// hub. The candidates come from [DiscoveryService] (cache-first,
+/// throttled sweep behind), their dismissal uses the second, namespaced
+/// store ([ExternalSuggestionDismissalService]), and the blend rules live
+/// here: one card per series (lowest missing ordinal), at most two works
+/// per author, series ahead of authors, locals never displaced by
 /// externals, caps per surface.
 class RecommendationProvider extends ChangeNotifier {
   final RecommendationRepository _repository;
@@ -42,6 +43,10 @@ class RecommendationProvider extends ChangeNotifier {
   /// Per-series external candidates (missing volumes, lowest ordinal
   /// first); the visible pick is the first non-dismissed of each series.
   List<List<Recommendation>> _externalCandidates = const [];
+
+  /// Per-author external candidates (unowned works, most editions first);
+  /// the visible picks are the first non-dismissed of each author.
+  List<List<Recommendation>> _externalAuthorCandidates = const [];
   Set<String> _dismissedExternalKeys = {};
   bool _externalStale = true;
   bool _externalLoading = false;
@@ -52,6 +57,9 @@ class RecommendationProvider extends ChangeNotifier {
 
   /// See-all cap on external cards, appended after the locals.
   static const int seeAllMaxExternal = 10;
+
+  /// Cap on works shown per favorite author (ADR-060 section 4.4).
+  static const int authorMaxWorks = 2;
 
   RecommendationProvider(
     this._repository,
@@ -78,15 +86,31 @@ class RecommendationProvider extends ChangeNotifier {
         .toList();
   }
 
-  /// Visible external cards: one per series, the lowest-ordinal missing
-  /// volume that is not dismissed. Order follows the series lookups.
-  List<Recommendation> get visibleExternal {
+  /// Visible external cards: one per series (the lowest-ordinal missing
+  /// volume that is not dismissed), then up to two works per favorite
+  /// author. Series completion outranks author completion inside the
+  /// external tier (ADR-060 section 4.4): it is the more precise of the
+  /// two, so it takes the scarce external slots first.
+  List<Recommendation> get visibleExternal => [
+    ..._pickPerLookup(_externalCandidates, 1),
+    ..._pickPerLookup(_externalAuthorCandidates, authorMaxWorks),
+  ];
+
+  /// First [perLookup] non-dismissed cards of each lookup, in lookup
+  /// order. A dismissal therefore promotes the next candidate of the same
+  /// series or author rather than leaving a hole.
+  List<Recommendation> _pickPerLookup(
+    List<List<Recommendation>> candidates,
+    int perLookup,
+  ) {
     final picks = <Recommendation>[];
-    for (final cards in _externalCandidates) {
+    for (final cards in candidates) {
+      var taken = 0;
       for (final card in cards) {
+        if (taken >= perLookup) break;
         if (!isExternalDismissed(card.externalKey)) {
           picks.add(card);
-          break;
+          taken++;
         }
       }
     }
@@ -150,13 +174,24 @@ class RecommendationProvider extends ChangeNotifier {
   /// otherwise linger this session. The next missing ordinal of the same
   /// series surfaces naturally.
   void hideExternalAfterImport(String externalKey) {
-    _externalCandidates = _externalCandidates
+    _externalCandidates = _withoutKey(_externalCandidates, externalKey);
+    _externalAuthorCandidates = _withoutKey(
+      _externalAuthorCandidates,
+      externalKey,
+    );
+    notifyListeners();
+  }
+
+  static List<List<Recommendation>> _withoutKey(
+    List<List<Recommendation>> candidates,
+    String externalKey,
+  ) {
+    return candidates
         .map(
           (cards) => cards.where((c) => c.externalKey != externalKey).toList(),
         )
         .where((cards) => cards.isNotEmpty)
         .toList();
-    notifyListeners();
   }
 
   void _markStale() {
@@ -181,9 +216,10 @@ class RecommendationProvider extends ChangeNotifier {
     }
   }
 
-  /// Load and refresh the external "complete the series" cards (ADR-060).
+  /// Load and refresh the external "complete the series" and "complete the
+  /// author" cards (ADR-060).
   ///
-  /// Renders from the persistent cache first, then sweeps stale lookups
+  /// Renders from the persistent caches first, then sweeps stale lookups
   /// against the hub behind (never blocking the local suggestions, which
   /// must already be loaded). The ADR-059 thresholds gate the whole
   /// feature: below 5 profile books the FFI returns no lookups, and below
@@ -197,34 +233,51 @@ class RecommendationProvider extends ChangeNotifier {
     _externalLoading = true;
     try {
       if (_personal == null || visiblePersonal.length < 2) {
-        if (_externalCandidates.isNotEmpty) {
-          _externalCandidates = const [];
-          notifyListeners();
-        }
+        _clearExternal();
         return;
       }
       final inputs = await _repository.getDiscoveryLookupInputs();
-      if (inputs == null || inputs.series.isEmpty) {
+      if (inputs == null || inputs.isEmpty) {
         _externalStale = false;
-        if (_externalCandidates.isNotEmpty) {
-          _externalCandidates = const [];
-          notifyListeners();
-        }
+        _clearExternal();
         return;
       }
 
       _externalCandidates = await _discovery.buildFromCache(inputs, langs);
+      _externalAuthorCandidates = await _discovery.buildAuthorsFromCache(
+        inputs,
+        langs,
+      );
       _externalStale = false;
       notifyListeners();
 
-      final changed = await _discovery.sweep(inputs, langs);
-      if (changed) {
+      // Both lanes sweep on their own throttle; either one changing is
+      // enough to rebuild, and neither blocks the other.
+      final seriesChanged = await _discovery.sweep(inputs, langs);
+      if (seriesChanged) {
         _externalCandidates = await _discovery.buildFromCache(inputs, langs);
+        notifyListeners();
+      }
+      final authorsChanged = await _discovery.sweepAuthors(inputs, langs);
+      if (authorsChanged) {
+        _externalAuthorCandidates = await _discovery.buildAuthorsFromCache(
+          inputs,
+          langs,
+        );
         notifyListeners();
       }
     } finally {
       _externalLoading = false;
     }
+  }
+
+  void _clearExternal() {
+    if (_externalCandidates.isEmpty && _externalAuthorCandidates.isEmpty) {
+      return;
+    }
+    _externalCandidates = const [];
+    _externalAuthorCandidates = const [];
+    notifyListeners();
   }
 
   @override
