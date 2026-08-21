@@ -22,6 +22,11 @@ import 'reason_chip.dart';
 /// (a single card is more noise than help). "Not interested" dismissals
 /// come from [RecommendationProvider], apply to every recommendation
 /// surface, and are filtered out BEFORE the two-suggestion floor.
+///
+/// Caps itself at [AppDesign.maxContentWidth]: the book-details page has no
+/// page-level width cap of its own, so on a wide tablet/desktop window this
+/// carousel of fixed-size cards would otherwise stretch its card edge to
+/// edge for no visual gain.
 class BookRecommendationsSection extends StatefulWidget {
   final Book book;
 
@@ -94,50 +99,67 @@ class _BookRecommendationsSectionState
       'recommendation_not_interested',
     );
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SectionHeader(
-          icon: Icons.auto_awesome,
-          title: TranslationService.translate(
-            context,
-            'recommendations_similar',
-          ),
-        ),
-        const SizedBox(height: 16),
-        SectionCard(
-          padding: const EdgeInsets.all(12),
-          child: SizedBox(
-            // Cover plus the text block, which follows the system text scale
-            // so a large-text setting grows the row instead of clipping it.
-            height:
-                _coverHeight +
-                MediaQuery.textScalerOf(context).scale(_metadataHeight),
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: visible.length,
-              separatorBuilder: (_, _) =>
-                  const SizedBox(width: AppDesign.spacingMd),
-              itemBuilder: (context, index) {
-                final rec = visible[index];
-                final bookId = rec.book.id;
-                return _RecommendationCard(
-                  recommendation: rec,
-                  width: _cardWidth,
-                  coverHeight: _coverHeight,
-                  onTap: () =>
-                      context.push('/books/${rec.book.id}', extra: rec.book),
-                  onDismiss: bookId == null
-                      ? null
-                      : () => dismissRecommendationWithUndo(context, bookId),
-                  dismissTooltip: dismissTooltip,
-                );
-              },
+    // Unlike the dashboard, the book-details page has no page-level content
+    // cap: on a wide tablet/desktop window this small, fixed-size-card
+    // carousel would otherwise stretch its surrounding card edge to edge,
+    // leaving a wide dead strip next to a handful of 128px covers. Cap it
+    // to the app's standard content width and keep it left-aligned, matching
+    // the page's own left-aligned column, instead of centering an orphaned
+    // block.
+    return Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: AppDesign.maxContentWidth),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SectionHeader(
+              icon: Icons.auto_awesome,
+              title: TranslationService.translate(
+                context,
+                'recommendations_similar',
+              ),
             ),
-          ),
+            const SizedBox(height: 16),
+            SectionCard(
+              padding: const EdgeInsets.all(12),
+              child: SizedBox(
+                // Cover plus the text block, which follows the system text
+                // scale so a large-text setting grows the row instead of
+                // clipping it.
+                height:
+                    _coverHeight +
+                    MediaQuery.textScalerOf(context).scale(_metadataHeight),
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: visible.length,
+                  separatorBuilder: (_, _) =>
+                      const SizedBox(width: AppDesign.spacingMd),
+                  itemBuilder: (context, index) {
+                    final rec = visible[index];
+                    final bookId = rec.book.id;
+                    return _RecommendationCard(
+                      recommendation: rec,
+                      width: _cardWidth,
+                      coverHeight: _coverHeight,
+                      onTap: () => context.push(
+                        '/books/${rec.book.id}',
+                        extra: rec.book,
+                      ),
+                      onDismiss: bookId == null
+                          ? null
+                          : () =>
+                                dismissRecommendationWithUndo(context, bookId),
+                      dismissTooltip: dismissTooltip,
+                    );
+                  },
+                ),
+              ),
+            ),
+            const SizedBox(height: 32),
+          ],
         ),
-        const SizedBox(height: 32),
-      ],
+      ),
     );
   }
 }

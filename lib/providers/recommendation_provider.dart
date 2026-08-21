@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 
 import '../data/repositories/recommendation_repository.dart';
+import '../models/discovery.dart';
+import '../utils/author_identity.dart';
 import '../models/recommendation.dart';
 import '../services/discovery_service.dart';
 import '../services/external_suggestion_dismissal_service.dart';
@@ -29,6 +31,12 @@ import 'book_refresh_notifier.dart';
 /// here: one card per series (lowest missing ordinal), at most two works
 /// per author, series ahead of authors, locals never displaced by
 /// externals, caps per surface.
+///
+/// Contextual surfaces (ADR-061) read the same caches through
+/// [seriesCardsForCollections] (cache-only, for a book page) and
+/// [authorPageDiscovery] (resolves on open, for an author page). Both go
+/// through [ensureLookupInputs] so a page opening never triggers a second
+/// library pass.
 class RecommendationProvider extends ChangeNotifier {
   final RecommendationRepository _repository;
   final BookRefreshNotifier _bookRefreshNotifier;
@@ -41,15 +49,34 @@ class RecommendationProvider extends ChangeNotifier {
   Set<String> _dismissedBookIds = {};
 
   /// Per-series external candidates (missing volumes, lowest ordinal
-  /// first); the visible pick is the first non-dismissed of each series.
-  List<List<Recommendation>> _externalCandidates = const [];
+  /// first), keyed by collection id in lookup order; the visible pick is the
+  /// first non-dismissed of each series.
+  Map<String, List<Recommendation>> _externalCandidates = const {};
 
-  /// Per-author external candidates (unowned works, most editions first);
-  /// the visible picks are the first non-dismissed of each author.
-  List<List<Recommendation>> _externalAuthorCandidates = const [];
+  /// Per-author external candidates (unowned works, most editions first),
+  /// keyed by lookup name in lookup order; the visible picks are the first
+  /// non-dismissed of each author.
+  Map<String, List<Recommendation>> _externalAuthorCandidates = const {};
   Set<String> _dismissedExternalKeys = {};
   bool _externalStale = true;
   bool _externalLoading = false;
+
+  /// Last discovery lookup inputs (lookups plus the library identity index).
+  /// Cached across surfaces so opening a book or an author page never costs
+  /// a full library pass: only a catalogue mutation invalidates them
+  /// (ADR-061 section 3).
+  DiscoveryLookupInputs? _lookupInputs;
+  bool _inputsStale = true;
+  Future<DiscoveryLookupInputs?>? _inputsInFlight;
+
+  /// Whether the once-per-session startup warm-up already ran
+  /// ([warmUpAtStartup]). Never reset by a catalogue mutation: staleness is
+  /// what re-runs the work, this only stops the startup kick repeating.
+  bool _startupWarmUpDone = false;
+
+  /// Memoised [authorVocabulary], derived from [_lookupInputs] and dying
+  /// with them.
+  Set<String>? _authorVocabulary;
 
   /// Dashboard cap on external cards (ADR-060 section 4.4): discovery
   /// never drowns "read what is already at home".
@@ -60,6 +87,11 @@ class RecommendationProvider extends ChangeNotifier {
 
   /// Cap on works shown per favorite author (ADR-060 section 4.4).
   static const int authorMaxWorks = 2;
+
+  /// Cap on discovered works listed on an author page (ADR-061 section 5).
+  /// Higher than [authorMaxWorks] because the page is not a blend competing
+  /// for scarce slots: the user asked about this author.
+  static const int authorPageMaxWorks = 10;
 
   RecommendationProvider(
     this._repository,
@@ -100,11 +132,11 @@ class RecommendationProvider extends ChangeNotifier {
   /// order. A dismissal therefore promotes the next candidate of the same
   /// series or author rather than leaving a hole.
   List<Recommendation> _pickPerLookup(
-    List<List<Recommendation>> candidates,
+    Map<String, List<Recommendation>> candidates,
     int perLookup,
   ) {
     final picks = <Recommendation>[];
-    for (final cards in candidates) {
+    for (final cards in candidates.values) {
       var taken = 0;
       for (final card in cards) {
         if (taken >= perLookup) break;
@@ -182,21 +214,71 @@ class RecommendationProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  static List<List<Recommendation>> _withoutKey(
-    List<List<Recommendation>> candidates,
+  static Map<String, List<Recommendation>> _withoutKey(
+    Map<String, List<Recommendation>> candidates,
     String externalKey,
   ) {
-    return candidates
-        .map(
-          (cards) => cards.where((c) => c.externalKey != externalKey).toList(),
-        )
-        .where((cards) => cards.isNotEmpty)
-        .toList();
+    final kept = <String, List<Recommendation>>{};
+    candidates.forEach((lookup, cards) {
+      final remaining = cards
+          .where((c) => c.externalKey != externalKey)
+          .toList();
+      if (remaining.isNotEmpty) kept[lookup] = remaining;
+    });
+    return kept;
   }
 
   void _markStale() {
     _stale = true;
     _externalStale = true;
+    // A catalogue mutation changes the identity index and the lookups
+    // themselves, so the contextual surfaces must not keep filtering
+    // against a library that no longer exists.
+    _inputsStale = true;
+  }
+
+  /// Discovery lookup inputs, fetched once and reused by every surface
+  /// until a catalogue mutation invalidates them. Concurrent callers (a
+  /// dashboard sweep and a page opening together) share one library pass.
+  /// Null when the FFI backend is unavailable.
+  Future<DiscoveryLookupInputs?> ensureLookupInputs() {
+    if (_lookupInputs != null && !_inputsStale) {
+      return Future<DiscoveryLookupInputs?>.value(_lookupInputs);
+    }
+    return _inputsInFlight ??= _fetchLookupInputs();
+  }
+
+  Future<DiscoveryLookupInputs?> _fetchLookupInputs() async {
+    try {
+      final fresh = await _repository.getDiscoveryLookupInputs();
+      if (fresh != null) {
+        _lookupInputs = fresh;
+        _inputsStale = false;
+        // Derived from the inputs, so it dies with them and is rebuilt once
+        // rather than on every page open (ADR-061 section 4).
+        _authorVocabulary = null;
+      }
+      return _lookupInputs;
+    } finally {
+      _inputsInFlight = null;
+    }
+  }
+
+  /// The library's individual author names, as [AuthorIdentity] match keys.
+  ///
+  /// Both contextual surfaces need it (the book page to decide whether the
+  /// comma in an author string separates two people, the author page to
+  /// select its books), and deriving it walks every identity key of the
+  /// library with a normalization and a word sort each. Computing that on
+  /// every page open was measurable work on the UI isolate for a value that
+  /// only changes when the catalogue does.
+  Future<Set<String>> authorVocabulary() async {
+    final memo = _authorVocabulary;
+    if (memo != null && !_inputsStale) return memo;
+    final inputs = await ensureLookupInputs();
+    return _authorVocabulary ??= AuthorIdentity.vocabularyOf(
+      inputs?.libraryTitleAuthorKeys ?? const {},
+    );
   }
 
   /// Fetch personal suggestions if the cache is stale (or [force]d).
@@ -236,7 +318,7 @@ class RecommendationProvider extends ChangeNotifier {
         _clearExternal();
         return;
       }
-      final inputs = await _repository.getDiscoveryLookupInputs();
+      final inputs = await ensureLookupInputs();
       if (inputs == null || inputs.isEmpty) {
         _externalStale = false;
         _clearExternal();
@@ -271,13 +353,100 @@ class RecommendationProvider extends ChangeNotifier {
     }
   }
 
+  /// One-shot discovery warm-up for the app session (ADR-061 section 7,
+  /// decision A5): load the local suggestions, then run the external sweep,
+  /// without any dashboard widget having to build.
+  ///
+  /// The dashboard section used to be the ONLY igniter, and the app opens on
+  /// the book list, so a reader who never visited it never swept and never
+  /// saw a book-page series card. This decouples the two: the section keeps
+  /// its stale-while-revalidate render path, it simply stops being the
+  /// trigger of record.
+  ///
+  /// Every gate is unchanged and still evaluated here, not by the caller:
+  /// the profile floor through the empty FFI inputs, the two-visible-local
+  /// floor inside [loadExternal], and the 24h per-key throttle inside the
+  /// service. Cheap to call: on a warm cache it does no network at all.
+  Future<void> warmUpAtStartup({required List<String> langs}) async {
+    if (_startupWarmUpDone) return;
+    await loadPersonal();
+    // The backend can be unavailable (web, or a failed init). Leave the flag
+    // down so a later trigger still gets its chance rather than the session
+    // silently losing its only kick.
+    if (_personal == null) return;
+    _startupWarmUpDone = true;
+    await loadExternal(langs: langs);
+  }
+
   void _clearExternal() {
     if (_externalCandidates.isEmpty && _externalAuthorCandidates.isEmpty) {
       return;
     }
-    _externalCandidates = const [];
-    _externalAuthorCandidates = const [];
+    _externalCandidates = const {};
+    _externalAuthorCandidates = const {};
     notifyListeners();
+  }
+
+  // ── Contextual surfaces (ADR-061) ───────────────────────────────────
+
+  /// Missing-volume candidates for a book that belongs to [collectionIds],
+  /// CACHE-ONLY: this never fires a lookup (ADR-061 section 2). Owned series
+  /// are already swept by the dashboard, and a second trigger surface would
+  /// buy outbound pressure for a redundant answer.
+  ///
+  /// Returns the candidates of the FIRST of those collections that has any,
+  /// in lookup order: a book sitting in both a cycle and an omnibus
+  /// collection still shows one card. The caller picks the first
+  /// non-dismissed of the list, so a dismissal reveals the next ordinal of
+  /// the same series rather than jumping to another one.
+  ///
+  /// Deliberately independent of [loadExternal]: the app opens on the book
+  /// list, not the dashboard, so the in-memory blend is usually empty when a
+  /// book page renders. Only the persistent cache is consulted.
+  Future<List<Recommendation>> seriesCardsForCollections(
+    Iterable<String> collectionIds, {
+    required List<String> langs,
+  }) async {
+    final wanted = collectionIds.toSet();
+    if (wanted.isEmpty) return const [];
+    final inputs = await ensureLookupInputs();
+    if (inputs == null || inputs.series.isEmpty) return const [];
+
+    final byCollection = await _discovery.buildFromCache(inputs, langs);
+    for (final lookup in inputs.series) {
+      if (!wanted.contains(lookup.collectionId)) continue;
+      final cards = byCollection[lookup.collectionId];
+      if (cards != null && cards.isNotEmpty) return cards;
+    }
+    return const [];
+  }
+
+  /// Unowned works of the author an author page is showing, resolving on
+  /// open under the shared 24h throttle (ADR-061 section 2).
+  ///
+  /// The ADR-059 floor on visible local suggestions is a dashboard-rendering
+  /// rule and does not apply here: the visit IS the explicit gesture. The
+  /// PROFILE floor is different and cannot be bypassed: below it the FFI
+  /// returns an empty identity index, and running the lane without the
+  /// membrane would offer the reader books already on their shelf, which the
+  /// precision doctrine forbids outright. An empty index therefore shows
+  /// nothing.
+  Future<List<Recommendation>> authorPageDiscovery({
+    required String name,
+    required List<String> anchorIsbns,
+    required List<String> langs,
+  }) async {
+    final inputs = await ensureLookupInputs();
+    if (inputs == null) return const [];
+    if (inputs.libraryIsbns.isEmpty && inputs.libraryTitleAuthorKeys.isEmpty) {
+      return const [];
+    }
+    return _discovery.resolveAuthorForVisit(
+      lookup: DiscoveryAuthorLookup(name: name, anchorIsbns: anchorIsbns),
+      inputs: inputs,
+      langs: langs,
+      limit: authorPageMaxWorks,
+    );
   }
 
   @override

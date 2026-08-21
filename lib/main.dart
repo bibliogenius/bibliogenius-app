@@ -53,6 +53,7 @@ import 'data/repositories_impl/recommendation_repository_impl.dart';
 
 import 'screens/login_screen.dart';
 import 'screens/add_book_screen.dart';
+import 'screens/author_screen.dart';
 import 'screens/book_copies_screen.dart';
 import 'screens/book_details_screen.dart';
 import 'screens/book_notes_screen.dart';
@@ -798,6 +799,7 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
   StreamSubscription<Uri>? _linkSubscription;
   String? _lastHandledDeepLink;
   Timer? _deepLinkTimer;
+  Timer? _discoveryWarmUpTimer;
   // Lets us reach a Navigator-aware context from this state, which lives
   // above MaterialApp.router (e.g. to show the identity recovery dialog).
   final GlobalKey<NavigatorState> _rootNavigatorKey =
@@ -814,6 +816,7 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<HubDirectoryProvider>().initAndSyncCatalog();
       _maybeShowIdentityRecovery();
+      _scheduleDiscoveryWarmUp();
     });
 
     _router = GoRouter(
@@ -1144,6 +1147,15 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
             GoRoute(
               path: '/recommendations',
               builder: (context, state) => const RecommendationsScreen(),
+            ),
+            // One author: their books on the shelf, then their unowned
+            // works from the discovery author lane (ADR-061). The path
+            // param is the display name, percent-encoded by the caller;
+            // author identity is string-keyed in v1.
+            GoRoute(
+              path: '/authors/:name',
+              builder: (context, state) =>
+                  AuthorScreen(authorName: state.pathParameters['name'] ?? ''),
             ),
             GoRoute(
               path: '/books',
@@ -1520,6 +1532,30 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
     IdentityRecoveryDialog.show(context: navCtx, libraryUuid: pendingUuid);
   }
 
+  /// Ignite the discovery warm-up once per app session (ADR-061 A5).
+  ///
+  /// The app opens on the book list, and the dashboard section used to be
+  /// the only thing that ever triggered a sweep, so a reader who never
+  /// visited the dashboard never got a book-page series card. The provider
+  /// owns every gate; this only decides WHEN to knock.
+  ///
+  /// Deferred rather than immediate: the FFI backend is already initialized
+  /// by here (`initializePlatform()` is awaited before `runApp`), so the
+  /// delay is purely about keeping a full library pass and a few hub calls
+  /// off the first seconds of the app.
+  void _scheduleDiscoveryWarmUp() {
+    _discoveryWarmUpTimer?.cancel();
+    _discoveryWarmUpTimer = Timer(const Duration(seconds: 3), () {
+      if (!mounted) return;
+      final langs = context.read<ThemeProvider>().userLanguages;
+      // Fire and forget: the provider never throws toward the UI, and a
+      // failure simply means no external cards this session.
+      unawaited(
+        context.read<RecommendationProvider>().warmUpAtStartup(langs: langs),
+      );
+    });
+  }
+
   void _registerFlashMessages() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final flashProvider = Provider.of<FlashMessageProvider>(
@@ -1699,6 +1735,7 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
   @override
   void dispose() {
     _deepLinkTimer?.cancel();
+    _discoveryWarmUpTimer?.cancel();
     _linkSubscription?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     if (identical(_globalRouter, _router)) {

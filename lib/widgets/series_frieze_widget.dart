@@ -9,6 +9,7 @@ import '../services/translation_service.dart';
 import '../utils/series_ordering.dart';
 import 'app_snack_bar.dart';
 import 'cached_book_cover.dart';
+import 'dashboard_section.dart';
 import 'volume_badge.dart';
 
 /// Reading-order timeline ("frise") for a series-typed collection, shown on the
@@ -113,45 +114,24 @@ class _SeriesFriezeWidgetState extends State<SeriesFriezeWidget> {
     // invisible while loading rather than reserve space).
     if (volumes.length < 2) return const SizedBox.shrink();
 
-    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // "Série" label and the collection name share one style so they read
-          // as a single title.
-          Semantics(
-            header: true,
-            child: Row(
-              children: [
-                Icon(
-                  Icons.auto_stories_outlined,
-                  size: 20,
-                  color: theme.colorScheme.primary,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  TranslationService.translate(context, 'series_frieze_title'),
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: theme.colorScheme.primary,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Flexible(
-                  child: Text(
-                    widget.collection.name,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: theme.colorScheme.primary,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
+          // "Série {name}" is one parameterized string, not a label
+          // concatenated with the raw collection name: word order and
+          // separator are not universal across catalogues. Truncated at
+          // one line (unlike the other frieze headings): the collection
+          // name is arbitrary, unbounded data, not a fixed UI string.
+          FriezeSectionHeader(
+            icon: Icons.auto_stories_outlined,
+            title: TranslationService.translate(
+              context,
+              'series_frieze_title_named',
+              params: {'name': widget.collection.name},
             ),
+            maxLines: 1,
           ),
           const SizedBox(height: 12),
           SizedBox(

@@ -34,6 +34,190 @@ void main() {
     });
   });
 
+  /// ADR-061 section 4: the client keeps a projection of the resolved author
+  /// payload, not the hub's full one. What this group defends is the LIMIT of
+  /// that reduction: every field the precision membrane reads survives it.
+  /// A projection that saved more bytes by dropping alternate titles,
+  /// authors or editions would not fail anything visibly, it would just
+  /// start offering people translations of books on their shelf.
+  group('projectAuthorPayload (what the client keeps)', () {
+    Map<String, dynamic> hubWork() => {
+      'title': 'La Distinction',
+      'titles': ['La Distinction', 'Distinction', 'La distincion'],
+      'authors': ['Pierre Bourdieu'],
+      'year': 1979,
+      'editions_count': 11,
+      'other_langs_exist': true,
+      'editions': [
+        {
+          'isbn': '9782707302267',
+          'lang': 'fr',
+          'cover_url': 'https://covers.test/1.jpg',
+          'unused_extra': 'dead weight',
+        },
+      ],
+    };
+
+    test('keeps every field the membrane and the card read', () {
+      final work =
+          (DiscoveryService.projectAuthorPayload({
+                'source': 'wikidata',
+                'source_id': 'Q156268',
+                'label': 'Pierre Bourdieu',
+                'works': [hubWork()],
+              })['works']
+              as List)
+              .single
+          as Map<String, dynamic>;
+
+      expect(work['title'], 'La Distinction');
+      expect(
+        work['titles'],
+        ['Distinction', 'La distincion'],
+        reason: 'alternate titles survive; only the echo of `title` goes',
+      );
+      expect(work['authors'], ['Pierre Bourdieu']);
+      expect(work['editions_count'], 11);
+      expect(work['year'], 1979);
+      expect((work['editions'] as List).single, {
+        'isbn': '9782707302267',
+        'lang': 'fr',
+        'cover_url': 'https://covers.test/1.jpg',
+      });
+    });
+
+    test('drops what no client code reads', () {
+      final work =
+          (DiscoveryService.projectAuthorPayload({
+                'works': [hubWork()],
+              })['works']
+              as List)
+              .single
+          as Map<String, dynamic>;
+
+      // Never read anywhere in lib/: the "no edition at all" versus "none in
+      // my languages" distinction was specified but never built.
+      expect(work.containsKey('other_langs_exist'), isFalse);
+      expect(
+        (work['editions'] as List).single,
+        isNot(contains('unused_extra')),
+      );
+    });
+
+    test('the stored entry is materially smaller', () {
+      final full = {
+        'source_id': 'Q1',
+        'label': 'A',
+        'works': [for (var i = 0; i < 40; i++) hubWork()],
+      };
+      final projected = DiscoveryService.projectAuthorPayload(full);
+      final before = jsonEncode(full).length;
+      final after = jsonEncode(projected).length;
+
+      expect(
+        after,
+        lessThan(before * 0.8),
+        reason: 'measured 37% on a real 40-work bibliography',
+      );
+    });
+
+    test('a projected entry still feeds the membrane', () async {
+      // End to end: what the sweep WRITES must still let the membrane drop
+      // an owned translation on the next read.
+      SharedPreferences.setMockInitialValues({});
+      final svc = DiscoveryService(
+        baseUrl: 'https://hub.test',
+        client: MockClient(
+          (_) async => http.Response(
+            jsonEncode({
+              'status': 'resolved',
+              'author': {
+                'source_id': 'Q156268',
+                'label': 'Pierre Bourdieu',
+                'works': [hubWork()],
+              },
+            }),
+            200,
+          ),
+        ),
+      );
+      const owner = DiscoveryLookupInputs(
+        series: [],
+        authors: [],
+        libraryIsbns: {},
+        // The reader owns it under an ALTERNATE title only.
+        libraryTitleAuthorKeys: {'distinction|pierre bourdieu'},
+      );
+
+      final cards = await svc.resolveAuthorForVisit(
+        lookup: const DiscoveryAuthorLookup(
+          name: 'Pierre Bourdieu',
+          anchorIsbns: ['9782070360024'],
+        ),
+        inputs: owner,
+        langs: const ['fr'],
+        limit: 10,
+      );
+
+      expect(
+        cards,
+        isEmpty,
+        reason: 'the alternate title kept by the projection did its job',
+      );
+    });
+  });
+
+  /// Anchor building must stay the mirror of the Rust `push_anchor`: the hub
+  /// validates format AND checksum and rejects the whole request on the
+  /// first malformed entry, while the client counts any non-200 as an
+  /// attempt, so a value that slips through here silences a lookup for 24h.
+  group('anchorIsbnsFrom (mirror of the Rust push_anchor)', () {
+    test('drops a checksum-invalid ISBN and keeps the valid neighbour', () {
+      expect(
+        DiscoveryService.anchorIsbnsFrom([
+          '9780553383042', // last digit off by one
+          '9780553383041',
+        ]),
+        ['9780553383041'],
+      );
+    });
+
+    test('canonicalizes to ISBN-13 and tolerates formatting', () {
+      expect(
+        DiscoveryService.anchorIsbnsFrom(['0-553-38304-3']),
+        ['9780553383041'],
+      );
+    });
+
+    test('deduplicates across the two forms of one ISBN', () {
+      expect(
+        DiscoveryService.anchorIsbnsFrom(['0553383043', '9780553383041']),
+        ['9780553383041'],
+      );
+    });
+
+    test('skips nulls and caps at the hub-accepted width', () {
+      expect(
+        DiscoveryService.anchorIsbnsFrom([
+          null,
+          '9782070360024',
+          '9780553383041',
+          '9780441172719',
+          '9780747532699', // fourth valid one: the hub would 400 on it
+        ]),
+        hasLength(DiscoveryService.anchorIsbnsMax),
+      );
+    });
+
+    test('an entirely unusable shelf produces no anchor, hence no request',
+        () {
+      expect(
+        DiscoveryService.anchorIsbnsFrom([null, '', 'not-an-isbn', '123']),
+        isEmpty,
+      );
+    });
+  });
+
   DiscoverySeriesLookup lookup({
     Set<String>? memberIsbns,
     Set<String>? memberKeys,
@@ -107,11 +291,11 @@ void main() {
       );
 
       expect(cards, hasLength(1));
-      expect(cards.first.map((c) => c.reasons.first.value), ['2', '4']);
-      expect(cards.first.first.externalKey, 'isbn:9780747538486');
-      expect(cards.first.first.source, 'external');
-      expect(cards.first.first.reasons.first.type, 'series_missing_volume');
-      expect(cards.first.first.reasons.first.params?['series'], 'Harry Potter');
+      expect(cards.values.first.map((c) => c.reasons.first.value), ['2', '4']);
+      expect(cards.values.first.first.externalKey, 'isbn:9780747538486');
+      expect(cards.values.first.first.source, 'external');
+      expect(cards.values.first.first.reasons.first.type, 'series_missing_volume');
+      expect(cards.values.first.first.reasons.first.params?['series'], 'Harry Potter');
     });
 
     test('a volume owned through a member ISBN is never suggested', () {
@@ -187,14 +371,14 @@ void main() {
         inputs: inputs(),
         cache: cacheWith([volume(2, 'Chamber of Secrets', editions: editions)]),
         langs: const ['fr'],
-      ).first.first;
+      ).values.first.first;
       expect(frCard.book.isbn, '9782070518425');
 
       final noMatchCard = DiscoveryService.buildSeriesCandidates(
         inputs: inputs(),
         cache: cacheWith([volume(2, 'Chamber of Secrets', editions: editions)]),
         langs: const ['pt-BR'],
-      ).first.first;
+      ).values.first.first;
       // No reading-language edition: the first (original) edition wins.
       expect(noMatchCard.book.isbn, '9780747532699');
     });
@@ -211,7 +395,7 @@ void main() {
         inputs: inputs(),
         cache: cacheWith([volume(2, 'Chamber of Secrets', editions: editions)]),
         langs: const ['fr', 'es', 'en'],
-      ).first.first;
+      ).values.first.first;
       expect(card.book.isbn, '9782070643035');
 
       // Reordering the reader's languages reorders the pick.
@@ -219,7 +403,7 @@ void main() {
         inputs: inputs(),
         cache: cacheWith([volume(2, 'Chamber of Secrets', editions: editions)]),
         langs: const ['es', 'fr', 'en'],
-      ).first.first;
+      ).values.first.first;
       expect(esCard.book.isbn, '9788478884957');
     });
 
@@ -229,7 +413,7 @@ void main() {
         inputs: inputs(),
         cache: cacheWith([volume(5, 'Order of the Phoenix')]),
         langs: const ['en'],
-      ).first.first;
+      ).values.first.first;
       expect(card.book.isbn, isNull);
       expect(card.externalKey, 'series:Q8337:5');
     });
@@ -284,7 +468,7 @@ void main() {
       expect(seen.first.path, '/api/discovery/series');
 
       final cards = await svc.buildFromCache(inputs(), const ['fr']);
-      expect(cards.first.first.book.title, 'Chamber of Secrets');
+      expect(cards.values.first.first.book.title, 'Chamber of Secrets');
 
       // Second sweep inside the 24h window: no request at all.
       await svc.sweep(inputs(), const ['fr']);
@@ -320,7 +504,7 @@ void main() {
       expect(seen, hasLength(1));
 
       final cards = await svc.buildFromCache(inputs(), const ['fr']);
-      expect(cards.first.first.book.title, 'Chamber of Secrets',
+      expect(cards.values.first.first.book.title, 'Chamber of Secrets',
           reason: 'stale-while-error: cached cards keep rendering');
     });
 
@@ -385,7 +569,7 @@ void main() {
       await svc.sweep(inputs(), const ['fr']);
       expect(seen, hasLength(2));
       final cards = await svc.buildFromCache(inputs(), const ['fr']);
-      expect(cards.first.first.book.title, 'Chamber of Secrets');
+      expect(cards.values.first.first.book.title, 'Chamber of Secrets');
     });
 
     test('entries whose series lookup disappeared are evicted', () async {
@@ -478,10 +662,10 @@ void main() {
 
       expect(cards, hasLength(1));
       expect(
-        cards.first.map((c) => c.book.title),
+        cards.values.first.map((c) => c.book.title),
         ['The Plague', 'The Fall', 'Youthful Writings'],
       );
-      final first = cards.first.first;
+      final first = cards.values.first.first;
       expect(first.source, 'external');
       expect(first.reasons.first.type, 'author_completion');
       expect(first.reasons.first.params?['author'], 'Albert Camus');
@@ -548,7 +732,7 @@ void main() {
         inputs: authorInputs(),
         cache: authorCache([work('A Happy Death', editionsCount: 2)]),
         langs: const ['fr'],
-      ).first.first;
+      ).values.first.first;
       expect(card.book.isbn, isNull);
       expect(card.externalKey, 'author:Q34670:a happy death');
       expect(card.book.author, 'Albert Camus');
@@ -569,7 +753,7 @@ void main() {
           ),
         ]),
         langs: const ['fr'],
-      ).first.first;
+      ).values.first.first;
       expect(card.externalKey, 'isbn:9782070360428');
     });
 
@@ -603,7 +787,7 @@ void main() {
       );
 
       expect(cards, hasLength(1));
-      expect(cards.first.first.reasons.first.params?['author'], 'Albert Camus');
+      expect(cards.values.first.first.reasons.first.params?['author'], 'Albert Camus');
     });
 
     test('candidates are bounded per author', () {
@@ -615,7 +799,7 @@ void main() {
         langs: const ['fr'],
       );
       expect(
-        cards.first,
+        cards.values.first,
         hasLength(DiscoveryService.authorCandidatesPerAuthor),
       );
     });
@@ -682,7 +866,7 @@ void main() {
         authorLookupInputs,
         const ['fr'],
       );
-      expect(cards.first.first.book.title, 'The Plague');
+      expect(cards.values.first.first.book.title, 'The Plague');
 
       await svc.sweepAuthors(authorLookupInputs, const ['fr']);
       expect(seen, hasLength(1), reason: 'inside the 24h throttle window');
@@ -761,7 +945,7 @@ void main() {
         authorLookupInputs,
         const ['fr'],
       );
-      expect(cards.first.first.book.title, 'The Plague');
+      expect(cards.values.first.first.book.title, 'The Plague');
     });
 
     test('a 429 on the author lane does not burn the throttle', () async {
@@ -785,7 +969,14 @@ void main() {
       expect(seen, hasLength(2));
     });
 
-    test('an author who left the taste profile is evicted', () async {
+    // ADR-061 section 4 inverts the volet 2 rule: the sweep used to drop
+    // every key absent from the taste profile. Since the author page
+    // resolves consulted authors into the SAME cache, absence from the
+    // profile no longer means "no longer derivable", and evicting would
+    // erase a page-warmed entry on the next dashboard load, defeating the
+    // 24h throttle it exists to enforce. The bound is the LRU cap instead.
+    test('an author absent from the taste profile survives the sweep',
+        () async {
       SharedPreferences.setMockInitialValues({
         DiscoveryService.authorCacheKey: jsonEncode({
           'Someone Else': {
@@ -807,8 +998,270 @@ void main() {
       final prefs = await SharedPreferences.getInstance();
       final cache =
           jsonDecode(prefs.getString(DiscoveryService.authorCacheKey)!) as Map;
-      expect(cache.containsKey('Someone Else'), isFalse);
+      expect(
+        cache.containsKey('Someone Else'),
+        isTrue,
+        reason: 'a page-warmed author must not be evicted by a profile sweep',
+      );
       expect(cache.containsKey('Albert Camus'), isTrue);
+    });
+
+    test('the author cache is bounded by LRU on the attempt timestamp',
+        () async {
+      // One entry per slot plus one, the oldest attempt being the one the
+      // cap must drop.
+      final now = DateTime.now().millisecondsSinceEpoch;
+      final seeded = <String, dynamic>{
+        for (var i = 0; i < DiscoveryService.maxAuthorCacheEntries; i++)
+          'Author $i': {
+            'at': now - (i * 1000),
+            'status': 'resolved',
+            'author': {'source_id': 'Q$i', 'label': 'Author $i', 'works': []},
+          },
+      };
+      final oldest = 'Author ${DiscoveryService.maxAuthorCacheEntries - 1}';
+      SharedPreferences.setMockInitialValues({
+        DiscoveryService.authorCacheKey: jsonEncode(seeded),
+      });
+      final svc = DiscoveryService(
+        baseUrl: 'https://hub.test',
+        client: MockClient(
+          (_) async => http.Response(jsonEncode({'status': 'unknown'}), 200),
+        ),
+      );
+
+      // Albert Camus is not in the seeded cache, so the sweep adds a
+      // 51st entry and the cap has to evict.
+      await svc.sweepAuthors(authorLookupInputs, const ['fr']);
+
+      final prefs = await SharedPreferences.getInstance();
+      final cache =
+          jsonDecode(prefs.getString(DiscoveryService.authorCacheKey)!) as Map;
+      expect(cache, hasLength(DiscoveryService.maxAuthorCacheEntries));
+      expect(cache.containsKey('Albert Camus'), isTrue);
+      expect(
+        cache.containsKey(oldest),
+        isFalse,
+        reason: 'the least recently attempted lookup is the one evicted',
+      );
+    });
+  });
+
+  /// ADR-061 section 2: the author page resolves ON OPEN, under the same
+  /// 24h throttle and into the same cache as the profile sweep. The visit
+  /// is the explicit gesture, so no local-suggestion floor applies, but the
+  /// anchor rule does.
+  group('resolveAuthorForVisit (the author page lane)', () {
+    const camus = DiscoveryAuthorLookup(
+      name: 'Albert Camus',
+      anchorIsbns: ['9782070360024'],
+    );
+
+    const membrane = DiscoveryLookupInputs(
+      series: [],
+      // Deliberately EMPTY: the visited author is routinely not a favorite,
+      // so the lane must work off the passed lookup, never off this list.
+      authors: [],
+      libraryIsbns: {'9782070360024'},
+      libraryTitleAuthorKeys: {'l etranger|albert camus'},
+    );
+
+    Map<String, dynamic> resolvedPayload() => {
+      'status': 'resolved',
+      'author': {
+        'source': 'wikidata',
+        'source_id': 'Q34670',
+        'label': 'Albert Camus',
+        'works': [
+          {
+            'title': 'The Plague',
+            'titles': ['The Plague', 'La Peste'],
+            'authors': ['Albert Camus'],
+            'year': 1947,
+            'editions_count': 64,
+            'editions': const [],
+          },
+          {
+            // Already on the shelf through the identity index: the membrane
+            // must drop it here exactly as on the dashboard.
+            'title': 'The Stranger',
+            'titles': ['The Stranger', "L'Etranger"],
+            'authors': ['Albert Camus'],
+            'year': 1942,
+            'editions_count': 84,
+            'editions': const [],
+          },
+        ],
+      },
+    };
+
+    test('a cold visit resolves once and caches like a profile lookup',
+        () async {
+      SharedPreferences.setMockInitialValues({});
+      final seen = <Uri>[];
+      final svc = DiscoveryService(
+        baseUrl: 'https://hub.test',
+        client: MockClient((request) async {
+          seen.add(request.url);
+          return http.Response(jsonEncode(resolvedPayload()), 200);
+        }),
+      );
+
+      final cards = await svc.resolveAuthorForVisit(
+        lookup: camus,
+        inputs: membrane,
+        langs: const ['fr'],
+        limit: 10,
+      );
+
+      expect(seen.single.path, '/api/discovery/author');
+      expect(
+        cards.map((c) => c.book.title),
+        ['The Plague'],
+        reason: 'the owned work is dropped by the shared membrane',
+      );
+      // Same key shape as the sweep, so a visit warms the dashboard.
+      final prefs = await SharedPreferences.getInstance();
+      final cache =
+          jsonDecode(prefs.getString(DiscoveryService.authorCacheKey)!) as Map;
+      expect(cache.keys, ['Albert Camus']);
+      expect(cache['Albert Camus']['status'], 'resolved');
+    });
+
+    test('a second visit inside 24h serves the cache without a call',
+        () async {
+      SharedPreferences.setMockInitialValues({
+        DiscoveryService.authorCacheKey: jsonEncode({
+          'Albert Camus': {
+            'at': DateTime.now().millisecondsSinceEpoch,
+            'status': 'resolved',
+            'author': resolvedPayload()['author'],
+          },
+        }),
+      });
+      final seen = <Uri>[];
+      final svc = DiscoveryService(
+        baseUrl: 'https://hub.test',
+        client: MockClient((request) async {
+          seen.add(request.url);
+          return http.Response(jsonEncode(resolvedPayload()), 200);
+        }),
+      );
+
+      final cards = await svc.resolveAuthorForVisit(
+        lookup: camus,
+        inputs: membrane,
+        langs: const ['fr'],
+        limit: 10,
+      );
+
+      expect(seen, isEmpty, reason: 'opening a page must not re-resolve');
+      expect(cards.map((c) => c.book.title), ['The Plague']);
+    });
+
+    test('an author with no anchor ISBN produces no request at all', () async {
+      SharedPreferences.setMockInitialValues({});
+      final seen = <Uri>[];
+      final svc = DiscoveryService(
+        baseUrl: 'https://hub.test',
+        client: MockClient((request) async {
+          seen.add(request.url);
+          return http.Response(jsonEncode(resolvedPayload()), 200);
+        }),
+      );
+
+      final cards = await svc.resolveAuthorForVisit(
+        lookup: const DiscoveryAuthorLookup(
+          name: 'Albert Camus',
+          anchorIsbns: [],
+        ),
+        inputs: membrane,
+        langs: const ['fr'],
+        limit: 10,
+      );
+
+      expect(seen, isEmpty);
+      expect(cards, isEmpty);
+    });
+
+    test('an ambiguous answer shows nothing, never an error', () async {
+      SharedPreferences.setMockInitialValues({});
+      final svc = DiscoveryService(
+        baseUrl: 'https://hub.test',
+        client: MockClient(
+          (_) async => http.Response(jsonEncode({'status': 'ambiguous'}), 200),
+        ),
+      );
+
+      final cards = await svc.resolveAuthorForVisit(
+        lookup: camus,
+        inputs: membrane,
+        langs: const ['fr'],
+        limit: 10,
+      );
+
+      expect(cards, isEmpty);
+    });
+
+    test('a 429 does not burn the throttle of a visited author', () async {
+      SharedPreferences.setMockInitialValues({});
+      final svc = DiscoveryService(
+        baseUrl: 'https://hub.test',
+        client: MockClient((_) async => http.Response('rate limited', 429)),
+      );
+
+      await svc.resolveAuthorForVisit(
+        lookup: camus,
+        inputs: membrane,
+        langs: const ['fr'],
+        limit: 10,
+      );
+
+      // Nothing written: back-pressure is our own burst, not an outcome,
+      // so the next visit retries instead of going silent for a day.
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString(DiscoveryService.authorCacheKey), isNull);
+    });
+
+    test('the page limit goes deeper than the dashboard cap', () async {
+      SharedPreferences.setMockInitialValues({});
+      final payload = {
+        'status': 'resolved',
+        'author': {
+          'source_id': 'Q34670',
+          'label': 'Albert Camus',
+          'works': [
+            for (var i = 0; i < 12; i++)
+              {
+                'title': 'Work $i',
+                'titles': ['Work $i'],
+                'authors': ['Albert Camus'],
+                'editions_count': 100 - i,
+                'editions': const [],
+              },
+          ],
+        },
+      };
+      final svc = DiscoveryService(
+        baseUrl: 'https://hub.test',
+        client: MockClient(
+          (_) async => http.Response(jsonEncode(payload), 200),
+        ),
+      );
+
+      final cards = await svc.resolveAuthorForVisit(
+        lookup: camus,
+        inputs: membrane,
+        langs: const ['fr'],
+        limit: 10,
+      );
+
+      expect(cards, hasLength(10));
+      expect(
+        cards.first.book.title,
+        'Work 0',
+        reason: 'the popularity ranking of the lane is preserved',
+      );
     });
   });
 }

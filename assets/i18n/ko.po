@@ -10395,3 +10395,23 @@ msgstr "내 네트워크에서 구할 수 있습니다"
 #. Recommendation reason on an external card: an unowned work of an author the reader likes, {author} is the author name
 msgid "reason_author_completion"
 msgstr "좋아하는 작가: {author}"
+
+#. Header of the "complete the series" card on a book page: the missing volume of a series the reader owns (ADR-061)
+msgid "series_discovery_header"
+msgstr "시리즈 완성하기"
+
+#. Section title of the author page listing the books of this author already in the library, {count} is how many
+msgid "author_page_in_library"
+msgstr "내 서재 ({count})"
+
+#. Author page, shown when no book of this author is in the library
+msgid "author_page_no_local_books"
+msgstr "내 서재에 이 작가의 책이 없습니다."
+
+#. Section title of the author page listing works of this author the library does not hold
+msgid "author_page_to_discover"
+msgstr "새로운 발견"
+
+#. Screen-reader label of a tappable author name opening the author page, {author} is the author name
+msgid "author_page_open_semantic"
+msgstr "{author}의 책"

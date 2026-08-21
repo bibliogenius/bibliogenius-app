@@ -8556,3 +8556,23 @@ msgstr ""
 #. Recommendation reason on an external card: an unowned work of an author the reader likes, {author} is the author name
 msgid "reason_author_completion"
 msgstr ""
+
+#. Header of the "complete the series" card on a book page: the missing volume of a series the reader owns (ADR-061)
+msgid "series_discovery_header"
+msgstr ""
+
+#. Section title of the author page listing the books of this author already in the library, {count} is how many
+msgid "author_page_in_library"
+msgstr ""
+
+#. Author page, shown when no book of this author is in the library
+msgid "author_page_no_local_books"
+msgstr ""
+
+#. Section title of the author page listing works of this author the library does not hold
+msgid "author_page_to_discover"
+msgstr ""
+
+#. Screen-reader label of a tappable author name opening the author page, {author} is the author name
+msgid "author_page_open_semantic"
+msgstr ""

@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/book.dart';
 import '../models/discovery.dart';
 import '../models/recommendation.dart';
+import '../utils/isbn_validator.dart';
 import 'api_service.dart';
 
 /// External discovery client (ADR-060, series and author lanes): anonymous
@@ -51,27 +52,40 @@ class DiscoveryService {
   /// the oldest entries; 50 series collections is far past any real shelf.
   static const int maxCacheEntries = 50;
 
-  /// Same bound for the author lane. The Rust side already caps a sweep at
-  /// five favorite authors, so this only bounds the drift of a taste
-  /// profile whose favorites change over months.
-  static const int maxAuthorCacheEntries = 20;
+  /// Same bound for the author lane, raised to the series bound because
+  /// the author page (ADR-061) resolves ANY consulted author, not just the
+  /// five favorites a sweep covers.
+  ///
+  /// Eviction is pure LRU on the entry timestamp, deliberately: the sweep
+  /// used to drop every key absent from the taste profile, which with
+  /// visit lookups would erase a page-warmed entry on the next dashboard
+  /// load and defeat the 24h throttle it exists to enforce.
+  static const int maxAuthorCacheEntries = 50;
 
   /// At most two works per author reach the blend (ADR-060 section 4.4).
   /// Kept deeper here so a dismissal reveals the next work instead of
   /// emptying the author.
   static const int authorCandidatesPerAuthor = 6;
 
+  /// Anchor width of one lookup (ADR-060 section 5, decision 3). Mirror of
+  /// the Rust `ANCHOR_ISBNS_MAX`; the hub rejects a fourth entry.
+  static const int anchorIsbnsMax = 3;
+
   static const Duration _requestTimeout = Duration(seconds: 8);
 
   // ── Candidate building (pure over the cache snapshot) ───────────────
 
-  /// External candidates from the current cache: one inner list per series
-  /// (missing volumes, lowest ordinal first). The provider picks the first
+  /// External candidates from the current cache, keyed by the collection id
+  /// of their series and in lookup order: one entry per series, its missing
+  /// volumes lowest ordinal first. The provider picks the first
   /// non-dismissed candidate of each series (ADR-060: one card per
   /// series). Volumes matching the library identity index by ISBN or by
   /// title+author are never candidates (section 4.2: translations and
   /// re-editions are the main false-positive reservoir).
-  Future<List<List<Recommendation>>> buildFromCache(
+  ///
+  /// Keyed rather than positional because the book page (ADR-061) needs the
+  /// candidates of ONE named series collection, not the whole blend.
+  Future<Map<String, List<Recommendation>>> buildFromCache(
     DiscoveryLookupInputs inputs,
     List<String> langs,
   ) async {
@@ -84,13 +98,13 @@ class DiscoveryService {
 
   /// Pure candidate builder, visible for tests.
   @visibleForTesting
-  static List<List<Recommendation>> buildSeriesCandidates({
+  static Map<String, List<Recommendation>> buildSeriesCandidates({
     required DiscoveryLookupInputs inputs,
     required Map<String, dynamic> cache,
     required List<String> langs,
   }) {
-    final perSeries = <List<Recommendation>>[];
-    final library = _IdentityIndex.of(
+    final perSeries = <String, List<Recommendation>>{};
+    final library = DiscoveryIdentityIndex.of(
       inputs.libraryIsbns,
       inputs.libraryTitleAuthorKeys,
     );
@@ -99,7 +113,7 @@ class DiscoveryService {
       final series = entry is Map ? entry['series'] : null;
       if (series is! Map) continue;
 
-      final members = _IdentityIndex.of(
+      final members = DiscoveryIdentityIndex.of(
         lookup.memberIsbns,
         lookup.memberTitleAuthorKeys,
       );
@@ -115,7 +129,7 @@ class DiscoveryService {
         (a, b) => (int.tryParse(a.reasons.first.value) ?? 0)
             .compareTo(int.tryParse(b.reasons.first.value) ?? 0),
       );
-      if (cards.isNotEmpty) perSeries.add(cards);
+      if (cards.isNotEmpty) perSeries[lookup.collectionId] = cards;
     }
     return perSeries;
   }
@@ -124,8 +138,8 @@ class DiscoveryService {
     Map<dynamic, dynamic> volume,
     Map<dynamic, dynamic> series,
     DiscoverySeriesLookup lookup,
-    _IdentityIndex library,
-    _IdentityIndex members,
+    DiscoveryIdentityIndex library,
+    DiscoveryIdentityIndex members,
     List<String> langs,
   ) {
     final ordinal = _asInt(volume['ordinal']);
@@ -187,8 +201,8 @@ class DiscoveryService {
     List<String> titles,
     List<String> authors,
     List<Map<dynamic, dynamic>> editions,
-    _IdentityIndex library, {
-    _IdentityIndex? members,
+    DiscoveryIdentityIndex library, {
+    DiscoveryIdentityIndex? members,
   }) {
     for (final edition in editions) {
       final raw = edition['isbn'];
@@ -256,11 +270,11 @@ class DiscoveryService {
     return null;
   }
 
-  /// External candidates from the author cache: one inner list per
-  /// favorite author, its works ranked by edition count (the popularity
-  /// proxy the resolver publishes). The provider shows at most two per
-  /// author; the rest are the reserve a dismissal draws from.
-  Future<List<List<Recommendation>>> buildAuthorsFromCache(
+  /// External candidates from the author cache, keyed by lookup name and in
+  /// lookup order: one entry per author, its works ranked by edition count
+  /// (the popularity proxy the resolver publishes). The provider shows at
+  /// most two per author; the rest are the reserve a dismissal draws from.
+  Future<Map<String, List<Recommendation>>> buildAuthorsFromCache(
     DiscoveryLookupInputs inputs,
     List<String> langs,
   ) async {
@@ -272,14 +286,21 @@ class DiscoveryService {
   }
 
   /// Pure candidate builder for the author lane, visible for tests.
+  ///
+  /// [lookups] defaults to the taste profile's favorite authors. The author
+  /// page (ADR-061) passes the single author being consulted instead, which
+  /// is routinely NOT a favorite: only the library identity index of
+  /// [inputs] is needed to filter, never its author list.
   @visibleForTesting
-  static List<List<Recommendation>> buildAuthorCandidates({
+  static Map<String, List<Recommendation>> buildAuthorCandidates({
     required DiscoveryLookupInputs inputs,
     required Map<String, dynamic> cache,
     required List<String> langs,
+    List<DiscoveryAuthorLookup>? lookups,
+    int limit = authorCandidatesPerAuthor,
   }) {
-    final perAuthor = <List<Recommendation>>[];
-    final library = _IdentityIndex.of(
+    final perAuthor = <String, List<Recommendation>>{};
+    final library = DiscoveryIdentityIndex.of(
       inputs.libraryIsbns,
       inputs.libraryTitleAuthorKeys,
     );
@@ -289,7 +310,7 @@ class DiscoveryService {
     // twice. The resolved source_id is the only reliable identity we have:
     // the first lookup (profile order, liked-count first) keeps the cards.
     final seenAuthorIds = <String>{};
-    for (final lookup in inputs.authors) {
+    for (final lookup in lookups ?? inputs.authors) {
       final entry = cache[lookup.name];
       final author = entry is Map ? entry['author'] : null;
       if (author is! Map) continue;
@@ -312,11 +333,11 @@ class DiscoveryService {
 
       final cards = <Recommendation>[];
       for (final entry in ranked) {
-        if (cards.length >= authorCandidatesPerAuthor) break;
+        if (cards.length >= limit) break;
         final card = _workCard(entry.$2, author, lookup, library, langs);
         if (card != null) cards.add(card);
       }
-      if (cards.isNotEmpty) perAuthor.add(cards);
+      if (cards.isNotEmpty) perAuthor[lookup.name] = cards;
     }
     return perAuthor;
   }
@@ -325,7 +346,7 @@ class DiscoveryService {
     Map<dynamic, dynamic> work,
     Map<dynamic, dynamic> author,
     DiscoveryAuthorLookup lookup,
-    _IdentityIndex library,
+    DiscoveryIdentityIndex library,
     List<String> langs,
   ) {
     final title = work['title'];
@@ -400,12 +421,7 @@ class DiscoveryService {
 
     for (final lookup in inputs.series) {
       final entry = cache[lookup.collectionId];
-      final at = entry is Map ? entry['at'] : null;
-      if (at is int &&
-          _now().difference(DateTime.fromMillisecondsSinceEpoch(at)) <
-              throttle) {
-        continue;
-      }
+      if (_isThrottled(entry)) continue;
 
       final result = await _postSeries(lookup, langs);
       if (result.rateLimited) continue;
@@ -467,8 +483,13 @@ class DiscoveryService {
   }
 
   /// Refresh stale author lookups against the hub, same contract as
-  /// [sweep]: throttled per lookup key, stale-while-error, evicting the
-  /// authors that left the taste profile.
+  /// [sweep]: throttled per lookup key, stale-while-error.
+  ///
+  /// Unlike the series lane this one does NOT evict the keys missing from
+  /// [inputs]: since the author page resolves consulted authors into the
+  /// same cache (ADR-061), absence from the taste profile no longer means
+  /// "no longer derivable", and evicting would erase a page-warmed entry on
+  /// the next dashboard load. The bound is the LRU cap of [_writeCache].
   Future<bool> sweepAuthors(
     DiscoveryLookupInputs inputs,
     List<String> langs,
@@ -476,40 +497,12 @@ class DiscoveryService {
     final cache = await _readCache(authorCacheKey);
     var changed = false;
 
-    final liveNames = inputs.authors.map((a) => a.name).toSet();
-    for (final stale
-        in cache.keys.where((k) => !liveNames.contains(k)).toList()) {
-      cache.remove(stale);
-      changed = true;
-    }
-
     for (final lookup in inputs.authors) {
-      final entry = cache[lookup.name];
-      final at = entry is Map ? entry['at'] : null;
-      if (at is int &&
-          _now().difference(DateTime.fromMillisecondsSinceEpoch(at)) <
-              throttle) {
-        continue;
-      }
+      if (_isThrottled(cache[lookup.name])) continue;
 
       final result = await _postAuthor(lookup, langs);
       if (result.rateLimited) continue;
-      final envelope = result.envelope;
-      final next = <String, dynamic>{'at': _now().millisecondsSinceEpoch};
-      final status = envelope?['status'];
-      if (status == 'resolved' && envelope!['author'] is Map) {
-        next['status'] = 'resolved';
-        next['author'] = envelope['author'];
-      } else if (status == 'ambiguous' || status == 'unknown') {
-        // Definitive negative: a homonym or an unknown author shows
-        // nothing, and any stale payload is dropped so it cannot resurface.
-        next['status'] = status;
-      } else {
-        next['status'] = 'unavailable';
-        final previous = entry is Map ? entry['author'] : null;
-        if (previous is Map) next['author'] = previous;
-      }
-      cache[lookup.name] = next;
+      cache[lookup.name] = _authorCacheEntry(result.envelope, cache[lookup.name]);
       changed = true;
     }
 
@@ -517,6 +510,143 @@ class DiscoveryService {
       await _writeCache(authorCacheKey, cache, maxAuthorCacheEntries);
     }
     return changed;
+  }
+
+  /// Resolve ONE author for a page visit (ADR-061): serve from cache, and
+  /// fire a single lookup when the entry is missing or past the 24h
+  /// throttle. The visit is the explicit gesture, so no local-suggestion
+  /// floor applies, but the anchor rule does: an author none of whose local
+  /// books carries a checksum-valid ISBN produces no request at all.
+  ///
+  /// The cache is shared with the profile sweep under the same key shape, so
+  /// a visit warms the dashboard and vice versa.
+  Future<List<Recommendation>> resolveAuthorForVisit({
+    required DiscoveryAuthorLookup lookup,
+    required DiscoveryLookupInputs inputs,
+    required List<String> langs,
+    required int limit,
+  }) async {
+    final cache = await _readCache(authorCacheKey);
+    final entry = cache[lookup.name];
+    if (lookup.anchorIsbns.isNotEmpty && !_isThrottled(entry)) {
+      final result = await _postAuthor(lookup, langs);
+      // Back-pressure is not a resolution outcome: leave the entry alone so
+      // the next visit retries instead of going silent for a day.
+      if (!result.rateLimited) {
+        cache[lookup.name] = _authorCacheEntry(result.envelope, entry);
+        await _writeCache(authorCacheKey, cache, maxAuthorCacheEntries);
+      }
+    }
+    return buildAuthorCandidates(
+          inputs: inputs,
+          cache: cache,
+          langs: langs,
+          lookups: [lookup],
+          limit: limit,
+        )[lookup.name] ??
+        const [];
+  }
+
+  /// What the client keeps of a resolved author payload (ADR-061 section 4):
+  /// the fields it actually consumes, and nothing else.
+  ///
+  /// Measured on a real 40-work bibliography before choosing what to cut, so
+  /// this is a subtraction of dead weight and NOT a "render-only" reduction:
+  ///
+  ///     editions 25%   titles 21%   authors 16.5%   title 15%
+  ///     other_langs_exist 9.7%   editions_count 8%   year 5%
+  ///
+  /// Everything above 5% except `other_langs_exist` is read by the precision
+  /// membrane: it compares EVERY edition ISBN and EVERY alternate title
+  /// against the library, which is what stops the reader being offered a
+  /// translation of a book on their shelf. Dropping those to save bytes
+  /// would silently disable the rule the whole feature rests on, and it
+  /// would not show up as a failure, only as worse suggestions.
+  ///
+  /// So what actually goes: `other_langs_exist`, which no client code reads
+  /// (the "no edition at all" vs "none in my languages" distinction was
+  /// never built), the alternate titles that merely repeat `title` (40 of 59
+  /// in the sample; the membrane unions them anyway), edition fields beyond
+  /// the three that are used, and empty values. Result on that sample:
+  /// 11.7 KB down to 7.4 KB, 37% saved with the membrane fully intact.
+  ///
+  /// The shape is a strict SUBSET of the hub's, and the builders read by
+  /// field name, so entries written before this projection existed stay
+  /// readable and are rewritten as projections when their 24h throttle
+  /// lapses. No cache-key bump, which would have forced every device to
+  /// re-resolve and spent hub outbound budget for nothing.
+  @visibleForTesting
+  static Map<String, dynamic> projectAuthorPayload(
+    Map<dynamic, dynamic> author,
+  ) {
+    final works = (author['works'] as List? ?? const []).whereType<Map>();
+    return {
+      if (author['source'] != null) 'source': author['source'],
+      if (author['source_id'] != null) 'source_id': author['source_id'],
+      if (author['label'] != null) 'label': author['label'],
+      'works': [for (final work in works) _projectWork(work)],
+    };
+  }
+
+  static Map<String, dynamic> _projectWork(Map<dynamic, dynamic> work) {
+    final title = work['title'];
+    final alternates = (work['titles'] as List? ?? const [])
+        .whereType<String>()
+        .where((t) => t != title)
+        .toList();
+    final authors =
+        (work['authors'] as List? ?? const []).whereType<String>().toList();
+    final editions = [
+      for (final edition in (work['editions'] as List? ?? const [])
+          .whereType<Map>())
+        {
+          for (final field in const ['isbn', 'lang', 'cover_url'])
+            if (edition[field] != null) field: edition[field],
+        },
+    ]..removeWhere((edition) => edition.isEmpty);
+
+    return {
+      if (title != null) 'title': title,
+      if (alternates.isNotEmpty) 'titles': alternates,
+      if (authors.isNotEmpty) 'authors': authors,
+      if (work['editions_count'] != null)
+        'editions_count': work['editions_count'],
+      if (work['year'] != null) 'year': work['year'],
+      if (editions.isNotEmpty) 'editions': editions,
+    };
+  }
+
+  /// True while [entry]'s last attempt is inside the 24h window.
+  bool _isThrottled(dynamic entry) {
+    final at = entry is Map ? entry['at'] : null;
+    return at is int &&
+        _now().difference(DateTime.fromMillisecondsSinceEpoch(at)) < throttle;
+  }
+
+  /// The cache entry one author lookup leaves behind, whatever its outcome.
+  /// Shared by the sweep and the page visit so the two cannot drift on the
+  /// stale-while-error rule.
+  Map<String, dynamic> _authorCacheEntry(
+    Map<String, dynamic>? envelope,
+    dynamic previous,
+  ) {
+    final next = <String, dynamic>{'at': _now().millisecondsSinceEpoch};
+    final status = envelope?['status'];
+    if (status == 'resolved' && envelope!['author'] is Map) {
+      next['status'] = 'resolved';
+      next['author'] = projectAuthorPayload(
+        envelope['author'] as Map<dynamic, dynamic>,
+      );
+    } else if (status == 'ambiguous' || status == 'unknown') {
+      // Definitive negative: a homonym or an unknown author shows
+      // nothing, and any stale payload is dropped so it cannot resurface.
+      next['status'] = status;
+    } else {
+      next['status'] = 'unavailable';
+      final kept = previous is Map ? previous['author'] : null;
+      if (kept is Map) next['author'] = kept;
+    }
+    return next;
   }
 
   Future<_LookupResult> _postAuthor(
@@ -552,19 +682,46 @@ class DiscoveryService {
 
   // ── Persistent bounded cache ────────────────────────────────────────
 
+  /// Decoded caches, kept in memory so a page opening does not re-parse them
+  /// (ADR-061 section 4). The series cache alone can hold 50 payloads, and
+  /// every book page used to pay a full `jsonDecode` of the lot on the UI
+  /// isolate just to read one series.
+  ///
+  /// Callers get a shallow COPY: the sweeps mutate what they receive before
+  /// writing it back, and handing them the memo itself would let a mutation
+  /// that never reaches [_writeCache] desynchronise the two. The copy is
+  /// cheap next to the decode it replaces.
+  final Map<String, Map<String, dynamic>> _decodedCaches = {};
+
+  /// Number of real `jsonDecode` passes, so a test can prove the memo works
+  /// rather than assert on timing.
+  @visibleForTesting
+  int cacheDecodeCount = 0;
+
   Future<Map<String, dynamic>> _readCache(String key) async {
+    final memo = _decodedCaches[key];
+    if (memo != null) return Map<String, dynamic>.of(memo);
     try {
       final prefs = await SharedPreferences.getInstance();
       final raw = prefs.getString(key);
       if (raw == null) return <String, dynamic>{};
+      cacheDecodeCount++;
       final decoded = jsonDecode(raw);
-      return decoded is Map<String, dynamic> ? decoded : <String, dynamic>{};
+      final map = decoded is Map<String, dynamic>
+          ? decoded
+          : <String, dynamic>{};
+      _decodedCaches[key] = map;
+      return Map<String, dynamic>.of(map);
     } catch (e) {
       debugPrint('DiscoveryService: cache read error: $e');
       return <String, dynamic>{};
     }
   }
 
+  /// Persist [cache], dropping the least recently attempted entries past
+  /// [maxEntries] (LRU on the `at` timestamp). This is the only bound on the
+  /// author cache since page visits made "absent from the taste profile" a
+  /// meaningless eviction criterion (ADR-061).
   Future<void> _writeCache(
     String key,
     Map<String, dynamic> cache,
@@ -584,6 +741,9 @@ class DiscoveryService {
       }
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(key, jsonEncode(cache));
+      // The memo now IS this map: readers get copies of it, so nothing else
+      // holds a reference that could drift.
+      _decodedCaches[key] = cache;
     } catch (e) {
       debugPrint('DiscoveryService: cache write error: $e');
     }
@@ -593,8 +753,36 @@ class DiscoveryService {
 
   /// Separator-stripped uppercase ISBN, the comparison form of the Rust
   /// identity index (which already carries both 10/13 forms).
+  ///
+  /// Comparison only: this deliberately does NOT validate, so an unparseable
+  /// value still matches itself inside the membrane. Never use it to build a
+  /// lookup anchor, see [anchorIsbnsFrom].
   static String cleanIsbn(String raw) =>
       raw.trim().replaceAll(RegExp(r'[-\s]'), '').toUpperCase();
+
+  /// Up to [anchorIsbnsMax] canonical ISBN-13 anchors for one lookup, in the
+  /// order given, deduplicated. Mirror of the Rust `push_anchor`, and it has
+  /// to stay one: a value that is not a valid ISBN-10/13 is DROPPED here, not
+  /// passed through.
+  ///
+  /// The reason is not tidiness. The hub validates format AND checksum and
+  /// answers 400 for the whole request on the first malformed entry, while
+  /// the client counts any non-200 as an attempt: one bad ISBN among a
+  /// reader's books would therefore veto the valid anchors sitting next to
+  /// it AND silence that lookup for the full 24h throttle. Real catalogues
+  /// carry those values, which is the same trap the resolver paid hub-side
+  /// (ADR-060, "a source client error is an answer, not an outage").
+  static List<String> anchorIsbnsFrom(Iterable<String?> rawIsbns) {
+    final anchors = <String>[];
+    for (final raw in rawIsbns) {
+      if (anchors.length >= anchorIsbnsMax) break;
+      if (raw == null) continue;
+      final canonical = IsbnValidator.toIsbn13(raw);
+      if (canonical == null || anchors.contains(canonical)) continue;
+      anchors.add(canonical);
+    }
+    return anchors;
+  }
 
   /// Mirror of `normalize_identity_text` in the Rust
   /// `discovery_lookup_service`: lowercase, fold diacritics, split on any
@@ -667,11 +855,15 @@ class DiscoveryService {
 /// sides here fixes it without touching the Rust index (which keeps
 /// emitting its keys unchanged), and it cannot widen the match beyond the
 /// same words about the same title.
-class _IdentityIndex {
-  const _IdentityIndex(this._isbns, this._keys, this._sortedKeys);
+///
+/// Public because every discovery surface must match through THIS class and
+/// never re-derive its own comparison (ADR-061): the alternate-title and
+/// inverted-name handling above was paid for twice already.
+class DiscoveryIdentityIndex {
+  const DiscoveryIdentityIndex(this._isbns, this._keys, this._sortedKeys);
 
-  factory _IdentityIndex.of(Set<String> isbns, Set<String> keys) {
-    return _IdentityIndex(
+  factory DiscoveryIdentityIndex.of(Set<String> isbns, Set<String> keys) {
+    return DiscoveryIdentityIndex(
       isbns,
       keys,
       keys.map(_sortAuthorWords).toSet(),

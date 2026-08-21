@@ -10553,6 +10553,10 @@ msgstr "Drag volumes by the handle to change the order, or tap the number on a c
 msgid "series_frieze_title"
 msgstr "Series"
 
+#. Series frieze heading on the book page, with the collection name inlined; {name} is the series name
+msgid "series_frieze_title_named"
+msgstr "Series {name}"
+
 msgid "series_edit_volume"
 msgstr "Volume number"
 
@@ -10763,3 +10767,23 @@ msgstr "Available in your network"
 #. Recommendation reason on an external card: an unowned work of an author the reader likes, {author} is the author name
 msgid "reason_author_completion"
 msgstr "Author you like: {author}"
+
+#. Header of the "complete the series" card on a book page: the missing volume of a series the reader owns (ADR-061)
+msgid "series_discovery_header"
+msgstr "Complete the series"
+
+#. Section title of the author page listing the books of this author already in the library, {count} is how many
+msgid "author_page_in_library"
+msgstr "In your library ({count})"
+
+#. Author page, shown when no book of this author is in the library
+msgid "author_page_no_local_books"
+msgstr "No book by this author in your library."
+
+#. Section title of the author page listing works of this author the library does not hold
+msgid "author_page_to_discover"
+msgstr "To discover"
+
+#. Screen-reader label of a tappable author name opening the author page, {author} is the author name
+msgid "author_page_open_semantic"
+msgstr "Books by {author}"

@@ -33,7 +33,10 @@ import '../providers/book_note_provider.dart'
 import '../providers/book_refresh_notifier.dart';
 import '../widgets/book_note_tile.dart';
 import '../widgets/book_recommendations_section.dart';
+import '../widgets/author_links.dart';
+import '../widgets/book_series_discovery_card.dart';
 import '../providers/hub_directory_provider.dart';
+import '../providers/recommendation_provider.dart';
 import '../providers/theme_provider.dart';
 import '../services/api_service.dart';
 import '../services/ffi_service.dart';
@@ -70,6 +73,12 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   Book? _book;
   List<Copy> _copies = [];
   List<Collection> _collections = [];
+
+  /// Individual author names the library knows, used to split this book's
+  /// flattened `author` string into separately linkable people (ADR-061
+  /// section 7, decision A3). Empty until loaded, which simply means the
+  /// whole string stays one link.
+  Set<String> _authorVocabulary = const {};
   List<Loan> _activeLoans = [];
   Map<String, String?> _loanContactNotes = {};
   bool _isLoadingCopies = true;
@@ -93,6 +102,19 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       _isLoadingBook = true;
       _fetchBookDetails();
     }
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadAuthorVocabulary());
+  }
+
+  /// The library's individual author names, memoised provider-side, so this
+  /// costs a library pass AND a derivation only on the first surface that
+  /// asks after a catalogue mutation (ADR-061 section 4).
+  Future<void> _loadAuthorVocabulary() async {
+    if (!mounted) return;
+    final vocabulary = await context
+        .read<RecommendationProvider>()
+        .authorVocabulary();
+    if (!mounted) return;
+    setState(() => _authorVocabulary = vocabulary);
   }
 
   Future<void> _fetchCopies() async {
@@ -834,6 +856,20 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                         collection: series,
                         currentBookId: book.id ?? '',
                       ),
+                    // "Complete the series" (ADR-061): the lowest missing
+                    // ordinal, in the series context the frieze just set,
+                    // rather than orphaned at the bottom of the page under a
+                    // carousel that answers a different question. Renders
+                    // nothing outside a series, or on a cold discovery cache.
+                    BookSeriesDiscoveryCard(
+                      key: ValueKey('series-discovery-${book.id}'),
+                      seriesCollectionIds: [
+                        for (final series in _collections.where(
+                          (c) => c.isSeries,
+                        ))
+                          series.id,
+                      ],
+                    ),
                     // Audio module section (decoupled - only shows if enabled)
                     if (book.id != null)
                       AudioSection(
@@ -1163,12 +1199,12 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         ),
         if (book.author != null) ...[
           const SizedBox(height: 8),
-          Text(
-            book.author!,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              color: Theme.of(context).colorScheme.primary,
-              fontWeight: FontWeight.w600,
-            ),
+          // Each author name routes to its own page (ADR-061). The
+          // vocabulary decides whether the comma in this string separates
+          // two people or belongs to one inverted name.
+          AuthorLinks(
+            flattenedAuthor: book.author!,
+            vocabulary: _authorVocabulary,
           ),
         ],
       ],

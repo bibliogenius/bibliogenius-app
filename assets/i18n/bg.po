@@ -10463,6 +10463,10 @@ msgstr "Подредете томовете"
 msgid "series_frieze_title"
 msgstr "Поредица"
 
+#. Series frieze heading on the book page, with the collection name inlined; {name} is the series name
+msgid "series_frieze_title_named"
+msgstr "Поредица {name}"
+
 msgid "series_edit_volume"
 msgstr "Номер на тома"
 
@@ -10679,3 +10683,23 @@ msgstr "Налична във вашата мрежа"
 #. Recommendation reason on an external card: an unowned work of an author the reader likes, {author} is the author name
 msgid "reason_author_completion"
 msgstr "Автор, който харесвате: {author}"
+
+#. Header of the "complete the series" card on a book page: the missing volume of a series the reader owns (ADR-061)
+msgid "series_discovery_header"
+msgstr "Допълнете поредицата"
+
+#. Section title of the author page listing the books of this author already in the library, {count} is how many
+msgid "author_page_in_library"
+msgstr "Във вашата библиотека ({count})"
+
+#. Author page, shown when no book of this author is in the library
+msgid "author_page_no_local_books"
+msgstr "Няма книга от този автор във вашата библиотека."
+
+#. Section title of the author page listing works of this author the library does not hold
+msgid "author_page_to_discover"
+msgstr "За откриване"
+
+#. Screen-reader label of a tappable author name opening the author page, {author} is the author name
+msgid "author_page_open_semantic"
+msgstr "Книги от {author}"
