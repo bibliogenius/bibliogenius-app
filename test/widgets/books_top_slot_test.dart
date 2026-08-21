@@ -264,6 +264,39 @@ void main() {
     expect(find.text('Activity'), findsNothing);
   });
 
+  testWidgets('the discovery count matches the covers actually drawn', (
+    tester,
+  ) async {
+    // The header counted every visible suggestion while the strip applies a
+    // total cap AND a tighter cap on external cards, so it announced more
+    // covers than the reader could find. Regression cover for that.
+    await pumpSlot(
+      tester,
+      books: _activeLibrary(),
+      suggestions: [
+        for (var i = 0; i < 12; i++) _suggestion('s$i', 'Suggested $i'),
+      ],
+    );
+
+    await tester.tap(find.text('To discover'));
+    await tester.pumpAndSettle();
+
+    final drawn = tester.widgetList(find.byType(CompactSuggestionCard)).length;
+    expect(
+      drawn,
+      RecommendationProvider.slotMaxDisplayed,
+      reason: 'the strip caps what it draws',
+    );
+    expect(
+      recommendations.blendedDigest(
+        maxDisplayed: RecommendationProvider.slotMaxDisplayed,
+        maxExternal: RecommendationProvider.slotMaxExternal,
+      ).length,
+      drawn,
+      reason: 'the header counts that same blend, never a wider one',
+    );
+  });
+
   testWidgets('counts are rendered as static text next to each segment', (
     tester,
   ) async {

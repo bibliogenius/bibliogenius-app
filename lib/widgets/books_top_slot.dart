@@ -56,8 +56,14 @@ class BooksTopSlot extends StatelessWidget {
     // A segmented control with one dead half is noise: when Activity has
     // nothing, the discovery segment stands alone under a plain header.
     final showsDiscovery = hasActivity ? theme.booksSlotShowsDiscovery : true;
-    final suggestionCount = recommendations.visiblePersonal.length +
-        recommendations.visibleExternal.length;
+    // The count describes what the strip DRAWS, not what the provider holds.
+    // Counting every visible suggestion instead used a different base from
+    // the strip, which applies both a total cap and a tighter cap on
+    // external cards: the two could never agree, and the header announced
+    // more covers than the reader could find. The Activity segment has
+    // always taken its count from the very selection it renders; this is
+    // the same rule.
+    final suggestionCount = suggestions.length;
 
     return RecentlyAddedCarousel(
       books: books,
