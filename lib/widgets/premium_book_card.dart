@@ -5,23 +5,13 @@ import '../providers/theme_provider.dart';
 import '../services/translation_service.dart';
 import '../theme/app_design.dart';
 import '../utils/book_status.dart';
+import '../utils/ownership_mark.dart';
+import 'not_owned_treatment.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 /// Whether the card should mark this book as borrowed or lent.
 bool showsLoanStateBadge(Book book) => book.isOnLoan;
-
-/// Whether the card should mark this book as not owned.
-///
-/// A borrowed or lent book already wears a badge that says where it stands, and a
-/// wished-for book (`wanting`, a genuine reading status) already reads as one. A
-/// second badge on any of them would be noise. The marker is for the case nothing
-/// else names: a book read, or simply held, without being owned.
-bool showsNotOwnedBadge(Book book) {
-  if (book.owned) return false;
-  if (book.isOnLoan) return false;
-  return book.readingStatus != 'wanting';
-}
 
 /// Pill overlaid on a book card to name a state the cover cannot show.
 ///
@@ -38,11 +28,6 @@ class _CardPill extends StatelessWidget {
   const _CardPill.loanState({required bool borrowed, this.onCover = false})
     : labelKey = borrowed ? 'reading_status_borrowed' : 'reading_status_lent',
       icon = borrowed ? Icons.call_received : Icons.call_made;
-
-  /// Marks a book the user does not own.
-  const _CardPill.notOwned({this.onCover = false})
-    : labelKey = 'not_owned',
-      icon = Icons.bookmark_remove_outlined;
 
   final String labelKey;
   final IconData icon;
@@ -313,18 +298,45 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                               child: Stack(
                                 fit: StackFit.expand,
                                 children: [
-                                  // Fallback always at bottom
-                                  _buildFallbackCover(context),
-                                  // Image on top
-                                  if (widget.book.coverUrl != null &&
-                                      widget.book.coverUrl!.isNotEmpty)
-                                    CachedNetworkImage(
-                                      imageUrl: widget.book.coverUrl!,
-                                      fit: BoxFit.cover,
-                                      placeholder: (context, url) =>
-                                          const SizedBox.shrink(),
-                                      errorWidget: (context, url, error) =>
-                                          const SizedBox.shrink(),
+                                  // Not-owned treatment (ADR-063): the cover
+                                  // desaturates, the shared badge names it.
+                                  OwnershipCoverTreatment(
+                                    mark: ownershipMarkOf(widget.book),
+                                    child: Stack(
+                                      fit: StackFit.expand,
+                                      children: [
+                                        // Fallback always at bottom
+                                        _buildFallbackCover(context),
+                                        // Image on top
+                                        if (widget.book.coverUrl != null &&
+                                            widget.book.coverUrl!.isNotEmpty)
+                                          CachedNetworkImage(
+                                            imageUrl: widget.book.coverUrl!,
+                                            fit: BoxFit.cover,
+                                            placeholder: (context, url) =>
+                                                const SizedBox.shrink(),
+                                            errorWidget:
+                                                (context, url, error) =>
+                                                    const SizedBox.shrink(),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                  // The badge stands down for a wished book:
+                                  // the wanting status pill in the info
+                                  // column already shows the wish.
+                                  if (badgeMarkFor(
+                                        ownershipMarkOf(widget.book),
+                                        statusBadgeShown:
+                                            widget.book.readingStatus != null,
+                                      ) !=
+                                      OwnershipMark.none)
+                                    Positioned(
+                                      top: 8,
+                                      left: 8,
+                                      child: OwnershipBadge(
+                                        mark: ownershipMarkOf(widget.book),
+                                      ),
                                     ),
                                 ],
                               ),
@@ -396,12 +408,6 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                                   _CardPill.loanState(
                                     borrowed: widget.book.isBorrowed ?? false,
                                   ),
-                                  const SizedBox(height: 12),
-                                ],
-                                // Ownership marker, independent of the status pill
-                                // above: a book can be read without being owned.
-                                if (showsNotOwnedBadge(widget.book)) ...[
-                                  const _CardPill.notOwned(),
                                   const SizedBox(height: 12),
                                 ],
                                 // Title
@@ -499,25 +505,28 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                   borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
                   child: Stack(
                     children: [
-                      // Cover Image
+                      // Cover Image, desaturated when not owned (ADR-063)
                       SizedBox(
                         height: widget.height,
                         width: widget.width,
-                        child: Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            _buildFallbackCover(context),
-                            if (widget.book.coverUrl != null &&
-                                widget.book.coverUrl!.isNotEmpty)
-                              CachedNetworkImage(
-                                imageUrl: widget.book.coverUrl!,
-                                fit: BoxFit.cover,
-                                placeholder: (context, url) =>
-                                    const SizedBox.shrink(),
-                                errorWidget: (context, url, error) =>
-                                    const SizedBox.shrink(),
-                              ),
-                          ],
+                        child: OwnershipCoverTreatment(
+                          mark: ownershipMarkOf(widget.book),
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              _buildFallbackCover(context),
+                              if (widget.book.coverUrl != null &&
+                                  widget.book.coverUrl!.isNotEmpty)
+                                CachedNetworkImage(
+                                  imageUrl: widget.book.coverUrl!,
+                                  fit: BoxFit.cover,
+                                  placeholder: (context, url) =>
+                                      const SizedBox.shrink(),
+                                  errorWidget: (context, url, error) =>
+                                      const SizedBox.shrink(),
+                                ),
+                            ],
+                          ),
                         ),
                       ),
                       // Gradient Overlay on Hover
@@ -540,7 +549,7 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                         ),
                       ),
                       // Possession badge, opposite the reading-status badge. The
-                      // two never collide: `showsNotOwnedBadge` stands down for a
+                      // two never collide: the ownership mark stands down for a
                       // book on loan.
                       if (showsLoanStateBadge(widget.book))
                         Positioned(
@@ -551,14 +560,22 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                             onCover: true,
                           ),
                         ),
-                      // Ownership badge, opposite the reading-status badge. A book
-                      // read but not owned is otherwise indistinguishable from the
-                      // rest of the shelf.
-                      if (showsNotOwnedBadge(widget.book))
-                        const Positioned(
+                      // Shared ownership badge (ADR-063). It stands down for
+                      // a wished book when the wanting status badge is shown:
+                      // that badge already carries the heart.
+                      if (badgeMarkFor(
+                            ownershipMarkOf(widget.book),
+                            statusBadgeShown:
+                                widget.showStatus &&
+                                widget.book.readingStatus != null,
+                          ) !=
+                          OwnershipMark.none)
+                        Positioned(
                           top: 8,
                           left: 8,
-                          child: _CardPill.notOwned(onCover: true),
+                          child: OwnershipBadge(
+                            mark: ownershipMarkOf(widget.book),
+                          ),
                         ),
                       // Status Badge (tappable to edit)
                       if (widget.showStatus &&

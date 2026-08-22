@@ -10447,3 +10447,19 @@ msgstr "本を追加するか読み終えると、おすすめが戻ってきま
 #. Screen-reader label of the suggestions page while the engine is still answering
 msgid "recommendations_loading"
 msgstr "おすすめを読み込んでいます"
+
+#. Section header of the ownership axis in the /books filter menu (ADR-063)
+msgid "ownership_filter"
+msgstr "所有状況"
+
+#. Ownership filter: books physically present (owned or on loan)
+msgid "ownership_library"
+msgstr "マイライブラリ"
+
+#. Ownership filter: books neither owned nor on loan (wishlist, read elsewhere)
+msgid "ownership_not_owned"
+msgstr "未所有"
+
+#. Ownership filter: every book the app knows, owned or not
+msgid "ownership_all"
+msgstr "すべて"

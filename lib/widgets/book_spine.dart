@@ -4,6 +4,8 @@ import '../models/book.dart';
 import '../services/translation_service.dart';
 import '../utils/book_color_seed.dart';
 import '../utils/book_display.dart';
+import '../utils/ownership_mark.dart';
+import 'not_owned_treatment.dart';
 
 /// A book spine widget that renders a colored vertical strip with the title.
 ///
@@ -26,7 +28,14 @@ class BookSpine extends StatelessWidget {
   /// When true, shows a publisher-style band ("Nouveau") at the bottom.
   final bool showNewBand;
 
+  /// Not-owned treatment (ADR-063): desaturation at full opacity.
+  final OwnershipMark ownershipMark;
+
   /// Creates a spine from a full [Book] object.
+  ///
+  /// A not-owned book desaturates (ADR-063) instead of the old half-opacity;
+  /// the spine is too narrow for the shared badge, so the state is carried by
+  /// the treatment and the semantic label.
   BookSpine.fromBook({
     super.key,
     required Book book,
@@ -37,7 +46,8 @@ class BookSpine extends StatelessWidget {
        isbn = book.isbn,
        subtitle = book.publisher,
        colorSeed = bookColorSeed(book),
-       opacity = book.owned ? 1.0 : 0.5;
+       opacity = 1.0,
+       ownershipMark = ownershipMarkOf(book);
 
   /// Creates a spine from minimal data (title + optional author/subtitle).
   /// [colorSeed] is used to generate a deterministic color (e.g. ISBN hashCode).
@@ -51,6 +61,7 @@ class BookSpine extends StatelessWidget {
     this.width = 40,
     this.opacity = 1.0,
     this.showNewBand = false,
+    this.ownershipMark = OwnershipMark.none,
   });
 
   Color _getColor() {
@@ -140,36 +151,46 @@ class BookSpine extends StatelessWidget {
       ),
     );
 
+    final baseLabel = BookDisplay.resolveCoverLabel(
+      title: displayTitle,
+      author: subtitle,
+    );
+    // The spine has no room for the visual badge, so the not-owned state must
+    // at least reach the screen reader (Rule A1).
+    final notOwnedWord = ownershipMark == OwnershipMark.none
+        ? null
+        : TranslationService.translate(context, 'not_owned');
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: showNewBand ? 5 : 3),
       child: Semantics(
-        label: BookDisplay.resolveCoverLabel(
-          title: displayTitle,
-          author: subtitle,
-        ),
-        child: Opacity(
-          opacity: opacity,
-          child: showNewBand
-              ? SizedBox(
-                  height: height,
-                  width: width,
-                  child: Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      spine,
-                      Positioned(
-                        bottom: height * 0.04,
-                        left: -3,
-                        right: -3,
-                        child: Transform.rotate(
-                          angle: -0.10, // slight tilt like a real paper band
-                          child: _NewBand(spineWidth: width),
+        label: notOwnedWord == null ? baseLabel : '$baseLabel, $notOwnedWord',
+        child: OwnershipCoverTreatment(
+          mark: ownershipMark,
+          child: Opacity(
+            opacity: opacity,
+            child: showNewBand
+                ? SizedBox(
+                    height: height,
+                    width: width,
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        spine,
+                        Positioned(
+                          bottom: height * 0.04,
+                          left: -3,
+                          right: -3,
+                          child: Transform.rotate(
+                            angle: -0.10, // slight tilt like a real paper band
+                            child: _NewBand(spineWidth: width),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                )
-              : spine,
+                      ],
+                    ),
+                  )
+                : spine,
+          ),
         ),
       ),
     );

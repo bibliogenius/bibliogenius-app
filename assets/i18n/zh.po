@@ -10447,3 +10447,19 @@ msgstr "添加或读完几本书，推荐就会回来。"
 #. Screen-reader label of the suggestions page while the engine is still answering
 msgid "recommendations_loading"
 msgstr "正在加载推荐"
+
+#. Section header of the ownership axis in the /books filter menu (ADR-063)
+msgid "ownership_filter"
+msgstr "拥有情况"
+
+#. Ownership filter: books physically present (owned or on loan)
+msgid "ownership_library"
+msgstr "我的书库"
+
+#. Ownership filter: books neither owned nor on loan (wishlist, read elsewhere)
+msgid "ownership_not_owned"
+msgstr "未拥有"
+
+#. Ownership filter: every book the app knows, owned or not
+msgid "ownership_all"
+msgstr "全部"

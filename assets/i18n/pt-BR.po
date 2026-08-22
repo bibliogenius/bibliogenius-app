@@ -10743,3 +10743,19 @@ msgstr "Adicione ou termine alguns livros e as sugestões voltarão."
 #. Screen-reader label of the suggestions page while the engine is still answering
 msgid "recommendations_loading"
 msgstr "Carregando sugestões"
+
+#. Section header of the ownership axis in the /books filter menu (ADR-063)
+msgid "ownership_filter"
+msgstr "Posse"
+
+#. Ownership filter: books physically present (owned or on loan)
+msgid "ownership_library"
+msgstr "Minha biblioteca"
+
+#. Ownership filter: books neither owned nor on loan (wishlist, read elsewhere)
+msgid "ownership_not_owned"
+msgstr "Não possuídos"
+
+#. Ownership filter: every book the app knows, owned or not
+msgid "ownership_all"
+msgstr "Tudo"

@@ -24,6 +24,7 @@ import '../widgets/reorderable_sections.dart';
 import '../theme/app_design.dart';
 import '../providers/theme_provider.dart';
 import '../src/rust/api/frb.dart' as frb;
+import '../utils/library_stats.dart' as library_stats;
 import '../utils/loan_statistics.dart';
 import '../utils/reading_statistics.dart';
 import 'package:intl/intl.dart';
@@ -686,11 +687,15 @@ class _StatisticsScreenState extends State<StatisticsScreen>
   }
 
   Widget _buildSummaryCards() {
-    final totalBooks = _books.length;
-    final readBooks = _books.where((b) => b.readingStatus == 'read').length;
-    final borrowedBooks = _books.where((b) => !b.owned).length;
+    // Summary numbers describe the physical library (ADR-063): wishlist and
+    // read-not-owned entries stay out of the totals and the completion rate,
+    // and "borrowed" reads the copy-backed flag rather than `!owned`.
+    final library = library_stats.physicalLibrary(_books);
+    final totalBooks = library.length;
+    final readBooks = library.where((b) => b.readingStatus == 'read').length;
+    final borrowedBooks = library_stats.borrowedBooks(_books).length;
 
-    final uniqueAuthors = _books
+    final uniqueAuthors = library
         .where((b) => b.author != null && b.author!.isNotEmpty)
         .map((b) => b.author!)
         .toSet()
@@ -700,7 +705,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
         ? (readBooks / totalBooks * 100).toStringAsFixed(0)
         : '0';
 
-    final booksWithYears = _books
+    final booksWithYears = library
         .where((b) => b.publicationYear != null && b.publicationYear! > 1800)
         .toList();
     final oldestYear = booksWithYears.isEmpty
@@ -826,8 +831,9 @@ class _StatisticsScreenState extends State<StatisticsScreen>
   }
 
   /// Representative color for a gradient (for the colored-bg block style).
-  Color _gradColor(Gradient g) =>
-      g is LinearGradient ? g.colors.first : Theme.of(context).colorScheme.primary;
+  Color _gradColor(Gradient g) => g is LinearGradient
+      ? g.colors.first
+      : Theme.of(context).colorScheme.primary;
 
   /// Lay a list of stat blocks into [perRow] equal-width columns; equal-height
   /// rows via IntrinsicHeight. perRow == 1 yields one full-width block per row.
@@ -1627,7 +1633,9 @@ class _StatisticsScreenState extends State<StatisticsScreen>
 
   Widget _buildBorrowedStatisticsSection() {
     // Get borrowed books from library
-    final borrowedBooks = _books.where((b) => !b.owned).toList();
+    // Copy-backed borrows only: `!owned` also matches wishlist entries and
+    // books read without ever being owned (ADR-063).
+    final borrowedBooks = library_stats.borrowedBooks(_books);
     final totalBorrowed = borrowedBooks.length;
     final isDesktop = MediaQuery.of(context).size.width > 900;
 
@@ -2952,9 +2960,12 @@ class _StatisticsContentState extends State<StatisticsContent>
 
   Widget _buildSummaryCards() {
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
-    final totalBooks = _books.length;
-    final readBooks = _books.where((b) => b.readingStatus == 'read').length;
-    final uniqueAuthors = _books
+    // Summary numbers describe the physical library (ADR-063): wishlist and
+    // read-not-owned entries stay out of the totals and the completion rate.
+    final library = library_stats.physicalLibrary(_books);
+    final totalBooks = library.length;
+    final readBooks = library.where((b) => b.readingStatus == 'read').length;
+    final uniqueAuthors = library
         .where((b) => b.author != null && b.author!.isNotEmpty)
         .map((b) => b.author!)
         .toSet()
@@ -2962,7 +2973,7 @@ class _StatisticsContentState extends State<StatisticsContent>
     final completionRate = totalBooks > 0
         ? (readBooks / totalBooks * 100).toStringAsFixed(0)
         : '0';
-    final booksWithYears = _books
+    final booksWithYears = library
         .where((b) => b.publicationYear != null && b.publicationYear! > 1800)
         .toList();
     final oldestYear = booksWithYears.isEmpty
@@ -2976,7 +2987,7 @@ class _StatisticsContentState extends State<StatisticsContent>
     final String thirdCardValue;
     final IconData thirdCardIcon;
     if (themeProvider.canBorrowBooks) {
-      final borrowedBooks = _books.where((b) => !b.owned).length;
+      final borrowedBooks = library_stats.borrowedBooks(_books).length;
       thirdCardLabel = TranslationService.translate(context, 'stat_borrowed');
       thirdCardValue = borrowedBooks.toString();
       thirdCardIcon = Icons.people;
@@ -3780,101 +3791,101 @@ class _StatisticsContentState extends State<StatisticsContent>
                     height: 190,
                     child: BarChart(
                       BarChartData(
-                    alignment: BarChartAlignment.spaceAround,
-                    maxY: (maxValue + 1).toDouble(),
-                    barTouchData: BarTouchData(
-                      enabled: true,
-                      touchTooltipData: BarTouchTooltipData(
-                        getTooltipColor: (group) => const Color(0xFF1E293B),
-                        getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                          return BarTooltipItem(
-                            '${sortedData[groupIndex].key}: ${rod.toY.toInt()} ${TranslationService.translate(context, 'books')}',
-                            const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    titlesData: FlTitlesData(
-                      show: true,
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          getTitlesWidget: (value, meta) {
-                            final idx = value.toInt();
-                            if (idx >= sortedData.length ||
-                                idx % labelStep != 0) {
-                              return const SizedBox.shrink();
-                            }
-                            return Padding(
-                              padding: const EdgeInsets.only(top: 8),
-                              child: Text(
-                                sortedData[idx].key,
-                                style: const TextStyle(fontSize: 10),
-                              ),
-                            );
-                          },
-                          reservedSize: 30,
+                        alignment: BarChartAlignment.spaceAround,
+                        maxY: (maxValue + 1).toDouble(),
+                        barTouchData: BarTouchData(
+                          enabled: true,
+                          touchTooltipData: BarTouchTooltipData(
+                            getTooltipColor: (group) => const Color(0xFF1E293B),
+                            getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                              return BarTooltipItem(
+                                '${sortedData[groupIndex].key}: ${rod.toY.toInt()} ${TranslationService.translate(context, 'books')}',
+                                const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                ),
+                              );
+                            },
+                          ),
                         ),
-                      ),
-                      // Y-axis counts, so bar heights are readable without tapping.
-                      leftTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          interval: yInterval,
-                          reservedSize: 28,
-                          getTitlesWidget: (value, meta) {
-                            if (value != value.roundToDouble()) {
-                              return const SizedBox.shrink();
-                            }
-                            return Text(
-                              value.toInt().toString(),
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: theme.colorScheme.onSurfaceVariant,
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      topTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      rightTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                    ),
-                    gridData: FlGridData(
-                      show: true,
-                      drawVerticalLine: false,
-                      horizontalInterval: yInterval,
-                      getDrawingHorizontalLine: (value) => FlLine(
-                        color: theme.dividerColor.withValues(alpha: 0.3),
-                        strokeWidth: 1,
-                      ),
-                    ),
-                    borderData: FlBorderData(show: false),
-                    barGroups: sortedData.asMap().entries.map((e) {
-                      final isCurrentMonth = e.key == sortedData.length - 1;
-                      return BarChartGroupData(
-                        x: e.key,
-                        barRods: [
-                          BarChartRodData(
-                            toY: e.value.value.toDouble(),
-                            gradient: isCurrentMonth
-                                ? AppDesign.accentGradient
-                                : AppDesign.primaryGradient,
-                            width: 16,
-                            borderRadius: const BorderRadius.vertical(
-                              top: Radius.circular(4),
+                        titlesData: FlTitlesData(
+                          show: true,
+                          bottomTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              getTitlesWidget: (value, meta) {
+                                final idx = value.toInt();
+                                if (idx >= sortedData.length ||
+                                    idx % labelStep != 0) {
+                                  return const SizedBox.shrink();
+                                }
+                                return Padding(
+                                  padding: const EdgeInsets.only(top: 8),
+                                  child: Text(
+                                    sortedData[idx].key,
+                                    style: const TextStyle(fontSize: 10),
+                                  ),
+                                );
+                              },
+                              reservedSize: 30,
                             ),
                           ),
-                        ],
-                      );
-                    }).toList(),
+                          // Y-axis counts, so bar heights are readable without tapping.
+                          leftTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              interval: yInterval,
+                              reservedSize: 28,
+                              getTitlesWidget: (value, meta) {
+                                if (value != value.roundToDouble()) {
+                                  return const SizedBox.shrink();
+                                }
+                                return Text(
+                                  value.toInt().toString(),
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: theme.colorScheme.onSurfaceVariant,
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                          topTitles: const AxisTitles(
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
+                          rightTitles: const AxisTitles(
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
+                        ),
+                        gridData: FlGridData(
+                          show: true,
+                          drawVerticalLine: false,
+                          horizontalInterval: yInterval,
+                          getDrawingHorizontalLine: (value) => FlLine(
+                            color: theme.dividerColor.withValues(alpha: 0.3),
+                            strokeWidth: 1,
+                          ),
+                        ),
+                        borderData: FlBorderData(show: false),
+                        barGroups: sortedData.asMap().entries.map((e) {
+                          final isCurrentMonth = e.key == sortedData.length - 1;
+                          return BarChartGroupData(
+                            x: e.key,
+                            barRods: [
+                              BarChartRodData(
+                                toY: e.value.value.toDouble(),
+                                gradient: isCurrentMonth
+                                    ? AppDesign.accentGradient
+                                    : AppDesign.primaryGradient,
+                                width: 16,
+                                borderRadius: const BorderRadius.vertical(
+                                  top: Radius.circular(4),
+                                ),
+                              ),
+                            ],
+                          );
+                        }).toList(),
                       ),
                     ),
                   );
@@ -4941,7 +4952,9 @@ class _StatisticsContentState extends State<StatisticsContent>
   }
 
   Widget _buildBorrowedStatisticsSection() {
-    final borrowedBooks = _books.where((b) => !b.owned).toList();
+    // Copy-backed borrows only: `!owned` also matches wishlist entries and
+    // books read without ever being owned (ADR-063).
+    final borrowedBooks = library_stats.borrowedBooks(_books);
     final totalBorrowed = borrowedBooks.length;
 
     return Container(
@@ -5287,8 +5300,9 @@ class _StatisticsContentState extends State<StatisticsContent>
   }
 
   /// Representative color for a gradient (for the colored-bg block style).
-  Color _gradColor(Gradient g) =>
-      g is LinearGradient ? g.colors.first : Theme.of(context).colorScheme.primary;
+  Color _gradColor(Gradient g) => g is LinearGradient
+      ? g.colors.first
+      : Theme.of(context).colorScheme.primary;
 
   /// Lay a list of stat blocks into [perRow] equal-width columns; equal-height
   /// rows via IntrinsicHeight. perRow == 1 yields one full-width block per row.

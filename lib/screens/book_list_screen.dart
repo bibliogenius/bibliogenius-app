@@ -89,6 +89,9 @@ class _BookListScreenState extends State<BookListScreen>
 
   // Filter state
   String? _selectedStatus;
+  // Explicit ownership axis (ADR-063). Null = automatic: 'library' when
+  // browsing without a status filter, 'all' under one (historical behavior).
+  String? _selectedOwnership;
   String? _tagFilter;
 
   // Hierarchical shelf navigation state
@@ -179,7 +182,14 @@ class _BookListScreenState extends State<BookListScreen>
       if (state.uri.queryParameters.containsKey('status')) {
         _selectedStatus = state.uri.queryParameters['status'];
       }
-      if (_tagFilter != null || _selectedStatus != null) {
+      // Explicit ownership axis (ADR-063): /books?owned=library|not_owned|all
+      final ownedParam = state.uri.queryParameters['owned'];
+      if (ownedParam != null && OwnershipScope.values.contains(ownedParam)) {
+        _selectedOwnership = ownedParam;
+      }
+      if (_tagFilter != null ||
+          _selectedStatus != null ||
+          _selectedOwnership != null) {
         setState(() {
           _filterBooks();
         });
@@ -228,6 +238,22 @@ class _BookListScreenState extends State<BookListScreen>
         if (mounted) {
           setState(() {
             _selectedStatus = newStatus;
+            _filterBooks();
+          });
+        }
+      }
+    }
+
+    // Same URL-sync rule for the ownership axis (ADR-063): only when the
+    // parameter is explicitly present, so local state survives plain /books.
+    if (state.uri.queryParameters.containsKey('owned')) {
+      final newOwned = state.uri.queryParameters['owned'];
+      if (newOwned != null &&
+          OwnershipScope.values.contains(newOwned) &&
+          newOwned != _selectedOwnership) {
+        if (mounted) {
+          setState(() {
+            _selectedOwnership = newOwned;
             _filterBooks();
           });
         }
@@ -835,65 +861,71 @@ class _BookListScreenState extends State<BookListScreen>
       '🔍 _filterBooks: Starting with ${tempBooks.length} books, _selectedStatus=$_selectedStatus',
     );
 
-    // Default view (no status selected): show books I physically have
-    // (owned + borrowed). Wanting/wishlist excluded unless explicitly selected.
-    // Predicates live in utils/book_filters.dart, where they are unit-tested.
-    if (_selectedStatus == null) {
+    if (_searchQuery.isNotEmpty) {
+      // Searching is not browsing (ADR-063): the search scans everything the
+      // app knows, whatever the current ownership/status/shelf scope, and
+      // each card carries the result's ownership state. This is the same
+      // corpus and the same predicate as the autocomplete dropdown, so the
+      // two can never contradict each other again.
       tempBooks = tempBooks
-          .where(
-            (b) => matchesDefaultView(b, showBorrowed: _showBorrowedConfig),
-          )
+          .where((book) => matchesSearchQuery(book, _searchQuery))
           .toList();
       debugPrint(
-        '🔍 _filterBooks: After default filter: ${tempBooks.length} books',
+        '🔍 _filterBooks: After global search: ${tempBooks.length} books',
       );
     } else {
-      // Explicit status selected via dropdown
-      debugPrint('🔍 _filterBooks: Filtering by status=$_selectedStatus');
-      tempBooks = tempBooks
-          .where((book) => matchesStatusFilter(book, _selectedStatus!))
-          .toList();
-      debugPrint(
-        '🔍 _filterBooks: After status filter: ${tempBooks.length} books',
+      // Browsing: ownership axis first (explicit choice, or the historical
+      // automatic scope), then the status axis. Predicates live in
+      // utils/book_filters.dart, where they are unit-tested.
+      final ownership = resolveOwnershipScope(
+        explicit: _selectedOwnership,
+        status: _selectedStatus,
       );
-    }
-
-    // Apply tag filter with hierarchy support
-    // When filtering by a parent tag, include books from all child tags
-    if (_currentShelf != null && _allTags.isNotEmpty) {
-      // Get all matching tag names (this tag + descendants)
-      final matchingNames = Tag.getTagNamesWithDescendants(
-        _currentShelf!,
-        _allTags,
-      );
-      tempBooks = tempBooks.where((book) {
-        final bookTags =
-            book.subjects?.map((s) => s.toLowerCase()).toSet() ?? {};
-        // Book matches if any of its tags match any of the filter tags
-        return bookTags.any((tag) => matchingNames.contains(tag));
-      }).toList();
-    } else if (_tagFilter != null) {
-      // Fallback to simple string match for legacy compatibility
-      final filterLower = _tagFilter!.toLowerCase();
-      tempBooks = tempBooks.where((book) {
-        final bookTags =
-            book.subjects?.map((s) => s.toLowerCase()).toSet() ?? {};
-        return bookTags.contains(filterLower);
-      }).toList();
-    }
-
-    // Apply search query filter
-    if (_searchQuery.isNotEmpty) {
       tempBooks = tempBooks
           .where(
-            (book) =>
-                book.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-                (book.author?.toLowerCase().contains(
-                      _searchQuery.toLowerCase(),
-                    ) ??
-                    false),
+            (b) => matchesOwnershipFilter(
+              b,
+              ownership,
+              showBorrowed: _showBorrowedConfig,
+            ),
           )
           .toList();
+      debugPrint(
+        '🔍 _filterBooks: After ownership=$ownership: ${tempBooks.length} books',
+      );
+      if (_selectedStatus != null) {
+        debugPrint('🔍 _filterBooks: Filtering by status=$_selectedStatus');
+        tempBooks = tempBooks
+            .where((book) => matchesStatusFilter(book, _selectedStatus!))
+            .toList();
+        debugPrint(
+          '🔍 _filterBooks: After status filter: ${tempBooks.length} books',
+        );
+      }
+
+      // Apply tag filter with hierarchy support
+      // When filtering by a parent tag, include books from all child tags
+      if (_currentShelf != null && _allTags.isNotEmpty) {
+        // Get all matching tag names (this tag + descendants)
+        final matchingNames = Tag.getTagNamesWithDescendants(
+          _currentShelf!,
+          _allTags,
+        );
+        tempBooks = tempBooks.where((book) {
+          final bookTags =
+              book.subjects?.map((s) => s.toLowerCase()).toSet() ?? {};
+          // Book matches if any of its tags match any of the filter tags
+          return bookTags.any((tag) => matchingNames.contains(tag));
+        }).toList();
+      } else if (_tagFilter != null) {
+        // Fallback to simple string match for legacy compatibility
+        final filterLower = _tagFilter!.toLowerCase();
+        tempBooks = tempBooks.where((book) {
+          final bookTags =
+              book.subjects?.map((s) => s.toLowerCase()).toSet() ?? {};
+          return bookTags.contains(filterLower);
+        }).toList();
+      }
     }
 
     // Apply the user's persisted sort preference (field + direction).
@@ -1036,15 +1068,11 @@ class _BookListScreenState extends State<BookListScreen>
           if (textEditingValue.text.isEmpty) {
             return const Iterable<Book>.empty();
           }
-          return _books.where((Book book) {
-            return book.title.toLowerCase().contains(
-                  textEditingValue.text.toLowerCase(),
-                ) ||
-                (book.author?.toLowerCase().contains(
-                      textEditingValue.text.toLowerCase(),
-                    ) ??
-                    false);
-          });
+          // Same predicate and corpus as the grid's search branch in
+          // _filterBooks (ADR-063): a suggested book is always in the grid.
+          return _books.where(
+            (Book book) => matchesSearchQuery(book, textEditingValue.text),
+          );
         },
         onSelected: (Book selection) {
           if (!mounted) return; // Guard against unmounted state
@@ -1229,6 +1257,22 @@ class _BookListScreenState extends State<BookListScreen>
       }
     }
 
+    // Ownership axis (ADR-063): its label stands alone, or joins the status.
+    if (_selectedOwnership != null) {
+      isFilterActive = true;
+      final ownershipLabel = TranslationService.translate(
+        context,
+        _selectedOwnership == OwnershipScope.notOwned
+            ? 'ownership_not_owned'
+            : _selectedOwnership == OwnershipScope.all
+            ? 'ownership_all'
+            : 'ownership_library',
+      );
+      filterLabel = _selectedStatus != null
+          ? '$filterLabel · $ownershipLabel'
+          : ownershipLabel;
+    }
+
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -1307,7 +1351,12 @@ class _BookListScreenState extends State<BookListScreen>
             onSelected: (value) {
               setState(() {
                 if (value == 'clear') {
+                  // "All my books" resets both axes back to the default view.
                   _selectedStatus = null;
+                  _selectedOwnership = null;
+                } else if (value.startsWith('own:')) {
+                  // Ownership axis (ADR-063), orthogonal to the status one.
+                  _selectedOwnership = value.substring(4);
                 } else {
                   _selectedStatus = value;
                 }
@@ -1597,6 +1646,23 @@ class _BookListScreenState extends State<BookListScreen>
                       ],
                     ),
                   ),
+                // HEADER: Possession (ADR-063) - orthogonal to the status axis
+                PopupMenuItem<String>(
+                  enabled: false,
+                  height: 32,
+                  child: Text(
+                    TranslationService.translate(
+                          context,
+                          'ownership_filter',
+                        )?.toUpperCase() ??
+                        'POSSESSION',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.disabledColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                ..._ownershipMenuItems(theme),
               ];
             },
             child: Container(
@@ -1649,6 +1715,7 @@ class _BookListScreenState extends State<BookListScreen>
 
           // 4. Reset Filters Button - visible when any filter is active
           if (_selectedStatus != null ||
+              _selectedOwnership != null ||
               _tagFilter != null ||
               _searchQuery.isNotEmpty) ...[
             const SizedBox(width: 8),
@@ -1729,6 +1796,52 @@ class _BookListScreenState extends State<BookListScreen>
     );
   }
 
+  /// The three entries of the ownership axis (ADR-063). Highlighted on the
+  /// EFFECTIVE scope so the automatic default reads honestly: 'library' when
+  /// browsing, 'all' under a status filter.
+  List<PopupMenuItem<String>> _ownershipMenuItems(ThemeData theme) {
+    final effective = resolveOwnershipScope(
+      explicit: _selectedOwnership,
+      status: _selectedStatus,
+    );
+    const entries = [
+      (OwnershipScope.library, 'ownership_library', Icons.home_outlined),
+      (
+        OwnershipScope.notOwned,
+        'ownership_not_owned',
+        Icons.bookmark_add_outlined,
+      ),
+      (OwnershipScope.all, 'ownership_all', Icons.all_inclusive),
+    ];
+    return [
+      for (final (scope, key, icon) in entries)
+        PopupMenuItem(
+          value: 'own:$scope',
+          child: Row(
+            children: [
+              Icon(
+                icon,
+                color: effective == scope
+                    ? theme.primaryColor
+                    : theme.iconTheme.color,
+                size: 20,
+              ),
+              const SizedBox(width: 12),
+              Text(
+                TranslationService.translate(context, key) ?? key,
+                style: TextStyle(
+                  fontWeight: effective == scope
+                      ? FontWeight.bold
+                      : FontWeight.normal,
+                  color: effective == scope ? theme.primaryColor : null,
+                ),
+              ),
+            ],
+          ),
+        ),
+    ];
+  }
+
   void _resetAllFilters() {
     if (widget.showBackToShelves) {
       // Navigate back to shelves grid when resetting filters from shelf view
@@ -1737,6 +1850,7 @@ class _BookListScreenState extends State<BookListScreen>
     }
     setState(() {
       _selectedStatus = null;
+      _selectedOwnership = null;
       _tagFilter = null;
       _currentShelf = null;
       _searchQuery = '';
@@ -2393,7 +2507,8 @@ class _BookListScreenState extends State<BookListScreen>
                               'Add my first book to this shelf')
                         : (_tagFilter != null ||
                                   _searchQuery.isNotEmpty ||
-                                  _selectedStatus != null
+                                  _selectedStatus != null ||
+                                  _selectedOwnership != null
                               ? (TranslationService.translate(
                                       context,
                                       'reset_filters',
@@ -2404,7 +2519,8 @@ class _BookListScreenState extends State<BookListScreen>
                         ? _addBook
                         : (_tagFilter != null ||
                                   _searchQuery.isNotEmpty ||
-                                  _selectedStatus != null
+                                  _selectedStatus != null ||
+                                  _selectedOwnership != null
                               ? _resetAllFilters
                               : null),
                   ),
@@ -2425,6 +2541,9 @@ class _BookListScreenState extends State<BookListScreen>
             onBookTap: _onBookTap,
             onStatusChanged: _onStatusChanged,
             availabilityLabels: _availabilityLabels(context),
+            // Evaluated on the FULL library: a filter or search isolating
+            // fresh books is an all-new subset, and the band must survive.
+            showNewBadge: newBadgeIsInformative(_books),
           ),
         );
       case ViewMode.spineShelf:
@@ -2449,6 +2568,8 @@ class _BookListScreenState extends State<BookListScreen>
           child: CollectionGroupGrid(
             groups: _collectionGroups,
             onBookTap: _onBookTap,
+            // Full-library rule, same reason as the plain covers grid above.
+            showNewBadge: newBadgeIsInformative(_books),
           ),
         );
     }

@@ -2,6 +2,14 @@ import 'package:flutter/material.dart';
 import '../models/book.dart';
 import 'book_cover_card.dart';
 
+/// Whether the "new" band differentiates anything: when every book is new
+/// (fresh import, brand new library), tagging them all is pure noise.
+///
+/// Evaluate it on the FULL library, never on a filtered or searched subset:
+/// a search that isolates one fresh book is an all-new list, and the band
+/// must survive there.
+bool newBadgeIsInformative(List<Book> books) => books.any((b) => !b.isNew);
+
 class BookCoverGrid extends StatelessWidget {
   final List<Book> books;
   final Function(Book) onBookTap;
@@ -12,12 +20,18 @@ class BookCoverGrid extends StatelessWidget {
   /// no badge.
   final Map<String, String>? availabilityLabels;
 
+  /// Whether new books wear the band. Callers that display a FILTERED subset
+  /// must pass [newBadgeIsInformative] of the full library; when null, the
+  /// grid falls back to evaluating its own (assumed complete) list.
+  final bool? showNewBadge;
+
   const BookCoverGrid({
     super.key,
     required this.books,
     required this.onBookTap,
     this.onStatusChanged,
     this.availabilityLabels,
+    this.showNewBadge,
   });
 
   @override
@@ -59,6 +73,7 @@ class BookCoverGrid extends StatelessWidget {
               : null,
           // Map lookup with a null ISBN just returns null (no badge).
           availabilityLabel: availabilityLabels?[book.isbn],
+          showNewBadge: showNewBadge ?? newBadgeIsInformative(books),
         );
       },
     );

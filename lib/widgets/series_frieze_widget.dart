@@ -6,10 +6,12 @@ import '../data/repositories/collection_repository.dart';
 import '../models/collection.dart';
 import '../models/collection_book.dart';
 import '../services/translation_service.dart';
+import '../utils/ownership_mark.dart';
 import '../utils/series_ordering.dart';
 import 'app_snack_bar.dart';
 import 'cached_book_cover.dart';
 import 'dashboard_section.dart';
+import 'not_owned_treatment.dart';
 import 'volume_badge.dart';
 
 /// Reading-order timeline ("frise") for a series-typed collection, shown on the
@@ -183,7 +185,11 @@ class _VolumeTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final coverOpacity = volume.isRead ? 1.0 : 0.4;
+    // Not-owned treatment (ADR-063): shared desaturation + badge, replacing
+    // both the old isRead-keyed opacity (which dimmed owned-but-unread
+    // volumes) and the frieze's bespoke border/badge vocabulary. Read state
+    // stays announced in the semantic label.
+    final mark = ownershipMarkFromFlags(owned: volume.isOwned);
 
     final statusWord = volume.isRead
         ? TranslationService.translate(context, 'series_read')
@@ -198,11 +204,11 @@ class _VolumeTile extends StatelessWidget {
         '$numberWord, ${volume.title}, $statusWord, $ownershipWord'
         '${isCurrent ? ', ${TranslationService.translate(context, 'series_current_volume')}' : ''}';
 
+    // The border now marks only the current volume; the not-owned state is
+    // carried by the shared treatment, not a second border vocabulary.
     final borderColor = isCurrent
         ? theme.colorScheme.primary
-        : (volume.isOwned
-              ? Colors.transparent
-              : theme.colorScheme.tertiary.withValues(alpha: 0.7));
+        : Colors.transparent;
 
     return Padding(
       padding: const EdgeInsets.only(right: 12),
@@ -229,8 +235,8 @@ class _VolumeTile extends StatelessWidget {
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(8),
-                        child: Opacity(
-                          opacity: coverOpacity,
+                        child: OwnershipCoverTreatment(
+                          mark: mark,
                           child: CachedBookCover(
                             imageUrl: volume.coverUrl,
                             width: 86,
@@ -250,24 +256,14 @@ class _VolumeTile extends StatelessWidget {
                         onTap: onEditVolume,
                       ),
                     ),
-                    // Unowned marker: a "wanted" bookmark badge so a missing
-                    // volume reads differently from an owned one.
-                    if (!volume.isOwned)
+                    // Unowned marker: the shared ownership badge (ADR-063),
+                    // so a missing volume reads like every other not-owned
+                    // book in the app.
+                    if (mark != OwnershipMark.none)
                       Positioned(
                         top: 3,
                         right: 3,
-                        child: Container(
-                          padding: const EdgeInsets.all(3),
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.tertiaryContainer,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.bookmark_add_outlined,
-                            size: 13,
-                            color: theme.colorScheme.onTertiaryContainer,
-                          ),
-                        ),
+                        child: OwnershipBadge(mark: mark),
                       ),
                     // Drag handle on the cover: grab it to reorder. Sits on the
                     // cover (not below) so it never overlaps the title, and uses

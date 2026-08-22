@@ -10447,3 +10447,19 @@ msgstr "책을 추가하거나 다 읽으시면 추천이 다시 나타납니다
 #. Screen-reader label of the suggestions page while the engine is still answering
 msgid "recommendations_loading"
 msgstr "추천을 불러오는 중"
+
+#. Section header of the ownership axis in the /books filter menu (ADR-063)
+msgid "ownership_filter"
+msgstr "소유 상태"
+
+#. Ownership filter: books physically present (owned or on loan)
+msgid "ownership_library"
+msgstr "내 서재"
+
+#. Ownership filter: books neither owned nor on loan (wishlist, read elsewhere)
+msgid "ownership_not_owned"
+msgstr "미소유"
+
+#. Ownership filter: every book the app knows, owned or not
+msgid "ownership_all"
+msgstr "전체"

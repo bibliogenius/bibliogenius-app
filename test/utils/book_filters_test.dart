@@ -7,8 +7,11 @@ Book book({
   String? status,
   bool? isBorrowed,
   bool? isLent,
+  String title = 'Le Livre',
+  String? author,
 }) => Book(
-  title: 'Le Livre',
+  title: title,
+  author: author,
   owned: owned,
   readingStatus: status,
   isBorrowed: isBorrowed,
@@ -157,7 +160,10 @@ void main() {
         isTrue,
       );
       expect(
-        matchesDefaultView(book(owned: false, isLent: true), showBorrowed: true),
+        matchesDefaultView(
+          book(owned: false, isLent: true),
+          showBorrowed: true,
+        ),
         isTrue,
       );
     });
@@ -183,7 +189,10 @@ void main() {
         isFalse,
       );
       expect(
-        matchesDefaultView(book(owned: true, isLent: true), showBorrowed: false),
+        matchesDefaultView(
+          book(owned: true, isLent: true),
+          showBorrowed: false,
+        ),
         isFalse,
         reason: 'the setting hides lent books even when the copy is owned',
       );
@@ -203,7 +212,10 @@ void main() {
     // it, and an unowned one must not appear.
     test('unknown possession flags fall back to ownership', () {
       expect(
-        matchesDefaultView(book(owned: true, status: 'read'), showBorrowed: true),
+        matchesDefaultView(
+          book(owned: true, status: 'read'),
+          showBorrowed: true,
+        ),
         isTrue,
       );
       expect(
@@ -213,6 +225,155 @@ void main() {
         ),
         isFalse,
       );
+    });
+  });
+
+  // The explicit ownership axis (ADR-063), orthogonal to the status filter.
+  group('matchesOwnershipFilter', () {
+    test("'library' mirrors the default view", () {
+      expect(
+        matchesOwnershipFilter(
+          book(owned: true),
+          OwnershipScope.library,
+          showBorrowed: true,
+        ),
+        isTrue,
+      );
+      expect(
+        matchesOwnershipFilter(
+          book(owned: false, status: 'wanting'),
+          OwnershipScope.library,
+          showBorrowed: true,
+        ),
+        isFalse,
+      );
+      expect(
+        matchesOwnershipFilter(
+          book(owned: false, isBorrowed: true),
+          OwnershipScope.library,
+          showBorrowed: true,
+        ),
+        isTrue,
+        reason: 'a borrowed copy is physically on the shelf',
+      );
+    });
+
+    test("'library' honours the hide-borrowed preference", () {
+      expect(
+        matchesOwnershipFilter(
+          book(owned: false, isBorrowed: true),
+          OwnershipScope.library,
+          showBorrowed: false,
+        ),
+        isFalse,
+      );
+    });
+
+    // The state that used to be inexpressible: not owned, whatever the status.
+    test("'not_owned' matches neither owned nor on-loan books", () {
+      expect(
+        matchesOwnershipFilter(
+          book(owned: false, status: 'wanting'),
+          OwnershipScope.notOwned,
+          showBorrowed: true,
+        ),
+        isTrue,
+      );
+      expect(
+        matchesOwnershipFilter(
+          book(owned: false, status: 'read'),
+          OwnershipScope.notOwned,
+          showBorrowed: true,
+        ),
+        isTrue,
+        reason: 'read at a friend\'s: not owned, all statuses reachable',
+      );
+      expect(
+        matchesOwnershipFilter(
+          book(owned: true),
+          OwnershipScope.notOwned,
+          showBorrowed: true,
+        ),
+        isFalse,
+      );
+      expect(
+        matchesOwnershipFilter(
+          book(owned: false, isBorrowed: true),
+          OwnershipScope.notOwned,
+          showBorrowed: true,
+        ),
+        isFalse,
+        reason: 'an on-loan copy is physically present, not "not owned"',
+      );
+    });
+
+    test("'all' matches everything", () {
+      for (final b in [
+        book(owned: true),
+        book(owned: false, status: 'wanting'),
+        book(owned: false, isBorrowed: true),
+      ]) {
+        expect(
+          matchesOwnershipFilter(b, OwnershipScope.all, showBorrowed: true),
+          isTrue,
+        );
+      }
+    });
+  });
+
+  group('resolveOwnershipScope', () {
+    test('defaults to the physical library when browsing without a status', () {
+      expect(resolveOwnershipScope(), OwnershipScope.library);
+    });
+
+    // Historical rule kept: a book read-but-not-owned must stay reachable
+    // under its status filter, so a status alone never scopes to ownership.
+    test('a status filter alone keeps every ownership reachable', () {
+      expect(resolveOwnershipScope(status: 'read'), OwnershipScope.all);
+    });
+
+    test('an explicit user choice always wins', () {
+      expect(
+        resolveOwnershipScope(
+          explicit: OwnershipScope.notOwned,
+          status: 'read',
+        ),
+        OwnershipScope.notOwned,
+      );
+      expect(
+        resolveOwnershipScope(explicit: OwnershipScope.library),
+        OwnershipScope.library,
+      );
+    });
+  });
+
+  // Shared by the result grid and the autocomplete dropdown: the two used to
+  // search different corpuses, and a wishlist book could appear in the
+  // dropdown while the grid said "no books found" (ADR-063).
+  group('matchesSearchQuery', () {
+    test('matches on title, case-insensitive', () {
+      expect(
+        matchesSearchQuery(book(owned: true, title: 'Vaincre à Rome'), 'rome'),
+        isTrue,
+      );
+      expect(
+        matchesSearchQuery(book(owned: true, title: 'Vaincre à Rome'), 'dune'),
+        isFalse,
+      );
+    });
+
+    test('matches on author, case-insensitive', () {
+      expect(
+        matchesSearchQuery(
+          book(owned: false, author: 'Sylvain Coher'),
+          'coher',
+        ),
+        isTrue,
+      );
+    });
+
+    test('a missing author never matches an author query', () {
+      expect(matchesSearchQuery(book(owned: true), 'coher'), isFalse);
     });
   });
 }

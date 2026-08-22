@@ -8,8 +8,10 @@ import '../../services/translation_service.dart';
 import '../../providers/book_refresh_notifier.dart';
 import '../../providers/theme_provider.dart';
 import '../../utils/book_status.dart';
+import '../../utils/ownership_mark.dart';
 import '../../utils/series_ordering.dart';
 import '../../widgets/app_snack_bar.dart';
+import '../../widgets/not_owned_treatment.dart';
 import '../../widgets/volume_badge.dart';
 import '../../widgets/cached_book_cover.dart';
 import '../../widgets/configurable_action_card.dart';
@@ -610,8 +612,13 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                                     context,
                                     'status_wanted',
                                   ),
-                                  Icons.bookmark_border,
-                                  Colors.orangeAccent,
+                                  Icons.bookmark_add_outlined,
+                                  // Container token: light enough to sit on
+                                  // the colored header gradient (ADR-063,
+                                  // no more hard-coded orange).
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.tertiaryContainer,
                                 ),
                               ),
                             ],
@@ -804,9 +811,14 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                                                       decoration: book.isOwned
                                                           ? null
                                                           : TextDecoration.none,
+                                                      // Theme token, not a
+                                                      // hard-coded grey
+                                                      // (ADR-063).
                                                       color: book.isOwned
                                                           ? null
-                                                          : Colors.grey[700],
+                                                          : Theme.of(context)
+                                                                .colorScheme
+                                                                .onSurfaceVariant,
                                                     ),
                                                 maxLines: 2,
                                                 overflow: TextOverflow.ellipsis,
@@ -871,6 +883,9 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                                                     context,
                                                     'status_wanted',
                                                   ),
+                                            // Wanted state on theme tokens,
+                                            // aligned with the shared badge
+                                            // vocabulary (ADR-063).
                                             child: Container(
                                               padding: const EdgeInsets.all(7),
                                               decoration: BoxDecoration(
@@ -878,9 +893,9 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                                                     ? Colors.green.withValues(
                                                         alpha: 0.1,
                                                       )
-                                                    : Colors.orange.withValues(
-                                                        alpha: 0.1,
-                                                      ),
+                                                    : Theme.of(context)
+                                                          .colorScheme
+                                                          .tertiaryContainer,
                                                 borderRadius:
                                                     BorderRadius.circular(20),
                                                 border: Border.all(
@@ -888,7 +903,9 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                                                       ? Colors.green.withValues(
                                                           alpha: 0.3,
                                                         )
-                                                      : Colors.orange
+                                                      : Theme.of(context)
+                                                            .colorScheme
+                                                            .tertiary
                                                             .withValues(
                                                               alpha: 0.3,
                                                             ),
@@ -897,11 +914,14 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                                               child: Icon(
                                                 book.isOwned
                                                     ? Icons.check_circle
-                                                    : Icons.bookmark_border,
+                                                    : Icons
+                                                          .bookmark_add_outlined,
                                                 size: 16,
                                                 color: book.isOwned
                                                     ? Colors.green.shade700
-                                                    : Colors.orange.shade700,
+                                                    : Theme.of(context)
+                                                          .colorScheme
+                                                          .onTertiaryContainer,
                                               ),
                                             ),
                                           ),
@@ -930,11 +950,14 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                                                 children: [
                                                   Icon(
                                                     book.isOwned
-                                                        ? Icons.bookmark_border
+                                                        ? Icons
+                                                              .bookmark_add_outlined
                                                         : Icons.check_circle,
                                                     size: 18,
                                                     color: book.isOwned
-                                                        ? Colors.orange
+                                                        ? Theme.of(
+                                                            context,
+                                                          ).colorScheme.tertiary
                                                         : Colors.green,
                                                   ),
                                                   const SizedBox(width: 8),
@@ -1009,9 +1032,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Material(
-            color: active
-                ? accent.withValues(alpha: 0.06)
-                : Colors.transparent,
+            color: active ? accent.withValues(alpha: 0.06) : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
             child: SwitchListTile(
               value: _isSeries,
@@ -1152,29 +1173,42 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
   /// corner in series mode. Overlaying keeps the row compact so the title and
   /// metadata stay readable on a narrow phone.
   Widget _buildCoverWithVolume(CollectionBook book) {
+    // Shared not-owned treatment (ADR-063): desaturated cover + badge,
+    // replacing this screen's bespoke orange vocabulary.
+    final mark = ownershipMarkFromFlags(owned: book.isOwned);
     final cover = ClipRRect(
       borderRadius: BorderRadius.circular(8),
-      child: CachedBookCover(
-        imageUrl: book.coverUrl,
-        width: 50,
-        height: 75,
-        semanticLabel: book.author != null && book.author!.isNotEmpty
-            ? '${book.title}, ${book.author}'
-            : book.title,
+      child: OwnershipCoverTreatment(
+        mark: mark,
+        child: CachedBookCover(
+          imageUrl: book.coverUrl,
+          width: 50,
+          height: 75,
+          semanticLabel: book.author != null && book.author!.isNotEmpty
+              ? '${book.title}, ${book.author}'
+              : book.title,
+        ),
       ),
     );
-    if (!_isSeries) return cover;
+    if (!_isSeries && mark == OwnershipMark.none) return cover;
     return Stack(
       children: [
         cover,
-        Positioned(
-          top: 2,
-          left: 2,
-          child: VolumeBadge(
-            volumeNumber: book.volumeNumber,
-            onTap: () => _editVolume(book),
+        if (_isSeries)
+          Positioned(
+            top: 2,
+            left: 2,
+            child: VolumeBadge(
+              volumeNumber: book.volumeNumber,
+              onTap: () => _editVolume(book),
+            ),
           ),
-        ),
+        if (mark != OwnershipMark.none)
+          Positioned(
+            top: 2,
+            right: 2,
+            child: OwnershipBadge(mark: mark, iconSize: 10),
+          ),
       ],
     );
   }

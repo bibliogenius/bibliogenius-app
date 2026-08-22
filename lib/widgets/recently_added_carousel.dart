@@ -465,13 +465,9 @@ class _CarouselCover extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Show a "NEW" badge only on books with no status tag. Any reading-status
-    // badge (reading, loaned, borrowed, to_read, etc.) already occupies the
-    // top-right corner; stacking NEW on the opposite corner would double the
-    // tagging and clutter a small cover.
-    final hasStatusBadge =
-        book.readingStatus != null && book.readingStatus!.isNotEmpty;
-    final showNewBadge = book.isNew && !hasStatusBadge;
+    // No "new" band here: the Activity strip itself already means recency,
+    // so tagging its covers would be redundant. The band belongs to the
+    // library grids, where new books sit among old ones.
     final daysLabel = _daysSinceStartLabel(context);
 
     return SizedBox(
@@ -480,38 +476,12 @@ class _CarouselCover extends StatelessWidget {
       child: Stack(
         children: [
           BookCoverCard(book: book, onTap: onTap),
-          if (showNewBadge)
-            Positioned(
-              top: 8,
-              left: 8,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 6,
-                  vertical: 2,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.amber.shade700.withValues(alpha: 0.9),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  TranslationService.translate(context, 'badge_new'),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
           if (daysLabel != null)
             Positioned(
               bottom: 8,
               right: 8,
               child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 5,
-                  vertical: 1,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
                 decoration: BoxDecoration(
                   color: Colors.black.withValues(alpha: 0.55),
                   borderRadius: BorderRadius.circular(4),
@@ -547,7 +517,9 @@ class _CarouselCover extends StatelessWidget {
     final days = today.difference(startedDay).inDays;
     if (days <= 0) return null;
     final formatted = days >= 100 ? '99+' : days.toString();
-    return TranslationService.translate(context, 'badge_days_since_start')
-        .replaceAll('%s', formatted);
+    return TranslationService.translate(
+      context,
+      'badge_days_since_start',
+    ).replaceAll('%s', formatted);
   }
 }

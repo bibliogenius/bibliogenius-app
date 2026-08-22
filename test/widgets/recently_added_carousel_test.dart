@@ -251,51 +251,19 @@ void main() {
     },
   );
 
-  testWidgets('NEW badge appears on recently-added books', (tester) async {
-    await tester.pumpWidget(
-      buildHarness(withPad([newBook(id: 1, title: 'Fresh Book')])),
-    );
-
-    expect(find.text('NEW'), findsOneWidget);
-  });
-
-  testWidgets('NEW badge does not appear on currently-reading books', (
-    tester,
-  ) async {
-    // Reading AND recent-addedAt: we should see the reading status badge,
-    // not the NEW badge.
+  // The Activity strip itself already means recency: tagging its covers
+  // "new" on top would be redundant, so the strip never shows the band.
+  // The band belongs to the library grids, where new books sit among old
+  // ones.
+  testWidgets('the Activity strip never shows the NEW band', (tester) async {
     await tester.pumpWidget(
       buildHarness(
         withPad([
-          Book(
-            id: '1',
-            title: 'Active',
-            readingStatus: 'reading',
-            addedAt: DateTime.now().subtract(const Duration(hours: 1)),
-          ),
-        ]),
-      ),
-    );
-
-    expect(find.text('NEW'), findsNothing);
-  });
-
-  testWidgets('NEW badge does not appear on loaned or borrowed books', (
-    tester,
-  ) async {
-    await tester.pumpWidget(
-      buildHarness(
-        withPad([
-          Book(
-            id: '1',
-            title: 'Out to friend',
-            readingStatus: 'loaned',
-            addedAt: DateTime.now().subtract(const Duration(hours: 1)),
-          ),
+          newBook(id: 1, title: 'Fresh Book'),
           Book(
             id: '2',
-            title: 'From friend',
-            readingStatus: 'borrowed',
+            title: 'Active',
+            readingStatus: 'reading',
             addedAt: DateTime.now().subtract(const Duration(hours: 1)),
           ),
         ]),

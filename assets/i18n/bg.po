@@ -10735,3 +10735,19 @@ msgstr "Добавете или довършете няколко книги и 
 #. Screen-reader label of the suggestions page while the engine is still answering
 msgid "recommendations_loading"
 msgstr "Зареждане на предложенията"
+
+#. Section header of the ownership axis in the /books filter menu (ADR-063)
+msgid "ownership_filter"
+msgstr "Притежание"
+
+#. Ownership filter: books physically present (owned or on loan)
+msgid "ownership_library"
+msgstr "Моята библиотека"
+
+#. Ownership filter: books neither owned nor on loan (wishlist, read elsewhere)
+msgid "ownership_not_owned"
+msgstr "Непритежавани"
+
+#. Ownership filter: every book the app knows, owned or not
+msgid "ownership_all"
+msgstr "Всичко"

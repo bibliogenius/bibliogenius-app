@@ -8,6 +8,7 @@ import '../models/book.dart';
 import '../models/collection.dart';
 import '../services/translation_service.dart';
 import 'book_cover_card.dart';
+import 'book_cover_grid.dart';
 import 'cached_book_cover.dart';
 
 // ---------------------------------------------------------------------------
@@ -949,10 +950,16 @@ class CollectionGroupGrid extends StatelessWidget {
   final List<CollectionGroup> groups;
   final Function(Book) onBookTap;
 
+  /// Whether new books wear the band. Callers displaying a FILTERED subset
+  /// must pass [newBadgeIsInformative] of the full library; when null, the
+  /// grid evaluates its own (assumed complete) set.
+  final bool? showNewBadge;
+
   const CollectionGroupGrid({
     super.key,
     required this.groups,
     required this.onBookTap,
+    this.showNewBadge,
   });
 
   @override
@@ -960,6 +967,9 @@ class CollectionGroupGrid extends StatelessWidget {
     if (groups.isEmpty) {
       return const _EmptyState();
     }
+    final showNew =
+        showNewBadge ??
+        newBadgeIsInformative([for (final g in groups) ...g.books]);
     return GridView.builder(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
       gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
@@ -974,7 +984,11 @@ class CollectionGroupGrid extends StatelessWidget {
         // Uncollected single book: render as a regular cover card.
         if (group.collection == null && group.books.length == 1) {
           final book = group.books.first;
-          return BookCoverCard(book: book, onTap: () => onBookTap(book));
+          return BookCoverCard(
+            book: book,
+            onTap: () => onBookTap(book),
+            showNewBadge: showNew,
+          );
         }
         // Collection with books: render as stacked covers.
         return CollectionStackWidget(group: group);
