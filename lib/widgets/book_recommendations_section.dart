@@ -43,9 +43,6 @@ class _BookRecommendationsSectionState
   static const double _cardWidth = 128;
   static const double _coverHeight = 176;
 
-  /// Title (2 lines), author and reason chip under the cover, at text scale 1.
-  static const double _metadataHeight = 84;
-
   List<Recommendation> _recommendations = [];
 
   @override
@@ -122,14 +119,14 @@ class _BookRecommendationsSectionState
             ),
             const SizedBox(height: 16),
             SectionCard(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(14),
               child: SizedBox(
-                // Cover plus the text block, which follows the system text
-                // scale so a large-text setting grows the row instead of
+                // Cover plus the text block, whose height the card computes
+                // from its own reserved slots: they follow the system text
+                // scale, so a large-text setting grows the row instead of
                 // clipping it.
                 height:
-                    _coverHeight +
-                    MediaQuery.textScalerOf(context).scale(_metadataHeight),
+                    _coverHeight + _RecommendationCard.metadataHeight(context),
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: visible.length,
@@ -188,6 +185,42 @@ class _RecommendationCard extends StatelessWidget {
   final VoidCallback? onDismiss;
   final String? dismissTooltip;
 
+  static const double _coverGap = 10;
+  static const double _authorGap = 2;
+  static const double _chipGap = 8;
+  static const int _titleLines = 2;
+  static const double _lineHeight = 1.25;
+  static const double _dismissSize = 30;
+
+  /// Height of the caption block under the cover.
+  ///
+  /// Every slot is reserved whatever this card actually carries -- two title
+  /// lines even for a one-line title, the author line even when the book has
+  /// no author -- so the authors and the reason chips of the whole row land
+  /// on the same two lines. Without it a wrapping title dropped its own
+  /// card's caption one line below its neighbours'.
+  static double metadataHeight(BuildContext context) {
+    return _coverGap +
+        _titleLineHeight(context) * _titleLines +
+        _authorGap +
+        _authorLineHeight(context) +
+        _chipGap +
+        ReasonChip.height(context);
+  }
+
+  static double _titleLineHeight(BuildContext context) =>
+      _scaledLine(context, Theme.of(context).textTheme.labelMedium?.fontSize);
+
+  static double _authorLineHeight(BuildContext context) =>
+      _scaledLine(context, Theme.of(context).textTheme.labelSmall?.fontSize);
+
+  /// Both caption styles pin [_lineHeight], so their laid-out line height is
+  /// the scaled font size times that factor -- no font metrics in the
+  /// reservation above -- rounded up like the text engine rounds a line.
+  static double _scaledLine(BuildContext context, double? fontSize) =>
+      (MediaQuery.textScalerOf(context).scale(fontSize ?? 12) * _lineHeight)
+          .ceilToDouble();
+
   @override
   Widget build(BuildContext context) {
     final book = recommendation.book;
@@ -212,59 +245,100 @@ class _RecommendationCard extends StatelessWidget {
               if (author != null && author.isNotEmpty) author,
               reasonLabel,
             ].join('. '),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: coverHeight,
-                  child: BookCoverCard(book: book, onTap: onTap),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  book.title,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: textTheme.labelMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    height: 1.25,
-                  ),
-                ),
-                if (author != null && author.isNotEmpty)
-                  Text(
-                    author,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: textTheme.labelSmall?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
+            // The whole card is the target, not just the cover: the caption
+            // under a cover is where a pointer naturally lands, and the
+            // semantics above already announce the card as one button.
+            child: InkWell(
+              onTap: onTap,
+              borderRadius: BorderRadius.circular(AppDesign.radiusSmall),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: coverHeight,
+                    width: width,
+                    // Hairline frame: book covers are very often near-white
+                    // at the edges and would otherwise dissolve into the
+                    // section's white surface. Same treatment as the
+                    // suggestion tiles on the dashboard.
+                    child: Container(
+                      foregroundDecoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(
+                          AppDesign.radiusSmall,
+                        ),
+                        border: Border.all(
+                          color: colorScheme.outline.withValues(alpha: 0.5),
+                        ),
+                      ),
+                      child: BookCoverCard(book: book, onTap: onTap),
                     ),
                   ),
-                const SizedBox(height: 6),
-                // Compact form: the icon carries "same author", the pill
-                // carries the value, and the full sentence stays in the
-                // tooltip.
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: ReasonChip(reason: reason, compact: true),
-                ),
-              ],
+                  const SizedBox(height: _coverGap),
+                  SizedBox(
+                    height: _titleLineHeight(context) * _titleLines,
+                    child: Text(
+                      book.title,
+                      maxLines: _titleLines,
+                      overflow: TextOverflow.ellipsis,
+                      style: textTheme.labelMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        height: _lineHeight,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: _authorGap),
+                  SizedBox(
+                    height: _authorLineHeight(context),
+                    child: Text(
+                      author ?? '',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: textTheme.labelSmall?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                        height: _lineHeight,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: _chipGap),
+                  // Compact form: the icon carries "same author", the pill
+                  // carries the value, and the full sentence stays in the
+                  // tooltip.
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: ReasonChip(reason: reason, compact: true),
+                  ),
+                ],
+              ),
             ),
           ),
           if (onDismiss != null)
             Positioned(
-              top: 2,
-              right: 2,
+              // Bottom-right of the cover. The top-right corner belongs to
+              // the reading-status pill, which a button parked there used to
+              // sit on top of and clip.
+              top: coverHeight - _dismissSize - 6,
+              right: 6,
               child: IconButton(
-                icon: const Icon(Icons.close, size: 14),
-                iconSize: 14,
+                icon: const Icon(Icons.close, size: 15),
+                iconSize: 15,
                 visualDensity: VisualDensity.compact,
-                padding: const EdgeInsets.all(4),
-                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints.tightFor(
+                  width: _dismissSize,
+                  height: _dismissSize,
+                ),
                 tooltip: dismissTooltip,
-                // Covers are arbitrary art: a translucent surface disc keeps
-                // the icon above WCAG contrast whatever sits underneath.
+                // Covers are arbitrary art: an opaque disc with its own
+                // outline keeps the icon above WCAG contrast whatever sits
+                // underneath, and reads as a control rather than as part of
+                // the artwork.
                 style: IconButton.styleFrom(
-                  backgroundColor: colorScheme.surface.withValues(alpha: 0.85),
-                  foregroundColor: colorScheme.onSurface,
+                  backgroundColor: colorScheme.surface.withValues(alpha: 0.92),
+                  foregroundColor: colorScheme.onSurfaceVariant,
+                  shape: const CircleBorder(),
+                  side: BorderSide(
+                    color: colorScheme.outline.withValues(alpha: 0.5),
+                  ),
                 ),
                 onPressed: onDismiss,
               ),

@@ -18,6 +18,29 @@ class ReasonChip extends StatelessWidget {
   final RecommendationReason reason;
   final bool compact;
 
+  static const double _iconSize = 13;
+  static const double _fontSize = 11;
+  static const double _lineHeight = 1.3;
+  static const double _verticalPadding = 4;
+  static const double _borderWidth = 1;
+
+  /// Laid-out height of the chip at the current text scale.
+  ///
+  /// A caller that reserves room for the chip (the similar-books carousel
+  /// aligns every card's chip on one line) needs the exact figure, and the
+  /// chip is the only place that knows its own metrics. Deterministic
+  /// because the label pins its line height instead of relying on the
+  /// font's own.
+  static double height(BuildContext context) {
+    // Rounded up like the text engine rounds a laid-out line, so the figure
+    // is never a fraction of a pixel short of the real chip.
+    final textLine =
+        (MediaQuery.textScalerOf(context).scale(_fontSize) * _lineHeight)
+            .ceilToDouble();
+    final content = textLine > _iconSize ? textLine : _iconSize;
+    return content + (_verticalPadding + _borderWidth) * 2;
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -28,18 +51,24 @@ class ReasonChip extends StatelessWidget {
     );
 
     final chip = Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 8,
+        vertical: _verticalPadding,
+      ),
       decoration: BoxDecoration(
         color: colorScheme.primary.withValues(alpha: 0.07),
         borderRadius: BorderRadius.circular(AppDesign.radiusRound),
-        border: Border.all(color: colorScheme.primary.withValues(alpha: 0.16)),
+        border: Border.all(
+          color: colorScheme.primary.withValues(alpha: 0.16),
+          width: _borderWidth,
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
             recommendationReasonIcon(reason),
-            size: 13,
+            size: _iconSize,
             color: colorScheme.primary,
           ),
           const SizedBox(width: 5),
@@ -49,8 +78,8 @@ class ReasonChip extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontSize: 11,
-                height: 1.3,
+                fontSize: _fontSize,
+                height: _lineHeight,
                 fontWeight: FontWeight.w600,
                 color: colorScheme.onSurface,
               ),
