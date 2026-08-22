@@ -780,9 +780,6 @@ class _CollectionCoverCardState extends State<CollectionCoverCard> {
     );
   }
 
-  /// Emblem scale of the favorites ribbon on the collection card.
-  static const double _emblemWidth = 14;
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -800,33 +797,27 @@ class _CollectionCoverCardState extends State<CollectionCoverCard> {
           '${TranslationService.translate(context, 'favorite_marker_label')}';
     }
 
+    // Type emblem (ADR-064): the same star bookmark as on the grouped
+    // pile, anchored by _StackedCovers to the FRONT cover's top-left so
+    // both surfaces place it identically. The grid cell is a fixed-extent
+    // tile, so the card reserves transparent headroom for the overhang
+    // instead of painting outside its bounds.
+    final isFavorites = widget.collection.isFavorites;
     Widget coversArea = widget.coverUrls.isEmpty
-        ? _buildColoredFallback(theme)
+        ? _buildColoredFallback(theme, favoritesEmblem: isFavorites)
         : _StackedCovers(
             covers: widget.coverUrls,
             bookCount: bookCount,
             ownedCount: widget.collection.ownedBooks,
+            favoritesEmblem: isFavorites,
           );
 
-    if (widget.collection.isFavorites) {
-      // Type emblem (ADR-064): the same star bookmark, overhanging the top
-      // of the cover mosaic as it overhangs a book. The grid cell is a
-      // fixed-extent tile, so the card reserves transparent headroom
-      // instead of painting outside its bounds.
-      final overhang = FavoriteRibbon.overhangFor(_emblemWidth);
+    if (isFavorites) {
       coversArea = Padding(
-        padding: EdgeInsets.only(top: overhang),
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            coversArea,
-            Positioned(
-              top: -overhang,
-              right: 14,
-              child: const FavoriteRibbon(width: _emblemWidth),
-            ),
-          ],
+        padding: EdgeInsets.only(
+          top: FavoriteRibbon.overhangFor(_StackedCovers.emblemWidth),
         ),
+        child: coversArea,
       );
     }
 
@@ -876,14 +867,35 @@ class _CollectionCoverCardState extends State<CollectionCoverCard> {
   }
 
   /// Colored placeholder for collections without book covers.
-  Widget _buildColoredFallback(ThemeData theme) {
+  Widget _buildColoredFallback(ThemeData theme, {bool favoritesEmblem = false}) {
     final color = _colorFromName(widget.collection.name);
     return LayoutBuilder(
       builder: (context, constraints) {
         final w = constraints.maxWidth * 0.94;
         final h = math.min(constraints.maxHeight * 0.94, w / 0.67);
-        return Center(
-          child: Container(
+        if (favoritesEmblem) {
+          // Same front-cover top-left anchoring as _StackedCovers.
+          return Stack(
+            alignment: Alignment.center,
+            clipBehavior: Clip.none,
+            children: [
+              _fallbackCover(theme, color, w, h),
+              Positioned(
+                top: (constraints.maxHeight - h) / 2 -
+                    FavoriteRibbon.overhangFor(_StackedCovers.emblemWidth),
+                left: (constraints.maxWidth - w) / 2 + 3,
+                child: const FavoriteRibbon(width: _StackedCovers.emblemWidth),
+              ),
+            ],
+          );
+        }
+        return Center(child: _fallbackCover(theme, color, w, h));
+      },
+    );
+  }
+
+  Widget _fallbackCover(ThemeData theme, Color color, double w, double h) {
+    return Container(
             width: w,
             height: h,
             decoration: BoxDecoration(
@@ -908,10 +920,7 @@ class _CollectionCoverCardState extends State<CollectionCoverCard> {
                 size: 32,
               ),
             ),
-          ),
-        );
-      },
-    );
+          );
   }
 }
 

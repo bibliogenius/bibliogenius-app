@@ -119,44 +119,65 @@ class _FavoritesShowcaseState extends State<FavoritesShowcase> {
             context.push('/collections/${collection.id}', extra: collection),
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 4),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              for (final book in _latest) ...[
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
-                  child: SizedBox(
-                    width: 40,
-                    height: 60,
-                    child: book.coverUrl != null && book.coverUrl!.isNotEmpty
-                        ? CachedBookCover(
-                            imageUrl: book.coverUrl!,
-                            fit: BoxFit.cover,
-                            placeholder: const SizedBox.shrink(),
-                            errorWidget: const ColoredBox(
-                              color: Colors.black12,
-                              child: Icon(Icons.book_outlined, size: 18),
-                            ),
-                            semanticLabel: book.title,
-                          )
-                        : ColoredBox(
-                            color: theme.colorScheme.surfaceContainerHighest,
-                            child: const Icon(Icons.book_outlined, size: 18),
-                          ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-              ],
-              const Spacer(),
-              Text(
-                '$count $booksLabel',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
+              // Covers at the activity-strip scale (80x120); scaleDown lets
+              // four of them fit a narrow phone without overflowing.
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Row(
+                  children: [
+                    for (final book in _latest) ...[
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(6),
+                        child: SizedBox(
+                          width: 80,
+                          height: 120,
+                          child:
+                              book.coverUrl != null && book.coverUrl!.isNotEmpty
+                              ? CachedBookCover(
+                                  imageUrl: book.coverUrl!,
+                                  fit: BoxFit.cover,
+                                  placeholder: const SizedBox.shrink(),
+                                  errorWidget: const ColoredBox(
+                                    color: Colors.black12,
+                                    child: Icon(Icons.book_outlined, size: 24),
+                                  ),
+                                  semanticLabel: book.title,
+                                )
+                              : ColoredBox(
+                                  color:
+                                      theme.colorScheme.surfaceContainerHighest,
+                                  child: const Icon(
+                                    Icons.book_outlined,
+                                    size: 24,
+                                  ),
+                                ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                  ],
                 ),
               ),
-              Icon(
-                Icons.chevron_right,
-                size: 18,
-                color: theme.colorScheme.onSurfaceVariant,
+              const SizedBox(height: 6),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                    '$count $booksLabel',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  Icon(
+                    Icons.chevron_right,
+                    size: 18,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ],
               ),
             ],
           ),
