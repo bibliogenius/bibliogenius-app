@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../services/translation_service.dart';
 import '../theme/app_design.dart';
 import '../widgets/genie_app_bar.dart';
+import '../widgets/suggestions_app_bar_action.dart';
 import '../widgets/scaffold_with_nav.dart';
 import '../widgets/configurable_action_card.dart';
 import '../widgets/contextual_help_sheet.dart';
@@ -203,6 +204,11 @@ class _LibraryScreenState extends State<LibraryScreen>
         style: AppDesign.headerIconButtonStyle(),
       ),
       actions: [
+        // The direct path to the suggestions (ADR-062 R4) belongs HERE, not
+        // in BookListScreen: /books renders it with isTabView, a branch that
+        // has no app bar of its own, so an action placed there is invisible
+        // on the very screen R4 exists to serve.
+        const SuggestionsAppBarAction(color: Colors.white),
         if (_bookCount == null || _bookCount! < _kOnboardingHelpMaxBooks)
           ContextualHelpIconButton(
             titleKey: 'help_ctx_library_title',
