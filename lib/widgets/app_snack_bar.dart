@@ -120,7 +120,18 @@ class AppSnackBar {
       ),
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
       duration: duration,
-      action: action,
+      // Recolour the caller's action against OUR background. Left alone, a
+      // SnackBarAction takes its colour from the Material theme, which is
+      // `primary`: blue on the blue `primaryContainer` of a success bar, the
+      // label barely legible. The message text already computes `fg` for
+      // exactly this reason; the action was the one part that did not.
+      action: action == null
+          ? null
+          : SnackBarAction(
+              label: action.label,
+              onPressed: action.onPressed,
+              textColor: fg,
+            ),
       content: Semantics(
         liveRegion: true,
         child: Row(
