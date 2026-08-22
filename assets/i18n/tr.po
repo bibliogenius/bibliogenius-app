@@ -10751,3 +10751,7 @@ msgstr "Sahip olunmayanlar"
 #. Ownership filter: every book the app knows, owned or not
 msgid "ownership_all"
 msgstr "Tümü"
+
+#. Heading of the block offered on a book page right after it is marked as read, introducing what to read next (ADR-062 R5)
+msgid "reading_completion_continue_with"
+msgstr "Şununla devam edin"

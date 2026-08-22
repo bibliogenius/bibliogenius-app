@@ -12,7 +12,6 @@ import 'package:provider/provider.dart';
 import '../utils/borrowed_copy_payload.dart';
 import '../utils/cover_camera_helper.dart';
 import '../utils/loan_return_feedback.dart';
-import '../utils/recommendation_display.dart';
 import '../utils/returned_book.dart';
 
 import '../audio/audio_module.dart';
@@ -33,6 +32,7 @@ import '../providers/book_note_provider.dart'
     show BookNoteProvider, maxNoteContentLength;
 import '../providers/book_refresh_notifier.dart';
 import '../widgets/app_snack_bar.dart';
+import '../widgets/reading_completion_suggestions.dart';
 import '../widgets/book_note_tile.dart';
 import '../widgets/book_recommendations_section.dart';
 import '../widgets/author_links.dart';
@@ -86,6 +86,11 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   bool _isLoadingCopies = true;
   bool _isLoadingBook = false;
   bool _hasChanges = false;
+
+  /// Set on the transition into "read", cleared on leaving the page. Gates
+  /// the ADR-062 R5 block, which must answer the MOMENT a book is finished
+  /// and never simply sit on every finished book's page.
+  bool _justFinishedReading = false;
   int _coverVersion = 0;
   bool _isRefreshing = false;
   // Per-book loan duration
@@ -834,6 +839,17 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                     const SizedBox(height: 24),
                     _buildActionButtons(context, book),
                     const SizedBox(height: 32),
+                    // The "just finished" moment (ADR-062 R5): the page's
+                    // own "You might also like" section, PROMOTED here and
+                    // reframed, not a second block. Placed under the control
+                    // the reader just used, because down at its usual spot
+                    // it repeats the failure of the toast link it replaces,
+                    // present but unseen.
+                    if (_justFinishedReading)
+                      ReadingCompletionSuggestions(
+                        key: ValueKey('continue-with-${book.id}'),
+                        book: book,
+                      ),
                     // "Available from" card for wanted books. Renders nothing
                     // when the shared wishlist join returns no provider.
                     if (book.readingStatus == 'wanting')
@@ -950,7 +966,10 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                     // "You might also like" closes the page: local-library
                     // books similar to this one (ADR-059). Lazy,
                     // non-blocking, renders nothing below 2 suggestions.
-                    if (book.id != null) ...[
+                    // Suppressed while promoted to the top of the page by
+                    // the just-finished moment: one place or the other,
+                    // never both (ADR-062 R5).
+                    if (book.id != null && !_justFinishedReading) ...[
                       const SizedBox(height: 32),
                       BookRecommendationsSection(
                         key: ValueKey('recommendations-${book.id}'),
@@ -2477,12 +2496,12 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         AppSnackBar.success(
           context,
           TranslationService.translate(context, 'status_updated'),
-          action: readCompletionSuggestionsAction(
-            context,
-            newStatus: newStatus,
-            previousStatus: previousStatus,
-          ),
         );
+        // The toast confirms the save and leaves; the block below answers
+        // "what next?" and stays until the reader does (ADR-062 R5).
+        if (newStatus == 'read' && previousStatus != 'read') {
+          setState(() => _justFinishedReading = true);
+        }
 
         if (stayOnScreen) {
           await _fetchBookDetails(forceRefresh: true);

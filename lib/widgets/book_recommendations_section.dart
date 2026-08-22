@@ -30,7 +30,19 @@ import 'reason_chip.dart';
 class BookRecommendationsSection extends StatefulWidget {
   final Book book;
 
-  const BookRecommendationsSection({super.key, required this.book});
+  /// Heading of the section. Overridden when the section is PROMOTED to the
+  /// top of the page at the moment a book is marked read (ADR-062 R5): the
+  /// same "books like this one" answers a different question there, so it
+  /// changes its wording, not its content. Promotion rather than a second
+  /// block: two rows of covers on one page read as duplication whatever
+  /// their data sources are.
+  final String titleKey;
+
+  const BookRecommendationsSection({
+    super.key,
+    required this.book,
+    this.titleKey = 'recommendations_similar',
+  });
 
   @override
   State<BookRecommendationsSection> createState() =>
@@ -112,10 +124,7 @@ class _BookRecommendationsSectionState
           children: [
             SectionHeader(
               icon: Icons.auto_awesome,
-              title: TranslationService.translate(
-                context,
-                'recommendations_similar',
-              ),
+              title: TranslationService.translate(context, widget.titleKey),
             ),
             const SizedBox(height: 16),
             SectionCard(
