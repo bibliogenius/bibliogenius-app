@@ -9,8 +9,10 @@ abstract final class DiscoverSuggestionIds {
   static const String publicDirectory = 'public_directory';
   static const String readingLanguages = 'reading_languages';
 
-  /// The favorites marker introduction (ADR-064): tells existing users the
-  /// star-bookmark toggle exists, without any interstitial.
+  /// The favorites marker introduction (ADR-064). The dashboard tile was
+  /// RETIRED at recette (it linked to help, a dead end); the id stays
+  /// reserved: dismissals may already be persisted under it, and a future
+  /// actionable tile must reuse it, never a new id.
   static const String favoritesMarker = 'favorites_marker';
 
   /// Every id known to this build. Only used by the one-shot migration off the

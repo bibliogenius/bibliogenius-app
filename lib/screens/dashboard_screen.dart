@@ -144,14 +144,10 @@ class _DashboardScreenState extends State<DashboardScreen>
               labelKey: 'settings_goal_language',
               route: '/settings?focus=language',
             ),
-          // Favorites marker introduction (ADR-064): no capability gate,
-          // the toggle exists for everyone; dismissal alone retires it.
-          const _DiscoverSuggestion(
-            id: DiscoverSuggestionIds.favoritesMarker,
-            icon: Icons.bookmark_outline,
-            labelKey: 'discover_favorites_marker',
-            route: '/help?topic=favorites',
-          ),
+          // Favorites-marker tile retired at recette (2026-08-22): it
+          // pointed at reading, not an action, and read as a dead end.
+          // Its id stays reserved in DiscoverSuggestionIds (dismissals
+          // may already be persisted).
         ];
         final picked = suggestions
             .where((s) => !_dismissedDiscoverIds.contains(s.id))
