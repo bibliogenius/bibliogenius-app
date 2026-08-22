@@ -89,17 +89,24 @@ class RecommendationProvider extends ChangeNotifier {
   /// Cards in the dashboard digest.
   static const int dashboardMaxDisplayed = 5;
 
-  /// Cards in the library-screen slot (ADR-062 section 5).
+  /// The library-screen slot does NOT cap its total (ADR-062 section 5): it
+  /// shows every suggestion the engine produced, minus the external
+  /// sub-cap below.
   ///
-  /// Deliberately LARGER than the dashboard digest, which is the opposite of
-  /// what it shipped as. The digest cap of 5 exists to protect vertical
-  /// space: on the dashboard each suggestion is a stacked row, so ten of
-  /// them cost ten row heights. The slot is a horizontal strip, where an
-  /// extra card costs nothing vertically and only rewards a scroll the
-  /// reader has already started. Capping it at 3 imported a constraint from
-  /// a context that does not apply here, and left the strip looking
-  /// truncated next to a "see all" card.
-  static const int slotMaxDisplayed = 8;
+  /// It shipped capped at 3, then 8, both borrowed from the dashboard
+  /// digest. That cap exists to protect VERTICAL space: on the dashboard
+  /// each suggestion is a stacked row, so ten of them cost ten row heights.
+  /// The slot is a horizontal strip of bare covers, where an extra card
+  /// costs nothing and only rewards a scroll already under way, so any
+  /// number chosen here was arbitrary and truncated real content.
+  ///
+  /// Unbounded is safe because the ENGINE bounds it: the FFI returns at most
+  /// `PERSONAL_DEFAULT_LIMIT` (10) suggestions when no limit is asked for,
+  /// and that ceiling is a product decision about ranking quality, not an
+  /// oversight. Do not "fix" this by requesting a higher limit to fill the
+  /// strip: rank 15 of a taste profile is where precision decays, and
+  /// precision before breadth is the ADR-059/060 doctrine.
+  static const int? slotMaxDisplayed = null;
 
   /// External cap inside the slot. Scales with the larger digest, and stays
   /// a minority of it: ADR-060 section 4.4 caps discovery so it never drowns
@@ -178,14 +185,17 @@ class RecommendationProvider extends ChangeNotifier {
   /// drift apart. Externals take at most [maxExternal] of the
   /// [maxDisplayed] slots and sit AFTER the locals, so the strongest local
   /// suggestions are never displaced by discovery (ADR-060 section 4.4).
+  /// [maxDisplayed] null means no total cap: show everything the engine
+  /// produced. The horizontal slot uses that; the stacked dashboard digest
+  /// caps because each card there costs a row of page height.
   List<Recommendation> blendedDigest({
-    required int maxDisplayed,
+    required int? maxDisplayed,
     required int maxExternal,
   }) {
     final externals = visibleExternal.take(maxExternal).toList();
-    final locals = visiblePersonal
-        .take(maxDisplayed - externals.length)
-        .toList();
+    final locals = maxDisplayed == null
+        ? visiblePersonal
+        : visiblePersonal.take(maxDisplayed - externals.length).toList();
     return [...locals, ...externals];
   }
 

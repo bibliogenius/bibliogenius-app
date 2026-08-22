@@ -107,18 +107,38 @@ void main() {
       expect(provider.blendedDigest(maxDisplayed: 8, maxExternal: 2).length, 8);
     });
 
-    test('the horizontal slot shows MORE than the vertical digest', () async {
-      // The dashboard cap protects vertical space: ten stacked rows cost ten
-      // row heights. A horizontal strip pays nothing vertically for an extra
-      // card, so importing the digest cap there was a mistake.
+    test('the horizontal slot does not cap its total', () async {
+      // A horizontal strip pays nothing for an extra card, so any number
+      // chosen here would be arbitrary and would truncate real content. The
+      // engine bounds the list instead (PERSONAL_DEFAULT_LIMIT).
+      final provider = await _providerWith([
+        for (var i = 0; i < 12; i++) _local('b$i', 'Book $i'),
+      ]);
+
+      expect(RecommendationProvider.slotMaxDisplayed, isNull);
       expect(
-        RecommendationProvider.slotMaxDisplayed,
-        greaterThan(RecommendationProvider.dashboardMaxDisplayed),
+        provider.blendedDigest(
+          maxDisplayed: RecommendationProvider.slotMaxDisplayed,
+          maxExternal: RecommendationProvider.slotMaxExternal,
+        ).length,
+        12,
+        reason: 'everything the engine produced, nothing trimmed by the slot',
       );
-      // Discovery still stays a minority of the strip (ADR-060 section 4.4).
+    });
+
+    test('the stacked dashboard digest still caps', () async {
+      // There a card costs a row of page height, which is the whole reason
+      // that cap exists.
+      final provider = await _providerWith([
+        for (var i = 0; i < 12; i++) _local('b$i', 'Book $i'),
+      ]);
+
       expect(
-        RecommendationProvider.slotMaxExternal * 2,
-        lessThan(RecommendationProvider.slotMaxDisplayed),
+        provider.blendedDigest(
+          maxDisplayed: RecommendationProvider.dashboardMaxDisplayed,
+          maxExternal: RecommendationProvider.dashboardMaxExternal,
+        ).length,
+        RecommendationProvider.dashboardMaxDisplayed,
       );
     });
   });
