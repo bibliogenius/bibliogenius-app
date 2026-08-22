@@ -5,33 +5,52 @@ import '../data/repositories/collection_repository.dart';
 import '../models/recommendation.dart';
 import '../providers/book_refresh_notifier.dart';
 import '../providers/recommendation_provider.dart';
+import '../providers/theme_provider.dart';
 import '../services/api_service.dart';
 import '../services/ffi_service.dart';
 import '../services/translation_service.dart';
+import '../src/rust/api/frb.dart' show FrbWishlistProvider;
 import '../theme/app_design.dart';
 import '../utils/recommendation_display.dart';
 import 'app_snack_bar.dart';
+import 'borrow_provider_list.dart';
 import 'cached_book_cover.dart';
 
 /// Pre-import preview sheet for an EXTERNAL suggestion (ADR-060 section
 /// 4.6): availability shown before the book exists locally, in the spirit
 /// of the curated-list import. Guaranteed minimal action: add to wishlist
-/// (`reading_status = 'wanting'`, ISBN dedup on creation). Adding
-/// activates the existing provider join, so peer availability surfaces on
-/// its own afterwards. Never a dead end: the sheet always offers at least
-/// that one action. Procurement links are deliberately excluded (separate
-/// scoping chantier).
+/// (`reading_status = 'wanting'`, ISBN dedup on creation). The network
+/// availability line carries the borrow CTA through the shared
+/// [BorrowProviderList] (neither borrow path needs a local book row), so
+/// the sheet is never a dead end. Procurement links are deliberately
+/// excluded (separate scoping chantier).
 class ExternalSuggestionSheet extends StatefulWidget {
-  const ExternalSuggestionSheet({super.key, required this.suggestion});
+  const ExternalSuggestionSheet({
+    super.key,
+    required this.suggestion,
+    this.availabilityLoader,
+  });
 
   final Recommendation suggestion;
 
-  static Future<void> show(BuildContext context, Recommendation suggestion) {
+  /// Test seam for the availability probe; defaults to the FFI provider
+  /// join, which is inert in widget tests (FFI never initialized there).
+  final Future<List<FrbWishlistProvider>> Function(String isbn)?
+  availabilityLoader;
+
+  static Future<void> show(
+    BuildContext context,
+    Recommendation suggestion, {
+    Future<List<FrbWishlistProvider>> Function(String isbn)? availabilityLoader,
+  }) {
     return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
-      builder: (_) => ExternalSuggestionSheet(suggestion: suggestion),
+      builder: (_) => ExternalSuggestionSheet(
+        suggestion: suggestion,
+        availabilityLoader: availabilityLoader,
+      ),
     );
   }
 
@@ -41,7 +60,7 @@ class ExternalSuggestionSheet extends StatefulWidget {
 }
 
 class _ExternalSuggestionSheetState extends State<ExternalSuggestionSheet> {
-  bool _availableInNetwork = false;
+  List<FrbWishlistProvider> _providers = [];
   bool _adding = false;
 
   @override
@@ -55,11 +74,18 @@ class _ExternalSuggestionSheetState extends State<ExternalSuggestionSheet> {
   /// state), same doctrine as the curated import screen.
   Future<void> _loadAvailability() async {
     final isbn = widget.suggestion.book.isbn;
-    final ffi = FfiService();
-    if (isbn == null || isbn.isEmpty || !ffi.isInitialized) return;
-    final providers = await ffi.getIsbnProviders([isbn]);
+    if (isbn == null || isbn.isEmpty) return;
+    List<FrbWishlistProvider> providers;
+    final loader = widget.availabilityLoader;
+    if (loader != null) {
+      providers = await loader(isbn);
+    } else {
+      final ffi = FfiService();
+      if (!ffi.isInitialized) return;
+      providers = await ffi.getIsbnProviders([isbn]);
+    }
     if (!mounted || providers.isEmpty) return;
-    setState(() => _availableInNetwork = true);
+    setState(() => _providers = providers);
   }
 
   /// The ordinal the card announced, when this suggestion completes a
@@ -270,27 +296,42 @@ class _ExternalSuggestionSheetState extends State<ExternalSuggestionSheet> {
                 ),
               ],
             ),
-            if (_availableInNetwork) ...[
+            if (_providers.isNotEmpty) ...[
               const SizedBox(height: 14),
-              Row(
-                children: [
-                  Icon(
-                    Icons.people_outline,
-                    size: 18,
-                    color: colorScheme.primary,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      TranslationService.translate(
-                        context,
-                        'external_suggestion_available_network',
-                      ),
-                      style: textTheme.bodySmall,
+              Semantics(
+                header: true,
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.people_outline,
+                      size: 18,
+                      color: colorScheme.primary,
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        TranslationService.translate(
+                          context,
+                          'external_suggestion_available_network',
+                        ),
+                        style: textTheme.bodySmall,
+                      ),
+                    ),
+                  ],
+                ),
               ),
+              // Librarian and bookseller profiles lend but do not borrow:
+              // for them the availability line stays informative only.
+              if (context.select<ThemeProvider, bool>(
+                (t) => t.canBorrowBooks,
+              )) ...[
+                const SizedBox(height: 4),
+                BorrowProviderList(
+                  isbn: book.isbn!,
+                  bookTitle: book.title,
+                  providers: _providers,
+                ),
+              ],
             ],
             const SizedBox(height: 18),
             SizedBox(
