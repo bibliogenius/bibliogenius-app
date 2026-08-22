@@ -5,6 +5,7 @@ import '../../data/repositories/copy_repository.dart';
 import '../../services/api_service.dart';
 import '../../services/collection_export_service.dart';
 import '../../services/translation_service.dart';
+import '../../utils/collection_display.dart';
 import '../../providers/book_refresh_notifier.dart';
 import '../../providers/theme_provider.dart';
 import '../../utils/book_status.dart';
@@ -352,7 +353,22 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
       final apiService = Provider.of<ApiService>(context, listen: false);
       final exportService = CollectionExportService(apiService);
 
-      await exportService.shareCollection(widget.collection);
+      // The favorites collection stores a technical sentinel name
+      // (ADR-064): export the translated display name, never the sentinel.
+      var shared = widget.collection;
+      if (shared.isFavorites) {
+        shared = Collection(
+          id: shared.id,
+          name: collectionDisplayName(context, shared),
+          description: shared.description,
+          source: shared.source,
+          createdAt: shared.createdAt,
+          updatedAt: shared.updatedAt,
+          totalBooks: shared.totalBooks,
+          ownedBooks: shared.ownedBooks,
+        );
+      }
+      await exportService.shareCollection(shared);
 
       if (mounted) {
         AppSnackBar.success(
@@ -375,7 +391,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
       '/books/add',
       extra: {
         'collectionId': widget.collection.id,
-        'collectionName': widget.collection.name,
+        'collectionName': collectionDisplayName(context, widget.collection),
       },
     );
     if (result != null) {
@@ -388,12 +404,12 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
     return Scaffold(
       extendBodyBehindAppBar: true, // 🌟 Immersive Header
       appBar: GenieAppBar(
-        title: widget.collection.name,
+        title: collectionDisplayName(context, widget.collection),
         transparent: true, // 🌟 Transparent AppBar
         showQuickActions: false,
         preSelectedCollectionId: widget.collection.id,
-        preSelectedCollectionName: widget.collection.name,
-        destinationName: widget.collection.name,
+        preSelectedCollectionName: collectionDisplayName(context, widget.collection),
+        destinationName: collectionDisplayName(context, widget.collection),
         thirdSlotOverride: Builder(
           builder: (sheetContext) {
             return QuickActionCard(
@@ -409,7 +425,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                   '/scan',
                   extra: {
                     'collectionId': widget.collection.id,
-                    'collectionName': widget.collection.name,
+                    'collectionName': collectionDisplayName(context, widget.collection),
                     'batch': true,
                   },
                 );
@@ -1021,6 +1037,12 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
   /// card. The ordering help appears below only once the collection is actually
   /// a series (and until the user dismisses it).
   Widget _buildSeriesSection() {
+    // The series toggle flips `collections.source`, which is the favorites
+    // collection's IDENTITY (ADR-064): flipping it silently untypes the
+    // collection (raw sentinel name resurfaces, marker and engine signal
+    // die). The typed collection simply does not offer the toggle; the
+    // Rust side refuses the flip too (defense in depth for HTTP callers).
+    if (widget.collection.isFavorites) return const SizedBox.shrink();
     final theme = Theme.of(context);
     final active = _isSeries;
     final accent = theme.colorScheme.primary;

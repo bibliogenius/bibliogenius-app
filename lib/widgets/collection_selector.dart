@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/collection.dart';
 import '../data/repositories/collection_repository.dart';
 import '../services/translation_service.dart';
+import '../utils/collection_display.dart';
 
 /// Inline collection selector with autocomplete and create-on-submit.
 ///
@@ -71,11 +72,17 @@ class _CollectionSelectorState extends State<CollectionSelector> {
       listen: false,
     );
 
-    // Check if an existing collection matches
+    // Check if an existing collection matches. Matched on the DISPLAY name:
+    // the typed favorites collection stores a technical sentinel (ADR-064),
+    // and matching the raw name here would create a duplicate manual
+    // "Favoris" instead of picking the typed one.
     try {
       final all = await collectionRepo.getCollections();
+      if (!mounted) return;
       final match = all.cast<Collection?>().firstWhere(
-        (c) => c!.name.toLowerCase() == text.toLowerCase(),
+        (c) =>
+            collectionDisplayName(context, c!).toLowerCase() ==
+            text.toLowerCase(),
         orElse: () => null,
       );
 
@@ -179,7 +186,7 @@ class _CollectionSelectorState extends State<CollectionSelector> {
               final selectedIds = _currentSelection.map((c) => c.id).toSet();
               return all.where(
                 (c) =>
-                    c.name.toLowerCase().contains(
+                    collectionDisplayName(context, c).toLowerCase().contains(
                       textEditingValue.text.toLowerCase(),
                     ) &&
                     !selectedIds.contains(c.id),
@@ -188,7 +195,8 @@ class _CollectionSelectorState extends State<CollectionSelector> {
               return const Iterable<Collection>.empty();
             }
           },
-          displayStringForOption: (Collection c) => c.name,
+          displayStringForOption: (Collection c) =>
+              collectionDisplayName(context, c),
           onSelected: (Collection selection) {
             _addExisting(selection);
           },
@@ -243,7 +251,7 @@ class _CollectionSelectorState extends State<CollectionSelector> {
                   context,
                 ).colorScheme.primary.withValues(alpha: 0.6),
               ),
-              label: Text(collection.name),
+              label: Text(collectionDisplayName(context, collection)),
               deleteIcon: const Icon(Icons.close, size: 18),
               onDeleted: () => _removeCollection(collection),
             );

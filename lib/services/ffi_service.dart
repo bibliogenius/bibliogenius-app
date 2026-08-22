@@ -2121,4 +2121,62 @@ class FfiService {
       rethrow;
     }
   }
+
+  // ── Favorites (ADR-064) ─────────────────────────────────────────────
+
+  /// Toggle a book's favorite state. Returns the NEW state (true = now a
+  /// favorite). The favorites collection is created lazily Rust-side.
+  Future<bool> toggleFavoriteBook(String bookId) async {
+    try {
+      return await frb.toggleFavoriteBook(bookId: bookId);
+    } catch (e) {
+      debugPrint('FFI toggleFavoriteBook error: $e');
+      rethrow;
+    }
+  }
+
+  /// All favorite book ids in one pass. Cached by FavoritesProvider; cards
+  /// must never call this per item.
+  Future<List<String>> getFavoriteBookIds() async {
+    try {
+      return await frb.getFavoriteBookIds();
+    } catch (e) {
+      debugPrint('FFI getFavoriteBookIds error: $e');
+      return const [];
+    }
+  }
+
+  /// Seed the empty favorites collection at Reader-preset selection. The
+  /// eligibility gate lives Rust-side; returns whether it was created.
+  Future<bool> seedFavoritesCollection() async {
+    try {
+      return await frb.seedFavoritesCollection();
+    } catch (e) {
+      debugPrint('FFI seedFavoritesCollection error: $e');
+      return false;
+    }
+  }
+
+  /// The manual collection to propose for one-shot favorites adoption, or
+  /// null. The remembered refusal is device-local (SharedPreferences).
+  Future<Collection?> getFavoritesAdoptionCandidate() async {
+    try {
+      final fc = await frb.getFavoritesAdoptionCandidate();
+      return fc == null ? null : _frbCollectionToCollection(fc);
+    } catch (e) {
+      debugPrint('FFI getFavoritesAdoptionCandidate error: $e');
+      return null;
+    }
+  }
+
+  /// Adopt a manual collection as THE favorites collection (source flip,
+  /// name and members kept).
+  Future<void> adoptFavoritesCollection(String collectionId) async {
+    try {
+      await frb.adoptFavoritesCollection(collectionId: collectionId);
+    } catch (e) {
+      debugPrint('FFI adoptFavoritesCollection error: $e');
+      rethrow;
+    }
+  }
 }

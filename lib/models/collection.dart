@@ -23,6 +23,11 @@ class Collection {
   /// drive the frise on the book-detail screen.
   bool get isSeries => source == 'series';
 
+  /// THE favorites collection (ADR-064): membership is the favorite flag.
+  /// Its stored name may be the technical sentinel; display sites must
+  /// render the translated label instead (see CollectionDisplay).
+  bool get isFavorites => source == 'favorites';
+
   factory Collection.fromJson(Map<String, dynamic> json) {
     return Collection(
       id: json['id'],

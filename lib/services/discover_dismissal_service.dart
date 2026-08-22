@@ -9,12 +9,17 @@ abstract final class DiscoverSuggestionIds {
   static const String publicDirectory = 'public_directory';
   static const String readingLanguages = 'reading_languages';
 
+  /// The favorites marker introduction (ADR-064): tells existing users the
+  /// star-bookmark toggle exists, without any interstitial.
+  static const String favoritesMarker = 'favorites_marker';
+
   /// Every id known to this build. Only used by the one-shot migration off the
   /// legacy global flag.
   static const Set<String> all = <String>{
     localWifi,
     publicDirectory,
     readingLanguages,
+    favoritesMarker,
   };
 }
 

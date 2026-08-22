@@ -39,4 +39,25 @@ abstract class CollectionRepository {
     String bookId,
     int? volumeNumber,
   );
+
+  // ── Favorites (ADR-064) ───────────────────────────────────────────
+
+  /// Toggle a book's favorite state (membership in the typed favorites
+  /// collection). Returns the NEW state; creates the collection lazily.
+  Future<bool> toggleFavoriteBook(String bookId);
+
+  /// All favorite book ids in one pass (cached by FavoritesProvider).
+  Future<List<String>> getFavoriteBookIds();
+
+  /// Seed the empty favorites collection at Reader-preset selection; the
+  /// eligibility gate lives Rust-side. Returns whether it was created.
+  Future<bool> seedFavoritesCollection();
+
+  /// The manual collection to propose for one-shot favorites adoption, or
+  /// null when none qualifies (or a typed collection already exists).
+  Future<Collection?> getFavoritesAdoptionCandidate();
+
+  /// Adopt a manual collection as THE favorites collection (source flip,
+  /// name and members kept).
+  Future<void> adoptFavoritesCollection(String collectionId);
 }

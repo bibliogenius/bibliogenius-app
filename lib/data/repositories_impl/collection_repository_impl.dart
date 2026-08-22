@@ -57,4 +57,22 @@ class CollectionRepositoryImpl implements CollectionRepository {
     String bookId,
     int? volumeNumber,
   ) => _ffi.setBookVolumeNumber(collectionId, bookId, volumeNumber);
+
+  @override
+  Future<bool> toggleFavoriteBook(String bookId) =>
+      _ffi.toggleFavoriteBook(bookId);
+
+  @override
+  Future<List<String>> getFavoriteBookIds() => _ffi.getFavoriteBookIds();
+
+  @override
+  Future<bool> seedFavoritesCollection() => _ffi.seedFavoritesCollection();
+
+  @override
+  Future<Collection?> getFavoritesAdoptionCandidate() =>
+      _ffi.getFavoritesAdoptionCandidate();
+
+  @override
+  Future<void> adoptFavoritesCollection(String collectionId) =>
+      _ffi.adoptFavoritesCollection(collectionId);
 }

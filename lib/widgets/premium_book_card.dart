@@ -6,6 +6,7 @@ import '../services/translation_service.dart';
 import '../theme/app_design.dart';
 import '../utils/book_status.dart';
 import '../utils/ownership_mark.dart';
+import 'favorite_ribbon.dart';
 import 'not_owned_treatment.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -89,6 +90,11 @@ class PremiumBookCard extends StatefulWidget {
   final bool showStatus;
   final ValueChanged<String>? onStatusChanged;
 
+  /// Favorite marker (ADR-064): the star-bookmark ribbon overhanging the
+  /// top-right corner of the standard card. The PARENT computes membership
+  /// from the FavoritesProvider set (one lookup per screen, not per card).
+  final bool isFavorite;
+
   const PremiumBookCard({
     super.key,
     required this.book,
@@ -97,6 +103,7 @@ class PremiumBookCard extends StatefulWidget {
     this.isHero = false,
     this.showStatus = true,
     this.onStatusChanged,
+    this.isFavorite = false,
   });
 
   @override
@@ -215,9 +222,16 @@ class _PremiumBookCardState extends State<PremiumBookCard>
     );
   }
 
-  String get _semanticLabel {
+  String _semanticLabel(BuildContext context) {
     final parts = [widget.book.title];
     if (widget.book.author != null) parts.add(widget.book.author!);
+    if (widget.isFavorite) {
+      // Rule A1: the ribbon is shape-only, the state must still reach
+      // screen readers through the composed card label.
+      parts.add(
+        TranslationService.translate(context, 'favorite_marker_label'),
+      );
+    }
     return parts.join(', ');
   }
 
@@ -226,7 +240,7 @@ class _PremiumBookCardState extends State<PremiumBookCard>
 
     return Semantics(
       button: true,
-      label: _semanticLabel,
+      label: _semanticLabel(context),
       child: GestureDetector(
         onTap: () =>
             context.push('/books/${widget.book.id}', extra: widget.book),
@@ -473,7 +487,7 @@ class _PremiumBookCardState extends State<PremiumBookCard>
 
     return Semantics(
       button: true,
-      label: _semanticLabel,
+      label: _semanticLabel(context),
       child: GestureDetector(
         onTap: () =>
             context.push('/books/${widget.book.id}', extra: widget.book),
@@ -501,7 +515,13 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                       ? AppDesign.glowShadow(theme.colorScheme.primary)
                       : AppDesign.cardShadow,
                 ),
-                child: ClipRRect(
+                child: Stack(
+                  // The favorite ribbon overhangs the card's top edge
+                  // (ADR-064): it must escape the rounded clip below, so it
+                  // lives in this outer, non-clipping Stack.
+                  clipBehavior: Clip.none,
+                  children: [
+                    ClipRRect(
                   borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
                   child: Stack(
                     children: [
@@ -577,12 +597,15 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                             mark: ownershipMarkOf(widget.book),
                           ),
                         ),
-                      // Status Badge (tappable to edit)
+                      // Status Badge (tappable to edit). Steps left of the
+                      // favorite ribbon when it holds the corner (ADR-064).
                       if (widget.showStatus &&
                           widget.book.readingStatus != null)
                         Positioned(
                           top: 8,
-                          right: 8,
+                          right: widget.isFavorite
+                              ? 8 + FavoriteRibbon.boxWidthFor(12) + 4
+                              : 8,
                           child: Builder(
                             builder: (context) {
                               final useInventoryStatuses = context
@@ -640,6 +663,14 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                         ),
                     ],
                   ),
+                ),
+                    if (widget.isFavorite)
+                      Positioned(
+                        top: -FavoriteRibbon.overhangFor(12),
+                        right: 8,
+                        child: const FavoriteRibbon(width: 12),
+                      ),
+                  ],
                 ),
               ),
             ),

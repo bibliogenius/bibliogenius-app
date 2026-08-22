@@ -186,6 +186,32 @@ class MockCollectionRepository implements CollectionRepository {
     String bookId,
     int? volumeNumber,
   ) async {}
+
+  // ── Favorites (ADR-064) ───────────────────────────────────────────
+
+  Set<String> mockFavoriteIds = {};
+
+  @override
+  Future<bool> toggleFavoriteBook(String bookId) async {
+    if (mockFavoriteIds.contains(bookId)) {
+      mockFavoriteIds.remove(bookId);
+      return false;
+    }
+    mockFavoriteIds.add(bookId);
+    return true;
+  }
+
+  @override
+  Future<List<String>> getFavoriteBookIds() async => mockFavoriteIds.toList();
+
+  @override
+  Future<bool> seedFavoritesCollection() async => false;
+
+  @override
+  Future<Collection?> getFavoritesAdoptionCandidate() async => null;
+
+  @override
+  Future<void> adoptFavoritesCollection(String collectionId) async {}
 }
 
 class MockCopyRepository implements CopyRepository {

@@ -100,6 +100,16 @@ class _FakeCollectionRepository implements CollectionRepository {
   Future<void> removeBookFromCollection(String c, String b) async {}
   @override
   Future<void> markCollectionAsSeries(String c, bool isSeries) async {}
+  @override
+  Future<bool> toggleFavoriteBook(String bookId) async => false;
+  @override
+  Future<List<String>> getFavoriteBookIds() async => const [];
+  @override
+  Future<bool> seedFavoritesCollection() async => false;
+  @override
+  Future<Collection?> getFavoritesAdoptionCandidate() async => null;
+  @override
+  Future<void> adoptFavoritesCollection(String collectionId) async {}
 }
 
 class _FakeRecommendationRepository implements RecommendationRepository {

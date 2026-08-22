@@ -10839,3 +10839,59 @@ msgstr "Tout"
 #. Heading of the block offered on a book page right after it is marked as read, introducing what to read next (ADR-062 R5)
 msgid "reading_completion_continue_with"
 msgstr "Poursuivez avec"
+
+#. Display name of the typed favorites collection (ADR-064); the stored name is a technical sentinel, never shown
+msgid "favorites_collection_name"
+msgstr "Favoris"
+
+#. Semantic fragment appended to a book card label when the book is a favorite
+msgid "favorite_marker_label"
+msgstr "favori"
+
+#. Tooltip/label of the favorite toggle on the book page, when the book is not yet a favorite
+msgid "favorite_toggle_add"
+msgstr "Ajouter aux favoris"
+
+#. Tooltip/label of the favorite toggle on the book page, when the book is already a favorite
+msgid "favorite_toggle_remove"
+msgstr "Retirer des favoris"
+
+#. Snackbar after marking a book as favorite
+msgid "favorite_added"
+msgstr "Ajouté aux favoris"
+
+#. Snackbar after unmarking a favorite
+msgid "favorite_removed"
+msgstr "Retiré des favoris"
+
+#. Snackbar when the favorite toggle fails
+msgid "favorite_toggle_error"
+msgstr "Impossible de mettre à jour les favoris"
+
+#. Title of the one-shot dialog offering to adopt a manual favorites-like collection
+msgid "favorites_adopt_title"
+msgstr "Utiliser votre collection existante ?"
+
+#. Body of the adoption dialog. {name} = collection name, {count} = member count
+msgid "favorites_adopt_body"
+msgstr "Votre collection « {name} » ({count} livres) peut devenir votre collection Favoris. Ses livres seront marqués comme favoris et nourriront vos suggestions."
+
+#. Adoption dialog: accept button
+msgid "favorites_adopt_accept"
+msgstr "L'utiliser"
+
+#. Adoption dialog: decline button (remembered, never asked again)
+msgid "favorites_adopt_decline"
+msgstr "Non, en créer une nouvelle"
+
+#. Dashboard Discover tile introducing the favorites marker
+msgid "discover_favorites_marker"
+msgstr "Marquez vos livres préférés"
+
+#. Help screen: favorites topic title
+msgid "help_topic_favorites"
+msgstr "Favoris"
+
+#. Help screen: favorites topic description
+msgid "help_desc_favorites"
+msgstr "Marquez un livre comme favori avec le marque-page étoile sur sa fiche. Les favoris se retrouvent dans une collection Favoris et renforcent vos suggestions de lecture. Tout reste sur votre appareil."

@@ -10467,3 +10467,59 @@ msgstr "全部"
 #. Heading of the block offered on a book page right after it is marked as read, introducing what to read next (ADR-062 R5)
 msgid "reading_completion_continue_with"
 msgstr "接下来读"
+
+#. Display name of the typed favorites collection (ADR-064); the stored name is a technical sentinel, never shown
+msgid "favorites_collection_name"
+msgstr "收藏"
+
+#. Semantic fragment appended to a book card label when the book is a favorite
+msgid "favorite_marker_label"
+msgstr "收藏"
+
+#. Tooltip/label of the favorite toggle on the book page, when the book is not yet a favorite
+msgid "favorite_toggle_add"
+msgstr "添加到收藏"
+
+#. Tooltip/label of the favorite toggle on the book page, when the book is already a favorite
+msgid "favorite_toggle_remove"
+msgstr "从收藏中移除"
+
+#. Snackbar after marking a book as favorite
+msgid "favorite_added"
+msgstr "已添加到收藏"
+
+#. Snackbar after unmarking a favorite
+msgid "favorite_removed"
+msgstr "已从收藏中移除"
+
+#. Snackbar when the favorite toggle fails
+msgid "favorite_toggle_error"
+msgstr "无法更新收藏"
+
+#. Title of the one-shot dialog offering to adopt a manual favorites-like collection
+msgid "favorites_adopt_title"
+msgstr "使用现有合集？"
+
+#. Body of the adoption dialog. {name} = collection name, {count} = member count
+msgid "favorites_adopt_body"
+msgstr "您的合集「{name}」（{count} 本书）可以成为您的收藏合集。其中的书将标记为收藏，并充实您的阅读建议。"
+
+#. Adoption dialog: accept button
+msgid "favorites_adopt_accept"
+msgstr "使用它"
+
+#. Adoption dialog: decline button (remembered, never asked again)
+msgid "favorites_adopt_decline"
+msgstr "否，新建一个"
+
+#. Dashboard Discover tile introducing the favorites marker
+msgid "discover_favorites_marker"
+msgstr "标记您喜爱的书"
+
+#. Help screen: favorites topic title
+msgid "help_topic_favorites"
+msgstr "收藏"
+
+#. Help screen: favorites topic description
+msgid "help_desc_favorites"
+msgstr "在书籍页面用星形书签将其标记为收藏。收藏会汇集到收藏合集中，并增强您的阅读建议。一切都保存在您的设备上。"

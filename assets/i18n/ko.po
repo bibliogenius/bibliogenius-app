@@ -10467,3 +10467,59 @@ msgstr "전체"
 #. Heading of the block offered on a book page right after it is marked as read, introducing what to read next (ADR-062 R5)
 msgid "reading_completion_continue_with"
 msgstr "이어서 읽기"
+
+#. Display name of the typed favorites collection (ADR-064); the stored name is a technical sentinel, never shown
+msgid "favorites_collection_name"
+msgstr "즐겨찾기"
+
+#. Semantic fragment appended to a book card label when the book is a favorite
+msgid "favorite_marker_label"
+msgstr "즐겨찾기"
+
+#. Tooltip/label of the favorite toggle on the book page, when the book is not yet a favorite
+msgid "favorite_toggle_add"
+msgstr "즐겨찾기에 추가"
+
+#. Tooltip/label of the favorite toggle on the book page, when the book is already a favorite
+msgid "favorite_toggle_remove"
+msgstr "즐겨찾기에서 제거"
+
+#. Snackbar after marking a book as favorite
+msgid "favorite_added"
+msgstr "즐겨찾기에 추가됨"
+
+#. Snackbar after unmarking a favorite
+msgid "favorite_removed"
+msgstr "즐겨찾기에서 제거됨"
+
+#. Snackbar when the favorite toggle fails
+msgid "favorite_toggle_error"
+msgstr "즐겨찾기를 업데이트할 수 없습니다"
+
+#. Title of the one-shot dialog offering to adopt a manual favorites-like collection
+msgid "favorites_adopt_title"
+msgstr "기존 컬렉션을 사용할까요?"
+
+#. Body of the adoption dialog. {name} = collection name, {count} = member count
+msgid "favorites_adopt_body"
+msgstr "“{name}” 컬렉션({count}권)을 즐겨찾기 컬렉션으로 만들 수 있습니다. 그 책들은 즐겨찾기로 표시되어 추천에 반영됩니다."
+
+#. Adoption dialog: accept button
+msgid "favorites_adopt_accept"
+msgstr "사용"
+
+#. Adoption dialog: decline button (remembered, never asked again)
+msgid "favorites_adopt_decline"
+msgstr "아니요, 새로 만들기"
+
+#. Dashboard Discover tile introducing the favorites marker
+msgid "discover_favorites_marker"
+msgstr "좋아하는 책에 표시하세요"
+
+#. Help screen: favorites topic title
+msgid "help_topic_favorites"
+msgstr "즐겨찾기"
+
+#. Help screen: favorites topic description
+msgid "help_desc_favorites"
+msgstr "책 페이지의 별 책갈피로 즐겨찾기에 등록하세요. 즐겨찾기는 즐겨찾기 컬렉션에 모이고 독서 추천을 강화합니다. 모든 것은 기기에만 저장됩니다."

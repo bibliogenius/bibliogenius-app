@@ -35,6 +35,7 @@ import 'providers/metadata_fill_provider.dart';
 import 'providers/operation_log_provider.dart';
 import 'providers/sliding_puzzle_provider.dart';
 import 'providers/hangman_provider.dart';
+import 'providers/favorites_provider.dart';
 import 'providers/recommendation_provider.dart';
 import 'data/repositories/book_repository.dart';
 import 'data/repositories/tag_repository.dart';
@@ -710,6 +711,12 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<RecommendationProvider>(
           create: (context) => RecommendationProvider(
             context.read<RecommendationRepository>(),
+            bookRefreshNotifier,
+          ),
+        ),
+        ChangeNotifierProvider<FavoritesProvider>(
+          create: (context) => FavoritesProvider(
+            context.read<CollectionRepository>(),
             bookRefreshNotifier,
           ),
         ),

@@ -7,9 +7,11 @@ import 'package:go_router/go_router.dart';
 import '../models/book.dart';
 import '../models/collection.dart';
 import '../services/translation_service.dart';
+import '../utils/collection_display.dart';
 import 'book_cover_card.dart';
 import 'book_cover_grid.dart';
 import 'cached_book_cover.dart';
+import 'favorite_ribbon.dart';
 
 // ---------------------------------------------------------------------------
 // Data model
@@ -82,9 +84,10 @@ class _CollectionStackWidgetState extends State<CollectionStackWidget> {
   @override
   Widget build(BuildContext context) {
     final group = widget.group;
-    final name =
-        group.collection?.name ??
-        TranslationService.translate(context, 'collection_group_uncollected');
+    final collection = group.collection;
+    final name = collection != null
+        ? collectionDisplayName(context, collection)
+        : TranslationService.translate(context, 'collection_group_uncollected');
     final bookCount = group.books.length;
 
     final booksLabel = TranslationService.translate(
@@ -103,9 +106,34 @@ class _CollectionStackWidgetState extends State<CollectionStackWidget> {
     ).replaceAll('{n}', '${group.ownedCount}');
     final tooltipMessage = '$name\n$bookCount $booksLabel - $ownedLabel';
 
+    final isFavorites = collection != null && collection.isFavorites;
+    Widget stack = _StackedCovers(
+      covers: group.stackCoverUrls,
+      bookCount: bookCount,
+      ownedCount: group.ownedCount,
+      // Type emblem (ADR-064): drawn INSIDE _StackedCovers, anchored to
+      // the FRONT cover (the pile's fanned back layers make a box-anchored
+      // ribbon float detached from the card). Grouped-grid cells are
+      // fixed-extent, so the tile reserves transparent headroom for the
+      // overhang instead of painting outside its bounds.
+      favoritesEmblem: isFavorites,
+    );
+
+    if (isFavorites) {
+      stack = Padding(
+        padding: EdgeInsets.only(
+          top: FavoriteRibbon.overhangFor(_StackedCovers.emblemWidth),
+        ),
+        child: stack,
+      );
+    }
+
     return Semantics(
       button: true,
-      label: semanticLabel,
+      label: collection != null && collection.isFavorites
+          ? '$semanticLabel, '
+                '${TranslationService.translate(context, 'favorite_marker_label')}'
+          : semanticLabel,
       excludeSemantics: true,
       child: Tooltip(
         message: tooltipMessage,
@@ -121,11 +149,7 @@ class _CollectionStackWidgetState extends State<CollectionStackWidget> {
               scale: _pressed ? 0.93 : 1.0,
               duration: const Duration(milliseconds: 120),
               curve: Curves.easeOut,
-              child: _StackedCovers(
-                covers: group.stackCoverUrls,
-                bookCount: bookCount,
-                ownedCount: group.ownedCount,
-              ),
+              child: stack,
             ),
           ),
         ),
@@ -152,10 +176,18 @@ class _StackedCovers extends StatelessWidget {
   final int bookCount;
   final int ownedCount;
 
+  /// Favorites type emblem (ADR-064), anchored to the FRONT cover's top
+  /// edge, left side: the top-right of the front cover is already owned by
+  /// the collection tag and the count badge.
+  final bool favoritesEmblem;
+
+  static const double emblemWidth = 12;
+
   const _StackedCovers({
     required this.covers,
     required this.bookCount,
     this.ownedCount = 0,
+    this.favoritesEmblem = false,
   });
 
   @override
@@ -194,6 +226,17 @@ class _StackedCovers extends StatelessWidget {
                 coverH: coverH,
                 isTop: i == visibleCount - 1,
                 theme: theme,
+              ),
+
+            // Favorites emblem, overhanging the FRONT cover's top edge on
+            // its left side (the right side carries the tag + count).
+            if (favoritesEmblem)
+              Positioned(
+                top: (availH - coverH) / 2 - FavoriteRibbon.overhangFor(emblemWidth),
+                // Flush with the front cover's left edge, a small fixed
+                // inset (recette tuning, twice adjusted leftwards).
+                left: (availW - coverW) / 2 + 3,
+                child: const FavoriteRibbon(width: emblemWidth),
               ),
 
             // "Collection" tag, anchored to the top-right of the front cover.
@@ -373,9 +416,10 @@ class CollectionGroupBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final collectionName =
-        group.collection?.name ??
-        TranslationService.translate(context, 'collection_group_uncollected');
+    final sheetCollection = group.collection;
+    final collectionName = sheetCollection != null
+        ? collectionDisplayName(context, sheetCollection)
+        : TranslationService.translate(context, 'collection_group_uncollected');
     final viewAllLabel = TranslationService.translate(
       context,
       'collection_view_all',
@@ -736,15 +780,55 @@ class _CollectionCoverCardState extends State<CollectionCoverCard> {
     );
   }
 
+  /// Emblem scale of the favorites ribbon on the collection card.
+  static const double _emblemWidth = 14;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final bookCount = widget.collection.totalBooks;
+    final displayName = collectionDisplayName(context, widget.collection);
     final booksLabel = TranslationService.translate(
       context,
       'collection_group_books_count',
     );
-    final semanticLabel = '${widget.collection.name}, $bookCount $booksLabel';
+    var semanticLabel = '$displayName, $bookCount $booksLabel';
+    if (widget.collection.isFavorites) {
+      // The emblem is shape-only; the type must still reach screen readers.
+      semanticLabel =
+          '$semanticLabel, '
+          '${TranslationService.translate(context, 'favorite_marker_label')}';
+    }
+
+    Widget coversArea = widget.coverUrls.isEmpty
+        ? _buildColoredFallback(theme)
+        : _StackedCovers(
+            covers: widget.coverUrls,
+            bookCount: bookCount,
+            ownedCount: widget.collection.ownedBooks,
+          );
+
+    if (widget.collection.isFavorites) {
+      // Type emblem (ADR-064): the same star bookmark, overhanging the top
+      // of the cover mosaic as it overhangs a book. The grid cell is a
+      // fixed-extent tile, so the card reserves transparent headroom
+      // instead of painting outside its bounds.
+      final overhang = FavoriteRibbon.overhangFor(_emblemWidth);
+      coversArea = Padding(
+        padding: EdgeInsets.only(top: overhang),
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            coversArea,
+            Positioned(
+              top: -overhang,
+              right: 14,
+              child: const FavoriteRibbon(width: _emblemWidth),
+            ),
+          ],
+        ),
+      );
+    }
 
     return Semantics(
       button: true,
@@ -766,21 +850,13 @@ class _CollectionCoverCardState extends State<CollectionCoverCard> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 // Covers area
-                Expanded(
-                  child: widget.coverUrls.isEmpty
-                      ? _buildColoredFallback(theme)
-                      : _StackedCovers(
-                          covers: widget.coverUrls,
-                          bookCount: bookCount,
-                          ownedCount: widget.collection.ownedBooks,
-                        ),
-                ),
+                Expanded(child: coversArea),
                 const SizedBox(height: 2),
                 // Collection name below
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 2),
                   child: Text(
-                    widget.collection.name,
+                    displayName,
                     style: theme.textTheme.labelMedium?.copyWith(
                       fontWeight: FontWeight.w600,
                       letterSpacing: -0.1,
@@ -955,11 +1031,16 @@ class CollectionGroupGrid extends StatelessWidget {
   /// grid evaluates its own (assumed complete) set.
   final bool? showNewBadge;
 
+  /// Favorite book ids (ADR-064), one set per screen from the
+  /// FavoritesProvider cache. Null renders no ribbon.
+  final Set<String>? favoriteIds;
+
   const CollectionGroupGrid({
     super.key,
     required this.groups,
     required this.onBookTap,
     this.showNewBadge,
+    this.favoriteIds,
   });
 
   @override
@@ -988,6 +1069,7 @@ class CollectionGroupGrid extends StatelessWidget {
             book: book,
             onTap: () => onBookTap(book),
             showNewBadge: showNew,
+            isFavorite: favoriteIds?.contains(book.id) ?? false,
           );
         }
         // Collection with books: render as stacked covers.

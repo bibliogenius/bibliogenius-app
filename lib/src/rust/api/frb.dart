@@ -1579,6 +1579,40 @@ Future<FrbRecommendationResponse> getPersonalRecommendations({int? limit}) =>
 Future<FrbDiscoveryLookupInputs> getDiscoveryLookupInputs() =>
     RustLib.instance.api.crateApiFrbGetDiscoveryLookupInputs();
 
+/// Toggle a book's favorite state (membership in the `source = 'favorites'`
+/// collection). Returns the NEW state (`true` = now a favorite). The
+/// collection is created lazily on the first marking and duplicates from
+/// other devices are merged first (keep-oldest rule, ADR-064).
+Future<bool> toggleFavoriteBook({required String bookId}) =>
+    RustLib.instance.api.crateApiFrbToggleFavoriteBook(bookId: bookId);
+
+/// All favorite book ids in one pass. Cached Flutter-side (provider), so
+/// cards never call this per item. Empty when no favorites collection
+/// exists; reading never creates it.
+Future<List<String>> getFavoriteBookIds() =>
+    RustLib.instance.api.crateApiFrbGetFavoriteBookIds();
+
+/// Seed the empty favorites collection at Reader-profile selection. The
+/// eligibility gate (no typed collection, no favorites-like collection
+/// name, no favorites-like shelf label) is enforced Rust-side; returns
+/// `true` only when the collection was actually created. Never call this
+/// from startup or migration paths (ADR-064).
+Future<bool> seedFavoritesCollection() =>
+    RustLib.instance.api.crateApiFrbSeedFavoritesCollection();
+
+/// The manual collection to propose for one-shot adoption on the first
+/// favorite tap (oldest favorites-like `source = 'manual'` collection), or
+/// None. The remembered refusal is device-local, Flutter-side.
+Future<FrbCollection?> getFavoritesAdoptionCandidate() =>
+    RustLib.instance.api.crateApiFrbGetFavoritesAdoptionCandidate();
+
+/// Adopt a manual collection as THE favorites collection: flips its source
+/// to 'favorites', keeps its name and members.
+Future<void> adoptFavoritesCollection({required String collectionId}) => RustLib
+    .instance
+    .api
+    .crateApiFrbAdoptFavoritesCollection(collectionId: collectionId);
+
 /// Subset of the manifest surfaced to the wizard's preview screen. Mirrors
 /// `ManifestSummary` field-by-field but flattened for FFI portability.
 /// Counts cross the FFI as `i64`.

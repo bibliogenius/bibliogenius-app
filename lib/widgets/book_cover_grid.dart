@@ -25,6 +25,10 @@ class BookCoverGrid extends StatelessWidget {
   /// grid falls back to evaluating its own (assumed complete) list.
   final bool? showNewBadge;
 
+  /// Favorite book ids (ADR-064), one set per screen from the
+  /// FavoritesProvider cache. Null renders no ribbon (peer grids, tests).
+  final Set<String>? favoriteIds;
+
   const BookCoverGrid({
     super.key,
     required this.books,
@@ -32,6 +36,7 @@ class BookCoverGrid extends StatelessWidget {
     this.onStatusChanged,
     this.availabilityLabels,
     this.showNewBadge,
+    this.favoriteIds,
   });
 
   @override
@@ -74,6 +79,7 @@ class BookCoverGrid extends StatelessWidget {
           // Map lookup with a null ISBN just returns null (no badge).
           availabilityLabel: availabilityLabels?[book.isbn],
           showNewBadge: showNewBadge ?? newBadgeIsInformative(books),
+          isFavorite: favoriteIds?.contains(book.id) ?? false,
         );
       },
     );

@@ -31,7 +31,9 @@ import '../models/book_note.dart';
 import '../providers/book_note_provider.dart'
     show BookNoteProvider, maxNoteContentLength;
 import '../providers/book_refresh_notifier.dart';
+import '../providers/favorites_provider.dart';
 import '../widgets/app_snack_bar.dart';
+import '../widgets/favorite_ribbon.dart';
 import '../widgets/reading_completion_suggestions.dart';
 import '../widgets/book_note_tile.dart';
 import '../widgets/book_recommendations_section.dart';
@@ -43,6 +45,7 @@ import '../providers/theme_provider.dart';
 import '../services/api_service.dart';
 import '../services/ffi_service.dart';
 import '../services/translation_service.dart';
+import '../utils/collection_display.dart';
 import '../utils/book_status.dart';
 import '../widgets/cached_book_cover.dart';
 import '../widgets/series_frieze_widget.dart';
@@ -110,6 +113,10 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       _fetchBookDetails();
     }
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadAuthorVocabulary());
+    // Warm the favorite set so the toggle renders its real state (ADR-064).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) context.read<FavoritesProvider>().ensureLoaded();
+    });
   }
 
   /// The library's individual author names, memoised provider-side, so this
@@ -1283,7 +1290,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       chips.add(
         _taxonomyPill(
           icon: Icons.collections_bookmark_outlined,
-          label: collection.name,
+          label: collectionDisplayName(context, collection),
           color: color,
           onTap: () =>
               context.push('/collections/${collection.id}', extra: collection),
@@ -1650,10 +1657,14 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             ),
           ),
         ],
-        // --- Edit + Copies (secondary, outlined) ---
+        // --- Favorite + Edit + Copies (secondary, outlined) ---
         const SizedBox(height: 12),
         Row(
           children: [
+            if (book.id != null) ...[
+              _buildFavoriteToggle(context, book),
+              const SizedBox(width: 12),
+            ],
             Expanded(
               child: Tooltip(
                 message:
@@ -1878,6 +1889,145 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           _buildPerBookLoanDuration(context),
         ],
       ],
+    );
+  }
+
+  /// The favorite toggle (ADR-064): a square outlined control carrying the
+  /// star-bookmark glyph, outline when off, filled when on. The glyph is
+  /// the marker's own drawing so the vocabulary stays strict (star
+  /// bookmark = favorite, heart = wished).
+  Widget _buildFavoriteToggle(BuildContext context, Book book) {
+    return Selector<FavoritesProvider, bool>(
+      selector: (_, favorites) => favorites.isFavorite(book.id),
+      builder: (context, isFavorite, _) {
+        final label = TranslationService.translate(
+          context,
+          isFavorite ? 'favorite_toggle_remove' : 'favorite_toggle_add',
+        );
+        return Semantics(
+          button: true,
+          label: label,
+          child: Tooltip(
+            message: label,
+            excludeFromSemantics: true,
+            child: OutlinedButton(
+              key: const Key('favoriteToggleButton'),
+              onPressed: () => _toggleFavorite(book),
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size(48, 48),
+                padding: EdgeInsets.zero,
+                side: BorderSide(
+                  color: isFavorite
+                      ? favoriteRibbonTeal
+                      : Theme.of(context).colorScheme.outlineVariant,
+                ),
+                visualDensity: VisualDensity.compact,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: FavoriteRibbonIcon(active: isFavorite, size: 26),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _toggleFavorite(Book book) async {
+    final bookId = book.id;
+    if (bookId == null) return;
+    final favorites = context.read<FavoritesProvider>();
+
+    try {
+      // One-shot adoption (ADR-064): before the first marking creates the
+      // typed collection, offer to adopt a pre-existing manual "favorites"
+      // collection. Declining is remembered; the question never returns.
+      if (!favorites.isFavorite(bookId)) {
+        final candidate = await favorites.adoptionCandidate();
+        if (candidate != null && mounted) {
+          final adopt = await _showFavoritesAdoptionDialog(candidate);
+          if (adopt == true) {
+            await favorites.adopt(candidate);
+          } else {
+            await favorites.declineAdoption();
+          }
+          // The adopted collection may already contain this book: only
+          // toggle when it is still unmarked.
+          if (favorites.isFavorite(bookId)) {
+            if (mounted) {
+              AppSnackBar.success(
+                context,
+                TranslationService.translate(context, 'favorite_added'),
+              );
+            }
+            return;
+          }
+        }
+      }
+
+      final isNowFavorite = await favorites.toggle(bookId);
+      if (!mounted) return;
+      AppSnackBar.success(
+        context,
+        TranslationService.translate(
+          context,
+          isNowFavorite ? 'favorite_added' : 'favorite_removed',
+        ),
+      );
+    } catch (e) {
+      debugPrint('Error toggling favorite: $e');
+      if (!mounted) return;
+      AppSnackBar.error(
+        context,
+        TranslationService.translate(context, 'favorite_toggle_error'),
+      );
+    }
+  }
+
+  Future<bool?> _showFavoritesAdoptionDialog(Collection candidate) {
+    return showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(
+          TranslationService.translate(
+            dialogContext,
+            'favorites_adopt_title',
+          ),
+        ),
+        content: Text(
+          TranslationService.translate(
+            dialogContext,
+            'favorites_adopt_body',
+            params: {
+              // Display-name mapping: a recovered sentinel-named candidate
+              // must read "Favoris", never its technical name.
+              'name': collectionDisplayName(dialogContext, candidate),
+              'count': '${candidate.totalBooks}',
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(
+              TranslationService.translate(
+                dialogContext,
+                'favorites_adopt_decline',
+              ),
+            ),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(
+              TranslationService.translate(
+                dialogContext,
+                'favorites_adopt_accept',
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

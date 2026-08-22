@@ -30,6 +30,7 @@ import '../widgets/wishlist_availability_badge.dart';
 import '../theme/app_design.dart';
 import '../providers/theme_provider.dart';
 import '../providers/book_refresh_notifier.dart';
+import '../providers/favorites_provider.dart';
 import '../providers/sort_preference_provider.dart';
 import '../utils/book_filters.dart';
 import '../utils/book_sort.dart';
@@ -152,6 +153,9 @@ class _BookListScreenState extends State<BookListScreen>
       // Re-sort the visible list whenever the user changes the sort preference.
       _sortPrefProvider = context.read<SortPreferenceProvider>();
       _sortPrefProvider?.addListener(_handleSortPrefChanged);
+
+      // Warm the favorite id set so the covers wear their ribbon (ADR-064).
+      context.read<FavoritesProvider>().ensureLoaded();
     });
 
     _fetchBooks();
@@ -2532,6 +2536,10 @@ class _BookListScreenState extends State<BookListScreen>
       );
     }
 
+    // One favorites lookup per screen build (ADR-064): the set comes from
+    // the provider cache and each card checks membership in O(1).
+    final favoriteIds = context.watch<FavoritesProvider>().favoriteIds;
+
     switch (_viewMode) {
       case ViewMode.coverGrid:
         return RefreshIndicator(
@@ -2544,6 +2552,7 @@ class _BookListScreenState extends State<BookListScreen>
             // Evaluated on the FULL library: a filter or search isolating
             // fresh books is an all-new subset, and the band must survive.
             showNewBadge: newBadgeIsInformative(_books),
+            favoriteIds: favoriteIds,
           ),
         );
       case ViewMode.spineShelf:
@@ -2570,6 +2579,7 @@ class _BookListScreenState extends State<BookListScreen>
             onBookTap: _onBookTap,
             // Full-library rule, same reason as the plain covers grid above.
             showNewBadge: newBadgeIsInformative(_books),
+            favoriteIds: favoriteIds,
           ),
         );
     }

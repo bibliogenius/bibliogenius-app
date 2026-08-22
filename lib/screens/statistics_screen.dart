@@ -13,6 +13,7 @@ import '../data/repositories/loan_repository.dart';
 import '../models/loan.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
+import '../utils/collection_display.dart';
 import '../models/book.dart';
 import '../models/contact.dart';
 import '../models/tag.dart';
@@ -2107,7 +2108,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  col.name,
+                  collectionDisplayName(context, col),
                   style: TextStyle(fontSize: isDesktop ? 15 : 13),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -2635,7 +2636,7 @@ class _StatisticsContentState extends State<StatisticsContent>
                   rated.length;
               collectionRatings.add(
                 _RatingGroup(
-                  name: col.name,
+                  name: collectionDisplayName(context, col),
                   avgRating: avg,
                   ratedCount: rated.length,
                 ),
@@ -4653,7 +4654,7 @@ class _StatisticsContentState extends State<StatisticsContent>
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                col.name,
+                collectionDisplayName(context, col),
                 style: theme.textTheme.bodyMedium?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),

@@ -953,6 +953,11 @@ class ThemeProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Test seam for the Reader-preset favorites seeding (ADR-064): the FFI
+  /// call needs a native backend, which widget tests do not have.
+  @visibleForTesting
+  static Future<bool> Function()? seedFavoritesOverride;
+
   /// Apply a preset configuration that enables/disables multiple modules at once
   Future<void> applyPreset(String presetName) async {
     switch (presetName) {
@@ -967,6 +972,13 @@ class ThemeProvider with ChangeNotifier {
         await setCanLendBooks(true);
         await setAllowPrivateBooks(true);
         await setInventoryStatusesEnabled(false);
+        // Seed the favorites collection (ADR-064). ONLY here: selecting the
+        // Reader profile is the one explicit gesture that pre-creates it;
+        // startup and migrations never do. The eligibility gate (no typed
+        // collection, no favorites-like collection or shelf) lives
+        // Rust-side, so applying the preset twice stays a no-op.
+        await (seedFavoritesOverride?.call() ??
+            FfiService().seedFavoritesCollection());
         break;
       case 'librarian':
         // Librarian preset: cataloguing flow (available/checked_out/...)

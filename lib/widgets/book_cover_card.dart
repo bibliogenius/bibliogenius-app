@@ -9,6 +9,7 @@ import '../utils/book_display.dart';
 import '../utils/book_status.dart';
 import '../utils/ownership_mark.dart';
 import 'cached_book_cover.dart';
+import 'favorite_ribbon.dart';
 import 'new_corner_band.dart';
 import 'not_owned_treatment.dart';
 import 'wishlist_availability_badge.dart';
@@ -35,6 +36,13 @@ class BookCoverCard extends StatelessWidget {
   /// which had no marker at all, opts in.
   final bool showNewBadge;
 
+  /// Favorite marker (ADR-064): the star-bookmark ribbon overhanging the
+  /// top-right corner. The PARENT computes membership (one
+  /// FavoritesProvider set per screen, never a per-card lookup) and only
+  /// the main library surfaces pass it; compact strips stay ribbon-free
+  /// by decision (their item height is exactly the cover height).
+  final bool isFavorite;
+
   const BookCoverCard({
     super.key,
     required this.book,
@@ -43,7 +51,18 @@ class BookCoverCard extends StatelessWidget {
     this.isPeerCover = false,
     this.availabilityLabel,
     this.showNewBadge = false,
+    this.isFavorite = false,
   });
+
+  /// Ribbon body width at cover scale (the collection card uses 14).
+  static const double _ribbonWidth = 12;
+
+  /// Right inset of the tappable reading-status pill: when the ribbon
+  /// holds the corner, the pill steps left of it so the two never overlap
+  /// (the ribbon is an indicator, the pill stays tappable).
+  double get _statusRight => isFavorite
+      ? 8.0 + FavoriteRibbon.boxWidthFor(_ribbonWidth) + 4.0
+      : 8.0;
 
   Color _getColorFromSeed(BuildContext context, int seed) {
     final isDark =
@@ -67,7 +86,7 @@ class BookCoverCard extends StatelessWidget {
       statusBadgeShown: book.readingStatus != null,
     );
 
-    return GestureDetector(
+    final card = GestureDetector(
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
@@ -123,7 +142,7 @@ class BookCoverCard extends StatelessWidget {
               if (book.readingStatus != null)
                 Positioned(
                   top: 8,
-                  right: 8,
+                  right: _statusRight,
                   child: Builder(
                     builder: (context) {
                       final useInventoryStatuses = Provider.of<ThemeProvider>(
@@ -186,7 +205,7 @@ class BookCoverCard extends StatelessWidget {
                         onTap: onBadgeTap,
                         child: ConstrainedBox(
                           constraints: BoxConstraints(
-                            maxWidth: box.maxWidth - 16,
+                            maxWidth: box.maxWidth - 8 - _statusRight,
                           ),
                           child: Container(
                             padding: const EdgeInsets.symmetric(
@@ -225,6 +244,31 @@ class BookCoverCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+
+    if (!isFavorite) return card;
+
+    // Favorite ribbon (ADR-064): drawn OUTSIDE the clipped card container
+    // so the star emerges above the tile's top edge; the outer Stack does
+    // not clip and adds no layout size, so grids keep their geometry. The
+    // shape alone must not carry the state (Rule A1): like OwnershipBadge,
+    // the marker announces itself with a translated label.
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        card,
+        Positioned(
+          top: -FavoriteRibbon.overhangFor(_ribbonWidth),
+          right: 8,
+          child: Semantics(
+            label: TranslationService.translate(
+              context,
+              'favorite_marker_label',
+            ),
+            child: const FavoriteRibbon(width: _ribbonWidth),
+          ),
+        ),
+      ],
     );
   }
 

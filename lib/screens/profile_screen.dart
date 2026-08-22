@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/avatar_config.dart';
 import '../models/gamification_status.dart';
 import '../models/leaderboard_entry.dart';
+import '../providers/favorites_provider.dart';
 import '../providers/hub_directory_provider.dart';
 import '../providers/theme_provider.dart';
 import '../theme/app_design.dart';
@@ -18,6 +19,7 @@ import '../services/ffi_service.dart';
 import '../services/mdns_service.dart';
 import '../services/translation_service.dart';
 import '../widgets/avatar_customizer.dart';
+import '../widgets/favorites_showcase.dart';
 import '../widgets/gamification_widgets.dart';
 import '../widgets/genie_app_bar.dart';
 import '../widgets/reorderable_sections.dart';
@@ -87,6 +89,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _fetchViewStats();
     _fetchFollowerCount();
     _loadStatCardPrefs();
+    // Warm the favorite set so the showcase section can gate itself.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) context.read<FavoritesProvider>().ensureLoaded();
+    });
   }
 
   Future<void> _fetchStatus() async {
@@ -567,6 +573,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildProfileSections(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    // Watched so the favorites showcase appears/disappears with the set
+    // (ADR-064 follow-up); the section itself stays user-hideable through
+    // the standard edit mode.
+    final hasFavorites = context
+        .watch<FavoritesProvider>()
+        .favoriteIds
+        .isNotEmpty;
 
     final sections = <SectionConfig>[
       SectionConfig(
@@ -576,6 +589,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
         gradient: AppDesign.oceanGradient,
         builder: (_) => _buildStatsSummaryContent(),
       ),
+      if (hasFavorites)
+        SectionConfig(
+          id: 'favorites',
+          title: TranslationService.translate(
+            context,
+            'favorites_collection_name',
+          ),
+          icon: Icons.bookmark_outline,
+          gradient: AppDesign.primaryGradient,
+          builder: (_) => const FavoritesShowcase(),
+        ),
       if (themeProvider.gamificationEnabled && _userStatus != null)
         SectionConfig(
           id: 'gamification',

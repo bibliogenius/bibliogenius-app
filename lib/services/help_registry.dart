@@ -221,6 +221,20 @@ class HelpRegistry {
         ),
         gate: _collectionsEnabled,
       ),
+      // Favorites (ADR-064): the star-bookmark marker and its typed
+      // collection. Not gated on the collections module: the toggle lives
+      // on the book page and works regardless.
+      _GatedTopic(
+        topic: HelpTopic.faq(
+          id: 'favorites',
+          icon: Icons.bookmark_outline,
+          titleKey: 'help_topic_favorites',
+          descKey: 'help_desc_favorites',
+          gradient: AppDesign.primaryGradient,
+          ctaKey: 'help_cta_go_to_library',
+          ctaRoute: '/books',
+        ),
+      ),
       _GatedTopic(
         topic: HelpTopic.faq(
           id: 'audio',

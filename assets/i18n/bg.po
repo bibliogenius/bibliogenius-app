@@ -10755,3 +10755,59 @@ msgstr "Всичко"
 #. Heading of the block offered on a book page right after it is marked as read, introducing what to read next (ADR-062 R5)
 msgid "reading_completion_continue_with"
 msgstr "Продължете с"
+
+#. Display name of the typed favorites collection (ADR-064); the stored name is a technical sentinel, never shown
+msgid "favorites_collection_name"
+msgstr "Любими"
+
+#. Semantic fragment appended to a book card label when the book is a favorite
+msgid "favorite_marker_label"
+msgstr "любима"
+
+#. Tooltip/label of the favorite toggle on the book page, when the book is not yet a favorite
+msgid "favorite_toggle_add"
+msgstr "Добави в любими"
+
+#. Tooltip/label of the favorite toggle on the book page, when the book is already a favorite
+msgid "favorite_toggle_remove"
+msgstr "Премахни от любими"
+
+#. Snackbar after marking a book as favorite
+msgid "favorite_added"
+msgstr "Добавено в любими"
+
+#. Snackbar after unmarking a favorite
+msgid "favorite_removed"
+msgstr "Премахнато от любими"
+
+#. Snackbar when the favorite toggle fails
+msgid "favorite_toggle_error"
+msgstr "Любимите не можаха да бъдат обновени"
+
+#. Title of the one-shot dialog offering to adopt a manual favorites-like collection
+msgid "favorites_adopt_title"
+msgstr "Да използваме ли съществуващата ви колекция?"
+
+#. Body of the adoption dialog. {name} = collection name, {count} = member count
+msgid "favorites_adopt_body"
+msgstr "Вашата колекция „{name}“ ({count} книги) може да стане вашата колекция Любими. Книгите в нея ще бъдат отбелязани като любими и ще подхранват предложенията ви."
+
+#. Adoption dialog: accept button
+msgid "favorites_adopt_accept"
+msgstr "Използвай я"
+
+#. Adoption dialog: decline button (remembered, never asked again)
+msgid "favorites_adopt_decline"
+msgstr "Не, създай нова"
+
+#. Dashboard Discover tile introducing the favorites marker
+msgid "discover_favorites_marker"
+msgstr "Отбележете любимите си книги"
+
+#. Help screen: favorites topic title
+msgid "help_topic_favorites"
+msgstr "Любими"
+
+#. Help screen: favorites topic description
+msgid "help_desc_favorites"
+msgstr "Отбележете книга като любима със звездния показалец на страницата ѝ. Любимите се събират в колекция Любими и засилват предложенията за четене. Всичко остава на вашето устройство."

@@ -100,6 +100,7 @@ void main() {
       expect(remaining, {
         DiscoverSuggestionIds.localWifi,
         DiscoverSuggestionIds.readingLanguages,
+        DiscoverSuggestionIds.favoritesMarker,
       });
     },
   );

@@ -144,6 +144,14 @@ class _DashboardScreenState extends State<DashboardScreen>
               labelKey: 'settings_goal_language',
               route: '/settings?focus=language',
             ),
+          // Favorites marker introduction (ADR-064): no capability gate,
+          // the toggle exists for everyone; dismissal alone retires it.
+          const _DiscoverSuggestion(
+            id: DiscoverSuggestionIds.favoritesMarker,
+            icon: Icons.bookmark_outline,
+            labelKey: 'discover_favorites_marker',
+            route: '/help?topic=favorites',
+          ),
         ];
         final picked = suggestions
             .where((s) => !_dismissedDiscoverIds.contains(s.id))
