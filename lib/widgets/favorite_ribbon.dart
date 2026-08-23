@@ -180,14 +180,6 @@ class FavoriteRibbonPainter extends CustomPainter {
           ..strokeWidth = w * 0.064
           ..color = Colors.black.withValues(alpha: 0.18),
       );
-      // Left highlight line, like light on a satin ribbon.
-      canvas.drawLine(
-        Offset(cx - w / 2 + w * 0.14, ribbonTop + w * 0.14),
-        Offset(cx - w / 2 + w * 0.14, ribbonBottom - notchDepth - w * 0.36),
-        Paint()
-          ..strokeWidth = stroke
-          ..color = Colors.white.withValues(alpha: 0.35),
-      );
     }
 
     // Star head: surface fill, teal outline, round joins.
