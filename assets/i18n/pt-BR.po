@@ -10819,3 +10819,11 @@ msgstr "Favoritos"
 #. Help screen: favorites topic description
 msgid "help_desc_favorites"
 msgstr "Marque um livro como favorito com o marcador estrela na página dele. Os favoritos se reúnem em uma coleção de Favoritos e reforçam suas sugestões de leitura. Tudo fica no seu dispositivo."
+
+#. Curated list card: link unfolding the full book list, {count} is the total
+msgid "curated_see_all_books"
+msgstr "Ver todos os {count} livros"
+
+#. Curated list card: link folding the book list back to the 3-book preview
+msgid "curated_see_less"
+msgstr "Mostrar menos"

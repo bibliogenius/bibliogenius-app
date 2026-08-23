@@ -10811,3 +10811,11 @@ msgstr "Любими"
 #. Help screen: favorites topic description
 msgid "help_desc_favorites"
 msgstr "Отбележете книга като любима със звездния показалец на страницата ѝ. Любимите се събират в колекция Любими и засилват предложенията за четене. Всичко остава на вашето устройство."
+
+#. Curated list card: link unfolding the full book list, {count} is the total
+msgid "curated_see_all_books"
+msgstr "Виж всичките {count} книги"
+
+#. Curated list card: link folding the book list back to the 3-book preview
+msgid "curated_see_less"
+msgstr "Покажи по-малко"

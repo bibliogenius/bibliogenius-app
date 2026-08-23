@@ -10523,3 +10523,11 @@ msgstr "お気に入り"
 #. Help screen: favorites topic description
 msgid "help_desc_favorites"
 msgstr "本のページにある星のしおりでお気に入りに登録できます。お気に入りはお気に入りコレクションに集まり、読書の提案を強化します。すべて端末内に保存されます。"
+
+#. Curated list card: link unfolding the full book list, {count} is the total
+msgid "curated_see_all_books"
+msgstr "{count}冊すべてを見る"
+
+#. Curated list card: link folding the book list back to the 3-book preview
+msgid "curated_see_less"
+msgstr "折りたたむ"

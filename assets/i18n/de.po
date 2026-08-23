@@ -10680,3 +10680,11 @@ msgstr "Favoriten"
 #. Help screen: favorites topic description
 msgid "help_desc_favorites"
 msgstr "Markieren Sie ein Buch mit dem Sternen-Lesezeichen auf seiner Seite als Favorit. Favoriten sammeln sich in einer Favoriten-Sammlung und stärken Ihre Lesevorschläge. Alles bleibt auf Ihrem Gerät."
+
+#. Curated list card: link unfolding the full book list, {count} is the total
+msgid "curated_see_all_books"
+msgstr "Alle {count} Bücher anzeigen"
+
+#. Curated list card: link folding the book list back to the 3-book preview
+msgid "curated_see_less"
+msgstr "Weniger anzeigen"

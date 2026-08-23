@@ -10523,3 +10523,11 @@ msgstr "收藏"
 #. Help screen: favorites topic description
 msgid "help_desc_favorites"
 msgstr "在书籍页面用星形书签将其标记为收藏。收藏会汇集到收藏合集中，并增强您的阅读建议。一切都保存在您的设备上。"
+
+#. Curated list card: link unfolding the full book list, {count} is the total
+msgid "curated_see_all_books"
+msgstr "查看全部{count}本书"
+
+#. Curated list card: link folding the book list back to the 3-book preview
+msgid "curated_see_less"
+msgstr "收起"

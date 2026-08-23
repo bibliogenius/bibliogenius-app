@@ -32,6 +32,9 @@ class _ImportCuratedListScreenState extends State<ImportCuratedListScreen> {
   /// followed library owns (shared Rust wishlist join, ISBN-only mode).
   Set<String> _networkIsbns = {};
 
+  /// Lists whose card shows every book instead of the 3-book preview.
+  final Set<String> _expandedLists = {};
+
   /// Extract display title from a curated book note.
   /// Notes may contain "Title - Author (Year)" format; return just the title.
   String _displayTitle(CuratedBook b) {
@@ -827,9 +830,11 @@ class _ImportCuratedListScreenState extends State<ImportCuratedListScreen> {
                   ),
                 const SizedBox(height: 8),
 
-                // Preview first 3 books (show note if available)
-                ...list.books
-                    .take(3)
+                // Preview: 3 books collapsed, every book once unfolded
+                // (the "see all" link below toggles).
+                ...(_expandedLists.contains(list.id)
+                        ? list.books
+                        : list.books.take(3))
                     .map(
                       (b) => Padding(
                         padding: const EdgeInsets.only(bottom: 4),
@@ -855,14 +860,37 @@ class _ImportCuratedListScreenState extends State<ImportCuratedListScreen> {
                     ),
                 if (list.books.length > 3)
                   Padding(
-                    padding: const EdgeInsets.only(left: 24, top: 4),
-                    child: Text(
-                      TranslationService.translate(
-                        context,
-                        'curated_more_books',
-                        params: {'count': '${list.books.length - 3}'},
+                    padding: const EdgeInsets.only(left: 16),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton(
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          visualDensity: VisualDensity.compact,
+                        ),
+                        onPressed: () => setState(() {
+                          if (!_expandedLists.add(list.id)) {
+                            _expandedLists.remove(list.id);
+                          }
+                        }),
+                        child: Text(
+                          _expandedLists.contains(list.id)
+                              ? TranslationService.translate(
+                                  context,
+                                  'curated_see_less',
+                                )
+                              : TranslationService.translate(
+                                  context,
+                                  'curated_see_all_books',
+                                  params: {'count': '${list.books.length}'},
+                                ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                        ),
                       ),
-                      style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ),
                 const SizedBox(height: 16),

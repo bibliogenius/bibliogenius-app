@@ -10895,3 +10895,11 @@ msgstr "Favorites"
 #. Help screen: favorites topic description
 msgid "help_desc_favorites"
 msgstr "Mark a book as a favorite with the star bookmark on its page. Favorites gather in a Favorites collection and strengthen your reading suggestions. Everything stays on your device."
+
+#. Curated list card: link unfolding the full book list, {count} is the total
+msgid "curated_see_all_books"
+msgstr "See all {count} books"
+
+#. Curated list card: link folding the book list back to the 3-book preview
+msgid "curated_see_less"
+msgstr "Show less"

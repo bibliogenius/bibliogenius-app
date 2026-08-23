@@ -10811,3 +10811,11 @@ msgstr "Favoriler"
 #. Help screen: favorites topic description
 msgid "help_desc_favorites"
 msgstr "Bir kitabı sayfasındaki yıldızlı kitap ayracıyla favori olarak işaretleyin. Favoriler bir Favoriler koleksiyonunda toplanır ve okuma önerilerinizi güçlendirir. Her şey cihazınızda kalır."
+
+#. Curated list card: link unfolding the full book list, {count} is the total
+msgid "curated_see_all_books"
+msgstr "{count} kitabın tümünü gör"
+
+#. Curated list card: link folding the book list back to the 3-book preview
+msgid "curated_see_less"
+msgstr "Daha az göster"
