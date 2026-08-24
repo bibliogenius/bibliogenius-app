@@ -50,6 +50,11 @@ const Set<String> kBackupPrefsWhitelist = <String>{
   // answer to "where am I". The companion country code is the alpha-2 the
   // picker resolved for that city; it travels with the id or the restored
   // value cannot be resolved without re-downloading the right country file.
+  // ADR-067: the owner's contact card. User-authored, answers "who am I", and
+  // carried nowhere else in the archive. Classified here explicitly because the
+  // drift test cannot see it: the key sits behind a const identifier, not a
+  // literal `prefs.setString('...')` call.
+  'hub_contact_info', // HubDirectoryProvider._kContactInfoKey
   'hub_local_location_city_id',
   'hub_local_location_city_country',
 };

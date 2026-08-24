@@ -8725,3 +8725,60 @@ msgstr ""
 
 msgid "show_all_ownership"
 msgstr ""
+
+msgid "hub_contact_email_label"
+msgstr ""
+
+msgid "hub_contact_phone_label"
+msgstr ""
+
+msgid "hub_contact_phone_helper"
+msgstr ""
+
+msgid "hub_contact_note_label"
+msgstr ""
+
+msgid "hub_contact_note_hint"
+msgstr ""
+
+msgid "contact_cta"
+msgstr ""
+
+msgid "contact_sheet_title"
+msgstr ""
+
+msgid "contact_action_email"
+msgstr ""
+
+msgid "contact_action_sms"
+msgstr ""
+
+msgid "contact_action_whatsapp"
+msgstr ""
+
+msgid "contact_action_copy"
+msgstr ""
+
+msgid "contact_copied"
+msgstr ""
+
+msgid "contact_launch_failed"
+msgstr ""
+
+msgid "contact_message_subject"
+msgstr ""
+
+msgid "contact_message_subject_plain"
+msgstr ""
+
+msgid "contact_message_body"
+msgstr ""
+
+msgid "contact_message_body_with_author"
+msgstr ""
+
+msgid "contact_message_body_plain"
+msgstr ""
+
+msgid "hub_contact_phone_hint"
+msgstr ""

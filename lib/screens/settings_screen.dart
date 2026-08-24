@@ -74,8 +74,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _relayConnected = false;
   bool _relayLoading = false;
   final _relayUrlController = TextEditingController();
-  // Hub directory contact + website controllers
-  final _hubContactController = TextEditingController();
+  // Hub directory contact + website controllers.
+  // The contact is three typed fields (ADR-067), never one parsed blob.
+  final _hubContactEmailController = TextEditingController();
+  final _hubContactPhoneController = TextEditingController();
+  final _hubContactNoteController = TextEditingController();
   final _hubWebsiteController = TextEditingController();
   // Settings search
   String _settingsSearch = '';
@@ -101,8 +104,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
       hubProvider.loadShareCity();
       hubProvider.loadLocalCityId();
       hubProvider.loadContactInfo().then((_) {
-        if (mounted && _hubContactController.text.isEmpty) {
-          _hubContactController.text = hubProvider.contactInfo;
+        if (!mounted) return;
+        final card = hubProvider.contactCard;
+        if (_hubContactEmailController.text.isEmpty) {
+          _hubContactEmailController.text = card.email;
+        }
+        if (_hubContactPhoneController.text.isEmpty) {
+          _hubContactPhoneController.text = card.phone;
+        }
+        if (_hubContactNoteController.text.isEmpty) {
+          _hubContactNoteController.text = card.note;
         }
       });
       hubProvider.loadWebsite().then((_) {
@@ -164,7 +175,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void dispose() {
     _apiKeyController.dispose();
     _relayUrlController.dispose();
-    _hubContactController.dispose();
+    _hubContactEmailController.dispose();
+    _hubContactPhoneController.dispose();
+    _hubContactNoteController.dispose();
     _hubWebsiteController.dispose();
     _settingsSearchController.dispose();
     super.dispose();
@@ -2688,44 +2701,95 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           // accept_from selector removed (non-functional)
                         ],
                       ),
-                      // Contact info (mandatory for listed libraries)
+                      // Contact card, typed rather than parsed (ADR-067).
+                      // All three fields are optional: nothing gates listing on
+                      // a filled contact, and the reader side simply offers
+                      // fewer channels.
                       const Divider(height: 1),
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+                        child: Text(
+                          TranslationService.translate(
+                            context,
+                            'hub_contact_encrypted_notice',
+                          ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                              ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                         child: TextField(
-                          controller: _hubContactController,
+                          controller: _hubContactEmailController,
                           decoration: InputDecoration(
-                            labelText:
-                                TranslationService.translate(
-                                  context,
-                                  'hub_contact_label',
-                                ) ??
-                                'Contact info (visible to approved followers)',
-                            hintText:
-                                TranslationService.translate(
-                                  context,
-                                  'hub_contact_hint',
-                                ) ??
-                                'Email, phone, address...',
-                            prefixIcon: const Icon(Icons.contact_mail),
+                            labelText: TranslationService.translate(
+                              context,
+                              'hub_contact_email_label',
+                            ),
+                            // RFC 2606 reserved domain: an example that is
+                            // neither a real address nor a French string.
+                            hintText: 'name@example.org',
+                            prefixIcon: const Icon(Icons.alternate_email),
                             border: const OutlineInputBorder(),
-                            helperText:
-                                TranslationService.translate(
-                                  context,
-                                  'hub_contact_encrypted_notice',
-                                ) ??
-                                'Encrypted - only visible to your approved followers',
+                          ),
+                          keyboardType: TextInputType.emailAddress,
+                          onChanged: (value) =>
+                              dirProvider.setContactEmail(value),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                        child: TextField(
+                          controller: _hubContactPhoneController,
+                          decoration: InputDecoration(
+                            labelText: TranslationService.translate(
+                              context,
+                              'hub_contact_phone_label',
+                            ),
+                            hintText: TranslationService.translate(
+                              context,
+                              'hub_contact_phone_hint',
+                            ),
+                            prefixIcon: const Icon(Icons.phone_outlined),
+                            border: const OutlineInputBorder(),
+                            // The international form is required at entry: it is
+                            // what a WhatsApp link needs, and a national number
+                            // carries no country to guess from at read time.
+                            helperText: TranslationService.translate(
+                              context,
+                              'hub_contact_phone_helper',
+                            ),
                             helperMaxLines: 2,
                           ),
-                          // Start at one line (so a single-line email isn't
-                          // glued to the top of a fixed 2-line box) and grow to
-                          // two lines for longer entries like phone + address.
-                          // textAlignVertical is ignored when maxLines > 1, so
-                          // minLines is the correct lever here.
-                          minLines: 1,
-                          maxLines: 2,
+                          keyboardType: TextInputType.phone,
                           onChanged: (value) =>
-                              dirProvider.setContactInfo(value),
+                              dirProvider.setContactPhone(value),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                        child: TextField(
+                          controller: _hubContactNoteController,
+                          decoration: InputDecoration(
+                            labelText: TranslationService.translate(
+                              context,
+                              'hub_contact_note_label',
+                            ),
+                            hintText: TranslationService.translate(
+                              context,
+                              'hub_contact_note_hint',
+                            ),
+                            prefixIcon: const Icon(Icons.notes),
+                            border: const OutlineInputBorder(),
+                          ),
+                          minLines: 1,
+                          maxLines: 3,
+                          onChanged: (value) =>
+                              dirProvider.setContactNote(value),
                         ),
                       ),
                       // Website (optional, public)

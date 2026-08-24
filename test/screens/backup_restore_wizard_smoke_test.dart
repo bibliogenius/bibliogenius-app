@@ -18,7 +18,9 @@
 // is one the restore silently overwrites on the target install. The city
 // joined it when ADR-035 §3 was amended to make the city a local preference
 // rather than a directory field. The consent to publish it (`hub_share_city`)
-// deliberately did NOT.
+// deliberately did NOT. The contact card joined it with ADR-067: it is
+// user-authored, it answers "who am I", no other part of the archive carries
+// it, and restoring it republishes nothing by itself.
 import 'package:bibliogenius/services/backup_prefs_whitelist.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -30,6 +32,7 @@ void main() {
         'themeStyle',
         'languageCode',
         'country',
+        'hub_contact_info',
         'hub_local_location_city_id',
         'hub_local_location_city_country',
       }),

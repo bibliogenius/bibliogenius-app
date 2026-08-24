@@ -10567,3 +10567,81 @@ msgstr "此书架上有 {count} 本书不在您手中：心愿单，或已外借
 #. Button switching the library list to the 'all' ownership scope
 msgid "show_all_ownership"
 msgstr "仍然显示"
+
+#. --- Contact card and contact channels (ADR-067) ---
+
+#. Hub contact card: email field label
+msgid "hub_contact_email_label"
+msgstr "电子邮件"
+
+#. Hub contact card: phone field label
+msgid "hub_contact_phone_label"
+msgstr "电话"
+
+#. Hub contact card: why the international format is required
+msgid "hub_contact_phone_helper"
+msgstr "请使用国际格式（+86...），以便使用 WhatsApp"
+
+#. Hub contact card: free note field label
+msgid "hub_contact_note_label"
+msgstr "补充说明（可选）"
+
+#. Hub contact card: free note field hint
+msgid "hub_contact_note_hint"
+msgstr "地址、开放时间、方便的时段……"
+
+#. Peer book sheet: button opening the contact channels
+msgid "contact_cta"
+msgstr "联系"
+
+#. Contact channels sheet: title
+msgid "contact_sheet_title"
+msgstr "联系该图书馆"
+
+#. Contact channels sheet: open the mail client
+msgid "contact_action_email"
+msgstr "发送电子邮件"
+
+#. Contact channels sheet: open the SMS app
+msgid "contact_action_sms"
+msgstr "发送短信"
+
+#. Contact channels sheet: open WhatsApp
+msgid "contact_action_whatsapp"
+msgstr "WhatsApp"
+
+#. Contact channels sheet: copy the contact details
+msgid "contact_action_copy"
+msgstr "复制联系方式"
+
+#. Confirmation after copying the contact details
+msgid "contact_copied"
+msgstr "已复制联系方式"
+
+#. No app could open the contact link
+msgid "contact_launch_failed"
+msgstr "没有应用可以打开此链接"
+
+#. Prefilled message subject about a book, {title}
+msgid "contact_message_subject"
+msgstr "借阅：{title}"
+
+#. Prefilled message subject with no book context
+msgid "contact_message_subject_plain"
+msgstr "关于您的书房"
+
+#. Prefilled message body about a book, {title}
+msgid "contact_message_body"
+msgstr "您好：\n\n我想借阅《{title}》，请问您什么时候方便？\n\n谢谢！"
+
+#. Prefilled message body about a book, {title} and {author}
+msgid "contact_message_body_with_author"
+msgstr "您好：\n\n我想借阅{author}的《{title}》，请问您什么时候方便？\n\n谢谢！"
+
+#. Prefilled message body with no book context
+msgid "contact_message_body_plain"
+msgstr "您好：\n\n我就您的书房与您联系。"
+
+#. Hub contact card: phone field placeholder, a local example number
+msgid "hub_contact_phone_hint"
+msgstr "+86 138 0013 8000"

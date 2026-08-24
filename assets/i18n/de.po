@@ -10724,3 +10724,81 @@ msgstr "{count} Buch/Bücher aus diesem Regal besitzen Sie nicht: Wunschliste od
 #. Button switching the library list to the 'all' ownership scope
 msgid "show_all_ownership"
 msgstr "Trotzdem anzeigen"
+
+#. --- Contact card and contact channels (ADR-067) ---
+
+#. Hub contact card: email field label
+msgid "hub_contact_email_label"
+msgstr "E-Mail"
+
+#. Hub contact card: phone field label
+msgid "hub_contact_phone_label"
+msgstr "Telefon"
+
+#. Hub contact card: why the international format is required
+msgid "hub_contact_phone_helper"
+msgstr "Im internationalen Format (+49...), damit WhatsApp angeboten werden kann"
+
+#. Hub contact card: free note field label
+msgid "hub_contact_note_label"
+msgstr "Hinweise (optional)"
+
+#. Hub contact card: free note field hint
+msgid "hub_contact_note_hint"
+msgstr "Adresse, Öffnungszeiten, Verfügbarkeit..."
+
+#. Peer book sheet: button opening the contact channels
+msgid "contact_cta"
+msgstr "Kontaktieren"
+
+#. Contact channels sheet: title
+msgid "contact_sheet_title"
+msgstr "Bibliothek kontaktieren"
+
+#. Contact channels sheet: open the mail client
+msgid "contact_action_email"
+msgstr "E-Mail senden"
+
+#. Contact channels sheet: open the SMS app
+msgid "contact_action_sms"
+msgstr "SMS senden"
+
+#. Contact channels sheet: open WhatsApp
+msgid "contact_action_whatsapp"
+msgstr "WhatsApp"
+
+#. Contact channels sheet: copy the contact details
+msgid "contact_action_copy"
+msgstr "Kontaktdaten kopieren"
+
+#. Confirmation after copying the contact details
+msgid "contact_copied"
+msgstr "Kontaktdaten kopiert"
+
+#. No app could open the contact link
+msgid "contact_launch_failed"
+msgstr "Keine App kann diesen Link öffnen"
+
+#. Prefilled message subject about a book, {title}
+msgid "contact_message_subject"
+msgstr "Ausleihe: {title}"
+
+#. Prefilled message subject with no book context
+msgid "contact_message_subject_plain"
+msgstr "Zu Ihrer Bibliothek"
+
+#. Prefilled message body about a book, {title}
+msgid "contact_message_body"
+msgstr "Hallo,\n\nich würde gerne « {title} » ausleihen. Wann würde es Ihnen passen?\n\nVielen Dank!"
+
+#. Prefilled message body about a book, {title} and {author}
+msgid "contact_message_body_with_author"
+msgstr "Hallo,\n\nich würde gerne « {title} » von {author} ausleihen. Wann würde es Ihnen passen?\n\nVielen Dank!"
+
+#. Prefilled message body with no book context
+msgid "contact_message_body_plain"
+msgstr "Hallo,\n\nich schreibe Ihnen wegen Ihrer Bibliothek."
+
+#. Hub contact card: phone field placeholder, a local example number
+msgid "hub_contact_phone_hint"
+msgstr "+49 151 23456789"

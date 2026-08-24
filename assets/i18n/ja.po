@@ -10567,3 +10567,81 @@ msgstr "この本棚の {count} 冊は手元にありません（ほしい本、
 #. Button switching the library list to the 'all' ownership scope
 msgid "show_all_ownership"
 msgstr "それでも表示する"
+
+#. --- Contact card and contact channels (ADR-067) ---
+
+#. Hub contact card: email field label
+msgid "hub_contact_email_label"
+msgstr "メールアドレス"
+
+#. Hub contact card: phone field label
+msgid "hub_contact_phone_label"
+msgstr "電話番号"
+
+#. Hub contact card: why the international format is required
+msgid "hub_contact_phone_helper"
+msgstr "WhatsApp を使うには国際形式（+81...）で入力してください"
+
+#. Hub contact card: free note field label
+msgid "hub_contact_note_label"
+msgstr "補足（任意）"
+
+#. Hub contact card: free note field hint
+msgid "hub_contact_note_hint"
+msgstr "住所、開館時間、都合のよい時間など"
+
+#. Peer book sheet: button opening the contact channels
+msgid "contact_cta"
+msgstr "連絡する"
+
+#. Contact channels sheet: title
+msgid "contact_sheet_title"
+msgstr "図書館に連絡する"
+
+#. Contact channels sheet: open the mail client
+msgid "contact_action_email"
+msgstr "メールを送る"
+
+#. Contact channels sheet: open the SMS app
+msgid "contact_action_sms"
+msgstr "SMS を送る"
+
+#. Contact channels sheet: open WhatsApp
+msgid "contact_action_whatsapp"
+msgstr "WhatsApp"
+
+#. Contact channels sheet: copy the contact details
+msgid "contact_action_copy"
+msgstr "連絡先をコピー"
+
+#. Confirmation after copying the contact details
+msgid "contact_copied"
+msgstr "連絡先をコピーしました"
+
+#. No app could open the contact link
+msgid "contact_launch_failed"
+msgstr "このリンクを開けるアプリがありません"
+
+#. Prefilled message subject about a book, {title}
+msgid "contact_message_subject"
+msgstr "貸出のお願い: {title}"
+
+#. Prefilled message subject with no book context
+msgid "contact_message_subject_plain"
+msgstr "あなたの蔵書について"
+
+#. Prefilled message body about a book, {title}
+msgid "contact_message_body"
+msgstr "こんにちは。\n\n「{title}」を借りたいのですが、ご都合はいかがでしょうか。\n\nよろしくお願いします。"
+
+#. Prefilled message body about a book, {title} and {author}
+msgid "contact_message_body_with_author"
+msgstr "こんにちは。\n\n{author}の「{title}」を借りたいのですが、ご都合はいかがでしょうか。\n\nよろしくお願いします。"
+
+#. Prefilled message body with no book context
+msgid "contact_message_body_plain"
+msgstr "こんにちは。\n\nあなたの蔵書についてご連絡します。"
+
+#. Hub contact card: phone field placeholder, a local example number
+msgid "hub_contact_phone_hint"
+msgstr "+81 90 1234 5678"

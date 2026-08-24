@@ -7,12 +7,15 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/avatar_config.dart';
+import '../models/contact_card.dart';
 import '../models/hub_directory.dart';
 import '../models/library_relation.dart';
 import '../services/api_service.dart';
 import '../services/ffi_service.dart';
 import '../services/translation_service.dart';
 import '../providers/hub_directory_provider.dart';
+import '../utils/contact_links.dart';
+import '../widgets/contact_actions_sheet.dart';
 
 /// Detail screen for a library peer / followed library.
 class PeerDetailScreen extends StatefulWidget {
@@ -26,7 +29,7 @@ class PeerDetailScreen extends StatefulWidget {
 
 class _PeerDetailScreenState extends State<PeerDetailScreen> {
   late LibraryRelation _relation;
-  String? _decryptedContact;
+  ContactCard _contactCard = ContactCard.empty;
   HubProfile? _hubProfile;
 
   @override
@@ -47,7 +50,8 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
       if (blob != null && blob.isNotEmpty) {
         final plaintext = await provider.openContact(blob);
         if (mounted && plaintext != null) {
-          setState(() => _decryptedContact = plaintext);
+          // Legacy free-text blobs decode to a note (ADR-067 D2).
+          setState(() => _contactCard = ContactCard.decode(plaintext));
         }
       }
     }
@@ -359,8 +363,7 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
   Widget _buildInfoCard(ThemeData theme, ColorScheme cs, dynamic peer) {
     final hasWebsite =
         _hubProfile?.website != null && _hubProfile!.website!.isNotEmpty;
-    final hasContact =
-        _decryptedContact != null && _decryptedContact!.isNotEmpty;
+    final hasContact = _contactCard.isNotEmpty;
     final hasE2ee = peer != null && peer.keyExchangeDone;
     final hasLastSeen = peer?.lastSeen != null;
     final hasRelay = peer != null && peer.hasRelayCredentials;
@@ -438,21 +441,123 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
               _buildWebsiteRow(_hubProfile!.website!, cs, theme),
             ],
 
-            // Encrypted contact
+            // Encrypted contact, one actionable row per filled field
+            // (ADR-067 D4). A note opens no channel and stays plain text.
             if (hasContact) ...[
               const SizedBox(height: 12),
-              _infoRow(
-                icon: Icons.lock_outlined,
-                iconColor: cs.primary,
-                label: TranslationService.translate(
-                  context,
-                  'hub_contact_info_title',
+              Text(
+                TranslationService.translate(context, 'hub_contact_info_title'),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
                 ),
-                value: _decryptedContact!,
-                theme: theme,
               ),
+              if (_contactCard.email.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                _contactRow(
+                  icon: Icons.alternate_email,
+                  value: _contactCard.email,
+                  theme: theme,
+                  cs: cs,
+                  onTap: _contactCard.canSendEmail
+                      ? () => launchContactUri(
+                          context,
+                          ContactLinks.mailto(email: _contactCard.email),
+                        )
+                      : null,
+                ),
+              ],
+              if (_contactCard.phone.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                _contactRow(
+                  icon: Icons.phone_outlined,
+                  value: _contactCard.phone,
+                  theme: theme,
+                  cs: cs,
+                  onTap: _contactCard.canSendMessage
+                      ? () => launchContactUri(
+                          context,
+                          ContactLinks.sms(phone: _contactCard.phone),
+                        )
+                      : null,
+                ),
+                if (ContactLinks.whatsApp(card: _contactCard, text: '') != null)
+                  _contactRow(
+                    icon: Icons.chat_outlined,
+                    value: TranslationService.translate(
+                      context,
+                      'contact_action_whatsapp',
+                    ),
+                    theme: theme,
+                    cs: cs,
+                    copyable: false,
+                    onTap: () => launchContactUri(
+                      context,
+                      ContactLinks.whatsApp(card: _contactCard, text: '')!,
+                    ),
+                  ),
+              ],
+              if (_contactCard.note.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                _contactRow(
+                  icon: Icons.notes,
+                  value: _contactCard.note,
+                  theme: theme,
+                  cs: cs,
+                ),
+              ],
             ],
           ],
+        ),
+      ),
+    );
+  }
+
+  /// One contact line: the whole row triggers its channel when there is one,
+  /// and a copy button is always available (ADR-067 D4).
+  Widget _contactRow({
+    required IconData icon,
+    required String value,
+    required ThemeData theme,
+    required ColorScheme cs,
+    VoidCallback? onTap,
+    bool copyable = true,
+  }) {
+    return Semantics(
+      button: onTap != null,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                icon,
+                size: 18,
+                color: onTap != null ? cs.primary : cs.outline,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  value,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: onTap != null ? cs.primary : null,
+                  ),
+                ),
+              ),
+              if (copyable)
+                IconButton(
+                  icon: const Icon(Icons.copy_outlined, size: 18),
+                  visualDensity: VisualDensity.compact,
+                  tooltip: TranslationService.translate(
+                    context,
+                    'contact_action_copy',
+                  ),
+                  onPressed: () => copyContactValue(context, value),
+                ),
+            ],
+          ),
         ),
       ),
     );

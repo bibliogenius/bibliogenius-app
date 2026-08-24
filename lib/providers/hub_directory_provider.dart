@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/avatar_config.dart';
+import '../models/contact_card.dart';
 import '../models/hub_directory.dart';
 import '../services/api_service.dart';
 import '../services/auth_service.dart';
@@ -319,22 +320,53 @@ class HubDirectoryProvider extends ChangeNotifier {
 
   // ── Local contact info ─────────────────────────────────────────────────
 
-  String _contactInfo = '';
+  /// Exact plaintext that gets sealed for followers.
+  ///
+  /// Held separately from [_contactCard] on purpose (ADR-067 D2): a library
+  /// upgraded from a pre-ADR-067 version keeps emitting its legacy free-text
+  /// blob byte for byte until its owner actually edits the card. Re-encoding it
+  /// as JSON on mere app startup would push a payload that older followers
+  /// render as raw JSON, for no benefit.
+  String _contactRaw = '';
 
-  String get contactInfo => _contactInfo;
+  ContactCard _contactCard = ContactCard.empty;
+
+  /// Serialized contact, as sealed for followers.
+  String get contactInfo => _contactRaw;
+
+  /// Typed view of the contact details (ADR-067).
+  ContactCard get contactCard => _contactCard;
 
   Future<void> loadContactInfo() async {
     final prefs = await SharedPreferences.getInstance();
-    _contactInfo = prefs.getString(_kContactInfoKey) ?? '';
+    _contactRaw = prefs.getString(_kContactInfoKey) ?? '';
+    _contactCard = ContactCard.decode(_contactRaw);
     notifyListeners();
   }
 
   Timer? _contactSyncDebounce;
 
-  Future<void> setContactInfo(String value) async {
-    _contactInfo = _sanitizeContact(value);
+  Future<void> setContactEmail(String value) =>
+      setContactCard(_contactCard.copyWith(email: value));
+
+  Future<void> setContactPhone(String value) =>
+      setContactCard(_contactCard.copyWith(phone: value));
+
+  Future<void> setContactNote(String value) =>
+      setContactCard(_contactCard.copyWith(note: value));
+
+  /// Stores the contact card and re-seals it for followers after a short
+  /// debounce. Input is sanitized here so no caller can bypass the URI safety
+  /// rules of ADR-067 D8.
+  Future<void> setContactCard(ContactCard card) async {
+    _contactCard = ContactCard.sanitized(
+      email: card.email,
+      phone: card.phone,
+      note: card.note,
+    );
+    _contactRaw = _contactCard.encode();
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_kContactInfoKey, _contactInfo);
+    await prefs.setString(_kContactInfoKey, _contactRaw);
     notifyListeners();
 
     // Debounce: sync encrypted blobs to followers 3s after last edit
@@ -1324,7 +1356,9 @@ class HubDirectoryProvider extends ChangeNotifier {
     final remoteCityId = profile.locationCityId;
     var adopted = false;
     if (remoteCityId != null && remoteCityId > 0) {
-      debugPrint('HubDirectory: adopting hub city $remoteCityId as local value');
+      debugPrint(
+        'HubDirectory: adopting hub city $remoteCityId as local value',
+      );
       await setShareCity(true);
       await setLocalCityId(
         remoteCityId.toInt(),
@@ -1751,7 +1785,7 @@ class HubDirectoryProvider extends ChangeNotifier {
       debugPrint('HubDirectoryProvider: ensured keys + relay published');
 
     // Now that our key is on the hub, sync contact blobs to followers
-    if (_contactInfo.isNotEmpty) {
+    if (_contactRaw.isNotEmpty) {
       await syncContactToFollowers();
     }
   }
@@ -2633,9 +2667,9 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// Seal the local contact info for a specific follower.
   /// Returns the base64-encoded sealed blob, or null on error.
   Future<String?> sealContactFor(String recipientX25519Hex) async {
-    if (_contactInfo.isEmpty || recipientX25519Hex.isEmpty) return null;
+    if (_contactRaw.isEmpty || recipientX25519Hex.isEmpty) return null;
     try {
-      return await _ffi.sealBlob(recipientX25519Hex, _contactInfo);
+      return await _ffi.sealBlob(recipientX25519Hex, _contactRaw);
     } catch (e) {
       debugPrint('HubDirectoryProvider sealContactFor error: $e');
       return null;
@@ -2655,13 +2689,11 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// Re-seal contact info for all active followers and push to hub.
   /// Call this after the user changes their contact info.
   Future<void> syncContactToFollowers() async {
-    if (_contactInfo.isEmpty) {
-      debugPrint('[CONTACT-SYNC] skip: contactInfo is empty');
+    if (_contactRaw.isEmpty) {
+      debugPrint('[CONTACT-SYNC] skip: contact card is empty');
       return;
     }
-    debugPrint(
-      '[CONTACT-SYNC] starting, contact="${_contactInfo.substring(0, _contactInfo.length.clamp(0, 30))}..."',
-    );
+    debugPrint('[CONTACT-SYNC] starting, ${_contactRaw.length} sealed chars');
     try {
       final followersList = await _ffi.hubDirectoryListFollowers();
       final followers = followersList.map(HubFollow.fromFrb).toList();
@@ -2797,17 +2829,5 @@ class HubDirectoryProvider extends ChangeNotifier {
   void clearActionError() {
     _actionError = null;
     notifyListeners();
-  }
-
-  /// Sanitize contact info: strip HTML tags, control chars, and cap length.
-  static String _sanitizeContact(String raw) {
-    // Remove HTML tags
-    var s = raw.replaceAll(RegExp(r'<[^>]*>'), '');
-    // Remove control characters (keep newlines and tabs)
-    s = s.replaceAll(RegExp(r'[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]'), '');
-    // Trim and cap at 500 chars
-    s = s.trim();
-    if (s.length > 500) s = s.substring(0, 500);
-    return s;
   }
 }

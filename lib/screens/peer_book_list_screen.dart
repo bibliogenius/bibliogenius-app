@@ -13,8 +13,10 @@ import '../utils/book_display.dart';
 import '../utils/borrow_eligibility.dart';
 import '../utils/cover_url_resolver.dart';
 import '../utils/isbn_validator.dart';
+import '../models/contact_card.dart';
 import '../models/hub_directory.dart';
 import '../widgets/book_cover_card.dart';
+import '../widgets/contact_actions_sheet.dart';
 import '../widgets/bookshelf_view.dart';
 import '../widgets/hub_location_label.dart';
 import '../widgets/library_avatar.dart';
@@ -133,7 +135,10 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   String? _hubErrorCode;
 
   /// Hub contact info (decrypted)
-  String? _decryptedContact;
+  /// Contact card of the followed library, decrypted in memory only.
+  /// Empty when the hub is off, the follow is not active, or the hub is
+  /// unreachable: the Contact affordance is then absent, never disabled.
+  ContactCard _contactCard = ContactCard.empty;
   HubProfile? _hubProfile;
 
   /// ISBNs with a pending outgoing borrow request (to disable the borrow button)
@@ -226,7 +231,8 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     if (blob != null && blob.isNotEmpty) {
       final plaintext = await provider.openContact(blob);
       if (mounted && plaintext != null) {
-        setState(() => _decryptedContact = plaintext);
+        // Legacy free-text blobs decode to a note (ADR-067 D2).
+        setState(() => _contactCard = ContactCard.decode(plaintext));
       }
     }
 
@@ -1999,8 +2005,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
     final hasWebsite =
         _hubProfile!.website != null && _hubProfile!.website!.isNotEmpty;
-    final hasContact =
-        _decryptedContact != null && _decryptedContact!.isNotEmpty;
+    final hasContact = _contactCard.isNotEmpty;
     final hasContactSection = hasWebsite || hasContact;
 
     return Container(
@@ -2105,10 +2110,37 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                   ),
                   const SizedBox(width: 8),
                   Flexible(
-                    child: Text(
-                      _decryptedContact!,
-                      style: TextStyle(fontSize: 13, color: onContainer),
-                    ),
+                    child: _contactCard.isActionable
+                        // A button, not an underlined label: it must be
+                        // announced as one and offer a 44dp tap target (A2).
+                        ? Align(
+                            alignment: Alignment.centerLeft,
+                            child: TextButton(
+                              onPressed: () => showContactActionsSheet(
+                                context,
+                                card: _contactCard,
+                              ),
+                              style: TextButton.styleFrom(
+                                foregroundColor: onContainer,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                ),
+                                minimumSize: const Size(0, 44),
+                                visualDensity: VisualDensity.standard,
+                              ),
+                              child: Text(
+                                TranslationService.translate(
+                                  context,
+                                  'contact_cta',
+                                ),
+                                style: const TextStyle(fontSize: 13),
+                              ),
+                            ),
+                          )
+                        : Text(
+                            _contactCard.note,
+                            style: TextStyle(fontSize: 13, color: onContainer),
+                          ),
                   ),
                 ],
               ),
@@ -2665,6 +2697,10 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
           final theme = Theme.of(context);
           final closeLabel = TranslationService.translate(context, 'close');
           final canBorrowModule = context.read<ThemeProvider>().canBorrowBooks;
+          // Contacting the owner of a library one follows is a relationship
+          // affordance, not a loan one: it is not gated on the loans module
+          // (ADR-067 D5). It only follows the borrow CTA in position.
+          final canContact = _contactCard.isActionable;
           return Column(
             children: [
               // Pinned header: drag handle + close button (always visible)
@@ -2772,8 +2808,9 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                 ),
               ),
               // Pinned bottom action bar: borrow CTA always reachable.
-              // Hidden entirely when the loans module is disabled in settings.
-              if (canBorrowModule)
+              // The borrow button is hidden when the loans module is disabled;
+              // the Contact button stands on its own in that case.
+              if (canBorrowModule || canContact)
                 Material(
                   elevation: 8,
                   color: theme.colorScheme.surface,
@@ -2781,52 +2818,89 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                     top: false,
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: FilledButton.icon(
-                          onPressed: _canBorrow(book)
-                              ? () {
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (canBorrowModule)
+                            SizedBox(
+                              width: double.infinity,
+                              child: FilledButton.icon(
+                                onPressed: _canBorrow(book)
+                                    ? () {
+                                        Navigator.pop(context);
+                                        _requestBorrow(book);
+                                      }
+                                    : null,
+                                icon: Icon(
+                                  _canBorrow(book)
+                                      ? Icons.swap_horiz
+                                      : _hasPendingRequest(book) ||
+                                            _isActiveBorrow(book)
+                                      ? Icons.hourglass_top
+                                      : _isLending(book)
+                                      ? Icons.swap_horiz
+                                      : Icons.block,
+                                ),
+                                label: Text(
+                                  _hasPendingRequest(book)
+                                      ? TranslationService.translate(
+                                          context,
+                                          'borrow_pending',
+                                        )
+                                      : _isActiveBorrow(book)
+                                      ? TranslationService.translate(
+                                          context,
+                                          'borrow_active',
+                                        )
+                                      : _isLending(book)
+                                      ? TranslationService.translate(
+                                          context,
+                                          'borrow_on_loan',
+                                        )
+                                      : _hasNoCopiesAvailable(book)
+                                      ? TranslationService.translate(
+                                          context,
+                                          'borrow_unavailable',
+                                        )
+                                      : TranslationService.translate(
+                                          context,
+                                          'request_to_borrow',
+                                        ),
+                                ),
+                              ),
+                            ),
+                          if (canBorrowModule && canContact)
+                            const SizedBox(height: 8),
+                          if (canContact)
+                            SizedBox(
+                              width: double.infinity,
+                              child: OutlinedButton.icon(
+                                onPressed: () {
+                                  final title = BookDisplay.titleOf(
+                                    context,
+                                    book,
+                                  );
                                   Navigator.pop(context);
-                                  _requestBorrow(book);
-                                }
-                              : null,
-                          icon: Icon(
-                            _canBorrow(book)
-                                ? Icons.swap_horiz
-                                : _hasPendingRequest(book) ||
-                                      _isActiveBorrow(book)
-                                ? Icons.hourglass_top
-                                : _isLending(book)
-                                ? Icons.swap_horiz
-                                : Icons.block,
-                          ),
-                          label: Text(
-                            _hasPendingRequest(book)
-                                ? TranslationService.translate(
+                                  // The screen's context, not the sheet's: the
+                                  // sheet is being popped, and a defunct
+                                  // context cannot host the next modal.
+                                  showContactActionsSheet(
+                                    this.context,
+                                    card: _contactCard,
+                                    bookTitle: title,
+                                    bookAuthor: book.author,
+                                  );
+                                },
+                                icon: const Icon(Icons.forum_outlined),
+                                label: Text(
+                                  TranslationService.translate(
                                     context,
-                                    'borrow_pending',
-                                  )
-                                : _isActiveBorrow(book)
-                                ? TranslationService.translate(
-                                    context,
-                                    'borrow_active',
-                                  )
-                                : _isLending(book)
-                                ? TranslationService.translate(
-                                    context,
-                                    'borrow_on_loan',
-                                  )
-                                : _hasNoCopiesAvailable(book)
-                                ? TranslationService.translate(
-                                    context,
-                                    'borrow_unavailable',
-                                  )
-                                : TranslationService.translate(
-                                    context,
-                                    'request_to_borrow',
+                                    'contact_cta',
                                   ),
-                          ),
-                        ),
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
                   ),
