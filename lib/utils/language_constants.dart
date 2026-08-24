@@ -9,6 +9,30 @@ String normalizeLanguageCode(String code) {
   return base;
 }
 
+/// The reader's languages, normalized, UI locale first.
+///
+/// Combines the explicit `userLanguages` setting with the UI locale so a
+/// reader who never opened the language picker still counts as reading
+/// their interface language. ORDER is meaningful and load-bearing: the
+/// curated import picks the edition of the first matching language, and a
+/// trilingual reader whose first language is French must get the French
+/// edition even when the file lists another one first (the ADR-061 recette
+/// A4 lesson). Deduplicated while preserving that order.
+///
+/// One resolver for the whole app: the curated import screen and the
+/// editorial affinity tier (ADR-066) both call this, so a list can never be
+/// eligible under one definition of "my languages" and imported under
+/// another.
+List<String> resolveReaderLanguages(String uiLocale, List<String> userLanguages) {
+  final ordered = <String>[];
+  for (final code in [uiLocale, ...userLanguages]) {
+    final normalized = normalizeLanguageCode(code);
+    if (normalized.isEmpty || ordered.contains(normalized)) continue;
+    ordered.add(normalized);
+  }
+  return ordered;
+}
+
 /// Parse a BCP 47 tag string into a [Locale].
 ///
 /// Examples:

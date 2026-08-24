@@ -32,6 +32,7 @@ import '../providers/theme_provider.dart';
 import '../providers/book_refresh_notifier.dart';
 import '../providers/favorites_provider.dart';
 import '../providers/sort_preference_provider.dart';
+import '../providers/ownership_preference_provider.dart';
 import '../utils/book_filters.dart';
 import '../utils/book_sort.dart';
 import '../utils/book_status.dart';
@@ -82,6 +83,11 @@ class _BookListScreenState extends State<BookListScreen>
   // Global sort preference (persisted across sessions)
   SortPreferenceProvider? _sortPrefProvider;
 
+  /// The remembered ownership axis (ADR-063). Held so every gesture that
+  /// changes the axis writes through: a choice the reader made and the app
+  /// forgot on the next launch is worse than one it never offered.
+  OwnershipPreferenceProvider? _ownershipPrefProvider;
+
   // Theme provider — listened to so the library reacts when the user toggles
   // "group by collection" in Settings during the session.
   ThemeProvider? _themeProvider;
@@ -94,6 +100,10 @@ class _BookListScreenState extends State<BookListScreen>
   // browsing without a status filter, 'all' under one (historical behavior).
   String? _selectedOwnership;
   String? _tagFilter;
+
+  /// Books on the current shelf that the ownership scope is hiding, so the
+  /// empty state can name the reason instead of showing a dead end.
+  int _shelfHiddenByOwnership = 0;
 
   // Hierarchical shelf navigation state
   List<Tag> _allTags = []; // All tags for hierarchy traversal
@@ -188,8 +198,15 @@ class _BookListScreenState extends State<BookListScreen>
       }
       // Explicit ownership axis (ADR-063): /books?owned=library|not_owned|all
       final ownedParam = state.uri.queryParameters['owned'];
+      _ownershipPrefProvider = context.read<OwnershipPreferenceProvider>();
       if (ownedParam != null && OwnershipScope.values.contains(ownedParam)) {
         _selectedOwnership = ownedParam;
+      } else {
+        // No axis in the link, so the remembered choice applies. A deep link
+        // stays a one-off: it sets the axis for this view and is deliberately
+        // NOT written back, or following a shared link would silently
+        // redefine what the reader sees everywhere afterwards.
+        _selectedOwnership ??= _ownershipPrefProvider?.scope;
       }
       if (_tagFilter != null ||
           _selectedStatus != null ||
@@ -874,6 +891,8 @@ class _BookListScreenState extends State<BookListScreen>
       tempBooks = tempBooks
           .where((book) => matchesSearchQuery(book, _searchQuery))
           .toList();
+      // Searching ignores the shelf scope, so nothing is being hidden by it.
+      _shelfHiddenByOwnership = 0;
       debugPrint(
         '🔍 _filterBooks: After global search: ${tempBooks.length} books',
       );
@@ -909,26 +928,40 @@ class _BookListScreenState extends State<BookListScreen>
 
       // Apply tag filter with hierarchy support
       // When filtering by a parent tag, include books from all child tags
+      bool Function(Book book)? shelfPredicate;
       if (_currentShelf != null && _allTags.isNotEmpty) {
         // Get all matching tag names (this tag + descendants)
         final matchingNames = Tag.getTagNamesWithDescendants(
           _currentShelf!,
           _allTags,
         );
-        tempBooks = tempBooks.where((book) {
+        shelfPredicate = (book) {
           final bookTags =
               book.subjects?.map((s) => s.toLowerCase()).toSet() ?? {};
           // Book matches if any of its tags match any of the filter tags
           return bookTags.any((tag) => matchingNames.contains(tag));
-        }).toList();
+        };
       } else if (_tagFilter != null) {
         // Fallback to simple string match for legacy compatibility
         final filterLower = _tagFilter!.toLowerCase();
-        tempBooks = tempBooks.where((book) {
+        shelfPredicate = (book) {
           final bookTags =
               book.subjects?.map((s) => s.toLowerCase()).toSet() ?? {};
           return bookTags.contains(filterLower);
-        }).toList();
+        };
+      }
+      if (shelfPredicate != null) {
+        // Counted BEFORE the shelf filter narrows the list and against the
+        // whole library, because the ownership axis already ran above: a
+        // shelf holding nothing but wishlist books would otherwise render
+        // as "this shelf is empty" with no way to learn otherwise.
+        _shelfHiddenByOwnership = shelfBooksHiddenByOwnership(
+          books: _books,
+          matchesShelf: shelfPredicate,
+          scope: ownership,
+          showBorrowed: _showBorrowedConfig,
+        );
+        tempBooks = tempBooks.where(shelfPredicate).toList();
       }
     }
 
@@ -1358,9 +1391,11 @@ class _BookListScreenState extends State<BookListScreen>
                   // "All my books" resets both axes back to the default view.
                   _selectedStatus = null;
                   _selectedOwnership = null;
+                  _ownershipPrefProvider?.setScope(null);
                 } else if (value.startsWith('own:')) {
                   // Ownership axis (ADR-063), orthogonal to the status one.
                   _selectedOwnership = value.substring(4);
+                  _ownershipPrefProvider?.setScope(_selectedOwnership);
                 } else {
                   _selectedStatus = value;
                 }
@@ -1855,6 +1890,7 @@ class _BookListScreenState extends State<BookListScreen>
     setState(() {
       _selectedStatus = null;
       _selectedOwnership = null;
+      _ownershipPrefProvider?.setScope(null);
       _tagFilter = null;
       _currentShelf = null;
       _searchQuery = '';
@@ -2477,57 +2513,97 @@ class _BookListScreenState extends State<BookListScreen>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  PremiumEmptyState(
-                    message: _currentShelf != null
-                        ? (TranslationService.translate(
-                                context,
-                                'no_books_found',
-                              ) ??
-                              'This shelf is empty')
-                        : (TranslationService.translate(
-                                context,
-                                'no_books_found',
-                              ) ??
-                              'No books found'),
-                    description: _currentShelf != null
-                        ? (TranslationService.translate(
-                                context,
-                                'shelf_empty_desc',
-                              ) ??
-                              'Add books to this shelf to organize your library.')
-                        : (TranslationService.translate(
-                                context,
-                                'search_empty_desc',
-                              ) ??
-                              'Try adjusting your filters or search terms.'),
-                    icon: _currentShelf != null
-                        ? Icons.bookmark_border
-                        : Icons.search_off,
-                    buttonLabel: _currentShelf != null
-                        ? (TranslationService.translate(
-                                context,
-                                'add_first_book_in_shelf',
-                              ) ??
-                              'Add my first book to this shelf')
-                        : (_tagFilter != null ||
-                                  _searchQuery.isNotEmpty ||
-                                  _selectedStatus != null ||
-                                  _selectedOwnership != null
-                              ? (TranslationService.translate(
-                                      context,
-                                      'reset_filters',
-                                    ) ??
-                                    'Reset')
-                              : null),
-                    onAction: _currentShelf != null
-                        ? _addBook
-                        : (_tagFilter != null ||
-                                  _searchQuery.isNotEmpty ||
-                                  _selectedStatus != null ||
-                                  _selectedOwnership != null
-                              ? _resetAllFilters
-                              : null),
-                  ),
+                  // A shelf can be empty because it holds nothing, or because
+                  // everything on it sits outside the possession view. The
+                  // second case looks exactly like the first and is the one a
+                  // reader cannot diagnose, so it gets its own wording and
+                  // the switch that resolves it.
+                  if (_shelfHiddenByOwnership > 0)
+                    PremiumEmptyState(
+                      // No `?? 'fallback'` here, unlike the block below:
+                      // translate() returns a non-nullable String and falls
+                      // back to the key itself, so those fallbacks are dead
+                      // code the analyzer already flags. The three keys are
+                      // in all eleven catalogues.
+                      message: TranslationService.translate(
+                        context,
+                        'shelf_hidden_by_ownership',
+                      ),
+                      description:
+                          TranslationService.translate(
+                            context,
+                            'shelf_hidden_by_ownership_desc',
+                          ).replaceAll(
+                            '{count}',
+                            '$_shelfHiddenByOwnership',
+                          ),
+                      icon: Icons.visibility_off_outlined,
+                      buttonLabel: TranslationService.translate(
+                        context,
+                        'show_all_ownership',
+                      ),
+                      onAction: () => setState(() {
+                        _selectedOwnership = OwnershipScope.all;
+                        // Remembered, so the shelf a reader asked to open
+                        // stays open on the next launch (and every other
+                        // shelf with it). "Ma bibliotheque" from the filter
+                        // menu is what closes it again.
+                        _ownershipPrefProvider?.setScope(OwnershipScope.all);
+                        _filterBooks();
+                      }),
+                    )
+                  else
+                    PremiumEmptyState(
+                      message: _currentShelf != null
+                          ? (TranslationService.translate(
+                                  context,
+                                  'no_books_found',
+                                ) ??
+                                'This shelf is empty')
+                          : (TranslationService.translate(
+                                  context,
+                                  'no_books_found',
+                                ) ??
+                                'No books found'),
+                      description: _currentShelf != null
+                          ? (TranslationService.translate(
+                                  context,
+                                  'shelf_empty_desc',
+                                ) ??
+                                'Add books to this shelf to organize your library.')
+                          : (TranslationService.translate(
+                                  context,
+                                  'search_empty_desc',
+                                ) ??
+                                'Try adjusting your filters or search terms.'),
+                      icon: _currentShelf != null
+                          ? Icons.bookmark_border
+                          : Icons.search_off,
+                      buttonLabel: _currentShelf != null
+                          ? (TranslationService.translate(
+                                  context,
+                                  'add_first_book_in_shelf',
+                                ) ??
+                                'Add my first book to this shelf')
+                          : (_tagFilter != null ||
+                                    _searchQuery.isNotEmpty ||
+                                    _selectedStatus != null ||
+                                    _selectedOwnership != null
+                                ? (TranslationService.translate(
+                                        context,
+                                        'reset_filters',
+                                      ) ??
+                                      'Reset')
+                                : null),
+                      onAction: _currentShelf != null
+                          ? _addBook
+                          : (_tagFilter != null ||
+                                    _searchQuery.isNotEmpty ||
+                                    _selectedStatus != null ||
+                                    _selectedOwnership != null
+                                ? _resetAllFilters
+                                : null),
+                    ),
                 ],
               ),
             ),

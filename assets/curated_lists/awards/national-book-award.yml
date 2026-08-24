@@ -21,6 +21,12 @@ contributor: BiblioGenius
 tags: [prix, national-book-award, américain]
 content_languages: [fr]
 
+# Audited against the sources on 2026-08-23 (make audit-curated): every
+# ISBN resolves and every author matches, no blocking finding and nothing
+# left unverified. Promoted so the editorial affinity tier may SUGGEST it
+# (ADR-066); the import catalogue always showed it.
+curation_status: reviewed
+
 books:
   - isbn: "9782264075413"
     note: "Le chant des revenants - Jesmyn Ward (Sing, Unburied, Sing)"
@@ -28,17 +34,17 @@ books:
     note: "Underground Railroad - Colson Whitehead"
   - isbn: "9782080438935"
     note: "Entre le monde et moi - Ta-Nehisi Coates (Best Non-Fiction 2015)"
-  - isbn: "9782253159117"
-    note: "Phil Klay - Fin de mission"
+  - isbn: "9782351780831"
+    note: "Fin de mission - Phil Klay"
   - isbn: "9782351785874"
     note: "L'Oiseau du Bon Dieu - James McBride (The Good Lord Bird)"
   - isbn: "9782253087144"
     note: "Dans le silence du vent - Louise Erdrich (The Round House)"
   - isbn: "9782264060198"
     note: "Bois sauvage - Jesmyn Ward (Salvage the Bones)"
-  - isbn: "9782267019988"
-    note: "Jonathan Franzen - Les Corrections"
+  - isbn: "9782879292960"
+    note: "Les Corrections - Jonathan Franzen"
   - isbn: "9782020407229"
-    note: "Ha Jin - La Longue Attente (Waiting)"
-  - isbn: "9782710381211"
+    note: "La Longue Attente - Ha Jin (Waiting)"
+  - isbn: "9782264031112"
     note: "Charming Billy - Alice McDermott"

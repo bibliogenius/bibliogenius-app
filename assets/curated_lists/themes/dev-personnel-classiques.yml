@@ -1,5 +1,3 @@
-# Développement Personnel - Classiques
-# Sources : bestsellers internationaux, recommandations professionnelles
 id: dev-personnel-classiques
 version: 1
 
@@ -20,23 +18,30 @@ contributor: BiblioGenius
 tags: [dev-personnel, essai, psychologie, motivation]
 content_languages: [fr]
 
+# Audited against the sources on 2026-08-24 (make audit-curated): every
+# ISBN resolves and every author matches, no blocking finding and nothing
+# left unverified. One entry has no cover anywhere, which does not hold a
+# list back. Promoted so the editorial affinity tier may SUGGEST it
+# (ADR-066); the import catalogue always showed it.
+curation_status: reviewed
+
 books:
-  - isbn: "9782253084204"
-    note: "Dale Carnegie - Comment se faire des amis"
-  - isbn: "9782290000724"
-    note: "Stephen R. Covey - Les 7 habitudes de ceux qui réussissent"
-  - isbn: "9782290135617"
-    note: "Viktor Frankl - Découvrir un sens à sa vie"
-  - isbn: "9782290112168"
-    note: "James Clear - Atomic Habits"
-  - isbn: "9782266241915"
-    note: "Daniel Kahneman - Système 1 / Système 2"
-  - isbn: "9782081515222"
-    note: "Cal Newport - Deep Work"
-  - isbn: "9782804704879"
-    note: "Carol Dweck - Osez réussir ! (Mindset)"
-  - isbn: "9782352948292"
-    note: "Ryan Holiday - L'Obstacle est le chemin"
+  - isbn: "9782253009108"
+    note: "Comment se faire des amis - Dale Carnegie"
+  - isbn: "9782290429372"
+    note: "Les 7 habitudes de ceux qui réussissent - Stephen R. Covey"
+  - isbn: "9782761921336"
+    note: "Découvrir un sens à sa vie - Viktor Frankl"
+  - isbn: "9782035969200"
+    note: "Un rien peut tout changer - James Clear (Atomic Habits)"
+  - isbn: "9782081211476"
+    note: "Système 1 / Système 2 - Daniel Kahneman"
+  - isbn: "9791092928365"
+    note: "Deep Work - Cal Newport"
+  - isbn: "9782804709617"
+    note: "Osez vraiment réussir ! (Mindset) - Carol Dweck"
+  - isbn: "9791092928662"
+    note: "L'Obstacle est le chemin - Ryan Holiday"
   - isbn: "9782290020203"
     note: "Le Pouvoir du moment présent - Eckhart Tolle (J'ai lu)"
   - isbn: "9782251451350"

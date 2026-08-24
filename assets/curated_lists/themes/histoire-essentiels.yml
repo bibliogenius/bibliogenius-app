@@ -21,6 +21,12 @@ contributor: BiblioGenius
 tags: [histoire, essai, non-fiction]
 content_languages: [fr]
 
+# Audited against the sources on 2026-08-23 (make audit-curated): every
+# ISBN resolves and every author matches, no blocking finding and nothing
+# left unverified. Promoted so the editorial affinity tier may SUGGEST it
+# (ADR-066); the import catalogue always showed it.
+curation_status: reviewed
+
 books:
   - isbn: "9782226257017"
     note: "Sapiens - Yuval Noah Harari"
@@ -30,15 +36,18 @@ books:
     note: "L'Étrange Défaite - Marc Bloch"
   - isbn: "9782253061687"
     note: "La Méditerranée - Fernand Braudel"
-  - isbn: "9782070138982"
-    note: "Timothy Snyder - Terres de sang"
-  - isbn: "9782253168522"
-    note: "Svetlana Alexievitch - La Fin de l'homme rouge (Réutilisation ISBN Bio)"
+  - isbn: "9782070131983"
+    note: "Terres de sang - Timothy Snyder"
+  - isbn: "9782330023478"
+    note: "La Fin de l'homme rouge - Svetlana Alexievitch"
+    title: "La Fin de l'homme rouge"
+    # The BnF uses the scholarly transliteration of her name.
+    authors: ["Svetlana Alexievitch", "Svetlana Aleksandrovna Aleksievič"]
   - isbn: "9782070402472"
     note: "Les Années - Annie Ernaux"
-  - isbn: "9782070126200"
-    note: "Emmanuel Carrère - Limonov"
-  - isbn: "9782757866344"
-    note: "Patrick Boucheron - Histoire mondiale de la France"
-  - isbn: "9782070438303"
-    note: "Jared Diamond - De l'inégalité parmi les sociétés"
+  - isbn: "9782818014059"
+    note: "Limonov - Emmanuel Carrère"
+  - isbn: "9782021336290"
+    note: "Histoire mondiale de la France - Patrick Boucheron"
+  - isbn: "9782070753512"
+    note: "De l'inégalité parmi les sociétés - Jared Diamond"

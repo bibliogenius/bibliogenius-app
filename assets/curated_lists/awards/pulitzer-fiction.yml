@@ -20,6 +20,12 @@ contributor: BiblioGenius
 tags: [prix, pulitzer, fiction, american]
 content_languages: [en]
 
+# Audited against the sources on 2026-08-23 (make audit-curated): every
+# ISBN resolves and every author matches, no finding of any severity,
+# and no entry left unverified. Promoted so the editorial affinity tier
+# may SUGGEST it (ADR-066); the import catalogue always showed it.
+curation_status: reviewed
+
 books:
   - isbn: "9781536627046"
     note: "Tinkers - Paul Harding (2010)"
@@ -27,15 +33,15 @@ books:
     note: "A Visit from the Goon Squad - Jennifer Egan (2011)"
   - isbn: "9780307939692"
     note: "The Orphan Master's Son - Adam Johnson (2013)"
-  - isbn: "9781495486418"
-    note: "Donna Tartt - The Goldfinch (2014)"
-  - isbn: "9780008548353"
+  - isbn: "9780316055437"
+    note: "The Goldfinch - Donna Tartt (2014)"
+  - isbn: "9781476746586"
     note: "All the Light We Cannot See - Anthony Doerr (2015)"
-  - isbn: "9781336217560"
+  - isbn: "9780802123459"
     note: "The Sympathizer - Viet Thanh Nguyen (2016)"
   - isbn: "9782226393197"
     note: "The Underground Railroad - Colson Whitehead (2017)"
-  - isbn: "9780316316149"
+  - isbn: "9780316316125"
     note: "Less - Andrew Sean Greer (2018)"
   - isbn: "9781984891372"
     note: "The Nickel Boys - Colson Whitehead (2020)"
@@ -47,5 +53,5 @@ books:
     note: "Demon Copperhead - Barbara Kingsolver (2023)"
   - isbn: "9780593713099"
     note: "Trust - Hernan Diaz (2023)"
-  - isbn: "9780349727813"
+  - isbn: "9780349727790"
     note: "Night Watch - Jayne Anne Phillips (2024)"

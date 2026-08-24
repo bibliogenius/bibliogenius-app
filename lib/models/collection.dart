@@ -28,6 +28,22 @@ class Collection {
   /// render the translated label instead (see CollectionDisplay).
   bool get isFavorites => source == 'favorites';
 
+  /// Prefix marking a collection created by importing a curated list.
+  static const String curatedSourcePrefix = 'curated:';
+
+  /// The curated list this collection was imported from, or null.
+  ///
+  /// The link lives on the collection rather than in a side table, next to
+  /// `series` and `favorites` which already carry a typed collection's
+  /// identity in the same field (ADR-064). It survives a rename, needs no
+  /// second store to keep in step, and an unknown source is simply an
+  /// ordinary collection everywhere else in the app.
+  String? get curatedListId {
+    if (!source.startsWith(curatedSourcePrefix)) return null;
+    final id = source.substring(curatedSourcePrefix.length);
+    return id.isEmpty ? null : id;
+  }
+
   factory Collection.fromJson(Map<String, dynamic> json) {
     return Collection(
       id: json['id'],

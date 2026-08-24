@@ -21,13 +21,22 @@ contributor: BiblioGenius
 tags: [spiritualité, méditation, bien-être, sagesse]
 content_languages: [fr]
 
+# Audited against the sources on 2026-08-24 (make audit-curated): every ISBN
+# resolves, nothing left unverified, and the one blocking finding was read by
+# hand and dismissed. SUDOC gives the author of 9782266123303 in Wylie
+# transliteration ("Pad ma chos sgron"), which IS Pema Chödrön; softening the
+# author comparator to swallow that would cost far more than this finding
+# does. The audit will keep reporting it. Promoted so the editorial affinity
+# tier may SUGGEST it (ADR-066); the import catalogue always showed it.
+curation_status: reviewed
+
 books:
   - isbn: "9782290020203"
     note: "Le Pouvoir du moment présent - Eckhart Tolle"
   - isbn: "9782290011072"
     note: "Le Miracle de la pleine conscience - Thich Nhat Hanh"
   - isbn: "9782266123303"
-    note: "Quand tout s'effondre - Pema Chödrön"
+    note: "Conseils d'une amie pour des temps difficiles - Pema Chödrön"
   - isbn: "9782290068939"
     note: "Où tu vas, tu es - Jon Kabat-Zinn"
   - isbn: "9782253008484"
@@ -38,7 +47,10 @@ books:
     note: "La Philosophie éternelle - Aldous Huxley"
   - isbn: "9782290258064"
     note: "L'Alchimiste - Paulo Coelho"
-  - isbn: "9782070465262"
+  - isbn: "9782744179259"
     note: "Pensées pour moi-même - Marc Aurèle"
   - isbn: "9782290234648"
     note: "L'Art du bonheur - Dalai Lama"
+    title: "L'Art du bonheur"
+    # Catalogued under his ordination name.
+    authors: ["Dalai Lama", "Bstan 'dzin rgya mtsho", "Howard C. Cutler"]

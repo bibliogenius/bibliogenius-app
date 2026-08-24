@@ -19,22 +19,28 @@ contributor: BiblioGenius
 tags: [classics, english, reader-poll]
 content_languages: [en]
 
+# Audited against the sources on 2026-08-23 (make audit-curated): every
+# ISBN resolves and every author matches, no finding of any severity,
+# and no entry left unverified. Promoted so the editorial affinity tier
+# may SUGGEST it (ADR-066); the import catalogue always showed it.
+curation_status: reviewed
+
 books:
-  - isbn: "9781586637903"
+  - isbn: "9780261102439"
     note: "The Lord of the Rings - J.R.R. Tolkien (1)"
   - isbn: "9781537747453"
     note: "Pride and Prejudice - Jane Austen (2)"
-  - isbn: "9780975943007"
+  - isbn: "9780440238607"
     note: "His Dark Materials - Philip Pullman (3)"
   - isbn: "9780307291813"
     note: "The Hitchhiker's Guide to the Galaxy - Douglas Adams (4)"
   - isbn: "9780747593683"
     note: "Harry Potter and the Goblet of Fire - J.K. Rowling (5)"
-  - isbn: "9781560778479"
+  - isbn: "9781785151552"
     note: "To Kill a Mockingbird - Harper Lee (6)"
   - isbn: "9780140866827"
     note: "Winnie-the-Pooh - A.A. Milne (7)"
-  - isbn: "9781921088674"
+  - isbn: "9780198185215"
     note: "Nineteen Eighty-Four - George Orwell (8)"
   - isbn: "9781514280126"
     note: "The Lion, the Witch and the Wardrobe - C.S. Lewis (9)"
@@ -42,9 +48,9 @@ books:
     note: "Jane Eyre - Charlotte Bronte (10)"
   - isbn: "9781411407183"
     note: "Catch-22 - Joseph Heller (11)"
-  - isbn: "9781541122703"
+  - isbn: "9791035836450"
     note: "Wuthering Heights - Emily Bronte (12)"
-  - isbn: "9781408217276"
+  - isbn: "9780613656276"
     note: "Birdsong - Sebastian Faulks (13)"
   - isbn: "9780394299563"
     note: "Rebecca - Daphne du Maurier (14)"

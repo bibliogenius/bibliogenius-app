@@ -1,3 +1,5 @@
+import '../utils/book_filters.dart';
+
 class Tag {
   /// Cross-device stable identity (the tag's uuid). Empty for synthetic legacy
   /// (subject-derived) tags that have no `tags` row.
@@ -8,7 +10,16 @@ class Tag {
   final String name;
   final String? parentId;
   final String path;
+  /// Books on this shelf that the DEFAULT library view shows.
   final int count;
+
+  /// Books on this shelf whatever their ownership.
+  ///
+  /// Differs from [count] as soon as the shelf holds wished or given-away
+  /// books. Which of the two a badge should print depends on the reader's
+  /// remembered ownership axis (ADR-063), so both travel and the caller
+  /// picks: see `countForOwnershipScope`.
+  final int totalCount;
   final List<Tag> children;
 
   Tag({
@@ -17,8 +28,9 @@ class Tag {
     this.parentId,
     this.path = '',
     required this.count,
+    int? totalCount,
     this.children = const [],
-  });
+  }) : totalCount = totalCount ?? count;
 
   factory Tag.fromJson(Map<String, dynamic> json) {
     return Tag(
@@ -27,6 +39,7 @@ class Tag {
       parentId: json['parent_id']?.toString(),
       path: json['path'] as String? ?? '',
       count: json['count'] as int? ?? 0,
+      totalCount: json['total_count'] as int?,
       children:
           (json['children'] as List<dynamic>?)
               ?.map((e) => Tag.fromJson(e as Map<String, dynamic>))
@@ -42,6 +55,7 @@ class Tag {
       'parent_id': parentId,
       'path': path,
       'count': count,
+      'total_count': totalCount,
     };
   }
 
@@ -121,5 +135,27 @@ class Tag {
   /// Get direct children of a tag
   static List<Tag> getDirectChildren(String tagId, List<Tag> allTags) {
     return allTags.where((t) => t.parentId == tagId).toList();
+  }
+}
+
+/// The number a shelf badge must print under [scope].
+///
+/// A badge that disagrees with the list its tap opens is worse than no badge:
+/// a shelf filled by importing a wishlist announced 0 and then showed ten
+/// books, which is what sent this here. Rust reports both scopes and the
+/// choice is made where the reader's remembered axis lives (ADR-063).
+///
+/// The "not owned" scope is the exact complement, floored at zero so a Tag
+/// built without a total (it then defaults to [Tag.count]) reports nothing
+/// rather than a negative.
+int countForOwnershipScope(Tag tag, String scope) {
+  switch (scope) {
+    case OwnershipScope.all:
+      return tag.totalCount;
+    case OwnershipScope.notOwned:
+      final hidden = tag.totalCount - tag.count;
+      return hidden < 0 ? 0 : hidden;
+    default:
+      return tag.count;
   }
 }

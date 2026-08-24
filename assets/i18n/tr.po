@@ -10819,3 +10819,39 @@ msgstr "{count} kitabın tümünü gör"
 #. Curated list card: link folding the book list back to the 3-book preview
 msgid "curated_see_less"
 msgstr "Daha az göster"
+
+#. Collections screen: header of the related curated selections block
+msgid "curated_affinity_section_title"
+msgstr "Kitaplığınıza uygun seçkiler"
+
+#. Curated list card: why it is suggested, {owned} books already in the library
+msgid "curated_affinity_reason"
+msgstr "{owned} ortak kitap"
+
+#. Curated list card: same, when {liked} of the shared books were liked
+msgid "curated_affinity_reason_liked"
+msgstr "{owned} ortak kitap, {liked} tanesi beğenilmiş"
+
+#. Source marker on a suggested curated selection
+msgid "suggestion_badge_editorial"
+msgstr "Seçki"
+
+#. Pre-import dialog: file the imported books under their matching genre shelves
+msgid "curated_import_shelve_option"
+msgstr "İçe aktarılan kitapları türe göre sırala"
+
+#. Pre-import dialog: the shelves that would be used, {labels} is a list
+msgid "curated_import_shelve_option_detail"
+msgstr "Raflar: {labels}"
+
+#. Shelf empty only because the ownership view hides its books
+msgid "shelf_hidden_by_ownership"
+msgstr "Bu raftaki hiçbir kitap kitaplığınızda değil"
+
+#. Explains the empty shelf, {count} is how many books the switch would reveal
+msgid "shelf_hidden_by_ownership_desc"
+msgstr "Bu raftaki {count} kitap sizde değil: istek listesi ya da ödünç verilmiş kitaplar. Varsayılan görünüm yalnızca sahip olduklarınızı gösterir."
+
+#. Button switching the library list to the 'all' ownership scope
+msgid "show_all_ownership"
+msgstr "Yine de göster"

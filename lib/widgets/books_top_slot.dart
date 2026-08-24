@@ -5,9 +5,13 @@ import '../models/book.dart';
 import '../models/recommendation.dart';
 import '../providers/recommendation_provider.dart';
 import '../providers/theme_provider.dart';
+import '../services/curated_affinity_service.dart';
 import '../services/translation_service.dart';
 import '../theme/app_design.dart';
+import '../utils/recommendation_display.dart';
 import 'compact_suggestion_card.dart';
+import 'curated_import_dialog.dart';
+import 'curated_list_suggestion_card.dart';
 import 'external_suggestion_sheet.dart';
 import 'recently_added_carousel.dart';
 
@@ -43,6 +47,17 @@ class BooksTopSlot extends StatelessWidget {
         : const <Recommendation>[];
     final hasDiscovery = suggestions.isNotEmpty;
 
+    // Curated list cards (ADR-066) JOIN an existing discovery segment and
+    // can never create one: the segment's existence rule is ADR-062's and
+    // stays exactly as written (profile floor, then two visible book
+    // suggestions). A strip made only of list cards would also be a
+    // different feature from the one the tab announces.
+    final curatedLists = hasDiscovery
+        ? recommendations.curatedAffinitiesFor(
+            cap: RecommendationProvider.slotMaxCuratedLists,
+          )
+        : const <CuratedAffinity>[];
+
     // No discovery to offer: the Activity carousel renders exactly as it
     // always has, header and all. This is the common case and the strongest
     // guarantee that the slot did not regress it.
@@ -62,8 +77,8 @@ class BooksTopSlot extends StatelessWidget {
     // external cards: the two could never agree, and the header announced
     // more covers than the reader could find. The Activity segment has
     // always taken its count from the very selection it renders; this is
-    // the same rule.
-    final suggestionCount = suggestions.length;
+    // the same rule, so a list card counts too.
+    final suggestionCount = suggestions.length + curatedLists.length;
 
     return RecentlyAddedCarousel(
       books: books,
@@ -76,7 +91,10 @@ class BooksTopSlot extends StatelessWidget {
         onSelect: theme.setBooksSlotShowsDiscovery,
       ),
       bodyOverride: showsDiscovery
-          ? _DiscoveryStrip(suggestions: suggestions)
+          ? _DiscoveryStrip(
+              suggestions: suggestions,
+              curatedLists: curatedLists,
+            )
           : null,
       collapsedSummary: showsDiscovery
           ? TranslationService.translate(
@@ -276,16 +294,25 @@ class _SlotTab extends StatelessWidget {
 /// link to the full list. Same height budget as the Activity strip so
 /// switching segments never moves the book list below.
 class _DiscoveryStrip extends StatelessWidget {
-  const _DiscoveryStrip({required this.suggestions});
+  const _DiscoveryStrip({
+    required this.suggestions,
+    this.curatedLists = const [],
+  });
 
   final List<Recommendation> suggestions;
+
+  /// Curated list cards (ADR-066), placed AFTER the books: the strip
+  /// answers "what should I read next", and a whole selection is the
+  /// broader offer, so it comes once the individual books have had their
+  /// slots.
+  final List<CuratedAffinity> curatedLists;
 
   @override
   Widget build(BuildContext context) {
     // The way to the full list rides at the END of the strip rather than on
     // a line of its own beneath it: same height budget, and it is found by
     // the same scroll that reads the cards.
-    final itemCount = suggestions.length + 1;
+    final itemCount = suggestions.length + curatedLists.length + 1;
 
     return SizedBox(
       height: CompactSuggestionCard.stripHeight(context),
@@ -294,20 +321,32 @@ class _DiscoveryStrip extends StatelessWidget {
         itemCount: itemCount,
         separatorBuilder: (_, _) => const SizedBox(width: AppDesign.spacingSm),
         itemBuilder: (context, index) {
-          if (index == suggestions.length) {
-            return SeeAllSuggestionsCard(
-              label: TranslationService.translate(
-                context,
-                'see_all_recommendations',
-              ),
+          if (index < suggestions.length) {
+            final suggestion = suggestions[index];
+            return CompactSuggestionCard(
+              suggestion: suggestion,
+              onTap: suggestion.isExternal
+                  ? () => ExternalSuggestionSheet.show(context, suggestion)
+                  : null,
             );
           }
-          final suggestion = suggestions[index];
-          return CompactSuggestionCard(
-            suggestion: suggestion,
-            onTap: suggestion.isExternal
-                ? () => ExternalSuggestionSheet.show(context, suggestion)
-                : null,
+          final curatedIndex = index - suggestions.length;
+          if (curatedIndex < curatedLists.length) {
+            final affinity = curatedLists[curatedIndex];
+            return CuratedListSuggestionCard(
+              affinity: affinity,
+              // The EXISTING import flow, opened on the very list tapped:
+              // never a dead end, and never a new flow.
+              onTap: () => CuratedImportDialog.show(context, affinity.list),
+              onDismiss: () =>
+                  dismissCuratedListWithUndo(context, affinity.dismissalKey),
+            );
+          }
+          return SeeAllSuggestionsCard(
+            label: TranslationService.translate(
+              context,
+              'see_all_recommendations',
+            ),
           );
         },
       ),

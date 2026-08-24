@@ -31,9 +31,7 @@ class ExternalSearchResult {
 
   const ExternalSearchResult({required this.results, required this.notices});
 
-  const ExternalSearchResult.empty()
-    : results = const [],
-      notices = const [];
+  const ExternalSearchResult.empty() : results = const [], notices = const [];
 
   bool get googleBooksQuotaExceeded => notices.contains('google_books_quota');
 }
@@ -343,9 +341,7 @@ class ApiService {
           // Pass only the field we want to update; updateBook handles merging with existing data
           try {
             await updateBook(newUuid, {'owned': true});
-            debugPrint(
-              '✅ Ownership status updated to true for Book $newUuid',
-            );
+            debugPrint('✅ Ownership status updated to true for Book $newUuid');
           } catch (e) {
             debugPrint('⚠️ Failed to update ownership status: $e');
             // We don't rethrow here because the book and copy were created successfully
@@ -896,8 +892,9 @@ class ApiService {
   Future<Collection> createCollection(
     String name, {
     String? description,
+    String source = 'manual',
   }) async {
-    final data = {'name': name, 'description': description, 'source': 'manual'};
+    final data = {'name': name, 'description': description, 'source': source};
     if (useFfi) {
       final localDio = await _getLocalDio();
       final response = await localDio.post('/api/collections', data: data);
@@ -947,7 +944,10 @@ class ApiService {
     await dio.post('/api/collections/$collectionId/books/$bookId');
   }
 
-  Future<void> removeBookFromCollection(String collectionId, String bookId) async {
+  Future<void> removeBookFromCollection(
+    String collectionId,
+    String bookId,
+  ) async {
     final dio = useFfi
         ? Dio(BaseOptions(baseUrl: 'http://127.0.0.1:$httpPort'))
         : _dio;
@@ -4525,8 +4525,7 @@ class ApiService {
       // Prefer the user's reading languages (comma-separated) so the backend can
       // pick a single target language for summary coherence (ADR-040); fall back
       // to the interface locale for callers that don't pass a list.
-      final currentLang =
-          (languages != null && languages.isNotEmpty)
+      final currentLang = (languages != null && languages.isNotEmpty)
           ? languages.join(',')
           : (locale?.languageCode ?? 'en');
       // Use a dedicated Dio instance with longer timeout for lookups

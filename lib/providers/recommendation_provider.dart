@@ -1,13 +1,26 @@
 import 'package:flutter/foundation.dart';
 
+import '../data/repositories/book_repository.dart';
 import '../data/repositories/recommendation_repository.dart';
+import '../models/book.dart';
 import '../models/discovery.dart';
 import '../utils/author_identity.dart';
+import '../utils/curated_tag_genre_aliases.dart';
 import '../models/recommendation.dart';
+import '../services/curated_affinity_service.dart';
+import '../services/curated_lists_service.dart';
 import '../services/discovery_service.dart';
 import '../services/external_suggestion_dismissal_service.dart';
 import '../services/recommendation_dismissal_service.dart';
 import 'book_refresh_notifier.dart';
+
+/// Supplies the curated corpus to the editorial affinity tier (ADR-066).
+/// The app passes `CuratedListsService.instance.loadAllLists`.
+///
+/// A function rather than the service itself: `CuratedListsService` is a
+/// singleton with a private constructor, so this is what makes the tier
+/// testable without loosening the service.
+typedef CuratedCorpusLoader = Future<List<CuratedList>> Function();
 
 /// Caches the dashboard "Suggestions for you" payload (Rule F4: caching is
 /// Flutter's job, the Rust engine is stateless).
@@ -37,10 +50,27 @@ import 'book_refresh_notifier.dart';
 /// [authorPageDiscovery] (resolves on open, for an author page). Both go
 /// through [ensureLookupInputs] so a page opening never triggers a second
 /// library pass.
+///
+/// The editorial affinity tier (ADR-066) adds a third kind of candidate,
+/// the curated LIST as an object, measured on-device against the bundled
+/// corpus with no request of any kind.
 class RecommendationProvider extends ChangeNotifier {
   final RecommendationRepository _repository;
   final BookRefreshNotifier _bookRefreshNotifier;
   final DiscoveryService _discovery;
+
+  /// Editorial affinity tier (ADR-066). Optional: without a corpus loader
+  /// or a book repository the tier simply produces nothing, which is what
+  /// every surface already renders when there is no affinity.
+  ///
+  /// A loader rather than the service itself: `CuratedListsService` is a
+  /// singleton with a private constructor, so a function is what makes this
+  /// testable at all. The app wires it to `loadAllLists`, which is what
+  /// keeps the corpus read through the service and withdrawn lists
+  /// withdrawn.
+  final CuratedCorpusLoader? _curatedLists;
+  final BookRepository? _books;
+  final CuratedAffinityService _affinity;
 
   PersonalRecommendations? _personal;
   bool _stale = true;
@@ -77,6 +107,18 @@ class RecommendationProvider extends ChangeNotifier {
   /// Memoised [authorVocabulary], derived from [_lookupInputs] and dying
   /// with them.
   Set<String>? _authorVocabulary;
+
+  /// Curated lists whose overlap with the library passes the ADR-066
+  /// thresholds, best first. Computed once per session off the critical
+  /// path and invalidated by a catalogue mutation, never at render: the
+  /// pass parses 74 bundled YAML files.
+  List<CuratedAffinity> _curatedAffinities = const [];
+  bool _curatedStale = true;
+  bool _curatedLoading = false;
+
+  /// The bundled corpus, parsed once. It cannot change without an app
+  /// update, so unlike the affinities it survives a catalogue mutation.
+  List<CuratedList>? _corpus;
 
   /// Dashboard cap on external cards (ADR-060 section 4.4): discovery
   /// never drowns "read what is already at home".
@@ -125,11 +167,27 @@ class RecommendationProvider extends ChangeNotifier {
   /// for scarce slots: the user asked about this author.
   static const int authorPageMaxWorks = 10;
 
+  /// Curated list cards in the library slot's discovery strip (ADR-066).
+  /// One: the strip is about books, and a list card is an accent in it, not
+  /// a second feature competing with them.
+  static const int slotMaxCuratedLists = 1;
+
+  /// Curated list cards in the Collections teaser block. Two: that screen
+  /// is ABOUT collections, so a related selection is on topic there, and
+  /// the reader's own collections still render first.
+  static const int collectionsMaxCuratedLists = 2;
+
   RecommendationProvider(
     this._repository,
     this._bookRefreshNotifier, {
     DiscoveryService? discoveryService,
-  }) : _discovery = discoveryService ?? DiscoveryService() {
+    CuratedCorpusLoader? curatedCorpusLoader,
+    BookRepository? bookRepository,
+    CuratedAffinityService affinityService = const CuratedAffinityService(),
+  }) : _discovery = discoveryService ?? DiscoveryService(),
+       _curatedLists = curatedCorpusLoader,
+       _books = bookRepository,
+       _affinity = affinityService {
     _bookRefreshNotifier.addListener(_markStale);
     _loadDismissed();
   }
@@ -317,6 +375,120 @@ class RecommendationProvider extends ChangeNotifier {
     // themselves, so the contextual surfaces must not keep filtering
     // against a library that no longer exists.
     _inputsStale = true;
+    // Importing a list is the single most likely catalogue mutation here,
+    // and it changes every overlap count on screen.
+    _curatedStale = true;
+  }
+
+  // ── Editorial affinity tier (ADR-066) ───────────────────────────────
+
+  /// Curated lists worth suggesting, best affinity first, minus the ones
+  /// the reader dismissed. Empty until [loadCuratedAffinity] has run, and
+  /// empty is the normal state on most libraries.
+  List<CuratedAffinity> get visibleCuratedAffinities => _curatedAffinities
+      .where((a) => !isExternalDismissed(a.dismissalKey))
+      .toList();
+
+  /// The list cards a surface may render, capped for it. Both surfaces call
+  /// THIS rather than slicing the list themselves, so a cap can never drift
+  /// away from the rule it implements.
+  List<CuratedAffinity> curatedAffinitiesFor({required int cap}) =>
+      visibleCuratedAffinities.take(cap).toList();
+
+  /// Measure the bundled corpus against the library.
+  ///
+  /// Per session, off the critical path, memoised: the pass parses 74
+  /// bundled YAML files and walks every entry against the identity index,
+  /// which is real work and must never happen in a build method. Zero
+  /// network, by construction: the corpus ships with the app.
+  ///
+  /// Silent on every failure, like every other discovery surface: a corpus
+  /// that fails to parse means no cards, never an error on screen.
+  Future<void> loadCuratedAffinity({
+    required List<String> readerLanguages,
+    bool force = false,
+  }) async {
+    final corpusLoader = _curatedLists;
+    if (corpusLoader == null) return;
+    if (_curatedLoading) return;
+    if (!_curatedStale && !force) return;
+    _curatedLoading = true;
+    try {
+      final inputs = await ensureLookupInputs();
+      // The ADR-059 profile floor reaches the client as an empty identity
+      // index. Below it the membrane cannot run, and a card would claim an
+      // overlap nobody verified.
+      if (inputs == null || inputs.hasNoIdentity) {
+        _curatedStale = false;
+        _replaceCuratedAffinities(const []);
+        return;
+      }
+
+      final corpus = _corpus ??= await corpusLoader();
+      final library = await _books?.getBooks() ?? const [];
+
+      _curatedStale = false;
+      _replaceCuratedAffinities(
+        _affinity.rank(
+          lists: corpus,
+          inputs: inputs,
+          readerLanguages: readerLanguages,
+          ownedCoverUrls: _coverIndex(library),
+          readerGenreKeys: genreKeysForStoredLabels(
+            _personal?.topSubjects ?? const [],
+          ),
+        ),
+      );
+    } catch (e) {
+      debugPrint('Curated affinity failed: $e');
+      _curatedStale = false;
+    } finally {
+      _curatedLoading = false;
+    }
+  }
+
+  void _replaceCuratedAffinities(List<CuratedAffinity> fresh) {
+    _curatedAffinities = fresh;
+    notifyListeners();
+  }
+
+  /// Cover of the reader's OWN copy, keyed both ways the membrane matches,
+  /// so a card's mosaic shows the books they already have rather than the
+  /// publisher art the list happens to carry.
+  static Map<String, String> _coverIndex(List<Book> books) {
+    final index = <String, String>{};
+    for (final book in books) {
+      final cover = book.coverUrl;
+      if (cover == null || cover.isEmpty) continue;
+      final isbn = book.isbn;
+      if (isbn != null && isbn.isNotEmpty) {
+        index.putIfAbsent(DiscoveryService.cleanIsbn(isbn), () => cover);
+      }
+      final title = DiscoveryService.normalizeIdentityText(book.title);
+      final author = book.author;
+      if (title.isEmpty || author == null || author.isEmpty) continue;
+      // `Book.author` is one FFI-joined string; each comma-separated part
+      // is keyed so a co-authored book still matches a list entry naming
+      // only one of them (AuthorIdentity's own splitting rule).
+      for (final part in author.split(',')) {
+        final normalized = DiscoveryService.normalizeIdentityText(part);
+        if (normalized.isEmpty) continue;
+        index.putIfAbsent('$title|$normalized', () => cover);
+      }
+    }
+    return index;
+  }
+
+  /// Forget a list after its import: the identity index only refreshes on
+  /// the next pass, so the card would otherwise linger with a stale count.
+  /// Mirrors [hideExternalAfterImport] for the editorial tier.
+  void hideCuratedAfterImport(String listId) {
+    final key = 'list:$listId';
+    final remaining = _curatedAffinities
+        .where((a) => a.dismissalKey != key)
+        .toList();
+    if (remaining.length == _curatedAffinities.length) return;
+    _replaceCuratedAffinities(remaining);
   }
 
   /// Discovery lookup inputs, fetched once and reused by every surface
@@ -452,7 +624,15 @@ class RecommendationProvider extends ChangeNotifier {
   /// the profile floor through the empty FFI inputs, the two-visible-local
   /// floor inside [loadExternal], and the 24h per-key throttle inside the
   /// service. Cheap to call: on a warm cache it does no network at all.
-  Future<void> warmUpAtStartup({required List<String> langs}) async {
+  /// [readerLanguages] gates the editorial tier (ADR-066) and is distinct
+  /// from [langs] on purpose: [langs] is the hub's serve-time EDITION
+  /// filter, while the gate must also count the interface language of a
+  /// reader who never opened the language picker. Defaults to [langs] so a
+  /// caller that does not care keeps the stricter of the two.
+  Future<void> warmUpAtStartup({
+    required List<String> langs,
+    List<String>? readerLanguages,
+  }) async {
     if (_startupWarmUpDone) return;
     await loadPersonal();
     // The backend can be unavailable (web, or a failed init). Leave the flag
@@ -461,6 +641,11 @@ class RecommendationProvider extends ChangeNotifier {
     if (_personal == null) return;
     _startupWarmUpDone = true;
     await loadExternal(langs: langs);
+    // Last, and never blocking the two lanes above: the editorial tier is
+    // the cheapest of the three (no network at all) but the corpus parse is
+    // the one piece of real work, so it runs once everything else has had
+    // its turn.
+    await loadCuratedAffinity(readerLanguages: readerLanguages ?? langs);
   }
 
   void _clearExternal() {

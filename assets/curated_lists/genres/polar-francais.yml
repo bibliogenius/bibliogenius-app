@@ -19,16 +19,24 @@ contributor: BiblioGenius
 tags: [polar, thriller, français]
 content_languages: [fr]
 
+# Audited against the sources on 2026-08-23 (make audit-curated): every
+# ISBN resolves and every author matches, no finding of any severity,
+# and no entry left unverified. Promoted so the editorial affinity tier
+# may SUGGEST it (ADR-066); the import catalogue always showed it.
+curation_status: reviewed
+
 books:
-  - isbn: "9782253168744"
+  - isbn: "9782226249678"
     note: "Au revoir là-haut - Pierre Lemaitre"
   - isbn: "9782877068635"
     note: "La Vérité sur l'Affaire Harry Quebert - Joël Dicker"
-  - isbn: "9782290019344"
+  - isbn: "9782878582338"
     note: "Dans les bois éternels - Fred Vargas"
   - isbn: "9782253044901"
     note: "Le Parfum - Patrick Süskind"
-  - isbn: "9782742778430"
+  - isbn: "9782742761579"
     note: "Millénium 1 - Les hommes qui n'aimaient pas les femmes - Stieg Larsson"
-  - isbn: "9782714437358"
+    title: "Millénium 1 - Les hommes qui n'aimaient pas les femmes"
+    authors: ["Stieg Larsson"]
+  - isbn: "9782744120329"
     note: "L'Homme qui voulait vivre sa vie - Douglas Kennedy"

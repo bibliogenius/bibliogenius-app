@@ -20,6 +20,7 @@ import 'services/translation_service.dart';
 import 'services/mdns_service.dart';
 import 'services/ffi_service.dart';
 import 'services/avatar_sync_service.dart';
+import 'services/curated_lists_service.dart';
 import 'src/rust/api/frb.dart' as frb;
 import 'utils/app_constants.dart';
 import 'utils/invite_payload.dart';
@@ -107,6 +108,7 @@ import 'providers/hub_directory_provider.dart';
 import 'providers/flash_message_provider.dart';
 import 'providers/notification_provider.dart';
 import 'providers/sort_preference_provider.dart';
+import 'providers/ownership_preference_provider.dart';
 import 'package:app_links/app_links.dart';
 
 import 'services/wizard_service.dart';
@@ -712,6 +714,11 @@ class MyApp extends StatelessWidget {
           create: (context) => RecommendationProvider(
             context.read<RecommendationRepository>(),
             bookRefreshNotifier,
+            // Editorial affinity tier (ADR-066): the bundled corpus, read
+            // through its service so withdrawn lists stay withdrawn, and
+            // the library for the reader's own cover art.
+            curatedCorpusLoader: CuratedListsService.instance.loadAllLists,
+            bookRepository: context.read<BookRepository>(),
           ),
         ),
         ChangeNotifierProvider<FavoritesProvider>(
@@ -784,6 +791,9 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider<SortPreferenceProvider>(
           create: (_) => SortPreferenceProvider()..load(),
+        ),
+        ChangeNotifierProvider<OwnershipPreferenceProvider>(
+          create: (_) => OwnershipPreferenceProvider()..load(),
         ),
       ],
       child: const AppRouter(),
@@ -1554,11 +1564,18 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
     _discoveryWarmUpTimer?.cancel();
     _discoveryWarmUpTimer = Timer(const Duration(seconds: 3), () {
       if (!mounted) return;
-      final langs = context.read<ThemeProvider>().userLanguages;
+      final theme = context.read<ThemeProvider>();
+      final langs = theme.userLanguages;
       // Fire and forget: the provider never throws toward the UI, and a
       // failure simply means no external cards this session.
       unawaited(
-        context.read<RecommendationProvider>().warmUpAtStartup(langs: langs),
+        context.read<RecommendationProvider>().warmUpAtStartup(
+          langs: langs,
+          readerLanguages: resolveReaderLanguages(
+            theme.locale.languageCode,
+            langs,
+          ),
+        ),
       );
     });
   }

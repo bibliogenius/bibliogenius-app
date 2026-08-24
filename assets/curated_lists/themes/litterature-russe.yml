@@ -1,5 +1,3 @@
-# Littérature Russe - Classiques
-# Sources : Russian Booker Prize, Programmes universitaires
 id: litterature-russe
 version: 1
 
@@ -21,24 +19,37 @@ contributor: BiblioGenius
 tags: [russe, classiques, XIXe-siècle, XXe-siècle]
 content_languages: [fr]
 
+# Audited against the sources on 2026-08-23 (make audit-curated): every
+# ISBN resolves and every author matches, no blocking finding and nothing
+# left unverified. Promoted so the editorial affinity tier may SUGGEST it
+# (ADR-066); the import catalogue always showed it.
+curation_status: reviewed
+
 books:
   - isbn: "9782253017264"
     note: "Guerre et Paix - Léon Tolstoï (Livre de Poche)"
+    title: "Guerre et paix"
+    authors: ["Léon Tolstoï", "Lev Nikolaevič Tolstoj"]
   - isbn: "9782253098386"
     note: "Anna Karénine - Léon Tolstoï"
-  - isbn: "9782742767939"
-    note: "Fyodor Dostoïevski - Crime et Châtiment (Babel)"
-  - isbn: "9782253005827"
-    note: "Fyodor Dostoïevski - Les Frères Karamazov"
-  - isbn: "9782253082538"
-    note: "Anton Tchekhov - La Dame au petit chien & autres nouvelles"
+    title: "Anna Karénine"
+    authors: ["Léon Tolstoï", "Lev Nikolaevič Tolstoj"]
+  - isbn: "9782742737642"
+    note: "Crime et Châtiment (Babel) - Fiodor Dostoïevski"
+    title: "Crime et châtiment"
+    # Catalogued under the scholarly transliteration.
+    authors: ["Fiodor Dostoïevski", "Fedor Mihailovič Dostoevskij"]
+  - isbn: "9791038703612"
+    note: "Les Frères Karamazov - Fiodor Dostoïevski"
+  - isbn: "9782070410576"
+    note: "La Dame au petit chien & autres nouvelles - Anton Tchekhov"
   - isbn: "9782221221136"
     note: "Le Maître et Marguerite - Mikhail Boulgakov"
-  - isbn: "9782070360093"
-    note: "Boris Pasternak - Le Docteur Jivago"
-  - isbn: "9782264032485"
-    note: "Alexandre Soljenitsyne - Une journée d'Ivan Denissovitch"
-  - isbn: "9782070368228"
-    note: "Vladimir Nabokov - Lolita"
-  - isbn: "9782070136636"
-    note: "Svetlana Alexievitch - La Fin de l'homme rouge"
+  - isbn: "9782070739790"
+    note: "Le Docteur Jivago - Boris Pasternak"
+  - isbn: "9782213632674"
+    note: "Une journée d'Ivan Denissovitch - Alexandre Soljenitsyne"
+  - isbn: "9782070750955"
+    note: "Lolita - Vladimir Nabokov"
+  - isbn: "9782330023478"
+    note: "La Fin de l'homme rouge - Svetlana Alexievitch"

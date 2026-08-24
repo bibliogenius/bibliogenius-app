@@ -21,24 +21,32 @@ contributor: BiblioGenius
 tags: [prix, edgar, polar, thriller, américain]
 content_languages: [fr]
 
+# Audited against the sources on 2026-08-23 (make audit-curated): every
+# ISBN resolves and every author matches, no blocking finding and nothing
+# left unverified. Promoted so the editorial affinity tier may SUGGEST it
+# (ADR-066); the import catalogue always showed it.
+curation_status: reviewed
+
 books:
-  - isbn: "9782266207638"
+  - isbn: "9782298020649"
     note: "Dans les bois - Tana French (2008)"
-  - isbn: "9782070793822"
-    note: "Cormac McCarthy - No Country for Old Men (2006)"
-  - isbn: "9782253044901"
-    note: "Dennis Lehane - Mystic River (2002)"
+  - isbn: "9782757807224"
+    note: "No Country for Old Men - Cormac McCarthy (2006)"
+  - isbn: "9782743612818"
+    note: "Mystic River - Dennis Lehane (2002)"
   - isbn: "9780786890033"
     note: "Silent Joe - T. Jefferson Parker (VO 2002)"
-  - isbn: "9782742778430"
-    note: "Stieg Larsson - Millénium (nominé, phénomène mondial)"
-  - isbn: "9782253004226"
-    note: "James Ellroy - Le Dahlia noir (1988)"
-  - isbn: "9782266208611"
-    note: "Thomas Harris - Le Silence des agneaux (1989)"
-  - isbn: "9782757872802"
+  - isbn: "9782742761579"
+    note: "Millénium 1 - Les hommes qui n'aimaient pas les femmes - Stieg Larsson (nominé, phénomène mondial)"
+    title: "Millénium 1 - Les hommes qui n'aimaient pas les femmes"
+    authors: ["Stieg Larsson"]
+  - isbn: "9782744196614"
+    note: "Le Dahlia noir - James Ellroy (1988)"
+  - isbn: "9782724253269"
+    note: "Le Silence des agneaux - Thomas Harris (1989)"
+  - isbn: "9791041412785"
     note: "La Taupe - John le Carré (1975)"
-  - isbn: "9782070498123"
+  - isbn: "9782070728190"
     note: "Le Grand Sommeil - Raymond Chandler (classique fondateur)"
-  - isbn: "9782253044123"
-    note: "Patricia Highsmith - L'Inconnu du Nord-Express (classique)"
+  - isbn: "9782738201188"
+    note: "L'Inconnu du Nord-Express (classique) - Patricia Highsmith"

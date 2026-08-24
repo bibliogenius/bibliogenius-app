@@ -10903,3 +10903,39 @@ msgstr "See all {count} books"
 #. Curated list card: link folding the book list back to the 3-book preview
 msgid "curated_see_less"
 msgstr "Show less"
+
+#. Collections screen: header of the related curated selections block
+msgid "curated_affinity_section_title"
+msgstr "Selections for your library"
+
+#. Curated list card: why it is suggested, {owned} books already in the library
+msgid "curated_affinity_reason"
+msgstr "{owned} books in common"
+
+#. Curated list card: same, when {liked} of the shared books were liked
+msgid "curated_affinity_reason_liked"
+msgstr "{owned} books in common, {liked} of them liked"
+
+#. Source marker on a suggested curated selection
+msgid "suggestion_badge_editorial"
+msgstr "Selection"
+
+#. Pre-import dialog: file the imported books under their matching genre shelves
+msgid "curated_import_shelve_option"
+msgstr "Sort the imported books by genre"
+
+#. Pre-import dialog: the shelves that would be used, {labels} is a list
+msgid "curated_import_shelve_option_detail"
+msgstr "Shelves: {labels}"
+
+#. Shelf empty only because the ownership view hides its books
+msgid "shelf_hidden_by_ownership"
+msgstr "Nothing on this shelf is in your library"
+
+#. Explains the empty shelf, {count} is how many books the switch would reveal
+msgid "shelf_hidden_by_ownership_desc"
+msgstr "{count} book(s) on this shelf are not in your hands: wishlist books, or books on loan. The default view only shows what you own."
+
+#. Button switching the library list to the 'all' ownership scope
+msgid "show_all_ownership"
+msgstr "Show them anyway"

@@ -11,6 +11,8 @@ import '../widgets/quick_actions_sheet.dart';
 import '../services/translation_service.dart';
 import '../theme/app_design.dart';
 import '../providers/theme_provider.dart';
+import '../providers/ownership_preference_provider.dart';
+import '../utils/book_filters.dart';
 import '../utils/app_constants.dart';
 
 class ShelvesScreen extends StatefulWidget {
@@ -29,6 +31,17 @@ class ShelvesScreen extends StatefulWidget {
 
 class _ShelvesScreenState extends State<ShelvesScreen> {
   late Future<List<Tag>> _tagsFuture;
+
+  /// The badge must announce what the tap will open, and what it opens is the
+  /// reader's remembered ownership axis (ADR-063). Watched rather than read
+  /// once: changing the axis from the library screen has to repaint these.
+  int _shelfCount(Tag tag) => countForOwnershipScope(
+    tag,
+    resolveOwnershipScope(
+      explicit: context.watch<OwnershipPreferenceProvider>().scope,
+      status: null,
+    ),
+  );
   List<Tag> _allTags = [];
   Tag? _currentParent; // null = root level
   List<Tag> _path = []; // breadcrumb path
@@ -844,10 +857,10 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
     // Check if tag has children
     final hasChildren = _allTags.any((t) => t.parentId == tag.id);
     // Calculate aggregated count (this tag + children)
-    int aggregatedCount = tag.count;
+    int aggregatedCount = _shelfCount(tag);
     for (final t in _allTags) {
       if (t.parentId == tag.id) {
-        aggregatedCount += t.count;
+        aggregatedCount += _shelfCount(t);
       }
     }
 
@@ -1037,9 +1050,9 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            tag.count == 1
-                                ? '${tag.count} ${TranslationService.translate(context, 'book')}'
-                                : '${tag.count} ${TranslationService.translate(context, 'books')}',
+                            _shelfCount(tag) == 1
+                                ? '${_shelfCount(tag)} ${TranslationService.translate(context, 'book')}'
+                                : '${_shelfCount(tag)} ${TranslationService.translate(context, 'books')}',
                             style: TextStyle(
                               color: Colors.white.withValues(alpha: 0.8),
                               fontSize: 13,

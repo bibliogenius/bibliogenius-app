@@ -3,11 +3,11 @@ import 'package:provider/provider.dart';
 import '../../data/repositories/book_repository.dart';
 import '../../providers/theme_provider.dart';
 import '../../services/curated_lists_service.dart';
-import '../../services/api_service.dart';
-import '../../services/collection_import_service.dart';
 import '../../services/ffi_service.dart';
 import '../../services/translation_service.dart';
 import '../../utils/language_constants.dart';
+import '../../widgets/curated_book_preview.dart';
+import '../../widgets/curated_import_dialog.dart';
 
 class ImportCuratedListScreen extends StatefulWidget {
   const ImportCuratedListScreen({Key? key}) : super(key: key);
@@ -31,18 +31,6 @@ class _ImportCuratedListScreenState extends State<ImportCuratedListScreen> {
   /// Cleaned ISBNs of the displayed lists that at least one paired peer or
   /// followed library owns (shared Rust wishlist join, ISBN-only mode).
   Set<String> _networkIsbns = {};
-
-  /// Lists whose card shows every book instead of the 3-book preview.
-  final Set<String> _expandedLists = {};
-
-  /// Extract display title from a curated book note.
-  /// Notes may contain "Title - Author (Year)" format; return just the title.
-  String _displayTitle(CuratedBook b) {
-    final note = b.note;
-    if (note == null) return b.isbn;
-    final dashIdx = note.indexOf(' - ');
-    return dashIdx > 0 ? note.substring(0, dashIdx).trim() : note;
-  }
 
   @override
   void initState() {
@@ -137,13 +125,16 @@ class _ImportCuratedListScreenState extends State<ImportCuratedListScreen> {
   }
 
   /// User's preferred reading languages, de-duplicated and normalized.
-  /// Combines the explicit `userLanguages` setting with the UI locale so a
-  /// user who never opened the language picker still sees relevant content.
+  ///
+  /// Delegates to the shared [resolveReaderLanguages] so this screen and the
+  /// editorial affinity tier (ADR-066) can never disagree about what "my
+  /// languages" means: a list must not be eligible for a suggestion under
+  /// one definition and partitioned elsewhere under another.
   Set<String> _resolveUserLanguages(ThemeProvider theme) {
-    return {
-      normalizeLanguageCode(theme.locale.languageCode),
-      ...theme.userLanguages.map(normalizeLanguageCode),
-    };
+    return resolveReaderLanguages(
+      theme.locale.languageCode,
+      theme.userLanguages,
+    ).toSet();
   }
 
   /// Map `['fr', 'en']` to `"Français, English"` using native names.
@@ -158,223 +149,24 @@ class _ImportCuratedListScreenState extends State<ImportCuratedListScreen> {
     return locale.languageCode;
   }
 
+  /// Open the shared pre-import flow.
+  ///
+  /// The dialog, the status choice, the ISBN dedup and the shelving option
+  /// all live in [CuratedImportDialog] (ADR-066), so the list-suggestion
+  /// card opens the very same flow rather than a copy of it that would
+  /// drift. This screen only decides what happens afterwards: pop with a
+  /// refresh signal on success.
   Future<void> _importList(CuratedList list) async {
-    final langCode = _currentLangCode;
-    final listTitle = list.getTitle(langCode);
-
-    // DEBUG: Trace title values
-    debugPrint('📚 Import DEBUG - list.id: ${list.id}');
-    debugPrint('📚 Import DEBUG - langCode: $langCode');
-    debugPrint('📚 Import DEBUG - list.title map: ${list.title}');
-    debugPrint('📚 Import DEBUG - listTitle (resolved): $listTitle');
-
-    String selectedStatus = 'wanting'; // Default to "Wishlist"
-
-    final String? confirmedStatus = await showDialog<String?>(
-      context: context,
-      builder: (dialogContext) {
-        return StatefulBuilder(
-          builder: (dialogContext, setState) {
-            return AlertDialog(
-              title: Text(
-                TranslationService.translate(
-                  dialogContext,
-                  'import_list_title',
-                  params: {'title': listTitle},
-                ),
-              ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    TranslationService.translate(
-                      dialogContext,
-                      'import_list_desc',
-                      params: {'count': list.books.length.toString()},
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    TranslationService.translate(
-                      dialogContext,
-                      'imported_books_status',
-                    ),
-                    style: const TextStyle(fontWeight: FontWeight.w500),
-                  ),
-                  const SizedBox(height: 8),
-                  DropdownButtonFormField<String>(
-                    value: selectedStatus,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                    ),
-                    items: [
-                      DropdownMenuItem(
-                        value: 'owned',
-                        child: Row(
-                          children: [
-                            const Icon(Icons.remove_circle_outline, size: 20),
-                            const SizedBox(width: 8),
-                            Text(
-                              TranslationService.translate(
-                                dialogContext,
-                                'no_reading_status',
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      DropdownMenuItem(
-                        value: 'to_read',
-                        child: Row(
-                          children: [
-                            const Icon(Icons.bookmark_border, size: 20),
-                            const SizedBox(width: 8),
-                            Text(
-                              TranslationService.translate(
-                                dialogContext,
-                                'to_read_status',
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      DropdownMenuItem(
-                        value: 'wanting',
-                        child: Row(
-                          children: [
-                            const Icon(Icons.favorite_border, size: 20),
-                            const SizedBox(width: 8),
-                            Text(
-                              TranslationService.translate(
-                                dialogContext,
-                                'wishlist_status',
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                    onChanged: (val) {
-                      setState(() {
-                        selectedStatus = val ?? 'owned';
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    selectedStatus == 'wanting'
-                        ? TranslationService.translate(
-                            dialogContext,
-                            'books_added_to_wishlist',
-                          )
-                        : TranslationService.translate(
-                            dialogContext,
-                            'copies_created_automatically',
-                          ),
-                    style: Theme.of(
-                      dialogContext,
-                    ).textTheme.bodySmall?.copyWith(color: Colors.grey),
-                  ),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(dialogContext, null),
-                  child: Text(
-                    TranslationService.translate(dialogContext, 'cancel'),
-                  ),
-                ),
-                FilledButton(
-                  onPressed: () => Navigator.pop(dialogContext, selectedStatus),
-                  child: Text(
-                    TranslationService.translate(dialogContext, 'import'),
-                  ),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-
-    if (confirmedStatus == null) return; // Dialog was cancelled
-
-    final bool shouldMarkAsOwned = confirmedStatus != 'wanting';
-    // 'owned' = no reading status (empty string, will show as "Sans statut" in filters)
-    final String readingStatus = confirmedStatus == 'owned'
-        ? ''
-        : confirmedStatus;
-
-    if (!mounted) return;
-
-    setState(() {
-      _isImporting = true;
-    });
-
+    setState(() => _isImporting = true);
     try {
-      final apiService = Provider.of<ApiService>(context, listen: false);
-      final importService = CollectionImportService(apiService);
-
-      final result = await importService.importList(
-        list: list,
-        langCode: langCode,
-        readingStatus: readingStatus,
-        shouldMarkAsOwned: shouldMarkAsOwned,
-      );
-
+      final imported = await CuratedImportDialog.show(context, list);
       if (!mounted) return;
-
-      // The wishlist-match aggregation for the batch happens inside
-      // CollectionImportService.importList, shared with the YAML import.
-
-      if (result.hasError) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '${TranslationService.translate(context, 'error')}: ${result.error}',
-            ),
-            backgroundColor: Colors.red,
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              TranslationService.translate(
-                context,
-                'collection_created',
-                params: {
-                  'title': listTitle,
-                  'count': result.successCount.toString(),
-                },
-              ),
-            ),
-          ),
-        );
-        Navigator.pop(context, true); // Return true to refresh
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '${TranslationService.translate(context, 'unexpected_error')}: $e',
-            ),
-            backgroundColor: Colors.red,
-          ),
-        );
+      // null means the reader cancelled; the screen stays as it was.
+      if (imported != null && imported > 0) {
+        Navigator.pop(context, true);
       }
     } finally {
-      if (mounted) {
-        setState(() {
-          _isImporting = false;
-        });
-      }
+      if (mounted) setState(() => _isImporting = false);
     }
   }
 
@@ -830,69 +622,11 @@ class _ImportCuratedListScreenState extends State<ImportCuratedListScreen> {
                   ),
                 const SizedBox(height: 8),
 
-                // Preview: 3 books collapsed, every book once unfolded
-                // (the "see all" link below toggles).
-                ...(_expandedLists.contains(list.id)
-                        ? list.books
-                        : list.books.take(3))
-                    .map(
-                      (b) => Padding(
-                        padding: const EdgeInsets.only(bottom: 4),
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.book,
-                              size: 16,
-                              color: Colors.grey,
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                _displayTitle(b),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                if (list.books.length > 3)
-                  Padding(
-                    padding: const EdgeInsets.only(left: 16),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: TextButton(
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          visualDensity: VisualDensity.compact,
-                        ),
-                        onPressed: () => setState(() {
-                          if (!_expandedLists.add(list.id)) {
-                            _expandedLists.remove(list.id);
-                          }
-                        }),
-                        child: Text(
-                          _expandedLists.contains(list.id)
-                              ? TranslationService.translate(
-                                  context,
-                                  'curated_see_less',
-                                )
-                              : TranslationService.translate(
-                                  context,
-                                  'curated_see_all_books',
-                                  params: {'count': '${list.books.length}'},
-                                ),
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(
-                                color: Theme.of(context).colorScheme.primary,
-                                fontWeight: FontWeight.w600,
-                              ),
-                        ),
-                      ),
-                    ),
-                  ),
+                // Preview: 3 books collapsed, every book once unfolded.
+                // Shared with the pre-import dialog, so the browsed
+                // catalogue and the pushed suggestion card list the books
+                // the same way and cannot drift apart.
+                CuratedBookPreview(books: list.books),
                 const SizedBox(height: 16),
                 SizedBox(
                   width: double.infinity,

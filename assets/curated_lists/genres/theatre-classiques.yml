@@ -21,6 +21,12 @@ contributor: BiblioGenius
 tags: [théâtre, dramatique, classiques]
 content_languages: [fr]
 
+# Audited against the sources on 2026-08-23 (make audit-curated): every
+# ISBN resolves and every author matches, no finding of any severity,
+# and no entry left unverified. Promoted so the editorial affinity tier
+# may SUGGEST it (ADR-066); the import catalogue always showed it.
+curation_status: reviewed
+
 books:
   - isbn: "9782707301482"
     note: "En attendant Godot - Samuel Beckett"
@@ -32,13 +38,13 @@ books:
     note: "Caligula - Albert Camus"
   - isbn: "9782264037732"
     note: "Un tramway nommé Désir - Tennessee Williams"
-  - isbn: "9782221264300"
+  - isbn: "9782742742295"
     note: "Mort d'un commis voyageur - Arthur Miller"
-  - isbn: "9782070136933"
+  - isbn: "9782070702619"
     note: "Le Retour - Harold Pinter"
   - isbn: "9782710381419"
     note: "Antigone - Jean Anouilh"
   - isbn: "9782070412815"
     note: "Les Bonnes - Jean Genet"
-  - isbn: "9782330005511"
+  - isbn: "9782742704255"
     note: "Qui a peur de Virginia Woolf ? - Edward Albee"

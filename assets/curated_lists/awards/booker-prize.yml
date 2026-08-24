@@ -20,12 +20,18 @@ contributor: BiblioGenius
 tags: [prix, booker, british]
 content_languages: [en]
 
+# Audited against the sources on 2026-08-23 (make audit-curated): every
+# ISBN resolves and every author matches, no finding of any severity,
+# and no entry left unverified. Promoted so the editorial affinity tier
+# may SUGGEST it (ADR-066); the import catalogue always showed it.
+curation_status: reviewed
+
 books:
   - isbn: "9781408809105"
     note: "The Finkler Question - Howard Jacobson (2010)"
   - isbn: "9781611733259"
     note: "The Sense of an Ending - Julian Barnes (2011)"
-  - isbn: "9780008749576"
+  - isbn: "9781250024176"
     note: "Bring Up the Bodies - Hilary Mantel (2012)"
   - isbn: "9781784701383"
     note: "The Narrow Road to the Deep North - Richard Flanagan (2014)"
@@ -39,11 +45,11 @@ books:
     note: "The Testaments - Margaret Atwood (2019)"
   - isbn: "9781094189789"
     note: "Girl, Woman, Other - Bernardine Evaristo (2019)"
-  - isbn: "9789046827574"
+  - isbn: "9781529019285"
     note: "Shuggie Bain - Douglas Stuart (2020)"
-  - isbn: "9781609456597"
+  - isbn: "9781784744069"
     note: "The Promise - Damon Galgut (2021)"
-  - isbn: "9788420479057"
+  - isbn: "9780861546459"
     note: "Prophet Song - Paul Lynch (2023)"
   - isbn: "9781529922936"
     note: "Orbital - Samantha Harvey (2024)"

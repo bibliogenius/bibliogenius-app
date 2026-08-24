@@ -64,11 +64,35 @@ class CollectionImportService {
       (book.description?.isNotEmpty ?? false) &&
       (book.coverUrl?.isNotEmpty ?? false);
 
+  /// Import [list] as a new collection.
+  ///
+  /// [readerLanguages] picks each book's edition in the reader's own order
+  /// of preference (the ADR-061 recette A4 lesson) rather than the order of
+  /// the file. [langCode] still names the collection and its description.
+  /// When [readerLanguages] is empty the single-language behaviour is kept
+  /// exactly as it was.
+  ///
+  /// [subjects] are shelf labels applied to every imported book through the
+  /// existing `createBook` field (ADR-066 section 6): one write, no second
+  /// pass over the catalogue.
+  /// [onProgress] is called with `(done, total)` before the first book and
+  /// after each one, so a caller can show where the import is. The loop is
+  /// one network lookup per book, in sequence, each with its own timeout:
+  /// without this the reader gets a silent screen for as long as that takes
+  /// and no way to tell a slow import from a dead one.
+  ///
+  /// [isCancelled] is polled before each book. Returning true stops the loop
+  /// and returns what has been created so far, which is a normal outcome
+  /// rather than an error: the books already imported are the reader's.
   Future<CollectionImportResult> importList({
     required CuratedList list,
     required String langCode,
     required String readingStatus,
     required bool shouldMarkAsOwned,
+    List<String> readerLanguages = const [],
+    List<String> subjects = const [],
+    void Function(int done, int total)? onProgress,
+    bool Function()? isCancelled,
   }) async {
     final listTitle = list.getTitle(langCode);
     final listDescription = list.getDescription(langCode);
@@ -81,14 +105,21 @@ class CollectionImportService {
       final collection = await _apiService.createCollection(
         listTitle,
         description: listDescription,
+        // Records which list this came from, so deleting the collection can
+        // undo the dismissal the import wrote (ADR-066 section 7).
+        source: '${Collection.curatedSourcePrefix}${list.id}',
       );
 
       final collectionId = collection.id.toString();
 
       // 2. Import books by ISBN
+      onProgress?.call(0, list.books.length);
       for (final book in list.books) {
+        if (isCancelled?.call() ?? false) break;
         try {
-          final isbn = book.getIsbnForLanguage(langCode);
+          final isbn = readerLanguages.isEmpty
+              ? book.getIsbnForLanguage(langCode)
+              : book.getIsbnForLanguages(readerLanguages);
 
           // Lookup metadata from external sources (cover, author, publisher...),
           // unless the curated entry already has all of it: see
@@ -103,17 +134,15 @@ class CollectionImportService {
 
           // Prepare book data: lookup results enriched with YAML overrides
           // Prefer lookup title over note (note may contain "Title - Author (Year)")
-          String? noteTitle;
-          if (book.note != null) {
-            // Parse "Title - Author (Year)" or "Title - Author" format
-            final dashIdx = book.note!.indexOf(' - ');
-            noteTitle = dashIdx > 0
-                ? book.note!.substring(0, dashIdx).trim()
-                : book.note;
-          }
+          // The entry's OWN name, the one the preview showed the reader.
+          // The metadata source is the last resort, not the first: a reader
+          // who validated "Les androides revent-ils de moutons electriques ?"
+          // used to find "Blade runner" in their library, because the source
+          // titles that edition after the film.
+          final entryTitle = book.displayTitle;
           final bookData = {
             'isbn': isbn,
-            'title': lookup?['title'] ?? noteTitle ?? 'Untitled',
+            'title': entryTitle ?? lookup?['title'] ?? 'Untitled',
             'reading_status': readingStatus,
             'owned': shouldMarkAsOwned,
             'author': lookup?['author'] ?? book.authors?.join(', '),
@@ -121,6 +150,10 @@ class CollectionImportService {
             'publication_year': book.publishedDate ?? lookup?['year'],
             'description': book.description ?? lookup?['summary'],
             'cover_url': book.coverUrl ?? lookup?['cover_url'],
+            // Omitted entirely when empty rather than sent as []: an empty
+            // list is a value, and createBook would write it over whatever
+            // an existing book already carries.
+            if (subjects.isNotEmpty) 'subjects': subjects,
           };
 
           // Try Create
@@ -155,6 +188,7 @@ class CollectionImportService {
           debugPrint('Error importing book ${book.isbn}: $e');
           errorCount++;
         }
+        onProgress?.call(successCount + errorCount, list.books.length);
       }
 
       // A wishlist import fired one wishlist_match notification per matched

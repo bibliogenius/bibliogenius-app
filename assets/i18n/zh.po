@@ -10531,3 +10531,39 @@ msgstr "查看全部{count}本书"
 #. Curated list card: link folding the book list back to the 3-book preview
 msgid "curated_see_less"
 msgstr "收起"
+
+#. Collections screen: header of the related curated selections block
+msgid "curated_affinity_section_title"
+msgstr "与你的藏书相关的书单"
+
+#. Curated list card: why it is suggested, {owned} books already in the library
+msgid "curated_affinity_reason"
+msgstr "有 {owned} 本共同的书"
+
+#. Curated list card: same, when {liked} of the shared books were liked
+msgid "curated_affinity_reason_liked"
+msgstr "有 {owned} 本共同的书，其中 {liked} 本是你喜欢的"
+
+#. Source marker on a suggested curated selection
+msgid "suggestion_badge_editorial"
+msgstr "书单"
+
+#. Pre-import dialog: file the imported books under their matching genre shelves
+msgid "curated_import_shelve_option"
+msgstr "按类型整理导入的书"
+
+#. Pre-import dialog: the shelves that would be used, {labels} is a list
+msgid "curated_import_shelve_option_detail"
+msgstr "书架：{labels}"
+
+#. Shelf empty only because the ownership view hides its books
+msgid "shelf_hidden_by_ownership"
+msgstr "此书架上的书都不在您的藏书中"
+
+#. Explains the empty shelf, {count} is how many books the switch would reveal
+msgid "shelf_hidden_by_ownership_desc"
+msgstr "此书架上有 {count} 本书不在您手中：心愿单，或已外借的书。默认视图只显示您拥有的书。"
+
+#. Button switching the library list to the 'all' ownership scope
+msgid "show_all_ownership"
+msgstr "仍然显示"

@@ -19,6 +19,86 @@ Book book({
 );
 
 void main() {
+  group('shelfBooksHiddenByOwnership', () {
+    // The reported case: a curated list imported as a wishlist files ten
+    // books on the "Dystopie" shelf, and the shelf renders empty. Nothing
+    // is broken: the import writes owned=false on purpose, the library list
+    // applies the ownership axis BEFORE the shelf axis, and the Rust
+    // subject_counts scopes its count the same way. Three deliberate rules
+    // compose into a dead end, so the empty state has to be able to name it.
+    bool onTheShelf(Book b) => b.title.startsWith('Dystopie');
+
+    test('counts the shelf books the possession view hides', () {
+      final books = [
+        book(owned: false, status: 'wanting', title: 'Dystopie 1'),
+        book(owned: false, status: 'wanting', title: 'Dystopie 2'),
+        book(owned: true, title: 'Dystopie 3'),
+        book(owned: false, status: 'wanting', title: 'Ailleurs'),
+      ];
+
+      expect(
+        shelfBooksHiddenByOwnership(
+          books: books,
+          matchesShelf: onTheShelf,
+          scope: OwnershipScope.library,
+          showBorrowed: true,
+        ),
+        2,
+        reason: 'Only the wishlist books ON the shelf count.',
+      );
+    });
+
+    test('says nothing when the scope hides nothing', () {
+      final books = [
+        book(owned: false, status: 'wanting', title: 'Dystopie 1'),
+      ];
+
+      expect(
+        shelfBooksHiddenByOwnership(
+          books: books,
+          matchesShelf: onTheShelf,
+          scope: OwnershipScope.all,
+          showBorrowed: true,
+        ),
+        0,
+        reason: 'Under "all" the list already shows them, so there is no '
+            'dead end to explain.',
+      );
+    });
+
+    test('a shelf whose books are all present has nothing hidden', () {
+      final books = [book(owned: true, title: 'Dystopie 3')];
+
+      expect(
+        shelfBooksHiddenByOwnership(
+          books: books,
+          matchesShelf: onTheShelf,
+          scope: OwnershipScope.library,
+          showBorrowed: true,
+        ),
+        0,
+      );
+    });
+
+    test('it counts what the switch would actually reveal', () {
+      // A lent book is hidden from the possession view by the borrowed
+      // setting, and "all" filters nothing at all, so the switch DOES bring
+      // it back. The count has to say so: an empty state offering a button
+      // that reveals nothing would be worse than the dead end it replaces.
+      final books = [book(owned: false, isLent: true, title: 'Dystopie 4')];
+
+      expect(
+        shelfBooksHiddenByOwnership(
+          books: books,
+          matchesShelf: onTheShelf,
+          scope: OwnershipScope.library,
+          showBorrowed: false,
+        ),
+        1,
+      );
+    });
+  });
+
   group('matchesStatusFilter', () {
     // The reported bug: a book borrowed from a peer, read, then given back stays
     // in the library as owned=false + read. It used to appear under no filter at

@@ -20,6 +20,12 @@ contributor: BiblioGenius
 tags: [prix, newbery, jeunesse, american]
 content_languages: [en]
 
+# Audited against the sources on 2026-08-23 (make audit-curated): every
+# ISBN resolves and every author matches, no finding of any severity,
+# and no entry left unverified. Promoted so the editorial affinity tier
+# may SUGGEST it (ADR-066); the import catalogue always showed it.
+curation_status: reviewed
+
 books:
   - isbn: "9780739380727"
     note: "When You Reach Me - Rebecca Stead (2010)"
@@ -29,25 +35,25 @@ books:
     note: "Dead End in Norvelt - Jack Gantos (2012)"
   - isbn: "9780061992278"
     note: "The One and Only Ivan - Katherine Applegate (2013)"
-  - isbn: "9780763676711"
+  - isbn: "9780763660406"
     note: "Flora and Ulysses - Kate DiCamillo (2014)"
-  - isbn: "9780358067801"
+  - isbn: "9780544107717"
     note: "The Crossover - Kwame Alexander (2015)"
   - isbn: "9781425816476"
     note: "Last Stop on Market Street - Matt de la Pena (2016)"
-  - isbn: "9781542910279"
-    note: "Kelly Barnhill - The Girl Who Drank the Moon (2017)"
+  - isbn: "9781616205676"
+    note: "The Girl Who Drank the Moon - Kelly Barnhill (2017)"
   - isbn: "9781432860356"
     note: "Hello Universe - Erin Entrada Kelly (2018)"
-  - isbn: "9781536204094"
+  - isbn: "9780763690496"
     note: "Merci Suarez Changes Gears - Meg Medina (2019)"
   - isbn: "9781982609047"
     note: "New Kid - Jerry Craft (2020)"
-  - isbn: "9781524715700"
+  - isbn: "9781524715717"
     note: "When You Trap a Tiger - Tae Keller (2021)"
-  - isbn: "9781737450887"
+  - isbn: "9781646140893"
     note: "The Last Cuentista - Donna Barba Higuera (2022)"
-  - isbn: "9798855080278"
+  - isbn: "9780316056618"
     note: "Freewater - Amina Luqman-Dawson (2023)"
-  - isbn: "9798855037555"
+  - isbn: "9781524764203"
     note: "The Eyes and the Impossible - Dave Eggers (2024)"

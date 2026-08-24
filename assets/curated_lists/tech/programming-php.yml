@@ -21,6 +21,12 @@ contributor: BiblioGenius
 tags: [informatique, programmation, php, backend, web]
 content_languages: [fr, en]
 
+# Audited against the sources on 2026-08-24 (make audit-curated): every
+# ISBN resolves and every author matches, no blocking finding and nothing
+# left unverified. Promoted so the editorial affinity tier may SUGGEST it
+# (ADR-066); the import catalogue always showed it.
+curation_status: reviewed
+
 books:
   - isbn: "9782212674750"
     note: "Concevez votre site web avec PHP et MySQL - Mathieu Nebra"
@@ -28,5 +34,5 @@ books:
     note: "Modern PHP - Josh Lockhart (New Features and Good Practices)"
   - isbn: "9781484267905"
     note: "PHP 8 Objects, Patterns, and Practice - Matt Zandstra"
-  - isbn: "9782409040009"
-    note: "Olivier Heurtel - PHP 8 et MySQL (Editions ENI)"
+  - isbn: "9782409041525"
+    note: "PHP 8 : développez un site web dynamique et interactif - Olivier Heurtel (Editions ENI)"

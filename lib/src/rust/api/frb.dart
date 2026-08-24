@@ -2036,11 +2036,19 @@ class FrbDiscoveryLookupInputs {
   /// Normalized "title|author" keys for every library book.
   final List<String> libraryTitleAuthorKeys;
 
+  /// The two index halves restricted to LIKED books (ADR-066), a strict
+  /// subset of the two above. Additive fields (Rule R5); older Flutter
+  /// builds simply ignore them.
+  final List<String> likedIsbns;
+  final List<String> likedTitleAuthorKeys;
+
   const FrbDiscoveryLookupInputs({
     required this.series,
     required this.authors,
     required this.libraryIsbns,
     required this.libraryTitleAuthorKeys,
+    required this.likedIsbns,
+    required this.likedTitleAuthorKeys,
   });
 
   @override
@@ -2048,7 +2056,9 @@ class FrbDiscoveryLookupInputs {
       series.hashCode ^
       authors.hashCode ^
       libraryIsbns.hashCode ^
-      libraryTitleAuthorKeys.hashCode;
+      libraryTitleAuthorKeys.hashCode ^
+      likedIsbns.hashCode ^
+      likedTitleAuthorKeys.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -2058,7 +2068,9 @@ class FrbDiscoveryLookupInputs {
           series == other.series &&
           authors == other.authors &&
           libraryIsbns == other.libraryIsbns &&
-          libraryTitleAuthorKeys == other.libraryTitleAuthorKeys;
+          libraryTitleAuthorKeys == other.libraryTitleAuthorKeys &&
+          likedIsbns == other.likedIsbns &&
+          likedTitleAuthorKeys == other.likedTitleAuthorKeys;
 }
 
 /// One "complete the series" lookup for the hub discovery resolver: the
@@ -3215,6 +3227,7 @@ sealed class FrbTag with _$FrbTag {
     required String name,
     String? parentId,
     required PlatformInt64 count,
+    required PlatformInt64 totalCount,
   }) = _FrbTag;
 }
 

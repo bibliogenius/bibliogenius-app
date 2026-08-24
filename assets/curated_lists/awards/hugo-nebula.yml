@@ -20,6 +20,12 @@ contributor: BiblioGenius
 tags: [prix, hugo, nebula, science-fiction]
 content_languages: [en]
 
+# Audited against the sources on 2026-08-23 (make audit-curated): every
+# ISBN resolves and every author matches, no finding of any severity,
+# and no entry left unverified. Promoted so the editorial affinity tier
+# may SUGGEST it (ADR-066); the import catalogue always showed it.
+curation_status: reviewed
+
 books:
   - isbn: "9781441866868"
     note: "The Windup Girl - Paolo Bacigalupi (2010)"
@@ -29,7 +35,7 @@ books:
     note: "The Three-Body Problem - Cixin Liu (2015)"
   - isbn: "9780804179034"
     note: "Uprooted - Naomi Novik (2015)"
-  - isbn: "9789024580453"
+  - isbn: "9780356504896"
     note: "The Obelisk Gate - N. K. Jemisin (2017)"
   - isbn: "9780356508689"
     note: "The Stone Sky - N. K. Jemisin (2018)"
@@ -45,5 +51,5 @@ books:
     note: "Babel - R. F. Kuang (2022)"
   - isbn: "9781250874573"
     note: "Nettle & Bone - T. Kingfisher (2023)"
-  - isbn: "9780356521831"
+  - isbn: "9780356517179"
     note: "Some Desperate Glory - Emily Tesh (2024)"

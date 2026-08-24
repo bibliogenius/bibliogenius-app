@@ -22,24 +22,32 @@ tags:
 - fiction
 - roman
 content_languages: [fr]
+# Audited against the sources on 2026-08-24 (make audit-curated): every
+# ISBN resolves and every author matches, no finding of any severity,
+# and no entry left unverified. Promoted so the editorial affinity tier
+# may SUGGEST it (ADR-066); the import catalogue always showed it.
+curation_status: reviewed
+
 books:
-- isbn: '9782266240369'
-  note: Hilary Mantel - Dans l'ombre des Tudors
+- isbn: '9782355841705'
+  note: Dans l'ombre des Tudors - Hilary Mantel
 - isbn: '9782253059530'
   note: Les Piliers de la terre - Ken Follett
 - isbn: '9782253008880'
-  note: Alexandre Dumas - Les Trois Mousquetaires
-- isbn: '9782253009030'
-  note: Victor Hugo - Notre-Dame de Paris
+  note: Les Trois Mousquetaires - Alexandre Dumas
+- isbn: '9782253009689'
+  note: Notre-Dame de Paris - Victor Hugo
 - isbn: '9782253017264'
-  note: Léon Tolstoï - Guerre et Paix
+  note: Guerre et Paix - Léon Tolstoï
+  title: "Guerre et paix"
+  authors: ["Léon Tolstoï", "Lev Nikolaevič Tolstoj"]
 - isbn: '9782253033134'
-  note: Umberto Eco - Le Nom de la rose
-- isbn: '9782020928403'
-  note: Arturo Pérez-Reverte - Le Capitaine Alatriste
-- isbn: '9782070409907'
-  note: Patrick Modiano - Dora Bruder
+  note: Le Nom de la rose - Umberto Eco
+- isbn: '9782020339971'
+  note: Le Capitaine Alatriste - Arturo Pérez-Reverte
+- isbn: '9782070748983'
+  note: Dora Bruder - Patrick Modiano
 - isbn: '9782253045281'
-  note: Anthony Doerr - Toute la lumière que nous ne pouvons voir
+  note: Toute la lumière que nous ne pouvons voir - Anthony Doerr
 - isbn: '9782266175968'
   note: La Voleuse de livres - Markus Zusak

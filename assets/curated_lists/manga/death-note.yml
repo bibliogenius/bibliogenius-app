@@ -11,28 +11,58 @@ cover_url: "https://covers.openlibrary.org/b/isbn/9782505000327-L.jpg"
 contributor: BiblioGenius
 tags: [manga, shonen, thriller, serie-complete, death-note]
 content_languages: [fr]
+
+# Audited against the sources on 2026-08-23 (make audit-curated): every
+# ISBN resolves and every author matches, no finding of any severity,
+# and no entry left unverified. Promoted so the editorial affinity tier
+# may SUGGEST it (ADR-066); the import catalogue always showed it.
+curation_status: reviewed
 books:
   - isbn: "9782505000327"
     note: "Death Note - Tome 1"
+    title: "Death Note - Tome 1"
+    authors: ["Tsugumi Ōba"]
   - isbn: "9782505000426"
     note: "Death Note - Tome 2"
+    title: "Death Note - Tome 2"
+    authors: ["Tsugumi Ōba"]
   - isbn: "9782505000792"
     note: "Death Note - Tome 3"
+    title: "Death Note - Tome 3"
+    authors: ["Tsugumi Ōba"]
   - isbn: "9782505001065"
     note: "Death Note - Tome 4"
+    title: "Death Note - Tome 4"
+    authors: ["Tsugumi Ōba"]
   - isbn: "9782505001614"
     note: "Death Note - Tome 5"
+    title: "Death Note - Tome 5"
+    authors: ["Tsugumi Ōba"]
   - isbn: "9782505001812"
     note: "Death Note - Tome 6"
+    title: "Death Note - Tome 6"
+    authors: ["Tsugumi Ōba"]
   - isbn: "9782505001997"
     note: "Death Note - Tome 7"
+    title: "Death Note - Tome 7"
+    authors: ["Tsugumi Ōba"]
   - isbn: "9782505002697"
     note: "Death Note - Tome 8"
+    title: "Death Note - Tome 8"
+    authors: ["Tsugumi Ōba"]
   - isbn: "9782505002970"
     note: "Death Note - Tome 9"
+    title: "Death Note - Tome 9"
+    authors: ["Tsugumi Ōba"]
   - isbn: "9782505003038"
     note: "Death Note - Tome 10"
+    title: "Death Note - Tome 10"
+    authors: ["Tsugumi Ōba"]
   - isbn: "9782505003694"
     note: "Death Note - Tome 11"
+    title: "Death Note - Tome 11"
+    authors: ["Tsugumi Ōba"]
   - isbn: "9782505004295"
     note: "Death Note - Tome 12"
+    title: "Death Note - Tome 12"
+    authors: ["Tsugumi Ōba"]

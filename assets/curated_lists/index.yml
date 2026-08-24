@@ -42,10 +42,8 @@ categories:
       - time-100-novels
       - penguin-classics-essential
       - english-modern-classics
-      # Removed (broken ISBNs, audit < 20% match):
-      # - guardian-100-21st-century
-      # - nyt-notable-books
-
+      - guardian-100-21st-century
+      - nyt-notable-books
   - id: genres
     title:
       fr: Genres Littéraires
@@ -56,8 +54,7 @@ categories:
     lists:
       - sf-classics
       - polar-francais
-      # Removed (broken ISBNs, all 4 entries mismatch):
-      # - cyberpunk
+      - cyberpunk
       - hugo-award-novels
       - nebula-award-novels
       - edgar-award-novels
@@ -109,14 +106,12 @@ categories:
       - lgbtq-litterature
       - cuisine-gastronomie
       - economie-business
-      # Removed (broken ISBNs, audit < 40% match — to regen later):
-      # - feminisme-litteraire
-      # - dev-personnel-classiques
-      # - litterature-africaine
-      # - ecologie-essentiels
-      # - litterature-russe
-      # - litterature-allemande
-
+      - feminisme-litteraire
+      - dev-personnel-classiques
+      - litterature-africaine
+      - ecologie-essentiels
+      - litterature-russe
+      - litterature-allemande
   - id: institutions
     title:
       fr: Recommandations Institutionnelles

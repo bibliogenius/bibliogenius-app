@@ -13,6 +13,15 @@ tags:
 - humour
 - serie-complete
 content_languages: [fr]
+# Audited against the sources on 2026-08-24 (make audit-curated): every ISBN
+# resolves, nothing left unverified, and the warnings below were read by hand
+# and dismissed.
+# Open Library catalogues these two under "BD Mortelle Adele, Tome 09/10"
+# while the corpus names the volume, which is the more useful of the two.
+# The audit will keep reporting them. Promoted so the editorial affinity tier
+# may SUGGEST it (ADR-066); the import catalogue always showed it.
+curation_status: reviewed
+
 books:
 - isbn: '9782848018676'
   note: "Tome 1 : Tout ça finira mal"
@@ -98,7 +107,7 @@ books:
   published_date: "2017"
   authors: ["Mr Tan", "Diane Le Feyer"]
   description: "Les vacances d'Adèle sont loin d'être reposantes pour ceux qui l'accompagnent."
-- isbn: '9791027605064'
+- isbn: '9791027603602'
   note: "Tome 13 : Big bisous baveux"
   title: "Big bisous baveux"
   publisher: "Tourbillon"

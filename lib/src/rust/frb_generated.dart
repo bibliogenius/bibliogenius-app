@@ -7959,13 +7959,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   FrbDiscoveryLookupInputs dco_decode_frb_discovery_lookup_inputs(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 4)
-      throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
+    if (arr.length != 6)
+      throw Exception('unexpected arr length: expect 6 but see ${arr.length}');
     return FrbDiscoveryLookupInputs(
       series: dco_decode_list_frb_discovery_series_lookup(arr[0]),
       authors: dco_decode_list_frb_discovery_author_lookup(arr[1]),
       libraryIsbns: dco_decode_list_String(arr[2]),
       libraryTitleAuthorKeys: dco_decode_list_String(arr[3]),
+      likedIsbns: dco_decode_list_String(arr[4]),
+      likedTitleAuthorKeys: dco_decode_list_String(arr[5]),
     );
   }
 
@@ -8643,13 +8645,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   FrbTag dco_decode_frb_tag(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 4)
-      throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
+    if (arr.length != 5)
+      throw Exception('unexpected arr length: expect 5 but see ${arr.length}');
     return FrbTag(
       id: dco_decode_String(arr[0]),
       name: dco_decode_String(arr[1]),
       parentId: dco_decode_opt_String(arr[2]),
       count: dco_decode_i_64(arr[3]),
+      totalCount: dco_decode_i_64(arr[4]),
     );
   }
 
@@ -9736,11 +9739,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_authors = sse_decode_list_frb_discovery_author_lookup(deserializer);
     var var_libraryIsbns = sse_decode_list_String(deserializer);
     var var_libraryTitleAuthorKeys = sse_decode_list_String(deserializer);
+    var var_likedIsbns = sse_decode_list_String(deserializer);
+    var var_likedTitleAuthorKeys = sse_decode_list_String(deserializer);
     return FrbDiscoveryLookupInputs(
       series: var_series,
       authors: var_authors,
       libraryIsbns: var_libraryIsbns,
       libraryTitleAuthorKeys: var_libraryTitleAuthorKeys,
+      likedIsbns: var_likedIsbns,
+      likedTitleAuthorKeys: var_likedTitleAuthorKeys,
     );
   }
 
@@ -10571,11 +10578,13 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_name = sse_decode_String(deserializer);
     var var_parentId = sse_decode_opt_String(deserializer);
     var var_count = sse_decode_i_64(deserializer);
+    var var_totalCount = sse_decode_i_64(deserializer);
     return FrbTag(
       id: var_id,
       name: var_name,
       parentId: var_parentId,
       count: var_count,
+      totalCount: var_totalCount,
     );
   }
 
@@ -11896,6 +11905,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_list_frb_discovery_author_lookup(self.authors, serializer);
     sse_encode_list_String(self.libraryIsbns, serializer);
     sse_encode_list_String(self.libraryTitleAuthorKeys, serializer);
+    sse_encode_list_String(self.likedIsbns, serializer);
+    sse_encode_list_String(self.likedTitleAuthorKeys, serializer);
   }
 
   @protected
@@ -12479,6 +12490,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_String(self.name, serializer);
     sse_encode_opt_String(self.parentId, serializer);
     sse_encode_i_64(self.count, serializer);
+    sse_encode_i_64(self.totalCount, serializer);
   }
 
   @protected

@@ -21,6 +21,12 @@ contributor: BiblioGenius
 tags: [antiracisme, droits-civiques, politique, société]
 content_languages: [fr]
 
+# Audited against the sources on 2026-08-23 (make audit-curated): every
+# ISBN resolves and every author matches, no finding of any severity,
+# and no entry left unverified. Promoted so the editorial affinity tier
+# may SUGGEST it (ADR-066); the import catalogue always showed it.
+curation_status: reviewed
+
 books:
   - isbn: "9782080438935"
     note: "Entre le monde et moi - Ta-Nehisi Coates"
@@ -40,5 +46,5 @@ books:
     note: "Peau noire, masques blancs - Frantz Fanon"
   - isbn: "9782708705319"
     note: "Discours sur le colonialisme - Aimé Césaire"
-  - isbn: "9782264083999"
+  - isbn: "9782264019578"
     note: "Beloved - Toni Morrison"

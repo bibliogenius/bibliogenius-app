@@ -3,8 +3,13 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../data/repositories/collection_repository.dart';
 import '../../providers/book_refresh_notifier.dart';
+import '../../providers/recommendation_provider.dart';
 import '../../services/translation_service.dart';
+import '../../theme/app_design.dart';
 import '../../models/collection.dart';
+import '../../utils/recommendation_display.dart';
+import '../../widgets/curated_import_dialog.dart';
+import '../../widgets/curated_list_suggestion_card.dart';
 import 'import_curated_list_screen.dart' as import_curated;
 import 'import_shared_list_screen.dart';
 import '../../widgets/genie_app_bar.dart';
@@ -179,6 +184,9 @@ class _CollectionListScreenState extends State<CollectionListScreen> {
       } else {
         await repo.deleteCollection(collection.id);
       }
+      // The reader has taken their import back; the app takes its own
+      // dismissal back too, or the list can never be suggested again.
+      if (mounted) await forgetCuratedListDismissal(context, collection);
       if (mounted) _loadCollections();
     } catch (e) {
       if (mounted) {
@@ -307,42 +315,54 @@ class _CollectionListScreenState extends State<CollectionListScreen> {
         ? 8.0
         : MediaQuery.of(context).padding.top + kToolbarHeight;
 
+    // A CustomScrollView rather than a GridView: the curated teaser block
+    // has to sit AFTER the reader's own collections IN THE SAME SCROLL, so
+    // their content always comes first and the block is reached by reading
+    // past it, never by pushing it down.
     return Column(
       children: [
         _buildCollectionsCountBadge(context, _collections.length),
         Expanded(
           child: RefreshIndicator(
             onRefresh: _loadCollections,
-            child: GridView.builder(
-              padding: EdgeInsets.only(
-                top: topPadding,
-                left: 16,
-                right: 16,
-                bottom: 80,
-              ),
-              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 180,
-                childAspectRatio: 0.62,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 12,
-              ),
-              itemCount: _collections.length,
-              itemBuilder: (context, index) {
-                final collection = _collections[index];
-                final covers = _coverUrls[collection.id] ?? [];
-                return CollectionCoverCard(
-                  collection: collection,
-                  coverUrls: covers,
-                  onTap: () async {
-                    await context.push(
-                      '/collections/${collection.id}',
-                      extra: collection,
-                    );
-                    if (mounted) _loadCollections();
-                  },
-                  onLongPress: () => _deleteCollection(collection),
-                );
-              },
+            child: CustomScrollView(
+              slivers: [
+                SliverPadding(
+                  padding: EdgeInsets.only(
+                    top: topPadding,
+                    left: 16,
+                    right: 16,
+                  ),
+                  sliver: SliverGrid.builder(
+                    gridDelegate:
+                        const SliverGridDelegateWithMaxCrossAxisExtent(
+                          maxCrossAxisExtent: 180,
+                          childAspectRatio: 0.62,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 12,
+                        ),
+                    itemCount: _collections.length,
+                    itemBuilder: (context, index) {
+                      final collection = _collections[index];
+                      final covers = _coverUrls[collection.id] ?? [];
+                      return CollectionCoverCard(
+                        collection: collection,
+                        coverUrls: covers,
+                        onTap: () async {
+                          await context.push(
+                            '/collections/${collection.id}',
+                            extra: collection,
+                          );
+                          if (mounted) _loadCollections();
+                        },
+                        onLongPress: () => _deleteCollection(collection),
+                      );
+                    },
+                  ),
+                ),
+                const SliverToBoxAdapter(child: _CuratedTeaserBlock()),
+                const SliverPadding(padding: EdgeInsets.only(bottom: 80)),
+              ],
             ),
           ),
         ),
@@ -560,6 +580,139 @@ class _CollectionListScreenState extends State<CollectionListScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Curated selections related to the reader's library (ADR-066), shown in
+/// the POPULATED state of this screen, after their own collections.
+///
+/// It fills a verified gap: the prominent "discover collections" banner
+/// exists in the empty state only, and the populated state offers nothing
+/// but the app-bar pill, which the tab-view branch does not even render.
+///
+/// Below the affinity thresholds it renders nothing and occupies no height.
+/// Never an empty or lukewarm block: a section header over zero cards would
+/// be worse than the silence it replaces. The empty-state banner is left
+/// exactly as it is, because it is onboarding and this is not.
+///
+/// It borrows the Activity strip's shape (see `RecentlyAddedCarousel`): one
+/// outlined surface, an icon-and-title header, and a horizontal strip under
+/// it. The app already says "here is a side offer, read past it or scroll
+/// it" that way at the top of the library, so a second vocabulary here would
+/// buy nothing. What it deliberately does NOT borrow is that widget itself:
+/// its collapse and hide state is scoped to a library view and persisted per
+/// scope, and a suggestion block on the Collections screen has no business
+/// riding on it. Stacking full-width rows was the alternative, and it made
+/// the page read as a second list of collections competing with the reader's
+/// own, above a card whose text column was two words wide.
+class _CuratedTeaserBlock extends StatelessWidget {
+  const _CuratedTeaserBlock();
+
+  @override
+  Widget build(BuildContext context) {
+    final affinities = context
+        .watch<RecommendationProvider>()
+        .curatedAffinitiesFor(
+          cap: RecommendationProvider.collectionsMaxCuratedLists,
+        );
+    if (affinities.isEmpty) return const SizedBox.shrink();
+
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    return Padding(
+      // Roomier above than the Activity strip is: this one follows a grid of
+      // the reader's own collections and has to read as a separate offer,
+      // not as its last row.
+      padding: const EdgeInsets.fromLTRB(
+        AppDesign.spacingMd,
+        AppDesign.spacingLg,
+        AppDesign.spacingMd,
+        AppDesign.spacingSm,
+      ),
+      child: Material(
+        color: colorScheme.surfaceContainerLow,
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(
+          side: BorderSide(
+            color: colorScheme.outline.withValues(alpha: 0.5),
+            width: 1,
+          ),
+          borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppDesign.spacingMd,
+            AppDesign.spacingSm,
+            AppDesign.spacingSm,
+            AppDesign.spacingSm,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    // The icon the library slot already gives to discovery,
+                    // as the Activity header gives its own the open book.
+                    Icons.auto_awesome,
+                    size: 18,
+                    color: colorScheme.primary,
+                  ),
+                  const SizedBox(width: AppDesign.spacingSm),
+                  Expanded(
+                    child: Semantics(
+                      header: true,
+                      child: Text(
+                        TranslationService.translate(
+                          context,
+                          'curated_affinity_section_title',
+                        ),
+                        style: textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppDesign.spacingSm),
+              // A scrolling Row rather than a horizontal ListView: the fan
+              // cards size themselves from their content, so the strip has
+              // no height to declare and a reader at 200% text size gets a
+              // taller block instead of a clipped reason line. The cap is
+              // two cards, so nothing here needs to be built lazily.
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    for (var i = 0; i < affinities.length; i++) ...[
+                      if (i > 0) const SizedBox(width: AppDesign.spacingSm),
+                      CuratedListSuggestionCard(
+                        affinity: affinities[i],
+                        // The page's own vocabulary: no book cards share
+                        // this strip, so nothing holds the card to the
+                        // library slot's two-book-slot grid.
+                        layout: CuratedCardLayout.fan,
+                        onTap: () => CuratedImportDialog.show(
+                          context,
+                          affinities[i].list,
+                        ),
+                        onDismiss: () => dismissCuratedListWithUndo(
+                          context,
+                          affinities[i].dismissalKey,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -13,14 +13,35 @@ class DiscoveryLookupInputs {
   /// Normalized "title|author" keys for every library book.
   final Set<String> libraryTitleAuthorKeys;
 
+  /// The same two index halves restricted to LIKED books (ADR-066), a
+  /// strict subset of the two above. Derived Rust-side from the engine's
+  /// own `is_liked`, never re-derived here: the repository read path
+  /// overlays `borrowed` and `lent` onto `reading_status` for display, so
+  /// a client-side derivation would stop counting a borrowed book that
+  /// was read (ADR-059 names that overlay as a corruption source).
+  ///
+  /// Optional with an empty default so an older payload, or a test that
+  /// does not care, simply reports no liked overlap.
+  final Set<String> likedIsbns;
+  final Set<String> likedTitleAuthorKeys;
+
   const DiscoveryLookupInputs({
     required this.series,
     required this.authors,
     required this.libraryIsbns,
     required this.libraryTitleAuthorKeys,
+    this.likedIsbns = const {},
+    this.likedTitleAuthorKeys = const {},
   });
 
   bool get isEmpty => series.isEmpty && authors.isEmpty;
+
+  /// True when the library index carries nothing at all, which is how the
+  /// ADR-059 profile floor reaches the client: below it the FFI returns
+  /// the empty default, identity index included, and no consumer may run
+  /// its membrane against it.
+  bool get hasNoIdentity =>
+      libraryIsbns.isEmpty && libraryTitleAuthorKeys.isEmpty;
 }
 
 /// One "complete the series" lookup: anchors identify the series, the

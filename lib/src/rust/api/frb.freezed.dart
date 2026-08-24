@@ -8221,7 +8221,7 @@ as PlatformInt64,
 /// @nodoc
 mixin _$FrbTag {
 
- String get id; String get name; String? get parentId; PlatformInt64 get count;
+ String get id; String get name; String? get parentId; PlatformInt64 get count; PlatformInt64 get totalCount;
 /// Create a copy of FrbTag
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -8232,16 +8232,16 @@ $FrbTagCopyWith<FrbTag> get copyWith => _$FrbTagCopyWithImpl<FrbTag>(this as Frb
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbTag&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.parentId, parentId) || other.parentId == parentId)&&(identical(other.count, count) || other.count == count));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbTag&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.parentId, parentId) || other.parentId == parentId)&&(identical(other.count, count) || other.count == count)&&(identical(other.totalCount, totalCount) || other.totalCount == totalCount));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,name,parentId,count);
+int get hashCode => Object.hash(runtimeType,id,name,parentId,count,totalCount);
 
 @override
 String toString() {
-  return 'FrbTag(id: $id, name: $name, parentId: $parentId, count: $count)';
+  return 'FrbTag(id: $id, name: $name, parentId: $parentId, count: $count, totalCount: $totalCount)';
 }
 
 
@@ -8252,7 +8252,7 @@ abstract mixin class $FrbTagCopyWith<$Res>  {
   factory $FrbTagCopyWith(FrbTag value, $Res Function(FrbTag) _then) = _$FrbTagCopyWithImpl;
 @useResult
 $Res call({
- String id, String name, String? parentId, PlatformInt64 count
+ String id, String name, String? parentId, PlatformInt64 count, PlatformInt64 totalCount
 });
 
 
@@ -8269,12 +8269,13 @@ class _$FrbTagCopyWithImpl<$Res>
 
 /// Create a copy of FrbTag
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? parentId = freezed,Object? count = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? parentId = freezed,Object? count = null,Object? totalCount = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,parentId: freezed == parentId ? _self.parentId : parentId // ignore: cast_nullable_to_non_nullable
 as String?,count: null == count ? _self.count : count // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,totalCount: null == totalCount ? _self.totalCount : totalCount // ignore: cast_nullable_to_non_nullable
 as PlatformInt64,
   ));
 }
@@ -8357,10 +8358,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String? parentId,  PlatformInt64 count)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String? parentId,  PlatformInt64 count,  PlatformInt64 totalCount)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _FrbTag() when $default != null:
-return $default(_that.id,_that.name,_that.parentId,_that.count);case _:
+return $default(_that.id,_that.name,_that.parentId,_that.count,_that.totalCount);case _:
   return orElse();
 
 }
@@ -8378,10 +8379,10 @@ return $default(_that.id,_that.name,_that.parentId,_that.count);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String? parentId,  PlatformInt64 count)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String? parentId,  PlatformInt64 count,  PlatformInt64 totalCount)  $default,) {final _that = this;
 switch (_that) {
 case _FrbTag():
-return $default(_that.id,_that.name,_that.parentId,_that.count);}
+return $default(_that.id,_that.name,_that.parentId,_that.count,_that.totalCount);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -8395,10 +8396,10 @@ return $default(_that.id,_that.name,_that.parentId,_that.count);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String? parentId,  PlatformInt64 count)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String? parentId,  PlatformInt64 count,  PlatformInt64 totalCount)?  $default,) {final _that = this;
 switch (_that) {
 case _FrbTag() when $default != null:
-return $default(_that.id,_that.name,_that.parentId,_that.count);case _:
+return $default(_that.id,_that.name,_that.parentId,_that.count,_that.totalCount);case _:
   return null;
 
 }
@@ -8410,13 +8411,14 @@ return $default(_that.id,_that.name,_that.parentId,_that.count);case _:
 
 
 class _FrbTag implements FrbTag {
-  const _FrbTag({required this.id, required this.name, this.parentId, required this.count});
+  const _FrbTag({required this.id, required this.name, this.parentId, required this.count, required this.totalCount});
   
 
 @override final  String id;
 @override final  String name;
 @override final  String? parentId;
 @override final  PlatformInt64 count;
+@override final  PlatformInt64 totalCount;
 
 /// Create a copy of FrbTag
 /// with the given fields replaced by the non-null parameter values.
@@ -8428,16 +8430,16 @@ _$FrbTagCopyWith<_FrbTag> get copyWith => __$FrbTagCopyWithImpl<_FrbTag>(this, _
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbTag&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.parentId, parentId) || other.parentId == parentId)&&(identical(other.count, count) || other.count == count));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbTag&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.parentId, parentId) || other.parentId == parentId)&&(identical(other.count, count) || other.count == count)&&(identical(other.totalCount, totalCount) || other.totalCount == totalCount));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,name,parentId,count);
+int get hashCode => Object.hash(runtimeType,id,name,parentId,count,totalCount);
 
 @override
 String toString() {
-  return 'FrbTag(id: $id, name: $name, parentId: $parentId, count: $count)';
+  return 'FrbTag(id: $id, name: $name, parentId: $parentId, count: $count, totalCount: $totalCount)';
 }
 
 
@@ -8448,7 +8450,7 @@ abstract mixin class _$FrbTagCopyWith<$Res> implements $FrbTagCopyWith<$Res> {
   factory _$FrbTagCopyWith(_FrbTag value, $Res Function(_FrbTag) _then) = __$FrbTagCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String name, String? parentId, PlatformInt64 count
+ String id, String name, String? parentId, PlatformInt64 count, PlatformInt64 totalCount
 });
 
 
@@ -8465,12 +8467,13 @@ class __$FrbTagCopyWithImpl<$Res>
 
 /// Create a copy of FrbTag
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? parentId = freezed,Object? count = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? parentId = freezed,Object? count = null,Object? totalCount = null,}) {
   return _then(_FrbTag(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,parentId: freezed == parentId ? _self.parentId : parentId // ignore: cast_nullable_to_non_nullable
 as String?,count: null == count ? _self.count : count // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,totalCount: null == totalCount ? _self.totalCount : totalCount // ignore: cast_nullable_to_non_nullable
 as PlatformInt64,
   ));
 }

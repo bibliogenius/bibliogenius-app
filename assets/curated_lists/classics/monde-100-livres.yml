@@ -19,24 +19,35 @@ contributor: BiblioGenius
 tags: [classiques, XXe-siècle, français, international]
 content_languages: [fr]
 
+# Audited against the sources on 2026-08-23 (make audit-curated
+# A="--list monde-100-livres"): every ISBN resolves and every author
+# matches, no finding of any severity. Six ISBNs were repaired to get
+# there: four stood for a different book (Kafka carried 1984's own ISBN),
+# "Pour qui sonne le glas" pointed at another Hemingway novel, and "Voyage
+# au bout de la nuit" carried an ISBN no catalogue knows. Proust now points
+# at the one-volume Recherche rather than at its first volume. Promoted so
+# the editorial affinity tier may SUGGEST it (ADR-066); the import
+# catalogue always showed it.
+curation_status: reviewed
+
 books:
   - isbn: "9782070360024"
     note: "L'Étranger - Albert Camus"
-  - isbn: "9782070379248"
+  - isbn: "9782070724901"
     note: "À la recherche du temps perdu - Marcel Proust"
-  - isbn: "9782070368228"
+  - isbn: "9782724220216"
     note: "Le Procès - Franz Kafka"
   - isbn: "9782070612758"
     note: "Le Petit Prince - Antoine de Saint-Exupéry"
   - isbn: "9782070360017"
     note: "La Condition humaine - André Malraux"
-  - isbn: "9782070364886"
+  - isbn: "9782070360284"
     note: "Voyage au bout de la nuit - Louis-Ferdinand Céline"
-  - isbn: "9782070360536"
+  - isbn: "9782070260706"
     note: "Les Raisins de la colère - John Steinbeck"
-  - isbn: "9782070362219"
+  - isbn: "9782072729935"
     note: "Pour qui sonne le glas - Ernest Hemingway"
-  - isbn: "9782070360451"
+  - isbn: "9782246352136"
     note: "Gatsby le Magnifique - F. Scott Fitzgerald"
   - isbn: "9782070368228"
     note: "1984 - George Orwell"

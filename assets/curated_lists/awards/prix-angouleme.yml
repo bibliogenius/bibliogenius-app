@@ -19,18 +19,24 @@ contributor: BiblioGenius
 tags: [bd, angouleme, prix, comics]
 content_languages: [fr]
 
+# Audited against the sources on 2026-08-24 (make audit-curated): every
+# ISBN resolves and every author matches, no finding of any severity,
+# and no entry left unverified. Promoted so the editorial affinity tier
+# may SUGGEST it (ADR-066); the import catalogue always showed it.
+curation_status: reviewed
+
 books:
   - isbn: "9782080660299"
     note: "Maus - Art Spiegelman (2011)"
   - isbn: "9782258036420"
     note: "Calvin et Hobbes - Bill Watterson (2014)"
-  - isbn: "9784061037113"
+  - isbn: "9782298039450"
     note: "Akira - Katsuhiro Otomo (2015)"
   - isbn: "9782344033838"
     note: "Ranma 1/2 - Rumiko Takahashi (2019)"
   - isbn: "9782800133720"
     note: "Le Photographe - Emmanuel Guibert (2020)"
-  - isbn: "9781443835275"
+  - isbn: "9780375714542"
     note: "Jimmy Corrigan - Chris Ware (2021)"
   - isbn: "9782922399837"
     note: "Dirty Plotte - Julie Doucet (2022)"

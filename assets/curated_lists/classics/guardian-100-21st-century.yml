@@ -11,7 +11,7 @@ description:
   de: 'Die 100 besten Bücher seit 2000 laut The Guardian. Quelle: theguardian.com'
   es: 'Los 100 mejores libros desde 2000 según The Guardian. Fuente: theguardian.com'
 source_url: https://www.theguardian.com/books/2019/sep/21/best-books-of-the-21st-century
-cover_url: "https://covers.openlibrary.org/b/isbn/9782742778430-L.jpg"
+cover_url: "https://covers.openlibrary.org/b/isbn/9782742761579-L.jpg"
 contributor: BiblioGenius
 tags:
 - contemporain
@@ -19,32 +19,38 @@ tags:
 - britannique
 - presse
 content_languages: [fr]
+# Audited against the sources on 2026-08-24 (make audit-curated): every
+# ISBN resolves and every author matches, no finding of any severity,
+# and no entry left unverified. Promoted so the editorial affinity tier
+# may SUGGEST it (ADR-066); the import catalogue always showed it.
+curation_status: reviewed
+
 books:
-- isbn: '9782070466375'
-  note: Elena Ferrante - L'Amie prodigieuse (#1)
-- isbn: '9782742778430'
-  note: Stieg Larsson - Millénium (#2)
-- isbn: '9782266240369'
-  note: Hilary Mantel - Dans l'ombre des Tudors (#3)
-- isbn: '9782070468805'
-  note: Chimamanda Ngozi Adichie - Americanah (#4)
-- isbn: '9782253237594'
-  note: Hanya Yanagihara - Une vie comme les autres (#5)
-- isbn: '9782070793822'
-  note: Cormac McCarthy - La Route (#6)
-- isbn: '9782253934158'
-  note: Colson Whitehead - Underground Railroad (#7)
-- isbn: '9782070449781'
-  note: Annie Ernaux - Les Années (#8)
-- isbn: '9782070179053'
-  note: Richard Powers - L'Arbre-Monde (#9)
-- isbn: '9782021430032'
-  note: Sally Rooney - Normal People (#10)
-- isbn: '9782070425023'
-  note: Zadie Smith - White Teeth (#11)
-- isbn: '9782846261562'
-  note: Neil Gaiman - American Gods (#15)
-- isbn: '9782264042897'
-  note: Khaled Hosseini - Les Cerfs-volants de Kaboul (#18)
-- isbn: '9782072951091'
-  note: Douglas Stuart - Shuggie Bain (#20)
+- isbn: '9782072819421'
+  note: L'Amie prodigieuse (#1) - Elena Ferrante
+- isbn: '9782742765010'
+  note: La fille qui rêvait d'un bidon d'essence et d'une allumette (#2) - Stieg Larsson
+- isbn: '9782355841705'
+  note: Dans l'ombre des Tudors (#3) - Hilary Mantel
+- isbn: '9782070142354'
+  note: Americanah (#4) - Chimamanda Ngozi Adichie
+- isbn: '9782283029480'
+  note: Une vie comme les autres (#5) - Hanya Yanagihara
+- isbn: '9782757820223'
+  note: La Route - Cormac McCarthy (#6)
+- isbn: '9782226393197'
+  note: Underground Railroad (#7) - Colson Whitehead
+- isbn: '9782070779222'
+  note: Les Années (#8) - Annie Ernaux
+- isbn: '9782264077592'
+  note: L'Arbre-Monde (#9) - Richard Powers
+- isbn: '9782823615241'
+  note: Normal People (#10) - Sally Rooney
+- isbn: '9782070428182'
+  note: Sourires de loup - Zadie Smith (#11)
+- isbn: '9782846260336'
+  note: American Gods - Neil Gaiman (#15)
+- isbn: '9782286008185'
+  note: Les Cerfs-volants de Kaboul (#18) - Khaled Hosseini
+- isbn: '9782266323543'
+  note: Shuggie Bain (#20) - Douglas Stuart

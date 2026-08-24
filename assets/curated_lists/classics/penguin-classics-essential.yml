@@ -21,32 +21,46 @@ contributor: BiblioGenius
 tags: [classiques, canon, littérature-mondiale]
 content_languages: [fr]
 
+# Audited against the sources on 2026-08-24 (make audit-curated): every
+# ISBN resolves and every author matches, no blocking finding and nothing
+# left unverified. One entry has no cover anywhere, which does not hold a
+# list back. Promoted so the editorial affinity tier may SUGGEST it
+# (ADR-066); the import catalogue always showed it.
+curation_status: reviewed
+
 books:
-  - isbn: "9782070364992"
-    note: "Jane Austen - Orgueil et Préjugés"
+  - isbn: "9782322182510"
+    note: "Orgueil et Préjugés - Jane Austen"
   - isbn: "9782253004356"
     note: "Jane Eyre - Charlotte Brontë"
-  - isbn: "9782070360703"
-    note: "Emily Brontë - Les Hauts de Hurlevent"
-  - isbn: "9782070361526"
-    note: "Charles Dickens - Les Grandes Espérances"
-  - isbn: "9782742767939"
-    note: "Fyodor Dostoïevski - Crime et Châtiment"
+  - isbn: "9782387214393"
+    note: "Les Hauts de Hurlevent - Emily Brontë"
+  - isbn: "9782070388301"
+    note: "Les Grandes Espérances - Charles Dickens"
+  - isbn: "9782742737642"
+    note: "Crime et Châtiment - Fiodor Dostoïevski"
+    title: "Crime et châtiment"
+    # Catalogued under the scholarly transliteration.
+    authors: ["Fiodor Dostoïevski", "Fedor Mihailovič Dostoevskij"]
   - isbn: "9782253098386"
     note: "Anna Karénine - Léon Tolstoï"
+    title: "Anna Karénine"
+    authors: ["Léon Tolstoï", "Lev Nikolaevič Tolstoj"]
   - isbn: "9782253017264"
     note: "Guerre et Paix - Léon Tolstoï"
-  - isbn: "9782070360147"
-    note: "Franz Kafka - La Métamorphose"
-  - isbn: "9782070305803"
-    note: "Homère - L'Odyssée"
-  - isbn: "9782080707765"
-    note: "Dante Alighieri - La Divine Comédie"
-  - isbn: "9782070366620"
-    note: "Miguel de Cervantes - Don Quichotte"
+    title: "Guerre et paix"
+    authors: ["Léon Tolstoï", "Lev Nikolaevič Tolstoj"]
+  - isbn: "9782849753927"
+    note: "La Métamorphose - Franz Kafka"
+  - isbn: "9791035817404"
+    note: "L'Odyssée - Homère"
+  - isbn: "9782072888748"
+    note: "La Divine Comédie - Dante Alighieri"
+  - isbn: "9782221115756"
+    note: "Don Quichotte - Miguel de Cervantes"
   - isbn: "9782253096337"
     note: "Les Misérables - Victor Hugo"
   - isbn: "9782020238113"
     note: "Cent ans de solitude - Gabriel García Márquez"
-  - isbn: "9782070362370"
-    note: "Virginia Woolf - Mrs Dalloway"
+  - isbn: "9782818051993"
+    note: "Mrs Dalloway - Virginia Woolf"

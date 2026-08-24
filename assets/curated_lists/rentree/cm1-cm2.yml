@@ -42,6 +42,12 @@ contributor: BiblioGenius
 tags: [rentrée, primaire, CM1, CM2, école, jeunesse, album]
 content_languages: [fr]
 
+# Audited against the sources on 2026-08-23 (make audit-curated): every
+# ISBN resolves and every author matches, no finding of any severity,
+# and no entry left unverified. Promoted so the editorial affinity tier
+# may SUGGEST it (ADR-066); the import catalogue always showed it.
+curation_status: reviewed
+
 # Per-book `cover_url` is set ONLY where a cover was found on a free source AND
 # opened to confirm it shows this exact edition: 10 of 11. Sacrees sorcieres is
 # the exception on purpose, the only image available carries a second-hand

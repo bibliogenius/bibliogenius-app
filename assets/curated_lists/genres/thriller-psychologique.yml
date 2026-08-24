@@ -20,23 +20,31 @@ contributor: BiblioGenius
 tags: [thriller, psychologique, suspense, polar]
 content_languages: [fr]
 
+# Audited against the sources on 2026-08-23 (make audit-curated): every
+# ISBN resolves and every author matches, no blocking finding and nothing
+# left unverified. Promoted so the editorial affinity tier may SUGGEST it
+# (ADR-066); the import catalogue always showed it.
+curation_status: reviewed
+
 books:
-  - isbn: "9782253179269"
-    note: "Gillian Flynn - Les Apparences (Gone Girl)"
+  - isbn: "9782355841170"
+    note: "Les Apparences (Gone Girl) - Gillian Flynn"
   - isbn: "9782266254489"
     note: "La Fille du train - Paula Hawkins"
-  - isbn: "9782742765010"
-    note: "Millénium 1 - Stieg Larsson"
-  - isbn: "9782266208611"
-    note: "Thomas Harris - Le Silence des agneaux"
-  - isbn: "9782253044123"
-    note: "Patricia Highsmith - L'Inconnu du Nord-Express"
-  - isbn: "9782266207638"
+  - isbn: "9782742761579"
+    note: "Millénium 1 - Les hommes qui n'aimaient pas les femmes - Stieg Larsson"
+    title: "Millénium 1 - Les hommes qui n'aimaient pas les femmes"
+    authors: ["Stieg Larsson"]
+  - isbn: "9782724253269"
+    note: "Le Silence des agneaux - Thomas Harris"
+  - isbn: "9782738201188"
+    note: "L'Inconnu du Nord-Express - Patricia Highsmith"
+  - isbn: "9782298020649"
     note: "Dans les bois - Tana French (La mort dans les bois)"
-  - isbn: "9782266221573"
-    note: "Dennis Lehane - Shutter Island"
-  - isbn: "9782266286084"
-    note: "Ruth Ware - La Disparue de la cabine n°10"
+  - isbn: "9782286059361"
+    note: "Shutter Island - Dennis Lehane"
+  - isbn: "9782298145182"
+    note: "La Disparue de la cabine n°10 - Ruth Ware"
   - isbn: "9782266291866"
     note: "La Femme à la fenêtre - A.J. Finn"
   - isbn: "9780062430878"

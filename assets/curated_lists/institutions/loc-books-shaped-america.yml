@@ -21,19 +21,25 @@ contributor: BiblioGenius
 tags: [américain, histoire, institution, canon]
 content_languages: [fr]
 
+# Audited against the sources on 2026-08-24 (make audit-curated): every
+# ISBN resolves and every author matches, no blocking finding and nothing
+# left unverified. Promoted so the editorial affinity tier may SUGGEST it
+# (ADR-066); the import catalogue always showed it.
+curation_status: reviewed
+
 books:
-  - isbn: "9782070368228"
-    note: "Mark Twain - Les Aventures de Huckleberry Finn (1884)"
-  - isbn: "9782356920003"
+  - isbn: "9782234013261"
+    note: "Les Aventures de Huckleberry Finn - Mark Twain (1884)"
+  - isbn: "9782912673367"
     note: "Essais - Ralph Waldo Emerson (1841)"
   - isbn: "9782070715213"
     note: "Walden - Henry David Thoreau (1854)"
-  - isbn: "9782070360536"
-    note: "John Steinbeck - Les Raisins de la colère (1939)"
-  - isbn: "9782253004226"
-    note: "F. Scott Fitzgerald - Gatsby le Magnifique (1925)"
-  - isbn: "9782264049216"
-    note: "Toni Morrison - Beloved (1987)"
+  - isbn: "9782070260706"
+    note: "Les Raisins de la colère - John Steinbeck (1939)"
+  - isbn: "9782246352136"
+    note: "Gatsby le Magnifique - F. Scott Fitzgerald (1925)"
+  - isbn: "9782264076809"
+    note: "Beloved - Toni Morrison (1987)"
   - isbn: "9780679732761"
     note: "Invisible Man - Ralph Ellison (VO)"
   - isbn: "9782070394036"
@@ -44,5 +50,5 @@ books:
     note: "Je sais pourquoi chante l'oiseau en cage - Maya Angelou (1969)"
   - isbn: "9782266306010"
     note: "La Femme mystifiée - Betty Friedan (1963)"
-  - isbn: "9782352120421"
-    note: "Rachel Carson - Printemps silencieux (1962)"
+  - isbn: "9782381140414"
+    note: "Printemps silencieux - Rachel Carson (1962)"

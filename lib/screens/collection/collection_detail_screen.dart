@@ -24,6 +24,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../utils/recommendation_display.dart';
 import '../../widgets/genie_app_bar.dart';
 
 /// A readable-on-light variant of a status color: Material swatches drop to
@@ -187,6 +188,9 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
       }
       // A deleted series collection must drop its external cards.
       refresher.refresh();
+      // The reader has taken their import back; the app takes its own
+      // dismissal back too, or the list can never be suggested again.
+      if (mounted) await forgetCuratedListDismissal(context, widget.collection);
       if (mounted) {
         context.pop();
       }
@@ -408,7 +412,10 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
         transparent: true, // 🌟 Transparent AppBar
         showQuickActions: false,
         preSelectedCollectionId: widget.collection.id,
-        preSelectedCollectionName: collectionDisplayName(context, widget.collection),
+        preSelectedCollectionName: collectionDisplayName(
+          context,
+          widget.collection,
+        ),
         destinationName: collectionDisplayName(context, widget.collection),
         thirdSlotOverride: Builder(
           builder: (sheetContext) {
@@ -425,7 +432,10 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                   '/scan',
                   extra: {
                     'collectionId': widget.collection.id,
-                    'collectionName': collectionDisplayName(context, widget.collection),
+                    'collectionName': collectionDisplayName(
+                      context,
+                      widget.collection,
+                    ),
                     'batch': true,
                   },
                 );

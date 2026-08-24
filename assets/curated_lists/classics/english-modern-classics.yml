@@ -21,6 +21,15 @@ cover_url: "https://inventaire.io/img/entities/93181de78e7dcf87c337fccbc06a19c96
 tags: [classics, english, 20th-century]
 content_languages: [en]
 
+# Audited against the sources on 2026-08-24 (make audit-curated): every ISBN
+# resolves, nothing left unverified, and the warnings below were read by hand
+# and dismissed.
+# Open Library returns Orwell's canonical "Nineteen Eighty-Four" where the
+# Signet edition, and the corpus, print "1984". Same work, same edition.
+# The audit will keep reporting them. Promoted so the editorial affinity tier
+# may SUGGEST it (ADR-066); the import catalogue always showed it.
+curation_status: reviewed
+
 books:
   - isbn: "9780451524935"
     note: "1984 - George Orwell (Signet Classic)"

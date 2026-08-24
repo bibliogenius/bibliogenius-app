@@ -8692,3 +8692,36 @@ msgstr ""
 #. Curated list card: link folding the book list back to the 3-book preview
 msgid "curated_see_less"
 msgstr ""
+
+#. Collections screen: header of the related curated selections block
+msgid "curated_affinity_section_title"
+msgstr ""
+
+#. Curated list card: why it is suggested, {owned} books already in the library
+msgid "curated_affinity_reason"
+msgstr ""
+
+#. Curated list card: same, when {liked} of the shared books were liked
+msgid "curated_affinity_reason_liked"
+msgstr ""
+
+#. Source marker on a suggested curated selection
+msgid "suggestion_badge_editorial"
+msgstr ""
+
+#. Pre-import dialog: file the imported books under their matching genre shelves
+msgid "curated_import_shelve_option"
+msgstr ""
+
+#. Pre-import dialog: the shelves that would be used, {labels} is a list
+msgid "curated_import_shelve_option_detail"
+msgstr ""
+
+msgid "shelf_hidden_by_ownership"
+msgstr ""
+
+msgid "shelf_hidden_by_ownership_desc"
+msgstr ""
+
+msgid "show_all_ownership"
+msgstr ""

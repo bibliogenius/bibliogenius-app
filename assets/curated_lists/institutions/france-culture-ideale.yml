@@ -21,28 +21,34 @@ contributor: BiblioGenius
 tags: [français, culture, radio, essentiel]
 content_languages: [fr]
 
+# Audited against the sources on 2026-08-23 (make audit-curated): every
+# ISBN resolves and every author matches, no blocking finding and nothing
+# left unverified. Promoted so the editorial affinity tier may SUGGEST it
+# (ADR-066); the import catalogue always showed it.
+curation_status: reviewed
+
 books:
   - isbn: "9782070379248"
     note: "Du côté de chez Swann - Marcel Proust (Folio)"
-  - isbn: "9782070360536"
-    note: "Albert Camus - L'Étranger"
-  - isbn: "9782070360451"
-    note: "Gustave Flaubert - Madame Bovary"
-  - isbn: "9782070411740"
-    note: "Marguerite Duras - L'Amant"
-  - isbn: "9782070368228"
-    note: "Simone de Beauvoir - Le Deuxième Sexe"
-  - isbn: "9782070360536"
-    note: "Jean-Paul Sartre - La Nausée"
-  - isbn: "9782253004226"
-    note: "Stendhal - Le Rouge et le Noir"
-  - isbn: "9782070409907"
-    note: "Patrick Modiano - Dora Bruder"
-  - isbn: "9782070414093"
-    note: "Michel Houellebecq - Les Particules élémentaires"
-  - isbn: "9782070449781"
-    note: "Annie Ernaux - Les Années"
+  - isbn: "9782070212002"
+    note: "L'Étranger - Albert Camus"
+  - isbn: "9782080704641"
+    note: "Madame Bovary - Gustave Flaubert"
+  - isbn: "9782724224894"
+    note: "L'Amant - Marguerite Duras"
+  - isbn: "9782073138019"
+    note: "Le Deuxième Sexe - Simone de Beauvoir"
+  - isbn: "9782070257539"
+    note: "La Nausée - Jean-Paul Sartre"
+  - isbn: "9782080700117"
+    note: "Le Rouge et le Noir - Stendhal"
+  - isbn: "9782070748983"
+    note: "Dora Bruder - Patrick Modiano"
+  - isbn: "9782702823194"
+    note: "Les Particules élémentaires - Michel Houellebecq"
+  - isbn: "9782070779222"
+    note: "Les Années - Annie Ernaux"
   - isbn: "9782253096337"
     note: "Les Misérables - Victor Hugo (Tome 1)"
-  - isbn: "9782070411597"
-    note: "Émile Zola - Germinal"
+  - isbn: "9782810624164"
+    note: "Germinal - Émile Zola"

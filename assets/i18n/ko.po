@@ -10531,3 +10531,39 @@ msgstr "{count}권 모두 보기"
 #. Curated list card: link folding the book list back to the 3-book preview
 msgid "curated_see_less"
 msgstr "접기"
+
+#. Collections screen: header of the related curated selections block
+msgid "curated_affinity_section_title"
+msgstr "내 서재와 연결된 셀렉션"
+
+#. Curated list card: why it is suggested, {owned} books already in the library
+msgid "curated_affinity_reason"
+msgstr "공통 도서 {owned}권"
+
+#. Curated list card: same, when {liked} of the shared books were liked
+msgid "curated_affinity_reason_liked"
+msgstr "공통 도서 {owned}권, 그중 {liked}권은 좋아한 책"
+
+#. Source marker on a suggested curated selection
+msgid "suggestion_badge_editorial"
+msgstr "셀렉션"
+
+#. Pre-import dialog: file the imported books under their matching genre shelves
+msgid "curated_import_shelve_option"
+msgstr "가져온 책을 장르별로 정리"
+
+#. Pre-import dialog: the shelves that would be used, {labels} is a list
+msgid "curated_import_shelve_option_detail"
+msgstr "서가: {labels}"
+
+#. Shelf empty only because the ownership view hides its books
+msgid "shelf_hidden_by_ownership"
+msgstr "이 책장의 책이 서재에 없습니다"
+
+#. Explains the empty shelf, {count} is how many books the switch would reveal
+msgid "shelf_hidden_by_ownership_desc"
+msgstr "이 책장의 {count}권은 가지고 있지 않습니다: 위시리스트 또는 대출 중인 책. 기본 보기는 소유한 책만 표시합니다."
+
+#. Button switching the library list to the 'all' ownership scope
+msgid "show_all_ownership"
+msgstr "그래도 표시"

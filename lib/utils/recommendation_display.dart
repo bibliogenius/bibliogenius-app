@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../models/collection.dart';
 import '../models/recommendation.dart';
 import '../providers/recommendation_provider.dart';
 import '../services/translation_service.dart';
@@ -19,12 +20,53 @@ void dismissRecommendationWithUndo(BuildContext context, String bookId) {
 /// Same gesture for an EXTERNAL discovery card (ADR-060 section 4.5):
 /// keyed by the namespaced [externalKey] through the second store, same
 /// SnackBar and Undo so both card kinds feel identical.
-void dismissExternalSuggestionWithUndo(BuildContext context, String externalKey) {
+void dismissExternalSuggestionWithUndo(
+  BuildContext context,
+  String externalKey,
+) {
   final provider = context.read<RecommendationProvider>();
   provider.dismissExternal(externalKey);
   _showDismissUndoSnackBar(
     context,
     () => provider.restoreDismissedExternal(externalKey),
+  );
+}
+
+/// "Not interested" on a curated list card (ADR-066).
+///
+/// Rides the SAME namespaced store and the same Undo as the other external
+/// cards; only the key namespace differs (`list:<id>`). The dismissal
+/// targets the suggestion, never the list: the import catalogue does not
+/// consult this store and keeps showing every list.
+void dismissCuratedListWithUndo(BuildContext context, String listKey) {
+  final provider = context.read<RecommendationProvider>();
+  provider.dismissExternal(listKey);
+  _showDismissUndoSnackBar(
+    context,
+    () => provider.restoreDismissedExternal(listKey),
+  );
+}
+
+/// Undo the dismissal a curated import wrote, when its collection is deleted.
+///
+/// Importing a list dismisses it, because importing is the strongest signal
+/// a reader can give that they have dealt with it (ADR-066 section 7).
+/// Deleting the collection is them taking that back, and the app has to take
+/// its own signal back too: without this the books go and the suggestion
+/// never returns, which is how a reader ends up with an empty block and no
+/// way to explain it.
+///
+/// Silent and best effort: a collection that came from nowhere in
+/// particular is left alone, and losing this must never cost the reader
+/// their deletion.
+Future<void> forgetCuratedListDismissal(
+  BuildContext context,
+  Collection collection,
+) async {
+  final listId = collection.curatedListId;
+  if (listId == null) return;
+  await context.read<RecommendationProvider>().restoreDismissedExternal(
+    'list:$listId',
   );
 }
 

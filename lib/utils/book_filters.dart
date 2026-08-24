@@ -65,6 +65,36 @@ bool matchesOwnershipFilter(
   }
 }
 
+/// Books a shelf holds that the current ownership scope is hiding.
+///
+/// The library list applies the ownership axis BEFORE the shelf axis, so a
+/// shelf filled entirely with books the reader does not own renders as "this
+/// shelf is empty" with nothing to say why. That is not a bug in any one
+/// rule: a curated list imported as a wishlist writes `owned = false` on
+/// purpose, the possession view is the documented default (ADR-063), and the
+/// Rust `subject_counts` scopes its badge the same way. Three deliberate
+/// rules compose into a dead end, and this is what lets the empty state name
+/// it and offer the way out.
+///
+/// Counts what switching to [OwnershipScope.all] would actually reveal, which
+/// is why it measures the scope predicate rather than `owned` alone: a lent
+/// book hidden by the borrowed setting comes back under "all" too. Returns 0
+/// under a scope that hides nothing, where there is no dead end to explain.
+int shelfBooksHiddenByOwnership({
+  required Iterable<Book> books,
+  required bool Function(Book book) matchesShelf,
+  required String scope,
+  required bool showBorrowed,
+}) {
+  if (scope == OwnershipScope.all) return 0;
+  return books
+      .where(matchesShelf)
+      .where(
+        (b) => !matchesOwnershipFilter(b, scope, showBorrowed: showBorrowed),
+      )
+      .length;
+}
+
 /// Search predicate shared by the result grid and the autocomplete dropdown.
 ///
 /// The two MUST evaluate the same rule on the same corpus (ADR-063):

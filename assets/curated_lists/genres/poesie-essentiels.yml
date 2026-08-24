@@ -21,6 +21,12 @@ contributor: BiblioGenius
 tags: [poésie, classiques, vers]
 content_languages: [fr]
 
+# Audited against the sources on 2026-08-24 (make audit-curated): every
+# ISBN resolves and every author matches, no finding of any severity,
+# and no entry left unverified. Promoted so the editorial affinity tier
+# may SUGGEST it (ADR-066); the import catalogue always showed it.
+curation_status: reviewed
+
 books:
   - isbn: "9782266168540"
     note: "Les Fleurs du mal - Charles Baudelaire"
@@ -28,17 +34,17 @@ books:
     note: "Poésies complètes - Arthur Rimbaud"
   - isbn: "9782070321520"
     note: "Sagesse - Paul Verlaine (Poésie Gallimard)"
-  - isbn: "9782070300082"
+  - isbn: "9782290173886"
     note: "Alcools - Guillaume Apollinaire"
-  - isbn: "9782073022769"
+  - isbn: "9782757898932"
     note: "Capitale de la douleur - Paul Éluard"
   - isbn: "9782070367627"
     note: "Paroles - Jacques Prévert"
   - isbn: "9782070300655"
-    note: "Feuillets d'Hypnos - René Char"
+    note: "Fureur et mystère - René Char"
   - isbn: "9782708704206"
     note: "Cahier d'un retour au pays natal - Aimé Césaire"
   - isbn: "9782070404216"
     note: "Vingt poèmes d'amour - Pablo Neruda"
-  - isbn: "9782070305889"
-    note: "Federico García Lorca - Romancero gitano (Poésie Gallimard)"
+  - isbn: "9782757807064"
+    note: "Romancero gitan - Federico García Lorca (Points)"

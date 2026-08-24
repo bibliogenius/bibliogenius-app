@@ -21,28 +21,38 @@ tags:
 - science-fiction
 - fantasy
 content_languages: [fr]
+# Audited against the sources on 2026-08-24 (make audit-curated): every ISBN
+# resolves, nothing left unverified, and the one blocking finding was read by
+# hand and dismissed. SUDOC files 9782352945949 under the duology's umbrella
+# title "Blitz"; the BnF, which is the first source the import consults for a
+# 978-2 ISBN, catalogues that same edition as "Black-out", so the note says
+# what the import will actually show. The audit will keep reporting it.
+# Promoted so the editorial affinity tier may SUGGEST it (ADR-066); the import
+# catalogue always showed it.
+curation_status: reviewed
+
 books:
-- isbn: '9782290157183'
-  note: N.K. Jemisin - La Cinquième Saison (2016)
-- isbn: '9782290349229'
-  note: Ann Leckie - La Justice de l'ancillaire (2014)
-- isbn: '9782253033134'
-  note: Connie Willis - Blackout/All Clear (2011)
-- isbn: '9782070793822'
-  note: Cormac McCarthy - La Route (2007)
-- isbn: '9782846261562'
-  note: Neil Gaiman - American Gods (2002)
+- isbn: '9782290144237'
+  note: La Cinquième Saison - N.K. Jemisin (2016)
+- isbn: "9782290111345"
+  note: La Justice de l'ancillaire - Ann Leckie (2014)
+- isbn: "9782352945949"
+  note: Black-out - Connie Willis (2011)
+- isbn: '9782757820223'
+  note: La Route - Cormac McCarthy (2007)
+- isbn: '9782846260336'
+  note: American Gods - Neil Gaiman (2002)
 - isbn: '9782266320481'
   note: Dune - Frank Herbert (1966)
-- isbn: '9785050040107'
-  note: Ursula K. Le Guin - La Main gauche de la nuit (1970)
-- isbn: '9782070419241'
-  note: Isaac Asimov - Les Dieux eux-mêmes (1973)
-- isbn: '9782290312841'
-  note: William Gibson - Neuromancien (1985)
-- isbn: '9782290349229'
-  note: Orson Scott Card - La Stratégie Ender (1986)
-- isbn: '9782253004226'
-  note: Kim Stanley Robinson - Mars la Rouge (1993)
-- isbn: '9782266241915'
-  note: Dan Simmons - Hypérion (non primé mais chef d'œuvre)
+- isbn: '9782744143779'
+  note: La Main gauche de la nuit - Ursula K. Le Guin (1970)
+- isbn: '9782070419777'
+  note: Les Dieux eux-mêmes - Isaac Asimov (1973)
+- isbn: '9782290308202'
+  note: Neuromancien - William Gibson (1985)
+- isbn: "9782277237815"
+  note: La Stratégie Ender - Orson Scott Card (1986)
+- isbn: "9782258038233"
+  note: Mars la Rouge - Kim Stanley Robinson (1993)
+- isbn: '9782221069509'
+  note: Hypérion (non primé mais chef d'œuvre) - Dan Simmons

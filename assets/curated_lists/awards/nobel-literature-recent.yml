@@ -20,20 +20,26 @@ contributor: BiblioGenius
 tags: [prix, nobel, international]
 content_languages: [en]
 
+# Audited against the sources on 2026-08-23 (make audit-curated): every
+# ISBN resolves and every author matches, no finding of any severity,
+# and no entry left unverified. Promoted so the editorial affinity tier
+# may SUGGEST it (ADR-066); the import catalogue always showed it.
+curation_status: reviewed
+
 books:
   - isbn: "9780140168549"
     note: "Red Sorghum - Mo Yan (2012)"
   - isbn: "9780307743725"
     note: "Dear Life - Alice Munro (2013)"
-  - isbn: "9780241402191"
+  - isbn: "9781567922813"
     note: "Missing Person - Patrick Modiano (2014)"
-  - isbn: "9780582424623"
-    note: "Kazuo Ishiguro - The Remains of the Day (2017)"
+  - isbn: "9780571153107"
+    note: "The Remains of the Day - Kazuo Ishiguro (2017)"
   - isbn: "9781910695821"
     note: "Flights - Olga Tokarczuk (2018)"
   - isbn: "9781590170199"
     note: "A Sorrow Beyond Dreams - Peter Handke (2019)"
-  - isbn: "9781857542233"
+  - isbn: "9780880013345"
     note: "The Wild Iris - Louise Gluck (2020)"
   - isbn: "9781526653260"
     note: "Paradise - Abdulrazak Gurnah (2021)"

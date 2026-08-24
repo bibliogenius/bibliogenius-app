@@ -127,6 +127,7 @@ class FfiService {
               name: t.name,
               parentId: t.parentId,
               count: t.count.toInt(),
+              totalCount: t.totalCount.toInt(),
               // Children will be built by the UI tree builder or we could do it here
               // The TagTreeView expects a flat list and builds hierarchy itself via `_buildTree`
               // or assumes we pass a list of tags. The `Tag` model has `copyWithChildren`.
@@ -1994,6 +1995,8 @@ class FfiService {
             .toList(),
         libraryIsbns: inputs.libraryIsbns.toSet(),
         libraryTitleAuthorKeys: inputs.libraryTitleAuthorKeys.toSet(),
+        likedIsbns: inputs.likedIsbns.toSet(),
+        likedTitleAuthorKeys: inputs.likedTitleAuthorKeys.toSet(),
       );
     } catch (e) {
       debugPrint('FFI getDiscoveryLookupInputs error: $e');

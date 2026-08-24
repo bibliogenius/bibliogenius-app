@@ -20,12 +20,18 @@ contributor: BiblioGenius
 tags: [art, design, créativité, visuel]
 content_languages: [fr]
 
+# Audited against the sources on 2026-08-23 (make audit-curated): every
+# ISBN resolves and every author matches, no finding of any severity,
+# and no entry left unverified. Promoted so the editorial affinity tier
+# may SUGGEST it (ADR-066); the import catalogue always showed it.
+curation_status: reviewed
+
 books:
   - isbn: "9782917855508"
-    note: "John Berger - Voir le voir"
-  - isbn: "9781838666699"
+    note: "Voir le voir - John Berger"
+  - isbn: "9782080109330"
     note: "Histoire de l'art - Ernst Gombrich"
-  - isbn: "9782267044812"
+  - isbn: "9782267011890"
     note: "Sur la photographie - Susan Sontag"
   - isbn: "9782212678833"
     note: "Le Design des objets du quotidien - Don Norman"
@@ -39,5 +45,5 @@ books:
     note: "Théorie de l'art moderne - Paul Klee"
   - isbn: "9782350172675"
     note: "L'Art du design - Bruno Munari"
-  - isbn: "9783037784501"
+  - isbn: "9783037781050"
     note: "Designing Design - Kenya Hara"

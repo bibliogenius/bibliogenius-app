@@ -11,148 +11,302 @@ cover_url: "https://covers.openlibrary.org/b/isbn/9782871294146-L.jpg"
 contributor: BiblioGenius
 tags: [manga, shonen, ninja, serie-complete, naruto]
 content_languages: [fr]
+# Audited against the sources on 2026-08-24 (make audit-curated): every ISBN
+# resolves, nothing left unverified, and the warnings below were read by hand
+# and dismissed.
+# The BnF files each Naruto volume under its own volume title and exposes no
+# series link on these six records, so the tool cannot see that they are
+# volumes of the set the corpus names.
+# The audit will keep reporting them. Promoted so the editorial affinity tier
+# may SUGGEST it (ADR-066); the import catalogue always showed it.
+curation_status: reviewed
+
 books:
   - isbn: "9782871294146"
     note: "Naruto - Tome 1"
+    title: "Naruto - Tome 1"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782871294177"
     note: "Naruto - Tome 2"
+    title: "Naruto - Tome 2"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782871294276"
     note: "Naruto - Tome 3"
+    title: "Naruto - Tome 3"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782871294412"
     note: "Naruto - Tome 4"
+    title: "Naruto - Tome 4"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782871294917"
     note: "Naruto - Tome 5"
+    title: "Naruto - Tome 5"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782871295112"
     note: "Naruto - Tome 6"
+    title: "Naruto - Tome 6"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782871295358"
     note: "Naruto - Tome 7"
+    title: "Naruto - Tome 7"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782871295525"
     note: "Naruto - Tome 8"
+    title: "Naruto - Tome 8"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782871295990"
     note: "Naruto - Tome 9"
+    title: "Naruto - Tome 9"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782871296140"
     note: "Naruto - Tome 10"
+    title: "Naruto - Tome 10"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782871296249"
     note: "Naruto - Tome 11"
+    title: "Naruto - Tome 11"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782871296355"
     note: "Naruto - Tome 12"
+    title: "Naruto - Tome 12"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782871296461"
     note: "Naruto - Tome 13"
+    title: "Naruto - Tome 13"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782871296577"
     note: "Naruto - Tome 14"
+    title: "Naruto - Tome 14"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782871297048"
     note: "Naruto - Tome 15"
+    title: "Naruto - Tome 15"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782871297239"
     note: "Naruto - Tome 16"
+    title: "Naruto - Tome 16"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782871297765"
     note: "Naruto - Tome 17"
+    title: "Naruto - Tome 17"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782871297970"
     note: "Naruto - Tome 18"
+    title: "Naruto - Tome 18"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782871298168"
     note: "Naruto - Tome 19"
+    title: "Naruto - Tome 19"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782871298342"
     note: "Naruto - Tome 20"
+    title: "Naruto - Tome 20"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782871298908"
     note: "Naruto - Tome 21"
+    title: "Naruto - Tome 21"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782871299110"
     note: "Naruto - Tome 22"
+    title: "Naruto - Tome 22"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782871299318"
     note: "Naruto - Tome 23"
+    title: "Naruto - Tome 23"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782871299615"
     note: "Naruto - Tome 24"
+    title: "Naruto - Tome 24"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782871299776"
     note: "Naruto - Tome 25"
+    title: "Naruto - Tome 25"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782871299875"
     note: "Naruto - Tome 26"
+    title: "Naruto - Tome 26"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505000310"
     note: "Naruto - Tome 27"
+    title: "Naruto - Tome 27"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505000921"
     note: "Naruto - Tome 28"
+    title: "Naruto - Tome 28"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505000976"
     note: "Naruto - Tome 29"
+    title: "Naruto - Tome 29"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505001522"
     note: "Naruto - Tome 30"
+    title: "Naruto - Tome 30"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505001676"
     note: "Naruto - Tome 31"
+    title: "Naruto - Tome 31"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505001928"
     note: "Naruto - Tome 32"
+    title: "Naruto - Tome 32"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505002420"
     note: "Naruto - Tome 33"
+    title: "Naruto - Tome 33"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505002796"
     note: "Naruto - Tome 34"
+    title: "Naruto - Tome 34"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505002963"
     note: "Naruto - Tome 35"
+    title: "Naruto - Tome 35"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505003236"
     note: "Naruto - Tome 36"
+    title: "Naruto - Tome 36"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505003786"
     note: "Naruto - Tome 37"
+    title: "Naruto - Tome 37"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505004325"
     note: "Naruto - Tome 38"
+    title: "Naruto - Tome 38"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505004172"
     note: "Naruto - Tome 39"
+    title: "Naruto - Tome 39"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505005285"
     note: "Naruto - Tome 40"
+    title: "Naruto - Tome 40"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505005582"
     note: "Naruto - Tome 41"
+    title: "Naruto - Tome 41"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505005995"
     note: "Naruto - Tome 42"
+    title: "Naruto - Tome 42"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505006701"
     note: "Naruto - Tome 43"
+    title: "Naruto - Tome 43"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505007111"
     note: "Naruto - Tome 44"
+    title: "Naruto - Tome 44"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505007548"
     note: "Naruto - Tome 45"
+    title: "Naruto - Tome 45"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505007883"
     note: "Naruto - Tome 46"
+    title: "Naruto - Tome 46"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505008699"
     note: "Naruto - Tome 47"
+    title: "Naruto - Tome 47"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505008705"
     note: "Naruto - Tome 48"
+    title: "Naruto - Tome 48"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505008712"
     note: "Naruto - Tome 49"
+    title: "Naruto - Tome 49"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505009566"
     note: "Naruto - Tome 50"
+    title: "Naruto - Tome 50"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505009924"
     note: "Naruto - Tome 51"
+    title: "Naruto - Tome 51"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505010616"
     note: "Naruto - Tome 52"
+    title: "Naruto - Tome 52"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505011156"
     note: "Naruto - Tome 53"
+    title: "Naruto - Tome 53"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505012894"
     note: "Naruto - Tome 54"
+    title: "Naruto - Tome 54"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505014287"
     note: "Naruto - Tome 55"
+    title: "Naruto - Tome 55"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505014867"
     note: "Naruto - Tome 56"
+    title: "Naruto - Tome 56"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505015529"
     note: "Naruto - Tome 57"
+    title: "Naruto - Tome 57"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505017653"
     note: "Naruto - Tome 58"
+    title: "Naruto - Tome 58"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505018421"
     note: "Naruto - Tome 59"
+    title: "Naruto - Tome 59"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505018438"
     note: "Naruto - Tome 60"
+    title: "Naruto - Tome 60"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505019596"
     note: "Naruto - Tome 61"
+    title: "Naruto - Tome 61"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505060192"
     note: "Naruto - Tome 62"
+    title: "Naruto - Tome 62"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505060833"
     note: "Naruto - Tome 63"
+    title: "Naruto - Tome 63"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505060840"
     note: "Naruto - Tome 64"
+    title: "Naruto - Tome 64"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505061267"
     note: "Naruto - Tome 65"
+    title: "Naruto - Tome 65"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505061656"
     note: "Naruto - Tome 66"
+    title: "Naruto - Tome 66"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505061663"
     note: "Naruto - Tome 67"
+    title: "Naruto - Tome 67"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505061670"
     note: "Naruto - Tome 68"
+    title: "Naruto - Tome 68"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505061908"
     note: "Naruto - Tome 69"
+    title: "Naruto - Tome 69"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505063568"
     note: "Naruto - Tome 70"
+    title: "Naruto - Tome 70"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505065050"
     note: "Naruto - Tome 71"
+    title: "Naruto - Tome 71"
+    authors: ["Masashi Kishimoto"]
   - isbn: "9782505065067"
     note: "Naruto - Tome 72"
+    title: "Naruto - Tome 72"
+    authors: ["Masashi Kishimoto"]

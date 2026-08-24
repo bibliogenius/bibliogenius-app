@@ -1,5 +1,3 @@
-# New York Times - 100 Notable Books (Selection)
-# Source officielle : nytimes.com
 id: nyt-notable-books
 version: 1
 
@@ -21,28 +19,34 @@ contributor: BiblioGenius
 tags: [contemporain, américain, presse, bestseller]
 content_languages: [fr]
 
+# Audited against the sources on 2026-08-23 (make audit-curated): every
+# ISBN resolves and every author matches, no blocking finding and nothing
+# left unverified. Promoted so the editorial affinity tier may SUGGEST it
+# (ADR-066); the import catalogue always showed it.
+curation_status: reviewed
+
 books:
-  - isbn: "9782253934158"
-    note: "Colson Whitehead - Underground Railroad"
-  - isbn: "9782070179053"
-    note: "Richard Powers - L'Arbre-Monde"
-  - isbn: "9782253237594"
-    note: "Hanya Yanagihara - Une vie comme les autres"
-  - isbn: "9782072935572"
-    note: "Ocean Vuong - Un bref instant de splendeur"
-  - isbn: "9782330077020"
-    note: "Liu Cixin - Le Problème à trois corps"
-  - isbn: "9782070793822"
-    note: "Cormac McCarthy - La Route"
-  - isbn: "9782266223591"
-    note: "Donna Tartt - Le Chardonneret"
-  - isbn: "9782253159117"
-    note: "Elizabeth Strout - Olive Kitteridge"
-  - isbn: "9782266275811"
-    note: "Celeste Ng - Tout ce qu'on ne s'est jamais dit"
-  - isbn: "9782253070900"
-    note: "Ta-Nehisi Coates - Entre le monde et moi"
-  - isbn: "9782742778430"
-    note: "Roberto Bolaño - 2666"
-  - isbn: "9782072951091"
-    note: "Douglas Stuart - Shuggie Bain"
+  - isbn: "9782226393197"
+    note: "Underground Railroad - Colson Whitehead"
+  - isbn: "9782264077592"
+    note: "L'Arbre-Monde - Richard Powers"
+  - isbn: "9782283029480"
+    note: "Une vie comme les autres - Hanya Yanagihara"
+  - isbn: "9782378283278"
+    note: "Un bref instant de splendeur - Ocean Vuong"
+  - isbn: "9782330070748"
+    note: "Le Problème à trois corps - Liu Cixin"
+  - isbn: "9782757820223"
+    note: "La Route - Cormac McCarthy"
+  - isbn: "9782259221863"
+    note: "Le Chardonneret - Donna Tartt"
+  - isbn: "9782359050066"
+    note: "Olive Kitteridge - Elizabeth Strout"
+  - isbn: "9782355843679"
+    note: "Tout ce qu'on ne s'est jamais dit - Celeste Ng"
+  - isbn: "9782080438935"
+    note: "Entre le monde et moi - Ta-Nehisi Coates"
+  - isbn: "9782267019667"
+    note: "2666 - Roberto Bolaño"
+  - isbn: "9782266323543"
+    note: "Shuggie Bain - Douglas Stuart"

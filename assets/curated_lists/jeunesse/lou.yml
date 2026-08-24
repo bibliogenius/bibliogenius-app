@@ -14,6 +14,12 @@ tags:
 - famille
 - serie-complete
 content_languages: [fr]
+
+# Audited against the sources on 2026-08-23 (make audit-curated): every
+# ISBN resolves and every author matches, no finding of any severity,
+# and no entry left unverified. Promoted so the editorial affinity tier
+# may SUGGEST it (ADR-066); the import catalogue always showed it.
+curation_status: reviewed
 books:
 - isbn: '9782723442756'
   note: "Tome 1 : Journal infime"
@@ -57,7 +63,7 @@ books:
   published_date: "2012"
   authors: ["Julien Neel"]
   description: "Lou découvre l'univers étrange et fascinant des cristaux, tandis que le passé de sa famille refait surface."
-- isbn: '9782800164267'
+- isbn: '9782344009963'
   note: "Tome 7 : La cabane"
   title: "La cabane"
   publisher: "Glénat"

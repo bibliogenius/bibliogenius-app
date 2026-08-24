@@ -1,5 +1,3 @@
-# Littérature Africaine Contemporaine
-# Sources : Prix des 5 Continents de la Francophonie, African Literature Association
 id: litterature-africaine
 version: 1
 
@@ -21,24 +19,30 @@ contributor: BiblioGenius
 tags: [afrique, contemporain, francophonie, anglophone]
 content_languages: [fr]
 
+# Audited against the sources on 2026-08-24 (make audit-curated): every
+# ISBN resolves and every author matches, no finding of any severity,
+# and no entry left unverified. Promoted so the editorial affinity tier
+# may SUGGEST it (ADR-066); the import catalogue always showed it.
+curation_status: reviewed
+
 books:
   - isbn: "9782070468805"
     note: "Americanah - Chimamanda Ngozi Adichie"
-  - isbn: "9782070356508"
-    note: "Chimamanda Ngozi Adichie - L'Hibiscus pourpre"
-  - isbn: "9782253134329"
-    note: "Tierno Monénembo - Le Terroriste noir"
-  - isbn: "9782072973734"
-    note: "Mohamed Mbougar Sarr - La Plus Secrète Mémoire des hommes"
-  - isbn: "9782757832677"
-    note: "Alain Mabanckou - Verre Cassé"
-  - isbn: "9782253123385"
-    note: "Léonora Miano - L'Intérieur de la nuit"
+  - isbn: "9782843372810"
+    note: "L'Hibiscus pourpre - Chimamanda Ngozi Adichie"
+  - isbn: "9782020986694"
+    note: "Le Terroriste noir - Tierno Monénembo"
+  - isbn: "9782848768861"
+    note: "La Plus Secrète Mémoire des hommes - Mohamed Mbougar Sarr"
+  - isbn: "9782020680165"
+    note: "Verre Cassé - Alain Mabanckou"
+  - isbn: "9782259201490"
+    note: "L'Intérieur de la nuit - Léonora Miano"
   - isbn: "9782708709133"
-    note: "Enfant, ne pleure pas - Ngugi wa Thiong'o (ou The River Between/Pétales de sang en substitution)"
-  - isbn: "9782020525657"
-    note: "Ahmadou Kourouma - Allah n'est pas obligé"
-  - isbn: "9782264020925"
-    note: "Ben Okri - La Route de la faim"
-  - isbn: "9782253112440"
-    note: "Fatou Diome - Le Ventre de l'Atlantique"
+    note: "La rivière de vie (The River Between) - Ngugi wa Thiong'o"
+  - isbn: "9782298050264"
+    note: "Allah n'est pas obligé - Ahmadou Kourouma"
+  - isbn: "9782221085646"
+    note: "La Route de la faim - Ben Okri"
+  - isbn: "9782843372384"
+    note: "Le Ventre de l'Atlantique - Fatou Diome"

@@ -1,5 +1,3 @@
-# Écologie et Environnement - Lectures Essentielles
-# Sources : WWF, Goodreads Environmental Reading
 id: ecologie-essentiels
 version: 1
 
@@ -21,24 +19,30 @@ contributor: BiblioGenius
 tags: [écologie, environnement, climat, nature]
 content_languages: [fr]
 
+# Audited against the sources on 2026-08-23 (make audit-curated): every
+# ISBN resolves and every author matches, no blocking finding and nothing
+# left unverified. Promoted so the editorial affinity tier may SUGGEST it
+# (ADR-066); the import catalogue always showed it.
+curation_status: reviewed
+
 books:
-  - isbn: "9782352120421"
-    note: "Rachel Carson - Printemps silencieux (Wildproject)"
-  - isbn: "9782253259428"
-    note: "Richard Powers - L'Arbre-Monde (Pulitzer 2019)"
+  - isbn: "9782381140414"
+    note: "Printemps silencieux (Wildproject) - Rachel Carson"
+  - isbn: "9782264077592"
+    note: "L'Arbre-Monde (Pulitzer 2019) - Richard Powers"
   - isbn: "9782253186366"
     note: "La Sixième Extinction - Elizabeth Kolbert"
   - isbn: "9782330070397"
     note: "Tout peut changer - Naomi Klein (Capitalisme contre climat)"
-  - isbn: "9782081498631"
-    note: "Aldo Leopold - Almanach d'un comté des sables"
-  - isbn: "9782330144975"
-    note: "Baptiste Morizot - Manières d'être vivant"
-  - isbn: "9782253195221"
-    note: "Peter Wohlleben - La Vie secrète des arbres"
-  - isbn: "9782253101345"
-    note: "Greta Thunberg - La Maison brûle / Rejoignez-nous"
+  - isbn: "9782700728477"
+    note: "Almanach d'un comté des sables - Aldo Leopold"
+  - isbn: "9782330129736"
+    note: "Manières d'être vivant - Baptiste Morizot"
+  - isbn: "9782352046790"
+    note: "La Vie secrète des arbres - Peter Wohlleben"
+  - isbn: "9782366584059"
+    note: "Rejoignez-nous - Greta Thunberg"
   - isbn: "9782757868201"
     note: "Comment tout peut s'effondrer - Pablo Servigne"
-  - isbn: "9782070793822"
-    note: "Edward Abbey - Désert solitaire"
+  - isbn: "9782351786819"
+    note: "Désert solitaire - Edward Abbey"

@@ -21,24 +21,30 @@ contributor: BiblioGenius
 tags: [philosophie, débutant, essai, introduction]
 content_languages: [fr]
 
+# Audited against the sources on 2026-08-23 (make audit-curated): every
+# ISBN resolves and every author matches, no finding of any severity,
+# and no entry left unverified. Promoted so the editorial affinity tier
+# may SUGGEST it (ADR-066); the import catalogue always showed it.
+curation_status: reviewed
+
 books:
-  - isbn: "9782070325054"
-    note: "Jostein Gaarder - Le Monde de Sophie"
-  - isbn: "9782253942764"
-    note: "Frédéric Lenoir - Du bonheur, un voyage philosophique"
-  - isbn: "9782070368228"
-    note: "Platon - Le Banquet (Flammarion GF)"
-  - isbn: "9782253004226"
-    note: "Albert Camus - Le Mythe de Sisyphe"
+  - isbn: "9782724290738"
+    note: "Le Monde de Sophie - Jostein Gaarder"
+  - isbn: "9782213661360"
+    note: "Du bonheur, un voyage philosophique - Frédéric Lenoir"
+  - isbn: "9782080700049"
+    note: "Le Banquet - Platon (Flammarion GF)"
+  - isbn: "9782070322886"
+    note: "Le Mythe de Sisyphe - Albert Camus"
   - isbn: "9782070329137"
     note: "L'Existentialisme est un humanisme - Jean-Paul Sartre"
-  - isbn: "9782253257523"
+  - isbn: "9782363940445"
     note: "Petit traité des grandes vertus - André Comte-Sponville"
   - isbn: "9782081366633"
     note: "Manuel - Épictète"
-  - isbn: "9782070465262"
+  - isbn: "9782744179259"
     note: "Pensées pour moi-même - Marc Aurèle"
   - isbn: "9782070322855"
     note: "Ainsi parlait Zarathoustra - Friedrich Nietzsche"
-  - isbn: "9782266033992"
+  - isbn: "9782910233181"
     note: "De la brièveté de la vie - Sénèque"

@@ -19,6 +19,12 @@ contributor: BiblioGenius
 tags: [prix, littérature-française, contemporain]
 content_languages: [fr]
 
+# Audited against the sources on 2026-08-23 (make audit-curated
+# A="--list goncourt"): every ISBN resolves and every author matches, no
+# finding of any severity. Promoted so the editorial affinity tier may
+# SUGGEST it (ADR-066); the import catalogue always showed it.
+curation_status: reviewed
+
 books:
   - isbn: "9782707306951"
     note: "L'Amant - Marguerite Duras (1984)"
