@@ -16,13 +16,23 @@ void main() {
       expect(uri.queryParameters['body'], 'About "Le Rouge & le Noir"\nThanks');
       // The ampersand must not open a second query parameter.
       expect(uri.toString().contains('le Noir"'), isFalse);
+      // A space is percent-encoded, never a plus: a mail client reading
+      // RFC 6068 shows a literal "+" and the reader receives "Je+vous+ecris".
+      expect(uri.toString().contains('+'), isFalse);
+      expect(uri.toString().contains('%20'), isTrue);
     });
 
-    test('sms carries the body', () {
-      final uri = ContactLinks.sms(phone: '+33612345678', body: 'Hello');
+    test('sms carries the body, spaces percent-encoded', () {
+      final uri = ContactLinks.sms(phone: '+33612345678', body: 'Hello there');
       expect(uri.scheme, 'sms');
       expect(uri.path, '+33612345678');
-      expect(uri.queryParameters['body'], 'Hello');
+      expect(uri.queryParameters['body'], 'Hello there');
+      expect(uri.query.contains('+'), isFalse);
+    });
+
+    test('a plus sign inside the text survives the round trip', () {
+      final uri = ContactLinks.mailto(email: 'a@b.co', body: 'C++ and Go');
+      expect(uri.queryParameters['body'], 'C++ and Go');
     });
 
     test('whatsApp uses the https link with digits only', () {
@@ -35,6 +45,7 @@ void main() {
       expect(uri.scheme, 'https');
       expect(uri.path, '/33612345678');
       expect(uri.queryParameters['text'], 'Hello');
+      expect(uri.query.contains('+'), isFalse);
     });
 
     test('whatsApp is unavailable for a national number', () {

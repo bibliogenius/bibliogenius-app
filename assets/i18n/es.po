@@ -10874,15 +10874,15 @@ msgstr "Sobre tu biblioteca"
 
 #. Prefilled message body about a book, {title}
 msgid "contact_message_body"
-msgstr "Hola:\n\nMe gustaría tomar prestado « {title} ». ¿Cuándo te vendría bien?\n\n¡Gracias!"
+msgstr "Hola:\n\nEstamos conectados en BiblioGenius y tu biblioteca tiene « {title} ».\n\n¿Estarías dispuesto a prestármelo? Dime qué te vendría bien para la recogida y por cuánto tiempo."
 
 #. Prefilled message body about a book, {title} and {author}
 msgid "contact_message_body_with_author"
-msgstr "Hola:\n\nMe gustaría tomar prestado « {title} » de {author}. ¿Cuándo te vendría bien?\n\n¡Gracias!"
+msgstr "Hola:\n\nEstamos conectados en BiblioGenius y tu biblioteca tiene « {title} » de {author}.\n\n¿Estarías dispuesto a prestármelo? Dime qué te vendría bien para la recogida y por cuánto tiempo."
 
 #. Prefilled message body with no book context
 msgid "contact_message_body_plain"
-msgstr "Hola:\n\nTe escribo a propósito de tu biblioteca."
+msgstr "Hola:\n\nEstamos conectados en BiblioGenius, donde puedo consultar tu biblioteca.\n\nTe escribo para organizar un préstamo: dime qué te vendría bien."
 
 #. Hub contact card: phone field placeholder, a local example number
 msgid "hub_contact_phone_hint"
@@ -10922,3 +10922,19 @@ msgstr "Hay bibliotecas que te siguen, pero no pueden contactarte."
 #. Contact prompt: button opening the form
 msgid "contact_prompt_action"
 msgstr "Añadir mis datos"
+
+#. Prefilled text message about a book, {title}
+msgid "contact_message_short"
+msgstr "Hola, ¿estarías dispuesto a prestarme « {title} »? (vía BiblioGenius)"
+
+#. Prefilled text message with no book context
+msgid "contact_message_short_plain"
+msgstr "Hola, te escribo a propósito de tu biblioteca. (vía BiblioGenius)"
+
+#. Extra line, only between paired libraries: a loan can go both ways
+msgid "contact_message_reciprocity"
+msgstr "Y dime qué te gustaría tomar prestado de mis estanterías a cambio."
+
+#. Sign-off line of the prefilled message
+msgid "contact_message_closing"
+msgstr "Gracias de antemano,"

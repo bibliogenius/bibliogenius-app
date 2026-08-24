@@ -10961,15 +10961,15 @@ msgstr "Kütüphaneniz hakkında"
 
 #. Prefilled message body about a book, {title}
 msgid "contact_message_body"
-msgstr "Merhaba,\n\n« {title} » kitabını ödünç almak istiyorum. Sizin için ne zaman uygun olur?\n\nTeşekkürler!"
+msgstr "Merhaba,\n\nBiblioGenius üzerinden bağlantılıyız ve kütüphanenizde « {title} » var.\n\nBana ödünç verir misiniz? Teslim için size ne uyar ve ne kadar süreyle, bildirin lütfen."
 
 #. Prefilled message body about a book, {title} and {author}
 msgid "contact_message_body_with_author"
-msgstr "Merhaba,\n\n{author} imzalı « {title} » kitabını ödünç almak istiyorum. Sizin için ne zaman uygun olur?\n\nTeşekkürler!"
+msgstr "Merhaba,\n\nBiblioGenius üzerinden bağlantılıyız ve kütüphanenizde {author} imzalı « {title} » var.\n\nBana ödünç verir misiniz? Teslim için size ne uyar ve ne kadar süreyle, bildirin lütfen."
 
 #. Prefilled message body with no book context
 msgid "contact_message_body_plain"
-msgstr "Merhaba,\n\nkütüphaneniz hakkında yazıyorum."
+msgstr "Merhaba,\n\nBiblioGenius üzerinden bağlantılıyız ve kütüphanenizi görebiliyorum.\n\nBir ödünç alma için yazıyorum: size ne uyar, bildirin lütfen."
 
 #. Hub contact card: phone field placeholder, a local example number
 msgid "hub_contact_phone_hint"
@@ -11009,3 +11009,19 @@ msgstr "Kütüphaneler sizi takip ediyor ama size ulaşamıyor."
 #. Contact prompt: button opening the form
 msgid "contact_prompt_action"
 msgstr "İletişim bilgilerimi ekle"
+
+#. Prefilled text message about a book, {title}
+msgid "contact_message_short"
+msgstr "Merhaba, « {title} » kitabını bana ödünç verir misiniz? (BiblioGenius üzerinden)"
+
+#. Prefilled text message with no book context
+msgid "contact_message_short_plain"
+msgstr "Merhaba, kütüphaneniz hakkında yazıyorum. (BiblioGenius üzerinden)"
+
+#. Extra line, only between paired libraries: a loan can go both ways
+msgid "contact_message_reciprocity"
+msgstr "Karşılığında benim raflarımdan ne ödünç almak istediğinizi de söyleyin."
+
+#. Sign-off line of the prefilled message
+msgid "contact_message_closing"
+msgstr "Şimdiden teşekkürler,"

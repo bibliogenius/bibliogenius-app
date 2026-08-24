@@ -2103,6 +2103,8 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
               ContactHeaderButton(
                 card: _contactCard,
                 libraryName: widget.peerName,
+                // A paired peer: the loan can go both ways.
+                reciprocal: true,
               )
             // A note opens no channel: it stays information, lock included.
             else if (_contactCard.note.isNotEmpty)
@@ -2871,6 +2873,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                                     card: _contactCard,
                                     bookTitle: title,
                                     bookAuthor: book.author,
+                                    reciprocal: true,
                                   );
                                 },
                                 child: Text(

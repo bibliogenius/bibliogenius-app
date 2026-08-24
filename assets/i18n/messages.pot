@@ -8836,3 +8836,15 @@ msgstr ""
 
 msgid "contact_prompt_action"
 msgstr ""
+
+msgid "contact_message_short"
+msgstr ""
+
+msgid "contact_message_short_plain"
+msgstr ""
+
+msgid "contact_message_reciprocity"
+msgstr ""
+
+msgid "contact_message_closing"
+msgstr ""

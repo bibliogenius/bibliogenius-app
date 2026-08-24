@@ -11045,15 +11045,15 @@ msgstr "About your library"
 
 #. Prefilled message body about a book, {title}
 msgid "contact_message_body"
-msgstr "Hello,\n\nI would like to borrow \u00ab {title} \u00bb. When would suit you?\n\nThank you!"
+msgstr "Hello,\n\nWe are connected on BiblioGenius, and your library holds \u00ab {title} \u00bb.\n\nWould you be willing to lend it to me? Let me know what would suit you for picking it up, and for how long."
 
 #. Prefilled message body about a book, {title} and {author}
 msgid "contact_message_body_with_author"
-msgstr "Hello,\n\nI would like to borrow \u00ab {title} \u00bb by {author}. When would suit you?\n\nThank you!"
+msgstr "Hello,\n\nWe are connected on BiblioGenius, and your library holds \u00ab {title} \u00bb by {author}.\n\nWould you be willing to lend it to me? Let me know what would suit you for picking it up, and for how long."
 
 #. Prefilled message body with no book context
 msgid "contact_message_body_plain"
-msgstr "Hello,\n\nI am writing to you about your library."
+msgstr "Hello,\n\nWe are connected on BiblioGenius, where I can browse your library.\n\nI am writing to arrange a loan: let me know what would suit you."
 
 #. Hub contact card: phone field placeholder, a local example number
 msgid "hub_contact_phone_hint"
@@ -11093,3 +11093,19 @@ msgstr "Libraries follow you, but cannot reach you."
 #. Contact prompt: button opening the form
 msgid "contact_prompt_action"
 msgstr "Add my contact details"
+
+#. Prefilled text message about a book, {title}
+msgid "contact_message_short"
+msgstr "Hello, would you be willing to lend me \u00ab {title} \u00bb? (via BiblioGenius)"
+
+#. Prefilled text message with no book context
+msgid "contact_message_short_plain"
+msgstr "Hello, I am writing to you about your library. (via BiblioGenius)"
+
+#. Extra line, only between paired libraries: a loan can go both ways
+msgid "contact_message_reciprocity"
+msgstr "And tell me what you would like to borrow from my shelves in return."
+
+#. Sign-off line of the prefilled message
+msgid "contact_message_closing"
+msgstr "Thank you,"

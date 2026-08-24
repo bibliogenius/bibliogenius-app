@@ -10961,15 +10961,15 @@ msgstr "Относно вашата библиотека"
 
 #. Prefilled message body about a book, {title}
 msgid "contact_message_body"
-msgstr "Здравейте,\n\nбих искал да заема « {title} ». Кога би ви било удобно?\n\nБлагодаря!"
+msgstr "Здравейте,\n\nсвързани сме в BiblioGenius и вашата библиотека има « {title} ».\n\nБихте ли ми я заели? Кажете ми кога ви е удобно за предаването и за колко време."
 
 #. Prefilled message body about a book, {title} and {author}
 msgid "contact_message_body_with_author"
-msgstr "Здравейте,\n\nбих искал да заема « {title} » от {author}. Кога би ви било удобно?\n\nБлагодаря!"
+msgstr "Здравейте,\n\nсвързани сме в BiblioGenius и вашата библиотека има « {title} » от {author}.\n\nБихте ли ми я заели? Кажете ми кога ви е удобно за предаването и за колко време."
 
 #. Prefilled message body with no book context
 msgid "contact_message_body_plain"
-msgstr "Здравейте,\n\nпиша ви относно вашата библиотека."
+msgstr "Здравейте,\n\nсвързани сме в BiblioGenius и мога да разгледам вашата библиотека.\n\nПиша ви, за да уговорим заемане: кажете ми какво ви е удобно."
 
 #. Hub contact card: phone field placeholder, a local example number
 msgid "hub_contact_phone_hint"
@@ -11009,3 +11009,19 @@ msgstr "Библиотеки ви следват, но не могат да се
 #. Contact prompt: button opening the form
 msgid "contact_prompt_action"
 msgstr "Добавяне на данни за контакт"
+
+#. Prefilled text message about a book, {title}
+msgid "contact_message_short"
+msgstr "Здравейте, бихте ли ми заели « {title} »? (през BiblioGenius)"
+
+#. Prefilled text message with no book context
+msgid "contact_message_short_plain"
+msgstr "Здравейте, пиша ви относно вашата библиотека. (през BiblioGenius)"
+
+#. Extra line, only between paired libraries: a loan can go both ways
+msgid "contact_message_reciprocity"
+msgstr "Кажете ми и какво бихте искали да заемете от мен в замяна."
+
+#. Sign-off line of the prefilled message
+msgid "contact_message_closing"
+msgstr "Благодаря предварително,"

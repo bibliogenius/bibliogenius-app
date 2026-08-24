@@ -48,6 +48,10 @@ class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
   /// Contact card of the followed library, decrypted in memory only
   /// (ADR-067). Empty when the owner shared nothing.
   ContactCard _contactCard = ContactCard.empty;
+
+  /// True when this directory library is also a P2P-paired peer. Only then
+  /// does the message offer something in return (ADR-067 D7).
+  bool _isPairedPeer = false;
   String _searchQuery = '';
   bool _isSearching = false;
   final _searchController = TextEditingController();
@@ -118,6 +122,18 @@ class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
     }
   }
 
+  /// Resolves pairing only once a reachable contact exists.
+  ///
+  /// The answer decides one sentence of a message that can only be sent when
+  /// the library shared a channel, and it costs a round trip to the local
+  /// backend. A library that shared nothing never pays for it.
+  Future<void> _resolvePairing() async {
+    if (!_contactCard.isActionable) return;
+    final provider = context.read<HubDirectoryProvider>();
+    final paired = await provider.isPairedPeer(widget.nodeId);
+    if (mounted && paired) setState(() => _isPairedPeer = paired);
+  }
+
   Future<void> _decryptContact() async {
     final provider = context.read<HubDirectoryProvider>();
     final follow = provider.followFor(widget.nodeId);
@@ -143,6 +159,7 @@ class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
     if (mounted && plaintext != null) {
       // Legacy free-text blobs decode to a note (ADR-067 D2).
       setState(() => _contactCard = ContactCard.decode(plaintext));
+      _resolvePairing();
     }
   }
 
@@ -287,7 +304,11 @@ class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (_profile != null)
-          _ProfileHeader(profile: _profile!, contactCard: _contactCard),
+          _ProfileHeader(
+            profile: _profile!,
+            contactCard: _contactCard,
+            reciprocal: _isPairedPeer,
+          ),
         if (_isSearching)
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
@@ -413,6 +434,7 @@ class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
         lenderNodeId: widget.nodeId,
         allowBorrowing: _profile?.allowBorrowing ?? false,
         contactCard: _contactCard,
+        reciprocal: _isPairedPeer,
       ),
     );
   }
@@ -436,6 +458,9 @@ class _BookDetailSheet extends StatefulWidget {
   /// same Contact action as the peer book sheet (ADR-067 D5).
   final ContactCard contactCard;
 
+  /// True when the library being browsed is also a paired peer.
+  final bool reciprocal;
+
   const _BookDetailSheet({
     required this.entry,
     required this.lookupCache,
@@ -446,6 +471,7 @@ class _BookDetailSheet extends StatefulWidget {
     required this.lenderNodeId,
     required this.allowBorrowing,
     required this.contactCard,
+    required this.reciprocal,
   });
 
   @override
@@ -843,6 +869,7 @@ class _BookDetailSheetState extends State<_BookDetailSheet> {
                                   bookTitle:
                                       _meta?['title'] ?? widget.entry.title,
                                   bookAuthor: _meta?['author'],
+                                  reciprocal: widget.reciprocal,
                                 ),
                                 child: Text(
                                   TranslationService.translate(
@@ -885,10 +912,12 @@ class _BookDetailSheetState extends State<_BookDetailSheet> {
 class _ProfileHeader extends StatelessWidget {
   final HubProfile profile;
   final ContactCard contactCard;
+  final bool reciprocal;
 
   const _ProfileHeader({
     required this.profile,
     this.contactCard = ContactCard.empty,
+    this.reciprocal = false,
   });
 
   bool get _hasContactSection =>
@@ -999,6 +1028,7 @@ class _ProfileHeader extends StatelessWidget {
               ContactHeaderButton(
                 card: contactCard,
                 libraryName: profile.displayName,
+                reciprocal: reciprocal,
               )
             // A note opens no channel: it stays information, lock included.
             else if (contactCard.note.isNotEmpty)

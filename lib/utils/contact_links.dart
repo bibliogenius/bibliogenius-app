@@ -2,9 +2,14 @@ import '../models/contact_card.dart';
 
 /// Builders for the outbound contact links of ADR-067.
 ///
-/// Kept free of `BuildContext` so the URI shapes stay unit-testable. Every URI
-/// goes through the `Uri` constructors: a hand-concatenated query string is how
+/// Kept free of `BuildContext` so the URI shapes stay unit-testable. Every
+/// value is escaped with [Uri.encodeComponent]: unescaped concatenation is how
 /// an address or a book title ends up injecting into the target.
+///
+/// **Not `queryParameters`.** That constructor applies form encoding, which
+/// writes a space as `+`. A mail client follows RFC 6068 and shows the plus
+/// signs literally, so the reader receives "Je+vous+ecris". Percent encoding
+/// is what these schemes expect.
 class ContactLinks {
   const ContactLinks._();
 
@@ -14,14 +19,14 @@ class ContactLinks {
     String subject = '',
     String body = '',
   }) {
-    final params = <String, String>{
-      if (subject.isNotEmpty) 'subject': subject,
-      if (body.isNotEmpty) 'body': body,
-    };
+    final parts = <String>[
+      if (subject.isNotEmpty) 'subject=${Uri.encodeComponent(subject)}',
+      if (body.isNotEmpty) 'body=${Uri.encodeComponent(body)}',
+    ];
     return Uri(
       scheme: 'mailto',
       path: email,
-      queryParameters: params.isEmpty ? null : params,
+      query: parts.isEmpty ? null : parts.join('&'),
     );
   }
 
@@ -30,7 +35,7 @@ class ContactLinks {
     return Uri(
       scheme: 'sms',
       path: phone,
-      queryParameters: body.isEmpty ? null : {'body': body},
+      query: body.isEmpty ? null : 'body=${Uri.encodeComponent(body)}',
     );
   }
 
@@ -43,7 +48,10 @@ class ContactLinks {
   static Uri? whatsApp({required ContactCard card, required String text}) {
     final number = card.whatsAppNumber;
     if (number == null) return null;
-    return Uri.https('wa.me', '/$number', {'text': text});
+    return Uri.https(
+      'wa.me',
+      '/$number',
+    ).replace(query: 'text=${Uri.encodeComponent(text)}');
   }
 
   /// Plain-text rendering of the card, for the clipboard fallback.

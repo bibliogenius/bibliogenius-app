@@ -10954,15 +10954,15 @@ msgstr "A proposito della tua biblioteca"
 
 #. Prefilled message body about a book, {title}
 msgid "contact_message_body"
-msgstr "Ciao,\n\nvorrei prendere in prestito « {title} ». Quando ti farebbe comodo?\n\nGrazie!"
+msgstr "Ciao,\n\nsiamo in contatto su BiblioGenius e la tua biblioteca ha « {title} ».\n\nSaresti disposto a prestarmelo? Dimmi cosa ti farebbe comodo per il ritiro e per quanto tempo."
 
 #. Prefilled message body about a book, {title} and {author}
 msgid "contact_message_body_with_author"
-msgstr "Ciao,\n\nvorrei prendere in prestito « {title} » di {author}. Quando ti farebbe comodo?\n\nGrazie!"
+msgstr "Ciao,\n\nsiamo in contatto su BiblioGenius e la tua biblioteca ha « {title} » di {author}.\n\nSaresti disposto a prestarmelo? Dimmi cosa ti farebbe comodo per il ritiro e per quanto tempo."
 
 #. Prefilled message body with no book context
 msgid "contact_message_body_plain"
-msgstr "Ciao,\n\nti scrivo a proposito della tua biblioteca."
+msgstr "Ciao,\n\nsiamo in contatto su BiblioGenius, dove posso consultare la tua biblioteca.\n\nTi scrivo per organizzare un prestito: dimmi cosa ti farebbe comodo."
 
 #. Hub contact card: phone field placeholder, a local example number
 msgid "hub_contact_phone_hint"
@@ -11002,3 +11002,19 @@ msgstr "Alcune biblioteche ti seguono, ma non possono contattarti."
 #. Contact prompt: button opening the form
 msgid "contact_prompt_action"
 msgstr "Aggiungi i miei recapiti"
+
+#. Prefilled text message about a book, {title}
+msgid "contact_message_short"
+msgstr "Ciao, saresti disposto a prestarmi « {title} »? (via BiblioGenius)"
+
+#. Prefilled text message with no book context
+msgid "contact_message_short_plain"
+msgstr "Ciao, ti scrivo a proposito della tua biblioteca. (via BiblioGenius)"
+
+#. Extra line, only between paired libraries: a loan can go both ways
+msgid "contact_message_reciprocity"
+msgstr "E dimmi cosa vorresti prendere in prestito dai miei scaffali in cambio."
+
+#. Sign-off line of the prefilled message
+msgid "contact_message_closing"
+msgstr "Grazie in anticipo,"

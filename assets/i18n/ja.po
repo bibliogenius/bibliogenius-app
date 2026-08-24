@@ -10673,15 +10673,15 @@ msgstr "あなたの蔵書について"
 
 #. Prefilled message body about a book, {title}
 msgid "contact_message_body"
-msgstr "こんにちは。\n\n「{title}」を借りたいのですが、ご都合はいかがでしょうか。\n\nよろしくお願いします。"
+msgstr "こんにちは。\n\nBiblioGenius でつながっている者です。そちらの蔵書に「{title}」があるのを拝見しました。\n\nお貸しいただけないでしょうか。受け渡しのご都合と、お借りできる期間を教えていただけると助かります。"
 
 #. Prefilled message body about a book, {title} and {author}
 msgid "contact_message_body_with_author"
-msgstr "こんにちは。\n\n{author}の「{title}」を借りたいのですが、ご都合はいかがでしょうか。\n\nよろしくお願いします。"
+msgstr "こんにちは。\n\nBiblioGenius でつながっている者です。そちらの蔵書に{author}の「{title}」があるのを拝見しました。\n\nお貸しいただけないでしょうか。受け渡しのご都合と、お借りできる期間を教えていただけると助かります。"
 
 #. Prefilled message body with no book context
 msgid "contact_message_body_plain"
-msgstr "こんにちは。\n\nあなたの蔵書についてご連絡します。"
+msgstr "こんにちは。\n\nBiblioGenius でつながっていて、そちらの蔵書を拝見できます。\n\n本の貸し借りについてご相談したくご連絡しました。ご都合をお知らせください。"
 
 #. Hub contact card: phone field placeholder, a local example number
 msgid "hub_contact_phone_hint"
@@ -10721,3 +10721,19 @@ msgstr "あなたをフォローしている図書館が、連絡できずにい
 #. Contact prompt: button opening the form
 msgid "contact_prompt_action"
 msgstr "連絡先を追加する"
+
+#. Prefilled text message about a book, {title}
+msgid "contact_message_short"
+msgstr "こんにちは。「{title}」をお貸しいただけませんか。（BiblioGenius より）"
+
+#. Prefilled text message with no book context
+msgid "contact_message_short_plain"
+msgstr "こんにちは。そちらの蔵書についてご連絡しました。（BiblioGenius より）"
+
+#. Extra line, only between paired libraries: a loan can go both ways
+msgid "contact_message_reciprocity"
+msgstr "こちらの蔵書で気になるものがあれば、そちらもぜひお知らせください。"
+
+#. Sign-off line of the prefilled message
+msgid "contact_message_closing"
+msgstr "よろしくお願いします。"

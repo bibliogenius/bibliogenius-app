@@ -10969,15 +10969,15 @@ msgstr "Sobre a sua biblioteca"
 
 #. Prefilled message body about a book, {title}
 msgid "contact_message_body"
-msgstr "Olá,\n\ngostaria de pegar emprestado « {title} ». Quando seria bom para você?\n\nObrigado!"
+msgstr "Olá,\n\nestamos conectados no BiblioGenius e a sua biblioteca tem « {title} ».\n\nVocê toparia me emprestar? Me diga o que seria melhor para a retirada e por quanto tempo."
 
 #. Prefilled message body about a book, {title} and {author}
 msgid "contact_message_body_with_author"
-msgstr "Olá,\n\ngostaria de pegar emprestado « {title} », de {author}. Quando seria bom para você?\n\nObrigado!"
+msgstr "Olá,\n\nestamos conectados no BiblioGenius e a sua biblioteca tem « {title} », de {author}.\n\nVocê toparia me emprestar? Me diga o que seria melhor para a retirada e por quanto tempo."
 
 #. Prefilled message body with no book context
 msgid "contact_message_body_plain"
-msgstr "Olá,\n\nestou escrevendo a respeito da sua biblioteca."
+msgstr "Olá,\n\nestamos conectados no BiblioGenius, onde posso ver a sua biblioteca.\n\nEstou escrevendo para combinar um empréstimo: me diga o que seria melhor para você."
 
 #. Hub contact card: phone field placeholder, a local example number
 msgid "hub_contact_phone_hint"
@@ -11017,3 +11017,19 @@ msgstr "Bibliotecas seguem você, mas não conseguem falar com você."
 #. Contact prompt: button opening the form
 msgid "contact_prompt_action"
 msgstr "Adicionar meus contatos"
+
+#. Prefilled text message about a book, {title}
+msgid "contact_message_short"
+msgstr "Olá, você toparia me emprestar « {title} »? (via BiblioGenius)"
+
+#. Prefilled text message with no book context
+msgid "contact_message_short_plain"
+msgstr "Olá, estou escrevendo a respeito da sua biblioteca. (via BiblioGenius)"
+
+#. Extra line, only between paired libraries: a loan can go both ways
+msgid "contact_message_reciprocity"
+msgstr "E me diga o que você gostaria de pegar emprestado das minhas prateleiras em troca."
+
+#. Sign-off line of the prefilled message
+msgid "contact_message_closing"
+msgstr "Desde já, obrigado,"

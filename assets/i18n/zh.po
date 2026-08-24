@@ -10673,15 +10673,15 @@ msgstr "关于您的书房"
 
 #. Prefilled message body about a book, {title}
 msgid "contact_message_body"
-msgstr "您好：\n\n我想借阅《{title}》，请问您什么时候方便？\n\n谢谢！"
+msgstr "您好：\n\n我们在 BiblioGenius 上有联系，看到您的书房里有《{title}》。\n\n方便借给我吗？请告诉我什么时候取书方便，可以借多久。"
 
 #. Prefilled message body about a book, {title} and {author}
 msgid "contact_message_body_with_author"
-msgstr "您好：\n\n我想借阅{author}的《{title}》，请问您什么时候方便？\n\n谢谢！"
+msgstr "您好：\n\n我们在 BiblioGenius 上有联系，看到您的书房里有{author}的《{title}》。\n\n方便借给我吗？请告诉我什么时候取书方便，可以借多久。"
 
 #. Prefilled message body with no book context
 msgid "contact_message_body_plain"
-msgstr "您好：\n\n我就您的书房与您联系。"
+msgstr "您好：\n\n我们在 BiblioGenius 上有联系，我可以看到您的书房。\n\n写信是想商量借书的事，请告诉我什么时候方便。"
 
 #. Hub contact card: phone field placeholder, a local example number
 msgid "hub_contact_phone_hint"
@@ -10721,3 +10721,19 @@ msgstr "有图书馆关注了您，却联系不上您。"
 #. Contact prompt: button opening the form
 msgid "contact_prompt_action"
 msgstr "添加我的联系方式"
+
+#. Prefilled text message about a book, {title}
+msgid "contact_message_short"
+msgstr "您好，方便把《{title}》借给我吗？（来自 BiblioGenius）"
+
+#. Prefilled text message with no book context
+msgid "contact_message_short_plain"
+msgstr "您好，我就您的书房与您联系。（来自 BiblioGenius）"
+
+#. Extra line, only between paired libraries: a loan can go both ways
+msgid "contact_message_reciprocity"
+msgstr "也请告诉我，您想从我的书架上借些什么。"
+
+#. Sign-off line of the prefilled message
+msgid "contact_message_closing"
+msgstr "先谢谢您，"

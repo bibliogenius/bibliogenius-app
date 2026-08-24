@@ -11045,15 +11045,15 @@ msgstr "À propos de votre bibliothèque"
 
 #. Prefilled message body about a book, {title}
 msgid "contact_message_body"
-msgstr "Bonjour,\n\nJ'aimerais emprunter « {title} ». Quand cela vous conviendrait-il ?\n\nMerci !"
+msgstr "Bonjour,\n\nNous sommes en lien sur BiblioGenius, et votre bibliothèque propose « {title} ».\n\nAccepteriez-vous de me le prêter ? Dites-moi ce qui vous arrangerait pour le retrait, et pour combien de temps."
 
 #. Prefilled message body about a book, {title} and {author}
 msgid "contact_message_body_with_author"
-msgstr "Bonjour,\n\nJ'aimerais emprunter « {title} » de {author}. Quand cela vous conviendrait-il ?\n\nMerci !"
+msgstr "Bonjour,\n\nNous sommes en lien sur BiblioGenius, et votre bibliothèque propose « {title} » de {author}.\n\nAccepteriez-vous de me le prêter ? Dites-moi ce qui vous arrangerait pour le retrait, et pour combien de temps."
 
 #. Prefilled message body with no book context
 msgid "contact_message_body_plain"
-msgstr "Bonjour,\n\nJe vous écris au sujet de votre bibliothèque."
+msgstr "Bonjour,\n\nNous sommes en lien sur BiblioGenius, où je peux consulter votre bibliothèque.\n\nJe vous écris pour convenir d'un emprunt : dites-moi ce qui vous arrangerait."
 
 #. Hub contact card: phone field placeholder, a local example number
 msgid "hub_contact_phone_hint"
@@ -11093,3 +11093,19 @@ msgstr "Des bibliothèques vous suivent, mais ne peuvent pas vous joindre."
 #. Contact prompt: button opening the form
 msgid "contact_prompt_action"
 msgstr "Ajouter mes coordonnées"
+
+#. Prefilled text message about a book, {title}
+msgid "contact_message_short"
+msgstr "Bonjour, accepteriez-vous de me prêter « {title} » ? (via BiblioGenius)"
+
+#. Prefilled text message with no book context
+msgid "contact_message_short_plain"
+msgstr "Bonjour, je vous écris au sujet de votre bibliothèque. (via BiblioGenius)"
+
+#. Extra line, only between paired libraries: a loan can go both ways
+msgid "contact_message_reciprocity"
+msgstr "Dites-moi aussi ce que vous aimeriez emprunter chez moi en retour."
+
+#. Sign-off line of the prefilled message
+msgid "contact_message_closing"
+msgstr "Merci d'avance,"

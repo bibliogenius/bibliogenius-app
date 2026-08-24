@@ -2411,6 +2411,19 @@ class HubDirectoryProvider extends ChangeNotifier {
 
   /// Library uuids of accepted paired peers, excluding self and placeholder
   /// ids (peer rows created before the uuid handshake completed).
+  /// Whether [nodeId] is also a P2P-paired peer.
+  ///
+  /// A paired peer publishes its `library_uuid` as its hub node id, so the two
+  /// identities compare directly. Used to decide whether a message may offer
+  /// something in return: between paired libraries a loan is an exchange,
+  /// while a public directory library is not necessarily in that relationship.
+  Future<bool> isPairedPeer(String nodeId) async {
+    final api = _apiService;
+    if (api == null || nodeId.isEmpty) return false;
+    final uuids = await _acceptedPairedPeerUuids(api);
+    return uuids.contains(nodeId);
+  }
+
   Future<Set<String>> _acceptedPairedPeerUuids(ApiService api) async {
     final uuids = <String>{};
     try {
