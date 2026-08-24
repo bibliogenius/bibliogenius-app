@@ -14,6 +14,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../widgets/contact_card_fields.dart';
 import '../widgets/genie_app_bar.dart';
 import '../widgets/peer_book_cover_cache_manager.dart';
 import '../widgets/scaffold_with_nav.dart';
@@ -74,11 +75,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _relayConnected = false;
   bool _relayLoading = false;
   final _relayUrlController = TextEditingController();
-  // Hub directory contact + website controllers.
-  // The contact is three typed fields (ADR-067), never one parsed blob.
-  final _hubContactEmailController = TextEditingController();
-  final _hubContactPhoneController = TextEditingController();
-  final _hubContactNoteController = TextEditingController();
+  // Hub directory website controller. The contact card has its own widget
+  // (ContactCardFields), which owns its controllers.
   final _hubWebsiteController = TextEditingController();
   // Settings search
   String _settingsSearch = '';
@@ -103,19 +101,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       hubProvider.loadHubEnabled();
       hubProvider.loadShareCity();
       hubProvider.loadLocalCityId();
-      hubProvider.loadContactInfo().then((_) {
-        if (!mounted) return;
-        final card = hubProvider.contactCard;
-        if (_hubContactEmailController.text.isEmpty) {
-          _hubContactEmailController.text = card.email;
-        }
-        if (_hubContactPhoneController.text.isEmpty) {
-          _hubContactPhoneController.text = card.phone;
-        }
-        if (_hubContactNoteController.text.isEmpty) {
-          _hubContactNoteController.text = card.note;
-        }
-      });
+      // The contact card is loaded by ContactCardFields itself.
       hubProvider.loadWebsite().then((_) {
         if (mounted && _hubWebsiteController.text.isEmpty) {
           _hubWebsiteController.text = hubProvider.websiteUrl;
@@ -175,9 +161,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void dispose() {
     _apiKeyController.dispose();
     _relayUrlController.dispose();
-    _hubContactEmailController.dispose();
-    _hubContactPhoneController.dispose();
-    _hubContactNoteController.dispose();
     _hubWebsiteController.dispose();
     _settingsSearchController.dispose();
     super.dispose();
@@ -2704,94 +2687,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       // Contact card, typed rather than parsed (ADR-067).
                       // All three fields are optional: nothing gates listing on
                       // a filled contact, and the reader side simply offers
-                      // fewer channels.
+                      // fewer channels. The fields live in their own widget so
+                      // the prompt offered on the contacts tab writes the very
+                      // same form.
                       const Divider(height: 1),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-                        child: Text(
-                          TranslationService.translate(
-                            context,
-                            'hub_contact_encrypted_notice',
-                          ),
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurfaceVariant,
-                              ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                        child: TextField(
-                          controller: _hubContactEmailController,
-                          decoration: InputDecoration(
-                            labelText: TranslationService.translate(
-                              context,
-                              'hub_contact_email_label',
-                            ),
-                            // RFC 2606 reserved domain: an example that is
-                            // neither a real address nor a French string.
-                            hintText: 'name@example.org',
-                            prefixIcon: const Icon(Icons.alternate_email),
-                            border: const OutlineInputBorder(),
-                          ),
-                          keyboardType: TextInputType.emailAddress,
-                          onChanged: (value) =>
-                              dirProvider.setContactEmail(value),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                        child: TextField(
-                          controller: _hubContactPhoneController,
-                          decoration: InputDecoration(
-                            labelText: TranslationService.translate(
-                              context,
-                              'hub_contact_phone_label',
-                            ),
-                            hintText: TranslationService.translate(
-                              context,
-                              'hub_contact_phone_hint',
-                            ),
-                            prefixIcon: const Icon(Icons.phone_outlined),
-                            border: const OutlineInputBorder(),
-                            // The international form is required at entry: it is
-                            // what a WhatsApp link needs, and a national number
-                            // carries no country to guess from at read time.
-                            helperText: TranslationService.translate(
-                              context,
-                              'hub_contact_phone_helper',
-                            ),
-                            helperMaxLines: 2,
-                          ),
-                          keyboardType: TextInputType.phone,
-                          onChanged: (value) =>
-                              dirProvider.setContactPhone(value),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                        child: TextField(
-                          controller: _hubContactNoteController,
-                          decoration: InputDecoration(
-                            labelText: TranslationService.translate(
-                              context,
-                              'hub_contact_note_label',
-                            ),
-                            hintText: TranslationService.translate(
-                              context,
-                              'hub_contact_note_hint',
-                            ),
-                            prefixIcon: const Icon(Icons.notes),
-                            border: const OutlineInputBorder(),
-                          ),
-                          minLines: 1,
-                          maxLines: 3,
-                          onChanged: (value) =>
-                              dirProvider.setContactNote(value),
-                        ),
-                      ),
+                      const ContactCardFields(),
                       // Website (optional, public)
                       Padding(
                         padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),

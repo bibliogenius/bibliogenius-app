@@ -8821,3 +8821,18 @@ msgstr ""
 
 msgid "import_file_too_large"
 msgstr ""
+
+msgid "contact_prompt_title"
+msgstr ""
+
+msgid "contact_prompt_body"
+msgstr ""
+
+msgid "contact_prompt_irreversible"
+msgstr ""
+
+msgid "contact_prompt_banner_body"
+msgstr ""
+
+msgid "contact_prompt_action"
+msgstr ""

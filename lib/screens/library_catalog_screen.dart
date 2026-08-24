@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../models/avatar_config.dart';
 import '../models/book.dart';
+import '../models/contact_card.dart';
 import '../models/hub_directory.dart';
 import '../providers/hub_directory_provider.dart';
 import '../services/ffi_service.dart';
@@ -15,6 +16,7 @@ import '../providers/theme_provider.dart';
 import '../utils/app_constants.dart';
 import '../utils/book_display.dart';
 import '../widgets/book_cover_card.dart';
+import '../widgets/contact_actions_sheet.dart';
 import '../widgets/genie_app_bar.dart';
 import '../widgets/hub_location_label.dart';
 import '../widgets/library_avatar.dart';
@@ -42,7 +44,10 @@ class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
   String? _error;
   final Map<String, Map<String, String?>?> _lookupCache = {};
   Set<String> _localIsbns = {};
-  String? _decryptedContact;
+
+  /// Contact card of the followed library, decrypted in memory only
+  /// (ADR-067). Empty when the owner shared nothing.
+  ContactCard _contactCard = ContactCard.empty;
   String _searchQuery = '';
   bool _isSearching = false;
   final _searchController = TextEditingController();
@@ -136,7 +141,8 @@ class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
       '[CONTACT-READ] decrypted: ${plaintext != null ? "OK (${plaintext.length} chars)" : "FAILED"}',
     );
     if (mounted && plaintext != null) {
-      setState(() => _decryptedContact = plaintext);
+      // Legacy free-text blobs decode to a note (ADR-067 D2).
+      setState(() => _contactCard = ContactCard.decode(plaintext));
     }
   }
 
@@ -281,10 +287,7 @@ class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (_profile != null)
-          _ProfileHeader(
-            profile: _profile!,
-            decryptedContact: _decryptedContact,
-          ),
+          _ProfileHeader(profile: _profile!, contactCard: _contactCard),
         if (_isSearching)
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
@@ -409,6 +412,7 @@ class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
         onAdded: (isbn) => setState(() => _localIsbns.add(isbn)),
         lenderNodeId: widget.nodeId,
         allowBorrowing: _profile?.allowBorrowing ?? false,
+        contactCard: _contactCard,
       ),
     );
   }
@@ -428,6 +432,10 @@ class _BookDetailSheet extends StatefulWidget {
   final String lenderNodeId;
   final bool allowBorrowing;
 
+  /// Contact card of the library being browsed, so the sheet can offer the
+  /// same Contact action as the peer book sheet (ADR-067 D5).
+  final ContactCard contactCard;
+
   const _BookDetailSheet({
     required this.entry,
     required this.lookupCache,
@@ -437,6 +445,7 @@ class _BookDetailSheet extends StatefulWidget {
     required this.onAdded,
     required this.lenderNodeId,
     required this.allowBorrowing,
+    required this.contactCard,
   });
 
   @override
@@ -817,6 +826,33 @@ class _BookDetailSheetState extends State<_BookDetailSheet> {
                               ),
                             ),
                           ),
+                        // Contacting the owner is a relationship affordance,
+                        // not a loan one: it does not follow the borrowing
+                        // gates, only the borrow button in position
+                        // (ADR-067 D5). Absent when the library shared no
+                        // reachable channel, never disabled.
+                        if (widget.contactCard.isActionable)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: FilledButton.tonal(
+                                onPressed: () => showContactActionsSheet(
+                                  context,
+                                  card: widget.contactCard,
+                                  bookTitle:
+                                      _meta?['title'] ?? widget.entry.title,
+                                  bookAuthor: _meta?['author'],
+                                ),
+                                child: Text(
+                                  TranslationService.translate(
+                                    context,
+                                    'contact_cta',
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
                       ],
                     ),
                   ),
@@ -848,13 +884,16 @@ class _BookDetailSheetState extends State<_BookDetailSheet> {
 
 class _ProfileHeader extends StatelessWidget {
   final HubProfile profile;
-  final String? decryptedContact;
+  final ContactCard contactCard;
 
-  const _ProfileHeader({required this.profile, this.decryptedContact});
+  const _ProfileHeader({
+    required this.profile,
+    this.contactCard = ContactCard.empty,
+  });
 
   bool get _hasContactSection =>
       (profile.website != null && profile.website!.isNotEmpty) ||
-      (decryptedContact != null && decryptedContact!.isNotEmpty);
+      contactCard.isNotEmpty;
 
   @override
   Widget build(BuildContext context) {
@@ -953,7 +992,16 @@ class _ProfileHeader extends StatelessWidget {
                   color: onContainerMuted,
                 ),
               ),
-            if (decryptedContact != null && decryptedContact!.isNotEmpty)
+            // Contact: the button stands alone, as on the borrow card. The
+            // channel is named inside the sheet it opens, so the header stays
+            // an identity card rather than a contact listing.
+            if (contactCard.isActionable)
+              ContactHeaderButton(
+                card: contactCard,
+                libraryName: profile.displayName,
+              )
+            // A note opens no channel: it stays information, lock included.
+            else if (contactCard.note.isNotEmpty)
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -968,7 +1016,7 @@ class _ProfileHeader extends StatelessWidget {
                   const SizedBox(width: 8),
                   Flexible(
                     child: Text(
-                      decryptedContact!,
+                      contactCard.note,
                       style: TextStyle(fontSize: 13, color: onContainer),
                     ),
                   ),

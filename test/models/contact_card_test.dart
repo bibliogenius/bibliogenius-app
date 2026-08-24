@@ -14,6 +14,37 @@ void main() {
       expect(card.isActionable, isFalse);
     });
 
+    test('a legacy blob that is nothing but an address becomes the email', () {
+      // The commonest card in the wild. Without this the CTA would stay dark
+      // until the owner happened to reopen their settings.
+      final card = ContactCard.decode('federico.calo@pm.me');
+      expect(card.email, 'federico.calo@pm.me');
+      expect(card.note, isEmpty);
+      expect(card.isActionable, isTrue);
+      expect(card.canSendEmail, isTrue);
+    });
+
+    test('a legacy blob that is nothing but a number becomes the phone', () {
+      final card = ContactCard.decode('+33612345678');
+      expect(card.phone, '+33612345678');
+      expect(card.whatsAppNumber, '33612345678');
+      expect(card.note, isEmpty);
+    });
+
+    test('an address inside prose is NOT extracted', () {
+      // Recognition of a whole field, never scanning inside a sentence.
+      final card = ContactCard.decode('write to federico.calo@pm.me anytime');
+      expect(card.email, isEmpty);
+      expect(card.note, 'write to federico.calo@pm.me anytime');
+      expect(card.isActionable, isFalse);
+    });
+
+    test('a lone token that is neither stays a note', () {
+      final card = ContactCard.decode('@federico_on_mastodon');
+      expect(card.note, '@federico_on_mastodon');
+      expect(card.isActionable, isFalse);
+    });
+
     test('malformed JSON degrades to a note instead of throwing', () {
       final card = ContactCard.decode('{"email": "a@b.c"');
       expect(card.note, '{"email": "a@b.c"');

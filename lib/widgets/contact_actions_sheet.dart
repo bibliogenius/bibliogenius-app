@@ -212,3 +212,48 @@ Future<void> showContactActionsSheet(
     },
   );
 }
+
+/// The "Contact" button as it appears in a library's identity header
+/// (ADR-067 D5).
+///
+/// One widget rather than the same twenty lines in the peer screen and in the
+/// directory catalogue: they carry the same rule, the same colours and the same
+/// screen-reader label, and a copy of each would drift on the first change.
+class ContactHeaderButton extends StatelessWidget {
+  final ContactCard card;
+
+  /// Named in the screen-reader label, since a reader who focuses the button
+  /// directly would otherwise hear "Contact" with no idea whom.
+  final String libraryName;
+
+  const ContactHeaderButton({
+    super.key,
+    required this.card,
+    required this.libraryName,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Semantics(
+        button: true,
+        label:
+            '${TranslationService.translate(context, 'contact_cta')} : $libraryName',
+        child: FilledButton.tonal(
+          onPressed: () => showContactActionsSheet(context, card: card),
+          // On primaryContainer the tonal default sits at the same tone as the
+          // card behind it; primary/onPrimary is the one pair the scheme
+          // guarantees legible in both themes.
+          style: FilledButton.styleFrom(
+            backgroundColor: cs.primary,
+            foregroundColor: cs.onPrimary,
+            visualDensity: VisualDensity.compact,
+          ),
+          child: Text(TranslationService.translate(context, 'contact_cta')),
+        ),
+      ),
+    );
+  }
+}

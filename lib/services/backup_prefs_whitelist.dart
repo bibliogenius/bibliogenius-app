@@ -183,6 +183,11 @@ const Set<String> kBackupPrefsBlacklist = <String>{
   // the user their data back, never re-consent on their behalf. Silently
   // inheriting "yes, publish where I live" from an old install is the one
   // outcome this whole split exists to prevent.
+  // ADR-067 D9: whether the user waved away the invitation to fill their
+  // contact card. A dismissal is a fact about this install's UI, not about the
+  // library, and a restored device deserves to be asked again if its card is
+  // still empty.
+  'hub_contact_prompt_dismissed', // NetworkScreen._contactPromptDismissedKey
   'hub_share_city', // HubDirectoryProvider._kShareCityKey
   // One-shot marker: this install has already asked the hub whether it holds
   // a city to recover locally. Bookkeeping about a probe that happened on

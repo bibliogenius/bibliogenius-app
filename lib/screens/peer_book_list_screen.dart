@@ -2096,7 +2096,16 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                 padding: const EdgeInsets.only(bottom: 6),
                 child: _buildWebsiteRow(_hubProfile!.website!, cs),
               ),
-            if (hasContact)
+            // Contact: the button stands alone, as on the borrow card. The
+            // channel is named inside the sheet it opens, so the header stays
+            // an identity card rather than a contact listing.
+            if (_contactCard.isActionable)
+              ContactHeaderButton(
+                card: _contactCard,
+                libraryName: widget.peerName,
+              )
+            // A note opens no channel: it stays information, lock included.
+            else if (_contactCard.note.isNotEmpty)
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -2110,37 +2119,10 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                   ),
                   const SizedBox(width: 8),
                   Flexible(
-                    child: _contactCard.isActionable
-                        // A button, not an underlined label: it must be
-                        // announced as one and offer a 44dp tap target (A2).
-                        ? Align(
-                            alignment: Alignment.centerLeft,
-                            child: TextButton(
-                              onPressed: () => showContactActionsSheet(
-                                context,
-                                card: _contactCard,
-                              ),
-                              style: TextButton.styleFrom(
-                                foregroundColor: onContainer,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                ),
-                                minimumSize: const Size(0, 44),
-                                visualDensity: VisualDensity.standard,
-                              ),
-                              child: Text(
-                                TranslationService.translate(
-                                  context,
-                                  'contact_cta',
-                                ),
-                                style: const TextStyle(fontSize: 13),
-                              ),
-                            ),
-                          )
-                        : Text(
-                            _contactCard.note,
-                            style: TextStyle(fontSize: 13, color: onContainer),
-                          ),
+                    child: Text(
+                      _contactCard.note,
+                      style: TextStyle(fontSize: 13, color: onContainer),
+                    ),
                   ),
                 ],
               ),
@@ -2874,7 +2856,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                           if (canContact)
                             SizedBox(
                               width: double.infinity,
-                              child: OutlinedButton.icon(
+                              child: FilledButton.tonal(
                                 onPressed: () {
                                   final title = BookDisplay.titleOf(
                                     context,
@@ -2891,8 +2873,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                                     bookAuthor: book.author,
                                   );
                                 },
-                                icon: const Icon(Icons.forum_outlined),
-                                label: Text(
+                                child: Text(
                                   TranslationService.translate(
                                     context,
                                     'contact_cta',

@@ -10899,3 +10899,26 @@ msgstr "{title} de {contributor}"
 #. Refused before parsing: a shared list past the size bound
 msgid "import_file_too_large"
 msgstr "Este archivo es demasiado grande para ser una lista de lectura."
+
+
+#. --- Contact card prompt (ADR-067 D9) ---
+
+#. Contact prompt: title, on the banner and its sheet
+msgid "contact_prompt_title"
+msgstr "¿Cómo pueden contactarte?"
+
+#. Contact prompt: why it matters, in the sheet
+msgid "contact_prompt_body"
+msgstr "Sin datos de contacto, nadie puede acordar contigo un lugar ni una fecha para un préstamo. Solo los reciben las bibliotecas que has aceptado, cifrados."
+
+#. Contact prompt: what sharing cannot undo
+msgid "contact_prompt_irreversible"
+msgstr "Una vez enviados, ya no se pueden retirar."
+
+#. Contact prompt: one-line reason, on the banner
+msgid "contact_prompt_banner_body"
+msgstr "Hay bibliotecas que te siguen, pero no pueden contactarte."
+
+#. Contact prompt: button opening the form
+msgid "contact_prompt_action"
+msgstr "Añadir mis datos"

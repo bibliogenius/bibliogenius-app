@@ -10698,3 +10698,26 @@ msgstr "{contributor}의 {title}"
 #. Refused before parsing: a shared list past the size bound
 msgid "import_file_too_large"
 msgstr "이 파일은 독서 목록이라기에 너무 큽니다."
+
+
+#. --- Contact card prompt (ADR-067 D9) ---
+
+#. Contact prompt: title, on the banner and its sheet
+msgid "contact_prompt_title"
+msgstr "어떻게 연락하면 될까요?"
+
+#. Contact prompt: why it matters, in the sheet
+msgid "contact_prompt_body"
+msgstr "연락처가 없으면 대출 장소도 날짜도 정할 수 없습니다. 승인한 도서관만 암호화된 상태로 받습니다."
+
+#. Contact prompt: what sharing cannot undo
+msgid "contact_prompt_irreversible"
+msgstr "한번 보내면 되돌릴 수 없습니다."
+
+#. Contact prompt: one-line reason, on the banner
+msgid "contact_prompt_banner_body"
+msgstr "회원님을 팔로우하는 도서관이 연락할 방법이 없습니다."
+
+#. Contact prompt: button opening the form
+msgid "contact_prompt_action"
+msgstr "연락처 추가하기"

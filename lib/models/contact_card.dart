@@ -51,6 +51,9 @@ class ContactCard {
   /// carrying any of them is shown as text but never turned into a link.
   static final RegExp _addressSeparators = RegExp(r'[,;&<>"]');
 
+  /// A whole field that is nothing but a dialable number.
+  static final RegExp _phoneShape = RegExp(r'^\+?[0-9().-]+$');
+
   bool get isEmpty => email.isEmpty && phone.isEmpty && note.isEmpty;
 
   bool get isNotEmpty => !isEmpty;
@@ -132,6 +135,27 @@ class ContactCard {
       } on FormatException {
         // Not JSON after all: fall through to the legacy path.
       }
+    }
+    return _fromLegacy(raw);
+  }
+
+  /// Legacy blobs, where the whole field was one free-text line.
+  ///
+  /// A field whose ENTIRE content is a single address or number is promoted to
+  /// the matching typed slot. This is recognition, not parsing: there is no
+  /// scanning inside prose, no guessing which of several tokens is the
+  /// address. Anything with a space, a line break, or a shape that does not
+  /// resolve stays a note.
+  ///
+  /// Without this, the most common legacy card of all (a lone email address)
+  /// would offer no channel until its owner happened to reopen their settings,
+  /// which is precisely the reader this feature exists for.
+  static ContactCard _fromLegacy(String raw) {
+    if (!_whitespace.hasMatch(raw)) {
+      final asEmail = ContactCard.sanitized(email: raw);
+      if (asEmail.canSendEmail) return asEmail;
+      final asPhone = ContactCard.sanitized(phone: raw);
+      if (_phoneShape.hasMatch(raw) && asPhone.canSendMessage) return asPhone;
     }
     return ContactCard(note: sanitizeNote(raw));
   }

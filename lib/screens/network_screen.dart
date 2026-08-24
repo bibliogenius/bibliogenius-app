@@ -6,6 +6,7 @@ import '../services/city_repository.dart';
 import '../theme/app_design.dart';
 import '../widgets/city_picker_sheet.dart';
 import '../widgets/genie_app_bar.dart';
+import '../widgets/contact_card_prompt.dart';
 import '../widgets/hub_location_label.dart';
 import '../widgets/discover_card.dart';
 import '../widgets/hub_follow_requests.dart';
@@ -405,6 +406,9 @@ class _MyNetworkView extends StatefulWidget {
 class _MyNetworkViewState extends State<_MyNetworkView> {
   static const _bannerDismissedKey = 'invite_banner_dismissed';
 
+  /// Install-local dismissal of the contact-card invitation (ADR-067 D9).
+  static const _contactPromptDismissedKey = 'hub_contact_prompt_dismissed';
+
   // Static cache: survives widget recreation during tab navigation
   static List<NetworkMember> _cachedBorrowers = [];
   static List<LibraryRelation> _cachedRelations = [];
@@ -417,6 +421,15 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
   List<Contact> _knownLibraries = [];
   bool _isLoading = true;
   bool _bannerVisible = false;
+
+  /// Both static, like the caches above and for the same reason: this widget
+  /// is recreated on every tab navigation, and resolving the invitation ends
+  /// in a hub round trip for the followers. Resolved once per app run, and the
+  /// answer survives the next visit. Instance state here would either re-ask
+  /// the hub on every tab switch or, worse, forget a resolved "show it" and
+  /// hide the banner for the rest of the run.
+  static bool _contactPromptDismissed = true;
+  static bool _contactPromptChecked = false;
   DateTime? _lastRefreshTime;
   LibraryFilter _filter = LibraryFilter.all;
   late final HubDirectoryProvider _dirProvider;
@@ -453,6 +466,7 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
     _dirProvider = Provider.of<HubDirectoryProvider>(context, listen: false);
     _dirProvider.addListener(_onDirectoryChanged);
     _checkBannerVisibility();
+    _checkContactPrompt();
     _loadAll(showLoading: !hasCache);
     // Poll mDNS peers every 3s (discovery is async, no callback available)
     _mdnsRefreshTimer = Timer.periodic(
@@ -472,6 +486,33 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
     if (!dismissed && mounted) {
       setState(() => _bannerVisible = true);
     }
+  }
+
+  /// Decides whether to offer the contact-card invitation.
+  ///
+  /// The follower list is fetched only when the card is empty and the user has
+  /// not waved the invitation away: a library that already filled its contact
+  /// never pays for this check.
+  Future<void> _checkContactPrompt() async {
+    if (_contactPromptChecked) return;
+    _contactPromptChecked = true;
+    final provider = context.read<HubDirectoryProvider>();
+    final prefs = await SharedPreferences.getInstance();
+    final dismissed = prefs.getBool(_contactPromptDismissedKey) ?? false;
+    if (!mounted) return;
+    setState(() => _contactPromptDismissed = dismissed);
+    if (dismissed) return;
+    if (!provider.isHubEnabled || !provider.isRegistered) return;
+    await provider.loadContactInfo();
+    if (!mounted || provider.contactCard.isNotEmpty) return;
+    await provider.loadFollowers();
+  }
+
+  Future<void> _dismissContactPrompt() async {
+    setState(() => _contactPromptDismissed = true);
+    _contactPromptChecked = true;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_contactPromptDismissedKey, true);
   }
 
   Future<void> _dismissBanner() async {
@@ -1107,6 +1148,12 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
             provider: hubDirProvider,
             showDisabledHint: !hubDirProvider.isHubEnabled,
           ),
+        // Someone follows this library and was handed no way to reach it
+        // (ADR-067 D9). Offered here rather than on the approve button, which
+        // an auto-approved follow never goes through.
+        if (!_contactPromptDismissed &&
+            shouldOfferContactPrompt(hubDirProvider))
+          ContactPromptBanner(onDismiss: _dismissContactPrompt),
         // Invite banner
         if (_bannerVisible)
           _InviteBanner(
