@@ -3193,7 +3193,7 @@ msgstr "Une fois activé, le module Audio recherche automatiquement des versions
 
 #. Collections let you group books into custom lists (sagas, themes, reading lists). Create a collection from the Collections tab, then add books from your library or import existing lists.
 msgid "help_desc_collections"
-msgstr "Les Collections vous permettent de regrouper des livres en listes personnalisées (sagas, thèmes, listes de lecture). Créez une collection depuis l'onglet Collections, puis ajoutez des livres de votre bibliothèque ou importez des listes existantes."
+msgstr "Les Collections regroupent vos livres en listes personnalisées (sagas, thèmes, listes de lecture). Créez-en une depuis l'onglet Collections, puis ajoutez des livres de votre bibliothèque ou importez une liste existante.\n\nUne collection se partage : « Partager » l'envoie sous forme de fichier ou de texte copié, et « Importer » relit ce que vous recevez. Rien n'entre dans une bibliothèque avant confirmation.\n\nLa collection Favoris, elle, se remplit toute seule : elle suit le marque-page étoile posé sur la fiche des livres."
 
 #. Connect with friends by scanning their QR code, sharing an invite link, or using the hub directory. Once connected, you can browse each other's catalogs, send borrow requests, and stay in sync.
 msgid "help_desc_connect"
@@ -10718,7 +10718,7 @@ msgstr "D'où viennent les suggestions de lecture ?"
 
 #. Where the suggestions show up, why a book is suggested, and how to dismiss one. Mentions series completion through an anonymous hub search (ADR-060).
 msgid "help_desc_recommendations"
-msgstr "« Suggestions pour vous » sur le tableau de bord et « Vous pourriez aussi aimer » sur la fiche d'un livre proposent des titres tirés de votre propre bibliothèque. Si vous possédez une série, le tome manquant suivant peut aussi vous être proposé : une recherche anonyme le trouve, et le calcul lui-même reste sur cet appareil.\n\nChaque carte dit pourquoi : même auteur, sujet similaire, même éditeur, même période, un livre que vous avez bien noté, ou un livre déjà dans votre pile à lire.\n\n« Ça ne m'intéresse pas » masque une suggestion partout où elle apparaît, avec une annulation juste après. Ce choix est conservé sur cet appareil."
+msgstr "« Suggestions pour vous » sur le tableau de bord, « Vous pourriez aussi aimer » sur la fiche d'un livre et l'onglet « À découvrir » en haut de votre bibliothèque proposent des titres tirés de vos propres rayons. Si vous possédez une série ou plusieurs livres d'un même auteur, le tome ou le titre qui manque peut aussi vous être proposé : une recherche anonyme le trouve, et le calcul reste sur cet appareil.\n\nChaque carte dit pourquoi : même auteur, sujet similaire, même éditeur, même période, un livre que vous avez bien noté, ou un livre déjà dans votre pile à lire. Un favori pèse double.\n\n« Ça ne m'intéresse pas » masque une suggestion partout où elle apparaît, avec une annulation juste après. Ce choix est conservé sur cet appareil."
 
 #. Reading suggestions CTA
 msgid "help_cta_see_suggestions"
@@ -10795,6 +10795,10 @@ msgstr "Activité · {count}"
 #. Segment of the library top slot showing reading suggestions, {count} is how many are available (ADR-062)
 msgid "books_slot_segment_discover"
 msgstr "À découvrir · {count}"
+
+#. Discovery tab of the library top slot. Countless on purpose: the two tabs and the collapse control share one phone-width row, and a count on each truncated this one (ADR-062)
+msgid "books_slot_tab_discover"
+msgstr "À découvrir"
 
 #. Tooltip of the library app-bar action opening the reading suggestions (ADR-062)
 msgid "tooltip_open_recommendations"
@@ -11109,3 +11113,42 @@ msgstr "Dites-moi aussi ce que vous aimeriez emprunter chez moi en retour."
 #. Sign-off line of the prefilled message
 msgid "contact_message_closing"
 msgstr "Merci d'avance,"
+
+
+#. --- Help topics for the 1.1.4 features ---
+
+#. Help screen: ownership axis topic title (ADR-063)
+msgid "help_topic_ownership"
+msgstr "Où sont mes livres non possédés ?"
+
+#. Help screen: the ownership filter, the search that covers everything, the not-owned marker
+msgid "help_desc_ownership"
+msgstr "Par défaut, votre bibliothèque montre ce que vous avez sous la main : vos livres et ceux que vous avez prêtés.\n\nLe menu de filtres porte une section « Possession », indépendante du statut de lecture : « Ma bibliothèque », « Non possédés » (souhaits, livres lus sans les posséder) et « Tout ».\n\nLa recherche, elle, cherche partout, quel que soit le filtre en cours. Un livre que vous ne possédez pas garde sa couverture en couleurs atténuées, avec un badge « Non possédé »."
+
+#. Help screen: ready-made selections topic title
+msgid "help_topic_curated"
+msgstr "Les sélections toutes prêtes"
+
+#. Help screen: browsing, unfolding and importing a curated selection, and the ones offered by affinity (ADR-066)
+msgid "help_desc_curated"
+msgstr "« Découvrir des collections » propose des listes déjà constituées : prix littéraires, classiques, genres, jeunesse, rentrée des classes. Une carte se déplie sur la liste complète avant l'import, et vous choisissez le statut donné aux livres importés.\n\nLes sélections qui recoupent vraiment votre bibliothèque vous sont proposées d'elles-mêmes, avec la raison : « 7 livres en commun »."
+
+#. Help screen: sharing a reading list topic title (ADR-068)
+msgid "help_topic_share_list"
+msgstr "Partager une liste de lecture"
+
+#. Help screen: exporting a collection and importing a received list, with the preview before anything is written
+msgid "help_desc_share_list"
+msgstr "Depuis une collection, « Partager » récapitule ce qui va partir, puis l'envoie sous forme de fichier ou de texte copié.\n\n« Importer », dans l'onglet Collections, accepte un fichier ou une liste collée. Un aperçu montre le titre, le nombre de livres et l'expéditeur : rien n'entre dans votre bibliothèque avant votre confirmation."
+
+#. Help screen: contact card topic title (ADR-067)
+msgid "help_topic_contact_card"
+msgstr "Comment les autres peuvent-ils me joindre ?"
+
+#. Help screen: filling the contact card, who receives it, and the Contact action on a peer book
+msgid "help_desc_contact_card"
+msgstr "Un catalogue partagé ne suffit pas à convenir d'un prêt. Votre carte de contact (e-mail, téléphone, précisions) se remplit dans Paramètres > Partage en ligne.\n\nElle n'est pas publiée dans l'annuaire : elle n'est remise, chiffrée, qu'aux bibliothèques que vous avez acceptées. Une fois envoyée, on ne peut plus la retirer.\n\nSur le livre d'une autre bibliothèque, « Contacter » ouvre un message déjà écrit, par e-mail, SMS ou WhatsApp."
+
+#. Help screen CTA opening Settings > Online sharing
+msgid "help_cta_open_sharing"
+msgstr "Ouvrir le partage en ligne"

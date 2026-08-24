@@ -3200,7 +3200,7 @@ msgstr "Quando ativado, o módulo de Áudio busca automaticamente versões gratu
 
 #. Collections let you group books into custom lists (sagas, themes, reading lists). Create a collection from the Collections tab, then add books from your library or import existing lists.
 msgid "help_desc_collections"
-msgstr "As coleções permitem que você agrupe livros em listas personalizadas (sagas,temas, listas de leitura). Crie uma coleção da aba Coleções, então adicione livros da sua biblioteca ou importe listas existentes."
+msgstr "As Coleções agrupam seus livros em listas personalizadas (sagas, temas, listas de leitura). Crie uma na aba Coleções e adicione livros da sua biblioteca ou importe uma lista existente.\n\nUma coleção pode ser compartilhada: «Compartilhar» a envia como arquivo ou como texto copiado, e «Importar» relê o que você recebe. Nada entra numa biblioteca antes da confirmação.\n\nA coleção Favoritos se enche sozinha: ela segue o marcador de estrela colocado na página dos livros."
 
 #. Go to \"Connect Library\" to share your QR code or scan a friend's code.
 msgid "help_desc_connect"
@@ -10642,7 +10642,7 @@ msgstr "De onde vêm as sugestões de leitura?"
 
 #. Where the suggestions show up, why a book is suggested, and how to dismiss one. Mentions series completion through an anonymous hub search (ADR-060).
 msgid "help_desc_recommendations"
-msgstr "“Sugestões para você” no painel e “Você também pode gostar” na página de um livro oferecem títulos tirados da sua própria biblioteca. Se você tem uma série, o próximo volume que falta também pode ser sugerido: uma busca anônima o encontra, e o cálculo em si fica neste dispositivo.\n\nCada cartão diz por quê: mesmo autor, assunto parecido, mesma editora, mesma época, um livro que você avaliou bem ou um que já está na sua pilha de leitura.\n\n“Não tenho interesse” esconde uma sugestão em todos os lugares, com um desfazer logo depois. Essa escolha fica neste dispositivo."
+msgstr "«Sugestões para você» no painel, «Você também pode gostar» na página de um livro e a aba «A descobrir» no topo da sua biblioteca propõem títulos tirados das suas próprias estantes. Se você tem uma série ou vários livros do mesmo autor, o volume ou título que falta também pode ser proposto: uma busca anônima o encontra, e o cálculo fica neste aparelho.\n\nCada cartão diz por quê: mesmo autor, assunto parecido, mesma editora, mesma época, um livro que você avaliou bem ou um livro já na sua pilha de leitura. Um favorito pesa em dobro.\n\n«Não tenho interesse» esconde uma sugestão em todos os lugares, com um desfazer logo depois. Essa escolha fica neste aparelho."
 
 #. Reading suggestions CTA
 msgid "help_cta_see_suggestions"
@@ -10719,6 +10719,10 @@ msgstr "Atividade · {count}"
 #. Segment of the library top slot showing reading suggestions, {count} is how many are available (ADR-062)
 msgid "books_slot_segment_discover"
 msgstr "Para descobrir · {count}"
+
+#. Discovery tab of the library top slot. Countless on purpose: the two tabs and the collapse control share one phone-width row, and a count on each truncated this one (ADR-062)
+msgid "books_slot_tab_discover"
+msgstr "Para descobrir"
 
 #. Tooltip of the library app-bar action opening the reading suggestions (ADR-062)
 msgid "tooltip_open_recommendations"
@@ -11033,3 +11037,42 @@ msgstr "E me diga o que você gostaria de pegar emprestado das minhas prateleira
 #. Sign-off line of the prefilled message
 msgid "contact_message_closing"
 msgstr "Desde já, obrigado,"
+
+
+#. --- Help topics for the 1.1.4 features ---
+
+#. Help screen: ownership axis topic title (ADR-063)
+msgid "help_topic_ownership"
+msgstr "Onde estão os livros que não tenho?"
+
+#. Help screen: the ownership filter, the search that covers everything, the not-owned marker
+msgid "help_desc_ownership"
+msgstr "Por padrão, sua biblioteca mostra o que você tem à mão: seus livros e os que você emprestou.\n\nO menu de filtros traz uma seção «Posse», independente do status de leitura: «Minha biblioteca», «Não possuídos» (desejos, livros lidos sem possuir) e «Tudo».\n\nA busca, por sua vez, procura em tudo, qualquer que seja o filtro ativo. Um livro que você não possui mantém a capa em cores atenuadas, com um selo «Não possuído»."
+
+#. Help screen: ready-made selections topic title
+msgid "help_topic_curated"
+msgstr "As seleções prontas"
+
+#. Help screen: browsing, unfolding and importing a curated selection, and the ones offered by affinity (ADR-066)
+msgid "help_desc_curated"
+msgstr "«Descobrir coleções» oferece listas já montadas: prêmios literários, clássicos, gêneros, infantil, volta às aulas. Um cartão se abre na lista completa antes da importação, e você escolhe o status dado aos livros importados.\n\nAs seleções que realmente coincidem com a sua biblioteca são propostas por conta própria, com o motivo: «7 livros em comum»."
+
+#. Help screen: sharing a reading list topic title (ADR-068)
+msgid "help_topic_share_list"
+msgstr "Compartilhar uma lista de leitura"
+
+#. Help screen: exporting a collection and importing a received list, with the preview before anything is written
+msgid "help_desc_share_list"
+msgstr "A partir de uma coleção, «Compartilhar» resume o que vai sair e então envia como arquivo ou como texto copiado.\n\n«Importar», na aba Coleções, aceita um arquivo ou uma lista colada. Uma prévia mostra o título, a quantidade de livros e o remetente: nada entra na sua biblioteca antes da sua confirmação."
+
+#. Help screen: contact card topic title (ADR-067)
+msgid "help_topic_contact_card"
+msgstr "Como os outros podem falar comigo?"
+
+#. Help screen: filling the contact card, who receives it, and the Contact action on a peer book
+msgid "help_desc_contact_card"
+msgstr "Um catálogo compartilhado não basta para combinar um empréstimo. Seu cartão de contato (e-mail, telefone, detalhes) é preenchido em Configurações > Compartilhamento online.\n\nEle não é publicado no diretório: só é entregue, criptografado, às bibliotecas que você aceitou. Depois de enviado, não dá mais para retirar.\n\nNo livro de outra biblioteca, «Contatar» abre uma mensagem já escrita, por e-mail, SMS ou WhatsApp."
+
+#. Help screen CTA opening Settings > Online sharing
+msgid "help_cta_open_sharing"
+msgstr "Abrir compartilhamento online"

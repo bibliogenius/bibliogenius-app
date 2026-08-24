@@ -2964,7 +2964,7 @@ msgstr "Una vez activado, el módulo de Audio busca automáticamente versiones d
 
 #. Collections let you group books into custom lists (sagas, themes, reading lists). Create a collection from the Collections tab, then add books from your library or import existing lists.
 msgid "help_desc_collections"
-msgstr "Las Colecciones te permiten agrupar libros en listas personalizadas (sagas, temas, listas de lectura). Crea una colección desde la pestaña Colecciones, luego añade libros de tu biblioteca o importa listas existentes."
+msgstr "Las Colecciones agrupan tus libros en listas personalizadas (sagas, temas, listas de lectura). Crea una desde la pestaña Colecciones y añade libros de tu biblioteca o importa una lista existente.\n\nUna colección se comparte: «Compartir» la envía como archivo o como texto copiado, e «Importar» relee lo que recibes. Nada entra en una biblioteca antes de confirmarlo.\n\nLa colección Favoritos se llena sola: sigue el marcador de estrella puesto en la ficha de los libros."
 
 #. Connect with friends by scanning their QR code, sharing an invite link, or using the hub directory. Once connected, you can browse each other's catalogs, send borrow requests, and stay in sync.
 msgid "help_desc_connect"
@@ -10547,7 +10547,7 @@ msgstr "¿De dónde vienen las sugerencias de lectura?"
 
 #. Where the suggestions show up, why a book is suggested, and how to dismiss one. Mentions series completion through an anonymous hub search (ADR-060).
 msgid "help_desc_recommendations"
-msgstr "«Sugerencias para ti» en el panel y «También te podría gustar» en la ficha de un libro proponen títulos sacados de tu propia biblioteca. Si tienes una serie, también se te puede proponer el siguiente tomo que falta: una búsqueda anónima lo encuentra, y el cálculo en sí se queda en este dispositivo.\n\nCada tarjeta dice por qué: mismo autor, tema similar, misma editorial, misma época, un libro que valoraste bien o uno que ya está en tu pila de pendientes.\n\n«No me interesa» oculta una sugerencia en todas partes, con la opción de deshacer justo después. Esa elección se guarda en este dispositivo."
+msgstr "«Sugerencias para ti» en el panel, «También te puede gustar» en la ficha de un libro y la pestaña «Por descubrir» en la parte superior de tu biblioteca proponen títulos sacados de tus propios estantes. Si tienes una serie o varios libros del mismo autor, también puede proponerse el tomo o el título que falta: una búsqueda anónima lo encuentra y el cálculo se queda en este dispositivo.\n\nCada tarjeta dice por qué: mismo autor, tema parecido, misma editorial, misma época, un libro que valoraste alto o un libro que ya está en tu pila de lectura. Un favorito cuenta doble.\n\n«No me interesa» oculta una sugerencia en todas partes, con la opción de deshacer justo después. Esa elección se conserva en este dispositivo."
 
 #. Reading suggestions CTA
 msgid "help_cta_see_suggestions"
@@ -10624,6 +10624,10 @@ msgstr "Actividad · {count}"
 #. Segment of the library top slot showing reading suggestions, {count} is how many are available (ADR-062)
 msgid "books_slot_segment_discover"
 msgstr "Por descubrir · {count}"
+
+#. Discovery tab of the library top slot. Countless on purpose: the two tabs and the collapse control share one phone-width row, and a count on each truncated this one (ADR-062)
+msgid "books_slot_tab_discover"
+msgstr "Por descubrir"
 
 #. Tooltip of the library app-bar action opening the reading suggestions (ADR-062)
 msgid "tooltip_open_recommendations"
@@ -10938,3 +10942,42 @@ msgstr "Y dime qué te gustaría tomar prestado de mis estanterías a cambio."
 #. Sign-off line of the prefilled message
 msgid "contact_message_closing"
 msgstr "Gracias de antemano,"
+
+
+#. --- Help topics for the 1.1.4 features ---
+
+#. Help screen: ownership axis topic title (ADR-063)
+msgid "help_topic_ownership"
+msgstr "¿Dónde están los libros que no tengo?"
+
+#. Help screen: the ownership filter, the search that covers everything, the not-owned marker
+msgid "help_desc_ownership"
+msgstr "De forma predeterminada, tu biblioteca muestra lo que tienes a mano: tus libros y los que has prestado.\n\nEl menú de filtros incluye una sección «Posesión», independiente del estado de lectura: «Mi biblioteca», «No poseídos» (deseos, libros leídos sin tenerlos) y «Todo».\n\nLa búsqueda, en cambio, busca en todas partes, sea cual sea el filtro activo. Un libro que no posees conserva su portada en colores atenuados, con una insignia «No poseído»."
+
+#. Help screen: ready-made selections topic title
+msgid "help_topic_curated"
+msgstr "Las selecciones ya preparadas"
+
+#. Help screen: browsing, unfolding and importing a curated selection, and the ones offered by affinity (ADR-066)
+msgid "help_desc_curated"
+msgstr "«Descubrir colecciones» ofrece listas ya formadas: premios literarios, clásicos, géneros, infantil, vuelta al cole. Una tarjeta se despliega con la lista completa antes de importarla, y tú eliges el estado que reciben los libros importados.\n\nLas selecciones que realmente coinciden con tu biblioteca se te proponen solas, con el motivo: «7 libros en común»."
+
+#. Help screen: sharing a reading list topic title (ADR-068)
+msgid "help_topic_share_list"
+msgstr "Compartir una lista de lectura"
+
+#. Help screen: exporting a collection and importing a received list, with the preview before anything is written
+msgid "help_desc_share_list"
+msgstr "Desde una colección, «Compartir» resume lo que va a salir y luego lo envía como archivo o como texto copiado.\n\n«Importar», en la pestaña Colecciones, acepta un archivo o una lista pegada. Una vista previa muestra el título, el número de libros y quién la envía: nada entra en tu biblioteca antes de que lo confirmes."
+
+#. Help screen: contact card topic title (ADR-067)
+msgid "help_topic_contact_card"
+msgstr "¿Cómo pueden contactarme?"
+
+#. Help screen: filling the contact card, who receives it, and the Contact action on a peer book
+msgid "help_desc_contact_card"
+msgstr "Un catálogo compartido no basta para acordar un préstamo. Tu tarjeta de contacto (correo, teléfono, detalles) se rellena en Ajustes > Compartir en línea.\n\nNo se publica en el directorio: solo se entrega, cifrada, a las bibliotecas que hayas aceptado. Una vez enviada, ya no se puede retirar.\n\nEn el libro de otra biblioteca, «Contactar» abre un mensaje ya redactado, por correo, SMS o WhatsApp."
+
+#. Help screen CTA opening Settings > Online sharing
+msgid "help_cta_open_sharing"
+msgstr "Abrir compartir en línea"

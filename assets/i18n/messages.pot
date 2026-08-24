@@ -8585,6 +8585,10 @@ msgstr ""
 msgid "books_slot_segment_discover"
 msgstr ""
 
+#. Discovery tab of the library top slot. Countless on purpose: the two tabs and the collapse control share one phone-width row, and a count on each truncated this one (ADR-062)
+msgid "books_slot_tab_discover"
+msgstr ""
+
 #. Tooltip of the library app-bar action opening the reading suggestions (ADR-062)
 msgid "tooltip_open_recommendations"
 msgstr ""
@@ -8847,4 +8851,31 @@ msgid "contact_message_reciprocity"
 msgstr ""
 
 msgid "contact_message_closing"
+msgstr ""
+
+msgid "help_topic_ownership"
+msgstr ""
+
+msgid "help_desc_ownership"
+msgstr ""
+
+msgid "help_topic_curated"
+msgstr ""
+
+msgid "help_desc_curated"
+msgstr ""
+
+msgid "help_topic_share_list"
+msgstr ""
+
+msgid "help_desc_share_list"
+msgstr ""
+
+msgid "help_topic_contact_card"
+msgstr ""
+
+msgid "help_desc_contact_card"
+msgstr ""
+
+msgid "help_cta_open_sharing"
 msgstr ""

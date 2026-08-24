@@ -3193,7 +3193,7 @@ msgstr "When enabled, the Audio module automatically searches for free audiobook
 
 #. Collections let you group books into custom lists (sagas, themes, reading lists). Create a collection from the Collections tab, then add books from your library or import existing lists.
 msgid "help_desc_collections"
-msgstr "Collections let you group books into custom lists (sagas, themes, reading lists). Create a collection from the Collections tab, then add books from your library or import existing lists."
+msgstr "Collections group your books into custom lists (sagas, themes, reading lists). Create one from the Collections tab, then add books from your library or import an existing list.\n\nA collection can be shared: “Share” sends it as a file or as copied text, and “Import” reads back what you receive. Nothing enters a library before it is confirmed.\n\nThe Favorites collection fills itself: it follows the star bookmark set on book pages."
 
 #. Connect with friends by scanning their QR code, sharing an invite link, or using the hub directory. Once connected, you can browse each other's catalogs, send borrow requests, and stay in sync.
 msgid "help_desc_connect"
@@ -10718,7 +10718,7 @@ msgstr "Where do reading suggestions come from?"
 
 #. Where the suggestions show up, why a book is suggested, and how to dismiss one. Mentions series completion through an anonymous hub search (ADR-060).
 msgid "help_desc_recommendations"
-msgstr "“Suggestions for you” on the dashboard and “You might also like” on a book page offer titles drawn from your own library. When you own a series, the next missing volume can also be suggested: an anonymous search finds it, and the scoring itself stays on this device.\n\nEach card says why: same author, similar subject, same publisher, same period, a book you rated highly, or one already sitting in your to-read pile.\n\n“Not interested” hides a suggestion everywhere it appears, with an undo right after. That choice is kept on this device."
+msgstr "“Suggestions for you” on the dashboard, “You might also like” on a book page and the “To discover” tab at the top of your library offer titles drawn from your own shelves. If you own a series or several books by the same author, the missing volume or title can be offered too: an anonymous lookup finds it, and the ranking stays on this device.\n\nEvery card says why: same author, similar subject, same publisher, same period, a book you rated highly, or a book already in your to-read pile. A favorite weighs double.\n\n“Not interested” hides a suggestion everywhere it appears, with an undo right after. That choice is kept on this device."
 
 #. Reading suggestions CTA
 msgid "help_cta_see_suggestions"
@@ -10795,6 +10795,10 @@ msgstr "Activity · {count}"
 #. Segment of the library top slot showing reading suggestions, {count} is how many are available (ADR-062)
 msgid "books_slot_segment_discover"
 msgstr "To discover · {count}"
+
+#. Discovery tab of the library top slot. Countless on purpose: the two tabs and the collapse control share one phone-width row, and a count on each truncated this one (ADR-062)
+msgid "books_slot_tab_discover"
+msgstr "To discover"
 
 #. Tooltip of the library app-bar action opening the reading suggestions (ADR-062)
 msgid "tooltip_open_recommendations"
@@ -11109,3 +11113,42 @@ msgstr "And tell me what you would like to borrow from my shelves in return."
 #. Sign-off line of the prefilled message
 msgid "contact_message_closing"
 msgstr "Thank you,"
+
+
+#. --- Help topics for the 1.1.4 features ---
+
+#. Help screen: ownership axis topic title (ADR-063)
+msgid "help_topic_ownership"
+msgstr "Where are the books I do not own?"
+
+#. Help screen: the ownership filter, the search that covers everything, the not-owned marker
+msgid "help_desc_ownership"
+msgstr "By default, your library shows what you have at hand: your books and the ones you lent out.\n\nThe filter menu carries an “Ownership” section, independent from reading status: “My library”, “Not owned” (wishlist books, books read without owning them) and “Everything”.\n\nSearch, on the other hand, searches everywhere, whatever filter is on. A book you do not own keeps its cover in muted colours, with a “Not owned” badge."
+
+#. Help screen: ready-made selections topic title
+msgid "help_topic_curated"
+msgstr "Ready-made selections"
+
+#. Help screen: browsing, unfolding and importing a curated selection, and the ones offered by affinity (ADR-066)
+msgid "help_desc_curated"
+msgstr "“Discover collections” offers lists already put together: literary prizes, classics, genres, children's books, back-to-school reading. A card unfolds to the full list before you import it, and you choose the status given to the imported books.\n\nSelections that genuinely overlap your library are offered on their own, with the reason: “7 books in common”."
+
+#. Help screen: sharing a reading list topic title (ADR-068)
+msgid "help_topic_share_list"
+msgstr "Sharing a reading list"
+
+#. Help screen: exporting a collection and importing a received list, with the preview before anything is written
+msgid "help_desc_share_list"
+msgstr "From a collection, “Share” sums up what is about to leave, then sends it as a file or as copied text.\n\n“Import”, in the Collections tab, accepts a file or a pasted list. A preview shows the title, the book count and the sender: nothing enters your library before you confirm."
+
+#. Help screen: contact card topic title (ADR-067)
+msgid "help_topic_contact_card"
+msgstr "How can others reach me?"
+
+#. Help screen: filling the contact card, who receives it, and the Contact action on a peer book
+msgid "help_desc_contact_card"
+msgstr "A shared catalog is not enough to arrange a loan. Your contact card (email, phone, notes) is filled in under Settings > Online sharing.\n\nIt is not published in the directory: it is delivered, encrypted, only to the libraries you accepted. Once sent, it cannot be taken back.\n\nOn a book from another library, “Contact” opens a message already written, by email, SMS or WhatsApp."
+
+#. Help screen CTA opening Settings > Online sharing
+msgid "help_cta_open_sharing"
+msgstr "Open online sharing"

@@ -2529,7 +2529,7 @@ msgstr "활성화하면 오디오 모듈이 LibriVox, Littérature Audio, Archiv
 
 #. Collections let you group books into custom lists (sagas, themes, reading lists). Create a collection from the Collections tab, then add books from your library or import existing lists.
 msgid "help_desc_collections"
-msgstr "컬렉션을 사용하면 책을 맞춤 목록(사가, 테마, 독서 목록)으로 묶을 수 있습니다. 컬렉션 탭에서 컬렉션을 만든 다음, 서재에서 책을 추가하거나 기존 목록을 가져오세요."
+msgstr "컬렉션은 책을 원하는 목록(시리즈, 주제, 독서 목록)으로 묶습니다. 컬렉션 탭에서 만들고 서재의 책을 추가하거나 기존 목록을 가져오세요.\n\n컬렉션은 공유할 수 있습니다. ‘공유’는 파일이나 복사한 텍스트로 보내고, ‘가져오기’는 받은 것을 읽어 들입니다. 확인 전에는 어떤 서재에도 아무것도 들어가지 않습니다.\n\n즐겨찾기 컬렉션은 저절로 채워집니다. 책 화면의 별 북마크를 따릅니다."
 
 #. Go to \"Connect Library\" to share your QR code or scan a friend's code.
 msgid "help_desc_connect"
@@ -10346,7 +10346,7 @@ msgstr "읽을거리 추천은 어디에서 오나요?"
 
 #. Where the suggestions show up, why a book is suggested, and how to dismiss one. Mentions series completion through an anonymous hub search (ADR-060).
 msgid "help_desc_recommendations"
-msgstr "대시보드의 “당신을 위한 추천”과 책 상세 화면의 “이런 책도 좋아할 거예요”는 내 서재에서 뽑은 책을 보여줍니다. 시리즈를 소장하고 있다면 빠진 다음 권도 추천될 수 있습니다. 익명 검색이 그것을 찾고, 계산 자체는 이 기기에서 이루어집니다.\n\n각 카드에는 이유가 붙습니다. 같은 저자, 비슷한 주제, 같은 출판사, 비슷한 시기, 높게 평가한 책, 이미 읽을 책 더미에 있는 책 등입니다.\n\n“관심 없음”을 누르면 그 추천이 모든 화면에서 숨겨지고, 직후에 실행 취소할 수 있습니다. 이 선택은 이 기기에 저장됩니다."
+msgstr "대시보드의 ‘당신을 위한 추천’, 책 화면의 ‘이런 책도 좋아할 거예요’, 서재 상단의 ‘발견하기’ 탭은 당신의 서가에서 뽑은 책을 제안합니다. 시리즈나 같은 작가의 책을 여러 권 갖고 있다면 빠진 권이나 제목도 제안될 수 있습니다. 익명 조회로 찾아내고, 계산 자체는 이 기기에 남습니다.\n\n각 카드는 이유를 밝힙니다. 같은 작가, 비슷한 주제, 같은 출판사, 같은 시기, 높게 평가한 책, 이미 읽을 책 더미에 있는 책 등입니다. 즐겨찾기는 두 배로 반영됩니다.\n\n‘관심 없음’을 누르면 그 추천은 어디에서나 숨겨지고, 바로 뒤에 실행 취소도 할 수 있습니다. 이 선택은 이 기기에 저장됩니다."
 
 #. Reading suggestions CTA
 msgid "help_cta_see_suggestions"
@@ -10423,6 +10423,10 @@ msgstr "최근 활동 · {count}"
 #. Segment of the library top slot showing reading suggestions, {count} is how many are available (ADR-062)
 msgid "books_slot_segment_discover"
 msgstr "발견하기 · {count}"
+
+#. Discovery tab of the library top slot. Countless on purpose: the two tabs and the collapse control share one phone-width row, and a count on each truncated this one (ADR-062)
+msgid "books_slot_tab_discover"
+msgstr "발견하기"
 
 #. Tooltip of the library app-bar action opening the reading suggestions (ADR-062)
 msgid "tooltip_open_recommendations"
@@ -10737,3 +10741,42 @@ msgstr "제 서재에서 빌리고 싶은 책이 있으면 그것도 알려주�
 #. Sign-off line of the prefilled message
 msgid "contact_message_closing"
 msgstr "감사합니다."
+
+
+#. --- Help topics for the 1.1.4 features ---
+
+#. Help screen: ownership axis topic title (ADR-063)
+msgid "help_topic_ownership"
+msgstr "소장하지 않은 책은 어디에 있나요?"
+
+#. Help screen: the ownership filter, the search that covers everything, the not-owned marker
+msgid "help_desc_ownership"
+msgstr "기본적으로 서재는 손에 있는 것, 즉 소장 중인 책과 빌려준 책을 보여 줍니다.\n\n필터 메뉴에는 독서 상태와 별개인 ‘소장’ 항목이 있습니다. ‘내 서재’, ‘미소장’(위시리스트, 소장하지 않고 읽은 책), ‘전체’입니다.\n\n검색은 현재 필터와 관계없이 모든 책을 대상으로 합니다. 소장하지 않은 책은 표지가 옅은 색으로 표시되고 ‘미소장’ 배지가 붙습니다."
+
+#. Help screen: ready-made selections topic title
+msgid "help_topic_curated"
+msgstr "미리 준비된 선집"
+
+#. Help screen: browsing, unfolding and importing a curated selection, and the ones offered by affinity (ADR-066)
+msgid "help_desc_curated"
+msgstr "‘컬렉션 발견하기’는 문학상, 고전, 장르, 아동, 새 학기 등 이미 구성된 목록을 제공합니다. 카드를 펼치면 가져오기 전에 전체 목록을 볼 수 있고, 가져온 책에 줄 상태도 직접 고릅니다.\n\n서재와 실제로 겹치는 선집은 ‘공통된 책 7권’처럼 이유와 함께 저절로 제안됩니다."
+
+#. Help screen: sharing a reading list topic title (ADR-068)
+msgid "help_topic_share_list"
+msgstr "독서 목록 공유하기"
+
+#. Help screen: exporting a collection and importing a received list, with the preview before anything is written
+msgid "help_desc_share_list"
+msgstr "컬렉션에서 ‘공유’를 누르면 보낼 내용을 요약해 보여 준 뒤, 파일이나 복사한 텍스트로 보냅니다.\n\n컬렉션 탭의 ‘가져오기’는 파일과 붙여넣은 목록을 모두 받습니다. 미리보기에 제목, 권수, 보낸 사람이 표시되며 확인하기 전에는 아무것도 서재에 들어오지 않습니다."
+
+#. Help screen: contact card topic title (ADR-067)
+msgid "help_topic_contact_card"
+msgstr "다른 사람이 어떻게 연락할 수 있나요?"
+
+#. Help screen: filling the contact card, who receives it, and the Contact action on a peer book
+msgid "help_desc_contact_card"
+msgstr "카탈로그를 공유하는 것만으로는 대출을 약속할 수 없습니다. 연락처 카드(이메일, 전화, 추가 설명)는 설정 > 온라인 공유에서 입력합니다.\n\n디렉터리에는 공개되지 않습니다. 승인한 서재에만 암호화되어 전달되며, 한 번 보내면 회수할 수 없습니다.\n\n다른 서재의 책에서는 ‘연락하기’로 이메일, 문자, WhatsApp을 통해 미리 작성된 메시지를 열 수 있습니다."
+
+#. Help screen CTA opening Settings > Online sharing
+msgid "help_cta_open_sharing"
+msgstr "온라인 공유 열기"

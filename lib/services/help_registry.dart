@@ -150,6 +150,20 @@ class HelpRegistry {
           ctaRoute: '/books',
         ),
       ),
+      // Ownership axis (ADR-063): the filter section, the search that ignores
+      // it, and the not-owned marker. Filed next to the wishlist, since a
+      // wished book is the commonest not-owned book.
+      _GatedTopic(
+        topic: HelpTopic.faq(
+          id: 'ownership',
+          icon: Icons.library_add_check_outlined,
+          titleKey: 'help_topic_ownership',
+          descKey: 'help_desc_ownership',
+          gradient: AppDesign.oceanGradient,
+          ctaKey: 'help_cta_go_to_library',
+          ctaRoute: '/books',
+        ),
+      ),
       _GatedTopic(
         topic: HelpTopic.faq(
           id: 'recommendations',
@@ -159,6 +173,20 @@ class HelpRegistry {
           gradient: AppDesign.primaryGradient,
           ctaKey: 'help_cta_see_suggestions',
           ctaRoute: '/recommendations',
+        ),
+      ),
+      // Curated selections: browsing and importing them, plus the ones the
+      // editorial affinity tier pushes (ADR-066). Not gated on the
+      // collections module: the Discover door lives on the library screen too.
+      _GatedTopic(
+        topic: HelpTopic.faq(
+          id: 'curated',
+          icon: Icons.auto_stories_outlined,
+          titleKey: 'help_topic_curated',
+          descKey: 'help_desc_curated',
+          gradient: AppDesign.accentGradient,
+          ctaKey: 'help_cta_go_to_collections',
+          ctaRoute: '/collections',
         ),
       ),
 
@@ -207,6 +235,20 @@ class HelpRegistry {
           ctaRoute: '/network',
         ),
       ),
+      // Contact card (ADR-067): the fields, who receives them, and the
+      // Contact action they unlock on a peer book. The CTA opens the online
+      // sharing sheet, where the card is edited.
+      _GatedTopic(
+        topic: HelpTopic.faq(
+          id: 'contact_card',
+          icon: Icons.contact_mail_outlined,
+          titleKey: 'help_topic_contact_card',
+          descKey: 'help_desc_contact_card',
+          gradient: AppDesign.accentGradient,
+          ctaKey: 'help_cta_open_sharing',
+          ctaRoute: '/settings?focus=public',
+        ),
+      ),
 
       // --- Advanced (conditional) ---
       _GatedTopic(
@@ -216,6 +258,20 @@ class HelpRegistry {
           titleKey: 'help_topic_collections',
           descKey: 'help_desc_collections',
           gradient: AppDesign.primaryGradient,
+          ctaKey: 'help_cta_go_to_collections',
+          ctaRoute: '/collections',
+        ),
+        gate: _collectionsEnabled,
+      ),
+      // Sharing a list (ADR-068): both directions of the same format. Gated
+      // with the collections module, since both doors live on that screen.
+      _GatedTopic(
+        topic: HelpTopic.faq(
+          id: 'share_list',
+          icon: Icons.share_outlined,
+          titleKey: 'help_topic_share_list',
+          descKey: 'help_desc_share_list',
+          gradient: AppDesign.successGradient,
           ctaKey: 'help_cta_go_to_collections',
           ctaRoute: '/collections',
         ),

@@ -2529,7 +2529,7 @@ msgstr "启用后，音频模块会自动在 LibriVox、Littérature Audio 和 A
 
 #. Collections let you group books into custom lists (sagas, themes, reading lists). Create a collection from the Collections tab, then add books from your library or import existing lists.
 msgid "help_desc_collections"
-msgstr "合集让您把图书归入自定义书单（系列、主题、阅读清单）。在“合集”标签中创建一个合集，然后从您的图书馆添加图书或导入已有书单。"
+msgstr "合集把你的书归入自定义书单（系列、主题、阅读清单）。在合集页新建一个，然后从书库添加书籍，或导入现有书单。\n\n合集可以分享：「分享」以文件或复制文本发出，「导入」读回你收到的内容。未经确认，任何内容都不会进入书库。\n\n收藏合集会自动填充：它跟随书籍页面上的星形书签。"
 
 #. Go to \"Connect Library\" to share your QR code or scan a friend's code.
 msgid "help_desc_connect"
@@ -10346,7 +10346,7 @@ msgstr "阅读推荐从哪里来？"
 
 #. Where the suggestions show up, why a book is suggested, and how to dismiss one. Mentions series completion through an anonymous hub search (ADR-060).
 msgid "help_desc_recommendations"
-msgstr "仪表盘上的“为你推荐”和图书详情页的“你可能也喜欢”，都取自你自己的书库。如果你收藏了某个系列，缺少的下一卷也可能被推荐：一次匿名搜索会找到它，而计算本身保留在本设备上。\n\n每张卡片都会说明理由：同一作者、相似主题、同一出版社、相近年代、你评分很高的书，或已在待读堆里的书。\n\n“不感兴趣”会在所有位置隐藏该推荐，紧接着可以撤销。这个选择保存在本设备上。"
+msgstr "面板上的「为你推荐」、书籍页面的「你可能也喜欢」，以及书库顶部的「待发现」标签，都会从你自己的书架中挑选书目。如果你拥有某个系列或同一作者的多本书，缺少的那一册或那一本也可能被推荐：匿名查询找到它，而计算始终留在本机。\n\n每张卡片都会说明原因：同一作者、相近主题、同一出版社、同一时期、你评分很高的书，或已在待读堆里的书。收藏的书权重加倍。\n\n「不感兴趣」会在所有位置隐藏该推荐，之后可立即撤销。该选择保存在本机。"
 
 #. Reading suggestions CTA
 msgid "help_cta_see_suggestions"
@@ -10423,6 +10423,10 @@ msgstr "近期动态 · {count}"
 #. Segment of the library top slot showing reading suggestions, {count} is how many are available (ADR-062)
 msgid "books_slot_segment_discover"
 msgstr "待发现 · {count}"
+
+#. Discovery tab of the library top slot. Countless on purpose: the two tabs and the collapse control share one phone-width row, and a count on each truncated this one (ADR-062)
+msgid "books_slot_tab_discover"
+msgstr "待发现"
 
 #. Tooltip of the library app-bar action opening the reading suggestions (ADR-062)
 msgid "tooltip_open_recommendations"
@@ -10737,3 +10741,42 @@ msgstr "也请告诉我，您想从我的书架上借些什么。"
 #. Sign-off line of the prefilled message
 msgid "contact_message_closing"
 msgstr "先谢谢您，"
+
+
+#. --- Help topics for the 1.1.4 features ---
+
+#. Help screen: ownership axis topic title (ADR-063)
+msgid "help_topic_ownership"
+msgstr "我没有的书在哪里？"
+
+#. Help screen: the ownership filter, the search that covers everything, the not-owned marker
+msgid "help_desc_ownership"
+msgstr "默认情况下，书库显示你手头拥有的书，以及借出去的书。\n\n筛选菜单里有一个独立于阅读状态的「拥有」分区：「我的书库」、「未拥有」（心愿单、没有却读过的书）和「全部」。\n\n搜索则不受当前筛选影响，始终检索全部。未拥有的书保留封面但颜色变淡，并带有「未拥有」标记。"
+
+#. Help screen: ready-made selections topic title
+msgid "help_topic_curated"
+msgstr "现成的书单"
+
+#. Help screen: browsing, unfolding and importing a curated selection, and the ones offered by affinity (ADR-066)
+msgid "help_desc_curated"
+msgstr "「发现合集」提供已经编好的书单：文学奖、经典、类型、少儿、开学季。卡片可以在导入前展开成完整书单，导入的书给什么状态也由你决定。\n\n与你书库真正重合的书单会主动出现，并写明理由：「7 本相同的书」。"
+
+#. Help screen: sharing a reading list topic title (ADR-068)
+msgid "help_topic_share_list"
+msgstr "分享一份书单"
+
+#. Help screen: exporting a collection and importing a received list, with the preview before anything is written
+msgid "help_desc_share_list"
+msgstr "在某个合集里，「分享」会先列出将要发出的内容，然后以文件或复制文本的形式发送。\n\n合集页的「导入」既接受文件，也接受粘贴的书单。预览会显示标题、书目数量和发送者：在你确认之前，什么都不会进入书库。"
+
+#. Help screen: contact card topic title (ADR-067)
+msgid "help_topic_contact_card"
+msgstr "别人怎样才能联系到我？"
+
+#. Help screen: filling the contact card, who receives it, and the Contact action on a peer book
+msgid "help_desc_contact_card"
+msgstr "仅仅共享目录不足以约定借阅。你的联系卡片（邮箱、电话、补充说明）在「设置 > 在线共享」中填写。\n\n它不会发布到目录中：只会加密送达你已接受的书库。一旦送出便无法收回。\n\n在别的书库的书上，「联系」会打开一封已经写好的消息，可通过邮件、短信或 WhatsApp 发送。"
+
+#. Help screen CTA opening Settings > Online sharing
+msgid "help_cta_open_sharing"
+msgstr "打开在线共享"

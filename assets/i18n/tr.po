@@ -2817,7 +2817,7 @@ msgstr "Etkinleştirildiğinde, Ses modülü kitaplarınızın ücretsiz sesli k
 
 #. Collections let you group books into custom lists (sagas, themes, reading lists). Create a collection from the Collections tab, then add books from your library or import existing lists.
 msgid "help_desc_collections"
-msgstr "Koleksiyonlar; kitapları özel listeler (sagalar, temalar, okuma listeleri) halinde gruplandırmanızı sağlar. Koleksiyonlar sekmesinden bir koleksiyon oluşturun, ardından kütüphanenizden kitap ekleyin veya mevcut listeleri içe aktarın."
+msgstr "Koleksiyonlar kitaplarınızı kendi listelerinizde toplar (seriler, temalar, okuma listeleri). Koleksiyonlar sekmesinden bir tane oluşturun, sonra kitaplığınızdan kitap ekleyin veya mevcut bir listeyi içe aktarın.\n\nBir koleksiyon paylaşılabilir: «Paylaş» onu dosya ya da kopyalanmış metin olarak gönderir, «İçe aktar» aldığınızı geri okur. Onay verilmeden hiçbir kitaplığa hiçbir şey girmez.\n\nFavoriler koleksiyonu kendi kendine dolar: kitap sayfasındaki yıldız yer imini izler."
 
 #. Go to \"Connect Library\" to share your QR code or scan a friend's code.
 msgid "help_desc_connect"
@@ -10634,7 +10634,7 @@ msgstr "Okuma önerileri nereden geliyor?"
 
 #. Where the suggestions show up, why a book is suggested, and how to dismiss one. Mentions series completion through an anonymous hub search (ADR-060).
 msgid "help_desc_recommendations"
-msgstr "Panodaki “Size özel öneriler” ve kitap sayfasındaki “Bunları da beğenebilirsiniz” kendi kitaplığınızdan alınan başlıklar sunar. Bir seriye sahipseniz eksik olan sonraki cilt de önerilebilir: anonim bir arama onu bulur, hesaplamanın kendisi bu cihazda kalır.\n\nHer kart nedenini söyler: aynı yazar, benzer konu, aynı yayınevi, aynı dönem, iyi puan verdiğiniz bir kitap ya da okuma yığınınızda bekleyen bir kitap.\n\n“İlgilenmiyorum” bir öneriyi göründüğü her yerde gizler, hemen ardından geri alma sunulur. Bu seçim bu cihazda saklanır."
+msgstr "Panodaki «Size öneriler», kitap sayfasındaki «Şunları da beğenebilirsiniz» ve kitaplığınızın üstündeki «Keşfedilecek» sekmesi, kendi raflarınızdan seçilmiş kitaplar önerir. Bir seriye ya da aynı yazarın birkaç kitabına sahipseniz eksik cilt veya başlık da önerilebilir: anonim bir sorgu onu bulur, hesaplama ise bu cihazda kalır.\n\nHer kart nedenini söyler: aynı yazar, benzer konu, aynı yayınevi, aynı dönem, yüksek puan verdiğiniz bir kitap ya da okuma yığınınızdaki bir kitap. Favori bir kitap iki kat ağırlık taşır.\n\n«İlgilenmiyorum» bir öneriyi göründüğü her yerde gizler, hemen ardından geri alma sunar. Bu seçim bu cihazda saklanır."
 
 #. Reading suggestions CTA
 msgid "help_cta_see_suggestions"
@@ -10711,6 +10711,10 @@ msgstr "Etkinlik · {count}"
 #. Segment of the library top slot showing reading suggestions, {count} is how many are available (ADR-062)
 msgid "books_slot_segment_discover"
 msgstr "Keşfedilecek · {count}"
+
+#. Discovery tab of the library top slot. Countless on purpose: the two tabs and the collapse control share one phone-width row, and a count on each truncated this one (ADR-062)
+msgid "books_slot_tab_discover"
+msgstr "Keşfedilecek"
 
 #. Tooltip of the library app-bar action opening the reading suggestions (ADR-062)
 msgid "tooltip_open_recommendations"
@@ -11025,3 +11029,42 @@ msgstr "Karşılığında benim raflarımdan ne ödünç almak istediğinizi de 
 #. Sign-off line of the prefilled message
 msgid "contact_message_closing"
 msgstr "Şimdiden teşekkürler,"
+
+
+#. --- Help topics for the 1.1.4 features ---
+
+#. Help screen: ownership axis topic title (ADR-063)
+msgid "help_topic_ownership"
+msgstr "Sahip olmadığım kitaplar nerede?"
+
+#. Help screen: the ownership filter, the search that covers everything, the not-owned marker
+msgid "help_desc_ownership"
+msgstr "Kitaplığınız varsayılan olarak elinizin altındakileri gösterir: kitaplarınız ve ödünç verdikleriniz.\n\nFiltre menüsünde okuma durumundan bağımsız bir «Sahiplik» bölümü vardır: «Kitaplığım», «Sahip olunmayan» (istek listesi, sahip olmadan okunanlar) ve «Tümü».\n\nArama ise hangi filtre açık olursa olsun her yerde arar. Sahip olmadığınız bir kitap kapağını korur, rengi soluklaşır ve «Sahip olunmayan» rozeti taşır."
+
+#. Help screen: ready-made selections topic title
+msgid "help_topic_curated"
+msgstr "Hazır seçkiler"
+
+#. Help screen: browsing, unfolding and importing a curated selection, and the ones offered by affinity (ADR-066)
+msgid "help_desc_curated"
+msgstr "«Koleksiyonları keşfedin» hazır listeler sunar: edebiyat ödülleri, klasikler, türler, çocuk kitapları, okula dönüş. Bir kart, içe aktarmadan önce listenin tamamına açılır ve içe aktarılan kitaplara verilecek durumu siz seçersiniz.\n\nKitaplığınızla gerçekten örtüşen seçkiler kendiliğinden önerilir, gerekçesiyle birlikte: «7 ortak kitap»."
+
+#. Help screen: sharing a reading list topic title (ADR-068)
+msgid "help_topic_share_list"
+msgstr "Bir okuma listesini paylaşmak"
+
+#. Help screen: exporting a collection and importing a received list, with the preview before anything is written
+msgid "help_desc_share_list"
+msgstr "Bir koleksiyonda «Paylaş», gönderilecek olanı özetler, ardından dosya ya da kopyalanmış metin olarak gönderir.\n\nKoleksiyonlar sekmesindeki «İçe aktar» hem dosyayı hem de yapıştırılan listeyi kabul eder. Önizleme başlığı, kitap sayısını ve göndereni gösterir: siz onaylamadan kitaplığınıza hiçbir şey girmez."
+
+#. Help screen: contact card topic title (ADR-067)
+msgid "help_topic_contact_card"
+msgstr "Başkaları bana nasıl ulaşabilir?"
+
+#. Help screen: filling the contact card, who receives it, and the Contact action on a peer book
+msgid "help_desc_contact_card"
+msgstr "Paylaşılan bir katalog, ödünç vermeyi kararlaştırmaya yetmez. İletişim kartınız (e-posta, telefon, açıklamalar) Ayarlar > Çevrimiçi paylaşım bölümünde doldurulur.\n\nRehberde yayımlanmaz: yalnızca kabul ettiğiniz kitaplıklara şifreli olarak iletilir. Bir kez gönderildikten sonra geri alınamaz.\n\nBaşka bir kitaplığın kitabında «İletişime geç», e-posta, SMS veya WhatsApp ile önceden yazılmış bir mesajı açar."
+
+#. Help screen CTA opening Settings > Online sharing
+msgid "help_cta_open_sharing"
+msgstr "Çevrimiçi paylaşımı aç"

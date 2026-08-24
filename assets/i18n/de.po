@@ -2964,7 +2964,7 @@ msgstr "Wenn aktiviert, sucht das Audio-Modul automatisch nach kostenlosen Hörb
 
 #. Collections let you group books into custom lists (sagas, themes, reading lists). Create a collection from the Collections tab, then add books from your library or import existing lists.
 msgid "help_desc_collections"
-msgstr "Mit Sammlungen können Sie Bücher in benutzerdefinierten Listen gruppieren (Reihen, Themen, Leselisten). Erstellen Sie eine Sammlung über den Sammlungen-Tab und fügen Sie Bücher aus Ihrer Bibliothek hinzu oder importieren Sie bestehende Listen."
+msgstr "Sammlungen bündeln Ihre Bücher in eigenen Listen (Reihen, Themen, Leselisten). Legen Sie eine im Tab Sammlungen an und fügen Sie Bücher aus Ihrer Bibliothek hinzu oder importieren Sie eine bestehende Liste.\n\nEine Sammlung lässt sich teilen: „Teilen“ verschickt sie als Datei oder als kopierten Text, „Importieren“ liest zurück, was Sie erhalten. Nichts gelangt ohne Bestätigung in eine Bibliothek.\n\nDie Sammlung Favoriten füllt sich von selbst: Sie folgt dem Stern-Lesezeichen auf den Buchseiten."
 
 #. Connect with friends by scanning their QR code, sharing an invite link, or using the hub directory. Once connected, you can browse each other's catalogs, send borrow requests, and stay in sync.
 msgid "help_desc_connect"
@@ -10503,7 +10503,7 @@ msgstr "Woher kommen die Lesevorschläge?"
 
 #. Where the suggestions show up, why a book is suggested, and how to dismiss one. Mentions series completion through an anonymous hub search (ADR-060).
 msgid "help_desc_recommendations"
-msgstr "„Vorschläge für Sie“ auf dem Dashboard und „Das könnte Ihnen auch gefallen“ auf der Buchseite schlagen Titel aus Ihrer eigenen Bibliothek vor. Besitzen Sie eine Reihe, kann auch der nächste fehlende Band vorgeschlagen werden: Eine anonyme Suche findet ihn, die Berechnung selbst bleibt auf diesem Gerät.\n\nJede Karte nennt den Grund: gleicher Autor, ähnliches Thema, gleicher Verlag, gleiche Zeit, ein von Ihnen gut bewertetes Buch oder eines, das schon auf Ihrem Lesestapel liegt.\n\n„Kein Interesse“ blendet einen Vorschlag überall aus, mit einer Rückgängig-Option direkt danach. Diese Entscheidung bleibt auf diesem Gerät."
+msgstr "„Vorschläge für Sie“ auf der Übersicht, „Das könnte Ihnen auch gefallen“ auf einer Buchseite und der Tab „Zu entdecken“ oben in Ihrer Bibliothek schlagen Titel aus Ihren eigenen Regalen vor. Wenn Sie eine Reihe oder mehrere Bücher desselben Autors besitzen, kann auch der fehlende Band oder Titel vorgeschlagen werden: Eine anonyme Suche findet ihn, und die Berechnung bleibt auf diesem Gerät.\n\nJede Karte sagt warum: gleicher Autor, ähnliches Thema, gleicher Verlag, gleiche Zeit, ein von Ihnen hoch bewertetes Buch oder ein Buch aus Ihrem Lesestapel. Ein Favorit zählt doppelt.\n\n„Kein Interesse“ blendet einen Vorschlag überall aus, mit einem Rückgängig direkt danach. Diese Entscheidung bleibt auf diesem Gerät."
 
 #. Reading suggestions CTA
 msgid "help_cta_see_suggestions"
@@ -10580,6 +10580,10 @@ msgstr "Aktivität · {count}"
 #. Segment of the library top slot showing reading suggestions, {count} is how many are available (ADR-062)
 msgid "books_slot_segment_discover"
 msgstr "Zu entdecken · {count}"
+
+#. Discovery tab of the library top slot. Countless on purpose: the two tabs and the collapse control share one phone-width row, and a count on each truncated this one (ADR-062)
+msgid "books_slot_tab_discover"
+msgstr "Zu entdecken"
 
 #. Tooltip of the library app-bar action opening the reading suggestions (ADR-062)
 msgid "tooltip_open_recommendations"
@@ -10894,3 +10898,42 @@ msgstr "Und sagen Sie mir, was Sie im Gegenzug bei mir ausleihen möchten."
 #. Sign-off line of the prefilled message
 msgid "contact_message_closing"
 msgstr "Vielen Dank im Voraus,"
+
+
+#. --- Help topics for the 1.1.4 features ---
+
+#. Help screen: ownership axis topic title (ADR-063)
+msgid "help_topic_ownership"
+msgstr "Wo sind die Bücher, die ich nicht besitze?"
+
+#. Help screen: the ownership filter, the search that covers everything, the not-owned marker
+msgid "help_desc_ownership"
+msgstr "Standardmäßig zeigt Ihre Bibliothek, was Sie zur Hand haben: Ihre Bücher und die, die Sie verliehen haben.\n\nDas Filtermenü enthält einen Abschnitt „Besitz“, unabhängig vom Lesestatus: „Meine Bibliothek“, „Nicht besessen“ (Wünsche, gelesene Bücher ohne Besitz) und „Alles“.\n\nDie Suche dagegen sucht überall, unabhängig vom aktiven Filter. Ein Buch, das Sie nicht besitzen, behält sein Cover in gedämpften Farben, mit einem Abzeichen „Nicht besessen“."
+
+#. Help screen: ready-made selections topic title
+msgid "help_topic_curated"
+msgstr "Fertige Auswahllisten"
+
+#. Help screen: browsing, unfolding and importing a curated selection, and the ones offered by affinity (ADR-066)
+msgid "help_desc_curated"
+msgstr "„Sammlungen entdecken“ bietet bereits zusammengestellte Listen: Literaturpreise, Klassiker, Genres, Kinderbücher, Schulanfang. Eine Karte klappt vor dem Import zur vollständigen Liste auf, und Sie wählen den Status der importierten Bücher.\n\nAuswahllisten, die sich wirklich mit Ihrer Bibliothek überschneiden, werden Ihnen von selbst vorgeschlagen, mit dem Grund: „7 gemeinsame Bücher“."
+
+#. Help screen: sharing a reading list topic title (ADR-068)
+msgid "help_topic_share_list"
+msgstr "Eine Leseliste teilen"
+
+#. Help screen: exporting a collection and importing a received list, with the preview before anything is written
+msgid "help_desc_share_list"
+msgstr "Aus einer Sammlung fasst „Teilen“ zusammen, was hinausgeht, und versendet es als Datei oder als kopierten Text.\n\n„Importieren“ im Tab Sammlungen nimmt eine Datei oder eine eingefügte Liste an. Eine Vorschau zeigt Titel, Anzahl der Bücher und Absender: Nichts gelangt in Ihre Bibliothek, bevor Sie bestätigen."
+
+#. Help screen: contact card topic title (ADR-067)
+msgid "help_topic_contact_card"
+msgstr "Wie können andere mich erreichen?"
+
+#. Help screen: filling the contact card, who receives it, and the Contact action on a peer book
+msgid "help_desc_contact_card"
+msgstr "Ein geteilter Katalog genügt nicht, um eine Ausleihe zu vereinbaren. Ihre Kontaktkarte (E-Mail, Telefon, Hinweise) füllen Sie unter Einstellungen > Online-Freigabe aus.\n\nSie wird nicht im Verzeichnis veröffentlicht: Sie wird verschlüsselt nur an die Bibliotheken übermittelt, die Sie angenommen haben. Einmal gesendet, lässt sie sich nicht zurückziehen.\n\nBeim Buch einer anderen Bibliothek öffnet „Kontaktieren“ eine bereits verfasste Nachricht, per E-Mail, SMS oder WhatsApp."
+
+#. Help screen CTA opening Settings > Online sharing
+msgid "help_cta_open_sharing"
+msgstr "Online-Freigabe öffnen"

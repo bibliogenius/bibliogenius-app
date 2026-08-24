@@ -2529,7 +2529,7 @@ msgstr "有効にすると、オーディオモジュールが LibriVox、Litté
 
 #. Collections let you group books into custom lists (sagas, themes, reading lists). Create a collection from the Collections tab, then add books from your library or import existing lists.
 msgid "help_desc_collections"
-msgstr "コレクションを使うと、本を独自のリスト（サーガ、テーマ、読書リスト）にまとめられます。コレクションタブからコレクションを作成し、ライブラリから本を追加するか、既存のリストをインポートします。"
+msgstr "コレクションは本を自由なリスト（シリーズ、テーマ、読書リスト）にまとめます。コレクションタブで作成し、ライブラリから本を追加するか、既存のリストをインポートしてください。\n\nコレクションは共有できます。「共有」はファイルまたはコピーしたテキストとして送り、「インポート」は受け取ったものを読み込みます。確認するまで、どのライブラリにも何も入りません。\n\nお気に入りコレクションは自動でたまります。本のページの星のしおりに従います。"
 
 #. Go to \"Connect Library\" to share your QR code or scan a friend's code.
 msgid "help_desc_connect"
@@ -10346,7 +10346,7 @@ msgstr "読書のおすすめはどこから来る？"
 
 #. Where the suggestions show up, why a book is suggested, and how to dismiss one. Mentions series completion through an anonymous hub search (ADR-060).
 msgid "help_desc_recommendations"
-msgstr "ダッシュボードの「あなたへのおすすめ」と、本のページの「こちらもおすすめ」は、あなた自身の蔵書から選ばれます。シリーズをお持ちの場合は、足りない次の巻も提案されます。匿名の検索がそれを見つけ、計算自体はこの端末内で行われます。\n\n各カードには理由が付きます。同じ著者、似た主題、同じ出版社、近い年代、高く評価した本、すでに積読にある本、といった具合です。\n\n「興味がない」を押すと、その提案はどこでも非表示になり、直後に取り消しもできます。この選択はこの端末に保存されます。"
+msgstr "ダッシュボードの「あなたへの提案」、本のページの「こちらもおすすめ」、ライブラリ上部の「見つける」タブは、あなた自身の蔵書から選んだ本を提案します。シリーズや同じ著者の本を複数持っている場合は、欠けている巻やタイトルも提案されます。匿名の検索で見つけ、計算自体はこの端末に留まります。\n\n各カードには理由が示されます。同じ著者、似た主題、同じ出版社、同じ時代、高く評価した本、すでに積読にある本などです。お気に入りは二倍の重みを持ちます。\n\n「興味がない」を選ぶと、その提案はどこでも非表示になり、直後に取り消しもできます。この選択はこの端末に保存されます。"
 
 #. Reading suggestions CTA
 msgid "help_cta_see_suggestions"
@@ -10423,6 +10423,10 @@ msgstr "最近の動き · {count}"
 #. Segment of the library top slot showing reading suggestions, {count} is how many are available (ADR-062)
 msgid "books_slot_segment_discover"
 msgstr "発見 · {count}"
+
+#. Discovery tab of the library top slot. Countless on purpose: the two tabs and the collapse control share one phone-width row, and a count on each truncated this one (ADR-062)
+msgid "books_slot_tab_discover"
+msgstr "発見"
 
 #. Tooltip of the library app-bar action opening the reading suggestions (ADR-062)
 msgid "tooltip_open_recommendations"
@@ -10737,3 +10741,42 @@ msgstr "こちらの蔵書で気になるものがあれば、そちらもぜひ
 #. Sign-off line of the prefilled message
 msgid "contact_message_closing"
 msgstr "よろしくお願いします。"
+
+
+#. --- Help topics for the 1.1.4 features ---
+
+#. Help screen: ownership axis topic title (ADR-063)
+msgid "help_topic_ownership"
+msgstr "所有していない本はどこにありますか？"
+
+#. Help screen: the ownership filter, the search that covers everything, the not-owned marker
+msgid "help_desc_ownership"
+msgstr "初期状態では、ライブラリは手元にあるもの、つまり所有している本と貸し出し中の本を表示します。\n\nフィルターメニューには読書状況とは別に「所有」の区分があります。「マイライブラリ」「未所有」（ほしい本、所有せずに読んだ本）「すべて」です。\n\n検索は現在のフィルターに関係なく、すべてを対象にします。所有していない本は表紙が淡い色になり、「未所有」のバッジが付きます。"
+
+#. Help screen: ready-made selections topic title
+msgid "help_topic_curated"
+msgstr "既成のセレクション"
+
+#. Help screen: browsing, unfolding and importing a curated selection, and the ones offered by affinity (ADR-066)
+msgid "help_desc_curated"
+msgstr "「コレクションを見つける」では、文学賞、古典、ジャンル、児童書、新学期などの出来合いのリストを利用できます。カードを開くとインポート前に全リストを確認でき、取り込む本の状態も選べます。\n\nあなたの蔵書と実際に重なるセレクションは、「共通する本が7冊」といった理由とともに自動的に提案されます。"
+
+#. Help screen: sharing a reading list topic title (ADR-068)
+msgid "help_topic_share_list"
+msgstr "読書リストを共有する"
+
+#. Help screen: exporting a collection and importing a received list, with the preview before anything is written
+msgid "help_desc_share_list"
+msgstr "コレクションから「共有」を選ぶと、送る内容の要約が表示され、ファイルまたはコピーしたテキストとして送信できます。\n\nコレクションタブの「インポート」は、ファイルと貼り付けたリストの両方を受け付けます。プレビューにタイトル、冊数、送り主が表示され、確認するまで何もライブラリには入りません。"
+
+#. Help screen: contact card topic title (ADR-067)
+msgid "help_topic_contact_card"
+msgstr "他の人はどうやって連絡できますか？"
+
+#. Help screen: filling the contact card, who receives it, and the Contact action on a peer book
+msgid "help_desc_contact_card"
+msgstr "カタログを共有しただけでは貸し借りの約束はできません。連絡先カード（メール、電話、補足）は「設定 > オンライン共有」で入力します。\n\nディレクトリには公開されません。承認したライブラリにだけ、暗号化して届けられます。一度送ると取り消せません。\n\n他のライブラリの本では「連絡する」から、メール・SMS・WhatsApp で下書き済みのメッセージを開けます。"
+
+#. Help screen CTA opening Settings > Online sharing
+msgid "help_cta_open_sharing"
+msgstr "オンライン共有を開く"

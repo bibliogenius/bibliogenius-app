@@ -2769,7 +2769,7 @@ msgstr "Когато е активиран, Аудио модулът автом
 
 #. Collections let you group books into custom lists (sagas, themes, reading lists). Create a collection from the Collections tab, then add books from your library or import existing lists.
 msgid "help_desc_collections"
-msgstr "Колекциите ви позволяват да групирате книги в персонализирани списъци (саги, теми, списъци за четене). Създайте колекция от раздела Колекции, след което добавете книги от вашата библиотека или внесете съществуващи списъци."
+msgstr "Колекциите групират книгите ви в собствени списъци (поредици, теми, списъци за четене). Създайте една от раздела Колекции и добавете книги от библиотеката си или внесете съществуващ списък.\n\nКолекция може да се сподели: «Споделяне» я изпраща като файл или като копиран текст, а «Внасяне» прочита това, което получавате. Нищо не влиза в библиотека преди потвърждение.\n\nКолекцията Любими се пълни сама: тя следва звездата-отметка, поставена на страницата на книгите."
 
 #. Go to \"Connect Library\" to share your QR code or scan a friend's code.
 msgid "help_desc_connect"
@@ -10634,7 +10634,7 @@ msgstr "Откъде идват предложенията за четене?"
 
 #. Where the suggestions show up, why a book is suggested, and how to dismiss one. Mentions series completion through an anonymous hub search (ADR-060).
 msgid "help_desc_recommendations"
-msgstr "„Предложения за вас“ на таблото и „Може да ви хареса и“ на страницата на книга предлагат заглавия от вашата собствена библиотека. Ако притежавате поредица, може да ви бъде предложен и следващият липсващ том: анонимно търсене го намира, а самото изчисление остава на това устройство.\n\nВсяка карта казва защо: същият автор, подобна тема, същото издателство, същият период, книга, която сте оценили високо, или книга, която вече чака в купчината ви.\n\n„Не ме интересува“ скрива предложение навсякъде, с възможност за отмяна веднага след това. Този избор се пази на това устройство."
+msgstr "«Предложения за вас» на таблото, «Може да ви хареса и» на страницата на книга и разделът «За откриване» най-горе в библиотеката предлагат заглавия от вашите собствени рафтове. Ако притежавате поредица или няколко книги от един автор, липсващият том или заглавие също може да ви бъде предложен: анонимно търсене го намира, а изчислението остава на това устройство.\n\nВсяка карта казва защо: същият автор, сходна тема, същото издателство, същият период, книга, която сте оценили високо, или книга вече в купа за четене. Любима книга тежи двойно.\n\n«Не ме интересува» скрива предложението навсякъде, с отмяна веднага след това. Изборът се пази на това устройство."
 
 #. Reading suggestions CTA
 msgid "help_cta_see_suggestions"
@@ -10711,6 +10711,10 @@ msgstr "Активност · {count}"
 #. Segment of the library top slot showing reading suggestions, {count} is how many are available (ADR-062)
 msgid "books_slot_segment_discover"
 msgstr "За откриване · {count}"
+
+#. Discovery tab of the library top slot. Countless on purpose: the two tabs and the collapse control share one phone-width row, and a count on each truncated this one (ADR-062)
+msgid "books_slot_tab_discover"
+msgstr "За откриване"
 
 #. Tooltip of the library app-bar action opening the reading suggestions (ADR-062)
 msgid "tooltip_open_recommendations"
@@ -11025,3 +11029,42 @@ msgstr "Кажете ми и какво бихте искали да заеме�
 #. Sign-off line of the prefilled message
 msgid "contact_message_closing"
 msgstr "Благодаря предварително,"
+
+
+#. --- Help topics for the 1.1.4 features ---
+
+#. Help screen: ownership axis topic title (ADR-063)
+msgid "help_topic_ownership"
+msgstr "Къде са книгите, които не притежавам?"
+
+#. Help screen: the ownership filter, the search that covers everything, the not-owned marker
+msgid "help_desc_ownership"
+msgstr "По подразбиране библиотеката показва това, което е под ръка: вашите книги и тези, които сте дали назаем.\n\nМенюто с филтри има раздел «Притежание», независим от статуса на четене: «Моята библиотека», «Непритежавани» (желани книги, четени без да ги имате) и «Всичко».\n\nТърсенето обаче претърсва всичко, независимо от активния филтър. Книга, която не притежавате, запазва корицата си в приглушени цветове, с етикет «Непритежавана»."
+
+#. Help screen: ready-made selections topic title
+msgid "help_topic_curated"
+msgstr "Готовите подборки"
+
+#. Help screen: browsing, unfolding and importing a curated selection, and the ones offered by affinity (ADR-066)
+msgid "help_desc_curated"
+msgstr "«Открийте колекции» предлага вече съставени списъци: литературни награди, класики, жанрове, детски книги, начало на учебната година. Картата се разгръща до пълния списък преди внасянето, а вие избирате статуса на внесените книги.\n\nПодборките, които наистина се припокриват с библиотеката ви, се предлагат сами, с причината: «7 общи книги»."
+
+#. Help screen: sharing a reading list topic title (ADR-068)
+msgid "help_topic_share_list"
+msgstr "Споделяне на списък за четене"
+
+#. Help screen: exporting a collection and importing a received list, with the preview before anything is written
+msgid "help_desc_share_list"
+msgstr "От дадена колекция «Споделяне» обобщава какво ще излезе и после го изпраща като файл или като копиран текст.\n\n«Внасяне» в раздела Колекции приема файл или поставен списък. Прегледът показва заглавието, броя книги и подателя: нищо не влиза в библиотеката ви преди вашето потвърждение."
+
+#. Help screen: contact card topic title (ADR-067)
+msgid "help_topic_contact_card"
+msgstr "Как другите могат да се свържат с мен?"
+
+#. Help screen: filling the contact card, who receives it, and the Contact action on a peer book
+msgid "help_desc_contact_card"
+msgstr "Споделеният каталог не е достатъчен, за да се уговори заемане. Вашата визитка за контакт (имейл, телефон, уточнения) се попълва в Настройки > Онлайн споделяне.\n\nТя не се публикува в указателя: предава се, шифрована, само на библиотеките, които сте приели. Веднъж изпратена, не може да бъде оттеглена.\n\nПри книга от друга библиотека «Свържете се» отваря вече написано съобщение по имейл, SMS или WhatsApp."
+
+#. Help screen CTA opening Settings > Online sharing
+msgid "help_cta_open_sharing"
+msgstr "Отваряне на онлайн споделянето"
