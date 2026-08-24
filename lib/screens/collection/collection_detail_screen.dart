@@ -5,6 +5,8 @@ import '../../data/repositories/copy_repository.dart';
 import '../../services/api_service.dart';
 import '../../services/collection_export_service.dart';
 import '../../services/translation_service.dart';
+import '../../utils/language_constants.dart';
+import '../../widgets/collection_share_sheet.dart';
 import '../../utils/collection_display.dart';
 import '../../providers/book_refresh_notifier.dart';
 import '../../providers/theme_provider.dart';
@@ -354,8 +356,8 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
 
   Future<void> _shareCollection() async {
     try {
-      final apiService = Provider.of<ApiService>(context, listen: false);
-      final exportService = CollectionExportService(apiService);
+      const exportService = CollectionExportService();
+      final theme = context.read<ThemeProvider>();
 
       // The favorites collection stores a technical sentinel name
       // (ADR-064): export the translated display name, never the sentinel.
@@ -372,19 +374,57 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
           ownedBooks: shared.ownedBooks,
         );
       }
-      await exportService.shareCollection(shared);
 
-      if (mounted) {
-        AppSnackBar.success(
-          context,
-          TranslationService.translate(context, 'collection_exported'),
-        );
-      }
+      // Formatted BEFORE the panel opens: it shows the reader what they are
+      // about to send, and offers to copy those exact bytes.
+      final languages = resolveReaderLanguages(
+        theme.locale.languageCode,
+        theme.userLanguages,
+      );
+      // The SAME source the screen lists above, through the repository: a
+      // panel that shows what you are about to send must read where the
+      // screen reads, or it will promise books the file does not carry.
+      final books = await context.read<CollectionRepository>()
+          .getCollectionBooks(shared.id);
+      final yaml = exportService.exportToYaml(
+        shared,
+        books,
+        // Names the sender in the file. Without it the receiver cannot tell
+        // two identically named lists apart: their own "Favoris" and the one
+        // they just accepted. The library name is what the invitation sheet
+        // already shows, so the two ways of reaching someone agree.
+        contributorName: theme.libraryName,
+        contentLanguages: languages,
+      );
+      if (!mounted) return;
+
+      final name = shared.name;
+      final message = TranslationService.translate(
+            context,
+            'collection_share_message',
+          )
+          .replaceAll('{name}', name)
+          .replaceAll('{count}', '${books.length}');
+
+      await showCollectionShareSheet(
+        context,
+        collectionName: name,
+        bookCount: books.length,
+        yaml: yaml,
+        languages: languages,
+        onShare: () async {
+          await exportService.shareYaml(
+            collectionName: name,
+            yaml: yaml,
+            message: message,
+          );
+        },
+      );
     } catch (e) {
       if (mounted) {
         AppSnackBar.error(
           context,
-          '${TranslationService.translate(context, 'error_sharing_collection')}: $e',
+          '${TranslationService.translate(context, 'export_fail')}: $e',
         );
       }
     }

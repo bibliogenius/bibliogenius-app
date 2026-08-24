@@ -93,8 +93,15 @@ class CollectionImportService {
     List<String> subjects = const [],
     void Function(int done, int total)? onProgress,
     bool Function()? isCancelled,
+    Iterable<String> existingCollectionNames = const [],
+    String? nameCollisionFormat,
   }) async {
-    final listTitle = list.getTitle(langCode);
+    final listTitle = resolveImportedCollectionName(
+      title: list.getTitle(langCode),
+      existingNames: existingCollectionNames,
+      contributor: list.contributor,
+      withContributorFormat: nameCollisionFormat,
+    );
     final listDescription = list.getDescription(langCode);
     int successCount = 0;
     int errorCount = 0;
@@ -273,108 +280,185 @@ class CollectionImportService {
     }
   }
 
-  /// Imports from a raw YAML string.
+  /// Parses a shared list's YAML into a [CuratedList], without touching the
+  /// library.
+  ///
+  /// Exposed and pure so the round trip has a contract: one reader exports a
+  /// collection, another imports the file, and nothing but this agreement
+  /// holds the two formats together. Guarded by
+  /// `test/services/shared_list_round_trip_test.dart`.
+  ///
+  /// Accepts both shapes the corpus uses for `title` and `description`, a
+  /// bare string as the exporter writes and a per-language map as the bundled
+  /// lists carry.
+  ///
+  /// **`curation_status` is deliberately NOT read.** Promotion is an
+  /// editorial act of THIS install (ADR-066): a file that could declare
+  /// itself audited would let a stranger's list into the suggestion tier.
+  static CuratedList parseSharedList(String content) {
+    final yaml = loadYaml(content);
+    if (yaml is! Map) {
+      throw const FormatException('Invalid YAML structure');
+    }
+    final map = Map<String, dynamic>.from(yaml);
+
+    // An id can be missing OR blank: the exporter builds it by stripping
+    // everything non-alphanumeric from the collection name, so a name like
+    // "***" yields an empty string rather than no key at all.
+    final rawId = map['id']?.toString().trim() ?? '';
+    final id = rawId.isEmpty ? const Uuid().v4() : rawId;
+
+    Map<String, String> localized(dynamic value) {
+      if (value is String) return {'default': value};
+      if (value is Map) {
+        return value.map((k, v) => MapEntry(k.toString(), v.toString()));
+      }
+      return {};
+    }
+
+    return CuratedList(
+      id: id,
+      version: map['version'] is int ? map['version'] as int : 1,
+      title: localized(map['title']),
+      description: localized(map['description']),
+      coverUrl: _safeCoverUrl(map['cover_url']),
+      contributor: map['contributor']?.toString(),
+      tags: map['tags'] is List
+          ? (map['tags'] as List).map((e) => e.toString()).toList()
+          : const [],
+      books: map['books'] is List
+          ? (map['books'] as List)
+                .map(CuratedBook.fromYaml)
+                .map(_withSafeCover)
+                .toList()
+          : const [],
+      contentLanguages: map['content_languages'] is List
+          ? (map['content_languages'] as List).map((e) => e.toString()).toList()
+          : const [],
+    );
+  }
+
+  /// Size past which a shared list is refused before being parsed.
+  ///
+  /// Refused, not warned about, unlike an over-long list: the entry-count
+  /// warning can only be shown AFTER parsing, so it does nothing about the
+  /// cost of the parse itself. Reading and parsing an arbitrary file handed
+  /// over by someone else is the part that has to be bounded first.
+  ///
+  /// Generous on purpose. Measured 2026-08-24: the entire bundled corpus, 83
+  /// lists and 906 entries, weighs 396 KB, and its longest single list weighs
+  /// 12 KB. A megabyte is therefore some twenty times the whole catalogue and
+  /// cannot be reached by a real list.
+  static const int maxSharedListBytes = 1024 * 1024;
+
+  static bool isTooLargeToParse(int byteCount) =>
+      byteCount > maxSharedListBytes;
+
+  /// The name an imported list takes, given what the library already holds.
+  ///
+  /// A shared list is never MERGED into a collection of the same name, and the
+  /// favourites case is why the rule has no exception: there, membership IS
+  /// the star (ADR-064), and a liked book weighs double in the ADR-066
+  /// ranking. Merging someone else's favourites would therefore bend the
+  /// reader's own recommendations toward another person's taste, silently and
+  /// with no obvious way back.
+  ///
+  /// So a collision is answered by NAMING: "Favoris de Nohemi". Only on a
+  /// collision, because decorating a name nothing clashes with is noise. And
+  /// only when the file names its sender: without a contributor the bare
+  /// title is kept and the duplicate is accepted, which is honest rather than
+  /// inventing an origin.
+  ///
+  /// [existingNames] must be the names as DISPLAYED, not as stored: a
+  /// favourites collection holds the technical `__favorites__` sentinel and
+  /// shows a translated label, so comparing stored names would miss exactly
+  /// the collision this exists for. [withContributorFormat] is the translated
+  /// template carrying `{title}` and `{contributor}`, passed in because the
+  /// connector is a word and words have a language.
+  static String resolveImportedCollectionName({
+    required String title,
+    required Iterable<String> existingNames,
+    String? contributor,
+    String? withContributorFormat,
+  }) {
+    final key = title.trim().toLowerCase();
+    final collides = existingNames.any((n) => n.trim().toLowerCase() == key);
+    if (!collides) return title;
+
+    final sender = contributor?.trim() ?? '';
+    if (sender.isEmpty || withContributorFormat == null) return title;
+
+    return withContributorFormat
+        .replaceAll('{title}', title)
+        .replaceAll('{contributor}', sender);
+  }
+
+  /// Entry count above which an imported list is worth a word of warning.
+  ///
+  /// A warning, never a refusal: a long list is unusual, not hostile, and
+  /// refusing one would block a legitimate case. Someone sharing a full manga
+  /// run has every right to.
+  ///
+  /// Deliberately far above anything real. Measured 2026-08-24: the longest
+  /// list in the bundled corpus is `naruto` at 72 entries, the whole corpus of
+  /// 83 lists holds 906, and the reference library is 492 books. So a shared
+  /// list past this mark is not a reading list, it is someone's entire library
+  /// or a file built to be heavy.
+  ///
+  /// What the warning is about is cost, not danger: the import calls the
+  /// metadata lookup ONCE PER BOOK and each call waits out its own timeout, so
+  /// a very long list means a very long spinner, and offline it means a very
+  /// long one for nothing.
+  static const int largeListWarningThreshold = 500;
+
+  /// Whether [bookCount] deserves the warning above. The boundary is
+  /// inclusive: exactly [largeListWarningThreshold] books stays quiet.
+  static bool isLargeSharedList(int bookCount) =>
+      bookCount > largeListWarningThreshold;
+
+  /// Keeps a cover URL only when it is https.
+  ///
+  /// This file arrives from someone else and the app FETCHES what it points
+  /// at, so an attacker-chosen URL turns the reader's device into a beacon:
+  /// their IP and the moment they opened the list, over cleartext, without a
+  /// gesture on their part. The bundled corpus is held to the same rule,
+  /// where `audit_curated_lists.dart` reports a non-https cover as BLOCKING;
+  /// a shared list has no audit at all, so the check has to live at the door.
+  ///
+  /// Dropped rather than rejected: losing an illustration is not a reason to
+  /// refuse a list the reader asked for. The ISBN lookup finds a cover anyway.
+  static String? _safeCoverUrl(dynamic value) {
+    final url = value?.toString().trim() ?? '';
+    return url.toLowerCase().startsWith('https://') ? url : null;
+  }
+
+  static CuratedBook _withSafeCover(CuratedBook book) {
+    final safe = _safeCoverUrl(book.coverUrl);
+    return safe == book.coverUrl ? book : book.withCoverUrl(safe);
+  }
+
+  /// Imports from a raw YAML string, as handed over by the file picker or the
+  /// clipboard.
+  ///
+  /// [langCode] picks which language the list's own title and description are
+  /// read in; the caller passes the reader's locale, since a shared list is
+  /// as likely to arrive in one language as in another.
   Future<CollectionImportResult> importFromYaml(
     String content, {
     required String readingStatus,
     required bool markAsOwned,
+    String langCode = 'fr',
+    Iterable<String> existingCollectionNames = const [],
+    String? nameCollisionFormat,
   }) async {
     try {
-      var yaml = loadYaml(content);
-
-      // Inject ID if missing to satisfy CuratedList.fromYaml
-      Map<String, dynamic> mutableYaml;
-      if (yaml is YamlMap) {
-        mutableYaml = Map<String, dynamic>.from(yaml);
-      } else if (yaml is Map) {
-        mutableYaml = Map<String, dynamic>.from(yaml);
-      } else {
-        throw FormatException('Invalid YAML structure');
-      }
-
-      if (!mutableYaml.containsKey('id')) {
-        mutableYaml['id'] = const Uuid().v4();
-      }
-
-      // Re-encode or construct YamlMap?
-      // CuratedList.fromYaml takes a YamlMap or Map?
-      // CuratedList.fromYaml definition (810): factory CuratedList.fromYaml(YamlMap yaml)
-      // It expects YamlMap. But YamlMap is hard to construct manually.
-      // However, usually typing is `dynamic yaml` or I can adapt `CuratedList` to accept Map.
-      // Wait, `fromYaml(YamlMap yaml)` is strict.
-      // If I pass a `Map`, it will fail at runtime if I enable type checks?
-      // Let's check `CuratedList.fromYaml` again.
-      // Line 62: `factory CuratedList.fromYaml(YamlMap yaml)`.
-
-      // If `loadYaml` returns `YamlMap`, it's immutable. checking `containsKey` works.
-      // But I can't add 'id' to it.
-
-      // Strategy: Use a generated ID if I can't parse it?
-      // OR, manually construct `CuratedList` instead of using `fromYaml` which demands YamlMap.
-
-      String id = mutableYaml['id']?.toString() ?? const Uuid().v4();
-      int version = mutableYaml['version'] is int ? mutableYaml['version'] : 1;
-
-      // Parse title
-      Map<String, String> titleMap = {};
-      if (mutableYaml['title'] is String) {
-        titleMap = {'default': mutableYaml['title']};
-      } else if (mutableYaml['title'] is Map) {
-        titleMap = Map<String, String>.from(mutableYaml['title']);
-      }
-
-      // Parse description
-      Map<String, String> descMap = {};
-      if (mutableYaml['description'] is String) {
-        descMap = {'default': mutableYaml['description']};
-      } else if (mutableYaml['description'] is Map) {
-        descMap = Map<String, String>.from(mutableYaml['description']);
-      }
-
-      // Books
-      List<CuratedBook> books = [];
-      if (mutableYaml['books'] is List) {
-        for (var b in mutableYaml['books']) {
-          // CuratedBook.fromYaml accepts dynamic yaml (String or Map)
-          books.add(CuratedBook.fromYaml(b));
-        }
-      }
-
-      List<String> tags = [];
-      if (mutableYaml['tags'] is List) {
-        tags = (mutableYaml['tags'] as List).map((e) => e.toString()).toList();
-      }
-
-      final list = CuratedList(
-        id: id,
-        version: version,
-        title: titleMap,
-        description: descMap,
-        coverUrl: mutableYaml['cover_url'],
-        contributor: mutableYaml['contributor'],
-        tags: tags,
-        books: books,
-      );
-
-      // Reuse valid import logic
-      // Note: we can hardcode langCode to 'default' or passed 'en' if we don't have context,
-      // but `importList` takes `langCode`.
-      // I should allow passing langCode to `importFromYaml`?
-      // `ImportSharedListScreen` doesn't seem to pass it?
-      // `ImportSharedListScreen` uses `importFromYaml(content, readingStatus..., markAsOwned...)`.
-      // I can fetch device locale inside, or just default to 'en' or 'fr'.
-
-      // I will assume 'en' or try to detect?
-      // Or better, I will assume the user wants the "default" or "current" language,
-      // but `ImportSharedListScreen` calls it without lang.
-      // For now I'll default to 'en' in the call to `importList`.
-
       return importList(
-        list: list,
-        langCode:
-            'fr', // Defaulting to FR or I should modify signature to accept it.
+        list: parseSharedList(content),
+        langCode: langCode,
         readingStatus: readingStatus,
         shouldMarkAsOwned: markAsOwned,
+        existingCollectionNames: existingCollectionNames,
+        nameCollisionFormat: nameCollisionFormat,
       );
     } catch (e) {
       return CollectionImportResult(

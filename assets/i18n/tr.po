@@ -10856,6 +10856,47 @@ msgstr "Bu raftaki {count} kitap sizde değil: istek listesi ya da ödünç veri
 msgid "show_all_ownership"
 msgstr "Yine de göster"
 
+#. Share panel: title
+msgid "collection_share_title"
+msgstr "Bu listeyi paylaş"
+
+#. Share panel: what the recipient gets, and that their library is untouched until they confirm
+msgid "collection_share_explainer"
+msgstr "Karşı taraf bir BiblioGenius liste dosyası alır. Onaylamadan önce kitaplığına hiçbir şey girmez."
+
+#. Share panel: how many books the list holds, {count}
+msgid "collection_share_count"
+msgstr "{count} kitap"
+
+#. Share panel: the list's declared reading languages, {languages}
+msgid "collection_share_languages"
+msgstr "Bildirilen diller: {languages}"
+
+#. Share panel: copy the list as text, which the import can paste
+msgid "collection_share_copy"
+msgstr "Kopyala"
+
+#. Share panel: send the list as a file
+msgid "collection_share_send"
+msgstr "Dosyayı gönder"
+
+#. Confirmation after copying the list to the clipboard
+msgid "collection_share_copied"
+msgstr "Liste kopyalandı"
+
+#. Text accompanying a shared list file, {name} and {count}
+msgid "collection_share_message"
+msgstr "Okuma listesi “{name}” ({count} kitap)"
+
+#. Import screen: heading of the accepted-formats card
+msgid "import_supported_formats"
+msgstr "Kabul edilen biçimler"
+
+#. Import screen: the accepted formats, naming the Share action that produces them
+msgid "import_supported_formats_detail"
+msgstr "• “Paylaş” ile gönderilen bir .bibliogenius.yml dosyası\n• bir .yaml veya .yml dosyası\n• panodan yapıştırılan bir liste"
+
+
 #. --- Contact card and contact channels (ADR-067) ---
 
 #. Hub contact card: email field label
@@ -10933,3 +10974,15 @@ msgstr "Merhaba,\n\nkütüphaneniz hakkında yazıyorum."
 #. Hub contact card: phone field placeholder, a local example number
 msgid "hub_contact_phone_hint"
 msgstr "+90 532 123 45 67"
+
+#. Import preview: a list well past the usual size will be slow, {count} is how many books
+msgid "import_large_list_warning"
+msgstr "Uzun liste: {count} kitap. İçe aktarma her birini tek tek arar, bu nedenle uzun sürebilir, çevrimdışıyken daha da uzun."
+
+#. Name given to an imported list when the library already holds one with that name, {title} and {contributor}
+msgid "imported_collection_name_from"
+msgstr "{contributor} kullanıcısından {title}"
+
+#. Refused before parsing: a shared list past the size bound
+msgid "import_file_too_large"
+msgstr "Bu dosya bir okuma listesi olamayacak kadar büyük."

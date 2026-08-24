@@ -6,6 +6,8 @@ import 'package:file_picker/file_picker.dart';
 import '../../services/api_service.dart';
 import '../../services/collection_import_service.dart';
 import '../../services/translation_service.dart';
+import '../../utils/collection_display.dart';
+import '../../providers/theme_provider.dart';
 
 /// Screen for importing a shared .bibliogenius.yml file.
 class ImportSharedListScreen extends StatefulWidget {
@@ -47,6 +49,17 @@ class _ImportSharedListScreenState extends State<ImportSharedListScreen> {
     });
   }
 
+  void _showTooLarge() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          TranslationService.translate(context, 'import_file_too_large'),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.error,
+      ),
+    );
+  }
+
   Future<void> _pickFile() async {
     try {
       final result = await FilePicker.platform.pickFiles(
@@ -58,6 +71,14 @@ class _ImportSharedListScreenState extends State<ImportSharedListScreen> {
       if (result != null && result.files.isNotEmpty) {
         final file = result.files.first;
         String content;
+
+        // Measured BEFORE reading: the point of the bound is not to parse a
+        // huge file, and loading it into a String to then measure it would
+        // have already paid the cost the bound exists to avoid.
+        if (CollectionImportService.isTooLargeToParse(file.size)) {
+          if (mounted) _showTooLarge();
+          return;
+        }
 
         if (file.bytes != null) {
           content = String.fromCharCodes(file.bytes!);
@@ -85,8 +106,15 @@ class _ImportSharedListScreenState extends State<ImportSharedListScreen> {
   Future<void> _pasteFromClipboard() async {
     try {
       final data = await Clipboard.getData(Clipboard.kTextPlain);
-      if (data?.text != null && data!.text!.isNotEmpty) {
-        _processYaml(data.text!);
+      // Already in memory here, the system handed it over, but the parse is
+      // still ahead and that is what the bound protects.
+      final pasted = data?.text ?? '';
+      if (CollectionImportService.isTooLargeToParse(pasted.length)) {
+        if (mounted) _showTooLarge();
+        return;
+      }
+      if (pasted.isNotEmpty) {
+        _processYaml(pasted);
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -122,10 +150,26 @@ class _ImportSharedListScreenState extends State<ImportSharedListScreen> {
       final apiService = Provider.of<ApiService>(context, listen: false);
       final importService = CollectionImportService(apiService);
 
+      // Compared by DISPLAYED name: a favourites collection stores the
+      // `__favorites__` sentinel and shows a translated label, so a check on
+      // stored names would miss the very collision this guards against.
+      final existing = (await apiService.getCollections())
+          .map((c) => collectionDisplayName(context, c))
+          .toList();
+      if (!mounted) return;
+
       final result = await importService.importFromYaml(
         _yamlContent!,
         readingStatus: _selectedStatus == 'owned' ? 'to_read' : _selectedStatus,
         markAsOwned: _selectedStatus != 'wanting',
+        existingCollectionNames: existing,
+        nameCollisionFormat: TranslationService.translate(
+          context,
+          'imported_collection_name_from',
+        ),
+        // A shared list arrives in whatever language its author wrote it, so
+        // read its title in the reader's own rather than in a hardcoded one.
+        langCode: context.read<ThemeProvider>().locale.languageCode,
       );
 
       if (mounted) {
@@ -247,26 +291,35 @@ class _ImportSharedListScreenState extends State<ImportSharedListScreen> {
                       color: Theme.of(
                         context,
                       ).colorScheme.surfaceContainerHighest,
-                      child: const Padding(
-                        padding: EdgeInsets.all(16),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
                               children: [
-                                Icon(Icons.info_outline, size: 20),
-                                SizedBox(width: 8),
+                                const Icon(Icons.info_outline, size: 20),
+                                const SizedBox(width: 8),
                                 Text(
-                                  'Supported formats',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                  TranslationService.translate(
+                                    context,
+                                    'import_supported_formats',
+                                  ),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ],
                             ),
-                            SizedBox(height: 8),
+                            const SizedBox(height: 8),
+                            // Names the export that produces these files, so
+                            // the two halves of sharing stop being strangers
+                            // to each other.
                             Text(
-                              '• .bibliogenius.yml files\n'
-                              '• .yaml or .yml files\n'
-                              '• YAML content from clipboard',
+                              TranslationService.translate(
+                                context,
+                                'import_supported_formats_detail',
+                              ),
                             ),
                           ],
                         ),
@@ -316,13 +369,60 @@ class _ImportSharedListScreenState extends State<ImportSharedListScreen> {
                                   const Icon(Icons.book, size: 18),
                                   const SizedBox(width: 8),
                                   Text(
-                                    '${_preview!['bookCount']} books',
+                                    // The same key the share panel prints, so
+                                    // the two ends of one exchange count in
+                                    // the same words.
+                                    TranslationService.translate(
+                                      context,
+                                      'collection_share_count',
+                                    ).replaceAll(
+                                      '{count}',
+                                      '${_preview!['bookCount']}',
+                                    ),
                                     style: Theme.of(
                                       context,
                                     ).textTheme.bodyLarge,
                                   ),
                                 ],
                               ),
+                              // A long list is unusual, not hostile, so this
+                              // warns and never refuses. What it warns about
+                              // is cost: the import calls the metadata lookup
+                              // once per book, each waiting out its own
+                              // timeout.
+                              if (CollectionImportService.isLargeSharedList(
+                                (_preview!['bookCount'] as int?) ?? 0,
+                              )) ...[
+                                const SizedBox(height: 12),
+                                Row(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                  children: [
+                                    Icon(
+                                      Icons.hourglass_top,
+                                      size: 18,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.tertiary,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        TranslationService.translate(
+                                          context,
+                                          'import_large_list_warning',
+                                        ).replaceAll(
+                                          '{count}',
+                                          '${_preview!['bookCount']}',
+                                        ),
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.bodySmall,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                               if (_preview!['contributor'] != null) ...[
                                 const SizedBox(height: 8),
                                 Row(

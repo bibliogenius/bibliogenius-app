@@ -10856,6 +10856,47 @@ msgstr "{count} книга(и) от този рафт не са у вас: же�
 msgid "show_all_ownership"
 msgstr "Покажи ги въпреки това"
 
+#. Share panel: title
+msgid "collection_share_title"
+msgstr "Споделяне на този списък"
+
+#. Share panel: what the recipient gets, and that their library is untouched until they confirm
+msgid "collection_share_explainer"
+msgstr "Получателят ще получи файл със списък на BiblioGenius. Нищо няма да влезе в библиотеката му, преди да потвърди."
+
+#. Share panel: how many books the list holds, {count}
+msgid "collection_share_count"
+msgstr "{count} книги"
+
+#. Share panel: the list's declared reading languages, {languages}
+msgid "collection_share_languages"
+msgstr "Обявени езици: {languages}"
+
+#. Share panel: copy the list as text, which the import can paste
+msgid "collection_share_copy"
+msgstr "Копиране"
+
+#. Share panel: send the list as a file
+msgid "collection_share_send"
+msgstr "Изпращане на файла"
+
+#. Confirmation after copying the list to the clipboard
+msgid "collection_share_copied"
+msgstr "Списъкът е копиран"
+
+#. Text accompanying a shared list file, {name} and {count}
+msgid "collection_share_message"
+msgstr "Списък за четене „{name}“ ({count} книги)"
+
+#. Import screen: heading of the accepted-formats card
+msgid "import_supported_formats"
+msgstr "Приемани формати"
+
+#. Import screen: the accepted formats, naming the Share action that produces them
+msgid "import_supported_formats_detail"
+msgstr "• файл .bibliogenius.yml, както го изпраща „Споделяне“\n• файл .yaml или .yml\n• списък, поставен от клипборда"
+
+
 #. --- Contact card and contact channels (ADR-067) ---
 
 #. Hub contact card: email field label
@@ -10933,3 +10974,15 @@ msgstr "Здравейте,\n\nпиша ви относно вашата биб�
 #. Hub contact card: phone field placeholder, a local example number
 msgid "hub_contact_phone_hint"
 msgstr "+359 87 123 4567"
+
+#. Import preview: a list well past the usual size will be slow, {count} is how many books
+msgid "import_large_list_warning"
+msgstr "Дълъг списък: {count} книги. Импортът търси всяка поотделно, така че може да отнеме време, а офлайн — още повече."
+
+#. Name given to an imported list when the library already holds one with that name, {title} and {contributor}
+msgid "imported_collection_name_from"
+msgstr "{title} от {contributor}"
+
+#. Refused before parsing: a shared list past the size bound
+msgid "import_file_too_large"
+msgstr "Този файл е твърде голям, за да е списък за четене."

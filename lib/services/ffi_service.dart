@@ -705,6 +705,7 @@ class FfiService {
     return CollectionBook(
       bookId: cb.bookId,
       title: cb.title,
+      isbn: cb.isbn,
       author: cb.author,
       coverUrl: cb.coverUrl,
       publisher: cb.publisher,

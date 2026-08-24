@@ -10864,6 +10864,47 @@ msgstr "{count} livro(s) desta estante não estão com você: desejos, ou livros
 msgid "show_all_ownership"
 msgstr "Mostrar mesmo assim"
 
+#. Share panel: title
+msgid "collection_share_title"
+msgstr "Compartilhar esta lista"
+
+#. Share panel: what the recipient gets, and that their library is untouched until they confirm
+msgid "collection_share_explainer"
+msgstr "Ela receberá um arquivo de lista BiblioGenius. Nada entrará na biblioteca dela antes de confirmar."
+
+#. Share panel: how many books the list holds, {count}
+msgid "collection_share_count"
+msgstr "{count} livros"
+
+#. Share panel: the list's declared reading languages, {languages}
+msgid "collection_share_languages"
+msgstr "Idiomas declarados: {languages}"
+
+#. Share panel: copy the list as text, which the import can paste
+msgid "collection_share_copy"
+msgstr "Copiar"
+
+#. Share panel: send the list as a file
+msgid "collection_share_send"
+msgstr "Enviar o arquivo"
+
+#. Confirmation after copying the list to the clipboard
+msgid "collection_share_copied"
+msgstr "Lista copiada"
+
+#. Text accompanying a shared list file, {name} and {count}
+msgid "collection_share_message"
+msgstr "Lista de leitura “{name}” ({count} livros)"
+
+#. Import screen: heading of the accepted-formats card
+msgid "import_supported_formats"
+msgstr "Formatos aceitos"
+
+#. Import screen: the accepted formats, naming the Share action that produces them
+msgid "import_supported_formats_detail"
+msgstr "• um arquivo .bibliogenius.yml, como “Compartilhar” envia\n• um arquivo .yaml ou .yml\n• uma lista colada da área de transferência"
+
+
 #. --- Contact card and contact channels (ADR-067) ---
 
 #. Hub contact card: email field label
@@ -10941,3 +10982,15 @@ msgstr "Olá,\n\nestou escrevendo a respeito da sua biblioteca."
 #. Hub contact card: phone field placeholder, a local example number
 msgid "hub_contact_phone_hint"
 msgstr "+55 11 91234 5678"
+
+#. Import preview: a list well past the usual size will be slow, {count} is how many books
+msgid "import_large_list_warning"
+msgstr "Lista longa: {count} livros. A importação consulta cada um, então pode demorar, e ainda mais off-line."
+
+#. Name given to an imported list when the library already holds one with that name, {title} and {contributor}
+msgid "imported_collection_name_from"
+msgstr "{title} de {contributor}"
+
+#. Refused before parsing: a shared list past the size bound
+msgid "import_file_too_large"
+msgstr "Este arquivo é grande demais para ser uma lista de leitura."

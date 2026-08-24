@@ -33,6 +33,25 @@ class CuratedBook {
     this.title,
   });
 
+  /// A copy with [coverUrl] replaced.
+  ///
+  /// Narrow on purpose, and it exists for one caller: the shared-list import
+  /// strips a cover URL that is not https. That was written as a manual
+  /// field-by-field rebuild, which works right up to the day someone adds a
+  /// field and it starts being dropped silently for every imported list.
+  CuratedBook withCoverUrl(String? url) => CuratedBook(
+    isbn: isbn,
+    note: note,
+    altEditions: altEditions,
+    publisher: publisher,
+    publishedDate: publishedDate,
+    description: description,
+    authors: authors,
+    pageCount: pageCount,
+    coverUrl: url,
+    title: title,
+  );
+
   factory CuratedBook.fromYaml(dynamic yaml) {
     if (yaml is String) {
       // Simple format: just ISBN

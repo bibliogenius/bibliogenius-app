@@ -10568,6 +10568,47 @@ msgstr "此书架上有 {count} 本书不在您手中：心愿单，或已外借
 msgid "show_all_ownership"
 msgstr "仍然显示"
 
+#. Share panel: title
+msgid "collection_share_title"
+msgstr "分享此书单"
+
+#. Share panel: what the recipient gets, and that their library is untouched until they confirm
+msgid "collection_share_explainer"
+msgstr "对方会收到一个 BiblioGenius 书单文件。在他确认之前，什么都不会进入他的藏书。"
+
+#. Share panel: how many books the list holds, {count}
+msgid "collection_share_count"
+msgstr "{count} 本书"
+
+#. Share panel: the list's declared reading languages, {languages}
+msgid "collection_share_languages"
+msgstr "已声明语言：{languages}"
+
+#. Share panel: copy the list as text, which the import can paste
+msgid "collection_share_copy"
+msgstr "复制"
+
+#. Share panel: send the list as a file
+msgid "collection_share_send"
+msgstr "发送文件"
+
+#. Confirmation after copying the list to the clipboard
+msgid "collection_share_copied"
+msgstr "书单已复制"
+
+#. Text accompanying a shared list file, {name} and {count}
+msgid "collection_share_message"
+msgstr "阅读书单《{name}》（{count} 本书）"
+
+#. Import screen: heading of the accepted-formats card
+msgid "import_supported_formats"
+msgstr "支持的格式"
+
+#. Import screen: the accepted formats, naming the Share action that produces them
+msgid "import_supported_formats_detail"
+msgstr "• 由「分享」发送的 .bibliogenius.yml 文件\n• .yaml 或 .yml 文件\n• 从剪贴板粘贴的书单"
+
+
 #. --- Contact card and contact channels (ADR-067) ---
 
 #. Hub contact card: email field label
@@ -10645,3 +10686,15 @@ msgstr "您好：\n\n我就您的书房与您联系。"
 #. Hub contact card: phone field placeholder, a local example number
 msgid "hub_contact_phone_hint"
 msgstr "+86 138 0013 8000"
+
+#. Import preview: a list well past the usual size will be slow, {count} is how many books
+msgid "import_large_list_warning"
+msgstr "书单较长：{count} 本书。导入会逐本查询元数据，可能需要一些时间，离线时更久。"
+
+#. Name given to an imported list when the library already holds one with that name, {title} and {contributor}
+msgid "imported_collection_name_from"
+msgstr "{contributor} 的{title}"
+
+#. Refused before parsing: a shared list past the size bound
+msgid "import_file_too_large"
+msgstr "这个文件太大了，不像是一份书单。"

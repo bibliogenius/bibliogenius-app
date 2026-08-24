@@ -1,6 +1,14 @@
 class CollectionBook {
   final String bookId;
   final String title;
+
+  /// How a shared list names this entry.
+  ///
+  /// It was missing from this model until 2026-08-24, and every exported list
+  /// came out with an empty `books:` because the exporter keeps only entries
+  /// that carry one. A collection member without an ISBN still cannot be
+  /// shared, but now that is a property of the book, not of the plumbing.
+  final String? isbn;
   final String? author;
   final String? coverUrl;
   final String? publisher;
@@ -23,6 +31,7 @@ class CollectionBook {
   CollectionBook({
     required this.bookId,
     required this.title,
+    this.isbn,
     this.author,
     this.coverUrl,
     this.publisher,

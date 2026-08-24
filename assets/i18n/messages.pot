@@ -8726,6 +8726,36 @@ msgstr ""
 msgid "show_all_ownership"
 msgstr ""
 
+msgid "collection_share_title"
+msgstr ""
+
+msgid "collection_share_explainer"
+msgstr ""
+
+msgid "collection_share_count"
+msgstr ""
+
+msgid "collection_share_languages"
+msgstr ""
+
+msgid "collection_share_copy"
+msgstr ""
+
+msgid "collection_share_send"
+msgstr ""
+
+msgid "collection_share_copied"
+msgstr ""
+
+msgid "collection_share_message"
+msgstr ""
+
+msgid "import_supported_formats"
+msgstr ""
+
+msgid "import_supported_formats_detail"
+msgstr ""
+
 msgid "hub_contact_email_label"
 msgstr ""
 
@@ -8781,4 +8811,13 @@ msgid "contact_message_body_plain"
 msgstr ""
 
 msgid "hub_contact_phone_hint"
+msgstr ""
+
+msgid "import_large_list_warning"
+msgstr ""
+
+msgid "imported_collection_name_from"
+msgstr ""
+
+msgid "import_file_too_large"
 msgstr ""

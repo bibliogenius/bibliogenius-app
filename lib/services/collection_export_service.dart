@@ -3,21 +3,28 @@ import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../models/collection.dart';
-import 'api_service.dart';
+import '../models/collection_book.dart';
+import 'ffi_service.dart';
 
 /// Service for exporting and sharing collections as YAML files.
 class CollectionExportService {
-  final ApiService _apiService;
-
-  CollectionExportService(this._apiService);
+  /// The collection data comes from the FFI, which is the source the screens
+  /// display, so this service needs nothing injected.
+  const CollectionExportService();
 
   /// Export a collection to a shareable YAML format.
   /// Returns the YAML content as a string.
-  Future<String> exportToYaml(
+  /// [collectionBooks] is typed rather than a list of maps on purpose. It used
+  /// to be `List<dynamic>` and read `book['isbn']`, a key the collection DTO
+  /// never carried, so every export came out with an empty `books:` and
+  /// nothing complained. A type is what makes that a compile error instead of
+  /// a silent one.
+  String exportToYaml(
     Collection collection,
-    List<dynamic> collectionBooks, {
+    List<CollectionBook> collectionBooks, {
     String? contributorName,
-  }) async {
+    List<String> contentLanguages = const [],
+  }) {
     final buffer = StringBuffer();
 
     // Header comment
@@ -42,21 +49,37 @@ class CollectionExportService {
     if (contributorName != null && contributorName.isNotEmpty) {
       buffer.writeln('contributor: "${_escapeYaml(contributorName)}"');
     }
+
+    // Declared languages. Omitted when the caller knows none rather than
+    // guessed: a wrong declaration is worse than an absent one, since the
+    // language gate of the editorial tier reads it as eligibility. Absent,
+    // the list still imports and still browses; it just cannot be suggested.
+    if (contentLanguages.isNotEmpty) {
+      final quoted = contentLanguages.map((l) => '"${_escapeYaml(l)}"');
+      buffer.writeln('content_languages: [${quoted.join(', ')}]');
+    }
     buffer.writeln('');
 
     // Books (ISBN list)
     buffer.writeln('books:');
     for (final book in collectionBooks) {
-      final isbn = book['isbn'] as String?;
-      final title = book['title'] as String? ?? 'Unknown';
-      final author = book['author'] as String? ?? 'Unknown';
+      final isbn = book.isbn?.trim() ?? '';
+      // An entry IS an ISBN in this format, so a book without one cannot
+      // travel. Skipped rather than exported half-formed, which would import
+      // as a book the receiver could never resolve.
+      if (isbn.isEmpty) continue;
 
-      if (isbn != null && isbn.isNotEmpty) {
-        // Include note with title/author for reference
-        final note = '$title - $author';
-        buffer.writeln('  - isbn: "$isbn"');
-        buffer.writeln('    note: "${_escapeYaml(note)}"');
-      }
+      // The note is what the receiver reads when the ISBN resolves to
+      // nothing, so it carries title THEN author, never the reverse: a note
+      // written the other way round names the book after its author.
+      final author = book.author?.trim() ?? '';
+      final note = author.isEmpty ? book.title : '${book.title} - $author';
+      // Escaped like every other value here. An ISBN is a digit string in
+      // theory, but this one comes from imported metadata and travels to a
+      // stranger's parser: a stray quote would break the file at their end,
+      // not ours.
+      buffer.writeln('  - isbn: "${_escapeYaml(isbn)}"');
+      buffer.writeln('    note: "${_escapeYaml(note)}"');
     }
 
     return buffer.toString();
@@ -66,31 +89,53 @@ class CollectionExportService {
   Future<void> shareCollection(
     Collection collection, {
     String? contributorName,
+    List<String> contentLanguages = const [],
+    String? message,
   }) async {
-    // Fetch books first
-    final books = await _apiService.getCollectionBooks(collection.id);
-    final yaml = await exportToYaml(
+    // Read through the FFI, the same source the collection screen shows.
+    // The HTTP DTO it used to read carries no ISBN at all, so the export
+    // silently dropped every entry; what you send must be what you see.
+    final books = await FfiService().getCollectionBooks(collection.id);
+    final yaml = exportToYaml(
       collection,
       books,
       contributorName: contributorName,
+      contentLanguages: contentLanguages,
     );
+
+    await shareYaml(collectionName: collection.name, yaml: yaml, message: message);
+  }
+
+  /// Share a YAML that has ALREADY been built.
+  ///
+  /// Split out for the share panel: it shows the reader what they are about
+  /// to send, so the list is formatted before the sheet opens and re-fetching
+  /// the whole collection to send the same bytes would be waste the user
+  /// would feel as a delay.
+  ///
+  /// [message] is the accompanying text and comes from the caller, which is
+  /// the only side holding a BuildContext and therefore a language. Absent,
+  /// nothing is attached: an untranslated sentence is worse than none.
+  Future<void> shareYaml({
+    required String collectionName,
+    required String yaml,
+    String? message,
+  }) async {
+    final subject = 'BiblioGenius: $collectionName';
 
     if (kIsWeb) {
       // On web, just share the text directly
-      await Share.share(yaml, subject: 'BiblioGenius: ${collection.name}');
-    } else {
-      // On mobile/desktop, create a temp file and share it
-      final tempDir = await getTemporaryDirectory();
-      final fileName = '${_sanitizeId(collection.name)}.bibliogenius.yml';
-      final file = File('${tempDir.path}/$fileName');
-      await file.writeAsString(yaml);
-
-      await Share.shareXFiles(
-        [XFile(file.path)],
-        subject: 'BiblioGenius: ${collection.name}',
-        text: 'Liste de lecture "${collection.name}" (${books.length} livres)',
-      );
+      await Share.share(yaml, subject: subject);
+      return;
     }
+
+    // On mobile/desktop, create a temp file and share it
+    final tempDir = await getTemporaryDirectory();
+    final fileName = '${_sanitizeId(collectionName)}.bibliogenius.yml';
+    final file = File('${tempDir.path}/$fileName');
+    await file.writeAsString(yaml);
+
+    await Share.shareXFiles([XFile(file.path)], subject: subject, text: message);
   }
 
   /// Save a collection to a local file.
@@ -99,8 +144,8 @@ class CollectionExportService {
     String? contributorName,
     String? customPath,
   }) async {
-    final books = await _apiService.getCollectionBooks(collection.id);
-    final yaml = await exportToYaml(
+    final books = await FfiService().getCollectionBooks(collection.id);
+    final yaml = exportToYaml(
       collection,
       books,
       contributorName: contributorName,
@@ -132,10 +177,17 @@ class CollectionExportService {
   }
 
   /// Escape special characters for YAML strings.
+  ///
+  /// The carriage return matters as much as the newline, and is easier to
+  /// miss because it does not break the file: a double-quoted scalar folds a
+  /// raw CR into a space, so "T\ritre" reaches the recipient as "T itre" with
+  /// nothing to say it was mangled. Tabs likewise.
   String _escapeYaml(String value) {
     return value
         .replaceAll('\\', '\\\\')
         .replaceAll('"', '\\"')
-        .replaceAll('\n', '\\n');
+        .replaceAll('\r', '\\r')
+        .replaceAll('\n', '\\n')
+        .replaceAll('\t', '\\t');
   }
 }

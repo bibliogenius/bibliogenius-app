@@ -10568,6 +10568,47 @@ msgstr "この本棚の {count} 冊は手元にありません（ほしい本、
 msgid "show_all_ownership"
 msgstr "それでも表示する"
 
+#. Share panel: title
+msgid "collection_share_title"
+msgstr "このリストを共有"
+
+#. Share panel: what the recipient gets, and that their library is untouched until they confirm
+msgid "collection_share_explainer"
+msgstr "相手は BiblioGenius のリストファイルを受け取ります。確認するまで、相手のライブラリには何も入りません。"
+
+#. Share panel: how many books the list holds, {count}
+msgid "collection_share_count"
+msgstr "{count} 冊"
+
+#. Share panel: the list's declared reading languages, {languages}
+msgid "collection_share_languages"
+msgstr "宣言された言語：{languages}"
+
+#. Share panel: copy the list as text, which the import can paste
+msgid "collection_share_copy"
+msgstr "コピー"
+
+#. Share panel: send the list as a file
+msgid "collection_share_send"
+msgstr "ファイルを送る"
+
+#. Confirmation after copying the list to the clipboard
+msgid "collection_share_copied"
+msgstr "リストをコピーしました"
+
+#. Text accompanying a shared list file, {name} and {count}
+msgid "collection_share_message"
+msgstr "読書リスト「{name}」（{count} 冊）"
+
+#. Import screen: heading of the accepted-formats card
+msgid "import_supported_formats"
+msgstr "対応する形式"
+
+#. Import screen: the accepted formats, naming the Share action that produces them
+msgid "import_supported_formats_detail"
+msgstr "•「共有」で送られた .bibliogenius.yml ファイル\n• .yaml または .yml ファイル\n• クリップボードから貼り付けたリスト"
+
+
 #. --- Contact card and contact channels (ADR-067) ---
 
 #. Hub contact card: email field label
@@ -10645,3 +10686,15 @@ msgstr "こんにちは。\n\nあなたの蔵書についてご連絡します�
 #. Hub contact card: phone field placeholder, a local example number
 msgid "hub_contact_phone_hint"
 msgstr "+81 90 1234 5678"
+
+#. Import preview: a list well past the usual size will be slow, {count} is how many books
+msgid "import_large_list_warning"
+msgstr "長いリストです（{count} 冊）。取り込みは 1 冊ずつ照会するため時間がかかり、オフラインではさらにかかります。"
+
+#. Name given to an imported list when the library already holds one with that name, {title} and {contributor}
+msgid "imported_collection_name_from"
+msgstr "{contributor} の{title}"
+
+#. Refused before parsing: a shared list past the size bound
+msgid "import_file_too_large"
+msgstr "このファイルは読書リストにしては大きすぎます。"

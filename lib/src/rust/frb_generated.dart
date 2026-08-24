@@ -7824,20 +7824,21 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   FrbCollectionBook dco_decode_frb_collection_book(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 11)
-      throw Exception('unexpected arr length: expect 11 but see ${arr.length}');
+    if (arr.length != 12)
+      throw Exception('unexpected arr length: expect 12 but see ${arr.length}');
     return FrbCollectionBook(
       bookId: dco_decode_String(arr[0]),
       title: dco_decode_String(arr[1]),
-      author: dco_decode_opt_String(arr[2]),
-      coverUrl: dco_decode_opt_String(arr[3]),
-      publisher: dco_decode_opt_String(arr[4]),
-      publicationYear: dco_decode_opt_box_autoadd_i_32(arr[5]),
-      addedAt: dco_decode_String(arr[6]),
-      isOwned: dco_decode_bool(arr[7]),
-      digitalFormats: dco_decode_opt_list_String(arr[8]),
-      readingStatus: dco_decode_opt_String(arr[9]),
-      volumeNumber: dco_decode_opt_box_autoadd_i_32(arr[10]),
+      isbn: dco_decode_opt_String(arr[2]),
+      author: dco_decode_opt_String(arr[3]),
+      coverUrl: dco_decode_opt_String(arr[4]),
+      publisher: dco_decode_opt_String(arr[5]),
+      publicationYear: dco_decode_opt_box_autoadd_i_32(arr[6]),
+      addedAt: dco_decode_String(arr[7]),
+      isOwned: dco_decode_bool(arr[8]),
+      digitalFormats: dco_decode_opt_list_String(arr[9]),
+      readingStatus: dco_decode_opt_String(arr[10]),
+      volumeNumber: dco_decode_opt_box_autoadd_i_32(arr[11]),
     );
   }
 
@@ -9564,6 +9565,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_bookId = sse_decode_String(deserializer);
     var var_title = sse_decode_String(deserializer);
+    var var_isbn = sse_decode_opt_String(deserializer);
     var var_author = sse_decode_opt_String(deserializer);
     var var_coverUrl = sse_decode_opt_String(deserializer);
     var var_publisher = sse_decode_opt_String(deserializer);
@@ -9576,6 +9578,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     return FrbCollectionBook(
       bookId: var_bookId,
       title: var_title,
+      isbn: var_isbn,
       author: var_author,
       coverUrl: var_coverUrl,
       publisher: var_publisher,
@@ -11789,6 +11792,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.bookId, serializer);
     sse_encode_String(self.title, serializer);
+    sse_encode_opt_String(self.isbn, serializer);
     sse_encode_opt_String(self.author, serializer);
     sse_encode_opt_String(self.coverUrl, serializer);
     sse_encode_opt_String(self.publisher, serializer);

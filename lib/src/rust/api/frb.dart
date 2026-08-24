@@ -1837,6 +1837,10 @@ class FrbCollection {
 class FrbCollectionBook {
   final String bookId;
   final String title;
+
+  /// How a shared list names this entry. Carried all the way to Dart
+  /// because the export is ISBN-based: an entry without one is dropped.
+  final String? isbn;
   final String? author;
   final String? coverUrl;
   final String? publisher;
@@ -1856,6 +1860,7 @@ class FrbCollectionBook {
   const FrbCollectionBook({
     required this.bookId,
     required this.title,
+    this.isbn,
     this.author,
     this.coverUrl,
     this.publisher,
@@ -1871,6 +1876,7 @@ class FrbCollectionBook {
   int get hashCode =>
       bookId.hashCode ^
       title.hashCode ^
+      isbn.hashCode ^
       author.hashCode ^
       coverUrl.hashCode ^
       publisher.hashCode ^
@@ -1888,6 +1894,7 @@ class FrbCollectionBook {
           runtimeType == other.runtimeType &&
           bookId == other.bookId &&
           title == other.title &&
+          isbn == other.isbn &&
           author == other.author &&
           coverUrl == other.coverUrl &&
           publisher == other.publisher &&
