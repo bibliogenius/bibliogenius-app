@@ -126,6 +126,7 @@ void main() {
       'en': {
         'books_slot_segment_activity': 'Activity',
         'books_slot_segment_discover': 'To discover',
+        'books_slot_tab_discover': 'To discover',
         'recently_added_title': 'Recent activity',
         'carousel_collapse_tooltip': 'Collapse',
         'carousel_hide_long_press_tooltip': 'Long press to hide',

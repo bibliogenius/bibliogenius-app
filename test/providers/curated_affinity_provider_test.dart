@@ -286,6 +286,43 @@ void main() {
     expect(provider.visibleCuratedAffinities.map((a) => a.list.id), ['b']);
   });
 
+  test('a card only offers covers the reader actually stores', () async {
+    // `Book.coverUrl` falls back to an OpenLibrary URL derived from the
+    // ISBN, and that host answers 404 for anything its own corpus does not
+    // hold: three of the eight ISBNs on the bundled manga selection, checked
+    // on 2026-08-24. Handed to a card, such a URL draws the grey book
+    // placeholder, and the fan gives it the front slot as readily as any
+    // other. The mosaic and the fan both promise the reader their OWN
+    // copies, so only a cover the book actually carries may fill one.
+    final owned = _ownedIsbnsOf('a', 3).toList();
+    final provider = build(
+      corpus: [_list('a')],
+      inputs: inputsFor(owned),
+      books: [
+        Book(
+          id: 'b0',
+          title: 'Owned 0',
+          isbn: owned[0],
+          coverUrl: 'https://example.org/0.jpg',
+        ),
+        Book(id: 'b1', title: 'Owned 1', isbn: owned[1]),
+        Book(
+          id: 'b2',
+          title: 'Owned 2',
+          isbn: owned[2],
+          coverUrl: 'https://example.org/2.jpg',
+        ),
+      ],
+    );
+
+    await provider.loadCuratedAffinity(readerLanguages: const ['fr']);
+
+    expect(provider.visibleCuratedAffinities.single.ownedCoverUrls, [
+      'https://example.org/0.jpg',
+      'https://example.org/2.jpg',
+    ]);
+  });
+
   test('the tier is absent when no corpus loader is wired', () async {
     final provider = RecommendationProvider(
       _FakeRepository(inputs: inputsFor(_ownedIsbnsOf('a', 3))),

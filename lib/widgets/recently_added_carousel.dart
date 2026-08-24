@@ -353,6 +353,13 @@ class _ExpandedStrip extends StatelessWidget {
   final Widget? titleOverride;
   final Widget? bodyOverride;
 
+  /// Breathing room above and below the header row, two pixels over
+  /// [AppDesign.spacingSm] rather than the token itself. When the header is
+  /// a row of pills the token pinned them to the card's edge and to the
+  /// strip at once, and a pill with no room around it reads as crowded
+  /// where a bare title did not.
+  static const double _headerInset = AppDesign.spacingSm + 2;
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -367,9 +374,13 @@ class _ExpandedStrip extends StatelessWidget {
     );
 
     return Padding(
+      // The same inset above the header as the one between it and the strip:
+      // the header is a row of pills when the slot is segmented, and a pill
+      // pinned tighter to the card's edge than to its own content read as
+      // clipped.
       padding: const EdgeInsets.fromLTRB(
         AppDesign.spacingMd,
-        AppDesign.spacingXs,
+        _headerInset,
         AppDesign.spacingSm,
         AppDesign.spacingSm,
       ),
@@ -424,7 +435,7 @@ class _ExpandedStrip extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: AppDesign.spacingSm),
+          const SizedBox(height: _headerInset),
           bodyOverride ??
               SizedBox(
                 height: coverHeight,

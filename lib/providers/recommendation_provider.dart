@@ -455,9 +455,18 @@ class RecommendationProvider extends ChangeNotifier {
   /// Cover of the reader's OWN copy, keyed both ways the membrane matches,
   /// so a card's mosaic shows the books they already have rather than the
   /// publisher art the list happens to carry.
+  ///
+  /// Only a cover the book actually CARRIES is indexed. `Book.coverUrl`
+  /// otherwise falls back to an OpenLibrary URL derived from the ISBN, and
+  /// that host holds nothing for a large part of the French catalogue
+  /// (three of the eight ISBNs on the bundled manga selection answer 404).
+  /// Everywhere else that fallback costs a placeholder on one thumbnail; in
+  /// a mosaic or a fan it takes a slot from a cover that would have drawn,
+  /// and the fan hands it the front layer as readily as any other.
   static Map<String, String> _coverIndex(List<Book> books) {
     final index = <String, String>{};
     for (final book in books) {
+      if (!book.hasPersistedCover) continue;
       final cover = book.coverUrl;
       if (cover == null || cover.isEmpty) continue;
       final isbn = book.isbn;

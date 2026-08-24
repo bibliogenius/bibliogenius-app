@@ -141,6 +141,7 @@ void main() {
       'en': {
         'books_slot_segment_activity': 'Activity',
         'books_slot_segment_discover': 'To discover · {count}',
+        'books_slot_tab_discover': 'To discover',
         'recently_added_title': 'Recent activity',
         'carousel_collapse_tooltip': 'Collapse',
         'carousel_hide_long_press_tooltip': 'Long press to hide',
@@ -207,17 +208,25 @@ void main() {
 
     expect(find.byType(CuratedListSuggestionCard), findsNothing);
     expect(find.byType(CompactSuggestionCard), findsWidgets);
+    theme.setCarouselCollapsedOwnLib(true);
+    await tester.pumpAndSettle();
     expect(find.text('To discover · 3'), findsOneWidget);
   });
 
-  testWidgets('the header count includes the list card it draws', (
+  testWidgets('the collapsed count includes the list card the strip draws', (
     tester,
   ) async {
     // ADR-062 defect: the header once counted from a different base than
-    // the strip and announced more covers than the reader could find.
+    // the strip and announced more covers than the reader could find. The
+    // count now rides on the collapsed summary alone, which is the only
+    // place with room for it, so that is where the rule is pinned.
     await pumpSlot(tester, suggestionCount: 3, corpus: [_eligibleList()]);
     theme.setBooksSlotShowsDiscovery(true);
     await tester.pump();
+    expect(find.byType(CuratedListSuggestionCard), findsOneWidget);
+
+    theme.setCarouselCollapsedOwnLib(true);
+    await tester.pumpAndSettle();
 
     expect(find.text('To discover · 4'), findsOneWidget);
   });

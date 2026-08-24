@@ -140,18 +140,17 @@ class _SlotHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final discoverLabel = TranslationService.translate(
-      context,
-      'books_slot_segment_discover',
-      params: {'count': suggestionCount.toString()},
-    );
-
     // Only one segment has content: a plain header, no control to operate.
+    // It owns the whole row, so it is the one place the count still fits.
     if (!hasActivity) {
       return Semantics(
         header: true,
         child: Text(
-          discoverLabel,
+          TranslationService.translate(
+            context,
+            'books_slot_segment_discover',
+            params: {'count': suggestionCount.toString()},
+          ),
           style: Theme.of(
             context,
           ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
@@ -163,6 +162,16 @@ class _SlotHeader extends StatelessWidget {
       context,
       'books_slot_segment_activity',
       params: {'count': activityCount.toString()},
+    );
+    // Countless, unlike the Activity tab: two tabs and the collapse control
+    // share one phone-width row, and a count on each ellipsized the longer
+    // label down to its own separator ("A decouvrir ..."), which reads as a
+    // rendering fault rather than as a number. Activity keeps its count
+    // because it is the shorter label and it is the default segment, so it
+    // is the count a reader sees without acting.
+    final discoverLabel = TranslationService.translate(
+      context,
+      'books_slot_tab_discover',
     );
 
     return LayoutBuilder(
@@ -202,15 +211,21 @@ class _SlotHeader extends StatelessWidget {
   static const double _iconsBreakpoint = 260;
 }
 
-/// One tab of the slot header: icon, label, and a soft tonal background on
-/// the selected one.
+/// One tab of the slot header: a pill with an icon and a label.
 ///
-/// Only the selected tab carries a background, so nothing frames the pair
-/// and nothing competes with the rounded cards below. State rests on three
-/// signals at once (background, weight, colour) plus the icon, never on any
-/// one of them alone. The icons are the ones the app already uses for these
-/// two notions, so the header reads the same whether or not a discovery
-/// segment exists: the Activity-only header shows that same open book.
+/// BOTH tabs carry a pill. Giving one to the selected tab alone left the
+/// other as bare text next to it, which reads as a caption beside a button
+/// rather than as the second half of one control: the affordance was
+/// visible only on the segment the reader was already on. The unselected
+/// pill is the card's own surface under a hairline and the selected one
+/// keeps its tonal blue, so the pair still frames nothing and still
+/// competes with nothing below it.
+///
+/// State rests on four signals at once (fill, outline, weight, colour) plus
+/// the icon, never on any one of them alone. The icons are the ones the app
+/// already uses for these two notions, so the header reads the same whether
+/// or not a discovery segment exists: the Activity-only header shows that
+/// same open book.
 class _SlotTab extends StatelessWidget {
   const _SlotTab({
     required this.label,
@@ -237,18 +252,30 @@ class _SlotTab extends StatelessWidget {
     final foreground = selected
         ? colorScheme.onSurface
         : colorScheme.onSurfaceVariant;
+    // The tonal blue the tab has always carried: light enough that the pill
+    // stays quieter than the covers it labels, which is the trade the
+    // segmented control was dropped for in the first place.
+    final selectedFill = colorScheme.primary.withValues(alpha: 0.12);
 
     return Semantics(
       selected: selected,
       button: true,
       child: Material(
-        color: selected
-            ? colorScheme.primary.withValues(alpha: 0.12)
-            : Colors.transparent,
-        borderRadius: BorderRadius.circular(AppDesign.radiusRound),
+        color: selected ? selectedFill : colorScheme.surface,
+        shape: StadiumBorder(
+          // The unselected pill is told from the card behind it by a
+          // hairline, the card's own. The selected one needs no edge over
+          // its tint, but it keeps a side of the same colour so the two
+          // pills measure the same and the row does not shift on a tap.
+          side: BorderSide(
+            color: selected
+                ? selectedFill
+                : colorScheme.outline.withValues(alpha: 0.5),
+          ),
+        ),
         child: InkWell(
           onTap: selected ? null : onTap,
-          borderRadius: BorderRadius.circular(AppDesign.radiusRound),
+          customBorder: const StadiumBorder(),
           child: ConstrainedBox(
             constraints: const BoxConstraints(minHeight: _minHeight),
             child: Padding(

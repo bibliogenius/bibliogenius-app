@@ -108,7 +108,8 @@ void main() {
     TranslationService.setPoTranslationsForTest({
       'en': {
         'books_slot_segment_activity': 'Activity',
-        'books_slot_segment_discover': 'To discover',
+        'books_slot_segment_discover': 'To discover · {count}',
+        'books_slot_tab_discover': 'To discover',
         'recently_added_title': 'Recent activity',
         'carousel_collapse_tooltip': 'Collapse',
         'carousel_hide_long_press_tooltip': 'Long press to hide',
@@ -183,5 +184,63 @@ void main() {
         reason: '$label is too small to hit comfortably',
       );
     }
+  });
+
+  testWidgets('the discovery tab carries no count', (tester) async {
+    // Both tabs plus the collapse control share one phone-width row, so a
+    // count on each ellipsized this one down to its separator ("To
+    // discover ..."), which reads as a rendering fault rather than as a
+    // number. The collapsed summary keeps its count: it has the whole row.
+    await pumpSlot(tester);
+
+    expect(find.text('To discover'), findsOneWidget);
+    expect(find.textContaining('To discover \u00b7'), findsNothing);
+  });
+
+  testWidgets('both tabs are drawn as buttons, not one button and one word', (
+    tester,
+  ) async {
+    // The unselected tab used to be bare text beside a tonal pill, which
+    // read as a label rather than as the second half of a control.
+    await pumpSlot(tester);
+
+    final colors = <Color?>[];
+    for (final label in ['Activity', 'To discover']) {
+      final material = tester.widget<Material>(
+        find
+            .ancestor(of: find.text(label), matching: find.byType(Material))
+            .first,
+      );
+      expect(
+        material.shape,
+        isA<StadiumBorder>(),
+        reason: '$label must carry a pill of its own',
+      );
+      colors.add(material.color);
+    }
+
+    expect(colors.first, isNotNull);
+    expect(colors.last, isNotNull);
+    expect(
+      colors.first,
+      isNot(colors.last),
+      reason: 'two identical pills would hide which tab is showing',
+    );
+  });
+
+  testWidgets('the tabs sit as far from the card top as from the strip', (
+    tester,
+  ) async {
+    await pumpSlot(tester);
+
+    final cardTop = tester.getRect(find.byType(AnimatedSize)).top;
+    final tab = tester.getRect(
+      find
+          .ancestor(of: find.text('Activity'), matching: find.byType(Material))
+          .first,
+    );
+    final stripTop = tester.getRect(find.byType(ListView)).top;
+
+    expect(tab.top - cardTop, closeTo(stripTop - tab.bottom, 0.01));
   });
 }
