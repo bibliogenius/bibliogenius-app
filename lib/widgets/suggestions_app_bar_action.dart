@@ -14,11 +14,16 @@ import '../services/translation_service.dart';
 /// not appear and disappear as the reader dismisses cards. A blinking
 /// entry point is exactly the restlessness the product positioning rejects.
 class SuggestionsAppBarAction extends StatelessWidget {
-  const SuggestionsAppBarAction({super.key, this.color});
+  const SuggestionsAppBarAction({super.key, this.color, this.style});
 
   /// App bars in this app tint their actions white over the header
   /// gradient; other hosts pass nothing and inherit the theme.
   final Color? color;
+
+  /// Hosts whose neighbouring header icons wear the translucent chip
+  /// (`AppDesign.headerIconButtonStyle()`) pass it here so this action
+  /// does not read as a stray icon in an otherwise uniform row.
+  final ButtonStyle? style;
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +39,7 @@ class SuggestionsAppBarAction extends StatelessWidget {
         'tooltip_open_recommendations',
       ),
       onPressed: () => context.push('/recommendations'),
+      style: style,
     );
   }
 }

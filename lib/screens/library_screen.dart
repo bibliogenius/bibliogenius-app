@@ -208,7 +208,10 @@ class _LibraryScreenState extends State<LibraryScreen>
         // in BookListScreen: /books renders it with isTabView, a branch that
         // has no app bar of its own, so an action placed there is invisible
         // on the very screen R4 exists to serve.
-        const SuggestionsAppBarAction(color: Colors.white),
+        SuggestionsAppBarAction(
+          color: Colors.white,
+          style: AppDesign.headerIconButtonStyle(),
+        ),
         if (_bookCount == null || _bookCount! < _kOnboardingHelpMaxBooks)
           ContextualHelpIconButton(
             titleKey: 'help_ctx_library_title',
