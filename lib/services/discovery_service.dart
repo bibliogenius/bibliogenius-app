@@ -48,6 +48,10 @@ class DiscoveryService {
   /// waits, and its cached payload keeps rendering meanwhile.
   static const Duration throttle = Duration(hours: 24);
 
+  /// Floor on a hub-supplied retry window (ADR-060 section 4.3). Nothing
+  /// the hub says can make this side retry more often than this.
+  static const Duration minRetryWindow = Duration(minutes: 1);
+
   /// Bound on cached lookups (storage policy: bounded structures). Evicts
   /// the oldest entries; 50 series collections is far past any real shelf.
   static const int maxCacheEntries = 50;
@@ -438,8 +442,12 @@ class DiscoveryService {
         next['status'] = status;
       } else {
         // 'unavailable' or transport failure: not cached hub-side, and
-        // client-side the previous payload keeps rendering.
+        // client-side the previous payload keeps rendering. The hub names
+        // its own retry window when it answered; a transport failure gives
+        // no envelope and falls back to the 24h throttle.
         next['status'] = 'unavailable';
+        final retryAfter = envelope?['retry_after'];
+        if (retryAfter is int) next['retry_after'] = retryAfter;
         final previous = entry is Map ? entry['series'] : null;
         if (previous is Map) next['series'] = previous;
       }
@@ -617,11 +625,37 @@ class DiscoveryService {
     };
   }
 
-  /// True while [entry]'s last attempt is inside the 24h window.
+  /// True while [entry]'s last attempt is inside its retry window.
+  ///
+  /// The window is [throttle] unless the hub named a shorter one: an
+  /// 'unavailable' answer means "nothing was cached, ask again later", and
+  /// pacing it at 24h like a definitive negative costs the reader a day for
+  /// an outcome the hub often meant as transient (a budget refusal now
+  /// costs the hub no outbound call at all). The hub owns the number
+  /// because it deploys in minutes while this side moves on store
+  /// timelines.
   bool _isThrottled(dynamic entry) {
     final at = entry is Map ? entry['at'] : null;
-    return at is int &&
-        _now().difference(DateTime.fromMillisecondsSinceEpoch(at)) < throttle;
+    if (at is! int) return false;
+    return _now().difference(DateTime.fromMillisecondsSinceEpoch(at)) <
+        _retryWindow(entry);
+  }
+
+  /// The retry window of one cache entry: the hub's hint when it gave one,
+  /// clamped into [minRetryWindow] .. [throttle], else [throttle].
+  ///
+  /// Clamped on both ends deliberately. The ceiling keeps the hub from ever
+  /// silencing a lookup for longer than this side already would. The floor
+  /// keeps a bad or hostile value from turning every dashboard load into a
+  /// hub call, which is the retry storm the whole throttle exists to
+  /// prevent.
+  Duration _retryWindow(dynamic entry) {
+    final hint = entry is Map ? entry['retry_after'] : null;
+    if (hint is! int || hint <= 0) return throttle;
+    final window = Duration(seconds: hint);
+    if (window < minRetryWindow) return minRetryWindow;
+    if (window > throttle) return throttle;
+    return window;
   }
 
   /// The cache entry one author lookup leaves behind, whatever its outcome.
@@ -644,6 +678,8 @@ class DiscoveryService {
       next['status'] = status;
     } else {
       next['status'] = 'unavailable';
+      final retryAfter = envelope?['retry_after'];
+      if (retryAfter is int) next['retry_after'] = retryAfter;
       final kept = previous is Map ? previous['author'] : null;
       if (kept is Map) next['author'] = kept;
     }

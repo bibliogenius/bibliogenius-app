@@ -572,6 +572,157 @@ void main() {
       expect(cards.values.first.first.book.title, 'Chamber of Secrets');
     });
 
+    /// The client's own throttle is a blind 24h. An 'unavailable' answer is
+    /// not a definitive negative: nothing was cached hub-side, and since the
+    /// admission check exists a budget refusal costs the hub no outbound
+    /// call at all. Pacing that like a homonym costs the reader a day for an
+    /// outcome the hub meant as transient, so the hub names its own window
+    /// and this side honours it.
+    test('an unavailable answer is retried on the window the hub named',
+        () async {
+      final seen = <Uri>[];
+      var clock = DateTime.utc(2026, 8, 25, 8);
+      final svc = service(
+        seen: seen,
+        now: () => clock,
+        responses: [
+          http.Response(
+            jsonEncode({'status': 'unavailable', 'retry_after': 300}),
+            200,
+          ),
+          http.Response(
+            jsonEncode({
+              'status': 'resolved',
+              'series': {
+                'source': 'wikidata',
+                'source_id': 'Q8337',
+                'label': 'Harry Potter',
+                'volumes': [volume(2, 'Chamber of Secrets')],
+              },
+            }),
+            200,
+          ),
+        ],
+      );
+
+      await svc.sweep(inputs(), const ['fr']);
+      expect(seen, hasLength(1));
+
+      // Inside the hub's window: still silent.
+      clock = clock.add(const Duration(minutes: 2));
+      await svc.sweep(inputs(), const ['fr']);
+      expect(seen, hasLength(1), reason: 'inside the window the hub named');
+
+      // Past it, and long before the 24h the old throttle would have cost.
+      clock = clock.add(const Duration(minutes: 4));
+      await svc.sweep(inputs(), const ['fr']);
+      expect(seen, hasLength(2));
+      final cards = await svc.buildFromCache(inputs(), const ['fr']);
+      expect(cards.values.first.first.book.title, 'Chamber of Secrets');
+    });
+
+    /// A transport failure never reaches the hub, so there is no hint and no
+    /// reason to assume the outage is brief: the 24h throttle stands.
+    test('an unavailable answer with no hint keeps the 24h throttle',
+        () async {
+      final seen = <Uri>[];
+      var clock = DateTime.utc(2026, 8, 25, 8);
+      final svc = service(
+        seen: seen,
+        now: () => clock,
+        responses: [http.Response(jsonEncode({'status': 'unavailable'}), 200)],
+      );
+
+      await svc.sweep(inputs(), const ['fr']);
+      clock = clock.add(const Duration(hours: 6));
+      await svc.sweep(inputs(), const ['fr']);
+
+      expect(seen, hasLength(1), reason: 'no hint means the blind 24h window');
+    });
+
+    /// The floor is what keeps a bad or hostile value from turning every
+    /// dashboard load into a hub call, which is the retry storm the throttle
+    /// exists to prevent.
+    test('a hint below the floor is clamped to the floor', () async {
+      final seen = <Uri>[];
+      var clock = DateTime.utc(2026, 8, 25, 8);
+      final svc = service(
+        seen: seen,
+        now: () => clock,
+        responses: [
+          http.Response(
+            jsonEncode({'status': 'unavailable', 'retry_after': 1}),
+            200,
+          ),
+        ],
+      );
+
+      await svc.sweep(inputs(), const ['fr']);
+      clock = clock.add(const Duration(seconds: 10));
+      await svc.sweep(inputs(), const ['fr']);
+      expect(seen, hasLength(1), reason: 'the floor holds, not the hub value');
+
+      clock = clock.add(DiscoveryService.minRetryWindow);
+      await svc.sweep(inputs(), const ['fr']);
+      expect(seen, hasLength(2));
+    });
+
+    /// The floor is what stands between one hostile field and a retry storm.
+    /// A value at the top of a 64-bit int overflows Duration to a NEGATIVE
+    /// one, which no ceiling can catch (-1s is not greater than 24h) and
+    /// which would make every dashboard load call the hub. Only the floor
+    /// turns it into a window, and this test is what keeps the floor there.
+    test('a pathological hint overflows to the floor, never to no window',
+        () async {
+      final seen = <Uri>[];
+      var clock = DateTime.utc(2026, 8, 25, 8);
+      final svc = service(
+        seen: seen,
+        now: () => clock,
+        responses: [
+          http.Response(
+            jsonEncode({
+              'status': 'unavailable',
+              'retry_after': 9223372036854775807,
+            }),
+            200,
+          ),
+        ],
+      );
+
+      await svc.sweep(inputs(), const ['fr']);
+      clock = clock.add(const Duration(seconds: 10));
+      await svc.sweep(inputs(), const ['fr']);
+      expect(seen, hasLength(1), reason: 'not a call on every load');
+
+      clock = clock.add(DiscoveryService.minRetryWindow);
+      await svc.sweep(inputs(), const ['fr']);
+      expect(seen, hasLength(2), reason: 'the floor, not an unbounded window');
+    });
+
+    /// The ceiling keeps the hub from silencing a lookup for longer than
+    /// this side already would on its own.
+    test('a hint above the 24h throttle is capped at the throttle', () async {
+      final seen = <Uri>[];
+      var clock = DateTime.utc(2026, 8, 25, 8);
+      final svc = service(
+        seen: seen,
+        now: () => clock,
+        responses: [
+          http.Response(
+            jsonEncode({'status': 'unavailable', 'retry_after': 864000}),
+            200,
+          ),
+        ],
+      );
+
+      await svc.sweep(inputs(), const ['fr']);
+      clock = clock.add(const Duration(hours: 25));
+      await svc.sweep(inputs(), const ['fr']);
+
+      expect(seen, hasLength(2), reason: 'never silenced beyond the throttle');
+    });
+
     test('entries whose series lookup disappeared are evicted', () async {
       SharedPreferences.setMockInitialValues({
         DiscoveryService.cacheKey: jsonEncode({
