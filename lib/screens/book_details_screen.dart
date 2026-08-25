@@ -55,7 +55,7 @@ import '../widgets/cover_picker_dialog.dart';
 import '../widgets/loan_dialog.dart';
 import '../widgets/metadata_refresh_dialog.dart';
 import '../widgets/speech_note_button.dart';
-import '../widgets/star_rating_widget.dart';
+import '../widgets/book_rating_row.dart';
 import '../widgets/wishlist_availability_card.dart';
 import '../widgets/wishlist_seeker_card.dart';
 import 'record_sale_screen.dart';
@@ -2133,61 +2133,10 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           ),
           // Rating section
           const Divider(height: 32),
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      (TranslationService.translate(context, 'rating_label') ??
-                              'MY RATING')
-                          .toUpperCase(),
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.0,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    StarRatingWidget(
-                      rating: book.userRating,
-                      onRatingChanged: _updateRating,
-                      size: 32,
-                    ),
-                  ],
-                ),
-              ),
-              if (book.pageCount != null) ...[
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        (TranslationService.translate(
-                                  context,
-                                  'page_count_label',
-                                ) ??
-                                'PAGES')
-                            .toUpperCase(),
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.0,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        '${book.pageCount}',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ],
+          BookRatingRow(
+            rating: book.userRating,
+            pageCount: book.pageCount,
+            onRatingChanged: _updateRating,
           ),
           if (Provider.of<ThemeProvider>(context).isBookseller) ...[
             () {
@@ -2470,15 +2419,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label.toUpperCase(),
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1.0,
-              color: Colors.grey[600],
-            ),
-          ),
+          Text(label.toUpperCase(), style: bookMetadataCaptionStyle(context)),
           const SizedBox(height: 6),
           Text(
             value,
