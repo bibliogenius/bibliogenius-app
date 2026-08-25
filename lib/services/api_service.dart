@@ -13,6 +13,7 @@ import '../models/genie.dart';
 import '../models/tag.dart';
 import '../models/contact.dart';
 import '../models/collection.dart'; // Collection module
+import '../utils/publication_year.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../src/rust/api/frb.dart' as frb;
 import '../src/rust/frb_generated.dart';
@@ -303,7 +304,7 @@ class ApiService {
           publisher: bookData['publisher'],
           publicationYear: bookData['publication_year'] is int
               ? bookData['publication_year']
-              : int.tryParse(bookData['publication_year']?.toString() ?? ''),
+              : parsePublicationYear(bookData['publication_year']?.toString()),
           coverUrl: bookData['cover_url'],
           subjects: bookData['subjects'] != null
               ? jsonEncode(bookData['subjects'])
@@ -402,8 +403,8 @@ class ApiService {
           publicationYear: bookData.containsKey('publication_year')
               ? (bookData['publication_year'] is int
                     ? bookData['publication_year']
-                    : int.tryParse(
-                        bookData['publication_year']?.toString() ?? '',
+                    : parsePublicationYear(
+                        bookData['publication_year']?.toString(),
                       ))
               : currentBook.publicationYear,
           coverUrl: bookData.containsKey('cover_url')
@@ -1913,7 +1914,7 @@ class ApiService {
               isbn: getValueOrNull(isbnIdx),
               publisher: getValueOrNull(publisherIdx),
               publicationYear: yearIdx >= 0 && yearIdx < values.length
-                  ? int.tryParse(values[yearIdx].trim())
+                  ? parsePublicationYear(values[yearIdx])
                   : null,
               owned: true,
               private: false,
@@ -4559,9 +4560,7 @@ class ApiService {
               : null,
           'authors_data': data['authors'], // Pass full data for UI
           'publisher': data['publisher'],
-          'year': data['publication_year'] != null
-              ? int.tryParse(data['publication_year'].toString())
-              : null,
+          'year': parsePublicationYear(data['publication_year']?.toString()),
           'cover_url': data['cover_url'],
           'summary': data['summary'],
         };

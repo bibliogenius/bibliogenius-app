@@ -15,6 +15,7 @@ import '../theme/app_design.dart';
 import '../providers/theme_provider.dart';
 import '../utils/app_constants.dart';
 import '../utils/book_display.dart';
+import '../utils/publication_year.dart';
 import '../widgets/book_cover_card.dart';
 import '../widgets/contact_actions_sheet.dart';
 import '../widgets/genie_app_bar.dart';
@@ -532,7 +533,7 @@ class _BookDetailSheetState extends State<_BookDetailSheet> {
           isbn: widget.entry.isbn,
           summary: _meta?['summary'],
           publisher: _meta?['publisher'],
-          publicationYear: yearStr != null ? int.tryParse(yearStr) : null,
+          publicationYear: parsePublicationYear(yearStr),
           coverUrl: _meta?['cover_url'],
           owned: true,
           private: false,

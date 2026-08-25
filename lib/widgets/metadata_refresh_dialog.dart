@@ -1,9 +1,8 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 
 import '../models/book.dart';
 import '../services/translation_service.dart';
+import '../utils/publication_year.dart';
 import 'cached_book_cover.dart';
 
 /// Dialog for comparing fetched metadata with current book data.
@@ -80,11 +79,10 @@ class _MetadataRefreshDialogState extends State<MetadataRefreshDialog> {
   }
 
   String? _getFetchedValue(String key) {
-    var value = widget.fetchedMetadata[key];
-    // Normalize publication_year: extract first 4 digits
-    if (key == 'publication_year' && value != null && value.length >= 4) {
-      value = value.substring(0, min(4, value.length));
-    }
+    final value = widget.fetchedMetadata[key];
+    // A source may answer a full date rather than a year ("Jan 01, 2004"):
+    // reduce it to the year, never to its first four characters.
+    if (key == 'publication_year') return normalizePublicationYear(value);
     return value;
   }
 
@@ -121,7 +119,7 @@ class _MetadataRefreshDialogState extends State<MetadataRefreshDialog> {
       if (fetched == null) continue;
 
       if (entry.key == 'publication_year') {
-        result[entry.key] = int.tryParse(fetched);
+        result[entry.key] = parsePublicationYear(fetched);
       } else {
         result[entry.key] = fetched;
       }
