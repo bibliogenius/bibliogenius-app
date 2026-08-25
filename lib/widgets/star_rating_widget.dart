@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../providers/theme_provider.dart';
 import '../services/translation_service.dart';
+import '../utils/rating_format.dart';
 
 /// A 5-star rating widget that can be interactive or display-only.
 ///
@@ -52,7 +55,14 @@ class StarRatingWidget extends StatelessWidget {
       label: TranslationService.translate(
         context,
         'rating_semantic_label',
-        params: {'rating': displayRating.toStringAsFixed(1)},
+        // Same locale source as the catalogue lookup above, so the number and
+        // the sentence around it never disagree.
+        params: {
+          'rating': formatStarRating(
+            displayRating,
+            Provider.of<ThemeProvider>(context, listen: false).localeTag,
+          ),
+        },
       ),
       slider: isInteractive,
       child: Row(
@@ -129,42 +139,6 @@ class StarRatingWidget extends StatelessWidget {
             ),
           );
         }),
-      ),
-    );
-  }
-}
-
-/// A compact star rating display for lists
-class CompactStarRating extends StatelessWidget {
-  final int? rating;
-  final double size;
-
-  const CompactStarRating({super.key, this.rating, this.size = 14});
-
-  @override
-  Widget build(BuildContext context) {
-    if (rating == null || rating == 0) {
-      return const SizedBox.shrink();
-    }
-
-    final starRating = rating! / 2.0;
-
-    return Semantics(
-      label: 'Note : ${starRating.toStringAsFixed(1)} sur 5',
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.star_rounded, size: size, color: Colors.amber),
-          const SizedBox(width: 2),
-          Text(
-            starRating.toStringAsFixed(1),
-            style: TextStyle(
-              fontSize: size - 2,
-              fontWeight: FontWeight.bold,
-              color: Colors.amber[700],
-            ),
-          ),
-        ],
       ),
     );
   }

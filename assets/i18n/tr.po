@@ -4510,7 +4510,8 @@ msgid "rating_label"
 msgstr "Puanım"
 
 #. Screen reader announcement for the star rating.
-#. {rating} is the value on the 0-5 scale, one decimal.
+#. {rating} is the value on the 0-5 scale, already formatted for the
+#. reader locale: no decimal when the rating is whole, one otherwise.
 msgid "rating_semantic_label"
 msgstr "Değerlendirme: 5 üzerinden {rating}"
 

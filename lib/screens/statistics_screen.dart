@@ -29,7 +29,17 @@ import '../src/rust/api/frb.dart' as frb;
 import '../utils/library_stats.dart' as library_stats;
 import '../utils/loan_statistics.dart';
 import '../utils/reading_statistics.dart';
+import '../utils/rating_format.dart';
 import 'package:intl/intl.dart';
+
+/// The reader's locale tag, from the same source the catalogue lookup uses.
+String _localeTag(BuildContext context) =>
+    Provider.of<ThemeProvider>(context, listen: false).localeTag;
+
+/// Formats a 0-5 rating for an accessibility label. See [formatStarRating]:
+/// a whole rating loses its decimal, and the separator follows the locale.
+String _formatRating(BuildContext context, double rating) =>
+    formatStarRating(rating, _localeTag(context));
 
 /// Data for a rating group (shelf or collection)
 class _RatingGroup {
@@ -2276,7 +2286,13 @@ class _StatisticsScreenState extends State<StatisticsScreen>
     final totalSales = (_salesStats!['total_sales'] as num?)?.toInt() ?? 0;
     final avgPrice = (_salesStats!['average_price'] as num?)?.toDouble() ?? 0.0;
 
-    final currencyFormat = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
+    // The euro amount is the same everywhere; only its rendering is local
+    // (1 234,56 € in French, €1,234.56 in English). Hardcoding fr_FR read
+    // French grouping and separators to every other locale.
+    final currencyFormat = NumberFormat.currency(
+      locale: _localeTag(context),
+      symbol: '€',
+    );
 
     return Column(
       children: [
@@ -4199,7 +4215,7 @@ class _StatisticsContentState extends State<StatisticsContent>
                   label: TranslationService.translate(
                     context,
                     'stat_a11y_star_rating',
-                  ).replaceAll('%1', starRating.toStringAsFixed(1)),
+                  ).replaceAll('%1', _formatRating(context, starRating)),
                   excludeSemantics: true,
                   child: Row(
                     children: List.generate(5, (index) {
@@ -4347,7 +4363,7 @@ class _StatisticsContentState extends State<StatisticsContent>
       padding: const EdgeInsets.only(bottom: 10),
       child: Semantics(
         label:
-            '${group.name}, ${TranslationService.translate(context, 'stat_a11y_star_rating').replaceAll('%1', starRating.toStringAsFixed(1))}, ${TranslationService.translate(context, 'rating_by_group_rated_books').replaceAll('%1', '${group.ratedCount}')}',
+            '${group.name}, ${TranslationService.translate(context, 'stat_a11y_star_rating').replaceAll('%1', _formatRating(context, starRating))}, ${TranslationService.translate(context, 'rating_by_group_rated_books').replaceAll('%1', '${group.ratedCount}')}',
         excludeSemantics: true,
         child: Row(
           children: [
@@ -4377,7 +4393,7 @@ class _StatisticsContentState extends State<StatisticsContent>
             ),
             const SizedBox(width: 6),
             Text(
-              starRating.toStringAsFixed(1),
+              _formatRating(context, starRating),
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -5137,7 +5153,13 @@ class _StatisticsContentState extends State<StatisticsContent>
     final totalSales = (_salesStats!['total_sales'] as num?)?.toInt() ?? 0;
     final avgPrice = (_salesStats!['average_price'] as num?)?.toDouble() ?? 0.0;
 
-    final currencyFormat = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
+    // The euro amount is the same everywhere; only its rendering is local
+    // (1 234,56 € in French, €1,234.56 in English). Hardcoding fr_FR read
+    // French grouping and separators to every other locale.
+    final currencyFormat = NumberFormat.currency(
+      locale: _localeTag(context),
+      symbol: '€',
+    );
 
     return Column(
       children: [

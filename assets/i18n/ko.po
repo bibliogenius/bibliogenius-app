@@ -4222,7 +4222,8 @@ msgid "rating_label"
 msgstr "내 평점"
 
 #. Screen reader announcement for the star rating.
-#. {rating} is the value on the 0-5 scale, one decimal.
+#. {rating} is the value on the 0-5 scale, already formatted for the
+#. reader locale: no decimal when the rating is whole, one otherwise.
 msgid "rating_semantic_label"
 msgstr "평점: 5점 만점에 {rating}점"
 
