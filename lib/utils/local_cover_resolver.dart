@@ -69,4 +69,36 @@ class LocalCoverResolver {
 
     return p.join(coversDir, '$bookId.jpg');
   }
+
+  /// Returns the value to PERSIST in `books.cover_url` for [value].
+  ///
+  /// The counterpart of [resolve]. A cover the user has just captured is
+  /// written to `{AppSupport}/covers/<bookId>.jpg`, and the capture helper
+  /// hands the screen the absolute path it needs for its own preview and image
+  /// cache eviction. That absolute prefix is device-specific and vestigial:
+  /// every reader (this resolver, and `cover_url::rebase_local_cover_path` on
+  /// the Rust side) rebuilds the directory from the current app-support path
+  /// and keeps only the basename. Persisting the prefix therefore stores a
+  /// device-specific string for a device-independent fact, which two devices
+  /// holding the same book then overwrite in turn through field-level LWW, and
+  /// which invites any consumer reading the column raw to treat it as a live
+  /// filesystem path (ADR-044 Addendum A.4).
+  ///
+  /// The reduction is deliberately narrower than "keep the basename": a value
+  /// is shortened ONLY when its basename is exactly `<bookId>.jpg`, which is
+  /// precisely the set [resolve] knows how to rebuild. Everything else is
+  /// returned untouched - remote URLs, `/api/...` peer paths, the
+  /// `temp_<uuid>.jpg` file the add flow writes before the book has an id, and
+  /// any path carried over from another device. Normalising can therefore
+  /// never turn a resolvable reference into an unresolvable one.
+  static String? normalizeForStorage(String? value, {required String? bookId}) {
+    if (value == null || value.isEmpty) return value;
+    if (bookId == null || bookId.isEmpty) return value;
+    if (value.startsWith('http') || value.startsWith('/api')) return value;
+
+    final canonical = '$bookId.jpg';
+    if (p.basename(value) != canonical) return value;
+
+    return canonical;
+  }
 }

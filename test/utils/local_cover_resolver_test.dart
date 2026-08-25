@@ -57,15 +57,120 @@ void main() {
       },
     );
 
-    test('is a no-op when the stored path already lives in the current covers dir', () {
-      LocalCoverResolver.coversDirPathForTest = '/Users/x/Application Support/covers';
-      const stored = '/Users/x/Application Support/covers/7.jpg';
-      expect(LocalCoverResolver.resolve(stored, bookId: '7'), stored);
-    });
+    test(
+      'is a no-op when the stored path already lives in the current covers dir',
+      () {
+        LocalCoverResolver.coversDirPathForTest =
+            '/Users/x/Application Support/covers';
+        const stored = '/Users/x/Application Support/covers/7.jpg';
+        expect(LocalCoverResolver.resolve(stored, bookId: '7'), stored);
+      },
+    );
 
     test('rebases a bare basename that matches the bookId', () {
       LocalCoverResolver.coversDirPathForTest = '/now/covers';
-      expect(LocalCoverResolver.resolve('42.jpg', bookId: '42'), '/now/covers/42.jpg');
+      expect(
+        LocalCoverResolver.resolve('42.jpg', bookId: '42'),
+        '/now/covers/42.jpg',
+      );
     });
+  });
+
+  group('LocalCoverResolver.normalizeForStorage', () {
+    test('shortens an absolute path whose basename is the canonical name', () {
+      expect(
+        LocalCoverResolver.normalizeForStorage(
+          '/var/mobile/Containers/Data/Application/UUID/Library/Application Support/covers/42.jpg',
+          bookId: '42',
+        ),
+        '42.jpg',
+      );
+    });
+
+    test('is idempotent on a value already stored short', () {
+      expect(
+        LocalCoverResolver.normalizeForStorage('42.jpg', bookId: '42'),
+        '42.jpg',
+      );
+    });
+
+    test('leaves remote and peer values untouched', () {
+      expect(
+        LocalCoverResolver.normalizeForStorage(
+          'https://cdn/42.jpg',
+          bookId: '42',
+        ),
+        'https://cdn/42.jpg',
+      );
+      expect(
+        LocalCoverResolver.normalizeForStorage(
+          'http://cdn/42.jpg',
+          bookId: '42',
+        ),
+        'http://cdn/42.jpg',
+      );
+      expect(
+        LocalCoverResolver.normalizeForStorage(
+          '/api/books/42/cover',
+          bookId: '42',
+        ),
+        '/api/books/42/cover',
+      );
+    });
+
+    test('leaves a temp cover from the add flow untouched', () {
+      // During add, the file is named `temp_<uuid4>.jpg` until the book exists
+      // and `renameTempCover` finalises it. Shortening it would strip the only
+      // prefix that makes it findable: the basename does not match the book id,
+      // so no resolver would re-base it.
+      const temp = '/Users/x/Application Support/covers/temp_abcd-1234.jpg';
+      expect(LocalCoverResolver.normalizeForStorage(temp, bookId: '42'), temp);
+    });
+
+    test('leaves a foreign device path untouched', () {
+      // Synced from device A under a fresh local id: basename 42 vs local 87.
+      const foreign = '/var/mobile/.../Application Support/covers/42.jpg';
+      expect(
+        LocalCoverResolver.normalizeForStorage(foreign, bookId: '87'),
+        foreign,
+      );
+    });
+
+    test('leaves the value untouched when the book id is unknown', () {
+      const stored = '/Users/x/Application Support/covers/42.jpg';
+      expect(
+        LocalCoverResolver.normalizeForStorage(stored, bookId: null),
+        stored,
+      );
+      expect(
+        LocalCoverResolver.normalizeForStorage(stored, bookId: ''),
+        stored,
+      );
+    });
+
+    test('passes null and empty through', () {
+      expect(
+        LocalCoverResolver.normalizeForStorage(null, bookId: '42'),
+        isNull,
+      );
+      expect(LocalCoverResolver.normalizeForStorage('', bookId: '42'), '');
+    });
+
+    test(
+      'round-trips: what it stores, resolve() turns back into a real path',
+      () {
+        LocalCoverResolver.coversDirPathForTest = '/now/covers';
+        const captured = '/old/container/covers/42.jpg';
+        final stored = LocalCoverResolver.normalizeForStorage(
+          captured,
+          bookId: '42',
+        );
+        expect(
+          LocalCoverResolver.resolve(stored!, bookId: '42'),
+          '/now/covers/42.jpg',
+        );
+        LocalCoverResolver.resetForTest();
+      },
+    );
   });
 }

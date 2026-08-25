@@ -1,5 +1,6 @@
 import '../../models/book.dart';
 import '../../services/api_service.dart';
+import '../../utils/local_cover_resolver.dart';
 import '../repositories/book_repository.dart';
 
 class BookRepositoryImpl implements BookRepository {
@@ -48,7 +49,10 @@ class BookRepositoryImpl implements BookRepository {
 
   @override
   Future<Book> updateBook(String uuid, Map<String, dynamic> bookData) async {
-    final response = await _apiService.updateBook(uuid, bookData);
+    final response = await _apiService.updateBook(
+      uuid,
+      _withNormalizedCover(uuid, bookData),
+    );
     if (response.statusCode == 200) {
       final data = response.data;
       if (data is Map<String, dynamic> && data.containsKey('title')) {
@@ -58,6 +62,31 @@ class BookRepositoryImpl implements BookRepository {
       return _apiService.getBook(uuid);
     }
     throw Exception('Failed to update book (status: ${response.statusCode})');
+  }
+
+  /// Stores a freshly captured cover by its device-independent basename.
+  ///
+  /// Screens hand the absolute path the capture helper returned, because they
+  /// need it for the preview and for evicting the previous file from the image
+  /// cache. Only the persisted form is reduced, and only when the basename is
+  /// the book's canonical `<uuid>.jpg` - see
+  /// [LocalCoverResolver.normalizeForStorage]. This is the single Flutter
+  /// write path for `cover_url`, so no screen has to remember the rule.
+  Map<String, dynamic> _withNormalizedCover(
+    String uuid,
+    Map<String, dynamic> bookData,
+  ) {
+    final raw = bookData['cover_url'];
+    if (raw is! String) return bookData;
+
+    final normalized = LocalCoverResolver.normalizeForStorage(
+      raw,
+      bookId: uuid,
+    );
+    if (normalized == raw) return bookData;
+
+    // Copy rather than mutate: the caller owns the map it passed in.
+    return {...bookData, 'cover_url': normalized};
   }
 
   @override

@@ -2573,7 +2573,13 @@ class HubDirectoryProvider extends ChangeNotifier {
     }
 
     // Nothing changed locally: re-push only if the hub copy is going stale.
-    // syncCatalog() dedupes by hash on the hub side, so this is near-free.
+    // This is not free. The catalog hash short-circuit (ADR-027) lives inside
+    // push_catalog, which the FFI sync reaches only AFTER iterating every owned
+    // book to upload its local cover, so that short-circuit has never covered
+    // the upload loop. The per-run dedup in HubDirectoryService replays an
+    // already-uploaded hub URL instead of re-encoding and re-POSTing, but its
+    // cache is in-memory and starts empty, so the first keep-alive of an app
+    // run still pays one upload per custom cover.
     if (await _isHubCatalogStale()) {
       debugPrint('HubDirectory: catalog stale, keep-alive re-push');
       await syncCatalog();
