@@ -411,6 +411,53 @@ class _EditBookScreenState extends State<EditBookScreen> {
     return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
   }
 
+  /// Take a reading date back off the book.
+  ///
+  /// Neither reading date is mandatory: a book can be "read" without one, and
+  /// the date picker has no way to answer "no date", so clearing has to be its
+  /// own control.
+  void _clearDate(TextEditingController controller) {
+    setState(() => controller.clear());
+  }
+
+  /// A reading date: read-only text opened by the calendar picker, with a
+  /// clear button once a date is set.
+  Widget _buildReadingDateField(
+    TextEditingController controller, {
+    required String keyPrefix,
+  }) {
+    // No explicit color: the decoration theme owns the suffix icon tint,
+    // including its focused and error states.
+    const calendarIcon = Icon(Icons.calendar_today);
+    return TextFormField(
+      key: Key('${keyPrefix}_date_field'),
+      // Display-only mirror of `controller`, which holds the ISO value.
+      controller: TextEditingController(
+        text: _formatDateForDisplay(controller.text),
+      ),
+      readOnly: true,
+      onTap: () => _selectDate(context, controller),
+      decoration: _buildInputDecoration(
+        hint: TranslationService.translate(context, 'select_date'),
+        suffixIcon: controller.text.isEmpty
+            ? calendarIcon
+            : Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    key: Key('${keyPrefix}_date_clear'),
+                    icon: const Icon(Icons.close),
+                    tooltip: TranslationService.translate(context, 'clear'),
+                    onPressed: () => _clearDate(controller),
+                  ),
+                  calendarIcon,
+                  const SizedBox(width: 12),
+                ],
+              ),
+      ),
+    );
+  }
+
   Future<void> _saveBook() async {
     // Force the IME to commit any pending composition before we read the
     // text controllers. Without this, on iOS/Android the user can tap
@@ -1325,25 +1372,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   ),
                   icon: Icons.play_arrow_outlined,
                 ),
-                GestureDetector(
-                  onTap: () => _selectDate(context, _startedDateController),
-                  child: AbsorbPointer(
-                    child: TextFormField(
-                      controller: TextEditingController(
-                        text: _formatDateForDisplay(
-                          _startedDateController.text,
-                        ),
-                      ),
-                      decoration: _buildInputDecoration(
-                        hint: TranslationService.translate(
-                          context,
-                          'select_date',
-                        ),
-                        suffixIcon: const Icon(Icons.calendar_today),
-                      ),
-                      readOnly: true,
-                    ),
-                  ),
+                _buildReadingDateField(
+                  _startedDateController,
+                  keyPrefix: 'started_reading',
                 ),
               ],
 
@@ -1360,25 +1391,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   ),
                   icon: Icons.check_circle_outline,
                 ),
-                GestureDetector(
-                  onTap: () => _selectDate(context, _finishedDateController),
-                  child: AbsorbPointer(
-                    child: TextFormField(
-                      controller: TextEditingController(
-                        text: _formatDateForDisplay(
-                          _finishedDateController.text,
-                        ),
-                      ),
-                      decoration: _buildInputDecoration(
-                        hint: TranslationService.translate(
-                          context,
-                          'select_date',
-                        ),
-                        suffixIcon: const Icon(Icons.calendar_today),
-                      ),
-                      readOnly: true,
-                    ),
-                  ),
+                _buildReadingDateField(
+                  _finishedDateController,
+                  keyPrefix: 'finished_reading',
                 ),
               ],
 

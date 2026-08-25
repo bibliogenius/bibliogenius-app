@@ -2553,16 +2553,8 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       };
 
       if (newStatus == 'reading') {
-        // If we have a date, set it. If we chose 'none', we might want to explicity set it to null
-        // OR just omit it? If we omit it, previous value remains.
-        // If the user explicitly chose 'No Date', they likely want to clear it or set it empty.
-        // But the API might not support clearing if we just omit.
-        // Let's send the date if we have it. If 'none', we explicitly send null?
-        // The backend logic: `if let Some(started_at) = book_data.started_reading_at`.
-        // To clear it, we might need to send `null` in JSON.
-        // Dart `toIso8601String()` is only for non-null.
-        // Let's check api_service.dart again. It takes Map<String, dynamic>.
-        // JSON `null` is valid.
+        // "No date" sends an explicit null, which the update path turns into
+        // a cleared column: neither reading date is mandatory.
         updateData['started_reading_at'] = selectedDate?.toIso8601String();
       } else if (newStatus == 'read') {
         updateData['finished_reading_at'] = selectedDate?.toIso8601String();
