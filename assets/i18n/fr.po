@@ -1461,7 +1461,7 @@ msgstr "Impossible de prendre la photo"
 
 #. Cover photo saved
 msgid "cover_photo_saved"
-msgstr "Photo de couverture enregistree"
+msgstr "Photo de couverture enregistrée"
 
 #. Take a photo
 msgid "cover_take_photo"
@@ -1919,15 +1919,15 @@ msgstr "Nettoyer l'historique"
 
 #. Confirmation dialog for clearing returned loans
 msgid "clean_returned_loans_confirm"
-msgstr "Supprimer %d emprunt(s) retourne(s) ? Cette action est irreversible."
+msgstr "Supprimer %d emprunt(s) retourné(s) ? Cette action est irréversible."
 
 #. Success message after clearing returned loans
 msgid "clean_returned_loans_success"
-msgstr "%d emprunt(s) retourne(s) supprime(s)"
+msgstr "%d emprunt(s) retourné(s) supprimé(s)"
 
 #. No returned loans to clear
 msgid "clean_returned_loans_empty"
-msgstr "Aucun emprunt retourne a supprimer"
+msgstr "Aucun emprunt retourné à supprimer"
 
 #. Clear closed requests history
 msgid "clean_closed_requests"
@@ -1935,15 +1935,15 @@ msgstr "Nettoyer l'historique"
 
 #. Confirmation dialog for clearing closed requests
 msgid "clean_closed_requests_confirm"
-msgstr "Supprimer %d demande(s) cloturee(s) ? Cette action est irreversible."
+msgstr "Supprimer %d demande(s) clôturée(s) ? Cette action est irréversible."
 
 #. Success message after clearing closed requests
 msgid "clean_closed_requests_success"
-msgstr "%d demande(s) cloturee(s) supprimee(s)"
+msgstr "%d demande(s) clôturée(s) supprimée(s)"
 
 #. No closed requests to clear
 msgid "clean_closed_requests_empty"
-msgstr "Aucune demande cloturee a supprimer"
+msgstr "Aucune demande clôturée à supprimer"
 
 #. No outgoing requests
 msgid "empty_no_outgoing"
@@ -5410,11 +5410,11 @@ msgstr "Via le hub"
 
 #. Hub Borrow - Follow required
 msgid "hub_borrow_no_follow"
-msgstr "Suivez cette bibliotheque pour demander un emprunt"
+msgstr "Suivez cette bibliothèque pour demander un emprunt"
 
 #. Hub Borrow - Duplicate pending request
 msgid "hub_borrow_duplicate"
-msgstr "Vous avez deja une demande en cours pour ce livre"
+msgstr "Vous avez déjà une demande en cours pour ce livre"
 
 #. Hub - Allow borrowing toggle
 msgid "hub_allow_borrowing"
@@ -5422,11 +5422,11 @@ msgstr "Autoriser les demandes d'emprunt"
 
 #. Hub - Allow borrowing description
 msgid "hub_allow_borrowing_desc"
-msgstr "Permettre a vos followers de demander a emprunter vos livres via le hub"
+msgstr "Permettre à vos followers de demander à emprunter vos livres via le hub"
 
 #. Hub - Borrowing disabled message
 msgid "hub_borrowing_disabled"
-msgstr "Cette bibliotheque n'accepte pas les demandes d'emprunt"
+msgstr "Cette bibliothèque n'accepte pas les demandes d'emprunt"
 
 #. Hub - Online features master toggle (title)
 msgid "hub_coming_soon_toggle"
@@ -5438,17 +5438,17 @@ msgstr "Recevez les demandes de suivi et d'emprunt en temps réel, et débloquez
 
 #. Generic coming soon chip
 msgid "coming_soon_chip"
-msgstr "A venir"
+msgstr "À venir"
 
 #. Hub - Contact info
 msgid "hub_contact_label"
-msgstr "Contact (visible par vos abonnes approuves)"
+msgstr "Contact (visible par vos abonnés approuvés)"
 
 msgid "hub_contact_hint"
-msgstr "Email, telephone, adresse..."
+msgstr "Email, téléphone, adresse..."
 
 msgid "hub_contact_encrypted_notice"
-msgstr "Chiffre - visible uniquement par vos abonnes approuves"
+msgstr "Chiffré - visible uniquement par vos abonnés approuvés"
 
 #. Hub - Website
 msgid "hub_website_label"
@@ -5635,19 +5635,19 @@ msgstr "Racine (sans parent)"
 
 #. Shelf Picker
 msgid "search_shelves_hint"
-msgstr "Rechercher une etagere..."
+msgstr "Rechercher une étagère..."
 
 #. Shelf Picker
 msgid "shelves_selected"
-msgstr "selectionnee(s)"
+msgstr "sélectionnée(s)"
 
 #. Shelf Picker - Empty state
 msgid "no_shelves_yet"
-msgstr "Aucune etagere pour le moment"
+msgstr "Aucune étagère pour le moment"
 
 #. Shelf Picker - Search empty
 msgid "no_shelves_match"
-msgstr "Aucune etagere trouvee"
+msgstr "Aucune étagère trouvée"
 
 msgid "sale_date"
 msgstr "Date de vente"
@@ -5711,11 +5711,11 @@ msgstr "Alignez le code-barres dans le cadre"
 
 #. Offline banner shown on scan screen when no internet
 msgid "scan_offline_banner"
-msgstr "Hors ligne - recherche de metadonnees indisponible"
+msgstr "Hors ligne - recherche de métadonnées indisponible"
 
 #. Dialog message when scan fails due to offline
 msgid "scan_offline_message"
-msgstr "La recherche de metadonnees necessite une connexion internet. Vous pouvez ajouter ce livre manuellement avec l'ISBN."
+msgstr "La recherche de métadonnées nécessite une connexion internet. Vous pouvez ajouter ce livre manuellement avec l'ISBN."
 
 #. Dialog title when scan fails due to offline
 msgid "scan_offline_title"
@@ -6419,7 +6419,7 @@ msgstr "livres"
 
 #. Chart accessibility: stars suffix
 msgid "stat_chart_stars"
-msgstr "etoiles"
+msgstr "étoiles"
 
 #. Contact fallback for unknown contact
 msgid "stat_unknown_contact"
@@ -6427,7 +6427,7 @@ msgstr "Inconnu"
 
 #. Accessibility: reading status chart
 msgid "stat_a11y_reading_status_chart"
-msgstr "Repartition par statut de lecture"
+msgstr "Répartition par statut de lecture"
 
 #. Accessibility: top authors chart
 msgid "stat_a11y_top_authors_chart"
@@ -6455,31 +6455,31 @@ msgstr "Voir le livre : %1"
 
 #. Operation log stats section title
 msgid "stat_operation_log_title"
-msgstr "Activite de synchronisation"
+msgstr "Activité de synchronisation"
 
 #. Operation log: entity types tracked
 msgid "stat_oplog_entity_types"
-msgstr "Types d'entites suivis"
+msgstr "Types d'entités suivis"
 
 #. Operation log: health OK
 msgid "stat_oplog_health_ok"
-msgstr "Toutes les operations effectuees"
+msgstr "Toutes les opérations effectuées"
 
 #. Operation log: pending (not yet synced)
 msgid "stat_oplog_pending"
-msgstr "Non synchronisees"
+msgstr "Non synchronisées"
 
 #. Operation log: health warning
 msgid "stat_oplog_health_warning"
-msgstr "%1 operations non synchronisees"
+msgstr "%1 opérations non synchronisées"
 
 #. Operation log: health error
 msgid "stat_oplog_health_error"
-msgstr "%1 operations en erreur"
+msgstr "%1 opérations en erreur"
 
 #. Operation log: view details link
 msgid "stat_oplog_view_details"
-msgstr "Voir le journal des operations"
+msgstr "Voir le journal des opérations"
 
 #. Section subtitle: sales statistics
 msgid "stat_subtitle_sales"
@@ -6487,7 +6487,7 @@ msgstr "Revenus et tendances de vos ventes de livres"
 
 #. Section subtitle: monthly progress
 msgid "stat_subtitle_monthly_progress"
-msgstr "Livres termines chaque mois sur la derniere annee"
+msgstr "Livres terminés chaque mois sur la dernière année"
 
 #. Section subtitle: reading insights
 msgid "stat_subtitle_reading_insights"
@@ -6495,39 +6495,39 @@ msgstr "Temps moyen de lecture et progression annuelle"
 
 #. Section subtitle: rating by group
 msgid "stat_subtitle_rating_by_group"
-msgstr "Note moyenne par etagere et par collection"
+msgstr "Note moyenne par étagère et par collection"
 
 #. Section subtitle: reading habits
 msgid "stat_subtitle_reading_habits"
-msgstr "Repartition de vos statuts de lecture"
+msgstr "Répartition de vos statuts de lecture"
 
 #. Section subtitle: top authors
 msgid "stat_subtitle_top_authors"
-msgstr "Les auteurs les plus presents dans votre bibliotheque"
+msgstr "Les auteurs les plus présents dans votre bibliothèque"
 
 #. Section subtitle: publication timeline
 msgid "stat_subtitle_publication_timeline"
-msgstr "Distribution de vos livres par decennie de publication"
+msgstr "Distribution de vos livres par décennie de publication"
 
 #. Section subtitle: loan statistics
 msgid "stat_subtitle_loan_statistics"
-msgstr "Prets actifs et historique des retours"
+msgstr "Prêts actifs et historique des retours"
 
 #. Section subtitle: borrowed statistics
 msgid "stat_subtitle_borrowed_statistics"
-msgstr "Livres empruntes aupres d'autres bibliotheques"
+msgstr "Livres empruntés auprès d'autres bibliothèques"
 
 #. Section subtitle: shelf statistics
 msgid "stat_subtitle_shelf_statistics"
-msgstr "Repartition des livres sur vos etageres"
+msgstr "Répartition des livres sur vos étagères"
 
 #. Section subtitle: collections with completion and read %
 msgid "stat_subtitle_collections_detail"
-msgstr "Completion : %1% - Lus : %2%"
+msgstr "Complétion : %1% - Lus : %2%"
 
 #. Section subtitle: operation log
 msgid "stat_subtitle_operation_log"
-msgstr "Journal d'activite de la synchronisation"
+msgstr "Journal d'activité de la synchronisation"
 
 #. Section title: personal records
 msgid "personal_records"
@@ -6535,7 +6535,7 @@ msgstr "Records personnels"
 
 #. Section subtitle: personal records
 msgid "stat_subtitle_personal_records"
-msgstr "Vos meilleurs performances et series de lecture"
+msgstr "Vos meilleures performances et séries de lecture"
 
 #. Profile: statistics summary title
 msgid "profile_stats_title"
@@ -6551,7 +6551,7 @@ msgstr "Accomplissements"
 
 #. Profile section: leaderboard
 msgid "leaderboard"
-msgstr "Classement reseau"
+msgstr "Classement réseau"
 
 #. Status
 msgid "status"
@@ -7556,7 +7556,7 @@ msgstr "Jeux"
 
 #. Games module description
 msgid "games_module_desc"
-msgstr "Activer les mini-jeux bases sur votre bibliotheque"
+msgstr "Activer les mini-jeux basés sur votre bibliothèque"
 
 #. Games hub title
 msgid "games_hub_title"
@@ -7600,7 +7600,7 @@ msgstr "Ma sauvegarde BiblioGenius"
 
 #. Backup - Export success
 msgid "backup_export_success"
-msgstr "Sauvegarde exportee avec succes"
+msgstr "Sauvegarde exportée avec succès"
 
 #. Backup - Export error
 msgid "backup_export_error"
@@ -7844,7 +7844,7 @@ msgstr "Rechercher par ISBN"
 
 #. Accessibility - Tooltip: lend book
 msgid "tooltip_lend_book"
-msgstr "Preter ce livre"
+msgstr "Prêter ce livre"
 
 #. Accessibility - Tooltip: return book
 msgid "tooltip_return_book"
@@ -7950,7 +7950,7 @@ msgstr "Rejoins {name} sur BiblioGenius pour partager des livres : {link}"
 
 #. Loading snackbar while generating invite link
 msgid "generating_invite_link"
-msgstr "Preparation du lien d'invitation..."
+msgstr "Préparation du lien d'invitation..."
 
 #. Profile screen - share invite link
 msgid "profile_share_invite"
@@ -7975,10 +7975,10 @@ msgstr "Erreurs"
 
 #. Operation Log Viewer - filters
 msgid "admin_log_filter_entity"
-msgstr "Entite"
+msgstr "Entité"
 
 msgid "admin_log_filter_operation"
-msgstr "Operation"
+msgstr "Opération"
 
 msgid "admin_log_filter_status"
 msgstr "Statut"
@@ -7988,10 +7988,10 @@ msgstr "Effacer"
 
 #. Operation Log Viewer - empty state
 msgid "admin_log_empty_title"
-msgstr "Aucune operation enregistree"
+msgstr "Aucune opération enregistrée"
 
 msgid "admin_log_empty_subtitle"
-msgstr "Les mutations apparaitront ici au fil de l'utilisation"
+msgstr "Les mutations apparaîtront ici au fil de l'utilisation"
 
 #. Operation Log Viewer - pagination
 msgid "admin_log_page_info"
@@ -7999,19 +7999,19 @@ msgstr "Page %d sur %d"
 
 #. Operation Log Viewer - tooltips
 msgid "tooltip_filter_entity_type"
-msgstr "Filtrer par type d'entite"
+msgstr "Filtrer par type d'entité"
 
 msgid "tooltip_filter_operation"
-msgstr "Filtrer par operation"
+msgstr "Filtrer par opération"
 
 msgid "tooltip_filter_status"
 msgstr "Filtrer par statut"
 
 msgid "tooltip_expand_details"
-msgstr "Afficher les details"
+msgstr "Afficher les détails"
 
 msgid "tooltip_collapse_details"
-msgstr "Masquer les details"
+msgstr "Masquer les détails"
 
 msgid "tooltip_prev_page"
 msgstr "Page precedente"
@@ -8039,7 +8039,7 @@ msgstr "Effacer la recherche"
 
 #. Device Pairing
 msgid "pairing_title"
-msgstr "Appareils lies"
+msgstr "Appareils liés"
 
 msgid "pairing_code_title"
 msgstr "Code d'appairage"
@@ -8048,13 +8048,13 @@ msgid "pairing_enter_title"
 msgstr "Saisir un code"
 
 msgid "pairing_empty_title"
-msgstr "Aucun appareil lie"
+msgstr "Aucun appareil lié"
 
 msgid "pairing_empty_subtitle"
-msgstr "Appairez un autre appareil pour synchroniser votre bibliotheque"
+msgstr "Appairez un autre appareil pour synchroniser votre bibliothèque"
 
 msgid "pairing_generate_code"
-msgstr "Generer un code"
+msgstr "Générer un code"
 
 msgid "pairing_enter_code"
 msgstr "Saisir un code"
@@ -8066,31 +8066,31 @@ msgid "pairing_code_expires"
 msgstr "%s restant"
 
 msgid "pairing_code_expired"
-msgstr "Code expire"
+msgstr "Code expiré"
 
 msgid "pairing_enter_instruction"
-msgstr "Selectionnez l'appareil sur votre reseau Wi-Fi puis entrez son code a 6 chiffres"
+msgstr "Sélectionnez l'appareil sur votre réseau Wi-Fi puis entrez son code à 6 chiffres"
 
 msgid "pairing_no_peers"
-msgstr "Aucun appareil detecte sur le reseau Wi-Fi"
+msgstr "Aucun appareil détecté sur le réseau Wi-Fi"
 
 msgid "pairing_mdns_hint"
-msgstr "Les deux appareils doivent etre connectes au meme Wi-Fi avec la decouverte reseau activee (Parametres > Reseau)"
+msgstr "Les deux appareils doivent être connectés au même Wi-Fi avec la découverte réseau activée (Paramètres > Réseau)"
 
 msgid "pairing_identity_note"
 msgstr "Chaque appareil garde sa propre identité. L'appairage synchronise vos livres entre vos appareils, mais chacun reste une bibliothèque distincte dans l'annuaire."
 
 msgid "pairing_select_device"
-msgstr "Appareil a appairer"
+msgstr "Appareil à appairer"
 
 msgid "pairing_button_pair"
 msgstr "Appairer"
 
 msgid "pairing_success"
-msgstr "Appareil appaire avec succes"
+msgstr "Appareil appairé avec succès"
 
 msgid "pairing_error"
-msgstr "Echec de l'appairage"
+msgstr "Échec de l'appairage"
 
 msgid "pairing_error_unreachable"
 msgstr "L'autre appareil ne répond pas. Ouvre l'app BiblioGenius au premier plan dessus (écran allumé), puis réessaie."
@@ -8123,10 +8123,10 @@ msgid "pairing_remove_confirm"
 msgstr "Retirer cet appareil ?"
 
 msgid "pairing_remove_success"
-msgstr "Appareil retire"
+msgstr "Appareil retiré"
 
 msgid "pairing_paired_on"
-msgstr "Appaire le %s"
+msgstr "Appairé le %s"
 
 msgid "pairing_cancel"
 msgstr "Annuler"
@@ -8135,7 +8135,7 @@ msgid "tooltip_remove_device"
 msgstr "Retirer l'appareil"
 
 msgid "tooltip_generate_pairing"
-msgstr "Generer un code d'appairage"
+msgstr "Générer un code d'appairage"
 
 msgid "tooltip_enter_pairing"
 msgstr "Saisir un code d'appairage"
@@ -8153,7 +8153,7 @@ msgid "settings_auto_backup"
 msgstr "Sauvegarde automatique"
 
 msgid "settings_auto_backup_desc"
-msgstr "Envoyer vos donnees aux appareils lies sur le meme Wi-Fi au demarrage"
+msgstr "Envoyer vos données aux appareils liés sur le même Wi-Fi au démarrage"
 
 #. Notifications settings section header
 msgid "settings_notifications"
@@ -8192,7 +8192,7 @@ msgid "sync_review_title"
 msgstr "Revue de synchronisation"
 
 msgid "sync_review_banner"
-msgstr "%d operations recues. Verifiez avant d'appliquer."
+msgstr "%d opérations reçues. Vérifiez avant d'appliquer."
 
 msgid "sync_review_approve_all"
 msgstr "Tout approuver"
@@ -8210,13 +8210,13 @@ msgid "sync_review_empty_title"
 msgstr "Tout est en ordre"
 
 msgid "sync_review_empty_subtitle"
-msgstr "Aucune operation a valider"
+msgstr "Aucune opération à valider"
 
 msgid "sync_review_approved"
-msgstr "%d operations approuvees"
+msgstr "%d opérations approuvées"
 
 msgid "sync_review_rejected"
-msgstr "%d operations rejetees"
+msgstr "%d opérations rejetées"
 
 msgid "sync_review_from"
 msgstr "Source :"
@@ -8225,13 +8225,13 @@ msgid "sync_trigger_button"
 msgstr "Synchroniser"
 
 msgid "sync_result_message"
-msgstr "%d envoyees, %d recues"
+msgstr "%d envoyées, %d reçues"
 
 msgid "sync_done"
-msgstr "Synchronisation terminee"
+msgstr "Synchronisation terminée"
 
 msgid "sync_done_with_pending"
-msgstr "Synchronisation terminee - %d modifications a valider"
+msgstr "Synchronisation terminée - %d modifications à valider"
 
 msgid "sync_pending_review_action"
 msgstr "Voir"
@@ -8240,7 +8240,7 @@ msgid "sync_pending_review_count"
 msgstr "%d en attente de validation"
 
 msgid "sync_safety_title"
-msgstr "Securite de synchronisation"
+msgstr "Sécurité de synchronisation"
 
 msgid "sync_safety_subtitle"
 msgstr "Valider les modifications avant application"
@@ -8249,10 +8249,10 @@ msgid "tooltip_sync_device"
 msgstr "Synchroniser avec cet appareil"
 
 msgid "tooltip_approve_op"
-msgstr "Approuver cette operation"
+msgstr "Approuver cette opération"
 
 msgid "tooltip_reject_op"
-msgstr "Rejeter cette operation"
+msgstr "Rejeter cette opération"
 
 #. Relay Library Sync (ADR-012)
 msgid "syncing_via_relay"
@@ -8715,17 +8715,17 @@ msgid "peer_last_seen"
 msgstr "Dernière connexion"
 
 msgid "peer_has_relay"
-msgstr "Joignable meme hors Wi-Fi local"
+msgstr "Joignable même hors Wi-Fi local"
 
 #. Relay mailbox expired error
 msgid "peer_relay_mailbox_expired"
-msgstr "La boite relay du pair n'existe plus. Demandez-lui de renvoyer son invitation."
+msgstr "La boîte relay du pair n'existe plus. Demandez-lui de renvoyer son invitation."
 
 msgid "peer_connection_info"
 msgstr "Connexion"
 
 msgid "peer_node_id"
-msgstr "Identifiant du noeud"
+msgstr "Identifiant du nœud"
 
 #. Bottom sheet: peer actions menu
 msgid "peer_actions"
@@ -8817,19 +8817,19 @@ msgid "peer_status_indirect"
 msgstr "En ligne"
 
 msgid "module_edition_browser"
-msgstr "Explorateur d'editions"
+msgstr "Explorateur d'éditions"
 
 msgid "module_edition_browser_desc"
-msgstr "Parcourir et choisir parmi plusieurs editions lors de l'ajout de livres"
+msgstr "Parcourir et choisir parmi plusieurs éditions lors de l'ajout de livres"
 
 msgid "confirm"
 msgstr "Confirmer"
 
 msgid "reset_scores"
-msgstr "Reinitialiser les scores"
+msgstr "Réinitialiser les scores"
 
 msgid "reset_scores_confirm"
-msgstr "Tous vos scores pour ce jeu seront supprimes. Cette action est irreversible."
+msgstr "Tous vos scores pour ce jeu seront supprimés. Cette action est irréversible."
 
 #. Notifications / Fil d'activité
 msgid "notifications_title"
@@ -8908,7 +8908,7 @@ msgstr "« {book} » disponible chez {source}"
 
 #. Notification display - system events
 msgid "notif_welcome"
-msgstr "Bienvenue sur BiblioGenius ! Explorez l'application pour gerer votre bibliotheque."
+msgstr "Bienvenue sur BiblioGenius ! Explorez l'application pour gérer votre bibliothèque."
 
 #. Notification tap hints
 msgid "notif_tap_network"
@@ -9221,11 +9221,11 @@ msgstr "Aucune note pour le moment"
 
 #. Note updated confirmation
 msgid "note_updated"
-msgstr "Note mise a jour"
+msgstr "Note mise à jour"
 
 #. Note deleted confirmation
 msgid "note_deleted"
-msgstr "Note supprimee"
+msgstr "Note supprimée"
 
 #. Edit note dialog title
 msgid "edit_note"
@@ -9247,7 +9247,7 @@ msgstr "Modifier la note"
 
 #. Settings label for speech-to-text toggle
 msgid "speech_to_text_setting"
-msgstr "Dictee vocale des notes"
+msgstr "Dictée vocale des notes"
 
 #. Description for speech-to-text setting
 msgid "speech_to_text_setting_desc"
@@ -9269,11 +9269,11 @@ msgstr "Parlez..."
 
 #. Settings section title for loan duration
 msgid "loan_duration_settings_title"
-msgstr "Duree de pret"
+msgstr "Durée de prêt"
 
 #. Label for global default loan duration
 msgid "loan_duration_default_label"
-msgstr "Duree par defaut"
+msgstr "Durée par défaut"
 
 #. Unit suffix for days
 msgid "loan_duration_days_suffix"
@@ -9285,31 +9285,31 @@ msgstr "Personnalisation par livre"
 
 #. Description for per-book duration toggle
 msgid "loan_duration_per_book_desc"
-msgstr "Permet de definir une duree de pret differente pour chaque livre"
+msgstr "Permet de définir une durée de prêt différente pour chaque livre"
 
 #. Label for the reminder days stepper (how many days before due date to send a first alert)
 msgid "loan_reminder_days_label"
-msgstr "Rappel avant echeance"
+msgstr "Rappel avant échéance"
 
 #. Label for per-book loan duration field in book detail
 msgid "loan_duration_book_custom"
-msgstr "Duree de pret personnalisee"
+msgstr "Durée de prêt personnalisée"
 
 #. Hint when per-book duration is not set (uses global default)
 msgid "loan_duration_book_default_hint"
-msgstr "Utilise la duree par defaut (%d jours)"
+msgstr "Utilise la durée par défaut (%d jours)"
 
 #. Tooltip for clearing per-book duration
 msgid "tooltip_clear_book_loan_duration"
-msgstr "Reinitialiser a la duree par defaut"
+msgstr "Réinitialiser à la durée par défaut"
 
 #. Snackbar confirmation when loan settings are saved
 msgid "loan_settings_saved"
-msgstr "Parametres de pret enregistres"
+msgstr "Paramètres de prêt enregistrés"
 
 #. Label for due date in loan dialog
 msgid "loan_due_date_label"
-msgstr "Date de retour prevue"
+msgstr "Date de retour prévue"
 
 #. Loan offer to peer - notification pending
 msgid "loan_notification_pending"
@@ -9317,35 +9317,35 @@ msgstr "notification en attente"
 
 #. Recovery code - copy button tooltip
 msgid "recovery_code_copy"
-msgstr "Copier le code de recuperation"
+msgstr "Copier le code de récupération"
 
 #. Recovery code - copied confirmation
 msgid "recovery_code_copied"
-msgstr "Code de recuperation copie"
+msgstr "Code de récupération copié"
 
 #. Connection lost - dialog title
 msgid "connection_lost_title"
-msgstr "Connexion a l'annuaire perdue"
+msgstr "Connexion à l'annuaire perdue"
 
 #. Connection lost - dialog body
 msgid "connection_lost_body"
-msgstr "Apres la reinstallation, votre profil dans l'annuaire n'est plus accessible. Vos livres et contacts locaux ne sont pas affectes."
+msgstr "Après la réinstallation, votre profil dans l'annuaire n'est plus accessible. Vos livres et contacts locaux ne sont pas affectés."
 
 #. Connection lost - recovery option
 msgid "connection_lost_recovery_option"
-msgstr "J'ai un code de recuperation"
+msgstr "J'ai un code de récupération"
 
 #. Connection lost - recovery option subtitle
 msgid "connection_lost_recovery_subtitle"
-msgstr "Retrouvez votre profil, vos abonnes et abonnements"
+msgstr "Retrouvez votre profil, vos abonnés et abonnements"
 
 #. Connection lost - new profile option
 msgid "connection_lost_new_profile"
-msgstr "Creer un nouveau profil"
+msgstr "Créer un nouveau profil"
 
 #. Connection lost - new profile warning
 msgid "connection_lost_new_profile_warning"
-msgstr "Vos abonnes et abonnements actuels seront perdus. Les personnes qui vous suivaient devront vous retrouver."
+msgstr "Vos abonnés et abonnements actuels seront perdus. Les personnes qui vous suivaient devront vous retrouver."
 
 #. Connection lost - later button
 msgid "connection_lost_later"
@@ -9928,7 +9928,7 @@ msgid "wizard_restore_error_db_hash_mismatch"
 msgstr "Empreinte de la base incorrecte : archive corrompue. Restauration annulée, votre bibliothèque actuelle est intacte."
 
 msgid "wizard_restore_error_generic"
-msgstr "Echec : {error}"
+msgstr "Échec : {error}"
 
 #. Backup section: PR #3 tile + rollback card.
 msgid "backup_restore_full_title"
