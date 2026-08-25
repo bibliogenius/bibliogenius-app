@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import '../data/repositories/book_repository.dart';
@@ -28,7 +30,13 @@ typedef CuratedCorpusLoader = Future<List<CuratedList>> Function();
 /// Strategy: stale-while-revalidate. The dashboard shows the cached list
 /// instantly and a refresh runs in the background on every dashboard load.
 /// Catalogue mutations (add/edit/delete/import) invalidate the cache
-/// through [BookRefreshNotifier], which the mutation sites already ping.
+/// through [BookRefreshNotifier], which the mutation sites already ping,
+/// and the local lane then RE-FETCHES on the spot: the library slot
+/// (ADR-062) renders straight from this cache and has no load trigger of
+/// its own, so an invalidation nobody acts on leaves a deleted book on
+/// screen. The external lane rebuilds right behind it, so a card offering
+/// a book the reader has just acquired stops being offered. Only the
+/// editorial tier stays lazily stale, refreshed by its own surfaces.
 ///
 /// Also owns the in-memory "Not interested" dismissal set (ADR-059
 /// follow-up). Dismissals are keyed by book uuid, filtered Flutter-side
@@ -76,6 +84,15 @@ class RecommendationProvider extends ChangeNotifier {
   bool _stale = true;
   bool _loading = false;
 
+  /// A catalogue mutation landed while a fetch was in flight: that fetch is
+  /// answering about a library that no longer exists, so one more pass is
+  /// owed once it returns.
+  bool _reloadQueued = false;
+
+  /// The pass under way, shared with every concurrent caller so an eager
+  /// revalidation can await the fetch it did not start.
+  Future<void>? _personalInFlight;
+
   Set<String> _dismissedBookIds = {};
 
   /// Per-series external candidates (missing volumes, lowest ordinal
@@ -91,6 +108,15 @@ class RecommendationProvider extends ChangeNotifier {
   bool _externalStale = true;
   bool _externalLoading = false;
 
+  /// [_reloadQueued] for the external lane.
+  bool _externalReloadQueued = false;
+
+  /// Reading languages of the last [loadExternal] call, so a catalogue
+  /// mutation can rebuild the external cards without a surface handing them
+  /// over again. Null until a surface has asked once: the provider has no
+  /// business guessing the reader's languages.
+  List<String>? _lastExternalLangs;
+
   /// Last discovery lookup inputs (lookups plus the library identity index).
   /// Cached across surfaces so opening a book or an author page never costs
   /// a full library pass: only a catalogue mutation invalidates them
@@ -98,6 +124,13 @@ class RecommendationProvider extends ChangeNotifier {
   DiscoveryLookupInputs? _lookupInputs;
   bool _inputsStale = true;
   Future<DiscoveryLookupInputs?>? _inputsInFlight;
+
+  /// Bumped by every catalogue mutation. A pass that started before the bump
+  /// describes a library that no longer exists, so it must not be the one
+  /// that clears [_inputsStale]: two deletions closer together than one
+  /// library pass would otherwise leave the membrane filtering against the
+  /// index from before the second.
+  int _inputsGeneration = 0;
 
   /// Whether the once-per-session startup warm-up already ran
   /// ([warmUpAtStartup]). Never reset by a catalogue mutation: staleness is
@@ -375,9 +408,44 @@ class RecommendationProvider extends ChangeNotifier {
     // themselves, so the contextual surfaces must not keep filtering
     // against a library that no longer exists.
     _inputsStale = true;
+    _inputsGeneration++;
     // Importing a list is the single most likely catalogue mutation here,
     // and it changes every overlap count on screen.
     _curatedStale = true;
+    // Refresh eagerly rather than on the next mount: the library slot
+    // (ADR-062) is a StatelessWidget with no load trigger of its own, so
+    // marking the cache stale alone left a deleted book on screen, tappable
+    // through to its edit form, until the app restarted. Same reason as
+    // [FavoritesProvider]: these cards are already in front of the reader.
+    unawaited(_revalidate());
+  }
+
+  /// Rebuild the two card lanes the slot renders, in their shipped order:
+  /// the local suggestions first, then the external ones, which gate on
+  /// them ([loadExternal] needs at least two visible locals).
+  ///
+  /// The external pass costs one identity-index fetch and two cache reads;
+  /// the hub sweeps inside it stay under their own 24h per-key throttle, so
+  /// a mutation buys no extra outbound request. That matters because the
+  /// membrane is what drops a card: a reader who just scanned the missing
+  /// volume keeps being offered it until the candidates are filtered
+  /// against a library that contains it.
+  ///
+  /// The editorial tier (ADR-066) is deliberately NOT here: re-ranking
+  /// walks the whole bundled corpus against the library, which is the one
+  /// piece of real work in this file, and its cards carry an overlap count
+  /// rather than a book that could have been deleted.
+  Future<void> _revalidate() async {
+    try {
+      await loadPersonal();
+      final langs = _lastExternalLangs;
+      if (langs == null) return;
+      await loadExternal(langs: langs);
+    } catch (e) {
+      // Same contract as every other discovery path: a failed refresh means
+      // the previous cards stay, never an error on screen.
+      debugPrint('Recommendation revalidation failed: $e');
+    }
   }
 
   // ── Editorial affinity tier (ADR-066) ───────────────────────────────
@@ -512,11 +580,14 @@ class RecommendationProvider extends ChangeNotifier {
   }
 
   Future<DiscoveryLookupInputs?> _fetchLookupInputs() async {
+    final generation = _inputsGeneration;
     try {
       final fresh = await _repository.getDiscoveryLookupInputs();
       if (fresh != null) {
         _lookupInputs = fresh;
-        _inputsStale = false;
+        // Leave the flag up when a mutation landed mid-pass: this answer is
+        // already behind, and the next caller must fetch rather than trust it.
+        if (generation == _inputsGeneration) _inputsStale = false;
         // Derived from the inputs, so it dies with them and is rebuilt once
         // rather than on every page open (ADR-061 section 4).
         _authorVocabulary = null;
@@ -546,20 +617,43 @@ class RecommendationProvider extends ChangeNotifier {
 
   /// Fetch personal suggestions if the cache is stale (or [force]d).
   /// Keeps serving the previous list while the refresh runs.
-  Future<void> loadPersonal({bool force = false}) async {
-    if (_loading || (!_stale && !force && _personal != null)) return;
+  Future<void> loadPersonal({bool force = false}) {
+    // Guard on [_loading] rather than on [_personalInFlight]: _runPersonal
+    // notifies synchronously before its first await, so the future is not
+    // assigned yet at that instant and a listener reaching back in here
+    // would start a second fetch.
+    if (_loading) {
+      // Do not drop the request: the caller is usually a deletion, and the
+      // pass under way started before it. Queue one more, and hand back the
+      // pass so an awaiting caller waits for the answer that counts.
+      if (_stale || force) _reloadQueued = true;
+      return _personalInFlight ?? Future<void>.value();
+    }
+    if (!_stale && !force && _personal != null) return Future<void>.value();
     _loading = true;
+    final run = _runPersonal();
+    _personalInFlight = run;
+    return run;
+  }
+
+  Future<void> _runPersonal() async {
     // Let a cold surface paint its loading state instead of its empty one.
     if (_personal == null) notifyListeners();
     try {
-      final fresh = await _repository.getPersonalRecommendations();
-      if (fresh != null) {
+      do {
+        _reloadQueued = false;
+        final fresh = await _repository.getPersonalRecommendations();
+        // A null answer means the backend is unavailable, not that the
+        // library is empty: leave the cache stale and stop rather than spin.
+        if (fresh == null) break;
         _personal = fresh;
         _stale = false;
         notifyListeners();
-      }
+      } while (_reloadQueued);
     } finally {
       _loading = false;
+      _reloadQueued = false;
+      _personalInFlight = null;
       notifyListeners();
     }
   }
@@ -576,46 +670,66 @@ class RecommendationProvider extends ChangeNotifier {
     required List<String> langs,
     bool force = false,
   }) async {
-    if (_externalLoading) return;
+    // Recorded before every gate: a catalogue mutation rebuilds this lane on
+    // its own and has no surface to ask the reader's languages from.
+    _lastExternalLangs = List<String>.unmodifiable(langs);
+    if (_externalLoading) {
+      if (_externalStale || force) _externalReloadQueued = true;
+      return;
+    }
     if (!_externalStale && !force) return;
     _externalLoading = true;
     try {
-      if (_personal == null || visiblePersonal.length < 2) {
-        _clearExternal();
-        return;
-      }
-      final inputs = await ensureLookupInputs();
-      if (inputs == null || inputs.isEmpty) {
-        _externalStale = false;
-        _clearExternal();
-        return;
-      }
+      do {
+        _externalReloadQueued = false;
+        await _runExternal(langs);
+      } while (_externalReloadQueued);
+    } finally {
+      _externalLoading = false;
+      _externalReloadQueued = false;
+    }
+  }
 
+  /// One external pass. Split out of [loadExternal] so its early returns end
+  /// the PASS and not the call: a mutation queued mid-flight still gets the
+  /// rebuild it asked for.
+  Future<void> _runExternal(List<String> langs) async {
+    if (_personal == null || visiblePersonal.length < 2) {
+      _clearExternal();
+      return;
+    }
+    final inputs = await ensureLookupInputs();
+    if (inputs == null || inputs.isEmpty) {
+      _externalStale = false;
+      _clearExternal();
+      return;
+    }
+
+    // Rebuilding from cache is what drops a card for a book the reader has
+    // since acquired: the candidates are re-filtered through the membrane
+    // against the identity index a catalogue mutation just invalidated.
+    _externalCandidates = await _discovery.buildFromCache(inputs, langs);
+    _externalAuthorCandidates = await _discovery.buildAuthorsFromCache(
+      inputs,
+      langs,
+    );
+    _externalStale = false;
+    notifyListeners();
+
+    // Both lanes sweep on their own throttle; either one changing is
+    // enough to rebuild, and neither blocks the other.
+    final seriesChanged = await _discovery.sweep(inputs, langs);
+    if (seriesChanged) {
       _externalCandidates = await _discovery.buildFromCache(inputs, langs);
+      notifyListeners();
+    }
+    final authorsChanged = await _discovery.sweepAuthors(inputs, langs);
+    if (authorsChanged) {
       _externalAuthorCandidates = await _discovery.buildAuthorsFromCache(
         inputs,
         langs,
       );
-      _externalStale = false;
       notifyListeners();
-
-      // Both lanes sweep on their own throttle; either one changing is
-      // enough to rebuild, and neither blocks the other.
-      final seriesChanged = await _discovery.sweep(inputs, langs);
-      if (seriesChanged) {
-        _externalCandidates = await _discovery.buildFromCache(inputs, langs);
-        notifyListeners();
-      }
-      final authorsChanged = await _discovery.sweepAuthors(inputs, langs);
-      if (authorsChanged) {
-        _externalAuthorCandidates = await _discovery.buildAuthorsFromCache(
-          inputs,
-          langs,
-        );
-        notifyListeners();
-      }
-    } finally {
-      _externalLoading = false;
     }
   }
 
@@ -728,8 +842,24 @@ class RecommendationProvider extends ChangeNotifier {
     );
   }
 
+  /// Every lane here is async and outlives the widget that started it: the
+  /// eager revalidation, the discovery sweeps, the dismissal store load
+  /// fired from the constructor. Any of them can land after the app tore
+  /// the provider down, and a notification then throws
+  /// "used after being disposed". Swallowing it here rather than guarding
+  /// each call site keeps the rule in one place and covers the lanes that
+  /// have no caller left to check anything.
+  bool _disposed = false;
+
+  @override
+  void notifyListeners() {
+    if (_disposed) return;
+    super.notifyListeners();
+  }
+
   @override
   void dispose() {
+    _disposed = true;
     _bookRefreshNotifier.removeListener(_markStale);
     super.dispose();
   }

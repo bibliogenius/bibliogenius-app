@@ -657,6 +657,11 @@ class _EditBookScreenState extends State<EditBookScreen> {
     try {
       await bookRepo.deleteBook(widget.book.id!);
       if (mounted) {
+        // Popping with `true` only refreshes the list the user came back to.
+        // Every other cache keyed on the catalogue (recommendations,
+        // favorites) listens on the notifier instead, and a deletion that
+        // skipped it left the deleted book in the suggestion surfaces.
+        context.read<BookRefreshNotifier>().refresh();
         context.pop(true); // Return true to indicate success (and refresh list)
       }
     } catch (e) {
