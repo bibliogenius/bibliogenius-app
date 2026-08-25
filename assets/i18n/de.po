@@ -4713,6 +4713,11 @@ msgstr "Nach Regal"
 msgid "rating_label"
 msgstr "Meine Bewertung"
 
+#. Screen reader announcement for the star rating.
+#. {rating} is the value on the 0-5 scale, one decimal.
+msgid "rating_semantic_label"
+msgstr "Bewertung: {rating} von 5"
+
 #. Read
 msgid "read_status"
 msgstr "Gelesen"

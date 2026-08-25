@@ -2419,7 +2419,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label.toUpperCase(), style: bookMetadataCaptionStyle(context)),
+          Text(label.toUpperCase(), style: bookMetadataCaptionStyle),
           const SizedBox(height: 6),
           Text(
             value,

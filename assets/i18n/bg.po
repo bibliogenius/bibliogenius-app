@@ -4464,6 +4464,11 @@ msgstr "Показване на вдъхновяващи литературни 
 msgid "rating_label"
 msgstr "Моята оценка"
 
+#. Screen reader announcement for the star rating.
+#. {rating} is the value on the 0-5 scale, one decimal.
+msgid "rating_semantic_label"
+msgstr "Оценка: {rating} от 5"
+
 #. Read
 msgid "read_status"
 msgstr "Прочетено"

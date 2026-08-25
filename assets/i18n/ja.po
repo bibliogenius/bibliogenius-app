@@ -4221,6 +4221,11 @@ msgstr "心に響く文学の名言を表示します"
 msgid "rating_label"
 msgstr "マイ評価"
 
+#. Screen reader announcement for the star rating.
+#. {rating} is the value on the 0-5 scale, one decimal.
+msgid "rating_semantic_label"
+msgstr "評価: 5段階中{rating}"
+
 #. Read
 msgid "read_status"
 msgstr "読了"

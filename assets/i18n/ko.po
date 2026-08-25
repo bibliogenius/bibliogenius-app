@@ -4221,6 +4221,11 @@ msgstr "영감을 주는 문학 명언을 표시합니다"
 msgid "rating_label"
 msgstr "내 평점"
 
+#. Screen reader announcement for the star rating.
+#. {rating} is the value on the 0-5 scale, one decimal.
+msgid "rating_semantic_label"
+msgstr "평점: 5점 만점에 {rating}점"
+
 #. Read
 msgid "read_status"
 msgstr "읽음"

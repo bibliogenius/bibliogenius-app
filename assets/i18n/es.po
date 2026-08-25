@@ -4713,6 +4713,11 @@ msgstr "Por estante"
 msgid "rating_label"
 msgstr "Mi Valoración"
 
+#. Screen reader announcement for the star rating.
+#. {rating} is the value on the 0-5 scale, one decimal.
+msgid "rating_semantic_label"
+msgstr "Valoración: {rating} de 5"
+
 #. Read
 msgid "read_status"
 msgstr "Leído"

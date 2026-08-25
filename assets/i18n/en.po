@@ -5174,6 +5174,11 @@ msgstr "By Shelf"
 msgid "rating_label"
 msgstr "My Rating"
 
+#. Screen reader announcement for the star rating.
+#. {rating} is the value on the 0-5 scale, one decimal.
+msgid "rating_semantic_label"
+msgstr "Rating: {rating} out of 5"
+
 msgid "page_count_label"
 msgstr "Pages"
 

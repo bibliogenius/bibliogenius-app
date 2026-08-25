@@ -6,11 +6,13 @@ import 'star_rating_widget.dart';
 /// The "my rating" / "pages" pair at the bottom of the book detail metadata
 /// card.
 ///
-/// The five stars have a fixed intrinsic width ([starSize] plus padding, five
+/// The five stars have a fixed intrinsic width ([_starSize] plus padding, five
 /// times over), so giving the rating exactly half the row left them wider than
 /// their half on a phone and the last star painted over the page count. The
-/// rating now takes the larger share, and the stars scale down when even that
-/// is not enough - which also covers a raised system text size.
+/// rating now takes the larger share, and below [stackBelowWidth] the page
+/// count moves underneath rather than squeezing the stars: they are tap
+/// targets, and scaling them down to fit was buying the layout back out of
+/// the one budget that could least afford it.
 class BookRatingRow extends StatelessWidget {
   /// Rating on the 0-10 scale used by [StarRatingWidget], or null when unrated.
   final int? rating;
@@ -24,14 +26,30 @@ class BookRatingRow extends StatelessWidget {
   final ValueChanged<int?> onRatingChanged;
 
   /// Star size when the row is wide enough to render the five stars unscaled.
-  static const double starSize = 32;
+  static const double _starSize = 32;
 
-  /// Gutter between the two columns. It belongs to the pages column so it
-  /// never eats into the width the stars are measured against: the stars keep
-  /// their natural size on a regular phone and the columns still never touch
-  /// once a narrow layout has scaled them down to fill their own column.
+  /// Intrinsic width of the five stars: each is a [_starSize] icon inside 2px
+  /// of horizontal padding on either side, as [StarRatingWidget] lays them out.
+  static const double _starsWidth = 5 * (_starSize + 4);
+
+  /// Narrowest row width that still leaves the rating column (flex 3 of 5) the
+  /// full [_starsWidth]. Below it the two columns stack rather than share the
+  /// row: shrinking the stars shrinks their tap targets with them, and at 32px
+  /// those are already under the 44pt the platform guidelines ask for.
+  @visibleForTesting
+  static const double stackBelowWidth = _starsWidth * 5 / 3;
+
+  /// Gutter between the two columns while they sit side by side. It belongs to
+  /// the pages column so it never eats into the width the stars are measured
+  /// against: the stars keep their natural size on a regular phone, and a row
+  /// too narrow to seat them stacks instead of closing the gap.
   @visibleForTesting
   static const double gutter = 12;
+
+  /// Gap between the two columns once they stack, standing in for [gutter] on
+  /// the vertical axis. Wider than the gutter because the page count sits
+  /// directly under the stars with no divider to separate them.
+  static const double _stackedGap = 16;
 
   const BookRatingRow({
     super.key,
@@ -42,54 +60,78 @@ class BookRatingRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          flex: 3,
-          child: _LabelledColumn(
-            label: TranslationService.translate(context, 'rating_label'),
-            // scaleDown keeps the stars at their natural size whenever they
-            // fit and shrinks them only on the narrowest layouts, instead of
-            // letting the row overflow into the neighbouring column.
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerLeft,
-              child: StarRatingWidget(
-                rating: rating,
-                onRatingChanged: onRatingChanged,
-                size: starSize,
-              ),
-            ),
-          ),
+    final ratingColumn = _LabelledColumn(
+      label: TranslationService.translate(context, 'rating_label'),
+      // Safety net only, now that a narrow row stacks instead of squeezing:
+      // it takes a width below the stars' own 180px to trigger, which no
+      // supported screen produces. It stays because an overflow here paints
+      // over the neighbouring column rather than failing visibly.
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        alignment: Alignment.centerLeft,
+        child: StarRatingWidget(
+          rating: rating,
+          onRatingChanged: onRatingChanged,
+          size: _starSize,
         ),
-        if (pageCount != null)
-          Expanded(
-            flex: 2,
-            child: Padding(
-              padding: const EdgeInsets.only(left: gutter),
-              child: _LabelledColumn(
-                label: TranslationService.translate(
-                  context,
-                  'page_count_label',
-                ),
-                child: Text(
-                  '$pageCount',
-                  style: Theme.of(context).textTheme.titleMedium,
+      ),
+    );
+
+    final pagesColumn = pageCount == null
+        ? null
+        : _LabelledColumn(
+            label: TranslationService.translate(context, 'page_count_label'),
+            child: Text(
+              '$pageCount',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+          );
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Too narrow to give the stars their full width beside the page count:
+        // stack instead. The rating then gets the whole width, so the stars
+        // keep their size and so do the tap targets on a small phone.
+        if (pagesColumn != null && constraints.maxWidth < stackBelowWidth) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ratingColumn,
+              const SizedBox(height: _stackedGap),
+              pagesColumn,
+            ],
+          );
+        }
+
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(flex: 3, child: ratingColumn),
+            if (pagesColumn != null)
+              Expanded(
+                flex: 2,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: gutter),
+                  child: pagesColumn,
                 ),
               ),
-            ),
-          ),
-      ],
+          ],
+        );
+      },
     );
   }
 }
 
 /// The caption style shared by every column of the book detail metadata card,
 /// this row and `_buildMetadataItem` on the screen alike. Lives here so the two
-/// cannot drift apart: they sit one divider away from each other, so any
-/// divergence is immediately visible.
-TextStyle bookMetadataCaptionStyle(BuildContext context) => TextStyle(
+/// captions cannot drift apart: they sit one divider away from each other, so
+/// any divergence is immediately visible.
+///
+/// It pins the caption STYLE only, not the layout around it: the gap below the
+/// caption stays each column's own (8 here, 6 in `_buildMetadataItem`).
+/// Aligning those would move pixels on a card that is otherwise unchanged.
+final TextStyle bookMetadataCaptionStyle = TextStyle(
   fontSize: 12,
   fontWeight: FontWeight.bold,
   letterSpacing: 1.0,
@@ -108,7 +150,7 @@ class _LabelledColumn extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label.toUpperCase(), style: bookMetadataCaptionStyle(context)),
+        Text(label.toUpperCase(), style: bookMetadataCaptionStyle),
         const SizedBox(height: 8),
         child,
       ],

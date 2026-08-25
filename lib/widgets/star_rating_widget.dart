@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../services/translation_service.dart';
+
 /// A 5-star rating widget that can be interactive or display-only.
 ///
 /// Supports half-star precision when [allowHalf] is true.
@@ -44,7 +46,14 @@ class StarRatingWidget extends StatelessWidget {
     final displayRating = (rating ?? 0) / 2.0; // Convert 0-10 to 0-5
 
     return Semantics(
-      label: 'Note : ${displayRating.toStringAsFixed(1)} sur 5',
+      // Rule A4: the announced value goes through the catalogues. It used to be
+      // a hardcoded French string, announced as such to every reader whatever
+      // their locale.
+      label: TranslationService.translate(
+        context,
+        'rating_semantic_label',
+        params: {'rating': displayRating.toStringAsFixed(1)},
+      ),
       slider: isInteractive,
       child: Row(
         mainAxisSize: MainAxisSize.min,

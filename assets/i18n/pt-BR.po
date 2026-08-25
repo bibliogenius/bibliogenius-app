@@ -5992,6 +5992,11 @@ msgstr "Por estante"
 msgid "rating_label"
 msgstr "Minha Avaliação"
 
+#. Screen reader announcement for the star rating.
+#. {rating} is the value on the 0-5 scale, one decimal.
+msgid "rating_semantic_label"
+msgstr "Avaliação: {rating} de 5"
+
 msgid "page_count_label"
 msgstr "Páginas"
 
