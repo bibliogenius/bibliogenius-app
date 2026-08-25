@@ -83,7 +83,7 @@ class BookCoverCard extends StatelessWidget {
     final mark = ownershipMarkOf(book);
     final badgeMark = badgeMarkFor(
       mark,
-      statusBadgeShown: book.readingStatus != null,
+      statusBadgeShown: hasReadingStatus(book.readingStatus),
     );
 
     final card = GestureDetector(
@@ -139,7 +139,7 @@ class BookCoverCard extends StatelessWidget {
               // threshold the badge is the status icon alone (tooltip and
               // semantics carry the label); above it the pill is width-capped
               // with an ellipsis so it can never overflow the cover.
-              if (book.readingStatus != null)
+              if (hasReadingStatus(book.readingStatus))
                 Positioned(
                   top: 8,
                   right: _statusRight,

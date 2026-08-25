@@ -130,6 +130,19 @@ void main() {
       handle.dispose();
     });
 
+    // A reader who cleared the reading status carries an empty string, not
+    // null. Both layouts used to guard the status pill on a null check, so
+    // the empty value rendered `READING_STATUS_` in a gradient pill.
+    testWidgets('a book left without a status wears no status pill', (
+      tester,
+    ) async {
+      await pump(tester, book(owned: true, status: ''), isHero: true);
+      expect(find.text('READING_STATUS_'), findsNothing);
+
+      await pump(tester, book(owned: true, status: ''), isHero: false);
+      expect(find.text('READING_STATUS_'), findsNothing);
+    });
+
     testWidgets('and stays away from an owned book', (tester) async {
       await pump(tester, book(owned: true, status: 'read'), isHero: true);
       expect(find.byType(OwnershipBadge), findsNothing);

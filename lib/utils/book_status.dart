@@ -15,7 +15,27 @@ class BookStatus {
   });
 }
 
-// Status options for individual/personal libraries
+/// The value a book carries when the reader recorded no reading intent: they
+/// own it, have not read it, are not reading it, and have not planned to.
+///
+/// Spelled as the empty string, never null: the column behind it is NOT NULL,
+/// and a book decoded from any payload always carries the field. The Rust
+/// write gate accepts it alongside the five reading statuses
+/// (`models::book::NO_READING_STATUS`).
+const String noReadingStatus = '';
+
+/// Whether [value] names an actual reading status.
+///
+/// Badges key on this rather than on a null check: a book whose status was
+/// explicitly cleared holds an empty string, and a badge built for it prints
+/// an untranslated `reading_status_` and claims a state the book does not have.
+bool hasReadingStatus(String? value) =>
+    value != null && value != noReadingStatus;
+
+// Status options for individual/personal libraries. The last entry is the
+// absence of a status, offered like any other choice: without it, clearing a
+// status is only reachable by guessing that re-tapping the active chip undoes
+// it.
 const List<BookStatus> individualStatuses = [
   BookStatus(
     value: 'to_read',
@@ -42,7 +62,7 @@ const List<BookStatus> individualStatuses = [
     color: Colors.red,
   ),
   BookStatus(
-    value: '',
+    value: noReadingStatus,
     label: 'no_reading_status',
     icon: Icons.remove_circle_outline,
     color: Colors.blueGrey,
@@ -88,6 +108,62 @@ const List<BookStatus> librarianStatuses = [
     color: Colors.indigo,
   ),
 ];
+
+/// The `.po` key naming a raw `books.reading_status` value, or null when the
+/// value belongs to no vocabulary we know.
+///
+/// Covers more than the five stored reading statuses on purpose: the column is
+/// also reached by cr-sqlite replication and by the possession values older
+/// payloads overlaid onto it, so a tally over it meets tokens the picker never
+/// offers. A null return is the caller's cue to fall back on the raw token
+/// rather than draw an anonymous slice.
+String? readingStatusLabelKey(String status) {
+  switch (status) {
+    case noReadingStatus:
+      return 'no_reading_status';
+    case 'read':
+      return 'reading_status_read';
+    case 'reading':
+      return 'reading_status_reading';
+    case 'to_read':
+      return 'reading_status_to_read';
+    case 'wanting':
+      return 'reading_status_wanting';
+    case 'abandoned':
+      return 'reading_status_abandoned';
+    case 'owned':
+      return 'owned_status';
+    case 'lent':
+      return 'reading_status_lent';
+    case 'borrowed':
+      return 'reading_status_borrowed';
+    default:
+      return null;
+  }
+}
+
+/// The translated label for a raw `books.reading_status` value, falling back to
+/// a readable form of the token itself for a value we cannot name.
+String readingStatusLabel(BuildContext context, String status) {
+  final key = readingStatusLabelKey(status);
+  return key == null
+      ? status.replaceAll('_', ' ')
+      : TranslationService.translate(context, key);
+}
+
+/// Groups [statuses] into the buckets the reading-status chart draws.
+///
+/// Both spellings of "nothing recorded" fold onto one bucket: a status the
+/// reader cleared is the empty string, a status absent from a decoded payload
+/// is null, and drawing them apart would put two unnamed slices side by side.
+Map<String, int> tallyReadingStatuses(Iterable<String?> statuses) {
+  final counts = <String, int>{};
+  for (final status in statuses) {
+    final key = hasReadingStatus(status) ? status! : noReadingStatus;
+    counts[key] = (counts[key] ?? 0) + 1;
+  }
+  return counts;
+}
 
 // Get status options. When useInventoryStatuses is true, returns the
 // cataloguing list (available/checked_out/...); otherwise the personal

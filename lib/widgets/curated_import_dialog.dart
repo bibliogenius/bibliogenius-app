@@ -13,6 +13,7 @@ import '../services/external_suggestion_dismissal_service.dart';
 import '../services/genre_tag_service.dart';
 import '../services/translation_service.dart';
 import '../utils/book_genres.dart';
+import '../utils/book_status.dart';
 import '../utils/curated_tag_genre_aliases.dart';
 import '../utils/language_constants.dart';
 import 'curated_book_preview.dart';
@@ -22,7 +23,8 @@ import 'import_progress_dialog.dart';
 class CuratedImportChoice {
   const CuratedImportChoice({required this.status, required this.shelve});
 
-  /// `owned` (no reading status), `to_read` or `wanting`.
+  /// A raw `reading_status`: [noReadingStatus], `to_read` or `wanting`. It is
+  /// stored as picked, so the import needs no vocabulary of its own.
   final String status;
 
   /// Whether the imported books are filed under their matching genre
@@ -215,7 +217,7 @@ abstract final class CuratedImportDialog {
                       items: [
                         _statusItem(
                           dialogContext,
-                          'owned',
+                          noReadingStatus,
                           Icons.remove_circle_outline,
                           'no_reading_status',
                         ),
@@ -233,7 +235,7 @@ abstract final class CuratedImportDialog {
                         ),
                       ],
                       onChanged: (val) =>
-                          setState(() => status = val ?? 'owned'),
+                          setState(() => status = val ?? noReadingStatus),
                     ),
                     const SizedBox(height: 8),
                     Text(
@@ -355,7 +357,7 @@ abstract final class CuratedImportDialog {
             list: list,
             langCode: locale,
             readerLanguages: languages,
-            readingStatus: choice.status == 'owned' ? '' : choice.status,
+            readingStatus: choice.status,
             shouldMarkAsOwned: choice.status != 'wanting',
             subjects: subjects,
             onProgress: onProgress,

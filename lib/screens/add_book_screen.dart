@@ -1738,16 +1738,16 @@ class _AddBookScreenState extends State<AddBookScreen> {
                     });
                   }
 
+                  // The absence of a status is a chip like any other: it is
+                  // what tells the reader why no chip is lit, and the book
+                  // sheet has always offered it.
                   return Wrap(
                     spacing: 8,
                     runSpacing: 8,
-                    children: statusOptions
-                        .where((s) => s.value.isNotEmpty)
-                        .map((status) {
-                          final isActive = status.value == validValue;
-                          return _buildStatusChip(status, isActive);
-                        })
-                        .toList(),
+                    children: statusOptions.map((status) {
+                      final isActive = status.value == validValue;
+                      return _buildStatusChip(status, isActive);
+                    }).toList(),
                   );
                 },
               ),
@@ -2173,7 +2173,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
       label: status.label,
       child: GestureDetector(
         onTap: () => setState(() {
-          _readingStatus = isActive ? '' : status.value;
+          _readingStatus = isActive ? noReadingStatus : status.value;
         }),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),

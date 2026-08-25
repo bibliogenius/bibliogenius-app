@@ -13,6 +13,7 @@ import '../data/repositories/loan_repository.dart';
 import '../models/loan.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
+import '../utils/book_status.dart';
 import '../utils/collection_display.dart';
 import '../models/book.dart';
 import '../models/contact.dart';
@@ -865,11 +866,9 @@ class _StatisticsScreenState extends State<StatisticsScreen>
   }
 
   Widget _buildStatusPieChart() {
-    final statusCounts = <String, int>{};
-    for (var book in _books) {
-      final status = book.readingStatus ?? 'unknown';
-      statusCounts[status] = (statusCounts[status] ?? 0) + 1;
-    }
+    final statusCounts = tallyReadingStatuses(
+      _books.map((b) => b.readingStatus),
+    );
 
     final colors = {
       'read': const Color(0xFF10B981),
@@ -879,7 +878,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
       'abandoned': const Color(0xFFEF4444),
       'owned': const Color(0xFF607D8B),
       'borrowed': const Color(0xFF8B5CF6),
-      'unknown': Colors.grey,
+      noReadingStatus: Colors.grey,
     };
 
     final total = _books.isEmpty ? 1 : _books.length;
@@ -906,7 +905,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
     });
 
     final chartDescription = statusCounts.entries
-        .map((e) => '${_formatStatusLabel(e.key)}: ${e.value}')
+        .map((e) => '${readingStatusLabel(context, e.key)}: ${e.value}')
         .join(', ');
 
     return Container(
@@ -942,7 +941,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
             alignment: WrapAlignment.center,
             children: statusCounts.entries.map((e) {
               final color = colors[e.key] ?? Colors.grey;
-              final label = _formatStatusLabel(e.key);
+              final label = readingStatusLabel(context, e.key);
               final pct = (e.value / total * 100).round();
               return _buildLegendItem(color, label, e.value, percentage: pct);
             }).toList(),
@@ -950,32 +949,6 @@ class _StatisticsScreenState extends State<StatisticsScreen>
         ],
       ),
     );
-  }
-
-  String _formatStatusLabel(String status) {
-    switch (status) {
-      case 'read':
-        return TranslationService.translate(context, 'reading_status_read');
-      case 'reading':
-        return TranslationService.translate(context, 'reading_status_reading');
-      case 'to_read':
-        return TranslationService.translate(context, 'reading_status_to_read');
-      case 'wanting':
-        return TranslationService.translate(context, 'reading_status_wanting');
-      case 'abandoned':
-        return TranslationService.translate(
-          context,
-          'reading_status_abandoned',
-        );
-      case 'owned':
-        return TranslationService.translate(context, 'owned_status');
-      case 'lent':
-        return TranslationService.translate(context, 'reading_status_lent');
-      case 'borrowed':
-        return TranslationService.translate(context, 'reading_status_borrowed');
-      default:
-        return status.replaceAll('_', ' ');
-    }
   }
 
   Widget _buildLegendItem(
@@ -3209,11 +3182,9 @@ class _StatisticsContentState extends State<StatisticsContent>
   }
 
   Widget _buildStatusPieChart() {
-    final statusCounts = <String, int>{};
-    for (var book in _books) {
-      final status = book.readingStatus ?? 'unknown';
-      statusCounts[status] = (statusCounts[status] ?? 0) + 1;
-    }
+    final statusCounts = tallyReadingStatuses(
+      _books.map((b) => b.readingStatus),
+    );
 
     final colors = {
       'read': const Color(0xFF10B981),
@@ -3223,7 +3194,7 @@ class _StatisticsContentState extends State<StatisticsContent>
       'abandoned': const Color(0xFFEF4444),
       'owned': const Color(0xFF607D8B),
       'borrowed': const Color(0xFF8B5CF6),
-      'unknown': Colors.grey,
+      noReadingStatus: Colors.grey,
     };
 
     final total = _books.isEmpty ? 1 : _books.length;
@@ -3250,7 +3221,7 @@ class _StatisticsContentState extends State<StatisticsContent>
     });
 
     final chartDescription = statusCounts.entries
-        .map((e) => '${_formatStatusLabel(e.key)}: ${e.value}')
+        .map((e) => '${readingStatusLabel(context, e.key)}: ${e.value}')
         .join(', ');
 
     return Container(
@@ -3286,7 +3257,7 @@ class _StatisticsContentState extends State<StatisticsContent>
             alignment: WrapAlignment.center,
             children: statusCounts.entries.map((e) {
               final color = colors[e.key] ?? Colors.grey;
-              final label = _formatStatusLabel(e.key);
+              final label = readingStatusLabel(context, e.key);
               final pct = (e.value / total * 100).round();
               return _buildLegendItem(color, label, e.value, percentage: pct);
             }).toList(),
@@ -3294,32 +3265,6 @@ class _StatisticsContentState extends State<StatisticsContent>
         ],
       ),
     );
-  }
-
-  String _formatStatusLabel(String status) {
-    switch (status) {
-      case 'read':
-        return TranslationService.translate(context, 'reading_status_read');
-      case 'reading':
-        return TranslationService.translate(context, 'reading_status_reading');
-      case 'to_read':
-        return TranslationService.translate(context, 'reading_status_to_read');
-      case 'wanting':
-        return TranslationService.translate(context, 'reading_status_wanting');
-      case 'abandoned':
-        return TranslationService.translate(
-          context,
-          'reading_status_abandoned',
-        );
-      case 'owned':
-        return TranslationService.translate(context, 'owned_status');
-      case 'lent':
-        return TranslationService.translate(context, 'reading_status_lent');
-      case 'borrowed':
-        return TranslationService.translate(context, 'reading_status_borrowed');
-      default:
-        return status.replaceAll('_', ' ');
-    }
   }
 
   Widget _buildLegendItem(

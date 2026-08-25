@@ -341,8 +341,9 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                                   // column already shows the wish.
                                   if (badgeMarkFor(
                                         ownershipMarkOf(widget.book),
-                                        statusBadgeShown:
-                                            widget.book.readingStatus != null,
+                                        statusBadgeShown: hasReadingStatus(
+                                          widget.book.readingStatus,
+                                        ),
                                       ) !=
                                       OwnershipMark.none)
                                     Positioned(
@@ -363,7 +364,9 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 // Continue Reading badge (tappable to edit)
-                                if (widget.book.readingStatus != null) ...[
+                                if (hasReadingStatus(
+                                  widget.book.readingStatus,
+                                )) ...[
                                   GestureDetector(
                                     onTap: widget.onStatusChanged != null
                                         ? () async {
@@ -587,7 +590,7 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                             ownershipMarkOf(widget.book),
                             statusBadgeShown:
                                 widget.showStatus &&
-                                widget.book.readingStatus != null,
+                                hasReadingStatus(widget.book.readingStatus),
                           ) !=
                           OwnershipMark.none)
                         Positioned(
@@ -600,7 +603,7 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                       // Status Badge (tappable to edit). Steps left of the
                       // favorite ribbon when it holds the corner (ADR-064).
                       if (widget.showStatus &&
-                          widget.book.readingStatus != null)
+                          hasReadingStatus(widget.book.readingStatus))
                         Positioned(
                           top: 8,
                           right: widget.isFavorite

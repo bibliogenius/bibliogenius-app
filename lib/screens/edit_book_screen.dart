@@ -1197,24 +1197,26 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     );
                   }
 
+                  // The absence of a status is a chip like any other: it is
+                  // what tells the reader why no chip is lit, and the book
+                  // sheet has always offered it.
                   return Wrap(
                     spacing: 8,
                     runSpacing: 8,
-                    children: statusOptions
-                        .where((s) => s.value.isNotEmpty)
-                        .map((status) {
-                          final isActive = status.value == _readingStatus;
-                          return _buildStatusChip(
-                            label: status.label,
-                            icon: status.icon,
-                            color: status.color,
-                            isActive: isActive,
-                            onTap: () => setState(() {
-                              _readingStatus = isActive ? '' : status.value;
-                            }),
-                          );
-                        })
-                        .toList(),
+                    children: statusOptions.map((status) {
+                      final isActive = status.value == _readingStatus;
+                      return _buildStatusChip(
+                        label: status.label,
+                        icon: status.icon,
+                        color: status.color,
+                        isActive: isActive,
+                        onTap: () => setState(() {
+                          _readingStatus = isActive
+                              ? noReadingStatus
+                              : status.value;
+                        }),
+                      );
+                    }).toList(),
                   );
                 },
               ),

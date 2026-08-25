@@ -29,7 +29,11 @@ void main() {
 
   tearDown(() => TranslationService.setPoTranslationsForTest({}));
 
-  Future<void> pump(WidgetTester tester, {required double width}) {
+  Future<void> pump(
+    WidgetTester tester, {
+    required double width,
+    String status = 'wanting',
+  }) {
     return tester.pumpWidget(
       ChangeNotifierProvider<ThemeProvider>.value(
         value: provider,
@@ -43,7 +47,7 @@ void main() {
                   book: Book(
                     title: 'Le Livre',
                     owned: false,
-                    readingStatus: 'wanting',
+                    readingStatus: status,
                   ),
                   onTap: () {},
                 ),
@@ -81,6 +85,19 @@ void main() {
     await pump(tester, width: 200);
 
     expect(find.text('ENVIE DE LIRE'), findsOneWidget);
+  });
+
+  // A reader who cleared the reading status carries an empty string, not
+  // null: the value is storable since the "no status" option became real.
+  // A badge there would print an untranslated `reading_status_` and claim a
+  // state the book does not have.
+  testWidgets('a book left without a status wears no status badge', (
+    tester,
+  ) async {
+    await pump(tester, width: 200, status: '');
+
+    expect(find.text('READING_STATUS_'), findsNothing);
+    expect(find.byIcon(Icons.remove_circle_outline), findsNothing);
   });
 
   testWidgets('the text pill can never overflow the cover again', (
