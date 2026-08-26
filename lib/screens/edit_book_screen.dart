@@ -26,7 +26,6 @@ import '../models/collection.dart';
 
 import '../widgets/app_snack_bar.dart';
 import '../widgets/book_complete_animation.dart';
-import '../utils/global_keys.dart';
 import '../utils/isbn_validator.dart';
 
 class EditBookScreen extends StatefulWidget {
@@ -219,7 +218,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    // Initialize status based on the current status mode — runs in
+    // Initialize status based on the current status mode ; runs in
     // didChangeDependencies so context is available before build, preventing
     // an invalid default if the user is in inventory mode.
     final themeProvider = Provider.of<ThemeProvider>(context);
@@ -742,25 +741,15 @@ class _EditBookScreenState extends State<EditBookScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(TranslationService.translate(context, 'edit_book_title')),
-        leading: isMobile
-            ? IconButton(
-                icon: const Icon(Icons.menu),
-                tooltip: TranslationService.translate(
-                  context,
-                  'tooltip_open_menu',
-                ),
-                onPressed: () {
-                  GlobalKeys.rootScaffoldKey.currentState?.openDrawer();
-                },
-              )
-            : IconButton(
-                icon: const Icon(Icons.arrow_back),
-                tooltip: TranslationService.translate(context, 'back'),
-                onPressed: () {
-                  // Signal back if changes were made
-                  Navigator.of(context).pop(_hasChanges);
-                },
-              ),
+        // Back button
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          tooltip: TranslationService.translate(context, 'back'),
+          onPressed: () {
+            // Signal back if changes were made
+            Navigator.of(context).pop(_hasChanges);
+          },
+        ),
         actions: [
           // Online search button for metadata enrichment
           if (isMobile)
