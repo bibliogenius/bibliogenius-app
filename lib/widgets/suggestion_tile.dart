@@ -45,11 +45,16 @@ class SuggestionTile extends StatelessWidget {
 
   static const double coverWidth = 44;
   static const double coverHeight = 66;
-  static const double _horizontalPadding = 10;
-  static const double _coverGap = 12;
+
+  /// Public because a row that is NOT a book tile still has to land on this
+  /// page's grid: the curated list row (ADR-066) builds its own anatomy and
+  /// would otherwise start its text a few points off the tiles above it,
+  /// with the separator cutting at a third place again.
+  static const double horizontalPadding = 10;
+  static const double coverGap = 12;
 
   /// Left edge of the text column, shared with [SuggestionSeparator].
-  static const double textOffset = _horizontalPadding + coverWidth + _coverGap;
+  static const double textOffset = horizontalPadding + coverWidth + coverGap;
 
   /// Screen-reader summary of the tile: what the eye reads in the title,
   /// author and chips, spoken once as a single button label.
@@ -103,7 +108,7 @@ class SuggestionTile extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(
                 vertical: 10,
-                horizontal: _horizontalPadding,
+                horizontal: horizontalPadding,
               ),
               child: Row(
                 // Top-aligned: the cover lines up with the title, whatever
@@ -111,7 +116,7 @@ class SuggestionTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SuggestionCover(book: book),
-                  const SizedBox(width: _coverGap),
+                  const SizedBox(width: coverGap),
                   Expanded(
                     child: Padding(
                       // Keeps the title clear of the dismiss button parked
@@ -209,7 +214,12 @@ class SuggestionSeparator extends StatelessWidget {
 /// Public so the compact card of the library slot (ADR-062 section 5)
 /// composes the SAME cover treatment at its own size instead of copying it.
 class SuggestionCover extends StatelessWidget {
-  const SuggestionCover({super.key, required this.book, this.width, this.height});
+  const SuggestionCover({
+    super.key,
+    required this.book,
+    this.width,
+    this.height,
+  });
 
   final Book book;
 

@@ -7,35 +7,50 @@ import '../services/translation_service.dart';
 import '../theme/app_design.dart';
 import 'cached_book_cover.dart';
 import 'compact_suggestion_card.dart';
+import 'suggestion_tile.dart';
 
 /// The two shapes [CuratedListSuggestionCard] can take, one per surface.
 enum CuratedCardLayout {
-  /// Mosaic on the left, text on the right, pinned to two book-card slots.
-  /// The library top slot, where the ADR-062 height budget rules.
+  /// A small fan of covers on the left, text on the right, pinned to two
+  /// book-card slots. The library top slot, where the ADR-062 height budget
+  /// rules.
   strip,
 
   /// A fan of covers with the name and the reason below it: the vocabulary
   /// the Collections screen already speaks.
   fan,
+
+  /// A full-width row on the "Suggestions for you" page, built to that
+  /// page's tile anatomy: artwork on the tile's cover footprint, text from
+  /// the tile's own left edge, dismissal as a close button in the corner.
+  row,
 }
 
-/// A curated list offered as a suggestion (ADR-066): a mosaic of the
-/// reader's OWN copies of the books it shares with their library, the list's
-/// name, and the reason that earned it a slot.
+/// A curated list offered as a suggestion (ADR-066): a fan of the reader's
+/// OWN copies of the books it shares with their library, the list's name,
+/// and the reason that earned it a slot.
 ///
 /// It suggests the LIST as an object rather than its books one by one. One
-/// card per list caps the noise, the mosaic says "you already have a foot in
-/// this selection" with the reader's own shelf rather than publisher art,
+/// card per list caps the noise, the artwork says "you already have a foot
+/// in this selection" with the reader's own shelf rather than publisher art,
 /// and a tap opens the existing curated import flow, so there is no dead end
 /// and no new flow.
+///
+/// BOTH shapes draw the same fan the collection cards draw, because both sit
+/// beside collections and a list IS that kind of object to a reader. What
+/// they do not borrow is the collection cards' accounting; see [_CoverFan].
 ///
 /// Two shapes, one per surface, chosen by [layout]:
 ///
 /// [CuratedCardLayout.strip] is the library slot's. Sizing follows the
 /// ADR-062 strip budget: the height is the strip's, the width is two book
 /// cards plus a gap, and both come from [CompactSuggestionCard]'s helpers so
-/// the strip keeps one rhythm. The mosaic drives the height and the two text
-/// lines ellipsize inside what is left.
+/// the strip keeps one rhythm. The fan takes a little over half the height
+/// for its width ([stripArtWidth]) and the text lines ellipsize in the rest.
+/// The 2x2 mosaic it replaced was a square as TALL as the strip, so it took
+/// 120 of the card's 168 points for itself: the name was left with 48 and
+/// broke mid-word on every list, and three covers of four read as a failed
+/// image load, which is the common case rather than the edge one.
 ///
 /// [CuratedCardLayout.fan] is the Collections screen's. That budget does not
 /// exist there, and the block sits directly under a grid of collection cards
@@ -45,6 +60,15 @@ enum CuratedCardLayout {
 /// fought the artwork for width, and the 2x2 mosaic reads as a failed image
 /// load at three covers of four, which is the common case rather than the
 /// edge one. The fan is right at any count from one to three.
+///
+/// [CuratedCardLayout.row] is the "Suggestions for you" page's. That page is
+/// a single blended column of [SuggestionTile]s inside one card, so a list
+/// joins the column as a row rather than as an object dropped into it: same
+/// cover footprint, same text offset (so the hairline separators keep
+/// cutting at ONE place), same close button in the corner. The dismissal is
+/// that button and not the long press the two other shapes use, because
+/// every other row on the page offers one and a reader who found it there
+/// would look for it here.
 ///
 /// What the fan deliberately does NOT borrow from the collection cards is
 /// their accounting: no count badge, no progress pill. "3/10" on an
@@ -56,14 +80,26 @@ class CuratedListSuggestionCard extends StatelessWidget {
     required this.affinity,
     required this.onTap,
     this.onDismiss,
+    this.dismissTooltip,
     this.layout = CuratedCardLayout.strip,
-  });
+  }) : assert(
+         layout != CuratedCardLayout.row ||
+             onDismiss == null ||
+             dismissTooltip != null,
+         'a dismissible row needs a translated dismissTooltip',
+       );
 
   final CuratedAffinity affinity;
   final VoidCallback onTap;
 
   /// "Not interested". Absent on surfaces that offer no dismissal.
   final VoidCallback? onDismiss;
+
+  /// Already-translated label for the row layout's close button, which is a
+  /// real button and must never be unlabelled (Rules A1/A4). The two other
+  /// shapes hang the dismissal on a long press and announce it as a hint
+  /// instead, so they leave this null.
+  final String? dismissTooltip;
 
   /// Which of the two shapes to draw. See [CuratedCardLayout].
   final CuratedCardLayout layout;
@@ -75,6 +111,14 @@ class CuratedListSuggestionCard extends StatelessWidget {
 
   static double cardHeight(BuildContext context) =>
       CompactSuggestionCard.stripHeight(context);
+
+  /// The fan's footprint inside the strip card, width-wise: a little over
+  /// half the card's height, which is what a 2:3 cover plus the tilt of the
+  /// two behind it needs once the fan is laid out in the full strip height.
+  /// Everything else on the card is the name and the reason, so this is the
+  /// one number that decides whether they have room to be read.
+  static double stripArtWidth(BuildContext context) =>
+      cardHeight(context) * 0.56;
 
   /// Two book-card slots wide, at both of the strip's sizes, so the fan card
   /// sits on the same rhythm as everything else the app scrolls sideways.
@@ -138,6 +182,13 @@ class CuratedListSuggestionCard extends StatelessWidget {
     final title = affinity.list.getTitle(locale);
     final theme = Theme.of(context);
 
+    // The row owns its Semantics rather than taking the shared wrapper: its
+    // close button sits OUTSIDE the excluded subtree, and a button excluded
+    // from semantics is a button a screen reader cannot reach.
+    if (layout == CuratedCardLayout.row) {
+      return _buildRow(context, theme, title);
+    }
+
     return Semantics(
       button: true,
       excludeSemantics: true,
@@ -159,7 +210,116 @@ class CuratedListSuggestionCard extends StatelessWidget {
       child: switch (layout) {
         CuratedCardLayout.strip => _buildStrip(context, theme, title),
         CuratedCardLayout.fan => _buildFan(context, theme, title),
+        // Returned above: the row never reaches this wrapper.
+        CuratedCardLayout.row => const SizedBox.shrink(),
       },
+    );
+  }
+
+  /// The "Suggestions for you" page's shape: one row of the same anatomy as
+  /// every book tile on that page.
+  Widget _buildRow(BuildContext context, ThemeData theme, String title) {
+    final dismiss = onDismiss;
+
+    return Stack(
+      children: [
+        Semantics(
+          button: true,
+          excludeSemantics: true,
+          label: semanticsLabel(context, affinity, title),
+          onTap: onTap,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                vertical: 10,
+                horizontal: SuggestionTile.horizontalPadding,
+              ),
+              child: Row(
+                // Top-aligned like the book tiles, so the artwork lines up
+                // with the name whatever the reason line does below it.
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: SuggestionTile.coverWidth,
+                    height: SuggestionTile.coverHeight,
+                    child: _CoverFan(
+                      coverUrls: affinity.ownedCoverUrls
+                          .take(fanCovers)
+                          .toList(growable: false),
+                      layerScale:
+                          SuggestionTile.coverWidth / fanCardWidth(context),
+                      // The page words the source in a chip under the name,
+                      // where every other row on it carries its own.
+                      showSourceBadge: false,
+                    ),
+                  ),
+                  const SizedBox(width: SuggestionTile.coverGap),
+                  Expanded(
+                    child: Padding(
+                      // Keeps the name clear of the close button parked in
+                      // the corner of the Stack. The tile's own figure.
+                      padding: EdgeInsets.only(right: dismiss != null ? 28 : 0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              height: 1.2,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            reasonLabel(context, affinity),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                              height: 1.2,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          // The page's own source vocabulary, the one the
+                          // external cards already wear, so a list is told
+                          // apart from a book by its wording rather than by
+                          // a shape the reader has to learn.
+                          SuggestionSourceBadge(
+                            label: TranslationService.translate(
+                              context,
+                              'suggestion_badge_editorial',
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        if (dismiss != null)
+          Positioned(
+            top: 0,
+            right: 0,
+            child: IconButton(
+              icon: const Icon(Icons.close, size: 16),
+              iconSize: 16,
+              visualDensity: VisualDensity.compact,
+              padding: const EdgeInsets.all(4),
+              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+              tooltip: dismissTooltip,
+              color: theme.colorScheme.onSurfaceVariant,
+              onPressed: dismiss,
+            ),
+          ),
+      ],
     );
   }
 
@@ -182,9 +342,26 @@ class CuratedListSuggestionCard extends StatelessWidget {
           onLongPress: onDismiss,
           child: Row(
             children: [
-              _Mosaic(
-                coverUrls: affinity.ownedCoverUrls,
-                size: cardHeight(context),
+              Padding(
+                // The pile leans past its own cover on both sides, so it
+                // keeps a hair of clearance from the card's clipped edge.
+                padding: const EdgeInsets.only(left: 4),
+                child: SizedBox(
+                  width: stripArtWidth(context),
+                  height: cardHeight(context),
+                  child: _CoverFan(
+                    coverUrls: affinity.ownedCoverUrls
+                        .take(fanCovers)
+                        .toList(growable: false),
+                    // The tilt offsets are in points, tuned for the fan
+                    // card's cover: shrink the card, shrink the lean, or a
+                    // pile a third of the size fans twice as wide.
+                    layerScale: stripArtWidth(context) / fanCardWidth(context),
+                    // The word "Selection" rides in the text column here,
+                    // and the badge is wider than this fan's front cover.
+                    showSourceBadge: false,
+                  ),
+                ),
               ),
               Expanded(
                 child: Padding(
@@ -329,9 +506,21 @@ class CuratedListSuggestionCard extends StatelessWidget {
 /// already have", and publisher art for a list the reader does not own would
 /// say the opposite while costing a network fetch inside a scrolling strip.
 class _CoverFan extends StatelessWidget {
-  const _CoverFan({required this.coverUrls});
+  const _CoverFan({
+    required this.coverUrls,
+    this.layerScale = 1.0,
+    this.showSourceBadge = true,
+  });
 
   final List<String> coverUrls;
+
+  /// Multiplies the tilt offsets, which are points rather than ratios. 1.0
+  /// is the fan card's own size; the strip's smaller fan scales them down.
+  final double layerScale;
+
+  /// The strip card words the source in its text column instead, and turns
+  /// this off: the badge is wider than the front cover at that size.
+  final bool showSourceBadge;
 
   /// The three front layers of the collection cards' fan: [tilt, dx, dy].
   static const List<List<double>> _layers = [
@@ -363,6 +552,7 @@ class _CoverFan extends StatelessWidget {
               _FanLayer(
                 coverUrl: i < coverUrls.length ? coverUrls[i] : null,
                 config: layers[i],
+                layerScale: layerScale,
                 coverW: coverW,
                 coverH: coverH,
                 isTop: i == visible - 1,
@@ -370,30 +560,34 @@ class _CoverFan extends StatelessWidget {
             // The source marker, where the collection cards put their type
             // tag: the top-right of the front cover. Wording, not an icon,
             // and it is in the card's screen-reader label too.
-            Positioned(
-              top: (availH - coverH) / 2 + 4,
-              right: (availW - coverW) / 2 + 4,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.tertiary,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  TranslationService.translate(
-                    context,
-                    'suggestion_badge_editorial',
-                  ).toUpperCase(),
-                  style: TextStyle(
-                    color: theme.colorScheme.onTertiary,
-                    fontSize: 8,
-                    fontWeight: FontWeight.bold,
-                    height: 1,
-                    letterSpacing: 0.3,
+            if (showSourceBadge)
+              Positioned(
+                top: (availH - coverH) / 2 + 4,
+                right: (availW - coverW) / 2 + 4,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.tertiary,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    TranslationService.translate(
+                      context,
+                      'suggestion_badge_editorial',
+                    ).toUpperCase(),
+                    style: TextStyle(
+                      color: theme.colorScheme.onTertiary,
+                      fontSize: 8,
+                      fontWeight: FontWeight.bold,
+                      height: 1,
+                      letterSpacing: 0.3,
+                    ),
                   ),
                 ),
               ),
-            ),
           ],
         );
       },
@@ -407,6 +601,7 @@ class _FanLayer extends StatelessWidget {
   const _FanLayer({
     required this.coverUrl,
     required this.config,
+    required this.layerScale,
     required this.coverW,
     required this.coverH,
     required this.isTop,
@@ -414,6 +609,7 @@ class _FanLayer extends StatelessWidget {
 
   final String? coverUrl;
   final List<double> config;
+  final double layerScale;
   final double coverW;
   final double coverH;
   final bool isTop;
@@ -423,7 +619,7 @@ class _FanLayer extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Transform.translate(
-      offset: Offset(config[1], config[2]),
+      offset: Offset(config[1] * layerScale, config[2] * layerScale),
       child: Transform.rotate(
         angle: config[0] * math.pi / 180,
         child: Container(
@@ -462,57 +658,6 @@ class _FanLayer extends StatelessWidget {
                   ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-/// The reader's own covers, up to four, in a square 2x2.
-///
-/// Deliberately NOT falling back to the list's own remote `cover_url`: the
-/// mosaic exists to say "these are books you already have", and publisher
-/// art for a list the reader does not own would say the opposite while
-/// costing a network fetch from inside a scrolling strip.
-class _Mosaic extends StatelessWidget {
-  const _Mosaic({required this.coverUrls, required this.size});
-
-  final List<String> coverUrls;
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    if (coverUrls.isEmpty) {
-      return Container(
-        width: size,
-        height: size,
-        color: colorScheme.surfaceContainerHigh,
-        alignment: Alignment.center,
-        child: Icon(
-          Icons.collections_bookmark_outlined,
-          size: size * 0.34,
-          color: colorScheme.onSurfaceVariant,
-        ),
-      );
-    }
-
-    final tile = size / 2;
-    return SizedBox(
-      width: size,
-      height: size,
-      child: Wrap(
-        children: [
-          for (var i = 0; i < 4; i++)
-            SizedBox(
-              width: tile,
-              height: tile,
-              child: i < coverUrls.length
-                  // Decorative: the card's own Semantics names the list.
-                  ? CachedBookCover(imageUrl: coverUrls[i], fit: BoxFit.cover)
-                  : ColoredBox(color: colorScheme.surfaceContainerHigh),
-            ),
-        ],
       ),
     );
   }

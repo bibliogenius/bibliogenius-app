@@ -205,6 +205,13 @@ class RecommendationProvider extends ChangeNotifier {
   /// a second feature competing with them.
   static const int slotMaxCuratedLists = 1;
 
+  /// Curated list rows on the "Suggestions for you" page (ADR-066). Three,
+  /// where the strip takes one: the page is where a reader goes to see
+  /// everything, so it truncates the tier last, but the tail of the ranking
+  /// is its weakest affinities and the lists' own catalogue is the surface
+  /// for browsing them rather than for being pushed them.
+  static const int seeAllMaxCuratedLists = 3;
+
   /// Curated list cards in the Collections teaser block. Two: that screen
   /// is ABOUT collections, so a related selection is on topic there, and
   /// the reader's own collections still render first.
@@ -298,7 +305,8 @@ class RecommendationProvider extends ChangeNotifier {
   }) {
     final externals = visibleExternal.take(maxExternal).length;
     final locals = visiblePersonal.take(maxDisplayed - externals).length;
-    return visiblePersonal.length > locals || visibleExternal.length > externals;
+    return visiblePersonal.length > locals ||
+        visibleExternal.length > externals;
   }
 
   /// First [perLookup] non-dismissed cards of each lookup, in lookup

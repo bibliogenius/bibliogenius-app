@@ -11,6 +11,7 @@ import 'package:bibliogenius/services/translation_service.dart';
 import 'package:bibliogenius/widgets/cached_book_cover.dart';
 import 'package:bibliogenius/widgets/compact_suggestion_card.dart';
 import 'package:bibliogenius/widgets/curated_list_suggestion_card.dart';
+import 'package:bibliogenius/widgets/suggestion_tile.dart';
 
 /// ADR-066: the list card. A collection-format tile built from the reader's
 /// OWN copies of the books in common, carrying its reason and its source,
@@ -60,6 +61,7 @@ void main() {
     VoidCallback? onTap,
     VoidCallback? onDismiss,
     CuratedCardLayout layout = CuratedCardLayout.strip,
+    String? dismissTooltip,
   }) async {
     await tester.pumpWidget(
       MaterialApp(
@@ -70,6 +72,7 @@ void main() {
               affinity: affinity,
               onTap: onTap ?? () {},
               onDismiss: onDismiss,
+              dismissTooltip: dismissTooltip,
               layout: layout,
             ),
           ),
@@ -97,7 +100,9 @@ void main() {
     expect(find.textContaining('liked'), findsNothing);
   });
 
-  testWidgets('the mosaic is built from the reader own covers', (tester) async {
+  testWidgets('the artwork is built from the reader own covers', (
+    tester,
+  ) async {
     await pump(
       tester,
       _affinity(covers: const ['file:///a.jpg', 'file:///b.jpg']),
@@ -108,6 +113,44 @@ void main() {
         .map((w) => w.imageUrl)
         .toList();
     expect(covers, ['file:///a.jpg', 'file:///b.jpg']);
+  });
+
+  testWidgets('the strip artwork clamps to three covers, like the fan', (
+    tester,
+  ) async {
+    // The payload still caps at four, from the era when this card drew a
+    // 2x2 mosaic. A fourth layer only steepens the tilt.
+    await pump(
+      tester,
+      _affinity(
+        covers: const [
+          'file:///a.jpg',
+          'file:///b.jpg',
+          'file:///c.jpg',
+          'file:///d.jpg',
+        ],
+      ),
+    );
+
+    expect(find.byType(CachedBookCover), findsNWidgets(3));
+  });
+
+  testWidgets('the name gets more of the card than the artwork does', (
+    tester,
+  ) async {
+    // The defect this pins: the artwork used to be a square as tall as the
+    // strip, which left the name 48 points of the card's 168 and broke it
+    // mid-word. The words are the only thing that identifies a LIST, so
+    // they take the larger half.
+    await pump(tester, _affinity(covers: const ['file:///a.jpg']));
+
+    final title = tester.getRect(find.text('Goncourt winners'));
+    final reason = tester.getRect(find.text('3 books in common'));
+    final context = tester.element(find.byType(CuratedListSuggestionCard));
+    final art = CuratedListSuggestionCard.stripArtWidth(context);
+
+    expect(title.width, greaterThan(art));
+    expect(reason.width, greaterThan(art));
   });
 
   testWidgets('no owned cover falls back to a placeholder, never to the '
@@ -248,6 +291,72 @@ void main() {
 
       expect(tapped, 1);
       expect(dismissed, 1);
+    });
+  });
+
+  group('the row layout (the "Suggestions for you" page)', () {
+    testWidgets('the text starts on the page tile grid', (tester) async {
+      // The page is ONE column of tiles under one card, and its separators
+      // are inset to a single left edge. A row starting its text anywhere
+      // else makes the hairlines cut at two places down the same column.
+      await pump(
+        tester,
+        _affinity(covers: const ['file:///a.jpg']),
+        layout: CuratedCardLayout.row,
+      );
+
+      final card = tester.getRect(find.byType(CuratedListSuggestionCard));
+      final title = tester.getRect(find.text('Goncourt winners'));
+      expect(title.left - card.left, SuggestionTile.textOffset);
+    });
+
+    testWidgets('the dismissal is the page own close button, labelled', (
+      tester,
+    ) async {
+      // Every other row on that page offers a close button, so a reader who
+      // found it there looks for it here. A long press would be invisible.
+      var dismissed = 0;
+      await pump(
+        tester,
+        _affinity(),
+        onDismiss: () => dismissed++,
+        dismissTooltip: 'Not interested',
+        layout: CuratedCardLayout.row,
+      );
+
+      await tester.tap(find.byTooltip('Not interested'));
+      expect(dismissed, 1);
+    });
+
+    testWidgets('the close button survives the card excluded semantics', (
+      tester,
+    ) async {
+      // The defect this pins: the card announces itself as one node with
+      // `excludeSemantics`, and a close button swallowed by that subtree is
+      // a button a screen reader cannot reach at all.
+      final handle = tester.ensureSemantics();
+      await pump(
+        tester,
+        _affinity(),
+        onDismiss: () {},
+        dismissTooltip: 'Not interested',
+        layout: CuratedCardLayout.row,
+      );
+
+      final node = tester.getSemantics(find.byType(IconButton));
+      expect(
+        node.tooltip,
+        'Not interested',
+        reason: 'Rules A1/A4: the dismissal is a named button of its own.',
+      );
+      expect(node.hasFlag(SemanticsFlag.isButton), isTrue);
+      handle.dispose();
+    });
+
+    testWidgets('the source is worded, in the page own badge', (tester) async {
+      await pump(tester, _affinity(), layout: CuratedCardLayout.row);
+      expect(find.byType(SuggestionSourceBadge), findsOneWidget);
+      expect(find.text('Selection'), findsOneWidget);
     });
   });
 

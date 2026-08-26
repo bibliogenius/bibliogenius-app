@@ -4,9 +4,13 @@ import 'package:provider/provider.dart';
 import '../models/recommendation.dart';
 import '../providers/recommendation_provider.dart';
 import '../providers/theme_provider.dart';
+import '../services/curated_affinity_service.dart';
 import '../services/translation_service.dart';
 import '../theme/app_design.dart';
+import '../utils/language_constants.dart';
 import '../utils/recommendation_display.dart';
+import '../widgets/curated_import_dialog.dart';
+import '../widgets/curated_list_suggestion_card.dart';
 import '../widgets/dashboard_section.dart';
 import '../widgets/external_suggestion_sheet.dart';
 import '../widgets/suggestion_tile.dart';
@@ -25,7 +29,17 @@ import '../widgets/suggestion_tile.dart';
 ///
 /// One list, never two sections: blending locals and discoveries is a
 /// decided design position (`recommendations-blended-suggestions-ux.md`
-/// section 2), with the source carried per card instead.
+/// section 2), with the source carried per card instead. The curated list
+/// rows (ADR-066) follow that same position rather than opening a section
+/// of their own: they are the last rows of the one column, badged like the
+/// external cards are.
+///
+/// They come LAST because a whole selection is the broader offer once the
+/// individual books have had their turn, which is the order the library
+/// strip already uses. And like there, a list can never make the page
+/// non-empty on its own: with no book suggestion the reader gets the empty
+/// state, because "Suggestions for you" is a page about books and a column
+/// made only of selections is a different feature from the one it names.
 class RecommendationsScreen extends StatefulWidget {
   const RecommendationsScreen({super.key});
 
@@ -45,10 +59,19 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
   Future<void> _load({bool force = false}) async {
     if (!mounted) return;
     final provider = context.read<RecommendationProvider>();
+    final theme = context.read<ThemeProvider>();
     await provider.loadPersonal(force: force);
     if (!mounted) return;
-    await provider.loadExternal(
-      langs: context.read<ThemeProvider>().userLanguages,
+    await provider.loadExternal(langs: theme.userLanguages, force: force);
+    if (!mounted) return;
+    // The editorial tier is measured once at start-up. A catalogue mutation
+    // marks it stale but nothing recomputes it in-session, so this page's
+    // own pull-to-refresh is the reader's way back to a fresh measure.
+    await provider.loadCuratedAffinity(
+      readerLanguages: resolveReaderLanguages(
+        theme.locale.languageCode,
+        theme.userLanguages,
+      ),
       force: force,
     );
   }
@@ -101,6 +124,9 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
       context,
       'recommendation_not_interested',
     );
+    final curated = provider.curatedAffinitiesFor(
+      cap: RecommendationProvider.seeAllMaxCuratedLists,
+    );
 
     return ListView(
       // Always scrollable, so pull-to-refresh works on a short list too.
@@ -130,6 +156,13 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
                         if (i > 0) const SuggestionSeparator(),
                         _tile(context, suggestions[i], dismissTooltip),
                       ],
+                      // Never the first rows: the body returns the empty
+                      // state before here when there is no book suggestion,
+                      // so a separator always has something above it.
+                      for (final affinity in curated) ...[
+                        const SuggestionSeparator(),
+                        _curatedRow(context, affinity, dismissTooltip),
+                      ],
                     ],
                   ),
                 ),
@@ -138,6 +171,24 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  /// One curated list as a row of the same column (ADR-066). The tap is the
+  /// EXISTING import flow opened on the very list tapped, exactly as on the
+  /// two other surfaces: no dead end, and no new flow.
+  Widget _curatedRow(
+    BuildContext context,
+    CuratedAffinity affinity,
+    String dismissTooltip,
+  ) {
+    return CuratedListSuggestionCard(
+      affinity: affinity,
+      layout: CuratedCardLayout.row,
+      onTap: () => CuratedImportDialog.show(context, affinity.list),
+      onDismiss: () =>
+          dismissCuratedListWithUndo(context, affinity.dismissalKey),
+      dismissTooltip: dismissTooltip,
     );
   }
 
@@ -196,7 +247,9 @@ class _BasisCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: colorScheme.primary.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
-          border: Border.all(color: colorScheme.primary.withValues(alpha: 0.15)),
+          border: Border.all(
+            color: colorScheme.primary.withValues(alpha: 0.15),
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
