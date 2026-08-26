@@ -1264,9 +1264,57 @@ msgstr "Başlık aramasıyla bir kapak bulundu"
 msgid "cover_no_isbn"
 msgstr "Çevrimiçi arama yapmak için bir ISBN ekleyin"
 
+#. No cover source is enabled
+msgid "cover_no_source_enabled"
+msgstr "Etkin bir arama kaynağı yok"
+
+#. No source answered. Check your connection.
+msgid "cover_search_offline"
+msgstr "Hiçbir kaynak yanıt vermedi. Bağlantınızı kontrol edin."
+
+#. Search incomplete: could not reach {sources}. A cover may exist all the same.
+msgid "cover_search_incomplete"
+msgstr "Arama eksik: {sources} kaynağına ulaşılamadı. Yine de bir kapak olabilir."
+
+#. quota reached
+msgid "cover_source_quota"
+msgstr "kota doldu"
+
 #. No cover found for this ISBN
 msgid "cover_not_found"
 msgstr "Bu ISBN için kapak bulunamadı"
+
+#. The edition you pick completes "{title}". No new book is created.
+msgid "complete_book_hint"
+msgstr "Seçtiğiniz baskı \"{title}\" kaydını tamamlar. Yeni bir kitap oluşturulmaz."
+
+#. Complete this book
+msgid "complete_book_title"
+msgstr "Bu kitabı tamamla"
+
+#. This book has no ISBN
+msgid "cover_no_isbn_hint"
+msgstr "Bu kitabın ISBN'i yok"
+
+#. Search by title and author
+msgid "cover_search_by_title"
+msgstr "Başlık ve yazara göre ara"
+
+#. By title
+msgid "cover_search_by_title_short"
+msgstr "Başlığa göre"
+
+#. Use this edition
+msgid "use_this_edition"
+msgstr "Bu baskıyı kullan"
+
+#. Another edition
+msgid "cover_other_edition"
+msgstr "Başka baskı"
+
+#. This edition
+msgid "cover_this_edition"
+msgstr "Bu baskı"
 
 #. Choose a cover
 msgid "cover_pick_title"

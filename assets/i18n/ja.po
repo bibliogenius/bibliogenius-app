@@ -1216,9 +1216,57 @@ msgstr "タイトル検索で表紙が見つかりました"
 msgid "cover_no_isbn"
 msgstr "オンライン検索するにはISBNを追加してください"
 
+#. No cover source is enabled
+msgid "cover_no_source_enabled"
+msgstr "有効な検索ソースがありません"
+
+#. No source answered. Check your connection.
+msgid "cover_search_offline"
+msgstr "どのソースも応答しませんでした。接続を確認してください。"
+
+#. Search incomplete: could not reach {sources}. A cover may exist all the same.
+msgid "cover_search_incomplete"
+msgstr "検索が不完全です: {sources} に接続できませんでした。表紙は存在するかもしれません。"
+
+#. quota reached
+msgid "cover_source_quota"
+msgstr "上限に達しました"
+
 #. No cover found for this ISBN
 msgid "cover_not_found"
 msgstr "このISBNの表紙は見つかりませんでした"
+
+#. The edition you pick completes "{title}". No new book is created.
+msgid "complete_book_hint"
+msgstr "選んだ版が「{title}」を補完します。新しい本は作成されません。"
+
+#. Complete this book
+msgid "complete_book_title"
+msgstr "この本を補完"
+
+#. This book has no ISBN
+msgid "cover_no_isbn_hint"
+msgstr "この本にはISBNがありません"
+
+#. Search by title and author
+msgid "cover_search_by_title"
+msgstr "タイトルと著者で検索"
+
+#. By title
+msgid "cover_search_by_title_short"
+msgstr "タイトルで"
+
+#. Use this edition
+msgid "use_this_edition"
+msgstr "この版を使う"
+
+#. Another edition
+msgid "cover_other_edition"
+msgstr "別の版"
+
+#. This edition
+msgid "cover_this_edition"
+msgstr "この版"
 
 #. Choose a cover
 msgid "cover_pick_title"

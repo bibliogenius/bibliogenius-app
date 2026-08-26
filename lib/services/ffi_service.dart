@@ -495,39 +495,72 @@ class FfiService {
   // ============ Multi-Cover Search ============
 
   /// Search ALL enabled cover sources in parallel for a given ISBN.
-  /// Returns all found cover candidates for the picker carousel.
-  Future<List<CoverCandidate>> searchAllCoversForBook(String isbn) async {
+  /// Returns the candidates for the picker carousel and each source's answer.
+  Future<CoverSearchResult> searchAllCoversForBook(String isbn) async {
     try {
-      final results = await frb.searchAllCoversForBook(isbn: isbn);
-      return results
-          .map((r) => CoverCandidate(url: r.url, source: r.source))
-          .toList();
+      return _toSearchResult(await frb.searchAllCoversForBook(isbn: isbn));
     } catch (e) {
       debugPrint('FFI searchAllCoversForBook error: $e');
-      return [];
+      return _bridgeFailure(e);
     }
   }
 
   /// Search ALL enabled sources by title in parallel for the cover picker.
-  Future<List<CoverCandidate>> searchAllCoversByTitle(
+  Future<CoverSearchResult> searchAllCoversByTitle(
     String title,
     String? author, {
     bool enableGoogle = false,
   }) async {
     try {
-      final results = await frb.searchAllCoversByTitle(
-        title: title,
-        author: author,
-        enableGoogle: enableGoogle,
+      return _toSearchResult(
+        await frb.searchAllCoversByTitle(
+          title: title,
+          author: author,
+          enableGoogle: enableGoogle,
+        ),
       );
-      return results
-          .map((r) => CoverCandidate(url: r.url, source: r.source))
-          .toList();
     } catch (e) {
       debugPrint('FFI searchAllCoversByTitle error: $e');
-      return [];
+      return _bridgeFailure(e);
     }
   }
+
+  CoverSearchResult _toSearchResult(frb.FrbCoverSearchResult result) {
+    return CoverSearchResult(
+      candidates: result.candidates
+          .map(
+            (r) => CoverCandidate(
+              url: r.url,
+              source: r.source,
+              language: r.language,
+            ),
+          )
+          .toList(),
+      sources: result.sources
+          .map(
+            (s) => CoverSourceStatus(
+              source: s.source,
+              state: s.state,
+              detail: s.detail,
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  /// The bridge itself failing is a search that did not happen, not a book
+  /// without a cover: returning an empty candidate list alone would have the
+  /// caller announce an absence it never verified.
+  CoverSearchResult _bridgeFailure(Object error) => CoverSearchResult(
+    candidates: const [],
+    sources: [
+      CoverSourceStatus(
+        source: 'BiblioGenius',
+        state: 'unavailable',
+        detail: error.toString(),
+      ),
+    ],
+  );
 
   // ============ Metadata Lookup ============
 
@@ -1954,8 +1987,9 @@ class FfiService {
     try {
       final resp = await frb.getPersonalRecommendations(limit: limit);
       return PersonalRecommendations(
-        recommendations:
-            resp.recommendations.map(_frbRecommendationToModel).toList(),
+        recommendations: resp.recommendations
+            .map(_frbRecommendationToModel)
+            .toList(),
         topSubjects: resp.topSubjects,
         favoriteAuthors: resp.favoriteAuthors,
         scoredBooksCount: resp.scoredBooksCount,

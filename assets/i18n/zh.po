@@ -1216,9 +1216,57 @@ msgstr "通过标题搜索找到了封面"
 msgid "cover_no_isbn"
 msgstr "添加 ISBN 以在线搜索"
 
+#. No cover source is enabled
+msgid "cover_no_source_enabled"
+msgstr "未启用任何搜索来源"
+
+#. No source answered. Check your connection.
+msgid "cover_search_offline"
+msgstr "没有任何来源作出响应。请检查您的网络连接。"
+
+#. Search incomplete: could not reach {sources}. A cover may exist all the same.
+msgid "cover_search_incomplete"
+msgstr "搜索不完整：无法访问 {sources}。封面可能仍然存在。"
+
+#. quota reached
+msgid "cover_source_quota"
+msgstr "已达上限"
+
 #. No cover found for this ISBN
 msgid "cover_not_found"
 msgstr "未找到此 ISBN 的封面"
+
+#. The edition you pick completes "{title}". No new book is created.
+msgid "complete_book_hint"
+msgstr "所选版本将补全《{title}》，不会创建新书。"
+
+#. Complete this book
+msgid "complete_book_title"
+msgstr "补全这本书"
+
+#. This book has no ISBN
+msgid "cover_no_isbn_hint"
+msgstr "这本书没有 ISBN"
+
+#. Search by title and author
+msgid "cover_search_by_title"
+msgstr "按书名和作者搜索"
+
+#. By title
+msgid "cover_search_by_title_short"
+msgstr "按书名"
+
+#. Use this edition
+msgid "use_this_edition"
+msgstr "使用此版本"
+
+#. Another edition
+msgid "cover_other_edition"
+msgstr "其他版本"
+
+#. This edition
+msgid "cover_this_edition"
+msgstr "此版本"
 
 #. Choose a cover
 msgid "cover_pick_title"

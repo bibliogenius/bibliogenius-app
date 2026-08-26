@@ -51,6 +51,16 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
   List<Map<String, dynamic>> _sourceOptions = [];
   bool _sourcesLoaded = false;
   bool _initialSearchDone = false;
+
+  /// Set when the screen was opened to complete an existing book rather than to
+  /// add a new one. Kept separate from the title: a caller that asks to complete
+  /// a book must never fall back to the mode whose action CREATES one, even if
+  /// it passed nothing to search for.
+  bool _attachMode = false;
+  String _attachTitle = '';
+  String? _attachAuthor;
+
+  bool get _isAttachMode => _attachMode;
   // Whether the user has a Google Books API key set. When false the chip
   // shows a "no API key" badge and a SnackBar warns on selection (Google's
   // anonymous quota saturates within a few requests).
@@ -85,8 +95,32 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
 
     if (!_initialSearchDone) {
       final state = GoRouterState.of(context);
-      if (state.uri.queryParameters.containsKey('q')) {
-        final q = state.uri.queryParameters['q'];
+      final params = state.uri.queryParameters;
+
+      // "Complete a book" mode: the caller already has a book on screen whose
+      // exact ISBN no source carries, and wants an edition of the same work to
+      // borrow a cover or a summary from. Prefill and search straight away, so
+      // the reader lands on results rather than on an empty form they would
+      // have to retype by hand.
+      if (params['attach'] == '1') {
+        _attachMode = true;
+        _attachTitle = params['title']?.trim() ?? '';
+        _attachAuthor = params['author'];
+        // Only a title can drive the search. Without one the reader types their
+        // own query; the mode itself stays on, so the action still completes
+        // the book they came from instead of adding a second one.
+        if (_attachTitle.isNotEmpty) {
+          _initialSearchDone = true;
+          _titleController.text = _attachTitle;
+          _authorController.text = _attachAuthor ?? '';
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _search();
+          });
+        }
+      }
+
+      if (!_initialSearchDone && params.containsKey('q')) {
+        final q = params['q'];
         if (q != null && q.isNotEmpty) {
           _initialSearchDone = true;
           // Heuristic: If q contains ' - ', split into Author/Title?
@@ -679,6 +713,60 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
     }
   }
 
+  /// Say, before the reader picks anything, that this screen is completing a
+  /// book they already own and will not create a second one. The action button
+  /// alone is too late: by then they have already read the results as a
+  /// catalogue to add from.
+  Widget _buildAttachBanner() {
+    final theme = Theme.of(context);
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.secondaryContainer,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.auto_fix_high_outlined,
+            size: 18,
+            color: theme.colorScheme.onSecondaryContainer,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              // Without a title there is no book name to put in the sentence;
+              // say what the screen is doing rather than name an empty book.
+              _attachTitle.isEmpty
+                  ? TranslationService.translate(context, 'complete_book_title')
+                  : TranslationService.translate(
+                      context,
+                      'complete_book_hint',
+                      params: {'title': _attachTitle},
+                    ),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSecondaryContainer,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Leave without choosing. In attach mode the caller awaits an edition, so
+  /// leaving must answer `null` and never the "books were added" flag: that flag
+  /// would reach the caller typed as an edition and blow up on first read.
+  void _leave() => context.pop(_isAttachMode ? null : _booksAdded);
+
+  /// Hand the chosen edition back to the screen that opened this one, instead
+  /// of creating a second book for a work already in the library.
+  void _takeEdition(Map<String, dynamic> edition) {
+    context.pop(edition);
+  }
+
   Future<void> _addBook(Map<String, dynamic> doc) async {
     try {
       final api = Provider.of<ApiService>(context, listen: false);
@@ -870,15 +958,17 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
       canPop: false,
       onPopInvokedWithResult: (bool didPop, dynamic result) {
         if (didPop) return;
-        context.pop(_booksAdded);
+        _leave();
       },
       child: Scaffold(
         appBar: GenieAppBar(
-          title: TranslationService.translate(context, 'external_search_title'),
+          title: _isAttachMode
+              ? TranslationService.translate(context, 'complete_book_title')
+              : TranslationService.translate(context, 'external_search_title'),
           leading: IconButton(
             icon: Icon(Icons.adaptive.arrow_back, color: Colors.white),
             tooltip: TranslationService.translate(context, 'back'),
-            onPressed: () => context.pop(_booksAdded),
+            onPressed: _leave,
           ),
         ),
         extendBodyBehindAppBar: true,
@@ -889,6 +979,7 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
           child: SafeArea(
             child: Column(
               children: [
+                if (_isAttachMode) _buildAttachBanner(),
                 // Compact search bar - always visible
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
@@ -994,9 +1085,7 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
                                           ? Theme.of(
                                               context,
                                             ).colorScheme.onPrimary
-                                          : Theme.of(
-                                              context,
-                                            ).colorScheme.error,
+                                          : Theme.of(context).colorScheme.error,
                                     )
                                   : null,
                               tooltip: isGoogleBooksKeyless
@@ -1020,14 +1109,11 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
                               selected: isSelected,
                               showCheckmark: false,
                               onSelected: (_) {
-                                final newSource =
-                                    option['value'] as String?;
+                                final newSource = option['value'] as String?;
                                 setState(() => _upstreamSource = newSource);
                                 if (newSource == 'google_books' &&
                                     !_googleBooksHasApiKey) {
-                                  ScaffoldMessenger.of(
-                                    context,
-                                  ).showSnackBar(
+                                  ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text(
                                         TranslationService.translate(
@@ -1330,8 +1416,12 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
           title: work['title'] as String,
           author: work['author'] as String?,
           editions: editions,
-          onAddBook: _addBook,
+          onAddBook: _isAttachMode ? _takeEdition : _addBook,
           onOpenUrl: _openUrl,
+          actionLabelKey: _isAttachMode ? 'use_this_edition' : 'add_to_library',
+          actionIcon: _isAttachMode
+              ? Icons.download_done_outlined
+              : Icons.add_circle_outline,
         );
       },
     );
@@ -1345,8 +1435,12 @@ class _ExternalSearchScreenState extends State<ExternalSearchScreen> {
         final book = _searchResults[index];
         return SearchResultCard(
           book: book,
-          onAdd: () => _addBook(book),
+          onAdd: () => _isAttachMode ? _takeEdition(book) : _addBook(book),
           onOpenUrl: () => _openUrl(book),
+          actionIcon: _isAttachMode ? Icons.download_done_outlined : Icons.add,
+          actionTooltip: _isAttachMode
+              ? TranslationService.translate(context, 'use_this_edition')
+              : null,
         );
       },
     );

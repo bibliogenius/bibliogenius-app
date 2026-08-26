@@ -1216,9 +1216,57 @@ msgstr "Намерена е корица чрез търсене по загла
 msgid "cover_no_isbn"
 msgstr "Добавете ISBN за търсене онлайн"
 
+#. No cover source is enabled
+msgid "cover_no_source_enabled"
+msgstr "Няма активиран източник за търсене"
+
+#. No source answered. Check your connection.
+msgid "cover_search_offline"
+msgstr "Нито един източник не отговори. Проверете връзката си."
+
+#. Search incomplete: could not reach {sources}. A cover may exist all the same.
+msgid "cover_search_incomplete"
+msgstr "Непълно търсене: {sources} не отговори. Възможно е корица да съществува."
+
+#. quota reached
+msgid "cover_source_quota"
+msgstr "достигнат лимит"
+
 #. No cover found for this ISBN
 msgid "cover_not_found"
 msgstr "Не е намерена корица за този ISBN"
+
+#. The edition you pick completes "{title}". No new book is created.
+msgid "complete_book_hint"
+msgstr "Избраното издание допълва „{title}“. Няма да се създаде нова книга."
+
+#. Complete this book
+msgid "complete_book_title"
+msgstr "Допълване на тази книга"
+
+#. This book has no ISBN
+msgid "cover_no_isbn_hint"
+msgstr "Тази книга няма ISBN"
+
+#. Search by title and author
+msgid "cover_search_by_title"
+msgstr "Търсене по заглавие и автор"
+
+#. By title
+msgid "cover_search_by_title_short"
+msgstr "По заглавие"
+
+#. Use this edition
+msgid "use_this_edition"
+msgstr "Използване на това издание"
+
+#. Another edition
+msgid "cover_other_edition"
+msgstr "Друго издание"
+
+#. This edition
+msgid "cover_this_edition"
+msgstr "Това издание"
 
 #. Choose a cover
 msgid "cover_pick_title"

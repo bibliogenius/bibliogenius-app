@@ -2923,16 +2923,17 @@ class ApiService {
   }
 
   /// Search all cover sources in parallel for a given ISBN.
-  /// Returns all cover candidates for the picker carousel.
-  Future<List<CoverCandidate>> searchAllCoversForBook(String isbn) async {
+  /// Returns the candidates for the picker carousel and each source's answer.
+  Future<CoverSearchResult> searchAllCoversForBook(String isbn) async {
     if (useFfi) {
       return await FfiService().searchAllCoversForBook(isbn);
     }
-    return [];
+    // No source runs outside FFI, and that is not an absence of cover.
+    return const CoverSearchResult.empty();
   }
 
   /// Search all cover sources by title in parallel.
-  Future<List<CoverCandidate>> searchAllCoversByTitle(
+  Future<CoverSearchResult> searchAllCoversByTitle(
     String title,
     String? author, {
     bool enableGoogle = false,
@@ -2944,7 +2945,7 @@ class ApiService {
         enableGoogle: enableGoogle,
       );
     }
-    return [];
+    return const CoverSearchResult.empty();
   }
 
   /// Look up book metadata from external sources by ISBN.

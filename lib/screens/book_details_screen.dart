@@ -1,11 +1,9 @@
-import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -112,7 +110,9 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       _isLoadingBook = true;
       _fetchBookDetails();
     }
-    WidgetsBinding.instance.addPostFrameCallback((_) => _loadAuthorVocabulary());
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _loadAuthorVocabulary(),
+    );
     // Warm the favorite set so the toggle renders its real state (ADR-064).
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) context.read<FavoritesProvider>().ensureLoaded();
@@ -444,16 +444,33 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                   Navigator.pop(ctx);
                   _searchCoverOnline(book);
                 },
-              )
-            else
-              ListTile(
-                leading: Icon(Icons.search, color: Colors.grey[400]),
-                title: Text(
-                  TranslationService.translate(context, 'cover_no_isbn') ??
-                      'Add an ISBN to search online',
-                  style: TextStyle(color: Colors.grey[400]),
-                ),
               ),
+            // Available with or without an ISBN: a title-and-author search is
+            // exactly what finds a cover when the book's own edition is too
+            // recent or too rare for any source to carry its ISBN.
+            ListTile(
+              leading: const Icon(Icons.travel_explore),
+              title: Text(
+                TranslationService.translate(
+                      context,
+                      'cover_search_by_title',
+                    ) ??
+                    'Search by title and author',
+              ),
+              subtitle: hasIsbn
+                  ? null
+                  : Text(
+                      TranslationService.translate(
+                            context,
+                            'cover_no_isbn_hint',
+                          ) ??
+                          'This book has no ISBN',
+                    ),
+              onTap: () {
+                Navigator.pop(ctx);
+                _completeFromExternalSearch(book);
+              },
+            ),
             if (CoverCameraHelper.isCameraAvailable)
               ListTile(
                 leading: const Icon(Icons.camera_alt),
@@ -500,6 +517,180 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     );
   }
 
+  /// The way out of every ISBN dead end: search the same work by title and
+  /// author. Offered from the cover sheet, from an empty cover search, and from
+  /// a metadata lookup that found nothing.
+  SnackBarAction _byTitleAction(Book book) => SnackBarAction(
+    label:
+        TranslationService.translate(context, 'cover_search_by_title_short') ??
+        'By title',
+    onPressed: () => _completeFromExternalSearch(book),
+  );
+
+  /// Complete this book from an edition of the same work, found by title and
+  /// author rather than by ISBN.
+  ///
+  /// A recent edition is routinely absent from every source that indexes by
+  /// ISBN while sibling editions of the same work are catalogued with covers
+  /// and summaries. The ISBN paths can only answer "nothing", so this hands the
+  /// reader the search that does find something, then applies what they pick to
+  /// THIS book through the usual field-by-field dialog: nothing is taken
+  /// without being shown next to what the book already has.
+  Future<void> _completeFromExternalSearch(Book book) async {
+    // The search keys on the title: without one there is nothing to look up,
+    // and the reader would land on an empty form. The search screen stays in
+    // "completing this book" mode either way, so nothing can be added by
+    // accident; this guard is about not sending them somewhere useless.
+    final title = book.title.trim();
+    if (title.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            TranslationService.translate(context, 'enter_title_error') ??
+                'Please enter a title',
+          ),
+        ),
+      );
+      return;
+    }
+
+    final query = Uri(
+      path: '/search/external',
+      queryParameters: {
+        'attach': '1',
+        'title': title,
+        if (book.author != null && book.author!.isNotEmpty)
+          'author': book.author!,
+      },
+    ).toString();
+
+    final edition = await context.push<Map<String, dynamic>>(query);
+    if (!mounted || edition == null || book.id == null) return;
+
+    // The picked edition is another edition of the same work: its title and
+    // author describe the same book, its publisher, year and cover do not.
+    // Offer everything, pre-select nothing the book already has, and let the
+    // reader decide, exactly as the ISBN refresh does.
+    final fetched = <String, String?>{
+      'title': edition['title']?.toString(),
+      'author': edition['author']?.toString(),
+      'summary': edition['summary']?.toString(),
+      'publisher': edition['publisher']?.toString(),
+      'publication_year': edition['publication_year']?.toString(),
+      'cover_url': edition['cover_url']?.toString(),
+    };
+
+    final selectedUpdates = await showDialog<Map<String, dynamic>>(
+      context: context,
+      builder: (ctx) =>
+          MetadataRefreshDialog(currentBook: book, fetchedMetadata: fetched),
+    );
+    if (!mounted || selectedUpdates == null || selectedUpdates.isEmpty) return;
+
+    final messenger = ScaffoldMessenger.of(context);
+    final bookRepo = Provider.of<BookRepository>(context, listen: false);
+    if (selectedUpdates.containsKey('cover_url')) {
+      _evictCoverFromCache(_book?.coverUrl);
+    }
+    await bookRepo.updateBook(book.id!, selectedUpdates);
+    _hasChanges = true;
+    if (!mounted) return;
+    context.read<HubDirectoryProvider>()
+      ..markCatalogDirty()
+      ..syncCatalogIfDirty();
+    setState(() => _coverVersion++);
+    await _fetchBookDetails(forceRefresh: true);
+    if (!mounted) return;
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(
+          TranslationService.translate(context, 'refresh_metadata_applied') ??
+              'Info updated',
+        ),
+      ),
+    );
+  }
+
+  /// Say what an empty cover search actually means.
+  ///
+  /// "No cover found" used to be the only outcome, so a search where every
+  /// source was down read exactly like one where every source answered and none
+  /// had a cover. The first deserves a retry, the second does not, and the
+  /// reader could not tell which one they were looking at.
+  void _reportEmptyCoverSearch(
+    ScaffoldMessengerState messenger,
+    CoverSearchResult search,
+    Book book,
+  ) {
+    switch (search.verdict) {
+      case CoverSearchVerdict.incomplete when search.nothingReachable:
+        // Every source silent at once: say so once, rather than list them all.
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(
+              TranslationService.translate(context, 'cover_search_offline') ??
+                  'No source answered. Check your connection.',
+            ),
+            duration: const Duration(seconds: 8),
+            action: SnackBarAction(
+              label: TranslationService.translate(context, 'retry') ?? 'Retry',
+              onPressed: () => _searchCoverOnline(book),
+            ),
+          ),
+        );
+      case CoverSearchVerdict.incomplete:
+        final quotaLabel =
+            TranslationService.translate(context, 'cover_source_quota') ??
+            'quota reached';
+        final names = search.unavailableSources
+            .map((s) => s.isQuota ? '${s.source} ($quotaLabel)' : s.source)
+            .join(', ');
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(
+              TranslationService.translate(
+                    context,
+                    'cover_search_incomplete',
+                    params: {'sources': names},
+                  ) ??
+                  'Search incomplete: could not reach $names.',
+            ),
+            duration: const Duration(seconds: 8),
+            action: SnackBarAction(
+              label: TranslationService.translate(context, 'retry') ?? 'Retry',
+              onPressed: () => _searchCoverOnline(book),
+            ),
+          ),
+        );
+      case CoverSearchVerdict.noSource:
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(
+              TranslationService.translate(
+                    context,
+                    'cover_no_source_enabled',
+                  ) ??
+                  'No cover source is enabled',
+            ),
+          ),
+        );
+      case CoverSearchVerdict.none:
+      case CoverSearchVerdict.found:
+        // No source carries this ISBN, which says nothing about the work: offer
+        // the title-and-author search rather than ending on a dead sentence.
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(
+              TranslationService.translate(context, 'cover_not_found') ??
+                  'No cover found',
+            ),
+            duration: const Duration(seconds: 8),
+            action: _byTitleAction(book),
+          ),
+        );
+    }
+  }
+
   Future<void> _searchCoverOnline(Book book) async {
     if (book.id == null || !mounted) return;
 
@@ -514,9 +705,6 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     final searchingByTitleText =
         TranslationService.translate(context, 'cover_searching_by_title') ??
         'Searching by title...';
-    final notFoundText =
-        TranslationService.translate(context, 'cover_not_found') ??
-        'No cover found';
     final foundText =
         TranslationService.translate(context, 'cover_found') ?? 'Cover found!';
     final updatedText =
@@ -545,19 +733,22 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     );
 
     try {
-      List<CoverCandidate> candidates = [];
+      CoverSearchResult search = const CoverSearchResult.empty();
 
       // Step 1: ISBN-based parallel search (all sources at once)
       if (book.isbn != null && book.isbn!.isNotEmpty) {
-        candidates = await apiService.searchAllCoversForBook(book.isbn!);
+        // Covers of the very ISBN asked for: this book's own edition.
+        search = (await apiService.searchAllCoversForBook(
+          book.isbn!,
+        )).asSameEdition();
       }
 
       if (!mounted) return;
 
-      final isbnResultCount = candidates.length;
+      final isbnResultCount = search.candidates.length;
 
       // Step 2: If ISBN gave < 2 results, also try title search
-      if (candidates.length < 2) {
+      if (search.candidates.length < 2) {
         messenger.hideCurrentSnackBar();
         messenger.showSnackBar(
           SnackBar(
@@ -579,20 +770,21 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           ),
         );
 
+        // Read the toggle from the installation profile, the same accessor the
+        // settings screen and the external search write and read. The mirror
+        // this used to read from SharedPreferences only exists once the user has
+        // saved the settings form on THIS device, so a profile restored or
+        // synced from elsewhere silently searched without Google Books.
         bool googleBooksEnabled = false;
         try {
-          final prefs = await SharedPreferences.getInstance();
-          final fallbackStr = prefs.getString('ffi_fallback_preferences');
-          if (fallbackStr != null) {
-            final fallbackPrefs =
-                jsonDecode(fallbackStr) as Map<String, dynamic>;
-            if (fallbackPrefs.containsKey('google_books')) {
-              googleBooksEnabled = fallbackPrefs['google_books'] == true;
-            }
-          }
-        } catch (_) {}
+          final settings = await FfiService().getSearchSettings();
+          googleBooksEnabled =
+              settings.fallbackPreferences['google_books'] ?? false;
+        } catch (e) {
+          debugPrint('Cover search: reading search settings failed: $e');
+        }
 
-        final titleCandidates = await apiService.searchAllCoversByTitle(
+        final titleSearch = await apiService.searchAllCoversByTitle(
           book.title,
           book.author,
           enableGoogle: googleBooksEnabled,
@@ -600,20 +792,15 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
         if (!mounted) return;
 
-        // Merge: add title candidates not already found by ISBN
-        final existingUrls = candidates.map((c) => c.url).toSet();
-        for (final tc in titleCandidates) {
-          if (!existingUrls.contains(tc.url)) {
-            candidates.add(tc);
-          }
-        }
+        search = search.mergedWith(titleSearch);
       }
 
       if (!mounted) return;
       messenger.hideCurrentSnackBar();
 
+      final candidates = search.candidates;
       if (candidates.isEmpty) {
-        messenger.showSnackBar(SnackBar(content: Text(notFoundText)));
+        _reportEmptyCoverSearch(messenger, search, book);
         return;
       }
 
@@ -1765,40 +1952,39 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            if (book.isbn != null) ...[
-              TextButton.icon(
-                onPressed: _isRefreshing
-                    ? null
-                    : () => _refreshMetadata(context),
-                icon: _isRefreshing
-                    ? const SizedBox(
-                        width: 14,
-                        height: 14,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.refresh_outlined, size: 15),
-                label: Text(
-                  TranslationService.translate(
-                        context,
-                        'refresh_metadata_title',
-                      ) ??
-                      'Update',
-                ),
-                style: TextButton.styleFrom(
-                  foregroundColor: Theme.of(
-                    context,
-                  ).colorScheme.onSurfaceVariant,
-                  textStyle: Theme.of(context).textTheme.labelSmall,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                key: const Key('refreshMetadataButton'),
+            // Shown with or without an ISBN. Without one the refresh has no
+            // ISBN to look up, so it goes straight to the title-and-author
+            // search: hiding the button left a coverless, summary-less book
+            // with no way at all to fill itself in.
+            TextButton.icon(
+              onPressed: _isRefreshing
+                  ? null
+                  : () => book.isbn != null && book.isbn!.isNotEmpty
+                        ? _refreshMetadata(context)
+                        : _completeFromExternalSearch(book),
+              icon: _isRefreshing
+                  ? const SizedBox(
+                      width: 14,
+                      height: 14,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.refresh_outlined, size: 15),
+              label: Text(
+                TranslationService.translate(
+                      context,
+                      'refresh_metadata_title',
+                    ) ??
+                    'Update',
               ),
-              const SizedBox(width: 4),
-            ],
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
+                textStyle: Theme.of(context).textTheme.labelSmall,
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              key: const Key('refreshMetadataButton'),
+            ),
+            const SizedBox(width: 4),
             Tooltip(
               message: _deleteBlocked ? _deleteDisabledTooltip(context) : '',
               child: TextButton.icon(
@@ -1990,10 +2176,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: Text(
-          TranslationService.translate(
-            dialogContext,
-            'favorites_adopt_title',
-          ),
+          TranslationService.translate(dialogContext, 'favorites_adopt_title'),
         ),
         content: Text(
           TranslationService.translate(
@@ -2635,6 +2818,8 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                   ) ??
                   'No data found for this ISBN',
             ),
+            duration: const Duration(seconds: 8),
+            action: _byTitleAction(book),
           ),
         );
         return;

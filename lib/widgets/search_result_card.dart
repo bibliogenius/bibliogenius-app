@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/translation_service.dart';
 import 'cached_book_cover.dart';
 import '../theme/app_design.dart';
 
@@ -7,11 +8,21 @@ class SearchResultCard extends StatelessWidget {
   final VoidCallback onAdd;
   final VoidCallback? onOpenUrl;
 
+  /// Icon of the action button. Defaults to adding the result to the library;
+  /// the same card also serves the "complete an existing book" flow, where the
+  /// action takes the edition rather than creating a second one.
+  final IconData actionIcon;
+
+  /// Accessible name of the action button, already translated.
+  final String? actionTooltip;
+
   const SearchResultCard({
     super.key,
     required this.book,
     required this.onAdd,
     this.onOpenUrl,
+    this.actionIcon = Icons.add,
+    this.actionTooltip,
   });
 
   @override
@@ -110,18 +121,26 @@ class SearchResultCard extends StatelessWidget {
                           ],
                           const Spacer(),
                           // Add Button (Mini)
-                          ElevatedButton(
-                            onPressed: onAdd,
-                            style: ElevatedButton.styleFrom(
-                              shape: const CircleBorder(),
-                              padding: const EdgeInsets.all(8),
-                              backgroundColor:
-                                  theme.colorScheme.primaryContainer,
-                              foregroundColor:
-                                  theme.colorScheme.onPrimaryContainer,
-                              elevation: 0,
+                          Tooltip(
+                            message:
+                                actionTooltip ??
+                                TranslationService.translate(
+                                  context,
+                                  'add_to_library',
+                                ),
+                            child: ElevatedButton(
+                              onPressed: onAdd,
+                              style: ElevatedButton.styleFrom(
+                                shape: const CircleBorder(),
+                                padding: const EdgeInsets.all(8),
+                                backgroundColor:
+                                    theme.colorScheme.primaryContainer,
+                                foregroundColor:
+                                    theme.colorScheme.onPrimaryContainer,
+                                elevation: 0,
+                              ),
+                              child: Icon(actionIcon, size: 20),
                             ),
-                            child: const Icon(Icons.add, size: 20),
                           ),
                         ],
                       ),

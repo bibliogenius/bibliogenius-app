@@ -13,6 +13,12 @@ class WorkEditionCard extends StatefulWidget {
   final Function(Map<String, dynamic>) onAddBook;
   final Function(Map<String, dynamic>)? onOpenUrl;
 
+  /// i18n key of the action label. Defaults to adding the edition to the
+  /// library; the same card also serves the "complete an existing book" flow,
+  /// where the action takes the edition rather than creating a second one.
+  final String actionLabelKey;
+  final IconData actionIcon;
+
   const WorkEditionCard({
     super.key,
     required this.workId,
@@ -21,6 +27,8 @@ class WorkEditionCard extends StatefulWidget {
     required this.editions,
     required this.onAddBook,
     this.onOpenUrl,
+    this.actionLabelKey = 'add_to_library',
+    this.actionIcon = Icons.add_circle_outline,
   });
 
   @override
@@ -234,9 +242,12 @@ class _WorkEditionCardState extends State<WorkEditionCard> {
                   FilledButton.icon(
                     onPressed: () =>
                         widget.onAddBook(widget.editions[_currentPage]),
-                    icon: const Icon(Icons.add_circle_outline),
+                    icon: Icon(widget.actionIcon),
                     label: Text(
-                      TranslationService.translate(context, 'add_to_library'),
+                      TranslationService.translate(
+                        context,
+                        widget.actionLabelKey,
+                      ),
                     ),
                     style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(

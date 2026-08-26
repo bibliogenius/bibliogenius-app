@@ -1423,9 +1423,57 @@ msgstr "Une couverture a été trouvée par recherche de titre"
 msgid "cover_no_isbn"
 msgstr "Ajoutez un ISBN pour rechercher en ligne"
 
+#. No cover source is enabled
+msgid "cover_no_source_enabled"
+msgstr "Aucune source de recherche n'est activée"
+
+#. No source answered. Check your connection.
+msgid "cover_search_offline"
+msgstr "Aucune source n'a répondu. Vérifiez votre connexion."
+
+#. Search incomplete: could not reach {sources}. A cover may exist all the same.
+msgid "cover_search_incomplete"
+msgstr "Recherche incomplète : impossible d'interroger {sources}. Une couverture existe peut-être."
+
+#. quota reached
+msgid "cover_source_quota"
+msgstr "limite atteinte"
+
 #. No cover found for this ISBN
 msgid "cover_not_found"
 msgstr "Aucune couverture trouvée pour cet ISBN"
+
+#. The edition you pick completes "{title}". No new book is created.
+msgid "complete_book_hint"
+msgstr "L'édition choisie complètera « {title} ». Aucun nouveau livre ne sera créé."
+
+#. Complete this book
+msgid "complete_book_title"
+msgstr "Compléter cette fiche"
+
+#. This book has no ISBN
+msgid "cover_no_isbn_hint"
+msgstr "Ce livre n'a pas d'ISBN"
+
+#. Search by title and author
+msgid "cover_search_by_title"
+msgstr "Chercher par titre et auteur"
+
+#. By title
+msgid "cover_search_by_title_short"
+msgstr "Par titre"
+
+#. Use this edition
+msgid "use_this_edition"
+msgstr "Utiliser cette édition"
+
+#. Another edition
+msgid "cover_other_edition"
+msgstr "Autre édition"
+
+#. This edition
+msgid "cover_this_edition"
+msgstr "Cette édition"
 
 #. Choose a cover
 msgid "cover_pick_title"

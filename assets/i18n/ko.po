@@ -1216,9 +1216,57 @@ msgstr "제목 검색으로 표지를 찾았습니다"
 msgid "cover_no_isbn"
 msgstr "온라인 검색을 하려면 ISBN을 추가하세요"
 
+#. No cover source is enabled
+msgid "cover_no_source_enabled"
+msgstr "활성화된 검색 소스가 없습니다"
+
+#. No source answered. Check your connection.
+msgid "cover_search_offline"
+msgstr "어떤 소스도 응답하지 않았습니다. 연결을 확인하세요."
+
+#. Search incomplete: could not reach {sources}. A cover may exist all the same.
+msgid "cover_search_incomplete"
+msgstr "검색이 불완전합니다: {sources}에 연결하지 못했습니다. 표지가 있을 수도 있습니다."
+
+#. quota reached
+msgid "cover_source_quota"
+msgstr "할당량 초과"
+
 #. No cover found for this ISBN
 msgid "cover_not_found"
 msgstr "이 ISBN에 대한 표지를 찾을 수 없습니다"
+
+#. The edition you pick completes "{title}". No new book is created.
+msgid "complete_book_hint"
+msgstr "선택한 판이 \"{title}\"을(를) 보완합니다. 새 책은 만들어지지 않습니다."
+
+#. Complete this book
+msgid "complete_book_title"
+msgstr "이 책 보완하기"
+
+#. This book has no ISBN
+msgid "cover_no_isbn_hint"
+msgstr "이 책에는 ISBN이 없습니다"
+
+#. Search by title and author
+msgid "cover_search_by_title"
+msgstr "제목과 저자로 검색"
+
+#. By title
+msgid "cover_search_by_title_short"
+msgstr "제목으로"
+
+#. Use this edition
+msgid "use_this_edition"
+msgstr "이 판 사용"
+
+#. Another edition
+msgid "cover_other_edition"
+msgstr "다른 판"
+
+#. This edition
+msgid "cover_this_edition"
+msgstr "이 판"
 
 #. Choose a cover
 msgid "cover_pick_title"

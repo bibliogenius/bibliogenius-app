@@ -142,6 +142,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FrbCoverCandidate dco_decode_frb_cover_candidate(dynamic raw);
 
   @protected
+  FrbCoverSearchResult dco_decode_frb_cover_search_result(dynamic raw);
+
+  @protected
+  FrbCoverSourceStatus dco_decode_frb_cover_source_status(dynamic raw);
+
+  @protected
   FrbDirectoryConfig dco_decode_frb_directory_config(dynamic raw);
 
   @protected
@@ -325,6 +331,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<FrbCoverCandidate> dco_decode_list_frb_cover_candidate(dynamic raw);
+
+  @protected
+  List<FrbCoverSourceStatus> dco_decode_list_frb_cover_source_status(
+    dynamic raw,
+  );
 
   @protected
   List<FrbDiscoveredPeer> dco_decode_list_frb_discovered_peer(dynamic raw);
@@ -656,6 +667,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  FrbCoverSearchResult sse_decode_frb_cover_search_result(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  FrbCoverSourceStatus sse_decode_frb_cover_source_status(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   FrbDirectoryConfig sse_decode_frb_directory_config(
     SseDeserializer deserializer,
   );
@@ -891,6 +912,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<FrbCoverCandidate> sse_decode_list_frb_cover_candidate(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  List<FrbCoverSourceStatus> sse_decode_list_frb_cover_source_status(
     SseDeserializer deserializer,
   );
 
@@ -1307,6 +1333,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_frb_cover_search_result(
+    FrbCoverSearchResult self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_frb_cover_source_status(
+    FrbCoverSourceStatus self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_frb_directory_config(
     FrbDirectoryConfig self,
     SseSerializer serializer,
@@ -1621,6 +1659,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_list_frb_cover_candidate(
     List<FrbCoverCandidate> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_frb_cover_source_status(
+    List<FrbCoverSourceStatus> self,
     SseSerializer serializer,
   );
 

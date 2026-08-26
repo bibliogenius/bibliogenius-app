@@ -37,9 +37,15 @@ class MockBookRepository implements BookRepository {
     return mockBook ?? Book(id: '1', title: bookData['title'] ?? 'Test');
   }
 
+  /// The payload of the last `updateBook` call, so a test can assert on what
+  /// a screen actually sends (and not only that it saved).
+  Map<String, dynamic>? lastUpdate;
+
   @override
-  Future<Book> updateBook(String uuid, Map<String, dynamic> bookData) async =>
-      mockBook ?? Book(id: uuid, title: bookData['title'] ?? 'Updated');
+  Future<Book> updateBook(String uuid, Map<String, dynamic> bookData) async {
+    lastUpdate = bookData;
+    return mockBook ?? Book(id: uuid, title: bookData['title'] ?? 'Updated');
+  }
 
   @override
   Future<void> deleteBook(String uuid) async {}

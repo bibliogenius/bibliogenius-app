@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../models/cover_candidate.dart';
 import '../services/translation_service.dart';
+import '../utils/language_constants.dart';
 import 'cached_book_cover.dart';
 
 /// A dialog that presents multiple cover candidates in a carousel
@@ -147,22 +148,68 @@ class _CoverPickerDialogState extends State<CoverPickerDialog> {
           ),
         ),
         const SizedBox(height: 10),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-          decoration: BoxDecoration(
-            color: _getSourceColor(candidate.source),
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: Text(
-            _getSourceLabel(candidate.source),
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 11,
-              fontWeight: FontWeight.bold,
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 6,
+          runSpacing: 4,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: _getSourceColor(candidate.source),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                _getSourceLabel(candidate.source),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
-          ),
+            if (candidate.language != null && candidate.language!.isNotEmpty)
+              // The chip reads "FR", which a screen reader spells out letter by
+              // letter; announce the language name instead.
+              Semantics(
+                label:
+                    kLanguageNativeNames[candidate.language!.toLowerCase()] ??
+                    candidate.language!,
+                child: ExcludeSemantics(
+                  child: _buildChip(candidate.language!.toUpperCase()),
+                ),
+              ),
+            // Say it plainly rather than let the reader discover on the shelf
+            // that the cover belongs to another printing of the same work.
+            _buildChip(
+              TranslationService.translate(
+                    context,
+                    candidate.sameEdition
+                        ? 'cover_this_edition'
+                        : 'cover_other_edition',
+                  ) ??
+                  (candidate.sameEdition ? 'This edition' : 'Another edition'),
+            ),
+          ],
         ),
       ],
+    );
+  }
+
+  Widget _buildChip(String label) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        label,
+        style: theme.textTheme.labelSmall?.copyWith(
+          color: theme.colorScheme.onSurfaceVariant,
+        ),
+      ),
     );
   }
 }

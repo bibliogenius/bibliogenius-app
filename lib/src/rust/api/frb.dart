@@ -8,9 +8,9 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 part 'frb.freezed.dart';
 
-// These functions are ignored because they are not marked as `pub`: `account_device_entry`, `account_devices_json`, `account_library_uuid`, `account_status_json`, `apply_fallback_preferences_to_modules`, `covers_dir`, `db`, `enrollment_restart_required`, `enrollment_status_json`, `ensure_account_session`, `entries_to_frb`, `fill_state`, `from_info`, `from_manifest`, `from_summary`, `global_app_state`, `hub_catalog_error_code`, `hub_db`, `hub_directory_svc`, `hub_directory_sync_catalog_inner`, `install_panic_hook`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `log_sync_failure`, `merge_api_keys`, `merge_directory_entry`, `modules_to_fallback_preferences`, `nudge_source_label`, `rename_subject_in_books`, `runtime`, `store_account_session`, `track_to_frb`, `try_from_summary`, `undo_outcome_str`, `upsert_directory_catalog_cache`
+// These functions are ignored because they are not marked as `pub`: `account_device_entry`, `account_devices_json`, `account_library_uuid`, `account_status_json`, `apply_fallback_preferences_to_modules`, `covers_dir`, `db`, `enrollment_restart_required`, `enrollment_status_json`, `ensure_account_session`, `entries_to_frb`, `fill_state`, `frb_book_into_update_payload`, `from_info`, `from_manifest`, `from_summary`, `global_app_state`, `hub_catalog_error_code`, `hub_db`, `hub_directory_svc`, `hub_directory_sync_catalog_inner`, `install_panic_hook`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `log_sync_failure`, `merge_api_keys`, `merge_directory_entry`, `modules_to_fallback_preferences`, `nudge_source_label`, `rename_subject_in_books`, `runtime`, `store_account_session`, `track_to_frb`, `try_from_summary`, `undo_outcome_str`, `upsert_directory_catalog_cache`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `AccountSession`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
 
 /// Initialize the FFI backend with database at the given path
 /// Must be called before any other FFI functions
@@ -436,13 +436,12 @@ Future<String?> searchCoverByTitle({
 );
 
 /// Search ALL enabled cover sources in parallel for a given ISBN.
-/// Returns all found cover candidates for the picker carousel.
-Future<List<FrbCoverCandidate>> searchAllCoversForBook({
-  required String isbn,
-}) => RustLib.instance.api.crateApiFrbSearchAllCoversForBook(isbn: isbn);
+/// Returns the candidates for the picker carousel and each source's answer.
+Future<FrbCoverSearchResult> searchAllCoversForBook({required String isbn}) =>
+    RustLib.instance.api.crateApiFrbSearchAllCoversForBook(isbn: isbn);
 
 /// Search ALL enabled sources by title in parallel for the cover picker.
-Future<List<FrbCoverCandidate>> searchAllCoversByTitle({
+Future<FrbCoverSearchResult> searchAllCoversByTitle({
   required String title,
   String? author,
   bool? enableGoogle,
@@ -1972,12 +1971,43 @@ sealed class FrbContact with _$FrbContact {
 }
 
 /// A cover candidate from an external source, for the multi-cover picker.
+///
+/// `language` is the edition's language code when the source states it. The
+/// picker shows it: choosing between covers of several editions of the same
+/// work is a decision the reader can only make if the editions are told apart,
+/// and the language is the difference that shows.
 @freezed
 sealed class FrbCoverCandidate with _$FrbCoverCandidate {
   const factory FrbCoverCandidate({
     required String url,
     required String source,
+    String? language,
   }) = _FrbCoverCandidate;
+}
+
+/// Cover candidates plus what each source answered, so the picker can tell the
+/// user that a source was down instead of claiming no cover exists.
+@freezed
+sealed class FrbCoverSearchResult with _$FrbCoverSearchResult {
+  const factory FrbCoverSearchResult({
+    required List<FrbCoverCandidate> candidates,
+    required List<FrbCoverSourceStatus> sources,
+  }) = _FrbCoverSearchResult;
+}
+
+/// What one source answered during a cover search.
+///
+/// `state` is one of `found`, `empty`, `skipped`, `unavailable`. `detail` carries
+/// the reason behind `unavailable` (HTTP status, transport error, or `quota`).
+/// Flattened to strings rather than mirrored as an enum, matching the rest of
+/// this bridge.
+@freezed
+sealed class FrbCoverSourceStatus with _$FrbCoverSourceStatus {
+  const factory FrbCoverSourceStatus({
+    required String source,
+    required String state,
+    String? detail,
+  }) = _FrbCoverSourceStatus;
 }
 
 @freezed

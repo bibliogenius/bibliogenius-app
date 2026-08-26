@@ -1374,8 +1374,56 @@ msgstr ""
 msgid "cover_no_isbn"
 msgstr ""
 
+#. No cover source is enabled
+msgid "cover_no_source_enabled"
+msgstr ""
+
+#. No source answered. Check your connection.
+msgid "cover_search_offline"
+msgstr ""
+
+#. Search incomplete: could not reach {sources}. A cover may exist all the same.
+msgid "cover_search_incomplete"
+msgstr ""
+
+#. quota reached
+msgid "cover_source_quota"
+msgstr ""
+
 #. No cover found for this ISBN
 msgid "cover_not_found"
+msgstr ""
+
+#. The edition you pick completes "{title}". No new book is created.
+msgid "complete_book_hint"
+msgstr ""
+
+#. Complete this book
+msgid "complete_book_title"
+msgstr ""
+
+#. This book has no ISBN
+msgid "cover_no_isbn_hint"
+msgstr ""
+
+#. Search by title and author
+msgid "cover_search_by_title"
+msgstr ""
+
+#. By title
+msgid "cover_search_by_title_short"
+msgstr ""
+
+#. Use this edition
+msgid "use_this_edition"
+msgstr ""
+
+#. Another edition
+msgid "cover_other_edition"
+msgstr ""
+
+#. This edition
+msgid "cover_this_edition"
 msgstr ""
 
 #. Choose a cover

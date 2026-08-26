@@ -134,7 +134,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
           widget.book.finishedReadingAt?.toIso8601String().split('T')[0] ?? '',
     );
     _book = widget.book;
-    _coverUrl = widget.book.coverUrl;
+    // The value the form will persist, so it must be what the book really has:
+    // `Book.coverUrl` is a display getter that invents an OpenLibrary URL from
+    // the ISBN, and writing that back gives a coverless book a URL that 404s.
+    _coverUrl = widget.book.rawCoverUrl;
 
     // Initialize tags
     _selectedTags = widget.book.subjects != null
@@ -607,7 +610,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
             _summaryController.text = updatedBook.summary ?? '';
             _pageCountController.text = updatedBook.pageCount?.toString() ?? '';
             _readingStatus = updatedBook.readingStatus ?? 'to_read';
-            _coverUrl = updatedBook.coverUrl;
+            _coverUrl = updatedBook.rawCoverUrl;
             _selectedTags = updatedBook.subjects ?? [];
             _owned = updatedBook.owned;
             _priceController.text =
@@ -1477,6 +1480,11 @@ class _EditBookScreenState extends State<EditBookScreen> {
     );
   }
 
+  /// What to *show* for the cover being edited: the persisted value when there
+  /// is one, otherwise the same ISBN-derived fallback the rest of the app
+  /// displays. Never persisted: see [_coverUrl].
+  String? get _displayCoverUrl => _book.copyWithCoverUrl(_coverUrl).coverUrl;
+
   void _evictCoverFromCache(String? coverUrl) {
     if (coverUrl == null || coverUrl.isEmpty) return;
     if (!coverUrl.startsWith('http')) {
@@ -1492,7 +1500,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
       );
       if (path == null || !mounted) return;
 
-      _evictCoverFromCache(_coverUrl);
+      _evictCoverFromCache(_displayCoverUrl);
       final bookRepo = Provider.of<BookRepository>(context, listen: false);
       await bookRepo.updateBook(widget.book.id!, {'cover_url': path});
 
@@ -1536,7 +1544,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
       if (targetPath == null) return;
 
       if (!mounted) return;
-      _evictCoverFromCache(_coverUrl);
+      _evictCoverFromCache(_displayCoverUrl);
       final bookRepo = Provider.of<BookRepository>(context, listen: false);
       await bookRepo.updateBook(widget.book.id!, {'cover_url': targetPath});
 
@@ -1573,20 +1581,21 @@ class _EditBookScreenState extends State<EditBookScreen> {
   }
 
   Widget _buildCoverSection() {
-    final hasCover = _coverUrl != null && _coverUrl!.isNotEmpty;
+    final displayUrl = _displayCoverUrl;
+    final hasCover = displayUrl != null && displayUrl.isNotEmpty;
     final theme = Theme.of(context);
 
     Widget coverImage = hasCover
-        ? _coverUrl!.startsWith('/')
+        ? displayUrl.startsWith('/')
               ? Image.file(
-                  File(_coverUrl!),
-                  key: ValueKey('$_coverUrl\_$_coverVersion'),
+                  File(displayUrl),
+                  key: ValueKey('$displayUrl\_$_coverVersion'),
                   fit: BoxFit.cover,
                   errorBuilder: (_, __, ___) => _buildCoverPlaceholder(),
                 )
               : CachedBookCover(
-                  key: ValueKey('$_coverUrl\_$_coverVersion'),
-                  imageUrl: _coverUrl!,
+                  key: ValueKey('$displayUrl\_$_coverVersion'),
+                  imageUrl: displayUrl,
                   fit: BoxFit.cover,
                   placeholder: _buildCoverPlaceholder(),
                   errorWidget: _buildCoverPlaceholder(),

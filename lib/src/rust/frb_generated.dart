@@ -662,13 +662,13 @@ abstract class RustLibApi extends BaseApi {
     required String plaintext,
   });
 
-  Future<List<FrbCoverCandidate>> crateApiFrbSearchAllCoversByTitle({
+  Future<FrbCoverSearchResult> crateApiFrbSearchAllCoversByTitle({
     required String title,
     String? author,
     bool? enableGoogle,
   });
 
-  Future<List<FrbCoverCandidate>> crateApiFrbSearchAllCoversForBook({
+  Future<FrbCoverSearchResult> crateApiFrbSearchAllCoversForBook({
     required String isbn,
   });
 
@@ -6421,7 +6421,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   );
 
   @override
-  Future<List<FrbCoverCandidate>> crateApiFrbSearchAllCoversByTitle({
+  Future<FrbCoverSearchResult> crateApiFrbSearchAllCoversByTitle({
     required String title,
     String? author,
     bool? enableGoogle,
@@ -6441,7 +6441,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           );
         },
         codec: SseCodec(
-          decodeSuccessData: sse_decode_list_frb_cover_candidate,
+          decodeSuccessData: sse_decode_frb_cover_search_result,
           decodeErrorData: sse_decode_String,
         ),
         constMeta: kCrateApiFrbSearchAllCoversByTitleConstMeta,
@@ -6458,7 +6458,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<List<FrbCoverCandidate>> crateApiFrbSearchAllCoversForBook({
+  Future<FrbCoverSearchResult> crateApiFrbSearchAllCoversForBook({
     required String isbn,
   }) {
     return handler.executeNormal(
@@ -6474,7 +6474,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           );
         },
         codec: SseCodec(
-          decodeSuccessData: sse_decode_list_frb_cover_candidate,
+          decodeSuccessData: sse_decode_frb_cover_search_result,
           decodeErrorData: sse_decode_String,
         ),
         constMeta: kCrateApiFrbSearchAllCoversForBookConstMeta,
@@ -7903,11 +7903,37 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   FrbCoverCandidate dco_decode_frb_cover_candidate(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 2)
-      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
     return FrbCoverCandidate(
       url: dco_decode_String(arr[0]),
       source: dco_decode_String(arr[1]),
+      language: dco_decode_opt_String(arr[2]),
+    );
+  }
+
+  @protected
+  FrbCoverSearchResult dco_decode_frb_cover_search_result(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return FrbCoverSearchResult(
+      candidates: dco_decode_list_frb_cover_candidate(arr[0]),
+      sources: dco_decode_list_frb_cover_source_status(arr[1]),
+    );
+  }
+
+  @protected
+  FrbCoverSourceStatus dco_decode_frb_cover_source_status(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return FrbCoverSourceStatus(
+      source: dco_decode_String(arr[0]),
+      state: dco_decode_String(arr[1]),
+      detail: dco_decode_opt_String(arr[2]),
     );
   }
 
@@ -8762,6 +8788,16 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   List<FrbCoverCandidate> dco_decode_list_frb_cover_candidate(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_frb_cover_candidate).toList();
+  }
+
+  @protected
+  List<FrbCoverSourceStatus> dco_decode_list_frb_cover_source_status(
+    dynamic raw,
+  ) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>)
+        .map(dco_decode_frb_cover_source_status)
+        .toList();
   }
 
   @protected
@@ -9673,7 +9709,40 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_url = sse_decode_String(deserializer);
     var var_source = sse_decode_String(deserializer);
-    return FrbCoverCandidate(url: var_url, source: var_source);
+    var var_language = sse_decode_opt_String(deserializer);
+    return FrbCoverCandidate(
+      url: var_url,
+      source: var_source,
+      language: var_language,
+    );
+  }
+
+  @protected
+  FrbCoverSearchResult sse_decode_frb_cover_search_result(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_candidates = sse_decode_list_frb_cover_candidate(deserializer);
+    var var_sources = sse_decode_list_frb_cover_source_status(deserializer);
+    return FrbCoverSearchResult(
+      candidates: var_candidates,
+      sources: var_sources,
+    );
+  }
+
+  @protected
+  FrbCoverSourceStatus sse_decode_frb_cover_source_status(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_source = sse_decode_String(deserializer);
+    var var_state = sse_decode_String(deserializer);
+    var var_detail = sse_decode_opt_String(deserializer);
+    return FrbCoverSourceStatus(
+      source: var_source,
+      state: var_state,
+      detail: var_detail,
+    );
   }
 
   @protected
@@ -10769,6 +10838,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  List<FrbCoverSourceStatus> sse_decode_list_frb_cover_source_status(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <FrbCoverSourceStatus>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_frb_cover_source_status(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
   List<FrbDiscoveredPeer> sse_decode_list_frb_discovered_peer(
     SseDeserializer deserializer,
   ) {
@@ -11858,6 +11941,28 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.url, serializer);
     sse_encode_String(self.source, serializer);
+    sse_encode_opt_String(self.language, serializer);
+  }
+
+  @protected
+  void sse_encode_frb_cover_search_result(
+    FrbCoverSearchResult self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_list_frb_cover_candidate(self.candidates, serializer);
+    sse_encode_list_frb_cover_source_status(self.sources, serializer);
+  }
+
+  @protected
+  void sse_encode_frb_cover_source_status(
+    FrbCoverSourceStatus self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.source, serializer);
+    sse_encode_String(self.state, serializer);
+    sse_encode_opt_String(self.detail, serializer);
   }
 
   @protected
@@ -12637,6 +12742,18 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_i_32(self.length, serializer);
     for (final item in self) {
       sse_encode_frb_cover_candidate(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_list_frb_cover_source_status(
+    List<FrbCoverSourceStatus> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_frb_cover_source_status(item, serializer);
     }
   }
 
