@@ -364,7 +364,9 @@ class _BookListScreenState extends State<BookListScreen>
   }
 
   void _handleRefreshTrigger() {
-    _fetchBooks();
+    // Silent: a visible spinner swaps the list out of the tree, which drops
+    // the scroll offset the reader was at.
+    _fetchBooks(silent: true);
 
     // Smart Refresh: Double-check after 1s to catch any WAL/Hybrid sync latency
     // This ensures books added via the Native+HTTP hybrid methods (which might have a split-second delay
@@ -2302,7 +2304,9 @@ class _BookListScreenState extends State<BookListScreen>
     if (book.id == null) return;
     final result = await context.push('/books/${book.id}', extra: book);
     if (result == true) {
-      _fetchBooks();
+      // The list stays mounted under the details screen, so refreshing without
+      // the spinner keeps the reader where they were when they opened the book.
+      _fetchBooks(silent: true);
     }
   }
 
@@ -2311,7 +2315,9 @@ class _BookListScreenState extends State<BookListScreen>
     final bookRepo = Provider.of<BookRepository>(context, listen: false);
     try {
       await bookRepo.updateBook(book.id!, {'reading_status': newStatus});
-      if (mounted) _fetchBooks();
+      // Same reason as _onBookTap: the status was changed from a card in the
+      // list, so the list must not jump back to the top under the reader.
+      if (mounted) _fetchBooks(silent: true);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -2529,14 +2535,10 @@ class _BookListScreenState extends State<BookListScreen>
                         context,
                         'shelf_hidden_by_ownership',
                       ),
-                      description:
-                          TranslationService.translate(
-                            context,
-                            'shelf_hidden_by_ownership_desc',
-                          ).replaceAll(
-                            '{count}',
-                            '$_shelfHiddenByOwnership',
-                          ),
+                      description: TranslationService.translate(
+                        context,
+                        'shelf_hidden_by_ownership_desc',
+                      ).replaceAll('{count}', '$_shelfHiddenByOwnership'),
                       icon: Icons.visibility_off_outlined,
                       buttonLabel: TranslationService.translate(
                         context,
