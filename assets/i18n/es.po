@@ -1300,13 +1300,9 @@ msgstr "No hay ninguna fuente de búsqueda activada"
 msgid "cover_search_offline"
 msgstr "Ninguna fuente ha respondido. Comprueba tu conexión."
 
-#. Search incomplete: could not reach {sources}. A cover may exist all the same.
+#. Search incomplete. A cover may exist all the same.
 msgid "cover_search_incomplete"
-msgstr "Búsqueda incompleta: no se ha podido consultar {sources}. Puede que exista una portada."
-
-#. quota reached
-msgid "cover_source_quota"
-msgstr "límite alcanzado"
+msgstr "Búsqueda incompleta. Puede que exista una portada."
 
 #. No cover found for this ISBN
 msgid "cover_not_found"

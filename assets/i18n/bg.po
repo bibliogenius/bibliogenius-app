@@ -1224,13 +1224,9 @@ msgstr "Няма активиран източник за търсене"
 msgid "cover_search_offline"
 msgstr "Нито един източник не отговори. Проверете връзката си."
 
-#. Search incomplete: could not reach {sources}. A cover may exist all the same.
+#. Search incomplete. A cover may exist all the same.
 msgid "cover_search_incomplete"
-msgstr "Непълно търсене: {sources} не отговори. Възможно е корица да съществува."
-
-#. quota reached
-msgid "cover_source_quota"
-msgstr "достигнат лимит"
+msgstr "Непълно търсене. Възможно е корица да съществува."
 
 #. No cover found for this ISBN
 msgid "cover_not_found"

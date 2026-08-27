@@ -1224,13 +1224,9 @@ msgstr "활성화된 검색 소스가 없습니다"
 msgid "cover_search_offline"
 msgstr "어떤 소스도 응답하지 않았습니다. 연결을 확인하세요."
 
-#. Search incomplete: could not reach {sources}. A cover may exist all the same.
+#. Search incomplete. A cover may exist all the same.
 msgid "cover_search_incomplete"
-msgstr "검색이 불완전합니다: {sources}에 연결하지 못했습니다. 표지가 있을 수도 있습니다."
-
-#. quota reached
-msgid "cover_source_quota"
-msgstr "할당량 초과"
+msgstr "검색이 불완전합니다. 표지가 있을 수도 있습니다."
 
 #. No cover found for this ISBN
 msgid "cover_not_found"

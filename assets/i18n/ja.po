@@ -1224,13 +1224,9 @@ msgstr "有効な検索ソースがありません"
 msgid "cover_search_offline"
 msgstr "どのソースも応答しませんでした。接続を確認してください。"
 
-#. Search incomplete: could not reach {sources}. A cover may exist all the same.
+#. Search incomplete. A cover may exist all the same.
 msgid "cover_search_incomplete"
-msgstr "検索が不完全です: {sources} に接続できませんでした。表紙は存在するかもしれません。"
-
-#. quota reached
-msgid "cover_source_quota"
-msgstr "上限に達しました"
+msgstr "検索が不完全です。表紙は存在するかもしれません。"
 
 #. No cover found for this ISBN
 msgid "cover_not_found"

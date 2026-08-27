@@ -617,11 +617,21 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   /// source was down read exactly like one where every source answered and none
   /// had a cover. The first deserves a retry, the second does not, and the
   /// reader could not tell which one they were looking at.
+  ///
+  /// Which catalogue was down is not part of that distinction: naming
+  /// Inventaire or Google Books asks the reader to know what those are, and
+  /// leaves them nothing to do about it. The retry action carries everything
+  /// that is actionable; the names stay in the debug log.
   void _reportEmptyCoverSearch(
     ScaffoldMessengerState messenger,
     CoverSearchResult search,
     Book book,
   ) {
+    // A report from an earlier book must not outlive the screen it was about:
+    // these notices queue, and reading four books in a row used to leave one
+    // hanging over the library for half a minute.
+    messenger.clearSnackBars();
+
     switch (search.verdict) {
       case CoverSearchVerdict.incomplete when search.nothingReachable:
         // Every source silent at once: say so once, rather than list them all.
@@ -631,7 +641,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
               TranslationService.translate(context, 'cover_search_offline') ??
                   'No source answered. Check your connection.',
             ),
-            duration: const Duration(seconds: 8),
+            duration: const Duration(seconds: 5),
             action: SnackBarAction(
               label: TranslationService.translate(context, 'retry') ?? 'Retry',
               onPressed: () => _searchCoverOnline(book),
@@ -639,23 +649,20 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           ),
         );
       case CoverSearchVerdict.incomplete:
-        final quotaLabel =
-            TranslationService.translate(context, 'cover_source_quota') ??
-            'quota reached';
-        final names = search.unavailableSources
-            .map((s) => s.isQuota ? '${s.source} ($quotaLabel)' : s.source)
-            .join(', ');
+        debugPrint(
+          'Cover search incomplete, sources unavailable: '
+          '${search.unavailableSources.map((s) => '${s.source}=${s.detail ?? s.state}').join(', ')}',
+        );
         messenger.showSnackBar(
           SnackBar(
             content: Text(
               TranslationService.translate(
                     context,
                     'cover_search_incomplete',
-                    params: {'sources': names},
                   ) ??
-                  'Search incomplete: could not reach $names.',
+                  'Search incomplete. A cover may exist all the same.',
             ),
-            duration: const Duration(seconds: 8),
+            duration: const Duration(seconds: 5),
             action: SnackBarAction(
               label: TranslationService.translate(context, 'retry') ?? 'Retry',
               onPressed: () => _searchCoverOnline(book),

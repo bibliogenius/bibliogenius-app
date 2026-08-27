@@ -1224,13 +1224,9 @@ msgstr "未启用任何搜索来源"
 msgid "cover_search_offline"
 msgstr "没有任何来源作出响应。请检查您的网络连接。"
 
-#. Search incomplete: could not reach {sources}. A cover may exist all the same.
+#. Search incomplete. A cover may exist all the same.
 msgid "cover_search_incomplete"
-msgstr "搜索不完整：无法访问 {sources}。封面可能仍然存在。"
-
-#. quota reached
-msgid "cover_source_quota"
-msgstr "已达上限"
+msgstr "搜索不完整。封面可能仍然存在。"
 
 #. No cover found for this ISBN
 msgid "cover_not_found"

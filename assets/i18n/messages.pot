@@ -1382,12 +1382,8 @@ msgstr ""
 msgid "cover_search_offline"
 msgstr ""
 
-#. Search incomplete: could not reach {sources}. A cover may exist all the same.
+#. Search incomplete. A cover may exist all the same.
 msgid "cover_search_incomplete"
-msgstr ""
-
-#. quota reached
-msgid "cover_source_quota"
 msgstr ""
 
 #. No cover found for this ISBN
