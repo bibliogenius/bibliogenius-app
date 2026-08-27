@@ -36,6 +36,13 @@ bool hasReadingStatus(String? value) =>
 // absence of a status, offered like any other choice: without it, clearing a
 // status is only reachable by guessing that re-tapping the active chip undoes
 // it.
+//
+// This list must offer every value the service gate stores
+// (`models::book::READING_STATUSES`), not merely the ones worth advertising:
+// `edit_book_screen` derives its `validStatuses` from it and rewrites anything
+// missing back to the default, so a status left out here is a status silently
+// destroyed on the next save. A test in `test/utils/book_status_test.dart`
+// holds the two lists together.
 const List<BookStatus> individualStatuses = [
   BookStatus(
     value: 'to_read',
@@ -54,6 +61,20 @@ const List<BookStatus> individualStatuses = [
     label: 'read_status',
     icon: Icons.check_circle,
     color: Colors.green,
+  ),
+  // Placed next to `read`: both end a reading, and a reader looking for "I am
+  // done with this one" should find the two outcomes together.
+  //
+  // Labelled with the display key rather than a picker-specific one: the five
+  // other entries carry their own (`read_status`, `wishlist_status`...), but
+  // `reading_status_abandoned` already reads "Abandonne" in all twelve
+  // catalogues, and a duplicate string would only be one more thing to keep in
+  // step.
+  BookStatus(
+    value: 'abandoned',
+    label: 'reading_status_abandoned',
+    icon: Icons.bookmark_remove_outlined,
+    color: Colors.brown,
   ),
   BookStatus(
     value: 'wanting',

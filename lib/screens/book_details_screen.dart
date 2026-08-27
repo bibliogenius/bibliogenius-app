@@ -2470,49 +2470,55 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
+      // Scrollable: the sheet is not `isScrollControlled`, so its height is
+      // capped at a fraction of the screen and the vocabulary now has six
+      // entries. On a short screen, or at a large text scale, the column would
+      // otherwise overflow instead of letting the reader reach the last status.
       builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              margin: const EdgeInsets.only(top: 12, bottom: 8),
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey[400],
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                TranslationService.translate(context, 'status_label') ??
-                    'Status',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-              ),
-            ),
-            ...statusOptions.map((status) {
-              final isSelected = status.value == currentStatus;
-              return ListTile(
-                leading: Icon(status.icon, color: status.color),
-                title: Text(
-                  status.label,
-                  style: TextStyle(
-                    fontWeight: isSelected
-                        ? FontWeight.bold
-                        : FontWeight.normal,
-                  ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                margin: const EdgeInsets.only(top: 12, bottom: 8),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[400],
+                  borderRadius: BorderRadius.circular(2),
                 ),
-                trailing: isSelected
-                    ? Icon(Icons.check_circle, color: status.color)
-                    : null,
-                onTap: () => Navigator.pop(ctx, status.value),
-              );
-            }),
-            const SizedBox(height: 12),
-          ],
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  TranslationService.translate(context, 'status_label') ??
+                      'Status',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                ),
+              ),
+              ...statusOptions.map((status) {
+                final isSelected = status.value == currentStatus;
+                return ListTile(
+                  leading: Icon(status.icon, color: status.color),
+                  title: Text(
+                    status.label,
+                    style: TextStyle(
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                    ),
+                  ),
+                  trailing: isSelected
+                      ? Icon(Icons.check_circle, color: status.color)
+                      : null,
+                  onTap: () => Navigator.pop(ctx, status.value),
+                );
+              }),
+              const SizedBox(height: 12),
+            ],
+          ),
         ),
       ),
     );

@@ -23,6 +23,46 @@ void main() {
       expect(getDefaultStatus(false), isNot(noReadingStatus));
       expect(getDefaultStatus(true), isNot(noReadingStatus));
     });
+
+    // The service gate accepts these five (`models::book::READING_STATUSES`),
+    // the statistics charts colour them, the CSV export translates them and the
+    // MCP filter enumerates them. A value the whole stack knows about but the
+    // picker never offers is worse than absent: `edit_book_screen` builds its
+    // `validStatuses` from this very list and silently rewrites anything it
+    // does not recognise back to the default, so a book that reached that state
+    // by any other route loses it on the next save.
+    test('every stored reading status is offered', () {
+      const storedByTheServiceGate = [
+        'to_read',
+        'reading',
+        'read',
+        'wanting',
+        'abandoned',
+      ];
+
+      final offered = individualStatuses.map((s) => s.value).toSet();
+
+      for (final status in storedByTheServiceGate) {
+        expect(
+          offered,
+          contains(status),
+          reason:
+              '$status is accepted by the backend but unreachable from the UI',
+        );
+      }
+    });
+
+    // Chips sit side by side: two entries sharing a colour make the row
+    // unreadable, and the reader cannot tell which one is selected at a glance.
+    test('no two offered statuses share a colour', () {
+      final colours = individualStatuses.map((s) => s.color).toList();
+
+      expect(
+        colours.toSet().length,
+        colours.length,
+        reason: 'each chip must be distinguishable from its neighbours',
+      );
+    });
   });
 
   // The statistics charts tally the RAW column, which is reached by cr-sqlite
