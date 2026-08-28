@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui' show Rect;
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -116,16 +117,26 @@ class CollectionExportService {
   /// [message] is the accompanying text and comes from the caller, which is
   /// the only side holding a BuildContext and therefore a language. Absent,
   /// nothing is attached: an untranslated sentence is worse than none.
+  ///
+  /// [sharePositionOrigin] anchors the iOS popover. iOS refuses a zero or
+  /// absent origin (`PlatformException(... must be non-zero ...)`), and the
+  /// throw used to be swallowed by the caller: the button simply did nothing
+  /// on iPhone and iPad while macOS worked.
   Future<void> shareYaml({
     required String collectionName,
     required String yaml,
     String? message,
+    Rect? sharePositionOrigin,
   }) async {
     final subject = 'BiblioGenius: $collectionName';
 
     if (kIsWeb) {
       // On web, just share the text directly
-      await Share.share(yaml, subject: subject);
+      await Share.share(
+        yaml,
+        subject: subject,
+        sharePositionOrigin: sharePositionOrigin,
+      );
       return;
     }
 
@@ -135,7 +146,12 @@ class CollectionExportService {
     final file = File('${tempDir.path}/$fileName');
     await file.writeAsString(yaml);
 
-    await Share.shareXFiles([XFile(file.path)], subject: subject, text: message);
+    await Share.shareXFiles(
+      [XFile(file.path)],
+      subject: subject,
+      text: message,
+      sharePositionOrigin: sharePositionOrigin,
+    );
   }
 
   /// Save a collection to a local file.

@@ -3,6 +3,14 @@ import 'package:flutter/services.dart';
 
 import '../services/translation_service.dart';
 
+/// Sends the file, anchored at [sharePositionOrigin].
+///
+/// iOS presents the system share sheet as a popover and refuses a zero or
+/// absent origin, so the anchor is computed here, where the button that was
+/// pressed is, and handed to the caller that owns the file.
+typedef ShareCollectionCallback =
+    Future<void> Function(Rect sharePositionOrigin);
+
 /// What a reader sees before sending one of their lists to someone.
 ///
 /// The two halves of sharing did not name each other: the export dropped a
@@ -40,7 +48,30 @@ class CollectionShareSheet extends StatelessWidget {
   final List<String> languages;
 
   /// Sends the file. Left to the caller because building it is I/O.
-  final VoidCallback onShare;
+  final ShareCollectionCallback onShare;
+
+  /// A non-zero anchor for the iOS share popover, taken from the Send button.
+  ///
+  /// Without it `share_plus` throws on iPad and on recent iOS
+  /// (`PlatformException(... sharePositionOrigin ... must be non-zero ...)`),
+  /// which is exactly how this button came to do nothing there. The fallback
+  /// is a 1x1 rect at the centre of the screen: always inside the source
+  /// view's coordinate space, never zero.
+  static Rect shareOrigin(BuildContext context) {
+    final renderObject = context.findRenderObject();
+    if (renderObject is RenderBox &&
+        renderObject.hasSize &&
+        renderObject.size.width > 0 &&
+        renderObject.size.height > 0) {
+      return renderObject.localToGlobal(Offset.zero) & renderObject.size;
+    }
+    final size = MediaQuery.maybeOf(context)?.size ?? const Size(400, 800);
+    return Rect.fromCenter(
+      center: Offset(size.width / 2, size.height / 2),
+      width: 1,
+      height: 1,
+    );
+  }
 
   void _copy(BuildContext context) {
     Clipboard.setData(ClipboardData(text: yaml));
@@ -172,13 +203,17 @@ class CollectionShareSheet extends StatelessWidget {
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: FilledButton.icon(
-                      onPressed: onShare,
-                      icon: const Icon(Icons.ios_share),
-                      label: Text(
-                        TranslationService.translate(
-                          context,
-                          'collection_share_send',
+                    // Builder: the anchor must be the button's own box, not
+                    // the whole panel's.
+                    child: Builder(
+                      builder: (buttonContext) => FilledButton.icon(
+                        onPressed: () => onShare(shareOrigin(buttonContext)),
+                        icon: const Icon(Icons.ios_share),
+                        label: Text(
+                          TranslationService.translate(
+                            context,
+                            'collection_share_send',
+                          ),
                         ),
                       ),
                     ),
@@ -199,7 +234,7 @@ Future<void> showCollectionShareSheet(
   required String collectionName,
   required int bookCount,
   required String yaml,
-  required VoidCallback onShare,
+  required ShareCollectionCallback onShare,
   List<String> languages = const [],
 }) {
   return showModalBottomSheet<void>(

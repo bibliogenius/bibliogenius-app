@@ -412,12 +412,24 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
         bookCount: books.length,
         yaml: yaml,
         languages: languages,
-        onShare: () async {
-          await exportService.shareYaml(
-            collectionName: name,
-            yaml: yaml,
-            message: message,
-          );
+        // The failure had to be caught HERE: this closure is invoked from
+        // the panel, outside the try/catch below, so a throw from the system
+        // share sheet went nowhere and the button just looked inert.
+        onShare: (origin) async {
+          try {
+            await exportService.shareYaml(
+              collectionName: name,
+              yaml: yaml,
+              message: message,
+              sharePositionOrigin: origin,
+            );
+          } catch (e) {
+            if (!mounted) return;
+            AppSnackBar.error(
+              context,
+              '${TranslationService.translate(context, 'export_fail')}: $e',
+            );
+          }
         },
       );
     } catch (e) {

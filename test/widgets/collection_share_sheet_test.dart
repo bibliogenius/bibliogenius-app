@@ -23,7 +23,7 @@ books:
     note: "One Piece - Eiichiro Oda"
 ''';
 
-void _noop() {}
+Future<void> _noop(Rect origin) async {}
 
 void main() {
   setUp(() {
@@ -45,7 +45,7 @@ void main() {
 
   Future<void> pump(
     WidgetTester tester, {
-    required VoidCallback onShare,
+    required ShareCollectionCallback onShare,
     List<String> languages = const ['fr'],
   }) async {
     await tester.pumpWidget(
@@ -70,7 +70,7 @@ void main() {
   testWidgets('it names the list, counts it, and says what is sent', (
     tester,
   ) async {
-    await pump(tester, onShare: () {});
+    await pump(tester, onShare: _noop);
 
     expect(find.text('Mangas essentiels'), findsOneWidget);
     expect(find.text('8 books'), findsOneWidget);
@@ -99,7 +99,7 @@ void main() {
       ),
     );
 
-    await pump(tester, onShare: () {});
+    await pump(tester, onShare: _noop);
     await tester.tap(find.text('Copy'));
     await tester.pump();
 
@@ -111,7 +111,12 @@ void main() {
     tester,
   ) async {
     var shared = 0;
-    await pump(tester, onShare: () => shared++);
+    await pump(
+      tester,
+      onShare: (origin) async {
+        shared++;
+      },
+    );
 
     await tester.tap(find.text('Send the file'));
     await tester.pump();
@@ -119,13 +124,39 @@ void main() {
     expect(shared, 1);
   });
 
+  testWidgets('Send hands over a non-zero anchor for the iOS popover', (
+    tester,
+  ) async {
+    // The bug this covers: with no origin, share_plus throws on iPhone and
+    // iPad and the throw was swallowed, so the button did nothing while
+    // macOS worked. An empty rect would reproduce it exactly.
+    Rect? origin;
+    await pump(
+      tester,
+      onShare: (anchor) async {
+        origin = anchor;
+      },
+    );
+
+    await tester.tap(find.text('Send the file'));
+    await tester.pump();
+
+    expect(origin, isNotNull);
+    expect(origin!.isEmpty, isFalse, reason: 'iOS refuses a zero origin.');
+    expect(
+      origin!.contains(tester.getCenter(find.text('Send the file'))),
+      isTrue,
+      reason: 'The popover must point at the button that was pressed.',
+    );
+  });
+
   testWidgets('the declared languages are shown, and skipped when none', (
     tester,
   ) async {
-    await pump(tester, onShare: () {});
+    await pump(tester, onShare: _noop);
     expect(find.textContaining('Declared languages: fr'), findsOneWidget);
 
-    await pump(tester, onShare: () {}, languages: const []);
+    await pump(tester, onShare: _noop, languages: const []);
     expect(
       find.textContaining('Declared languages'),
       findsNothing,
@@ -170,7 +201,7 @@ void main() {
 
   testWidgets('the panel announces itself as a header', (tester) async {
     final handle = tester.ensureSemantics();
-    await pump(tester, onShare: () {});
+    await pump(tester, onShare: _noop);
 
     expect(
       tester.getSemantics(find.text('Share this list')),
