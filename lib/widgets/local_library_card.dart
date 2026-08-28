@@ -12,7 +12,7 @@ import 'book_links_config_sheet.dart';
 import 'portal_chip.dart';
 import 'library_portal_wizard.dart';
 
-/// "At your library" card on a wanted book's page: deep links into the
+/// "At my library" card on a wanted book's page: deep links into the
 /// local public library catalogues the reader connected via the wizard.
 /// Sits between the borrow card and the bookshop card: borrowing from a
 /// library outranks buying.

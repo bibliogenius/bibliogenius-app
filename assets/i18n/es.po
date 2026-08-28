@@ -11086,7 +11086,7 @@ msgstr "Conectar mi biblioteca"
 
 #. Book page: header of the connected-library deep-link card
 msgid "local_library_card_title"
-msgstr "En tu biblioteca"
+msgstr "En mi biblioteca"
 
 #. Library wizard step 1: what the wizard does
 msgid "library_wizard_intro"
@@ -11158,7 +11158,7 @@ msgstr "Gestionar mi biblioteca"
 
 #. Library intro card: one-line pitch inviting to connect the catalogue
 msgid "library_intro_text"
-msgstr "Toma prestado también cerca de casa: conecta el catálogo en línea de tu biblioteca."
+msgstr "Toma prestado en bibliotecas cercanas."
 
 #. Library intro card: outbound OSM link listing libraries around {city}
 msgid "library_intro_map_link"

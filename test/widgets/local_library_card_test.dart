@@ -54,7 +54,7 @@ void main() {
     dotenv.testLoad();
     TranslationService.setPoTranslationsForTest({
       'en': {
-        'local_library_card_title': 'At your library',
+        'local_library_card_title': 'At my library',
         'library_intro_text': 'Borrow close to home too.',
         'settings_libraries_add': 'Connect my library',
         'bookshop_finder_dismiss': "I don't want to see this",
@@ -101,14 +101,14 @@ void main() {
     tester,
   ) async {
     await pumpCard(tester);
-    expect(find.text('At your library'), findsOneWidget);
+    expect(find.text('At my library'), findsOneWidget);
     expect(find.text('Borrow close to home too.'), findsOneWidget);
     expect(find.text('Connect my library'), findsOneWidget);
   });
 
   testWidgets('the intro hides for non-borrowing profiles', (tester) async {
     await pumpCard(tester, prefs: {'canBorrowBooks': false});
-    expect(find.text('At your library'), findsNothing);
+    expect(find.text('At my library'), findsNothing);
   });
 
   testWidgets('the cross hides the intro and Undo restores it', (
@@ -117,17 +117,17 @@ void main() {
     await pumpCard(tester);
     await tester.tap(find.byTooltip("I don't want to see this"));
     await tester.pumpAndSettle();
-    expect(find.text('At your library'), findsNothing);
+    expect(find.text('At my library'), findsNothing);
     expect(find.text('Card hidden'), findsOneWidget);
 
     await tester.tap(find.text('Undo'));
     await tester.pumpAndSettle();
-    expect(find.text('At your library'), findsOneWidget);
+    expect(find.text('At my library'), findsOneWidget);
   });
 
   testWidgets('the intro hides once dismissed', (tester) async {
     await pumpCard(tester, prefs: {'library_intro_dismissed': true});
-    expect(find.text('At your library'), findsNothing);
+    expect(find.text('At my library'), findsNothing);
   });
 
   testWidgets('a connected catalogue replaces the intro with its link', (

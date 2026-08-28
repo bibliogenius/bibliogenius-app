@@ -11177,7 +11177,7 @@ msgstr "Kütüphanemi bağla"
 
 #. Book page: header of the connected-library deep-link card
 msgid "local_library_card_title"
-msgstr "Kütüphanenizde"
+msgstr "Kütüphanemde"
 
 #. Library wizard step 1: what the wizard does
 msgid "library_wizard_intro"
@@ -11245,7 +11245,7 @@ msgstr "Kütüphanemi yönet"
 
 #. Library intro card: one-line pitch inviting to connect the catalogue
 msgid "library_intro_text"
-msgstr "Yakınınızdan da ödünç alın: kütüphanenizin çevrim içi kataloğunu bağlayın."
+msgstr "Yakınınızdaki kütüphanelerden ödünç alın."
 
 #. Library intro card: outbound OSM link listing libraries around {city}
 msgid "library_intro_map_link"

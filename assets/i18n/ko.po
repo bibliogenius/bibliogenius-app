@@ -10957,7 +10957,7 @@ msgstr "내 도서관 관리"
 
 #. Library intro card: one-line pitch inviting to connect the catalogue
 msgid "library_intro_text"
-msgstr "가까운 곳에서도 빌려 보세요. 도서관 온라인 목록을 연결하세요."
+msgstr "가까운 도서관에서 빌려 보세요."
 
 #. Library intro card: outbound OSM link listing libraries around {city}
 msgid "library_intro_map_link"

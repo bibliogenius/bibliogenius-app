@@ -10889,7 +10889,7 @@ msgstr "図書館をつなぐ"
 
 #. Book page: header of the connected-library deep-link card
 msgid "local_library_card_title"
-msgstr "お近くの図書館で"
+msgstr "行きつけの図書館で"
 
 #. Library wizard step 1: what the wizard does
 msgid "library_wizard_intro"
@@ -10957,7 +10957,7 @@ msgstr "マイ図書館を管理"
 
 #. Library intro card: one-line pitch inviting to connect the catalogue
 msgid "library_intro_text"
-msgstr "近くでも借りられます。図書館のオンライン蔵書検索をつないでください。"
+msgstr "近くの図書館で借りられます。"
 
 #. Library intro card: outbound OSM link listing libraries around {city}
 msgid "library_intro_map_link"
