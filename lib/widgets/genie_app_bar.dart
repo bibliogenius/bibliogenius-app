@@ -218,11 +218,18 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
         final subtitleFontSize = isCompact ? 10.0 : 13.0;
         final spacing = isCompact ? 6.0 : 12.0;
 
-        // Hide the title rather than let it fade/truncate. Below a hard floor
-        // there is no usable room; above it, measure the real string so short
-        // titles keep showing while a long one (competing with the action
-        // buttons on a phone, e.g. the library name) collapses to the logo only.
-        var hideTitle = availableWidth < 120;
+        // The page's identity outranks the logo. This used to hide the title
+        // outright when the measured string did not fit, and on a phone the
+        // title slot is 160px wide: the back arrow and the three action
+        // buttons take the rest. So a collection opened with no name on it,
+        // and so did most pushed pages, up to an 820px tablet.
+        //
+        // The logo yields its width first (on a pushed route it duplicates
+        // the back arrow and the bottom navigation), and only then does the
+        // title fade, which the Text below already declares. Below the hard
+        // floor there is no usable room for either.
+        final hideTitle = availableWidth < 120;
+        var hideLogo = false;
         if (!hideTitle && title != null && title is! Widget) {
           final painter = TextPainter(
             text: TextSpan(
@@ -236,9 +243,7 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
             maxLines: 1,
             textDirection: Directionality.of(context),
           )..layout();
-          if (painter.width > availableWidth - logoSize - spacing) {
-            hideTitle = true;
-          }
+          hideLogo = painter.width > availableWidth - logoSize - spacing;
         }
 
         return MergeSemantics(
@@ -246,24 +251,28 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Semantics(
-                  button: true,
-                  label: TranslationService.translate(context, 'go_to_library'),
-                  child: GestureDetector(
-                    onTap: () => context.go('/books'),
-                    child: SizedBox(
-                      width: logoSize,
-                      height: logoSize,
-                      child: BiblioGeniusLogo(
-                        size: logoSize,
-                        color: Colors.white,
+                if (!hideLogo)
+                  Semantics(
+                    button: true,
+                    label: TranslationService.translate(
+                      context,
+                      'go_to_library',
+                    ),
+                    child: GestureDetector(
+                      onTap: () => context.go('/books'),
+                      child: SizedBox(
+                        width: logoSize,
+                        height: logoSize,
+                        child: BiblioGeniusLogo(
+                          size: logoSize,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                // Hide text entirely if space is too tight (don't truncate)
                 if (!hideTitle) ...[
-                  ExcludeSemantics(child: SizedBox(width: spacing)),
+                  if (!hideLogo)
+                    ExcludeSemantics(child: SizedBox(width: spacing)),
                   Flexible(
                     child: title is Widget
                         ? title
