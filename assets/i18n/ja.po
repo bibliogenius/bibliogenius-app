@@ -10833,7 +10833,7 @@ msgstr "オンライン共有を開く"
 
 #. Book details: header of the independent-bookshop deep-link card (POC)
 msgid "bookshop_finder_title"
-msgstr "独立系書店で探す"
+msgstr "行きつけの書店で"
 
 #. Book details: hint under the bookshop card header; the portal itself handles proximity
 msgid "bookshop_finder_hint"
@@ -10857,7 +10857,7 @@ msgstr "書店の提案"
 
 #. Settings: subtitle of the bookshop suggestions toggle
 msgid "settings_bookshops_show_finder_desc"
-msgstr "読みたい本について、独立系書店で探すことを提案します"
+msgstr "読みたい本について、書店で探すことを提案します"
 
 #. Settings: subheader of the reader's own ordered bookshop-portal list
 msgid "settings_bookshops_my_shops"

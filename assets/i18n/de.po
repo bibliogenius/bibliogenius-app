@@ -10990,7 +10990,7 @@ msgstr "Online-Freigabe öffnen"
 
 #. Book details: header of the independent-bookshop deep-link card (POC)
 msgid "bookshop_finder_title"
-msgstr "In einer unabhängigen Buchhandlung finden"
+msgstr "Bei meinem Buchhändler"
 
 #. Book details: hint under the bookshop card header; the portal itself handles proximity
 msgid "bookshop_finder_hint"
@@ -11014,7 +11014,7 @@ msgstr "Buchhandlungs-Vorschläge"
 
 #. Settings: subtitle of the bookshop suggestions toggle
 msgid "settings_bookshops_show_finder_desc"
-msgstr "Bei einem gewünschten Buch anbieten, es in einer unabhängigen Buchhandlung zu finden"
+msgstr "Bei einem gewünschten Buch anbieten, es in einer Buchhandlung zu finden"
 
 #. Settings: subheader of the reader's own ordered bookshop-portal list
 msgid "settings_bookshops_my_shops"

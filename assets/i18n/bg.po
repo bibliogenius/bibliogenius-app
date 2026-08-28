@@ -11121,7 +11121,7 @@ msgstr "Отваряне на онлайн споделянето"
 
 #. Book details: header of the independent-bookshop deep-link card (POC)
 msgid "bookshop_finder_title"
-msgstr "Намерете я в независима книжарница"
+msgstr "При моя книжар"
 
 #. Book details: hint under the bookshop card header; the portal itself handles proximity
 msgid "bookshop_finder_hint"
@@ -11145,7 +11145,7 @@ msgstr "Предложения за книжарници"
 
 #. Settings: subtitle of the bookshop suggestions toggle
 msgid "settings_bookshops_show_finder_desc"
-msgstr "За желана книга — предложение да я намерите в независима книжарница"
+msgstr "За желана книга — предложение да я намерите в книжарница"
 
 #. Settings: subheader of the reader's own ordered bookshop-portal list
 msgid "settings_bookshops_my_shops"

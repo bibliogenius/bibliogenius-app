@@ -11121,7 +11121,7 @@ msgstr "Çevrimiçi paylaşımı aç"
 
 #. Book details: header of the independent-bookshop deep-link card (POC)
 msgid "bookshop_finder_title"
-msgstr "Bağımsız bir kitapçıda bul"
+msgstr "Kitapçımda"
 
 #. Book details: hint under the bookshop card header; the portal itself handles proximity
 msgid "bookshop_finder_hint"
@@ -11145,7 +11145,7 @@ msgstr "Kitapçı önerileri"
 
 #. Settings: subtitle of the bookshop suggestions toggle
 msgid "settings_bookshops_show_finder_desc"
-msgstr "İstediğiniz bir kitap için bağımsız bir kitapçıda bulmayı öner"
+msgstr "İstediğiniz bir kitap için bir kitapçıda bulmayı öner"
 
 #. Settings: subheader of the reader's own ordered bookshop-portal list
 msgid "settings_bookshops_my_shops"
