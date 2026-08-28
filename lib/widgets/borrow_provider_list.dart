@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../models/contact_card.dart';
 import '../providers/hub_directory_provider.dart';
 import '../services/api_service.dart';
 import '../services/ffi_service.dart';
 import '../services/translation_service.dart';
 import '../src/rust/api/frb.dart' show FrbWishlistProvider;
 import '../utils/borrow_eligibility.dart';
+import 'contact_actions_sheet.dart';
 
 /// Per-provider borrow rows: who holds a book, with the request action.
 ///
@@ -39,6 +41,10 @@ class BorrowProviderList extends StatefulWidget {
 class _BorrowProviderListState extends State<BorrowProviderList> {
   BorrowRequestSnapshot _requests = BorrowRequestSnapshot.empty;
 
+  /// Actionable contact cards by node id (ADR-067): decrypted from the
+  /// follow blob, so only accepted libraries that shared one appear.
+  final Map<String, ContactCard> _contactCards = {};
+
   /// Lender node ids with a pending hub borrow request for this ISBN.
   final Set<String> _pendingHubNodes = {};
 
@@ -49,6 +55,30 @@ class _BorrowProviderListState extends State<BorrowProviderList> {
   void initState() {
     super.initState();
     _loadRequestState();
+    _loadContactCards();
+  }
+
+  Future<void> _loadContactCards() async {
+    final hub = context.read<HubDirectoryProvider>();
+    if (!hub.isHubEnabled) return;
+    final nodeIds = <String>{
+      for (final p in widget.providers)
+        if (p.nodeId != null && p.nodeId!.isNotEmpty) p.nodeId!,
+    };
+    for (final nodeId in nodeIds) {
+      final blob = hub.followFor(nodeId)?.encryptedContact;
+      if (blob == null || blob.isEmpty) continue;
+      try {
+        final plaintext = await hub.openContact(blob);
+        if (plaintext == null) continue;
+        final card = ContactCard.decode(plaintext);
+        if (!card.isActionable) continue;
+        if (!mounted) return;
+        setState(() => _contactCards[nodeId] = card);
+      } catch (_) {
+        // A card that cannot be opened simply offers no Contact button.
+      }
+    }
   }
 
   Future<void> _loadRequestState() async {
@@ -189,40 +219,88 @@ class _BorrowProviderListState extends State<BorrowProviderList> {
   Widget _buildProviderRow(BuildContext context, FrbWishlistProvider p) {
     final theme = Theme.of(context);
     final canRequest = _canRequest(p);
+    final contactCard = p.nodeId == null ? null : _contactCards[p.nodeId];
+
+    final name = Text(
+      p.sourceName,
+      style: theme.textTheme.bodyLarge,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+    );
+
+    final actions = <Widget>[
+      // Contact stays available even when borrowing is not (pending,
+      // on loan...): arranging things by message is exactly what the
+      // reader wants then.
+      if (contactCard != null) ...[
+        Semantics(
+          button: true,
+          label:
+              '${TranslationService.translate(context, 'contact_cta')} : ${p.sourceName}',
+          child: OutlinedButton(
+            onPressed: () => showContactActionsSheet(
+              context,
+              card: contactCard,
+              bookTitle: widget.bookTitle,
+              // A paired peer: the loan can go both ways.
+              reciprocal: p.peerUrl != null,
+            ),
+            style: OutlinedButton.styleFrom(
+              visualDensity: VisualDensity.compact,
+            ),
+            child: Text(TranslationService.translate(context, 'contact_cta')),
+          ),
+        ),
+        const SizedBox(width: 8),
+      ],
+      if (canRequest)
+        Semantics(
+          button: true,
+          label:
+              '${TranslationService.translate(context, 'borrow')} : ${p.sourceName}',
+          child: FilledButton.tonal(
+            onPressed: () => _request(p),
+            child: Text(TranslationService.translate(context, 'borrow')),
+          ),
+        )
+      else
+        Text(
+          _stateLabel(context, p),
+          // onSurfaceVariant, not outline: this is < 18px text and
+          // outline sits below the 4.5:1 WCAG AA ratio in the light
+          // theme (rule A2).
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+    ];
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              p.sourceName,
-              style: theme.textTheme.bodyLarge,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          const SizedBox(width: 8),
-          if (canRequest)
-            Semantics(
-              button: true,
-              label:
-                  '${TranslationService.translate(context, 'borrow')} : ${p.sourceName}',
-              child: FilledButton.tonal(
-                onPressed: () => _request(p),
-                child: Text(TranslationService.translate(context, 'borrow')),
-              ),
-            )
-          else
-            Text(
-              _stateLabel(context, p),
-              // onSurfaceVariant, not outline: this is < 18px text and
-              // outline sits below the 4.5:1 WCAG AA ratio in the light
-              // theme (rule A2).
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-        ],
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // With BOTH buttons on a phone-width card the name gets
+          // squeezed to an ellipsis; give the actions their own line
+          // there. Single-action rows keep the one-line layout.
+          final wrap = contactCard != null && constraints.maxWidth < 380;
+          if (!wrap) {
+            return Row(
+              children: [
+                Expanded(child: name),
+                const SizedBox(width: 8),
+                ...actions,
+              ],
+            );
+          }
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              name,
+              const SizedBox(height: 4),
+              Row(mainAxisAlignment: MainAxisAlignment.end, children: actions),
+            ],
+          );
+        },
       ),
     );
   }

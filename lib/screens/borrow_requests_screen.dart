@@ -1491,6 +1491,41 @@ class _LoansScreenState extends State<LoansScreen>
     }).toList();
   }
 
+  /// P2P and hub tiles merged, most recent activity first. Same date
+  /// key as the 30-day filters (last update, else creation), so what
+  /// floats to the top is what moved last. Without this the two sources
+  /// rendered as separate blocks in raw API order.
+  List<Widget> _requestTilesByRecency({
+    required List<dynamic> p2p,
+    required List<FrbHubBorrowRequest> hub,
+    required bool isIncoming,
+  }) {
+    final epoch = DateTime.fromMillisecondsSinceEpoch(0);
+    DateTime p2pKey(dynamic req) => DateTime.tryParse(
+          req['updated_at'] as String? ?? req['created_at'] as String? ?? '',
+        ) ??
+        epoch;
+    DateTime hubKey(FrbHubBorrowRequest req) =>
+        DateTime.tryParse(req.resolvedAt ?? req.createdAt) ?? epoch;
+
+    final entries = <(DateTime, int, Widget)>[
+      for (final req in p2p)
+        (p2pKey(req), 0, _buildRequestTile(req, isIncoming: isIncoming)),
+      for (final req in hub)
+        (hubKey(req), 0, _buildHubRequestTile(req, isIncoming: isIncoming)),
+    ];
+    // Secondary key: original position. Dart's sort is not stable (see
+    // the loan grouping above), so date ties would otherwise shuffle.
+    for (var i = 0; i < entries.length; i++) {
+      entries[i] = (entries[i].$1, i, entries[i].$3);
+    }
+    entries.sort((a, b) {
+      final byDate = b.$1.compareTo(a.$1);
+      return byDate != 0 ? byDate : a.$2.compareTo(b.$2);
+    });
+    return [for (final e in entries) e.$3];
+  }
+
   Widget _buildIncomingList() {
     final hubProvider = Provider.of<HubDirectoryProvider>(
       context,
@@ -1531,14 +1566,11 @@ class _LoansScreenState extends State<LoansScreen>
           ),
         Expanded(
           child: ListView(
-            children: [
-              // P2P requests (filtered: hides non-pending older than 30 days)
-              for (final req in p2pFiltered)
-                _buildRequestTile(req, isIncoming: true),
-              // Hub borrow requests (filtered)
-              for (final req in hubIncoming)
-                _buildHubRequestTile(req, isIncoming: true),
-            ],
+            children: _requestTilesByRecency(
+              p2p: p2pFiltered,
+              hub: hubIncoming,
+              isIncoming: true,
+            ),
           ),
         ),
       ],
@@ -1585,14 +1617,11 @@ class _LoansScreenState extends State<LoansScreen>
           ),
         Expanded(
           child: ListView(
-            children: [
-              // P2P requests (filtered: hides non-pending older than 30 days)
-              for (final req in p2pFiltered)
-                _buildRequestTile(req, isIncoming: false),
-              // Hub borrow requests (filtered)
-              for (final req in hubOutgoing)
-                _buildHubRequestTile(req, isIncoming: false),
-            ],
+            children: _requestTilesByRecency(
+              p2p: p2pFiltered,
+              hub: hubOutgoing,
+              isIncoming: false,
+            ),
           ),
         ),
       ],

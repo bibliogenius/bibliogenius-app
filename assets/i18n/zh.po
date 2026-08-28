@@ -10970,3 +10970,15 @@ msgstr "图书馆"
 #. Tooltip and screen-reader hint on every outbound portal chip
 msgid "opens_external_site"
 msgstr "打开外部网站"
+
+#. Snackbar after dismissing a book-page suggestion card; paired with the undo action
+msgid "card_hidden"
+msgstr "已隐藏卡片"
+
+#. Settings: toggle showing the library discovery card on wanted books
+msgid "settings_libraries_show_intro"
+msgstr "图书馆建议"
+
+#. Settings: subtitle of the library suggestion toggle
+msgid "settings_libraries_show_intro_desc"
+msgstr "对您想要的书,建议连接您的图书馆"

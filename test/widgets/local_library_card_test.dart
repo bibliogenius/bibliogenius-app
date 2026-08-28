@@ -60,6 +60,8 @@ void main() {
         'bookshop_finder_dismiss': "I don't want to see this",
         'local_library_configure': 'Manage my library',
         'opens_external_site': 'Opens an external website',
+        'card_hidden': 'Card hidden',
+        'action_undo': 'Undo',
       },
     });
   });
@@ -107,6 +109,20 @@ void main() {
   testWidgets('the intro hides for non-borrowing profiles', (tester) async {
     await pumpCard(tester, prefs: {'canBorrowBooks': false});
     expect(find.text('At your library'), findsNothing);
+  });
+
+  testWidgets('the cross hides the intro and Undo restores it', (
+    tester,
+  ) async {
+    await pumpCard(tester);
+    await tester.tap(find.byTooltip("I don't want to see this"));
+    await tester.pumpAndSettle();
+    expect(find.text('At your library'), findsNothing);
+    expect(find.text('Card hidden'), findsOneWidget);
+
+    await tester.tap(find.text('Undo'));
+    await tester.pumpAndSettle();
+    expect(find.text('At your library'), findsOneWidget);
   });
 
   testWidgets('the intro hides once dismissed', (tester) async {

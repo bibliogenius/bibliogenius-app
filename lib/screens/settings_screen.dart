@@ -1576,6 +1576,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   'settings_bookshops_search_hint',
                   'settings_libraries_title',
                   'settings_libraries_add',
+                  'settings_libraries_show_intro',
                 ]))
                   Card(
                     margin: const EdgeInsets.only(bottom: 12),

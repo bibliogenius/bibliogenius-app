@@ -97,8 +97,25 @@ class BookshopFinderCard extends StatelessWidget {
                 IconButton(
                   icon: const Icon(Icons.close, size: 18),
                   tooltip: dismissLabel,
-                  onPressed: () =>
-                      context.read<ThemeProvider>().setShowBookshopFinder(false),
+                  onPressed: () {
+                    final provider = context.read<ThemeProvider>();
+                    provider.setShowBookshopFinder(false);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          TranslationService.translate(context, 'card_hidden'),
+                        ),
+                        action: SnackBarAction(
+                          label: TranslationService.translate(
+                            context,
+                            'action_undo',
+                          ),
+                          onPressed: () =>
+                              provider.setShowBookshopFinder(true),
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),

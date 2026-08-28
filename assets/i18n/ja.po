@@ -10970,3 +10970,15 @@ msgstr "図書館"
 #. Tooltip and screen-reader hint on every outbound portal chip
 msgid "opens_external_site"
 msgstr "外部サイトを開きます"
+
+#. Snackbar after dismissing a book-page suggestion card; paired with the undo action
+msgid "card_hidden"
+msgstr "カードを非表示にしました"
+
+#. Settings: toggle showing the library discovery card on wanted books
+msgid "settings_libraries_show_intro"
+msgstr "図書館の提案"
+
+#. Settings: subtitle of the library suggestion toggle
+msgid "settings_libraries_show_intro_desc"
+msgstr "読みたい本について、図書館をつなぐことを提案します"

@@ -23,6 +23,14 @@ class MyLibrariesSection extends StatelessWidget {
           t('settings_libraries_title'),
           style: const TextStyle(fontWeight: FontWeight.w600),
         ),
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          dense: true,
+          title: Text(t('settings_libraries_show_intro')),
+          subtitle: Text(t('settings_libraries_show_intro_desc')),
+          value: themeProvider.showLibraryIntro,
+          onChanged: (value) => themeProvider.setShowLibraryIntro(value),
+        ),
         if (themeProvider.myLibraryPortals.isEmpty)
           Padding(
             padding: const EdgeInsets.only(top: 4),

@@ -11258,3 +11258,15 @@ msgstr "библиотека"
 #. Tooltip and screen-reader hint on every outbound portal chip
 msgid "opens_external_site"
 msgstr "Отваря външен сайт"
+
+#. Snackbar after dismissing a book-page suggestion card; paired with the undo action
+msgid "card_hidden"
+msgstr "Картата е скрита"
+
+#. Settings: toggle showing the library discovery card on wanted books
+msgid "settings_libraries_show_intro"
+msgstr "Предложение за библиотека"
+
+#. Settings: subtitle of the library suggestion toggle
+msgid "settings_libraries_show_intro_desc"
+msgstr "За желана книга — предложение да свържете вашата библиотека"

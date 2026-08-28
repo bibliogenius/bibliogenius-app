@@ -58,6 +58,8 @@ void main() {
         'bookshop_finder_dismiss': "I don't want to see this",
         'bookshop_finder_configure': 'Choose my bookshops',
         'opens_external_site': 'Opens an external website',
+        'card_hidden': 'Card hidden',
+        'action_undo': 'Undo',
       },
     });
   });
@@ -92,6 +94,20 @@ void main() {
     await pumpCard(tester);
     expect(find.text('Find it at an independent bookshop'), findsOneWidget);
     expect(find.text('Place des libraires'), findsOneWidget);
+  });
+
+  testWidgets('the cross hides the card and Undo restores it', (
+    tester,
+  ) async {
+    await pumpCard(tester);
+    await tester.tap(find.byTooltip("I don't want to see this"));
+    await tester.pumpAndSettle();
+    expect(find.text('Find it at an independent bookshop'), findsNothing);
+    expect(find.text('Card hidden'), findsOneWidget);
+
+    await tester.tap(find.text('Undo'));
+    await tester.pumpAndSettle();
+    expect(find.text('Find it at an independent bookshop'), findsOneWidget);
   });
 
   testWidgets('renders nothing once dismissed', (tester) async {

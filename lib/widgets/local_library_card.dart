@@ -165,8 +165,19 @@ class _LibraryIntroCardState extends State<_LibraryIntroCard> {
                 IconButton(
                   icon: const Icon(Icons.close, size: 18),
                   tooltip: t('bookshop_finder_dismiss'),
-                  onPressed: () =>
-                      context.read<ThemeProvider>().setShowLibraryIntro(false),
+                  onPressed: () {
+                    final provider = context.read<ThemeProvider>();
+                    provider.setShowLibraryIntro(false);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(t('card_hidden')),
+                        action: SnackBarAction(
+                          label: t('action_undo'),
+                          onPressed: () => provider.setShowLibraryIntro(true),
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
