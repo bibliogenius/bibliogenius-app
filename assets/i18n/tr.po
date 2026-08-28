@@ -6682,9 +6682,29 @@ msgstr "Kütüphaneyi paylaş"
 msgid "settings_country"
 msgstr "Ülke"
 
+#. Section heading: the city stored on this device (ADR-035 amended)
+msgid "settings_city_title"
+msgstr "Şehrim"
+
+#. Explains that filling in a city is local and does not publish anything
+msgid "settings_city_local_desc"
+msgstr "Bu cihazda saklanır. Herkese açık dizinde paylaşmak ayrı bir tercihtir."
+
+#. Shown instead of the city picker when no country is set yet
+msgid "settings_city_requires_country"
+msgstr "Şehir listesinin yüklenebilmesi için önce ülkenizi seçin."
+
+#. Tooltip: remove the city stored on this device
+msgid "settings_city_clear"
+msgstr "Şehrimi kaldır"
+
 #. Toggle: opt in to share city in the public directory (ADR-035)
 msgid "settings_share_city"
 msgstr "Şehrimi paylaş"
+
+#. Shown under the share toggle when no city has been picked yet
+msgid "settings_share_city_requires_city"
+msgstr "Önce yukarıdan bir şehir seçin."
 
 #. Description for the share-my-city toggle
 msgid "settings_share_city_desc"
@@ -8986,11 +9006,59 @@ msgstr "Okuma dili ekle"
 msgid "settings_goal_manage_city"
 msgstr "Şehrimi yönet"
 
+msgid "settings_goal_set_city"
+msgstr "Şehrimi belirt"
+
 msgid "settings_goal_set_country"
 msgstr "Ülkemi belirt"
 
 msgid "dashboard_discover_more"
 msgstr "Daha fazlası"
+
+msgid "discover_dismiss_suggestion"
+msgstr "Bu öneriyi gizle"
+
+#. Peer view mirror: screen title and Settings entry
+msgid "peer_view_title"
+msgstr "Diğer kütüphanelerin gördükleri"
+
+msgid "peer_view_entry_desc"
+msgstr "Kataloğunuzun yayımlandığı hâliyle önizlemesi"
+
+#. Peer view mirror: entry from the public directory sheet, before opting in
+msgid "peer_view_entry_preflight_desc"
+msgstr "Görünür olmadan önce bakmakta fayda var"
+
+#. Peer view mirror: same entry, once already listed
+msgid "peer_view_entry_listed_desc"
+msgstr "Başka bir kütüphanenin sizden aldıkları"
+
+#. Peer view mirror: secondary action on the Discover tab publish banner
+msgid "peer_view_before_publishing"
+msgstr "Yayımlamadan önce gör"
+
+#. Peer view mirror: the directory lane publishes strictly less than this list
+msgid "peer_view_directory_scope"
+msgstr "Dizin bundan daha azını gönderir: yalnızca sahip olduğunuz kitapların başlığı, yazarı, kapağı ve ISBN'i."
+
+#. Peer view mirror: explanation card
+msgid "peer_view_intro"
+msgstr "Bu liste, kataloğunuza bakan başka bir kütüphaneye cihazınızın gönderdiği yanıtın ta kendisidir. Burada hiçbir şey yeniden hesaplanmaz: aynı veriler, aynı filtreleme kodu."
+
+msgid "peer_view_hidden_note"
+msgstr "Özel kitaplarınız burada yoktur; notlarınız, okuma durumunuz, puanlarınız, satın alma fiyatlarınız ve süregelen ödünçleriniz de öyle."
+
+msgid "peer_view_count"
+msgstr "{count} kitap görünür"
+
+msgid "peer_view_empty"
+msgstr "Şu anda hiçbir kitap görünmüyor."
+
+msgid "peer_view_error"
+msgstr "Yayımlanan kataloğunuz okunamadı."
+
+msgid "peer_view_available_copies"
+msgstr "{count} mevcut"
 
 msgid "settings_share_city_requires_directory"
 msgstr "Önce “Dizinde görünün” seçeneğini etkinleştirin."
@@ -10332,6 +10400,9 @@ msgstr "Senkronizasyon tamamlandı. Cihazlarınız güncel."
 
 msgid "account_sync_synced_uptodate"
 msgstr "Her şey zaten güncel."
+
+msgid "account_sync_synced_partial"
+msgstr "Kısmi eşitleme: bazı öğeler bu cihazda uygulanamadı. Cihazlarınızı güncelleyip yeniden deneyin."
 
 msgid "account_sync_sync_failed"
 msgstr "Senkronizasyon başarısız oldu. Bağlantınızı kontrol edip tekrar deneyin."

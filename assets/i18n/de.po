@@ -3205,7 +3205,7 @@ msgstr "Importieren"
 
 #. Add {count} Books to Library
 msgid "import_action_button"
-msgstr "Importieren"
+msgstr "{count} Bücher zur Bibliothek hinzufügen"
 
 #. Import Backup
 msgid "import_backup"
@@ -3293,7 +3293,7 @@ msgstr "Importoptionen"
 
 #. Ready to import {count} books into your library.
 msgid "import_preview_subtitle"
-msgstr "Vorschau der zu importierenden Bücher"
+msgstr "Bereit, {count} Bücher in Ihre Bibliothek zu importieren."
 
 #. Look what we found! ✨
 msgid "import_preview_title"
@@ -5347,11 +5347,59 @@ msgstr "Eine Lesesprache hinzufügen"
 msgid "settings_goal_manage_city"
 msgstr "Meine Stadt verwalten"
 
+msgid "settings_goal_set_city"
+msgstr "Meine Stadt angeben"
+
 msgid "settings_goal_set_country"
 msgstr "Mein Land angeben"
 
 msgid "dashboard_discover_more"
 msgstr "Mehr entdecken"
+
+msgid "discover_dismiss_suggestion"
+msgstr "Diesen Vorschlag ausblenden"
+
+#. Peer view mirror: screen title and Settings entry
+msgid "peer_view_title"
+msgstr "Was andere Bibliotheken sehen"
+
+msgid "peer_view_entry_desc"
+msgstr "Vorschau Ihres Katalogs, so wie er veröffentlicht wird"
+
+#. Peer view mirror: entry from the public directory sheet, before opting in
+msgid "peer_view_entry_preflight_desc"
+msgstr "Vor dem Sichtbarwerden einen Blick wert"
+
+#. Peer view mirror: same entry, once already listed
+msgid "peer_view_entry_listed_desc"
+msgstr "Was eine andere Bibliothek von Ihnen erhält"
+
+#. Peer view mirror: secondary action on the Discover tab publish banner
+msgid "peer_view_before_publishing"
+msgstr "Vor dem Veröffentlichen ansehen"
+
+#. Peer view mirror: the directory lane publishes strictly less than this list
+msgid "peer_view_directory_scope"
+msgstr "Das Verzeichnis sendet weniger als das: nur Titel, Autor, Cover und ISBN der Bücher, die Sie besitzen."
+
+#. Peer view mirror: explanation card
+msgid "peer_view_intro"
+msgstr "Diese Liste ist genau die Antwort, die Ihr Gerät an eine andere Bibliothek sendet, die Ihren Katalog durchsieht. Hier wird nichts neu berechnet: dieselben Daten, derselbe Filtercode."
+
+msgid "peer_view_hidden_note"
+msgstr "Ihre privaten Bücher fehlen darin, ebenso Ihre Notizen, Ihr Lesestatus, Ihre Bewertungen, Ihre Kaufpreise und Ihre laufenden Ausleihen."
+
+msgid "peer_view_count"
+msgstr "{count} Bücher sichtbar"
+
+msgid "peer_view_empty"
+msgstr "Derzeit ist kein Buch sichtbar."
+
+msgid "peer_view_error"
+msgstr "Ihr veröffentlichter Katalog konnte nicht gelesen werden."
+
+msgid "peer_view_available_copies"
+msgstr "{count} verfügbar"
 
 msgid "settings_share_city_requires_directory"
 msgstr "Aktivieren Sie zuerst „Im Verzeichnis erscheinen“."
@@ -5478,7 +5526,7 @@ msgstr "Teile deine Erfolge mit Freunden"
 
 #. %d books
 msgid "shelf_books_count"
-msgstr "{count} Bücher"
+msgstr "%d Bücher"
 
 #. Shelf created
 msgid "shelf_created"
@@ -9223,9 +9271,29 @@ msgstr "Punktzahlen zurücksetzen"
 msgid "settings_country"
 msgstr "Land"
 
+#. Section heading: the city stored on this device (ADR-035 amended)
+msgid "settings_city_title"
+msgstr "Meine Stadt"
+
+#. Explains that filling in a city is local and does not publish anything
+msgid "settings_city_local_desc"
+msgstr "Wird auf diesem Gerät gespeichert. Sie im öffentlichen Verzeichnis zu teilen, ist eine separate Entscheidung."
+
+#. Shown instead of the city picker when no country is set yet
+msgid "settings_city_requires_country"
+msgstr "Wählen Sie zuerst Ihr Land, damit die Städteliste geladen werden kann."
+
+#. Tooltip: remove the city stored on this device
+msgid "settings_city_clear"
+msgstr "Meine Stadt entfernen"
+
 #. Toggle: opt in to share city in the public directory (ADR-035)
 msgid "settings_share_city"
 msgstr "Meine Stadt teilen"
+
+#. Shown under the share toggle when no city has been picked yet
+msgid "settings_share_city_requires_city"
+msgstr "Wählen Sie zuerst oben eine Stadt."
 
 #. Description for the share-my-city toggle
 msgid "settings_share_city_desc"
@@ -10201,6 +10269,9 @@ msgstr "Synchronisierung abgeschlossen. Ihre Geräte sind auf dem neuesten Stand
 
 msgid "account_sync_synced_uptodate"
 msgstr "Alles ist bereits auf dem neuesten Stand."
+
+msgid "account_sync_synced_partial"
+msgstr "Teilweise Synchronisierung: Einige Elemente konnten auf diesem Gerät nicht angewendet werden. Aktualisieren Sie Ihre Geräte und versuchen Sie es erneut."
 
 msgid "account_sync_sync_failed"
 msgstr "Synchronisierung fehlgeschlagen. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut."

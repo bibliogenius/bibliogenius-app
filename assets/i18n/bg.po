@@ -6756,9 +6756,29 @@ msgstr "Споделяне на библиотека"
 msgid "settings_country"
 msgstr "Държава"
 
+#. Section heading: the city stored on this device (ADR-035 amended)
+msgid "settings_city_title"
+msgstr "Моят град"
+
+#. Explains that filling in a city is local and does not publish anything
+msgid "settings_city_local_desc"
+msgstr "Запазва се на това устройство. Споделянето му в публичния указател е отделен избор."
+
+#. Shown instead of the city picker when no country is set yet
+msgid "settings_city_requires_country"
+msgstr "Първо изберете своята държава, за да може да се зареди списъкът с градове."
+
+#. Tooltip: remove the city stored on this device
+msgid "settings_city_clear"
+msgstr "Премахване на моя град"
+
 #. Toggle: opt in to share city in the public directory (ADR-035)
 msgid "settings_share_city"
 msgstr "Споделяне на моя град"
+
+#. Shown under the share toggle when no city has been picked yet
+msgid "settings_share_city_requires_city"
+msgstr "Първо изберете град по-горе."
 
 #. Description for the share-my-city toggle
 msgid "settings_share_city_desc"
@@ -8986,11 +9006,59 @@ msgstr "Добавяне на език за четене"
 msgid "settings_goal_manage_city"
 msgstr "Управление на моя град"
 
+msgid "settings_goal_set_city"
+msgstr "Посочване на моя град"
+
 msgid "settings_goal_set_country"
 msgstr "Посочване на моята държава"
 
 msgid "dashboard_discover_more"
 msgstr "Още възможности"
+
+msgid "discover_dismiss_suggestion"
+msgstr "Скриване на това предложение"
+
+#. Peer view mirror: screen title and Settings entry
+msgid "peer_view_title"
+msgstr "Какво виждат другите библиотеки"
+
+msgid "peer_view_entry_desc"
+msgstr "Преглед на каталога ви такъв, какъвто се публикува"
+
+#. Peer view mirror: entry from the public directory sheet, before opting in
+msgid "peer_view_entry_preflight_desc"
+msgstr "Струва си да проверите, преди да станете видими"
+
+#. Peer view mirror: same entry, once already listed
+msgid "peer_view_entry_listed_desc"
+msgstr "Какво получава от вас друга библиотека"
+
+#. Peer view mirror: secondary action on the Discover tab publish banner
+msgid "peer_view_before_publishing"
+msgstr "Вижте, преди да публикувате"
+
+#. Peer view mirror: the directory lane publishes strictly less than this list
+msgid "peer_view_directory_scope"
+msgstr "Указателят изпраща по-малко от това: само заглавието, автора, корицата и ISBN на книгите, които притежавате."
+
+#. Peer view mirror: explanation card
+msgid "peer_view_intro"
+msgstr "Този списък е точният отговор, който устройството ви изпраща на друга библиотека, разглеждаща каталога ви. Тук нищо не се преизчислява: същите данни, същият код за филтриране."
+
+msgid "peer_view_hidden_note"
+msgstr "Личните ви книги не присъстват, както и бележките ви, статусът ви на четене, оценките ви, покупните ви цени и текущите ви заеми."
+
+msgid "peer_view_count"
+msgstr "{count} видими книги"
+
+msgid "peer_view_empty"
+msgstr "В момента не е видима нито една книга."
+
+msgid "peer_view_error"
+msgstr "Публикуваният ви каталог не можа да бъде прочетен."
+
+msgid "peer_view_available_copies"
+msgstr "{count} налични"
 
 msgid "settings_share_city_requires_directory"
 msgstr "Първо активирайте „Появете се в указателя“."
@@ -10332,6 +10400,9 @@ msgstr "Синхронизацията е завършена. Устройств
 
 msgid "account_sync_synced_uptodate"
 msgstr "Всичко вече е актуално."
+
+msgid "account_sync_synced_partial"
+msgstr "Частична синхронизация: някои елементи не можаха да бъдат приложени на това устройство. Обновете устройствата си и опитайте отново."
 
 msgid "account_sync_sync_failed"
 msgstr "Синхронизацията е неуспешна. Проверете връзката си и опитайте отново."

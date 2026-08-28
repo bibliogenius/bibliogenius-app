@@ -3205,7 +3205,7 @@ msgstr "Importar"
 
 #. Add {count} Books to Library
 msgid "import_action_button"
-msgstr "Importar"
+msgstr "Añadir {count} libros a la biblioteca"
 
 #. Import Backup
 msgid "import_backup"
@@ -3293,7 +3293,7 @@ msgstr "Opciones de importación"
 
 #. Ready to import {count} books into your library.
 msgid "import_preview_subtitle"
-msgstr "Vista previa de los libros a importar"
+msgstr "Listo para importar {count} libros en tu biblioteca."
 
 #. Look what we found! ✨
 msgid "import_preview_title"
@@ -5347,6 +5347,9 @@ msgstr "Añadir un idioma de lectura"
 msgid "settings_goal_manage_city"
 msgstr "Gestionar mi ciudad"
 
+msgid "settings_goal_set_city"
+msgstr "Indicar mi ciudad"
+
 msgid "settings_goal_set_country"
 msgstr "Indicar mi país"
 
@@ -5523,7 +5526,7 @@ msgstr "Comparte tus logros con amigos"
 
 #. %d books
 msgid "shelf_books_count"
-msgstr "{count} libros"
+msgstr "%d libros"
 
 #. Shelf created
 msgid "shelf_created"
@@ -9268,9 +9271,29 @@ msgstr "Restablecer puntuaciones"
 msgid "settings_country"
 msgstr "País"
 
+#. Section heading: the city stored on this device (ADR-035 amended)
+msgid "settings_city_title"
+msgstr "Mi ciudad"
+
+#. Explains that filling in a city is local and does not publish anything
+msgid "settings_city_local_desc"
+msgstr "Se guarda en este dispositivo. Compartirla en el directorio público es una decisión aparte."
+
+#. Shown instead of the city picker when no country is set yet
+msgid "settings_city_requires_country"
+msgstr "Elige primero tu país para que se pueda cargar la lista de ciudades."
+
+#. Tooltip: remove the city stored on this device
+msgid "settings_city_clear"
+msgstr "Quitar mi ciudad"
+
 #. Toggle: opt in to share city in the public directory (ADR-035)
 msgid "settings_share_city"
 msgstr "Compartir mi ciudad"
+
+#. Shown under the share toggle when no city has been picked yet
+msgid "settings_share_city_requires_city"
+msgstr "Elige primero una ciudad arriba."
 
 #. Description for the share-my-city toggle
 msgid "settings_share_city_desc"
@@ -10245,6 +10268,9 @@ msgstr "Sincronización completada. Tus dispositivos están actualizados."
 
 msgid "account_sync_synced_uptodate"
 msgstr "Todo está ya actualizado."
+
+msgid "account_sync_synced_partial"
+msgstr "Sincronización parcial: algunos elementos no se han podido aplicar en este dispositivo. Actualiza tus dispositivos y vuelve a intentarlo."
 
 msgid "account_sync_sync_failed"
 msgstr "La sincronización ha fallado. Comprueba tu conexión e inténtalo de nuevo."

@@ -5188,9 +5188,29 @@ msgstr "Condividi biblioteca"
 msgid "settings_country"
 msgstr "Paese"
 
+#. Section heading: the city stored on this device (ADR-035 amended)
+msgid "settings_city_title"
+msgstr "La mia città"
+
+#. Explains that filling in a city is local and does not publish anything
+msgid "settings_city_local_desc"
+msgstr "Salvata su questo dispositivo. Condividerla nell'elenco pubblico è una scelta a parte."
+
+#. Shown instead of the city picker when no country is set yet
+msgid "settings_city_requires_country"
+msgstr "Scegli prima il tuo paese, così l'elenco delle città può essere caricato."
+
+#. Tooltip: remove the city stored on this device
+msgid "settings_city_clear"
+msgstr "Rimuovi la mia città"
+
 #. Toggle: opt in to share city in the public directory (ADR-035)
 msgid "settings_share_city"
 msgstr "Condividi la mia città"
+
+#. Shown under the share toggle when no city has been picked yet
+msgid "settings_share_city_requires_city"
+msgstr "Scegli prima una città qui sopra."
 
 #. Description for the share-my-city toggle
 msgid "settings_share_city_desc"
@@ -8119,11 +8139,59 @@ msgstr "Aggiungere una lingua di lettura"
 msgid "settings_goal_manage_city"
 msgstr "Gestire la mia città"
 
+msgid "settings_goal_set_city"
+msgstr "Indica la mia città"
+
 msgid "settings_goal_set_country"
 msgstr "Indicare il mio paese"
 
 msgid "dashboard_discover_more"
 msgstr "Per andare oltre"
+
+msgid "discover_dismiss_suggestion"
+msgstr "Nascondi questo suggerimento"
+
+#. Peer view mirror: screen title and Settings entry
+msgid "peer_view_title"
+msgstr "Ciò che vedono le altre biblioteche"
+
+msgid "peer_view_entry_desc"
+msgstr "Anteprima del tuo catalogo così com'è pubblicato"
+
+#. Peer view mirror: entry from the public directory sheet, before opting in
+msgid "peer_view_entry_preflight_desc"
+msgstr "Da controllare prima di rendersi visibili"
+
+#. Peer view mirror: same entry, once already listed
+msgid "peer_view_entry_listed_desc"
+msgstr "Ciò che un'altra biblioteca riceve da te"
+
+#. Peer view mirror: secondary action on the Discover tab publish banner
+msgid "peer_view_before_publishing"
+msgstr "Guarda prima di pubblicare"
+
+#. Peer view mirror: the directory lane publishes strictly less than this list
+msgid "peer_view_directory_scope"
+msgstr "L'elenco ne invia di meno: solo titolo, autore, copertina e ISBN dei libri che possiedi."
+
+#. Peer view mirror: explanation card
+msgid "peer_view_intro"
+msgstr "Questo elenco è la risposta esatta che il tuo dispositivo invia a un'altra biblioteca che consulta il tuo catalogo. Qui non viene ricalcolato nulla: stessi dati, stesso codice di filtraggio."
+
+msgid "peer_view_hidden_note"
+msgstr "I tuoi libri privati non ci sono, così come le tue note, il tuo stato di lettura, le tue valutazioni, i tuoi prezzi d'acquisto e i tuoi prestiti in corso."
+
+msgid "peer_view_count"
+msgstr "{count} libri visibili"
+
+msgid "peer_view_empty"
+msgstr "Al momento nessun libro è visibile."
+
+msgid "peer_view_error"
+msgstr "Impossibile leggere il tuo catalogo pubblicato."
+
+msgid "peer_view_available_copies"
+msgstr "{count} disponibili"
 
 msgid "settings_share_city_requires_directory"
 msgstr "Attiva prima «Compari nella directory»."
@@ -10325,6 +10393,9 @@ msgstr "Sincronizzazione completata. I tuoi dispositivi sono aggiornati."
 
 msgid "account_sync_synced_uptodate"
 msgstr "È già tutto aggiornato."
+
+msgid "account_sync_synced_partial"
+msgstr "Sincronizzazione parziale: alcuni elementi non sono stati applicati su questo dispositivo. Aggiorna i tuoi dispositivi, poi riprova."
 
 msgid "account_sync_sync_failed"
 msgstr "Sincronizzazione fallita. Controlla la connessione e riprova."
