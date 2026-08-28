@@ -163,6 +163,11 @@ class _LibraryIntroCardState extends State<_LibraryIntroCard> {
                   ),
                 ),
                 IconButton(
+                  icon: const Icon(Icons.tune, size: 18),
+                  tooltip: t('local_library_configure'),
+                  onPressed: () => showBookLinksConfigSheet(context),
+                ),
+                IconButton(
                   icon: const Icon(Icons.close, size: 18),
                   tooltip: t('bookshop_finder_dismiss'),
                   onPressed: () {
