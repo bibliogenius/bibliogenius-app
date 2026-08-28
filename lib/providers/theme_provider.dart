@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import '../utils/library_portals.dart';
 import '../utils/avatars.dart';
 import '../widgets/peer_book_cover_cache_manager.dart';
 import '../models/avatar_config.dart';
@@ -85,6 +86,33 @@ class ThemeProvider with ChangeNotifier {
   // not borrow; a pure reader may want to borrow without lending).
   bool _canLendBooks = true;
   bool get canLendBooks => _canLendBooks;
+
+  // Independent-bookshop suggestions on wanted books' pages. The stored
+  // key keeps the card's original "dismissed" polarity (cross = opt out).
+  bool _showBookshopFinder = true;
+  bool get showBookshopFinder => _showBookshopFinder;
+
+  // Reader-picked bookshop portals (ordered registry ids); empty means
+  // "offer the country defaults". Persisted as one JSON string so the
+  // backup prefs whitelist (String/int only) can carry it.
+  List<String> _myBookshopIds = [];
+  List<String> get myBookshopIds => List.unmodifiable(_myBookshopIds);
+
+  // Reader-configured local public library catalogues (wizard-built URL
+  // templates). Same one-JSON-String persistence rationale as bookshops.
+  List<LocalLibraryPortal> _myLibraryPortals = [];
+  List<LocalLibraryPortal> get myLibraryPortals =>
+      List.unmodifiable(_myLibraryPortals);
+
+  // Bookshops the reader added by hand through the same witness wizard.
+  List<LocalLibraryPortal> _myCustomBookshops = [];
+  List<LocalLibraryPortal> get myCustomBookshops =>
+      List.unmodifiable(_myCustomBookshops);
+
+  // Discoverability card for the library connection, shown on wanted
+  // books until a catalogue is connected or the reader dismisses it.
+  bool _showLibraryIntro = true;
+  bool get showLibraryIntro => _showLibraryIntro;
 
   // Inventory-style book statuses (available, checked_out, reference_only,
   // missing, damaged, on_order) instead of personal-reading statuses
@@ -339,6 +367,47 @@ class ThemeProvider with ChangeNotifier {
       _canBorrowBooks = true;
     }
 
+    // Bookshop suggestions: shown unless explicitly dismissed (cross on
+    // the card or settings toggle).
+    _showBookshopFinder = prefs.getBool('bookshop_finder_dismissed') != true;
+
+    _showLibraryIntro = prefs.getBool('library_intro_dismissed') != true;
+
+    final storedBookshops = prefs.getString('my_bookshop_ids');
+    if (storedBookshops != null) {
+      try {
+        _myBookshopIds = (jsonDecode(storedBookshops) as List)
+            .whereType<String>()
+            .toList();
+      } catch (_) {
+        _myBookshopIds = [];
+      }
+    }
+
+    final storedLibraries = prefs.getString('my_library_portals');
+    if (storedLibraries != null) {
+      try {
+        _myLibraryPortals = (jsonDecode(storedLibraries) as List)
+            .map(LocalLibraryPortal.fromJson)
+            .whereType<LocalLibraryPortal>()
+            .toList();
+      } catch (_) {
+        _myLibraryPortals = [];
+      }
+    }
+
+    final storedCustomShops = prefs.getString('my_custom_bookshops');
+    if (storedCustomShops != null) {
+      try {
+        _myCustomBookshops = (jsonDecode(storedCustomShops) as List)
+            .map(LocalLibraryPortal.fromJson)
+            .whereType<LocalLibraryPortal>()
+            .toList();
+      } catch (_) {
+        _myCustomBookshops = [];
+      }
+    }
+
     // Load lending capability setting. Default true for readers and
     // librarians (they lend); disabled for booksellers (they sell, not lend).
     // Read commerceEnabled directly from prefs because _commerceEnabled is
@@ -545,6 +614,85 @@ class ThemeProvider with ChangeNotifier {
     _canBorrowBooks = enabled;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('canBorrowBooks', enabled);
+    notifyListeners();
+  }
+
+  Future<void> setShowBookshopFinder(bool enabled) async {
+    _showBookshopFinder = enabled;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('bookshop_finder_dismissed', !enabled);
+    notifyListeners();
+  }
+
+  Future<void> setShowLibraryIntro(bool enabled) async {
+    _showLibraryIntro = enabled;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('library_intro_dismissed', !enabled);
+    notifyListeners();
+  }
+
+  Future<void> addMyBookshop(String id) async {
+    if (_myBookshopIds.contains(id)) return;
+    _myBookshopIds = [..._myBookshopIds, id];
+    await _persistMyBookshops();
+  }
+
+  Future<void> removeMyBookshop(String id) async {
+    _myBookshopIds = _myBookshopIds.where((e) => e != id).toList();
+    await _persistMyBookshops();
+  }
+
+  Future<void> _persistMyBookshops() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('my_bookshop_ids', jsonEncode(_myBookshopIds));
+    notifyListeners();
+  }
+
+  Future<void> addMyLibraryPortal(LocalLibraryPortal portal) async {
+    if (_myLibraryPortals.any((p) => p.urlTemplate == portal.urlTemplate)) {
+      return;
+    }
+    _myLibraryPortals = [..._myLibraryPortals, portal];
+    await _persistMyLibraryPortals();
+  }
+
+  Future<void> removeMyLibraryPortal(String urlTemplate) async {
+    _myLibraryPortals = _myLibraryPortals
+        .where((p) => p.urlTemplate != urlTemplate)
+        .toList();
+    await _persistMyLibraryPortals();
+  }
+
+  Future<void> _persistMyLibraryPortals() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      'my_library_portals',
+      jsonEncode([for (final p in _myLibraryPortals) p.toJson()]),
+    );
+    notifyListeners();
+  }
+
+  Future<void> addMyCustomBookshop(LocalLibraryPortal portal) async {
+    if (_myCustomBookshops.any((p) => p.urlTemplate == portal.urlTemplate)) {
+      return;
+    }
+    _myCustomBookshops = [..._myCustomBookshops, portal];
+    await _persistMyCustomBookshops();
+  }
+
+  Future<void> removeMyCustomBookshop(String urlTemplate) async {
+    _myCustomBookshops = _myCustomBookshops
+        .where((p) => p.urlTemplate != urlTemplate)
+        .toList();
+    await _persistMyCustomBookshops();
+  }
+
+  Future<void> _persistMyCustomBookshops() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      'my_custom_bookshops',
+      jsonEncode([for (final p in _myCustomBookshops) p.toJson()]),
+    );
     notifyListeners();
   }
 
@@ -971,6 +1119,7 @@ class ThemeProvider with ChangeNotifier {
         await setCanBorrowBooks(true);
         await setCanLendBooks(true);
         await setAllowPrivateBooks(true);
+        await setShowBookshopFinder(true);
         await setInventoryStatusesEnabled(false);
         // Seed the favorites collection (ADR-064). ONLY here: selecting the
         // Reader profile is the one explicit gesture that pre-creates it;
@@ -991,6 +1140,7 @@ class ThemeProvider with ChangeNotifier {
         await setCanLendBooks(true);
         await setAllowPrivateBooks(false);
         await setInventoryStatusesEnabled(true);
+        await setShowBookshopFinder(false);
         break;
       case 'bookseller':
         // Bookseller preset: commerce flow (personal-reading statuses
@@ -1005,6 +1155,7 @@ class ThemeProvider with ChangeNotifier {
         await setCanLendBooks(false);
         await setAllowPrivateBooks(false);
         await setInventoryStatusesEnabled(false);
+        await setShowBookshopFinder(false);
         break;
     }
     notifyListeners();

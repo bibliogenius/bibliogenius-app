@@ -11118,3 +11118,143 @@ msgstr "Споделеният каталог не е достатъчен, за
 #. Help screen CTA opening Settings > Online sharing
 msgid "help_cta_open_sharing"
 msgstr "Отваряне на онлайн споделянето"
+
+#. Book details: header of the independent-bookshop deep-link card (POC)
+msgid "bookshop_finder_title"
+msgstr "Намерете я в независима книжарница"
+
+#. Book details: hint under the bookshop card header; the portal itself handles proximity
+msgid "bookshop_finder_hint"
+msgstr "Проверете наличността в книжарници близо до вас."
+
+#. Book details: tooltip/accessible label of the cross dismissing the bookshop card for good
+msgid "bookshop_finder_dismiss"
+msgstr "Не искам да виждам това"
+
+#. Book page: tooltip of the gear opening the live bookshop picker sheet
+msgid "bookshop_finder_configure"
+msgstr "Избор на моите книжарници"
+
+#. Settings: title of the bookshop-linking accordion
+msgid "settings_bookshops_title"
+msgstr "Книжарници и библиотеки"
+
+#. Settings: toggle showing the independent-bookshop card on wanted books
+msgid "settings_bookshops_show_finder"
+msgstr "Предложения за книжарници"
+
+#. Settings: subtitle of the bookshop suggestions toggle
+msgid "settings_bookshops_show_finder_desc"
+msgstr "За желана книга — предложение да я намерите в независима книжарница"
+
+#. Settings: subheader of the reader's own ordered bookshop-portal list
+msgid "settings_bookshops_my_shops"
+msgstr "Моите книжарници"
+
+#. Settings: hint of the bookshop autocomplete field
+msgid "settings_bookshops_search_hint"
+msgstr "Добавяне на портал за книжарници…"
+
+#. Settings: shown when the reader picked no portal yet
+msgid "settings_bookshops_default_note"
+msgstr "Без избор се предлагат порталите за вашата държава."
+
+#. Settings: tooltip of the cross removing a portal from the list
+msgid "settings_bookshops_remove"
+msgstr "Премахване"
+
+#. Settings/picker: button and wizard title for a hand-added bookshop
+msgid "settings_bookshops_add_custom"
+msgstr "Ръчно добавяне на книжарница"
+
+#. Settings: subheader of the connected public library catalogues
+msgid "settings_libraries_title"
+msgstr "Моята библиотека"
+
+#. Settings and wizard title: connect a public library catalogue
+msgid "settings_libraries_add"
+msgstr "Свързване на моята библиотека"
+
+#. Book page: header of the connected-library deep-link card
+msgid "local_library_card_title"
+msgstr "Във вашата библиотека"
+
+#. Library wizard step 1: what the wizard does
+msgid "library_wizard_intro"
+msgstr "BiblioGenius може да предложи търсене на желаните от вас книги в онлайн каталога на вашата библиотека. Дайте ѝ име и следвайте стъпките."
+
+#. Library wizard step 1: name field label
+msgid "library_wizard_name_label"
+msgstr "Име (напр. Градска библиотека)"
+
+#. Library wizard step 2: instruction around the witness book
+msgid "library_wizard_search_step"
+msgstr "В сайта на вашата библиотека потърсете тази книга по ISBN или по точното ѝ заглавие, после се върнете тук с адреса на страницата с резултати."
+
+#. Library wizard step 2: copy button tooltip
+msgid "library_wizard_copy_isbn"
+msgstr "Копиране на ISBN"
+
+#. Library wizard step 2: snackbar after copying
+msgid "library_wizard_isbn_copied"
+msgstr "ISBN е копиран"
+
+#. Library wizard step 3: paste field label
+msgid "library_wizard_paste_label"
+msgstr "Адрес на страницата с резултати"
+
+#. Library wizard step 3: pasted URL is not https
+msgid "library_wizard_error_https"
+msgstr "Адресът трябва да започва с https://"
+
+#. Library wizard step 3: pasted URL does not carry the witness ISBN
+msgid "library_wizard_error_witness"
+msgstr "В адреса не се появяват нито ISBN, нито заглавието на книгата за проверка. Сайтът вероятно не поддържа този вид връзка."
+
+#. Library wizard step 3: verify button
+msgid "library_wizard_verify"
+msgstr "Проверка"
+
+#. Library wizard step 3: the witness title was found in the response
+msgid "library_wizard_verdict_ok"
+msgstr "Вашата библиотека отговаря: връзката работи."
+
+#. Library wizard step 3: lenient verdict when the check is inconclusive
+msgid "library_wizard_verdict_partial"
+msgstr "Не можа да се потвърди автоматично. Връзката все пак ще бъде предложена."
+
+#. Library wizard: next-step button
+msgid "library_wizard_next"
+msgstr "Напред"
+
+#. Bookshop wizard step 1: what the wizard does
+msgid "bookshop_wizard_intro"
+msgstr "BiblioGenius може да предложи книжарница по ваш избор за желаните книги. Дайте ѝ име и следвайте стъпките."
+
+#. Bookshop wizard step 1: name field label
+msgid "bookshop_wizard_name_label"
+msgstr "Име (напр. кварталната ми книжарница)"
+
+#. Bookshop wizard step 2: instruction around the witness book
+msgid "bookshop_wizard_search_step"
+msgstr "В сайта на книжарницата потърсете тази книга по ISBN или по точното ѝ заглавие, после се върнете тук с адреса на страницата с резултати."
+
+#. Book page: tooltip of the gear on the library card opening the configuration sheet
+msgid "local_library_configure"
+msgstr "Управление на моята библиотека"
+
+#. Library intro card: one-line pitch inviting to connect the catalogue
+msgid "library_intro_text"
+msgstr "Заемайте и близо до дома: свържете онлайн каталога на вашата библиотека."
+
+#. Library intro card: outbound OSM link listing libraries around {city}
+msgid "library_intro_map_link"
+msgstr "Библиотеки около {city}"
+
+#. Library intro card: the search word sent to OpenStreetMap for public libraries
+msgid "library_intro_map_term"
+msgstr "библиотека"
+
+#. Tooltip and screen-reader hint on every outbound portal chip
+msgid "opens_external_site"
+msgstr "Отваря външен сайт"

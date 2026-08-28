@@ -10830,3 +10830,143 @@ msgstr "카탈로그를 공유하는 것만으로는 대출을 약속할 수 없
 #. Help screen CTA opening Settings > Online sharing
 msgid "help_cta_open_sharing"
 msgstr "온라인 공유 열기"
+
+#. Book details: header of the independent-bookshop deep-link card (POC)
+msgid "bookshop_finder_title"
+msgstr "독립 서점에서 찾기"
+
+#. Book details: hint under the bookshop card header; the portal itself handles proximity
+msgid "bookshop_finder_hint"
+msgstr "가까운 서점의 재고를 확인해 보세요."
+
+#. Book details: tooltip/accessible label of the cross dismissing the bookshop card for good
+msgid "bookshop_finder_dismiss"
+msgstr "다시 보지 않기"
+
+#. Book page: tooltip of the gear opening the live bookshop picker sheet
+msgid "bookshop_finder_configure"
+msgstr "내 서점 선택"
+
+#. Settings: title of the bookshop-linking accordion
+msgid "settings_bookshops_title"
+msgstr "서점과 도서관"
+
+#. Settings: toggle showing the independent-bookshop card on wanted books
+msgid "settings_bookshops_show_finder"
+msgstr "서점 제안"
+
+#. Settings: subtitle of the bookshop suggestions toggle
+msgid "settings_bookshops_show_finder_desc"
+msgstr "원하는 책에 대해 독립 서점에서 찾도록 제안합니다"
+
+#. Settings: subheader of the reader's own ordered bookshop-portal list
+msgid "settings_bookshops_my_shops"
+msgstr "내 서점"
+
+#. Settings: hint of the bookshop autocomplete field
+msgid "settings_bookshops_search_hint"
+msgstr "서점 포털 추가…"
+
+#. Settings: shown when the reader picked no portal yet
+msgid "settings_bookshops_default_note"
+msgstr "선택하지 않으면 해당 국가의 포털이 제공됩니다."
+
+#. Settings: tooltip of the cross removing a portal from the list
+msgid "settings_bookshops_remove"
+msgstr "제거"
+
+#. Settings/picker: button and wizard title for a hand-added bookshop
+msgid "settings_bookshops_add_custom"
+msgstr "서점 직접 추가"
+
+#. Settings: subheader of the connected public library catalogues
+msgid "settings_libraries_title"
+msgstr "내 도서관"
+
+#. Settings and wizard title: connect a public library catalogue
+msgid "settings_libraries_add"
+msgstr "내 도서관 연결"
+
+#. Book page: header of the connected-library deep-link card
+msgid "local_library_card_title"
+msgstr "내 도서관에서"
+
+#. Library wizard step 1: what the wizard does
+msgid "library_wizard_intro"
+msgstr "BiblioGenius는 원하는 책을 도서관 온라인 목록에서 찾도록 제안할 수 있습니다. 이름을 지정한 뒤 안내를 따르세요."
+
+#. Library wizard step 1: name field label
+msgid "library_wizard_name_label"
+msgstr "이름 (예: 시립도서관)"
+
+#. Library wizard step 2: instruction around the witness book
+msgid "library_wizard_search_step"
+msgstr "도서관 웹사이트에서 이 책을 ISBN 또는 정확한 제목으로 검색한 뒤, 결과 페이지 주소를 가지고 여기로 돌아오세요."
+
+#. Library wizard step 2: copy button tooltip
+msgid "library_wizard_copy_isbn"
+msgstr "ISBN 복사"
+
+#. Library wizard step 2: snackbar after copying
+msgid "library_wizard_isbn_copied"
+msgstr "ISBN 복사됨"
+
+#. Library wizard step 3: paste field label
+msgid "library_wizard_paste_label"
+msgstr "결과 페이지 주소"
+
+#. Library wizard step 3: pasted URL is not https
+msgid "library_wizard_error_https"
+msgstr "주소는 https:// 로 시작해야 합니다"
+
+#. Library wizard step 3: pasted URL does not carry the witness ISBN
+msgid "library_wizard_error_witness"
+msgstr "주소에 ISBN도 기준 도서의 제목도 없습니다. 이 사이트는 이런 링크를 지원하지 않는 것 같습니다."
+
+#. Library wizard step 3: verify button
+msgid "library_wizard_verify"
+msgstr "확인"
+
+#. Library wizard step 3: the witness title was found in the response
+msgid "library_wizard_verdict_ok"
+msgstr "도서관이 응답했습니다. 링크가 작동합니다."
+
+#. Library wizard step 3: lenient verdict when the check is inconclusive
+msgid "library_wizard_verdict_partial"
+msgstr "자동으로 확인할 수 없습니다. 링크는 그래도 제공됩니다."
+
+#. Library wizard: next-step button
+msgid "library_wizard_next"
+msgstr "계속"
+
+#. Bookshop wizard step 1: what the wizard does
+msgid "bookshop_wizard_intro"
+msgstr "BiblioGenius는 원하는 책에 대해 원하는 서점을 제안할 수 있습니다. 이름을 지정한 뒤 안내를 따르세요."
+
+#. Bookshop wizard step 1: name field label
+msgid "bookshop_wizard_name_label"
+msgstr "이름 (예: 동네 서점)"
+
+#. Bookshop wizard step 2: instruction around the witness book
+msgid "bookshop_wizard_search_step"
+msgstr "서점 웹사이트에서 이 책을 ISBN 또는 정확한 제목으로 검색한 뒤, 결과 페이지 주소를 가지고 여기로 돌아오세요."
+
+#. Book page: tooltip of the gear on the library card opening the configuration sheet
+msgid "local_library_configure"
+msgstr "내 도서관 관리"
+
+#. Library intro card: one-line pitch inviting to connect the catalogue
+msgid "library_intro_text"
+msgstr "가까운 곳에서도 빌려 보세요. 도서관 온라인 목록을 연결하세요."
+
+#. Library intro card: outbound OSM link listing libraries around {city}
+msgid "library_intro_map_link"
+msgstr "{city} 주변 도서관"
+
+#. Library intro card: the search word sent to OpenStreetMap for public libraries
+msgid "library_intro_map_term"
+msgstr "도서관"
+
+#. Tooltip and screen-reader hint on every outbound portal chip
+msgid "opens_external_site"
+msgstr "외부 사이트를 엽니다"

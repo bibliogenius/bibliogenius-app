@@ -11118,3 +11118,143 @@ msgstr "Paylaşılan bir katalog, ödünç vermeyi kararlaştırmaya yetmez. İl
 #. Help screen CTA opening Settings > Online sharing
 msgid "help_cta_open_sharing"
 msgstr "Çevrimiçi paylaşımı aç"
+
+#. Book details: header of the independent-bookshop deep-link card (POC)
+msgid "bookshop_finder_title"
+msgstr "Bağımsız bir kitapçıda bul"
+
+#. Book details: hint under the bookshop card header; the portal itself handles proximity
+msgid "bookshop_finder_hint"
+msgstr "Yakınınızdaki kitapçılarda stok durumuna bakın."
+
+#. Book details: tooltip/accessible label of the cross dismissing the bookshop card for good
+msgid "bookshop_finder_dismiss"
+msgstr "Bunu görmek istemiyorum"
+
+#. Book page: tooltip of the gear opening the live bookshop picker sheet
+msgid "bookshop_finder_configure"
+msgstr "Kitapçılarımı seç"
+
+#. Settings: title of the bookshop-linking accordion
+msgid "settings_bookshops_title"
+msgstr "Kitapçılar ve kütüphaneler"
+
+#. Settings: toggle showing the independent-bookshop card on wanted books
+msgid "settings_bookshops_show_finder"
+msgstr "Kitapçı önerileri"
+
+#. Settings: subtitle of the bookshop suggestions toggle
+msgid "settings_bookshops_show_finder_desc"
+msgstr "İstediğiniz bir kitap için bağımsız bir kitapçıda bulmayı öner"
+
+#. Settings: subheader of the reader's own ordered bookshop-portal list
+msgid "settings_bookshops_my_shops"
+msgstr "Kitapçılarım"
+
+#. Settings: hint of the bookshop autocomplete field
+msgid "settings_bookshops_search_hint"
+msgstr "Kitapçı portalı ekle…"
+
+#. Settings: shown when the reader picked no portal yet
+msgid "settings_bookshops_default_note"
+msgstr "Seçim yapılmazsa ülkenizin portalları sunulur."
+
+#. Settings: tooltip of the cross removing a portal from the list
+msgid "settings_bookshops_remove"
+msgstr "Kaldır"
+
+#. Settings/picker: button and wizard title for a hand-added bookshop
+msgid "settings_bookshops_add_custom"
+msgstr "Elle kitapçı ekle"
+
+#. Settings: subheader of the connected public library catalogues
+msgid "settings_libraries_title"
+msgstr "Kütüphanem"
+
+#. Settings and wizard title: connect a public library catalogue
+msgid "settings_libraries_add"
+msgstr "Kütüphanemi bağla"
+
+#. Book page: header of the connected-library deep-link card
+msgid "local_library_card_title"
+msgstr "Kütüphanenizde"
+
+#. Library wizard step 1: what the wizard does
+msgid "library_wizard_intro"
+msgstr "BiblioGenius, istediğiniz kitapları kütüphanenizin çevrim içi kataloğunda aramayı önerebilir. Bir ad verin ve yönergeleri izleyin."
+
+#. Library wizard step 1: name field label
+msgid "library_wizard_name_label"
+msgstr "Ad (örn. Şehir Kütüphanesi)"
+
+#. Library wizard step 2: instruction around the witness book
+msgid "library_wizard_search_step"
+msgstr "Kütüphanenizin web sitesinde bu kitabı ISBN ile veya tam başlığıyla arayın, sonra sonuç sayfasının adresiyle buraya dönün."
+
+#. Library wizard step 2: copy button tooltip
+msgid "library_wizard_copy_isbn"
+msgstr "ISBN'yi kopyala"
+
+#. Library wizard step 2: snackbar after copying
+msgid "library_wizard_isbn_copied"
+msgstr "ISBN kopyalandı"
+
+#. Library wizard step 3: paste field label
+msgid "library_wizard_paste_label"
+msgstr "Sonuç sayfasının adresi"
+
+#. Library wizard step 3: pasted URL is not https
+msgid "library_wizard_error_https"
+msgstr "Adres https:// ile başlamalıdır"
+
+#. Library wizard step 3: pasted URL does not carry the witness ISBN
+msgid "library_wizard_error_witness"
+msgstr "Adreste ne ISBN ne de referans kitabın başlığı görünüyor. Site muhtemelen bu tür bağlantıyı desteklemiyor."
+
+#. Library wizard step 3: verify button
+msgid "library_wizard_verify"
+msgstr "Kontrol et"
+
+#. Library wizard step 3: the witness title was found in the response
+msgid "library_wizard_verdict_ok"
+msgstr "Kütüphaneniz yanıt veriyor: bağlantı çalışıyor."
+
+#. Library wizard step 3: lenient verdict when the check is inconclusive
+msgid "library_wizard_verdict_partial"
+msgstr "Otomatik olarak doğrulanamadı. Bağlantı yine de sunulacak."
+
+#. Library wizard: next-step button
+msgid "library_wizard_next"
+msgstr "Devam"
+
+#. Bookshop wizard step 1: what the wizard does
+msgid "bookshop_wizard_intro"
+msgstr "BiblioGenius, istediğiniz kitaplarda seçtiğiniz bir kitapçıyı önerebilir. Bir ad verin ve yönergeleri izleyin."
+
+#. Bookshop wizard step 1: name field label
+msgid "bookshop_wizard_name_label"
+msgstr "Ad (örn. mahallemdeki kitapçı)"
+
+#. Bookshop wizard step 2: instruction around the witness book
+msgid "bookshop_wizard_search_step"
+msgstr "Kitapçının web sitesinde bu kitabı ISBN ile veya tam başlığıyla arayın, sonra sonuç sayfasının adresiyle buraya dönün."
+
+#. Book page: tooltip of the gear on the library card opening the configuration sheet
+msgid "local_library_configure"
+msgstr "Kütüphanemi yönet"
+
+#. Library intro card: one-line pitch inviting to connect the catalogue
+msgid "library_intro_text"
+msgstr "Yakınınızdan da ödünç alın: kütüphanenizin çevrim içi kataloğunu bağlayın."
+
+#. Library intro card: outbound OSM link listing libraries around {city}
+msgid "library_intro_map_link"
+msgstr "{city} çevresindeki kütüphaneler"
+
+#. Library intro card: the search word sent to OpenStreetMap for public libraries
+msgid "library_intro_map_term"
+msgstr "kütüphane"
+
+#. Tooltip and screen-reader hint on every outbound portal chip
+msgid "opens_external_site"
+msgstr "Harici bir siteyi açar"

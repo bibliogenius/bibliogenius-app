@@ -10987,3 +10987,143 @@ msgstr "Ein geteilter Katalog genügt nicht, um eine Ausleihe zu vereinbaren. Ih
 #. Help screen CTA opening Settings > Online sharing
 msgid "help_cta_open_sharing"
 msgstr "Online-Freigabe öffnen"
+
+#. Book details: header of the independent-bookshop deep-link card (POC)
+msgid "bookshop_finder_title"
+msgstr "In einer unabhängigen Buchhandlung finden"
+
+#. Book details: hint under the bookshop card header; the portal itself handles proximity
+msgid "bookshop_finder_hint"
+msgstr "Verfügbarkeit in Buchhandlungen in Ihrer Nähe prüfen."
+
+#. Book details: tooltip/accessible label of the cross dismissing the bookshop card for good
+msgid "bookshop_finder_dismiss"
+msgstr "Das möchte ich nicht sehen"
+
+#. Book page: tooltip of the gear opening the live bookshop picker sheet
+msgid "bookshop_finder_configure"
+msgstr "Meine Buchhandlungen wählen"
+
+#. Settings: title of the bookshop-linking accordion
+msgid "settings_bookshops_title"
+msgstr "Buchhandlungen und Bibliotheken"
+
+#. Settings: toggle showing the independent-bookshop card on wanted books
+msgid "settings_bookshops_show_finder"
+msgstr "Buchhandlungs-Vorschläge"
+
+#. Settings: subtitle of the bookshop suggestions toggle
+msgid "settings_bookshops_show_finder_desc"
+msgstr "Bei einem gewünschten Buch anbieten, es in einer unabhängigen Buchhandlung zu finden"
+
+#. Settings: subheader of the reader's own ordered bookshop-portal list
+msgid "settings_bookshops_my_shops"
+msgstr "Meine Buchhandlungen"
+
+#. Settings: hint of the bookshop autocomplete field
+msgid "settings_bookshops_search_hint"
+msgstr "Buchhandlungsportal hinzufügen…"
+
+#. Settings: shown when the reader picked no portal yet
+msgid "settings_bookshops_default_note"
+msgstr "Ohne Auswahl werden die Portale Ihres Landes angeboten."
+
+#. Settings: tooltip of the cross removing a portal from the list
+msgid "settings_bookshops_remove"
+msgstr "Entfernen"
+
+#. Settings/picker: button and wizard title for a hand-added bookshop
+msgid "settings_bookshops_add_custom"
+msgstr "Buchhandlung von Hand hinzufügen"
+
+#. Settings: subheader of the connected public library catalogues
+msgid "settings_libraries_title"
+msgstr "Meine Bibliothek"
+
+#. Settings and wizard title: connect a public library catalogue
+msgid "settings_libraries_add"
+msgstr "Meine Bibliothek verbinden"
+
+#. Book page: header of the connected-library deep-link card
+msgid "local_library_card_title"
+msgstr "In Ihrer Bibliothek"
+
+#. Library wizard step 1: what the wizard does
+msgid "library_wizard_intro"
+msgstr "BiblioGenius kann anbieten, Ihre gewünschten Bücher im Online-Katalog Ihrer Bibliothek zu suchen. Geben Sie ihr einen Namen und lassen Sie sich führen."
+
+#. Library wizard step 1: name field label
+msgid "library_wizard_name_label"
+msgstr "Name (z. B. Stadtbibliothek Köln)"
+
+#. Library wizard step 2: instruction around the witness book
+msgid "library_wizard_search_step"
+msgstr "Suchen Sie dieses Buch auf der Website Ihrer Bibliothek anhand seiner ISBN oder seines genauen Titels und kommen Sie mit der Adresse der Ergebnisseite hierher zurück."
+
+#. Library wizard step 2: copy button tooltip
+msgid "library_wizard_copy_isbn"
+msgstr "ISBN kopieren"
+
+#. Library wizard step 2: snackbar after copying
+msgid "library_wizard_isbn_copied"
+msgstr "ISBN kopiert"
+
+#. Library wizard step 3: paste field label
+msgid "library_wizard_paste_label"
+msgstr "Adresse der Ergebnisseite"
+
+#. Library wizard step 3: pasted URL is not https
+msgid "library_wizard_error_https"
+msgstr "Die Adresse muss mit https:// beginnen"
+
+#. Library wizard step 3: pasted URL does not carry the witness ISBN
+msgid "library_wizard_error_witness"
+msgstr "Weder die ISBN noch der Titel des Referenzbuchs erscheint in der Adresse. Die Website unterstützt diese Art von Link vermutlich nicht."
+
+#. Library wizard step 3: verify button
+msgid "library_wizard_verify"
+msgstr "Prüfen"
+
+#. Library wizard step 3: the witness title was found in the response
+msgid "library_wizard_verdict_ok"
+msgstr "Ihre Bibliothek antwortet: Der Link funktioniert."
+
+#. Library wizard step 3: lenient verdict when the check is inconclusive
+msgid "library_wizard_verdict_partial"
+msgstr "Konnte nicht automatisch bestätigt werden. Der Link wird trotzdem angeboten."
+
+#. Library wizard: next-step button
+msgid "library_wizard_next"
+msgstr "Weiter"
+
+#. Bookshop wizard step 1: what the wizard does
+msgid "bookshop_wizard_intro"
+msgstr "BiblioGenius kann bei gewünschten Büchern eine Buchhandlung Ihrer Wahl anbieten. Geben Sie ihr einen Namen und lassen Sie sich führen."
+
+#. Bookshop wizard step 1: name field label
+msgid "bookshop_wizard_name_label"
+msgstr "Name (z. B. meine Buchhandlung im Viertel)"
+
+#. Bookshop wizard step 2: instruction around the witness book
+msgid "bookshop_wizard_search_step"
+msgstr "Suchen Sie dieses Buch auf der Website der Buchhandlung anhand seiner ISBN oder seines genauen Titels und kommen Sie mit der Adresse der Ergebnisseite hierher zurück."
+
+#. Book page: tooltip of the gear on the library card opening the configuration sheet
+msgid "local_library_configure"
+msgstr "Meine Bibliothek verwalten"
+
+#. Library intro card: one-line pitch inviting to connect the catalogue
+msgid "library_intro_text"
+msgstr "Leihen Sie auch in Ihrer Nähe aus: Verbinden Sie den Online-Katalog Ihrer Bibliothek."
+
+#. Library intro card: outbound OSM link listing libraries around {city}
+msgid "library_intro_map_link"
+msgstr "Bibliotheken um {city}"
+
+#. Library intro card: the search word sent to OpenStreetMap for public libraries
+msgid "library_intro_map_term"
+msgstr "Bibliothek"
+
+#. Tooltip and screen-reader hint on every outbound portal chip
+msgid "opens_external_site"
+msgstr "Öffnet eine externe Website"

@@ -188,6 +188,16 @@ const Set<String> kBackupPrefsBlacklist = <String>{
   // library, and a restored device deserves to be asked again if its card is
   // still empty.
   'hub_contact_prompt_dismissed', // NetworkScreen._contactPromptDismissedKey
+
+  // Bookshop/library linking (POC). Conservative v1 call: dropped on
+  // restore. The three JSON lists are String-restorable and could be
+  // promoted once the feature's ADR arbitrates it; the two dismissal
+  // flags are bools, which the restorer does not re-apply anyway.
+  'bookshop_finder_dismissed', // ThemeProvider.setShowBookshopFinder
+  'library_intro_dismissed', // ThemeProvider.setShowLibraryIntro
+  'my_bookshop_ids', // ThemeProvider my registry portal selection
+  'my_custom_bookshops', // ThemeProvider hand-added bookshops
+  'my_library_portals', // ThemeProvider connected library catalogues
   'hub_share_city', // HubDirectoryProvider._kShareCityKey
   // One-shot marker: this install has already asked the hub whether it holds
   // a city to recover locally. Bookkeeping about a probe that happened on

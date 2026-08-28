@@ -54,6 +54,8 @@ import '../widgets/loan_dialog.dart';
 import '../widgets/metadata_refresh_dialog.dart';
 import '../widgets/speech_note_button.dart';
 import '../widgets/book_rating_row.dart';
+import '../widgets/bookshop_finder_card.dart';
+import '../widgets/local_library_card.dart';
 import '../widgets/wishlist_availability_card.dart';
 import '../widgets/wishlist_seeker_card.dart';
 import 'record_sale_screen.dart';
@@ -1056,6 +1058,22 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                     if (book.readingStatus == 'wanting')
                       WishlistAvailabilityCard(
                         key: ValueKey('wishlist-availability-${book.isbn}'),
+                        book: book,
+                      ),
+                    // Local public library catalogues the reader
+                    // connected: borrowing there outranks buying, so this
+                    // card sits above the bookshop one.
+                    if (book.readingStatus == 'wanting')
+                      LocalLibraryCard(
+                        key: ValueKey('local-library-${book.isbn}'),
+                        book: book,
+                      ),
+                    // The buy-it-nearby counterpart (POC): outbound deep
+                    // link to an independent-bookshop portal, below the
+                    // borrow card so borrowing stays the primary path.
+                    if (book.readingStatus == 'wanting')
+                      BookshopFinderCard(
+                        key: ValueKey('bookshop-finder-${book.isbn}'),
                         book: book,
                       ),
                     // Inverse direction, for owned books: who wants this

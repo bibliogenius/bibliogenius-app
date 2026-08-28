@@ -10830,3 +10830,143 @@ msgstr "カタログを共有しただけでは貸し借りの約束はできま
 #. Help screen CTA opening Settings > Online sharing
 msgid "help_cta_open_sharing"
 msgstr "オンライン共有を開く"
+
+#. Book details: header of the independent-bookshop deep-link card (POC)
+msgid "bookshop_finder_title"
+msgstr "独立系書店で探す"
+
+#. Book details: hint under the bookshop card header; the portal itself handles proximity
+msgid "bookshop_finder_hint"
+msgstr "近くの書店での在庫を確認できます。"
+
+#. Book details: tooltip/accessible label of the cross dismissing the bookshop card for good
+msgid "bookshop_finder_dismiss"
+msgstr "これを表示しない"
+
+#. Book page: tooltip of the gear opening the live bookshop picker sheet
+msgid "bookshop_finder_configure"
+msgstr "書店を選ぶ"
+
+#. Settings: title of the bookshop-linking accordion
+msgid "settings_bookshops_title"
+msgstr "書店と図書館"
+
+#. Settings: toggle showing the independent-bookshop card on wanted books
+msgid "settings_bookshops_show_finder"
+msgstr "書店の提案"
+
+#. Settings: subtitle of the bookshop suggestions toggle
+msgid "settings_bookshops_show_finder_desc"
+msgstr "読みたい本について、独立系書店で探すことを提案します"
+
+#. Settings: subheader of the reader's own ordered bookshop-portal list
+msgid "settings_bookshops_my_shops"
+msgstr "マイ書店"
+
+#. Settings: hint of the bookshop autocomplete field
+msgid "settings_bookshops_search_hint"
+msgstr "書店ポータルを追加…"
+
+#. Settings: shown when the reader picked no portal yet
+msgid "settings_bookshops_default_note"
+msgstr "選択がない場合は、お住まいの国のポータルが表示されます。"
+
+#. Settings: tooltip of the cross removing a portal from the list
+msgid "settings_bookshops_remove"
+msgstr "削除"
+
+#. Settings/picker: button and wizard title for a hand-added bookshop
+msgid "settings_bookshops_add_custom"
+msgstr "書店を手動で追加"
+
+#. Settings: subheader of the connected public library catalogues
+msgid "settings_libraries_title"
+msgstr "マイ図書館"
+
+#. Settings and wizard title: connect a public library catalogue
+msgid "settings_libraries_add"
+msgstr "図書館をつなぐ"
+
+#. Book page: header of the connected-library deep-link card
+msgid "local_library_card_title"
+msgstr "お近くの図書館で"
+
+#. Library wizard step 1: what the wizard does
+msgid "library_wizard_intro"
+msgstr "BiblioGenius は、読みたい本を図書館のオンライン蔵書検索で探すことを提案できます。名前を付けて、案内に従ってください。"
+
+#. Library wizard step 1: name field label
+msgid "library_wizard_name_label"
+msgstr "名前(例:市立図書館)"
+
+#. Library wizard step 2: instruction around the witness book
+msgid "library_wizard_search_step"
+msgstr "図書館のウェブサイトでこの本を ISBN または正確なタイトルで検索し、検索結果ページのアドレスを持ってここに戻ってください。"
+
+#. Library wizard step 2: copy button tooltip
+msgid "library_wizard_copy_isbn"
+msgstr "ISBN をコピー"
+
+#. Library wizard step 2: snackbar after copying
+msgid "library_wizard_isbn_copied"
+msgstr "ISBN をコピーしました"
+
+#. Library wizard step 3: paste field label
+msgid "library_wizard_paste_label"
+msgstr "検索結果ページのアドレス"
+
+#. Library wizard step 3: pasted URL is not https
+msgid "library_wizard_error_https"
+msgstr "アドレスは https:// で始まる必要があります"
+
+#. Library wizard step 3: pasted URL does not carry the witness ISBN
+msgid "library_wizard_error_witness"
+msgstr "アドレスに ISBN も目印の本のタイトルも含まれていません。このサイトはこの種のリンクに対応していない可能性があります。"
+
+#. Library wizard step 3: verify button
+msgid "library_wizard_verify"
+msgstr "確認"
+
+#. Library wizard step 3: the witness title was found in the response
+msgid "library_wizard_verdict_ok"
+msgstr "図書館から応答がありました。リンクは機能しています。"
+
+#. Library wizard step 3: lenient verdict when the check is inconclusive
+msgid "library_wizard_verdict_partial"
+msgstr "自動確認できませんでした。リンクはそのまま提案されます。"
+
+#. Library wizard: next-step button
+msgid "library_wizard_next"
+msgstr "次へ"
+
+#. Bookshop wizard step 1: what the wizard does
+msgid "bookshop_wizard_intro"
+msgstr "BiblioGenius は、読みたい本についてお好みの書店を提案できます。名前を付けて、案内に従ってください。"
+
+#. Bookshop wizard step 1: name field label
+msgid "bookshop_wizard_name_label"
+msgstr "名前(例:近所の書店)"
+
+#. Bookshop wizard step 2: instruction around the witness book
+msgid "bookshop_wizard_search_step"
+msgstr "書店のウェブサイトでこの本を ISBN または正確なタイトルで検索し、検索結果ページのアドレスを持ってここに戻ってください。"
+
+#. Book page: tooltip of the gear on the library card opening the configuration sheet
+msgid "local_library_configure"
+msgstr "マイ図書館を管理"
+
+#. Library intro card: one-line pitch inviting to connect the catalogue
+msgid "library_intro_text"
+msgstr "近くでも借りられます。図書館のオンライン蔵書検索をつないでください。"
+
+#. Library intro card: outbound OSM link listing libraries around {city}
+msgid "library_intro_map_link"
+msgstr "{city} 周辺の図書館"
+
+#. Library intro card: the search word sent to OpenStreetMap for public libraries
+msgid "library_intro_map_term"
+msgstr "図書館"
+
+#. Tooltip and screen-reader hint on every outbound portal chip
+msgid "opens_external_site"
+msgstr "外部サイトを開きます"
