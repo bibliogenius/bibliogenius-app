@@ -19,7 +19,8 @@ void main() {
   final potKeys = _extractMsgIds(potFile.readAsStringSync());
   print('Template: ${potKeys.length} keys in messages.pot\n');
 
-  final languages = ['en', 'fr', 'es', 'de', 'it'];
+  // Mirror of TranslationService.supportedLocales.
+  final languages = ['en', 'fr', 'es', 'de', 'pt-BR', 'it', 'tr', 'bg'];
 
   // Header
   print('${'Langue'.padRight(8)}'

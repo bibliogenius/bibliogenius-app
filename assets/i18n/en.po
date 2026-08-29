@@ -11099,11 +11099,11 @@ msgstr "About your library"
 
 #. Prefilled message body about a book, {title}
 msgid "contact_message_body"
-msgstr "Hello,\n\nWe are connected on BiblioGenius, and your library holds \u00ab {title} \u00bb.\n\nWould you be willing to lend it to me? Let me know what would suit you for picking it up, and for how long."
+msgstr "Hello,\n\nWe are connected on BiblioGenius, and your library holds « {title} ».\n\nWould you be willing to lend it to me? Let me know what would suit you for picking it up, and for how long."
 
 #. Prefilled message body about a book, {title} and {author}
 msgid "contact_message_body_with_author"
-msgstr "Hello,\n\nWe are connected on BiblioGenius, and your library holds \u00ab {title} \u00bb by {author}.\n\nWould you be willing to lend it to me? Let me know what would suit you for picking it up, and for how long."
+msgstr "Hello,\n\nWe are connected on BiblioGenius, and your library holds « {title} » by {author}.\n\nWould you be willing to lend it to me? Let me know what would suit you for picking it up, and for how long."
 
 #. Prefilled message body with no book context
 msgid "contact_message_body_plain"
@@ -11150,7 +11150,7 @@ msgstr "Add my contact details"
 
 #. Prefilled text message about a book, {title}
 msgid "contact_message_short"
-msgstr "Hello, would you be willing to lend me \u00ab {title} \u00bb? (via BiblioGenius)"
+msgstr "Hello, would you be willing to lend me « {title} »? (via BiblioGenius)"
 
 #. Prefilled text message with no book context
 msgid "contact_message_short_plain"
@@ -11544,3 +11544,161 @@ msgstr "This device already holds {count} books. They will be brought together w
 
 msgid "duplicates_settings_subtitle"
 msgstr "Merge the entries that describe the same book"
+
+#. Keys called from the code but absent from every catalogue until now,
+#. so the raw key was rendered on screen. Added 2026-08-29.
+#. Tooltip on the clear icon of the settings search field.
+msgid "action_clear"
+msgstr "Clear"
+
+#. Snackbar action offering to add a contact.
+msgid "add"
+msgstr "Add"
+
+#. Snackbar shown after the profile avatar is changed.
+msgid "avatar_updated"
+msgstr "Avatar updated"
+
+#. Retry button on the mini-game loading error state.
+msgid "button_retry"
+msgstr "Retry"
+
+#. Snackbar shown after a value is copied to the clipboard.
+msgid "copied"
+msgstr "Copied to clipboard"
+
+#. Label of the description field of a collection.
+msgid "description"
+msgstr "Description"
+
+#. Subtitle under Two-Factor Authentication when it is active.
+msgid "enabled"
+msgstr "Enabled"
+
+#. Instruction in the two-factor code dialog at login.
+msgid "enter_mfa_code"
+msgstr "Enter the 6-digit code from your authenticator app."
+
+#. Snackbar when a borrow request could not be recorded.
+msgid "error_borrowing_book"
+msgstr "Could not borrow this book"
+
+#. Prefix of the error shown when 2FA setup fails.
+msgid "error_initializing_mfa"
+msgstr "Error setting up two-factor authentication"
+
+#. Generic network failure snackbar.
+msgid "error_network"
+msgstr "Network error"
+
+#. Snackbar when saving a book fails.
+msgid "error_save_failed"
+msgstr "Save failed"
+
+#. Prefix of the error shown when an update call fails.
+msgid "error_update"
+msgstr "Update failed"
+
+#. Sync statistics tile counting failed operations.
+msgid "errors"
+msgstr "Errors"
+
+#. Form validation message for an empty mandatory field.
+msgid "field_required"
+msgstr "This field is required"
+
+#. Snackbar confirming two-factor authentication is on.
+msgid "mfa_enabled_success"
+msgstr "Two-factor authentication enabled"
+
+#. Label of the name field of a collection.
+msgid "name"
+msgstr "Name"
+
+#. Snackbar when a sale cannot be recorded for lack of contacts.
+msgid "no_contacts"
+msgstr "No contacts yet"
+
+#. Snackbar when no contact is available to borrow from.
+msgid "no_contacts_to_borrow"
+msgstr "Add contacts first to track who you borrowed from"
+
+#. Dismiss button of a confirmation dialog.
+msgid "ok"
+msgstr "OK"
+
+#. Label prefixing the parent shelf of a shelf.
+msgid "parent"
+msgstr "Parent"
+
+#. Tooltip on the refresh button of shelf management.
+msgid "refresh"
+msgstr "Refresh"
+
+#. Button restoring the default order of the profile stat cards.
+msgid "reset"
+msgstr "Reset"
+
+#. Label of the TOTP secret shown during 2FA setup.
+msgid "secret_key"
+msgstr "Secret key"
+
+#. Title of the two-factor authentication setup dialog.
+msgid "setup_2fa"
+msgstr "Set up two-factor authentication"
+
+#. Tooltip on the front/back camera toggle of the scanner.
+msgid "switch_camera"
+msgstr "Switch camera"
+
+#. Form validation message for an empty title field.
+msgid "title_required"
+msgstr "Please enter a title"
+
+#. Sync statistics tile counting today's operations.
+msgid "today"
+msgstr "Today"
+
+#. Confirm button of the edit shelf dialog.
+msgid "update"
+msgstr "Update"
+
+#. Label of the code field during 2FA setup.
+msgid "verification_code"
+msgstr "Verification code"
+
+#. Books tutorial, step on the add button.
+msgid "wizard_books_add_title"
+msgstr "Add a book"
+
+#. Books tutorial, step on the add button.
+msgid "wizard_books_add_desc"
+msgstr "Tap here to add a book to your library."
+
+#. Books tutorial, step on the barcode scanner.
+msgid "wizard_books_scan_title"
+msgstr "Scan a barcode"
+
+#. Books tutorial, step on the barcode scanner.
+msgid "wizard_books_scan_desc"
+msgstr "Point the camera at the back cover to find the book by its ISBN."
+
+#. Books tutorial, step on the local search.
+msgid "wizard_books_search_title"
+msgstr "Search your library"
+
+#. Books tutorial, step on the local search.
+msgid "wizard_books_search_desc"
+msgstr "Filter your books by title, author or ISBN."
+
+#. Books tutorial, step on the online search.
+msgid "wizard_books_external_title"
+msgstr "Search online"
+
+#. Books tutorial, step on the online search.
+msgid "wizard_books_external_desc"
+msgstr "Look up a book in the online catalogues and add it in one tap."
+
+#. Books tutorial, step on the view switch.
+msgid "wizard_books_view_title"
+msgstr "Change the view"

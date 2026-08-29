@@ -11539,3 +11539,161 @@ msgstr "Este aparelho já contém {count} livros. Eles serão reunidos aos da co
 
 msgid "duplicates_settings_subtitle"
 msgstr "Reunir os registros que descrevem o mesmo livro"
+
+#. Keys called from the code but absent from every catalogue until now,
+#. so the raw key was rendered on screen. Added 2026-08-29.
+#. Tooltip on the clear icon of the settings search field.
+msgid "action_clear"
+msgstr "Limpar"
+
+#. Snackbar action offering to add a contact.
+msgid "add"
+msgstr "Adicionar"
+
+#. Snackbar shown after the profile avatar is changed.
+msgid "avatar_updated"
+msgstr "Avatar atualizado"
+
+#. Retry button on the mini-game loading error state.
+msgid "button_retry"
+msgstr "Tentar novamente"
+
+#. Snackbar shown after a value is copied to the clipboard.
+msgid "copied"
+msgstr "Copiado para a área de transferência"
+
+#. Label of the description field of a collection.
+msgid "description"
+msgstr "Descrição"
+
+#. Subtitle under Two-Factor Authentication when it is active.
+msgid "enabled"
+msgstr "Ativado"
+
+#. Instruction in the two-factor code dialog at login.
+msgid "enter_mfa_code"
+msgstr "Insira o código de 6 dígitos do seu aplicativo autenticador."
+
+#. Snackbar when a borrow request could not be recorded.
+msgid "error_borrowing_book"
+msgstr "Não foi possível pegar este livro emprestado"
+
+#. Prefix of the error shown when 2FA setup fails.
+msgid "error_initializing_mfa"
+msgstr "Erro ao configurar a autenticação de dois fatores"
+
+#. Generic network failure snackbar.
+msgid "error_network"
+msgstr "Erro de rede"
+
+#. Snackbar when saving a book fails.
+msgid "error_save_failed"
+msgstr "Falha ao salvar"
+
+#. Prefix of the error shown when an update call fails.
+msgid "error_update"
+msgstr "Falha ao atualizar"
+
+#. Sync statistics tile counting failed operations.
+msgid "errors"
+msgstr "Erros"
+
+#. Form validation message for an empty mandatory field.
+msgid "field_required"
+msgstr "Este campo é obrigatório"
+
+#. Snackbar confirming two-factor authentication is on.
+msgid "mfa_enabled_success"
+msgstr "Autenticação de dois fatores ativada"
+
+#. Label of the name field of a collection.
+msgid "name"
+msgstr "Nome"
+
+#. Snackbar when a sale cannot be recorded for lack of contacts.
+msgid "no_contacts"
+msgstr "Nenhum contato ainda"
+
+#. Snackbar when no contact is available to borrow from.
+msgid "no_contacts_to_borrow"
+msgstr "Adicione contatos primeiro para registrar de quem você pegou emprestado"
+
+#. Dismiss button of a confirmation dialog.
+msgid "ok"
+msgstr "OK"
+
+#. Label prefixing the parent shelf of a shelf.
+msgid "parent"
+msgstr "Pai"
+
+#. Tooltip on the refresh button of shelf management.
+msgid "refresh"
+msgstr "Atualizar"
+
+#. Button restoring the default order of the profile stat cards.
+msgid "reset"
+msgstr "Redefinir"
+
+#. Label of the TOTP secret shown during 2FA setup.
+msgid "secret_key"
+msgstr "Chave secreta"
+
+#. Title of the two-factor authentication setup dialog.
+msgid "setup_2fa"
+msgstr "Configurar autenticação de dois fatores"
+
+#. Tooltip on the front/back camera toggle of the scanner.
+msgid "switch_camera"
+msgstr "Alternar câmera"
+
+#. Form validation message for an empty title field.
+msgid "title_required"
+msgstr "Por favor, insira um título"
+
+#. Sync statistics tile counting today's operations.
+msgid "today"
+msgstr "Hoje"
+
+#. Confirm button of the edit shelf dialog.
+msgid "update"
+msgstr "Atualizar"
+
+#. Label of the code field during 2FA setup.
+msgid "verification_code"
+msgstr "Código de verificação"
+
+#. Books tutorial, step on the add button.
+msgid "wizard_books_add_title"
+msgstr "Adicionar um livro"
+
+#. Books tutorial, step on the add button.
+msgid "wizard_books_add_desc"
+msgstr "Toque aqui para adicionar um livro à sua biblioteca."
+
+#. Books tutorial, step on the barcode scanner.
+msgid "wizard_books_scan_title"
+msgstr "Escanear um código de barras"
+
+#. Books tutorial, step on the barcode scanner.
+msgid "wizard_books_scan_desc"
+msgstr "Aponte a câmera para a contracapa para encontrar o livro pelo ISBN."
+
+#. Books tutorial, step on the local search.
+msgid "wizard_books_search_title"
+msgstr "Pesquisar na sua biblioteca"
+
+#. Books tutorial, step on the local search.
+msgid "wizard_books_search_desc"
+msgstr "Filtre seus livros por título, autor ou ISBN."
+
+#. Books tutorial, step on the online search.
+msgid "wizard_books_external_title"
+msgstr "Pesquisar on-line"
+
+#. Books tutorial, step on the online search.
+msgid "wizard_books_external_desc"
+msgstr "Procure um livro nos catálogos on-line e adicione-o com um toque."
+
+#. Books tutorial, step on the view switch.
+msgid "wizard_books_view_title"
+msgstr "Mudar a visualização"

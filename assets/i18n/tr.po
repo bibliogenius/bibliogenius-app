@@ -11531,3 +11531,161 @@ msgstr "Bu cihazda zaten {count} kitap var. Hesaptakilerle birleştirilecekler: 
 
 msgid "duplicates_settings_subtitle"
 msgstr "Aynı kitabı anlatan kayıtları birleştir"
+
+#. Keys called from the code but absent from every catalogue until now,
+#. so the raw key was rendered on screen. Added 2026-08-29.
+#. Tooltip on the clear icon of the settings search field.
+msgid "action_clear"
+msgstr "Temizle"
+
+#. Snackbar action offering to add a contact.
+msgid "add"
+msgstr "Ekle"
+
+#. Snackbar shown after the profile avatar is changed.
+msgid "avatar_updated"
+msgstr "Avatar güncellendi"
+
+#. Retry button on the mini-game loading error state.
+msgid "button_retry"
+msgstr "Tekrar dene"
+
+#. Snackbar shown after a value is copied to the clipboard.
+msgid "copied"
+msgstr "Panoya kopyalandı"
+
+#. Label of the description field of a collection.
+msgid "description"
+msgstr "Açıklama"
+
+#. Subtitle under Two-Factor Authentication when it is active.
+msgid "enabled"
+msgstr "Etkin"
+
+#. Instruction in the two-factor code dialog at login.
+msgid "enter_mfa_code"
+msgstr "Kimlik doğrulama uygulamanızdaki 6 haneli kodu girin."
+
+#. Snackbar when a borrow request could not be recorded.
+msgid "error_borrowing_book"
+msgstr "Bu kitap ödünç alınamadı"
+
+#. Prefix of the error shown when 2FA setup fails.
+msgid "error_initializing_mfa"
+msgstr "İki faktörlü doğrulama kurulurken hata oluştu"
+
+#. Generic network failure snackbar.
+msgid "error_network"
+msgstr "Ağ hatası"
+
+#. Snackbar when saving a book fails.
+msgid "error_save_failed"
+msgstr "Kaydedilemedi"
+
+#. Prefix of the error shown when an update call fails.
+msgid "error_update"
+msgstr "Güncellenemedi"
+
+#. Sync statistics tile counting failed operations.
+msgid "errors"
+msgstr "Hatalar"
+
+#. Form validation message for an empty mandatory field.
+msgid "field_required"
+msgstr "Bu alan zorunludur"
+
+#. Snackbar confirming two-factor authentication is on.
+msgid "mfa_enabled_success"
+msgstr "İki faktörlü doğrulama etkinleştirildi"
+
+#. Label of the name field of a collection.
+msgid "name"
+msgstr "Ad"
+
+#. Snackbar when a sale cannot be recorded for lack of contacts.
+msgid "no_contacts"
+msgstr "Henüz kişi yok"
+
+#. Snackbar when no contact is available to borrow from.
+msgid "no_contacts_to_borrow"
+msgstr "Kimden ödünç aldığınızı takip etmek için önce kişi ekleyin"
+
+#. Dismiss button of a confirmation dialog.
+msgid "ok"
+msgstr "Tamam"
+
+#. Label prefixing the parent shelf of a shelf.
+msgid "parent"
+msgstr "Üst"
+
+#. Tooltip on the refresh button of shelf management.
+msgid "refresh"
+msgstr "Yenile"
+
+#. Button restoring the default order of the profile stat cards.
+msgid "reset"
+msgstr "Sıfırla"
+
+#. Label of the TOTP secret shown during 2FA setup.
+msgid "secret_key"
+msgstr "Gizli anahtar"
+
+#. Title of the two-factor authentication setup dialog.
+msgid "setup_2fa"
+msgstr "İki faktörlü doğrulamayı kur"
+
+#. Tooltip on the front/back camera toggle of the scanner.
+msgid "switch_camera"
+msgstr "Kamerayı değiştir"
+
+#. Form validation message for an empty title field.
+msgid "title_required"
+msgstr "Lütfen bir başlık girin"
+
+#. Sync statistics tile counting today's operations.
+msgid "today"
+msgstr "Bugün"
+
+#. Confirm button of the edit shelf dialog.
+msgid "update"
+msgstr "Güncelle"
+
+#. Label of the code field during 2FA setup.
+msgid "verification_code"
+msgstr "Doğrulama kodu"
+
+#. Books tutorial, step on the add button.
+msgid "wizard_books_add_title"
+msgstr "Kitap ekle"
+
+#. Books tutorial, step on the add button.
+msgid "wizard_books_add_desc"
+msgstr "Kitaplığınıza kitap eklemek için buraya dokunun."
+
+#. Books tutorial, step on the barcode scanner.
+msgid "wizard_books_scan_title"
+msgstr "Barkod tara"
+
+#. Books tutorial, step on the barcode scanner.
+msgid "wizard_books_scan_desc"
+msgstr "Kitabı ISBN'inden bulmak için kamerayı arka kapağa doğrultun."
+
+#. Books tutorial, step on the local search.
+msgid "wizard_books_search_title"
+msgstr "Kitaplığınızda arayın"
+
+#. Books tutorial, step on the local search.
+msgid "wizard_books_search_desc"
+msgstr "Kitaplarınızı başlığa, yazara veya ISBN'e göre filtreleyin."
+
+#. Books tutorial, step on the online search.
+msgid "wizard_books_external_title"
+msgstr "Çevrimiçi ara"
+
+#. Books tutorial, step on the online search.
+msgid "wizard_books_external_desc"
+msgstr "Çevrimiçi kataloglarda bir kitap arayın ve tek dokunuşla ekleyin."
+
+#. Books tutorial, step on the view switch.
+msgid "wizard_books_view_title"
+msgstr "Görünümü değiştir"

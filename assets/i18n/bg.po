@@ -11531,3 +11531,161 @@ msgstr "Това устройство вече съдържа {count} книги
 
 msgid "duplicates_settings_subtitle"
 msgstr "Обединяване на записите, описващи една и съща книга"
+
+#. Keys called from the code but absent from every catalogue until now,
+#. so the raw key was rendered on screen. Added 2026-08-29.
+#. Tooltip on the clear icon of the settings search field.
+msgid "action_clear"
+msgstr "Изчистване"
+
+#. Snackbar action offering to add a contact.
+msgid "add"
+msgstr "Добавяне"
+
+#. Snackbar shown after the profile avatar is changed.
+msgid "avatar_updated"
+msgstr "Аватарът е обновен"
+
+#. Retry button on the mini-game loading error state.
+msgid "button_retry"
+msgstr "Опитай отново"
+
+#. Snackbar shown after a value is copied to the clipboard.
+msgid "copied"
+msgstr "Копирано в клипборда"
+
+#. Label of the description field of a collection.
+msgid "description"
+msgstr "Описание"
+
+#. Subtitle under Two-Factor Authentication when it is active.
+msgid "enabled"
+msgstr "Активирано"
+
+#. Instruction in the two-factor code dialog at login.
+msgid "enter_mfa_code"
+msgstr "Въведете 6-цифрения код от приложението за удостоверяване."
+
+#. Snackbar when a borrow request could not be recorded.
+msgid "error_borrowing_book"
+msgstr "Книгата не може да бъде заета"
+
+#. Prefix of the error shown when 2FA setup fails.
+msgid "error_initializing_mfa"
+msgstr "Грешка при настройване на двуфакторното удостоверяване"
+
+#. Generic network failure snackbar.
+msgid "error_network"
+msgstr "Мрежова грешка"
+
+#. Snackbar when saving a book fails.
+msgid "error_save_failed"
+msgstr "Записването е неуспешно"
+
+#. Prefix of the error shown when an update call fails.
+msgid "error_update"
+msgstr "Актуализацията е неуспешна"
+
+#. Sync statistics tile counting failed operations.
+msgid "errors"
+msgstr "Грешки"
+
+#. Form validation message for an empty mandatory field.
+msgid "field_required"
+msgstr "Това поле е задължително"
+
+#. Snackbar confirming two-factor authentication is on.
+msgid "mfa_enabled_success"
+msgstr "Двуфакторното удостоверяване е активирано"
+
+#. Label of the name field of a collection.
+msgid "name"
+msgstr "Име"
+
+#. Snackbar when a sale cannot be recorded for lack of contacts.
+msgid "no_contacts"
+msgstr "Все още няма контакти"
+
+#. Snackbar when no contact is available to borrow from.
+msgid "no_contacts_to_borrow"
+msgstr "Първо добавете контакти, за да проследявате от кого сте заели"
+
+#. Dismiss button of a confirmation dialog.
+msgid "ok"
+msgstr "ОК"
+
+#. Label prefixing the parent shelf of a shelf.
+msgid "parent"
+msgstr "Родител"
+
+#. Tooltip on the refresh button of shelf management.
+msgid "refresh"
+msgstr "Опресняване"
+
+#. Button restoring the default order of the profile stat cards.
+msgid "reset"
+msgstr "Нулиране"
+
+#. Label of the TOTP secret shown during 2FA setup.
+msgid "secret_key"
+msgstr "Таен ключ"
+
+#. Title of the two-factor authentication setup dialog.
+msgid "setup_2fa"
+msgstr "Настройване на двуфакторно удостоверяване"
+
+#. Tooltip on the front/back camera toggle of the scanner.
+msgid "switch_camera"
+msgstr "Смяна на камерата"
+
+#. Form validation message for an empty title field.
+msgid "title_required"
+msgstr "Моля, въведете заглавие"
+
+#. Sync statistics tile counting today's operations.
+msgid "today"
+msgstr "Днес"
+
+#. Confirm button of the edit shelf dialog.
+msgid "update"
+msgstr "Актуализиране"
+
+#. Label of the code field during 2FA setup.
+msgid "verification_code"
+msgstr "Код за проверка"
+
+#. Books tutorial, step on the add button.
+msgid "wizard_books_add_title"
+msgstr "Добавяне на книга"
+
+#. Books tutorial, step on the add button.
+msgid "wizard_books_add_desc"
+msgstr "Докоснете тук, за да добавите книга в библиотеката си."
+
+#. Books tutorial, step on the barcode scanner.
+msgid "wizard_books_scan_title"
+msgstr "Сканиране на баркод"
+
+#. Books tutorial, step on the barcode scanner.
+msgid "wizard_books_scan_desc"
+msgstr "Насочете камерата към задната корица, за да намерите книгата по нейния ISBN."
+
+#. Books tutorial, step on the local search.
+msgid "wizard_books_search_title"
+msgstr "Търсене в библиотеката ви"
+
+#. Books tutorial, step on the local search.
+msgid "wizard_books_search_desc"
+msgstr "Филтрирайте книгите си по заглавие, автор или ISBN."
+
+#. Books tutorial, step on the online search.
+msgid "wizard_books_external_title"
+msgstr "Търсене онлайн"
+
+#. Books tutorial, step on the online search.
+msgid "wizard_books_external_desc"
+msgstr "Потърсете книга в онлайн каталозите и я добавете с едно докосване."
+
+#. Books tutorial, step on the view switch.
+msgid "wizard_books_view_title"
+msgstr "Смяна на изгледа"

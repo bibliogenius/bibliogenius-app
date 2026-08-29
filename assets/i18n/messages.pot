@@ -9113,3 +9113,2510 @@ msgstr ""
 
 msgid "duplicates_settings_subtitle"
 msgstr ""
+
+#. --- Keys present in en.po but absent from this template until now.
+#. Appended by hand on 2026-08-29 (never regenerate: tools/extract_po.dart wipes the catalogues).
+
+#. Author - when authors already added
+msgid "author_hint_add"
+msgstr ""
+
+#. Helper text for author field
+msgid "author_helper"
+msgstr ""
+
+#. Short-hand for an average loan duration below one day (loan statistics card)
+msgid "avg_duration_under_one_day"
+msgstr ""
+
+#. Shown when the copy was removed but the lender could not be told about it
+msgid "book_returned_lender_not_notified"
+msgstr ""
+
+#. Confirm button label to leave the public directory
+msgid "confirm_directory_unlist_action"
+msgstr ""
+
+#. Body of the confirmation dialog when leaving the public directory
+msgid "confirm_directory_unlist_body"
+msgstr ""
+
+#. Title of the confirmation dialog when leaving the public directory
+msgid "confirm_directory_unlist_title"
+msgstr ""
+
+#. Confirm button label to disconnect from the remote server
+msgid "confirm_remote_disconnect_action"
+msgstr ""
+
+#. Body of the confirmation dialog when disconnecting from the remote server
+msgid "confirm_remote_disconnect_body"
+msgstr ""
+
+#. Title of the confirmation dialog when disconnecting from the remote server
+msgid "confirm_remote_disconnect_title"
+msgstr ""
+
+msgid "cover_label"
+msgstr ""
+
+msgid "cover_take_photo_short"
+msgstr ""
+
+msgid "cover_choose_short"
+msgstr ""
+
+#. Return the borrowed copy before deleting.
+msgid "delete_disabled_borrowed_tooltip"
+msgstr ""
+
+#. Mark the loaned copy as returned before deleting.
+msgid "delete_disabled_lent_tooltip"
+msgstr ""
+
+#. Also delete the books in this collection (checkbox label, off by default)
+msgid "delete_collection_include_books"
+msgstr ""
+
+#. "{to_delete} to delete, {to_keep} kept" - preview shown below the checkbox
+msgid "delete_collection_preview_summary"
+msgstr ""
+
+#. Legend shown below the preview summary in the delete-with-books confirmation
+msgid "delete_collection_preview_legend"
+msgstr ""
+
+#. Header for collections available in the user's reading languages
+msgid "curated_section_in_your_languages"
+msgstr ""
+
+#. Header for collections in other languages, shown collapsed by default
+msgid "curated_section_other_languages"
+msgstr ""
+
+#. Hint shown below the "other languages" header when collapsed
+msgid "curated_other_languages_hint"
+msgstr ""
+
+#. Lending
+msgid "enable_lending_module"
+msgstr ""
+
+#. Allow lending your books to your contacts
+msgid "lending_module_desc"
+msgstr ""
+
+#. Loans modules disabled
+msgid "loans_disabled_title"
+msgstr ""
+
+#. Both lending and borrowing modules are off. Re-enable them in Settings to manage loans here.
+msgid "loans_disabled_body"
+msgstr ""
+
+#. Open Settings
+msgid "loans_disabled_open_settings"
+msgstr ""
+
+#. Something went wrong
+msgid "error_unexpected_title"
+msgstr ""
+
+#. The app encountered an unexpected error. Please try again.
+msgid "error_unexpected_message"
+msgstr ""
+
+#. Alternate history
+msgid "genre_alternate_history"
+msgstr ""
+
+#. Antiquity
+msgid "genre_antiquity"
+msgstr ""
+
+#. Architecture
+msgid "genre_architecture"
+msgstr ""
+
+#. Art & illustrated books
+msgid "genre_arts"
+msgstr ""
+
+#. Biography
+msgid "genre_biography"
+msgstr ""
+
+#. Cinema
+msgid "genre_cinema"
+msgstr ""
+
+#. Classic fiction
+msgid "genre_classic_fiction"
+msgstr ""
+
+#. Comics & manga
+msgid "genre_comics"
+msgstr ""
+
+#. American comics
+msgid "genre_comics_us"
+msgstr ""
+
+#. Contemporary fiction
+msgid "genre_contemporary_fiction"
+msgstr ""
+
+#. Cooking
+msgid "genre_cooking"
+msgstr ""
+
+#. Crime & thriller
+msgid "genre_crime"
+msgstr ""
+
+#. Cyberpunk
+msgid "genre_cyberpunk"
+msgstr ""
+
+#. Detective novel
+msgid "genre_detective"
+msgstr ""
+
+#. Dystopia
+msgid "genre_dystopia"
+msgstr ""
+
+#. Early modern
+msgid "genre_early_modern"
+msgstr ""
+
+#. Epic fantasy
+msgid "genre_epic_fantasy"
+msgstr ""
+
+#. Essays & non-fiction
+msgid "genre_essay"
+msgstr ""
+
+#. Fantasy
+msgid "genre_fantasy"
+msgstr ""
+
+#. Fine arts
+msgid "genre_fine_arts"
+msgstr ""
+
+#. First reads
+msgid "genre_first_reads"
+msgstr ""
+
+#. Franco-Belgian comics
+msgid "genre_franco_belgian"
+msgstr ""
+
+#. Graphic novel
+msgid "genre_graphic_novel"
+msgstr ""
+
+#. Historical fiction
+msgid "genre_historical_fiction"
+msgstr ""
+
+#. History
+msgid "genre_history"
+msgstr ""
+
+#. Horror
+msgid "genre_horror"
+msgstr ""
+
+#. Manga
+msgid "genre_manga"
+msgstr ""
+
+#. Middle Ages
+msgid "genre_middle_ages"
+msgstr ""
+
+#. Music
+msgid "genre_music"
+msgstr ""
+
+#. Nature & garden
+msgid "genre_nature_garden"
+msgstr ""
+
+#. Near future
+msgid "genre_near_future"
+msgstr ""
+
+#. Noir
+msgid "genre_noir"
+msgstr ""
+
+#. Fiction
+msgid "genre_novel"
+msgstr ""
+
+#. Philosophy
+msgid "genre_philosophy"
+msgstr ""
+
+#. Photography
+msgid "genre_photography"
+msgstr ""
+
+#. Suggested genres. Picking one files the book on a shelf.
+msgid "genre_picker_helper"
+msgstr ""
+
+#. Genre
+msgid "genre_picker_label"
+msgstr ""
+
+#. Picture book
+msgid "genre_picture_book"
+msgstr ""
+
+#. Poetry & theatre
+msgid "genre_poetry_theatre"
+msgstr ""
+
+#. Politics & society
+msgid "genre_politics_society"
+msgstr ""
+
+#. Practical & hobbies
+msgid "genre_practical"
+msgstr ""
+
+#. Refine (optional)
+msgid "genre_refine"
+msgstr ""
+
+#. Romance
+msgid "genre_romance"
+msgstr ""
+
+#. Genre
+msgid "genre_root"
+msgstr ""
+
+#. Science
+msgid "genre_science"
+msgstr ""
+
+#. Science fiction
+msgid "genre_scifi"
+msgstr ""
+
+#. Short stories
+msgid "genre_short_stories"
+msgstr ""
+
+#. Space opera
+msgid "genre_space_opera"
+msgstr ""
+
+#. Spirituality
+msgid "genre_spirituality"
+msgstr ""
+
+#. Sport
+msgid "genre_sport"
+msgstr ""
+
+#. Spy fiction
+msgid "genre_spy"
+msgstr ""
+
+#. Supernatural
+msgid "genre_supernatural"
+msgstr ""
+
+#. Teen fiction
+msgid "genre_teen_fiction"
+msgstr ""
+
+#. Thriller
+msgid "genre_thriller"
+msgstr ""
+
+#. Travel
+msgid "genre_travel"
+msgstr ""
+
+#. True crime
+msgid "genre_true_crime"
+msgstr ""
+
+#. 20th century
+msgid "genre_twentieth_century"
+msgstr ""
+
+#. Urban fantasy
+msgid "genre_urban_fantasy"
+msgstr ""
+
+#. Wellbeing
+msgid "genre_wellbeing"
+msgstr ""
+
+#. Young adult
+msgid "genre_young_adult"
+msgstr ""
+
+#. Children & teens
+msgid "genre_youth"
+msgstr ""
+
+#. Tag shown next to the Google Books toggle title to flag it as needing extra setup
+msgid "google_books_advanced_tag"
+msgstr ""
+
+#. Badge shown on the Google Books filter chip when no API key is set
+msgid "google_books_no_api_key_badge"
+msgstr ""
+
+#. SnackBar shown when filtering by Google Books without an API key
+msgid "google_books_no_api_key_snackbar"
+msgstr ""
+
+#. Info banner shown under the Google Books toggle when no API key is set
+msgid "google_books_no_api_key_warning"
+msgstr ""
+
+#. Expandable section header hiding the optional Google Books API key field
+msgid "google_books_advanced_options"
+msgstr ""
+
+#. Clickable link below the Google Books API key field
+msgid "google_books_api_key_help_link"
+msgstr ""
+
+#. Loan overdue badge
+msgid "loan_overdue"
+msgstr ""
+
+#. Modules sub-group: advanced/expert features
+msgid "modules_group_advanced"
+msgstr ""
+
+#. Modules sub-group: content and library management
+msgid "modules_group_content"
+msgstr ""
+
+#. Modules sub-group: lending and book formats
+msgid "modules_group_lending"
+msgstr ""
+
+#. Modules sub-group: reading engagement, quotes, games
+msgid "modules_group_reading_fun"
+msgstr ""
+
+#. Empty state when the hub refuses the catalog (follow approval missing)
+msgid "hub_catalog_follow_required"
+msgstr ""
+
+#. Empty state when the hub has no catalog for this library (expired or never pushed)
+msgid "hub_catalog_unavailable"
+msgstr ""
+
+#. Section heading: the city stored on this device (ADR-035 amended)
+msgid "settings_city_title"
+msgstr ""
+
+#. Explains that filling in a city is local and does not publish anything
+msgid "settings_city_local_desc"
+msgstr ""
+
+#. Shown instead of the city picker when no country is set yet
+msgid "settings_city_requires_country"
+msgstr ""
+
+#. Tooltip: remove the city stored on this device
+msgid "settings_city_clear"
+msgstr ""
+
+#. Toggle: opt in to share city in the public directory (ADR-035)
+msgid "settings_share_city"
+msgstr ""
+
+#. Shown under the share toggle when no city has been picked yet
+msgid "settings_share_city_requires_city"
+msgstr ""
+
+#. Description for the share-my-city toggle
+msgid "settings_share_city_desc"
+msgstr ""
+
+#. Placeholder shown in the city picker before the user has chosen one
+msgid "settings_city_pick"
+msgstr ""
+
+#. Shown when a stored city id no longer resolves (corrupt local cache)
+msgid "settings_city_unknown"
+msgstr ""
+
+#. City picker error: hub has no static file for this country yet
+msgid "settings_city_unavailable"
+msgstr ""
+
+#. A11y label for the city picker button in settings (ADR-035, RGAA A1)
+msgid "settings_open_city_picker_a11y"
+msgstr ""
+
+#. City picker empty state: search returned nothing
+msgid "settings_city_no_match"
+msgstr ""
+
+#. Generic search input placeholder (city picker, country picker, etc.)
+msgid "search"
+msgstr ""
+
+#. Screen reader announcement for the star rating.
+#. {rating} is the value on the 0-5 scale, already formatted for the
+#. reader locale: no decimal when the rating is whole, one otherwise.
+msgid "rating_semantic_label"
+msgstr ""
+
+msgid "page_count_label"
+msgstr ""
+
+msgid "page_count_hint"
+msgstr ""
+
+msgid "settings_reshow_invite_banner"
+msgstr ""
+
+msgid "settings_reshow_invite_banner_done"
+msgstr ""
+
+#. Sort by
+msgid "sort_by_label"
+msgstr ""
+
+#. Author (sort field)
+msgid "sort_field_author"
+msgstr ""
+
+#. Title (sort field)
+msgid "sort_field_title"
+msgstr ""
+
+#. Ascending order (A to Z)
+msgid "sort_direction_ascending"
+msgstr ""
+
+#. Descending order (Z to A)
+msgid "sort_direction_descending"
+msgstr ""
+
+#. Change sort direction
+msgid "tooltip_sort_direction"
+msgstr ""
+
+#. ADR-032: short label for the chip on a peer card whose relay token is stale
+msgid "stale_connection_badge_label"
+msgstr ""
+
+#. ADR-032: accessibility label for the stale-connection chip
+msgid "stale_connection_badge_a11y"
+msgstr ""
+
+#. ADR-032: title of the dialog shown after tapping the stale-connection badge
+msgid "stale_connection_dialog_title"
+msgstr ""
+
+#. ADR-032: body of the dialog, %s is replaced by the peer name
+msgid "stale_connection_dialog_body"
+msgstr ""
+
+msgid "started_on"
+msgstr ""
+
+msgid "sync_completed"
+msgstr ""
+
+#. Last refresh timestamp
+msgid "last_updated_just_now"
+msgstr ""
+
+msgid "last_updated_minutes"
+msgstr ""
+
+msgid "last_updated_hours"
+msgstr ""
+
+msgid "monthly_progress_empty"
+msgstr ""
+
+msgid "monthly_progress_empty_hint"
+msgstr ""
+
+msgid "monthly_progress_total"
+msgstr ""
+
+msgid "monthly_progress_best"
+msgstr ""
+
+#. Memory Game - Tier subtitle (pairs count and grid size)
+msgid "memory_game_tier_subtitle"
+msgstr ""
+
+#. Memory Game - Cards count label (expanded tier detail)
+msgid "memory_game_cards_label"
+msgstr ""
+
+#. Memory Game - Best time label (expanded tier detail)
+msgid "memory_game_best_label"
+msgstr ""
+
+#. Settings - Backup section title (top-level accordion)
+msgid "backup_section_title"
+msgstr ""
+
+#. Settings - Backup: export catalog tile title
+msgid "backup_export_catalog_title"
+msgstr ""
+
+#. Settings - Backup: export catalog tile subtitle
+msgid "backup_export_catalog_subtitle"
+msgstr ""
+
+#. Settings - Backup: export catalog help text
+msgid "backup_export_catalog_help"
+msgstr ""
+
+#. Settings - Backup: full backup tile title
+msgid "backup_full_title"
+msgstr ""
+
+#. Settings - Backup: full backup tile subtitle
+msgid "backup_full_subtitle"
+msgstr ""
+
+#. Settings - Backup: full backup help text
+msgid "backup_full_help"
+msgstr ""
+
+#. Settings - Backup: snackbar shown when tapping the disabled full backup tile
+msgid "backup_full_unavailable"
+msgstr ""
+
+#. Full backup dialog: secret text field label
+msgid "backup_secret_label"
+msgstr ""
+
+#. Full backup dialog: confirm/export button
+msgid "backup_export_button"
+msgstr ""
+
+#. Settings - Backup: restore tile title
+msgid "backup_restore_title"
+msgstr ""
+
+#. Settings - Backup: restore tile subtitle
+msgid "backup_restore_subtitle"
+msgstr ""
+
+#. Settings - Backup: restore help text
+msgid "backup_restore_help"
+msgstr ""
+
+#. Settings - System section title (top-level accordion)
+msgid "system_section_title"
+msgstr ""
+
+#. Settings - System: reset tile title
+msgid "system_reset_title"
+msgstr ""
+
+#. Settings - System: reset tile subtitle
+msgid "system_reset_subtitle"
+msgstr ""
+
+#. Settings - Content: migration wizard tile title (post option-B refactor)
+msgid "migration_wizard_tile_title"
+msgstr ""
+
+#. Settings - Content: migration wizard tile subtitle (post option-B refactor)
+msgid "migration_wizard_tile_subtitle"
+msgstr ""
+
+#. Migration Wizard - AppBar title (post option-B refactor)
+msgid "migration_wizard_screen_title"
+msgstr ""
+
+#. Migration Wizard - Import section title
+msgid "migration_section_import_title"
+msgstr ""
+
+#. Migration Wizard - Import section subtitle
+msgid "migration_section_import_subtitle"
+msgstr ""
+
+#. Migration Wizard - CSV import card title
+msgid "migration_card_csv_title"
+msgstr ""
+
+#. Migration Wizard - CSV import card subtitle
+msgid "migration_card_csv_subtitle"
+msgstr ""
+
+#. Migration Wizard - Organisation section title
+msgid "migration_section_organisation_title"
+msgstr ""
+
+#. Migration Wizard - Organisation section subtitle
+msgid "migration_section_organisation_subtitle"
+msgstr ""
+
+#. Migration Wizard - Manage shelves card title
+msgid "migration_card_shelves_title"
+msgstr ""
+
+#. Migration Wizard - Manage shelves card subtitle
+msgid "migration_card_shelves_subtitle"
+msgstr ""
+
+#. Migration Wizard - CSV import success message ({count} = number of books)
+msgid "migration_import_success"
+msgstr ""
+
+#. Migration Wizard - CSV import failure (no specific error returned)
+msgid "migration_import_failed"
+msgstr ""
+
+#. Migration Wizard - Generic error prefix (e.g. "Error: <details>")
+msgid "migration_error_prefix"
+msgstr ""
+
+msgid "share_failed"
+msgstr ""
+
+msgid "pairing_identity_note"
+msgstr ""
+
+msgid "pairing_error_unreachable"
+msgstr ""
+
+msgid "pairing_error_expired"
+msgstr ""
+
+msgid "pairing_error_invalid"
+msgstr ""
+
+msgid "pairing_error_rate_limited"
+msgstr ""
+
+msgid "pairing_error_registration"
+msgstr ""
+
+msgid "pairing_scan_button"
+msgstr ""
+
+msgid "pairing_scan_instruction"
+msgstr ""
+
+msgid "pairing_qr_caption"
+msgstr ""
+
+msgid "pairing_error_qr_invalid"
+msgstr ""
+
+#. Library view mode: cover grid
+msgid "view_mode_cover_grid"
+msgstr ""
+
+#. Library view mode: bookshelf spines
+msgid "view_mode_spine_shelf"
+msgstr ""
+
+#. ADR-035 Phase 2: empty state when a country/city filter is active
+msgid "directory_no_results_in_location"
+msgstr ""
+
+#. CTA shown under directory_no_results_in_location, opens settings
+msgid "directory_be_first_share_city"
+msgstr ""
+
+#. Tooltip on the directory filter button (ADR-035 Phase 2)
+msgid "directory_filter_tooltip"
+msgstr ""
+
+#. Tooltip on the X icon of the active filter chip
+msgid "directory_filter_clear"
+msgstr ""
+
+#. A11y label for the tap-to-filter shortcut on a profile location chip (ADR-035, RGAA A1)
+msgid "directory_filter_by_location_a11y"
+msgstr ""
+
+#. Banner shown above the public directory when the user has registered their
+#. city and at least one peer is in the same city (V1 same-city highlight).
+#. Singular form, used when exactly 1 peer is in the user city.
+msgid "directory_same_city_banner_one"
+msgstr ""
+
+#. Plural form of the same-city banner. %d is replaced with the visible count
+#. (capped at 10). Used for 2 to 10 peers.
+msgid "directory_same_city_banner_other"
+msgstr ""
+
+#. Saturated form of the same-city banner, used when more than 10 peers
+#. share the user city. %d is replaced with the cap (10), so the rendered
+#. text reads "10+ libraries".
+msgid "directory_same_city_banner_more_than"
+msgstr ""
+
+#. Action button on the same-city banner; applies the existing city filter.
+msgid "directory_same_city_view_action"
+msgstr ""
+
+#. Tooltip on the same-city banner action button (RGAA A1, A4).
+msgid "directory_same_city_view_tooltip"
+msgstr ""
+
+#. Hub pending requests - explanatory note shown when the public directory is disabled but legacy pending requests still exist server-side
+msgid "hub_pending_legacy_note"
+msgstr ""
+
+#. Relay mailbox expired error
+msgid "peer_relay_mailbox_expired"
+msgstr ""
+
+#. Bottom sheet: peer actions menu
+msgid "peer_actions"
+msgstr ""
+
+msgid "view_profile"
+msgstr ""
+
+#. Avatar tooltip: connection type
+msgid "peer_type_both"
+msgstr ""
+
+msgid "peer_type_direct"
+msgstr ""
+
+msgid "peer_type_following"
+msgstr ""
+
+msgid "notif_book_reclaimed"
+msgstr ""
+
+msgid "notif_borrow_rejected"
+msgstr ""
+
+msgid "settings_springboard_title"
+msgstr ""
+
+msgid "settings_goal_sync_devices"
+msgstr ""
+
+msgid "settings_goal_backup"
+msgstr ""
+
+msgid "settings_goal_public"
+msgstr ""
+
+msgid "settings_goal_local_wifi"
+msgstr ""
+
+msgid "settings_goal_manage_public"
+msgstr ""
+
+msgid "settings_goal_manage_wifi"
+msgstr ""
+
+msgid "settings_goal_language"
+msgstr ""
+
+msgid "settings_goal_manage_city"
+msgstr ""
+
+msgid "settings_goal_set_city"
+msgstr ""
+
+msgid "settings_goal_set_country"
+msgstr ""
+
+msgid "dashboard_discover_more"
+msgstr ""
+
+msgid "discover_dismiss_suggestion"
+msgstr ""
+
+#. Peer view mirror: screen title and Settings entry
+msgid "peer_view_title"
+msgstr ""
+
+msgid "peer_view_entry_desc"
+msgstr ""
+
+#. Peer view mirror: entry from the public directory sheet, before opting in
+msgid "peer_view_entry_preflight_desc"
+msgstr ""
+
+#. Peer view mirror: same entry, once already listed
+msgid "peer_view_entry_listed_desc"
+msgstr ""
+
+#. Peer view mirror: secondary action on the Discover tab publish banner
+msgid "peer_view_before_publishing"
+msgstr ""
+
+#. Peer view mirror: the directory lane publishes strictly less than this list
+msgid "peer_view_directory_scope"
+msgstr ""
+
+#. Peer view mirror: explanation card
+msgid "peer_view_intro"
+msgstr ""
+
+msgid "peer_view_hidden_note"
+msgstr ""
+
+msgid "peer_view_count"
+msgstr ""
+
+msgid "peer_view_empty"
+msgstr ""
+
+msgid "peer_view_error"
+msgstr ""
+
+msgid "peer_view_available_copies"
+msgstr ""
+
+msgid "settings_share_city_requires_directory"
+msgstr ""
+
+#. Section title for reading notes
+msgid "notes_section_title"
+msgstr ""
+
+#. Subtitle hint for reading notes section
+msgid "notes_section_hint"
+msgstr ""
+
+#. Subtitle hint for reading notes section (when speech-to-text is enabled)
+msgid "notes_section_hint_speech"
+msgstr ""
+
+#. Placeholder for the note input field
+msgid "add_note_placeholder"
+msgstr ""
+
+#. Hint for page number field
+msgid "note_page_label"
+msgstr ""
+
+#. Link to see all notes
+msgid "view_all_notes"
+msgstr ""
+
+#. Confirmation before deleting a note
+msgid "delete_note_confirm"
+msgstr ""
+
+#. Shown when there are no notes yet
+msgid "no_notes_yet"
+msgstr ""
+
+#. Note updated confirmation
+msgid "note_updated"
+msgstr ""
+
+#. Note deleted confirmation
+msgid "note_deleted"
+msgstr ""
+
+#. Edit note dialog title
+msgid "edit_note"
+msgstr ""
+
+#. Tooltip for add note button
+msgid "tooltip_add_note"
+msgstr ""
+
+#. Tooltip for delete note button
+msgid "tooltip_delete_note"
+msgstr ""
+
+#. Tooltip for edit note button
+msgid "tooltip_edit_note"
+msgstr ""
+
+#. Settings label for speech-to-text toggle
+msgid "speech_to_text_setting"
+msgstr ""
+
+#. Description for speech-to-text setting
+msgid "speech_to_text_setting_desc"
+msgstr ""
+
+#. Tooltip for microphone button
+msgid "tooltip_dictate_note"
+msgstr ""
+
+#. Shown when speech recognition is not available on device
+msgid "speech_not_available"
+msgstr ""
+
+#. Shown while listening
+msgid "speech_listening"
+msgstr ""
+
+#. Settings section title for loan duration
+msgid "loan_duration_settings_title"
+msgstr ""
+
+#. Label for global default loan duration
+msgid "loan_duration_default_label"
+msgstr ""
+
+#. Unit suffix for days
+msgid "loan_duration_days_suffix"
+msgstr ""
+
+#. Toggle label for per-book duration customization
+msgid "loan_duration_per_book_toggle"
+msgstr ""
+
+#. Description for per-book duration toggle
+msgid "loan_duration_per_book_desc"
+msgstr ""
+
+#. Label for the reminder days stepper (how many days before due date to send a first alert)
+msgid "loan_reminder_days_label"
+msgstr ""
+
+#. Label for per-book loan duration field in book detail
+msgid "loan_duration_book_custom"
+msgstr ""
+
+#. Hint when per-book duration is not set (uses global default)
+msgid "loan_duration_book_default_hint"
+msgstr ""
+
+#. Tooltip for clearing per-book duration
+msgid "tooltip_clear_book_loan_duration"
+msgstr ""
+
+#. Snackbar confirmation when loan settings are saved
+msgid "loan_settings_saved"
+msgstr ""
+
+#. Label for due date in loan dialog
+msgid "loan_due_date_label"
+msgstr ""
+
+#. Recovery code - copy button tooltip
+msgid "recovery_code_copy"
+msgstr ""
+
+#. Recovery code - copied confirmation
+msgid "recovery_code_copied"
+msgstr ""
+
+#. Connection lost - dialog title
+msgid "connection_lost_title"
+msgstr ""
+
+#. Connection lost - dialog body
+msgid "connection_lost_body"
+msgstr ""
+
+#. Connection lost - recovery option
+msgid "connection_lost_recovery_option"
+msgstr ""
+
+#. Connection lost - recovery option subtitle
+msgid "connection_lost_recovery_subtitle"
+msgstr ""
+
+#. Connection lost - new profile option
+msgid "connection_lost_new_profile"
+msgstr ""
+
+#. Connection lost - new profile warning
+msgid "connection_lost_new_profile_warning"
+msgstr ""
+
+#. Connection lost - later button
+msgid "connection_lost_later"
+msgstr ""
+
+#. Badge shown on experimental features
+msgid "badge_experimental"
+msgstr ""
+
+msgid "quotes_module_help"
+msgstr ""
+
+msgid "gamification_module_help"
+msgstr ""
+
+msgid "games_module_help"
+msgstr ""
+
+msgid "network_gamification_help"
+msgstr ""
+
+msgid "share_gamification_stats_help"
+msgstr ""
+
+msgid "group_by_collections_help"
+msgstr ""
+
+msgid "commerce_module_help"
+msgstr ""
+
+msgid "speech_to_text_setting_help"
+msgstr ""
+
+msgid "auto_approve_loans_help"
+msgstr ""
+
+msgid "enable_borrowing_module_help"
+msgstr ""
+
+msgid "enable_lending_module_help"
+msgstr ""
+
+msgid "settings_allow_private_books_help"
+msgstr ""
+
+msgid "module_digital_formats_help"
+msgstr ""
+
+msgid "notif_enabled_help"
+msgstr ""
+
+msgid "notif_connections_help"
+msgstr ""
+
+msgid "notif_loans_help"
+msgstr ""
+
+msgid "notif_discoveries_help"
+msgstr ""
+
+msgid "settings_auto_backup_help"
+msgstr ""
+
+msgid "search_sources_help"
+msgstr ""
+
+msgid "two_factor_auth_help"
+msgstr ""
+
+msgid "recently_added_title"
+msgstr ""
+
+msgid "badge_days_since_start"
+msgstr ""
+
+msgid "carousel_hide_tooltip"
+msgstr ""
+
+msgid "carousel_hide_long_press_tooltip"
+msgstr ""
+
+msgid "carousel_expand_tooltip"
+msgstr ""
+
+msgid "carousel_collapse_tooltip"
+msgstr ""
+
+msgid "carousel_collapsed_label"
+msgstr ""
+
+msgid "carousel_hidden_snackbar"
+msgstr ""
+
+msgid "action_undo"
+msgstr ""
+
+msgid "carousel_own_lib_title"
+msgstr ""
+
+msgid "carousel_own_lib_desc"
+msgstr ""
+
+msgid "carousel_peer_lib_title"
+msgstr ""
+
+msgid "carousel_peer_lib_desc"
+msgstr ""
+
+#. Save order (shelf reorder mode)
+msgid "save_shelf_order"
+msgstr ""
+
+#. Reorder shelf
+msgid "reorder_shelf"
+msgstr ""
+
+#. Open in browser
+msgid "open_in_browser"
+msgstr ""
+
+#. Playback speed
+msgid "playback_speed"
+msgstr ""
+
+#. Search online
+msgid "search_online"
+msgstr ""
+
+#. Decrease by 1
+msgid "decrease_by_one"
+msgstr ""
+
+#. Increase by 1
+msgid "increase_by_one"
+msgstr ""
+
+#. Scan for nearby peers
+msgid "tooltip_scan_peers"
+msgstr ""
+
+#. Rewind 10 seconds
+msgid "tooltip_rewind_10s"
+msgstr ""
+
+#. Forward 30 seconds
+msgid "tooltip_forward_30s"
+msgstr ""
+
+#. Accept request
+msgid "tooltip_accept"
+msgstr ""
+
+#. Reject request
+msgid "tooltip_reject"
+msgstr ""
+
+#. Add author
+msgid "tooltip_add_author"
+msgstr ""
+
+#. Toggle flashlight / torch
+msgid "tooltip_toggle_flashlight"
+msgstr ""
+
+#. Refresh
+msgid "tooltip_refresh"
+msgstr ""
+
+#. Send message
+msgid "tooltip_send_message"
+msgstr ""
+
+#. Search peers
+msgid "tooltip_search_peer"
+msgstr ""
+
+#. Tooltip shown on the owner's book-details screen when a cover upload to the hub has failed and a retry is pending on the next sync.
+msgid "cover_upload_pending_tooltip"
+msgstr ""
+
+#. Title of the security dialog shown when the encrypted identity cannot be decrypted.
+msgid "identity_recovery_title"
+msgstr ""
+
+#. Body of the security dialog explaining the situation.
+msgid "identity_recovery_body"
+msgstr ""
+
+#. Bullet describing the retry option (recommended path).
+msgid "identity_recovery_bullet_retry"
+msgstr ""
+
+#. Bullet describing the regenerate option (destructive path).
+msgid "identity_recovery_bullet_regenerate"
+msgstr ""
+
+#. Action button for regenerating the encrypted identity.
+msgid "identity_recovery_btn_regenerate"
+msgstr ""
+
+#. Error message shown when retry still fails (recovery dialog stays open).
+msgid "identity_recovery_retry_still_failing"
+msgstr ""
+
+#. Error message for unexpected exceptions during retry. {error} is the exception message.
+msgid "identity_recovery_retry_unexpected_error"
+msgstr ""
+
+#. Error message shown when the regeneration step itself fails. {error} is the exception message.
+msgid "identity_recovery_regen_failed"
+msgstr ""
+
+#. Title of the confirmation sub-dialog before regenerating.
+msgid "identity_recovery_confirm_title"
+msgstr ""
+
+#. Body of the regenerate confirmation sub-dialog.
+msgid "identity_recovery_confirm_body"
+msgstr ""
+
+#. Title of the success state of the recovery dialog after regen succeeds.
+msgid "identity_recovery_success_title"
+msgstr ""
+
+#. Body of the success state of the recovery dialog after regen succeeds.
+msgid "identity_recovery_success_body"
+msgstr ""
+
+#. Acknowledgement button on the success state of the recovery dialog.
+msgid "identity_recovery_success_btn"
+msgstr ""
+
+#. Singular form of the success-state heading listing devices/peers to re-pair.
+msgid "identity_recovery_success_repair_title_one"
+msgstr ""
+
+#. Plural form of the success-state heading. {count} is the total of devices + peers.
+msgid "identity_recovery_success_repair_title_other"
+msgstr ""
+
+#. Short intro shown above the list of devices/peers to re-pair after regen.
+msgid "identity_recovery_success_repair_intro"
+msgstr ""
+
+#. Primary CTA on the success state when devices/peers must be re-paired.
+msgid "identity_recovery_success_btn_network"
+msgstr ""
+
+#. Secondary CTA on the success state to dismiss without navigating.
+msgid "identity_recovery_success_btn_later"
+msgstr ""
+
+#. Screen-reader label for the icon next to a linked device entry.
+msgid "identity_recovery_success_icon_device_label"
+msgstr ""
+
+#. Screen-reader label for the icon next to a peer library entry.
+msgid "identity_recovery_success_icon_peer_label"
+msgstr ""
+
+#. Backup restore wizard (ADR-037 §5) — added 2026-04-29 with PR #3 reader.
+msgid "wizard_restore_app_bar_title"
+msgstr ""
+
+msgid "wizard_restore_picker_dialog_title"
+msgstr ""
+
+msgid "wizard_restore_step_picker_intro"
+msgstr ""
+
+msgid "wizard_restore_button_browse"
+msgstr ""
+
+msgid "wizard_restore_button_cancel"
+msgstr ""
+
+msgid "wizard_restore_button_continue"
+msgstr ""
+
+msgid "wizard_restore_button_back"
+msgstr ""
+
+msgid "wizard_restore_button_restore"
+msgstr ""
+
+msgid "wizard_restore_button_close_app"
+msgstr ""
+
+msgid "wizard_restore_button_close_to_apply"
+msgstr ""
+
+msgid "wizard_restore_button_close"
+msgstr ""
+
+msgid "wizard_restore_button_retry"
+msgstr ""
+
+msgid "wizard_restore_step_preview_title"
+msgstr ""
+
+msgid "wizard_restore_kv_export_date"
+msgstr ""
+
+msgid "wizard_restore_kv_library_uuid"
+msgstr ""
+
+msgid "wizard_restore_kv_schema"
+msgstr ""
+
+msgid "wizard_restore_kv_schema_value"
+msgstr ""
+
+msgid "wizard_restore_kv_app_version"
+msgstr ""
+
+msgid "wizard_restore_kv_identity_included"
+msgstr ""
+
+msgid "wizard_restore_yes"
+msgstr ""
+
+msgid "wizard_restore_no"
+msgstr ""
+
+msgid "wizard_restore_kv_unlock_kind"
+msgstr ""
+
+msgid "wizard_restore_unlock_recovery"
+msgstr ""
+
+msgid "wizard_restore_unlock_passphrase"
+msgstr ""
+
+msgid "wizard_restore_step_preview_content"
+msgstr ""
+
+msgid "wizard_restore_kv_books"
+msgstr ""
+
+msgid "wizard_restore_kv_copies"
+msgstr ""
+
+msgid "wizard_restore_kv_loans"
+msgstr ""
+
+msgid "wizard_restore_kv_contacts"
+msgstr ""
+
+msgid "wizard_restore_kv_tags"
+msgstr ""
+
+msgid "wizard_restore_kv_local_covers"
+msgstr ""
+
+msgid "wizard_restore_step_secret_prompt_recovery"
+msgstr ""
+
+msgid "wizard_restore_step_secret_prompt_passphrase"
+msgstr ""
+
+msgid "wizard_restore_secret_label_recovery"
+msgstr ""
+
+msgid "wizard_restore_secret_label_passphrase"
+msgstr ""
+
+msgid "wizard_restore_secret_show"
+msgstr ""
+
+msgid "wizard_restore_secret_hide"
+msgstr ""
+
+msgid "wizard_restore_step_secret_hint"
+msgstr ""
+
+msgid "wizard_restore_secret_required"
+msgstr ""
+
+msgid "wizard_restore_step_mode_title"
+msgstr ""
+
+msgid "wizard_restore_mode_replace_title"
+msgstr ""
+
+msgid "wizard_restore_mode_replace_subtitle"
+msgstr ""
+
+msgid "wizard_restore_mode_merge_title"
+msgstr ""
+
+msgid "wizard_restore_mode_merge_subtitle"
+msgstr ""
+
+#. Restore wizard, identity choice (Replace + archive carries an identity).
+#. Makes the cross-device decision explicit: migrate (one shared identity)
+#. vs independent copy (a fresh identity), so a restore is never a surprise
+#. reset.
+msgid "wizard_restore_identity_section_title"
+msgstr ""
+
+#. Tooltip / info on the identity section header.
+msgid "wizard_restore_identity_section_tooltip"
+msgstr ""
+
+msgid "wizard_restore_identity_choice_migrate_title"
+msgstr ""
+
+msgid "wizard_restore_identity_choice_migrate_subtitle"
+msgstr ""
+
+msgid "wizard_restore_identity_choice_copy_title"
+msgstr ""
+
+msgid "wizard_restore_identity_choice_copy_subtitle"
+msgstr ""
+
+#. Reassuring note when the backup was produced by THIS device.
+msgid "wizard_restore_identity_same_device_note"
+msgstr ""
+
+#. Warning note when the backup comes from another device, so the choice
+#. actually changes this device's identity.
+msgid "wizard_restore_identity_cross_device_note"
+msgstr ""
+
+msgid "wizard_restore_step_confirm_title"
+msgstr ""
+
+msgid "wizard_restore_confirm_summary_replace"
+msgstr ""
+
+msgid "wizard_restore_confirm_summary_merge"
+msgstr ""
+
+msgid "wizard_restore_confirm_restart_warning"
+msgstr ""
+
+msgid "wizard_restore_progress_default"
+msgstr ""
+
+msgid "wizard_restore_progress_verifying"
+msgstr ""
+
+msgid "wizard_restore_progress_replacing"
+msgstr ""
+
+msgid "wizard_restore_progress_merging"
+msgstr ""
+
+msgid "wizard_restore_progress_warning"
+msgstr ""
+
+msgid "wizard_restore_step_result_success_title"
+msgstr ""
+
+msgid "wizard_restore_step_result_failure_title"
+msgstr ""
+
+msgid "wizard_restore_step_result_failure_intact"
+msgstr ""
+
+#. Wizard: SnackBar shown if the user tries to navigate away (back arrow,
+#. swipe, system back) after a successful Replace/Merge restore. The
+#. on-disk DB has been swapped, so the app must be restarted.
+msgid "wizard_restore_must_restart_hint"
+msgstr ""
+
+msgid "wizard_restore_step_result_failure_unknown"
+msgstr ""
+
+msgid "wizard_restore_kv_mode"
+msgstr ""
+
+msgid "wizard_restore_mode_label_replace"
+msgstr ""
+
+msgid "wizard_restore_mode_label_merge"
+msgstr ""
+
+msgid "wizard_restore_kv_covers_restored"
+msgstr ""
+
+msgid "wizard_restore_kv_identity"
+msgstr ""
+
+msgid "wizard_restore_identity_restored_value"
+msgstr ""
+
+msgid "wizard_restore_kv_rollback_path"
+msgstr ""
+
+msgid "wizard_restore_error_unreadable"
+msgstr ""
+
+#. Wizard: shown on the mode step when the wizard auto-unlocked using
+#. the recovery code or passphrase already in secure storage (typical
+#. same-device auto-backup restore).
+msgid "wizard_restore_auto_unlocked_recovery_code"
+msgstr ""
+
+msgid "wizard_restore_auto_unlocked_passphrase"
+msgstr ""
+
+#. Wizard: shown on the secret step when the auto-unlock attempt failed
+#. (stored secret no longer matches this archive). User is asked to
+#. type the original secret manually.
+msgid "wizard_restore_secret_auto_unlock_failed"
+msgstr ""
+
+msgid "wizard_restore_error_bad_secret"
+msgstr ""
+
+msgid "wizard_restore_error_schema_too_new"
+msgstr ""
+
+msgid "wizard_restore_error_schema_too_new_short"
+msgstr ""
+
+msgid "wizard_restore_error_db_hash_mismatch"
+msgstr ""
+
+msgid "wizard_restore_error_generic"
+msgstr ""
+
+#. Backup section: PR #3 tile + rollback card.
+msgid "backup_restore_full_title"
+msgstr ""
+
+msgid "backup_restore_full_subtitle"
+msgstr ""
+
+#. Backup section: restore full backup help text
+msgid "backup_restore_full_help"
+msgstr ""
+
+msgid "backup_rollback_title"
+msgstr ""
+
+msgid "backup_rollback_subtitle"
+msgstr ""
+
+msgid "backup_rollback_dialog_title"
+msgstr ""
+
+msgid "backup_rollback_dialog_message"
+msgstr ""
+
+#. Inline button on the rollback tile (auto-backup card + settings).
+msgid "backup_rollback_button_undo"
+msgstr ""
+
+#. Confirm button in the rollback dialog. Spelled out so it does not
+#. collide with the dialog's "Cancel" button.
+msgid "backup_rollback_dialog_confirm"
+msgstr ""
+
+msgid "backup_rollback_error"
+msgstr ""
+
+#. Auto-backup (ADR-037 §6) - status badge titles + subtitles
+msgid "auto_backup_status_title_never"
+msgstr ""
+
+msgid "auto_backup_status_title_with_age"
+msgstr ""
+
+msgid "auto_backup_status_subtitle_amber"
+msgstr ""
+
+msgid "auto_backup_status_subtitle_red"
+msgstr ""
+
+msgid "auto_backup_status_subtitle_never_enabled"
+msgstr ""
+
+msgid "auto_backup_status_subtitle_disabled"
+msgstr ""
+
+#. Auto-backup - relative-age formatting (Dart computes the value, .po
+#. supplies the unit). {n} is a non-negative integer.
+msgid "auto_backup_age_minutes"
+msgstr ""
+
+msgid "auto_backup_age_hours"
+msgstr ""
+
+msgid "auto_backup_age_days"
+msgstr ""
+
+#. Auto-backup bottom sheet (opened from the status badge)
+msgid "auto_backup_sheet_title"
+msgstr ""
+
+msgid "auto_backup_sheet_toggle_label"
+msgstr ""
+
+msgid "auto_backup_sheet_toggle_subtitle"
+msgstr ""
+
+msgid "auto_backup_sheet_run_now"
+msgstr ""
+
+msgid "auto_backup_sheet_section_archives"
+msgstr ""
+
+msgid "auto_backup_sheet_no_archives"
+msgstr ""
+
+msgid "auto_backup_sheet_restore_archive"
+msgstr ""
+
+msgid "auto_backup_sheet_clear_all"
+msgstr ""
+
+msgid "auto_backup_sheet_clear_confirm_title"
+msgstr ""
+
+msgid "auto_backup_sheet_clear_confirm_message"
+msgstr ""
+
+msgid "auto_backup_sheet_rollback_subtitle_hours_left"
+msgstr ""
+
+#. Auto-backup - dialog shown when toggling on without a recovery code
+msgid "auto_backup_recovery_code_required_title"
+msgstr ""
+
+msgid "auto_backup_recovery_code_required_message"
+msgstr ""
+
+#. Auto-backup - SnackBars after manual run / restore-from-list
+msgid "auto_backup_restore_archive_hint"
+msgstr ""
+
+msgid "auto_backup_run_skipped_unchanged"
+msgstr ""
+
+msgid "auto_backup_run_disabled"
+msgstr ""
+
+msgid "auto_backup_run_no_secret"
+msgstr ""
+
+msgid "auto_backup_run_failed"
+msgstr ""
+
+msgid "auto_backup_run_ok"
+msgstr ""
+
+#. Auto-backup activation sheet (ADR-037 §6) - shown on every off->on
+#. toggle so the user picks (and sees) the secret used to encrypt
+#. archives before the first one is produced.
+msgid "auto_backup_activation_title"
+msgstr ""
+
+msgid "auto_backup_activation_explanation"
+msgstr ""
+
+msgid "auto_backup_activation_mode_recovery_code"
+msgstr ""
+
+msgid "auto_backup_activation_mode_recovery_code_hint"
+msgstr ""
+
+msgid "auto_backup_activation_mode_passphrase"
+msgstr ""
+
+msgid "auto_backup_activation_mode_passphrase_hint"
+msgstr ""
+
+msgid "auto_backup_activation_recovery_code_box_label"
+msgstr ""
+
+msgid "auto_backup_activation_recovery_code_save_advice"
+msgstr ""
+
+msgid "auto_backup_activation_recovery_code_missing"
+msgstr ""
+
+msgid "auto_backup_activation_passphrase_label"
+msgstr ""
+
+msgid "auto_backup_activation_passphrase_confirm_label"
+msgstr ""
+
+msgid "auto_backup_activation_passphrase_save_advice"
+msgstr ""
+
+msgid "auto_backup_activation_passphrase_too_short"
+msgstr ""
+
+msgid "auto_backup_activation_passphrase_mismatch"
+msgstr ""
+
+msgid "auto_backup_activation_activate"
+msgstr ""
+
+#. Auto-backup clone-export nudge banner: surfaces in the bottom sheet
+#. when the user has been on auto-backup for a while without a recent
+#. clone-mode export (ADR-037 §6).
+msgid "auto_backup_clone_nudge_title"
+msgstr ""
+
+msgid "auto_backup_clone_nudge_body"
+msgstr ""
+
+msgid "auto_backup_clone_nudge_export"
+msgstr ""
+
+msgid "auto_backup_clone_nudge_snooze"
+msgstr ""
+
+# Library completeness / bulk metadata gap-fill (ADR-041)
+msgid "completeness_title"
+msgstr ""
+
+msgid "completeness_card_title"
+msgstr ""
+
+msgid "completeness_card_subtitle"
+msgstr ""
+
+msgid "completeness_percent_label"
+msgstr ""
+
+msgid "completeness_complete"
+msgstr ""
+
+msgid "completeness_empty_fields"
+msgstr ""
+
+msgid "completeness_last_run_done"
+msgstr ""
+
+msgid "completeness_last_run_cancelled"
+msgstr ""
+
+msgid "completeness_breakdown"
+msgstr ""
+
+msgid "completeness_start_button"
+msgstr ""
+
+msgid "completeness_all_done"
+msgstr ""
+
+msgid "completeness_after_run_hint"
+msgstr ""
+
+msgid "completeness_rerun_button"
+msgstr ""
+
+msgid "completeness_resume_hint"
+msgstr ""
+
+msgid "completeness_resume_button"
+msgstr ""
+
+msgid "completeness_discard_button"
+msgstr ""
+
+msgid "completeness_running_title"
+msgstr ""
+
+msgid "completeness_progress_count"
+msgstr ""
+
+msgid "completeness_current"
+msgstr ""
+
+msgid "completeness_stat_filled"
+msgstr ""
+
+msgid "completeness_stat_skipped"
+msgstr ""
+
+msgid "completeness_stat_errored"
+msgstr ""
+
+msgid "completeness_cancel_button"
+msgstr ""
+
+msgid "completeness_recent_title"
+msgstr ""
+
+msgid "completeness_tab_todo"
+msgstr ""
+
+msgid "completeness_tab_recent"
+msgstr ""
+
+msgid "completeness_recent_hint"
+msgstr ""
+
+msgid "completeness_undo_book_done"
+msgstr ""
+
+msgid "completeness_undo_kept"
+msgstr ""
+
+msgid "completeness_undo_field_reverted"
+msgstr ""
+
+msgid "completeness_undo_field_superseded"
+msgstr ""
+
+msgid "completeness_view_changes"
+msgstr ""
+
+msgid "completeness_changes_subtitle"
+msgstr ""
+
+msgid "completeness_open_book"
+msgstr ""
+
+msgid "completeness_all_undone"
+msgstr ""
+
+msgid "completeness_todo_title"
+msgstr ""
+
+msgid "completeness_filter_all"
+msgstr ""
+
+msgid "completeness_todo_hint"
+msgstr ""
+
+msgid "completeness_no_isbn_chip"
+msgstr ""
+
+msgid "completeness_no_isbn_title"
+msgstr ""
+
+msgid "completeness_no_isbn_hint"
+msgstr ""
+
+msgid "field_summary"
+msgstr ""
+
+msgid "field_publisher"
+msgstr ""
+
+msgid "field_page_count"
+msgstr ""
+
+msgid "field_publication_year"
+msgstr ""
+
+msgid "field_cover_url"
+msgstr ""
+
+#. Settings tile + hub screen title
+msgid "account_sync_title"
+msgstr ""
+
+#. Settings tile subtitle
+msgid "account_sync_settings_subtitle"
+msgstr ""
+
+#. Hub intro when not signed in
+msgid "account_sync_signed_out_intro"
+msgstr ""
+
+#. Honest note while data convergence is not active yet (Phase E)
+msgid "account_sync_pending_note"
+msgstr ""
+
+msgid "account_sync_create_account"
+msgstr ""
+
+msgid "account_sync_join_account"
+msgstr ""
+
+#. {email} = signed-in account email
+msgid "account_sync_signed_in_as"
+msgstr ""
+
+#. Label above the account email on the sync screen
+msgid "account_sync_signed_in_label"
+msgstr ""
+
+msgid "account_sync_devices_title"
+msgstr ""
+
+msgid "account_sync_no_devices"
+msgstr ""
+
+msgid "account_sync_this_device"
+msgstr ""
+
+msgid "account_sync_add_device"
+msgstr ""
+
+msgid "account_sync_sync_now"
+msgstr ""
+
+msgid "account_sync_synced_done"
+msgstr ""
+
+msgid "account_sync_synced_uptodate"
+msgstr ""
+
+msgid "account_sync_synced_partial"
+msgstr ""
+
+msgid "account_sync_sync_failed"
+msgstr ""
+
+msgid "account_sync_logout"
+msgstr ""
+
+msgid "account_sync_logout_confirm_title"
+msgstr ""
+
+msgid "account_sync_logout_confirm_body"
+msgstr ""
+
+#. Remove-device (soft revocation) button shown on other devices in the list
+msgid "account_sync_remove_device_button"
+msgstr ""
+
+msgid "account_sync_remove_device_confirm_title"
+msgstr ""
+
+#. {name} is the device label. Copy is intentionally honest: removal stops sync but is not a security lock.
+msgid "account_sync_remove_device_confirm_body"
+msgstr ""
+
+msgid "account_sync_remove_device_error"
+msgstr ""
+
+#. Signup screen
+msgid "account_sync_signup_title"
+msgstr ""
+
+msgid "account_sync_signup_intro"
+msgstr ""
+
+msgid "account_sync_email_label"
+msgstr ""
+
+msgid "account_sync_passphrase_label"
+msgstr ""
+
+msgid "account_sync_device_name_label"
+msgstr ""
+
+msgid "account_sync_strength_label"
+msgstr ""
+
+msgid "account_sync_strength_0"
+msgstr ""
+
+msgid "account_sync_strength_1"
+msgstr ""
+
+msgid "account_sync_strength_2"
+msgstr ""
+
+msgid "account_sync_strength_3"
+msgstr ""
+
+msgid "account_sync_strength_4"
+msgstr ""
+
+msgid "account_sync_passphrase_hint"
+msgstr ""
+
+msgid "account_sync_create_button"
+msgstr ""
+
+msgid "account_sync_account_exists"
+msgstr ""
+
+msgid "account_sync_account_exists_action"
+msgstr ""
+
+msgid "account_sync_weak_passphrase"
+msgstr ""
+
+#. Restart prompt shown after enrollment: sync activates on the next launch
+msgid "account_sync_restart_required_title"
+msgstr ""
+
+msgid "account_sync_restart_required_body"
+msgstr ""
+
+msgid "account_sync_restart_required_ok"
+msgstr ""
+
+#. Recovery kit (BIP39) display
+msgid "account_sync_recovery_title"
+msgstr ""
+
+msgid "account_sync_recovery_warning"
+msgstr ""
+
+msgid "account_sync_recovery_copy"
+msgstr ""
+
+msgid "account_sync_recovery_copied"
+msgstr ""
+
+msgid "account_sync_recovery_confirm_checkbox"
+msgstr ""
+
+msgid "account_sync_recovery_confirm_button"
+msgstr ""
+
+#. Join screen
+msgid "account_sync_join_title"
+msgstr ""
+
+msgid "account_sync_join_intro"
+msgstr ""
+
+msgid "account_sync_join_button"
+msgstr ""
+
+msgid "account_sync_join_failed"
+msgstr ""
+
+#. Pairing flow
+msgid "account_sync_add_device_title"
+msgstr ""
+
+#. Signed-out CTA: join an account by pairing with an already-signed-in device
+msgid "account_sync_pair_cta"
+msgstr ""
+
+msgid "account_sync_pairing_new_intro"
+msgstr ""
+
+msgid "account_sync_pairing_scan_authorization"
+msgstr ""
+
+msgid "account_sync_pairing_authorize_intro"
+msgstr ""
+
+msgid "account_sync_pairing_scan_new_device"
+msgstr ""
+
+msgid "account_sync_pairing_sealed_intro"
+msgstr ""
+
+#. ADR-045 authenticated-channel invariant, surfaced to the user
+msgid "account_sync_pairing_security_note"
+msgstr ""
+
+msgid "account_sync_device_added"
+msgstr ""
+
+#. Scan screen
+msgid "account_sync_scan_title"
+msgstr ""
+
+msgid "account_sync_scan_instruction"
+msgstr ""
+
+msgid "account_sync_show_passphrase"
+msgstr ""
+
+msgid "account_sync_hide_passphrase"
+msgstr ""
+
+#. Series (reading-order timeline)
+msgid "collection_series_toggle"
+msgstr ""
+
+msgid "collection_series_toggle_desc"
+msgstr ""
+
+msgid "series_reorder_handle"
+msgstr ""
+
+msgid "series_help_text"
+msgstr ""
+
+msgid "series_frieze_title"
+msgstr ""
+
+#. Series frieze heading on the book page, with the collection name inlined; {name} is the series name
+msgid "series_frieze_title_named"
+msgstr ""
+
+msgid "series_edit_volume"
+msgstr ""
+
+msgid "series_volume_number"
+msgstr ""
+
+msgid "series_volume_hint"
+msgstr ""
+
+msgid "series_volume_abbrev"
+msgstr ""
+
+msgid "series_clear_volume"
+msgstr ""
+
+msgid "series_invalid_volume"
+msgstr ""
+
+msgid "series_unnumbered"
+msgstr ""
+
+msgid "series_read"
+msgstr ""
+
+msgid "series_unread"
+msgstr ""
+
+msgid "series_current_volume"
+msgstr ""
+
+#. Network screen: account-synced libraries not paired on this device (ADR-054)
+msgid "known_libraries_title"
+msgstr ""
+
+msgid "known_libraries_hint"
+msgstr ""
+
+msgid "known_library_not_paired"
+msgstr ""
+
+msgid "known_library_pairing_explain"
+msgstr ""
+
+msgid "known_library_delete_account_wide"
+msgstr ""
+
+#. Available from
+msgid "wishlist_available_from"
+msgstr ""
+
+#. Aggregated wishlist match for a curated list import
+msgid "notif_wishlist_match_import"
+msgstr ""
+
+#. Accessibility/tooltip label for the wishlist availability badge
+msgid "wishlist_badge_available"
+msgstr ""
+
+#. Curated list import: how many books are available in the network
+msgid "curated_import_available_network"
+msgstr ""
+
+#. Header of the "wanted by" card on an owned book's details page
+msgid "wishlist_wanted_by"
+msgstr ""
+
+#. Short lend button next to a peer who wants this book
+msgid "wishlist_lend_action"
+msgstr ""
+
+#. Discreet mutual-wish hint under the lend action (never an obligation)
+msgid "wishlist_mutual_hint"
+msgstr ""
+
+#. Book details: header of the independent-bookshop deep-link card (POC)
+msgid "bookshop_finder_title"
+msgstr ""
+
+#. Book details: hint under the bookshop card header; the portal itself handles proximity
+msgid "bookshop_finder_hint"
+msgstr ""
+
+#. Book details: tooltip/accessible label of the cross dismissing the bookshop card for good
+msgid "bookshop_finder_dismiss"
+msgstr ""
+
+#. Settings: title of the bookshop-linking accordion
+msgid "settings_bookshops_title"
+msgstr ""
+
+#. Settings: toggle showing the independent-bookshop card on wanted books
+msgid "settings_bookshops_show_finder"
+msgstr ""
+
+#. Settings: subtitle of the bookshop suggestions toggle
+msgid "settings_bookshops_show_finder_desc"
+msgstr ""
+
+#. Settings: subheader of the reader's own ordered bookshop-portal list
+msgid "settings_bookshops_my_shops"
+msgstr ""
+
+#. Settings: hint of the bookshop autocomplete field
+msgid "settings_bookshops_search_hint"
+msgstr ""
+
+#. Settings: shown when the reader picked no portal yet
+msgid "settings_bookshops_default_note"
+msgstr ""
+
+#. Settings: tooltip of the cross removing a portal from the list
+msgid "settings_bookshops_remove"
+msgstr ""
+
+#. Book page: tooltip of the gear opening the live bookshop picker sheet
+msgid "bookshop_finder_configure"
+msgstr ""
+
+#. Settings: subheader of the connected public library catalogues
+msgid "settings_libraries_title"
+msgstr ""
+
+#. Settings and wizard title: connect a public library catalogue
+msgid "settings_libraries_add"
+msgstr ""
+
+#. Book page: header of the connected-library deep-link card
+msgid "local_library_card_title"
+msgstr ""
+
+#. Library wizard step 1: what the wizard does
+msgid "library_wizard_intro"
+msgstr ""
+
+#. Library wizard step 1: name field label
+msgid "library_wizard_name_label"
+msgstr ""
+
+#. Library wizard step 2: instruction around the witness book
+msgid "library_wizard_search_step"
+msgstr ""
+
+#. Library wizard step 2: copy button tooltip
+msgid "library_wizard_copy_isbn"
+msgstr ""
+
+#. Library wizard step 2: snackbar after copying
+msgid "library_wizard_isbn_copied"
+msgstr ""
+
+#. Library wizard step 3: paste field label
+msgid "library_wizard_paste_label"
+msgstr ""
+
+#. Library wizard step 3: pasted URL is not https
+msgid "library_wizard_error_https"
+msgstr ""
+
+#. Library wizard step 3: pasted URL does not carry the witness ISBN
+msgid "library_wizard_error_witness"
+msgstr ""
+
+#. Library wizard step 3: verify button
+msgid "library_wizard_verify"
+msgstr ""
+
+#. Library wizard step 3: the witness title was found in the response
+msgid "library_wizard_verdict_ok"
+msgstr ""
+
+#. Library wizard step 3: lenient verdict when the check is inconclusive
+msgid "library_wizard_verdict_partial"
+msgstr ""
+
+#. Library wizard: next-step button
+msgid "library_wizard_next"
+msgstr ""
+
+#. Settings/picker: button and wizard title for a hand-added bookshop
+msgid "settings_bookshops_add_custom"
+msgstr ""
+
+#. Bookshop wizard step 1: what the wizard does
+msgid "bookshop_wizard_intro"
+msgstr ""
+
+#. Bookshop wizard step 1: name field label
+msgid "bookshop_wizard_name_label"
+msgstr ""
+
+#. Bookshop wizard step 2: instruction around the witness book
+msgid "bookshop_wizard_search_step"
+msgstr ""
+
+#. Book page: tooltip of the gear on the library card opening the configuration sheet
+msgid "local_library_configure"
+msgstr ""
+
+#. Library intro card: one-line pitch inviting to connect the catalogue
+msgid "library_intro_text"
+msgstr ""
+
+#. Library intro card: outbound OSM link listing libraries around {city}
+msgid "library_intro_map_link"
+msgstr ""
+
+#. Library intro card: the search word sent to OpenStreetMap for public libraries
+msgid "library_intro_map_term"
+msgstr ""
+
+#. Tooltip and screen-reader hint on every outbound portal chip
+msgid "opens_external_site"
+msgstr ""
+
+#. Snackbar after dismissing a book-page suggestion card; paired with the undo action
+msgid "card_hidden"
+msgstr ""
+
+#. Settings: toggle showing the library discovery card on wanted books
+msgid "settings_libraries_show_intro"
+msgstr ""
+
+#. Settings: subtitle of the library suggestion toggle
+msgid "settings_libraries_show_intro_desc"
+msgstr ""
+
+#. Shared list import: the step where the reader picks a file or pastes
+msgid "import_choose_source"
+msgstr ""
+
+#. Shared list import: who wrote the list, shown under its title
+msgid "shared_list_by_contributor"
+msgstr ""
+
+#. Keys called from the code but absent from every catalogue until now,
+#. so the raw key was rendered on screen. Added 2026-08-29.
+#. Tooltip on the clear icon of the settings search field.
+msgid "action_clear"
+msgstr ""
+
+#. Snackbar action offering to add a contact.
+msgid "add"
+msgstr ""
+
+#. Snackbar shown after the profile avatar is changed.
+msgid "avatar_updated"
+msgstr ""
+
+#. Retry button on the mini-game loading error state.
+msgid "button_retry"
+msgstr ""
+
+#. Snackbar shown after a value is copied to the clipboard.
+msgid "copied"
+msgstr ""
+
+#. Label of the description field of a collection.
+msgid "description"
+msgstr ""
+
+#. Subtitle under Two-Factor Authentication when it is active.
+msgid "enabled"
+msgstr ""
+
+#. Instruction in the two-factor code dialog at login.
+msgid "enter_mfa_code"
+msgstr ""
+
+#. Snackbar when a borrow request could not be recorded.
+msgid "error_borrowing_book"
+msgstr ""
+
+#. Prefix of the error shown when 2FA setup fails.
+msgid "error_initializing_mfa"
+msgstr ""
+
+#. Generic network failure snackbar.
+msgid "error_network"
+msgstr ""
+
+#. Snackbar when saving a book fails.
+msgid "error_save_failed"
+msgstr ""
+
+#. Prefix of the error shown when an update call fails.
+msgid "error_update"
+msgstr ""
+
+#. Sync statistics tile counting failed operations.
+msgid "errors"
+msgstr ""
+
+#. Form validation message for an empty mandatory field.
+msgid "field_required"
+msgstr ""
+
+#. Snackbar confirming two-factor authentication is on.
+msgid "mfa_enabled_success"
+msgstr ""
+
+#. Label of the name field of a collection.
+msgid "name"
+msgstr ""
+
+#. Snackbar when a sale cannot be recorded for lack of contacts.
+msgid "no_contacts"
+msgstr ""
+
+#. Snackbar when no contact is available to borrow from.
+msgid "no_contacts_to_borrow"
+msgstr ""
+
+#. Dismiss button of a confirmation dialog.
+msgid "ok"
+msgstr ""
+
+#. Label prefixing the parent shelf of a shelf.
+msgid "parent"
+msgstr ""
+
+#. Tooltip on the refresh button of shelf management.
+msgid "refresh"
+msgstr ""
+
+#. Button restoring the default order of the profile stat cards.
+msgid "reset"
+msgstr ""
+
+#. Label of the TOTP secret shown during 2FA setup.
+msgid "secret_key"
+msgstr ""
+
+#. Title of the two-factor authentication setup dialog.
+msgid "setup_2fa"
+msgstr ""
+
+#. Tooltip on the front/back camera toggle of the scanner.
+msgid "switch_camera"
+msgstr ""
+
+#. Form validation message for an empty title field.
+msgid "title_required"
+msgstr ""
+
+#. Sync statistics tile counting today's operations.
+msgid "today"
+msgstr ""
+
+#. Confirm button of the edit shelf dialog.
+msgid "update"
+msgstr ""
+
+#. Label of the code field during 2FA setup.
+msgid "verification_code"
+msgstr ""
+
+#. Books tutorial, step on the add button.
+msgid "wizard_books_add_title"
+msgstr ""
+
+#. Books tutorial, step on the add button.
+msgid "wizard_books_add_desc"
+msgstr ""
+
+#. Books tutorial, step on the barcode scanner.
+msgid "wizard_books_scan_title"
+msgstr ""
+
+#. Books tutorial, step on the barcode scanner.
+msgid "wizard_books_scan_desc"
+msgstr ""
+
+#. Books tutorial, step on the local search.
+msgid "wizard_books_search_title"
+msgstr ""
+
+#. Books tutorial, step on the local search.
+msgid "wizard_books_search_desc"
+msgstr ""
+
+#. Books tutorial, step on the online search.
+msgid "wizard_books_external_title"
+msgstr ""
+
+#. Books tutorial, step on the online search.
+msgid "wizard_books_external_desc"
+msgstr ""
+
+#. Books tutorial, step on the view switch.
+msgid "wizard_books_view_title"
+msgstr ""
