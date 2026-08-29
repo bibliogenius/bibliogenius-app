@@ -11354,3 +11354,11 @@ msgstr "Suggestion de médiathèque"
 #. Settings: subtitle of the library suggestion toggle
 msgid "settings_libraries_show_intro_desc"
 msgstr "Sur un livre que vous voulez, proposer de connecter votre médiathèque"
+
+#. Shared list import: the step where the reader picks a file or pastes
+msgid "import_choose_source"
+msgstr "Choisir une source :"
+
+#. Shared list import: who wrote the list, shown under its title
+msgid "shared_list_by_contributor"
+msgstr "Par {name}"

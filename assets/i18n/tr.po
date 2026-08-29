@@ -11341,3 +11341,11 @@ msgstr "Kütüphane önerisi"
 #. Settings: subtitle of the library suggestion toggle
 msgid "settings_libraries_show_intro_desc"
 msgstr "İstediğiniz bir kitap için kütüphanenizi bağlamayı öner"
+
+#. Shared list import: the step where the reader picks a file or pastes
+msgid "import_choose_source"
+msgstr "Bir kaynak seçin:"
+
+#. Shared list import: who wrote the list, shown under its title
+msgid "shared_list_by_contributor"
+msgstr "{name} tarafından"

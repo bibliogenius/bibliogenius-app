@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:yaml/yaml.dart';
 import 'package:uuid/uuid.dart';
@@ -353,6 +355,23 @@ class CollectionImportService {
 
   static bool isTooLargeToParse(int byteCount) =>
       byteCount > maxSharedListBytes;
+
+  /// Decode the bytes of a shared list into the string the parser reads.
+  ///
+  /// The file picker hands over bytes, and they used to be read with
+  /// `String.fromCharCodes`, which treats each byte as a code unit: that is
+  /// Latin-1, not UTF-8. The exporter writes UTF-8, so an accent came back
+  /// doubled and "Bibliothèque de Federico" was previewed as
+  /// "BibliothÃ¨que de Federico", then imported under that name.
+  ///
+  /// [allowMalformed] because the file comes from someone else: a list saved
+  /// in another encoding must lose an accent, not throw in the picker.
+  static String decodeSharedListBytes(List<int> bytes) {
+    final decoded = utf8.decode(bytes, allowMalformed: true);
+    // A leading BOM is invisible but not inert: glued to the first key it
+    // makes `id:` unrecognisable, and the list arrives with an invented id.
+    return decoded.startsWith('\u{FEFF}') ? decoded.substring(1) : decoded;
+  }
 
   /// The name an imported list takes, given what the library already holds.
   ///

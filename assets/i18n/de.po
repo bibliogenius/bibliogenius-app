@@ -11210,3 +11210,11 @@ msgstr "Bibliotheks-Vorschlag"
 #. Settings: subtitle of the library suggestion toggle
 msgid "settings_libraries_show_intro_desc"
 msgstr "Bei einem gewünschten Buch anbieten, Ihre Bibliothek zu verbinden"
+
+#. Shared list import: the step where the reader picks a file or pastes
+msgid "import_choose_source"
+msgstr "Quelle auswählen:"
+
+#. Shared list import: who wrote the list, shown under its title
+msgid "shared_list_by_contributor"
+msgstr "Von {name}"

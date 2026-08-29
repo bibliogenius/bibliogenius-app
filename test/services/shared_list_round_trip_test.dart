@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:bibliogenius/models/collection.dart';
@@ -305,6 +307,54 @@ books:
         ),
         'Favoris',
       );
+    });
+  });
+
+  group('the bytes the file picker hands over', () {
+    // The picker returns bytes, and they were read as code units:
+    // `String.fromCharCodes` decodes them as Latin-1, so a UTF-8 "è" reached
+    // the preview as "Ã¨" and the contributor of an exported list was shown
+    // as "BibliothÃ¨que de Federico". The file is written as UTF-8 by the
+    // exporter, so it must be read back as UTF-8.
+    test('a UTF-8 accent survives the picker', () {
+      final yaml = exporter.exportToYaml(
+        collection(name: 'Bibliothèque'),
+        books,
+        contributorName: 'Bibliothèque de Federico',
+      );
+      final decoded = CollectionImportService.decodeSharedListBytes(
+        utf8.encode(yaml),
+      );
+      final parsed = CollectionImportService.parseSharedList(decoded);
+
+      expect(parsed.contributor, 'Bibliothèque de Federico');
+      expect(parsed.getTitle('fr'), 'Bibliothèque');
+    });
+
+    test('a byte order mark does not become part of the first key', () {
+      // Editors and some share targets prepend one. Left in place it lands on
+      // the header comment here, but on a file that starts with `id:` it makes
+      // the key unrecognisable and the list arrives untitled.
+      final yaml = 'id: liste\ntitle: "Une liste"\nbooks:\n'
+          '  - isbn: "9782723488525"\n    note: "One Piece"\n';
+      final decoded = CollectionImportService.decodeSharedListBytes(
+        [0xEF, 0xBB, 0xBF, ...utf8.encode(yaml)],
+      );
+
+      expect(decoded.startsWith('id:'), isTrue);
+      expect(CollectionImportService.parseSharedList(decoded).id, 'liste');
+    });
+
+    test('bytes that are not UTF-8 still yield a parseable string', () {
+      // A file saved as Latin-1 by someone else must not crash the picker;
+      // the accent is lost, the list still imports.
+      final decoded = CollectionImportService.decodeSharedListBytes([
+        ...utf8.encode('id: liste\ntitle: "Cl'),
+        0xE9, // "é" in Latin-1, invalid on its own in UTF-8
+        ...utf8.encode('s"\nbooks:\n  - isbn: "9782723488525"\n'),
+      ]);
+
+      expect(CollectionImportService.parseSharedList(decoded).id, 'liste');
     });
   });
 

@@ -81,9 +81,16 @@ class _ImportSharedListScreenState extends State<ImportSharedListScreen> {
         }
 
         if (file.bytes != null) {
-          content = String.fromCharCodes(file.bytes!);
+          // UTF-8, never code units: the exported file is written as UTF-8,
+          // and reading it back byte per byte doubled every accent.
+          content = CollectionImportService.decodeSharedListBytes(file.bytes!);
         } else if (file.path != null) {
-          content = await File(file.path!).readAsString();
+          // Same decoder as the bytes branch: `readAsString` is strict UTF-8
+          // and throws on a file saved in another encoding, so which branch
+          // the picker takes would decide whether the import is possible.
+          content = CollectionImportService.decodeSharedListBytes(
+            await File(file.path!).readAsBytes(),
+          );
         } else {
           throw Exception('Could not read file');
         }
@@ -243,9 +250,12 @@ class _ImportSharedListScreenState extends State<ImportSharedListScreen> {
                 children: [
                   // Source selection
                   if (_yamlContent == null) ...[
-                    const Text(
-                      'Choose a source:',
-                      style: TextStyle(
+                    Text(
+                      TranslationService.translate(
+                        context,
+                        'import_choose_source',
+                      ),
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
@@ -430,7 +440,14 @@ class _ImportSharedListScreenState extends State<ImportSharedListScreen> {
                                     const Icon(Icons.person, size: 18),
                                     const SizedBox(width: 8),
                                     Text(
-                                      'By ${_preview!['contributor']}',
+                                      TranslationService.translate(
+                                        context,
+                                        'shared_list_by_contributor',
+                                        params: {
+                                          'name':
+                                              '${_preview!['contributor']}',
+                                        },
+                                      ),
                                       style: Theme.of(
                                         context,
                                       ).textTheme.bodyMedium,
@@ -445,10 +462,15 @@ class _ImportSharedListScreenState extends State<ImportSharedListScreen> {
 
                       const SizedBox(height: 24),
 
-                      // Status selection
-                      const Text(
-                        'Book status after import:',
-                        style: TextStyle(fontWeight: FontWeight.w500),
+                      // Status selection. The same label the curated import
+                      // dialog prints: one wording for one question, and it
+                      // was the only English line left on this screen.
+                      Text(
+                        TranslationService.translate(
+                          context,
+                          'imported_books_status',
+                        ),
+                        style: const TextStyle(fontWeight: FontWeight.w500),
                       ),
                       const SizedBox(height: 8),
                       DropdownButtonFormField<String>(
@@ -482,9 +504,12 @@ class _ImportSharedListScreenState extends State<ImportSharedListScreen> {
                                 const Icon(Icons.bookmark_border, size: 20),
                                 const SizedBox(width: 8),
                                 Text(
+                                  // `status_to_read` was asked for here and
+                                  // exists in no catalogue, so this option
+                                  // read as its own key in every language.
                                   TranslationService.translate(
                                     context,
-                                    'status_to_read',
+                                    'reading_status_to_read',
                                   ),
                                 ),
                               ],
