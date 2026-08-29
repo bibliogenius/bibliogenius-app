@@ -461,13 +461,11 @@ Future<void> _runApp() async {
         httpPort = startedPort;
         ApiService.setHttpPort(httpPort); // Store the actual port globally
         debugPrint('FFI: HTTP server confirmed running on port $httpPort');
-        if (httpPort != ApiService.defaultHttpPort) {
-          debugPrint(
-            '⚠️ Port ${ApiService.defaultHttpPort} occupied by another '
-            'process, server bound to $httpPort: peers holding our '
-            ':${ApiService.defaultHttpPort} URL cannot reach us directly',
-          );
-        }
+        // Identify the occupant before the UI can warn about it: only a foreign
+        // application makes the warning true, and the answer must be in before
+        // the first frame evaluates the port-conflict flash. Costs nothing when
+        // the preferred port was obtained, which is the normal case.
+        await ApiService.refreshPortConflictDiagnosis();
       }
     } catch (e) {
       debugPrint('FFI: Failed to start HTTP server: $e');
@@ -1630,18 +1628,33 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
         ),
       );
 
-      // Diagnostic: the embedded server could not bind its usual port and
-      // slid to the next free one. Peers keep contacting the usual port,
-      // where whatever occupies it answers in our place, so direct
-      // reachability is silently broken. Session-only dismissal: the
-      // warning must resurface on the next launch if the conflict persists.
+      // Diagnostic: a foreign application holds the usual port, so the embedded
+      // server slid to the next free one. Peers keep contacting the usual port,
+      // where that application answers in our place, so direct reachability is
+      // silently broken. Session-only dismissal: the warning must resurface on
+      // the next launch if the conflict persists.
+      //
+      // Deliberately narrow. The app used to accuse "another application" of
+      // holding a port it was squatting itself: on Android the activity is
+      // destroyed without the process dying, so reopening the app replayed
+      // start_server against its own live listener and slid to 8001. That is
+      // fixed in the backend (the listener is reused); the two conditions below
+      // keep the message honest anyway. A conflict is only shown when the
+      // occupant answered as something other than a BiblioGenius backend, and
+      // when a network feature is on: with discovery and remote reachability
+      // both off, no other library was going to reach this one regardless, and
+      // the warning would be pure noise. The diagnosis is logged either way.
       flashProvider.register(
         FlashMessageDefinition(
           key: 'flash_port_conflict',
           textKey: 'flash_port_conflict',
           icon: Icons.lan_outlined,
           persistDismissal: false,
-          condition: (_) => ApiService.httpPort != ApiService.defaultHttpPort,
+          condition: (ctx) {
+            if (!ApiService.shouldWarnAboutPortConflict) return false;
+            final tp = Provider.of<ThemeProvider>(ctx, listen: false);
+            return tp.networkDiscoveryEnabled || tp.remoteReachableEnabled;
+          },
           excludedRoutes: ['/onboarding'],
         ),
       );

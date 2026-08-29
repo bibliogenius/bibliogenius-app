@@ -114,6 +114,67 @@ class ApiService {
   /// The actual HTTP server port (may differ from [defaultHttpPort] if occupied)
   static int httpPort = defaultHttpPort;
 
+  /// Whether [defaultHttpPort] is held by a service that is not a BiblioGenius
+  /// backend. Set by [refreshPortConflictDiagnosis]; stays `false` until proven
+  /// otherwise so a diagnosis that never ran cannot accuse anyone.
+  static bool defaultPortHeldByForeignApp = false;
+
+  /// Whether a port conflict is worth telling the user about: the server had to
+  /// move AND a foreign application is the reason.
+  ///
+  /// The backend reuses its own live listener rather than sliding to the next
+  /// port, so the app no longer conflicts with itself; this check is what keeps
+  /// the warning's wording ("another application") true if it ever shows.
+  static bool get shouldWarnAboutPortConflict =>
+      httpPort != defaultHttpPort && defaultPortHeldByForeignApp;
+
+  /// Ask whoever holds [port] to identify itself over `/api/health`.
+  ///
+  /// A BiblioGenius backend answers `{"service": "bibliogenius"}`, the same
+  /// marker the MCP helper uses to find a running app. Anything else, or no
+  /// answer at all, means a foreign occupant.
+  @visibleForTesting
+  static Future<bool> probePortHeldByForeignApp(int port) async {
+    try {
+      final probe = Dio(
+        BaseOptions(
+          baseUrl: 'http://127.0.0.1:$port',
+          connectTimeout: const Duration(seconds: 1),
+          receiveTimeout: const Duration(seconds: 1),
+        ),
+      );
+      final response = await probe.get('/api/health');
+      final body = response.data;
+      if (body is Map && body['service'] == 'bibliogenius') return false;
+      return true;
+    } catch (_) {
+      // Refused the connection, timed out, or answered something unreadable:
+      // whatever holds the port, it is not one of our backends.
+      return true;
+    }
+  }
+
+  /// Refresh [defaultPortHeldByForeignApp] once the server has settled on a
+  /// port. Returns immediately, with no probe, when the preferred port was
+  /// obtained, which is the normal case.
+  static Future<void> refreshPortConflictDiagnosis() async {
+    if (httpPort == defaultHttpPort) {
+      defaultPortHeldByForeignApp = false;
+      return;
+    }
+    defaultPortHeldByForeignApp = await probePortHeldByForeignApp(
+      defaultHttpPort,
+    );
+    debugPrint(
+      defaultPortHeldByForeignApp
+          ? '⚠️ Port $defaultHttpPort is held by a foreign application, server '
+                'bound to $httpPort: peers holding our :$defaultHttpPort URL '
+                'cannot reach us directly'
+          : 'ℹ️ Port $defaultHttpPort is held by another BiblioGenius backend, '
+                'server bound to $httpPort',
+    );
+  }
+
   /// Track if server is known to be running
   static bool _serverKnownHealthy = false;
 
@@ -158,15 +219,23 @@ class ApiService {
       _serverKnownHealthy = false;
     }
 
-    // Server not responding, try to restart
+    // Server not responding, try to restart. The backend hands back the live
+    // port when a listener is still serving, so a health check that merely
+    // flaked (a slow resume from background) cannot make the port drift.
     debugPrint('🔄 Attempting to restart embedded HTTP server...');
     try {
       final newPort = await FfiService().startServer(httpPort);
       if (newPort != null) {
+        final movedPort = newPort != httpPort;
         httpPort = newPort;
         _serverKnownHealthy = true;
         _lastHealthCheck = DateTime.now();
         debugPrint('✅ Server restarted successfully on port $newPort');
+        if (movedPort) {
+          // The occupant of the preferred port decides whether the user sees a
+          // warning, so the diagnosis has to follow the move.
+          await refreshPortConflictDiagnosis();
+        }
         return true;
       }
     } catch (e) {
