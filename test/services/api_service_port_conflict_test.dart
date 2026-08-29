@@ -105,4 +105,27 @@ void main() {
       expect(ApiService.shouldWarnAboutPortConflict, isTrue);
     });
   });
+
+  group('serverAnswersOn', () {
+    test('true when the embedded server answers /api/health', () async {
+      final server = await serveHealth({
+        'status': 'ok',
+        'service': 'bibliogenius',
+      });
+      addTearDown(() => server.close(force: true));
+
+      expect(await ApiService.serverAnswersOn(server.port), isTrue);
+    });
+
+    test('false on a port nothing listens on', () async {
+      // The state an iOS resume leaves behind: the backend still names a port
+      // it believes it serves, and nothing accepts a connection there. Health
+      // has to be read from the server, never inferred from a returned port.
+      final probe = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+      final freePort = probe.port;
+      await probe.close(force: true);
+
+      expect(await ApiService.serverAnswersOn(freePort), isFalse);
+    });
+  });
 }

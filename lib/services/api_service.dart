@@ -200,24 +200,12 @@ class ApiService {
     }
 
     // Try health check
-    try {
-      final healthDio = Dio(
-        BaseOptions(
-          baseUrl: 'http://127.0.0.1:$httpPort',
-          connectTimeout: const Duration(seconds: 2),
-          receiveTimeout: const Duration(seconds: 2),
-        ),
-      );
-      final response = await healthDio.get('/api/health');
-      if (response.statusCode == 200) {
-        _serverKnownHealthy = true;
-        _lastHealthCheck = DateTime.now();
-        return true;
-      }
-    } catch (e) {
-      debugPrint('⚠️ Server health check failed: $e');
-      _serverKnownHealthy = false;
+    if (await serverAnswersOn(httpPort)) {
+      _serverKnownHealthy = true;
+      _lastHealthCheck = DateTime.now();
+      return true;
     }
+    _serverKnownHealthy = false;
 
     // Server not responding, try to restart. The backend hands back the live
     // port when a listener is still serving, so a health check that merely
@@ -228,21 +216,50 @@ class ApiService {
       if (newPort != null) {
         final movedPort = newPort != httpPort;
         httpPort = newPort;
-        _serverKnownHealthy = true;
-        _lastHealthCheck = DateTime.now();
-        debugPrint('✅ Server restarted successfully on port $newPort');
         if (movedPort) {
           // The occupant of the preferred port decides whether the user sees a
           // warning, so the diagnosis has to follow the move.
           await refreshPortConflictDiagnosis();
         }
-        return true;
+        // A returned port is not a served port: the backend can believe a
+        // listener of its own is still up when the system has closed the
+        // socket underneath it. Taking its word marked the server healthy for
+        // the next 30 seconds and every caller spent them on requests nothing
+        // answered, so the server itself has the last word here.
+        final healthy = await serverAnswersOn(httpPort);
+        _serverKnownHealthy = healthy;
+        _lastHealthCheck = healthy ? DateTime.now() : null;
+        debugPrint(
+          healthy
+              ? '✅ Server restarted successfully on port $newPort'
+              : '❌ Server reported port $newPort but does not answer on it',
+        );
+        return healthy;
       }
     } catch (e) {
       debugPrint('❌ Failed to restart server: $e');
     }
 
     return false;
+  }
+
+  /// Whether the embedded server answers `/api/health` on [port].
+  @visibleForTesting
+  static Future<bool> serverAnswersOn(int port) async {
+    try {
+      final healthDio = Dio(
+        BaseOptions(
+          baseUrl: 'http://127.0.0.1:$port',
+          connectTimeout: const Duration(seconds: 2),
+          receiveTimeout: const Duration(seconds: 2),
+        ),
+      );
+      final response = await healthDio.get('/api/health');
+      return response.statusCode == 200;
+    } catch (e) {
+      debugPrint('⚠️ Server health check failed: $e');
+      return false;
+    }
   }
 
   /// Mark server as unhealthy (called when connection errors occur)
