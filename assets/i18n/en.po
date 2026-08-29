@@ -11541,3 +11541,6 @@ msgstr "Review duplicates"
 
 msgid "account_join_existing_library_warning"
 msgstr "This device already holds {count} books. They will be brought together with the account's: nothing is lost, but a book recorded on both sides will appear twice. A tool is provided to merge them afterwards."
+
+msgid "duplicates_settings_subtitle"
+msgstr "Merge the entries that describe the same book"

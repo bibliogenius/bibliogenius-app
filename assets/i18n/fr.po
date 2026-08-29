@@ -11541,3 +11541,6 @@ msgstr "Voir les doublons"
 
 msgid "account_join_existing_library_warning"
 msgstr "Cet appareil contient déjà {count} livres. Ils seront réunis avec ceux du compte : rien ne se perd, mais un livre saisi des deux côtés apparaîtra deux fois. Un outil est prévu pour les réunir ensuite."
+
+msgid "duplicates_settings_subtitle"
+msgstr "Réunir les fiches qui décrivent le même livre"

@@ -838,6 +838,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   'account_sync_settings_subtitle',
                   'account_share_access_title',
                   'two_factor_auth',
+                  'duplicates_title',
+                  'duplicates_settings_subtitle',
                 ]))
                   Card(
                     margin: const EdgeInsets.only(bottom: 12),
@@ -946,6 +948,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                         ..._offlineDividerWidgets(context),
                         ..._backupChildren(context),
+                        _duplicateBooksTile(context),
                       ],
                     ),
                   ),
@@ -2048,6 +2051,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
       trailing: const Icon(Icons.chevron_right),
       onTap: onTap ?? () => context.push('/account-sync'),
+    );
+  }
+
+  /// Tile pointing to the duplicate-book merge (ADR-070).
+  ///
+  /// Below the no-account divider, deliberately. Duplicates are what a reader
+  /// notices after two devices join one account, and the banner on the account
+  /// screen is the entry point for that case; but the merge itself needs no
+  /// account, and a library that got its duplicates from a restore rather than
+  /// a sync would otherwise have no way in at all. Last in the section, after
+  /// the backup it asks the reader to take first.
+  Widget _duplicateBooksTile(BuildContext context) {
+    return ListTile(
+      leading: const Icon(Icons.copy_all_outlined),
+      title: Text(TranslationService.translate(context, 'duplicates_title')),
+      subtitle: Text(
+        TranslationService.translate(context, 'duplicates_settings_subtitle'),
+      ),
+      trailing: const Icon(Icons.chevron_right),
+      onTap: () => context.push('/duplicate-books'),
     );
   }
 

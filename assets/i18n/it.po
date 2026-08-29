@@ -11521,3 +11521,6 @@ msgstr "Vedere i duplicati"
 
 msgid "account_join_existing_library_warning"
 msgstr "Questo dispositivo contiene già {count} libri. Saranno riuniti a quelli dell'account: non si perde nulla, ma un libro registrato da entrambe le parti apparirà due volte. Uno strumento permette di unirli in seguito."
+
+msgid "duplicates_settings_subtitle"
+msgstr "Unire le schede che descrivono lo stesso libro"

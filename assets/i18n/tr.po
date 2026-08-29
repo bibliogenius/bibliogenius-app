@@ -11528,3 +11528,6 @@ msgstr "Yinelenenleri gör"
 
 msgid "account_join_existing_library_warning"
 msgstr "Bu cihazda zaten {count} kitap var. Hesaptakilerle birleştirilecekler: hiçbir şey kaybolmaz, ama iki tarafta da kaydedilmiş bir kitap iki kez görünür. Sonrasında bunları birleştirmek için bir araç var."
+
+msgid "duplicates_settings_subtitle"
+msgstr "Aynı kitabı anlatan kayıtları birleştir"
