@@ -96,8 +96,13 @@ class _AccountSyncScreenState extends State<AccountSyncScreen> {
   /// `ValueKey(route.hashCode.toString())`), not from the navigation that
   /// produced it, so pushing one route twice puts two pages carrying the SAME
   /// key into the Navigator and the framework asserts
-  /// (`!keyReservation.contains(key)`). A double tap on any button below is
-  /// enough to do it, and every one of them goes through here.
+  /// (`!keyReservation.contains(key)`). A double tap on any button below would
+  /// be enough, and every one of them goes through here.
+  ///
+  /// This is NOT what caused the crash on the duplicates screen: that one came
+  /// from the route living under the ShellRoute while this screen is top-level
+  /// (see the route comment in `main.dart`). The guard is kept because the
+  /// double-tap collision is real on its own.
   bool _navigating = false;
 
   Future<void> _openAndReload(String location) async {

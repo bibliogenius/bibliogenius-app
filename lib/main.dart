@@ -1026,6 +1026,21 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
           path: '/scan-qr',
           builder: (context, state) => const ScanQrScreen(),
         ),
+        // Duplicate merge (ADR-070): the repair for a library that joined an
+        // account from a device that already held its own copies.
+        //
+        // Top-level (root navigator), and it MUST stay here: it is opened from
+        // /account-sync, which is itself top-level. go_router derives a page's
+        // key from the route object (`match.dart`: ValueKey(route.hashCode)),
+        // so pushing a route nested under the ShellRoute from outside that
+        // shell re-enters it while a shell page is already on the stack, and
+        // the root Navigator then holds two pages with the same key
+        // (!keyReservation.contains(key)). The screen carries its own AppBar
+        // and wants no bottom nav, so it loses nothing by living out here.
+        GoRoute(
+          path: '/duplicate-books',
+          builder: (context, state) => const DuplicateBooksScreen(),
+        ),
         // Multi-device account sync. Top-level (root navigator)
         // so the pairing scan child renders the macOS camera texture correctly,
         // like /scan-qr above. Child screens are added as each slice ships.
@@ -1153,12 +1168,6 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
             GoRoute(
               path: '/library-completeness',
               builder: (context, state) => const MetadataFillScreen(),
-            ),
-            // Duplicate merge (ADR-070): the repair for a library that joined
-            // an account from a device that already held its own copies.
-            GoRoute(
-              path: '/duplicate-books',
-              builder: (context, state) => const DuplicateBooksScreen(),
             ),
             GoRoute(
               path: '/peer-view',
